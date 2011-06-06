@@ -364,6 +364,7 @@ class database {
         }
         
         public function fetch( $pStatement, $pRows = 1, $pMode = false ){
+            if( $pStatement === false ) return;
             if( !$this->usePdo ){
                 
                 if ( $pRows == 1 ){
