@@ -25,8 +25,6 @@ $_start = microtime(true);
 
 @set_include_path(get_include_path() . PATH_SEPARATOR . './inc/pear/');
 
-//bd 2uuugg;
-
 /**
  * Define globals
  * @globals 
@@ -117,7 +115,7 @@ if( $_SERVER['REDIRECT_PORT']+0 > 0 )
     $_SERVER['SERVER_PORT'] = $_SERVER['REDIRECT_PORT'];
 
 if( $_SERVER['SERVER_PORT'] != 80 ){
-	$cfg['port'] = $_SERVER['SERVER_PORT'];
+    $cfg['port'] = $_SERVER['SERVER_PORT'];
 }
     
 $_REQUEST['lang'] = ($_GET['lang']) ? $_GET['lang'] : $_POST['lang'];
