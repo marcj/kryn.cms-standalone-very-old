@@ -738,7 +738,7 @@ class users extends baseModule{
                 $eTemplate = $pConf['notifyemail_template'];
                 
                 tAssign('values', $values);
-                $body = tFetch("users/activateemail/$eTemplate.tpl");
+                $body = tFetch("users/notifyemail/$eTemplate.tpl");
                 tAssign('values', null);
                 
                 mail($sendTo, '=?UTF-8?B?'.base64_encode($eSubject).'?=', $body, 'From: '. $eFrom."\r\n".'Content-Type: text/html; charset=utf-8');
