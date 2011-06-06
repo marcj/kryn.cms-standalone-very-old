@@ -719,8 +719,10 @@ class users extends baseModule{
                 $eFrom = $isSelfActivation ? $pConf['email_from'] : $pConf['emailadmin_from'];
                 $eTemplate = $isSelfActivation ? $pConf['email_template'] : $pConf['emailadmin_template'];
                 $sendTo = $values['email'];
+                $actPage = $isSelfActivation ? $pConf['email_actpage'] : $pConf['emailadmin_actpage'];
                 
                 tAssign('values', $values);
+                tAssign('actpage', $actPage);
                 $body = tFetch("users/activateemail/$eTemplate.tpl");
                 tAssign('values', null);
                 
