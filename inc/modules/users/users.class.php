@@ -637,7 +637,162 @@ class users extends baseModule{
     
     }
     
+    public static function pluginRegistration( $pConf )
+    {
+        // Get template name from config
+        $template = $pConf['template'];
+        
+        // Build list of required and hidden fields from config
+        $required = array();
+        foreach($pConf['required'] as $req)
+            $required[$req] = true;
+        $required['email'] = true;
+        $required['password'] = true;
+        
+        $hidden = array();
+        foreach($pConf['hidden'] as $hide)
+        {
+            $hidden[$hide] = true;
+            if(isset($required[$hide]))
+                unset($required[$hide]);
+        }
+        
+        // Assign required and hidden fields to template
+        tAssign('required', $required);
+        tAssign('hidden', $hidden);
+        
+        // Handle JS call
+        if(getArgv('postdata') == 1)
+        {
+            // Check if required fields are entered
+            foreach($required as $req=>$val)
+            {
+                if(getArgv($req, 1) == "")
+                    json(array("error" => _l('All required fields need to be filled')));
+            }
+            
+            // Check if email address is correctly formatted
+            if(!preg_match('/^'.self::getRegExpEmail().'$/i', getArgv('email')))
+                json(array("error" => _l('Enter a valid email address')));
+            
+            if(self::emailAlreadyExists(getArgv('email')))
+                json(array("error" => _l('An account with this email address already exists')));
+            
+            // Is account activated from the start?
+            $active = 0;
+            if($pConf['activation'] == 'now')
+                $active = 1;
+            
+            // If activation is done by email, generate key
+            $actKey = "";
+            if($pConf['activation'] == 'email' || $pConf['activation'] == 'emailadmin')
+                $actKey = self::generateActKey();
+            
+            // Create array of values to be inserted into database
+            $values = array(
+                "email" => getArgv('email'),
+                "passwd" => md5(getArgv('password')),
+                "username" => getArgv('username', 1),
+                "first_name" => getArgv('firstname', 1),
+                "last_name" => getArgv('lastname', 1),
+                "street" => getArgv('street', 1),
+                "city" => getArgv('city', 1),
+                "zip" => getArgv('zipcode', 1),
+                "country" => getArgv('country', 1),
+                "phone" => getArgv('phone', 1),
+                "fax" => getArgv('fax', 1),
+                "company" => getArgv('company', 1),
+                
+                "activate" => $active,
+                "activationkey" => $actKey,
+                "created" => time()
+            );
+            
+            // Insert into database
+            dbInsert('system_user', $values);
+            
+            // For safety reasons, unset password field
+            unset($values['passwd']);
+            
+            // Send activation email when required [use email and act key]
+            if($actKey != "")
+            { // Activation key set, thus send email
+                $isSelfActivation = $pConf['activation'] == 'email';
+                $eSubject = $isSelfActivation ? $pConf['email_subject'] : $pConf['emailadmin_subject'];
+                $eFrom = $isSelfActivation ? $pConf['email_from'] : $pConf['emailadmin_from'];
+                $eTemplate = $isSelfActivation ? $pConf['email_template'] : $pConf['emailadmin_template'];
+                $sendTo = $values['email'];
+                $actPage = $isSelfActivation ? $pConf['email_actpage'] : $pConf['emailadmin_actpage'];
+                
+                tAssign('values', $values);
+                tAssign('actpage', $actPage);
+                $body = tFetch("users/activateemail/$eTemplate.tpl");
+                tAssign('values', null);
+                
+                mail($sendTo, '=?UTF-8?B?'.base64_encode($eSubject).'?=', $body, 'From: '. $eFrom."\r\n".'Content-Type: text/html; charset=utf-8');
+            }
+            
+            // Send notification email when required
+            if($pConf['notificationemail'] == 1)
+            {
+                $sendTo = $pConf['notifyemail_target'];
+                $eSubject = $pConf['notifyemail_subject'];
+                $eFrom = $pConf['notifyemail_from'];
+                $eTemplate = $pConf['notifyemail_template'];
+                
+                tAssign('values', $values);
+                $body = tFetch("users/notifyemail/$eTemplate.tpl");
+                tAssign('values', null);
+                
+                mail($sendTo, '=?UTF-8?B?'.base64_encode($eSubject).'?=', $body, 'From: '. $eFrom."\r\n".'Content-Type: text/html; charset=utf-8');
+            }
+            
+            // Registration completed
+            json(array("href" => kryn::pageUrl($pConf['targetpage'])));
+        }
+        
+        // Assign config to template 
+        tAssign('pConf', $pConf);
+        
+        // Load template
+        kryn::addJs("kryn/mootools-core.js");
+        kryn::addJs("users/js/registration/$template.js");
+        kryn::addCss("users/css/registration/$template.css");
+        return tFetch("users/registration/$template.tpl");
+    }
     
+    private static function getRegExpEmail()
+    {
+        // Regex written by James Watts and Francisco Jose Martin Moreno
+        // http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+        return '([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*(?:[\w\!\#$\%\'\*\+\-\/\=\?\^\`{\|\}\~]|&amp;)+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)';
+    }
+    
+    private static function emailAlreadyExists($email)
+    {
+        return dbExfetch("SELECT rsn FROM %pfx%system_user WHERE email='$email'", 1) != null;
+    }
+    
+    private static function generateActKey()
+    {
+        $charSets = array();
+        $charSets[] = array('count' => 4, 'chars' => "abcdefghijklmnopqrstuvwxyz");
+        $charSets[] = array('count' => 4, 'chars' => "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        $charSets[] = array('count' => 2, 'chars' => "0123456789");
+        // Don't use these for auth key, would mess up the url, could be used for temporary password
+        //$charSet[] = array('count' => 2, 'chars' => "!@#$+-*&?:"); 
+        
+        $temp = array();
+        foreach($charSets as $cs)
+        {
+            $strLen = strlen($cs['chars']) - 1;
+            for($i=0; $i<$cs['count']; $i++)
+                $temp[] = $cs['chars'][rand(0, $strLen)];
+        }
+        
+        shuffle($temp);
+        return implode("", $temp);
+    }
     
     
 }
