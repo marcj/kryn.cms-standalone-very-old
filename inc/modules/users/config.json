@@ -365,6 +365,20 @@
         }
       }
     ],
+    "pluginActivation": [
+      "Account activation",
+      {
+        "access403": {
+          "label": "Access 403",
+          "desc": "Go this page in case of non activation access",
+          "type": "page"
+        },
+        "thanks": {
+         "label": "Thanks page",
+         "type": "page"
+        }
+      }
+    ],
     "pluginMessageSystemInbox": [
       "Message System inbox",
       {
