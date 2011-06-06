@@ -711,6 +711,9 @@ class users extends baseModule{
             // Insert into database
             dbInsert('system_user', $values);
             
+            // For safety reasons, unset password field
+            unset($values['passwd']);
+            
             // Send activation email when required [use email and act key]
             if($actKey != "")
             { // Activation key set, thus send email
