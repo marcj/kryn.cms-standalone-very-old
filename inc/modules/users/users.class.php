@@ -794,6 +794,46 @@ class users extends baseModule{
         return implode("", $temp);
     }
     
-    
+    public static function pluginActivation( $pConf )
+    {
+        $access403 = $pConf['access403'];
+        $thanks = $pConf['thanks'];
+        
+        // Get variables
+        $email = getArgv('e', 1);
+        $actKey = getArgv('k', 1);
+        
+        // If no email or key is given, go to the 403 page
+        if($email == null || $actKey == null)
+            header("Location: ".kryn::pageUrl($access403));
+        
+        // Check activation key
+        $sql = "
+            SELECT rsn
+            FROM   %pfx%system_user
+            WHERE  email = '$email' AND activationkey = '$actKey'
+        ";
+        
+        $result = dbExfetch($sql, 1);
+        
+        if($result === false)
+        { // Email/key combo not found!
+            // TODO: Show form to manualy enter email and key
+        }
+        else 
+        { // Email/key combo found, remove user activation key
+            $rsn = $result['rsn'];
+            $sql = "
+                UPDATE %pfx%system_user
+                SET activationkey = NULL
+                WHERE rsn=$rsn
+            ";
+            
+            //return kryn::pageUrl($thanks);
+            // TODO: When should the account be marked as active? It is saved nowhere...
+            header("Location: ".kryn::pageUrl($thanks));
+            // FIXME: This seems to go wrong... should look into it
+        }
+    }
 }
 ?>
