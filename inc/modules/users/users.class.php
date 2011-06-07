@@ -805,7 +805,7 @@ class users extends baseModule{
         
         // If no email or key is given, go to the 403 page
         if($email == null || $actKey == null)
-            header("Location: ".kryn::pageUrl($access403));
+            kryn::redirectToPage($access403);
         
         // Check activation key
         $sql = "
@@ -829,10 +829,8 @@ class users extends baseModule{
                 WHERE rsn=$rsn
             ";
             
-            //return kryn::pageUrl($thanks);
             // TODO: When should the account be marked as active? It is saved nowhere...
-            header("Location: ".kryn::pageUrl($thanks));
-            // FIXME: This seems to go wrong... should look into it
+            kryn::redirectToPage($thanks);
         }
     }
 }
