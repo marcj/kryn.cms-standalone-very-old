@@ -1849,6 +1849,7 @@ class kryn extends baseModule {
                 }
             }
         } while( !$found );
+        
         $diff = substr( $url, strlen( $possibleUrl ), strlen( $url ));
 
         if( substr($diff, 0,1) != '/' )
@@ -1904,93 +1905,6 @@ class kryn extends baseModule {
         }
         
         return $pageRsn;
-        
-        /*
-        $page = self::checkPageAccess( $page );
-        if( !$page || !$page['rsn'] > 0 ){ //not found
-           // kryn::notFound();
-        }
-        
-
-//      $this->current_domain = dbExfetch( "SELECT * FROM %pfx%system_domains WHERE rsn = $domain" );
-        $this->current_domain = kryn::$domain;
-        tAssign( 'realUrls', $kcache['realUrl'] );
-        $page['realUrl'] = $kcache['realUrl']['rsn'][ 'rsn='.$page['rsn'] ];
-
-        if( kryn::$domain['startpage_rsn'] == $page['rsn'] && $searchStartpage ){
-            $page['realUrl'] = '';
-        }
-    
-        if( kryn::$domain['startpage_rsn'] == $page['rsn'] && !$searchStartpage ){
-            kryn::redirect( kryn::$baseUrl );
-        }
-        
-        
-        if( $page['type'] == 1 ){//is link
-            $to = $page['link'];
-            if( $page['link']+0 > 0 ){
-                $to = ((kryn::$domain['path'] != '')? kryn::$domain['path'] :$cfg['path']) . $this->pageUrl( $page['link'] );
-            }
-            header( "HTTP/1.1 301 Moved Permanently" ); 
-            header("Location: $to");
-            exit;
-        }
-        
-        if( $page['type'] == 0 ){//is page
-            if( $page['access_forcessl'] == 1 && kryn::$ssl == false ){
-                header('Location: '.str_replace('http://', 'https://',kryn::$baseUrl).$page['realUrl']);
-                exit;
-            }
-    
-            $publicProperties = kryn::$domain['publicproperties'];
-            foreach( $this->installedMods as $extKey => &$mod ){
-                if( $mod['themes'] ){
-                    foreach( $mod['themes'] as $tKey => &$theme ) {
-                        if( $theme['layouts'] ) {
-                            foreach( $theme['layouts'] as $lKey => &$layout ){
-                                if( $layout == $page['layout'] ){
-                                    kryn::$currentTheme = $theme['properties'];
-                                    kryn::$publicProperties = $publicProperties[$extKey][$tKey];
-                                    kryn::$themeProperties = $theme['properties'];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            tAssign( 'currentTheme', kryn::$currentTheme );
-            tAssign( 'themeProperties', kryn::$themeProperties );
-            tAssign( 'publicProperties', kryn::$publicProperties );
-        }
-
-        //prepage for ajax
-        if( getArgv('kGetPage', 1) != '' ){
-            if( getArgv('kGetPage')+0 > 0 )
-                $page = dbTableFetch( "system_pages", 1, "rsn = ".(getArgv('kGetPage',1)+0));
-            else {
-                $url = getArgv('kGetPage', 1);
-                if( substr($url, -1 ) == '/' )
-                    $url = substr($url, 0, -1);
-                $rsn = $kcache['realUrl']['url'][ 'url='.$url ];
-                $page = dbTableFetch( "system_pages", 1, "rsn = ".($rsn));
-                
-                $page = self::checkPageAccess( $page );
-                
-            }
-            $domainRsn = $page['domain_rsn'];
-            $domain = dbTableFetch('system_domains', 1, "rsn = $domainRsn");
-            //todo check ACL
-        }
-        
-        $page['extensionProperties'] = json_decode($page['properties'],true);
-        $page['properties'] = &$page['extensionProperties'];
-        
-        kryn::$page = $page;
-        kryn::$page = $page;
-        
-        kryn::$pageUrl = kryn::$baseUrl.$possibleUrl;
-        
-        tAssign( 'page', $page );*/
     }
 
     
@@ -2224,7 +2138,6 @@ class kryn extends baseModule {
         kryn::$pageUrl = '/'.kryn::getRequestPageUrl(true); //kryn::$baseUrl.$possibleUrl;
         
         kryn::$page = kryn::getPage();
-        
         //$this->searchPage();
         
         kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
@@ -2267,9 +2180,6 @@ class kryn extends baseModule {
         kryn::replacePageIds( $content );
         $content = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', $content);
         kryn::$pageHtml = $content;
-        
-        
-        
         
         foreach( $modules as $key => &$mod ){
             $modules[ $key ] = NULL;
@@ -2805,15 +2715,17 @@ class kryn extends baseModule {
             $pPageRsn = kryn::$page['rsn'];
         
         } else if( $pPageRsn != kryn::$page['rsn'] ){
-            
-        	
-            kryn::addCss('css/_pages/'.$pPageRsn.'.css');
-            kryn::addJs('js/_pages/'.$pPageRsn.'.js');
         	
             $oldPage = kryn::$page;
             kryn::$page = kryn::getPage( $pPageRsn, true );
             $newStage = true;
         }
+        
+        if( file_exists('inc/template/css/_pages/'.$pPageRsn.'.css'))
+            kryn::addCss('css/_pages/'.$pPageRsn.'.css');
+            
+        if( file_exists('inc/template/js/_pages/'.$pPageRsn.'.js'))
+            kryn::addJs('js/_pages/'.$pPageRsn.'.js');
         
         kryn::$contents = kryn::getPageContents( $pPageRsn );
         
