@@ -364,82 +364,9 @@ ka.layoutContent = new Class({
         this.layoutBox.pageInst.elementAccessFields.access_from_groups.setValue( temp );
         
         
-            
         
-        
-        /*
-        
-        this.eTypeSelect = new ka.field({
-            label: _('Type'),
-            type: 'select',
-            help: 'admin/element-type',
-            small: 1,
-            tableItems: [
-                {i: 'text', label: _('Text')},
-                {i: 'picture', label: _('Picture')},
-                {i: 'plugin', label: _('Plugin')},
-                {i: 'pointer', label: _('Pointer')},
-                {i: 'navigation', label: _('Navigation')},
-                {i: 'template', label: _('Template')},
-                {i: 'html', label: _('HTML')},
-                {i: 'php', label: _('PHP')}
-            ],
-            table_key: 'i',
-            table_label: 'label'
-        }).inject( p ); */
         this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.addEvent('change', this.changeType.bind(this));
 
-
-
-        //template select
-        //this.optionsTemplate.empty();
-
-       // var templateP = new Element('div', {
-       //     'class': 'ka-field-main ka-field-main-small'
-       // }).inject( p );
-
-        //new Element('div', {
-       //     'class': 'ka-field-title',
-      //      html: '<div class="title">'+_('Template')+'</div>'
-       // }).inject( templateP );
-
-      //  var newP = new Element('div', {
-      ////      'class': 'ka-field-field'
-      //  }).inject( templateP );
-
-
-      //  this.eTemplate = new Element('select', {
-        //}).inject( w2 );
-     //   }).inject( newP );
-
-    //    if( this.content.type != "text" )
-    //        this.eTitle.input.focus();
-
-      //  var limitLayouts = [];
-
-
-      //  this.eTemplateNoLayout = new Element('option', {
-      //      html: _('-- no layout --'),
-     //       value: ''
-      //  }).inject(this.eTemplate);
-
-     /*   $H(ka.settings.contents).each(function(la, key){
-            var group = new Element('optgroup', {
-                label: key
-            });
-            var count = 0;
-            $H(la).each(function(layoutFile,layoutTitle){
-                if( limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains( layoutFile ) ) return;
-                new Element('option', {
-                    html: layoutTitle,
-                    value: layoutFile
-                }).inject( group );
-                count++;
-            })
-            if( count != 0 )
-                group.inject( this.eTemplate );
-        }.bind(this));
-*/
         if( this.content.template == '' || !this.content.template ){
             var opt = this.layoutBox.pageInst.elementPropertyFields.eTemplate.getElements('option')[1];
             if( opt ) {
@@ -467,12 +394,11 @@ ka.layoutContent = new Class({
         if( this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue() == "") return;
         if( !this.content ) this.content = {};
         
-        
+        if( !pForce && !this.selected ) return;
+
         if( this.content.type == 'layoutelement' ){
         	this.saveLayoutElement();
         }
-
-        if( !pForce && !this.selected ) return;
 
         this.content.title = this.layoutBox.pageInst.elementPropertyFields.eTitle.getValue();
         this.content.type = this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue();
@@ -611,21 +537,15 @@ ka.layoutContent = new Class({
 
         this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.removeEvents();
         
+		this._loadLayoutElement( true );
+		
         this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect
         .addEvent('change', this._loadLayoutElement.bind(this));
         
-		this._loadLayoutElement();
     },
     
-    _loadLayoutElement: function(){
+    _loadLayoutElement: function( pInit ){
     	
-    	if( this.oldType == this.content.type && this.layoutElement ){
-    		//change layout possible
-    		var newLayout = this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.getValue();
-    		this.layoutElement.loadTemplate( newLayout );
-    		return;
-    	}
-
     	var content = false;
     	if( this.content.content ){
     		try {
@@ -633,6 +553,17 @@ ka.layoutContent = new Class({
     		} catch( e ){
     			content = false;
     		}
+    	}
+    	
+    	if( pInit == true ){
+    		this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.setValue( content.layout );
+    	}
+    	
+    	if( this.oldType == this.content.type && this.layoutElement ){
+    		//change layout possible
+    		var newLayout = this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.getValue();
+    		this.layoutElement.loadTemplate( newLayout );
+    		return;
     	}
     	
     	var contents = false;
