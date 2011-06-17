@@ -112,9 +112,11 @@ class tpl {
             $myCssFiles[] = $css;
         }
 
+        /* Already in kryn.class.php:2725
         if( file_exists('inc/template/css/_pages/'.$page['rsn'].'.css') )
             $myCssFiles[] = 'css/_pages/'.$page['rsn'].'.css';
-
+        */
+        
         # clearstatcache();
 
         if( $domain['resourcecompression'] != '1' ){
@@ -171,9 +173,11 @@ class tpl {
             $myJsFiles[] = $js;
         }
 
+        /* Already in kryn.class.php:2728
         if( file_exists( 'inc/template/js/_pages/'.$page['rsn'].'.js' ) )
             $myJsFiles[] = 'js/_pages/'.$page['rsn'].'.js';
-
+        */
+        
         if( $domain['resourcecompression'] != '1' ){
             foreach( $myJsFiles as $js ){
                 if( strpos( $js, "http://" ) !== FALSE ){

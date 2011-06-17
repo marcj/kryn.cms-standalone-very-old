@@ -1096,16 +1096,17 @@ class pages {
             
             $kcache['realUrl'] = kryn::getcache( 'urls_'.$oldPage['domain_rsn'] );
             $oldRealUrl = $kcache['realUrl']['rsn'][ 'rsn='.$rsn ];
+            
             $existRow = dbExfetch("SELECT rsn FROM %pfx%system_urlalias WHERE to_page_rsn=".$page." AND url = '".$oldRealUrl."'", 1);
-         
+         	
             if( $existRow['rsn']+0 == 0 )
                 dbInsert('system_urlalias', array( 'domain_rsn' => $oldPage['domain_rsn'], 'url' => $oldRealUrl, 'to_page_rsn' => $rsn));
+        	
         }
     
         dbUpdate('system_pages', array('rsn' => $rsn), $updateArray);
         
         //if page marked as unsearchable the delete it from index
-        
 
         if( $canSaveContents && !(getArgv('dontSaveContents') == 1) && (getArgv('type') == 0 || getArgv('type') == 3) ){
             $contents = json_decode( $_POST['contents'], true);
@@ -1182,6 +1183,15 @@ class pages {
         if( kryn::checkPageAcl($rsn, 'resources') ){
 	        if( getArgv('getType') == 0  || getArgv('getType') == 3 ){ //page or deposit
 	        	
+	        	if( !file_exists('inc/template/css/_pages/') ){
+	        		klog('autofix', 'inc/template/css/_pages/ doesnt exists, create it.');
+	        	    @mkdir('inc/template/css/_pages');
+	        	}
+	        	
+	            if( !file_exists('inc/template/js/_pages/') ){
+                    klog('autofix', 'inc/template/js/_pages/ doesnt exists, create it.');
+                    @mkdir('inc/template/js/_pages');
+                }
 	        	
        			if( kryn::checkPageAcl($rsn, 'css') ){
 		            if( getArgv('resourcesCss') != '' )
