@@ -187,9 +187,9 @@ class users extends baseModule{
 
         dbDelete('system_groups');
         dbInsert('system_groups', array('close' => 1, 'name' =>'Administratoren',
-            'description' => 'Die Administratoren'));
-        dbInsert('system_groups', array('close' => 1, 'name' =>'Benutzer',
-            'description' => 'Registrierte Benutzer'));
+            'description' => 'The administrators'));
+        dbInsert('system_groups', array('close' => 1, 'name' =>'Users',
+            'description' => 'The users'));
 
         dbDelete('system_acl');
         dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>1,'code'=>'admin/%','access'=>1,'prio'=>11000));

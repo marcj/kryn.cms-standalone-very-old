@@ -12,7 +12,7 @@ var admin_system_desktopSettings = new Class({
     createLayout: function(){
 
         this.actionBar = this.win.addBottomBar();
-        this.actionBar.addButton('Schließen', this.save.bind(this));
+        this.actionBar.addButton(_('Apply'), this.save.bind(this));
 
         this.defaultImages = new Element('div', {
             'class': 'admin-system-desktopSettings-defaultImages',
@@ -24,7 +24,7 @@ var admin_system_desktopSettings = new Class({
         }).inject( this.win.content );
 
         this.fieldBg = new ka.field(
-            {label: 'Hintergrundbild', type: 'fileChooser'}
+            {label: 'Background image', type: 'fileChooser'}
         )
         .addEvent('change', function(pValue){
             this.choose(pValue);
