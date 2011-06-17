@@ -24,7 +24,7 @@ var admin_system_desktopSettings = new Class({
         }).inject( this.win.content );
 
         this.fieldBg = new ka.field(
-            {label: 'Background image', type: 'fileChooser'}
+            {label: _('Background image'), type: 'fileChooser'}
         )
         .addEvent('change', function(pValue){
             this.choose(pValue);
