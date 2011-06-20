@@ -141,8 +141,7 @@ class user {
      * @internal
      */
     private function clearCache(){
-        $cacheCode = "user_".$this->user_rsn;
-        kryn::removePhpCache($cacheCode);
+        self::getUser($this->user_rsn, true);
     }
 
     /**
