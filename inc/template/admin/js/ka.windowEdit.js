@@ -75,6 +75,7 @@ ka.windowEdit = new Class({
         this.item = pItem;
         this.fields.each(function(field, fieldId){
             try {
+            	
                 if( $type(pItem.values[fieldId]) == false )
                     field.setValue( '' );
                 else if( !this._fields[fieldId].startempty )
@@ -85,6 +86,11 @@ ka.windowEdit = new Class({
                     initResizeTiny( field.lastId, contentCss );
                     ka._wysiwygId2Win.include( field.lastId, this.win );
                 }
+                
+                if( field.field.depends ){
+                	field.fireEvent('change', field.getValue());
+                }
+                
             } catch(e) {
                 logger( "Error with "+fieldId+": "+e);
             }
@@ -355,17 +361,7 @@ ka.windowEdit = new Class({
         
         req.include( 'module', this.win.module );
         req.include( 'code', this.win.code );
-
-        //var id = this.win.id+'_'+Math.ceil(Math.random()*100);
         
-        /*
-        var form = new Element('form', {
-            target: 'iframe_'+id,
-            method: 'post',
-            action: _path+'admin/backend/window/loadClass/saveItem?noCache='+(new Date().getTime()),
-            enctype: 'multipart/form-data'
-        }).inject( document.hidden );
-        */
         this.fields.each(function(item, fieldId){
             if( !item.isHidden() && !item.isOk() ){
             	
@@ -392,11 +388,6 @@ ka.windowEdit = new Class({
                 
                 go = false;
             }
-            /*if( item.field.type == 'file' ){
-                item.input.inject( form );
-                item.renderFile();
-            } else {
-            */
             var value = item.getValue();
             
             if( item.field.relation == 'n-n' )
@@ -405,26 +396,8 @@ ka.windowEdit = new Class({
                 req.set( fieldId, JSON.encode(value) );
             else
                 req.set( fieldId, value );
-            //}
-            //if( item.field.type == 'wysiwyg' && pClose ){
-            //    tinyMCE.execCommand('mceRemoveControl', false, item.lastId);
-            //}
         }.bind(this));
         
-        /*
-        var iframe = new Element('iframe', {
-            name: 'iframe_'+id,
-            src: _path+'admin/backend/nothing'
-        }).inject( document.hidden );
-        
-        req.each(function(value,id){
-            new Element('input', {
-                type: 'text',
-                value: value,
-                name: id
-            }).inject( form );
-        });
-        */
         if( this.values.multiLanguage ){
         	req.set('lang', this.languageSelect.value);
         }
@@ -434,13 +407,6 @@ ka.windowEdit = new Class({
         }
         
         if( go ){
-            /*iframe.addEvent('load', function(){
-                ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
-                if( pClose )
-                    _this.win.close(); 
-            });
-            form.submit();
-            */
             this.loader.show();
             if( _this.win.module == 'users' && (_this.win.code == 'users/edit/'
                 || _this.win.code == 'users/edit'
@@ -457,6 +423,8 @@ ka.windowEdit = new Class({
                 if( !pClose ){
                     _this.saveNoClose.stopTip(_('Done'));
                 }
+                
+            	if( _this.values.loadSettingsAfterSave == true ) ka.loadSettings();
                 
                 // Before close, perform saveSuccess
                 _this._saveSuccess();
