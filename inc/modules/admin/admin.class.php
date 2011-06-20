@@ -543,8 +543,7 @@ class admin {
         $settings = serialize( $settings );
         dbUpdate( 'system_user', array('rsn' => $user->user_rsn), array('settings' => $settings) );
 
-        $cacheCode = "user_".$user->user_rsn;
-        kryn::removePhpCache( $cacheCode );
+        user::getUser( $user->user_rsn, true ); //reload from cache
         json(1);
     }
 
@@ -618,7 +617,7 @@ class admin {
             $code .= '/';
         
         $res['ingroups'] = $inGroups;
-        $res['r2d'] = kryn::getPhpCache("r2d");
+        $res['r2d'] =& cache::get("r2d");
         
         if( !$res['r2d'] ){
                $res['r2d'] = array();
@@ -641,7 +640,7 @@ class admin {
                 pages::updatePage2DomainCache();
             }
             
-            $res["menus_$domainRsn"] = kryn::getPhpCache("menus_$domainRsn");
+            $res["menus_$domainRsn"] =& cache::get("menus_$domainRsn");
             
             if( !$res["menus_$domainRsn"] || $domainRsn == 2 ){
                 $res["menus_$domainRsn"] = pages::updateMenuCache( $domainRsn );

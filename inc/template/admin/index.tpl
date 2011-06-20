@@ -52,7 +52,7 @@
             </div>	
 			
             <div class="userInfo">
-                [[Welcome]] <span style="font-weight: bold; text-decoration: none; cursor: pointer;" id="user.username"></span>
+                [[Welcome]] <span style="font-weight: bold; text-decoration: underline; cursor: pointer;" title="[[Edit my user settings]]" id="user.username"></span>
                   <span style="font-size: 10px;">(<a style="text-decoration: none; color: #eee;" href="javascript: ka.ai.logout();">logout</a>)</span>
             </div>
 			
