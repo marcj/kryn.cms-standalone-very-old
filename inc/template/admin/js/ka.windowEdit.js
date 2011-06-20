@@ -11,25 +11,33 @@ ka.windowEdit = new Class({
             _this.render( res );
         }}).post({ module: this.win.module, 'code': this.win.code });
     },
+    
+    generateItemParams: function( pVersion ){
+    	var req = $H({});
+	   
+	    req.include( 'module', this.win.module );
+	    req.include( 'code', this.win.code );
+	    
+	    if( pVersion )
+	    	req.version = pVersion;
+	
+	    if( this.win.params ){
+	        this.values.primary.each(function(prim){
+	            req.include( 'primary:'+prim, this.win.params.values[prim] );
+	        }.bind(this));
+	    }
+	    return req;
+	},
 
     loadItem: function( pVersion ){
         var _this = this;
-        var req = $H({});
-        req.include( 'module', this.win.module );
-        req.include( 'code', this.win.code );
-        
-        if( pVersion )
-        	req.version = pVersion;
-
-        if( _this.win.params ){
-            this.values.primary.each(function(prim){
-                req.include( 'primary:'+prim, _this.win.params.values[prim] );
-            });
-        }
+        var req = this.generateItemParams( pVersion );
 
         this.loader.show();
         new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
-            _this._loadItem( res );
+            
+        	_this._loadItem( res );
+            
         }}).post(req);
     },
 
@@ -87,7 +95,30 @@ ka.windowEdit = new Class({
         	this.languageSelect.value = this.item.values.lang;
         	this.changeLanguage();
         }
-        
+
+       
+        this.renderVersions();
+    
+        this.loader.hide();
+    },
+    
+    loadVersions: function(){
+    	
+        var req = this.generateItemParams();
+        new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
+            
+        	if( res && res.versions ){
+	        	this.item.versions = res.versions;
+	        	this.renderVersions();
+        	}
+            
+        }.bind(this)}).post(req);
+    	
+    },
+    
+    renderVersions: function(){
+    	if( this.values.versioning != true ) return;
+    	
         this.versioningSelect.empty();
     	
         new Element('option', {
@@ -106,10 +137,10 @@ ka.windowEdit = new Class({
 	        }.bind(this));
         }
         
-        if( this.item.version )
+        if( this.item.version ){
         	this.versioningSelect.value = this.item.version;
-        
-        this.loader.hide();
+        }
+    	
     },
 
     render: function( pValues ){
@@ -419,7 +450,8 @@ ka.windowEdit = new Class({
                 ka.settings.get('user').set('adminLanguage', req.get('adminLanguage') );
             }
             new Request.JSON({url: _path+'admin/backend/window/loadClass/saveItem', noCache: true, onComplete: function(res){
-                ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
+                
+            	ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
                 _this.loader.hide();
                 
                 if( !pClose ){
@@ -428,6 +460,8 @@ ka.windowEdit = new Class({
                 
                 // Before close, perform saveSuccess
                 _this._saveSuccess();
+                
+            	if( !pClose && _this.values.versioning == true ) _this.loadVersions();
                 
                 if( pClose )
                     _this.win.close();
