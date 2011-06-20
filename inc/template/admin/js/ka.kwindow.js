@@ -756,29 +756,33 @@ ka.kwindow = new Class({
         .store('win', this);
 
         
-        
-        new Element('div', {
-            'class': 'kwindow-shadow-bottom'
-        }).inject( this.border );
-        new Element('div', {
-            'class': 'kwindow-shadow-bottom-left'
-        }).inject( this.border );
-        new Element('div', {
-            'class': 'kwindow-shadow-bottom-right'
-        }).inject( this.border );
-        new Element('div', {
-            'class': 'kwindow-shadow-left'
-        }).inject( this.border );
-        new Element('div', {
-            'class': 'kwindow-shadow-right'
-        }).inject( this.border );
-        new Element('div', {
-            'class': 'kwindow-shadow-top-right'
-        }).inject( this.border );
-        new Element('div', {
-            'class': 'kwindow-shadow-top-left'
-        }).inject( this.border );
-
+        if( ka.settings.user.css3Shadow && ka.settings.user.css3Shadow == 1 ) {
+        	
+        	this.border.addClass('kwindow-border-shadow');
+        	
+        } else {
+	        new Element('div', {
+	            'class': 'kwindow-shadow-bottom'
+	        }).inject( this.border );
+	        new Element('div', {
+	            'class': 'kwindow-shadow-bottom-left'
+	        }).inject( this.border );
+	        new Element('div', {
+	            'class': 'kwindow-shadow-bottom-right'
+	        }).inject( this.border );
+	        new Element('div', {
+	            'class': 'kwindow-shadow-left'
+	        }).inject( this.border );
+	        new Element('div', {
+	            'class': 'kwindow-shadow-right'
+	        }).inject( this.border );
+	        new Element('div', {
+	            'class': 'kwindow-shadow-top-right'
+	        }).inject( this.border );
+	        new Element('div', {
+	            'class': 'kwindow-shadow-top-left'
+	        }).inject( this.border );
+        }
 
         this.border.getElements('div').each(function(mydiv){
             if( mydiv.get('class').search('-shadow-') > 0 ){

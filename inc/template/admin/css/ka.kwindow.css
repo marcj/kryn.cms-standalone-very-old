@@ -25,10 +25,13 @@
     background-color: #aaa;
     /*background-image: url(../images/win-content-bg.png);*/
     
-    /*
+    /* */
+}
+
+.kwindow-border-shadow {
     -moz-box-shadow: 0 0 2em gray;
     -webkit-box-shadow: 0 0 2em gray;
-    box-shadow: 0 0 2em gray; */
+    box-shadow: 0 0 2em gray;
 }
 
 .ka-kwindow-overlay {
