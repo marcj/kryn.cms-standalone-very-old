@@ -35,7 +35,7 @@ ka.crawler = new Class({
         //waiting for permission
         this.check = function( res ){
         	
-        	if( ka.settings.user.autocrawler && ka.settings.user.autocrawler != 1 ) return;
+        	if( !ka.settings.user.autocrawler || ka.settings.user.autocrawler != 1 ) return;
         	
             if(res.hasCrawlPermission == true){
                 if( this.stopped == true ) return;
