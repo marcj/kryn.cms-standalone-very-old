@@ -7,6 +7,7 @@ class usersAdminSelfEdit extends windowEdit {
     public $checkUsage = true; //default on
 
     public $primary = array('rsn');
+    public $versioning = false;
 
     function __construct(){
         global $user;
@@ -70,8 +71,7 @@ class usersAdminSelfEdit extends windowEdit {
                 'left_key' => 'rsn'
             ),
             'size' => 6,
-            'multiple' => 1,
-            'fake' => true //'group' will not be used in update sql
+            'multiple' => 1
         )
     );
 
