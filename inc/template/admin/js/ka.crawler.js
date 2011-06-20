@@ -34,12 +34,16 @@ ka.crawler = new Class({
         
         //waiting for permission
         this.check = function( res ){
+        	
+        	if( ka.settings.user.autocrawler && ka.settings.user.autocrawler != 1 ) return;
+        	
             if(res.hasCrawlPermission == true){
                 if( this.stopped == true ) return;
                 ka.startSearchCrawlerInfo(_('Check searchindex'));
                 this.step1.delay(2000, this);
                 window.removeEvent('stream', this.check);
             }
+            
         }.bind(this);
         window.addEvent('stream', this.check);
     },
@@ -121,6 +125,9 @@ ka.crawler = new Class({
         }
         
         var startTimeout = 100;
+        if( ka.settings.user.autocrawler_minddelay )
+        	startTimeout = ka.settings.user.autocrawler_minddelay;
+        
         if( this.lastDiff > 100 ){
             startTimeout += this.lastDiff;
         }
