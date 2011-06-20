@@ -22,30 +22,34 @@ class cache {
      * @static
      */
     public static function &get( $pCode ){
-        global $cfg, $kcache;
+        global $cfg, $kcache, $kryn, $modules;
 
         $mem = $cfg['memcachedEstablished'];
         $pCode = str_replace('..', '', $pCode);
         
-        if( $kcache[$pCode] )
-            return $kcache[$pCode];
-
-        if( $mem ){
-            $res = memcache_get( $cfg['memcachedHandle'], $pCode );
-            $kcache[$pCode] = $res;
+        $ref = false;
+        
+        if( $kcache[$pCode] ){
+            $ref = $kcache[$pCode];
         } else {
-            $varname = 'krynPhpCache_'.$pCode;
-            if( $kcache[$varname] )
-                return $kcache[$varname];
-                
-            if( file_exists( $cfg['files_path'].$pCode.'.php' )){
-                include_once( $cfg['files_path'].$pCode.'.php' );
-                return $kcache[$varname];
-            }
-            return false;
+	        if( $mem ){
+	            $res = memcache_get( $cfg['memcachedHandle'], $pCode );
+	            $kcache[$pCode] = $res;
+	        } else {
+	            $varname = 'krynPhpCache_'.$pCode;
+	            if( $kcache[$varname] )
+	                $ref = $kcache[$varname];
+	                
+	            if( file_exists( $cfg['files_path'].$pCode.'.php' )){
+	                include_once( $cfg['files_path'].$pCode.'.php' );
+	                $ref = $kcache[$varname];
+	            } else {
+	                $ref = false;
+	            }
+	        }
         }
 
-        return $kcache[$pCode];
+        return $ref;
     }
     
     /**
