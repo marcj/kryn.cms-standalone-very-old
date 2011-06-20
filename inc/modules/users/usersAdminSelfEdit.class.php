@@ -116,5 +116,9 @@ class usersAdminSelfEdit extends windowEdit {
     public function toPasswd( $pPw ){
         return md5($pPw);
     }
+    
+    function __destruct(){
+        user::getUser( getArgv('rsn'), true ); //refresh cache
+    }
 
 }

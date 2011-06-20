@@ -1564,27 +1564,53 @@ class kryn extends baseModule {
             $page = false;
             
         if( $page['access_from_groups'] != '' ){
+        	
             $groups = ','.$page['access_from_groups'].","; //eg ,2,4,5,
-            $cgroups = $user->user['groups'];
-
-            $go = false;
-            foreach( $cgroups as $group ){
-                if( strpos($groups, ",".$group['group_rsn'].",") !== false ){
-                    $go = true;
-                }
+            
+            
+            if( $page['access_need_via'] == 0 ){
+                $cgroups =& $user->user['groups'];
+            } else {
+            	
+	            $u = esc($_SERVER['PHP_AUTH_USER']);
+	            $p = md5($_SERVER['PHP_AUTH_PW']);
+	            
+	            $htuser =& user::getUserForUsername( $u );
+	            
+	            if( $htuser && $htuser['passwd'] == $p ){ 
+                    $cgroups =& $htuser['groups'];
+	            }
             }
+
+            if( $cgroups ){
+	            $go = false;
+	            foreach( $cgroups as $group ){
+	                if( strpos($groups, ",".$group['group_rsn'].",") !== false ){
+	                    $go = true;
+	                }
+	            }
+            }
+            
             if( !$go ){
                 $page = false;
             }
         }
+    
         
-        if( !$page && $pWithRedirect ){
+        if( !$page && $pWithRedirect && $oriPage['access_need_via'] == 0 ){
             if( $oriPage['access_redirectto']+0 > 0 )
                 kryn::redirectToPage( $oriPage['access_redirectto'] );
         }
         
+        if( !$page && $pWithRedirect && $oriPage['access_need_via'] == 1 ){
+        	header('WWW-Authenticate: Basic realm="'._l('Access denied. Maybe you are not logged in or have no access.').'"');
+            header('HTTP/1.0 401 Unauthorized');
+                
+            exit;
+        }
         return $page;
     }
+    
     
     /**
      * 
@@ -2478,59 +2504,23 @@ class kryn extends baseModule {
      * Kryn uses MemCache or PHP-Caching
      * @param string $pCode
      * @param string $pValue
+     * @deprecated User cache::set() instead.
      * @static
      */
     public static function setCache( $pCode, $pValue ){
-        global $cfg, $kcache;
-
-        $mem = $cfg['memcachedEstablished'];
-        $pCode = str_replace('..', '', $pCode);
-
-        if( $mem ){
-            memcache_set( $cfg['memcachedHandle'], $pCode, $pValue );
-            $kcache[$pCode] = $pValue;
-        } else {
-            //PHP 
-            $kcache['krynPhpCache_'.$pCode] = $pValue;
-            $varname = '$kcache[\'krynPhpCache_'.$pCode.'\'] ';
-            $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
-            kryn::fileWrite($cfg['files_path'].$pCode.'.php', $phpCode);
-        }
-
+    	cache::set( $pCode, $pValue );
     }
 
     /**
      * 
      * Returns the content of the specified cache-key
      * @param string $pCode
+     * @deprecated User cache::get() instead.
      * @return string
      * @static
      */
     public static function &getCache( $pCode ){
-        global $cfg, $kcache;
-
-        $mem = $cfg['memcachedEstablished'];
-        $pCode = str_replace('..', '', $pCode);
-        
-        if( $kcache[$pCode] )
-            return $kcache[$pCode];
-
-        if( $mem ){
-            $res = memcache_get( $cfg['memcachedHandle'], $pCode );
-            $kcache[$pCode] = $res;
-        } else {
-            $varname = 'krynPhpCache_'.$pCode;
-            if( $kcache[$varname] )
-                return $kcache[$varname];
-                
-            if( file_exists( $cfg['files_path'].$pCode.'.php' )){
-                include_once( $cfg['files_path'].$pCode.'.php' );
-                return $kcache[$varname];
-            }
-            return false;
-        }
-
-        return $kcache[$pCode];
+        return cache::get( $pCode );
     }
 
     /**

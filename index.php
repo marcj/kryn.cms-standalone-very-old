@@ -58,6 +58,7 @@ if( $cfg['display_errors'] == 0 ){
     @ini_set('error_reporting', E_ALL & ~E_NOTICE);
 }
 
+include('inc/kryn/cache.class.php');
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
@@ -134,7 +135,6 @@ $kryn->loadModules();
 $kryn->loadLanguage();
 
 $user = new user();
-$user->init();
 if($user->user['rsn'] != GUEST){
     $user->user_logged_in = true;
 }

@@ -11,7 +11,6 @@ class usersAdminEdit extends windowEdit {
     function __construct(){
         $rsn = getArgv('rsn')+0;
 
-
         if(!kryn::checkUrlAccess('admin/users/users/editMe/')){
             
         }
@@ -181,6 +180,10 @@ class usersAdminEdit extends windowEdit {
 
     public function toPasswd( $pPw ){
         return md5($pPw);
+    }
+    
+    function __destruct(){
+    	user::getUser( getArgv('rsn'), true ); //refresh cache
     }
 
 }
