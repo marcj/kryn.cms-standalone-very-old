@@ -150,9 +150,10 @@ class user {
      * Returns all groups as array
      * 
      * @param int pUserId The rsn of the system_user table
+     * @params bool force to reload the cache
      * @return &array
      */
-    public static function &getGroups( $pUserId ){
+    public static function &getGroups( $pUserId, $pForceReload = false ){
     	
     	$pUserId += 0;
     	$cacheCode = 'system_users_groups_'.$pUserId;
@@ -160,7 +161,7 @@ class user {
     	$groups =& cache::get( $cacheCode );
     	$count = count($groups);
     	
-    	if( $groups === false ){ //cache not initialized
+    	if( $groups === false || $pForceReload ){ //cache not initialized
     		
     		$newGroups = array();
     		$statement = dbExec(

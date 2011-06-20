@@ -2504,7 +2504,7 @@ class kryn extends baseModule {
      * Kryn uses MemCache or PHP-Caching
      * @param string $pCode
      * @param string $pValue
-     * @deprecated User cache::set() instead.
+     * @deprecated Use cache::set() instead.
      * @static
      */
     public static function setCache( $pCode, $pValue ){
@@ -2515,7 +2515,7 @@ class kryn extends baseModule {
      * 
      * Returns the content of the specified cache-key
      * @param string $pCode
-     * @deprecated User cache::get() instead.
+     * @deprecated Use cache::get() instead.
      * @return string
      * @static
      */
