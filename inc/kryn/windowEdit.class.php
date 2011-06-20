@@ -97,13 +97,14 @@ class windowEdit {
         if( is_array( $pFields ) && $pFields['type'] == '' ){
             foreach( $pFields as $key => &$field ){
                 if( $field['type'] != '' && is_array($field) ){
-                    $this->prepareFieldItem( $field, $key );
+                    if( $this->prepareFieldItem( $field, $key ) == false ){
+                    	unset( $pFields[$key] );
+                    }
                 }
             }
         } else {
             if( $pFields['needAccess'] && !kryn::checkUrlAccess($pFields['needAccess']) ){
-                $pFields = null;
-                return;
+                return false;
             }
             $this->_fields[ $pKey ] = $pFields;
             
@@ -149,6 +150,7 @@ class windowEdit {
                 $this->prepareFieldItem( $pFields['depends'] );
             }
         }
+        return true;
     }
 
     /**
