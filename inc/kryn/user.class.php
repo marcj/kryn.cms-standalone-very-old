@@ -264,7 +264,7 @@ class user {
             if( $user->session )
                 $result['sessiontime'] = $user->session['time'];
 
-            $result['groups'] =& self::getGroups( $pUserId );
+            $result['groups'] =& self::getGroups( $pUserId, $pForceReload );
             
             $result['inGroups'] = '';
             if( count( $result['groups'] ) >  0)
