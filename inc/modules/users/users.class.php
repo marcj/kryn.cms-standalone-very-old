@@ -711,8 +711,13 @@ class users extends baseModule{
             // Insert into database
             dbInsert('system_user', $values);
             
-            // For safety reasons, unset password field
+            
+            
+            // For safety reasons, unset password field and replace html specialchars (prevent XSS)
             unset($values['passwd']);
+            foreach( $values as &$value ){
+            	$value = htmlspecialchars($value, 'UTF-8');
+            }
             
             // Send activation email when required [use email and act key]
             if($actKey != "")
@@ -810,8 +815,8 @@ class users extends baseModule{
         $actKey = getArgv('k', 1);
         
         $data = array(
-            'email' => $email,
-            'actkey' => $actKey
+            'email' => htmlspecialchars($email),
+            'actkey' => htmlspecialchars($actKey)
         );
         
         // If email and key are set, try to activate right away
