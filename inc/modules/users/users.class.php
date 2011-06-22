@@ -711,8 +711,6 @@ class users extends baseModule{
             // Insert into database
             dbInsert('system_user', $values);
             
-            
-            
             // For safety reasons, unset password field and replace html specialchars (prevent XSS)
             unset($values['passwd']);
             foreach( $values as &$value ){
@@ -726,7 +724,7 @@ class users extends baseModule{
                 $eSubject = $isSelfActivation ? $pConf['email_subject'] : $pConf['emailadmin_subject'];
                 $eFrom = $isSelfActivation ? $pConf['email_from'] : $pConf['emailadmin_from'];
                 $eTemplate = $isSelfActivation ? $pConf['email_template'] : $pConf['emailadmin_template'];
-                $sendTo = preg_match( "/[\r\n]/", $values['email']);
+                $sendTo = preg_replace( "/[\r\n]/", $values['email']);
                 $actPage = $isSelfActivation ? $pConf['email_actpage'] : $pConf['emailadmin_actpage'];
                 
                 tAssign('values', $values);
