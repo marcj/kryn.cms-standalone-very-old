@@ -796,42 +796,66 @@ class users extends baseModule{
     
     public static function pluginActivation( $pConf )
     {
-        $access403 = $pConf['access403'];
-        $thanks = $pConf['thanks'];
+        $template = $pConf['template'];
+        $result = array(
+            'form' => false,
+            'succes' => false,
+            'failed' => false,
+            'admin' => false,
+        
+        );
         
         // Get variables
         $email = getArgv('e', 1);
         $actKey = getArgv('k', 1);
         
-        // If no email or key is given, go to the 403 page
+        $data = array(
+            'email' => $email,
+            'actkey' => $actKey
+        );
+        
+        // If email and key are set, try to activate right away
         if($email == null || $actKey == null)
-            kryn::redirectToPage($access403);
-        
-        // Check activation key
-        $sql = "
-            SELECT rsn
-            FROM   %pfx%system_user
-            WHERE  email = '$email' AND activationkey = '$actKey'
-        ";
-        
-        $result = dbExfetch($sql, 1);
-        
-        if($result === false)
-        { // Email/key combo not found!
-            // TODO: Show form to manualy enter email and key
-        }
-        else 
-        { // Email/key combo found, remove user activation key
-            $rsn = $result['rsn'];
+            $result['form'] = true;
+        else
+        {
+            // Check activation key
             $sql = "
-                UPDATE %pfx%system_user
-                SET activationkey = NULL
-                WHERE rsn=$rsn
+                SELECT rsn, activate
+                FROM   %pfx%system_user
+                WHERE  email = '$email' AND activationkey = '$actKey'
             ";
-            
-            // TODO: When should the account be marked as active? It is saved nowhere...
-            kryn::redirectToPage($thanks);
+            klog('sql', $sql);
+        
+            $result = dbExfetch($sql, 1);
+            if($result === false)
+            { // Email/key combo not found!
+                $result['form'] = true;
+                $result['failed'] = true;
+            }
+            else 
+            { // Email/key combo found, remove user activation key
+                $rsn = $result['rsn'];
+                $sql = "
+                    UPDATE %pfx%system_user
+                    SET activationkey = NULL
+                    WHERE rsn=$rsn
+                ";
+                dbExec($sql);
+                
+                // User activation succes, set if admin needs to activate
+                $result['succes'] = true;
+                $result['admin'] = $result['activate'] == 0;
+            }
         }
+        
+        tAssign('pConf', $pConf);
+        tAssign('data', $data);
+        tAssign('result', $result);
+        
+        kryn::addJs("users/js/activation/$template.js");
+        kryn::addCss("users/css/activation/$template.css");
+        return tFetch("users/activation/$template.tpl");
     }
 }
 ?>
