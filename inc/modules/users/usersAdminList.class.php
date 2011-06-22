@@ -30,12 +30,22 @@ class usersAdminList extends windowList {
         'username' => array(
             'label' => 'Username',
             'type' => 'text',
-            'width' => 130
+            'width' => 100
         ),
         'email' => array(
             'label' => 'Email',
             'width' => '140',
             'type' => 'text'
+        ),
+        'activate' => array(
+            'label' => 'Active',
+            'width' => '35',
+            'type' => 'imagemap',
+            'imageMap' => array(
+                'null' => 'inc/template/admin/images/icons/cancel.png',
+                '0' => 'inc/template/admin/images/icons/cancel.png',
+                '1' => 'inc/template/admin/images/icons/accept.png'
+            )
         ),
         'groups' => array(
             'label' => 'Groups',
