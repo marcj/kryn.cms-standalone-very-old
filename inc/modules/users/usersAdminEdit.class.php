@@ -100,7 +100,7 @@ class usersAdminEdit extends windowEdit {
                 'label' => 'Username',
                 'desc' => '(and the administration login)',
                 'type' => 'text',
-                'empty' => false
+                //'empty' => false // TODO: FE users don't need a username, just an email address [Ferdi]
             ),
             'passwd' => array(
                 'label' => 'Password',
@@ -113,6 +113,16 @@ class usersAdminEdit extends windowEdit {
                 'label' => 'Email',
                 'type' => 'text',
                 'empty' => false
+            ),
+            'activate' => array(
+                'label' => 'Active account',
+                'type' => 'select',
+                'tableItems' => array(
+                    array('name' => 'Yes', 'value' => 1),
+                    array('name' => 'No', 'value' => 0)
+                ),
+                'table_label' => 'name',
+                'table_id' => 'value',
             ),
             'userBg' => array(
                'label' => 'Desktop background image',
