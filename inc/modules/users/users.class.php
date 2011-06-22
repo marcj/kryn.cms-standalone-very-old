@@ -726,7 +726,7 @@ class users extends baseModule{
                 $eSubject = $isSelfActivation ? $pConf['email_subject'] : $pConf['emailadmin_subject'];
                 $eFrom = $isSelfActivation ? $pConf['email_from'] : $pConf['emailadmin_from'];
                 $eTemplate = $isSelfActivation ? $pConf['email_template'] : $pConf['emailadmin_template'];
-                $sendTo = $values['email'];
+                $sendTo = preg_match( "/[\r\n]/", $values['email']);
                 $actPage = $isSelfActivation ? $pConf['email_actpage'] : $pConf['emailadmin_actpage'];
                 
                 tAssign('values', $values);
