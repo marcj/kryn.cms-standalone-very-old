@@ -365,6 +365,17 @@
         }
       }
     ],
+    "pluginActivation": [
+      "Account activation",
+      {
+        "template": {
+          "label": "Template",
+          "type": "files",
+          "withoutExtension": true,
+          "directory": "inc\/template\/users\/activation\/"
+        }
+      }
+    ],
     "pluginMessageSystemInbox": [
       "Message System inbox",
       {

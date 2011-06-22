@@ -794,6 +794,68 @@ class users extends baseModule{
         return implode("", $temp);
     }
     
-    
+    public static function pluginActivation( $pConf )
+    {
+        $template = $pConf['template'];
+        $result = array(
+            'form' => false,
+            'succes' => false,
+            'failed' => false,
+            'admin' => false,
+        
+        );
+        
+        // Get variables
+        $email = getArgv('e', 1);
+        $actKey = getArgv('k', 1);
+        
+        $data = array(
+            'email' => $email,
+            'actkey' => $actKey
+        );
+        
+        // If email and key are set, try to activate right away
+        if($email == null || $actKey == null)
+            $result['form'] = true;
+        else
+        {
+            // Check activation key
+            $sql = "
+                SELECT rsn, activate
+                FROM   %pfx%system_user
+                WHERE  email = '$email' AND activationkey = '$actKey'
+            ";
+            klog('sql', $sql);
+        
+            $result = dbExfetch($sql, 1);
+            if($result === false)
+            { // Email/key combo not found!
+                $result['form'] = true;
+                $result['failed'] = true;
+            }
+            else 
+            { // Email/key combo found, remove user activation key
+                $rsn = $result['rsn'];
+                $sql = "
+                    UPDATE %pfx%system_user
+                    SET activationkey = NULL
+                    WHERE rsn=$rsn
+                ";
+                dbExec($sql);
+                
+                // User activation succes, set if admin needs to activate
+                $result['succes'] = true;
+                $result['admin'] = $result['activate'] == 0;
+            }
+        }
+        
+        tAssign('pConf', $pConf);
+        tAssign('data', $data);
+        tAssign('result', $result);
+        
+        kryn::addJs("users/js/activation/$template.js");
+        kryn::addCss("users/css/activation/$template.css");
+        return tFetch("users/activation/$template.tpl");
+    }
 }
 ?>
