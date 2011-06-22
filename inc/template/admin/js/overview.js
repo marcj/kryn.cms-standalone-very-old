@@ -95,7 +95,7 @@ admin_overview = new Class({
             	target = this.panes[pExt].getElement('[id='+widget.position+']');
             	if( !target )
             		this.win._alert(
-            				_('Can not found position %1 in the widgetsLayout from extension %2')
+            				_('Can not find position %1 in the widgetsLayout from extension %2')
             				.replace('%1', widget.position)
             				.replace('%2', pExt)
             		);

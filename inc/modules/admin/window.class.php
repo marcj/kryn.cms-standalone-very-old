@@ -71,7 +71,6 @@ class window {
             $class = $t[1];
         }
         
-
         if( file_exists( "inc/modules/$module2LoadClass/$class.class.php" ) ){
             require( "inc/modules/$module2LoadClass/$class.class.php");
             $obj = new $class;
@@ -90,7 +89,6 @@ class window {
         }
         $config = $kryn->installedMods[$module];
 
-
 //        $dbFile = "inc/modules/$module/db.php";
 //        if( file_exists($dbFile) )
 //            require($dbFile);
@@ -101,22 +99,31 @@ class window {
         switch( getArgv(5) ){
         case 'getItems':
             $obj->params = json_decode( getArgv('params') );
-            json( $obj->getItems(getArgv('page')) );
+            $res = $obj->getItems(getArgv('page'));
+            break;
         case 'exportItems':
             $obj->params = json_decode( getArgv('params') );
-            json( $obj->exportItems(getArgv('page')) );
+            $res = $obj->exportItems(getArgv('page'));
+            break;
         case 'getItem':
-            json( $obj->getItem() );
+            $res = $obj->getItem();
+            break;
         case 'saveItem':
-            json( $obj->saveItem() );
+            $res = $obj->saveItem();
+            break;
         case 'deleteItem':
-            json( $obj->deleteItem() );
+            $res = $obj->deleteItem();
+            break;
         case 'removeSelected':
-            json( $obj->removeSelected() );
+            $res = $obj->removeSelected();
+            break;
         default:
-            json( $obj->init() );
-        }    
-
+            $res = $obj->init();
+            break;
+        }
+        
+        $obj = NULL;
+        json($res);
     }
 
     public static function getInfo( $pModule, $pCode ){

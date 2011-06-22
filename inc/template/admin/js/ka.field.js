@@ -884,9 +884,10 @@ ka.field = new Class({
         var _this = this;
 
         if( this.field.check == 'kurl' ){
+        	
             this.input.addEvent('keyup', function(e){
-                var old = this.getSelectedRange();
                 
+        		var old = this.getSelectedRange();
                 var o = ['ä', 'Ä', 'ö', 'Ö', 'ü', 'Ü', 'ß'];
                 
                 o.each(function(char){
@@ -898,13 +899,12 @@ ka.field = new Class({
                 
                 this.value = _this.checkKurl( this.value);
                 
-                if( this.value.substr(0, 1) == '-' )
+                /*if( this.value.substr(0, 1) == '-' )
                     this.value = this.value.substr( 1, this.value.length );
-                
-                if( this.value.substr( this.value.length-1, 1) == '-' )
-                    this.value = this.value.substr(0, this.value.length-1);
+                */
                 
                 this.selectRange( old.start, old.end );
+	             
             });
         }
     },
@@ -919,7 +919,7 @@ ka.field = new Class({
             .replace(/Ü/g, 'UE')
             .replace(/ü/g, 'ue')
             .replace(/ß/g, 'ss')
-            .replace(/\W/g, '-').replace(/-+/g, '-').toLowerCase();
+            .replace(/\W/g, '-').toLowerCase();
         else
             return pValue;
     },

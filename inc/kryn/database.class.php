@@ -501,13 +501,12 @@ class database {
         
         
         public static function isActive(){
-            global $kdb;
-            if( $kdb->type == 'mssql' ){
-                if( !$kdb->connection ) return false;
-            }
+            global $kdb, $cfg;
             
             if( !$kdb ) return false;
-            if( !$kdb->pdo ) return false;
+            if( $cfg['db_pdo'] == 1 && !$kdb->pdo ) return false;
+            if( $cfg['db_pdo'] == 0 && !$kdb->connection ) return false;
+            
             return true;
         }
 
