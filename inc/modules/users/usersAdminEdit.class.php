@@ -4,10 +4,12 @@
 class usersAdminEdit extends windowEdit {
 
     public $table = 'system_user';
-    public $checkUsage = true;
-
     public $primary = array('rsn');
+    public $versioning = false;
+
     public $loadSettingsAfterSave = true;
+    
+    private static $cacheUser = false;
 
     public $tabLayouts = array(
         'General' => '<table width="100%"><tr>
