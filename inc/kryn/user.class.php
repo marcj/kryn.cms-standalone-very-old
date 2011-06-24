@@ -258,7 +258,7 @@ class user {
             $result['settings'] = unserialize($result['settings']);
             
             if( $result['settings']['userBg'] == '' )
-                $user['settings']['userBg'] = '/admin/images/userBgs/defaultImages/1.jpg';
+                $result['settings']['userBg'] = '/admin/images/userBgs/defaultImages/1.jpg';
                 
             if( $user->session )
                 $result['sessiontime'] = $user->session['time'];
