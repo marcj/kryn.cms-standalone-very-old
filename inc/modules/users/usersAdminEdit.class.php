@@ -4,10 +4,12 @@
 class usersAdminEdit extends windowEdit {
 
     public $table = 'system_user';
-    public $checkUsage = true;
-
     public $primary = array('rsn');
+    public $versioning = false;
+    
     public $loadSettingsAfterSave = true;
+    
+    public static $cacheUser = false;
 
     public $tabLayouts = array(
         'General' => '<table width="100%"><tr>
@@ -97,6 +99,7 @@ class usersAdminEdit extends windowEdit {
             'passwd' => array(
                 'label' => 'Password',
                 'type' => 'password',
+                'desc' => 'Leave empty to change nothing',
                 'startempty' => true,
                 'onlyIfFilled' => true,
                 'modifier' => 'toPasswd'
