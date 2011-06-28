@@ -4,9 +4,12 @@
 class usersAdminEdit extends windowEdit {
 
     public $table = 'system_user';
-    public $checkUsage = true; //default on
-
     public $primary = array('rsn');
+    public $versioning = false;
+    
+    public $loadSettingsAfterSave = true;
+    
+    public static $cacheUser = false;
 
     function __construct(){
         $rsn = getArgv('rsn')+0;
