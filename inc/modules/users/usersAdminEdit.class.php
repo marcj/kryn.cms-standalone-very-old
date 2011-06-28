@@ -108,6 +108,7 @@ class usersAdminEdit extends windowEdit {
             'passwd' => array(
                 'label' => 'Password',
                 'type' => 'password',
+                'desc' => 'Leave empty to change nothing',
                 'startempty' => true,
                 'onlyIfFilled' => true,
                 'modifier' => 'toPasswd'
