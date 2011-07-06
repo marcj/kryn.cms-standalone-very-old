@@ -2166,7 +2166,7 @@ class kryn extends baseModule {
         kryn::$page = kryn::getPage();
         //$this->searchPage();
         
-        kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
+        kryn::$canonical = urlencode(kryn::$baseUrl.kryn::getRequestPageUrl(true));
 
         if( kryn::$page['cache'] == "1" && $pReturn == false ){ //only in frontend and not in searchindex mode 
             print kryn::fileRead( "inc/cache/_pages/".kryn::$page['rsn'].".html" );
