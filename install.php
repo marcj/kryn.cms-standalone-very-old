@@ -13,6 +13,7 @@ header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
 
+include('inc/kryn/cache.global.php');
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
@@ -677,7 +678,7 @@ Please enter your MySQL database information.<br />
     </tr>
     <tr>
         <td>Force UTF-8</td>
-        <td><input type="checkbox" name="forceutf8" id="db.forceutf8" value="1" /></td>
+        <td><input type="checkbox" name="forceutf8" checked="checked" id="db.forceutf8" value="1" /></td>
     </tr>
     <tr>
         <td>
