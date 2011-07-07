@@ -856,7 +856,12 @@ var admin_pages = new Class({
             this.viewTypeGrpDomain.show();
             this.viewTypeGrp.hide();
             
-            this.deleteDomainGrp.show();
+            if( !ka.checkPageAccess( this.currentDomain.rsn, 'deleteDomain', 'd' ) ){
+                this.deleteDomainGrp.hide();
+            } else {
+                this.deleteDomainGrp.show();
+            }
+            
             this.deletePageGrp.hide();
             
     	} else {
@@ -1161,10 +1166,6 @@ var admin_pages = new Class({
     showDomain: function( pDomain ){
         if( this.oldLoadDomainRequest ) this.oldLoadDomainRequest.cancel();
 
-        this.inDomainModus = true;
-        this.viewType( 'domain' );
-        this.changeType();
-        
         this.oldLoadDomainRequest = new Request.JSON({url: _path+'admin/pages/domain/get', noCache: 1, onComplete: function( pResult ){
             
             this.domainFields.each(function(item, key){
@@ -1179,8 +1180,11 @@ var admin_pages = new Class({
             this.win.setTitle ( pDomain.domain + ' - '+_('Domain edit') );
             
             this.deleteDomainGrp.show();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'deleteDomain', 'd' ) )
+            
+            if( !ka.checkPageAccess( pDomain.domain_rsn, 'deleteDomain', 'd' ) ){
             	this.deleteDomainGrp.hide();
+            }
+            	
 
             if( !ka.checkPageAccess( pDomain.domain_rsn, 'domain', 'd' ) ){
             	this.viewButtons['domain'].hide();
@@ -1238,6 +1242,12 @@ var admin_pages = new Class({
 
         	var res = pResult.domain;
             this.currentDomain = res;
+            
+            this.inDomainModus = true;
+            this.viewType( 'domain' );
+            
+            this.changeType();
+            
             this.showDomainMaster( pDomain.domain_rsn );
             
             //set domain propertie to default
