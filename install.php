@@ -332,7 +332,6 @@ function checkDb(){
 function welcome(){
 ?>
 
-<br />
 <h2>Thank you for choosing Kryn.cms!</h2>
 <br />
 Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?></strong>
@@ -344,7 +343,7 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <?php $f = fopen("LICENSE", "r"); if($f) while (!feof($f)) print fgets($f, 4096) ?>
 </div>
 <br /><br />
-<a href="?step=2" class="button" >Start</a>
+<a href="?step=2" class="button" >Accept</a>
 
 <?php
 }
@@ -525,9 +524,25 @@ function buildModInfo( $modules ) {
 function step2(){
 ?>
 
-<br />
 <h2>Checking file permissions</h2>
 <br />
+The minimun requirements to work with Kryn.cms without installing extension or updates is writeaccess to following folders:<br />
+&bull; inc/cache/<br />
+&bull; inc/tcache/<br />
+<br />
+When you want to install extension you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
+&bull; inc/modules/<br />
+&bull; inc/template/<br />
+<br />
+Sometimes, extensions comes with files which aren't in these two folders. If this the case, you need to make sure, that
+such extensions gets the right file permissions.<br />
+<br />
+<b>Important:</b> To install Kryn.cms core updates, you need to make sure, that <b>all</b> files are writable.<br />
+<br />
+To install now this Kryn.cms version, we need firstly write permission to all files.<br />You can revoke this permissions after this installation, but keep the informations above in your mind.<br />
+<br />
+<br />
+<div style="border-top: 1px solid silver;"></div>
 <br />
 <?php
 
@@ -578,13 +593,13 @@ function step2(){
     
     $files = checkDir( "." );
     if( $files != "" ){
-        print 'Following files aren not writeable.<br />
-               <br /><br />
-               Please set the write permission to webserver or to anonymous:<br/>
+        print 'Following files are not writeable. Please set write permissions to webserver or to anonymous:<br/>
+               <br />
+               Use your FTP client to adjust the permissions or directly through ssh:
                <div style="border: 1px solid silver;  font-family: monospace; background-color: white; padding: 5px; margin: 5px;">
-               chown -R <i>WebserverOwner</i> '.getcwd().'; <b>or</b> <br />
+               chown -R <i>WebserverOwner</i> '.getcwd().'; <b>or</b><br />
                chmod -R 777 '.getcwd().'</div>';
-        print '<div style="overflow: auto; font-family: monospace; height: 350px; overflow: auto;  background-color: white; margin: 5px;">'.$files.'</div>';
+        print '<div style="border: 1px solid silver; overflow: auto; font-family: monospace; height: 350px; overflow: auto;  background-color: white; margin: 5px;">'.$files.'</div>';
     } else {
         print '<b style="color: green;">OK</b>';
         $filesOk = true;
