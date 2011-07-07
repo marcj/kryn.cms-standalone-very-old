@@ -496,6 +496,7 @@ ka.layoutContent = new Class({
             break;
         case 'html':
         case 'php':
+            if( this.oldType == 'html' || this.oldType == 'php' ) return;
             this.type2HTML();
             break;
         case 'navigation':
