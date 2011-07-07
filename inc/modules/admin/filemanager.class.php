@@ -931,6 +931,8 @@ $pAccess from all
         if( substr($checkpath, 0, 1) != '/' ) $checkpath = '/'.$checkpath;
         $access = acl::checkAccess( 3, $checkpath, 'read', true );
         if( !$access ) return false;
+
+        if( $path == 'inc/template/trash/.htaccess' ) return false;
         
         
         $res['writeaccess'] = acl::checkAccess( 3, $checkpath, 'write', true );

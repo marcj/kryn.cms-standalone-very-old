@@ -812,7 +812,9 @@ var admin_files = new Class({
             var remove = new Element('a', {
                 'class': 'delimiter',
                 html: _('Remove')
-            }).inject( this.context );
+            })
+            .addEvent('click', this.remove.bind(this, pFile) )
+            .inject( this.context );
             
         } else {
         	
@@ -956,7 +958,6 @@ var admin_files = new Class({
         	
         	if( myfile.path.substr( 0, 6 ) == 'trash/' ){
         		deactivate(cut);
-        		deactivate(remove);
         		deactivate(rename);
         		deactivate(copy);
         	}

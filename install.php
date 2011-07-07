@@ -436,7 +436,7 @@ function step5(){
     @mkdir( 'inc/template/js' );
     @mkdir( 'inc/cache' );
     @mkdir( 'inc/tcache' );
-    @copy( 'inc/template/trash/.htaccess', 'inc/cache/');
+    @copy( 'inc/template/trash/.htaccess', 'inc/cache/.htaccess');
     @mkdir( 'inc/upload' );
     @mkdir( 'inc/upload/modules' );
 
