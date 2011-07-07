@@ -13,7 +13,7 @@ header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
 
-include('inc/kryn/cache.global.php');
+include('inc/kryn/cache.class.php');
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
