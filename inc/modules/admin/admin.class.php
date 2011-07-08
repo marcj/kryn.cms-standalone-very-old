@@ -443,7 +443,9 @@ class admin {
 
     public static function showLogin(){
         global $user;
+        
         $language  = $user->user['settings']['adminLanguage']?$user->user['settings']['adminLanguage']:'en';
+        
         if( getArgv('setLang') != '' )
             $language = getArgv('setLang',2);
 
@@ -451,6 +453,7 @@ class admin {
             $access = kryn::checkUrlAccess('admin/backend');
             tAssign( 'hasBackendAccess', $access+0 );
         }
+        
         tAssign('adminLanguage', $language);
         kryn::$lang = kryn::getAllLanguage( $language );
         print tFetch('admin/index.tpl');
@@ -470,19 +473,34 @@ class admin {
 
     public static function printLanguage(){
         global $user;
+        
         $lang = getArgv('getLanguage',2);
 
         $json = kryn::fileRead('inc/cache/lang_'.$lang.'.json');
+        
         if( $json == '' || $json == '[]' ){
             $json = kryn::getAllLanguage($lang);   
             $json = json_encode($json);
             kryn::fileWrite('inc/cache/lang_'.$lang.'.json', $json);
         }
         $user->setSessionLanguage( $lang );
-        if( getArgv('js') == 1 )
+        
+        
+        kryn::$lang = kryn::getAllLanguage( $lang );
+        
+        if( getArgv('js') == 1 ){
             print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = ".$json;
-        else
-            print $json;
+            if( !$json ){
+                print "\nLocale.define('en-US', 'Date', ".tFetch('admin/mootools-locale.tpl').");";
+            }
+        } else {
+            $json = json_decode( $json, true );
+            $json['mootools'] = json_decode(tFetch('admin/mootools-locale.tpl'),true);
+            json($json);
+        }
+            
+        //print mootools date translation
+        
         exit;
     }
 

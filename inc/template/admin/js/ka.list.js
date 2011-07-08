@@ -16,9 +16,13 @@ ka.list = new Class({
         var _this = this;
         this.win.softReload = function(){
             //_this.loadPage( parseInt(_this.ctrlPage.value) ); 
-            _this.loadPage( _this.currentPage ); 
-        }
+            this.reload();
+        }.bind(this);
     },
+
+    reload: function(){
+        this.loadPage( this.currentPage ); 
+    },  
 
     load: function(){
         var _this = this;
@@ -43,6 +47,8 @@ ka.list = new Class({
     { },
 
     click: function( pColumn ){
+        if( !this.columns || !this.columns[pColumn] ) return;
+        
         pItem = this.columns[pColumn];
         
         if(!this.values.orderByDirection)
@@ -80,6 +86,28 @@ ka.list = new Class({
         this.values.columns = $H(pValues.columns);
 
         /*multilang*/
+        this.renderMultilanguage();
+        
+        this.renderLayout();
+        
+        this.renderActionbar();
+
+        this.loader = new ka.loader().inject( this.main );
+
+        if( !this.loadAlreadyTriggeredBySearch )
+            if( this.columns )
+            	this.click( _this.values.orderBy );
+            else {
+                this.sortField = this.values.orderBy;
+                if( this.values.order )
+                    this.sortDirection = this.values.order;
+                this.loadPage(1);
+            }
+        
+        //this.loadPage(1);
+    },
+    
+    renderMultilanguage: function(){
         if( this.values.multiLanguage ){
         	
         	this.languageSelect = new Element('select', {
@@ -95,10 +123,14 @@ ka.list = new Class({
                 }).inject( this.languageSelect );
             }.bind(this));
         	
+        	this.languageSelect.value = window._session.lang;
         }
-        
-        
+    },
+    
+    renderLayout: function(){
         /* head */
+        var _this = this;
+        
         this.head = new Element('div', {
             'class': 'ka-list-head'
         }).inject( this.win.content );
@@ -156,6 +188,8 @@ ka.list = new Class({
         this.main = new Element('div',{
             'class': 'ka-list-main'
         }).inject( this.win.content );
+        
+        
         this.table = new Element('table',{
             cellspacing: 0
         }).inject( this.main );
@@ -166,14 +200,6 @@ ka.list = new Class({
         this.bottom = new Element('div',{
             'class': 'ka-list-bottom'
         }).inject( this.win.content );
-
-        this.loader = new ka.loader().inject( this.main );
-
-        this.renderActionbar();
-
-        if( !this.loadAlreadyTriggeredBySearch )
-        	this.click( _this.values.orderBy );
-        //this.loadPage(1);
     },
 
     changeLanguage: function(){
@@ -392,8 +418,10 @@ ka.list = new Class({
 	        }
         }catch(e) {}
 
-        if( this.values['export'] ){
+        if( this.values['export'] || this.values['import'] )
             this.exportNavi = this.win.addButtonGroup();
+            
+        if( this.values['export'] ){
             this.exportType = new Element('select',{
                 style: 'position: relative; top: -2px;'
             })
@@ -408,7 +436,6 @@ ka.list = new Class({
         }
 
         if( this.values['import'] ){
-//            this.importNavi = this.win.addButtonGroup();
             this.exportNavi.addButton(_('Import'), _path+'inc/template/admin/images/icons/table_row_insert.png');
         }
 
@@ -499,6 +526,11 @@ ka.list = new Class({
         }).inject( tr );
     },
 
+
+    clear: function(){
+        this.tbody.empty();
+    },
+    
     loadPage: function( pPage ){
         var _this = this;
 
@@ -512,7 +544,7 @@ ka.list = new Class({
         if( this.lastRequest )
             this.lastRequest.cancel();
 
-        _this.tbody.empty();
+        this.clear();
 
         this.loader.show();
 
@@ -604,6 +636,7 @@ ka.list = new Class({
         }
         
         this.values.columns.each(function(column,columnId){
+        
             var value = pItem['values'][columnId];
 
             if( column.format == 'timestamp' ){

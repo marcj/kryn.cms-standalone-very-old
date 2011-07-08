@@ -37,12 +37,12 @@ class publicationNewsList extends windowList {
             'width' => 130,
             'table_key' => 'rsn'
         ),
-        'releaseDate' => array(
+        'releasedate' => array(
             'label' => 'Date',
             'width' => 110,
             'type' => 'datetime'
         ),
-        'releaseAt' => array(
+        'releaseat' => array(
             'label' => 'Release at',
             'width' => 110,
             'type' => 'datetime',

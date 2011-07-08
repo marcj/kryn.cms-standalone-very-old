@@ -54,6 +54,7 @@ class window {
         if(! self::checkAccess(true) ) json(false);
 
         require( 'inc/kryn/windowList.class.php' );
+        require( 'inc/kryn/windowCombine.class.php' );
         require( 'inc/kryn/windowEdit.class.php' );
         require( 'inc/kryn/windowAdd.class.php' );
         $module = getArgv('module');
@@ -72,7 +73,7 @@ class window {
         }
         
         if( file_exists( "inc/modules/$module2LoadClass/$class.class.php" ) ){
-            require( "inc/modules/$module2LoadClass/$class.class.php");
+            require_once( "inc/modules/$module2LoadClass/$class.class.php");
             $obj = new $class;
         } else {
             $form = kryn::fileRead( "inc/modules/$module2LoadClass/forms/$class.json" );

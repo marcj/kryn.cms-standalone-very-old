@@ -640,6 +640,8 @@ ka.kwindow = new Class({
             this.iframe.set('src', _path+pVals.src);
         } else if( pVals.type == 'custom' ){
             this.renderCustom();
+        } else if( pVals.type == 'combine' ){
+            this.renderCombine();
         } else if( pVals.type == 'list' ){
             this.renderList();
         } else if( pVals.type == 'add' ){
@@ -700,6 +702,10 @@ ka.kwindow = new Class({
 
     renderAdd: function(){
         this.add = new ka.windowAdd( this );
+    },
+    
+    renderCombine: function(){
+        this.combine = new ka.windowCombine( this );
     },
 
     renderList: function(){

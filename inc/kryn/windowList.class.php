@@ -460,7 +460,6 @@ class windowList {
         $listSql = "
             ".$this->listSql."
             
-            
             ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
             LIMIT $end OFFSET $start
             ";

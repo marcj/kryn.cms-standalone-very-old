@@ -39,6 +39,17 @@
     border-top: 1px solid gray;
     line-height: 28px;
     background-color: #aaa;
+    
+    
+    border-top: 1px solid #999;
+    
+    
+    background-image: -webkit-gradient(linear, left top, left bottom, #bdbcbc, to(#9c9b9b)); 
+    background-image: -webkit-linear-gradient(top, #bdbcbc, #9c9b9b); 
+    background-image:    -moz-linear-gradient(top, #bdbcbc, #9c9b9b); 
+    background-image:     -ms-linear-gradient(top, #bdbcbc, #9c9b9b); 
+    background-image:      -o-linear-gradient(top, #bdbcbc, #9c9b9b); 
+    background-image:         linear-gradient(top, #bdbcbc, #9c9b9b);
 }
 
 .ka-windowEdit-actions a {

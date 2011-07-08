@@ -1349,6 +1349,7 @@ class kryn extends baseModule {
         $lang = kryn::getPhpCache($code);
         $mods = $kryn->installedMods;
         $mods['kryn'] = 'kryn';
+        
         if( (!$lang || count($lang) == 0 ) && $pLang != 'en' ){
             $lang = array();
             foreach( $mods as $key => $mod ){
@@ -1362,6 +1363,7 @@ class kryn extends baseModule {
             }
             kryn::setPhpCache( $code, $lang );
         }
+        
         return $lang;
     }
     

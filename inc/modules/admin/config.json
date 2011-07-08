@@ -1231,6 +1231,7 @@
     "admin\/js\/ka.overview.js",
     "admin\/js\/ka.pagesTree.js",
     "admin\/js\/ka.windowEdit.js",
+    "admin\/js\/ka.windowCombine.js",
     "admin\/js\/ka.windowAdd.js",
     "admin\/js\/ka.wm.js",
     "admin\/js\/overview.js",

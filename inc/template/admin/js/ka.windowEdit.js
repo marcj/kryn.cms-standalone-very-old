@@ -1,7 +1,15 @@
 ka.windowEdit = new Class({
-    initialize: function( pWin ){
+
+    initialize: function( pWin, pContainer ){
         this.win = pWin;
-        this.win.content.setStyle('overflow', 'visible');
+        
+        
+        if( !pContainer ){
+            this.container = this.win.content;
+            this.container.setStyle('overflow', 'visible');
+        } else {
+            this.container = pContainer;
+        }
         this.load();
     },
 
@@ -153,7 +161,7 @@ ka.windowEdit = new Class({
         this.values = pValues;
 
 
-        this.loader = new ka.loader().inject( this.win.content );
+        this.loader = new ka.loader().inject( this.container );
         this.loader.show();
         this.renderContent();
 
@@ -205,7 +213,7 @@ ka.windowEdit = new Class({
             this.form = new Element('div', {
                 'class': 'ka-windowEdit-form'
             })
-            .inject( this.win.content );
+            .inject( this.container );
             
             var target = this.form;
             
@@ -237,7 +245,7 @@ ka.windowEdit = new Class({
                 this._panes[ title ] = new Element('div', {
                     'class': 'ka-windowEdit-form',
                     style: 'display: none;'
-                }).inject( this.win.content );
+                }).inject( this.container );
                 
                 if( this.values.tabLayouts && this.values.tabLayouts[title] )
                 	this._panes[title].set('html', this.values.tabLayouts[title]);
@@ -330,7 +338,7 @@ ka.windowEdit = new Class({
 
         this.actions = new Element('div', {
             'class': 'ka-windowEdit-actions'
-        }).inject( this.win.content );
+        }).inject( this.container );
 
         this.exit = new ka.Button(_('Cancel'))
         .addEvent( 'click', function(){

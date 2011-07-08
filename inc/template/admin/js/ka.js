@@ -142,6 +142,7 @@ ka.loadLanguage = function( pLang ){
     window._session.lang = pLang;
     new Request.JSON({url: _path+'admin/getLanguage:'+pLang+'/', async: false, noCache: 1, onComplete: function(res){
         ka.lang = res;
+        Locale.define('en-US', 'Date', res.mootools);
     }}).get();
 }
 
@@ -1365,7 +1366,7 @@ ka.destroyLinkContext = function(){
 ka.linkClick = function( pLink ){
     var mlink = pLink.retrieve('link');
     
-    if( ['iframe', 'list', 'custom', 'add', 'edit'].indexOf(mlink.type) != -1 ){
+    if( ['iframe', 'list', 'combine', 'custom', 'add', 'edit'].indexOf(mlink.type) != -1 ){
 
     	var link = ka._links[mlink.module +'/'+ mlink.code];
     	
