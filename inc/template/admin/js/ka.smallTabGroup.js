@@ -1,4 +1,5 @@
 ka.smallTabGroup = new Class({
+
     initialize: function( pParent ){
         this.buttons = [];
         this.box = new Element('div', {
@@ -8,6 +9,10 @@ ka.smallTabGroup = new Class({
     
     destroy: function(){
         this.box.destroy();
+    },
+    
+    setStyle: function(p, p2){
+        this.box.setStyle(p,p2);
     },
 
     inject: function( pTo, pWhere ){

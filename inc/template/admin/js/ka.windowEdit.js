@@ -1,5 +1,9 @@
 ka.windowEdit = new Class({
 
+    Implements: Events,
+
+    inline: false,
+
     initialize: function( pWin, pContainer ){
         this.win = pWin;
         
@@ -8,9 +12,21 @@ ka.windowEdit = new Class({
             this.container = this.win.content;
             this.container.setStyle('overflow', 'visible');
         } else {
+            this.inline = true;
             this.container = pContainer;
         }
+        
         this.load();
+    },
+    
+    destroy: function(){
+    
+        if( this.topTabGroup ){
+            this.topTabGroup.destroy();
+        }
+        
+        this.container.empty();
+    
     },
 
     load: function(){
@@ -235,7 +251,9 @@ ka.windowEdit = new Class({
             }.bind(this));
             
         } else if( this.values.tabFields ){
+            
             this.topTabGroup = this.win.addSmallTabGroup();
+            
             this._panes = {};
             this._buttons = $H({});
             this.firstTab = '';
@@ -256,6 +274,8 @@ ka.windowEdit = new Class({
             }.bind(this));
             this.changeTab(this.firstTab);
         }
+        
+        this.fireEvent('render');
 
         this.loadItem();
     },

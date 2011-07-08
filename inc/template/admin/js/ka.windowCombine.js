@@ -19,6 +19,11 @@ ka.windowCombine = new Class({
             style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; right: 0px; border-right: 1px solid silver; overflow: auto;'
         }).inject( this.mainLeft );
         
+        
+        this.mainRight = new Element('div', {
+            style: 'position: absolute; left: 251px; background-color: #eee; top: 0px; bottom: 0px; right: 0px'
+        }).inject( this.main );
+        
         this.bottom = new Element('div',{
             'class': 'ka-list-bottom'
         }).inject( this.win.content );
@@ -170,11 +175,43 @@ ka.windowCombine = new Class({
     
     loadItem: function( pItem ){
     
-        this.mainLeftItems.getChildren().each(function(item,i){
+    
+        var found = false;
+        while( !found ){
+            //until we found it in the item list
         
-            item.removeClass('active');
-            if( item.retrieve('item') == pItem )
-                item.addClass('active');
+            this.mainLeftItems.getChildren().each(function(item,i){
+                
+                item.removeClass('active');
+                if( item.retrieve('item') == pItem ){
+                    item.addClass('active');
+                    found = true;
+                }
+            });
+            
+            if( found == false ){
+                //load next page
+            }
+        }
+        
+        if( this.currentEdit ){
+            this.currentEdit.destroy();
+            delete this.currentEdit;
+        }
+        
+        this.currentEdit = new ka.windowEdit({
+            extendHead: this.win.extendHead.bind(this.win),
+            addSmallTabGroup: this.win.addSmallTabGroup.bind(this.win),
+            addEvent: this.win.addEvent.bind(this.win),
+            border: this.win.border,
+            module: this.win.module,
+            code: this.win.code+'/edit',
+            params: pItem
+        }, this.mainRight);
+        
+        this.currentEdit.addEvent('render', function(){
+        
+            this.topTabGroup.setStyle('left', 158);
         
         });
     
