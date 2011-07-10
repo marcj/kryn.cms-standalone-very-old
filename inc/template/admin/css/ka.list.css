@@ -296,7 +296,7 @@ a.ka-list-search-button-active:link {
     background-image:         linear-gradient(top, #f6f6f6, #ebebeb);
     border-bottom: 1px solid silver;
     padding: 4px 6px;
-    color: gray; 
+    color: #666; 
 }
 
 .ka-list-combine-left-top {
