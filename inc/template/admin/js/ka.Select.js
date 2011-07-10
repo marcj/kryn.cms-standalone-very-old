@@ -152,6 +152,16 @@ ka.Select = new Class({
             edge: 'upperRight'
         });
         
+        var pos = this.chooser.getPosition();
+        var size = this.chooser.getSize();
+        
+        var bsize = window.getSize( $('desktop') );
+        
+        if( size.y+pos.y > bsize.y )
+            this.chooser.setStyle('height', bsize.y-pos.y-10);
+        
+        
+        
         //new ka.blocker( this.chooser ).addEvent('click', this.close.bind(this));
         
         this.opened = true;

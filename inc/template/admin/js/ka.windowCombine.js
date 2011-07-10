@@ -577,12 +577,33 @@ ka.windowCombine = new Class({
                 
             }.bind(this));
             
-            logger("huhu. "+target);
-            
             if( target != false ){
-                var newItem = this.addItem( pItem );
-                newItem.inject( target, 'before' );
-                target.destroy();
+                
+                if( this.lastSavedUpdateRq )
+                    this.lastSavedUpdateRq.cancel();
+                
+                var req = { 
+                    module: this.win.module,
+                    code: this.win.code,
+                    primary: {}
+                };
+                
+                this.currentEdit.values.primary.each(function(primary){
+                    req['primary'][primary] = this.currentItem.values[primary];
+                }.bind(this));
+                
+                if( this.currentEdit.values.multiLanguage )
+                    req['language'] = this.currentItem.values['lang'];
+                
+                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/',
+                noCache: true, onComplete:function( res ){
+                                        
+                    var newItem = this.addItem( res.items[0] );
+                    newItem.inject( target, 'before' );
+                    target.destroy();
+                    
+                }.bind(this)}).post(req);
+            
             } else {
                 this.reload();
             }

@@ -38,14 +38,8 @@ function klog( $pArea, $pMsg ){
  * @return string|array
  */
 function getArgv( $pVal, $pEscape = false ){
-    //if( !is_numeric($pVal) && !array_key_exists( $_REQUEST, $pVal ))
-    //   kryn::error( "param $pVal is empty.", ERROR_FATAL );
-    if( $pEscape == 2 ){
-        return preg_replace("/\W/", "", $_REQUEST[ $pVal ]);
-    } else if( $pEscape == 1 || $pEscape == true){
-        return esc( $_REQUEST[ $pVal ] );
-    } else 
-        return $_REQUEST[ $pVal ];
+    if( $pEscape == false ) return $_REQUEST[ $pVal ];
+    return esc( $_REQUEST[ $pVal ], $pEscape );
 }
 
 

@@ -456,10 +456,24 @@ class windowList {
         else
             $results['maxPages'] = 0;
 
+
+        if( $_POST['primary'] ){
+        
+            $unique = "AND 2=2 ";
+            foreach( $_POST['primary'] as $key => $val ){
+                $unique .= " AND %pfx%".$this->table.".".esc($key,2)." = '".esc($val)."'";
+            }
+        
+            $end = 1;
+            $start = 0;
+        
+        }
+
         /* list sql */
         $listSql = "
             SELECT * FROM (
                 ".$this->listSql."
+                $unique
                 ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
             ) as t LIMIT $end OFFSET $start
             ";
