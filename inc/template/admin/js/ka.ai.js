@@ -6,6 +6,10 @@ window.kaExist = true;
 
 window.ka.ai = {};
 
+document.addEvent('touchmove', function(event){
+    event.preventDefault();
+});
+
 if( $type(ka.langs) != 'object' ) ka.langs = {};
 
 var logger = function( pVal ){
