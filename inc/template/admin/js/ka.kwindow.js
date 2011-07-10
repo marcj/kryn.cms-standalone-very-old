@@ -269,6 +269,7 @@ ka.kwindow = new Class({
     },
 
 
+    /*
     checkAccess: function(){
         var _this = this;
         var req = {
@@ -284,15 +285,16 @@ ka.kwindow = new Class({
             }
         }}).post( req );
     },
+    */
 
     getTitle: function(){
         if( this.title )
-            return this.title.get('html');
+            return this.titleText.get('html');
         return '';
     },
 
     setTitle: function( pTitle ){
-        this.title.set('html', pTitle);
+        this.titleText.set('html', pTitle);
         ka.wm.updateWindowBar();
     },
 
@@ -603,12 +605,12 @@ ka.kwindow = new Class({
                     _this.close( true );
                     return;
                 }
-                this._loadContent( res.values );
+                this._loadContent( res.values, res.path );
             }.bind(this)}).post({ module: _this.module, code: _this.code });
         }
     },
 
-    _loadContent: function(pVals){
+    _loadContent: function( pVals,pPath ){
         this.values = pVals;
         if( this.values.multi === false ){
             var win = ka.wm.checkOpen( this.module, this.code, this.id );
@@ -619,11 +621,39 @@ ka.kwindow = new Class({
                 return;
             }
         }
+        
+        var title = ka.settings.configs[ this.module ]['title']['en'];
+        
+        if( ka.settings.configs[ this.module ]['title'][window._session.lang] )
+            title = ka.settings.configs[ this.module ]['title'][window._session.lang];
+        
+        new Element('span', {
+            text: title
+        }).inject( this.titlePath );
+        
+        new Element('img', {
+            src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+        }).inject( this.titlePath );
+        
+        
+        pPath.each(function(label){
+            
+            new Element('span', {
+                text: _(label)
+            }).inject( this.titlePath );
+            
+            new Element('img', {
+                src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+            }).inject( this.titlePath );
+            
+        }.bind(this));
 
         this.createResizer();
 
-        this.title.set('text', _(pVals.title) );
+        this.titleText.set('text', _(pVals.title) );
+        
         var _this = this;
+        
         if( pVals.type == 'iframe' ){
             this.iframe = new IFrame('iframe_kwindow_'+this.id, {
 //            this.iframe = new Element('iframe', {
@@ -822,6 +852,10 @@ ka.kwindow = new Class({
         })
         .inject( this.win );
         
+        
+        this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject( this.title );
+        this.titleText = new Element('span').inject( this.title );
+        
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
         })
@@ -965,7 +999,7 @@ ka.kwindow = new Class({
         }).inject( this.win );
 
         this.linker = new Element('img', {
-            style: 'position: absolute; left: 3px; top: 3px; cursor: pointer',
+            style: 'position: absolute; left: 3px; top: 8px; cursor: pointer',
             title: _('Create a shortcut to the desktop'),
             src: _path+'inc/template/admin/images/win-top-bar-link.png'
         })

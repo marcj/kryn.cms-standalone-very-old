@@ -1228,7 +1228,6 @@
     "admin\/js\/ka.kwindow.js",
     "admin\/js\/ka.widget.js",
     "admin\/js\/ka.list.js",
-    "admin\/js\/ka.blocker.js",
     "admin\/js\/ka.overview.js",
     "admin\/js\/ka.pagesTree.js",
     "admin\/js\/ka.windowEdit.js",

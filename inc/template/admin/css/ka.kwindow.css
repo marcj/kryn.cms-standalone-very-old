@@ -131,7 +131,7 @@
     font-weight: bold;
     text-indent: 5px;
     background-color: #d4d0c8;
-    text-align: center;
+    text-align: left;
     color: #111;
     -moz-border-radius-topleft: 7px;
     -moz-border-radius-topright: 7px;
@@ -276,4 +276,16 @@
     right: 0px;
     bottom: 31px;
     overflow: auto;
+}
+
+.ka-kwindow-titlepath {
+    padding-left: 10px;
+    position: relative;
+    top: 1px;
+}
+
+.ka-kwindow-titlepath img {
+    position: relative;
+    top: 3px;
+    margin: 0px 5px;
 }

@@ -142,15 +142,23 @@ class window {
         $codes = explode( '/', $pCode );
         $adminInfo = $kryn->installedMods[$pModule]['admin'];
         
-        
         $_info = $adminInfo[$codes[0]];
+        
+        $path = array();
+        $path[] = $_info['title'];
+        
         $count = count($codes);
         if( $count > 1 ){
             for($i=1;$i<=$count;$i++){
-                if( $codes[$i] != "" )
+                if( $codes[$i] != "" ){
                     $_info = $_info['childs'][$codes[$i]];
+                    $path[] = $_info['title'];
+                }
             }
         }
+        
+        unset( $path[ count($path)-1 ] );
+        
         if( !$_info ){
             json(array('pathNotFound' => 1));
         }
@@ -165,7 +173,7 @@ class window {
         if( file_exists( $cssPath ) )
             $_info['cssmdate'] = filemtime( $cssPath );
         
-        return array('values'=>$_info);
+        return array('values'=>$_info, 'path' => $path);
     }
 
     public static function custom(){
