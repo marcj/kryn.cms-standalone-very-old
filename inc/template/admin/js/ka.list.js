@@ -574,7 +574,7 @@ ka.list = new Class({
             page: pPage,
             orderBy: _this.sortField,
             filter: this.searchEnable,
-            language: (this.languageSelect)?this.languageSelect.getValue():false,
+            language: (this.languageSelect)?this.languageSelect.value:false,
             filterVals: (this.searchEnable)?this.getSearchVals():'',
             orderByDirection: _this.sortDirection,
             params: JSON.encode(this.win.params)

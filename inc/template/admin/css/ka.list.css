@@ -81,6 +81,19 @@
     
 }
 
+.ka-list-combine-right {
+    position: absolute;
+    left: 251px;
+    background-color: #eee;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+}
+
+.ka-list-combine-right .ka-windowEdit-form {
+    bottom: 0px;
+}
+
 .ka-list-combine-left-itemcount {
     position: absolute;
     right: 5px;

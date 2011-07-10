@@ -47,8 +47,11 @@ ka.windowCombine = new Class({
         .addEvent('scroll', this.checkScrollPosition.bind(this))
         .inject( this.mainLeft );
         
+        
+        this.win.addEvent('resize', this.checkScrollPosition.bind(this));
+        
         this.mainRight = new Element('div', {
-            style: 'position: absolute; left: 251px; background-color: #eee; top: 0px; bottom: 0px; right: 0px'
+            'class': 'ka-list-combine-right'
         }).inject( this.main );
     },
     
@@ -99,9 +102,9 @@ ka.windowCombine = new Class({
         this.values.columns.each(function(column,id){
         
             this.sortSelect.add(id+'______asc', _(column.label)+
-                ' <img style="position: relative; top: -1px" src="'+_path+'inc/template/admin/images/icons/bullet_arrow_down_s.png" />');
-            this.sortSelect.add(id+'______desc', _(column.label)+
                 ' <img style="position: relative; top: -1px" src="'+_path+'inc/template/admin/images/icons/bullet_arrow_up_s.png" />');
+            this.sortSelect.add(id+'______desc', _(column.label)+
+                ' <img style="position: relative; top: -1px" src="'+_path+'inc/template/admin/images/icons/bullet_arrow_down_s.png" />');
             /*
             new Element('option', {
                 text: _(column.label),
@@ -264,7 +267,7 @@ ka.windowCombine = new Class({
     
         if( this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
             this.loadMore();
-        } else if( pItems.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
+        } else if( this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
             this.loadMore();
     
     },
@@ -382,6 +385,7 @@ ka.windowCombine = new Class({
         
         this.currentPage = pItems.page;
         this.maxPages = pItems.maxPages;
+        this.maxItems = pItems.maxItems;
 
         //this.ctrlMax.set('text', '/ '+pItems.maxPages);
 
@@ -502,7 +506,7 @@ ka.windowCombine = new Class({
     
     loadItem: function( pItem ){
         var _this = this;
-    
+
         var found = false;
         while( !found ){
             //until we found it in the item list
@@ -521,6 +525,9 @@ ka.windowCombine = new Class({
             }
         }
         
+        
+        this.currentItem = pItem;
+        
         if( !this.currentEdit ){
         
             this.currentEdit = new ka.windowEdit({
@@ -533,6 +540,8 @@ ka.windowCombine = new Class({
                 code: this.win.code+'/edit',
                 params: pItem
             }, this.mainRight);
+            
+            this.currentEdit.addEvent('save', this.saved.bind(this));
             
             /*this.currentEdit.addEvent('render', function(){
             
@@ -549,6 +558,38 @@ ka.windowCombine = new Class({
         
     
     },
+    
+    saved: function( pItem ){
+        
+        logger(pItem);
+        var sortedColumnChanged = false;
+        
+        if( sortedColumnChanged ){
+                this.reload();
+        } else {
+        
+            var target = false;
+            this.mainLeftItems.getChildren().each(function(item,i){
+                    
+                if( item.retrieve('item') == this.currentItem ){
+                    target = item;
+                }
+                
+            }.bind(this));
+            
+            logger("huhu. "+target);
+            
+            if( target != false ){
+                var newItem = this.addItem( pItem );
+                newItem.inject( target, 'before' );
+                target.destroy();
+            } else {
+                this.reload();
+            }
+        }
+    
+    },
+    
     /*
     renderTopTabGroup: function(){
         if( !this.topTabGroup ) return;
@@ -605,6 +646,20 @@ ka.windowCombine = new Class({
         .addEvent('click', this.loadItem.bind(this, pItem))
         .inject( this.itemLoader, 'before' );
         
+        
+        if( this.currentEdit ){
+        
+            var oneIsFalse = false;
+            
+	        this.currentEdit.values.primary.each(function(prim){
+	           if( this.currentItem['values'][prim] != pItem.values[prim] )
+	               oneIsFalse = true;
+	        }.bind(this))
+	        
+	        if( oneIsFalse == false )
+	           item.addClass('active');
+        }
+        
         //parse
         this.values.columns.each(function(column,columnId){
         
@@ -618,7 +673,7 @@ ka.windowCombine = new Class({
 
         }.bind(this));
         
-        return;
+        return item;
         
         var _this = this;
         var tr = new Element('tr',{

@@ -88,13 +88,15 @@ ka.Select = new Class({
     
     toggle: function( e ){
     
-        if( e && e.stop )
-            e.stop();
-    
         if( this.opened == true )
             this.close();
-        else
+        else {            
+            if( e && e.stop ){
+                document.body.fireEvent('click');
+                e.stop();
+            }
             this.open();
+        }
     },
     
     buildChooser: function(){

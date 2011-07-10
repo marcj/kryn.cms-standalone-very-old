@@ -229,7 +229,6 @@ class windowEdit {
             }
         }
         
-        
 
         foreach( $this->_fields as $key => $field ){
             if( $field['customValue'] ){
@@ -356,7 +355,7 @@ class windowEdit {
                     $sqlInsert = "
                         INSERT INTO %pfx%".$field['n-n']['middle']."
                         ( ".$field['n-n']['middle_keyleft'].", ".$field['n-n']['middle_keyright']." )
-                        VALUES ( '".getArgv($field['n-n']['left_key'])."', '$value' );";
+                        VALUES ( '".getArgv($field['n-n']['left_key'])."', '".esc($value)."' );";
                     dbExec( $sqlInsert );
                 }
             }

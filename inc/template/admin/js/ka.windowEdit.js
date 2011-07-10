@@ -389,13 +389,20 @@ ka.windowEdit = new Class({
         
             this.actionsNavi = this.win.addButtonGroup();
             
-            this.actionsNavi.addButton(_('Save'), _path+'inc/template/admin/images/button-save.png', function(){
+            this.saveBtn = this.actionsNavi.addButton(_('Save'), _path+'inc/template/admin/images/button-save.png', function(){
                
+                   _this._save();
+                   
             }.bind(this));
             
-            this.actionsNavi.addButton(_('Save and publish'), _path+'inc/template/admin/images/button-save-and-publish.png', function(){
-               
-            }.bind(this));
+            if( this.values.versioning == true ){
+                this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'),
+                        _path+'inc/template/admin/images/button-save-and-publish.png', function(){
+                   
+                   _this._save( false, true );
+                   
+                }.bind(this));
+            }
             
             this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png', function(){
                
@@ -434,7 +441,7 @@ ka.windowEdit = new Class({
         }
     },
 
-    _save: function( pClose ){
+    _save: function( pClose, pPublish ){
         var go = true;
         var _this = this;
         var req = $H();
@@ -444,6 +451,7 @@ ka.windowEdit = new Class({
         
         req.include( 'module', this.win.module );
         req.include( 'code', this.win.code );
+        
         
         this.fields.each(function(item, fieldId){
             if( !item.isHidden() && !item.isOk() ){
@@ -485,12 +493,24 @@ ka.windowEdit = new Class({
         	req.set('lang', this.languageSelect.value);
         }
         
-        if( !pClose && this.saveNoClose ){
-            this.saveNoClose.startTip(_('Save ...'));
-        }
+        
+        
         
         if( go ){
-            this.loader.show();
+                
+            if( this.inline ) {
+                if( pPublish ){
+                    this.saveAndPublishBtn.startTip( _('Save ...') );
+                } else {
+                    this.saveBtn.startTip( _('Save ...') );
+                }
+            } else {
+                this.loader.show();
+                if( !pClose && this.saveNoClose ){
+                    this.saveNoClose.startTip(_('Save ...'));
+                }
+            }
+            
             if( _this.win.module == 'users' && (_this.win.code == 'users/edit/'
                 || _this.win.code == 'users/edit'
                 || _this.win.code == 'users/editMe'
@@ -498,10 +518,28 @@ ka.windowEdit = new Class({
                 ) ){
                 ka.settings.get('user').set('adminLanguage', req.get('adminLanguage') );
             }
+            
+            if( this.win.params ){
+    	        this.values.primary.each(function(prim){
+    	            req.include( 'primary:'+prim, this.win.params.values[prim] );
+    	        }.bind(this));
+    	    }
+            
             new Request.JSON({url: _path+'admin/backend/window/loadClass/saveItem', noCache: true, onComplete: function(res){
                 
-            	ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
-                _this.loader.hide();
+                if( !_this.inline )
+                	ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
+            	
+            	if( _this.inline ) {
+                    if( pPublish ){
+                        _this.saveAndPublishBtn.stopTip( _('Saved') );
+                    } else {
+                        _this.saveBtn.stopTip( _('Saved') );
+                    }
+                } else {
+                    _this.loader.hide();
+                }
+                
                 
                 if( !pClose && this.saveNoClose ){
                     _this.saveNoClose.stopTip(_('Done'));
@@ -510,6 +548,8 @@ ka.windowEdit = new Class({
             	if( _this.values.loadSettingsAfterSave == true ) ka.loadSettings();
                 
                 // Before close, perform saveSuccess
+                _this.fireEvent('save', res);
+                
                 _this._saveSuccess();
                 
             	if( !pClose && _this.values.versioning == true ) _this.loadVersions();

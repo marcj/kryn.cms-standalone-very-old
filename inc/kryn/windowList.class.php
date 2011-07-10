@@ -377,7 +377,7 @@ class windowList {
             if( $pCountSql == false ){
                 if( $column['type'] == 'select' && $column['relation'] != 'n-n' ){
                     $exTable = "%pfx%".$column['table'];
-                    $extraFields[] = $exTable.".".$column['table_label']." AS $key"."__label, $key";
+                    $extraFields[] = $exTable.".".$column['table_label']." AS $key"."__label";
                     //get all fields from joined table if modifier is active
                     $mod = $this->modifier;
                     if( !empty($mod) && method_exists( $this, $mod ) )
@@ -458,11 +458,12 @@ class windowList {
 
         /* list sql */
         $listSql = "
-            ".$this->listSql."
-            
-            ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
-            LIMIT $end OFFSET $start
+            SELECT * FROM (
+                ".$this->listSql."
+                ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
+            ) as t LIMIT $end OFFSET $start
             ";
+            
         
         $res = dbExec( $listSql );
 

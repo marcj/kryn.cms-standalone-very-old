@@ -1124,6 +1124,24 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
             }
             
             if( item.hasSubmenu ){
+                $H(item.childs).each(function(subitem, subcode){
+                	
+                    if( item.isLink === false ) return;
+                    var subsublink = new Element('a', {
+                        html: _(subitem.title),
+                        'class': 'ka-module-item-sub'
+                    })
+                    .inject( menu );
+                    
+                    if( subitem.type ){
+                    	subsublink.addClass('ka-module-items-activated');
+                    	subsublink.addEvent('click', function(){
+                            ka.wm.openWindow( pExtCode, pCode+'/'+code+'/'+subcode, pLink );
+                        })
+                    }
+                });
+            }
+            /*if( item.hasSubmenu ){
             	
             	var submenu = new Element('div', {
                     'class': 'bar-dock-logo-menu-style bar-dock-logo-menu-submenu ka-subnavi',
@@ -1181,7 +1199,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
                         })
                     }
                 });
-            }
+            }*/
             
         });
 

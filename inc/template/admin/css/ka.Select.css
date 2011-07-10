@@ -7,9 +7,10 @@
     background-color: #f1f1f1;
     padding-right: 15px;
     overflow: hidden;
-    height: 14px;
+    height: 15px;
     display: inline-block;
-    line-height: 13px;
+    line-height: 14px;
+    top: -1px;
     vertical-align: top;
 }
 
@@ -26,7 +27,7 @@
 .ka-Select-box-title {
     position: absolute;
     left: 6px;
-    top: 1px;
+    top: 0px;
     right: 16px;
     overflow: hidden;
     display: inline-block;
@@ -37,7 +38,7 @@
     position: absolute;
     padding-top: 1px;
     padding-right: 0px;
-    top: 0px;
+    top: 1px;
     right: 0px;
     width: 12px;
     background-color: #eee;

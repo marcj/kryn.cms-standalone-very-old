@@ -629,22 +629,22 @@ ka.kwindow = new Class({
         
         new Element('span', {
             text: title
-        }).inject( this.titlePath );
+        }).inject( this.titleText, 'before' );
         
         new Element('img', {
             src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
-        }).inject( this.titlePath );
+        }).inject( this.titleText, 'before' );
         
         
         pPath.each(function(label){
             
             new Element('span', {
                 text: _(label)
-            }).inject( this.titlePath );
+            }).inject( this.titleText, 'before' );
             
             new Element('img', {
                 src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
-            }).inject( this.titlePath );
+            }).inject( this.titleText, 'before' );
             
         }.bind(this));
 
@@ -854,7 +854,7 @@ ka.kwindow = new Class({
         
         
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject( this.title );
-        this.titleText = new Element('span').inject( this.title );
+        this.titleText = new Element('span').inject( this.titlePath );
         
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
