@@ -1,43 +1,68 @@
 ka.windowCombine = new Class({
 
     Extends: ka.list,
+    lastSortValue: false,
+    itemsLoadedCount: 0,
     
+    searchPaneHeight: 110,
     
     renderLayout: function(){
-    
         
         this.main = new Element('div',{
             'class': 'ka-list-main',
             style: 'bottom: 0px; top: 0px; overflow: hidden;'
         }).inject( this.win.content );
         
+        
         this.mainLeft = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; width: 250px;'
+            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; width: 250px; border-right: 1px solid silver;'
         }).inject( this.main );
         
-        this.mainLeftItems = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; right: 0px; border-right: 1px solid silver; overflow: auto;'
+        this.mainLeftTop = new Element('div', {
+            style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 14px; right: 0px; border-bottom: 1px solid gray;',
+            'class': 'ka-list-combine-left-top'
         }).inject( this.mainLeft );
         
+        this.sortSpan = new Element('span', {
+            style: 'margin-left: 30px; line-height: 17px;'
+        }).inject( this.mainLeftTop );
+        
+        this.itemCount = new Element('div', {
+            'class': 'ka-list-combine-left-itemcount'
+        }).inject( this.mainLeftTop );
+        
+        this.itemsFrom = new Element('span', {text: '0'}).inject( this.itemCount );
+        new Element('span', {text: '-'}).inject( this.itemCount );
+        this.itemsLoaded = new Element('span', {text: '0'}).inject( this.itemCount );
+        new Element('span', {text: '/'}).inject( this.itemCount );
+        this.itemsMax = new Element('span', {text: '0'}).inject( this.itemCount );
+        
+        this.mainLeftSearch = new Element('div', {
+            'class': 'ka-list-combine-searchpane'
+        }).inject( this.mainLeft );
+        
+        this.mainLeftItems = new Element('div', {
+            style: 'position: absolute; left: 0px; top: 25px; bottom: 0px; right: 0px; overflow: auto;'
+        })
+        .addEvent('scroll', this.checkScrollPosition.bind(this))
+        .inject( this.mainLeft );
         
         this.mainRight = new Element('div', {
             style: 'position: absolute; left: 251px; background-color: #eee; top: 0px; bottom: 0px; right: 0px'
         }).inject( this.main );
-        
-        this.bottom = new Element('div',{
-            'class': 'ka-list-bottom'
-        }).inject( this.win.content );
-        
     },
     
     renderActionbar: function(){
         var _this = this;
+        
+        this.renderSearchPane();
     
         if( this.values.multiLanguage )
         	this.win.extendHead();
         
         if( this.values.add || this.values.remove || this.values.custom){
             this.actionsNavi = this.win.addButtonGroup();
+            this.actionsNavi.setStyle('margin-right', 159);
         }
 
         if( this.values.remove ){
@@ -53,71 +78,344 @@ ka.windowCombine = new Class({
                 });
             });
         }
+        
+        
+        
+        this.searchIcon = new Element('div', {
+            'class': 'ka-list-combine-searchicon',
+            html: '<img src="'+_path+'inc/template/admin/images/search-icon.png" />',
+        })
+        .addEvent('click', this.toggleSearch.bind(this))
+        .inject( this.mainLeftTop );
+        
+        
+        
      
-     
-           
-        this.sortSelect = new Element('select').inject( this.bottom );
+                
+        this.sortSelect = new ka.Select();
+        this.sortSelect.inject(this.sortSpan);
+        this.sortSelect.setStyle('width', 55);
+        //this.sortSelect = new Element('select').inject( this.sortSpan );
         this.values.columns.each(function(column,id){
         
+            this.sortSelect.add(id+'______asc', _(column.label)+
+                ' <img style="position: relative; top: -1px" src="'+_path+'inc/template/admin/images/icons/bullet_arrow_down_s.png" />');
+            this.sortSelect.add(id+'______desc', _(column.label)+
+                ' <img style="position: relative; top: -1px" src="'+_path+'inc/template/admin/images/icons/bullet_arrow_up_s.png" />');
+            /*
             new Element('option', {
                 text: _(column.label),
                 value: id
-            }).inject( this.sortSelect );
+            }).inject( this.sortSelect );*/
         
         }.bind(this));
         
         this.sortSelect.addEvent('change', function(){
     
-            this.sortField = this.sortSelect.value;    
+            var sortId = this.sortSelect.getValue();
             
-            if( this.values.columns[this.sortField] && (this.values.columns[this.sortField]['type'] == 'datetime' || 
+            
+            this.sortField = sortId.split('______')[0];
+            
+            /*if( this.values.columns[this.sortField] && (this.values.columns[this.sortField]['type'] == 'datetime' || 
                 this.values.columns[this.sortField]['type'] == 'date') ){
                 this.sortDirection = 'DESC';
-            }
-                            
-            this.reload()
+            }*/
+            
+            this.sortDirection = sortId.split('______')[1];
+            
+            this.reload();
+            
         
         }.bind(this));
+        
+        //this.sortSelect.value = this.sortField;
+        
+        
+        this.sortSelect.setValue( this.sortField+'______'+((this.sortDirection=='DESC')?'desc':'asc') );
+        
+        this.createItemLoader();
+        
+        /*
+        this.userFilter = new Element('div', {
+            'class': 'ka-list-combine-userfilter'
+        }).inject( this.mainLeftTop );
+        
+        new Element('a', {
+            text: _('me')
+        }).inject( this.userFilter );
+        
+        
+        new Element('a', {
+            text: _('all'),
+            'class': 'active'
+        }).inject( this.userFilter );
+        
+        new Element('a', {
+            html: '<img src="'+_path+'inc/template/admin/images/icons/tree_minus.png" />',
+            style: 'padding-left: 2px; padding-right: 2px;'
+        }).inject( this.userFilter );
+        */
+        /*
+        this.searchBar = this.win.addButtonGroup();
+        
+        new Element('input', {
+            'class': 'ka-list-combine-search',
+            value: 'Keyword ...'
+        })
+        .addEvent('click', function(e){
+            e.stop();
+        })
+        .inject( this.searchBar.boxWrapper );
+        
+        
+        new Element('a', {
+            html: '<img src="'+_path+'inc/template/admin/images/icons/tree_minus.png" />',
+            style: 'padding-left: 2px; padding-right: 2px;'
+        }).inject( this.searchBar.boxWrapper );
+        
+        this.searchBar.setStyle('margin-right', 3);
+        */
     
     },
     
-    _loadItems: function( pItems ){
+    renderSearchPane: function(){
+        
+        var table = new Element('table').inject( this.mainLeftSearch );;
+        
+        this.searchPane = new Element('tbody', {
+        }).inject( table );
+
+        this.searchFields = new Hash();
+        var doSearchNow = false;
+
+        if( this.values.filter && this.values.filter.each ){
+            this.values.filter.each(function(filter, key){
+
+                
+                var mkey = key;
+                
+                if( $type(key) == 'number' ){
+                    mkey = filter;
+                }
+                
+                var field = this.values.filterFields[ mkey ];
+                
+                
+                var title = this.values.columns[mkey].label;
+                field.label = _(title);
+                field.small = true;
+                field.tableitem = true;
+                field.tableitem_title_width = 50;
+                
+                var fieldObj = new ka.field(field)
+                .addEvent('change', this.doSearch.bind(this))
+                .inject( this.searchPane );
+                
+                this.searchFields.set(mkey, fieldObj );
+                
+                if( field.type == 'select' ){
+                	new Element('option',{
+                		value: '',
+                		text: _('-- Please choose --')
+                	}).inject(fieldObj.input, 'top');
+                	fieldObj.setValue("");
+                }
+                
+                if( this.win.params && this.win.params.filter ){
+                	$H(this.win.params.filter).each(function(item,key){
+                		if( item == mkey ){
+                			fieldObj.setValue( this.win.params.item.values[key] );
+                        	doSearchNow = true;
+                		}
+                	}.bind(this));
+                }
+
+            }.bind(this));
+        } else {
+            this.filterButton.destroy();
+        }
+        
+        if( doSearchNow ){
+        	this.toggleSearch();
+        	this.loadAlreadyTriggeredBySearch = true;
+        	this.doSearch();
+        }
+    },
+    
+    
+    doSearch: function(){
+        if( this.lastTimer )
+            $clear( this.lastTimer );
+
+        var mySearch = function(){
+            this.reload();
+        }.bind(this);
+        this.lastTimer = mySearch.delay(200);
+    },
+    
+    renderLoader: function(){
+        
+    },
+    
+    checkScrollPosition: function(){
+    
+        if( this.loadingNewItems ) return;
+    
+        if( this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
+            this.loadMore();
+        } else if( pItems.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
+            this.loadMore();
+    
+    },
+    
+    loadMore: function(){    
+        if( this.currentPage < this.maxPages ){
+            //load next page
+            this.loadPage(parseInt(this.currentPage)+1);
+        }
+    },
+    
+    changeLanguage: function(){
+    
+        this.reload();
+    },
+    
+    reload: function(){
+        this.clearItemList();
+    	this.loadPage(1);
+    },
+    
+    clearItemList: function(){    
+        this.lastSortValue = false;
+        this.itemsLoadedCount = 0;
+        
+        this.mainLeftItems.empty();
+        this.createItemLoader();
+    },
+    
+    createItemLoader: function(){
+    
+        this.itemLoader = new Element('div', {
+            'class': 'ka-list-combine-item ka-list-combine-itemloader'
+        }).inject( this.mainLeftItems );
+        
+        this.itemLoaderStop();
+    
+    },
+    
+    itemLoaderStop: function(){
+        this.loadingNewItems = false;
+        if( !this.itemLoader ) return;
+        this.itemLoader.set('html', _('Scroll to the bottom to load more entries.'));
+    },
+    
+    itemLoaderEnd: function(){
+        if( !this.itemLoader ) return;
+        this.itemLoader.set('html', _('No entries left.'));
+    },
+    
+    itemLoaderStart: function(){
+        this.loadingNewItems = true;
+        if( !this.itemLoader ) return;
+        this.itemLoader.set('html', '<img src="'+_path+'inc/template/admin/images/loading.gif" />'+'<br />'+_('Loading entries ...'));
+    },
+    
+    itemLoaderNoItems: function(){
+        this.itemLoader.set('html', _('There are no entries.'));
+    },
+    
+    renderMultilanguage: function(){
+        //chooser
+    
+        
+        this.languageSelect = new ka.Select();
+        this.languageSelect.inject(this.sortSpan);
+        this.languageSelect.setStyle('width', 55);
+        
+        
+        this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
+
+        $H(ka.settings.langs).each(function(lang,id){
+        
+            this.languageSelect.add(id, lang.langtitle+' ('+lang.title+', '+id+')');
+            
+        }.bind(this));
+    	
+    	this.languageSelect.setValue( window._session.lang );
+    
+    },
+    
+    toggleSearch: function(){
+    
+        if( !this.searchOpened ){
+            this.searchEnable = 1;
+            this.searchIcon.addClass('ka-list-combine-searchicon-active');
+            this.mainLeftSearch.tween('height', this.searchPaneHeight);
+            this.mainLeftSearch.setStyle('border-bottom', '1px solid silver');
+            this.mainLeftItems.tween('top', 25+this.searchPaneHeight+1);
+            this.searchOpened = true;
+        } else {
+            
+            this.searchEnable = 0;
+            this.searchIcon.removeClass('ka-list-combine-searchicon-active');
+    
+            new Fx.Tween(this.mainLeftSearch).start('height', 0).chain(function(){
+                this.mainLeftSearch.setStyle('border-bottom', '0px');
+                this.checkScrollPosition();
+            }.bind(this));
+            
+            this.mainLeftItems.tween('top', 25);
+            this.searchOpened = false;
+            this.reload();
+        }
+    
+    },
+    
+    renderItems: function( pItems ){
         var _this = this;
 
         this.checkboxes = [];
-        this.loader.hide();
+        
 
         this._lastItems = pItems;
+        
+        this.currentPage = pItems.page;
+        this.maxPages = pItems.maxPages;
 
         //this.ctrlMax.set('text', '/ '+pItems.maxPages);
 
         _this.tempcount = 0;
         
-        var lastSortValue = false;
         
         if( pItems.items ){
-            pItems.items.each(function(item){
+            Object.each(pItems.items, function(item){
+            
+                this.itemsLoadedCount++;
             
                 var value = this.getItemTitle( item, this.sortField );
                 
                 
                 if( !this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text" ){
                     
-                    var firstChar = value.substr(0,1);
-                    if( firstChar != lastSortValue ){
-                        lastSortValue = firstChar;
-                        this.addSplitTitle( firstChar );
+                    var firstChar = value.substr(0,1).toUpperCase();
+                    if( firstChar != this.lastSortValue ){
+                        this.lastSortValue = firstChar;
+                        this.addSplitTitle( '<b>'+firstChar+'</b>' );
                     }
                     
                 } else {
                 
                     if( ["datetime", "date"].contains(this.values.columns[this.sortField]['type']) ){
                         
-                        var time = new Date(item['values'][this.sortField]*1000);
+                        if( item['values'][this.sortField] > 0 ){
                         
-                        //var cur = new Date();
-                        
-                        value = time.timeDiffInWords();
+                            var time = new Date(item['values'][this.sortField]*1000);
+                            value = time.timeDiffInWords();
+                            
+                        } else {
+                            value = _('No value');
+                        }
                         
                         //if( cur.format('%d') == cur.format('%d') ){
                         //    value = _("Today");
@@ -125,9 +423,9 @@ ka.windowCombine = new Class({
                         
                     }
                 
-                    if( value != lastSortValue ){
-                        lastSortValue = value;
-                        this.addSplitTitle( lastSortValue );
+                    if( value != this.lastSortValue ){
+                        this.lastSortValue = value;
+                        this.addSplitTitle( this.lastSortValue );
                     }
                 }
                 
@@ -136,6 +434,32 @@ ka.windowCombine = new Class({
                 _this.tempcount++;
             }.bind(this));
         }
+        
+        if( pItems.maxItems > 0 ){
+            if( this.currentPage == pItems.maxPages ){
+                this.itemLoaderEnd();
+            } else {
+                this.itemLoaderStop();
+            }
+        } else {
+            this.itemLoaderNoItems();
+        }
+        
+        
+
+        if( pItems.maxItems > 0 ){
+            this.itemsFrom.set('html', 1);
+            this.itemsLoaded.set('html', this.itemsLoadedCount);
+            this.itemsMax.set('html', pItems.maxItems);
+        } else {
+            this.itemsFrom.set('html', 0);
+            this.itemsLoaded.set('html', this.itemsLoadedCount);
+            this.itemsMax.set('html', pItems.maxItems);
+        }
+        
+        if( pItems.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
+            this.loadMore();
+            
     },
     
     getItemTitle: function( pItem, pColumnId ){
@@ -169,12 +493,15 @@ ka.windowCombine = new Class({
         return value;
     },
     
-    clear: function(){
-        this.mainLeftItems.empty();
+    prepareLoadPage: function(){
+        
+        //this.mainLeftItems.empty();
+        this.itemLoaderStart();
+        
     },
     
     loadItem: function( pItem ){
-    
+        var _this = this;
     
         var found = false;
         while( !found ){
@@ -194,34 +521,45 @@ ka.windowCombine = new Class({
             }
         }
         
-        if( this.currentEdit ){
-            this.currentEdit.destroy();
-            delete this.currentEdit;
+        if( !this.currentEdit ){
+        
+            this.currentEdit = new ka.windowEdit({
+                extendHead: this.win.extendHead.bind(this.win),
+                addSmallTabGroup: this.win.addSmallTabGroup.bind(this.win),
+                addButtonGroup: this.win.addButtonGroup.bind(this.win),
+                addEvent: this.win.addEvent.bind(this.win),
+                border: this.win.border,
+                module: this.win.module,
+                code: this.win.code+'/edit',
+                params: pItem
+            }, this.mainRight);
+            
+            /*this.currentEdit.addEvent('render', function(){
+            
+                _this.topTabGroup = this.topTabGroup;
+                _this.renderTopTabGroup();
+            
+            });*/
+        } else {
+        
+            this.currentEdit.win.params = pItem;
+            this.currentEdit.loadItem();
+        
         }
         
-        this.currentEdit = new ka.windowEdit({
-            extendHead: this.win.extendHead.bind(this.win),
-            addSmallTabGroup: this.win.addSmallTabGroup.bind(this.win),
-            addEvent: this.win.addEvent.bind(this.win),
-            border: this.win.border,
-            module: this.win.module,
-            code: this.win.code+'/edit',
-            params: pItem
-        }, this.mainRight);
-        
-        this.currentEdit.addEvent('render', function(){
-        
-            this.topTabGroup.setStyle('left', 158);
-        
-        });
     
     },
+    /*
+    renderTopTabGroup: function(){
+        if( !this.topTabGroup ) return;
+        this.topTabGroup.setStyle('left', 158);
+    },*/
     
     addSplitTitle: function( pItem ){
         new Element('div', {
             'class': 'ka-list-combine-splititem',
             html: pItem
-        }).inject( this.mainLeftItems );
+        }).inject( this.itemLoader, 'before' );
     },
     
     addItem: function( pItem ){
@@ -265,7 +603,7 @@ ka.windowCombine = new Class({
         })
         .store('item', pItem)
         .addEvent('click', this.loadItem.bind(this, pItem))
-        .inject( this.mainLeftItems );
+        .inject( this.itemLoader, 'before' );
         
         //parse
         this.values.columns.each(function(column,columnId){

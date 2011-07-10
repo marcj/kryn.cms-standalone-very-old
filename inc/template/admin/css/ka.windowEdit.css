@@ -18,6 +18,10 @@
     border-top: 1px solid #ddd;
 }
 
+.ka-windowEdit-form .ka-field-layoutelement-tinytoolbar {
+    right: 0px;
+}
+
 
 .ka-windowEdit-form .tinyMceExternalToolbarParent {
     width: 100%;

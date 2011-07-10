@@ -85,26 +85,35 @@ ka.list = new Class({
         this.values = pValues;
         this.values.columns = $H(pValues.columns);
 
-        /*multilang*/
-        this.renderMultilanguage();
+        
+        this.sortField = this.values.orderBy;
+        if( this.values.orderDirection )
+            this.sortDirection = this.values.orderDirection;
+        if( this.values.orderByDirection )
+            this.sortDirection = this.values.orderByDirection;
+
         
         this.renderLayout();
         
         this.renderActionbar();
+        
+        /*multilang*/
+        this.renderMultilanguage();
 
-        this.loader = new ka.loader().inject( this.main );
+        this.renderLoader();
 
         if( !this.loadAlreadyTriggeredBySearch )
             if( this.columns )
             	this.click( _this.values.orderBy );
             else {
-                this.sortField = this.values.orderBy;
-                if( this.values.order )
-                    this.sortDirection = this.values.order;
                 this.loadPage(1);
             }
         
         //this.loadPage(1);
+    },
+    
+    renderLoader: function(){
+        this.loader = new ka.loader().inject( this.main );
     },
     
     renderMultilanguage: function(){
@@ -445,9 +454,15 @@ ka.list = new Class({
         if( this.getSelected() != false ){
             this.win._confirm(_('Really remove selected?'), function(res){
                 if(!res)return;
-                this.loader.show();
+                
+                if( this.loader )
+                    this.loader.show();
+                    
                 new Request.JSON({url: _path+'admin/backend/window/loadClass/removeSelected/', noCache: 1, onComplete: function(res){
-                    this.loader.hide();
+                    
+                    if( this.loader )
+                        this.loader.hide();
+                    
                     this.loadPage( this.currentPage );
                     this._deleteSuccess();
                 }.bind(this)}).post({
@@ -527,47 +542,52 @@ ka.list = new Class({
     },
 
 
-    clear: function(){
+    prepareLoadPage: function(){
         this.tbody.empty();
     },
     
     loadPage: function( pPage ){
         var _this = this;
 
+        
         if( this._lastItems && pPage != 1 ){
             if( pPage > this._lastItems.maxPages )
                 return;
         }
+        
         if( pPage <= 0 )
             return;
 
         if( this.lastRequest )
             this.lastRequest.cancel();
 
-        this.clear();
+        this.prepareLoadPage();
 
-        this.loader.show();
+        if( this.loader )
+            this.loader.show();
 
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
-            _this._loadItems($H(res));
+            _this.renderItems(res);
         }}).post({ 
             module: this.win.module,
             code: this.win.code, 
             page: pPage,
             orderBy: _this.sortField,
             filter: this.searchEnable,
-            language: (this.languageSelect)?this.languageSelect.value:false,
+            language: (this.languageSelect)?this.languageSelect.getValue():false,
             filterVals: (this.searchEnable)?this.getSearchVals():'',
             orderByDirection: _this.sortDirection,
             params: JSON.encode(this.win.params)
         });
     },
 
-    _loadItems: function( pItems ){
+    renderItems: function( pItems ){
         var _this = this;
 
         this.checkboxes = [];
-        this.loader.hide();
+        
+        if( this.loader )
+            this.loader.hide();
 
         this._lastItems = pItems;
 
@@ -591,7 +611,7 @@ ka.list = new Class({
 
         _this.tempcount = 0;
         if( pItems.items ){
-            pItems.items.each(function(item){
+            Object.each(pItems.items, function(item){
                 _this.addItem( item );
                 _this.tempcount++;
             });

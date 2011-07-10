@@ -1,0 +1,69 @@
+.ka-Select-box {
+    margin: 0px 4px;
+    border: 1px solid #ccc;
+    -moz-border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    background-color: #f1f1f1;
+    padding-right: 15px;
+    overflow: hidden;
+    height: 14px;
+    display: inline-block;
+    line-height: 13px;
+    vertical-align: top;
+}
+
+.ka-Select-box:hover {
+    background-color: #eaeaea;
+    background-image: -webkit-gradient(linear, left top, left bottom, #f6f6f6, to(#ebebeb)); 
+    background-image: -webkit-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:    -moz-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:     -ms-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:      -o-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:         linear-gradient(top, #f6f6f6, #ebebeb);
+}
+
+.ka-Select-box-title {
+    position: absolute;
+    left: 6px;
+    top: 1px;
+    right: 16px;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.ka-Select-arrow {
+    position: absolute;
+    padding-top: 1px;
+    padding-right: 0px;
+    top: 0px;
+    right: 0px;
+    width: 12px;
+    background-color: #eee;
+}
+
+.ka-Select-chooser {
+    border: 4px solid #555;
+    position: absolute;
+    display: none;
+    min-width: 50px;
+    min-height: 15px;
+    background-color: #eee;
+    -moz-border-radius: 5px;
+    box-shadow: 0px 0px 3px #777;
+}
+
+
+.ka-Select-chooser a,
+.ka-Select-chooser a:link {
+
+    display: block;
+    padding: 4px 10px;
+    text-decoration: none;
+
+}
+
+.ka-Select-chooser a:hover {
+    background-color: #fff;
+}

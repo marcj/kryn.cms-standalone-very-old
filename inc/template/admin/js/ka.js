@@ -16,6 +16,8 @@ ka.init = function(){
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
+
+    logger('ka-init');
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
     
@@ -913,21 +915,21 @@ ka.renderAdminLink = function(){
 	var windowSize = window.getSize().x;
 	if( windowSize < 770 ){
 		logger('show blocker');
-		if( !ka.blocker ){
-			ka.blocker = new Element('div', {
+		if( !ka.toSmallWindowBlocker ){
+			ka.toSmallWindowBlocker = new Element('div', {
 				'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
 			}).inject( document.body );
-			var t = new Element('table', {style: 'width: 100%; height: 100%'}).inject(ka.blocker);
+			var t = new Element('table', {style: 'width: 100%; height: 100%'}).inject(ka.toSmallWindowBlocker);
 			var tr = new Element('tr').inject( t );
 			var td = new Element('td', {
 				align: 'center', valign: 'center',
 				text: _('Your browser window is too small.')
 			}).inject(tr);
 		}
-	} else if( ka.blocker ){
-		logger('destroy: '+ka.blocker);
-		ka.blocker.destroy();
-		ka.blocker = null;
+	} else if( ka.toSmallWindowBlocker ){
+		logger('destroy: '+ka.toSmallWindowBlocker);
+		ka.toSmallWindowBlocker.destroy();
+		ka.toSmallWindowBlocker = null;
 	}
 	
 	var iconbar = $('iconbar');

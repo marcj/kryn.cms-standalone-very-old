@@ -77,7 +77,7 @@ ka.windowEdit = new Class({
         pField.desc = _(pField.desc);
         
         if( this.languageSelect && pField.multiLanguage )
-        	pField.lang = this.languageSelect.value;
+        	pField.lang = this.languageSelect.getValue();
         
         var field = new ka.field(pField, pFieldId );
         field.inject( pContainer );
@@ -122,7 +122,7 @@ ka.windowEdit = new Class({
         
         
         if( this.values.multiLanguage ){
-        	this.languageSelect.value = this.item.values.lang;
+        	this.languageSelect.setValue( this.item.values.lang );
         	this.changeLanguage();
         }
 
@@ -151,24 +151,29 @@ ka.windowEdit = new Class({
     	
         this.versioningSelect.empty();
     	
-        new Element('option', {
+    	
+    	this.versioningSelect.add('', _('-- LIVE --'));
+        
+        /*new Element('option', {
             text: _('-- LIVE --'),
             value: ''
-        }).inject( this.versioningSelect );
+        }).inject( this.versioningSelect );*/
         
         if( $type( this.item.versions) == 'array' ){
 	        this.item.versions.each(function(version, id){
-	        	
-	        	 new Element('option', {
+    	
+                this.versioningSelect.add( version.version, version.title );
+	            /*new Element('option', {
 	                 text: version.title,
 	                 value: version.version
 	             }).inject( this.versioningSelect );
+	            */
 	        	
 	        }.bind(this));
         }
         
         if( this.item.version ){
-        	this.versioningSelect.value = this.item.version;
+        	this.versioningSelect.setValue( this.item.version );
         }
     	
     },
@@ -179,7 +184,6 @@ ka.windowEdit = new Class({
 
         this.loader = new ka.loader().inject( this.container );
         this.loader.show();
-        this.renderContent();
 
         this.fields = $H({});
         this._fields = $H({});
@@ -190,34 +194,57 @@ ka.windowEdit = new Class({
         if( this.values.multiLanguage ){
         	this.win.extendHead();
         	
-        	this.languageSelect = new Element('select', {
+        	
+            this.languageSelect = new ka.Select();
+            this.languageSelect.inject( this.win.border );
+            this.languageSelect.setStyle('width', 120);
+            this.languageSelect.setStyle('top', 29);
+            this.languageSelect.setStyle('right', 5);
+            this.languageSelect.setStyle('position', 'absolute');
+        	
+        	
+        	/*this.languageSelect = new Element('select', {
                 style: 'position: absolute; right: 5px; top: 27px; width: 160px;'
-            }).inject( this.win.border );
+            }).inject( this.win.border );*/
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
-            new Element('option', {
+            
+            this.languageSelect.add('', _('-- Please Select --'));
+            
+            /*new Element('option', {
                 text: _('-- Please select --'),
                 value: ''
-            }).inject( this.languageSelect );
+            }).inject( this.languageSelect );*/
 
             $H(ka.settings.langs).each(function(lang,id){
-                new Element('option', {
+                /*new Element('option', {
                     text: lang.langtitle+' ('+lang.title+', '+id+')',
                     value: id
-                }).inject( this.languageSelect );
+                }).inject( this.languageSelect );*/
+                
+                this.languageSelect.add( id, lang.langtitle+' ('+lang.title+', '+id+')' );
+                
             }.bind(this));
             
             if( this.win.params )
-                this.languageSelect.value = this.win.params.lang;
+                this.languageSelect.setValue( this.win.params.lang );
             
-            versioningSelectRight = 170;
+            versioningSelectRight = 150;
         }
         
         if( this.values.versioning == true ){
         	
-        	this.versioningSelect = new Element('select', {
+        	/*this.versioningSelect = new Element('select', {
                 style: 'position: absolute; right: '+versioningSelectRight+'px; top: 27px; width: 160px;'
-            }).inject( this.win.border );
+            }).inject( this.win.border );*/
+        	
+        	
+            this.versioningSelect = new ka.Select();
+            this.versioningSelect.inject( this.win.border );
+            this.versioningSelect.setStyle('width', 120);
+            this.versioningSelect.setStyle('top', 29);
+            this.versioningSelect.setStyle('right', versioningSelectRight);
+            this.versioningSelect.setStyle('position', 'absolute');
         	
         	this.versioningSelect.addEvent('change', this.changeVersion.bind(this));
             
@@ -275,13 +302,15 @@ ka.windowEdit = new Class({
             this.changeTab(this.firstTab);
         }
         
+        this.renderSaveActionBar();
+        
         this.fireEvent('render');
 
         this.loadItem();
     },
     
     changeVersion: function(){
-    	var value = this.versioningSelect.value;
+    	var value = this.versioningSelect.getValue();
     	this.loadItem( value );
     },
 
@@ -290,7 +319,7 @@ ka.windowEdit = new Class({
         this.fields.each(function(item, fieldId){
 
         	if( item.field.type == 'select' && item.field.multiLanguage ){
-        		item.field.lang = this.languageSelect.value;
+        		item.field.lang = this.languageSelect.getValue();
         		var value = item.getValue();
         		var field = new ka.field( item.field );
         		field.inject( item.main, 'after' );
@@ -353,30 +382,56 @@ ka.windowEdit = new Class({
         this._buttons[ pTab ].stopTip();
     },
     
-    renderContent: function(){
+    renderSaveActionBar: function(){
         var _this = this;
+        
+        if( this.inline ) {
+        
+            this.actionsNavi = this.win.addButtonGroup();
+            
+            this.actionsNavi.addButton(_('Save'), _path+'inc/template/admin/images/button-save.png', function(){
+               
+            }.bind(this));
+            
+            this.actionsNavi.addButton(_('Save and publish'), _path+'inc/template/admin/images/button-save-and-publish.png', function(){
+               
+            }.bind(this));
+            
+            this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png', function(){
+               
+            }.bind(this));
+            
+            this.actionsNaviDel = this.win.addButtonGroup();
+            this.actionsNaviDel.addButton(_('Delete'), _path+'inc/template/admin/images/remove.png', function(){
+               
+            }.bind(this));
 
-        this.actions = new Element('div', {
-            'class': 'ka-windowEdit-actions'
-        }).inject( this.container );
-
-        this.exit = new ka.Button(_('Cancel'))
-        .addEvent( 'click', function(){
-            _this.win.close();
-        })
-        .inject( this.actions );
-
-        this.saveNoClose = new ka.Button(_('Save'))
-        .addEvent('click', function(){
-            _this._save();
-        })
-        .inject( this.actions );
-
-        this.save = new ka.Button(_('Save and close'))
-        .addEvent('click', function(){
-            _this._save( true );
-        })
-        .inject( this.actions );
+            
+        } else {
+    
+            this.actions = new Element('div', {
+                'class': 'ka-windowEdit-actions'
+            }).inject( this.container );
+    
+            this.exit = new ka.Button(_('Cancel'))
+            .addEvent( 'click', function(){
+                _this.win.close();
+            })
+            .inject( this.actions );
+    
+            this.saveNoClose = new ka.Button(_('Save'))
+            .addEvent('click', function(){
+                _this._save();
+            })
+            .inject( this.actions );
+    
+            this.save = new ka.Button(_('Save and close'))
+            .addEvent('click', function(){
+                _this._save( true );
+            })
+            .inject( this.actions );
+        
+        }
     },
 
     _save: function( pClose ){
@@ -430,7 +485,7 @@ ka.windowEdit = new Class({
         	req.set('lang', this.languageSelect.value);
         }
         
-        if( !pClose ){
+        if( !pClose && this.saveNoClose ){
             this.saveNoClose.startTip(_('Save ...'));
         }
         
@@ -448,7 +503,7 @@ ka.windowEdit = new Class({
             	ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
                 _this.loader.hide();
                 
-                if( !pClose ){
+                if( !pClose && this.saveNoClose ){
                     _this.saveNoClose.stopTip(_('Done'));
                 }
                 

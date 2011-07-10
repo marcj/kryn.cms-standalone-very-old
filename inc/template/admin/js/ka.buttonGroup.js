@@ -13,6 +13,10 @@ ka.buttonGroup = new Class({
     destroy: function(){
         this.box.destroy();
     },
+    
+    setStyle: function(p, p2){
+        this.box.setStyle(p,p2);
+    },
 
     inject: function( pTo, pWhere ){
         this.box.inject( pTo, pWhere );

@@ -3,8 +3,9 @@
 class publicationNewsList extends windowList {
 
     public $table = 'publication_news';
-    public $itemsPerPage = 20;
-    public $orderBy = 'title';
+    public $itemsPerPage = 5;
+    public $orderBy = 'category_rsn';
+    public $orderByDirection = 'DESC';
 
     public $iconAdd = 'add.png';
     public $iconDelete = 'cross.png';

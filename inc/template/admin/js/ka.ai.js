@@ -469,18 +469,20 @@ ka.ai.loadDone = function(){
     ka.ai.middle.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
     ka.ai.middle.tween('margin-top', -250);
     if( ka.ai.blender ) ka.ai.blender.destroy();
+    
     ka.ai.blender = new Element('div', {
         style: 'left: 0px; top: 0px; right: 0px; bottom: 0px; position: absolute; background-color: white; z-index: 15012300',
         styles: { 
             opacity: 0
         }
-    }).inject( document.body );
+    })
+    .inject( document.body );
     
-    ka.ai.blender.set('tween', {duration: 1000, onComplete: function(){
+    ka.ai.blender.set('tween', {duration: 1000});
+    
+    new Fx.Tween(ka.ai.blender, {duration: 1000}).start('opacity', 1).chain(function(){
         ka.ai.login.setStyle( 'display', 'none' );
-        ka.ai.blender.set('tween', {onComplete: $empty});
 
-        
         //load settings, bg etc
         ka.loadSettings();
 
@@ -502,7 +504,7 @@ ka.ai.loadDone = function(){
         _('Your last login was %s').replace('%s', lastlogin.format('%d. %b %I:%M')), 3000 );    
     
         ka.ai.blender.tween( 'opacity', 0 );
-    }});
-    ka.ai.blender.tween('opacity', 1 )
+        
+    });
 
 }
