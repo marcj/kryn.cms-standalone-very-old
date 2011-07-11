@@ -1,17 +1,5 @@
 <?php
 
-/*
- * This file is part of Kryn.cms.
- *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
- *
- * To get the full copyright and license informations, please view the
- * LICENSE file, that was distributed with this source code.
- *
- */
-
-
-
 /**
  * SystemSearch class
  * 
@@ -398,16 +386,16 @@ class systemSearch extends baseModule{
     
         $url = esc( $pUrl );
         
-        if( !$kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] ||
-            $kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] == 0 ){
+        if( !self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] ||
+            self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] == 0 ){
             
             dbUpdate('system_search', "url = '$url' AND domain_rsn = $pDomainRsn", array(
                 'blacklist' => time()
             ));
         
         } 
-        $kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] = time();
-        kryn::setCache('systemSearchIndexedPages', $kcache['krynPhpCache_systemSearchIndexedPages']);
+        self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] = time();
+        kryn::setCache('systemSearchIndexedPages', self::$indexedPages);
     }
     
     public static function removeBlacklist( $pUrl, $pDomainRsn = false ){
@@ -420,8 +408,8 @@ class systemSearch extends baseModule{
         dbUpdate('system_search', "url = '$url' AND domain_rsn = $pDomainRsn", array(
             'blacklist' => 0
         ));
-        $kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] = 0;
-        kryn::setCache('systemSearchIndexedPages', $kcache['krynPhpCache_systemSearchIndexedPages']);
+        self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] = 0;
+        kryn::setCache('systemSearchIndexedPages', self::$indexedPages);
     }
     
     public static function toBlacklist(){
@@ -456,7 +444,7 @@ class systemSearch extends baseModule{
             //}
             $cache[$row['domain_rsn'].'_'.$row['url']] = array('blacklist' => $row['blacklist']);
         }
-        self::$indexedPages =& $cache;
+        self::$indexedPages = $cache;
         kryn::setCache('systemSearchIndexedPages', $cache);
     }
     
@@ -517,10 +505,10 @@ class systemSearch extends baseModule{
             
             
            
-           if( !self::$indexedPages[kryn::$domain['rsn'].'_'.$value[1]] && strlen($value[1]) > 0 )
-                self::disposePageForIndex($value[1], 'LINK '.esc($value[1]), kryn::$domain['rsn']);
+           if( !self::$indexedPages[kryn::$domain['rsn'].'_'.$value[1]] && strlen($value[1]) > 0 ){
+           	    self::disposePageForIndex($value[1], 'LINK '.esc($value[1]), kryn::$domain['rsn']);
                 self::$jsonFoundPages[] = $value[1];
-           //}
+           }
         }        
       
     }   
@@ -680,11 +668,10 @@ class systemSearch extends baseModule{
         
         $url = esc($pUrl);
         $pPageRsn += 0;
-        
-        dbDelete('system_search', "page_rsn = $pPageRsn AND url = '$url'");
+        dbDelete('system_search', "/*disposePageForIndex*/ page_rsn = $pPageRsn AND url = '$url'");
         return dbInsert('system_search', array(
-            'url' => $url,
-            'title' => esc($pTitle),
+            'url' => $pUrl,
+            'title' => $pTitle,
             'mdate' => 0,
             'domain_rsn' => $pDomainRsn+0,
             'page_rsn' => $pPageRsn
