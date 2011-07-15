@@ -57,8 +57,11 @@ ka.windowEdit = new Class({
         var _this = this;
         var req = this.generateItemParams( pVersion );
 
+        if( this.lastRq )
+            this.lastRq.cancel();
+
         this.loader.show();
-        new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
+        this.lastRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
             
         	_this._loadItem( res );
             
@@ -116,7 +119,7 @@ ka.windowEdit = new Class({
                 }
                 
             } catch(e) {
-                logger( "Error with "+fieldId+": "+e);
+                //logger( "Error with "+fieldId+": "+e);
             }
         }.bind(this));
         
@@ -130,6 +133,7 @@ ka.windowEdit = new Class({
         this.renderVersions();
     
         this.loader.hide();
+        this.fireEvent('load', pItem);
     },
     
     loadVersions: function(){
@@ -548,7 +552,7 @@ ka.windowEdit = new Class({
             	if( _this.values.loadSettingsAfterSave == true ) ka.loadSettings();
                 
                 // Before close, perform saveSuccess
-                _this.fireEvent('save', res);
+                _this.fireEvent('save', req);
                 
                 _this._saveSuccess();
                 

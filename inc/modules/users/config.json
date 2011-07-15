@@ -99,7 +99,7 @@
     "users": {
       "title": "Users",
       "icon": "user.png",
-      "type": "list",
+      "type": "combine",
       "class": "usersAdminList",
       "defaultWidth": 700,
       "childs": {

@@ -27,8 +27,8 @@ ka.layoutElement = new Class({
 	setValue: function( pVal ){
 		
 		this.setThisValue = pVal;
-		logger("setValue");
-		logger(pVal);
+		//logger("setValue");
+		//logger(pVal);
 		
 		if( this.loadingDone )
 			this._setValue();

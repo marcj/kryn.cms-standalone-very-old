@@ -294,8 +294,8 @@ ka.kwindow = new Class({
     },
 
     setTitle: function( pTitle ){
-        this.titleText.set('html', pTitle);
-        ka.wm.updateWindowBar();
+        this.clearTitle();
+        this.addTitle(pTitle);
     },
 
     toBack: function(){
@@ -303,6 +303,25 @@ ka.kwindow = new Class({
         this.title.setStyle('opacity', 0.7 );
         this.inFront = false;
         //this.createOverlay();
+    },
+    
+    
+    clearTitle: function( ){
+        this.titleAdditional.empty();
+        ka.wm.updateWindowBar();
+    },
+    
+    addTitle: function( pText ){
+        
+        new Element('img', {
+            src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+        }).inject( this.titleAdditional );
+        
+        new Element('span', {
+            text: pText
+        }).inject( this.titleAdditional );
+        ka.wm.updateWindowBar();
+    
     },
 
     toFront: function(){
@@ -855,6 +874,9 @@ ka.kwindow = new Class({
         
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject( this.title );
         this.titleText = new Element('span').inject( this.titlePath );
+        
+        this.titleAdditional = new Element('span').inject( this.titlePath );
+        
         
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'

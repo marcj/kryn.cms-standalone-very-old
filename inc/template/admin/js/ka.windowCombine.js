@@ -48,11 +48,77 @@ ka.windowCombine = new Class({
         .inject( this.mainLeft );
         
         
+        this.mainLeftItemsScroll = new Fx.Scroll( this.mainLeftItems, {
+            transition: Fx.Transitions.linear,
+            duration: 300
+        });
+        
         this.win.addEvent('resize', this.checkScrollPosition.bind(this));
         
         this.mainRight = new Element('div', {
             'class': 'ka-list-combine-right'
         }).inject( this.main );
+        
+        
+        document.addEvent('keydown', this.leftItemsDown.bindWithEvent(this));
+    },
+    
+    leftItemsDown: function( pE ){
+    
+        if( !this.win.inFront ) return;
+            
+        pE = new Event(pE);
+        
+        if( pE.key == 'down' || pE.key == 'up'){
+            pE.stop();
+        }
+        
+        logger(pE.key);
+        
+        var active = this.mainLeftItems.getElement('.active');
+        
+        var newTarget;
+            
+        if( pE.key == 'down' ){
+
+            if( active )
+                newTarget = active.getNext('.ka-list-combine-item');
+            
+            if( !newTarget )
+                newTarget = this.mainLeftItems.getElement('.ka-list-combine-item');
+                
+        } else if( pE.key == 'up' ){
+            
+            if( active )
+                newTarget = active.getPrevious('.ka-list-combine-item');
+            
+            if( !newTarget )
+                newTarget = this.mainLeftItems.getLast('.ka-list-combine-item');
+
+        }
+        
+        if( !newTarget ) return;
+    
+        var pos = newTarget.getPosition( this.mainLeftItems );
+        var size = newTarget.getSize();
+        
+        var spos = this.mainLeftItems.getScroll();
+        var ssize = this.mainLeftItems.getSize();
+        
+        var bottomline = spos.y+ssize.y;
+        
+        if( pos.y < 0 ){
+            this.mainLeftItems.scrollTo( 0, spos.y+pos.y );
+        } else if( pos.y+size.y > ssize.y ){
+            //scroll down
+            //this.mainLeftItems.scrollTo(0, (pos.y-bottomline));
+            this.mainLeftItems.scrollTo(0, (pos.y+size.y)+spos.y-ssize.y);
+            logger(ssize.y+' => ');
+        }
+        
+        this.checkScrollPosition();
+            
+        this.loadItem( newTarget.retrieve('item') );
     },
     
     renderActionbar: function(){
@@ -91,10 +157,7 @@ ka.windowCombine = new Class({
         .addEvent('click', this.toggleSearch.bind(this))
         .inject( this.mainLeftTop );
         
-        
-        
-     
-                
+                        
         this.sortSelect = new ka.Select();
         this.sortSelect.inject(this.sortSpan);
         this.sortSelect.setStyle('width', 55);
@@ -267,26 +330,79 @@ ka.windowCombine = new Class({
     
         if( this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
             this.loadMore();
-        } else if( this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
+        } else if( this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
             this.loadMore();
-    
+        } else if( this.mainLeftItems.getLast('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
+            this.loadMore();
+        } else if( this.mainLeftItems.getFirst('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
+            this.loadPrevious();
+        }
     },
     
     loadMore: function(){    
-        if( this.currentPage < this.maxPages ){
-            //load next page
-            this.loadPage(parseInt(this.currentPage)+1);
+        if( this.from+this.max < this.maxItems ){
+            this.loadItems( this.from+this.max, (this.values.itemsPerPage)?this.values.itemsPerPage:5 );
+        }
+    },
+    
+    loadPrevious: function(){    
+        if( this.from > 0 ){
+            
+            var items = (this.values.itemsPerPage)?this.values.itemsPerPage:5;
+            var newFrom = this.from - items;
+            var maxItems = items;
+            
+            if( newFrom < 0 ) {
+                maxItems += newFrom;
+                newFrom = 0;
+            }
+            
+            this.loadItems( newFrom, maxItems );
         }
     },
     
     changeLanguage: function(){
-    
         this.reload();
     },
     
     reload: function(){
         this.clearItemList();
-    	this.loadPage(1);
+    	this.loadItems( this.from, this.max );
+    },
+    
+    loadItems: function( pFrom, pMax ){
+        var _this = this;
+
+        if( this._lastItems && pPage != 1 ){
+            if( pPage > this._lastItems.maxPages )
+                return;
+        }
+        
+        if( pPage <= 0 )
+            return;
+
+        if( this.lastRequest )
+            this.lastRequest.cancel();
+
+        this.prepareLoadPage();
+
+        if( this.loader )
+            this.loader.show();
+
+        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+            _this.renderItems(res);
+        }}).post({ 
+            module: this.win.module,
+            code: this.win.code, 
+            from: this.from,
+            max: this.max,
+            orderBy: _this.sortField,
+            filter: this.searchEnable,
+            language: (this.languageSelect)?this.languageSelect.value:false,
+            filterVals: (this.searchEnable)?this.getSearchVals():'',
+            orderByDirection: _this.sortDirection,
+            params: JSON.encode(this.win.params)
+        });
     },
     
     clearItemList: function(){    
@@ -300,7 +416,7 @@ ka.windowCombine = new Class({
     createItemLoader: function(){
     
         this.itemLoader = new Element('div', {
-            'class': 'ka-list-combine-item ka-list-combine-itemloader'
+            'class': 'ka-list-combine-itemloader'
         }).inject( this.mainLeftItems );
         
         this.itemLoaderStop();
@@ -397,42 +513,14 @@ ka.windowCombine = new Class({
             
                 this.itemsLoadedCount++;
             
-                var value = this.getItemTitle( item, this.sortField );
+                var splitTitle = this.getSplitTitle( item );
                 
+                if( this.lastSortValue != splitTitle ){
                 
-                if( !this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text" ){
-                    
-                    var firstChar = value.substr(0,1).toUpperCase();
-                    if( firstChar != this.lastSortValue ){
-                        this.lastSortValue = firstChar;
-                        this.addSplitTitle( '<b>'+firstChar+'</b>' );
-                    }
-                    
-                } else {
-                
-                    if( ["datetime", "date"].contains(this.values.columns[this.sortField]['type']) ){
-                        
-                        if( item['values'][this.sortField] > 0 ){
-                        
-                            var time = new Date(item['values'][this.sortField]*1000);
-                            value = time.timeDiffInWords();
-                            
-                        } else {
-                            value = _('No value');
-                        }
-                        
-                        //if( cur.format('%d') == cur.format('%d') ){
-                        //    value = _("Today");
-                        //} 
-                        
-                    }
-                
-                    if( value != this.lastSortValue ){
-                        this.lastSortValue = value;
-                        this.addSplitTitle( this.lastSortValue );
-                    }
-                }
-                
+                    this.lastSortValue = splitTitle;
+                    this.addSplitTitle( splitTitle );    
+                      
+                }          
             
                 _this.addItem( item );
                 _this.tempcount++;
@@ -463,7 +551,34 @@ ka.windowCombine = new Class({
         
         if( pItems.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
             this.loadMore();
+        
+    },
+    
+    getSplitTitle: function( pItem ){    
+        
+        var value = this.getItemTitle( pItem, this.sortField );
+                
+        if( !this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text" ){
             
+            return value.substr(0,1).toUpperCase();
+            
+        } else {
+        
+            if( ["datetime", "date"].contains(this.values.columns[this.sortField]['type']) ){
+                
+                if( item['values'][this.sortField] > 0 ){
+                
+                    var time = new Date(item['values'][this.sortField]*1000);
+                    value = time.timeDiffInWords();
+                    
+                } else {
+                    value = _('No value');
+                }
+                
+            }
+            return value;
+        }
+
     },
     
     getItemTitle: function( pItem, pColumnId ){
@@ -542,6 +657,7 @@ ka.windowCombine = new Class({
             }, this.mainRight);
             
             this.currentEdit.addEvent('save', this.saved.bind(this));
+            this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
             
             /*this.currentEdit.addEvent('render', function(){
             
@@ -555,11 +671,129 @@ ka.windowCombine = new Class({
             this.currentEdit.loadItem();
         
         }
+    
+    },
+    
+    itemLoaded: function(){
+        this.setWinParams();
+    },
+    
+    renderFinished: function(){
+    
+        if( this.win.params && this.win.params.list.language && this.languageSelect ){
+            this.languageSelect.setValue( this.win.params.list.language );
+        }
         
+        if( this.win.params && this.win.params.list ){
+            this.sortField = this.win.params.list.orderBy;
+            this.sortDirection = this.win.params.list.orderByDirection;
+        }
+        
+        if( this.win.params && this.win.params.selected ){
+            this.loadAround( this.win.params.selected );
+        } else {
+            this.loadItems(0, (this.values.itemsPerPage)?this.values.itemsPerPage:5 );
+        }
+    
+    },
+    
+    setWinParams: function(){
+    
+        var type = null;
+        var selected = null;
+        if( this.currentEdit && this.currentEdit.values ){
+            type = 'edit';
+            
+            var primaries = {};
+            
+            this.currentEdit.values.primary.each(function(primary){
+                primaries[primary] = this.currentItem.values[primary];
+            }.bind(this));
+            
+            selected = primaries;
+            
+        } else if( this.currentAdd ){
+            type = 'add';
+        }
+        
+        this.win.params = {
+            module: this.win.module,
+            code: this.win.code,
+            type: type,
+            selected: selected,
+            list: {
+                orderBy: this.sortField,
+                filter: this.searchEnable,
+                language: (this.languageSelect)?this.languageSelect.value:false,
+                filterVals: (this.searchEnable)?this.getSearchVals():'',
+                orderByDirection: this.sortDirection                
+            }
+        };
+    
+        this.setTitle();
+    },
+    
+    setTitle: function(){
+        this.win.clearTitle();
+        if( this.currentEdit && this.currentEdit.item ){
+        
+            var item = this.currentEdit.item;
+            
+            var title = item.values.title;
+            if( !title )
+                title = item.values.name;
+            if( !title )
+                title = item.values.name;
+                
+            if( this.currentEdit.values.editTitleField )
+                title = item.values[ editTitleField ];
+            
+                
+            this.win.addTitle(_('Edit %s').replace('%s', title));
+        }
+    },
+    
+    loadAround: function( pPrimaries ){
+    
+        if( this.lastRequest )
+            this.lastRequest.cancel();
+
+        this.prepareLoadPage();
+
+        if( this.loader )
+            this.loader.show();
+
+        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+            
+            this.clearItemList();
+            this.renderItems(res);
+            
+        }.bind(this)}).post({ 
+            module: this.win.module,
+            code: this.win.code,
+            around: pPrimaries,
+            orderBy: _this.sortField,
+            filter: this.searchEnable,
+            language: (this.languageSelect)?this.languageSelect.value:false,
+            filterVals: (this.searchEnable)?this.getSearchVals():'',
+            orderByDirection: _this.sortDirection
+        });
     
     },
     
     saved: function( pItem ){
+        
+        /*
+        var primaries = {};
+        
+        this.currentEdit.values.primary.each(function(primary){
+            primaries[primary] = this.currentItem.values[primary];
+        }.bind(this));
+                
+        this.loadAround( primaries );
+        
+        return;
+        */
         
         logger(pItem);
         var sortedColumnChanged = false;
@@ -601,6 +835,18 @@ ka.windowCombine = new Class({
                     var newItem = this.addItem( res.items[0] );
                     newItem.inject( target, 'before' );
                     target.destroy();
+                    
+                    var splitTitle = this.getSplitTitle( this.currentItem );
+                    var splitTitleNew = this.getSplitTitle( res.item[0] );
+                    
+                    if( splitTitle != splitTitleNew ){
+                        
+                        //TODO delete all items and reload items around this one
+                        //this.reloadAround( req );
+                        
+                    }
+                                        
+                    this.currentItem = res.items[0];
                     
                 }.bind(this)}).post(req);
             

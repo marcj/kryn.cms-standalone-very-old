@@ -101,15 +101,22 @@ ka.list = new Class({
         this.renderMultilanguage();
 
         this.renderLoader();
+        
+        this.renderFinished();
 
-        if( !this.loadAlreadyTriggeredBySearch )
+        //this.loadPage(1);
+    },
+    
+    renderFinished: function(){
+        
+        if( !this.loadAlreadyTriggeredBySearch ){
             if( this.columns )
             	this.click( _this.values.orderBy );
             else {
                 this.loadPage(1);
             }
+        }
         
-        //this.loadPage(1);
     },
     
     renderLoader: function(){
@@ -549,7 +556,6 @@ ka.list = new Class({
     loadPage: function( pPage ){
         var _this = this;
 
-        
         if( this._lastItems && pPage != 1 ){
             if( pPage > this._lastItems.maxPages )
                 return;

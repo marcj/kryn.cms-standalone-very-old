@@ -244,7 +244,7 @@ a.ka-list-search-button-active:link {
     height: 1px;
 }
 
-
+.ka-list-combine-itemloader,
 .ka-list-combine-item {
     border-bottom: 1px solid #ddd;
     cursor: pointer;
