@@ -190,6 +190,10 @@ ka.windowCombine = new Class({
             
             this.sortDirection = sortId.split('______')[1];
             
+            this.from = 0;
+            this.max = 0;
+            this._lastItems = null;
+            
             this.reload();
             
         
@@ -357,11 +361,15 @@ ka.windowCombine = new Class({
                 newFrom = 0;
             }
             
-            this.loadItems( newFrom, maxItems );
+            logger(this.from+': '+newFrom+'->'+maxItems);
+            //this.loadItems( newFrom, maxItems );
         }
     },
     
     changeLanguage: function(){
+        this.from = 0;
+        this.max = 0;
+        this._lastItems = null;
         this.reload();
     },
     
@@ -373,13 +381,14 @@ ka.windowCombine = new Class({
     loadItems: function( pFrom, pMax ){
         var _this = this;
 
-        if( this._lastItems && pPage != 1 ){
-            if( pPage > this._lastItems.maxPages )
+
+        logger(pFrom+' => '+pMax);
+        if( this._lastItems ){
+            if( pFrom > this._lastItems.maxItems )
                 return;
         }
         
-        if( pPage <= 0 )
-            return;
+        pMax = (pMax>0)?pMax:5;
 
         if( this.lastRequest )
             this.lastRequest.cancel();
@@ -388,14 +397,29 @@ ka.windowCombine = new Class({
 
         if( this.loader )
             this.loader.show();
-
+        
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
-            _this.renderItems(res);
-        }}).post({ 
+            
+            if( !res.items ) return;
+            
+            if( this.from == null || pFrom < this.from ){
+                this.from = pFrom;
+            }
+            
+            var nMax = Object.getLength(res.items);
+                
+            if( !this.max || this.max < pFrom+nMax )
+                this.max = pFrom+nMax;
+            
+            
+            logger("new: "+this.from+' => '+this.max)
+            this.renderItems(res);
+            
+        }.bind(this)}).post({ 
             module: this.win.module,
             code: this.win.code, 
-            from: this.from,
-            max: this.max,
+            from: pFrom,
+            max: pMax,
             orderBy: _this.sortField,
             filter: this.searchEnable,
             language: (this.languageSelect)?this.languageSelect.value:false,
@@ -528,7 +552,7 @@ ka.windowCombine = new Class({
         }
         
         if( pItems.maxItems > 0 ){
-            if( this.currentPage == pItems.maxPages ){
+            if( this.max == pItems.maxItems ){
                 this.itemLoaderEnd();
             } else {
                 this.itemLoaderStop();
@@ -539,15 +563,15 @@ ka.windowCombine = new Class({
         
         
 
-        if( pItems.maxItems > 0 ){
-            this.itemsFrom.set('html', 1);
-            this.itemsLoaded.set('html', this.itemsLoadedCount);
+        //if( pItems.maxItems > 0 ){
+            this.itemsFrom.set('html', this.from);
+            this.itemsLoaded.set('html', this.max);
             this.itemsMax.set('html', pItems.maxItems);
-        } else {
-            this.itemsFrom.set('html', 0);
-            this.itemsLoaded.set('html', this.itemsLoadedCount);
-            this.itemsMax.set('html', pItems.maxItems);
-        }
+        //} else {
+        //    this.itemsFrom.set('html', 0);
+        //    this.itemsLoaded.set('html', this.itemsLoadedCount);
+        //    this.itemsMax.set('html', pItems.maxItems);
+        //}
         
         if( pItems.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
             this.loadMore();
@@ -560,7 +584,7 @@ ka.windowCombine = new Class({
                 
         if( !this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text" ){
             
-            return value.substr(0,1).toUpperCase();
+            return '<b>'+value.substr(0,1).toUpperCase()+'</b>';
             
         } else {
         
@@ -749,7 +773,7 @@ ka.windowCombine = new Class({
                 title = item.values[ editTitleField ];
             
                 
-            this.win.addTitle(_('Edit %s').replace('%s', title));
+            this.win.addTitle(title);
         }
     },
     
@@ -782,6 +806,10 @@ ka.windowCombine = new Class({
     },
     
     saved: function( pItem ){
+        
+        
+        //todo, just loadAround this item
+        return;
         
         /*
         var primaries = {};

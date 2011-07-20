@@ -41,9 +41,6 @@ function resizeImageCached( $pPath, $pResolution, $pFix = false ){
 
 
 
-
-
-
 /**
  * Replaces escaped ' back
  * @param string $p

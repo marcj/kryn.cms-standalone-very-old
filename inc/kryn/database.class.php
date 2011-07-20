@@ -254,23 +254,34 @@ class database {
                             $this->connection = sqlite_open( $host );
                             break;
                         case 'mysql':
-                            $this->connection = mysql_pconnect( $host, $user, $pw  );
-                            @mysql_select_db( $kdb, $this->connection );
-                            if( $pForceUtf8 )
-                                mysql_query("SET NAMES 'utf8'", $this->connection);
+                            if( $this->connection = mysql_pconnect( $host, $user, $pw  ) ){
+                                @mysql_select_db( $kdb, $this->connection );
+                                if( $pForceUtf8 )
+                                    mysql_query("SET NAMES 'utf8'", $this->connection);
+                            } else {
+                                $this->lastError = mysql_error();                            
+                                return false;
+                            }
                             break;
                         case 'mysqli':
-                            $this->connection = mysqli_pconnect( $host, $user, $pw  );
-                            @mysqli_select_db( $this->connection, $kdb );
-                            if( $pForceUtf8 )
-                                mysqli_query("SET NAMES 'utf8'", $this->connection);
+                            if( $this->connection = mysqli_pconnect( $host, $user, $pw ) ){
+                                @mysqli_select_db( $this->connection, $kdb );
+                                if( $pForceUtf8 )
+                                    mysqli_query("SET NAMES 'utf8'", $this->connection);
+                            } else {
+                                $this->lastError = mysqli_error($this->connection);                            
+                                return false;
+                            }
                             break;
                         case 'mssql':
                             $this->connection = mssql_connect( $host, $user, $pw );
                             @mssql_select_db( $kdb, $this->connection );
                             break;
                         case 'oracle':
-                            $this->connection = oci_pconnect( $user, $pw, $host."/".$kdb );
+                            if( ! $this->connection = oci_pconnect( $user, $pw, $host."/".$kdb ) ){ 
+                                $this->lastError = oci_error();                            
+                                return false;
+                            }
                             break;
                         case 'postgresql':
                             if( !$port ){
@@ -284,7 +295,10 @@ class database {
                             if( $pForceUtf8 ){
                                 $connect_string .+ " options='--client_encoding=UTF8'";
                             }
-                            $this->connection = pg_pconnect( $connect_string );
+                            
+                            if( !$this->connection = pg_pconnect( $connect_string ) ){
+                                $this->lastError = pg_last_error();
+                            }
                             break;
                     }
                 } catch( Exception $e ){

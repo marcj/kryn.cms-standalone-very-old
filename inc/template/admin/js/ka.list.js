@@ -111,7 +111,7 @@ ka.list = new Class({
         
         if( !this.loadAlreadyTriggeredBySearch ){
             if( this.columns )
-            	this.click( _this.values.orderBy );
+            	this.click( this.values.orderBy );
             else {
                 this.loadPage(1);
             }

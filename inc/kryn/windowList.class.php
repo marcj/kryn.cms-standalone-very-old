@@ -451,13 +451,14 @@ class windowList {
         $countSql = $this->countSql();
         $temp = dbExfetch( $countSql );
         $results['maxItems'] = $temp['ctn'];
+        
         if( $temp['ctn'] > 0 )
             $results['maxPages'] = ceil($temp['ctn']/$this->itemsPerPage);
         else
             $results['maxPages'] = 0;
 
 
-        if( $_POST['primary'] ){
+        /*if( $_POST['primary'] ){
         
             $unique = "AND 2=2 ";
             foreach( $_POST['primary'] as $key => $val ){
@@ -467,6 +468,32 @@ class windowList {
             $end = 1;
             $start = 0;
         
+        }*/
+        
+        if( $_POST['around'] ){
+        
+            $limit = "";
+            $itemsBefore = array();
+            $itemsAfter = array();
+            
+            //SELECT *, (@rank:=@rank+1) AS counter FROM `kryn_system_settings` INNER JOIN (SELECT @rank :=0) b
+            //or
+            //set @i = 0; 
+            //select id, @i:=@i+1 as myrow from mytable 
+        
+        } else {
+            
+            if( !getArgv('page') ){
+            
+                $from = getArgv('from')+0;
+                $max = getArgv('max')+0;
+                $limit = " LIMIT $max OFFSET $from";
+                
+            } else {
+                //default behaviour
+                $limit = " LIMIT $end OFFSET $start";
+            }
+
         }
 
         /* list sql */
@@ -475,13 +502,16 @@ class windowList {
                 ".$this->listSql."
                 $unique
                 ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
-            ) as t LIMIT $end OFFSET $start
-            ";
+            ) as t
+            $limit";
             
-        
+        //klog('huhu', $listSql);
         $res = dbExec( $listSql );
+        
+        $found = false;
 
         while( $item = dbFetch( $res )){
+        
             foreach( $this->columns as $key => $column ){
                 if( $kdb->type == 'postgresql' ){
                     if( $column['type'] == 'select' && $column['relation'] == 'n-n' ){
@@ -501,7 +531,6 @@ class windowList {
             $mod = $this->modifier;
             if( !empty($mod) && method_exists( $this, $mod ) )
                 $_res = $this->$mod( $_res );
-                
                 
             if( $res != null )
                 $results['items'][] = $_res;
