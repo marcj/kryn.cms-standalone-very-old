@@ -527,11 +527,11 @@ function step2(){
 
 <h2>Checking file permissions</h2>
 <br />
-The minimun requirements to work with Kryn.cms without installing extension or updates is writeaccess to following folders:<br />
+The minimun requirements to work with Kryn.cms without installing extension or updates is with writeaccess to following folders:<br />
 &bull; inc/cache/<br />
 &bull; inc/tcache/<br />
 <br />
-When you want to install extension you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
+When you want to install extensions, then you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
 &bull; inc/modules/<br />
 &bull; inc/template/<br />
 <br />
@@ -652,6 +652,9 @@ Please enter your MySQL database information.<br />
                     $( 'status' ).set('html', '<span style="color:red;">Login failed:<br />'+stat.error+'</span>');
                 else
                     $( 'status' ).set('html', '<span style="color:red;">Fatal Error. Please take a look in server logs.</span>');
+            },
+            onError: function(res){
+                $( 'status' ).set('html', '<span style="color:red;">Fatal Error. Please take a look in server logs.</span> Maybe this helps: <br />'+res);
             }}).post(req);
         }
     }
