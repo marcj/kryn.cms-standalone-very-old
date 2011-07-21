@@ -9,7 +9,6 @@
   },
   "extraFiles": [
     "index.php",
-    "license-german-kryn.cms.pdf",
     "install.php",
     ".htaccess",
     "inc\/template\/images\/",

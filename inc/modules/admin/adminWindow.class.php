@@ -14,7 +14,7 @@
 
 
 
-class window {
+class adminWindow {
 
     public static function init(){
         
