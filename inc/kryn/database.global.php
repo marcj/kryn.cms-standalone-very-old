@@ -31,6 +31,12 @@
 function esc( $p, $pEscape = false ){
 	global $kdb, $cfg;
 	
+	if( is_array($p) ) {
+	   foreach( $p as $k => $v){
+	       $p2[$k] = esc($v);
+	   }
+	   return $p2;
+	}
 	
     if( $pEscape == 2 ){
         return preg_replace("/\W/", "", $p);

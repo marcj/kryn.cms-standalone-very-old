@@ -130,11 +130,13 @@ class database {
             if(! is_array(self::$tables) ){
 				return pfx.$pTable;
 			}
-			if( self::$tables[ $pTable ] )
+			if( self::$tables[ $pTable ] ){
                 return $pTable;
+            }
 				
-			if( self::$tables[ pfx.$pTable ] )
+			if( self::$tables[ pfx.$pTable ] ){
                 return pfx.$pTable;
+            }
             
 			/*
             foreach( self::$tables as $table => $columns ){
