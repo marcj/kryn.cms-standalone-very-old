@@ -242,7 +242,7 @@ ka.desktop = new Class({
         var _this = this;
         
         //todo
-        pIcon.icon = 'admin/images/ext/dir.png';
+        pIcon.icon = 'admin/images/icon-default.png';
 
         var m = new Element('div', {
             'class': 'ka-desktop-icon',

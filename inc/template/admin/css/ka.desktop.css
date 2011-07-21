@@ -13,13 +13,16 @@
     position: absolute;
     top: 50px;
     width: 100%;
-    color: gray;
     padding: 2px;
     color: white;
     text-shadow: 0px 0px 2px black;
     font-size: 11px;
     cursor: default;
     font-weight: bold;
+}
+
+.ka-desktop-icon:hover .ka-desktop-icon-title {
+    color: #eee;
 }
 
 .ka-desktop-icon-active .ka-desktop-icon-title {
