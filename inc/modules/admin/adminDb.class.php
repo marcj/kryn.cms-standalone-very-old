@@ -11,20 +11,24 @@
  */
 
 
-
+/**
+ *
+ * Class to handle/sync the database table schemes from config.json "db".
+ *
+ */
 
 define( 'DB_PRIMARY', 1 );
 define( 'DB_INDEX', 2 );
 
-class db {
+class adminDb {
 
     function install( $pModuleConfig, $pDelete4Install = false ){
-        return db::_install( $pModuleConfig['db'], $pDelete4Install );
+        return self::_install( $pModuleConfig['db'], $pDelete4Install );
     }
 
     function remove( $pModuleConfig ){
         if( !is_array($pModuleConfig['db']) ) return false;
-        db::_remove( $pModuleConfig['db'] );
+        self::_remove( $pModuleConfig['db'] );
         return true;
     }
 
@@ -93,14 +97,14 @@ class db {
             $tableName = strtolower(pfx . $tableName);
             
             if( $tables[$tableName] ){
-                db::updateIndexes( $tableName, $tableFields, false ); //delete all
-                db::_updateTable( $tableName, $tableFields );
+                self::updateIndexes( $tableName, $tableFields, false ); //delete all
+                self::_updateTable( $tableName, $tableFields );
                 $res .= "Update table <i>$tableName</i>\n";
-                $res .= db::updateIndexes( $tableName, $tableFields );
+                $res .= self::updateIndexes( $tableName, $tableFields );
             } else {
-                db::_installTable( $tableName, $tableFields );
+                self::_installTable( $tableName, $tableFields );
                 $res .= "Create table <i>$tableName</i>\n";
-                $res .= db::updateIndexes( $tableName, $tableFields );
+                $res .= self::updateIndexes( $tableName, $tableFields );
             }
             $kdb->tableInfos[$tableName] = $tableFields;
         }
@@ -131,7 +135,7 @@ class db {
 
             //exist ?
             if( !array_key_exists($fName, $columns) ){ //$column['Field'] != $fName ){
-                db::addColumn( $pTable, $fName, $fOptions );
+                self::addColumn( $pTable, $fName, $fOptions );
             } else {
                 //found check type
                 //
@@ -164,7 +168,7 @@ class db {
         $primaries = ''; 
 
         foreach( $pFields as $fName => $fOptions ){
-            $sql .= db::addColumn( $pTable, $fName, $fOptions, 1 ) . ", \n";
+            $sql .= self::addColumn( $pTable, $fName, $fOptions, 1 ) . ", \n";
             if( $fOptions[2] == "DB_PRIMARY" )
                 $primaries .= '' . $fName . ',';
         }

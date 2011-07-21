@@ -1,20 +1,20 @@
 <?php
 
-class layout {
+class adminLayout {
 
     function init(){
         switch( getArgv(4) ){
         case 'get':
-            return layout::get( getArgv('name'), getArgv('plain') );
+            return self::get( getArgv('name'), getArgv('plain') );
 
         case 'load': 
-            return json(layout::load(getArgv('type')));
+            return json(self::load(getArgv('type')));
 
         case 'save': 
-            return json(layout::save(getArgv('file')));
+            return json(self::save(getArgv('file')));
 
         case 'loadFile': 
-            return json(layout::loadFile(getArgv('file')));
+            return json(self::loadFile(getArgv('file')));
         }
     }
 

@@ -221,7 +221,7 @@ if( $_REQUEST['step'] == 'checkDb' )
 
 require_once( 'inc/kryn/baseModule.class.php' );
 require( 'inc/kryn/kryn.class.php' );
-require( 'inc/modules/admin/module.class.php' );
+require( 'inc/modules/admin/adminModule.class.php' );
 
 $step = 1;
 if( !empty($_REQUEST['step']) )
@@ -368,7 +368,7 @@ function step5(){
     $modules[] = "admin"; //because the install() of admin should be called as latest
     
     require( 'inc/config.php' );
-    require( 'inc/modules/admin/db.class.php' );
+    require( 'inc/modules/admin/adminDb.class.php' );
     require( 'inc/kryn/database.class.php' );
     require_once( 'inc/kryn/baseModule.class.php' );
     
@@ -387,10 +387,10 @@ function step5(){
     );
     foreach( $modules as $module ){
         if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
-            $config = module::loadInfo( $module );
+            $config = adminModule::loadInfo( $module );
             print "Install <b>$module</b>:<br />
             <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
-            print db::install( $config, true );
+            print adminDb::install( $config, true );
             print "</div>";
         }
     }
@@ -426,7 +426,7 @@ function step5(){
         }
     }
 
-    require( 'inc/modules/admin/pages.class.php' );
+    require( 'inc/modules/admin/adminPages.class.php' );
     
     admin::clearCache();
 
@@ -440,9 +440,9 @@ function step5(){
     @mkdir( 'inc/upload' );
     @mkdir( 'inc/upload/modules' );
 
-    pages::updateUrlCache( 1 );
-    pages::updateMenuCache( 1 );
-    pages::updateDomainCache();
+    adminPages::updateUrlCache( 1 );
+    adminPages::updateMenuCache( 1 );
+    adminPages::updateDomainCache();
 
     
     if( !rename( 'install.php', 'install.php.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
@@ -499,7 +499,7 @@ Dactivate the checkbox if you don't want to install some extensione.<br />
 function buildModInfo( $modules ) {
     global $lang;
     foreach( $modules as $module ){
-         $config = module::loadInfo( $module );
+         $config = adminModule::loadInfo( $module );
          $version = $config['version'];
          $title = $config['title'][$lang];
          $desc = $config['desc'][$lang];

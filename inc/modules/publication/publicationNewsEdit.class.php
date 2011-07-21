@@ -7,6 +7,15 @@ class publicationNewsEdit extends windowEdit {
     public $primary = array('rsn');
     public $multiLanguage = true;
 
+    public $previewPlugins = array(
+        'newsDetail' => 'getUrl',
+        'newsDetailFixed' => 'getUrl'
+    );
+    
+    public function getUrl( $pItem ){
+        return kryn::toModRewrite($pItem['title']).'/'.$pItem['rsn'];
+    }
+
     public $tabFields = array(
         'General' => array(
             'title' => array(

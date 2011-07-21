@@ -52,15 +52,14 @@ class admin {
         if( getArgv('getPossibleLangs') == '1' )
             self::printPossibleLangs();
 
-        require("inc/modules/admin/template.class.php");
         header( 'Expires:' );
 
-        require( 'inc/modules/admin/module.class.php' );
-        require( 'inc/modules/admin/db.class.php' );
-        require( 'inc/modules/admin/layout.class.php' );
-        require( 'inc/modules/admin/pages.class.php' );
+        require( 'inc/modules/admin/adminModule.class.php' );
+        require( 'inc/modules/admin/adminDb.class.php' );
+        require( 'inc/modules/admin/adminLayout.class.php' );
+        require( 'inc/modules/admin/adminPages.class.php' );
         require( 'inc/modules/admin/adminSettings.class.php' );
-        require( 'inc/modules/admin/filemanager.class.php' );
+        require( 'inc/modules/admin/adminFilemanager.class.php' );
         require( 'inc/modules/admin/adminSearchIndexer.class.php' );  
 
         tAssign("admin", true);
@@ -76,10 +75,10 @@ class admin {
                 case 'loadCss':
                     return self::loadCss();
                 case 'widgets':
-                    require("inc/modules/admin/widgets.class.php");
-                    return widgets::init();
+                    require("inc/modules/admin/adminWidgets.class.php");
+                    return adminWidgets::init();
                 case 'pages':
-                    json( pages::init() );
+                    json( adminPages::init() );
                     break;
                 case 'help':
                     switch( getArgv(3) ){
@@ -119,7 +118,7 @@ class admin {
                         case 'getDefaultImages': self::getDefaultImages(); break;
 
                         case 'imageThump':
-                            return filemanager::imageThump( getArgv('file') );
+                            return adminFilemanager::imageThump( getArgv('file') );
 
                         case 'stream': $content = self::stream(); break;
                         case 'navigationPreview':
@@ -127,11 +126,11 @@ class admin {
                         case 'pointerPreview':
                             return admin::pointerPreview( getArgv('content') );
                         case 'plugins':
-                            require("inc/modules/admin/plugins.class.php");
-                            return plugins::init();
+                            require("inc/modules/admin/adminPlugins.class.php");
+                            return adminPlugins::init();
                         case 'window':
-                            require( 'inc/modules/admin/window.class.php' );
-                            $content = window::init();
+                            require( 'inc/modules/admin/adminWindow.class.php' );
+                            $content = adminWindow::init();
                             break;
                         case 'searchIndexer' :                         
                             adminSearchIndexer::init();
@@ -139,7 +138,7 @@ class admin {
                     }
                     break;
                 case 'files':
-                    $content = filemanager::init();
+                    $content = adminFilemanager::init();
                     break;
                 case 'filebrowser':
                     require( 'inc/modules/admin/filebrowser.class.php' );
@@ -155,14 +154,14 @@ class admin {
                                     return json(self::getLogs());
                             }
                             break;
-                        case 'module': $content = module::init(); break;
+                        case 'module': $content = adminModule::init(); break;
                         case 'settings': $content = adminSettings::init(); break;
                         case 'languages':
-                            require("inc/modules/admin/languages.class.php");
-                            $content = languages::init();
+                            require("inc/modules/admin/adminLanguages.class.php");
+                            $content = adminLanguages::init();
                             break;
                         case 'layout':
-                            layout::init();
+                            adminLayout::init();
                             break;
                         default: $content = self::systemInfo(); break;
                     }
@@ -651,17 +650,17 @@ class admin {
         }
         
         
-        include_once('inc/modules/admin/pages.class.php');
+        include_once('inc/modules/admin/adminPages.class.php');
         foreach( $res['domains'] as $domain ){
             $domainRsn = $domain['rsn'];
             if( !$res['r2d'][ $domainRsn ] ){
-                pages::updatePage2DomainCache();
+                adminPages::updatePage2DomainCache();
             }
             
             $res["menus_$domainRsn"] =& cache::get("menus_$domainRsn");
             
             if( !$res["menus_$domainRsn"] || $domainRsn == 2 ){
-                $res["menus_$domainRsn"] = pages::updateMenuCache( $domainRsn );
+                $res["menus_$domainRsn"] = adminPages::updateMenuCache( $domainRsn );
             }
         }
         
@@ -955,7 +954,7 @@ class admin {
     public static function navigationPreview( $pContent ){
         global $kryn;
 
-        $page = pages::getPageByRsn( $pContent );
+        $page = adminPages::getPageByRsn( $pContent );
 
         kryn::$domain['rsn'] = $page['domain_rsn'];
         $kryn->realUrls = kryn::readCache( 'urls' );
@@ -970,7 +969,7 @@ class admin {
     }
     public static function getPageDetails( $pRsn ){
         global $cfg;
-        $res =  pages::getPageByRsn( $pRsn );
+        $res =  adminPages::getPageByRsn( $pRsn );
         $path = $cfg['path'];
         $content = kryn::readTempFile("pages/".$pRsn.".tpl");
         $res['content'] = preg_replace('/{krynplugin plugin="(.*)?"}/U', "<img src=\"${path}admin/menu=pluginIcon/plugin=$1/\" class='krynPluginIcon' />", $content);

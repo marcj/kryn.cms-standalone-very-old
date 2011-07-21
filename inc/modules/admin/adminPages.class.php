@@ -13,7 +13,7 @@
 
 
 
-class pages {
+class adminPages {
 
     public static function init(){
 
@@ -31,57 +31,57 @@ class pages {
 
         switch( getArgv(3) ){
         case 'domain':
-            return pages::domain();
+            return self::domain();
         case 'save':
-            return pages::save();
+            return self::save();
         case 'getLayout':
             return layout::get( getArgv('name'), getArgv('plain') );
         case 'move':
-            return pages::move();
+            return self::move();
         case 'add':
-            return pages::add();
-//            return pages::save( true );
+            return self::add();
+//            return self::save( true );
         case 'getPage':
-            return pages::getPage( getArgv( 'rsn' ), true );
+            return self::getPage( getArgv( 'rsn' ), true );
         case 'deletePage':
-            return pages::deletePage( getArgv('rsn') );
+            return self::deletePage( getArgv('rsn') );
         case 'getNotices':
-            return pages::getNotices( getArgv( 'rsn' ) );
+            return self::getNotices( getArgv( 'rsn' ) );
         case 'addNotice':
-            return pages::addNotice( getArgv( 'rsn' ) );
+            return self::addNotice( getArgv( 'rsn' ) );
         case 'getIcons':
-            return json( pages::getIcons( getArgv('rsn') ) );
+            return json( self::getIcons( getArgv('rsn') ) );
         case 'getDomains':
-            return pages::getDomains(getArgv('language'));
+            return self::getDomains(getArgv('language'));
         case 'getTree':
-            return pages::getTree( getArgv('domain') );
+            return self::getTree( getArgv('domain') );
         case 'getTemplate':
-            return pages::getTemplate( getArgv('template') );
+            return self::getTemplate( getArgv('template') );
         case 'getVersions':
-            return pages::getVersions();
+            return self::getVersions();
         case 'getUrl': 
-            return pages::getUrl( getArgv('rsn') );
+            return self::getUrl( getArgv('rsn') );
         case 'getPageVersions':
             json( self::getPageVersion( getArgv('rsn')));
         case 'getVersion':
             $rsn = getArgv('rsn')+0;
             $version = getArgv('version')+0;
-            return json(pages::getVersion($rsn, $version));
+            return json(self::getVersion($rsn, $version));
         /*case 'addVersion':
-            return pages::addVersion( getArgv('rsn')+0, getArgv('name',true) );*/
+            return self::addVersion( getArgv('rsn')+0, getArgv('name',true) );*/
         case 'setLive':
-            return json( pages::setLive(getArgv('version')) );
+            return json( self::setLive(getArgv('version')) );
 
         case 'paste':
             return json( self::paste() );
             
         case 'deleteAlias':
-            return pages::deleteAlias( getArgv('rsn')+0 );
+            return self::deleteAlias( getArgv('rsn')+0 );
         case 'getAliases':
-            return pages::getAliases( getArgv('page_rsn')+0 );
+            return self::getAliases( getArgv('page_rsn')+0 );
 
         default:
-            return pages::itemList();
+            return self::itemList();
         }
     }
     
@@ -131,14 +131,14 @@ class pages {
         }
 
         $page = dbTableFetch('system_pages', 1, 'rsn = '.(getArgv('to')+0));
-        pages::cleanSort( $page['domain_rsn'], $page['prsn'] );
-        pages::updateUrlCache( $page['domain_rsn'] );
-        pages::updateMenuCache( $page['domain_rsn'] );
+        self::cleanSort( $page['domain_rsn'], $page['prsn'] );
+        self::updateUrlCache( $page['domain_rsn'] );
+        self::updateMenuCache( $page['domain_rsn'] );
 
         $page = dbTableFetch('system_pages', 1, 'rsn = '.(getArgv('page')+0));
-        pages::cleanSort( $page['domain_rsn'], $page['prsn'] );
-        pages::updateUrlCache( $page['domain_rsn'] );
-        pages::updateMenuCache( $page['domain_rsn'] );
+        self::cleanSort( $page['domain_rsn'], $page['prsn'] );
+        self::updateUrlCache( $page['domain_rsn'] );
+        self::updateMenuCache( $page['domain_rsn'] );
 
         return true;
 
@@ -396,7 +396,7 @@ class pages {
         }
         
         dbUpdate( 'system_domains', array('rsn'=>$rsn), $dbUpdate);
-        pages::updateDomainCache();
+        self::updateDomainCache();
         json( $domain );
     }
 
@@ -527,9 +527,9 @@ class pages {
         dbExec( "DELETE FROM %pfx%system_pages WHERE rsn = $pPage" );
 
         if( !$pNoCacheRefresh ) {
-            pages::cleanSort( $page['domain_rsn'], $page['prsn'] );
-            pages::updateUrlCache( $page['domain_rsn'] );
-            pages::updateMenuCache( $page['domain_rsn'] );
+            self::cleanSort( $page['domain_rsn'], $page['prsn'] );
+            self::updateUrlCache( $page['domain_rsn'] );
+            self::updateMenuCache( $page['domain_rsn'] );
         }
     }
 
@@ -742,7 +742,7 @@ class pages {
     public static function getIcons( $pRsn ){
         global $cfg;
 
-        $page = pages::getPageByRsn( $pRsn );
+        $page = self::getPageByRsn( $pRsn );
 
         if( $page['visible'] == '0' && $page['type'] != '2' )
             $pngs[] = 'bullet_white';
@@ -767,8 +767,8 @@ class pages {
         $mode = getArgv('mode', 1);
 
         //get page data
-        $who = pages::getPageByRsn( $whoId );
-        $target = pages::getPageByRsn( $targetId );
+        $who = self::getPageByRsn( $whoId );
+        $target = self::getPageByRsn( $targetId );
 
         if( $targetId == 'domain' ){ //then move to domain
             $target['domain_rsn'] = getArgv('domain_rsn');
@@ -831,14 +831,14 @@ class pages {
         }
         
 
-        pages::cleanSort( $target['domain_rsn'], 0 );
-        pages::updateUrlCache( $target['domain_rsn'] );
-        pages::updateMenuCache( $target['domain_rsn'] );
+        self::cleanSort( $target['domain_rsn'], 0 );
+        self::updateUrlCache( $target['domain_rsn'] );
+        self::updateMenuCache( $target['domain_rsn'] );
         
         if( $target['domain_rsn'] != $who['domain_rsn'] ){
-            pages::cleanSort( $who['domain_rsn'], 0 );
-            pages::updateUrlCache( $who['domain_rsn'] );
-            pages::updateMenuCache( $who['domain_rsn'] );
+            self::cleanSort( $who['domain_rsn'], 0 );
+            self::updateUrlCache( $who['domain_rsn'] );
+            self::updateMenuCache( $who['domain_rsn'] );
         }
         
         
@@ -875,7 +875,7 @@ class pages {
             }
 
             $lastPage = $page;
-            pages::cleanSort( $pDomain, $page['rsn'] );
+            self::cleanSort( $pDomain, $page['rsn'] );
         }
 
         dbExec( "UPDATE %pfx%system_pages SET sort_mode = '' WHERE domain_rsn = $pDomain AND prsn = $pParent" );
@@ -896,7 +896,7 @@ class pages {
         $tpl->assign("files", $files);
         if(!empty($_REQUEST['rsn']) || !empty($_REQUEST['csd'])){
             if( !empty($_REQUEST['rsn']) ) {
-                $link = pages::getPageByRsn( ($_REQUEST['rsn']+0) );
+                $link = self::getPageByRsn( ($_REQUEST['rsn']+0) );
                 $tpl->assign("cLink", $link);
             } elseif(! (strpos($_REQUEST['csd'], "navi:") === false) ){
                 $naviRsn = str_replace("navi:", "", $_REQUEST['csd'])+0;
@@ -905,7 +905,7 @@ class pages {
                     $tpl->assign("cNavi", $navi);
                 }
             } else {
-                $link = pages::getPageByRsn( ($_REQUEST['csd']+0) );
+                $link = self::getPageByRsn( ($_REQUEST['csd']+0) );
                 $tpl->assign("cLink", $link);
             }
         }
@@ -980,8 +980,8 @@ class pages {
         if( $c > 1 )
             self::cleanSort( $domain_rsn, $prsn );
 
-        pages::updateUrlCache( $domain_rsn );
-        pages::updateMenuCache( $domain_rsn );
+        self::updateUrlCache( $domain_rsn );
+        self::updateMenuCache( $domain_rsn );
 
         json( true );
     }
@@ -1210,8 +1210,8 @@ class pages {
         	}
         }
 
-        pages::updateUrlCache( $domain_rsn );
-        pages::updateMenuCache( $domain_rsn );
+        self::updateUrlCache( $domain_rsn );
+        self::updateMenuCache( $domain_rsn );
         $res = self::getPage( $rsn );
 
         json( $res );
@@ -1265,7 +1265,7 @@ class pages {
                     $mode = 'up';
                     $prsn = 0;
                 } else {
-                    $page = pages::getPageByRsn( $prsn );
+                    $page = self::getPageByRsn( $prsn );
                     if( $where == 'into' ){ //erstes in pRsn
                         $sort = 1; 
                         $mode = 'up';
@@ -1304,10 +1304,10 @@ class pages {
                     'access_from' => $accessFrom,
                 ));
 
-                pages::cleanSort( $domain_rsn, 0 );
+                self::cleanSort( $domain_rsn, 0 );
 
                 //$page = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE title = '$title' AND cdate = $time " );
-                $page = pages::getPageByRsn($rsn);
+                $page = self::getPageByRsn($rsn);
 
             } else { //sa've normal
                 dbExec("UPDATE ".pfx."system_pages SET
@@ -1364,8 +1364,8 @@ class pages {
             kryn::fileWrite( "inc/template/css/_pages/$rsn.css", getArgv('resourcesCss') );
             kryn::fileWrite( "inc/template/js/_pages/$rsn.js", getArgv('resourcesJs') );
 
-            pages::updateUrlCache( $domain_rsn );
-            pages::updateMenuCache( $domain_rsn );
+            self::updateUrlCache( $domain_rsn );
+            self::updateMenuCache( $domain_rsn );
             $res = self::getVersion( $rsn, 1 );
         }
         json( $res );
@@ -1392,9 +1392,9 @@ class pages {
         $res = array();
         while( $page = dbFetch( $resu, 1 ) ){
             if( $pge['type'] == 0 )
-                $res[ $page['rsn'] ] = pages::getParentMenus( $page );
+                $res[ $page['rsn'] ] = self::getParentMenus( $page );
             else
-                $res[ $page['rsn'] ] = pages::getParentMenus( $page, true );
+                $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
         }
         kryn::setPhpCache( "menus_$pDomainRsn", $res );
         return $res;
@@ -1428,7 +1428,7 @@ class pages {
         $domain = kryn::getDomain( $pDomainRsn );
         while( $page = dbFetch( $resu, 1 ) ){
             $page = self::__pageModify( $page, array('realurl' => '') );
-            $newRes = pages::getChildPages( $page, $domain );
+            $newRes = self::getChildPages( $page, $domain );
             $res['url'] = array_merge( $res['url'], $newRes['url'] );
             $res['rsn'] = array_merge( $res['rsn'], $newRes['rsn'] );
             //$res['r2d'] = array_merge( $res['r2d'], $newRes['r2d'] );
@@ -1493,7 +1493,7 @@ class pages {
         if( is_array($pages) ) {
             foreach( $pages as $page ){
                 $page = self::__pageModify( $page, $pPage );
-                $newRes = pages::getChildPages( $page );
+                $newRes = self::getChildPages( $page );
 
                 $res['url'] = array_merge( $res['url'], $newRes['url'] );
                 $res['rsn'] = array_merge( $res['rsn'], $newRes['rsn'] );
@@ -1549,7 +1549,7 @@ class pages {
     public static function getPage( $pRsn, $pLock = false){
         global $kryn;
         $pRsn = $pRsn+0;
-        $res = pages::getPageByRsn( $pRsn );
+        $res = self::getPageByRsn( $pRsn );
         $res['resourcesCss'] = kryn::readTempFile( "css/_pages/$pRsn.css"); 
         $res['resourcesJs'] = kryn::readTempFile( "js/_pages/$pRsn.js"); 
         

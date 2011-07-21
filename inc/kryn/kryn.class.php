@@ -603,16 +603,16 @@ class kryn extends baseModule {
             if( $kryn->canCompare == true ){
                 
                 if( kryn::compareVersion('users', '<', '0.7.0') ){
-                    require_once("inc/modules/admin/module.class.php");
-                    require_once("inc/modules/admin/db.class.php");
-                    module::installModule('users', true);
+                    require_once("inc/modules/admin/adminModule.class.php");
+                    require_once("inc/modules/admin/adminDb.class.php");
+                    adminModule::installModule('users', true);
                     $die = true;
                 }
                     
                 if( kryn::compareVersion('admin', '<', '0.7.0') ){
-                    require_once("inc/modules/admin/module.class.php");
-                    require_once("inc/modules/admin/db.class.php");
-                    module::installModule('admin', true);
+                    require_once("inc/modules/admin/adminModule.class.php");
+                    require_once("inc/modules/admin/adminDb.class.php");
+                    adminModule::installModule('admin', true);
                     $die = true;
                 }
                 
@@ -620,16 +620,16 @@ class kryn extends baseModule {
                 
                 //we have to check manually if admin or kryn is not 0.7.0
                 if( $kryn->installedMods['users']['version'] != '0.7.0' ){
-                    require_once("inc/modules/admin/module.class.php");
-                    require_once("inc/modules/admin/db.class.php");
-                    module::installModule('users', true);
+                    require_once("inc/modules/admin/adminModule.class.php");
+                    require_once("inc/modules/admin/adminDb.class.php");
+                    adminModule::installModule('users', true);
                     $die = true;
                 }
                 
                 if( $kryn->installedMods['admin']['version'] != '0.7.0' ){
-                    require_once("inc/modules/admin/module.class.php");
-                    require_once("inc/modules/admin/db.class.php");
-                    module::installModule('admin', true);
+                    require_once("inc/modules/admin/adminModule.class.php");
+                    require_once("inc/modules/admin/adminDb.class.php");
+                    adminModule::installModule('admin', true);
                     $die = true;
                 }
             }
@@ -1043,8 +1043,8 @@ class kryn extends baseModule {
         
         if( !$kcache['paths'][$pPageRsn] ){
             //maybe the cache is old or back-compatibility
-            require_once("inc/modules/admin/pages.class.php");
-            $kcache['paths'] = pages::updateMenuCache($domainRsn);
+            require_once("inc/modules/admin/adminPages.class.php");
+            $kcache['paths'] = adminPages::updateMenuCache($domainRsn);
         }
         
         
@@ -1091,12 +1091,12 @@ class kryn extends baseModule {
         $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
         
         if( $url == '' ){
-        	require_once('inc/modules/admin/pages.class.php');
+        	require_once('inc/modules/admin/adminPages.class.php');
         	
         	
             $r2d = kryn::getPhpCache('r2d');
 	        if( !is_array($r2d) ) {
-	            $r2d = pages::updatePage2DomainCache();
+	            $r2d = adminPages::updatePage2DomainCache();
 	        }
 	       
 	        //find domain of this page
@@ -1108,7 +1108,7 @@ class kryn extends baseModule {
 	        
 	        if( !$taget_domain ){
 	        	//backwards compatibility
-                $r2d = pages::updatePage2DomainCache();
+                $r2d = adminPages::updatePage2DomainCache();
            
 	            //find domain of this page
 	            foreach( $r2d as $domain => $pages ){
@@ -1121,7 +1121,7 @@ class kryn extends baseModule {
 	        //'casue its a different domain, we need to tell load this domain
 	        $domains = kryn::getPhpCache('domains');
 	        if( !$domains['r2d'] )
-	           $domains = pages::updateDomainCache();
+	           $domains = adminPages::updateDomainCache();
 	        
 	        $domainBackup = kryn::$domain;
             kryn::$domain = $domains['r2d']['rsn='.$target_domain];
@@ -1445,8 +1445,8 @@ class kryn extends baseModule {
 
             $domains = kryn::getCache('domains');
             if( !$domains ){
-                require_once('inc/modules/admin/pages.class.php');
-                pages::updateDomainCache();
+                require_once('inc/modules/admin/adminPages.class.php');
+                adminPages::updateDomainCache();
                 $domains = kryn::getCache('domains');
             }
 
@@ -1786,8 +1786,8 @@ class kryn extends baseModule {
     	$rsn = false;
         $r2d = kryn::getPhpCache('r2d');
         if( !is_array($r2d) ) {
-            require_once('inc/modules/admin/pages.class.php');
-            $r2d = pages::updatePage2DomainCache();
+            require_once('inc/modules/admin/adminPages.class.php');
+            $r2d = adminPages::updatePage2DomainCache();
         }
     	
     	$pRsn = ','.$pRsn.',';
@@ -1849,10 +1849,10 @@ class kryn extends baseModule {
         $kcache['realUrl'] = kryn::readCache( 'urls' );
 
         if( !is_array($kcache['realUrl']) ){
-            require_once( 'inc/modules/admin/pages.class.php' );
-            $kcache['realUrl'] = pages::updateUrlCache( $domain );
-            $kcache['paths'] = pages::updateMenuCache( $domain );
-            //pages::updatePageCaches( $domain );
+            require_once( 'inc/modules/admin/adminPages.class.php' );
+            $kcache['realUrl'] = adminPages::updateUrlCache( $domain );
+            $kcache['paths'] = adminPages::updateMenuCache( $domain );
+            //adminPages::updatePageCaches( $domain );
         }
         
         

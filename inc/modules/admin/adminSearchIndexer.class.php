@@ -97,7 +97,7 @@ class adminSearchIndexer {
         $res['pages'] = array();
         
         
-        require_once( 'inc/modules/admin/pages.class.php' );
+        require_once( 'inc/modules/admin/adminPages.class.php' );
         
         while( $row = dbFetch($dres) ){
         
@@ -106,7 +106,7 @@ class adminSearchIndexer {
         
             $urls = kryn::getCache('urls_'.$row['domain_rsn']);
             if(!$urls) {
-                $urls = pages::updateUrlCache( $row['domain_rsn'] );
+                $urls = adminPages::updateUrlCache( $row['domain_rsn'] );
             }
             
             $row['url'] = $urls['rsn']['rsn='.$row['rsn']];

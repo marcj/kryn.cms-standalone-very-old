@@ -14,7 +14,7 @@
 
 
 
-class filemanager {
+class adminFilemanager {
 
     public static function init(){
 /*
@@ -25,59 +25,59 @@ class filemanager {
 */
         switch( getArgv(3) ) {
         case 'loadFolder':
-            return filemanager::loadFolder( getArgv('path') );
+            return self::loadFolder( getArgv('path') );
         case 'getImages':
-            return filemanager::getImages( getArgv('dir') );
+            return self::getImages( getArgv('dir') );
         case 'loadModules':
-            return filemanager::loadModules();
+            return self::loadModules();
         case 'getFile':
-            return filemanager::getFile( getArgv('path') );
+            return self::getFile( getArgv('path') );
         case 'getFileInfo':
-            json( filemanager::getFileInfo( getArgv('path'), getArgv('withSize') != ''? true:false, true ) );
+            json( self::getFileInfo( getArgv('path'), getArgv('withSize') != ''? true:false, true ) );
         case 'getVersions':
-            json( filemanager::getVersions( "inc/template/".getArgv('path')) );
+            json( self::getVersions( "inc/template/".getArgv('path')) );
         case 'addVersion':
-            json( filemanager::addVersion( "inc/template/".getArgv('path')) );
+            json( self::addVersion( "inc/template/".getArgv('path')) );
         case 'setAccess':
-            json( filemanager::setAccess( "inc/template/".getArgv('path'), getArgv('access') ) );
+            json( self::setAccess( "inc/template/".getArgv('path'), getArgv('access') ) );
         case 'recoverVersion':
-            json( filemanager::recoverVersion( getArgv("rsn") ) );
+            json( self::recoverVersion( getArgv("rsn") ) );
          case 'newFile':
-            return filemanager::newFile();
+            return self::newFile();
         case 'newFolder':
-            return filemanager::newFolder();
+            return self::newFolder();
         case 'saveFile':
-            return filemanager::saveFile();
+            return self::saveFile();
         case 'renameFile':
-            return filemanager::renameFile();
+            return self::renameFile();
         case 'duplicateFile':
-            return filemanager::duplicateFile(getArgv('path'), getArgv('newname'));
+            return self::duplicateFile(getArgv('path'), getArgv('newname'));
         case 'cutFile':
-            return filemanager::cutFile();
+            return self::cutFile();
         case 'upload':
-            return filemanager::uploadFile();
+            return self::uploadFile();
         case 'deleteFile':
-            return filemanager::delFile();
+            return self::delFile();
         case 'setFilesystem':
-            json( filemanager::setFilesystem( "inc/template/".getArgv('path'), getArgv('chmod'), getArgv('user'), getArgv('owner'), (getArgv('sub')==1)?true:false ) );
+            json( self::setFilesystem( "inc/template/".getArgv('path'), getArgv('chmod'), getArgv('user'), getArgv('owner'), (getArgv('sub')==1)?true:false ) );
         case 'getOwnerNames':
-           json( filemanager::getOwnerNames( getArgv('ownerid'), getArgv('groupid')) );
+           json( self::getOwnerNames( getArgv('ownerid'), getArgv('groupid')) );
         case 'getOwnerIds':
-           json( filemanager::getOwnerIds( getArgv('owner'), getArgv('group')) );
+           json( self::getOwnerIds( getArgv('owner'), getArgv('group')) );
         case 'rotate':
-            return json( filemanager::rotateFile( getArgv('file'), getArgv('position') ) );
+            return json( self::rotateFile( getArgv('file'), getArgv('position') ) );
         case 'recover':
-            return json(filemanager::recover(getArgv('rsn')));
+            return json(self::recover(getArgv('rsn')));
         case 'resize':
-            return json(filemanager::resize(getArgv('file'), getArgv('width')+0, getArgv('height')+0));
+            return json(self::resize(getArgv('file'), getArgv('width')+0, getArgv('height')+0));
         case 'paste':
-            return filemanager::paste();
+            return self::paste();
         case 'search':
-            return json( filemanager::search( getArgv('q'), getArgv('path') ) );
+            return json( self::search( getArgv('q'), getArgv('path') ) );
         case 'setInternalAcl':
-            return json( filemanager::setInternalAcl( getArgv('path'), getArgv('rules') ) );
+            return json( self::setInternalAcl( getArgv('path'), getArgv('rules') ) );
         case 'diffFiles':
-            filemanager::diffFiles(getArgv('from'), getArgv('to'));
+            self::diffFiles(getArgv('from'), getArgv('to'));
         }
     }
     
@@ -85,8 +85,8 @@ class filemanager {
     {
         require_once('inc/modules/admin/FineDiff.class.php');
         
-        $textFrom = filemanager::readFile($pFrom);
-        $textTo = filemanager::readFile($pTo);
+        $textFrom = self::readFile($pFrom);
+        $textTo = self::readFile($pTo);
         
 		$textFrom = str_replace("\r\n", "\n", $textFrom);
 		$textTo = str_replace("\r\n", "\n", $textTo);
@@ -667,7 +667,7 @@ $pAccess from all
     }
 
     public static function getFile( $pPath ){
-        json( filemanager::readFile($pPath) );
+        json( self::readFile($pPath) );
     }
     
     public static function recover( $pRsn ){
@@ -732,7 +732,7 @@ $pAccess from all
             $target = $trash.$newTrashId;
             
             if(is_dir( $path )) {
-                filemanager::copyDir($path, $target);
+                self::copyDir($path, $target);
                 delDir( $path );
             } else {
                 copy( $path, $target );
@@ -750,7 +750,7 @@ $pAccess from all
             while( false !== ( $file = readdir( $dir )) ) { 
             if (( $file != '.' ) && ( $file != '..' )) { 
                 if ( is_dir( $src .'/'.$file ) ) { 
-                    filemanager::copyDir( $src.'/'.$file, $dst.'/'.$file ); 
+                    self::copyDir( $src.'/'.$file, $dst.'/'.$file ); 
                 } 
                 else { 
                     copy( $src.'/'.$file, $dst.'/'.$file ); 
@@ -816,7 +816,7 @@ $pAccess from all
         $dstPath = str_replace( "..", "", $dstPath );
         
         if(is_dir( $srcPath )) {
-            filemanager::copyDir($srcPath, $dstPath);
+            self::copyDir($srcPath, $dstPath);
         } else {
             copy( $srcPath, $dstPath );
         }
@@ -831,7 +831,7 @@ $pAccess from all
         $dstPath = str_replace( "..", "", $dstPath );
         
         if(is_dir( $srcPath )) {
-            filemanager::copyDir($srcPath, $dstPath);
+            self::copyDir($srcPath, $dstPath);
             delDir( $srcPath );
         } else {
             copy( $srcPath, $dstPath );

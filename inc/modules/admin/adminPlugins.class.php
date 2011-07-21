@@ -11,18 +11,18 @@
  */
 
 
-class plugins {
+class adminPlugins {
 
     function init(){
         switch( getArgv(4) ){
         case 'get':
-            return plugins::get( getArgv('module'), getArgv('resultType') );
+            return self::get( getArgv('module'), getArgv('resultType') );
         case 'icon':
             modules::pluginIcon( getArgv('plugin') );
         case 'preview':
-            return plugins::preview( $_POST['content'] );
+            return self::preview( $_POST['content'] );
         }
-        json( "plugins::init::invalid-param" );
+        json( "adminPlugins::init::invalid-param" );
     }
 
     public static function preview( $pContent ){
@@ -91,7 +91,7 @@ class plugins {
             $res = tFetch( 'admin/plugins.result.radio.tpl' );
             json( $res );
         }
-        json( 'plugins::get::invalid-param' );
+        json( 'self::get::invalid-param' );
     }
     
     

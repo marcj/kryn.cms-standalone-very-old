@@ -20,17 +20,17 @@ class window {
         
         switch( getArgv(4) ){
         case 'custom':
-            return window::custom();
+            return self::custom();
         case 'checkAccess':
-            return window::checkAccess();
+            return self::checkAccess();
         case 'getInfo':
-            json( window::getInfo( getArgv('module'), getArgv('code') ) );
+            json( self::getInfo( getArgv('module'), getArgv('code') ) );
         case 'loadClass': 
-            return window::loadClass();
+            return self::loadClass();
         case 'sessionbasedFileUpload': 
-            return window::sessionbasedFileUpload();
+            return self::sessionbasedFileUpload();
         default: 
-            json('window::init::no-param-4');
+            json('self::init::no-param-4');
         }
     }
 
@@ -213,7 +213,7 @@ class window {
         
         
         //now upload the file
-        return filemanager::uploadFile();
+        return adminFilemanager::uploadFile();
         
     }
 
