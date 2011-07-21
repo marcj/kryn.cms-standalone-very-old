@@ -232,10 +232,17 @@ ka.desktop = new Class({
         }.bind(this));
 
         this._icons.clean();
+        var nIcons = Array.clone( this._icons );
+        
+        nIcons.each(function(item,i){
+            delete item.icon;
+        });
+        
+        var icons = JSON.encode( nIcons );
         
         this.lastSave = new Request.JSON({url: _path+'admin/backend/saveDesktop', noCache: 1, onComplete: function(){
 
-        }}).post({icons: JSON.encode( this._icons )});
+        }}).post({icons: icons});
     },
 
     addIcon: function( pIcon ){
