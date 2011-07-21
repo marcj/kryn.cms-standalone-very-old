@@ -354,7 +354,7 @@ class windowList {
 	 * @return string
 	 */
     function sql( $pCountSql = false ){
-        global $kdb;
+        global $kdb, $cfg;
         
         $extraFields = array();
         $joins = "";
@@ -407,6 +407,11 @@ class windowList {
         
 
         if( $pCountSql == false ){
+            
+            if( $_POST['getPosition'] && ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') ){
+                $fields .= ', @i:=@i+1 as kryn_combine_rownumber ';
+            }
+        
             $sql = "
                 SELECT $table.* $fields
                 FROM $table
@@ -437,7 +442,7 @@ class windowList {
 	 * @return array
 	 */
     function getItems(){
-        global $kdb;
+        global $kdb, $cfg;
         
         $pPage = getArgv('page');
         $results['page'] = $pPage;
@@ -470,16 +475,57 @@ class windowList {
         
         }*/
         
-        if( $_POST['around'] ){
+        if( $_POST['getPosition'] ){
         
             $limit = "";
             $itemsBefore = array();
             $itemsAfter = array();
             
+            $fields = implode( ',', $this->primary );
+            
             //SELECT *, (@rank:=@rank+1) AS counter FROM `kryn_system_settings` INNER JOIN (SELECT @rank :=0) b
             //or
-            //set @i = 0; 
-            //select id, @i:=@i+1 as myrow from mytable 
+            
+            $sql = "
+                ".$this->listSql."
+                $unique
+                ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection;
+            
+            $aWhere = array();
+            
+            $table = database::getTable( $this->table );
+            $options = database::getOptions( $table );
+    
+            $selected = getArgv('getPosition');
+            
+            foreach( $this->primary as $primary ){
+
+                $val = $selected[ $primary ];
+                if( $options[$primary]['escape'] == 'int' ){
+                    $sqlInsert .= ($val+0);
+                } else {
+                    $sqlInsert .= "'" . esc($val) . "'";
+                }
+                
+                $aWhere[] = "t.$primary = ".$sqlInsert;
+            }
+            
+            $where = implode( ' AND ', $aWhere );
+            
+            if( $cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli' ){
+                dbExec('set @i = 0');
+                $sql = 'SELECT * FROM ('.$sql.') as t WHERE '.$where;
+            }
+            
+            $res = dbExfetch( $sql, 1 );
+            
+            klog('debug', print_r($res,true));
+            json( $res['kryn_combine_rownumber']+0 );
+            
+            /*
+            SELECT * FROM 
+               (SELECT '.$fields.', @i:=@i+1 as rownumber FROM %pfx%'.$this->table.') as t
+            WHERE*/
         
         } else {
             
@@ -494,16 +540,16 @@ class windowList {
                 $limit = " LIMIT $end OFFSET $start";
             }
 
-        }
 
-        /* list sql */
-        $listSql = "
+            $listSql = "
             SELECT * FROM (
                 ".$this->listSql."
                 $unique
                 ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
             ) as t
             $limit";
+            
+        }
             
         //klog('huhu', $listSql);
         $res = dbExec( $listSql );
