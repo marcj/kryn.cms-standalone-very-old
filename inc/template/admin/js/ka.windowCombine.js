@@ -44,7 +44,7 @@ ka.windowCombine = new Class({
         this.mainLeftItems = new Element('div', {
             style: 'position: absolute; left: 0px; top: 25px; bottom: 0px; right: 0px; overflow: auto;'
         })
-        .addEvent('scroll', this.checkScrollPosition.bind(this))
+        .addEvent('scroll', this.checkScrollPosition.bind(this, true))
         .inject( this.mainLeft );
         
         
@@ -334,7 +334,7 @@ ka.windowCombine = new Class({
         
     },
     
-    checkScrollPosition: function(){
+    checkScrollPosition: function( pRecheck ){
     
         if( this.loadingNewItems ) return;
     
@@ -346,7 +346,13 @@ ka.windowCombine = new Class({
             this.loadMore();
         } else if( this.mainLeftItems.getFirst('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
             this.loadPrevious();
+        } else if( this.mainLeftItems.getScroll().y == 0 ){
+            this.loadPrevious();
         }
+        
+        //if( pRecheck == true )
+        //    this.checkScrollPosition.delay(50, this);
+        
     },
     
     loadMore: function(){
@@ -355,7 +361,8 @@ ka.windowCombine = new Class({
         }
     },
     
-    loadPrevious: function(){    
+    loadPrevious: function(){
+        logger('loadPrevious');    
         if( this.from > 0 ){
             
             var items = (this.values.itemsPerPage)?this.values.itemsPerPage:5;
@@ -366,9 +373,9 @@ ka.windowCombine = new Class({
                 maxItems += newFrom;
                 newFrom = 0;
             }
-            
+            logger(this.mainLeftItems.getScroll().y);
             logger(this.from+': '+newFrom+'->'+maxItems);
-            //this.loadItems( newFrom, maxItems );
+            this.loadItems( newFrom, maxItems );
         }
     },
     
@@ -399,7 +406,10 @@ ka.windowCombine = new Class({
         if( this.lastRequest )
             this.lastRequest.cancel();
 
-        this.prepareLoadPage();
+        if( pFrom < this.from )
+            this.prevItemLoaderStart();
+        else
+            this.itemLoaderStart();
 
         if( this.loader )
             this.loader.show();
@@ -407,6 +417,8 @@ ka.windowCombine = new Class({
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
             
             if( !res.items ) return;
+            
+            this.renderItems(res, pFrom);
             
             if( this.from == null || pFrom < this.from ){
                 this.from = pFrom;
@@ -416,9 +428,31 @@ ka.windowCombine = new Class({
                 
             if( !this.max || this.max < pFrom+nMax )
                 this.max = pFrom+nMax;
+                
             
+            if( res.maxItems > 0 ){
+                if( this.max == res.maxItems ){
+                    this.itemLoaderEnd();
+                } else {
+                    this.itemLoaderStop();
+                }
+            } else {
+                this.itemLoaderNoItems();
+            }
             
-            this.renderItems(res, pFrom);
+            if( this.from > 0 ){
+                this.prevItemLoaderStop();
+            } else {
+                this.prevItemLoaderNoItems();
+            }
+    
+            this.itemsFrom.set('html', this.from+1);
+            this.itemsLoaded.set('html', this.max);
+            this.itemsMax.set('html', res.maxItems);
+                
+            if( res.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
+                this.loadMore();
+            
             
         }.bind(this)}).post({ 
             module: this.win.module,
@@ -448,6 +482,11 @@ ka.windowCombine = new Class({
             'class': 'ka-list-combine-itemloader'
         }).inject( this.mainLeftItems );
         
+        this.prevItemLoader = new Element('div', {
+            'class': 'ka-list-combine-itemloader',
+            'style': 'display: none;'
+        }).inject( this.mainLeftItems, 'top' );
+        
         this.itemLoaderStop();
     
     },
@@ -471,6 +510,23 @@ ka.windowCombine = new Class({
     
     itemLoaderNoItems: function(){
         this.itemLoader.set('html', _('There are no entries.'));
+    },
+    
+    prevItemLoaderStart: function(){
+        this.loadingNewItems = true;
+        if( !this.itemLoader ) return;
+        this.itemLoader.set('html', '<img src="'+_path+'inc/template/admin/images/loading.gif" />'+'<br />'+_('Loading entries ...'));
+    },
+    
+    prevItemLoaderStop: function(){
+        this.prevLoadingNewItems = false;
+        if( !this.prevItemLoader ) return;
+        this.prevItemLoader.setStyle('display', 'block');
+        this.prevItemLoader.set('html', _('Scroll to the top to load previous entries.'));
+    },
+    
+    prevItemLoaderNoItems: function(){
+        this.prevItemLoader.setStyle('display', 'none');
     },
     
     renderMultilanguage: function(){
@@ -520,6 +576,21 @@ ka.windowCombine = new Class({
     
     },
     
+    findSplit: function( pSplitTitle ){
+        var res = false;
+        
+        var splits = this.mainLeftItems.getElements('.ka-list-combine-splititem');
+        splits.each(function(item, id){
+        
+            if( item.get('html') == pSplitTitle ){
+                res = item;
+            }
+        
+        }.bind(this));
+    
+        return res;
+    },
+    
     renderItems: function( pItems, pFrom ){
         var _this = this;
 
@@ -536,6 +607,7 @@ ka.windowCombine = new Class({
 
         _this.tempcount = 0;
         
+        var lastSplitTitleForThisRound = false;
         
         if( pItems.items ){
             
@@ -547,16 +619,39 @@ ka.windowCombine = new Class({
                 position++;
             
                 var splitTitle = this.getSplitTitle( item );
-                
-                if( this.lastSortValue != splitTitle ){
-                
-                    this.lastSortValue = splitTitle;
-                    this.addSplitTitle( splitTitle );    
-                      
-                }          
-            
+
                 var res = this.addItem( item );
                 res.store('position', position+0);
+                
+                if( this.from == null || pFrom > this.from ){
+                
+                    if( this.lastSortValue != splitTitle ){
+                    
+                        this.lastSortValue = splitTitle;
+                        
+                        var split = this.addSplitTitle( splitTitle );
+                        split.inject( this.itemLoader, 'before' );   
+                    }
+                    
+                    res.inject( this.itemLoader, 'before' );
+                    
+                } else {
+                    
+                    var oldSameSplit = this.findSplit( splitTitle );
+                    if( oldSameSplit && lastSplitTitleForThisRound == false ){
+                        //logger(oldSameSplit);
+                        oldSameSplit.destroy();
+                    }
+                    
+                    res.inject( this.prevItemLoader, 'before' );
+                    
+                    if( lastSplitTitleForThisRound != splitTitle ){
+                        var split = this.addSplitTitle( splitTitle );
+                        lastSplitTitleForThisRound = splitTitle;
+                        split.inject( res, 'before' );
+                    }
+                    
+                }
                 
                 if( res.hasClass('active') )
                     this.lastItemPosition = position+0;
@@ -565,29 +660,7 @@ ka.windowCombine = new Class({
             }.bind(this));
         }
         
-        if( pItems.maxItems > 0 ){
-            if( this.max == pItems.maxItems ){
-                this.itemLoaderEnd();
-            } else {
-                this.itemLoaderStop();
-            }
-        } else {
-            this.itemLoaderNoItems();
-        }
-        
-
-        //if( pItems.maxItems > 0 ){
-            this.itemsFrom.set('html', this.from+1);
-            this.itemsLoaded.set('html', this.max);
-            this.itemsMax.set('html', pItems.maxItems);
-        //} else {
-        //    this.itemsFrom.set('html', 0);
-        //    this.itemsLoaded.set('html', this.itemsLoadedCount);
-        //    this.itemsMax.set('html', pItems.maxItems);
-        //}
-        
-        if( pItems.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
-            this.loadMore();
+        this.prevItemLoader.inject( this.mainLeftItems, 'top' );
         
     },
     
@@ -603,9 +676,9 @@ ka.windowCombine = new Class({
         
             if( ["datetime", "date"].contains(this.values.columns[this.sortField]['type']) ){
                 
-                if( item['values'][this.sortField] > 0 ){
+                if( pItem['values'][this.sortField] > 0 ){
                 
-                    var time = new Date(item['values'][this.sortField]*1000);
+                    var time = new Date(pItem['values'][this.sortField]*1000);
                     value = time.timeDiffInWords();
                     
                 } else {
@@ -658,25 +731,16 @@ ka.windowCombine = new Class({
     
     loadItem: function( pItem ){
         var _this = this;
-
-        var found = false;
-        while( !found ){
-            //until we found it in the item list
         
-            this.mainLeftItems.getChildren().each(function(item,i){
-                
-                item.removeClass('active');
-                if( item.retrieve('item') == pItem ){
-                    item.addClass('active');
-                    found = true;
-                }
-            });
+        
+        this.mainLeftItems.getChildren().each(function(item,i){
             
-            if( found == false ){
-                //load next page
+            item.removeClass('active');
+            if( item.retrieve('item') == pItem ){
+                item.addClass('active');
+                found = true;
             }
-        }
-        
+        });
         
         this.currentItem = pItem;
         
@@ -795,8 +859,8 @@ ka.windowCombine = new Class({
     
         if( this.lastRequest )
             this.lastRequest.cancel();
-
-        this.prepareLoadPage();
+            
+        this.itemLoaderStart();
 
         if( this.loader )
             this.loader.show();
@@ -919,10 +983,10 @@ ka.windowCombine = new Class({
     },*/
     
     addSplitTitle: function( pItem ){
-        new Element('div', {
+        return new Element('div', {
             'class': 'ka-list-combine-splititem',
             html: pItem
-        }).inject( this.itemLoader, 'before' );
+        });
     },
     
     addItem: function( pItem ){
@@ -965,11 +1029,7 @@ ka.windowCombine = new Class({
             'class': 'ka-list-combine-item'
         })
         .store('item', pItem)
-        .addEvent('click', this.loadItem.bind(this, pItem))
-        .inject( this.itemLoader, 'before' );
-        
-        
-        
+        .addEvent('click', this.loadItem.bind(this, pItem));
         
         if( this.currentEdit && this.currentEdit.values ){
         
@@ -984,6 +1044,7 @@ ka.windowCombine = new Class({
 	           item.addClass('active');
         }
         
+        
         if( this.needSelection ){
         
             var oneIsFalse = false;
@@ -995,6 +1056,7 @@ ka.windowCombine = new Class({
 	        
 	        if( oneIsFalse == false ){
                 item.fireEvent('click', pItem);
+                item.addClass('active');
                 this.needSelection = false;
             }
         }
@@ -1013,6 +1075,10 @@ ka.windowCombine = new Class({
         }.bind(this));
         
         return item;
+        
+        
+        
+        //TODO
         
         var _this = this;
         var tr = new Element('tr',{
