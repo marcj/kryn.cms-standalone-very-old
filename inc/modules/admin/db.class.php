@@ -157,7 +157,7 @@ class db {
         }
     }
 
-    function _installTable( $pTable, $pFields ){
+    public static function _installTable( $pTable, $pFields ){
 		global $cfg;
         $sql = 'CREATE TABLE '.$pTable.' ('."\n";
 
@@ -223,7 +223,7 @@ class db {
         
     }
 
-    function addColumn( $pTable, $pFieldName, $pFieldOptions, $pMode = false ){
+    public static function addColumn( $pTable, $pFieldName, $pFieldOptions, $pMode = false ){
         
         /*
          * $pMode
@@ -306,7 +306,7 @@ class db {
     }
 
     //obsolete since 0.6
-    function addIndex( $pTable, $pField, $pType = 'INDEX' ){
+    public static function addIndex( $pTable, $pField, $pType = 'INDEX' ){
 
         $pType = str_replace("DB_", "", $pType);
 

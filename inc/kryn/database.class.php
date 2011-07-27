@@ -605,7 +605,7 @@ class database {
         public function _last_error(){
             switch( $this->type ){
                 case 'sqlite':
-                   $res = sqlite_last_error ();
+                   $res = sqlite_last_error();
                    break;
                 case 'mysql':
                    $res = mysql_error();
