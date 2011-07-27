@@ -175,11 +175,14 @@ ka.check4Updates = function(){
 ka.checkPageAccessHasCode = function( pCodes, pAction ){
 	var access = (pCodes.indexOf( pAction ) != -1 );
 	
+	return access;
+	
+	/*
+	Why did we do that?
 	if( !access ){
 	
 		var acl_all = false;
 		var acl_tab = false;
-		
 		
 		$H(ka.settings.pageAcls).each(function(subAll,keyAll){
 		
@@ -197,6 +200,7 @@ ka.checkPageAccessHasCode = function( pCodes, pAction ){
 		
 	}
 	return access;
+	*/
 }
 
 ka.checkPageAccess = function( pRsn, pAction, pType ){
@@ -249,6 +253,8 @@ ka.checkPageAccess = function( pRsn, pAction, pType ){
 			parent_acl = true;
 		}
 	}
+	
+	
 	return access;
 }
 
