@@ -1119,6 +1119,7 @@ class module {
         }
 
         @rename( 'install.php', 'install.php.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) );
+        
         # db install
         if( $pModuleName != 'kryn' ){
             dbDelete('system_modules', "name = '$pModuleName'");
@@ -1132,6 +1133,12 @@ class module {
                     db::install( $extendConfig );
                 }
             }
+        }
+        
+        if( file_exists("inc/modules/$pModuleName/$pModuleName.class.php") ){
+            require_once( "inc/modules/$pModuleName/$pModuleName.class.php" );
+            $m = new $module();
+            $m->install();
         }
         
         require_once('inc/modules/admin/admin.class.php');
