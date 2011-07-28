@@ -1275,7 +1275,7 @@ var admin_pages = new Class({
             this.domainFields['lang'].setValue( res.lang );
             this.domainFields['master'].setValue( res.master );
             this.domainFields['phplocale'].setValue( res.phplocale );
-            this.domainFields['robots'].setValue( res.phplocale );
+            this.domainFields['robots'].setValue( res.robots );
             this.domainFields['favicon'].setValue( res.favicon );
             this.domainFields['path'].setValue( res.path );
             this.domainFields['email'].setValue( res.email );
