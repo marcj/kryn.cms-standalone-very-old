@@ -1037,7 +1037,7 @@ var admin_pages = new Class({
 
         if(!ka.checkPageAccess( this.page.rsn, 'releaseDates' ) ){
             this.generalFields['access_from'].hide();
-            this.generalFields['access_from'].hide();
+            this.generalFields['access_to'].hide();
         }
         
         if(!ka.checkPageAccess( this.page.rsn, 'limitation' ) ){
