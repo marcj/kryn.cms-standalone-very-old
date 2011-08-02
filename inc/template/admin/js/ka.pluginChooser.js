@@ -6,7 +6,6 @@ ka.pluginChooser =  new Class({
 
         var w = pTarget.getWindow();
 
-        this._load();
 
         var opts = [];
         if( $type(pTypes) == 'string' )
@@ -19,6 +18,8 @@ ka.pluginChooser =  new Class({
         this.options = {}
 
         this.activeOptions = new Hash(); 
+        
+        this._load();
     },
 
     _load: function(){
@@ -198,18 +199,22 @@ ka.pluginChooser =  new Class({
             html: _('-- Please choose --')
         }).inject( selectModules );
 
-        new Request.JSON({url: _path+'admin/system/module/getModules/', onComplete: function(res){
-            res.each(function(item){
-                new Element( 'option', {
-                    value: item.name,
-                    html: item.title
-                }).inject( selectModules );
-            });
-            if( _this.choosen.module != '' ){
-                selectModules.value = _this.choosen.module;
-                selectModulesChange();
-            }
-        }}).post();
+        //new Request.JSON({url: _path+'admin/system/module/getModules/', onComplete: function(res){ 
+        
+        $H(ka.settings.configs).each(function(item, code){
+            var title = item.title[ window._session.lang ] ? item.title[ window._session.lang ] : item.title.en;
+            new Element( 'option', {
+                value: code,
+                html: title
+            }).inject( selectModules );
+            
+        });
+        if( this.choosen && this.choosen.module != '' ){
+            selectModules.value = _this.choosen.module;
+            selectModulesChange();
+        }
+        
+        //}}).post();
 
         return;
         //this._loadMenu();
