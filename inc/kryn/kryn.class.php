@@ -298,7 +298,8 @@ class kryn extends baseModule {
     public static $pageAcls = array(
 		'domainAll' => array(
             'tree' => array(
-                'showDomain'
+                'showDomain',
+                'deleteDomain'
             ),
     		'domain' => array(
 					'domainName',
