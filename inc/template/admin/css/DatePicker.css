@@ -13,7 +13,7 @@ input:focus.date {
 
 .dp_container {
 	position: relative;
-  top: -3px;
+    top: -3px;
 	padding: 0;
 	z-index: 500;
 	width: 170px;

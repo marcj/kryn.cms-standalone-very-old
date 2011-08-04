@@ -499,7 +499,6 @@ ka.windowEdit = new Class({
         
         
         
-        
         if( go ){
                 
             if( this.inline ) {

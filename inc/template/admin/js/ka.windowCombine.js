@@ -73,8 +73,6 @@ ka.windowCombine = new Class({
             pE.stop();
         }
         
-        logger(pE.key);
-        
         var active = this.mainLeftItems.getElement('.active');
         
         var newTarget;
@@ -85,16 +83,24 @@ ka.windowCombine = new Class({
                 newTarget = active.getNext('.ka-list-combine-item');
             
             if( !newTarget )
-                newTarget = this.mainLeftItems.getElement('.ka-list-combine-item');
+                this.mainLeftItems.scrollTo(0,this.mainLeftItems.getScrollSize().y+50);
                 
+            
+            /*if( !newTarget )
+                newTarget = this.mainLeftItems.getElement('.ka-list-combine-item');
+            */    
         } else if( pE.key == 'up' ){
             
             if( active )
                 newTarget = active.getPrevious('.ka-list-combine-item');
-            
+                
+            if( !newTarget )
+                this.mainLeftItems.scrollTo(0,0);
+                
+            /*
             if( !newTarget )
                 newTarget = this.mainLeftItems.getLast('.ka-list-combine-item');
-
+            */
         }
         
         if( !newTarget ) return;
@@ -113,12 +119,13 @@ ka.windowCombine = new Class({
             //scroll down
             //this.mainLeftItems.scrollTo(0, (pos.y-bottomline));
             this.mainLeftItems.scrollTo(0, (pos.y+size.y)+spos.y-ssize.y);
-            logger(ssize.y+' => ');
+            //logger(ssize.y+' => ');
         }
         
-        this.checkScrollPosition();
-            
         this.loadItem( newTarget.retrieve('item') );
+        
+        this.checkScrollPosition( false, true );
+        
     },
     
     renderActionbar: function(){
@@ -189,10 +196,6 @@ ka.windowCombine = new Class({
             }*/
             
             this.sortDirection = sortId.split('______')[1];
-            
-            this.from = 0;
-            this.max = 0;
-            this._lastItems = null;
             
             this.reload();
             
@@ -334,20 +337,22 @@ ka.windowCombine = new Class({
         
     },
     
-    checkScrollPosition: function( pRecheck ){
+    checkScrollPosition: function( pRecheck, pAndScrollToSelect ){
     
         if( this.loadingNewItems ) return;
     
         if( this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
-            this.loadMore();
+            this.loadMore(pAndScrollToSelect);
         } else if( this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
-            this.loadMore();
+            this.loadMore(pAndScrollToSelect);
+        /*
         } else if( this.mainLeftItems.getLast('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
             this.loadMore();
         } else if( this.mainLeftItems.getFirst('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
             this.loadPrevious();
+        */
         } else if( this.mainLeftItems.getScroll().y == 0 ){
-            this.loadPrevious();
+            this.loadPrevious(pAndScrollToSelect);
         }
         
         //if( pRecheck == true )
@@ -355,14 +360,14 @@ ka.windowCombine = new Class({
         
     },
     
-    loadMore: function(){
+    loadMore: function( pAndScrollToSelect ){
         if( this.max < this.maxItems ){
-            this.loadItems( this.max, (this.values.itemsPerPage)?this.values.itemsPerPage:5 );
+            this.loadItems( this.max, (this.values.itemsPerPage)?this.values.itemsPerPage:5, pAndScrollToSelect );
         }
     },
     
-    loadPrevious: function(){
-        logger('loadPrevious');    
+    loadPrevious: function( pAndScrollToSelect ){
+        //logger('loadPrevious');    
         if( this.from > 0 ){
             
             var items = (this.values.itemsPerPage)?this.values.itemsPerPage:5;
@@ -373,28 +378,28 @@ ka.windowCombine = new Class({
                 maxItems += newFrom;
                 newFrom = 0;
             }
-            logger(this.mainLeftItems.getScroll().y);
-            logger(this.from+': '+newFrom+'->'+maxItems);
-            this.loadItems( newFrom, maxItems );
+            //logger(this.mainLeftItems.getScroll().y);
+            //logger(this.from+': '+newFrom+'->'+maxItems);
+            this.loadItems( newFrom, maxItems, pAndScrollToSelect );
         }
     },
     
-    changeLanguage: function(){
-        this.from = 0;
-        this.max = 0;
-        this._lastItems = null;
+    changeLanguage: function(){    
         this.reload();
     },
     
     reload: function(){
+        this._lastItems = null;
         this.clearItemList();
+        this.from = 0;
+        this.max = (this.values.itemsPerPage)?this.values.itemsPerPage:5;
     	this.loadItems( this.from, this.max );
     },
     
-    loadItems: function( pFrom, pMax ){
+    loadItems: function( pFrom, pMax, pAndScrollToSelect ){
         var _this = this;
 
-        logger(pFrom+' => '+pMax);
+        //logger(pFrom+' => '+pMax);
         
         if( this._lastItems ){
             if( pFrom > this._lastItems.maxItems )
@@ -420,15 +425,18 @@ ka.windowCombine = new Class({
             
             this.renderItems(res, pFrom);
             
+            //logger(this.from+' > '+pFrom);
+            
             if( this.from == null || pFrom < this.from ){
                 this.from = pFrom;
+            } else if( pFrom == null ){
+                this.from = 0;
             }
             
             var nMax = Object.getLength(res.items);
                 
             if( !this.max || this.max < pFrom+nMax )
-                this.max = pFrom+nMax;
-                
+                this.max = pFrom+nMax;      
             
             if( res.maxItems > 0 ){
                 if( this.max == res.maxItems ){
@@ -440,19 +448,36 @@ ka.windowCombine = new Class({
                 this.itemLoaderNoItems();
             }
             
-            if( this.from > 0 ){
-                this.prevItemLoaderStop();
-            } else {
-                this.prevItemLoaderNoItems();
-            }
+            //logger('loadItems done: from='+this.from+', max='+this.max);
     
             this.itemsFrom.set('html', this.from+1);
             this.itemsLoaded.set('html', this.max);
             this.itemsMax.set('html', res.maxItems);
-                
-            if( res.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
-                this.loadMore();
             
+            if( pAndScrollToSelect ){
+                var target = this.mainLeftItems.getElement('.active');
+                if( target ){
+                    var pos = target.getPosition( this.mainLeftItems );
+                    
+                    this.mainLeftItems.scrollTo(0, pos.y-(this.mainLeftItems.getSize().y/2));
+                    
+                }
+            } else {
+            
+                if( this.from > 0 ){
+                    this.prevItemLoaderStop();
+                    if( this.mainLeftItems.getScroll().y < 5 )
+                        this.mainLeftItems.scrollTo(0,5);
+                } else {
+                    this.prevItemLoaderNoItems();
+                }
+            
+            }
+            
+            if( this.from > 0 && this.mainLeftItems.getScroll().y == 0 )
+                this.loadPrevious(true);
+            else if( res.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 )
+                this.loadMore(true);
             
         }.bind(this)}).post({ 
             module: this.win.module,
@@ -472,6 +497,11 @@ ka.windowCombine = new Class({
         this.lastSortValue = false;
         this.itemsLoadedCount = 0;
         
+        this.from = null;
+        this.max = 0;
+        
+        this._lastItems = null;
+            
         this.mainLeftItems.empty();
         this.createItemLoader();
     },
@@ -498,6 +528,7 @@ ka.windowCombine = new Class({
     },
     
     itemLoaderEnd: function(){
+        this.loadingNewItems = false;
         if( !this.itemLoader ) return;
         this.itemLoader.set('html', _('No entries left.'));
     },
@@ -514,8 +545,8 @@ ka.windowCombine = new Class({
     
     prevItemLoaderStart: function(){
         this.loadingNewItems = true;
-        if( !this.itemLoader ) return;
-        this.itemLoader.set('html', '<img src="'+_path+'inc/template/admin/images/loading.gif" />'+'<br />'+_('Loading entries ...'));
+        if( !this.prevItemLoader ) return;
+        this.prevItemLoader.set('html', '<img src="'+_path+'inc/template/admin/images/loading.gif" />'+'<br />'+_('Loading entries ...'));
     },
     
     prevItemLoaderStop: function(){
@@ -526,6 +557,7 @@ ka.windowCombine = new Class({
     },
     
     prevItemLoaderNoItems: function(){
+        this.loadingNewItems = false;
         this.prevItemLoader.setStyle('display', 'none');
     },
     
@@ -625,30 +657,70 @@ ka.windowCombine = new Class({
                 
                 if( this.from == null || pFrom > this.from ){
                 
-                    if( this.lastSortValue != splitTitle ){
+                    /*if( this.lastSortValue != splitTitle ){
                     
                         this.lastSortValue = splitTitle;
                         
                         var split = this.addSplitTitle( splitTitle );
                         split.inject( this.itemLoader, 'before' );   
-                    }
+                    }*/
                     
                     res.inject( this.itemLoader, 'before' );
                     
+                    var split = res.getPrevious('.ka-list-combine-splititem');
+                    
+                    if( split ){
+                        if( split.get('html') != splitTitle ){
+                            var split = this.addSplitTitle( splitTitle );
+                            split.inject( res, 'before' );
+                        }
+                    } else {
+                        var split = this.addSplitTitle( splitTitle );
+                        split.inject( res, 'before' );
+                    }
+                    
                 } else {
                     
-                    var oldSameSplit = this.findSplit( splitTitle );
+                    /*var oldSameSplit = this.findSplit( splitTitle );
                     if( oldSameSplit && lastSplitTitleForThisRound == false ){
                         //logger(oldSameSplit);
                         oldSameSplit.destroy();
-                    }
+                    }*/
                     
                     res.inject( this.prevItemLoader, 'before' );
                     
-                    if( lastSplitTitleForThisRound != splitTitle ){
+                    /*if( lastSplitTitleForThisRound != splitTitle ){
                         var split = this.addSplitTitle( splitTitle );
                         lastSplitTitleForThisRound = splitTitle;
                         split.inject( res, 'before' );
+                    }*/
+                    
+                    var split = res.getNext('.ka-list-combine-splititem');
+                    
+                    var found = true;
+                    
+                    if( split ){
+                        if( split.get('html') != splitTitle ){
+                            found = false;
+                        } else {
+                            res.inject( split, 'after' );
+                        }
+                    } else {
+                        found = false;
+                    }
+                    
+                    
+                    if( !found ){    
+                        var split = res.getPrevious('.ka-list-combine-splititem');
+                        if( split ){
+                            if( split.get('html') != splitTitle ){
+                                var split = this.addSplitTitle( splitTitle );
+                                split.inject( res, 'before' );
+                            }
+                        } else {
+                            var split = this.addSplitTitle( splitTitle );
+                            split.inject( res, 'before' );
+                        }
                     }
                     
                 }
@@ -775,7 +847,8 @@ ka.windowCombine = new Class({
     
     },
     
-    itemLoaded: function(){
+    itemLoaded: function( pItem ){
+        this.lastLoadedItem = pItem.values;
         this.setWinParams();
     },
     
@@ -879,6 +952,7 @@ ka.windowCombine = new Class({
                 
                 if( this.lastItemPosition != res ){
                     this.clearItemList();
+                    logger('loadItems Now: from='+from+', range='+range);
                     this.loadItems( from, range );
                 }
             }
@@ -898,8 +972,16 @@ ka.windowCombine = new Class({
     
     saved: function( pItem ){
         
+        if( pItem[this.sortField] && this.lastLoadedItem[this.sortField] &&
+            this.lastLoadedItem[this.sortField] != pItem[this.sortField] ){
+            
+            this.lastLoadedItem = pItem;
+            
+            this._lastItems = null;
+            
+            this.loadAround( this.win.params.selected );
+        }
         
-        //todo, just loadAround this item
         return;
         
         /*
@@ -914,11 +996,11 @@ ka.windowCombine = new Class({
         return;
         */
         
-        logger(pItem);
+        //logger(pItem);
         var sortedColumnChanged = false;
         
         if( sortedColumnChanged ){
-                this.reload();
+            this.reload();
         } else {
         
             var target = false;

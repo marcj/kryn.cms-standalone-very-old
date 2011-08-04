@@ -35,7 +35,7 @@ class adminPages {
         case 'save':
             return self::save();
         case 'getLayout':
-            return layout::get( getArgv('name'), getArgv('plain') );
+            return adminLayout::get( getArgv('name'), getArgv('plain') );
         case 'move':
             return self::move();
         case 'add':

@@ -260,7 +260,7 @@ a.ka-list-search-button-active:link {
 }
 
 .ka-list-combine-item.active h2 {
-    text-shadow: 0px 1px 0px black;
+    /*text-shadow: 0px 1px 0px black;*/
     color: white;
 }
     
@@ -288,12 +288,12 @@ a.ka-list-search-button-active:link {
 
 .ka-list-combine-splititem {
     background-color: #eaeaea;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f6f6f6, to(#ebebeb)); 
-    background-image: -webkit-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:    -moz-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:     -ms-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:      -o-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:         linear-gradient(top, #f6f6f6, #ebebeb);
+    background-image: -webkit-gradient(linear, left top, left bottom, #f1f1f1, to(#d6d6d6)); 
+    background-image: -webkit-linear-gradient(top, #f1f1f1, #d6d6d6); 
+    background-image:    -moz-linear-gradient(top, #f1f1f1, #d6d6d6); 
+    background-image:     -ms-linear-gradient(top, #f1f1f1, #d6d6d6); 
+    background-image:      -o-linear-gradient(top, #f1f1f1, #d6d6d6); 
+    background-image:         linear-gradient(top, #f1f1f1, #d6d6d6);
     border-bottom: 1px solid silver;
     padding: 4px 6px;
     color: #666; 

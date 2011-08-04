@@ -14,7 +14,7 @@
 
 .ka-datePicker-chooser table th,
 .ka-datePicker-chooser table td {
-    width: 25px;
+    width: 27px;
     line-height: 20px;
     font-size: 11px;
     text-align: center;
@@ -49,7 +49,7 @@
     height: 32px;
     line-height: 32px;
     padding-right: 5px;
-    width: 70px;
+    width: 80px;
     text-align: right;
 }
 

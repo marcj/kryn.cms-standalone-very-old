@@ -85,6 +85,7 @@ ka.buttonGroup = new Class({
 
         var wrapper = new Element('a', {
             'class': 'kwindow-win-buttonWrapper',
+            href: 'javascript:;',
             styles: {
                 'background-image': 'url('+pButtonSrc+')'
             }

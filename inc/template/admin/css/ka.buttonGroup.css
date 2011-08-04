@@ -83,8 +83,7 @@
     background-color: #999;
 }
 
-.kwindow-win-buttonGroup .buttonHover,
-.kwindow-win-buttonWrapper:active {
+.kwindow-win-buttonGroup .buttonHover {
     
     background-color: #999;
     border: 1px solid #607a90;
@@ -93,3 +92,8 @@
     border-top: 1px solid #777;
     border-bottom: 1px solid #999;
 }
+
+.kwindow-win-buttonWrapper:active {
+    background-color: #555;
+}
+
