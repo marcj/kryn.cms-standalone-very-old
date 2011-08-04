@@ -47,13 +47,14 @@ ka.windowCombine = new Class({
         .addEvent('scroll', this.checkScrollPosition.bind(this, true))
         .inject( this.mainLeft );
         
+        //window.addEvent('resize', this.checkScrollPosition.bind(this));
         
         this.mainLeftItemsScroll = new Fx.Scroll( this.mainLeftItems, {
             transition: Fx.Transitions.linear,
             duration: 300
         });
         
-        this.win.addEvent('resize', this.checkScrollPosition.bind(this));
+        this.win.addEvent('resize', this.checkScrollPosition.bind(this,true));
         
         this.mainRight = new Element('div', {
             'class': 'ka-list-combine-right'
@@ -341,22 +342,27 @@ ka.windowCombine = new Class({
     
         if( this.loadingNewItems ) return;
     
+        logger('checkScrollPosition: '+this.mainLeftItems.getScroll().y);
+    
         if( this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
             this.loadMore(pAndScrollToSelect);
         } else if( this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y-this.mainLeftItems.getSize().y) == 0 ){
             this.loadMore(pAndScrollToSelect);
+        
         /*
         } else if( this.mainLeftItems.getLast('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
             this.loadMore();
         } else if( this.mainLeftItems.getFirst('.ka-list-combine-item') == this.mainLeftItems.getElement('.active')  ){
             this.loadPrevious();
         */
-        } else if( this.mainLeftItems.getScroll().y == 0 ){
+        
+        }
+        if( this.mainLeftItems.getScroll().y == 0 ){
             this.loadPrevious(pAndScrollToSelect);
         }
         
-        //if( pRecheck == true )
-        //    this.checkScrollPosition.delay(50, this);
+        if( pRecheck == true )
+            this.checkScrollPosition.delay(50, this);
         
     },
     
@@ -826,7 +832,9 @@ ka.windowCombine = new Class({
                 border: this.win.border,
                 module: this.win.module,
                 code: this.win.code+'/edit',
-                params: pItem
+                params: pItem,
+                inlineContainer: this.win.inlineContainer,
+                id: this.win.id
             }, this.mainRight);
             
             this.currentEdit.addEvent('save', this.saved.bind(this));
