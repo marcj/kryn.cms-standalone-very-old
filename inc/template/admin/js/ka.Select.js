@@ -67,14 +67,18 @@ ka.Select = new Class({
         this.title.set('html', this.items[ pValue ]);
         this.box.set('title', (this.items[ pValue ]+"").stripTags() );
         
+        Object.each(this.a, function(item,id){
+            item.removeClass('active');
+            if( id == pValue ){
+                item.addClass('active');
+            }
+        });
         
         //chrome rendering bug
         this.arrowBox.setStyle('right', 5);
         (function(){
             this.arrowBox.setStyle('right', 0);
         }.bind(this)).delay(10);
-        
-        
         
         if( pEvent )
             this.fireEvent('change', pValue);
@@ -105,16 +109,17 @@ ka.Select = new Class({
             'class': 'ka-Select-chooser'
         });
         
-        
         this.chooser.addEvent('click', function(e){
             e.stop();
         });
+        
+        this.a = {};
         
         document.body.addEvent('click', this.close.bind(this));
         
         Object.each(this.items, function(label,id){
             
-            new Element('a', {
+            this.a[id] = new Element('a', {
                 html: label,
                 href: 'javascript:;'
             })
@@ -125,6 +130,10 @@ ka.Select = new Class({
                 
             }.bind(this))
             .inject( this.chooser );
+            
+            if( this.value == id ){
+                this.a[id].addClass('active');
+            }
             
         }.bind(this));
         

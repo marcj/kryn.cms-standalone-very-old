@@ -63,11 +63,20 @@
 .ka-Select-chooser a:link {
 
     display: block;
-    padding: 4px 10px;
+    padding: 5px 10px;
+    padding-left: 23px;
     text-decoration: none;
 
 }
 
 .ka-Select-chooser a:hover {
     background-color: #fff;
+}
+
+
+.ka-Select-chooser a.active,
+.ka-Select-chooser a.active:link {
+    background-image: url(../images/icons/tick.png);
+    background-repeat: no-repeat;
+    background-position: 3px 2px;
 }
