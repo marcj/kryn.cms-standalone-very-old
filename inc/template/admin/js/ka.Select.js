@@ -8,6 +8,8 @@ ka.Select = new Class({
     
     items: {},
     
+    a: {},
+    
     initialize: function(){
     
         this.box = new Element('div', {
@@ -27,10 +29,33 @@ ka.Select = new Class({
         this.arrow = new Element('img', {
             src: _path+this.arrow,
         }).inject( this.arrowBox );
+        
+        
+        this.chooser = new Element('div', {
+            'class': 'ka-Select-chooser'
+        });
+        
+        this.chooser.addEvent('click', function(e){
+            e.stop();
+        });
+        
+        var target = document.body;
+        if( this.box.getParent('.kwindow-border') ){
+            target = this.box.getParent('.kwindow-border');
+        }
+        this.chooser.inject( target );
+        
+        this.chooser.setStyle('display', 'none');
+        
     },
     
     inject: function( p, p2 ){
         this.box.inject( p, p2 );
+        var target = document.body;
+        if( this.box.getParent('.kwindow-border') ){
+            target = this.box.getParent('.kwindow-border');
+        }
+        this.chooser.inject( target );
     },
     
     add: function( pId, pLabel ){
@@ -41,6 +66,17 @@ ka.Select = new Class({
             this.setValue( pId );
         }
         
+        this.a[pId] = new Element('a', {
+            html: pLabel,
+            href: 'javascript:;'
+        })
+        .addEvent('click', function(){
+            
+            this.setValue( pId, true);
+            this.close();
+            
+        }.bind(this))
+        .inject( this.chooser );        
     },
     
     setStyle: function( p, p2 ){
@@ -52,10 +88,7 @@ ka.Select = new Class({
         this.items = {};
         this.value = null;
         this.title.set('html', '');
-        if( this.chooser ){
-            this.chooser.destroy();
-            this.chooser = null;
-        }
+        this.chooser.empty();
     
     },
     
@@ -103,55 +136,7 @@ ka.Select = new Class({
         }
     },
     
-    buildChooser: function(){
-        
-        this.chooser = new Element('div', {
-            'class': 'ka-Select-chooser'
-        });
-        
-        this.chooser.addEvent('click', function(e){
-            e.stop();
-        });
-        
-        this.a = {};
-        
-        document.body.addEvent('click', this.close.bind(this));
-        
-        Object.each(this.items, function(label,id){
-            
-            this.a[id] = new Element('a', {
-                html: label,
-                href: 'javascript:;'
-            })
-            .addEvent('click', function(){
-                
-                this.setValue( id, true);
-                this.close();
-                
-            }.bind(this))
-            .inject( this.chooser );
-            
-            if( this.value == id ){
-                this.a[id].addClass('active');
-            }
-            
-        }.bind(this));
-        
-        var target = document.body;
-        
-        if( this.box.getParent('.kwindow-border') ){
-            target = this.box.getParent('.kwindow-border');
-        }
-        
-        this.chooser.inject( target );
-    
-    },
-    
     open: function(){
-        
-        logger('open');
-        
-        if( !this.chooser ) this.buildChooser();
     
         this.chooser.setStyle('display', 'block');
         
@@ -168,9 +153,7 @@ ka.Select = new Class({
         
         if( size.y+pos.y > bsize.y )
             this.chooser.setStyle('height', bsize.y-pos.y-10);
-        
-        
-        
+    
         //new ka.blocker( this.chooser ).addEvent('click', this.close.bind(this));
         
         this.opened = true;
@@ -180,7 +163,6 @@ ka.Select = new Class({
     close: function(){
     
         this.opened = false;
-        if( !this.chooser ) return;
         
         this.chooser.setStyle('display', 'none');
     
