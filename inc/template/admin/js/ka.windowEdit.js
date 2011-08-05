@@ -25,6 +25,21 @@ ka.windowEdit = new Class({
             this.topTabGroup.destroy();
         }
         
+        if( this.actionsNavi )
+            this.actionsNavi.destroy();
+        
+        if( this.actionsNaviDel )
+            this.actionsNaviDel.destroy();
+        
+        if( this.versioningSelect )
+            this.versioningSelect.destroy();
+            
+        if( this.languageSelect )
+            this.languageSelect.destroy();
+            
+        this.versioningSelect = null;
+        this.languageSelect = null;
+        
         this.container.empty();
     
     },
@@ -32,8 +47,8 @@ ka.windowEdit = new Class({
     load: function(){
         var _this = this;
         new Request.JSON({url: _path+'admin/backend/window/loadClass/', noCache: true, onComplete: function(res){
-            _this.render( res );
-        }}).post({ module: this.win.module, 'code': this.win.code });
+            this.render( res );
+        }.bind(this)}).post({ module: this.win.module, 'code': this.win.code });
     },
     
     generateItemParams: function( pVersion ){
@@ -129,11 +144,102 @@ ka.windowEdit = new Class({
         	this.changeLanguage();
         }
 
-       
-        this.renderVersions();
+        this.renderVersionItems();
     
         this.loader.hide();
         this.fireEvent('load', pItem);
+    },
+    
+    renderPreviews: function(){
+    
+        if( !this.values.previewPlugins ){
+            return;
+        }
+        
+        //this.previewBtn;
+        
+        this.previewBox = new Element('div', {
+            'class': 'ka-Select-chooser'
+        });
+        
+        this.previewBox.addEvent('click', function(e){
+            e.stop();
+        });
+        
+        var target = this.win.content.getParent('.kwindow-border');
+        this.previewBox.inject( target );
+        
+        this.previewBox.setStyle('display', 'none');
+        
+        //this.values.previewPlugins
+        
+        document.body.addEvent('click', this.closePreviewBox.bind(this));
+      
+        Object.each(this.values.previewPlugins, function(item,pluginId){
+        
+            var title = _(ka.settings.configs[this.win.module].plugins[pluginId][0]);
+           
+            new Element('a', {
+                html: title,
+                href: 'javascript:;'
+            })
+            .addEvent('click', function(){
+                this.setPreviewValue( pluginId, true);
+            }.bind(this))
+            .inject( this.previewBox ); 
+            
+        }.bind(this));
+        
+    },
+    
+    preview: function(e){
+        
+        this.togglePreviewBox(e);
+           
+    },
+    
+    setPreviewValue: function(){
+    
+        this.closePreviewBox();
+    },
+    
+    closePreviewBox: function(){
+        this.previewBoxOpened = false;
+        this.previewBox.setStyle('display', 'none');
+    },
+    
+    togglePreviewBox: function( e ){
+    
+        if( this.previewBoxOpened == true )
+            this.closePreviewBox();
+        else {
+            if( e && e.stop ){
+                document.body.fireEvent('click');
+                e.stop();
+            }
+            this.openPreviewBox();
+        }
+    },
+    
+    openPreviewBox: function(){
+    
+        this.previewBox.setStyle('display', 'block');
+        
+        this.previewBox.position({
+            relativeTo: this.previewBtn,
+            position: 'bottomRight',
+            edge: 'upperRight'
+        });
+        
+        var pos = this.previewBox.getPosition();
+        var size = this.previewBox.getSize();
+        
+        var bsize = window.getSize( $('desktop') );
+        
+        if( size.y+pos.y > bsize.y )
+            this.previewBox.setStyle('height', bsize.y-pos.y-10);
+
+        this.previewBoxOpened = true;
     },
     
     loadVersions: function(){
@@ -143,14 +249,14 @@ ka.windowEdit = new Class({
             
         	if( res && res.versions ){
 	        	this.item.versions = res.versions;
-	        	this.renderVersions();
+	        	this.renderVersionItems();
         	}
             
         }.bind(this)}).post(req);
     	
     },
     
-    renderVersions: function(){
+    renderVersionItems: function(){
     	if( this.values.versioning != true ) return;
     	
         this.versioningSelect.empty();
@@ -192,69 +298,23 @@ ka.windowEdit = new Class({
         this.fields = $H({});
         this._fields = $H({});
         
-        var versioningSelectRight = 5;
+        this.renderMultilanguage();
         
-        /*multilang*/
-        if( this.values.multiLanguage ){
-        	this.win.extendHead();
-        	
-        	
-            this.languageSelect = new ka.Select();
-            this.languageSelect.inject( this.win.border );
-            this.languageSelect.setStyle('width', 120);
-            this.languageSelect.setStyle('top', 29);
-            this.languageSelect.setStyle('right', 5);
-            this.languageSelect.setStyle('position', 'absolute');
-        	
-        	
-        	/*this.languageSelect = new Element('select', {
-                style: 'position: absolute; right: 5px; top: 27px; width: 160px;'
-            }).inject( this.win.border );*/
+        this.renderVersions();
+        
+        this.renderPreviews();
+        
+        this.renderFields();
+        
+        this.renderSaveActionBar();
+        
+        this.fireEvent('render');
 
-            this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
-            
-            this.languageSelect.add('', _('-- Please Select --'));
-            
-            /*new Element('option', {
-                text: _('-- Please select --'),
-                value: ''
-            }).inject( this.languageSelect );*/
-
-            $H(ka.settings.langs).each(function(lang,id){
-                /*new Element('option', {
-                    text: lang.langtitle+' ('+lang.title+', '+id+')',
-                    value: id
-                }).inject( this.languageSelect );*/
-                
-                this.languageSelect.add( id, lang.langtitle+' ('+lang.title+', '+id+')' );
-                
-            }.bind(this));
-            
-            if( this.win.params )
-                this.languageSelect.setValue( this.win.params.lang );
-            
-            versioningSelectRight = 150;
-        }
-        
-        if( this.values.versioning == true ){
-        	
-        	/*this.versioningSelect = new Element('select', {
-                style: 'position: absolute; right: '+versioningSelectRight+'px; top: 27px; width: 160px;'
-            }).inject( this.win.border );*/
-        	
-        	
-            this.versioningSelect = new ka.Select();
-            this.versioningSelect.inject( this.win.border );
-            this.versioningSelect.setStyle('width', 120);
-            this.versioningSelect.setStyle('top', 29);
-            this.versioningSelect.setStyle('right', versioningSelectRight);
-            this.versioningSelect.setStyle('position', 'absolute');
-        	
-        	this.versioningSelect.addEvent('change', this.changeVersion.bind(this));
-            
-        }
-        
-        
+        this.loadItem();
+    },
+    
+    renderFields: function(){
+    
         if( this.values.fields && $type(this.values.fields) != 'array'  ){
             //backward compatible
             this.form = new Element('div', {
@@ -305,12 +365,78 @@ ka.windowEdit = new Class({
             }.bind(this));
             this.changeTab(this.firstTab);
         }
+    
+    },
+    
+    renderVersions: function(){
+    
+        if( this.values.versioning == true ){
+        	
+        	/*this.versioningSelect = new Element('select', {
+                style: 'position: absolute; right: '+versioningSelectRight+'px; top: 27px; width: 160px;'
+            }).inject( this.win.border );*/
+        	
+        	
+            var versioningSelectRight = 5;
+            if( this.values.multiLanguage ){
+                versioningSelectRight = 150;
+            }
         
-        this.renderSaveActionBar();
-        
-        this.fireEvent('render');
+            this.versioningSelect = new ka.Select();
+            this.versioningSelect.inject( this.win.border );
+            this.versioningSelect.setStyle('width', 120);
+            this.versioningSelect.setStyle('top', 29);
+            this.versioningSelect.setStyle('right', versioningSelectRight);
+            this.versioningSelect.setStyle('position', 'absolute');
+        	
+        	this.versioningSelect.addEvent('change', this.changeVersion.bind(this));
+            
+        }
+    
+    },
+    
+    renderMultilanguage: function(){
+    
+        if( this.values.multiLanguage ){
+        	this.win.extendHead();
+        	
+        	
+            this.languageSelect = new ka.Select();
+            this.languageSelect.inject( this.win.border );
+            this.languageSelect.setStyle('width', 120);
+            this.languageSelect.setStyle('top', 29);
+            this.languageSelect.setStyle('right', 5);
+            this.languageSelect.setStyle('position', 'absolute');
+        	
+        	
+        	/*this.languageSelect = new Element('select', {
+                style: 'position: absolute; right: 5px; top: 27px; width: 160px;'
+            }).inject( this.win.border );*/
 
-        this.loadItem();
+            this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
+            
+            this.languageSelect.add('', _('-- Please Select --'));
+            
+            /*new Element('option', {
+                text: _('-- Please select --'),
+                value: ''
+            }).inject( this.languageSelect );*/
+
+            $H(ka.settings.langs).each(function(lang,id){
+                /*new Element('option', {
+                    text: lang.langtitle+' ('+lang.title+', '+id+')',
+                    value: id
+                }).inject( this.languageSelect );*/
+                
+                this.languageSelect.add( id, lang.langtitle+' ('+lang.title+', '+id+')' );
+                
+            }.bind(this));
+            
+            if( this.win.params )
+                this.languageSelect.setValue( this.win.params.lang );
+            
+        }
+        
     },
     
     changeVersion: function(){
@@ -408,9 +534,9 @@ ka.windowEdit = new Class({
                 }.bind(this));
             }
             
-            this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png', function(){
-               
-            }.bind(this));
+            this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png',
+                this.preview.bindWithEvent(this)
+            );
             
             this.actionsNaviDel = this.win.addButtonGroup();
             this.actionsNaviDel.addButton(_('Delete'), _path+'inc/template/admin/images/remove.png', function(){
@@ -551,7 +677,7 @@ ka.windowEdit = new Class({
             	if( _this.values.loadSettingsAfterSave == true ) ka.loadSettings();
                 
                 // Before close, perform saveSuccess
-                _this.fireEvent('save', req);
+                _this.fireEvent('save', [req, res]);
                 
                 _this._saveSuccess();
                 

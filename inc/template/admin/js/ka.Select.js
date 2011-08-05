@@ -31,6 +31,8 @@ ka.Select = new Class({
         }).inject( this.arrowBox );
         
         
+        document.body.addEvent('click', this.close.bind(this));
+        
         this.chooser = new Element('div', {
             'class': 'ka-Select-chooser'
         });
@@ -56,6 +58,13 @@ ka.Select = new Class({
             target = this.box.getParent('.kwindow-border');
         }
         this.chooser.inject( target );
+    },
+    
+    destroy: function(){
+        this.chooser.destroy();
+        this.box.destroy();
+        this.chooser = null;
+        this.box = null;
     },
     
     add: function( pId, pLabel ){
@@ -127,7 +136,7 @@ ka.Select = new Class({
     
         if( this.opened == true )
             this.close();
-        else {            
+        else {
             if( e && e.stop ){
                 document.body.fireEvent('click');
                 e.stop();
@@ -163,14 +172,13 @@ ka.Select = new Class({
     close: function(){
     
         this.opened = false;
-        
-        this.chooser.setStyle('display', 'none');
+        if( this.chooser )
+            this.chooser.setStyle('display', 'none');
     
     },
     
     toElement: function(){
         return this.box;
     }
-
 
 });

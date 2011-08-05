@@ -103,7 +103,7 @@ class windowAdd extends windowEdit {
             }
         }
         
-        return true;
+        return array('last_id' => $this->last);
     }
 }
 

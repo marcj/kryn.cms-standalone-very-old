@@ -51,6 +51,12 @@ class windowEdit {
     
     
     /**
+     *
+     *
+     */
+    public $previewPlugins = false;
+    
+    /**
      * 
      * Defines the fields. (ka.fields)
      * @var array
@@ -87,6 +93,7 @@ class windowEdit {
         }
         return $this;
     }
+    
 
     /**
      * Prepare fields. Loading tableItems by select and file fields.

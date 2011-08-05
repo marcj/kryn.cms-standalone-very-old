@@ -653,12 +653,12 @@ ka.list = new Class({
                     mykey[primary] = pItem.values[primary];
                 });
                 //if( this.values.edit ){
-                        this.checkboxes.include( new Element('input',{
+                    this.checkboxes.include( new Element('input',{
                         value: JSON.encode(mykey),
                         type: 'checkbox'
                     }).inject(td) );
                 //}
-                }
+            }
         }
         
         this.values.columns.each(function(column,columnId){
