@@ -56,7 +56,7 @@
   "writableFiles": "inc\/template\/kryn\/contents\/*\n.htaccess\ninc\/template\/css\/*\ninc\/template\/kryn\/history\/*",
   "owner": "1",
   "category": "8",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "community": "1",
   "system": "1",
   "tags": {
