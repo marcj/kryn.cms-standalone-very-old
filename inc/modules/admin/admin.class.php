@@ -1096,6 +1096,8 @@ class admin {
     public static function addVersionRow( $pTable, $pPrimary, $pRow ){
         global $user;
         
+        error_log(print_r($pPrimary,true));
+        
         $code = $pTable;
         foreach( $pPrimary as $fieldName => $fieldValue ){
             $code .= '_'.$fieldName.'='.$fieldValue;
@@ -1107,7 +1109,7 @@ class admin {
         
         $version = $currentVersion['version']+1;
         $new = array(
-            'code' => $pTable,
+            'code' => $code,
             'content' => $content,
             'version' => $version,
             'cdate' => time(),

@@ -161,6 +161,7 @@ class windowEdit {
         ');
         
         if( !$res ){
+            cache::set('kryn_pluginrelations', array());
             return;
         }
         

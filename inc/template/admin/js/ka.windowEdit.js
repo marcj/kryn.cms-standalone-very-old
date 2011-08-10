@@ -722,7 +722,7 @@ ka.windowEdit = new Class({
                 
                 this._saveSuccess();
                 
-            	if( !pClose && this.values.versioning == true ) this.loadVersions();
+            	if( (!pClose || this.inline ) && this.values.versioning == true ) this.loadVersions();
                 
                 if( pClose )
                     this.win.close();
