@@ -12,7 +12,7 @@ class publicationNewsEdit extends windowEdit {
         'newsDetailFixed' => 'getUrl'
     );
     
-    public function getUrl( $pItem ){
+    public function getUrl( $pItem, $pPluginValues, $pPageRsn ){
         return kryn::toModRewrite($pItem['title']).'/'.$pItem['rsn'];
     }
 

@@ -82,7 +82,7 @@ class windowEdit {
      * Initialize $fields. Called when opened the window.
      * @return windowEdit 
      */
-    function init(){
+    public function init( $pAndLoadPreviewPages ){
         $this->_fields = array();
         if( $this->fields ){
             $this->prepareFieldItem( $this->fields );
@@ -91,16 +91,96 @@ class windowEdit {
             foreach( $this->tabFields as &$field )
                 $this->prepareFieldItem( $field );
         }
+        
+        if( $pAndLoadPreviewPages )
+            $this->loadPreviewPages();
+        
         return $this;
     }
     
+    /**
+     * Loads all pages which have included the plugin in $previewPlugins
+     *
+     */
+    public function loadPreviewPages(){
+    
+        if( !$this->previewPlugins )
+            return;
+            
+        $cachedPluginRelations =& cache::get('kryn_pluginrelations');
+        if( true || !$cachedPluginRelations || count($cachedPluginRelations) == 0 ){
+            self::cachePluginsRelations();
+            $cachedPluginRelations =& cache::get('kryn_pluginrelations');
+        }
+        
+        $module = getArgv('module');
+        
+        foreach( $this->previewPlugins as $plugin => $urlGetter ){
+            
+            $moduleToUse = $module;
+            $pluginToUse = $plugin;
+            
+            if( strpos($plugin, '/') !== false ){
+                $ex = explode('/', $plugin);
+                $moduleToUse = $ex[0];
+                $pluginToUse = $ex[1];
+            }
+            
+            $pages =& $cachedPluginRelations[ $moduleToUse ][$pluginToUse];
+            if( count($pages) > 0 ){
+                foreach( $pages as &$page ){
+                    $this->previewPluginPages[$moduleToUse.'/'.$pluginToUse][ $page['domain_rsn'] ][ $page['rsn'] ] = array(
+                        'title' => $page['title'],
+                        'path' => kryn::getPagePath( $page['rsn'] )
+                    );
+                }
+            }
+        }
+    
+    }
+    
+    /**
+     * Loads all plugins from system_contents to a indexed cached array
+     * 
+     */
+    public static function cachePluginsRelations(){
+    
+        $res = dbExec('
+        SELECT p.domain_rsn, p.rsn, c.content, p.title
+        FROM 
+            %pfx%system_contents c,
+            %pfx%system_pagesversions v,
+            %pfx%system_pages p
+        WHERE 1=1
+            AND c.type = \'plugin\'
+            AND c.hide = 0
+            AND v.rsn = c.version_rsn
+            AND p.rsn = v.page_rsn
+            AND (p.access_denied = \'0\' OR p.access_denied IS NULL)
+            AND v.active = 1
+        ');
+        
+        if( !$res ){
+            return;
+        }
+        
+        $pluginRelations = array();
+        
+        while( $row = dbFetch($res) ){
+            
+            preg_match( '/([a-zA-Z0-9_-]*)::([a-zA-Z0-9_-]*)::(.*)/', $row['content'], $matches );
+            $pluginRelations[$matches[1]][$matches[2]][] = $row;
+        
+        }
+        cache::set('kryn_pluginrelations', $pluginRelations);
+    }
 
     /**
      * Prepare fields. Loading tableItems by select and file fields.
      * @param array $pFields
      * @param bool $pKey
      */
-    function prepareFieldItem( &$pFields, $pKey = false ){
+    public function prepareFieldItem( &$pFields, $pKey = false ){
         if( is_array( $pFields ) && $pFields['type'] == '' ){
             foreach( $pFields as $key => &$field ){
                 if( $field['type'] != '' && is_array($field) ){
@@ -164,7 +244,7 @@ class windowEdit {
      * Building the WHERE area.
      * @return string
      */
-    function buildWhere(){
+    public function buildWhere(){
         //old
         foreach( $this->primary as $primary ){
             if( $tableInfo[$primary][0] == 'int' )
@@ -181,7 +261,7 @@ class windowEdit {
      * Return the selected item from database.
      * @return array
      */
-    function getItem(){
+    public function getItem(){
 
         $tableInfo = $this->db[$this->table];
         $where = '';
@@ -219,7 +299,8 @@ class windowEdit {
             $res['values'] = dbExfetch( $sql, 1 );
         }
     
-                
+        $res['preview_urls'] = $this->getPreviewUrls( $res['values'] );
+        
         if( $this->versioning == true ){
             $res['versions'] = array();
             
@@ -259,6 +340,7 @@ class windowEdit {
                 $res['values'][$key] = json_decode( $res['values'][$key]);
             }
         }
+        
         return $res;
     }
 
@@ -266,12 +348,13 @@ class windowEdit {
     /**
      * Saves the item to database.
      */
-    function saveItem(){
+    public function saveItem(){
         $tableInfo = $this->db[$this->table];
 
         $sql = 'UPDATE %pfx%'.$this->table.' SET ';
         $values = array();
         
+        $row = array();
         foreach( $this->_fields as $key => $field ){
             if( $field['fake'] == true ) continue;
 
@@ -315,13 +398,16 @@ class windowEdit {
                 $val = json_encode( $val);
             }
 
-            if( $field[0] == 'int' || $field['update']['type'] == 'int' )
+            $row[$key] = $val;
+            
+            /*if( $field[0] == 'int' || $field['update']['type'] == 'int' )
                 $val = $val+0;
             else
                 $val = "'".esc($val)."'";
 
             $values[$key] = $val;
             $sql .= "$key = $val,";
+            */
 		}
         
      	if( $this->multiLanguage ){
@@ -334,41 +420,95 @@ class windowEdit {
 
         $primary = array();
         foreach( $tableInfo as $key => $field ){
+            
             if( $field[2] != "DB_PRIMARY" ) continue;
-            if( $field[0] == 'int' )
+            
+            /*if( $field[0] == 'int' )
                 $val = getArgv($key);
             else
                 $val = "'".getArgv($key,true)."'";
-                
-            $primary[$key] = $val;
-            $sql .= " AND $key = $val";
+            */
+            $val = getArgv($key);
+            
+            if( isset($val) )
+                $primary[$key] = $val;
+
+            //$sql .= " AND $key = $val";
         }
         
         
-        if( $this->versioning == true )
-            admin::addVersion( $this->table, $primary );
+        if( $this->versioning == true && getArgv('publish') != 1  ){
+            
+            //only save in versiontable
+            admin::addVersionRow( $this->table, $primary, $row );
+            
+        } else {
         
-        dbExec( $sql );
-        
-
-        foreach( $this->_fields as $key => $field ){
-            if( $field['relation'] == 'n-n' ){
-                $values = json_decode( getArgv($key) );
-                $sqlDelete = "
-                    DELETE FROM %pfx%".$field['n-n']['middle']."
-                    WHERE ".$field['n-n']['middle_keyleft']." = ".getArgv($field['n-n']['left_key']);
-                dbExec( $sqlDelete );
-                foreach( $values as $value ){
-                    $sqlInsert = "
-                        INSERT INTO %pfx%".$field['n-n']['middle']."
-                        ( ".$field['n-n']['middle_keyleft'].", ".$field['n-n']['middle_keyright']." )
-                        VALUES ( '".getArgv($field['n-n']['left_key'])."', '".esc($value)."' );";
-                    dbExec( $sqlInsert );
+            if( $this->versioning == true ){
+                //save old state
+                admin::addVersion( $this->table, $primary );
+            }
+            
+            //publish - means: write in origin table
+            dbUpdate( $this->table, $primary, $row );
+            
+            foreach( $this->_fields as $key => $field ){
+                if( $field['relation'] == 'n-n' ){
+                    $values = json_decode( getArgv($key) );
+                    $sqlDelete = "
+                        DELETE FROM %pfx%".$field['n-n']['middle']."
+                        WHERE ".$field['n-n']['middle_keyleft']." = ".getArgv($field['n-n']['left_key']);
+                    dbExec( $sqlDelete );
+                    foreach( $values as $value ){
+                        $sqlInsert = "
+                            INSERT INTO %pfx%".$field['n-n']['middle']."
+                            ( ".$field['n-n']['middle_keyleft'].", ".$field['n-n']['middle_keyright']." )
+                            VALUES ( '".getArgv($field['n-n']['left_key'])."', '".esc($value)."' );";
+                        dbExec( $sqlInsert );
+                    }
                 }
             }
         }
-
-        return true;
+        
+        $previewUrls = $this->getPreviewUrls( $row );
+        return array('preview_urls' => $previewUrls);
+    }
+    
+    public function getPreviewUrls( $pRow ){
+    
+        if( $this->previewPlugins ){
+            
+            $cachedPluginRelations =& cache::get('kryn_pluginrelations');
+            $module = getArgv('module');
+            
+            foreach( $this->previewPlugins as $plugin => $urlGetter ){
+                
+                $moduleToUse = $module;
+                $pluginToUse = $plugin;
+                
+                if( strpos($plugin, '/') !== false ){
+                    $ex = explode('/', $plugin);
+                    $moduleToUse = $ex[0];
+                    $pluginToUse = $ex[1];
+                }
+                
+                $pages =& $cachedPluginRelations[ $moduleToUse ][ $pluginToUse ];
+                if( count($pages) > 0 ){
+                    foreach( $pages as &$page ){
+                        
+                        $pluginValue = substr( $page['content'], strpos($page['content'], '::') );
+                        $pluginValue = substr( $pluginValue, strpos($pluginValue, '::') );
+                        
+                        if( method_exists( $this, $urlGetter ) ){
+                            $previewUrls[$moduleToUse.'/'.$pluginToUse][ $page['rsn'] ] =
+                                kryn::pageUrl($page['rsn']).'/'.$this->$urlGetter( $pRow, json_decode($pluginValue,true), $page['rsn'] );
+                        }
+                        
+                    }
+                }
+            }
+        }
+        return $previewUrls;
     }
 
 }

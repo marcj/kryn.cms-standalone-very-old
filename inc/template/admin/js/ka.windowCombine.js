@@ -873,6 +873,9 @@ ka.windowCombine = new Class({
             primaries[primary] = pAnswer.last_id;
         }.bind(this));
         
+        if( !this.win.params )
+            this.win.params = {};
+        
         this.win.params.selected = primaries;
         
         this.loadAround( this.win.params.selected );

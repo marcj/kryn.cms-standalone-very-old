@@ -519,7 +519,7 @@ class windowList {
             
             $res = dbExfetch( $sql, 1 );
             
-            klog('debug', print_r($res,true));
+            //klog('debug', print_r($res,true));
             json( $res['kryn_combine_rownumber']+0 );
             
             /*

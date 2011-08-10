@@ -115,6 +115,9 @@ ka.windowEdit = new Class({
 
     _loadItem: function( pItem ){
         this.item = pItem;
+        logger(pItem);
+        this.previewUrls = pItem.preview_urls;
+        
         this.fields.each(function(field, fieldId){
             try {
             	
@@ -178,28 +181,66 @@ ka.windowEdit = new Class({
         Object.each(this.values.previewPlugins, function(item,pluginId){
         
             var title = _(ka.settings.configs[this.win.module].plugins[pluginId][0]);
-           
-            new Element('a', {
+            
+            
+            new Element('div', {
                 html: title,
-                href: 'javascript:;'
+                href: 'javascript:;',
+                style: 'font-weight:bold; padding: 3px; padding-left: 15px;'
             })
-            .addEvent('click', function(){
+            .inject( this.previewBox );      
+            
+            var index = pluginId;
+            if( pluginId.indexOf('/') === -1 )
+                index = this.win.module+'/'+pluginId;
+            
+            Object.each(this.values.previewPluginPages[index], function(pages,domain_rsn){
+            
+                Object.each(pages, function(page, page_rsn){                
+                   
+                    var domain = ka.getDomain(domain_rsn);
+                    if( domain ){
+                        new Element('a', {
+                            html: '<span style="color: gray">['+domain.lang+']</span> '+page.path,
+                            style: 'padding-left: 21px',
+                            href: 'javascript:;'
+                        })
+                        .addEvent('click', this.doPreview.bind(this, [page_rsn, index]))
+                        .inject( this.previewBox );
+                    }
+                    
+                
+                }.bind(this));
+            
+            }.bind(this));
+           
+            /*.addEvent('click', function(){
                 this.setPreviewValue( pluginId, true);
             }.bind(this))
-            .inject( this.previewBox ); 
+            */
+            
             
         }.bind(this));
         
     },
     
     preview: function(e){
-        
         this.togglePreviewBox(e);
-           
+    },
+    
+    doPreview: function( pPageRsn, pPluginId ){
+        this.closePreviewBox();
+        
+        if( this.lastPreviewWin ){
+            this.lastPreviewWin.close();
+        }
+        
+        logger(this.previewUrls);
+        this.lastPreviewWin = window.open(this.previewUrls[pPluginId][pPageRsn], '_blank');
+        
     },
     
     setPreviewValue: function(){
-    
         this.closePreviewBox();
     },
     
@@ -520,23 +561,20 @@ ka.windowEdit = new Class({
             this.actionsNavi = this.win.addButtonGroup();
             
             this.saveBtn = this.actionsNavi.addButton(_('Save'), _path+'inc/template/admin/images/button-save.png', function(){
-               
-                   _this._save();
-                   
+                this._save();
             }.bind(this));
             
-            if( this.values.versioning == true ){
-                this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'),
-                        _path+'inc/template/admin/images/button-save-and-publish.png', function(){
-                   
-                   _this._save( false, true );
-                   
-                }.bind(this));
-            }
             
             this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png',
                 this.preview.bindWithEvent(this)
             );
+            
+            if( this.values.versioning == true ){
+                this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'),
+                        _path+'inc/template/admin/images/button-save-and-publish.png', function(){
+                   _this._save( false, true );
+                }.bind(this));
+            }
             
             this.actionsNaviDel = this.win.addButtonGroup();
             this.actionsNaviDel.addButton(_('Delete'), _path+'inc/template/admin/images/remove.png', function(){
@@ -623,6 +661,8 @@ ka.windowEdit = new Class({
         	req.set('lang', this.languageSelect.value);
         }
         
+        req.publish = (pPublish==true)?1:0;
+        
         
         
         if( go ){
@@ -657,35 +697,37 @@ ka.windowEdit = new Class({
             new Request.JSON({url: _path+'admin/backend/window/loadClass/saveItem', noCache: true, onComplete: function(res){
                 
                 if( !_this.inline )
-                	ka.wm.softReloadWindows( _this.win.module, _this.win.code.substr(0, _this.win.code.lastIndexOf('/')) );
+                	ka.wm.softReloadWindows( this.win.module, this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
             	
             	if( _this.inline ) {
                     if( pPublish ){
-                        _this.saveAndPublishBtn.stopTip( _('Saved') );
+                        this.saveAndPublishBtn.stopTip( _('Saved') );
                     } else {
-                        _this.saveBtn.stopTip( _('Saved') );
+                        this.saveBtn.stopTip( _('Saved') );
                     }
                 } else {
-                    _this.loader.hide();
+                    this.loader.hide();
                 }
                 
                 
                 if( !pClose && this.saveNoClose ){
-                    _this.saveNoClose.stopTip(_('Done'));
+                    this.saveNoClose.stopTip(_('Done'));
                 }
                 
-            	if( _this.values.loadSettingsAfterSave == true ) ka.loadSettings();
+            	if( this.values.loadSettingsAfterSave == true ) ka.loadSettings();
                 
+                this.previewUrls = res.preview_urls;
                 // Before close, perform saveSuccess
-                _this.fireEvent('save', [req, res]);
+                this.fireEvent('save', [req, res]);
                 
-                _this._saveSuccess();
+                this._saveSuccess();
                 
-            	if( !pClose && _this.values.versioning == true ) _this.loadVersions();
+            	if( !pClose && this.values.versioning == true ) this.loadVersions();
                 
                 if( pClose )
-                    _this.win.close();
-            }}).post(req);
+                    this.win.close();
+                    
+            }.bind(this)}).post(req);
         }
     },
     

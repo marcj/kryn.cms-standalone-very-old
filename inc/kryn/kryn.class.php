@@ -1086,13 +1086,12 @@ class kryn extends baseModule {
         if( kryn::$domain['startpage_rsn'] == $pRsn )
             return './'; 
             
-        $cachedUrls = kryn::readCache( 'urls' );
+        $cachedUrls =& kryn::readCache( 'urls' );
         
         $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
         
-        if( $url == '' ){
+        if( $url == '' || $pDomainRsn != false ){
         	require_once('inc/modules/admin/adminPages.class.php');
-        	
         	
             $r2d = kryn::getPhpCache('r2d');
 	        if( !is_array($r2d) ) {
@@ -1119,14 +1118,14 @@ class kryn extends baseModule {
 	        }
 	        
 	        //'casue its a different domain, we need to tell load this domain
-	        $domains = kryn::getPhpCache('domains');
+	        $domains =& kryn::getPhpCache('domains');
 	        if( !$domains['r2d'] )
 	           $domains = adminPages::updateDomainCache();
 	        
 	        $domainBackup = kryn::$domain;
             kryn::$domain = $domains['r2d']['rsn='.$target_domain];
 
-	        $cachedUrls = kryn::readCache( 'urls' );
+	        $cachedUrls =& kryn::readCache( 'urls' );
 	        $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
 	        
 	        if( $pWithoutHttp ){
@@ -2479,7 +2478,7 @@ class kryn extends baseModule {
      * @static
      * @deprecated Use getCache instead.
      */
-    public static function getPhpCache( $pCode ){
+    public static function &getPhpCache( $pCode ){
         return self::getCache( $pCode );
         global $kcache;
         $pCode = str_replace('..', '', $pCode);
@@ -2532,7 +2531,7 @@ class kryn extends baseModule {
      * @static
      * @internal
      */
-    public static function readCache( $pCode ){
+    public static function &readCache( $pCode ){
         $rsn = kryn::$domain['rsn'];
         $pCode = str_replace('..', '', $pCode);
         return kryn::getPhpCache( $pCode.'_'.$rsn );

@@ -26,8 +26,16 @@ ka.kwindow = new Class({
 
     //drops a icon-link to desktop which links to this window
     dropLink: function(){
+    
+        var title = this.getFullTitle();
+        
+        
+        if( title.length > 25 ){
+            title = title.substr();
+        }
+        
         var icon = {
-            title: this.getTitle(),
+            title: title,
             params: this.params,
             module: this.module,
             code: this.code
@@ -288,8 +296,14 @@ ka.kwindow = new Class({
     */
 
     getTitle: function(){
-        if( this.title )
-            return this.titleText.get('html');
+        if( this.titleAdditional )
+            return this.titleAdditional.get('text');
+        return '';
+    },
+    
+    getFullTitle: function(){
+        if( this.titlePath )
+            return this.titlePath.get('text');
         return '';
     },
 

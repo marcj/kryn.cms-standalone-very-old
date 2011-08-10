@@ -1080,13 +1080,8 @@ class admin {
 
     
     public static function addVersion( $pTable, $pPrimary ){
-        global $user;
-        
-        $code = $pTable;
-        
-        
+    
         foreach( $pPrimary as $fieldName => $fieldValue ){
-            $code .= '_'.$fieldName.'='.$fieldValue;
             if( $fieldValue+0 > 0 )
                 $sql = " AND $fieldName = $fieldValue";
             else
@@ -1095,19 +1090,29 @@ class admin {
         
         $row = dbTableFetch($pTable, "1=1 $sql", 1);
         
-        $content = json_encode( $row );
+        return self::addVersionRow( $pTable, $pPrimary, $row );
+    }
+    
+    public static function addVersionRow( $pTable, $pPrimary, $pRow ){
+        global $user;
         
+        $code = $pTable;
+        foreach( $pPrimary as $fieldName => $fieldValue ){
+            $code .= '_'.$fieldName.'='.$fieldValue;
+        }
+        
+        $content = json_encode( $pRow );
+                
         $currentVersion = dbTableFetch('system_frameworkversion', "code = '$code' ORDER BY version DESC", 1);
-        $version = $currentVersion['version']+1;
         
+        $version = $currentVersion['version']+1;
         $new = array(
-            'code' => $code,
+            'code' => $pTable,
             'content' => $content,
             'version' => $version,
             'cdate' => time(),
             'user_rsn' => $user->user_rsn
         );
-        
         
         return dbInsert('system_frameworkversion', $new);
     }

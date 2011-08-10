@@ -57,6 +57,7 @@ class adminWindow {
         require( 'inc/kryn/windowCombine.class.php' );
         require( 'inc/kryn/windowEdit.class.php' );
         require( 'inc/kryn/windowAdd.class.php' );
+        
         $module = getArgv('module');
         $code = getArgv('code');
 
@@ -86,8 +87,8 @@ class adminWindow {
             foreach( $formObj as $optKey => $optVal )
                 $obj->$optKey = $optVal;
 
-            $obj->myconstruct();
         }
+        
         $config = $kryn->installedMods[$module];
 
 //        $dbFile = "inc/modules/$module/db.php";
@@ -119,7 +120,7 @@ class adminWindow {
             $res = $obj->removeSelected();
             break;
         default:
-            $res = $obj->init();
+            $res = $obj->init(true);
             break;
         }
         
