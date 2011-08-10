@@ -71,10 +71,6 @@ ka.Select = new Class({
     
         this.items[ pId ] = pLabel;
         
-        if( this.value == null ) {
-            this.setValue( pId );
-        }
-        
         this.a[pId] = new Element('a', {
             html: pLabel,
             href: 'javascript:;'
@@ -85,7 +81,13 @@ ka.Select = new Class({
             this.close();
             
         }.bind(this))
-        .inject( this.chooser );        
+        .inject( this.chooser );
+        
+        
+        if( this.value == null ) {
+            this.setValue( pId );
+        }
+        
     },
     
     setStyle: function( p, p2 ){
@@ -111,7 +113,7 @@ ka.Select = new Class({
         
         Object.each(this.a, function(item,id){
             item.removeClass('active');
-            if( id == pValue ){
+            if( id == pValue && pValue != '' ){
                 item.addClass('active');
             }
         });

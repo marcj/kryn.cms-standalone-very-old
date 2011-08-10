@@ -301,9 +301,7 @@ ka.windowEdit = new Class({
     	if( this.values.versioning != true ) return;
     	
         this.versioningSelect.empty();
-    	
-    	
-    	this.versioningSelect.add('', _('-- LIVE --'));
+    	this.versioningSelect.add('-', _('-- LIVE --'));
         
         /*new Element('option', {
             text: _('-- LIVE --'),
@@ -699,7 +697,7 @@ ka.windowEdit = new Class({
                 if( !_this.inline )
                 	ka.wm.softReloadWindows( this.win.module, this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
             	
-            	if( _this.inline ) {
+            	if( this.inline ) {
                     if( pPublish ){
                         this.saveAndPublishBtn.stopTip( _('Saved') );
                     } else {
