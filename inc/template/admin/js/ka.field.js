@@ -480,9 +480,6 @@ ka.field = new Class({
 			if(sortable)
 			   selWidth -= 8;
 			
-		  
-		  
-		  
         if( multiple && (!this.field.size || this.field.size+0 < 4 ) )
         	this.field.size = 4;
         
@@ -570,7 +567,7 @@ ka.field = new Class({
         	
         	var tr = new Element('tr').inject( tbody );
         	var td = new Element('td').inject(tr);
-        	var td2 = new Element('td', {style: 'vertical-align: middle;'}).inject(tr);
+        	var td2 = new Element('td', {width: 32, style: 'vertical-align: middle;'}).inject(tr);
         	var td3 = new Element('td').inject(tr);
         	
         	this.input.setStyle('width', selWidth);
@@ -581,9 +578,12 @@ ka.field = new Class({
         	var toRight = new ka.Button('»')
         	.addEvent('click', function(){
         		if( this.input.getSelected() ){
-	        		this.input.getSelected().clone().inject( this.inputVals );
-	        		this.input.getSelected().set('disabled', true);
-	        		this.input.getSelected().set('selected', false);
+                    this.input.getSelected().each(function(obj){
+    	        		var clone = obj.clone();
+    	        		clone.inject( this.inputVals );
+    	        		obj.set('disabled', true);
+    	        		obj.set('selected', false);
+	        		}.bind(this));
         		}
         	}.bind(this))
         	.setStyle('left', -2)
