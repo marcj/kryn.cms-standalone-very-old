@@ -259,7 +259,7 @@ class systemSearch extends baseModule{
             return self::exitPage('Page is flagged as unsearchable!', 5);
         }
         
-        if( getArgv('kVersionId') ){
+        if( getArgv('kVersionId') || getArgv('kryn_framework_version_id') ){
             self::updateBlacklist( self::$pageUrl );
             return self::exitPage('Version indexing not allowed!', 6);
         }

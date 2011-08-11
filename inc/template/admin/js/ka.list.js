@@ -470,8 +470,13 @@ ka.list = new Class({
                     if( this.loader )
                         this.loader.hide();
                     
-                    this.loadPage( this.currentPage );
+                    if( this.combine ){
+                        this.reload();
+                    } else {
+                        this.loadPage( this.currentPage );
+                    }
                     this._deleteSuccess();
+                    
                 }.bind(this)}).post({
                     module: this.win.module,
                     code: this.win.code, 

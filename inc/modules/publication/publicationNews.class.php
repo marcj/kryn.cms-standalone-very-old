@@ -23,25 +23,34 @@ class publicationNews
             if(count($categoryRsn))
                 $whereCategories = "AND n.category_rsn IN (".implode(",", $categoryRsn).")";
             
-            // Create query
-            $now = time();
-            $sql = "
-                SELECT
-                    n.*,
-                    c.title as categoryTitle
-                FROM
-                    %pfx%publication_news n,
-                    %pfx%publication_news_category c
-                WHERE
-                    1=1
-                    $whereCategories
-                    AND n.deactivate = 0
-                    AND c.rsn = n.category_rsn
-                    AND n.rsn = $rsn
-                    AND (n.releaseAt = 0 OR n.releaseAt <= $now)
-            ";
+            if( getArgv('kryn_framework_version_id') && kryn::checkUrlAccess( 'admin/publication/news/edit' ) ){
+                
+                $news = admin::getVersion('publication_news', array('rsn' => $rsn), getArgv('kryn_framework_version_id'));
+                $category = dbTableFetch('publication_news_category', 'rsn = '.$news['category_rsn'], 1);
+                $news['categoryTitle'] = $category['title'];
+                
+            } else {
             
-            $news = dbExfetch($sql, 1);
+                // Create query
+                $now = time();
+                $sql = "
+                    SELECT
+                        n.*,
+                        c.title as categoryTitle
+                    FROM
+                        %pfx%publication_news n,
+                        %pfx%publication_news_category c
+                    WHERE
+                        1=1
+                        $whereCategories
+                        AND n.deactivate = 0
+                        AND c.rsn = n.category_rsn
+                        AND n.rsn = $rsn
+                        AND (n.releaseAt = 0 OR n.releaseAt <= $now)
+                ";
+                
+                $news = dbExfetch($sql, 1);
+            }
             
             // Is it a valid news row
             $isNews = $news !== false;

@@ -3,6 +3,7 @@ ka.windowCombine = new Class({
     Extends: ka.list,
     lastSortValue: false,
     itemsLoadedCount: 0,
+    combine: true,
     
     searchPaneHeight: 110,
     
@@ -15,7 +16,7 @@ ka.windowCombine = new Class({
         
         
         this.mainLeft = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; width: 250px; border-right: 1px solid silver;'
+            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; width: 265px; border-right: 1px solid silver;'
         }).inject( this.main );
         
         this.mainLeftTop = new Element('div', {
@@ -46,6 +47,30 @@ ka.windowCombine = new Class({
         })
         .addEvent('scroll', this.checkScrollPosition.bind(this, true))
         .inject( this.mainLeft );
+        
+        this.mainLeftDeleter = new Element('div', {
+            'class': 'ka-list-bottom',
+            style: 'position: absolute; left:0px; height: 0px; bottom: 0px; right: 0px; overflow: hidden'
+        }).inject( this.mainLeft );
+        
+        new ka.Button(_('Select all'))
+        .addEvent('click', function(){
+            
+            if(!this.checkboxes) return;
+            if( this.checkedAll ){
+                $$(this.checkboxes).set('checked', false);
+                this.checkedAll = false;
+            } else{
+               $$(this.checkboxes).set('checked', true);
+               this.checkedAll = true;
+            }
+            
+        }.bind(this))
+        .inject( this.mainLeftDeleter ); 
+        
+        new ka.Button(_('Remove selected'))
+        .addEvent('click', this.removeSelected.bind(this))
+        .inject( this.mainLeftDeleter ); 
         
         //window.addEvent('resize', this.checkScrollPosition.bind(this));
         
@@ -139,11 +164,12 @@ ka.windowCombine = new Class({
         
         if( this.values.add || this.values.remove || this.values.custom){
             this.actionsNavi = this.win.addButtonGroup();
-            this.actionsNavi.setStyle('margin-right', 159);
+            this.actionsNavi.setStyle('margin-right', 159+15);
         }
 
         if( this.values.remove ){
-            this.actionsNavi.addButton(_('Remove'), _path+'inc/template/admin/images/icons/'+this.values.iconDelete, function(){
+            this.toggleRemoveBtn = this.actionsNavi.addButton(_('Remove'),
+                _path+'inc/template/admin/images/icons/'+this.values.iconDelete, function(){
                this.toggleRemove();
             }.bind(this));
         }
@@ -398,7 +424,7 @@ ka.windowCombine = new Class({
         this._lastItems = null;
         this.clearItemList();
         this.from = 0;
-        this.max = (this.values.itemsPerPage)?this.values.itemsPerPage:5;
+        this.max = 0; //(this.values.itemsPerPage)?this.values.itemsPerPage:5;
         
     },
     
@@ -446,7 +472,7 @@ ka.windowCombine = new Class({
             
             var nMax = Object.getLength(res.items);
                 
-            if( !this.max || this.max < pFrom+nMax )
+            if( !this.max || this.max != pFrom+nMax )
                 this.max = pFrom+nMax;      
             
             if( res.maxItems > 0 ){
@@ -512,6 +538,8 @@ ka.windowCombine = new Class({
         
         this.from = null;
         this.max = 0;
+        
+        this.checkboxes = [];
         
         this._lastItems = null;
             
@@ -637,9 +665,6 @@ ka.windowCombine = new Class({
     
     renderItems: function( pItems, pFrom ){
         var _this = this;
-
-        this.checkboxes = [];
-        
 
         this._lastItems = pItems;
         
@@ -886,11 +911,16 @@ ka.windowCombine = new Class({
         if( !this.inRemoveMode ){
             this.mainLeftItems.addClass('remove-activated');
             this.inRemoveMode = true;
+            this.mainLeftDeleter.tween('height', 29);
+            this.mainLeftItems.tween('bottom', 30);
+            this.toggleRemoveBtn.setPressed(true);
         } else {
             this.mainLeftItems.removeClass('remove-activated');
             this.inRemoveMode = false;
+            this.mainLeftDeleter.tween('height', 0);
+            this.mainLeftItems.tween('bottom', 0);
+            this.toggleRemoveBtn.setPressed(false);
         }
-    
     },
     
     loadItem: function( pItem ){
@@ -1027,6 +1057,10 @@ ka.windowCombine = new Class({
         }
     },
     
+    reloadAll: function(){
+    	this.loadItems( this.from, this.max );
+    },
+    
     loadAround: function( pPrimaries ){
     
         if( this.lastRequest )
@@ -1041,7 +1075,6 @@ ka.windowCombine = new Class({
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
             
             //logger( res );
-            
             if( res > 0 ){
                 var range = (this.values.itemsPerPage)?this.values.itemsPerPage:5;
                 
@@ -1052,11 +1085,10 @@ ka.windowCombine = new Class({
                     from = res-Math.floor(range/2);
                 }
                 
-                if( this.lastItemPosition != res ){
-                    this.clearItemList();
-                    logger('loadItems Now: from='+from+', range='+range);
-                    this.loadItems( from, range );
-                }
+                //if( this.lastItemPosition != res ){
+                this.clearItemList();
+                this.loadItems( from, range );
+                //}
             }
             
         }.bind(this)}).post({ 
@@ -1072,10 +1104,11 @@ ka.windowCombine = new Class({
     
     },
     
-    saved: function( pItem ){
-        
-        if( this.lastLoadedItem && (pItem[this.sortField] && this.lastLoadedItem[this.sortField] &&
-            this.lastLoadedItem[this.sortField] != pItem[this.sortField]) ){
+    saved: function( pItem, pRes, pPublished ){
+    
+        if( pPublished ) {
+            /*this.lastLoadedItem && (pItem[this.sortField] && this.lastLoadedItem[this.sortField] &&
+            this.lastLoadedItem[this.sortField] != pItem[this.sortField]) ){*/
             
             this.lastLoadedItem = pItem;
             this._lastItems = null;
@@ -1223,11 +1256,12 @@ ka.windowCombine = new Class({
                     'class': 'ka-list-combine-item-remove'
                 }).inject( item );
                 
-                new ka.Button(_('Remove')).inject( removeBox );
+                //new ka.Button(_('Remove')).inject( removeBox );
                 
                 var removeCheckBox = new Element('div', {
                     'class': 'ka-list-combine-item-removecheck'
-                }).inject( item );
+                })
+                .inject( item );
         
                 var mykey = {};
                 this.values.primary.each(function(primary){
@@ -1237,7 +1271,11 @@ ka.windowCombine = new Class({
                     this.checkboxes.include( new Element('input',{
                         value: JSON.encode(mykey),
                         type: 'checkbox'
-                    }).inject( removeCheckBox ) );
+                    })
+                    .addEvent('click', function(e){
+                        e.stopPropagation();
+                    })
+                    .inject( removeCheckBox ) );
                 //}
             }
         }

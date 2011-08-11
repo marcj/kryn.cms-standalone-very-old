@@ -153,7 +153,6 @@ $kryn->checkAccess();
 
 systemSearch::initSearch();
 
-
 $kryn->admin = false;
 tAssign( 'admin', false );
 if( getArgv(1) == 'admin' ){

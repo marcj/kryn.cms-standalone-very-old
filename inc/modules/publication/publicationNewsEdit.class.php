@@ -8,8 +8,7 @@ class publicationNewsEdit extends windowEdit {
     public $multiLanguage = true;
 
     public $previewPlugins = array(
-        'newsDetail' => 'getUrl',
-        'newsDetailFixed' => 'getUrl'
+        'newsDetail' => 'getUrl'
     );
     
     public function getUrl( $pItem, $pPluginValues, $pPageRsn ){

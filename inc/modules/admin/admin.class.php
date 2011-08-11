@@ -1096,8 +1096,6 @@ class admin {
     public static function addVersionRow( $pTable, $pPrimary, $pRow ){
         global $user;
         
-        error_log(print_r($pPrimary,true));
-        
         $code = $pTable;
         foreach( $pPrimary as $fieldName => $fieldValue ){
             $code .= '_'.$fieldName.'='.$fieldValue;
@@ -1116,11 +1114,23 @@ class admin {
             'user_rsn' => $user->user_rsn
         );
         
-        return dbInsert('system_frameworkversion', $new);
+        dbInsert('system_frameworkversion', $new);
+        return $version;
     }
     
     
+    public static function getVersion( $pTable, $pPrimary, $pVersion ){
     
+        $code = $pTable;
+        foreach( $pPrimary as $fieldName => $fieldValue ){
+            $code .= '_'.$fieldName.'='.$fieldValue;
+        }
+        $version = $pVersion+0;
+        
+        $version = dbTableFetch('system_frameworkversion', "code = '$code' AND version = $version", 1);
+    
+        return json_decode( $version['content'], true );
+    }
     
     
     

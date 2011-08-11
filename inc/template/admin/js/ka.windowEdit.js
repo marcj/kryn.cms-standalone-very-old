@@ -62,7 +62,7 @@ ka.windowEdit = new Class({
 	
 	    if( this.win.params ){
 	        this.values.primary.each(function(prim){
-	            req.include( 'primary:'+prim, this.win.params.values[prim] );
+	            req.include( prim, this.win.params.values[prim] );
 	        }.bind(this));
 	    }
 	    return req;
@@ -78,9 +78,9 @@ ka.windowEdit = new Class({
         this.loader.show();
         this.lastRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
             
-        	_this._loadItem( res );
+            this._loadItem( res );
             
-        }}).post(req);
+        }.bind(this)}).post(req);
     },
 
     addField: function( pField, pFieldId, pContainer ){
@@ -115,7 +115,7 @@ ka.windowEdit = new Class({
 
     _loadItem: function( pItem ){
         this.item = pItem;
-        logger(pItem);
+        
         this.previewUrls = pItem.preview_urls;
         
         this.fields.each(function(field, fieldId){
@@ -235,8 +235,12 @@ ka.windowEdit = new Class({
             this.lastPreviewWin.close();
         }
         
-        logger(this.previewUrls);
-        this.lastPreviewWin = window.open(this.previewUrls[pPluginId][pPageRsn], '_blank');
+        var url = this.previewUrls[pPluginId][pPageRsn];
+        if( this.versioningSelect.getValue() != '-' ){
+            url += '?kryn_framework_version_id='+this.versioningSelect.getValue();
+        }
+        
+        this.lastPreviewWin = window.open(url, '_blank');
         
     },
     
@@ -301,6 +305,7 @@ ka.windowEdit = new Class({
     	if( this.values.versioning != true ) return;
     	
         this.versioningSelect.empty();
+        this.versioningSelect.chooser.setStyle('width', 210);
     	this.versioningSelect.add('-', _('-- LIVE --'));
         
         /*new Element('option', {
@@ -310,14 +315,7 @@ ka.windowEdit = new Class({
         
         if( $type( this.item.versions) == 'array' ){
 	        this.item.versions.each(function(version, id){
-    	
                 this.versioningSelect.add( version.version, version.title );
-	            /*new Element('option', {
-	                 text: version.title,
-	                 value: version.version
-	             }).inject( this.versioningSelect );
-	            */
-	        	
 	        }.bind(this));
         }
         
@@ -329,7 +327,6 @@ ka.windowEdit = new Class({
 
     render: function( pValues ){
         this.values = pValues;
-
 
         this.loader = new ka.loader().inject( this.container );
         this.loader.show();
@@ -480,6 +477,9 @@ ka.windowEdit = new Class({
     
     changeVersion: function(){
     	var value = this.versioningSelect.getValue();
+    	if( value == '-' )
+    	   value = null;
+    
     	this.loadItem( value );
     },
 
@@ -563,9 +563,11 @@ ka.windowEdit = new Class({
             }.bind(this));
             
             
-            this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png',
-                this.preview.bindWithEvent(this)
-            );
+            if( this.values.previewPlugins ){
+                this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path+'inc/template/admin/images/icons/eye.png',
+                    this.preview.bindWithEvent(this)
+                );
+            }
             
             if( this.values.versioning == true ){
                 this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'),
@@ -573,11 +575,6 @@ ka.windowEdit = new Class({
                    _this._save( false, true );
                 }.bind(this));
             }
-            
-            this.actionsNaviDel = this.win.addButtonGroup();
-            this.actionsNaviDel.addButton(_('Delete'), _path+'inc/template/admin/images/remove.png', function(){
-               
-            }.bind(this));
 
             
         } else {
@@ -688,7 +685,7 @@ ka.windowEdit = new Class({
             
             if( this.win.params ){
     	        this.values.primary.each(function(prim){
-    	            req.include( 'primary:'+prim, this.win.params.values[prim] );
+    	            req.include( prim, this.win.params.values[prim] );
     	        }.bind(this));
     	    }
             
@@ -707,16 +704,20 @@ ka.windowEdit = new Class({
                     this.loader.hide();
                 }
                 
-                
                 if( !pClose && this.saveNoClose ){
                     this.saveNoClose.stopTip(_('Done'));
                 }
                 
+                if( res.version_rsn ){
+                    this.item.version = res.version_rsn;
+                }
+                
             	if( this.values.loadSettingsAfterSave == true ) ka.loadSettings();
+            	if( this.values.load_settings == true ) ka.loadSettings();
                 
                 this.previewUrls = res.preview_urls;
                 // Before close, perform saveSuccess
-                this.fireEvent('save', [req, res]);
+                this.fireEvent('save', [req, res, pPublish]);
                 
                 this._saveSuccess();
                 

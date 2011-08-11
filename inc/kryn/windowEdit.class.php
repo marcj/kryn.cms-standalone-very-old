@@ -249,9 +249,9 @@ class windowEdit {
         //old
         foreach( $this->primary as $primary ){
             if( $tableInfo[$primary][0] == 'int' )
-                $val = getArgv('primary:'.$primary);
+                $val = getArgv($primary);
             else
-                $val = "'".getArgv('primary:'.$primary)."'";
+                $val = "'".getArgv($primary)."'";
             $where = " AND $primary = $val";
         }
         return $where;
@@ -271,11 +271,11 @@ class windowEdit {
         
         foreach( $this->primary as $primary ){
             if( $tableInfo[$primary][0] == 'int' ) 
-                $val = getArgv('primary:'.$primary);
+                $val = getArgv($primary);
             else
-                $val = "'".getArgv('primary:'.$primary)."'";
+                $val = "'".getArgv($primary)."'";
             
-            $primaries[$primary] = getArgv('primary:'.$primary);
+            $primaries[$primary] = getArgv($primary);
             $where .= " AND $primary = $val";
             
             $code .= '_'.$primary.'='.$val;
@@ -309,7 +309,7 @@ class windowEdit {
             	SELECT v.*, u.username as user_username FROM %pfx%system_frameworkversion v
             	LEFT OUTER JOIN %pfx%system_user u ON (u.rsn = v.user_rsn)
             	WHERE code = '$code'
-            	", -1);
+            	ORDER BY v.version DESC", -1);
             
             if( is_array($res['versions']) ){
                 foreach( $res['versions'] as &$version ){
@@ -317,7 +317,6 @@ class windowEdit {
                 }
             }
         }
-        
 
         foreach( $this->_fields as $key => $field ){
             if( $field['customValue'] ){
@@ -431,17 +430,19 @@ class windowEdit {
             */
             $val = getArgv($key);
             
-            if( isset($val) )
+            if( isset($val) ){
                 $primary[$key] = $val;
+                $row[$key] = $val;
+            }
 
             //$sql .= " AND $key = $val";
         }
         
-        
+        $res = array();
         if( $this->versioning == true && getArgv('publish') != 1  ){
             
             //only save in versiontable
-            admin::addVersionRow( $this->table, $primary, $row );
+            $res['version_rsn'] = admin::addVersionRow( $this->table, $primary, $row );
             
         } else {
         
@@ -452,6 +453,7 @@ class windowEdit {
             
             //publish - means: write in origin table
             dbUpdate( $this->table, $primary, $row );
+            $res['version_rsn'] = '-'; //means live
             
             foreach( $this->_fields as $key => $field ){
                 if( $field['relation'] == 'n-n' ){
@@ -471,8 +473,8 @@ class windowEdit {
             }
         }
         
-        $previewUrls = $this->getPreviewUrls( $row );
-        return array('preview_urls' => $previewUrls);
+        $res['preview_urls'] = $this->getPreviewUrls( $row );
+        return $res;
     }
     
     public function getPreviewUrls( $pRow ){

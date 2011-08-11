@@ -1213,7 +1213,7 @@ class adminPages {
         self::updateUrlCache( $domain_rsn );
         self::updateMenuCache( $domain_rsn );
         $res = self::getPage( $rsn );
-
+        $res['version_rsn'] = $version_rsn;
         json( $res );
     }
 
