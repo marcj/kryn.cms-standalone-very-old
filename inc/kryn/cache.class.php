@@ -29,7 +29,7 @@ class cache {
         
         $ref = false;
         
-	    $cacheCode = 'krynPhpCache_'.$pCode;
+        $cacheCode = 'krynPhpCache_'.$pCode;
         
         if( !$kcache[$cacheCode] ){
 	        if( $mem ){
@@ -43,7 +43,7 @@ class cache {
 	        }
         }
 
-        return $kcache[$cacheCode] ;
+        return $kcache[$cacheCode];
     }
     
     /**
@@ -59,18 +59,19 @@ class cache {
 
         $mem = $cfg['memcachedEstablished'];
         $pCode = str_replace('..', '', $pCode);
+        
+        $cacheCode = 'krynPhpCache_'.$pCode;
 
         if( $mem ){
-            memcache_set( $cfg['memcachedHandle'], $pCode, $pValue );
-            $kcache[$pCode] = $pValue;
+            memcache_set( $cfg['memcachedHandle'], $cacheCode, $pValue );
+            $kcache[$cacheCode] = $pValue;
         } else {
             //PHP 
-            $kcache['krynPhpCache_'.$pCode] = $pValue;
-            $varname = '$kcache[\'krynPhpCache_'.$pCode.'\'] ';
+            $kcache[$cacheCode] = $pValue;
+            $varname = '$kcache[\''.$cacheCode.'\'] ';
             $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
             kryn::fileWrite($cfg['files_path'].$pCode.'.php', $phpCode);
         }
-        
     }
     
     /**
@@ -79,16 +80,18 @@ class cache {
      * @param string $pCode
      */
     public static function clear( $pCode ){
-         global $cfg, $kcache;
+        global $cfg, $kcache;
 
         $mem = $cfg['memcachedEstablished'];
         $pCode = str_replace('..', '', $pCode);
+        
+        $cacheCode = 'krynPhpCache_'.$pCode;
 
         if( $mem ){
-            memcache_delete($memcache_obj, 'key_to_delete');
+            memcache_delete($memcache_obj, $cacheCode);
         } else {
             //PHP
-            unset($kcache['krynPhpCache_'.$pCode]);
+            unset($kcache[$cacheCode]);
             @unlink($cfg['files_path'].$pCode.'.php');
         }
     }
