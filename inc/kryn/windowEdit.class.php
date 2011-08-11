@@ -249,9 +249,9 @@ class windowEdit {
         //old
         foreach( $this->primary as $primary ){
             if( $tableInfo[$primary][0] == 'int' )
-                $val = getArgv($primary);
+                $val = getArgv($primary)+0;
             else
-                $val = "'".getArgv($primary)."'";
+                $val = "'".getArgv($primary, 1)."'";
             $where = " AND $primary = $val";
         }
         return $where;
@@ -271,9 +271,9 @@ class windowEdit {
         
         foreach( $this->primary as $primary ){
             if( $tableInfo[$primary][0] == 'int' ) 
-                $val = getArgv($primary);
+                $val = getArgv($primary)+0;
             else
-                $val = "'".getArgv($primary)."'";
+                $val = "'".getArgv($primary,1)."'";
             
             $primaries[$primary] = getArgv($primary);
             $where .= " AND $primary = $val";
@@ -460,13 +460,13 @@ class windowEdit {
                     $values = json_decode( getArgv($key) );
                     $sqlDelete = "
                         DELETE FROM %pfx%".$field['n-n']['middle']."
-                        WHERE ".$field['n-n']['middle_keyleft']." = ".getArgv($field['n-n']['left_key']);
+                        WHERE ".$field['n-n']['middle_keyleft']." = '".getArgv($field['n-n']['left_key'],1)."'";
                     dbExec( $sqlDelete );
                     foreach( $values as $value ){
                         $sqlInsert = "
                             INSERT INTO %pfx%".$field['n-n']['middle']."
                             ( ".$field['n-n']['middle_keyleft'].", ".$field['n-n']['middle_keyright']." )
-                            VALUES ( '".getArgv($field['n-n']['left_key'])."', '".esc($value)."' );";
+                            VALUES ( '".getArgv($field['n-n']['left_key'], 1)."', '".esc($value)."' );";
                         dbExec( $sqlInsert );
                     }
                 }

@@ -6,6 +6,8 @@ class publicationNewsEdit extends windowEdit {
 
     public $primary = array('rsn');
     public $multiLanguage = true;
+    
+    public $versioning = true;
 
     public $previewPlugins = array(
         'newsDetail' => 'getUrl'
