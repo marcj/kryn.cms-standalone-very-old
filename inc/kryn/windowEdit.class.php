@@ -75,7 +75,7 @@ class windowEdit {
      * Defines whether the versioning for this form is enabled or not
      * @var boolean
      */
-    public $versioning = true;
+    public $versioning = false;
     
     
     /**
