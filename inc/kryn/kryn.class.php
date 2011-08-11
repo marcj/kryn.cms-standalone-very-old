@@ -1376,6 +1376,8 @@ class kryn extends baseModule {
     public static function getDomain( $pDomainRsn ){
      
         $domains = kryn::getPhPCache('domains');
+        if( !$domains['r2d'] )
+           $domains = adminPages::updateDomainCache();
         return $domains['r2d']['rsn='.$pDomainRsn];
     }
 

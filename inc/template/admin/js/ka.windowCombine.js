@@ -282,11 +282,13 @@ ka.windowCombine = new Class({
     
     renderSearchPane: function(){
         
-        var table = new Element('table').inject( this.mainLeftSearch );;
+        new Element('div', {style: 'color: gray; padding-left: 4px; padding-top:3px;', html: _('Use * as wildcard')}).inject( this.mainLeftSearch );
+
+        var table = new Element('table').inject( this.mainLeftSearch );
         
         this.searchPane = new Element('tbody', {
         }).inject( table );
-
+        
         this.searchFields = new Hash();
         var doSearchNow = false;
 
@@ -458,6 +460,10 @@ ka.windowCombine = new Class({
         
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
             
+            if( !res.items && this.from == 0 ){
+                this.itemLoaderNoItems();
+            }
+            
             if( !res.items ) return;
             
             this.renderItems(res, pFrom);
@@ -472,7 +478,7 @@ ka.windowCombine = new Class({
             
             var nMax = Object.getLength(res.items);
                 
-            if( !this.max || this.max != pFrom+nMax )
+            if( !this.max || this.max < pFrom+nMax )
                 this.max = pFrom+nMax;      
             
             if( res.maxItems > 0 ){
@@ -631,6 +637,7 @@ ka.windowCombine = new Class({
             this.mainLeftSearch.setStyle('border-bottom', '1px solid silver');
             this.mainLeftItems.tween('top', 25+this.searchPaneHeight+1);
             this.searchOpened = true;
+            this.doSearch();
         } else {
             
             this.searchEnable = 0;
