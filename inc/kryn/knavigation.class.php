@@ -39,40 +39,46 @@ class knavigation {
     public static function getLinks( $pRsn, $pWithFolders = false, $pDomain = false ){
         global $kryn, $user, $time;
 
-        $time = time();
-        
-        $withFolders = "";
-        if( $pWithFolders )
-            $withFolders = " OR type = 2";
-        
-        if( $pDomain )
-        	$domainRule = 'AND domain_rsn = '.kryn::$domain['rsn'];
-            
-        $sql = "SELECT * FROM %pfx%system_pages
-            WHERE
-            prsn = $pRsn
-            $domainRule
-            AND ( type = 0 OR type = 1 $withFolders)
-            
-            AND ( 
-                ( type = 2 )
-                OR
-                (
-                    type != 2  AND visible = 1
-                )
-            )
-            AND access_denied != '1'
-            ORDER BY sort";
-            
         if(! is_numeric($pRsn) )
             return array();
+        
+        $code = $pRsn;
+        if( $pDomain )
+            $code .= '_'.kryn::$domain['rsn'];
+        
+        $links =& cache::get( 'navigations' );
+        
+        if( !$links[$code] && !is_array($links[$code]) ){
 
-        $res = dbExec( $sql );
+            $links[$code] = dbExfetch("
+            SELECT 
+                rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
+                access_from, access_to, access_nohidenavi, access_from_groups
+            FROM
+                %pfx%system_pages
+            WHERE
+                prsn = $pRsn
+                AND ( type = 0 OR type = 1 OR type = 2)
+                
+                AND ( 
+                    ( type = 2 )
+                    OR
+                    (
+                        type != 2  AND visible = 1
+                    )
+                )
+                AND access_denied != '1'
+            ORDER BY sort", -1);
 
-        $pages = array();
-        while( $page = dbFetch( $res )){
-        	
-        	//persmission check
+            cache::set('navigations', $links);
+        }
+        
+        foreach( $links[$code] as &$page ){
+        
+            if( !$pWithFolders && $page['type'] == 2 ) continue;
+            if( $pRsn == 0 && $pDomain && ($page['prsn'] != 0 || $page['domain_rsn'] != kryn::$domain['rsn'] ) ) continue;
+        
+            //permission check
         	if( $page['access_nohidenavi'] != 1 )
         	    $page = kryn::checkPageAccess( $page, false );
             
@@ -105,31 +111,14 @@ class knavigation {
 
     public static function plugin( $pOptions ){
         global $kryn, $user, $cfg;
-        
-        
+
         $pTemplate = $pOptions['template'];
         $pWithFolders = ($pOptions['folders']==1)?true:false;
         
         $navi = false;
-        
-        
-        /*if(! $kryn->cacheNavigationWhere ) {
-            if( $cfg['db_type'] == 'mysql')
-                $whereGroups = "  find_in_set('0', access_from_groups) > 0";
-            else
-                $whereGroups = " ','||access_from_groups||',' LIKE '%,0,%' ";
-              
-            if( count( $user->user['groups'] ) > 0 ){
-                foreach( $user->user['groups'] as $group )
-                    if( $cfg['db_type'] == 'mysql')
-                        $whereGroups .= " OR FIND_IN_SET('".$group['group_rsn']."', access_from_groups ) > 0 ";
-                    else
-                        $whereGroups .= " OR ','||access_from_groups||',' LIKE '%,".$group['group_rsn'].",%' ";
-            }
-            $kryn->cacheNavigationWhere = $whereGroups;
-        } */
-        if( $pOptions['id']+0 > 0 ){
-            $navi = kryn::getPage($pOptions['id']+0, true); // dbExfetch( "SELECT * FROM %pfx%system_pages WHERE rsn = ".($pOptions['id']+0) );
+        if( $pOptions['id']+0 > 0 ){;
+            $navi = kryn::getPage( $pOptions['id']+0 );
+            $start = microtime(true);
             $navi['links'] = self::getLinks( $navi['rsn'], $pWithFolders );
         }
 
@@ -140,7 +129,7 @@ class knavigation {
             $page = self::arrayLevel( $kryn->menus[kryn::$page['rsn']], $pOptions['level'] );
 
             if( $page['rsn'] > 0 )
-                $navi = kryn::getPage( $page['rsn'], true ); //dbExfetch( "SELECT * FROM %pfx%system_pages WHERE rsn = ".$page['rsn'] );
+                $navi = kryn::getPage( $page['rsn'] );
             elseif( $pOptions['level'] == $currentLevel+1 )
                 $navi = kryn::$page;
 
@@ -153,8 +142,7 @@ class knavigation {
          
         if( $navi !== false ){
             tAssign("navi", $navi);
-            //$pTemplate = ($pTemplate) ? $pTemplate.'.tpl' : 'default.tpl';
-           // print tFetch($pTemplate);
+            
             return tFetch($pTemplate);
         }
 

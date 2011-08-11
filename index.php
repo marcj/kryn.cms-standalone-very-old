@@ -18,6 +18,7 @@
  * @package Kryn
  * 
  */
+
 header("Content-Type: text/html; charset=utf-8");
 
 $time = time();
@@ -134,7 +135,6 @@ if($_REQUEST['js'] == 'global.js'){
 	die("var path = '".$cfg['path']."'; var _path = '".$cfg['path']."'; var _baseUrl = 'http://".$_SERVER['SERVER_NAME'].($cfg['port']?':'.$cfg['port']:'').$cfg['path']."'");
 }
 
-$kryn->loadConfig();
 $kryn->initConfig();
 $kryn->loadModules();
 $kryn->loadLanguage();

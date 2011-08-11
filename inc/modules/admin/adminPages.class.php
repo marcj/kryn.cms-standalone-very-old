@@ -509,10 +509,13 @@ class adminPages {
 
     public static function deletePage( $pPage, $pNoCacheRefresh = false ){
         
-    
+        $pPage = $pPage+0;
+        
         if( !kryn::checkPageAcl($pPage, 'deletePages') ){
             json('access-denied');
         }
+        
+        cache::clear('getPage_'.$pPage);
         
         $page = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE rsn = $pPage", 1);
 
@@ -841,7 +844,6 @@ class adminPages {
             self::updateMenuCache( $who['domain_rsn'] );
         }
         
-        
         return true;
     }
 
@@ -969,7 +971,7 @@ class adminPages {
                 $sort = $page['sort'];
                 $sort_mode = $pos;
             }
-                    
+
             dbInsert('system_pages', array('title' => $val, 'sort' => $sort, 'sort_mode' => $sort_mode,
                 'access_denied' => 0, 'cdate' => time(), 'mdate' => time(), 'cache' => 0,
                 'access_from' => 0, 'access_to' => 0, 
@@ -982,7 +984,7 @@ class adminPages {
 
         self::updateUrlCache( $domain_rsn );
         self::updateMenuCache( $domain_rsn );
-
+        
         json( true );
     }
 
@@ -990,6 +992,9 @@ class adminPages {
         global $user, $kcache;
 
         $rsn = getArgv('rsn')+0;
+        
+        cache::clear('getPage_'.$rsn);
+        cache::clear('page_contents_'.$rsn);
         
         $domain_rsn = getArgv('domain_rsn')+0;
 
@@ -1397,6 +1402,9 @@ class adminPages {
                 $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
         }
         kryn::setPhpCache( "menus_$pDomainRsn", $res );
+        
+        cache::clear('navigations');
+        
         return $res;
     }
 

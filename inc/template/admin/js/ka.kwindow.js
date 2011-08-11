@@ -660,14 +660,15 @@ ka.kwindow = new Class({
         if( ka.settings.configs[ this.module ]['title'][window._session.lang] )
             title = ka.settings.configs[ this.module ]['title'][window._session.lang];
         
-        new Element('span', {
-            text: title
-        }).inject( this.titleText, 'before' );
-        
-        new Element('img', {
-            src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
-        }).inject( this.titleText, 'before' );
-        
+        if( title != 'Kryn.cms' ){
+            new Element('span', {
+                text: title
+            }).inject( this.titleText, 'before' );
+            
+            new Element('img', {
+                src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+            }).inject( this.titleText, 'before' );
+        }
         
         pPath.each(function(label){
             
@@ -679,7 +680,9 @@ ka.kwindow = new Class({
                 src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
             }).inject( this.titleText, 'before' );
             
+            
         }.bind(this));
+        
 
         this.createResizer();
 

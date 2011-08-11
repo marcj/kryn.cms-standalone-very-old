@@ -257,17 +257,21 @@ class database {
                             break;
                         case 'mysql':
                             if( $this->connection = mysql_pconnect( $host, $user, $pw  ) ){
-                                @mysql_select_db( $kdb, $this->connection );
+                                if( !@mysql_select_db( $kdb, $this->connection ) ){
+                                    die("Can not select db: ".$kdb);
+                                }
                                 if( $pForceUtf8 )
                                     mysql_query("SET NAMES 'utf8'", $this->connection);
                             } else {
-                                $this->lastError = mysql_error();                            
+                                $this->lastError = mysql_error();                         
                                 return false;
                             }
                             break;
                         case 'mysqli':
                             if( $this->connection = mysqli_pconnect( $host, $user, $pw ) ){
-                                @mysqli_select_db( $this->connection, $kdb );
+                                if( !@mysqli_select_db( $this->connection, $kdb ) ){
+                                    die("Can not select db: ".$kdb);
+                                }
                                 if( $pForceUtf8 )
                                     mysqli_query("SET NAMES 'utf8'", $this->connection);
                             } else {
@@ -277,7 +281,9 @@ class database {
                             break;
                         case 'mssql':
                             $this->connection = mssql_connect( $host, $user, $pw );
-                            @mssql_select_db( $kdb, $this->connection );
+                            if( !@mssql_select_db( $kdb, $this->connection ) ){
+                                die("Can not select db: ".$kdb);
+                            }
                             break;
                         case 'oracle':
                             if( ! $this->connection = oci_pconnect( $user, $pw, $host."/".$kdb ) ){ 
@@ -530,11 +536,11 @@ class database {
             
             if( $pQuery == "" )
                 return false;
-                
+
     	    if( !database::$hideSql )
             	$this->lastError = null;
-            
-               
+
+
             $queries = explode(';', $pQuery);
             foreach( $queries as $query ){
                 if( preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $query, $matches) ){
@@ -543,8 +549,7 @@ class database {
             }
                 
             $table = preg_match('//', $pQuery, $matches);
-                
-                
+
             if( !$this->usePdo ){
                 try {
                     switch( $this->type ){
@@ -637,28 +642,7 @@ class database {
         }
         
         public function close(){
-            if( !$this->usePdo ){
-                switch( $this->type ){
-                    case 'sqlite':
-                        $this->connection = sqlite_open( $host );
-                        break;
-                    case 'mysql':
-                        $this->connection = mysql_connect( $host, $user, $pw  );
-                        mysql_select_db( $kdb, $this->connection );
-                        break;
-                    case 'mysqli':
-                        $this->connection = mysqli_connect( $host, $user, $pw  );
-                        mysqli_select_db( $this->connection, $kdb );
-                        break;
-                    case 'mssql':
-                        $this->connection = mssql_connect( $host, $user, $pw  );
-                        mssql_select_db( $this->connection, $kdb );
-                        break;
-                    case 'postgresql':
-                }       
-            } else {
                 
-            }      
         }
         
         public function rowcount( $pStatement ){

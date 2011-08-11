@@ -454,7 +454,7 @@ class admin {
         }
         
         tAssign('adminLanguage', $language);
-        kryn::$lang = kryn::getAllLanguage( $language );
+
         print tFetch('admin/index.tpl');
         exit;
     }
@@ -465,6 +465,7 @@ class admin {
         foreach( $files as $file )
             $where .= " OR code = '$file'";
         $langs = dbTableFetch('system_langs', -1, $where);
+        
         $json = json_encode( $langs );
         print "if( typeof(ka)=='undefined') window.ka = {}; ka.possibleLangs = ".$json;
         exit;
@@ -564,14 +565,6 @@ class admin {
         json(1);
     }
 
-    public static function setSetting( $pName, $pValue ){
-        $row = dbTableFetch("system_settings", 1,"name = '$pName'");
-        if( $row['name'] == $pName )
-            dbUpdate('system_settings', array('name' => $pName), array('value' => $pValue));
-        else
-            dbInsert('system_settings', array('name' => $pName, 'value' => $pValue));
-    }
-
     public static function getSettings(){
         global $modules, $user, $kryn, $cfg;
 
@@ -583,7 +576,6 @@ class admin {
             if( $mod )
                 $res['configs'][$key] = $mod;
         }
-
 
         $res['layouts'] = array();
         $res['contents'] = array();
@@ -616,10 +608,6 @@ class admin {
         $res['system']['db_name'] = '';
         $res['system']['db_user'] = '';
         $res['system']['db_passwd'] = '';
-    
-        $system = dbTableFetch('system_settings',-1);
-        foreach($system as $s )
-            $res['system'][$s['name']] = $s['value'];
 
             
         $inGroups = '';
@@ -656,9 +644,9 @@ class admin {
             if( !$res['r2d'][ $domainRsn ] ){
                 adminPages::updatePage2DomainCache();
             }
-            
+
             $res["menus_$domainRsn"] =& cache::get("menus_$domainRsn");
-            
+
             if( !$res["menus_$domainRsn"] || $domainRsn == 2 ){
                 $res["menus_$domainRsn"] = adminPages::updateMenuCache( $domainRsn );
             }
@@ -1014,9 +1002,6 @@ class admin {
     }
 
     public function install(){
-        dbDelete('system_settings');
-        dbInsert('system_settings', array('name'=>'sessiontime', 'value'=>'60'));
-        dbInsert('system_settings', array('name'=>'mod_rewrite', 'value'=>'1'));
 
         dbDelete('system_pages');
         dbDelete('system_contents');

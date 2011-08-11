@@ -583,20 +583,6 @@
         false
       ]
     },
-    "system_settings": {
-      "name": [
-        "varchar",
-        "255",
-        "DB_PRIMARY",
-        false
-      ],
-      "value": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ]
-    },
     "system_page_notices": {
       "rsn": [
         "int",

@@ -29,27 +29,21 @@ class cache {
         
         $ref = false;
         
-        if( $kcache[$pCode] ){
-            $ref = $kcache[$pCode];
-        } else {
+	    $cacheCode = 'krynPhpCache_'.$pCode;
+        
+        if( !$kcache[$cacheCode] ){
 	        if( $mem ){
-	            $res = memcache_get( $cfg['memcachedHandle'], $pCode );
-	            $kcache[$pCode] = $res;
+	            $kcache[$cacheCode] = memcache_get( $cfg['memcachedHandle'], $cacheCode );;
 	        } else {
-	            $varname = 'krynPhpCache_'.$pCode;
-	            if( $kcache[$varname] )
-	                $ref = $kcache[$varname];
-	                
 	            if( file_exists( $cfg['files_path'].$pCode.'.php' )){
 	                include_once( $cfg['files_path'].$pCode.'.php' );
-	                $ref = $kcache[$varname];
 	            } else {
-	                $ref = false;
+	                return false;
 	            }
 	        }
         }
 
-        return $ref;
+        return $kcache[$cacheCode] ;
     }
     
     /**
@@ -76,9 +70,28 @@ class cache {
             $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
             kryn::fileWrite($cfg['files_path'].$pCode.'.php', $phpCode);
         }
-
+        
     }
     
+    /**
+     *
+     * Clears the content for specified cache-key.
+     * @param string $pCode
+     */
+    public static function clear( $pCode ){
+         global $cfg, $kcache;
+
+        $mem = $cfg['memcachedEstablished'];
+        $pCode = str_replace('..', '', $pCode);
+
+        if( $mem ){
+            memcache_delete($memcache_obj, 'key_to_delete');
+        } else {
+            //PHP
+            unset($kcache['krynPhpCache_'.$pCode]);
+            @unlink($cfg['files_path'].$pCode.'.php');
+        }
+    }
     
 }
 
