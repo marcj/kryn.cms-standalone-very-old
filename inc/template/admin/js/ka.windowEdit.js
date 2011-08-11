@@ -236,8 +236,9 @@ ka.windowEdit = new Class({
         }
         
         var url = this.previewUrls[pPluginId][pPageRsn];
+        
         if( this.versioningSelect.getValue() != '-' ){
-            url += '?kryn_framework_version_id='+this.versioningSelect.getValue();
+            url += '?kryn_framework_version_id='+this.versioningSelect.getValue()+'&kryn_framework_code='+pPluginId;
         }
         
         this.lastPreviewWin = window.open(url, '_blank');

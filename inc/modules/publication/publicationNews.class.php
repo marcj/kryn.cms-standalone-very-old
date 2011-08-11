@@ -23,12 +23,15 @@ class publicationNews
             if(count($categoryRsn))
                 $whereCategories = "AND n.category_rsn IN (".implode(",", $categoryRsn).")";
             
-            if( getArgv('kryn_framework_version_id') && kryn::checkUrlAccess( 'admin/publication/news/edit' ) ){
+            if( getArgv('kryn_framework_code') == 'publication/newsDetail' &&
+                getArgv('kryn_framework_version_id') && kryn::checkUrlAccess( 'admin/publication/news/edit' ) ){
                 
                 $news = admin::getVersion('publication_news', array('rsn' => $rsn), getArgv('kryn_framework_version_id'));
-                $category = dbTableFetch('publication_news_category', 'rsn = '.$news['category_rsn'], 1);
-                $news['categoryTitle'] = $category['title'];
                 
+                if( $news ){
+                    $category = dbTableFetch('publication_news_category', 'rsn = '.$news['category_rsn'], 1);
+                    $news['categoryTitle'] = $category['title'];
+                }
             } else {
             
                 // Create query
