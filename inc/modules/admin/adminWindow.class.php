@@ -14,23 +14,23 @@
 
 
 
-class window {
+class adminWindow {
 
     public static function init(){
         
         switch( getArgv(4) ){
         case 'custom':
-            return window::custom();
+            return self::custom();
         case 'checkAccess':
-            return window::checkAccess();
+            return self::checkAccess();
         case 'getInfo':
-            json( window::getInfo( getArgv('module'), getArgv('code') ) );
+            json( self::getInfo( getArgv('module'), getArgv('code') ) );
         case 'loadClass': 
-            return window::loadClass();
+            return self::loadClass();
         case 'sessionbasedFileUpload': 
-            return window::sessionbasedFileUpload();
+            return self::sessionbasedFileUpload();
         default: 
-            json('window::init::no-param-4');
+            json('self::init::no-param-4');
         }
     }
 
@@ -54,8 +54,10 @@ class window {
         if(! self::checkAccess(true) ) json(false);
 
         require( 'inc/kryn/windowList.class.php' );
+        require( 'inc/kryn/windowCombine.class.php' );
         require( 'inc/kryn/windowEdit.class.php' );
         require( 'inc/kryn/windowAdd.class.php' );
+        
         $module = getArgv('module');
         $code = getArgv('code');
 
@@ -72,7 +74,7 @@ class window {
         }
         
         if( file_exists( "inc/modules/$module2LoadClass/$class.class.php" ) ){
-            require( "inc/modules/$module2LoadClass/$class.class.php");
+            require_once( "inc/modules/$module2LoadClass/$class.class.php");
             $obj = new $class;
         } else {
             $form = kryn::fileRead( "inc/modules/$module2LoadClass/forms/$class.json" );
@@ -85,8 +87,8 @@ class window {
             foreach( $formObj as $optKey => $optVal )
                 $obj->$optKey = $optVal;
 
-            $obj->myconstruct();
         }
+        
         $config = $kryn->installedMods[$module];
 
 //        $dbFile = "inc/modules/$module/db.php";
@@ -118,7 +120,7 @@ class window {
             $res = $obj->removeSelected();
             break;
         default:
-            $res = $obj->init();
+            $res = $obj->init(true);
             break;
         }
         
@@ -141,15 +143,23 @@ class window {
         $codes = explode( '/', $pCode );
         $adminInfo = $kryn->installedMods[$pModule]['admin'];
         
-        
         $_info = $adminInfo[$codes[0]];
+        
+        $path = array();
+        $path[] = $_info['title'];
+        
         $count = count($codes);
         if( $count > 1 ){
             for($i=1;$i<=$count;$i++){
-                if( $codes[$i] != "" )
+                if( $codes[$i] != "" ){
                     $_info = $_info['childs'][$codes[$i]];
+                    $path[] = $_info['title'];
+                }
             }
         }
+        
+        unset( $path[ count($path)-1 ] );
+        
         if( !$_info ){
             json(array('pathNotFound' => 1));
         }
@@ -164,7 +174,7 @@ class window {
         if( file_exists( $cssPath ) )
             $_info['cssmdate'] = filemtime( $cssPath );
         
-        return array('values'=>$_info);
+        return array('values'=>$_info, 'path' => $path);
     }
 
     public static function custom(){
@@ -204,7 +214,7 @@ class window {
         
         
         //now upload the file
-        return filemanager::uploadFile();
+        return adminFilemanager::uploadFile();
         
     }
 

@@ -3,8 +3,9 @@
 class publicationNewsList extends windowList {
 
     public $table = 'publication_news';
-    public $itemsPerPage = 20;
-    public $orderBy = 'title';
+    public $itemsPerPage = 5;
+    public $orderBy = 'category_rsn';
+    public $orderByDirection = 'DESC';
 
     public $iconAdd = 'add.png';
     public $iconDelete = 'cross.png';
@@ -37,12 +38,12 @@ class publicationNewsList extends windowList {
             'width' => 130,
             'table_key' => 'rsn'
         ),
-        'releaseDate' => array(
+        'releasedate' => array(
             'label' => 'Date',
             'width' => 110,
             'type' => 'datetime'
         ),
-        'releaseAt' => array(
+        'releaseat' => array(
             'label' => 'Release at',
             'width' => 110,
             'type' => 'datetime',

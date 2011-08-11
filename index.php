@@ -107,6 +107,11 @@ $kdb = new database(
              ($cfg['db_forceutf8']=='1')?true:false
 );
 
+
+if( !$kdb->isActive() ){
+    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
+}
+
 define('pfx', $cfg['db_prefix']);
 
 if( !file_exists($cfg['tpl_cpl']) )
@@ -148,7 +153,6 @@ $kryn->checkAccess();
 
 systemSearch::initSearch();
 
-
 $kryn->admin = false;
 tAssign( 'admin', false );
 if( getArgv(1) == 'admin' ){
@@ -158,7 +162,5 @@ if( getArgv(1) == 'admin' ){
 } else {
     $kryn->display();
 }
-
-exit;
 
 ?>

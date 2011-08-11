@@ -15,7 +15,7 @@ var admin_system_tools_logs = new Class({
 
 	_renderLayout: function(){
         var p = new Element('div', {
-            styles: 'position: absolute; left: 0px; top: 0px; right: 0px; bottom: 31px;'
+            style: 'position: absolute; left: 0px; top: 0px; right: 0px; bottom: 31px;'
         }).inject( this.win.content );
         
         var bottomBar = new ka.buttonBar( this.win.content );

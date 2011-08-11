@@ -419,7 +419,7 @@ ka.layoutContent = new Class({
                 if( tiny )
                     this.content.content = tiny.getContent();
             } catch( e ){
-                logger(e);
+                //logger(e);
             }
             break;
         case 'html':
@@ -760,7 +760,7 @@ ka.layoutContent = new Class({
         res.title = this.picTitle.getValue();
 
         res.width = this.picDimensionWidth.value;
-        logger('newWidth: '+this.picDimensionWidth.value);
+        //logger('newWidth: '+this.picDimensionWidth.value);
         res.height = this.picDimensionHeight.value;
     
         return res;
@@ -775,7 +775,7 @@ ka.layoutContent = new Class({
         this.content.content = JSON.encode(opts)+'::'+url;
         
         if( this.selected == true ){
-            logger('setPicContentValue: selected=true');
+            //logger('setPicContentValue: selected=true');
             if( $type(url) == 'string' && url.length > 0 ){
             
                 if( this.picBorderDiv.getElement('img.ka-content-type-img') &&
@@ -1016,7 +1016,7 @@ ka.layoutContent = new Class({
 
         
         if( this.picDivContentImg ){
-            logger('picCalcSize');
+            //logger('picCalcSize');
             this.picDivContentImg.set('width', this.picDimensionWidth.value);
             this.picDivContentImg.set('height', this.picDimensionHeight.value);            
         }

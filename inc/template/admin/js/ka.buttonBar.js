@@ -15,6 +15,10 @@ ka.buttonBar = new Class({
         return this;
     },
 
+    setStyle: function(p, p2){
+        this.box.setStyle(p,p2);
+    },
+    
     hide: function(){
         this.box.setStyle('display', 'none');
         return this;

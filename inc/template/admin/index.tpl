@@ -4,11 +4,14 @@
     <head>
         <title>{if $cfg.systemtitle}{$cfg.systemtitle} | {/if}kryn.cms administration</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core.js" ></script>
+        <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more.js" ></script>
+        <script type="text/javascript" src="{$cfg.templatepath}/admin/mootools-extras/powertools-1.0.5.js" ></script>
+        
         <script type="text/javascript" src="{$cfg.path}admin/js=global.js/?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getPossibleLangs:1/?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{$adminLanguage}/js:1/" ></script>
-        <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core.js" ></script>
-        <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more.js" ></script>
+        
         <script type="text/javascript" src="{$cfg.path}inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
         <script type="text/javascript" src="{$cfg.path}inc/codemirror/js/codemirror.js"></script>
 
@@ -27,6 +30,7 @@
             window._session.lastlogin = '{$user.lastlogin}';
             window._session.forceLang = '{$request.setLang}';
         </script>
+        
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Button.css" />
         <link rel="SHORTCUT ICON" href="{$cfg.templatepath}/admin/images/favicon.ico" />

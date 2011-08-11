@@ -53,9 +53,7 @@ var admin_pages = new Class({
     * LOAD PAGE
     */
 
-    loadPage: function( pRsn, pSelect, pVersion ){
-
-    	
+    loadPage: function( pRsn, pSelect ){
 
         this.inDomainModus = false;
         
@@ -74,7 +72,6 @@ var admin_pages = new Class({
 
         this.rsn = pRsn;
         this.oldPage = this.page;
-        this.versionType = (pVersion)?'version':'live';
         this.loader.setStyle('display', 'block');
 
         this.oldLoadPageRequest = new Request.JSON({url: _path+'admin/pages/getPage', noCache: 1, onComplete: function(res){
@@ -87,7 +84,8 @@ var admin_pages = new Class({
             this.deleteDomainGrp.hide();
             this.deletePageGrp.show();
             
-
+            this.loadedVersion = '-';
+            
             this.page = res;
 
             if( pSelect && this.page.rsn ){
@@ -105,7 +103,7 @@ var admin_pages = new Class({
             this._loadPage();
             this.loader.setStyle('display', 'none');
 
-        }.bind(this)}).post({ rsn: pRsn, versionType: this.versionType });
+        }.bind(this)}).post({ rsn: pRsn });
     },
 
     _loadPage: function(){
@@ -329,11 +327,12 @@ var admin_pages = new Class({
     	
     },
 
-    loadVersions: function( pSetToNewestVersion ){
+    loadVersions: function(){
+    
         if( this.oldLoadVersionsRequest )
             this.oldLoadVersionsRequest.cancel();
 
-        this._versionsLive = {};
+        //this._versionsLive = {};
         this.oldLoadVersionsRequest = new Request.JSON({url: _path+'admin/pages/getVersions', noCache: 1, onComplete: function(res){
 
             this.versionBox.empty();
@@ -351,20 +350,28 @@ var admin_pages = new Class({
                 res.each(function(version){
                     var text = (new Date(version.modified*1000)).format('version');
                     text = '#'+version.rsn+' by '+version.username+' ('+text+')';
+                    
                     if( version.active == 1 )
                         text = '[LIVE] '+text;
+                    
                     new Element('option', {
                         value: version.rsn,
                         text: text
                     }).inject( this.versions );
                     
-                	this._versionsLive[ version.rsn ] = version.active;
+                    if( version.active == 1 && this.loadedVersion == '-' ){
+                        this.versions.value = version.rsn;
+                    } else if( version.rsn == this.loadedVersion ) 
+                        this.versions.value = this.loadedVersion;
+                    
+                	//this._versionsLive[ version.rsn ] = version.active;
                 }.bind(this));
                 
-                if( !pSetToNewestVersion ){
+                /*if( !pSetToNewestVersion ){
                     this.versions.value = this.page._activeVersion;
-                }
+                }*/
             }
+                
 /*
             if( this.page.versions ){
                 this.page.versions.each(function(version){
@@ -376,7 +383,7 @@ var admin_pages = new Class({
             }
 */
 
-        }.bind(this)}).post({rsn: this.page.rsn, versionType: this.versionType });
+        }.bind(this)}).post({rsn: this.page.rsn });
     },
 
     /*
@@ -636,7 +643,7 @@ var admin_pages = new Class({
 
         this.deletePageGrp = this.win.addButtonGroup();
         this.deletePageBtn = this.deletePageGrp.addButton( _('Delete'), p+'remove.png', this.deletePage.bind(this));
-        this.searchIndexButton =  this.deletePageGrp.addButton( _('Create search index for this page'), p+'button-index-page.png', function(){
+        this.searchIndexButton =  this.deletePageGrp.addButton( _('Crawl this page now'), p+'button-index-page.png', function(){
             this.createSearchIndexForPage();
         }.bind(this));
         
@@ -718,16 +725,24 @@ var admin_pages = new Class({
     toPage: function( pPage ){
         if(! pPage || !(pPage.rsn > 0) ) pPage = this.page;
         
+        
+        if( this.lastPreviewWin ){
+            this.lastPreviewWin.close();
+        }
+        
         var url = this.getBaseUrl( pPage );
 
         var url = url + pPage.realUrl + '/';
         
-        if(    !this.lastSaveWasPublished &&
-                !this.versions.getSelected()[0].get('text').contains('[LIVE]') &&
-                this.versions.value != "" ){
-            url = url + '/kVersionId:'+this.versions.value+'/';
+        if( this.loadedVersion != '-' ){ //means not live
+        
+        /*if( !this.lastSaveWasPublished &&
+            !this.versions.getSelected()[0].get('text').contains('[LIVE]') &&
+            this.versions.value != "" ){*/
+            
+            url = url + '/kVersionId:'+this.loadedVersion;
         }
-        window.open( url, "_blank" );
+        this.lastPreviewWin = window.open( url, "_blank" );
     },
     
     
@@ -2356,7 +2371,6 @@ var admin_pages = new Class({
 
         this.oldVersionRequest = new Request.JSON({url: _path+'admin/pages/getVersion', noCache: 1, async: false, onComplete: function(res){
 
-            //MARC
             this.page.contents = res;
             if( !this.iframe ) {
                 this._loadContent();
@@ -2371,10 +2385,12 @@ var admin_pages = new Class({
                 this.initContentLayoutSort(); 
             }
             
+            this.loadedVersion = pVersion;
+            
             if( pCallback )
                 pCallback( res );
 
-        }.bind(this)}).post({rsn: this.page.rsn, version: pVersion, versionType: this.versionType });
+        }.bind(this)}).post({rsn: this.page.rsn, version: pVersion });
     },
 
     /*
@@ -2645,7 +2661,7 @@ var admin_pages = new Class({
 
         this.lastVersionOverviewRequest = new Request.JSON({url: _path+'admin/pages/getPageVersions/', noCache: 1, onComplete:function( pRes ){
             this._loadVersionOverview( pRes );
-        }.bind(this)}).post({rsn: this.page.rsn, versionType: this.versionType});
+        }.bind(this)}).post({rsn: this.page.rsn});
         //pageVersion: 'live' : 'version';
          
     }, 
@@ -2906,7 +2922,6 @@ var admin_pages = new Class({
     retrieveData: function( pAndClose ){
         var res = new Hash();
         res.domain_rsn = this.page.domain_rsn;
-        res.versionType = this.versionType;
         res.include( 'rsn', this.rsn );
 
         
@@ -3007,7 +3022,14 @@ var admin_pages = new Class({
                 this.page = res;
                 this.toggleSearchIndexButton( this.page.type);
             }
-            this.loadVersions( true );
+            
+            if( req.andPublish != 1 ){
+                this.loadedVersion = res.version_rsn;
+            } else {
+                this.loadedVersion = '-';
+            }
+            
+            this.loadVersions();
             this.loadAliases();
             
             //if( pAndPublish )

@@ -1,6 +1,6 @@
 {
   "owner": "1",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "desc": {
     "en": "Publication is a small news\/blog system, where you can manage and display news by categories.",
     "de": "Ein kleines News system, mit dem man News managent und ver\u00f6ffentlichen kann."
@@ -15,36 +15,28 @@
   "admin": {
     "news": {
       "title": "News",
+      "type": "combine",
+      "class": "publicationNewsList",
       "childs": {
-        "list": {
-          "title": "News Overview",
-          "type": "list",
-          "class": "publicationNewsList",
-          "isLink": true,
-          "defaultWidth": 600,
+        "add": {
+          "title": "News add",
+          "type": "add",
+          "class": "publicationNewsAdd",
+          "isLink": false,
           "multi": true,
-          "childs": {
-            "add": {
-              "title": "News add",
-              "type": "add",
-              "class": "publicationNewsAdd",
-              "isLink": false,
-              "multi": true,
-              "childs": [
-                
-              ]
-            },
-            "edit": {
-              "title": "News edit",
-              "type": "edit",
-              "class": "publicationNewsEdit",
-              "isLink": false,
-              "multi": true,
-              "childs": [
-                
-              ]
-            }
-          }
+          "childs": [
+            
+          ]
+        },
+        "edit": {
+          "title": "News edit",
+          "type": "edit",
+          "class": "publicationNewsEdit",
+          "isLink": false,
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "category": {
           "title": "Category",

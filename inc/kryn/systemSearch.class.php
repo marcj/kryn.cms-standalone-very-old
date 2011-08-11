@@ -1,17 +1,5 @@
 <?php
 
-/*
- * This file is part of Kryn.cms.
- *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
- *
- * To get the full copyright and license informations, please view the
- * LICENSE file, that was distributed with this source code.
- *
- */
-
-
-
 /**
  * SystemSearch class
  * 
@@ -271,7 +259,7 @@ class systemSearch extends baseModule{
             return self::exitPage('Page is flagged as unsearchable!', 5);
         }
         
-        if( getArgv('kVersionId') ){
+        if( getArgv('kVersionId') || getArgv('kryn_framework_version_id') ){
             self::updateBlacklist( self::$pageUrl );
             return self::exitPage('Version indexing not allowed!', 6);
         }
@@ -398,16 +386,16 @@ class systemSearch extends baseModule{
     
         $url = esc( $pUrl );
         
-        if( !$kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] ||
-            $kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] == 0 ){
+        if( !self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] ||
+            self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] == 0 ){
             
             dbUpdate('system_search', "url = '$url' AND domain_rsn = $pDomainRsn", array(
                 'blacklist' => time()
             ));
         
         } 
-        $kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] = time();
-        kryn::setCache('systemSearchIndexedPages', $kcache['krynPhpCache_systemSearchIndexedPages']);
+        self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] = time();
+        kryn::setCache('systemSearchIndexedPages', self::$indexedPages);
     }
     
     public static function removeBlacklist( $pUrl, $pDomainRsn = false ){
@@ -420,8 +408,8 @@ class systemSearch extends baseModule{
         dbUpdate('system_search', "url = '$url' AND domain_rsn = $pDomainRsn", array(
             'blacklist' => 0
         ));
-        $kcache['krynPhpCache_systemSearchIndexedPages'][$pDomainRsn.'_'.$pUrl]['blacklist'] = 0;
-        kryn::setCache('systemSearchIndexedPages', $kcache['krynPhpCache_systemSearchIndexedPages']);
+        self::$indexedPages[$pDomainRsn.'_'.$pUrl]['blacklist'] = 0;
+        kryn::setCache('systemSearchIndexedPages', self::$indexedPages);
     }
     
     public static function toBlacklist(){
@@ -456,7 +444,7 @@ class systemSearch extends baseModule{
             //}
             $cache[$row['domain_rsn'].'_'.$row['url']] = array('blacklist' => $row['blacklist']);
         }
-        self::$indexedPages =& $cache;
+        self::$indexedPages = $cache;
         kryn::setCache('systemSearchIndexedPages', $cache);
     }
     
@@ -517,10 +505,10 @@ class systemSearch extends baseModule{
             
             
            
-           if( !self::$indexedPages[kryn::$domain['rsn'].'_'.$value[1]] && strlen($value[1]) > 0 )
-                self::disposePageForIndex($value[1], 'LINK '.esc($value[1]), kryn::$domain['rsn']);
+           if( !self::$indexedPages[kryn::$domain['rsn'].'_'.$value[1]] && strlen($value[1]) > 0 ){
+           	    self::disposePageForIndex($value[1], 'LINK '.esc($value[1]), kryn::$domain['rsn']);
                 self::$jsonFoundPages[] = $value[1];
-           //}
+           }
         }        
       
     }   
@@ -537,142 +525,6 @@ class systemSearch extends baseModule{
         return $arIndexes;
     }
     
-    /*
-    
-    //create a full site index over all pages in the tree with passed domain    
-    //TODO get the startpage_rsn for given domain and rewrite page url of startpage to '/' before disposePageForIndex is called  - see pushPageTree method
-    public static function getFullSiteIndexUrls($pDomainRsn = false) {
-        $whereAdd = "";
-        if($pDomainRsn)
-            $whereAdd = "WHERE domain_rsn = ".$pDomainRsn;
-        
-            
-            //$cfg['path']
-            
-        $pages = self::getAllSearchablePages($pDomainRsn);
-        foreach($pages as $page) {
-            self::disposePageForIndex('/'.$page['url'], $page['title'], $page['domain_rsn'], $page['rsn']);
-        }
-        
-        $totalPages = array();
-        $unidexedPages = array();
-        
-        $preTotalPages = dbExFetch("SELECT url, page_rsn, mdate FROM %pfx%system_search ".$whereAdd." ORDER BY mdate", -1);
-        //create absolute links
-        
-        foreach($preTotalPages as $key => $value) {          
-           //if(!self::checkForIndexBlacklist($value['url']))        
-                $totalPages[] = $value['url'];
-          
-           //unindexed pages array
-           //if($value['mdate'] == 0 && !in_array($value['url'], self::$indexedPages) && !self::checkForIndexBlacklist($value['url']))
-           if($value['mdate'] == 0 && !in_array($value['url'], self::$indexedPages) )
-                 $unidexedPages[] = $value['url'];
-           
-        }
-        $unindexedCount = self::countUnindexedPages($pDomainRsn);
-        
-        $indexedPages = kryn::getPhpCache('indexedPages_'.$pDomainRsn.'_'.date('Y_m'));
-        
-        return array('totalCount' => count($totalPages), 'indexedCount' => count($indexedPages), 'unindexedCount' => $unindexedCount, 'urls'=>$totalPages, 'urlsUnindexed' => $unidexedPages);     
-        
-    }
-    
-    //TODO get the startpage_rsn for given domain and rewrite page url of startpage to '/' before disposePageForIndex is called  - see pushPageTree method
-    public static function getUnindexSitePercent($pDomainRsn=false) {
-        $whereAdd = "";
-        if($pDomainRsn)
-            $whereAdd = "WHERE domain_rsn = ".$pDomainRsn;
-            
-        $pages = self::getAllSearchablePages($pDomainRsn);
-        foreach($pages as $page) {
-            self::disposePageForIndex('/'.$page['url'], $page['title'], $page['domain_rsn'], $page['rsn']);
-        }
-        
-        $totalPages = 0;
-        $unidexedPages = 0;
-        
-        $preTotalPages = dbExFetch("SELECT url, page_rsn, mdate FROM %pfx%system_search ".$whereAdd." ORDER BY mdate", -1);
-        foreach($preTotalPages as $key => $value) {            
-           //if(!self::checkForIndexBlacklist($value['url']))        
-                $totalPages++;           
-          
-           //unindexed 
-           //if($value['mdate'] == 0 && !in_array($value['url'], self::$indexedPages) && !self::checkForIndexBlacklist($value['url']))
-           if($value['mdate'] == 0 && !in_array($value['url'], self::$indexedPages) )
-                 $unidexedPages++; 
-        }        
-        
-        $percent = round((100/$totalPages)*$unidexedPages);
-        return array('total'=> $totalPages, 'unindexed' => $unidexedPages, 'percent' => $percent);
-        
-    }
-    
-    
-    
-    //count all pages in search table with mdate 0 and not already stored in cache index
-    public static function countUnindexedPages($pDomainRsn = false) {
-        $whereAdd = "";
-        if($pDomainRsn)
-            $whereAdd = "AND domain_rsn = ".$pDomainRsn;
-                   
-            
-        $indexedRsns = false;
-        if(self::$indexedPages && !empty(self::$indexedPages)) {
-             foreach(self::$indexedPages as $value) {
-                 $whereAdd .= " AND url != '".$value."'";
-             }  
-        }  
-       
-        $counter = 0;
-        $count = dbExFetch("SELECT url FROM %pfx%system_search WHERE mdate=0 ".$whereAdd, -1);
-        return count( $count );
-        
-        
-        foreach($count as $value) {           
-            if(!self::checkForIndexBlacklist($value['url']))
-                $counter++;
-            
-        }
-                  
-        return $counter;
-        
-    } 
-    
-    
-    //read all searchable pages from page table with given domain rsn
-    public static function getAllSearchablePages($pDomainRsn = false) {
-        $whereAdd = "";
-        if($pDomainRsn)
-            $whereAdd = "AND domain_rsn = ".$pDomainRsn;
-        
-            
-        $urls = kryn::getPhpCache('urls_'.$pDomainRsn);
-        if(!$urls) {
-            require_once( 'inc/modules/admin/pages.class.php' );
-            pages::updateUrlCache( $pDomainRsn );
-            $urls = kryn::getPhpCache('urls_'.$pDomainRsn);
-        }
-        
-       
-        $searchablePages = false;
-        $preSearchablePages = dbExFetch("SELECT rsn, prsn, url, domain_rsn, title, mdate FROM %pfx%system_pages WHERE type = 0 AND ( unsearchable = 0 OR unsearchable IS NULL) ".$whereAdd, -1);
-        if(!empty($preSearchablePages)) {
-            foreach($preSearchablePages as $page) {
-                //if sublevel page get complete url path
-                if($page['prsn'] != 0) {
-  
-                    $page['url'] = $urls['rsn']['rsn='.$page['rsn']];
-                }                       
-                //if(!self::checkForIndexBlacklist($page['url'], $page['domain_rsn']))              
-                $searchablePages[] = $page;                     
-                              
-            }            
-        }
-        return $searchablePages;
-    }
-    */
-    
     
     //insert a page into the searchtable for further indexing
     public static function disposePageForIndex($pUrl, $pTitle, $pDomainRsn, $pPageRsn='0') {
@@ -680,11 +532,10 @@ class systemSearch extends baseModule{
         
         $url = esc($pUrl);
         $pPageRsn += 0;
-        
-        dbDelete('system_search', "page_rsn = $pPageRsn AND url = '$url'");
+        dbDelete('system_search', "/*disposePageForIndex*/ page_rsn = $pPageRsn AND url = '$url'");
         return dbInsert('system_search', array(
-            'url' => $url,
-            'title' => esc($pTitle),
+            'url' => $pUrl,
+            'title' => $pTitle,
             'mdate' => 0,
             'domain_rsn' => $pDomainRsn+0,
             'page_rsn' => $pPageRsn
@@ -838,110 +689,7 @@ class systemSearch extends baseModule{
         }
             
     }
-    
-    
-    
-    //automatic backend searchcrawler
-    
-    /*
-    
-	 // get all page urls and domain rsns what have never been indexed before but are know in the searchindex table
-    public static function getWaitlist() {
-    	
-		$items = dbExFetch("SELECT url, domain_rsn FROM %pfx%system_search WHERE mdate = 0 ORDER BY domain_rsn", -1);    	
-    	$hasPermission = self::checkAutoCrawlPermission();
-    	
-    	return array('items' => $items, 'hasPermission' => $hasPermission);
-    }
-    
-    //get all available pages from the searchindex table that have been indexed 
-    public static function getUpdatelist() {
-    	$items = dbExFetch("SELECT url, domain_rsn FROM %pfx%system_search WHERE mdate > 0 ORDER BY domain_rsn", -1);   	
-    	$hasPermission = self::checkAutoCrawlPermission();
-    	
-    	return array('items' => $items, 'hasPermission' => $hasPermission);    	
-    }
-    
-    //check for autocrawling permission
-    public static function checkAutoCrawlPermission() {  
-    	global $user;
-    	$hasPermission = false;
-    	$uId = getArgv('backendAutoCrawler', 1);
-      $tNow = time();
-      
-    	if(!$user || $user->user_rsn < 1 ) {
-    		
-    		return $hasPermission;
-    	}
-         
-      if( !file_exists( 'inc/template/admin/crawler.php' )) {
-      	self::writePermission($tNow);      	
-      }
-      
-      include( 'inc/template/admin/crawler.php' );
-      $arPerm = $kcache['krynPhpCache_backendAutoCrawlerPermission'];
-      
-      $tDiff = $tNow - $arPerm['tstamp'];
-     
-     
-      
-      if($arPerm['uId'] != $uId && $tDiff < self::$autoCrawlPermissionLifetime)       	
-      	return $hasPermission;
-      
-		
-      //checks passed - current call has permission
-      $hasPermission = true;
-      self::writePermission($tNow);	
-      return $hasPermission;   
-    }
-    
-    //write permission file if not existent or keep it updated
-    public static function writePermission($pTstamp =false) {    	
-		$uId = getArgv('backendAutoCrawler', 1);
-		if(!$pTstamp)
-			$tStamp = time();
-		else
-			$tStamp = $pTstamp;
-			
-			
-		$params = array('uId' => $uId, 'tstamp' => $tStamp);	 
-      $varname = '$kcache[\'krynPhpCache_backendAutoCrawlerPermission\'] ';
-      $phpCode = "<"."?php \n$varname = ".var_export($params,true).";\n ?".">";
-      kryn::fileWrite('inc/template/admin/crawler.php', $phpCode);
-    }
-    
-    //if no sites are stored in the searchindex table then go and push them in directly from the pages tbl
-    public static function pushPageTree() {
-    	$hasPermission = self::checkAutoCrawlPermission();
-    	$pushCount = 0;
-    	if(!$hasPermission)
-    		return array('pushCount' => $pushCount, 'hasPermission' => $hasPermission);   
-    	
-    	//get all domains
-    	$domains = dbExFetch("SELECT rsn, startpage_rsn FROM %pfx%system_domains", -1);
-    	if(!$domains || empty($domains))
-    		return array('pushCount' => $pushCount, 'hasPermission' => $hasPermission);
-    	foreach($domains as $domain) {
-    		//init with current domain rsn to make blacklist and other domain specific stuff available
-    		systemSearch::initSearchFromBackend($domain['rsn']);
-    		//at first insert the startpage with /
-    		self::disposePageForIndex('/', 'Home', $domain['rsn'], $domain['startpage_rsn']);    		
-    		$pushCount++;
-    		
-    		//get all other pages
-    	   $pages = self::getAllSearchablePages($domain['rsn']);
-         foreach($pages as $page) {
-         	//dont push push in the startpage twice
-         	 if($page['rsn'] != $domain['startpage_rsn']) {
-	             self::disposePageForIndex('/'.$page['url'], $page['title'], $page['domain_rsn'], $page['rsn']);
-	             $pushCount++;         	 	
-         	 } 
-         }   		
-    	}
 
-    	return array('pushCount' => $pushCount, 'hasPermission' => $hasPermission);
-    	
-    } */
 }
 
 ?>

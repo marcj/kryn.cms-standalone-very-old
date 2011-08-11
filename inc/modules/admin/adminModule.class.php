@@ -1,6 +1,6 @@
 <?php
 
-class module {
+class adminModule {
 
     public static function init(){
         global $kryn, $cfg;
@@ -14,110 +14,110 @@ class module {
         
         switch( getArgv(4) ){
             case 'deactivate':
-                return module::deactivate($_REQUEST['name']);
+                return self::deactivate($_REQUEST['name']);
             case 'activate':
-                return module::activate($_REQUEST['name']);
+                return self::activate($_REQUEST['name']);
 
             /* not in use
             case 'dev-install':
-                return module::devInstall(getArgv(5));
+                return self::devInstall(getArgv(5));
             case 'dev-update':
-                return module::devUpdate(getArgv(5));
+                return self::devUpdate(getArgv(5));
             case 'dev-remove':
-                return module::devRemove(getArgv(5));
+                return self::devRemove(getArgv(5));
             case 'new':
-                return module::listTopModules();
+                return self::listTopModules();
             */
 
             case 'managerSearch':
-                return module::managerSearch( getArgv('q') );
+                return self::managerSearch( getArgv('q') );
             case 'managerGetCategoryItems':
-                return module::getCategoryItems( getArgv('category')+0, getArgv('lang') );
+                return self::getCategoryItems( getArgv('category')+0, getArgv('lang') );
             case 'managerGetBox':
                 return self::getBox(getArgv('code') );
 
             // for pluginchooser
             case 'getModules':
-                return module::getModules();
+                return self::getModules();
 
 
             case 'check4updates':
-                return module::check4updates();
+                return self::check4updates();
 
 
             case 'getInstallInfo': #step 1
-                return module::getInstallInfo( getArgv('name',2), getArgv('type') );
+                return self::getInstallInfo( getArgv('name',2), getArgv('type') );
             case 'getPrepareInstall': #step 2
-                return module::getPrepareInstall( getArgv('name',2), getArgv('type') );
+                return self::getPrepareInstall( getArgv('name',2), getArgv('type') );
                 
             case 'getDependExtension':
-                json(module::getDependExtension( getArgv('name', 2), getArgv('file'), getArgv('version')));
+                json(self::getDependExtension( getArgv('name', 2), getArgv('file'), getArgv('version')));
                 
             case 'installModule':# step 3
-                return json(module::installModule( getArgv('name',2), getArgv('type') ));
+                return json(self::installModule( getArgv('name',2), getArgv('type') ));
 
             case 'loadLocal':
-                return module::loadLocal();
+                return self::loadLocal();
             case 'loadInstalled':
-                return module::loadInstalled();
+                return self::loadInstalled();
 
             case 'getPublishInfo':
-                return module::getPublishInfo( getArgv('name',2) );
+                return self::getPublishInfo( getArgv('name',2) );
             case 'publish':
-                json( module::publish( getArgv('pw'), getArgv('name',2), getArgv('message') ) );
+                json( self::publish( getArgv('pw'), getArgv('name',2), getArgv('message') ) );
             case 'getVersion':
-                json( module::getVersion( getArgv('name',2) ) );
+                json( self::getVersion( getArgv('name',2) ) );
             case 'getPackage':
-                json( module::getPackage( getArgv('name',2) ) );
+                json( self::getPackage( getArgv('name',2) ) );
 
 
             case 'getChangedFiles':
-                json( module::getChangedFiles( getArgv('name',2) ) );
+                json( self::getChangedFiles( getArgv('name',2) ) );
             case 'remove':
-                json( module::removeModule( getArgv('name',2) ) );
+                json( self::removeModule( getArgv('name',2) ) );
 
             case 'dbInit':
-                return module::dbInit( getArgv('name',2) );
+                return self::dbInit( getArgv('name',2) );
 
             //edit module
             case 'extractLanguage':
-                json( module::extractLanguage( getArgv('name',2) ) );
+                json( self::extractLanguage( getArgv('name',2) ) );
             case 'getLanguage':
-                json( module::getLanguage( getArgv('name',2), getArgv('lang',2) ) );
+                json( self::getLanguage( getArgv('name',2), getArgv('lang',2) ) );
             case 'saveLanguage':
-                json( module::saveLanguage( getArgv('name',2), getArgv('lang',2), getArgv('langs') ) );
+                json( self::saveLanguage( getArgv('name',2), getArgv('lang',2), getArgv('langs') ) );
 
             case 'getConfig':
-                json( module::loadInfo( getArgv('name',2) ) );
+                json( self::loadInfo( getArgv('name',2) ) );
 
             case 'getForms':
-                json( module::loadForms( getArgv('name',2) ) );
+                json( self::loadForms( getArgv('name',2) ) );
             case 'getHelp':
-                json( module::getHelp( getArgv('name',2), getArgv('lang',2) ) );
+                json( self::getHelp( getArgv('name',2), getArgv('lang',2) ) );
             case 'saveHelp':
-                json( module::saveHelp( getArgv('name',2), getArgv('lang',2), getArgv('help') ) );
+                json( self::saveHelp( getArgv('name',2), getArgv('lang',2), getArgv('help') ) );
 
             case 'saveLayouts':
-                json( module::saveLayouts() );
+                json( self::saveLayouts() );
             case 'saveGeneral':
-                json( module::saveGeneral() );
+                json( self::saveGeneral() );
             case 'saveLinks':
-                json( module::saveLinks() );
+                json( self::saveLinks() );
             case 'saveDb':
-                json( module::saveDb() );
+                json( self::saveDb() );
                 
             case 'saveDocu':
-                json( module::saveDocu() );
+                json( self::saveDocu() );
             case 'getDocu':
-                json( module::getDocu() );
+                json( self::getDocu() );
                 
             case 'savePlugins':
-                json( module::savePlugins() );
+                json( self::savePlugins() );
             case 'getPlugins':
-                json( module::getPlugins( getArgv('name',2) ) );
+                json( self::getPlugins( getArgv('name',2) ) );
 
             case 'addCheckCode':
-                json( module::addCheckCode(getArgv('name',2)) );
+                json( self::addCheckCode(getArgv('name',2)) );
         }
     }
 
@@ -158,7 +158,7 @@ class module {
     
     public static function getPlugins( $pName ){
         
-        $config = module::loadConfig( $pName );
+        $config = self::loadConfig( $pName );
         
         return $config['plugins'];
     
@@ -262,7 +262,7 @@ class module {
                     'en' => 'Enter here a description about your extension'
                 )
             );
-            module::writeConfig( $pName, $config );
+            self::writeConfig( $pName, $config );
         }
 
         return $res;
@@ -273,12 +273,12 @@ class module {
 
         $name = getArgv('name',2);
 
-        $config = module::loadConfig( $name );
+        $config = self::loadConfig( $name );
 
         $db = json_decode(getArgv('tables'),true);
         $config['db'] = $db;
 
-        module::writeConfig( $name, $config );
+        self::writeConfig( $name, $config );
         json(1);
     }
 
@@ -288,12 +288,12 @@ class module {
 
         $name = getArgv('name',2);
 
-        $config = module::loadConfig( $name );
+        $config = self::loadConfig( $name );
 
         $admin = json_decode(getArgv('admin'),true);
         $config['admin'] = $admin;
 
-        module::writeConfig( $name, $config );
+        self::writeConfig( $name, $config );
         json(1);
     }
 
@@ -301,7 +301,7 @@ class module {
 
         $name = getArgv('name',2);
 
-        $config = module::loadConfig( $name );
+        $config = self::loadConfig( $name );
 
         if( getArgv('owner') > 0 )
             $config['owner'] = getArgv('owner');
@@ -316,7 +316,7 @@ class module {
         $config['category'] = getArgv('category');
         $config['depends'] = getArgv('depends');
 
-        module::writeConfig( $name, $config );
+        self::writeConfig( $name, $config );
         json(1);
     }
 
@@ -327,9 +327,9 @@ class module {
         $themes = json_decode(getArgv('themes'),true);
         $name = getArgv('name',2);
 
-        $config = module::loadConfig( $name );
+        $config = self::loadConfig( $name );
         $config['themes'] = $themes;
-        module::writeConfig( $name, $config );
+        self::writeConfig( $name, $config );
 
         json(1);
     }
@@ -366,17 +366,17 @@ class module {
 
         if( $pModuleName == 'kryn' ){
             $config = kryn::fileRead( 'inc/kryn/config.json' );
-            module::readDirectory( 'inc/kryn/' );
-            module::readDirectory( 'inc/template/kryn' );
+            self::readDirectory( 'inc/kryn/' );
+            self::readDirectory( 'inc/template/kryn' );
         } else {
-            module::readDirectory( 'inc/modules/'.$mod );
-            module::readDirectory( 'inc/template/'.$mod );
+            self::readDirectory( 'inc/modules/'.$mod );
+            self::readDirectory( 'inc/template/'.$mod );
             $config = kryn::fileRead( 'inc/modules/'.$mod.'/config.json' );
         }
 
         $config = json_decode( $config, true );
         if( $config['admin'] ){
-            module::extractAdmin( $config['admin'] );
+            self::extractAdmin( $config['admin'] );
         }
         if( $config['plugins'] ){
             foreach( $config['plugins'] as $plugin ){
@@ -471,7 +471,7 @@ class module {
 
                 }
                 if( is_array($value['childs']) ){
-                    module::extractAdmin( $value['childs'] );
+                    self::extractAdmin( $value['childs'] );
                 }
             }
         }
@@ -506,9 +506,9 @@ class module {
         while( $file = readdir($h) ){
             if( $file == '.' || $file == '..' ||$file == '.svn' ) continue;
             if( is_dir( $pPath.'/'.$file ) ){
-                module::readDirectory($pPath.'/'.$file);
+                self::readDirectory($pPath.'/'.$file);
             } else {
-                module::extractFile( $pPath.'/'.$file );
+                self::extractFile( $pPath.'/'.$file );
             }
         }
     }
@@ -567,7 +567,7 @@ class module {
 
 
         delDir("inc/upload/modules/removeMod/$id/");
-        db::remove( $config );
+        adminDb::remove( $config );
         dbDelete('system_modules', "name = '$pModuleName'");
 
         kryn::clearLanguageCache();
@@ -614,7 +614,7 @@ class module {
     }
 
     public static function getPackage( $pModuleName ){
-        $res['file'] = module::createArchive( $pModuleName );
+        $res['file'] = self::createArchive( $pModuleName );
         json($res);
     }
 
@@ -623,7 +623,7 @@ class module {
         $res = wget($cfg['repoServer'].'/?checkPw=1&id='.$cfg['communityId']."&pw=$pPw");
         if( $res != "1" )
             json(0);
-        $file = module::createArchive( $pModuleName );
+        $file = self::createArchive( $pModuleName );
         $res = array();
         $status = wget('http://www.kryn.org/rpc?t=publish&id='.$cfg['communityId']."&pw=$pPw&message=".urlencode($pMessage), null, $file );
         $res['file'] = $file;
@@ -633,7 +633,7 @@ class module {
 
     public static function createArchive( $pModuleName ){
 
-        $config = module::loadInfo( $pModuleName );
+        $config = self::loadInfo( $pModuleName );
 
         $temp = 'inc/upload/modules/createArchive_'.$pModuleName.'/';
         if( file_exists( $temp ) )
@@ -724,13 +724,13 @@ class module {
 
     public static function dbInit( $pName ){
         $config = kryn::getModuleConfig( $pName );
-        $res = db::install( $config );
+        $res = adminDb::install( $config );
         
         if( $config['extendConfig'] ){
             foreach( $config['extendConfig'] as $extendExt => $extendConfig ){
                 if($extendConfig['db'] ){
                     $res .= "\n\nExtend: ".$extendExt."\n";
-                    $res .= db::install( $extendConfig );
+                    $res .= adminDb::install( $extendConfig );
                 }
             }
         }
@@ -754,7 +754,7 @@ class module {
                 
                 $depConfig = kryn::getModuleConfig( $depName );
                 $res .= "\n\nDepend: ".$depName."\n";
-                $res .= db::install( $depConfig );
+                $res .= adminDb::install( $depConfig );
             }
         }
         
@@ -764,7 +764,7 @@ class module {
     public static function getPublishInfo( $pName ){
         $config = kryn::getModuleConfig( $pName );
         $res['config'] = $config;
-        $res['serverVersion'] = module::getVersion( $pName );
+        $res['serverVersion'] = self::getVersion( $pName );
 
         $files = array();
         if( count($config['extraFiles']) > 0 ){
@@ -793,7 +793,7 @@ class module {
             $installed[] = $mod['name'];
         }
         foreach( $installed as $mod ){
-            $config = module::loadInfo( $mod );
+            $config = self::loadInfo( $mod );
             $res[ $mod ] = $config;
             $res[ $mod ]['activated'] = ($kryn->installedMods[$mod])?1:0;
             $res[ $mod ]['serverVersion'] =  wget($cfg['repoServer']."/?version=".$mod);
@@ -809,7 +809,7 @@ class module {
         $modules[] = 'kryn';
         $res = array();
         foreach( $modules as $module ){
-            $config = module::loadInfo( $module );
+            $config = self::loadInfo( $module );
             if( ($config['owner']+0 > 0 && $config['owner'] == $cfg['communityId'] ) || $config['owner'] == "" || !$config['owner'] ){
                 $res[ $module ] = $config;
                 $res[ $module ][ 'activated'] = ($kryn->installedMods[$module])?1:0;
@@ -1124,13 +1124,13 @@ class module {
         if( $pModuleName != 'kryn' ){
             dbDelete('system_modules', "name = '$pModuleName'");
             dbExec("INSERT INTO %pfx%system_modules VALUES('".$pModuleName."', 1)");
-            db::install( $info );
+            adminDb::install( $info );
         }
         
         if( $info['extendConfig'] ){
             foreach( $info['extendConfig'] as $extendConfig ){
                 if($extendConfig['db'] ){
-                    db::install( $extendConfig );
+                    adminDb::install( $extendConfig );
                 }
             }
         }
@@ -1191,7 +1191,7 @@ class module {
     /*
     function devRemove( $pModule ){
         dbExec( "DELETE FROM %pfx%system_modules WHERE name = '$pModule'" );
-        db::remove( $pModule );
+        adminDb::remove( $pModule );
         return 'Ok';
     }
 
@@ -1205,7 +1205,7 @@ class module {
 
     function devInstall( $pModule ){
         dbExec( "INSERT INTO %pfx%system_modules VALUES('$pModule', 1)" );
-        return '<pre>'.db::install( $pModule ).'</pre>';
+        return '<pre>'.adminDb::install( $pModule ).'</pre>';
     }
     */
 

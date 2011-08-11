@@ -156,8 +156,7 @@ ka.field_layoutElement = new Class({
 	
 	_deselectAllElements: function( pContent ){
 		
-		logger('deselect ka.field');
-        var selected = 0;
+		var selected = 0;
     	
         if( !this.layoutElement ) return;
         if( !this.layoutElement.layoutBoxes ) return;

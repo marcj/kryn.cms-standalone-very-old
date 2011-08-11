@@ -1,7 +1,7 @@
 /* ka window.manager */
 
 window.addEvent('resize', function(){
-	ka.wm.checkDimensions();
+	ka.wm.checkDimensionsAndSendResize();
 });
 
 
@@ -30,7 +30,7 @@ ka.wm = {
         return ka.wm.loadWindow( pModule, pWindowCode, pLink, pDependOn, pParams, pInline );
     },
     
-    checkDimensions: function(){
+    checkDimensionsAndSendResize: function(){
     	if( ka.wm.goDimensionsCheck )
     		$clear( ka.wm.goDimensionsCheck );
     	

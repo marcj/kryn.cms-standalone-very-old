@@ -16,6 +16,8 @@ ka.init = function(){
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
+
+    logger('ka-init');
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
     
@@ -142,6 +144,7 @@ ka.loadLanguage = function( pLang ){
     window._session.lang = pLang;
     new Request.JSON({url: _path+'admin/getLanguage:'+pLang+'/', async: false, noCache: 1, onComplete: function(res){
         ka.lang = res;
+        Locale.define('en-US', 'Date', res.mootools);
     }}).get();
 }
 
@@ -918,21 +921,21 @@ ka.renderAdminLink = function(){
 	var windowSize = window.getSize().x;
 	if( windowSize < 770 ){
 		logger('show blocker');
-		if( !ka.blocker ){
-			ka.blocker = new Element('div', {
+		if( !ka.toSmallWindowBlocker ){
+			ka.toSmallWindowBlocker = new Element('div', {
 				'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
 			}).inject( document.body );
-			var t = new Element('table', {style: 'width: 100%; height: 100%'}).inject(ka.blocker);
+			var t = new Element('table', {style: 'width: 100%; height: 100%'}).inject(ka.toSmallWindowBlocker);
 			var tr = new Element('tr').inject( t );
 			var td = new Element('td', {
 				align: 'center', valign: 'center',
 				text: _('Your browser window is too small.')
 			}).inject(tr);
 		}
-	} else if( ka.blocker ){
-		logger('destroy: '+ka.blocker);
-		ka.blocker.destroy();
-		ka.blocker = null;
+	} else if( ka.toSmallWindowBlocker ){
+		logger('destroy: '+ka.toSmallWindowBlocker);
+		ka.toSmallWindowBlocker.destroy();
+		ka.toSmallWindowBlocker = null;
 	}
 	
 	var iconbar = $('iconbar');
@@ -1127,6 +1130,24 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
             }
             
             if( item.hasSubmenu ){
+                $H(item.childs).each(function(subitem, subcode){
+                	
+                    if( item.isLink === false ) return;
+                    var subsublink = new Element('a', {
+                        html: _(subitem.title),
+                        'class': 'ka-module-item-sub'
+                    })
+                    .inject( menu );
+                    
+                    if( subitem.type ){
+                    	subsublink.addClass('ka-module-items-activated');
+                    	subsublink.addEvent('click', function(){
+                            ka.wm.openWindow( pExtCode, pCode+'/'+code+'/'+subcode, pLink );
+                        })
+                    }
+                });
+            }
+            /*if( item.hasSubmenu ){
             	
             	var submenu = new Element('div', {
                     'class': 'bar-dock-logo-menu-style bar-dock-logo-menu-submenu ka-subnavi',
@@ -1184,7 +1205,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
                         })
                     }
                 });
-            }
+            }*/
             
         });
 
@@ -1371,7 +1392,7 @@ ka.destroyLinkContext = function(){
 ka.linkClick = function( pLink ){
     var mlink = pLink.retrieve('link');
     
-    if( ['iframe', 'list', 'custom', 'add', 'edit'].indexOf(mlink.type) != -1 ){
+    if( ['iframe', 'list', 'combine', 'custom', 'add', 'edit'].indexOf(mlink.type) != -1 ){
 
     	var link = ka._links[mlink.module +'/'+ mlink.code];
     	

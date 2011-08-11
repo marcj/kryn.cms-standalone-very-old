@@ -17,17 +17,17 @@ if( $GLOBALS['krynInstaller'] != true ){
         
         if( kryn::compareVersion('kryn', '<', '0.7.0') ){
             require_once("inc/modules/admin/admin.class.php");
-            require_once("inc/modules/admin/module.class.php");
-            require_once("inc/modules/admin/db.class.php");
-            module::installModule('kryn', true);
+            require_once("inc/modules/admin/adminModule.class.php");
+            require_once("inc/modules/admin/adminDb.class.php");
+            adminModule::installModule('kryn', true);
             $die = true;
         }
             
         if( $kryn->installedMods['admin']['version'] != '' && kryn::compareVersion('admin', '<', '0.7.0') ){
             require_once("inc/modules/admin/admin.class.php");
-            require_once("inc/modules/admin/module.class.php");
-            require_once("inc/modules/admin/db.class.php");
-            module::installModule('admin', true);
+            require_once("inc/modules/admin/adminModule.class.php");
+            require_once("inc/modules/admin/adminDb.class.php");
+            adminModule::installModule('admin', true);
             $die = true;
         }
         
@@ -36,17 +36,17 @@ if( $GLOBALS['krynInstaller'] != true ){
         //we have to check manually if admin or kryn is not 0.7.0
         if( $kryn->installedMods['kryn']['version'] != '0.7.0' ){
             require_once("inc/modules/admin/admin.class.php");
-            require_once("inc/modules/admin/module.class.php");
-            require_once("inc/modules/admin/db.class.php");
-            module::installModule('kryn', true);
+            require_once("inc/modules/admin/adminModule.class.php");
+            require_once("inc/modules/admin/adminDb.class.php");
+            adminModule::installModule('kryn', true);
             $die = true;
         }
         
         if( $kryn->installedMods['admin']['version'] != '' && $kryn->installedMods['admin']['version'] != '0.7.0' ){
             require_once("inc/modules/admin/admin.class.php");
-            require_once("inc/modules/admin/module.class.php");
-            require_once("inc/modules/admin/db.class.php");
-            module::installModule('admin', true);
+            require_once("inc/modules/admin/adminModule.class.php");
+            require_once("inc/modules/admin/adminDb.class.php");
+            adminModule::installModule('admin', true);
             $die = true;
         }
     }

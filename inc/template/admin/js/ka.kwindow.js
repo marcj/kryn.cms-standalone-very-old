@@ -26,8 +26,16 @@ ka.kwindow = new Class({
 
     //drops a icon-link to desktop which links to this window
     dropLink: function(){
+    
+        var title = this.getFullTitle();
+        
+        
+        if( title.length > 25 ){
+            title = title.substr();
+        }
+        
         var icon = {
-            title: this.getTitle(),
+            title: title,
             params: this.params,
             module: this.module,
             code: this.code
@@ -269,6 +277,7 @@ ka.kwindow = new Class({
     },
 
 
+    /*
     checkAccess: function(){
         var _this = this;
         var req = {
@@ -284,16 +293,23 @@ ka.kwindow = new Class({
             }
         }}).post( req );
     },
+    */
 
     getTitle: function(){
-        if( this.title )
-            return this.title.get('html');
+        if( this.titleAdditional )
+            return this.titleAdditional.get('text');
+        return '';
+    },
+    
+    getFullTitle: function(){
+        if( this.titlePath )
+            return this.titlePath.get('text');
         return '';
     },
 
     setTitle: function( pTitle ){
-        this.title.set('html', pTitle);
-        ka.wm.updateWindowBar();
+        this.clearTitle();
+        this.addTitle(pTitle);
     },
 
     toBack: function(){
@@ -301,6 +317,25 @@ ka.kwindow = new Class({
         this.title.setStyle('opacity', 0.7 );
         this.inFront = false;
         //this.createOverlay();
+    },
+    
+    
+    clearTitle: function( ){
+        this.titleAdditional.empty();
+        ka.wm.updateWindowBar();
+    },
+    
+    addTitle: function( pText ){
+        
+        new Element('img', {
+            src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+        }).inject( this.titleAdditional );
+        
+        new Element('span', {
+            text: pText
+        }).inject( this.titleAdditional );
+        ka.wm.updateWindowBar();
+    
     },
 
     toFront: function(){
@@ -603,12 +638,12 @@ ka.kwindow = new Class({
                     _this.close( true );
                     return;
                 }
-                this._loadContent( res.values );
+                this._loadContent( res.values, res.path );
             }.bind(this)}).post({ module: _this.module, code: _this.code });
         }
     },
 
-    _loadContent: function(pVals){
+    _loadContent: function( pVals,pPath ){
         this.values = pVals;
         if( this.values.multi === false ){
             var win = ka.wm.checkOpen( this.module, this.code, this.id );
@@ -619,11 +654,39 @@ ka.kwindow = new Class({
                 return;
             }
         }
+        
+        var title = ka.settings.configs[ this.module ]['title']['en'];
+        
+        if( ka.settings.configs[ this.module ]['title'][window._session.lang] )
+            title = ka.settings.configs[ this.module ]['title'][window._session.lang];
+        
+        new Element('span', {
+            text: title
+        }).inject( this.titleText, 'before' );
+        
+        new Element('img', {
+            src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+        }).inject( this.titleText, 'before' );
+        
+        
+        pPath.each(function(label){
+            
+            new Element('span', {
+                text: _(label)
+            }).inject( this.titleText, 'before' );
+            
+            new Element('img', {
+                src: _path+'inc/template/admin/images/ka-kwindow-title-path.png'
+            }).inject( this.titleText, 'before' );
+            
+        }.bind(this));
 
         this.createResizer();
 
-        this.title.set('text', _(pVals.title) );
+        this.titleText.set('text', _(pVals.title) );
+        
         var _this = this;
+        
         if( pVals.type == 'iframe' ){
             this.iframe = new IFrame('iframe_kwindow_'+this.id, {
 //            this.iframe = new Element('iframe', {
@@ -640,6 +703,8 @@ ka.kwindow = new Class({
             this.iframe.set('src', _path+pVals.src);
         } else if( pVals.type == 'custom' ){
             this.renderCustom();
+        } else if( pVals.type == 'combine' ){
+            this.renderCombine();
         } else if( pVals.type == 'list' ){
             this.renderList();
         } else if( pVals.type == 'add' ){
@@ -700,6 +765,10 @@ ka.kwindow = new Class({
 
     renderAdd: function(){
         this.add = new ka.windowAdd( this );
+    },
+    
+    renderCombine: function(){
+        this.combine = new ka.windowCombine( this );
     },
 
     renderList: function(){
@@ -815,6 +884,13 @@ ka.kwindow = new Class({
                 _this.maximize();
         })
         .inject( this.win );
+        
+        
+        this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject( this.title );
+        this.titleText = new Element('span').inject( this.titlePath );
+        
+        this.titleAdditional = new Element('span').inject( this.titlePath );
+        
         
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
@@ -959,7 +1035,7 @@ ka.kwindow = new Class({
         }).inject( this.win );
 
         this.linker = new Element('img', {
-            style: 'position: absolute; left: 3px; top: 3px; cursor: pointer',
+            style: 'position: absolute; left: 3px; top: 8px; cursor: pointer',
             title: _('Create a shortcut to the desktop'),
             src: _path+'inc/template/admin/images/win-top-bar-link.png'
         })

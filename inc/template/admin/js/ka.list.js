@@ -16,9 +16,13 @@ ka.list = new Class({
         var _this = this;
         this.win.softReload = function(){
             //_this.loadPage( parseInt(_this.ctrlPage.value) ); 
-            _this.loadPage( _this.currentPage ); 
-        }
+            this.reload();
+        }.bind(this);
     },
+
+    reload: function(){
+        this.loadPage( this.currentPage ); 
+    },  
 
     load: function(){
         var _this = this;
@@ -43,6 +47,8 @@ ka.list = new Class({
     { },
 
     click: function( pColumn ){
+        if( !this.columns || !this.columns[pColumn] ) return;
+        
         pItem = this.columns[pColumn];
         
         if(!this.values.orderByDirection)
@@ -79,7 +85,45 @@ ka.list = new Class({
         this.values = pValues;
         this.values.columns = $H(pValues.columns);
 
+        
+        this.sortField = this.values.orderBy;
+        if( this.values.orderDirection )
+            this.sortDirection = this.values.orderDirection;
+        if( this.values.orderByDirection )
+            this.sortDirection = this.values.orderByDirection;
+
+        
+        this.renderLayout();
+        
+        this.renderActionbar();
+        
         /*multilang*/
+        this.renderMultilanguage();
+
+        this.renderLoader();
+        
+        this.renderFinished();
+
+        //this.loadPage(1);
+    },
+    
+    renderFinished: function(){
+        
+        if( !this.loadAlreadyTriggeredBySearch ){
+            if( this.columns )
+            	this.click( this.values.orderBy );
+            else {
+                this.loadPage(1);
+            }
+        }
+        
+    },
+    
+    renderLoader: function(){
+        this.loader = new ka.loader().inject( this.main );
+    },
+    
+    renderMultilanguage: function(){
         if( this.values.multiLanguage ){
         	
         	this.languageSelect = new Element('select', {
@@ -95,10 +139,14 @@ ka.list = new Class({
                 }).inject( this.languageSelect );
             }.bind(this));
         	
+        	this.languageSelect.value = window._session.lang;
         }
-        
-        
+    },
+    
+    renderLayout: function(){
         /* head */
+        var _this = this;
+        
         this.head = new Element('div', {
             'class': 'ka-list-head'
         }).inject( this.win.content );
@@ -156,6 +204,8 @@ ka.list = new Class({
         this.main = new Element('div',{
             'class': 'ka-list-main'
         }).inject( this.win.content );
+        
+        
         this.table = new Element('table',{
             cellspacing: 0
         }).inject( this.main );
@@ -166,14 +216,6 @@ ka.list = new Class({
         this.bottom = new Element('div',{
             'class': 'ka-list-bottom'
         }).inject( this.win.content );
-
-        this.loader = new ka.loader().inject( this.main );
-
-        this.renderActionbar();
-
-        if( !this.loadAlreadyTriggeredBySearch )
-        	this.click( _this.values.orderBy );
-        //this.loadPage(1);
     },
 
     changeLanguage: function(){
@@ -392,8 +434,10 @@ ka.list = new Class({
 	        }
         }catch(e) {}
 
-        if( this.values['export'] ){
+        if( this.values['export'] || this.values['import'] )
             this.exportNavi = this.win.addButtonGroup();
+            
+        if( this.values['export'] ){
             this.exportType = new Element('select',{
                 style: 'position: relative; top: -2px;'
             })
@@ -408,7 +452,6 @@ ka.list = new Class({
         }
 
         if( this.values['import'] ){
-//            this.importNavi = this.win.addButtonGroup();
             this.exportNavi.addButton(_('Import'), _path+'inc/template/admin/images/icons/table_row_insert.png');
         }
 
@@ -418,11 +461,22 @@ ka.list = new Class({
         if( this.getSelected() != false ){
             this.win._confirm(_('Really remove selected?'), function(res){
                 if(!res)return;
-                this.loader.show();
+                
+                if( this.loader )
+                    this.loader.show();
+                    
                 new Request.JSON({url: _path+'admin/backend/window/loadClass/removeSelected/', noCache: 1, onComplete: function(res){
-                    this.loader.hide();
-                    this.loadPage( this.currentPage );
+                    
+                    if( this.loader )
+                        this.loader.hide();
+                    
+                    if( this.combine ){
+                        this.reload();
+                    } else {
+                        this.loadPage( this.currentPage );
+                    }
                     this._deleteSuccess();
+                    
                 }.bind(this)}).post({
                     module: this.win.module,
                     code: this.win.code, 
@@ -499,6 +553,11 @@ ka.list = new Class({
         }).inject( tr );
     },
 
+
+    prepareLoadPage: function(){
+        this.tbody.empty();
+    },
+    
     loadPage: function( pPage ){
         var _this = this;
 
@@ -506,18 +565,20 @@ ka.list = new Class({
             if( pPage > this._lastItems.maxPages )
                 return;
         }
+        
         if( pPage <= 0 )
             return;
 
         if( this.lastRequest )
             this.lastRequest.cancel();
 
-        _this.tbody.empty();
+        this.prepareLoadPage();
 
-        this.loader.show();
+        if( this.loader )
+            this.loader.show();
 
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
-            _this._loadItems($H(res));
+            _this.renderItems(res);
         }}).post({ 
             module: this.win.module,
             code: this.win.code, 
@@ -531,11 +592,13 @@ ka.list = new Class({
         });
     },
 
-    _loadItems: function( pItems ){
+    renderItems: function( pItems ){
         var _this = this;
 
         this.checkboxes = [];
-        this.loader.hide();
+        
+        if( this.loader )
+            this.loader.hide();
 
         this._lastItems = pItems;
 
@@ -559,7 +622,7 @@ ka.list = new Class({
 
         _this.tempcount = 0;
         if( pItems.items ){
-            pItems.items.each(function(item){
+            Object.each(pItems.items, function(item){
                 _this.addItem( item );
                 _this.tempcount++;
             });
@@ -595,15 +658,16 @@ ka.list = new Class({
                     mykey[primary] = pItem.values[primary];
                 });
                 //if( this.values.edit ){
-                        this.checkboxes.include( new Element('input',{
+                    this.checkboxes.include( new Element('input',{
                         value: JSON.encode(mykey),
                         type: 'checkbox'
                     }).inject(td) );
                 //}
-                }
+            }
         }
         
         this.values.columns.each(function(column,columnId){
+        
             var value = pItem['values'][columnId];
 
             if( column.format == 'timestamp' ){

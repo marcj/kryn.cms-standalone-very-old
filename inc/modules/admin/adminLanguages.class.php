@@ -1,17 +1,17 @@
 <?php
 
-class languages {
+class adminLanguages {
 
 
     public function init(){
         
         switch(getArgv(4)){
             case 'getExtensionLang':
-                json( languages::getExtensionLang(getArgv('extensions')) );
+                json( self::getExtensionLang(getArgv('extensions')) );
             case 'getAllLanguages':
-                json( languages::getAllLanguages(getArgv('lang')) );
+                json( self::getAllLanguages(getArgv('lang')) );
             case 'saveAllLanguages':
-                json( languages::saveAllLanguages() );
+                json( self::saveAllLanguages() );
         }
 
     }
@@ -22,7 +22,7 @@ class languages {
         $langs = json_decode( getArgv('langs'), true );
         foreach( $langs as $key => &$mylangs ){
             if( count($mylangs) > 0 ){
-                module::saveLanguage( $key, $lang, $mylangs );
+                adminModule::saveLanguage( $key, $lang, $mylangs );
             }
         }
     }
@@ -35,9 +35,9 @@ class languages {
         $res = array(); 
         foreach( $kryn->installedMods as $key => $mod ){
             $res[ $key ]['config'] = $mod;
-            $res[ $key ]['lang'] = module::extractLanguage( $key );
+            $res[ $key ]['lang'] = adminModule::extractLanguage( $key );
             if( count($res[ $key ]['lang']) > 0 ){
-                $translate = module::getLanguage( $key, $pLang );
+                $translate = adminModule::getLanguage( $key, $pLang );
                 foreach( $res[ $key ]['lang'] as $key => &$lang ){
                     if( $translate[ $key ] != '' )
                         $lang = $translate[ $key ];

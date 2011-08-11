@@ -354,7 +354,7 @@ class windowList {
 	 * @return string
 	 */
     function sql( $pCountSql = false ){
-        global $kdb;
+        global $kdb, $cfg;
         
         $extraFields = array();
         $joins = "";
@@ -377,7 +377,7 @@ class windowList {
             if( $pCountSql == false ){
                 if( $column['type'] == 'select' && $column['relation'] != 'n-n' ){
                     $exTable = "%pfx%".$column['table'];
-                    $extraFields[] = $exTable.".".$column['table_label']." AS $key"."__label, $key";
+                    $extraFields[] = $exTable.".".$column['table_label']." AS $key"."__label";
                     //get all fields from joined table if modifier is active
                     $mod = $this->modifier;
                     if( !empty($mod) && method_exists( $this, $mod ) )
@@ -407,6 +407,11 @@ class windowList {
         
 
         if( $pCountSql == false ){
+            
+            if( $_POST['getPosition'] && ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') ){
+                $fields .= ', @i:=@i+1 as kryn_combine_rownumber ';
+            }
+        
             $sql = "
                 SELECT $table.* $fields
                 FROM $table
@@ -437,7 +442,7 @@ class windowList {
 	 * @return array
 	 */
     function getItems(){
-        global $kdb;
+        global $kdb, $cfg;
         
         $pPage = getArgv('page');
         $results['page'] = $pPage;
@@ -451,23 +456,108 @@ class windowList {
         $countSql = $this->countSql();
         $temp = dbExfetch( $countSql );
         $results['maxItems'] = $temp['ctn'];
+        
         if( $temp['ctn'] > 0 )
             $results['maxPages'] = ceil($temp['ctn']/$this->itemsPerPage);
         else
             $results['maxPages'] = 0;
 
-        /* list sql */
-        $listSql = "
-            ".$this->listSql."
-            
-            
-            ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
-            LIMIT $end OFFSET $start
-            ";
+
+        /*if( $_POST['primary'] ){
         
+            $unique = "AND 2=2 ";
+            foreach( $_POST['primary'] as $key => $val ){
+                $unique .= " AND %pfx%".$this->table.".".esc($key,2)." = '".esc($val)."'";
+            }
+        
+            $end = 1;
+            $start = 0;
+        
+        }*/
+        
+        if( $_POST['getPosition'] ){
+        
+            $limit = "";
+            $itemsBefore = array();
+            $itemsAfter = array();
+            
+            $fields = implode( ',', $this->primary );
+            
+            //SELECT *, (@rank:=@rank+1) AS counter FROM `kryn_system_settings` INNER JOIN (SELECT @rank :=0) b
+            //or
+            
+            $sql = "
+                ".$this->listSql."
+                $unique
+                ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection;
+            
+            $aWhere = array();
+            
+            $table = database::getTable( $this->table );
+            $options = database::getOptions( $table );
+    
+            $selected = getArgv('getPosition');
+            
+            foreach( $this->primary as $primary ){
+
+                $val = $selected[ $primary ];
+                if( $options[$primary]['escape'] == 'int' ){
+                    $sqlInsert .= ($val+0);
+                } else {
+                    $sqlInsert .= "'" . esc($val) . "'";
+                }
+                
+                $aWhere[] = "t.$primary = ".$sqlInsert;
+            }
+            
+            $where = implode( ' AND ', $aWhere );
+            
+            if( $cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli' ){
+                dbExec('set @i = 0');
+                $sql = 'SELECT * FROM ('.$sql.') as t WHERE '.$where;
+            }
+            
+            $res = dbExfetch( $sql, 1 );
+            
+            //klog('debug', print_r($res,true));
+            json( $res['kryn_combine_rownumber']+0 );
+            
+            /*
+            SELECT * FROM 
+               (SELECT '.$fields.', @i:=@i+1 as rownumber FROM %pfx%'.$this->table.') as t
+            WHERE*/
+        
+        } else {
+            
+            if( !getArgv('page') ){
+            
+                $from = getArgv('from')+0;
+                $max = getArgv('max')+0;
+                $limit = " LIMIT $max OFFSET $from";
+                
+            } else {
+                //default behaviour
+                $limit = " LIMIT $end OFFSET $start";
+            }
+
+
+            $listSql = "
+            SELECT * FROM (
+                ".$this->listSql."
+                $unique
+                ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
+            ) as t
+            $limit";
+            
+        }
+            
+        //klog('huhu', $listSql);
         $res = dbExec( $listSql );
+        
+        $found = false;
 
         while( $item = dbFetch( $res )){
+        
             foreach( $this->columns as $key => $column ){
                 if( $kdb->type == 'postgresql' ){
                     if( $column['type'] == 'select' && $column['relation'] == 'n-n' ){
@@ -487,7 +577,6 @@ class windowList {
             $mod = $this->modifier;
             if( !empty($mod) && method_exists( $this, $mod ) )
                 $_res = $this->$mod( $_res );
-                
                 
             if( $res != null )
                 $results['items'][] = $_res;

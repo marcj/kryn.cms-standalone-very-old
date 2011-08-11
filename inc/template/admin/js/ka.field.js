@@ -16,7 +16,7 @@ ka.field = new Class({
 
         	this.title = new Element('td', {
         		'class': 'ka-field-tdtitle',
-        		width: 180
+        		width: (this.field.tableitem_title_width)?this.field.tableitem_title_width:180
         	}).inject( this.tr );
         	
         	this.main = new Element('td', {
@@ -637,7 +637,7 @@ ka.field = new Class({
                      return;
                   var selOptionClone = selOption.clone(true).inject(selOption.getPrevious('option')[0], 'before');
                   selOption.destroy();
-                  logger(this.getValue());
+                  //logger(this.getValue());
                }.bind(this)
                
             ).inject(td4); 
@@ -658,7 +658,7 @@ ka.field = new Class({
                         return;
                      var selOptionClone = selOption.clone(true).inject(selOption.getNext('option')[0], 'after');
                      selOption.destroy();
-                     logger(this.getValue());
+                     //logger(this.getValue());
                   }.bind(this)            
             
             ).inject(td4);                      
@@ -775,7 +775,7 @@ ka.field = new Class({
 */
             //initTiny( this.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
             } catch(e){
-                logger( e );
+                //logger( e );
             }
         }
 

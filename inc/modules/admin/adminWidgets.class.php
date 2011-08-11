@@ -12,7 +12,7 @@
 
 
 
-class widgets {
+class adminWidgets {
 
     public static function init(){
         switch( getArgv(3) ) {

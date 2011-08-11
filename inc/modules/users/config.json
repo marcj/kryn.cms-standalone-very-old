@@ -99,7 +99,7 @@
     "users": {
       "title": "Users",
       "icon": "user.png",
-      "type": "list",
+      "type": "combine",
       "class": "usersAdminList",
       "defaultWidth": 700,
       "childs": {
@@ -787,13 +787,13 @@
       "code": [
         "text",
         "",
-        "DB_INDEX",
+        "-",
         false
       ],
       "access": [
         "enum",
         "'0', '1'",
-        "DB_INDEX",
+        "-",
         false
       ],
       "prio": [
