@@ -595,11 +595,13 @@ ka.windowEdit = new Class({
             })
             .inject( this.actions );
     
-            this.save = new ka.Button(_('Save and close'))
-            .addEvent('click', function(){
-                _this._save( true );
-            })
-            .inject( this.actions );
+            if( this.values.versioning == true ){
+                this.save = new ka.Button(_('Save and publish'))
+                .addEvent('click', function(){
+                    _this._save( false, true );
+                })
+                .inject( this.actions );
+            }
         
         }
     },
