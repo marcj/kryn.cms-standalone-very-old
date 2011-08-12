@@ -119,21 +119,11 @@ class adminDb {
     function _updateTable( $pTable, $pFields ){
         global $cfg;
         
+        $column = array();
+        $columns = database::getColumns($pTable);
+            
         foreach( $pFields as $fName => $fOptions ){
 
-            $column = array();
-            
-            $columns = database::getColumns($pTable);
-            /*
-            $columns = dbExfetch( "SHOW COLUMNS FROM $pTable", DB_FETCH_ALL );
-            if( count($columns) > 0 ){
-                foreach( $columns as $mycolumn ){
-                    if( $mycolumn['Field'] == $fName )
-                        $column = $mycolumn;
-                }
-            }*/
-
-            //exist ?
             if( !array_key_exists($fName, $columns) ){ //$column['Field'] != $fName ){
                 self::addColumn( $pTable, $fName, $fOptions );
             } else {
@@ -141,24 +131,44 @@ class adminDb {
                 //
                 $isType = $columns[$fName]['type'];
                 $nType = $fOptions[0];
+                
                 if( strpos($isType, '(') !== false ){
                     $temp = explode('(', $isType);
                     $isType = $temp[0];
+                    if( $isType == 'varchar' )
+                        $varcharLength = str_replace(')', '', $temp[1]);
                 }
                 if( $isType == 'integer' )
                     $isType = 'int';
 
-                if( $isType != $nType ){
+                if( $pTable == 'kryn_publication_news_category' ){
+                }
+                if( $isType != $nType || 
+                    ($isType == 'varchar' && $varcharLength != $fOptions[1] ) ){
                     //different field type => alter this field
-                    
+
                     self::updateIndexes( $pTable, $fName, false ); //delete index if exists
-                    
+
                     $sql = self::addColumn( $pTable, $fName, $fOptions, 2 );
                     
-                    dbExec('ALTER TABLE '.$pTable.' ALTER COLUMN '.$sql);
+                    if( $cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli' ){
+                        $sql = 'ALTER TABLE '.$pTable.' CHANGE COLUMN '.$fName.' '.$sql;
+                    } else {
+                        $sql = 'ALTER TABLE '.$pTable.' ALTER COLUMN '.$fName.' '.$sql;
+                    }
+                    dbExec($sql);
                 }
             }
         }
+        
+        foreach( $columns as $fieldName => &$field ){
+            if( !array_key_exists($fieldName, $pFields) ){
+                //there exists a column in the database, which isn't in the config.json
+                //delete it
+                dbExec("ALTER TABLE $pTable DROP $fieldName");
+            }
+        }
+        
     }
 
     public static function _installTable( $pTable, $pFields ){
