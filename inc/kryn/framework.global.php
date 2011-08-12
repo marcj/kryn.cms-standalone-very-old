@@ -50,7 +50,8 @@ function getArgv( $pVal, $pEscape = false ){
  * @param mixed
  */
 function json( $pValue ){
-    @ob_end_clean();
+    ob_end_clean();
+    ob_clean();
     //header('Content-Type: application/json');
     //header('HTTP/1.1 200 OK');
     header('Content-Type: text/javascript; charset=utf-8');
