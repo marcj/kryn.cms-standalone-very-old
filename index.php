@@ -128,7 +128,6 @@ if( $_SERVER['SERVER_PORT'] != 80 ){
 $_REQUEST['lang'] = ($_GET['lang']) ? $_GET['lang'] : $_POST['lang'];
 
 $kryn->prepareUrl();
-
 # Javascript
 if($_REQUEST['js'] == 'global.js'){
     $cfg['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );

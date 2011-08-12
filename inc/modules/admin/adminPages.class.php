@@ -1097,16 +1097,38 @@ class adminPages {
         
         
         $oldPage = dbTableFetch("system_pages", "rsn = ".($rsn+0), 1);
-        if( in_array('url', $updateArray) && $oldPage['url'] != getArgv('url',1) ){
+        
+        
+        $kcache['realUrl'] = kryn::getcache( 'urls_'.$oldPage['domain_rsn'] );
+        $oldRealUrl = $kcache['realUrl']['rsn'][ 'rsn='.$rsn ];
+        
+        if( in_array('url', $updateArray) && $oldPage['url'] != getArgv('url') && getArgv('newAlias') ){
             
-            $kcache['realUrl'] = kryn::getcache( 'urls_'.$oldPage['domain_rsn'] );
-            $oldRealUrl = $kcache['realUrl']['rsn'][ 'rsn='.$rsn ];
+            
+            if( getArgv('newAliasWithSub') ){
+                $oldRealUrl .= '/%';
+            }
             
             $existRow = dbExfetch("SELECT rsn FROM %pfx%system_urlalias WHERE to_page_rsn=".$page." AND url = '".$oldRealUrl."'", 1);
          	
             if( $existRow['rsn']+0 == 0 )
                 dbInsert('system_urlalias', array( 'domain_rsn' => $oldPage['domain_rsn'], 'url' => $oldRealUrl, 'to_page_rsn' => $rsn));
         	
+        }
+        
+        if( $oldPage['url'] != getArgv('url') ){
+            $indexedPages =& cache::get('systemSearchIndexedPages');
+            
+            $need = $rsn.'_';
+            foreach( $indexedPages as $key => &$index ){
+                if( substr($key,0,strlen($need)) == $need ){
+                    unset($indexedPages[$key]);
+                }
+            }
+            
+            dbDelete('system_search', 'page_rsn	= '.$rsn);
+            systemSearch::cacheAllIndexedPages();
+            cache::set('systemSearchIndexedPages', $indexedPages);
         }
     
         dbUpdate('system_pages', array('rsn' => $rsn), $updateArray);
@@ -1430,7 +1452,7 @@ class adminPages {
         
         $pDomainRsn = $pDomainRsn+0;
         
-        $resu = dbExec( "SELECT rsn, title, url, type, link FROM %pfx%system_pages WHERE domain_rsn = $pDomainRsn AND prsn = 0"  );
+        $resu = dbExec( "SELECT rsn, title, url, type, link FROM %pfx%system_pages WHERE domain_rsn = $pDomainRsn AND prsn = 0" );
         $res = array( 'url' => array(), 'rsn' => array());
         
         $domain = kryn::getDomain( $pDomainRsn );

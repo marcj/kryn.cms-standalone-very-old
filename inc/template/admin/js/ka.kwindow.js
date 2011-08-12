@@ -203,6 +203,8 @@ ka.kwindow = new Class({
         var bottom = new Element('div', {
             'class': 'ka-kwindow-prompt-bottom'
         }).inject( main );
+        
+        main.bottom = bottom;
 
         var ok = false;
 
@@ -274,6 +276,47 @@ ka.kwindow = new Class({
         main.center();
         
         return main;
+    },
+
+
+    newDialog: function( pText ){
+    
+        this.toDependMode();
+        
+        var main = new Element('div', {
+            'class': 'ka-kwindow-prompt',
+            styles: {
+                opacity: 0.95
+            }
+        }).inject( this.border );
+        
+        main.content = new Element('div', {
+            html: pText,
+            'class': 'ka-kwindow-prompt-text'
+        }).inject( main );
+        
+        main.close = function(){
+            main.destroy();
+            this.removeDependMode();
+        }.bind(this);
+        
+        main.bottom = new Element('div', {
+            'class': 'ka-kwindow-prompt-bottom'
+        }).inject( main );
+    
+        main.center = function(){
+            var size = this.border.getSize();
+            var dsize = main.getSize();
+            var left = (size.x.toInt()/2 - dsize.x.toInt()/2);
+            var mtop = (size.y.toInt()/2 - dsize.y.toInt()/2);
+            main.setStyle('left', left);
+            main.setStyle('top', mtop);
+        }.bind(this);
+        
+        main.center();
+        
+        return main;
+    
     },
 
 

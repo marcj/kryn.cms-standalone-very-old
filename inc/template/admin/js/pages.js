@@ -264,7 +264,7 @@ var admin_pages = new Class({
     	if( this.page.alias.length == 0 ) return;
     	
     	new Element('div', {
-    		text: _('For this page exists some URL aliases.'),
+    		text: _('There are URL aliases for this page'),
     		style: 'margin: 3px 0px; color: gray;'
     	}).inject(this.urlAliase);
     	
@@ -2987,6 +2987,57 @@ var admin_pages = new Class({
     },
 
     save: function( pAndClose, pAndPublish ){
+        
+        var req = this.retrieveData( pAndClose );
+        
+        if( pAndPublish == true ){
+            req.andPublish = 1;
+        } 
+        
+        if( pAndPublish && this.page.url != req.url ){
+            var obj = this.win.newDialog(_('You have changed the URL. Should the system creates a new alias for the old one?'));
+            
+            
+            new ka.Button(_('No'))
+            .addEvent('click', function(){
+            
+                obj.close();
+                this._save( req, pAndPublish );
+                
+            }.bind(this))
+            .inject( obj.bottom );
+            
+            new ka.Button(_('Yes'))
+            .addEvent('click', function(){
+            
+                obj.close();
+                req.newAlias = 1;
+                this._save( req, pAndPublish );
+                
+            }.bind(this))
+            .inject( obj.bottom );
+            
+            
+            new ka.Button(_('Yes with subpages'))
+            .addEvent('click', function(){
+            
+                obj.close();
+                req.newAlias = 1;
+                req.newAliasWithSub = 1;
+                this._save( req, pAndPublish );
+                
+            }.bind(this))
+            .inject( obj.bottom );
+            
+            obj.center();
+            
+        } else {
+            this._save( req, pAndPublish );
+        }
+    },
+    
+    _save: function( pReq, pAndPublish ){
+            
         if( pAndPublish )
             this.saveButtonPublish.startTip( _('Save ...') );
         else
@@ -2995,14 +3046,8 @@ var admin_pages = new Class({
         if( this.lastSaveRequest ) this.lastSaveRequest.cancel();
 
         this.overlayStart();
-
         this.lastSaveWasPublished = pAndPublish;
-
-        var req = this.retrieveData( pAndClose );
-        if( pAndPublish == true ){
-            req.andPublish = 1;
-        }
-
+    
         this.lastSaveRequest = new Request.JSON({url: _path+'admin/pages/save', noCache: 1, onComplete: function(res){
 
             this.overlay.destroy();
@@ -3023,7 +3068,7 @@ var admin_pages = new Class({
                 this.toggleSearchIndexButton( this.page.type);
             }
             
-            if( req.andPublish != 1 ){
+            if( pReq.andPublish != 1 ){
                 this.loadedVersion = res.version_rsn;
             } else {
                 this.loadedVersion = '-';
@@ -3032,10 +3077,7 @@ var admin_pages = new Class({
             this.loadVersions();
             this.loadAliases();
             
-            //if( pAndPublish )
-            //	this.createSearchIndexForPage();
-            
-        }.bind(this)}).post(req);
+        }.bind(this)}).post( pReq );
     },
 
     viewType: function( pType, pOnlyTabs ){

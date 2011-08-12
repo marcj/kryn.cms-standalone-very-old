@@ -204,7 +204,7 @@ class systemSearch extends baseModule{
         
         if( getArgv(1) == 'admin' || kryn::$page['rsn']+0 == 0 ) return;
         
-        self::$indexedPages = kryn::getCache('systemSearchIndexedPages');
+        self::$indexedPages =& cache::get('systemSearchIndexedPages');
         $indexedPages =& self::$indexedPages;
         
         $indexedContent = self::stripContent( $pContent );
@@ -217,8 +217,8 @@ class systemSearch extends baseModule{
         if( $indexedPages[$hashkey] && $b === "" )
             $b = '/';
         
-        self::$pageUrl = $a; 
-        
+        self::$pageUrl = $a;
+
         if( $indexedPages[$hashkey] && $indexedPages[$hashkey]['md5'] == $contentMd5 && $b == $a && self::$forceSearchIndex === false ){
     
             return self::exitPage('Page with this content is already indexed!', 3);

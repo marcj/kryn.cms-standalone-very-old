@@ -1597,6 +1597,7 @@ class kryn extends baseModule {
     
         
         if( !$page && $pWithRedirect && $oriPage['access_need_via'] == 0 ){
+        
             if( $oriPage['access_redirectto']+0 > 0 )
                 kryn::redirectToPage( $oriPage['access_redirectto'] );
         }
@@ -1840,6 +1841,7 @@ class kryn extends baseModule {
         if( getArgv(1) == 'admin' ) return;
 
         $url = kryn::getRequestPageUrl();
+
         tAssign( 'url', $url );
         
         $domain = kryn::$domain['rsn'];
@@ -1852,28 +1854,57 @@ class kryn extends baseModule {
             //adminPages::updatePageCaches( $domain );
         }
         
-        
         //extract extra url attributes
-        $found = false;
-        $possibleUrl = $url;
+        $found = $end = false;
+        $possibleUrl = $next = $url;
         $oriUrl = $possibleUrl;
+        
         do {
+            
             $rsn = $kcache['realUrl']['url'][ 'url='.$possibleUrl ];
+            
             if( $rsn > 0 || $possibleUrl == '' ){
                 $found = true;
-            } else {
+            } else if ( !$found ){
                 $rsn = $kcache['realUrl']['alias'][ $possibleUrl ];
-
                 if( $rsn > 0 ){
                     $found = true;
                     //we found a alias
                     kryn::redirectToPage($rsn);
-                    
                 } else {
-                    $possibleUrl = substr( $possibleUrl, 0, strrpos($possibleUrl,'/'));
+                    $possibleUrl = $next;
                 }
             }
-        } while( !$found );
+            
+            if( $next == false ){
+                $end = true;
+            } else {
+                //maybe we found a alias in the parens with have a alias with "withsub"
+                $aliasRsn = $kcache['realUrl']['alias'][ $next.'/%' ];
+                
+                if( $aliasRsn ){
+                
+                    //links5003/test => links5003_5/test
+                    
+                    $aliasPageUrl = $kcache['realUrl']['rsn'][ 'rsn='.$aliasRsn ];
+                    
+                    $urlAddition = str_replace( $next, $aliasPageUrl, $url);
+
+                    $toUrl = $urlAddition;
+                    
+                    //go out, and redirect the user to this url
+                    kryn::redirect($urlAddition);
+                    $end = true;
+                }
+            }
+            
+            $pos = strrpos($next,'/');
+            if( $pos !== false )
+                $next = substr( $next, 0, $pos);
+            else
+                $next = false;
+            
+        } while( !$end );
         
         $diff = substr( $url, strlen( $possibleUrl ), strlen( $url ));
 
@@ -2099,6 +2130,7 @@ class kryn extends baseModule {
     
         if( kryn::$domain['startpage_rsn'] == $page['rsn'] && !kryn::$isStartpage ){
             systemSearch::toBlacklist();
+        
             kryn::redirect( kryn::$baseUrl );
         }
         
@@ -2208,7 +2240,7 @@ class kryn extends baseModule {
         $content = str_replace('\[[', '[[', $content);
         kryn::replacePageIds( $content );
         $content = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', $content);
-        kryn::$pageHtml = $content;
+        kryn::$pageHtml =& $content;
         
         foreach( $modules as $key => &$mod ){
             $modules[ $key ] = NULL;
