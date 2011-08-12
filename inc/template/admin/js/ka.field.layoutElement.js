@@ -65,11 +65,14 @@ ka.field_layoutElement = new Class({
 	setValue: function( pValue ){
 		
 		var value = pValue;
-		try {
-			if( $type(pValue) == 'string' )
+		
+		if( $type(pValue) == 'string' ){
+            var need = '{"contents":{';
+            if( pValue.substr(0, need.length) == need ){
 				value = JSON.decode( pValue );
-		} catch( e ){
-			value = {contents: {1: [{type:'text', 'content': pValue}]}};
+            } else {
+                value = {contents: {1: [{type:'text', 'content': pValue}]}};
+            }
 		}
 		
 		if( value.template != this.select.value ){
