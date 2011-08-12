@@ -205,7 +205,7 @@ class adminDb {
     		case 'mysql':
     			dbExec('DROP INDEX '.$pName.' ON '.$pTable);
     			break;
-    		case 'postgres':
+    		case 'postgresql':
     		case 'sqlite':
     			dbExec('DROP INDEX IF EXISTS '.$pName);
     			break;

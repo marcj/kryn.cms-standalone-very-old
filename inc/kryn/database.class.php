@@ -496,6 +496,7 @@ class database {
                         return $row['lastid'];
                 }
         	}
+        	return false;
         }
         
 
@@ -533,7 +534,7 @@ class database {
         }
 
         public function exec( $pQuery ){
-            
+
             if( $pQuery == "" )
                 return false;
 
@@ -554,19 +555,19 @@ class database {
                 try {
                     switch( $this->type ){
                         case 'sqlite':
-                            $res = sqlite_query( $this->connection, $pQuery );
+                            $res = @sqlite_query( $this->connection, $pQuery );
                             break;
                         case 'mysql':
-                            $res = mysql_query( $pQuery, $this->connection );
+                            $res = @mysql_query( $pQuery, $this->connection );
                             break;
                         case 'mysqli':
-                            $res = mysqli_query( $this->connection, $pQuery );
+                            $res = @mysqli_query( $this->connection, $pQuery );
                             break;
                         case 'mssql':
-                            $res = mssql_query( $pQuery, $this->connection );
+                            $res = @mssql_query( $pQuery, $this->connection );
                             break;
                         case 'postgresql':
-                            $res = pg_query( $this->connection, $pQuery );
+                            $res = @pg_query( $this->connection, $pQuery );
                             break;
                     }
                 } catch( Exception $e ){

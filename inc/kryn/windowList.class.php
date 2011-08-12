@@ -354,7 +354,7 @@ class windowList {
 	 * @return string
 	 */
     function sql( $pCountSql = false ){
-        global $kdb, $cfg;
+        global $kdb, $cfg, $user;
         
         $extraFields = array();
         $joins = "";
@@ -407,10 +407,6 @@ class windowList {
         
 
         if( $pCountSql == false ){
-            
-            if( $_POST['getPosition'] && ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') ){
-                $fields .= ', @i:=@i+1 as kryn_combine_rownumber ';
-            }
         
             $sql = "
                 SELECT $table.* $fields
@@ -462,19 +458,6 @@ class windowList {
         else
             $results['maxPages'] = 0;
 
-
-        /*if( $_POST['primary'] ){
-        
-            $unique = "AND 2=2 ";
-            foreach( $_POST['primary'] as $key => $val ){
-                $unique .= " AND %pfx%".$this->table.".".esc($key,2)." = '".esc($val)."'";
-            }
-        
-            $end = 1;
-            $start = 0;
-        
-        }*/
-        
         if( $_POST['getPosition'] ){
         
             $limit = "";
@@ -482,9 +465,6 @@ class windowList {
             $itemsAfter = array();
             
             $fields = implode( ',', $this->primary );
-            
-            //SELECT *, (@rank:=@rank+1) AS counter FROM `kryn_system_settings` INNER JOIN (SELECT @rank :=0) b
-            //or
             
             $sql = "
                 ".$this->listSql."
@@ -512,20 +492,26 @@ class windowList {
             
             $where = implode( ' AND ', $aWhere );
             
-            if( $cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli' ){
-                dbExec('set @i = 0');
-                $sql = 'SELECT * FROM ('.$sql.') as t WHERE '.$where;
+            $res = dbExec( $sql );
+            
+            $c = 1;
+            $found = false;
+            while( $row = dbFetch($res) ){
+                
+                $found = true;
+                foreach( $this->primary as $primary ){
+                    if( $row[$primary] != $selected[$primary] )
+                        $found = false;
+                }
+                
+                if( $found == true ){
+                    json( $c );
+                }
+            
+                $c++;
             }
             
-            $res = dbExfetch( $sql, 1 );
-            
-            //klog('debug', print_r($res,true));
-            json( $res['kryn_combine_rownumber']+0 );
-            
-            /*
-            SELECT * FROM 
-               (SELECT '.$fields.', @i:=@i+1 as rownumber FROM %pfx%'.$this->table.') as t
-            WHERE*/
+            json( 1 );
         
         } else {
             
