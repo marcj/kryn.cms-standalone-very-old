@@ -972,6 +972,10 @@ class kryn extends baseModule {
         $cfg['templatepath'] = $cfg['path']."inc/template";
         $cfg['path'] .= $cfg['upfx'];
         
+        if( !$cfg['sessiontime'] ){
+            $cfg['sessiontime'] = 3600;
+        }
+        
         $this->cfg = $cfg;
         tAssign('path', $cfg['path']);
         tAssign("cfg", $cfg);
