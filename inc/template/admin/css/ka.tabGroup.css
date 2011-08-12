@@ -16,7 +16,8 @@
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-topright: 5px;
     min-width: 20px;
-    height: 28px;
+    height: 27px;
+    top: 1px;
     background-color: #bbb;
     background-image: url(../images/win-actionbar-groupButton-bg.png);
     background-repeat: no-repeat;
