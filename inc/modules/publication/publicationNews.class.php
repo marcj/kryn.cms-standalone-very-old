@@ -135,7 +135,7 @@ class publicationNews
                     tAssign('currentCommentPage', $page);
                     
                     // Fetch comments
-                    $comments = dbTableFetch('publication_comments', -1, "parent_rsn = $rsn LIMIT $start, $itemsPerPage");
+                    $comments = dbTableFetch('publication_comments', -1, "parent_rsn = $rsn LIMIT $itemsPerPage OFFSET $start");
                     if($comments !== false)
                         tAssign('comments', $comments);
                 }
