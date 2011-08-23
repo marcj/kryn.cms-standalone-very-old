@@ -281,13 +281,10 @@ ka.kwindow = new Class({
 
     newDialog: function( pText ){
     
-        this.toDependMode();
+        this.createOverlay();
         
         var main = new Element('div', {
-            'class': 'ka-kwindow-prompt',
-            styles: {
-                opacity: 0.95
-            }
+            'class': 'ka-kwindow-prompt'
         }).inject( this.border );
         
         main.content = new Element('div', {
@@ -297,7 +294,7 @@ ka.kwindow = new Class({
         
         main.close = function(){
             main.destroy();
-            this.removeDependMode();
+            this.deleteOverlay();
         }.bind(this);
         
         main.bottom = new Element('div', {
@@ -404,7 +401,9 @@ ka.kwindow = new Class({
             this.inFront = true;
             ka.kwindowZIndex++;
             this.border.setStyle('z-index', ka.kwindowZIndex);
-            this.deleteOverlay();
+            
+            //this.deleteOverlay();
+            
             ka.wm.updateWindowBar();
             return true;
         }
@@ -859,7 +858,7 @@ ka.kwindow = new Class({
         var _this = this;
 
         this.border = new Element( 'div', {
-            'class': 'kwindow-border'
+            'class': 'kwindow-border  mooeditable-dialog-container'
         })
         .addEvent('mousedown', function(e){
             if( _this.mouseOnShadow != true)
@@ -1136,14 +1135,14 @@ ka.kwindow = new Class({
         this.overlay = new Element('div', {
             'class': 'ka-kwindow-overlay',
             styles: {
-                opacity: 0.2,
+                opacity: 0.5,
                 position: 'absolute',
-                'background-color': '#aaa',
-                left: 0, right: 0, 'top': 22, bottom: 1
+                'background-color': '#888',
+                left: 0, right: 0, 'top': 0, bottom: 0
             }
         });
         if( pForce || this.forceOverlay || (this.values && this.values.type == 'iframe') )
-            this.overlay.inject( this.content );
+            this.overlay.inject( this.border );
     },
 
     deleteOverlay: function(){

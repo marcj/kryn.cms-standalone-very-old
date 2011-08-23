@@ -6,8 +6,10 @@ ka.layoutContent = new Class({
     isRemoved: false,
 	
     initialize: function( pContent, pContainer, pLayoutBox ){
+        
         this.content = $H(pContent);
         this.container = pContainer;
+        
         this.w = this.container.getWindow();
         this.editMode = 0;
         this.layoutBox = pLayoutBox;
@@ -28,8 +30,62 @@ ka.layoutContent = new Class({
         	this.noAccess = true;
         }
 
-        this.renderBox();
+        this.renderToolbar();
 
+        this.renderBox();
+    },
+    
+    renderToolbar: function(){
+    
+        this.toolbar = new Element('div', {
+            'class': 'ka-layoutContent-toolbar SilkTheme'
+        })
+        .addEvent('mousedown', function(e){
+            if( e.target && ( e.target.get('tag') != 'input' && e.target.get('tag') != 'select') )
+                e.preventDefault();
+        })
+        .addEvent('click', function(e){
+            e.stopPropagation();
+        })
+        .inject( this.w.document.body );
+        
+        this.toolbarArrow = new Element('img', {
+            src: _path+'inc/template/admin/images/ka-tooltip-corner-top.png',
+            'class': 'ka-layoutContent-toolbar-arrow'
+        }).inject( this.toolbar );
+    
+        this.toolbarWysiwygContainer = new Element('div').inject( this.toolbar );
+        this.toolbarTitleContainer = new Element('div', {
+            'class': 'ka-layoutContent-toolbar-title'
+        }).inject( this.toolbar );
+    
+    },
+    
+    showToolbar: function(){
+    
+        this.toolbar.setStyle('display', 'block');
+        
+        this.positionToolbar();
+    },
+    
+    positionToolbar: function(){
+
+        var pos = this.main.getPosition( this.w.document.body );
+        
+        var pos = {
+            'left': pos.x,
+            'top': pos.y
+        };
+        
+        pos['top'] -= this.toolbar.getSize().y+20;
+        
+        this.toolbar.setStyles(pos);
+    
+    },
+    
+    hideToolbar: function(){
+        
+        this.toolbar.setStyle('display', '');
         
     },
 
@@ -49,38 +105,36 @@ ka.layoutContent = new Class({
         this.main = new Element('div', {
             'class': 'ka-layoutContent-main'
         }).inject( toElement, pos );
+        
+        this.window = this.main.getWindow();
 
-        var _this = this;
         this.main.addEvent('mouseover', function(){
-            /*
-            _this.setBubbleContent();
-            */this.pluginChooser
-
-            _this.options.set('tween', {onComplete: function(){}});
-            _this.options.tween('opacity', 1);
-            
-        });
+            this.options.tween('opacity', 1);
+        }.bind(this));
 
         this.main.addEvent('click', function(e){
             /*_this.hideBubbleBox();*/
-            _this.select();
+            this.select();
         	e.stop();
             e.stopPropagation();
-        });
+        }.bind(this));
 
         this.main.addEvent('mouseout', function(){
-            _this.options.tween('opacity', 0);
-            /*_this.hideBubbleBox();*/
-        });
+            this.options.tween('opacity', 0);
+        }.bind(this));
 
         this.main.store( 'layoutContent', this );
         this.main.layoutContent = this;
 
-        this.title = new Element('div', {
+        /*this.title = new Element('div', {
             'class': 'ka-layoutContent-title'
         })
-        .inject( this.main );
-
+        .inject( this.toolbarTitleContainer );*/
+        
+        this.body = new Element('div', {
+            'class': 'ka-layoutContent-div'
+        }).inject( this.main );
+        
         this.options = new Element('div', {
             'class': 'ka-layoutContent-options',
             styles: {
@@ -88,9 +142,33 @@ ka.layoutContent = new Class({
             }
         })
         .inject( this.main );
+        
+        this.iTitle = new Element('input', {
+            'class': 'ka-normalize ka-layoutContent-title'
+        }).inject( this.toolbarTitleContainer );
+        
+        this.sType = new ka.Select().inject( this.toolbarTitleContainer );
+        document.id(this.sType).setStyle('width', 65);
+        
+        Object.each( this.langs, function(item, id){
+            this.sType.add( id, item );
+        }.bind(this));
+        
+        
+        this.sTemplate = new ka.Select().inject( this.toolbarTitleContainer );
+        document.id(this.sTemplate).setStyle('width', 65);
+        
+        this.sTemplate.add( '-', _('-- no layout --') );
 
-        this.titleType = new Element('span', {
-        }); //.inject( this.options );
+        Object.each( ka.settings.contents, function(la, key){
+            
+            this.sTemplate.addSeparator( key );
+             
+            Object.each( la, function( layoutFile,layoutTitle ){
+                this.sTemplate.add( layoutFile, _(layoutTitle) );
+            }.bind(this))
+
+        }.bind(this));
 
         this.optionsTemplate = new Element('span', {
         });
@@ -115,10 +193,6 @@ ka.layoutContent = new Class({
 
         new Element('div', {style: 'clear: both'}).inject( this.options );
 
-        this.body = new Element('div', {
-            'class': 'ka-layoutContent-div'
-        }).inject( this.main );
-
         this.body.addEvent('click', function(){
             //if( this.editMode == 0 )
                 //this.toggleEdit();
@@ -126,9 +200,7 @@ ka.layoutContent = new Class({
 
         this.renderTitleActions();
 
-        this.title.getElements('img').setStyle('opacity', 0.5);
-
-        new Element('div', {style: 'clear: both; height: 1px;'}).inject( this.title );
+//        new Element('div', {style: 'clear: both; height: 1px;'}).inject( this.title );
 
         this.setDivContent();
         if( this.content['new'] ||this.content.toEdit ){
@@ -180,12 +252,11 @@ ka.layoutContent = new Class({
 		        .addEvent('click', this.remove.bindWithEvent(this))
 		        .inject( this.optionsImg );
 	        }
-
-	        new Element('img', {
-	            src: p+'page_paste.png',
-	            title: _('Paste')
+	        
+	        this.hideImg = new Element('img', {
+	            src: p+'lightbulb.png',
+	            title: _('Hide/Unhide')
 	        })
-	        .addEvent('click', this.pasteAfter.bindWithEvent(this))
 	        .inject( this.optionsImg );
 	
 	        new Element('img', {
@@ -196,17 +267,24 @@ ka.layoutContent = new Class({
 	        .inject( this.optionsImg );
 	
 	        new Element('img', {
-	            src: p+'arrow_down.png',
-	            title: _('Move down')
+	            src: p+'page_paste.png',
+	            title: _('Paste')
 	        })
-	        .addEvent('click', this.toDown.bindWithEvent(this))
+	        .addEvent('click', this.pasteAfter.bindWithEvent(this))
 	        .inject( this.optionsImg );
-	
+	        
 	        new Element('img', {
 	            src: p+'arrow_up.png',
 	            title: _('Move up')
 	        })
 	        .addEvent('click', this.toUp.bindWithEvent(this))
+	        .inject( this.optionsImg );
+	
+	        new Element('img', {
+	            src: p+'arrow_down.png',
+	            title: _('Move down')
+	        })
+	        .addEvent('click', this.toDown.bindWithEvent(this))
 	        .inject( this.optionsImg );
 	
 	
@@ -221,12 +299,6 @@ ka.layoutContent = new Class({
 	        })
 	        .inject( this.optionsImg );
 	
-	        
-	        this.hideImg = new Element('img', {
-	            src: p+'lightbulb.png',
-	            title: _('Hide/Unhide')
-	        })
-	        .inject( this.optionsImg );
 	        
 	        if( !this.noAccess ){
 	        	this.hideImg.addEvent('click', this.toggleHide.bindWithEvent(this))
@@ -255,8 +327,6 @@ ka.layoutContent = new Class({
         var previous = this.main.getPrevious();
         if( previous )
             this.main.inject( previous, 'before' );
-        if( this.content.type == 'text' )
-            this.type2Text(true);
     },
 
     toDown: function(e){
@@ -264,8 +334,6 @@ ka.layoutContent = new Class({
         var next = this.main.getNext();
         if( next )
             this.main.inject( next, 'after' );
-        if( this.content.type == 'text' )
-            this.type2Text(true);
     },
 
     copy: function( e ){
@@ -326,6 +394,17 @@ ka.layoutContent = new Class({
 
     toEditMode: function(){
     	
+    	this.sType.setValue( this.content.type );
+    	this.sTemplate.setValue( this.content.template );
+    	this.iTitle.value = this.content.title;
+    	
+        this.changeType();
+        
+    	return;
+    	
+    	/* old below */
+    	
+    	
         //this.body.empty();
         this.width = this.main.getSize().x;
 
@@ -363,8 +442,6 @@ ka.layoutContent = new Class({
     	}
         this.layoutBox.pageInst.elementAccessFields.access_from_groups.setValue( temp );
         
-        
-        
         this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.addEvent('change', this.changeType.bind(this));
 
         if( this.content.template == '' || !this.content.template ){
@@ -389,9 +466,13 @@ ka.layoutContent = new Class({
     	
         //fetch data from forms
         //if( this.editMode != 1 ) return;
-        if(! this.layoutBox.pageInst.elementPropertyFields.eTitle ) return;
+        
+        /*if(! this.layoutBox.pageInst.elementPropertyFields.eTitle ) return;
         if(! this.layoutBox.pageInst.elementPropertyFields.eTemplate ) return;
         if( this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue() == "") return;
+        */
+        
+        
         if( !this.content ) this.content = {};
         
         if( !pForce && !this.selected ) return;
@@ -400,6 +481,13 @@ ka.layoutContent = new Class({
         	this.saveLayoutElement();
         }
 
+        this.content.title = this.iTitle.value;
+        this.content.type = this.sType.getValue();
+        this.content.template = this.sTemplate.getValue();
+
+        /* old */
+        
+        /*
         this.content.title = this.layoutBox.pageInst.elementPropertyFields.eTitle.getValue();
         this.content.type = this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue();
         this.content.template = this.layoutBox.pageInst.elementPropertyFields.eTemplate.value;
@@ -408,12 +496,15 @@ ka.layoutContent = new Class({
         this.content.access_from = this.layoutBox.pageInst.elementAccessFields.access_from.getValue();
         this.content.access_to = this.layoutBox.pageInst.elementAccessFields.access_to.getValue();
         this.content.access_from_groups = this.layoutBox.pageInst.elementAccessFields.access_from_groups.getValue();
+        */
+        
         
         switch( this.content.type ){
         case 'plugin':
-            this.content.content = this.pluginChooser.getValue();
+            if( this.pluginChooser )
+                this.content.content = this.pluginChooser.getValue();
             break;
-        case 'text':
+        /*case 'text':
             try {
                 var tiny = this.w.tinyMCE.get(this.lastId);
                 if( tiny )
@@ -421,7 +512,9 @@ ka.layoutContent = new Class({
             } catch( e ){
                 //logger(e);
             }
-            break;
+            break;*/
+
+        case 'text':
         case 'html':
         case 'php':
             this.content.content = this.textarea.value;
@@ -468,13 +561,13 @@ ka.layoutContent = new Class({
     	
     	this.oldType = this.content.type;
     	
+    	//old
+    	/*
         if( this.layoutBox.pageInst.elementPropertyFields.eTypeSelect )
             this.content.type = this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue();
 
-        //if( this.content.type != "text" )
         this.layoutBox.pageInst.elementPropertyFields.ePanel.empty();
 
-//        this.body.setStyle('background-image', 'url('+_path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+this.content.type+'-bg.png)');
 
         if( this.content.type != 'plugin' && this.content.type != 'picture' ){
             this.layoutBox.pageInst.hidePluginChooserPane( true );
@@ -486,6 +579,7 @@ ka.layoutContent = new Class({
         } else {
         	this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.show();
         }
+        */
 
         switch( this.content.type ){
         case 'text':
@@ -698,7 +792,30 @@ ka.layoutContent = new Class({
     },
 
     type2Plugin: function(){
+    
+        var dialog = this.window.win.newDialog();
         
+        this.pluginChooser = new ka.pluginChooser( this.content.content, dialog );
+        
+        this.pluginChooser.addEvent('ok', function(){
+            dialog.close();
+            this.deselect();
+        }.bind(this));
+        
+        this.pluginChooser.addEvent('loadOptions', function(){
+            dialog.position();
+        }.bind(this));
+        
+        dialog.setStyle('height', 300);
+        dialog.setStyle('width', 600);
+        dialog.position();
+        
+        dialog.bottom.destroy();
+        dialog.content.destroy();
+        
+        //main.bottom
+        
+        return;
         this.layoutBox.pageInst.pluginChooserPane.empty();
         this.pluginChooser = new ka.pluginChooser( this.content.content, this.layoutBox.pageInst.pluginChooserPane );
         this.pluginChooser.addEvent('ok', function(){
@@ -1096,184 +1213,24 @@ ka.layoutContent = new Class({
 
         this.lastId = 'WindowField'+((new Date()).getTime())+''+$random(123,5643)+''+$random(13284134,1238845294);
         this.main.store( 'tinyMceId', this.lastId );
-        var text = new Element('textarea', {
+        this.textarea = new Element('textarea', {
             id: this.lastId,
             value: this.content.content,
             style: 'height: 100%; width: 100%'
         }).inject( this.body );
-
-//        if( this.width > 440 ){
-            var _this = this;
-            this.w['tinyOnLoad-'+this.lastId] = function(ed,evt){
-
-                /*
-                var updateHeight = function(editor){
-                    var text = "";
-
-                    logger( editor );
-                    var container = editor.contentAreaContainer;type
-                    var formObj = document.forms[0]; // this might need some adaptation to your site
-                    var dimensions = {
-                            x: 0,
-                            y: 0,
-                            maxX: 0,
-                            maxY: 0
-                    };
-                    var doc;
-                    var docFrame;
-
-                    dimensions.x = formObj.offsetLeft; // get left space in front of editor
-                    dimensions.y = formObj.offsetTop; // get top space in front of editor
-
-                    dimensions.x += formObj.offsetWidth; // add horizontal space used by editor
-                    dimensions.y += formObj.offsetHeight; // add vertical space used by editor
-
-                    container.children[0].style.height = container.style.height = (editor.contentDocument.body.offsetHeight+25)+'px';
-                };
-
-                ed.onMouseDown.add(updateHeight);
-                ed.onChange.add(updateHeight);
-                */
-
-                var setToolbar = function(){
-                    var mtop = _this.w.document.html.scrollTop;
-                    
-                    /*var pos = _this.w.$(_this.lastId+'_parent').getPosition(_this.w.document.body);
-                    mtop = mtop - pos.y + 53;
-                    logger( mtop );*/
-                    
-                   // _this.w.$(_this.lastId+'_external').getParent().setStyle('top', mtop+'px');
-                };
-
-                ed.onInit.add(function(){
-                    _this.tinyMceClickCount = 0;
-                    _this.w.document.addEvent('scroll', function(){
-                        setToolbar();
-                    });
-                    /*
-                    _this.w.$(_this.lastId+'_external').addEvent('click', function(e){
-                        e.stop();
-                        e.stopPropagation();
-                        return false;
-                    });
-                    */
-                    _this.w.$(_this.lastId+'_external').getParent().set('class', 'tinyMceExternalToolbarParent');
-                    _this.w.$(_this.lastId+'_external').getParent().addEvent('click', function(e){
-                        _this.dontHideTinyToolbar = true;
-                        e.stop();
-                        e.stopPropagation();
-                        return false;
-                    });
-                    _this.w.$(_this.lastId+'_external').set('class', 'mceExternalToolbar mceEditor o2k7Skin o2k7SkinSilver');
-                    
-                    var tparent = _this.w.document.body;
-                    var layoutElementParent = _this.w.$(_this.lastId+'_external').getParent('.ka-field-layoutelement-layoutcontent')
-                    
-                    if( layoutElementParent  ){
-                    	
-                    	tparent = layoutElementParent.getNext('.ka-field-layoutelement-tinytoolbar');
-                    	_this.w.$(_this.lastId+'_external').getParent().setStyle('position', 'absolute');
-                    	
-                    } else {
-
-                        _this.w.$(_this.lastId+'_external').getParent().setStyle('position', 'fixed');
-                        _this.w.$(_this.lastId+'_external').getParent().setStyle('z-index', '80000000');
-                        
-                    }
-                    
-                    _this.w.$(_this.lastId+'_external').getParent().inject( tparent );
-                    _this.w.$(_this.lastId+'_external').getParent().setStyle('display', 'none');
-                    //_this.w.$(_this.lastId+'_external').getParent().setStyle('opacity', 0.9);
-
-//                    ed.contentDocument.body.onfocus = function(){
-                    var s = ed.settings;
-                    
-                    var showTiny = function(){
-                    	_this.tinyMceClickCount++;
-                        if( _this.tinyMceClickCount >= 1 )
-                            _this.select();
-                        _this.w.$(_this.lastId+'_external').getParent().setStyle('display', 'block');
-                    }
-                    
-                    tinymce.dom.Event.add(s.content_editable ? ed.getBody() : (tinymce.isGecko ? ed.getDoc() : ed.getWin()), 'focus', function(e) {
-                    	showTiny();
-                    });
-                    
-                    ed.onExecCommand.add(function(ed, l){
-                    	//_this.ignoreNextDeselect = true;
-                    	_this.layoutBox.pageInst.ignoreNextDeselectAll = true;
-                    	(function(){
-                        	_this.layoutBox.pageInst.ignoreNextDeselectAll = false;
-                    	}).delay(500);
-                    });
-                    
-                    tinymce.dom.Event.add(s.content_editable ? ed.getBody() : (tinymce.isGecko ? ed.getDoc() : ed.getWin()), 'click', function(e) {
-                    	showTiny();
-                    });
-
-                    tinymce.dom.Event.add(s.content_editable ? ed.getBody() : (tinymce.isGecko ? ed.getDoc() : ed.getWin()), 'blur', function(e) {
-                        //_this.deselect();
-                        //_this.w.$(_this.lastId+'_external').getParent().setStyle('display', 'none');
-                    });
-
-                    _this.hideTinyMceToolbar = function(){
-                        _this.dontHideTinyToolbar = false;
-                        (function(){
-                            if( _this.dontHideTinyToolbar != true && _this.w.$(_this.lastId+'_external') ){
-                                _this.w.$(_this.lastId+'_external').getParent().setStyle('display', 'none');
-                                if( _this.w.$('menu_'+_this.lastId+'_contextmenu') )
-                                    _this.w.$('menu_'+_this.lastId+'_contextmenu').destroy();
-                            }
-                        }).delay( 200 );
-//                    });
-                    }
-
-
-                });
-                ed.onMouseDown.add(setToolbar);
-
-                ed.onDeactivate.add(function(){
-                });
-
-//                ed.onActivate.add(function(){
-
-            }
-
-        ka._wysiwygId2Win.include( this.lastId, this.layoutBox.win );
-        //ka._wysiwygId2Win.include( this.lastId, this.w );
         
-        if( !this.layoutBox.contentCss )
-        	this.layoutBox.contentCss = '';
+        this.layoutBox.alloptions.toolbarContainer = this.toolbarWysiwygContainer;
         
-        var fn = function(){
-            this.w.initTinyWithoutResize(this.lastId, 
-                _path+'inc/template/css/kryn_tinyMceContentElement.css'+','+this.layoutBox.contentCss, 
-                'tinyOnLoad-'+this.lastId, 
-                this.layoutBox.pageInst.getBaseUrl(),
-                this.layoutBox.alloptions
-            );
-        }.bind(this);
-        
-        fn.delay(200); //delay 200ms, because a strange behavior with paste a text-element after another failed
-        
-/*        } else {
-            new Element('a', {
-                text: '[Im grossen Editor bearbeiten]',
-                href: 'javascript: ;'
-            })
-            .addEvent('click', function(){
-                this.openInBigEditor();
-            }.bind(this))
-            .inject( text, 'before');
-            this.w.initSmallTiny(this.lastId, this.layoutBox.contentCss);
-        }*/
+        initWysiwyg( this.textarea, this.layoutBox.alloptions );
 
     },
 
     openInBigEditor: function(){
         var tiny = this.w.tinyMCE.get(this.lastId);
+        
         if( tiny )
             this.content.content = tiny.getContent();
+
         ka.wm.openWindow( 'admin', 'pages/bigEditor', null, this.w.win.id, {content: this.content.content, onSave: function( pContent ){
             this.content.content = pContent;
             if( this.editMode == 1 ){
@@ -1294,15 +1251,18 @@ ka.layoutContent = new Class({
     },
 
     setDivContent: function(){
-        
-        $(this.titleType).set('text', this.langs[this.content.type] );
 
 //        this.body.setStyle('background-image', 'url('+_path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+this.content.type+'-bg.png)');
 
         if( this.content.type != 'text' ){
             this.lastId = false;
         }
-
+        
+        if( this.content.type != 'text' )
+            this.main.addClass('ka-layoutContent-main-notext');
+        else
+            this.main.removeClass('ka-layoutContent-main-notext');
+            
         switch( this.content.type ){
         case 'text':
             /*
@@ -1341,14 +1301,16 @@ ka.layoutContent = new Class({
         if( title == ""){
             title = _('[No title]');
         }
-        this.title.set('text', title);
-        this.title.set('title', this.langs[ this.content.type ]);
+        //this.title.set('text', title);
+        //this.title.set('title', this.langs[ this.content.type ]);
 
+/*
         new Element('img', {
             'src': _path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+this.content.type+'-bg.png',
             width: 20,
             align: 'left'
         }).inject( this.title, 'top' );
+*/
 
         this.optionsTemplate.set('html', '<span style="color: #444;"> | '+
                 this.getTemplateTitle(this.content.template)+
@@ -1487,15 +1449,17 @@ ka.layoutContent = new Class({
     	if( this.noAccess ) return;
         if( this.selected ) return;
         
+        /* old
         if( this.content.noActions ){
         	this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.hide();
         } else {
         	this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.show();
-        }
+        }*/
         
         this.layoutBox.pageInst._deselectAllElements( this );
         
         this.selected = true;
+        this.showToolbar();
         this.main.set('class', 'ka-layoutContent-main ka-layoutContent-main-selected');
         this.toEditMode();
     },
@@ -1516,13 +1480,15 @@ ka.layoutContent = new Class({
     	if( this.noAccess ) return;
         if( !this.selected ) return;
         
-       
+        /* old
         this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.removeEvents('change');
         this.layoutBox.pageInst._hideElementPropertyToolbar();
+        */
         
         this.selected = false;
         this.toData( true );
 
+        this.hideToolbar();
         this.main.set('class', 'ka-layoutContent-main');
         if( this.content.type == 'text' && this.hideTinyMceToolbar ){
             this.hideTinyMceToolbar();

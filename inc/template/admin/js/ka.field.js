@@ -305,6 +305,7 @@ ka.field = new Class({
         this.input = new Element('select', {
             size: (this.field.size)?this.field.size:5,
             style: 'width: 100%',
+            'class': 'ka-field',
             styles: {
                 'height': (this.field.height)?this.field.height:null
             }
@@ -484,7 +485,8 @@ ka.field = new Class({
         	this.field.size = 4;
         
         this.input = new Element('select', {
-            size: this.field.size
+            size: this.field.size,
+            'class': 'ka-field'
         })
         .addEvent('change', function(){
         	_this.onChange();
@@ -609,6 +611,7 @@ ka.field = new Class({
         	
         	this.inputVals = new Element('select', {
                 size: this.field.size,
+                'class': 'ka-field',
                 style: 'width: '+selWidth+'px'
         	})
         	.addEvent('dblclick', function(){
@@ -753,11 +756,16 @@ ka.field = new Class({
             id: this.lastId,
             name: this.lastId,
             value: this.field.value,
+            'class': 'ka-field',
             styles: {
                 'height': (this.field.height)?this.field.height:80,
                 'width': (this.field.width)?this.field.width:''
             }
         }).inject( this.fieldPanel );
+        
+        var mooeditable = initWysiwyg( this.input );
+        
+        return;
 
         //(function(){
        //     tinyMCE.execCommand('mceAddControl', false, this.lastId );
@@ -927,6 +935,7 @@ ka.field = new Class({
     renderTextarea: function(){
         var _this = this;
         this.input = new Element('textarea', {
+            'class': 'ka-field',
             styles: {
                 'height': (this.field.height)?this.field.height:80,
                 'width': (this.field.width)?this.field.width:''

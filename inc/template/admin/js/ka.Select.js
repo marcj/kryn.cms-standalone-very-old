@@ -19,7 +19,9 @@ ka.Select = new Class({
         
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        }).inject( this.box );
+        })
+        .addEvent('mousedown', function(e){ e.preventDefault(); })
+        .inject( this.box );
         
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow'
@@ -34,7 +36,7 @@ ka.Select = new Class({
         document.body.addEvent('click', this.close.bind(this));
         
         this.chooser = new Element('div', {
-            'class': 'ka-Select-chooser'
+            'class': 'ka-Select-chooser ka-normalize'
         });
         
         this.chooser.addEvent('click', function(e){
@@ -53,11 +55,12 @@ ka.Select = new Class({
     
     inject: function( p, p2 ){
         this.box.inject( p, p2 );
-        var target = document.body;
+        var target = p.getWindow().document.body;
         if( this.box.getParent('.kwindow-border') ){
             target = this.box.getParent('.kwindow-border');
         }
         this.chooser.inject( target );
+        return this;
     },
     
     destroy: function(){
@@ -65,6 +68,17 @@ ka.Select = new Class({
         this.box.destroy();
         this.chooser = null;
         this.box = null;
+    },
+    
+    addSeparator: function( pLabel ){
+        
+        new Element('a', {
+            html: pLabel,
+            href: 'javascript:;',
+            'class': 'ka-Select-separator'
+        })
+        .inject( this.chooser );
+    
     },
     
     add: function( pId, pLabel ){
@@ -135,13 +149,14 @@ ka.Select = new Class({
     },
     
     toggle: function( e ){
-    
+        if( e && e.stop ){
+            e.stop();
+        }
         if( this.opened == true )
             this.close();
         else {
             if( e && e.stop ){
                 document.body.fireEvent('click');
-                e.stop();
             }
             this.open();
         }
@@ -160,7 +175,7 @@ ka.Select = new Class({
         var pos = this.chooser.getPosition();
         var size = this.chooser.getSize();
         
-        var bsize = window.getSize( $('desktop') );
+        var bsize = this.chooser.getWindow().getSize( $('desktop') );
         
         if( size.y+pos.y > bsize.y )
             this.chooser.setStyle('height', bsize.y-pos.y-10);

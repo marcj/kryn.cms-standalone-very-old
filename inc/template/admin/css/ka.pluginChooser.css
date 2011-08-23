@@ -21,14 +21,13 @@ a.ka-pc-module:hover {
 }
 
 
-
 .ka-pluginchooser-main {
     position: absolute;
     left: 0px;
     top: 0px;
     height: 100%;
     width: 100%;
-    background-image: url(../images/ka-pluginchooser-background.png);
+    /*background-image: url(../images/ka-pluginchooser-background.png);*/
     background-repeat: no-repeat;   
 }
 
@@ -39,6 +38,7 @@ a.ka-pc-module:hover {
     right: 0px;
     bottom: 31px;
     overflow: auto;
+    background-color: #f6f6f6;
     border-top: 1px solid #ccc;
 }
 
@@ -51,4 +51,7 @@ a.ka-pc-module:hover {
     border-top: 1px solid #ccc;
     background-color: #ddd;
     padding-left: 6px;
+    text-align: right;
+    padding-right: 6px;
+    padding-top: 2px;
 }

@@ -569,16 +569,44 @@ class adminPages {
         kryn::addJs( $path.'admin/js/ka.js' );
         kryn::addJs( $path.'js=global.js' );
         kryn::addCss( $path.'admin/css/ka.layoutBox.css' );
+        kryn::addCss( $path.'admin/css/inpage.css' );
         kryn::addCss( $path.'admin/css/ka.field.css' );
         kryn::addCss( $path.'admin/css/ka.Button.css' );
+        kryn::addCss( $path.'admin/css/ka.Select.css' );
         kryn::addCss( $path.'admin/css/ka.pluginChooser.css' );
         kryn::addCss( $path.'admin/css/inpage.css' );
 
         kryn::addCss( $path.'admin/css/ka.layoutBox.css' );
         kryn::addCss( $path.'admin/css/ka.layoutContent.css' );
 
-        kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.'inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>');
+        //kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.'inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>');
+        
+        $js = array(
+            'MooEditable.js',
+            'MooEditable.UI.MenuList.js',
+            'MooEditable.Extras.js',
+            'MooEditable.Image.js',
+            'MooEditable.Table.js'
+        );
 
+        $css = array(
+            'MooEditable.css',
+            'MooEditable.Extras.css',
+            'MooEditable.SilkTheme.css',
+            'MooEditable.Image.css',
+            'MooEditable.Table.css'
+        );
+
+        /*foreach( $js as $t ){
+            kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.
+                'inc/mooeditable/Source/MooEditable/'.$t.'"></script>');
+        }*/
+
+        foreach( $css as $t ){
+            kryn::addHeader( '<link rel="stylesheet" type="text/css" href="'.'http://'.getArgv('domain').$domainPath.
+                'inc/mooeditable/Assets/MooEditable/'.$t.'" />');
+        }
+        
 
         $rsn = getArgv('rsn')+0;
         $page = dbTableFetch('system_pages', 1, "rsn = $rsn");

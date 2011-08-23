@@ -17,6 +17,7 @@ ka.pagesTree = new Class({
         	cellpadding: 0,
         	cellspacing: 0
         }).inject(this.container);
+
         this.tbody = new Element('tbody').inject( this.table );
         this.tr = new Element('tr').inject( this.tbody );
         this.td = new Element('td').inject( this.tr );
@@ -457,8 +458,8 @@ ka.pagesTree = new Class({
 
         var wsize = window.getSize();
         
-        var left = pEvent.page.x - (this.container.getPosition(window).x);
-        var mtop = pEvent.page.y - (this.container.getPosition(window).y);
+        var left = pEvent.page.x - (this.container.getPosition().x);
+        var mtop = pEvent.page.y - (this.container.getPosition().y);
         var left = pEvent.page.x;
         var mtop = pEvent.page.y;
         if( mtop < 0 )

@@ -68,39 +68,6 @@ ka.pluginChooser =  new Class({
             rowspan: 2,
             html: _('Please choose a extension and a plugin.')
         }).inject( tr );
-        
-        this.windowEnlarger = new Element('td', {
-            width: '25px',
-            rowspan: 2,
-            valign: 'top'
-        }).inject(tr);
-        
-        this.btnLarger = new Element('img', {
-            title: 'Enlarge window',
-            src: 'inc/template/admin/images/icons/tree_up.png',
-            style: 'width: 11px; height: 11px; border: 0; cursor: pointer; float: right;',
-        })
-        .addEvent('click', function() {
-            this.btnLarger.hide();
-            this.btnSmaller.show();
-            this.target.setStyle('height', '90%');
-        }.bind(this))
-        .inject(this.windowEnlarger);
-        
-        this.btnSmaller = new Element('img', {
-            title: 'Shrink window',
-            src: 'inc/template/admin/images/icons/tree_minus.png',
-            style: 'width: 11px; height: 11px; border: 0; cursor: pointer; float: right;'
-        })
-        .addEvent('click', function() {
-            this.btnSmaller.hide();
-            this.btnLarger.show();
-            this.target.setStyle('height', '221px');
-        }.bind(this))
-        .inject(this.windowEnlarger);
-        
-        // Hide smaller button as window is already at small size
-        this.btnSmaller.hide();
 
         
         var tr = new Element('tr').inject( tbody );
@@ -224,6 +191,7 @@ ka.pluginChooser =  new Class({
 
     loadOptions: function( pId ){
         var _this = this;
+        
         if( this.optionsPanel )
             this.optionsPanel.destroy();
 
@@ -265,6 +233,8 @@ ka.pluginChooser =  new Class({
         new Element( 'br', {
             styles: { clear: 'both' }
         }).inject( this.optionsPanel );
+        
+        this.fireEvent('loadOptions');
     },
     
     _renderDependProperties: function( pField, pDepends ){

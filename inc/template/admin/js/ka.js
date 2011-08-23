@@ -1543,10 +1543,12 @@ ka._openLinkContext = function( pLink ){
 	
 }
 
+ka.renderLayoutElements = function( pDom, pClassObj, pOptions ){
 
-
-
-ka.renderLayoutElements = function( pDom, pClassObj ){
+    if( pDom.get('tag') == 'iframe' ){
+        pOptions = {dialogContainer: pDom.getParent('.kwindow-border')};
+        pDom = pDom.contentWindow.document.body;
+    }
 	
 	var layoutBoxes = $H({});
     if( !pDom.getFirst() && (pDom.get('text').search(/{slot.+}/) >= 0 || pDom.get('text').search(/{content.+}/) >= 0) ){
@@ -1566,6 +1568,9 @@ ka.renderLayoutElements = function( pDom, pClassObj ){
         while( res = exp.exec( value ) ){
             options[ res[1] ] = res[4];
         }
+        if( pOptions )
+            options = Object.append(options, pOptions);
+
         exp = null;
         if( options.id+0 > 0 ){
         	if( type == 'slot' )
@@ -1577,7 +1582,7 @@ ka.renderLayoutElements = function( pDom, pClassObj ){
     
     if( pDom.getFirst() ){
     	pDom.getChildren().each(function(child){
-    		layoutBoxes.combine( ka.renderLayoutElements( child, pClassObj ) );
+    		layoutBoxes.combine( ka.renderLayoutElements( child, pClassObj, pOptions ) );
         });
     }
     
@@ -1585,175 +1590,24 @@ ka.renderLayoutElements = function( pDom, pClassObj ){
 }
 
 
-
-
-
-
-
-initSmallTiny = function(pId, pContentCssFile){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,style,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
-         theme_advanced_buttons1 : 'bold,italic,underline,|,link,image',
-         theme_advanced_buttons2: 'justifyleft,justifycenter,justifyright,|,outdent,indent',
-         theme_advanced_buttons3: 'formatselect',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_statusbar_location : 'bottom',
-        theme_advanced_resizing : true,
-        theme_advanced_resize_horizontal : false,
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang
-    });
-}
-
-initResizeTiny = function(pId, pContentCssFile){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
-        theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,fullscreen,|,undo,redo,|,cut,copy,paste,pastetext,pasteword',
-        theme_advanced_buttons2: 'justifyleft,justifycenter,justifyright,justifyfull,table,|,bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-        theme_advanced_buttons3: '',
-        theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_statusbar_location : 'bottom',
-        theme_advanced_resizing : true,
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang
-    });
-}
-
-initTinyWithoutResize = function(pId, pContentCssFile, pOnInit, pBaseUrl, pOwnOptions ){
+initWysiwyg = function( pElement, pOptions ){
     
     var options = {
-        document_base_url : (pBaseUrl)?pBaseUrl:_path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,autoresize',
-         theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,undo,redo,|,cut,copy,paste,pastetext,pasteword,|,justifyleft,justifycenter,justifyright,justifyfull,table',
-         theme_advanced_buttons2: 'bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-         theme_advanced_buttons3: '',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location: "external",
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang,
-        setup: pOnInit
-    }
-        
-        
-    var notoverwritable = ['name', 'id', 'css', 'default', 'document_base_url', 'relative_urls', 'theme mode elements', 'theme_advanced_toolbar_location',
-        'remove_linebreaks', 'convert_urls', 'theme_advanced_resizing', 'language', 'setup'];
+        extraClass: 'SilkTheme',
+	    //flyingToolbar: true,
+	    dimensions: {
+	       x: '100%'
+	    },
+		actions: 'bold italic underline strikethrough | formatBlock justifyleft justifycenter justifyright justifyfull | insertunorderedlist insertorderedlist indent outdent | undo redo | tableadd | createlink unlink | image | toggleview'
+    };
     
-    if( pOwnOptions ){
-        $H( pOwnOptions ).each(function(option,key){
-           if( notoverwritable.contains(key) ) return;
-           if( option == 'false' ) option = false;
-           if( option == 'true' ) option = true;
-           options[ key ] = option;
-        });
-        
-    }
+    if( pOptions )
+        options = Object.append(options, pOptions);
     
-    return tinymce.EditorManager.init( options );
-}
-
-initTiny = function(pId, pContentCssFile, pOnInit){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,autoresize',
-         theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,fullscreen,|,undo,redo,|,cut,copy,paste,pastetext,pasteword,|,justifyleft,justifycenter,justifyright,justifyfull,table',
-         theme_advanced_buttons2: 'bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-         theme_advanced_buttons3: '',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_statusbar_location : 'bottom',
-        theme_advanced_resizing : true,
-        theme_advanced_resize_horizontal : false,
-        theme_advanced_toolbar_location: "external",
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang,
-        setup: pOnInit
-    });
+    new MooEditable( document.id(pElement), options );
 }
 /*
-initTiny = function(pId, pContentCssFile, pOnInit){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,autoresize',
-         theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,fullscreen,|,undo,redo,|,cut,copy,paste,pastetext,pasteword',
-         theme_advanced_buttons2: 'justifyleft,justifycenter,justifyright,justifyfull,table,|,bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-         theme_advanced_buttons3: '',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location : 'top',
-        //theme_advanced_statusbar_location : 'bottom',
-        //theme_advanced_resizing : true,
-        //theme_advanced_resize_horizontal : false,
-        theme_advanced_toolbar_location: "external",
-
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: 'de',
-        setup: pOnInit
-    });
-}
-
-*/
+initSmallTiny
+initTiny
+initResizeTiny
+initTinyWithoutResize*/
