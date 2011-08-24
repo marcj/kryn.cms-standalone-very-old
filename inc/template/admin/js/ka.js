@@ -1604,7 +1604,7 @@ initWysiwyg = function( pElement, pOptions ){
     if( pOptions )
         options = Object.append(options, pOptions);
     
-    new MooEditable( document.id(pElement), options );
+    return new MooEditable( document.id(pElement), options );
 }
 /*
 initSmallTiny

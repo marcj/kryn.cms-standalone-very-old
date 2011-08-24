@@ -1,4 +1,4 @@
-a.ka-Button, a.ka-Button:link {
+body a.ka-Button, a.ka-Button:link {
     padding: 5px 5px 6px 10px;
     cursor: default;
     position: relative;
@@ -18,12 +18,12 @@ a.ka-Button, a.ka-Button:link {
     background-repeat: no-repeat;
 }
 
-a.ka-Button:hover {
+body a.ka-Button:hover {
     background-position: left -27px;
     color: white;
 }
 
-a.ka-Button span, a.ka-Button:link span {
+body a.ka-Button span, a.ka-Button:link span {
     position: absolute;
     right: -4px;
     top: 0px;

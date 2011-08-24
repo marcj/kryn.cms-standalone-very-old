@@ -53,7 +53,7 @@ class knavigation {
             $links[$code] = dbExfetch("
             SELECT 
                 rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
-                access_from, access_to, access_nohidenavi, access_from_groups
+                access_from, access_to, access_nohidenavi, access_from_groups, properties
             FROM
                 %pfx%system_pages
             WHERE

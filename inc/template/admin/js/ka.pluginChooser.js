@@ -169,6 +169,8 @@ ka.pluginChooser =  new Class({
         //new Request.JSON({url: _path+'admin/system/module/getModules/', onComplete: function(res){ 
         
         $H(ka.settings.configs).each(function(item, code){
+            if( !item.plugins ) return;
+
             var title = item.title[ window._session.lang ] ? item.title[ window._session.lang ] : item.title.en;
             new Element( 'option', {
                 value: code,

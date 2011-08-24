@@ -77,7 +77,7 @@ ka.layoutContent = new Class({
             'top': pos.y
         };
         
-        pos['top'] -= this.toolbar.getSize().y+20;
+        pos['top'] -= this.toolbar.getSize().y+7;
         
         this.toolbar.setStyles(pos);
     
@@ -131,9 +131,11 @@ ka.layoutContent = new Class({
         })
         .inject( this.toolbarTitleContainer );*/
         
-        this.body = new Element('div', {
+        this.div = new Element('div', {
             'class': 'ka-layoutContent-div'
         }).inject( this.main );
+        
+        this.body = this.div;
         
         this.options = new Element('div', {
             'class': 'ka-layoutContent-options',
@@ -142,6 +144,12 @@ ka.layoutContent = new Class({
             }
         })
         .inject( this.main );
+        
+        this.toolbarArrow = new Element('img', {
+            src: _path+'inc/template/admin/images/ka-tooltip-corner-top.png',
+            'class': 'ka-layoutContent-options-arrow'
+        }).inject( this.options );
+        
         
         this.iTitle = new Element('input', {
             'class': 'ka-normalize ka-layoutContent-title'
@@ -192,11 +200,6 @@ ka.layoutContent = new Class({
         //.inject( this.bubbleBox );
 
         new Element('div', {style: 'clear: both'}).inject( this.options );
-
-        this.body.addEvent('click', function(){
-            //if( this.editMode == 0 )
-                //this.toggleEdit();
-        }.bind(this));
 
         this.renderTitleActions();
 
@@ -559,8 +562,6 @@ ka.layoutContent = new Class({
     //toEditMode
     changeType: function(){
     	
-    	this.oldType = this.content.type;
-    	
     	//old
     	/*
         if( this.layoutBox.pageInst.elementPropertyFields.eTypeSelect )
@@ -582,12 +583,6 @@ ka.layoutContent = new Class({
         */
 
         switch( this.content.type ){
-        case 'text':
-            this.type2Text();
-            break;
-        case 'plugin':
-            this.type2Plugin();
-            break;
         case 'html':
         case 'php':
             if( this.oldType == 'html' || this.oldType == 'php' ) return;
@@ -609,6 +604,8 @@ ka.layoutContent = new Class({
             this.type2Pic();
             break;
         }
+    	
+    	this.oldType = this.content.type;
 
         this.setDivContent();
 
@@ -1203,25 +1200,30 @@ ka.layoutContent = new Class({
     },
 
     renderType2Pic: function(){
-        
+
     },
 
     type2Text: function( pForce ){
-        
-        if( this.lastId && !pForce ) return;
+
+        if( this.lastTextarea && !pForce ) return;
+
         this.body.empty();
 
-        this.lastId = 'WindowField'+((new Date()).getTime())+''+$random(123,5643)+''+$random(13284134,1238845294);
-        this.main.store( 'tinyMceId', this.lastId );
         this.textarea = new Element('textarea', {
-            id: this.lastId,
             value: this.content.content,
-            style: 'height: 100%; width: 100%'
+            style: 'width: 100%'
         }).inject( this.body );
-        
+
+        this.lastTextarea = this.textarea;
+
         this.layoutBox.alloptions.toolbarContainer = this.toolbarWysiwygContainer;
-        
-        initWysiwyg( this.textarea, this.layoutBox.alloptions );
+
+        if( this.mooeditable ){
+            this.mooeditable.textarea = this.textarea;
+            this.mooeditable.attach();
+        } else {
+            this.mooeditable = initWysiwyg( this.textarea, this.layoutBox.alloptions );
+        }
 
     },
 
@@ -1251,17 +1253,65 @@ ka.layoutContent = new Class({
     },
 
     setDivContent: function(){
+    
+        //load template and set this.body
+        
+        if( this.body && this.lastContent &&
+            this.lastContent.template == this.content.template &&
+            this.lastContent.type == this.content.type &&
+            this.lastContent.title == this.content.title
+        ) return this._setDivContent();
+        
+        if( this.lastCR )
+            this.lastCR.cancel();
+        
+        this.lastCR = new Request.JSON({url: _path+'admin/backend/getContentTemplate', noCache: 1, onComplete: function( pTpl ){
+            
+            if( this.mooeditable ){
+                this.mooeditable.detach();
+            }
+            
+            this.div.set('html', pTpl);
 
-//        this.body.setStyle('background-image', 'url('+_path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+this.content.type+'-bg.png)');
+            this.body = this.div.getElement('.ka-layoutelement-content-content');
+            this.title = this.div.getElement('.ka-layoutelement-content-title');
+            
+            this.main.removeClass('ka-layoutContent-main-selected');
+                
+            if( !this.body )
+                this.body = this.div;
+            
+            this.lastContent = Object.clone(this.content);
+        
+            this._setDivContent(true);
+            
+        }.bind(this)}).post(this.content);
+        
+    },
+    
+    _setDivContent: function( pRerender ){
+        //here we need a valid this.body ref
 
         if( this.content.type != 'text' ){
             this.lastId = false;
         }
         
+        if( this.selected )
+            this.main.addClass('ka-layoutContent-main-selected');
+        else {
+            this.main.removeClass('ka-layoutContent-main-selected');
+        }
+        
         if( this.content.type != 'text' )
-            this.main.addClass('ka-layoutContent-main-notext');
+            this.main.addClass('ka-layoutContent-body-notext');
         else
-            this.main.removeClass('ka-layoutContent-main-notext');
+            this.main.removeClass('ka-layoutContent-body-notext');
+            
+        if( this.title )
+            this.title.set('html', this.content.title);
+            
+        if( this.content.type != 'text' )
+            this.lastTextarea = false;
             
         switch( this.content.type ){
         case 'text':
@@ -1269,7 +1319,7 @@ ka.layoutContent = new Class({
             this.body.set('html', this.content.content);
             this.body.getElements('a').set('href', 'javascript:;');
             */
-            this.type2Text();
+            this.type2Text( pRerender );
             break;
         case 'plugin':
             this.setDivPlugin();
@@ -1301,16 +1351,8 @@ ka.layoutContent = new Class({
         if( title == ""){
             title = _('[No title]');
         }
-        //this.title.set('text', title);
-        //this.title.set('title', this.langs[ this.content.type ]);
-
-/*
-        new Element('img', {
-            'src': _path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+this.content.type+'-bg.png',
-            width: 20,
-            align: 'left'
-        }).inject( this.title, 'top' );
-*/
+        
+        this.lastContent = Object.clone(this.content);
 
         this.optionsTemplate.set('html', '<span style="color: #444;"> | '+
                 this.getTemplateTitle(this.content.template)+
@@ -1384,15 +1426,55 @@ ka.layoutContent = new Class({
 
     setDivPlugin: function( pContainer ){
         var mybody = (pContainer)?pContainer:this.body;
+        
         if( this.bodyPluginRequest )
             this.bodyPluginRequest.cancel();
 
+        var t = this.content.content.split('::');
+        var info = this.content.content;
+        if( typeOf(info) != 'string' ) return;
+        
+        var pos = info.indexOf('::');
+        var extension = info.substr(0,pos);
+        var info = info.substr(pos+2);
+        
+        var pos = info.indexOf('::');
+        var plugin = info.substr(0,pos);
+        var info = info.substr(pos+2);
+        
+        var title = ka.settings.configs[extension].title['en'];
+        if( ka.settings.configs[extension].title[window._session.lang] )
+            title = ka.settings.configs[extension].title[window._session.lang];
+            
+        var pluginTitle = _(ka.settings.configs[extension].plugins[plugin][0]);
+        
+        mybody.empty();
+        new Element('div', {
+            'style': 'font-weight: bold',
+            html: title
+        }).inject( mybody );
+        
+        new Element('div', {
+            html: pluginTitle
+        }).inject( mybody );
+        
+        new ka.Button(_('Edit properties'))
+        .addEvent('click', function(){
+            this.type2Plugin();
+        }.bind(this))
+        .inject( mybody );
+        
+        return;
+        
+        /* old
         this.bodyPluginRequest = new Request.JSON({url: _path+'admin/backend/plugins/preview/', noCache: 1, onComplete: function(html){
             this.body.empty();
             var div = new Element('div', {
                 html: html
             }).inject( mybody );
         }.bind(this)}).post({ content: this.content.content });
+        */
+        
     },
 
     setDivNavigation: function( pContainer ){
@@ -1460,7 +1542,8 @@ ka.layoutContent = new Class({
         
         this.selected = true;
         this.showToolbar();
-        this.main.set('class', 'ka-layoutContent-main ka-layoutContent-main-selected');
+        this.main.addClass('ka-layoutContent-main-selected');
+        
         this.toEditMode();
     },
     
@@ -1489,7 +1572,9 @@ ka.layoutContent = new Class({
         this.toData( true );
 
         this.hideToolbar();
-        this.main.set('class', 'ka-layoutContent-main');
+        
+        this.main.removeClass('ka-layoutContent-main-selected');
+            
         if( this.content.type == 'text' && this.hideTinyMceToolbar ){
             this.hideTinyMceToolbar();
         }

@@ -101,6 +101,8 @@ class admin {
                             return self::loadJs();
                         case 'loadLayoutElementFile':
                             return self::loadLayoutElementFile( getArgv('template') );
+                        case 'getContentTemplate':
+                            return self::loadContentLayout();
                         case 'fixDb':
                             return self::fixDb();
                         case 'saveDesktop':
@@ -173,6 +175,24 @@ class admin {
         json('param-failed');
     }
     
+    public static function loadContentLayout(){
+
+        $content = array();
+
+        foreach( $_POST as $k=>$p ){
+            $content[ $k ] = $p;
+        }
+        
+        tAssign( 'content', $content );
+        
+        $content['template'] = str_replace('..', '', $content['template']);
+        $tpl = kryn::fileRead( 'inc/template/'.$content['template'] );
+        
+        $tpl = str_replace('{$content.title}', '<div class="ka-layoutelement-content-title">{$content.title}</div>', $tpl);
+        $tpl = str_replace('{$content.content}', '<div class="ka-layoutelement-content-content"></div>', $tpl);
+
+        json( tFetch('string:'.$tpl) );
+    }
     
     public static function loadLayoutElementFile( $pFile ){
         

@@ -12,33 +12,50 @@
     -webkit-border-top-right-radius: 5px;
 }
 
-.ka-layoutContent-main-notext {
-    background-color: white;
-    border: 1px solid #ddd;
+.ka-layoutContent-body-notext .ka-layoutelement-content-content {
+    
+    border: 1px solid #ccc;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
-    padding: 3px;
+    padding: 5px;
+    font-size: 11px;
+    color: #333;
+    cursor: pointer;
+
+    background-color: #eaeaea;
+    background-image: -webkit-gradient(linear, left top, left bottom, #f6f6f6, to(#ebebeb)); 
+    background-image: -webkit-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:    -moz-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:     -ms-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:      -o-linear-gradient(top, #f6f6f6, #ebebeb); 
+    background-image:         linear-gradient(top, #f6f6f6, #ebebeb);
 }
 
 .ka-layoutContent-main:hover {
-    outline: 1px dashed silver;
+    outline: 3px solid silver;
+}
+
+.ka-layoutContent-body-notext:hover .ka-layoutelement-content-content {
+    border: 1px solid #aaa;
+    background-color: #dddddd;
+    background-image: -webkit-gradient(linear, left top, left bottom, #ebebeb, to(#dddddd)); 
+    background-image: -webkit-linear-gradient(top, #ebebeb, #dddddd); 
+    background-image:    -moz-linear-gradient(top, #ebebeb, #dddddd); 
+    background-image:     -ms-linear-gradient(top, #ebebeb, #dddddd); 
+    background-image:      -o-linear-gradient(top, #ebebeb, #dddddd); 
+    background-image:         linear-gradient(top, #ebebeb, #dddddd);
 }
 
 .ka-layoutContent-div {
     position: relative;
-    cursor: pointer;
     background-repeat: no-repeat;
     min-height: 32px;
 }
 
 .ka-layoutContent-main-selected,
 .ka-layoutContent-main-selected:hover {
-    outline: 1px dashed #b4d4ff;
-}
-
-.ka-layoutContent-main-selected .ka-layoutContent-div {
-    cursor: inherit;
+    outline: 3px solid #fff170;
 }
 
 .ka-layoutContent-toolbar {
@@ -49,7 +66,7 @@
     -moz-border-radius: 4px;
     border-radius: 4px;
     background-color: #ddd;
-    box-shadow: 0px 0px 12px #777;
+    box-shadow: 0px 0px 9px #eee;
     font-size: 10px;
 }
 
@@ -58,7 +75,10 @@ input.ka-layoutContent-title {
     padding: 0px;
     outline: 0;
     position: relative;
-    top: -1px;
+    width: 300px;
+    border: 0px;
+    height: 18px;
+    padding: 1px;
 }
 
 
@@ -66,7 +86,7 @@ input.ka-layoutContent-title {
 .ka-layoutContent-toolbar a.mooeditable-ui-toolbar-tab-button:link {
     border: 1px solid #999;
     border-bottom: 0px;
-    box-shadow: 0px -1px 1px #333;
+    box-shadow: 0px -1px 1px #eee;
     font-size: 12px;
 }
 
@@ -101,22 +121,36 @@ input.ka-layoutContent-title {
 }
 
 .ka-layoutContent-options {
-    padding-left: 4px;
     font-size: 10px;
     position: absolute;
-    right: -23px;
+    right: -33px;
     background-color: white;
     top: -1px;
-    width: 18px;
+    width: 17px;
+    padding: 1px;
+    text-align: left;
     height: 125px;
-    border: 1px dashed #b4d4ff;
-    border-left: 0px;
+    border: 4px solid #444;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    box-shadow: 0px 0px 5px #eee;
 }
 
 body .ka-layoutBox-main .ka-layoutContent-options img {
     margin-bottom: 2px;
     cursor: pointer;
 }
+
+
+body .ka-layoutBox-main .ka-layoutContent-options .ka-layoutContent-options-arrow {
+    position: absolute;
+    top: 60px;
+    left: -15px;
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    -webkit-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+}
+
 
 .ka-layoutContent-bubbleBox {
     border: 1px solid silver;
