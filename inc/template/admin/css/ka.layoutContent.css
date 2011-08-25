@@ -33,7 +33,7 @@
 }
 
 .ka-layoutContent-main:hover {
-    outline: 3px solid silver;
+    outline: 2px solid silver;
 }
 
 .ka-layoutContent-body-notext:hover .ka-layoutelement-content-content {
@@ -79,6 +79,7 @@ input.ka-layoutContent-title {
     border: 0px;
     height: 18px;
     padding: 1px;
+    border-right: 1px solid silver;
 }
 
 
@@ -86,12 +87,7 @@ input.ka-layoutContent-title {
 .ka-layoutContent-toolbar a.mooeditable-ui-toolbar-tab-button:link {
     border: 1px solid #999;
     border-bottom: 0px;
-    box-shadow: 0px -1px 1px #eee;
     font-size: 12px;
-}
-
-.ka-layoutContent-toolbar .mooeditable-ui-toolbar {
-    margin-top: -19px;
 }
 
 .ka-layoutContent-toolbar-title {

@@ -179,8 +179,10 @@ class admin {
 
         $content = array();
 
-        foreach( $_POST as $k=>$p ){
-            $content[ $k ] = $p;
+        $vars = array('title', 'type', 'template');
+        
+        foreach( $vars as $p ){
+            $content[$p] = $_GET[$p];
         }
         
         tAssign( 'content', $content );

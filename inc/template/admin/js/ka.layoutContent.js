@@ -155,7 +155,10 @@ ka.layoutContent = new Class({
             'class': 'ka-normalize ka-layoutContent-title'
         }).inject( this.toolbarTitleContainer );
         
-        this.sType = new ka.Select().inject( this.toolbarTitleContainer );
+        this.sType = new ka.Select()
+        .addEvent('change', this.changeType.bind(this))
+        .inject( this.toolbarTitleContainer );
+        
         document.id(this.sType).setStyle('width', 65);
         
         Object.each( this.langs, function(item, id){
@@ -163,7 +166,9 @@ ka.layoutContent = new Class({
         }.bind(this));
         
         
-        this.sTemplate = new ka.Select().inject( this.toolbarTitleContainer );
+        this.sTemplate = new ka.Select()
+        
+        .inject( this.toolbarTitleContainer );
         document.id(this.sTemplate).setStyle('width', 65);
         
         this.sTemplate.add( '-', _('-- no layout --') );
@@ -581,6 +586,8 @@ ka.layoutContent = new Class({
         	this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.show();
         }
         */
+        
+        this.content.type = this.sType.getValue();
 
         switch( this.content.type ){
         case 'html':
@@ -595,7 +602,7 @@ ka.layoutContent = new Class({
             this.type2Pointer();
             break;
         case 'template':
-            this.type2Template();
+            //this.type2Template();
             break;
         case 'layoutelement':
         	this.toLayoutElement();
@@ -824,10 +831,28 @@ ka.layoutContent = new Class({
 
     type2Template: function(){
 
+        this.body.empty();
+        
+        var small = 0;
+        var width = this.body.getSize().x;
+        
+        if( width < 200 )
+            small = 1;
+
         this.templateFileField = new ka.field({
-            label: _('Template file'), type: 'file', small: 1
+            label: _('Template file'), type: 'file', small: small
         })
-        .inject( this.layoutBox.pageInst.elementPropertyFields.ePanel );
+        .inject( this.body );
+        
+        if( small == 1 ){
+            new Element('div', {
+                'style': 'clear: both;'
+            }).inject( this.body );
+            
+            document.id( this.templateFileField ).setStyle('width', width-20);
+            var title = document.id( this.templateFileField ).getElement('.ka-field-title').getElement('.title');
+            title.setStyle('width', width-30);
+        }
         
         this.templateFileField.setValue( this.content.content );
 
@@ -1285,7 +1310,7 @@ ka.layoutContent = new Class({
         
             this._setDivContent(true);
             
-        }.bind(this)}).post(this.content);
+        }.bind(this)}).get(this.content);
         
     },
     
@@ -1328,7 +1353,8 @@ ka.layoutContent = new Class({
             this.setDivNavigation();
             break;
         case 'template':
-            this.setDivTemplate();
+            //this.setDivTemplate();
+            this.type2Template();
             break;
         case 'pointer':
             this.setDivPointer();
@@ -1543,7 +1569,6 @@ ka.layoutContent = new Class({
         this.selected = true;
         this.showToolbar();
         this.main.addClass('ka-layoutContent-main-selected');
-        
         this.toEditMode();
     },
     

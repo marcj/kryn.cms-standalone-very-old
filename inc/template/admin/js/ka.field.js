@@ -129,6 +129,14 @@ ka.field = new Class({
             }
         }
     },
+    
+    toElement: function(){
+        if( this.field.tableitem ){
+            return this.tr;
+        } else {
+            return this.main;
+        }
+    },
 
     renderField: function(){
     	if( this.field.type )
