@@ -190,7 +190,7 @@ class admin {
         $content['template'] = str_replace('..', '', $content['template']);
         $tpl = kryn::fileRead( 'inc/template/'.$content['template'] );
         
-        $tpl = str_replace('{$content.title}', '<div class="ka-layoutelement-content-title">{$content.title}</div>', $tpl);
+        $tpl = str_replace('{$content.title}', '<span class="ka-layoutelement-content-title">{$content.title}</span>', $tpl);
         $tpl = str_replace('{$content.content}', '<div class="ka-layoutelement-content-content"></div>', $tpl);
 
         json( tFetch('string:'.$tpl) );

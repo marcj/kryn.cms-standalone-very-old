@@ -1989,16 +1989,16 @@ var admin_pages = new Class({
             }*/
         }
         this.trys = 0;
-        
+
         w.ka = ka;
         w.win = this.win;
         w.currentPage = this.page;
         w.kpage = this;
 
-
-        w.removeEvents('click');
-        w.addEvent('click', function(e){
-            console.log(e);
+        w.document.body.removeEvents('click');
+        w.document.body.addEvent('click', function(e){
+            if( !e ) return;
+            
         	if( this.ignoreNextDeselectAll ){
         		this.ignoreNextDeselectAll = false;
         		return;

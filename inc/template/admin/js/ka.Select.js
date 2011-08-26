@@ -32,9 +32,6 @@ ka.Select = new Class({
             src: _path+this.arrow,
         }).inject( this.arrowBox );
         
-        
-        document.body.addEvent('click', this.close.bind(this));
-        
         this.chooser = new Element('div', {
             'class': 'ka-Select-chooser ka-normalize'
         });
@@ -60,6 +57,7 @@ ka.Select = new Class({
             target = this.box.getParent('.kwindow-border');
         }
         this.chooser.inject( target );
+        this.chooser.getWindow().document.body.addEvent('click', this.close.bind(this));
         return this;
     },
     
@@ -156,15 +154,15 @@ ka.Select = new Class({
             this.close();
         else {
             if( e && e.stop ){
-                document.body.fireEvent('click');
+                this.chooser.getWindow().document.body.fireEvent('click');
             }
             this.open();
         }
     },
     
     open: function(){
-    
         this.chooser.setStyle('display', 'block');
+        this.chooser.getWindow().document.body.addEvent('click', this.close.bind(this));
         
         this.chooser.position({
             relativeTo: this.box,
@@ -176,9 +174,10 @@ ka.Select = new Class({
         var size = this.chooser.getSize();
         
         var bsize = this.chooser.getWindow().getSize( $('desktop') );
+        var wscroll = this.chooser.getWindow().getScroll();
         
-        if( size.y+pos.y > bsize.y )
-            this.chooser.setStyle('height', bsize.y-pos.y-10);
+        if( size.y+pos.y > bsize.y+wscroll.y )
+            this.chooser.setStyle('height', (bsize.y+wscroll.y)-pos.y-10);
     
         //new ka.blocker( this.chooser ).addEvent('click', this.close.bind(this));
         

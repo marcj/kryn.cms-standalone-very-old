@@ -46,47 +46,71 @@ ka.layoutContent = new Class({
         })
         .addEvent('click', function(e){
             e.stopPropagation();
-        })
-        .inject( this.w.document.body );
+        }).inject( this.w.document.body )
         
         this.toolbarArrow = new Element('img', {
             src: _path+'inc/template/admin/images/ka-tooltip-corner-top.png',
             'class': 'ka-layoutContent-toolbar-arrow'
         }).inject( this.toolbar );
     
-        this.toolbarWysiwygContainer = new Element('div').inject( this.toolbar );
+        this.toolbarWysiwygContainer = new Element('div', {
+            'class': 'ka-layoutContent-toolbar-wysiwyg'
+        }).inject( this.toolbar );
+        
         this.toolbarTitleContainer = new Element('div', {
             'class': 'ka-layoutContent-toolbar-title'
         }).inject( this.toolbar );
+        
+        this.toolbarTitleContainerSelects = new Element('div', {
+            'class': 'ka-layoutContent-toolbar-title-selects'
+        }).inject( this.toolbarTitleContainer );
+        
+        this.w.addEvent('scroll', this.positionToolbar.bind(this));
+        this.w.addEvent('resize', this.positionToolbar.bind(this));
     
     },
     
     showToolbar: function(){
-    
-        this.toolbar.setStyle('display', 'block');
-        
+        this.toolbar.inject( this.w.document.body );
         this.positionToolbar();
     },
     
     positionToolbar: function(){
+        if( !this.toolbar.getParent() ) return;
 
         var pos = this.main.getPosition( this.w.document.body );
         
+        var size = this.toolbar.getSize();
+        var wsize = this.w.getSize();
+        var scroll = this.w.getScroll();
+        
         var pos = {
-            'left': pos.x,
+            'left': pos.x-3,
             'top': pos.y
         };
         
         pos['top'] -= this.toolbar.getSize().y+7;
+        
+        //if not in viewport
+        if( pos['top']+size.y > wsize.y+scroll.y ){
+            pos['top'] = wsize.y+scroll.y-size.y;
+        }
+        if( pos['top'] < scroll.y ){
+            pos['top'] = scroll.y;
+        }
+        
+        if( pos['left']+size.x > wsize.x+scroll.x ){
+            pos['left'] = wsize.x+scroll.x-size.x;
+        }
+        
+        //arrow position
         
         this.toolbar.setStyles(pos);
     
     },
     
     hideToolbar: function(){
-        
-        this.toolbar.setStyle('display', '');
-        
+        this.toolbar.dispose();
     },
 
     renderBox: function(){
@@ -157,7 +181,7 @@ ka.layoutContent = new Class({
         
         this.sType = new ka.Select()
         .addEvent('change', this.changeType.bind(this))
-        .inject( this.toolbarTitleContainer );
+        .inject( this.toolbarTitleContainerSelects );
         
         document.id(this.sType).setStyle('width', 65);
         
@@ -167,8 +191,11 @@ ka.layoutContent = new Class({
         
         
         this.sTemplate = new ka.Select()
-        
-        .inject( this.toolbarTitleContainer );
+        .addEvent('change', function(){
+            this.content.template = this.sTemplate.getValue();
+            this.setDivContent();
+        }.bind(this))
+        .inject( this.toolbarTitleContainerSelects );
         document.id(this.sTemplate).setStyle('width', 65);
         
         this.sTemplate.add( '-', _('-- no layout --') );
@@ -210,10 +237,12 @@ ka.layoutContent = new Class({
 
 //        new Element('div', {style: 'clear: both; height: 1px;'}).inject( this.title );
 
-        this.setDivContent();
+        this.dataToView();
         if( this.content['new'] ||this.content.toEdit ){
             this.select();
         }
+        
+        this.hideToolbar();
 
         /*
         if( this.content['new'] ||this.content.toEdit ){
@@ -221,6 +250,15 @@ ka.layoutContent = new Class({
         }
         */
 
+    },
+    
+    dataToView: function(){
+    	
+    	this.sType.setValue( this.content.type );
+    	this.sTemplate.setValue( this.content.template );
+    	this.iTitle.value = this.content.title;
+        this.changeType();
+    
     },
 
     hideBubbleBox: function( pNow ){
@@ -390,7 +428,7 @@ ka.layoutContent = new Class({
         layoutBox.initSort();
     },
 
-    toggleEdit: function(){
+    /*toggleEdit: function(){
         if( this.editMode == 0 ){
             this.editMode = 1;
             this.toEditMode();
@@ -398,19 +436,11 @@ ka.layoutContent = new Class({
             this.editMode = 0;
             this.toViewMode();
         }
-    },
+    },*/
 
-    toEditMode: function(){
-    	
-    	this.sType.setValue( this.content.type );
-    	this.sTemplate.setValue( this.content.template );
-    	this.iTitle.value = this.content.title;
-    	
-        this.changeType();
+    /*toEditMode: function(){
         
     	return;
-    	
-    	/* old below */
     	
     	
         //this.body.empty();
@@ -467,6 +497,7 @@ ka.layoutContent = new Class({
 
         this.changeType();
     },
+    */
 
     toData: function( pForce ){
     	
@@ -525,7 +556,8 @@ ka.layoutContent = new Class({
         case 'text':
         case 'html':
         case 'php':
-            this.content.content = this.textarea.value;
+            if( this.textarea )
+                this.content.content = this.textarea.value;
             break;
         case 'pointer':
             break;
@@ -536,7 +568,7 @@ ka.layoutContent = new Class({
             this.content.content = this.templateFileField.getValue();
             break;
         case 'picture': 
-            this.setPicContentValue(true);
+            //this.setPicContentValue(true);
             //this.content.content = 'none::'+this.type2PicInput.value;
             break;
         }
@@ -587,8 +619,12 @@ ka.layoutContent = new Class({
         }
         */
         
+    	this.oldType = this.content.type;
         this.content.type = this.sType.getValue();
+        this.setDivContent();
 
+        return;
+        
         switch( this.content.type ){
         case 'html':
         case 'php':
@@ -954,192 +990,45 @@ ka.layoutContent = new Class({
     },
 
     type2Pic: function(){
-
-
-
-        this.layoutBox.pageInst.pluginChooserPane.empty();
-        //this.pluginChooser = new ka.pluginChooser( this.content.content, this.layoutBox.pageInst.pluginChooserPane );
-        //this.pluginChooser.addEvent('ok', function(){
-        //    this.deselect();
-        //}.bind(this));
-        this.layoutBox.pageInst.showPluginChooserPane();
-
+        
+        this.body.empty();
+        this.toolbarWysiwygContainer.empty();
+        
+        var div = new Element('div', {
+            style: 'border-bottom: 1px solid silver;'
+        }).inject(this.toolbarWysiwygContainer);
+        
+        
+        var divOne = new Element('div').inject(div);
+        var divSecond= new Element('div', {style: 'padding-left: 5px;'}).inject(div);
+        
         var url = '';
         var opts = {align: 'left', link: '', alt: '', title: '', width: '', height: ''};
         
         if( this.content.content && this.content.content.split ){
-            var t = this.content.content.split('::');
-            url = t[1];
-            if( t[0] != 'none' && t[0] != "" && t[0].substr(0, 1) == '{' )
-                opts = JSON.decode( t[0] );
+        
+            var pos = this.content.content.indexOf('::');
+            url = this.content.content.substr(0, pos);
+            var optString = this.content.content.substr(pos+2);
+            if( optString != 'none' && optString != "" && optString.substr(0, 1) == '{' )
+                opts = JSON.decode( optString );
         }
         
-        this.picTopDiv = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; right: 140px; bottom: 35px; overflow: auto;'
-        }).inject( this.layoutBox.pageInst.pluginChooserPane );
+        this.picUrl = new ka.field({
+            type: 'file'
+        }).inject( divOne );
         
-        var table = new Element('table').inject( this.picTopDiv );
-        this.tbody = new Element('tbody').inject( table );
+        document.id(this.picUrl).getElement('.ka-field-field').setStyle('margin-left', 0);
         
-        this.picUrl = new ka.field(
-            {label: _('Choose image'), tableitem: 1, type: 'fileChooser', empty: false}
-        )
-        .addEvent('change', function(){
-            this.setPicContentValue();
-        }.bind(this))
-        .inject( this.tbody );
-
-        this.picUrl.setValue( url );
+        new Element('input', {'class': 'text', style: 'width: 50px;'}).inject( divSecond );
+        new Element('span', {text: 'x'}).inject( divSecond );
+        new Element('input', {'class': 'text', style: 'width: 50px;'}).inject( divSecond );
         
+        var btn = new ka.Button(_('Reset')).inject( divSecond );
+        document.id(btn).setStyle('top', -2);
         
-        if( !opts.link ) opts.link = '';
-        
-        this.picLink = new ka.field({
-            label: _('Link'), tableitem: 1, type: 'chooser'
-        }).inject( this.tbody );
-        
-        this.picLink.setValue( opts.link );
-        
-        
-        if( !opts.alt ) opts.alt = '';
-        if( !opts.title ) opts.title = '';
-
-        this.picTitle = new ka.field({
-            label: _('Title'), tableitem: 1
-        }).addEvent('change', function(){
-            this.setPicContentValue();
-        }.bind(this))
-        .inject( this.tbody );
-        this.picTitle.setValue( opts.title );
-        
-        
-        this.picAlt = new ka.field({
-            label: _('Alternative description'), tableitem: 1
-        })
-        .addEvent('change', function(){
-            this.setPicContentValue();
-        }.bind(this))
-        .inject( this.tbody );
-        this.picAlt.setValue( opts.alt );
-        
-        
-        this.picAlign = new ka.field({
-            label: _('Image align'), type: 'select', tableItems: [
-                {id: 'left', l: _('Left')},
-                {id: 'center', l: _('Center')},
-                {id: 'right', l: _('Right')}
-            ],
-            table_key: 'id', table_label: 'l', tableitem: 1
-        })
-        .addEvent('change', function(){
-            this.setPicContentValue();
-        }.bind(this))
-        .inject( this.tbody );
-        this.picAlign.setValue( opts.align );
-        
-        
-        this.picBorderDiv = new Element('div', {
-            style: 'border: 1px solid silver; position: absolute; overflow: hidden; top: 15px; right: 5px; width: 130px; bottom: 100px; background-color: white;'
-        })
-        .inject( this.layoutBox.pageInst.pluginChooserPane );
-        
-        this.picSizeZoomer = new Element('div', {
-            style: 'position: absolute; border: 1px solid silver; height: 19px; right: 5px; bottom: 73px; width: 130px; background-color: #ddd; -webkit-border-radius: 3px; -moz-border-radius: 3px;'
-        }).inject( this.layoutBox.pageInst.pluginChooserPane );
-
-        this.picSizeZoomerText = new Element('div', {
-            style: 'width: 20px; position: absolute; top: 3px; left: 0px; width: 100%; text-align: center; height: 19px; '
-        }).inject( this.picSizeZoomer );
-        
-        this.picSizeZoomerKnob = new Element('div', {
-            style: 'width: 20px; position: absolute; top: 0px; height: 19px; background-color: gray; -moz-border-radius: 3px; -webkit-border-radius: 3px;',
-            styles: {
-                opacity: 0.6
-            }
-        }).inject( this.picSizeZoomer );
-        
-        this.loadingImg = false;
-        
-        this.picSlider = new Slider(this.picSizeZoomer, this.picSizeZoomerKnob, {
-            steps: 100,
-            onChange: function( pVal ){
-                if( this.loadingImg == false ){
-                    this.picSizeZoomerText.set('text', 'Loading ...');
-                } else {
-                    
-                    this.picSizeZoomerText.set('text', pVal+'%');
-                    this.picCalcSize( pVal );
-                    this.setPicContentValue();
-                    
-                }
-            }.bind(this)
-        }).set(100);
-        
-        this.picDimensionWidth = new Element('input', {
-            'class': 'text',
-            value: opts.width,
-            style: 'width: 50px; position: absolute; right: 81px;bottom: 45px;'
-        })
-        .addEvent('change', this.setPicContentValue.bind(this))
-        .inject( this.layoutBox.pageInst.pluginChooserPane );
-        
-        new Element('div', {
-            text: 'x',
-            style: 'position: absolute; right: 68px; bottom: 47px; color: gray; font-weight: bold; '
-        }).inject( this.layoutBox.pageInst.pluginChooserPane );
-        
-        this.picDimensionHeight = new Element('input', {
-            'class': 'text',
-            value: opts.height,
-            style: 'width: 50px; position: absolute; right: 5px; bottom: 45px;'
-        })
-        .addEvent('change', this.setPicContentValue.bind(this))
-        .inject( this.layoutBox.pageInst.pluginChooserPane );
-        
-        this.picBottom = new Element('div', {
-            style: 'position: absolute; left: 0px; right: 0px; height: 29px; bottom: 0px;',
-            'class': 'ka-pluginchooser-bottom'
-        }).inject( this.layoutBox.pageInst.pluginChooserPane );
-        
-        
-        /*if( $type(url) == 'string' && url.length > 0 ){
-
-            
-            var fId = 'adminFilesImgOnLoad'+new Date().getTime()+((Math.random()+"").replace(/\./g, ''));
-            window[fId] = function(){
-                this.picLoaded();
-            }.bind(this);
-            
-            this.picBottomPic = new Element('img', {
-                src: url,
-                align: 'center',
-                onLoad: fId+'()'
-            }).inject( this.picBorderDiv );
-            
-            if( this.picLoading )
-                this.picLoading.destroy();
-            
-            this.picLoading = new Element('div', {
-                style: 'position: absolute; left: 0px; text-align: center; top: 0px; height: 100%; width: 100%; background-color: #eee',
-                html: '<br /><br /><img src="'+_path+'inc/template/admin/images/loading.gif" />'
-            }).inject( this.picBorderDiv );
-            
-            
-        } else {
-            this.picLoaded();
-        }*/
-        
-        if( this.picBottomPic )
-            this.picBottomPic.set('style', '');
-        
-        this.picBottomOk = new ka.Button(_('OK'))
-        .addEvent('click', function(){
-            this.deselect();
-        }.bind(this))
-        .inject( this.picBottom );
-
-
-        this.setPicContentValue();
+        var btn = new ka.Button(_('Properties')).inject( divSecond );
+        document.id(btn).setStyle('top', -2);
 
         return;
     },
@@ -1290,10 +1179,31 @@ ka.layoutContent = new Class({
         if( this.lastCR )
             this.lastCR.cancel();
         
+        if( this.content.template == '-' ){
+        
+            if( this.body && this.body != this.div ){
+                this.body.set('class', this.div.get('class'));
+                this.body.inject( this.div, 'after' );
+                this.div.destroy();
+                if( this.lastContent && this.lastContent.type != this.content.type )
+                    this._setDivContent();
+            } else {
+                this.div.empty();
+                this.body = this.div;
+                this.title = null;
+                this._setDivContent(true);
+            }
+        
+            return;
+        }
+        
+        
         this.lastCR = new Request.JSON({url: _path+'admin/backend/getContentTemplate', noCache: 1, onComplete: function( pTpl ){
-            
-            if( this.mooeditable ){
-                this.mooeditable.detach();
+
+            var oldBody = false;            
+            if( this.body.hasClass('ka-layoutelement-content-content') ){
+                this.body.dispose();
+                var oldBody = this.body;
             }
             
             this.div.set('html', pTpl);
@@ -1301,14 +1211,20 @@ ka.layoutContent = new Class({
             this.body = this.div.getElement('.ka-layoutelement-content-content');
             this.title = this.div.getElement('.ka-layoutelement-content-title');
             
-            this.main.removeClass('ka-layoutContent-main-selected');
-                
-            if( !this.body )
-                this.body = this.div;
+            //this.main.removeClass('ka-layoutContent-main-selected');
+            
+            if( oldBody && this.body ) {
+                oldBody.replaces( this.body );
+                this.body = oldBody;
+                if( this.lastContent && this.lastContent.type != this.content.type )
+                    this._setDivContent();
+            } else {
+                if( !this.body )
+                    this.body = this.div;
+                this._setDivContent(true);
+            }
             
             this.lastContent = Object.clone(this.content);
-        
-            this._setDivContent(true);
             
         }.bind(this)}).get(this.content);
         
@@ -1327,16 +1243,24 @@ ka.layoutContent = new Class({
             this.main.removeClass('ka-layoutContent-main-selected');
         }
         
-        if( this.content.type != 'text' )
+        if( this.content.type != 'text' ){
             this.main.addClass('ka-layoutContent-body-notext');
-        else
+            this.toolbar.removeClass('ka-layoutContent-toolbar-withwysiwyg');
+        } else {
             this.main.removeClass('ka-layoutContent-body-notext');
+            this.toolbar.addClass('ka-layoutContent-toolbar-withwysiwyg');
+        }
             
         if( this.title )
             this.title.set('html', this.content.title);
             
         if( this.content.type != 'text' )
             this.lastTextarea = false;
+            
+        if( this.content.type != 'text' && this.mooeditable ){
+            this.mooeditable.detach();
+            this.mooeditable = null;
+        }
             
         switch( this.content.type ){
         case 'text':
@@ -1350,14 +1274,14 @@ ka.layoutContent = new Class({
             this.setDivPlugin();
             break;
         case 'navigation':
-            this.setDivNavigation();
+            this.type2Navigation();
             break;
         case 'template':
             //this.setDivTemplate();
             this.type2Template();
             break;
         case 'pointer':
-            this.setDivPointer();
+            this.type2Pointer();
             break;
         case 'html':
         case 'php':
@@ -1367,7 +1291,7 @@ ka.layoutContent = new Class({
         	this.toLayoutElement();
         	break;
         case 'picture':
-            this.setDivPic();
+            this.type2Pic();
             break;
         }
         
@@ -1383,6 +1307,8 @@ ka.layoutContent = new Class({
         this.optionsTemplate.set('html', '<span style="color: #444;"> | '+
                 this.getTemplateTitle(this.content.template)+
                 '</span>');
+
+        this.positionToolbar();
 
     },
 
@@ -1569,7 +1495,6 @@ ka.layoutContent = new Class({
         this.selected = true;
         this.showToolbar();
         this.main.addClass('ka-layoutContent-main-selected');
-        this.toEditMode();
     },
     
     deselectChilds: function(){
