@@ -358,12 +358,35 @@ class windowList {
         
         $extraFields = array();
         $joins = "";
+        $table = "%pfx%".$this->table;
 
         $filter = "WHERE 1=1 ".$this->filterSql();
         $extraWhere = " ".$this->where();
 
+        //relation stuff
+        $rTable = database::getTable( $this->table );
         
-        $table = "%pfx%".$this->table;
+        
+        if( getArgv('relation_table') ){
+            
+            $relation = database::getRelation( getArgv('relation_table'), $this->table );
+            
+            if( $relation ){
+                $params = getArgv('relation_params');
+                
+                foreach( $relation['fields'] as $field_left => $field_right ){
+                
+                    $extraWhere .= " AND $table.$field_right = ";
+                    if( database::$tables[ $rTable ][ $field_right ]['escape'] == 'int' )
+                        $extraWhere .= $params[ $field_right ]+0;
+                    else
+                        $extraWhere .= "'".esc($params[ $field_right ])."'";
+                    
+                }
+            }
+        }
+
+        
         
         if( $this->multiLanguage ){
         	$curLang = getArgv('language',2);
@@ -371,7 +394,7 @@ class windowList {
         }
         
         $fields = "";
-
+        $end = "";
 
         foreach( $this->columns as $key => $column ){
             if( $pCountSql == false ){
@@ -395,7 +418,7 @@ class windowList {
                             LEFT OUTER JOIN %pfx%".$column['n-n']['right']." ON (
                                 %pfx%".$column['n-n']['right'].".".$column['n-n']['right_key']." = %pfx%".$column['n-n']['middle'].".".$column['n-n']['middle_keyright']." ) ";
                         
-                        $filter .= " GROUP BY %pfx%".$this->table.".".$this->primary[0]." \n";
+                        $end .= " GROUP BY %pfx%".$this->table.".".$this->primary[0]." \n";
                 }
             }
         }
@@ -414,13 +437,15 @@ class windowList {
                 $joins
                 $filter
                 $extraWhere
+                $end
                 ";
         } else {
             $sql = "
                 SELECT $table.* $fields
                 FROM $table
                 $filter
-                $extraWhere";
+                $extraWhere
+                $end";
         }
         return $sql;
     }
@@ -458,6 +483,11 @@ class windowList {
         else
             $results['maxPages'] = 0;
 
+        $secondOrder = '';            
+        if( $this->secondOrderBy && $this->secondOrderBy != $this->orderBy )
+            $secondOrder = ', %pfx%'.$this->table.'.'.$this->secondOrderBy.' '.$this->secondOrderByDirection;
+
+
         if( $_POST['getPosition'] ){
         
             $limit = "";
@@ -469,7 +499,7 @@ class windowList {
             $sql = "
                 ".$this->listSql."
                 $unique
-                ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection;
+                ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection." $secondOrder";
             
             $aWhere = array();
             
@@ -525,13 +555,13 @@ class windowList {
                 //default behaviour
                 $limit = " LIMIT $end OFFSET $start";
             }
-
-
+            
             $listSql = "
             SELECT * FROM (
                 ".$this->listSql."
                 $unique
                 ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection."
+                $secondOrder
             ) as t
             $limit";
             
@@ -580,6 +610,10 @@ class windowList {
         $listSql = "
             ".$this->listSql."
             ORDER BY %pfx%".$this->table.".".$this->orderBy." ".$this->orderByDirection;
+            
+        if( $this->secondOrderBy && $this->secondOrderBy != $this->orderBy )
+            $listSql .= ', %pfx%'.$this->table.'.'.$this->secondOrderBy.' '.$this->secondOrderByDirection;
+
         $sres = dbExec( $listSql );
         
         $exportType = getArgv('exportType',2);

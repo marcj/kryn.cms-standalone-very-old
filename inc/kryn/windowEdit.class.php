@@ -357,6 +357,7 @@ class windowEdit {
         $row = array();
         foreach( $this->_fields as $key => $field ){
             if( $field['fake'] == true ) continue;
+            if( $field['type'] == 'subview' ) continue;
 
             $val = getArgv($key);
             
@@ -399,16 +400,9 @@ class windowEdit {
             }
 
             $row[$key] = $val;
-            
-            /*if( $field[0] == 'int' || $field['update']['type'] == 'int' )
-                $val = $val+0;
-            else
-                $val = "'".esc($val)."'";
-
-            $values[$key] = $val;
-            $sql .= "$key = $val,";
-            */
 		}
+		
+		
         
      	if( $this->multiLanguage ){
         	$curLang = getArgv('lang', 2);
@@ -422,20 +416,12 @@ class windowEdit {
         foreach( $tableInfo as $key => $field ){
             
             if( $field[2] != "DB_PRIMARY" ) continue;
-            
-            /*if( $field[0] == 'int' )
-                $val = getArgv($key);
-            else
-                $val = "'".getArgv($key,true)."'";
-            */
             $val = getArgv($key);
             
             if( isset($val) ){
                 $primary[$key] = $val;
                 $row[$key] = $val;
             }
-
-            //$sql .= " AND $key = $val";
         }
         
         $res = array();
@@ -453,6 +439,7 @@ class windowEdit {
             
             //publish - means: write in origin table
             dbUpdate( $this->table, $primary, $row );
+            
             $res['version_rsn'] = '-'; //means live
             
             foreach( $this->_fields as $key => $field ){

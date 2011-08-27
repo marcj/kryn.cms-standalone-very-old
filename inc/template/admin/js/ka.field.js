@@ -50,7 +50,8 @@ ka.field = new Class({
         if( this.field.invisible == 1)
             this.main.setStyle('display', 'none');
         
-
+        if( this.field.win )
+            this.win = this.field.win;
 
         if( pField.label )
             this.titleText = new Element('div', {
@@ -194,6 +195,9 @@ ka.field = new Class({
         case 'number':
         	this.renderNumber();
         	break;
+        case 'window_list':
+            this.renderWindowList();
+            break;
         case 'text':
         default: 
             this.renderText();
@@ -228,6 +232,72 @@ ka.field = new Class({
     	} else {
 			alert(_('Custom field: '+this.field['class']+'. Can not find this javascript class.'));
     	}
+    },
+    
+    renderWindowList: function(){
+    
+        var div = new Element('div', {
+            styles: {
+                height: this.field.height
+            }
+        }).inject(this.fieldPanel);
+        
+        var titleGroups = new Element('div', {
+            'class': 'kwindow-win-title kwindow-win-titleGroups',
+            style: 'display: none; top: 0px;padding: 3px; height: 25px; min-height: 25px;'
+        }).inject( div );
+        
+        var content = new Element('div', {
+            'class': 'kwindow-win-content',
+            style: 'top: 36px;'
+        }).inject( div );
+    
+        var pos = this.field['window'].indexOf('/');
+        var module = this.field['window'].substr(0,pos);
+        var code = this.field['window'].substr( pos+1 );
+        
+        
+        var win = {};
+        Object.append(win, this.win);
+        
+        Object.append(win, {
+            content: content,
+            extendHead: function(){
+                titleGroups.setStyle('display', 'block');
+            },
+            addButtonGroup: function(){
+                titleGroups.setStyle('display', 'block');
+                return new ka.buttonGroup( titleGroups );
+            },
+            module: module,
+            code: code,
+            _confirm: this.win._confirm,
+            params: {},
+            id: this.win.id
+        });
+        
+        this.getValue = function(){};
+
+        this.setValue = function( pValue ){
+            
+            if( !this.list ){
+                this.list = new ka.list( win, {
+                    relation_table: pValue.table,
+                    relation_params: pValue.params
+                });
+            } else {
+                this.list.options.relation_params = pValue.params;
+                
+                if( this.list.classLoaded == true ){
+                    this.list.loadPage( 1, true );    
+                } else {
+                    this.list.addEvent('render', function(){
+                        this.list.loadPage( 1, true );
+                    }.bind(this));
+                }
+                
+            }
+        }.bind(this);
     },
     
     renderImageGroup: function(){
@@ -637,7 +707,7 @@ ka.field = new Class({
                      return;
                   var selOptionClone = selOption.clone(true).inject(selOption.getPrevious('option')[0], 'before');
                   selOption.destroy();
-                  //logger(this.getValue());
+
                }.bind(this)
                
             ).inject(td4); 
@@ -658,7 +728,6 @@ ka.field = new Class({
                         return;
                      var selOptionClone = selOption.clone(true).inject(selOption.getNext('option')[0], 'after');
                      selOption.destroy();
-                     //logger(this.getValue());
                   }.bind(this)            
             
             ).inject(td4);                      
@@ -775,7 +844,6 @@ ka.field = new Class({
 */
             //initTiny( this.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
             } catch(e){
-                //logger( e );
             }
         }
 
@@ -1021,8 +1089,22 @@ ka.field = new Class({
     	this.fireEvent('change', this.getValue());
     },
 
-    inject: function( pTo, pP ){
+    findWin: function(){
+    
+        if( this.win ) return;
+        
+    	var win = this.toElement().getParent('.kwindow-border');
+    	if( !win ) return;
     	
+        this.win = win.retrieve('win');
+    },
+    
+    toElement: function(){
+        return ( this.field.tableitem )? this.tr : this.main;
+    },
+
+    inject: function( pTo, pP ){
+    
     	if( this.field.onlycontent ){
     		this.fieldPanel.inject( pTo, pP );
     		return this;
@@ -1040,6 +1122,8 @@ ka.field = new Class({
         
         if( this.customObj )
         	this.customObj.inject( this.fieldPanel );
+        
+        this.findWin();
         
         return this;
     },

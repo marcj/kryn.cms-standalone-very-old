@@ -1,8 +1,11 @@
 ka.list = new Class({
+    Implements: Events,
 	
 	loadAlreadyTriggeredBySearch: false,
 	
-    initialize: function( pWindow ){
+    initialize: function( pWindow, pOptions ){
+    
+        this.options = pOptions || {};
         this.win = pWindow;
         this.win.content.setStyle('overflow', 'hidden');
         this.page = 1;
@@ -14,10 +17,11 @@ ka.list = new Class({
 
         this.load();
         var _this = this;
-        this.win.softReload = function(){
-            //_this.loadPage( parseInt(_this.ctrlPage.value) ); 
-            this.reload();
-        }.bind(this);
+        
+        window.addEvent('softReload', function( pCode ){
+            if( pCode == this.win.module+'/'+this.win.code )
+                this.reload();
+        }.bind(this));
     },
 
     reload: function(){
@@ -27,8 +31,10 @@ ka.list = new Class({
     load: function(){
         var _this = this;
         new Request.JSON({url: _path+'admin/backend/window/loadClass/', noCache: true, onComplete:function( res ){
-            _this.render( res );
-        }}).post({ module: this.win.module, 'code': this.win.code });
+            this.render( res );
+            this.classLoaded = true;
+            this.fireEvent('render');
+        }.bind(this)}).post({ module: this.win.module, 'code': this.win.code, relation_table: this.options.relation_table });
     },
 
     deleteItem: function(pItem){
@@ -108,6 +114,8 @@ ka.list = new Class({
     },
     
     renderFinished: function(){
+            
+        if( this.options.noInitLoad == true ) return;
         
         if( !this.loadAlreadyTriggeredBySearch ){
             if( this.columns )
@@ -150,12 +158,13 @@ ka.list = new Class({
         this.head = new Element('div', {
             'class': 'ka-list-head'
         }).inject( this.win.content );
+        
         this.headTable = new Element('table',{
             cellspacing: 0
         }).inject( this.head );
+        
         this.headTableTHead = new Element('thead').inject( this.headTable );
         var tr = new Element('tr').inject( this.headTableTHead );
-
 
         /*** checkbox-Th ***/
         if( this.values.remove == true ){
@@ -280,7 +289,6 @@ ka.list = new Class({
         if( doSearchNow ){
         	this.toggleSearch();
         	this.loadAlreadyTriggeredBySearch = true;
-        	logger('do search');
         	this.doSearch();
         }
     },
@@ -389,22 +397,24 @@ ka.list = new Class({
         if( this.values.multiLanguage )
         	this.win.extendHead();
         
-        if( this.values.add || this.values.remove || this.values.custom){
+        if( this.values.add || this.values.remove || this.values.custom ){
             this.actionsNavi = this.win.addButtonGroup();
         }
+    
+        if( this.actionsNavi ){
+            if( this.values.remove ){
+                this.actionsNavi.addButton(_('Remove selected'), _path+'inc/template/admin/images/icons/'+this.values.iconDelete, function(){
+                   this.removeSelected();
+                }.bind(this));
+            }
 
-        if( this.values.remove ){
-            this.actionsNavi.addButton(_('Remove selected'), _path+'inc/template/admin/images/icons/'+this.values.iconDelete, function(){
-               this.removeSelected();
-            }.bind(this));
-        }
-
-        if( this.values.add ){
-            this.actionsNavi.addButton(_('Add'), _path+'inc/template/admin/images/icons/'+this.values.iconAdd, function(){
-                ka.wm.openWindow( _this.win.module, _this.win.code+'/add', null, null, {
-                	lang: (_this.languageSelect)?_this.languageSelect.value:false
+            if( this.values.add ){
+                this.actionsNavi.addButton(_('Add'), _path+'inc/template/admin/images/icons/'+this.values.iconAdd, function(){
+                    ka.wm.openWindow( _this.win.module, _this.win.code+'/add', null, null, {
+                    	lang: (_this.languageSelect)?_this.languageSelect.value:false
+                    });
                 });
-            });
+            }
         }
         
         
@@ -437,24 +447,25 @@ ka.list = new Class({
         if( this.values['export'] || this.values['import'] )
             this.exportNavi = this.win.addButtonGroup();
             
-        if( this.values['export'] ){
-            this.exportType = new Element('select',{
-                style: 'position: relative; top: -2px;'
-            })
-            $H(this.values['export']).each(function(fields,type){
-                new Element('option', {
-                    value: type,
-                    html: _(type)
-                }).inject(this.exportType);
-            }.bind(this));_
-            this.exportNavi.addButton(this.exportType, '');
-            this.exportNavi.addButton(_('Export'), _path+'inc/template/admin/images/icons/table_go.png', this.exportTable.bind(this));
+        if( this.exportNavi ){
+            if( this.values['export'] ){
+                this.exportType = new Element('select',{
+                    style: 'position: relative; top: -2px;'
+                })
+                $H(this.values['export']).each(function(fields,type){
+                    new Element('option', {
+                        value: type,
+                        html: _(type)
+                    }).inject(this.exportType);
+                }.bind(this));_
+                this.exportNavi.addButton(this.exportType, '');
+                this.exportNavi.addButton(_('Export'), _path+'inc/template/admin/images/icons/table_go.png', this.exportTable.bind(this));
+            }
+    
+            if( this.values['import'] ){
+                this.exportNavi.addButton(_('Import'), _path+'inc/template/admin/images/icons/table_row_insert.png');
+            }
         }
-
-        if( this.values['import'] ){
-            this.exportNavi.addButton(_('Import'), _path+'inc/template/admin/images/icons/table_row_insert.png');
-        }
-
     },
 
     removeSelected: function(){
@@ -561,7 +572,7 @@ ka.list = new Class({
     loadPage: function( pPage ){
         var _this = this;
 
-        if( this._lastItems && pPage != 1 ){
+        if( this._lastItems && pPage != 1 && !pForce ){
             if( pPage > this._lastItems.maxPages )
                 return;
         }
@@ -576,10 +587,25 @@ ka.list = new Class({
 
         if( this.loader )
             this.loader.show();
+            
+        var params = {};
+        
+        if( this.options.relation_table && this.values.relation ){
+            var relationFields = this.values.relation.fields;
+            
+            Object.each(relationFields, function(field_right, field_left){
+                
+                if( this.options.relation_params[ field_left ] )
+                    params[field_right] = this.options.relation_params[ field_left ];
+                
+            }.bind(this));
+        }
+        
+        this.relation_params_filtered = params;
 
         this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
-            _this.renderItems(res);
-        }}).post({ 
+            this.renderItems(res);
+        }.bind(this)}).post({ 
             module: this.win.module,
             code: this.win.code, 
             page: pPage,
@@ -588,7 +614,8 @@ ka.list = new Class({
             language: (this.languageSelect)?this.languageSelect.value:false,
             filterVals: (this.searchEnable)?this.getSearchVals():'',
             orderByDirection: _this.sortDirection,
-            params: JSON.encode(this.win.params)
+            relation_table: this.options.relation_table,
+            relation_params: params
         });
     },
 
@@ -647,6 +674,11 @@ ka.list = new Class({
         var tr = new Element('tr',{
             'class': (_this.tempcount%2)?'one':'two'
         }).inject( this.tbody );
+        
+        if( this.relation_table ){
+            pItem.relation_table = this.relation_table;
+            pItem.relation_params = this.relation_params_filtered;
+        }
        
         if( this.values.remove == true ){
             var td = new Element('td',{

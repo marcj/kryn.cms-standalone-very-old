@@ -52,17 +52,17 @@ ka.windowEdit = new Class({
     },
     
     generateItemParams: function( pVersion ){
-    	var req = $H({});
+    	var req = {};
 	   
-	    req.include( 'module', this.win.module );
-	    req.include( 'code', this.win.code );
+	    req['module'] = this.win.module;
+	    req['code'] = this.win.code;
 	    
 	    if( pVersion )
 	    	req.version = pVersion;
 	
 	    if( this.win.params ){
 	        this.values.primary.each(function(prim){
-	            req.include( prim, this.win.params.values[prim] );
+	            req[ prim ] = this.win.params.values[prim];
 	        }.bind(this));
 	    }
 	    return req;
@@ -121,8 +121,17 @@ ka.windowEdit = new Class({
         this.fields.each(function(field, fieldId){
             try {
             	
-                if( $type(pItem.values[fieldId]) == false )
+            	if( this.windowAdd && this.win.params && this.win.params.relation_table &&
+                    this.win.params.relation_params[fieldId]
+            	){
+            	   field.setValue( this.win.params.relation_params[fieldId] );
+            	   
+            	} else if( this._fields[fieldId].type == 'window_list' ){
+                    field.setValue({table: this.values.table, params: pItem.values});
+                    
+                } else if( $type(pItem.values[fieldId]) == false )
                     field.setValue( '' );
+
                 else if( !this._fields[fieldId].startempty )
                     field.setValue( pItem.values[fieldId] );
 
@@ -584,7 +593,7 @@ ka.windowEdit = new Class({
                 'class': 'ka-windowEdit-actions'
             }).inject( this.container );
     
-            this.exit = new ka.Button(_('Cancel'))
+            this.exit = new ka.Button(_('Close'))
             .addEvent( 'click', function(){
                 _this.win.close();
             })
@@ -610,16 +619,19 @@ ka.windowEdit = new Class({
     _save: function( pClose, pPublish ){
         var go = true;
         var _this = this;
-        var req = $H();
+        var req = {};
         
         if( this.item )
-            req = $H(this.item.values);
+            req = this.item.values;
         
-        req.include( 'module', this.win.module );
-        req.include( 'code', this.win.code );
+        req[ '_kryn_module' ] = this.win.module;
+        req[ '_kryn_code' ] = this.win.code;
         
         
         this.fields.each(function(item, fieldId){
+            
+            if( ['window_list'].contains(item.type) ) return;
+        
             if( !item.isHidden() && !item.isOk() ){
             	
             	if( this.currentTab && this.values.tabFields){
@@ -648,20 +660,18 @@ ka.windowEdit = new Class({
             var value = item.getValue();
             
             if( item.field.relation == 'n-n' )
-                req.set( fieldId, JSON.encode(value) );
+                req[ fieldId ] = JSON.encode(value);
             else if( $type(value) == 'object' )
-                req.set( fieldId, JSON.encode(value) );
+                req[ fieldId ] = JSON.encode(value);
             else
-                req.set( fieldId, value );
+                req[ fieldId ] = value;
         }.bind(this));
         
         if( this.values.multiLanguage ){
-        	req.set('lang', this.languageSelect.value);
+        	req['lang'] = this.languageSelect.value;
         }
         
         req.publish = (pPublish==true)?1:0;
-        
-        
         
         if( go ){
                 
@@ -688,14 +698,21 @@ ka.windowEdit = new Class({
             
             if( this.win.params ){
     	        this.values.primary.each(function(prim){
-    	            req.include( prim, this.win.params.values[prim] );
+    	            req[ prim ] = this.win.params.values[prim];
     	        }.bind(this));
+    	        
+    	        if( this.win.params.relation_params ){
+        	        Object.each(this.win.params.relation_params, function(value,id){
+        	           req[ id ] = value;
+        	        });
+        	        req['_kryn_relation_table'] = this.win.params.relation_table;
+        	        req['_kryn_relation_params'] = this.win.params.relation_params;
+    	        }
     	    }
             
             new Request.JSON({url: _path+'admin/backend/window/loadClass/saveItem', noCache: true, onComplete: function(res){
-                
-                if( !_this.inline )
-                	ka.wm.softReloadWindows( this.win.module, this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
+
+                window.fireEvent('softReload', this.win.module+'/'+this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
             	
             	if( this.inline ) {
                     if( pPublish ){

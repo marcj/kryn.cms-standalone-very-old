@@ -951,19 +951,13 @@ ka.windowCombine = new Class({
         
         if( !this.currentEdit ){
         
-            this.currentEdit = new ka.windowEdit({
-                extendHead: this.win.extendHead.bind(this.win),
-                addSmallTabGroup: this.win.addSmallTabGroup.bind(this.win),
-                addButtonGroup: this.win.addButtonGroup.bind(this.win),
-                addEvent: this.win.addEvent.bind(this.win),
-                border: this.win.border,
-                module: this.win.module,
+            var cloned = {};
+            Object.append(cloned, this.win);
+
+            this.currentEdit = new ka.windowEdit(Object.append( cloned, {
                 code: this.win.code+'/edit',
                 params: pItem,
-                content: this.win.content,
-                inlineContainer: this.win.inlineContainer,
-                id: this.win.id
-            }, this.mainRight);
+            }), this.mainRight);
             
             this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
