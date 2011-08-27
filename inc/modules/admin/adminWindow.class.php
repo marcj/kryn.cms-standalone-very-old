@@ -58,12 +58,13 @@ class adminWindow {
         require( 'inc/kryn/windowEdit.class.php' );
         require( 'inc/kryn/windowAdd.class.php' );
         
-        $module = getArgv('module');
-        $code = getArgv('code');
+        $module = (getArgv('_kryn_module')) ? getArgv('_kryn_module'): getArgv('module');
+        $code = (getArgv('_kryn_code')) ? getArgv('_kryn_code'): getArgv('code');
 
         $info = self::getInfo( $module, $code );
         $class = $info['values']['class'];
-
+        
+        
         
         $module2LoadClass = $module;
         
@@ -121,6 +122,10 @@ class adminWindow {
             break;
         default:
             $res = $obj->init(true);
+        
+            if( getArgv('relation_table') ){
+                $res->relation = database::getRelation( getArgv('relation_table'), $res->table );
+            }
             break;
         }
         

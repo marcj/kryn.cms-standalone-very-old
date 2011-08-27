@@ -7,10 +7,10 @@ class publicationNewsComments extends windowList {
     public $itemsPerPage = 20;
     public $orderBy = 'created';
 
-//    public $filter = array('name', 'email');
+    public $filter = array('name', 'email');
 
-    public $add = false;
-    public $edit = false;
+    public $add = true;
+    public $edit = true;
     public $remove = true;
 
     public $primary = array('rsn');
@@ -54,7 +54,7 @@ class publicationNewsComments extends windowList {
         // Make a rsn chain
         $rsns = "";
         foreach($selection as $selected)
-            $rsns .= ", ".$selected['rsn'];
+            $rsns .= ", ".($selected['rsn']+0);
         
         // Get parent rsn's
         $sql = "

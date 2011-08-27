@@ -73,9 +73,21 @@
           "class": "publicationNewsComments",
           "isLink": true,
           "multi": true,
-          "childs": [
+          "childs": {
+            "edit" : {
+              "title": "Edit comment",
+              "type": "edit",
+              "class": "publicationNewsCommentsEdit",
+              "multi": true
+            },
             
-          ]
+            "add" : {
+              "title": "Add comment",
+              "type": "add",
+              "class": "publicationNewsCommentsAdd",
+              "multi": true
+            }
+          }
         }
       }
     }
@@ -281,6 +293,17 @@
         }
       }
     ]
+  },
+  "db_relations": {
+  
+    "publication_news": {
+        "table": "publication_comments",
+        "relation": "1-n",
+        "fields": {
+            "rsn": "parent_rsn"
+        }
+    }
+  
   },
   "db": {
     "publication_news": {

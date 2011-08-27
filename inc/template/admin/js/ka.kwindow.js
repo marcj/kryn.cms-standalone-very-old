@@ -415,8 +415,10 @@ ka.kwindow = new Class({
             if( this.inFront && !this.inOverlayMode ){
                 if( pControl && !e.control ) return;
                 if( pAlt && !e.alt ) return;
-                if( e.key == pKey )
+                if( e.key == pKey ){
+                    e.preventDefault();
                     try{ pCallback(); }catch(e){ logger(e) };
+                }
                 
             }
         }.bind(this));
@@ -1039,14 +1041,6 @@ ka.kwindow = new Class({
     addButtonGroup: function(){
     	this.extendHead();
         return new ka.buttonGroup( this.titleGroups );
-        //this.trans.setStyle('top', 53 );
-        /*var box = new Element('div', {
-            'class': 'kwindow-win-buttonGroup'
-        }).inject( this.titleGroups );*/
-        /*var res = new Element('div', {
-            'class': 'kwindow-win-buttonGroupContent'
-        }).inject( box );*/
-        return box;
     },
     
     /*

@@ -252,7 +252,8 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
     }
 
     $sqlInsert = substr( $sqlInsert, 0, -1 );
-
+    
+    
     $sql .= " $sqlInsert WHERE $where ";
     return dbExec( $sql );
 }

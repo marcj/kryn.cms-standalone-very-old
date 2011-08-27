@@ -409,12 +409,14 @@ ka.loadStream = function(){
 	_lastStreamCounter = (function(){
 	    if( window._session.user_rsn > 0 ){
 	        new Request.JSON({url: _path+'admin/backend/stream', noCache: 1, onComplete: function(res){
-	        	ka.streamParams.last = res.last;
-	        	window.fireEvent('stream', res);
 	            if( res ){
-	                $('serverTime').set('html', res.time);
-	            } else {
-	                ka.ai.logout( true );
+    	        	ka.streamParams.last = res.last;
+    	        	window.fireEvent('stream', res);
+    	            if( res ){
+    	                $('serverTime').set('html', res.time);
+    	            } else {
+    	                ka.ai.logout( true );
+    	            }
 	            }
 	            ka._lastStreamid = ka.loadStream.delay(5*1000);
 	        }}).post(ka.streamParams);
