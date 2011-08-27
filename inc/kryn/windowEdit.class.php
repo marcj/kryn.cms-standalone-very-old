@@ -402,7 +402,17 @@ class windowEdit {
             $row[$key] = $val;
 		}
 		
-		
+		if( getArgv('_kryn_relation_table') ){
+		    $relation = database::getRelation( getArgv('_kryn_relation_table'), $this->table );
+		    if( $relation ){
+                $params = getArgv('_kryn_relation_params');
+                foreach( $relation['fields'] as $field_left => $field_right ){
+    		          if( !$row[$field_right] ){
+    		              $row[$field_right] = $params[ $field_right ];
+    		          }
+    		    }
+		    }
+		}
         
      	if( $this->multiLanguage ){
         	$curLang = getArgv('lang', 2);

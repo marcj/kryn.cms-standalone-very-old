@@ -79,6 +79,13 @@
               "type": "edit",
               "class": "publicationNewsCommentsEdit",
               "multi": true
+            },
+            
+            "add" : {
+              "title": "Add comment",
+              "type": "add",
+              "class": "publicationNewsCommentsAdd",
+              "multi": true
             }
           }
         }

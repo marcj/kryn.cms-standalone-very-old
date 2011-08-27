@@ -51,32 +51,31 @@ class windowAdd extends windowEdit {
 
             if( $field['type'] == 'fileList' ){
                 $val = json_encode( $val );
-            }else if($field['type'] == 'select' && $field['multi'] && !$field['relation']) {
+            } else if($field['type'] == 'select' && $field['multi'] && !$field['relation']) {
                 $val = json_encode( $val);
             }
 
-            if( $tableInfo[$key][0] == 'int' || $field['update']['type'] == 'int' )
-                $val = $val+0;
-            else
-                $val = "'".esc($val)."'";
-
-            $values .= "$val,";
-            $fields .= "$key,";
+            $row[ $key ] = $val;
         }
+        
+        if( getArgv('_kryn_relation_table') ){
+		    $relation = database::getRelation( getArgv('_kryn_relation_table'), $this->table );
+		    if( $relation ){
+                $params = getArgv('_kryn_relation_params');
+                foreach( $relation['fields'] as $field_left => $field_right ){
+    		          if( !$row[$field_right] ){
+    		              $row[$field_right] = $params[ $field_right ];
+    		          }
+    		    }
+		    }
+		}
         
         if( $this->multiLanguage ){
         	$curLang = getArgv('lang', 2);
-        	$fields .= "lang,";
-        	$values .= "'$curLang',";
+        	$row['lang'] = $curLang;
         }
-        
-        $values = substr($values, 0, -1);
-        $fields = substr($fields, 0, -1);
-        $sql .= " ($fields) VALUES ($values) ";
 
-#       error_log( $sql );
-
-        dbExec( $sql );
+        dbInsert( $this->table, $row );
         $this->last = database::last_id();
         $_REQUEST[$this->primary[0]] = $this->last;
 

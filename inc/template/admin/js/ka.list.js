@@ -330,7 +330,6 @@ ka.list = new Class({
     renderActionbar: function(){
         var _this = this;
 
-
         this.filterButton = new Element('a', {
             href: 'javascript: ;',
             html: _('Search'),
@@ -411,9 +410,11 @@ ka.list = new Class({
             if( this.values.add ){
                 this.actionsNavi.addButton(_('Add'), _path+'inc/template/admin/images/icons/'+this.values.iconAdd, function(){
                     ka.wm.openWindow( _this.win.module, _this.win.code+'/add', null, null, {
-                    	lang: (_this.languageSelect)?_this.languageSelect.value:false
+                    	lang: (_this.languageSelect)?_this.languageSelect.value:false,
+                    	relation_params: this.relation_params_filtered,
+                    	relation_table: this.options.relation_table
                     });
-                });
+                }.bind(this));
             }
         }
         
@@ -675,9 +676,9 @@ ka.list = new Class({
             'class': (_this.tempcount%2)?'one':'two'
         }).inject( this.tbody );
         
-        if( this.relation_table ){
-            pItem.relation_table = this.relation_table;
-            pItem.relation_params = this.relation_params_filtered;
+        if( this.options.relation_table ){
+            pItem.relation_table = this.options.relation_table;
+            pItem.relation_params = this.options.relation_params_filtered;
         }
        
         if( this.values.remove == true ){

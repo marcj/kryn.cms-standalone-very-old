@@ -697,10 +697,14 @@ ka.windowEdit = new Class({
             }
             
             if( this.win.params ){
-    	        this.values.primary.each(function(prim){
-    	            req[ prim ] = this.win.params.values[prim];
-    	        }.bind(this));
+            
+                if( !this.windowAdd ){
+        	        this.values.primary.each(function(prim){
+        	            req[ prim ] = this.win.params.values[prim];
+        	        }.bind(this));
+    	        }
     	        
+    	        logger( this.win.params );
     	        if( this.win.params.relation_params ){
         	        Object.each(this.win.params.relation_params, function(value,id){
         	           req[ id ] = value;
