@@ -134,13 +134,20 @@ class adminFilemanager {
     }
     
     public static function setInternalAcl( $pFilePath, $pRules ){
+        global $cfg;
 
         $pFilePath = esc( '/'.$pFilePath );
+        if( $pFilePath == '//' )
+            $pFilePath = '/';
         
-        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath\[%'");
-        
-        //SELECT * FROM krynsvn7_system_acl WHERE code LIKE '/googleanalytics/\\%%'
-        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath\\\%%'");
+        $wc = '\%';
+
+        if( $cfg['db_type'] == 'postgresql' )
+            $wc = '\\%';
+
+        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath"."[%'");
+        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath".$wc."[%'");
+        // /\%
         
         $row = dbExfetch('SELECT MAX(prio) as maxium FROM %pfx%system_acl');
         $prio = $row['maxium'];
