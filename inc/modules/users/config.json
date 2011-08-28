@@ -102,9 +102,12 @@
         "ssl": {
             "label": "SSL",
             "type": "checkbox"
+        },
+        "default_group": {
+            "label": "Default group",
+            "type": "group"
         }
     }
-  
   },
   "admin": {
     "browser": {

@@ -1545,6 +1545,68 @@ ka._openLinkContext = function( pLink ){
 	
 }
 
+ka.parse = new Class({
+
+    objects: {},
+
+    initialize: function( pContainer, pDefinition ){
+    
+        this.main = new Element('div').inject( pContainer );
+        this.parseLevel( pDefinition, this.main );
+    },
+    
+    toElement: function(){
+        return this.main;
+    },
+    
+    parseLevel: function( pLevel, pContainer, pDependField ){
+        Object.each( pLevel, function(field,id){
+            
+            var obj = new ka.field( field );
+            document.id(obj).inject( pContainer );
+            
+            if( pDependField && field.needValue ){
+                pDependField.addEvent('change', function(){
+                    if( field.needValue == pDependField.getValue() ){
+                        obj.show();   
+                    } else {
+                        obj.hide();
+                    }
+                }.bind(this));
+            }
+            
+            if( field.depends ){
+                var childContainer = new Element('div').inject( document.id(obj) );
+                this.parseLevel( field.depends, childContainer, obj );
+                obj.fireEvent('change');
+            }
+            this.objects[ id ] = obj;
+        
+        }.bind(this));
+    },
+    
+    setValue: function( pValues ){
+    
+        Object.each( this.objects, function(obj,id){
+            obj.setValue( pValues[id] );
+        });
+    },
+    
+    getObjects: function(){
+        return this.objects;
+    },
+    
+    getValue: function(){
+    
+        var res = {};
+        
+        Object.each( this.objects, function(obj,id){
+            res[id] = obj.getValue();
+        });
+        
+        return res;
+    }
+});
 
 
 

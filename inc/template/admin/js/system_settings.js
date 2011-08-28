@@ -14,7 +14,8 @@ var admin_system_settings = new Class({
         this.tabGroup = this.win.addSmallTabGroup();
         this.tabButtons = $H();
         this.tabButtons['general'] = this.tabGroup.addButton(_('General'), this.changeType.bind(this,'general'));
-        this.tabButtons['system'] = this.tabGroup.addButton(_('System'), this.changeType.bind(this,'system'));;
+        this.tabButtons['system'] = this.tabGroup.addButton(_('System'), this.changeType.bind(this,'system'));
+        this.tabButtons['auth'] = this.tabGroup.addButton(_('Session'), this.changeType.bind(this,'auth'));
         this.tabButtons['database'] = this.tabGroup.addButton(_('Database'), this.changeType.bind(this,'database'));
         this.tabButtons['caching'] = this.tabGroup.addButton(_('Caching'), this.changeType.bind(this,'caching'));
 
@@ -60,8 +61,10 @@ var admin_system_settings = new Class({
             label: _('System title'), desc: 'Adds a title to the administration titel'
         }).inject( p );
         
-        this.fields['sessiontime'] = new ka.field({
-            label: _('Session timeout'), empty: false
+        
+        this.fields['update finder'] = new ka.field({
+            label: _('Update finder'),
+            type: 'checkbox'
         }).inject( p );
 
         this.fields['communityEmail'] = new ka.field({
@@ -90,13 +93,54 @@ var admin_system_settings = new Class({
             label: _('Log errors target'), desc: _('If Log errors is activated, all errors will be written in this file. Example: inc/kryn.log')
         }).inject( p );
       
-        
         this.fields['timezone'] = new ka.field({
             label: _('Server timezone'), type: 'select', tableItems: this.timezones, table_key: 'l', table_label: 'l'
         }).inject( p );
         
-        var p = this.panes['database'];
+        var p = this.panes['auth'];
         
+        var fields ={
+            'session_timeout': {
+                label: _('Session timeout'),
+                type: 'text',
+                'default': '3600'
+            },
+
+            'session_autoclear': {
+                label: _('Activate session garbage collector'),
+                desc: 'Decreases the performance when dealing with huge count of sessions.',
+                type: 'checkbox',
+                'default': '0'
+            },
+
+            'auth_class': {
+                'label': _('Authentificator'),
+                'type': 'select',
+                'table_items': {
+                    'kryn': 'Kryn'
+                },
+                depends: {}
+            }
+        };
+        
+        this.auth_params = {};
+
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each( config.auth, function(auth_fields,auth_class){
+                    Object.each( auth_fields, function( field, field_id){
+                        field.needValue = auth_class;
+                        fields.auth_class.depends[ auth_class+'_'+field_id  ] = field;
+                        fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
+                    }.bind(this));
+                }.bind(this));
+            }
+        }.bind(this));
+
+        new ka.parse( p, fields );
+        
+        
+        var p = this.panes['database'];
         this.fields['db_type'] = new ka.field({
             label: _('Database type'), empty: false, type: 'select',
             tableItems: [

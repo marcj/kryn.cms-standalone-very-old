@@ -609,7 +609,7 @@ class admin {
         $res['system']['db_user'] = '';
         $res['system']['db_passwd'] = '';
 
-        $inGroups = $client->user['groups'];
+        $inGroups = $client->user['inGroups'];
         
 
         $code = esc($pUrl);

@@ -542,14 +542,18 @@ ka.field = new Class({
     renderSelect: function(){
         var _this = this;
         var multiple = ( this.field.multi || this.field.multiple );
-		  var sortable = this.field.sortable;
+		var sortable = this.field.sortable;
 		  
-		  var selWidth = 133;
-	     if( this.field.tinyselect )
+		var selWidth = 133;
+        if( this.field.tinyselect )
             selWidth = 75;
-			if(sortable)
-			   selWidth -= 8;
+        if( sortable )
+            selWidth -= 8;
 			
+        if( !this.field.tableItems && this.field.table_items ){
+            this.field.tableItems = this.field.table_items;
+        }
+
         if( multiple && (!this.field.size || this.field.size+0 < 4 ) )
         	this.field.size = 4;
         
