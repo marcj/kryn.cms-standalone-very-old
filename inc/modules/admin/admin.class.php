@@ -483,7 +483,7 @@ class admin {
             $json = json_encode($json);
             kryn::fileWrite('inc/cache/lang_'.$lang.'.json', $json);
         }
-        $user->setSessionLanguage( $lang );
+        $user->setLang( $lang );
         
         
         kryn::$lang = kryn::getAllLanguage( $lang );

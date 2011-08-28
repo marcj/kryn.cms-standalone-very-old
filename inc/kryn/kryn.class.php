@@ -849,7 +849,8 @@ class kryn extends baseModule {
      * @static
      */
     public static function checkUrlAccess( $pUrl, $pUser = false ){
-        if( ! $pUser )
+        
+        if( !$pUser )
             global $user;
         else
             $user = $pUser;
@@ -863,19 +864,13 @@ class kryn extends baseModule {
             types:
                 1: admin ($admin) and frontend
                 2: pages (backend access for special uses)
-        */
 
-        /*
             target_type:
                 1: group
                 2: user
         */
 
-        if( count($user->groups) > 0 )
-            foreach( $user->groups as $group ) {
-                $inGroups .= $group['group_rsn'].",";
-            }
-        $inGroups .= "0";
+        $inGroups = $user->user['inGroups'];
 
         $code = esc($pUrl);
         if( substr( $code, -1 ) != '/' )
@@ -972,9 +967,11 @@ class kryn extends baseModule {
         $cfg['templatepath'] = $cfg['path']."inc/template";
         $cfg['path'] .= $cfg['upfx'];
         
-        if( !$cfg['sessiontime'] ){
+        if( !$cfg['sessiontime'] )
             $cfg['sessiontime'] = 3600;
-        }
+        
+        if( !$cfg['auth_class'] )
+            $cfg['auth_class'] = 'kryn';
         
         $this->cfg = $cfg;
         tAssign('path', $cfg['path']);
@@ -1018,6 +1015,27 @@ class kryn extends baseModule {
         	if( !@mkdir($cfg['template_cache']) )
         	   die('Can not access to or create folder for template caching: '.$cfg['template_cache']);
         }
+    }
+    
+    public function initAuth(){
+        global $cfg, $user;
+            
+        if( $cfg['auth_class'] == 'kryn' ){
+            $user = new krynAuth();
+        } else {
+            $ex = explode( '/', $cfg['auth_class'] );
+            $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+            if( file_exists($class) ){
+                require_once( $class );
+                $authClass = $ex[1];
+                
+                $user = new $authClass();
+            }
+        }
+    
+        if( $user->user['rsn'] != 0 ){
+            $user->user_logged_in = true;
+        }    
     }
     
     /**
@@ -1575,12 +1593,9 @@ class kryn extends baseModule {
                 $cgroups =& $user->user['groups'];
             } else {
             	
-	            $u = esc($_SERVER['PHP_AUTH_USER']);
-	            $p = md5($_SERVER['PHP_AUTH_PW']);
+                $htuser = $user->login( $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'] );
 	            
-	            $htuser =& user::getUserForUsername( $u );
-	            
-	            if( $htuser && $htuser['passwd'] == $p ){ 
+	            if( $htuser > 0 && $htuser['passwd'] == $p ){ 
                     $cgroups =& $htuser['groups'];
 	            }
             }

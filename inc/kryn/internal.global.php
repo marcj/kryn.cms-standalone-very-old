@@ -26,6 +26,11 @@ $errorHandlerInside = false;
 
 
 
+function kryn_shutdown(){
+    global $user;
+    $user->syncStore();
+}
+
 
 
 /**

@@ -79,7 +79,7 @@ include('inc/kryn/acl.class.php');
 include("inc/kryn/adminForm.class.php");
 include('inc/kryn/knavigation.class.php');
 include('inc/kryn/tpl.class.php');
-include('inc/kryn/user.class.php');
+include('inc/kryn/krynAuth.class.php');
 include('inc/kryn/systemSearch.class.php');
 
 # Init classes and globals
@@ -138,11 +138,7 @@ $kryn->initConfig();
 $kryn->loadModules();
 $kryn->loadLanguage();
 
-$user = new user();
-if($user->user['rsn'] != GUEST){
-    $user->user_logged_in = true;
-}
-
+$kryn->initAuth();
 $kryn->initModules();
 
 tAssign("request", $_REQUEST);
@@ -151,6 +147,8 @@ tAssign("user", $user->user);
 $kryn->checkAccess();
 
 systemSearch::initSearch();
+
+register_shutdown_function('kryn_shutdown');
 
 $kryn->admin = false;
 tAssign( 'admin', false );

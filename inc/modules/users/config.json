@@ -88,6 +88,24 @@
       "sql": "SELECT s.time, s.ip, u.username FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.rsn = s.user_rsn AND u.rsn > 0"
     }
   },
+  "auth": {
+  
+    "auth_imap": {
+        "server": {
+            "label": "Server",
+            "type": "text"
+        },
+        "port": {
+            "label": "Port",
+            "type": "number"
+        },
+        "ssl": {
+            "label": "SSL",
+            "type": "checkbox"
+        }
+    }
+  
+  },
   "admin": {
     "browser": {
       "title": "User and group browse dialog",
@@ -561,6 +579,12 @@
       "username": [
         "varchar",
         "255",
+        "DB_INDEX",
+        false
+      ],
+      "auth": [
+        "auth",
+        "16",
         "-",
         false
       ],
@@ -752,6 +776,12 @@
         "-",
         false
       ],
+      "extra": [
+        "text",
+        "",
+        "-",
+        false
+      ]
       "created": [
         "int",
         "",

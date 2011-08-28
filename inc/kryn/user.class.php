@@ -41,7 +41,6 @@ class user {
         global $kryn, $lang;
 
         # Delete expired sessions
-
         $this->sessionid = ($_REQUEST['krynsessionid']!='')?esc($_REQUEST['krynsessionid']):esc($_COOKIE['krynsessionid']);
 
         if($this->sessionid != ""){
@@ -209,26 +208,6 @@ class user {
             return $userRow['rsn'];
             
     	return false;
-    }
-    
-    /**
-     * 
-     * Search the user by the given username and returns the complete user hash
-     * as ref.
-     *
-     * @params $pUserName The username you want the id.
-     * @return &array returns false if not found
-     */
-    
-    public static function &getUserForUsername( $pUsername ){
-    	
-        $userId = self::getIdForUsername( $pUsername );
-        if( !$userId ) return false;
-        
-        $user =& self::getUser( $userId);
-        if( !$user ) return false;
-        
-        return $user;
     }
     
     /**

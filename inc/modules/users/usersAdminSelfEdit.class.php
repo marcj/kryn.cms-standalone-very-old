@@ -183,7 +183,8 @@ class usersAdminSelfEdit extends windowEdit {
     }
     
     function __destruct(){
-        user::getUser( getArgv('rsn'), true ); //refresh cache
+        global $user;
+        $user->getUser( getArgv('rsn'), true ); //refresh cache
     }
 
 }
