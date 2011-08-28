@@ -34,13 +34,16 @@ class krynAuth {
     
     function __construct(){
     
+        tAssign("client", $this);
         $this->token = $this->getToken();
-        error_log( $this->token );
-        //TODO die klasse generiert noch zuviel sessions und ist noch nicht fertig.
+        error_log( "->".$this->token );
         $this->session = $this->loadSession();
+        
+        $this->startSession = $this->session;
         
         if( !$this->session ){
             //no session found, create new one
+            error_log("Session NOT FOUND");
             $this->session = $this->newSession();
         } else {
             //maybe we wanna check the ip ?
@@ -52,7 +55,9 @@ class krynAuth {
                 }
             }
             
+            error_log( 'session found: '.$this->session['user_rsn'] );
             $this->loadUser( $this->session['user_rsn'] );
+            
             $this->updateSession();
         }
         
@@ -78,7 +83,7 @@ class krynAuth {
             if( getArgv('login') )
                 $login = getArgv('login');
             
-            $user =& $this->login( $login, getArgv('passwd') );
+            $user = $this->login( $login, getArgv('passwd') );
 
             if( !$user ){
 
@@ -90,11 +95,13 @@ class krynAuth {
             } else {
     
                 $this->setUser( $user['rsn'], false );
+                
                 $this->user = $user;
                 $this->user_rsn = $user['rsn'];
                 
                 if( getArgv(1) == 'admin' ){
-                
+
+                    $this->syncStore();
                     if( !kryn::checkUrlAccess('admin/backend/', $this) ){
                         json(0);
                     }
@@ -121,6 +128,8 @@ class krynAuth {
     public function setUser( $pUserRsn, $pLoadUser = true ){
 
         $this->set( 'user_rsn', $pUserRsn ); //will be saved at shutdown
+
+        error_log('Change user -> '.$pUserRsn);
 
         if( $pLoadUser )
             $this->loadUser( $pUserRsn );
@@ -211,12 +220,9 @@ class krynAuth {
                 'username' => 'Guest'
             );
         } else {
-            $this->user =& $this->getUser( $this->user_rsn );
+            $this->user =& $this->getUser( $pUserRsn );
         }
         
-        $this->user['sessionid'] =& $this->sessionid;
-        $this->user['session'] =& $this->sessionrow;
-        $this->user['ip'] = $_SERVER['REMOTE_ADDR'];
         $this->user_rsn =& $this->user['rsn'];
         
         tAssign("user", $this->user);
@@ -298,7 +304,7 @@ class krynAuth {
     public function syncStore(){
         if( $this->needSync != true ) return;
         global $cfg;
-        
+
         switch( $cfg['session_storage'] ){
             case 'memcached':
                 
@@ -311,6 +317,7 @@ class krynAuth {
                 $session['time'] = $this->session['time'];
                 $session['refreshed'] = $this->session['refreshed'];
                 $session['ip'] = $this->session['ip'];
+                
                 $sessionExtra = $this->session;
                 unset($sessionExtra['language']);
                 unset($sessionExtra['time']);
@@ -319,7 +326,7 @@ class krynAuth {
                 
                 $session['extra'] = json_encode($sessionExtra);
                 
-                dbUpdate('system_sessions', "token = '".esc($this->token)."'", $session);
+                dbUpdate('system_sessions', "id = '".esc($this->token)."'", $session);
         }
         
     }
@@ -352,6 +359,9 @@ class krynAuth {
                     $session = $this->newSessionDatabase();
             }
             if( $this->token ){
+                setCookie("krynsessionid", '', time()-3600*24*700, "/"); 
+                setCookie("krynsessionid", '', time()-3600*24*700, "/admin");
+                setCookie("krynsessionid", '', time()-3600*24*700, "/admin/");
                 setCookie("krynsessionid", $this->token, time()+3600*24*7, "/"); //7 Days
                 return $session;
             }
@@ -363,15 +373,13 @@ class krynAuth {
     }
     
     public function newSessionDatabase(){
-
+        global $cfg;
+        
         $token = $this->generateSessionId();
         $row = dbExfetch("SELECT rsn FROM %pfx%system_sessions WHERE id = '$token'", 1);
-        if( $row ){
-            if( $row['time'] < time()+$cfg['session_timeout'] ){
-                dbDelete('system_sessions', "id = '$token'");
-            } else {
-                return false;
-            }
+        if( $row['rsn'] > 0 ){
+            //another session with this id exists
+            return false;
         }
         
         $session = array(
@@ -419,7 +427,7 @@ class krynAuth {
         $row = dbExfetch('SELECT * FROM %pfx%system_sessions WHERE id = \''.esc($this->token).'\'', 1);
 
         if( !$row ) return false;
-        if( $row['time'] < time()+$cfg['session_timeout'] ) return false;
+        if( $row['time']+$cfg['session_timeout'] < time() ) return false;
 
         unset($row['rsn']);
         unset($row['created']);

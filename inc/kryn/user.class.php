@@ -355,9 +355,6 @@ class user {
         
         $this->sessionrow = $session;
         $this->sessionid = $id;
-        setCookie("krynsessionid", '', time()-3600*24*700, "/"); 
-        setCookie("krynsessionid", '', time()-3600*24*700, "/admin");
-        setCookie("krynsessionid", '', time()-3600*24*700, "/admin/");
         setCookie("krynsessionid", $id, time()+3600*24*7, "/"); # 7 Days
         return true;
     }

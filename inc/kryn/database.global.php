@@ -158,6 +158,8 @@ function dbInsert( $pTable, $pFields ){
             $val = $field;
         }
 
+        if( !$options[$fieldName] ) continue;
+
         $sqlFields .= "$fieldName,";
 
         if( $options[$fieldName]['escape'] == 'int' ){
@@ -212,6 +214,8 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
     if( is_array($pPrimary) ){
         $where = ' ';
         foreach( $pPrimary as $fieldName => $fieldValue) {
+            if( !$options[$fieldName] ) continue;
+            
             $where .= '' . $fieldName . ' ';
             if( $options[$fieldName]['escape'] == 'int' ){
                 $where .= ' = ' . ($fieldValue+0) . " AND ";
@@ -219,21 +223,14 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
                 $where .= " = '" . esc($fieldValue) . "' AND ";
             }
         }
-
-        /*foreach( $options['_primary'] as $key => $primary ){
-            $where = '' . $key . ' = ';
-            if( $primary[0] == 'int' )
-                $where .= $pPrimary[$key] . ' AND ';
-            else
-                $where .= "'" . $pPrimary[$key] . "' AND ";
-        }*/
+        
         $where = substr( $where, 0, -4 );
     } else {
         $where = $pPrimary;
     }
 
-    foreach( $pFields as $key => $field ){
-
+    foreach( $pFields as $key => $field ){    
+            
         if( is_numeric($key) ){
             $fieldName = $field;
             $val = getArgv( $field );
@@ -241,6 +238,8 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
             $fieldName = $key;
             $val = $field;
         }
+        
+        if( !$options[$fieldName] ) continue;
 
         $sqlInsert .= "$fieldName";
 
@@ -252,7 +251,6 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
     }
 
     $sqlInsert = substr( $sqlInsert, 0, -1 );
-    
     
     $sql .= " $sqlInsert WHERE $where ";
     return dbExec( $sql );

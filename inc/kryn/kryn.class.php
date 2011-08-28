@@ -967,8 +967,11 @@ class kryn extends baseModule {
         $cfg['templatepath'] = $cfg['path']."inc/template";
         $cfg['path'] .= $cfg['upfx'];
         
-        if( !$cfg['sessiontime'] )
-            $cfg['sessiontime'] = 3600;
+        if( !$cfg['sessiontime'] && !$cfg['session_timeout'] )
+            $cfg['session_timeout'] = 3600;
+
+        if( $cfg['sessiontime'] && !$cfg['session_timeout'] )
+            $cfg['session_timeout'] = $cfg['sessiontime'];
         
         if( !$cfg['auth_class'] )
             $cfg['auth_class'] = 'kryn';
@@ -1018,10 +1021,11 @@ class kryn extends baseModule {
     }
     
     public function initAuth(){
-        global $cfg, $user;
+        global $cfg, $user, $client;
             
         if( $cfg['auth_class'] == 'kryn' ){
-            $user = new krynAuth();
+            $client = new krynAuth();
+            $user = $client;
         } else {
             $ex = explode( '/', $cfg['auth_class'] );
             $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";

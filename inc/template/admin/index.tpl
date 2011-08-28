@@ -25,7 +25,7 @@
             window._session = new Hash();
             window._session.user_rsn = {$user.rsn+0};
             window._session.username = '{$user.username}';
-            window._session.sessionid = '{$user.sessionid}';
+            window._session.sessionid = '{$client->token}';
             window._session.lang = '{$adminLanguage}';
             window._session.lastlogin = '{$user.lastlogin}';
             window._session.forceLang = '{$request.setLang}';
