@@ -36,14 +36,12 @@ class krynAuth {
     
         tAssign("client", $this);
         $this->token = $this->getToken();
-        error_log( "->".$this->token );
         $this->session = $this->loadSession();
         
         $this->startSession = $this->session;
         
         if( !$this->session ){
             //no session found, create new one
-            error_log("Session NOT FOUND");
             $this->session = $this->newSession();
         } else {
             //maybe we wanna check the ip ?
@@ -55,9 +53,7 @@ class krynAuth {
                 }
             }
             
-            error_log( 'session found: '.$this->session['user_rsn'] );
             $this->loadUser( $this->session['user_rsn'] );
-            
             $this->updateSession();
         }
         
@@ -128,8 +124,6 @@ class krynAuth {
     public function setUser( $pUserRsn, $pLoadUser = true ){
 
         $this->set( 'user_rsn', $pUserRsn ); //will be saved at shutdown
-
-        error_log('Change user -> '.$pUserRsn);
 
         if( $pLoadUser )
             $this->loadUser( $pUserRsn );

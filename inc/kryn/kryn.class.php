@@ -645,41 +645,6 @@ class kryn extends baseModule {
         }
     }
 
-/*
- * todo in table
-    public function unlock( $pType, $pId ){
-        dbDelete('system_lock', "type = '$pType' AND key = '$pId'");
-        return true;
-    }
-
-    public function canLock( $pType, $pId ){
-        global $user;
-
-        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if( $row['session_id'] == $user->sessionid ) return true;
-        if(! $row['rsn'] > 0 ) return true;
-
-        $user = dbTableFetch('system_user')
-        return false;
-    }
-
-    public function lock( $pType, $pId ){
-        global $user;
-
-        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if($row['rsn']>0) return false;
-
-        dbInsert('system_lock', array(
-            'type' => $pType,
-            'key' => $pId,
-            'session_id' => $user->sessionid,
-            'time' => time()
-        ));
-        return true;
-
-    }
-*/
-
     /**
      * 
      * Sends a E-Mail in UTF-8
