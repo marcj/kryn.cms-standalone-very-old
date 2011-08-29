@@ -88,6 +88,8 @@
     border-left: 1px solid silver;
     border-top: 1px solid silver;
     background-color: #f5f5f5;
+    box-shadow: 0px 0px 2px gray;
+    -moz-border-radius: 4px;
 }
 
 .ka-pagesTree-context a,

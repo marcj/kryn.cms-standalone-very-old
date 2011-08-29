@@ -321,6 +321,10 @@
           "defaultHeight": 420,
           "type": "custom"
         },
+        "systemfiles": {
+          "title": "System files",
+          "isLink": false
+        },
         "properties": {
           "title": "Properties",
           "isLink": false,
