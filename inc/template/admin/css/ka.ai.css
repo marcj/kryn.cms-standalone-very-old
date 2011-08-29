@@ -1021,3 +1021,9 @@ a.ka-create-search-index-icon.red {
     border-right: 1px solid #aaa;
     border-top: 2px solid #aaa;
 }
+
+.ka-fields-sub {
+    padding-left: 15px;
+    margin-left: 8px;
+    border-left: 1px solid #ddd;
+}

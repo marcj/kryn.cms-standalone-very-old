@@ -1544,11 +1544,52 @@ var admin_pages = new Class({
             {label: _('Css and JS compression'), desc: _('Merge all css files in one, same with javascript files. This improve the page render time'), type: 'checkbox'}
         ).inject( p );
         
-        this.domainFields['langSync'] = new ka.field(
+        /*this.domainFields['langSync'] = new ka.field(
         {label: _('Synchronize with'), type: 'select', desc: _(''),
             table_label: 'label', table_key: 'id', multiple: true,
             tableItems: tableItems
-        }).inject( p );
+        }).inject( p );*/
+        
+        var fields ={
+            'session_timeout': {
+                label: _('Session timeout'),
+                type: 'text',
+                'default': '3600'
+            },
+
+            'session_autoclear': {
+                label: _('Activate session garbage collector'),
+                desc: 'Decreases the performance when dealing with huge count of sessions.',
+                type: 'checkbox',
+                'default': '0'
+            },
+
+            'auth_class': {
+                'label': _('Backend Authentification'),
+                'type': 'select',
+                'table_items': {
+                    'kryn': 'Kryn'
+                },
+                depends: {}
+            }
+        };
+
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each( config.auth, function(auth_fields,auth_class){
+                    Object.each( auth_fields, function( field, field_id){
+                        field.needValue = auth_class;
+                        fields.auth_class.depends[ auth_class+'_'+field_id  ] = field;
+                        fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
+                    }.bind(this));
+                }.bind(this));
+            }
+        }.bind(this));
+
+        new ka.parse( p, fields );
+        
+        
+        
 
         this.domainFields['page404_rsn'] = new ka.field(
             {label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}

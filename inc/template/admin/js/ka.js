@@ -1551,7 +1551,9 @@ ka.parse = new Class({
 
     initialize: function( pContainer, pDefinition ){
     
-        this.main = new Element('div').inject( pContainer );
+        this.main = new Element('div', {
+            'class': 'ka-fields-main'
+        }).inject( pContainer );
         this.parseLevel( pDefinition, this.main );
     },
     
@@ -1576,7 +1578,9 @@ ka.parse = new Class({
             }
             
             if( field.depends ){
-                var childContainer = new Element('div').inject( document.id(obj) );
+                var childContainer = new Element('div', {
+                    'class': 'ka-fields-sub'
+                }).inject( document.id(obj) );
                 this.parseLevel( field.depends, childContainer, obj );
                 obj.fireEvent('change');
             }

@@ -114,7 +114,7 @@ var admin_system_settings = new Class({
             },
 
             'auth_class': {
-                'label': _('Authentificator'),
+                'label': _('Backend Authentification'),
                 'type': 'select',
                 'table_items': {
                     'kryn': 'Kryn'
