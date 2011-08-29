@@ -36,6 +36,7 @@ class krynAuth {
     
         tAssign("client", $this);
         $this->token = $this->getToken();
+        error_log( $this->token );
         $this->session = $this->loadSession();
         
         $this->startSession = $this->session;
@@ -44,6 +45,8 @@ class krynAuth {
             //no session found, create new one
             $this->session = $this->newSession();
         } else {
+    
+            error_log( 'found: '.$this->session['user_rsn'] );
             //maybe we wanna check the ip ?
             if( $cfg['session_ipcheck'] == 1 ){
                 $ip = $this->get('ip');
@@ -273,8 +276,7 @@ class krynAuth {
 
     public function logout(){
         global $cfg;
-        
-        
+        $this->setUser(0);
     }
     
     public function removeExpiredSessions(){
@@ -344,6 +346,8 @@ class krynAuth {
     public function newSession(){
         global $cfg;
         
+        $session = false;
+
         for( $i=1; $i <= 25; $i++ ){
             switch( $cfg['session_storage'] ){
                 case 'memcached':
@@ -352,11 +356,12 @@ class krynAuth {
                 default:
                     $session = $this->newSessionDatabase();
             }
-            if( $this->token ){
+            if( $session ){
                 setCookie("krynsessionid", '', time()-3600*24*700, "/"); 
                 setCookie("krynsessionid", '', time()-3600*24*700, "/admin");
                 setCookie("krynsessionid", '', time()-3600*24*700, "/admin/");
                 setCookie("krynsessionid", $this->token, time()+3600*24*7, "/"); //7 Days
+                error_log("new Session: ".$this->token);
                 return $session;
             }
         }
@@ -386,14 +391,10 @@ class krynAuth {
             'refreshed' => 0
         );
         
-        $res = dbInsert('system_sessions', $session);
-
-        if( $res ){
-            $this->token = $token;
-            unset($session['id']);
-            return $session;
-        } else 
-            return false;
+        dbInsert('system_sessions', $session);
+        $this->token = $token;
+        unset($session['id']);
+        return $session;
     }
     
     public function generateSessionId(){
@@ -418,9 +419,11 @@ class krynAuth {
     public function loadSessionDatabase(){
         global $cfg;
 
+        error_log( "ls:" .$this->token );
         $row = dbExfetch('SELECT * FROM %pfx%system_sessions WHERE id = \''.esc($this->token).'\'', 1);
 
         if( !$row ) return false;
+        error_log("st: ".$cfg['session_timeout']);
         if( $row['time']+$cfg['session_timeout'] < time() ) return false;
 
         unset($row['rsn']);
