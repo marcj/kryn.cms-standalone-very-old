@@ -898,8 +898,12 @@ class kryn extends baseModule {
                 admin::printPossibleLangs();
             
             //klog("authentication", "checkAccess: ".$_REQUEST['_kurl']." ACCESS DENIED");
-            admin::showLogin();
-            exit;
+            if( !getArgv(2) ){
+                admin::showLogin();
+                exit;
+            } else {
+                json(array('error'=>'access_denied'));
+            }
         }
     }
     

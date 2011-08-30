@@ -3,12 +3,14 @@
 /**
 * krynAuth - class to handle the sessions.
 *
+* @package Kryn
+* @subpackage Auth
 */
 
 class krynAuth {
 
     /**
-    * The auth token.
+    * The auth token. (which is basically stored as cookie on the client side)
     */
     public $token = false;
     
@@ -18,7 +20,9 @@ class krynAuth {
     */
     private $session;
     
-    
+    /*
+    * For backwards compatibility the user_rsn from $this->user['rsn']
+    */
     public $user_rsn = 0;
     
     /**
@@ -27,23 +31,30 @@ class krynAuth {
     public $user;
 
     /**
-    * Defines whether set() was called and changed $session
+    * Defines whether set() was called and changed $session and therefore
+    * we need at the end of the script a sync to the backend (database/memcache)
+    * Idea behind this: We get more speed, when only saving the combined data at the end,
+    * instead of saving as far as it has been changed.
     */
     private $needSync = false;
 
-    
+    /**
+    * Constructor
+    */
     function __construct(){
-    
+
         tAssign("client", $this);
         $this->token = $this->getToken();
         error_log( $this->token );
         $this->session = $this->loadSession();
-        
+
         $this->startSession = $this->session;
-        
+
         if( !$this->session ){
+
             //no session found, create new one
             $this->session = $this->newSession();
+
         } else {
     
             error_log( 'found: '.$this->session['user_rsn'] );
@@ -66,6 +77,9 @@ class krynAuth {
             $this->removeExpiredSessions();
     }
     
+    /**
+    * Updates the time and refreshed-counter of a session.
+    */
     public function updateSession(){
         
         $this->set('time', time());
@@ -73,6 +87,9 @@ class krynAuth {
         
     }
     
+    /**
+    * Handles the input of the client. Therefore the login/logout arguments.
+    */
     public function processClient(){
     
         if( getArgv('user') == 'login' ){
@@ -124,6 +141,9 @@ class krynAuth {
         }
     }
     
+    /**
+    * Set the current user of the session.
+    */
     public function setUser( $pUserRsn, $pLoadUser = true ){
 
         $this->set( 'user_rsn', $pUserRsn ); //will be saved at shutdown
@@ -140,6 +160,9 @@ class krynAuth {
         return $state;
     }
     
+    /**
+    * Do the authentication against the defined backend
+    */
     public function &login( $pLogin, $pPassword ){
     
         if( $pLogin == 'admin' )
@@ -151,7 +174,7 @@ class krynAuth {
             return false;
         }
         
-        //found user in the system_user table. If not exist, create it
+        //Search user in the system_user table. If not exist, create it
         return $this->getOrCreateUser( $pLogin );
     }
     
@@ -189,6 +212,13 @@ class krynAuth {
         return $this->getUser( $user['rsn'] );
     }
     
+    
+    /**
+    * User was not found after the authentication in the system_user table. So
+    * maybe we want to add this user to a defined group. 
+    * Other auth class may want to extract some user/group-informations from
+    * the authentication backend.
+    */
     public function firstLogin( $pUser ){
         global $cfg;
         
@@ -202,13 +232,16 @@ class krynAuth {
     }
 
     /**
-     * 
+     * Clears the cache of the current user.
      * @internal
      */
     private function clearCache(){
         $this->getUser($this->user_rsn, true);
     }
     
+    /**
+    *
+    */
     public function loadUser( $pUserRsn ){
         
         if( $pUserRsn == 0 ){
@@ -274,27 +307,46 @@ class krynAuth {
     	return $result;
     }
 
+    /**
+    * Do the logout mechanism
+    */
     public function logout(){
         global $cfg;
         $this->setUser(0);
     }
     
+    
+    /**
+    * Removes all expired sessions.
+    * If the user configured no 'session_autoremove', then this method
+    * is called through a cronjob. Last method is basically better regarding
+    * the performance.
+    */
     public function removeExpiredSessions(){
-        //TODO
+        global $cfg;
         
+        $lastTime = time()-$cfg['session_timeout'];
+        dbDelete('system_sessions', 'time < '.$lastTime);
+
     }
     
+    /**
+    * Sets the language of the current session
+    */
     public function setLang( $pLang ){
         if( $this->getLang() != $pLang )
             $this->set( 'language', $pLang );
     }
     
+    /**
+    * Gets the language of the current session
+    */
     public function getLang(){
         return $this->get( 'language' );
     }
     
     /**
-    * When the scripts ends, we need to sync the stored data (in $session with set())
+    * When the scripts ends, we need to sync the stored data ($this->session, which has been changed with set())
     * to the backend (memcached/database/etc)
     */
     public function syncStore(){
@@ -327,14 +379,17 @@ class krynAuth {
         
     }
     
+    /**
+    * Gets values of the current session
+    */
     public function &get( $pCode ){
         return $this->session[$pCode];
     }
     
     /**
-    * Stores additional information into a session.
-    * The system uses following codes:
-    *    language, time, refreshed, ip, user_rsn, page, user agent
+    * Stores additional information into the current session.
+    * The system uses following codes, so your should't override it:
+    *    language, time, refreshed, ip, user_rsn, page, useragent
     */
     public function set( $pCode, $pValue ){
         if( $this->session[$pCode] == $pValue ) return;
@@ -343,6 +398,9 @@ class krynAuth {
         $this->session[$pCode] = $pValue;
     }
     
+    /**
+    * Creates a new token and session in the backend
+    */
     public function newSession(){
         global $cfg;
         
@@ -371,6 +429,41 @@ class krynAuth {
         return false;
     }
     
+    
+    /**
+    * Creates a new token and session in the memcached-server
+    */
+    public function newSessionMemcached(){
+        global $cfg;
+        
+        $token = $this->generateSessionId();
+        //TODO
+        $row = dbExfetch("SELECT rsn FROM %pfx%system_sessions WHERE id = '$token'", 1);
+        if( $row['rsn'] > 0 ){
+            //another session with this id exists
+            return false;
+        }
+        
+        $session = array(
+            'id' => $token,
+            'user_rsn' => 0,
+            'time' => time(),
+            'ip' => $_SERVER['REMOTE_ADDR'],
+            'page' => esc(kryn::$baseUrl.$_REQUEST['_kurl']),
+            'useragent' => esc($_SERVER['HTTP_USER_AGENT']),
+            'refreshed' => 0
+        );
+        
+        dbInsert('system_sessions', $session);
+        $this->token = $token;
+        unset($session['id']);
+        return $session;
+    }
+    
+    
+    /**
+    * Creates a new token and session in the database
+    */
     public function newSessionDatabase(){
         global $cfg;
         
@@ -397,10 +490,16 @@ class krynAuth {
         return $session;
     }
     
+    /**
+    * Generates a new token/session id
+    */
     public function generateSessionId(){
         return md5( microtime(true).mt_rand().mt_rand(50,60*100) );
     }
-    
+
+    /**
+    * Loads the session based on the given token from the client
+    */
     public function loadSession(){
         global $cfg;
 
@@ -416,6 +515,10 @@ class krynAuth {
         return false;
     }
 
+
+    /**
+    * Loads the session based on the given token from the client in the database
+    */
     public function loadSessionDatabase(){
         global $cfg;
 
@@ -423,8 +526,10 @@ class krynAuth {
         $row = dbExfetch('SELECT * FROM %pfx%system_sessions WHERE id = \''.esc($this->token).'\'', 1);
 
         if( !$row ) return false;
-        error_log("st: ".$cfg['session_timeout']);
-        if( $row['time']+$cfg['session_timeout'] < time() ) return false;
+        if( $row['time']+$cfg['session_timeout'] < time() ){
+            dbDelete('system_sessions', 'id = \''.esc($this->token).'\'');
+            return false;
+        }
 
         unset($row['rsn']);
         unset($row['created']);
@@ -439,15 +544,17 @@ class krynAuth {
         return $row;
     }
     
+    /**
+    * Loads the session based on the given token from the client in the memcached server
+    */
     public function loadSessionMemcached(){
-        
+        //TODO
     }
     
     /**
-    *
+    * Returns the token from the client
     * @return string
     */
-    
     public function getToken(){
         
         if( $_GET['krynsessionid'] ) return $_GET['krynsessionid'];
@@ -458,9 +565,9 @@ class krynAuth {
     }
 
     /**
-    * Checks the given credentials
-    * @param $pLogin
-    * @param $pPassword
+    * Checks the given credentials.
+    * @param $pLogin string
+    * @param $pPassword string
     * @return bool
     */
     public function checkCredentials( $pLogin, $pPassword ){
@@ -469,7 +576,9 @@ class krynAuth {
         return $this->checkCredentialsDatabase( $pLogin, $pPassword );
     }
     
-    
+    /**
+    * Checks the given credentials in the database
+    */
     protected function checkCredentialsDatabase( $pLogin, $pPassword ){
 
         $login = esc($pLogin);
@@ -487,6 +596,5 @@ class krynAuth {
         return false;
     }
 }
-
 
 ?>
