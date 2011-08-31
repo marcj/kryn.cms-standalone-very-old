@@ -967,8 +967,6 @@ class kryn extends baseModule {
     public function initConfig(){
         global $cfg;
         
-        
-        $cfg['upfx'] = ($cfg['mod_rewrite'] == 0) ? '?_kurl=' : '';
         $cfg['templatepath'] = $cfg['path']."inc/template";
         $cfg['path'] .= $cfg['upfx'];
         
