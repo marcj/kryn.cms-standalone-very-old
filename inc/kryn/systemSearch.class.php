@@ -36,22 +36,12 @@ class systemSearch extends baseModule{
     public static $autoCrawlPermissionLifetime = 60; //sec
     
     public static function initSearch() {   
-        /*if(getArgv('backendAutoCrawler', 1)) {
-        		self::checkAutoCrawlPermission();
-        }*/
     	
         global $kdb;
         
         if(getArgv(1) == 'admin')
             return;
   
-        /*
-        self::$pageUrl = '/'.$_REQUEST['_kurl'];
-         
-        //remove last slash 
-        if(strrpos(self::$pageUrl, '/') == strlen(self::$pageUrl)-1 )
-            self::$pageUrl = substr(self::$pageUrl, 0, strlen(self::$pageUrl)-1);
-        */
         
         if(isset($_REQUEST['jsonOut']))        
             self::$jsonOut = true;
@@ -66,136 +56,11 @@ class systemSearch extends baseModule{
             
         }
               
-        
-        //cache is only valid for one month 
-        //if indexed version already stored in db and original page didn't change then check if the index is not older then 48h
-        /*self::$indexedPagesName = 'indexedPages_'.kryn::$domain['rsn'].'_'.date('Y_m');
-        self::$indexedPages = kryn::getPhpCache(self::$indexedPagesName);
-        
-                
-        if(!self::$indexedPages){         
-                   
-            //delete old indexcache files
-            $arOldFiles = glob('inc/cache/indexedPages_'.kryn::$domain['rsn'].'_*');
-            if(!empty($arOldFiles)) {
-                foreach( $arOldFiles as $file ) {
-                    unlink($file);    
-                }
-            }            
-            
-            self::$indexedPages = array();
-            $dbIndexedPages = dbExFetch("SELECT SE.page_rsn, SE.url 
-                                        FROM 
-                                        %pfx%system_search SE,
-                                        %pfx%system_pages SP 
-                                        WHERE 
-                                            SE.page_rsn = SP.rsn 
-                                            AND SE.mdate >= SP.mdate 
-                                            AND SP.mdate+3600*48 > ".time(), -1);      
-            
-            foreach($dbIndexedPages as $value) {
-                self::$indexedPages[$value['url']] = $value['url'];
-            }
-            
-            kryn::setPhpCache(self::$indexedPagesName, self::$indexedPages);
-        }*/  
-        
-        /*
-       self::$indexBlacklistUrlsName = 'indexBlacklistUrls-'.kryn::$domain['rsn'];
-       self::$indexBlacklistUrls = kryn::getPhpCache(self::$indexBlacklistUrlsName);
-       if(!self::$indexBlacklistUrls) {
-           self::$indexBlacklistUrls = array();
-           $dbBlacklistPages = dbExFetch("SELECT url FROM %pfx%system_search_blacklist WHERE domain_rsn = ".kryn::$domain['rsn'], -1);          
-           if(!empty($dbBlacklistPages)) {
-             foreach($dbBlacklistPages as $page) {
-               self::$indexBlacklistUrls[] = $page['url'];
-             }
-           }
-           kryn::setPhpCache(self::$indexBlacklistUrlsName, self::$indexBlacklistUrls);
-       }
-       */
-         
        self::$curDomain = kryn::$domain['rsn'];
         
     }
     
     
-    //init the search from the backend
-    //we only need the indexedPages and blacklist cache
-    /*public static function initSearchFromBackend($pDomainRsn) {                
-        global $kdb;
-        
-        //cache is only valid for 24h 
-        //if indexed version already stored in db and original page didn"t change then check if indexing is not older then 48h
-        self::$indexedPagesName = 'indexedPages_'.$pDomainRsn.'_'.date('Y_m_d');
-        self::$indexedPages = kryn::getPhpCache(self::$indexedPagesName);
-        
-                
-        if(!self::$indexedPages){              
-            self::$indexedPages = array();
-            $dbIndexedPages = dbExFetch("SELECT SE.page_rsn, SE.url 
-                                        FROM %pfx%system_search SE,
-                                        %pfx%system_pages SP 
-                                        WHERE 
-                                            SE.page_rsn = SP.rsn 
-                                            AND SE.mdate >= SP.mdate 
-                                            AND SP.mdate+3600*48 > ".time(), -1);      
-            
-            foreach($dbIndexedPages as $value) {
-                self::$indexedPages[$value['url']] = $value['url'];
-            }
-            
-            kryn::setPhpCache(self::$indexedPagesName, self::$indexedPages);
-        }       
-        
-       self::$indexBlacklistUrlsName = 'indexBlacklistUrls-'.$pDomainRsn;
-       self::$indexBlacklistUrls = kryn::getPhpCache(self::$indexBlacklistUrlsName);
-       if(!self::$indexBlacklistUrls) {
-           self::$indexBlacklistUrls = array();
-           $sql = "SELECT url FROM %pfx%system_search_blacklist WHERE domain_rsn = ".$pDomainRsn;           
-           $dbBlacklistPages = dbExFetch($sql, -1);
-           if(!empty($dbBlacklistPages)) {
-             foreach($dbBlacklistPages as $page) {
-               self::$indexBlacklistUrls[] = $page['url'];
-             }
-           }
-           kryn::setPhpCache(self::$indexBlacklistUrlsName, self::$indexBlacklistUrls);
-       }
-       
-       self::$curDomain = kryn::$domain['rsn'];        
-    } */
-
-    
-    
-    //add fake css to head to index this page
-    /*public static function checkPageIndex() {      
-        global $cfg, $kryn;
-        
-      
-        if( 
-            !self::checkStartpageTrowBack() && 
-            !kryn::$page['unsearchable'] && 
-            stripos(self::$pageUrl, '/kVersionId') === false && 
-            (!array_key_exists(self::$pageUrl, self::$indexedPages) || self::$forceSearchIndex) ) {
-                
-                
-                
-                
-            $getParam = '?enableSearchIndexMode=true';
-            if(self::$forceSearchIndex)
-                $getParam .= '&forceSearchIndex='.self::$forceSearchIndex;
-                
-            $lang = '';
-            if( kryn::$domain['master'] != "1" )
-                $lang = kryn::$domain['lang'];
-                
-            $target = $cfg['path'].$lang.self::$pageUrl.'/'.$getParam;
-            $target = str_replace("//", "/", $target);
-           // $kryn->htmlBodyEnd .= "\n".'<link rel="stylesheet" type="text/css" href="'.$target.'" />';
-            $kryn->htmlBodyEnd .= "\n".'<div style="background-image: url('.$target.'); width: 0px; height: 1px;"></div>';
-            
-        }
-    }*/
     
     
     //create a new search index for this page
@@ -250,8 +115,6 @@ class systemSearch extends baseModule{
             }
         }
             
-        //if(self::checkStartpageTrowBack())
-        //    return self::exitPage('Startpage trow back!');
             
         if(kryn::$page['unsearchable']) {
             self::updateBlacklist( self::$pageUrl );
@@ -288,94 +151,8 @@ class systemSearch extends baseModule{
         
         self::getLinksInContent($pContent);
         self::cacheAllIndexedPages();
-        return self::exitPage('Indexing successfully completed!', 1);
-              
-        /*    
-        //check if content is empty
-        if(strlen(trim($indexedContent)) < 1) {
-            dbExec("DELETE FROM 
-                    %pfx%system_search 
-                    WHERE 
-                        page_rsn = ".kryn::$page['rsn']." 
-                        AND domain_rsn = ".kryn::$domain['rsn']."                     
-                        AND url = '".esc(self::$pageUrl)."' 
-                    ");
-            self::updateBlacklist( self::$pageUrl );
-            return self::exitPage('No content found!. Site was not indexed!', 7);
-        }  
-        
-        
-        
-        
-        //check if same page under same domain with same content md5 is already present in db
-        //TODO field-name 'md5' in query causing sql error
-        $sameContentPages = dbExFetch("SELECT url FROM 
-                                    %pfx%system_search 
-                                    WHERE 
-                                        page_rsn = ".kryn::$page['rsn']." 
-                                        AND domain_rsn = ".kryn::$domain['rsn']." 
-                                        AND md5 = '".$contentMd5."' 
-                                    ORDER BY url"
-                             , -1);
-                             
-
-        $shorterUrlPageFound = false;                     
-        if(!empty($sameContentPages)) {
-            $shortestUrl = self::$pageUrl;
-            foreach($sameContentPages as $value) {
-                //current page is shorter then already stored pages in db
-                // delete all pages with longer url 
-                if(strlen($value['url']) >= strlen($shortestUrl)) {
-                    dbExec("DELETE FROM 
-                            %pfx%system_search 
-                            WHERE 
-                                page_rsn = ".kryn::$page['rsn']." 
-                                AND domain_rsn = ".kryn::$domain['rsn']." 
-                                AND md5 = '".$contentMd5."' 
-                                AND url = '".esc($value['url'])."' 
-                            "
-                    );
-                //found a shorter urled paged then the current one
-                }else{
-                    $shortestUrl = $value['url'];
-                    $shorterUrlPageFound = true;
-                }
-            }
-        }
-        
-        
-        if(!$shorterUrlPageFound) {
-            //if mysql(i)
-            if($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli' ) {
-                 $sql = "INSERT INTO %pfx%system_search 
-                          (url, title, md5, mdate, page_rsn, domain_rsn, page_content) 
-                          VALUES ('".esc(self::$pageUrl)."', '".esc(kryn::$page['title'])."', '".$contentMd5."', ".time().", ".kryn::$page['rsn'].", ".kryn::$domain['rsn'].", '".esc($indexedContent)."')
-                          ON DUPLICATE KEY UPDATE 
-                          title='".esc(kryn::$page['title'])."', md5='".$contentMd5."', mdate=".time().", page_rsn=".kryn::$page['rsn'].", page_content='".esc($indexedContent)."'";
-                dbExec($sql);    
-            }else{
-                dbExec("DELETE FROM %pfx%system_search WHERE url='".esc(self::$pageUrl)."' AND domain_rsn = '".kryn::$domain['rsn']."'");
-               
-                $sql = "INSERT INTO %pfx%system_search 
-                              (url, title, md5, mdate, page_rsn, domain_rsn, page_content) 
-                              VALUES ('".esc(self::$pageUrl)."', '".esc(kryn::$page['title'])."', '".$contentMd5."', ".time().", ".kryn::$page['rsn'].", ".kryn::$domain['rsn'].", '".esc($indexedContent)."')";
-                dbExec($sql); 
-            }
-                                  
-            //check for new links to index in content
-            self::getLinksInContent($pContent);
-        
-            //self::addToIndexedPageCache(self::$pageUrl);
-            self::cacheAllIndexedPages();
-            return self::exitPage('Indexing successfully completed!', 1);
-        } else {
-            
-            self::updateBlacklist( self::$pageUrl );
-            self::$redirectTo = substr($shortestUrl, 1);
-            return self::exitPage('Given arguments doesnt change the content!', 2);
-            
-        }
-        */
+        return self::exitPage('Indexing successfully completed!', 1);             
+       
     }
     
     public static function updateBlacklist( $pUrl, $pDomainRsn = false ){
@@ -438,10 +215,7 @@ class systemSearch extends baseModule{
         $res = dbExec('SELECT url, page_rsn, domain_rsn, md5, blacklist FROM %pfx%system_search');
         $cache = array();
         while( $row = dbFetch($res) ){
-            $cache[$row['page_rsn'].'_'.$row['md5']] = $row;
-            //if( $row['blacklist']+0 > 0 ){
-            //    $cache['blacklist'][$row['domain_rsn'].'_'.$row['url']] = $row['blacklist'];
-            //}
+            $cache[$row['page_rsn'].'_'.$row['md5']] = $row;           
             $cache[$row['domain_rsn'].'_'.$row['url']] = array('blacklist' => $row['blacklist']);
         }
         self::$indexedPages = $cache;
@@ -455,6 +229,8 @@ class systemSearch extends baseModule{
         $kryn->replacePageIds($pContent);       
         $searchPattern = '#<a[^>]+href[^>]*=[^>]*\"([^\"]+)\"[^>]*>(.*)<\/a>#Uis';          
         preg_match_all($searchPattern, $pContent, $matches, PREG_SET_ORDER);
+        
+        $arInserted = array();
         foreach($matches as $value) {
                       
             $linkBackup = $value[1];
@@ -505,7 +281,8 @@ class systemSearch extends baseModule{
             
             
            
-           if( !self::$indexedPages[kryn::$domain['rsn'].'_'.$value[1]] && strlen($value[1]) > 0 ){
+           if( count(self::$indexedPages) > 1 && !isset($arInserted[kryn::$domain['rsn'].'_'.$value[1]]) &&!isset(self::$indexedPages[kryn::$domain['rsn'].'_'.$value[1]]) && !isset($arInserted[kryn::$domain['rsn'].'_'.$value[1]]) && strlen($value[1]) > 0 ){
++               $arInserted[kryn::$domain['rsn'].'_'.$value[1]] = true;
            	    self::disposePageForIndex($value[1], 'LINK '.esc($value[1]), kryn::$domain['rsn']);
                 self::$jsonFoundPages[] = $value[1];
            }
@@ -532,7 +309,7 @@ class systemSearch extends baseModule{
         
         $url = esc($pUrl);
         $pPageRsn += 0;
-        dbDelete('system_search', "/*disposePageForIndex*/ page_rsn = $pPageRsn AND url = '$url'");
+  #      dbDelete('system_search', "domain_rsn = $pDomainRsn AND url = '$url'");
         return dbInsert('system_search', array(
             'url' => $pUrl,
             'title' => $pTitle,
@@ -541,19 +318,7 @@ class systemSearch extends baseModule{
             'page_rsn' => $pPageRsn
         ));
     }
-    
-    //remove page from searchindex table
-    /*public static function removePageFromIndexTable($pUrl, $pDomainRsn=false) {
-        if(!$pDomainRsn)
-           $pDomainRsn = kryn::$domain['rsn'];
-           
-        if(!$pDomainRsn)
-            return;           
-        dbExec("DELETE FROM %pfx%system_search WHERE url = '".esc($pUrl)."' AND domain_rsn = ".$pDomainRsn);       
-    }*/
-    
-    
-    
+       
     //clear complete search index
     public static function clearSearchIndex() {
         //cache files first
@@ -569,102 +334,6 @@ class systemSearch extends baseModule{
         return array('state' => true);
         
     }
-    
-    
-    //add page rsn to temporary indexed sites index
-    /*private static function addToIndexedPageCache($pUrl) {
-        self::$indexedPages[$pUrl] = $pUrl;
-        kryn::setPhpCache(self::$indexedPagesName, self::$indexedPages);
-    }*/
-    
-    
-    /*
-    //add url to blacklist index
-    private static function addToIndexBlacklist($pUrl) {  
-        global $cfg;
-        if($cfg['db_type'] == 'mysql' ||$cfg['db_type'] == 'mysqli' ) {
-             dbExec("INSERT IGNORE INTO %pfx%system_search_blacklist (url, domain_rsn) VALUES ('".esc($pUrl)."', ".self::$curDomain.")");
-        }else{
-            $test = dbExFetch("SELECT url FROM %pfx%system_search_blacklist WHERE url = '".esc($pUrl)."' AND domain_rsn = ".self::$curDomain, 1);
-            if(!$test || empty($test)) {
-                dbExec("INSERT INTO %pfx%system_search_blacklist (url, domain_rsn) VALUES ('".esc($pUrl)."', ".self::$curDomain.")");
-            }
-        }
-
-        //if already indexed the delete it from index table
-        dbExec("DELETE FROM %pfx%system_search WHERE url = '".esc($pUrl)."' AND domain_rsn=".self::$curDomain);
-        
-        self::$indexBlacklistUrls[] = $pUrl;
-        kryn::setPhpCache(self::$indexBlacklistUrlsName, self::$indexBlacklistUrls);
-    }*/
-    
-    
-    
-    
-    
-    
-    /*
-    //check if a page url is blacklisted 
-    public static function checkForIndexBlacklist($pUrl) {
-         //add slash     
-         if(strpos($pUrl, '/') !== 0)
-                $pUrl = '/'.$pUrl;
-                
-        if (!self::$indexBlacklistUrls || !is_array(self::$indexBlacklistUrls))
-            return false;
-            
-        //first stage - check if complete url is blacklisted
-        if(in_array($pUrl, self::$indexBlacklistUrls)) {
-            self::removePageFromIndexTable($pUrl);
-            return true; 
-            
-        } 
-         
-        //second stage check for url parts
-        //if found then put it on the blacklist and remove it from the search table
-        $arParts = explode('/', $pUrl);        
-        if(!empty($arParts) && count($arParts) > 1) {
-            $partsLeft = count($arParts)-1;
-            $tempSearch = '/'.$arParts[0];
-            while($partsLeft > 0) {               
-               
-                if(in_array($tempSearch, self::$indexBlacklistUrls)) {
-                    //self::addToIndexBlacklist($pUrl); //disabled 17.03.2011
-                    self::removePageFromIndexTable($pUrl);
-                    return true;
-                }
-                
-                $partsLeft--;
-                $tempSearch .= '/'.$arParts[count($arParts)-1-$partsLeft];
-           }
-          
-        }        
-        return false;        
-    }
-    */
-    
-    
-    //check if the page with the current url is a real page or just a throw back on the startpage
-    /*public static function checkStartpageTrowBack() {
-        //not on startpage
-        if(kryn::$page['rsn'] != kryn::$domain['startpage_rsn']) 
-            return false;
-            
-        
-        //url identical with startpage
-        if(self::$pageUrl == kryn::$page['realUrl'])
-            return false;
-
-        //starpage with extended parameters    
-        if(strpos(self::$pageUrl, kryn::$page['realUrl']) !== false)
-            return false;
-
-            
-        //self::addToIndexBlacklist(self::$pageUrl);    //disabled 17.03.2011
-        self::removePageFromIndexTable(self::$pageUrl);    
-        return true; 
-    }*/
-    
     
     
     //void page output while in searchmode
