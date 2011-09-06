@@ -192,7 +192,7 @@ class tpl {
             foreach( $myJsFiles as $js ){
                 $file = 'inc/template/'.$js;
                 if( $mtime = @filemtime($file) ){
-                    $jsCode .= $mtime;
+                    $jsCode .= $file.'_'.$mtime;
                 }
                 if( strpos( $js, "http://" ) !== FALSE ){
                     $html .= '<script type="text/javascript" src="'.$js.'" ></script>'."\n";
