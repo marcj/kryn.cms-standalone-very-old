@@ -54,7 +54,9 @@ class adminPages {
         case 'getDomains':
             return self::getDomains(getArgv('language'));
         case 'getTree':
-            return self::getTree( getArgv('domain') );
+            return self::getTree( getArgv('page_rsn') );
+        case 'getTreeDomain':
+            return self::getTreeDomain( getArgv('domain_rsn')+0 );
         case 'getTemplate':
             return self::getTemplate( getArgv('template') );
         case 'getVersions':
@@ -705,8 +707,60 @@ class adminPages {
         $res['count'] = count($res['notices']);
         json($res);
     }
+    
+    public static function getTreeDomain( $pDomainRsn ){
+        $pDomainRsn = $pDomainRsn+0;
+        
+        if( !kryn::checkPageAcl( $pDomainRsn, 'showDomain', 'd') ){
+            json('access_denied');
+        }
+        
+        $domain = dbTableFetch('system_domains', 1, "rsn = $pDomainRsn");
+        $domain['type'] = -1;
+        
+        $domain['childs'] = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
+        
+        $cachedUrls = kryn::readCache( 'urls' );
+        
+        foreach( $domain['childs'] as &$page ){
+            if( kryn::checkPageAcl( $page['rsn'], 'showPage' ) ){
+                $page['realUrl'] = $cachedUrls['rsn']['rsn='.$page['rsn']];
+            } else {
+                unset($page);
+            }
+            
+            $page['hasChilds'] = kryn::pageHasChilds( $page['rsn'] );
+        }
+        
+        json( $domain );
+    }
 
-    public static function getTree( $pDomainRsn ){
+    public static function getTree( $pPageRsn ){
+        $pPageRsn += 0;
+        
+        $items = dbTableFetch('system_pages', DB_FETCH_ALL, "prsn = $pPageRsn ORDER BY sort");
+
+        if( count($items) > 0 ){
+            foreach( $items as &$item ){
+                
+                if( kryn::checkPageAcl( $item['rsn'], 'showPage' ) ){
+                    $item['realUrl'] = $cachedUrls['rsn']['rsn='.$item['rsn']];
+                } else {
+                    unset( $item );
+                }
+    
+            }
+            
+            json($items);
+            
+        } else {
+            json(array());
+        }
+        
+        
+
+        
+    
     	$pDomainRsn = $pDomainRsn+0;
     	
         $viewAllPages = (getArgv('viewAllPages') == 1)?true:false;
@@ -1418,10 +1472,12 @@ class adminPages {
         				 domain_rsn = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
         $res = array();
         while( $page = dbFetch( $resu, 1 ) ){
+            
             if( $pge['type'] == 0 )
                 $res[ $page['rsn'] ] = self::getParentMenus( $page );
             else
                 $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
+
         }
         kryn::setPhpCache( "menus_$pDomainRsn", $res );
         
@@ -1457,8 +1513,11 @@ class adminPages {
         
         $domain = kryn::getDomain( $pDomainRsn );
         while( $page = dbFetch( $resu, 1 ) ){
+
+            cache::clear( 'page_'.$page['rsn'] );
+
             $page = self::__pageModify( $page, array('realurl' => '') );
-            $newRes = self::getChildPages( $page, $domain );
+            $newRes = self::updateUrlCacheChilds( $page, $domain );
             $res['url'] = array_merge( $res['url'], $newRes['url'] );
             $res['rsn'] = array_merge( $res['rsn'], $newRes['rsn'] );
             //$res['r2d'] = array_merge( $res['r2d'], $newRes['r2d'] );
@@ -1490,7 +1549,7 @@ class adminPages {
         return $r2d;
     }
 
-    public static function getChildPages( $pPage, $pDomain = false ){
+    public static function updateUrlCacheChilds( $pPage, $pDomain = false ){
         global $kryn;
         $res = array( 'url' => array(), 'rsn' => array(), 'r2d' => array() );
 
@@ -1522,8 +1581,12 @@ class adminPages {
         
         if( is_array($pages) ) {
             foreach( $pages as $page ){
+                
+                
+                cache::clear( 'page_'.$page['rsn'] );
+            
                 $page = self::__pageModify( $page, $pPage );
-                $newRes = self::getChildPages( $page );
+                $newRes = self::updateUrlCacheChilds( $page );
 
                 $res['url'] = array_merge( $res['url'], $newRes['url'] );
                 $res['rsn'] = array_merge( $res['rsn'], $newRes['rsn'] );
@@ -1552,7 +1615,7 @@ class adminPages {
             }
 
             $page['prealurl'] = $page['link'];
-        } else if( $page['type'] != 3 ){ //keine ablage
+        } else if( $page['type'] != 3 ){ //no deposit
             //ignore the hiarchie-item
             $page['realurl'] = $pPage['realurl'];
         }
@@ -1573,7 +1636,7 @@ class adminPages {
     }
 
     public static function edit(){
-            return template::edit();
+        return template::edit();
     }
 
     public static function getPage( $pRsn, $pLock = false){

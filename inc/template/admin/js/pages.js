@@ -121,7 +121,7 @@ var admin_pages = new Class({
         }
         this.generalFieldsUrlPath.set('html', '<b>http://'+ka.getDomain(this.page.domain_rsn).domain+'/'+myurl+'</b>' );
             
-        this.win.setTitle ( this.page.title + ' - '+_('Page edit') );
+        this.win.setTitle ( this.page.title );
         this.generalFields['type'].setValue( this.page.type  );
         this.generalFields['title'].setValue( this.page.title  );
         this.generalFields['page_title'].setValue( this.page.page_title  );
@@ -492,7 +492,7 @@ var admin_pages = new Class({
             styles: {
                 position: 'absolute',
                 'background-color': '#f3f3f3',
-                left: 0, right: 0, 'top': 17, bottom: 3,
+                left: 0, right: 0, 'top': 16, bottom: 3,
                 overflow: 'auto'
             }
         }).inject( this.tree );
@@ -871,7 +871,7 @@ var admin_pages = new Class({
             this.viewTypeGrpDomain.show();
             this.viewTypeGrp.hide();
             
-            if( !ka.checkPageAccess( this.currentDomain.rsn, 'deleteDomain', 'd' ) ){
+            if( !ka.checkDomainAccess( this.currentDomain.rsn, 'deleteDomain' ) ){
                 this.deleteDomainGrp.hide();
             } else {
                 this.deleteDomainGrp.show();
@@ -1192,66 +1192,64 @@ var admin_pages = new Class({
             })
             
             
-            this.win.setTitle ( pDomain.domain + ' - '+_('Domain edit') );
+            this.win.setTitle ( pDomain.domain );
             
             this.deleteDomainGrp.show();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'deleteDomain', 'd' ) ){
+            if( !ka.checkDomainAccess( pDomain.rsn, 'deleteDomain' ) ){
             	this.deleteDomainGrp.hide();
             }
             	
 
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domain', 'd' ) ){
-            	this.viewButtons['domain'].hide();
-            }
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domain' ) )
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'theme', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'theme' ) )
             	this.viewButtons['domainTheme'].hide();
 
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainProperties', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainProperties' ) )
             	this.viewButtons['domainProperties'].hide();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'settings', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'settings' ) )
             	this.viewButtons['domainSettings'].hide();
             
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainName', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainName' ) )
             	this.domainFields['domain'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainTitle', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainTitle' ) )
             	this.domainFields['title_format'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainStartpage', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainStartpage' ) )
             	this.domainFields['startpage_rsn'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainPath', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainPath' ) )
             	this.domainFields['path'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainFavicon', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainFavicon' ) )
             	this.domainFields['favicon'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainLanguage', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainLanguage' ) )
             	this.domainFields['lang'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainLanguageMaster', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainLanguageMaster' ) )
             	this.domainFields['master'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainEmail', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainEmail' ) )
             	this.domainFields['email'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'limitLayouts', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'limitLayouts' ) )
             	this.domainFields['layouts'].hide();
             
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'aliasRedirect', 'd' ) ){
+            if( !ka.checkDomainAccess( pDomain.rsn, 'aliasRedirect' ) ){
             	this.domainFields['alias'].hide();
             	this.domainFields['redirect'].hide();
             }
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'phpLocale', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'phpLocale' ) )
             	this.domainFields['phplocale'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'robotRules', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'robotRules' ) )
             	this.domainFields['robots'].hide();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, '404', 'd' ) ){
+            if( !ka.checkDomainAccess( pDomain.rsn, '404' ) ){
             	this.domainFields['page404_rsn'].hide();
             	this.domainFields['page404interface'].hide();
             }
             	
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainOther', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainOther' ) )
             	this.domainFields['resourcecompression'].hide();
             
 
@@ -1263,7 +1261,7 @@ var admin_pages = new Class({
             
             this.changeType();
             
-            this.showDomainMaster( pDomain.domain_rsn );
+            this.showDomainMaster( pDomain.rsn );
             
             //set domain propertie to default
         	$H(this._domainPropertiesFields).each(function(fields, extKey){
@@ -1309,7 +1307,7 @@ var admin_pages = new Class({
             
             this.toAlternativPane();
 
-        }.bind(this)}).post({rsn: pDomain.domain_rsn});
+        }.bind(this)}).post({rsn: pDomain.rsn});
 
     },
     

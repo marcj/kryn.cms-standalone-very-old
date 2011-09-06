@@ -43,8 +43,8 @@ class knavigation {
             return array();
         
         $code = $pRsn;
-        if( $pDomain )
-            $code .= '_'.kryn::$domain['rsn'];
+        if( $pRsn == 0 )
+            $code .= '_'.(($pDomain) ? $pDomain : kryn::$domain['rsn']);
         
         $links =& cache::get( 'navigations' );
         
@@ -72,7 +72,7 @@ class knavigation {
 
             cache::set('navigations', $links);
         }
-        
+
         foreach( $links[$code] as &$page ){
         
             if( !$pWithFolders && $page['type'] == 2 ) continue;

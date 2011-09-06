@@ -3,14 +3,540 @@ ka.pagesTree = new Class({
     Implements: Events,
 	ready: false,
 	
+	items: {},
+        
+    types: {
+        '0': 'page_green.png',
+        '1': 'page_green.png',
+        '2': 'folder.png',
+        '3': 'page_white_text.png',
+        '-1': 'world.png'
+    },
+	
     initialize: function( pContainer, pDomain, pOptions ){
         this.options = pOptions;
-        this.domainRsn = pDomain;
+        this.domain_rsn = pDomain;
         this.container = pContainer;
         
         this._pages = new Hash();
         this._pagesParent = new Hash();
+        
+        this.main = new Element('div', {
+            'class': 'ka-pageTree'
+        }).inject( this.container );
+        
+        this.topDummy = new Element('div', {
+            'class': 'ka-pageTree-top-dummy'
+        }).inject( this.main );
+        
+        this.paneDomain = new Element('div', {
+            'class': 'ka-pageTree-domain'
+        }).inject( this.main );
+        
+        this.panePages = new Element('div', {
+            'class': 'ka-pageTree-pages'
+        }).inject( this.main );
+        
+        this.loadFirstLevel();
+        
+        this.main.addEvent('click', this.onClick.bind(this));
+        this.main.addEvent('mousedown', this.onMousedown.bind(this));
+    },
+    
+    loadFirstLevel: function(){
 
+        new Request.JSON({url: _path+'admin/pages/getTreeDomain', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
+            domain_rsn: this.domain_rsn
+        });
+
+    },
+    
+    renderFirstLevel: function( pDomain ){
+
+        this.addItem( pDomain, this.paneDomain );
+
+        if( this.options.withPageAdd ){
+            if( ka.checkDomainAccess( pDomain.rsn, 'addPages' ) ){
+                new Element('img', {
+                    src: _path+'inc/template/admin/images/icons/add.png',
+                    title: _('Add page'),
+                    'class': 'ka-pageTree-add'
+                })
+		        .addEvent('click', function(e){
+		            this.options.withPageAdd( pDomain.rsn );
+		        }.bind(this))
+		        .inject( this.items[0] );
+            }
+        }
+
+    },
+    
+    onMousedown: function( e ){
+        e.preventDefault();
+
+    },
+
+    onClick: function( e ){
+    
+        var target = e.target;
+        if( !target ) return;
+        var a = null;
+        
+        if( target.hasClass('ka-pageTree-item') )
+            a = target;
+        
+        if( !a && target.getParent('.ka-pageTree-item') )
+            a = target.getParent('.ka-pageTree-item');
+        
+        if( !a ) return;
+        
+        var item = a.retrieve('item');
+        if( item.domain ){
+
+            if( this.options.no_domain_select != true ){
+                if( this.options.onDomainClick )
+                    this.options.onDomainClick( item, a );
+                if( this.options.onSelection )
+                    this.options.onSelection( item, a );
+                
+                this.unselect();
+                if( this.options.noActive != true )
+                    a.addClass('ka-pageTree-item-selected');
+                    
+                this.lastSelectedItem = a;
+                this.lastSelectedPage = item;
+            }
+
+        } else {
+        
+            if( this.options.onSelection )
+                this.options.onSelection( item, a );
+            if( this.options.onClick )
+                this.options.onClick( item, a );
+
+            this.unselect();
+
+            if( this.options.noActive != true )
+                a.addClass('ka-pageTree-item-selected');
+
+            this.lastSelectedItem = a;
+            this.lastSelectedPage = item;
+
+        }
+    
+    },
+
+    addItem: function( pItem, pContainer ){
+
+        var a = new Element('div', {
+            'class': 'ka-pageTree-item',
+            title: 'ID='+pItem.rsn
+        }).inject( pContainer );
+
+        a.span = new Element('span', {
+            'class': 'ka-pageTree-item-title',
+            text: (pItem.title)?pItem.title:pItem.domain
+        }).inject( a );
+
+        if( pItem.domain ){
+            this.items[0] = a;
+        } else {
+            this.items[ pItem.rsn ] = a;
+            //Drag'n'Drop
+            if( !this.options.noDrag ){
+                a.addEvent( 'mousedown', function(e){
+                	
+                    if( !ka.checkPageAccess( pItem.rsn, 'movePages' ) ){
+                    	return;
+                    }
+
+                    a.store( 'mousedown', true );
+                    if( this.options.move != false ){
+                        (function(){
+                            if( a.retrieve('mousedown') ){
+                                this.createDrag( a, e );
+                            }
+                        }).delay(200, this)
+                        e.stop();
+                    }
+                }.bind(this))
+            }
+        }
+        
+        a.addEvent( 'mouseout', function(){
+            this.store( 'mousedown', false );
+        });
+        a.addEvent( 'mouseup', function(){
+            this.store( 'mousedown', false );
+        });
+
+        var parentA = a.getParent().getPrevious();
+        if( !pItem.domain && parentA ){
+            a.setStyle('padding-left', parentA.getStyle('padding-left').toInt()+15);
+        }
+
+        a.store('item', pItem);
+
+        /* masks */
+        a.masks = new Element('span', {
+            'class': 'ka-pageTree-item-masks'
+        }).inject( a, 'top' );
+
+        new Element( 'img', {
+            'class': 'ka-pageTree-item-type',
+            src: _path+'inc/template/admin/images/icons/'+this.types[pItem.type]
+        }).inject( a.masks );
+        
+        
+        if( (pItem.type == 0 || pItem.type == 1) && pItem.visible == 0 ){
+            new Element( 'img', {
+                src: _path+'inc/template/admin/images/icons/pageMasks/invisible.png'
+            }).inject( a.masks );
+        }
+
+        if( pItem.type == 1 ){
+            new Element( 'img', {
+                src: _path+'inc/template/admin/images/icons/pageMasks/link.png'
+            }).inject( a.masks );
+        }
+
+        if( (pItem.type == 0 || pItem.type == 3) && pItem.draft_exist == 1){
+            new Element( 'img', {
+                src: _path+'inc/template/admin/images/icons/pageMasks/draft_exist.png'
+            }).inject( a.masks );
+        }
+
+        if( pItem.access_denied == 1 ){
+            new Element( 'img', {
+                src: _path+'inc/template/admin/images/icons/pageMasks/access_denied.png'
+            }).inject( a.masks );
+        }
+        
+        if( pItem.type == 0 && pItem.access_from_groups != "" && typeOf(pItem.access_from_groups) == 'string' ){
+            new Element( 'img', {
+                src: _path+'inc/template/admin/images/icons/pageMasks/access_group_limited.png'
+            }).inject( a.masks );
+        }
+
+        /* toggler */
+        a.toggler = new Element('img', {
+            'class': 'ka-pageTree-item-toggler',
+            title: _('Open/Close subitems'),
+            src: _path+'inc/template/admin/images/icons/tree_plus.png'
+        }).inject( a, 'top' );
+
+        if( !pItem.hasChilds && (!pItem.childs || pItem.childs.length == 0 ) ){
+            a.toggler.setStyle('visibility', 'hidden');
+        } else {
+            a.toggler.addEvent('click', function(e){
+                e.stopPropagation();
+                this.toggleChilds(a);
+            }.bind(this));
+        }
+        
+        /* childs */
+        if( pItem.domain ){
+            a.childContainer = this.panePages;
+        } else {
+            a.childContainer = new Element('div', {
+                'class': 'ka-pageTree-item-childs'
+            }).inject( pContainer );
+        }
+        
+        if( pItem.childs ){
+            a.childsLoaded = true;
+            Array.each(pItem.childs, function(item){
+                this.addItem( item, a.childContainer );
+            }.bind(this));           
+        } else {
+            a.childsLoaded = false;
+        }
+    
+        return a;
+    },
+    
+    toggleChilds: function( pA ){
+    
+        if( pA.childContainer.getStyle('display') != 'block' ){
+            //wanna open
+            this.openChilds( pA );
+            
+        } else {
+            //wanna close
+            pA.childContainer.setStyle( 'display', '' );
+            pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_plus.png');
+        }
+    },
+    
+    openChilds: function( pA ){
+    
+        if( pA.childContainer.getStyle('display') == 'block' ) return;
+    
+        pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
+        if( pA.childsLoaded == true ){
+            pA.childContainer.setStyle( 'display', 'block' );
+        } else {
+            this.loadChilds( pA );
+        }
+    },
+    
+    loadChilds: function( pA ){
+    
+        
+        var loader = new Element('img', {
+            src: _path+'inc/template/admin/images/loading.gif'
+        }).inject( pA.masks )
+    
+    
+        var item = pA.retrieve('item');
+        
+        new Request.JSON({url: _path+'admin/pages/getTree', noCache: 1, onComplete: function( pItems ){
+
+            loader.destroy();
+            pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
+            pA.childsLoaded = true;
+        
+            if( pItems.length == 0 ){
+                pA.toggler.setStyle('visibility', 'hidden');
+                return;
+            }
+
+            Array.each(pItems, function(item){
+                this.addItem( item, pA.childContainer );
+            }.bind(this));
+            
+            pA.childContainer.setStyle( 'display', 'block' );
+        
+        }.bind(this)}).get({ page_rsn: item.rsn });
+    
+    },
+    
+    unselect: function(){
+
+        if( this.lastSelectedItem )
+            this.lastSelectedItem.removeClass('ka-pageTree-item-selected');
+
+        this.options.select_rsn = -1;
+        this.lastSelectedItem = false;
+        this.lastSelectedPage = false;
+    },
+    
+    createDrag: function( pA, pEvent ){
+
+        this.currentPageToDrag = pA;
+        
+        var kwin = pA.getParent('.kwindow-border');
+
+        if( this.lastClone )
+            this.lastClone.destroy();
+            
+        this.lastClone = new Element('div', {
+            'class': 'ka-pageTree-drag-box',
+        })
+        .inject( kwin );
+        
+        new Element('span', {
+            text: pA.get('text')
+        }).inject( this.lastClone );
+        
+        pA.masks.clone().inject( this.lastClone, 'top' );
+        
+        var drag = this.lastClone.makeDraggable( {
+            snap: 0,
+            onDrag: function( pDrag, pEvent ){
+                if( !pEvent.target ) return;
+                var element = pEvent.target;
+                
+                if( !element.hasClass('ka-pageTree-item') )
+                    element = element.getParent('.ka-pageTree-item');
+
+                if( element ){
+
+                    var pos = pEvent.target.getPosition( document.body );
+                    var size = pEvent.target.getSize();
+                    var mrposy = pEvent.client.y-pos.y;
+                    
+                    
+                    if( mrposy < 5 ){
+                        this.createDropElement( element, 'before');
+                    } else if( size.y-mrposy < 5 ){
+                        this.createDropElement( element, 'after');
+                    } else {
+                        //middle
+                        this.createDropElement( element, 'inside');
+                    }
+                
+                }
+            }.bind(this),
+            onCancel: function(){
+                this.cancelDragNDrop();
+            }.bind(this)
+        });
+
+        this.inDragMode = true;
+        this.inDragModeA = pA;
+
+        var pos = kwin.getPosition( document.body );
+
+        this.lastClone.setStyles({
+            'left': pEvent.client.x+5-pos.x,
+            'top': pEvent.client.y+5-pos.y
+        });
+        
+        document.addEvent('mouseup', this.cancelDragNDrop.bind(this));
+
+        drag.start( pEvent );
+    },
+    
+    createDropElement: function( pTarget, pPos ){
+    
+        if( this.loadChildsDelay ) clearTimeout( this.loadChildsDelay );
+        
+        if( this.dropElement ){
+            this.dropElement.destroy();
+            delete this.dropElement;
+        }
+        
+        if( this.dropLastItem ){
+            this.dropLastItem.removeClass('ka-pageTree-item-dragOver');
+            this.dropLastItem.setStyle('padding-bottom', 1);
+            this.dropLastItem.setStyle('padding-top', 1);
+        }
+    
+        pTarget.setStyle('padding-bottom', 1);
+        pTarget.setStyle('padding-top', 1);
+        
+        if( pPos == 'after' || pPos == 'before' ){
+            this.dropElement = new Element('div', {
+                'class': 'ka-pageTree-dropElement',
+                styles: {
+                    'margin-left': pTarget.getStyle('padding-left').toInt()+16
+                }
+            });
+        } else {
+            if( this.lastDropElement == pTarget )
+                return;
+        }
+
+        if( pPos == 'after' ){
+            this.dropElement.inject( pTarget.getNext(), 'after');
+            pTarget.setStyle('padding-bottom', 0);
+            
+        } else if( pPos == 'before' ) {
+            this.dropElement.inject( pTarget, 'before');
+            pTarget.setStyle('padding-top', 0);
+            
+        } else if( pPos == 'inside' ){
+            pTarget.addClass('ka-pageTree-item-dragOver');
+            
+            this.loadChildsDelay = function(){
+                this.openChilds( pTarget );
+            }.delay(1000, this);
+        }
+    
+
+        this.dropLastItem = pTarget;
+    },
+    
+    cancelDragNDrop: function(){
+        if( this.lastClone ){
+            this.lastClone.destroy();
+            delete this.lastClone;
+        }
+        if( this.dropElement ){
+            this.dropElement.destroy();
+            delete this.dropElement;
+        }
+        if( this.dropLastItem ){
+            this.dropLastItem.removeClass('ka-pageTree-item-dragOver');
+            this.dropLastItem.setStyle('padding-bottom', 1);
+            this.dropLastItem.setStyle('padding-top', 1);
+            delete this.dropLastItem;
+        }
+        this.inDragMode = false;
+        delete this.inDragModeA;
+
+        document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
+    },
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    renderPages: function( pPages, pContainer ){
+    
+        if( !pPages ) return;
+    
+    
+    },
+    
+    
+    oldInit: function(){
         
         this.table = new Element('table', {
         	style: 'width: 100%',
@@ -123,8 +649,6 @@ ka.pagesTree = new Class({
             
             this.ready = true;
             this.fireEvent('ready');
-            
-            
             
         }.bind(this)}).post({ domain: _this.domainRsn, viewAllPages: viewAllPages });
     },
@@ -258,7 +782,7 @@ ka.pagesTree = new Class({
         return false;
     },
 
-    createDrag: function( pTitle, pEvent ){
+    /*createDrag: function( pTitle, pEvent ){
         
         var _this = this;
         this.currentPageToDrag = pTitle;
@@ -313,7 +837,7 @@ ka.pagesTree = new Class({
             _this.destroyDrag();
         });
         drag.start( pEvent );
-    },
+    },*/
 
     movePage: function( pWhereRsn, pToRsn, pCode, pDomainRsn ){
         var _this = this;
@@ -411,13 +935,13 @@ ka.pagesTree = new Class({
         this.currentPageToDrag = false;
     },
 
-    unselect: function(){
+    /*unselect: function(){
         if( this.lastSelectedItem )
             this.lastSelectedItem.set('style',  'font-weight: normal; background-color: transparent;' );
         this.options.select_rsn = -1;
         this.lastSelectedItem = false;
         this.lastSelectedPage = false;
-    },
+    },*/
 
     getSelected: function(){
         if( this.lastSelectedPage )
@@ -616,8 +1140,6 @@ ka.pagesTree = new Class({
             item.addClass('pagesTree-pageItemDomain');
         }
 
-        
-        
         item.store('item', pPage);
         
         var titlediv = new Element( 'div', {

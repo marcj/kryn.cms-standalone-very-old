@@ -1062,6 +1062,24 @@ class kryn extends baseModule {
             
     }
 
+
+    /**
+    * Returns whether the given page has childs or not
+    * $param integer $pRsn
+    * @return bool
+    * @static
+    */    
+    public static function pageHasChilds( $pRsn ){
+        $pRsn += 0;
+
+        $domain = self::getDomainOfPage( $pRsn );
+        if( !$domain ) return false;
+    
+        $page =& self::getPage( $pRsn, $domain );
+        
+        return $page['hasChilds'] ? true : false;
+    }
+
     /**
      * 
      * Returns the URL of the specified page
@@ -1071,14 +1089,13 @@ class kryn extends baseModule {
      * @return string
      * @static
      */
-    public static function pageUrl( $pRsn = 0, $pDomainRsn = false, $pWithoutHttp = false ){
+    public static function &pageUrl( $pRsn = 0, $pDomainRsn = false, $pWithoutHttp = false ){
         global $kryn;
         if(! $pRsn > 0 )
             $pRsn = kryn::$page['rsn'];
         
         if( $pDomainRsn )
             kryn::$domain['rsn'] = $pDomainRsn;
-        
             
         if( kryn::$domain['startpage_rsn'] == $pRsn )
             return './'; 
@@ -1980,23 +1997,29 @@ class kryn extends baseModule {
     public static function getPage( $pPageRsn = false , $pNoActions = false ){
         global $kryn;
         
+        $pPageRsn += 0;
+        
         if( !$pPageRsn ){
             $pPageRsn = kryn::searchPage();
         }
         
-        $page = cache::get('getPage_'.$pPageRsn);
+        $page = cache::get('page_'.$pPageRsn);
         
         if( !$page ){
-            
-            $page = dbTableFetch('system_pages', 1, 'rsn = '.($pPageRsn+0));
+
+            $page = dbTableFetch('system_pages', 1, "rsn = $pPageRsn");
             $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pPageRsn AND active = 1");
-            
+
             $page['extensionProperties'] = json_decode($page['properties'],true);
             $page['properties'] = $page['extensionProperties'];
             $page['realUrl'] = $kcache['realUrl']['rsn'][ 'rsn='.$page['rsn'] ];
             $page['active_version_rsn'] = $curVersion['rsn'];
+
+            $row = dbTableFetch('system_pages', 1, "prsn = $pPageRsn");
+            if( $row['rsn']+0 > 0 )
+                $page['hasChilds'] = true;
             
-            cache::set('getPage_'.$pPageRsn, $page);
+            cache::set('page_'.$pPageRsn, $page);
         }
             
         
