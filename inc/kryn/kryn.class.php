@@ -1463,7 +1463,13 @@ class kryn extends baseModule {
                 //$domain = dbTableFetch('system_domains', 1, "domain = '$domainName' and lang = '$possibleLanguage' and master != 1");
                 $domain = $domains['n2d'][$domainName.'_'.$possibleLanguage];
                 kryn::$baseUrl = $http.$domainName.$port.$cfg['path'].$possibleLanguage.'/';
+                                
+                if( !$domain ){                
+                    $domain = $domains['n2d'][$domainName];
+                    $possibleLanguage = $domain['lang'];
+                }
             }
+            
             if(! $domain['rsn'] > 0 ){
                 klog("system", "Domain <i>$domainName</i> not found. Language: $possibleLanguage");
                 die("Domain <i>$domainName</i> not found.".$_REQUEST['_kurl']);
