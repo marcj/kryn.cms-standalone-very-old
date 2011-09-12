@@ -813,12 +813,12 @@ class kryn extends baseModule {
      * @return bool
      * @static
      */
-    public static function checkUrlAccess( $pUrl, $pUser = false ){
+    public static function checkUrlAccess( $pUrl, $pClient = false ){
         
-        if( !$pUser )
-            global $user;
+        if( !$pClient )
+            global $client;
         else
-            $user = $pUser;
+            $client = $pClient;
             
             
         if( substr($pUrl, 0, 6) != 'admin/' ){
@@ -835,13 +835,13 @@ class kryn extends baseModule {
                 2: user
         */
 
-        $inGroups = $user->user['inGroups'];
-
+        $inGroups = $client->user['inGroups'];
+        
         $code = esc($pUrl);
         if( substr( $code, -1 ) != '/' )
             $code .= '/';
 
-        $userRsn = $user->user_rsn;
+        $userRsn = $client->user_rsn;
         
         $acls = dbExfetch( "
                 SELECT code, access FROM %pfx%system_acl
@@ -884,7 +884,8 @@ class kryn extends baseModule {
      * @static
      */
     public static function checkAccess(){
-        global $user;
+        global $client;
+
         $bypass = array('loadJs', 'loadCss'); 
         if(in_array(getArgv(2), $bypass))
             return true;
@@ -1006,7 +1007,7 @@ class kryn extends baseModule {
             }
         }
     
-        if( $user->user['rsn'] != 0 ){
+        if( $client->user['rsn'] != 0 ){
             $user->user_logged_in = true;
         }    
     }
@@ -1548,7 +1549,7 @@ class kryn extends baseModule {
      * @internal
      */
     public static function checkPageAccess( $page, $pWithRedirect = true ){
-        global $user;
+        global $client;
         
         $oriPage = $page;
         if( $page['access_from'] > 0 && ($page['access_from'] > time() ))
@@ -1563,10 +1564,10 @@ class kryn extends baseModule {
             
             
             if( $page['access_need_via'] == 0 ){
-                $cgroups =& $user->user['groups'];
+                $cgroups =& $client->user['groups'];
             } else {
             	
-                $htuser = $user->login( $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'] );
+                $htuser = $client->login( $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'] );
 	            
 	            if( $htuser > 0 && $htuser['passwd'] == $p ){ 
                     $cgroups =& $htuser['groups'];
@@ -1611,16 +1612,11 @@ class kryn extends baseModule {
      * @internal
      */
     public static function getPageAcls(){
-    	global $user;
+    	global $client;
     	if( kryn::$cachedPageAcls ) return kryn::$cachedPageAcls;
     	
-        $userRsn = $user->user_rsn;
-        $inGroups = '';
- 		if( count($user->groups) > 0 )
-            foreach( $user->groups as $group ) {
-                $inGroups .= $group['group_rsn'].",";
-            }
-        $inGroups .= "0";
+        $userRsn = $client->user_rsn;
+        $inGroups = $client->user['inGroups'];
         
     	kryn::$cachedPageAcls = dbExfetch("
                 SELECT code, access FROM %pfx%system_acl
@@ -1828,7 +1824,7 @@ class kryn extends baseModule {
      * @internal
      */
     public static function searchPage(){
-        global $path, $cfg, $_start, $user, $kcache;
+        global $path, $cfg, $_start, $client, $kcache;
 
         if( getArgv(1) == 'admin' ) return;
 
@@ -2004,7 +2000,7 @@ class kryn extends baseModule {
      * @static
      */
     public static function &getPageContents( $pRsn, $pBoxId = false, $pWithoutCache = false ){
-    	global $time, $user, $kcache;
+    	global $time, $client, $kcache;
     	
         $pRsn = $pRsn+0;
         

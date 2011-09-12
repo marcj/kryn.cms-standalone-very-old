@@ -45,7 +45,6 @@ class krynAuth {
 
         tAssign("client", $this);
         $this->token = $this->getToken();
-        error_log( $this->token );
         $this->session = $this->loadSession();
 
         $this->startSession = $this->session;
@@ -57,7 +56,6 @@ class krynAuth {
 
         } else {
     
-            error_log( 'found: '.$this->session['user_rsn'] );
             //maybe we wanna check the ip ?
             if( $cfg['session_ipcheck'] == 1 ){
                 $ip = $this->get('ip');
@@ -297,7 +295,7 @@ class krynAuth {
             $result['inGroups'] = '0';
             if( count( $result['groups'] ) >  0)
                 foreach( $result['groups'] as $group )
-                    $result['inGroups'] .= ','.$group['rsn'];
+                    $result['inGroups'] .= ','.$group;
             
             cache::set( $cacheCode, $result );
             $result =& cache::get( $cacheCode );
@@ -419,7 +417,6 @@ class krynAuth {
                 setCookie("krynsessionid", '', time()-3600*24*700, "/admin");
                 setCookie("krynsessionid", '', time()-3600*24*700, "/admin/");
                 setCookie("krynsessionid", $this->token, time()+3600*24*7, "/"); //7 Days
-                error_log("new Session: ".$this->token);
                 return $session;
             }
         }
@@ -522,7 +519,6 @@ class krynAuth {
     public function loadSessionDatabase(){
         global $cfg;
 
-        error_log( "ls:" .$this->token );
         $row = dbExfetch('SELECT * FROM %pfx%system_sessions WHERE id = \''.esc($this->token).'\'', 1);
 
         if( !$row ) return false;
