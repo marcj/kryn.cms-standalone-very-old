@@ -376,12 +376,19 @@ ka.windowEdit = new Class({
             
             $H(this.values.fields).each(function(field, fieldId){
 
-            	if( field.target )
-            		field.target = '#'+field.target;
-            	
+                var target = this.form;
+                
                 if( this.values.layout ){
-                	target = this.form.getElement( field.target || '#default' );
-                	this.win._alert(_('Layout is defined but target is invalid for field %s'.replace('%s', fieldId)));
+                    
+                    var id = '*[id=default]';
+                    if( field.target )
+                        id = '*[id='+field.target+']';
+        
+                    target = this.form.getElement( id );
+                	
+                	if( !target ){
+                    	target = this.form;
+                    }
                 }
             	
                 this.addField( field, fieldId, target );
@@ -397,6 +404,7 @@ ka.windowEdit = new Class({
             
             $H(this.values.tabFields).each(function(fields,title){
                 if( this.firstTab == '' ) this.firstTab = title;
+                
                 this._panes[ title ] = new Element('div', {
                     'class': 'ka-windowEdit-form',
                     style: 'display: none;'
@@ -519,13 +527,15 @@ ka.windowEdit = new Class({
         
         pFields.each(function(field,id){
 
-        	if( field.target )
-        		field.target = '#'+field.target;
+            var id = '*[id=default]';
+            if( field.target )
+                id = '*[id='+field.target+']';
 
-        	var target = pContainer.getElement( field.target || '#default' );
+        	var target = pContainer.getElement( id );
+
             if( !target )
             	target = pContainer;
-        	
+
             var fieldOnj = this.addField( field, id, target );
 
             if( pParentField && field.needValue ){
