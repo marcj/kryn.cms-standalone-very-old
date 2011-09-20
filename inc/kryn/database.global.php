@@ -15,9 +15,7 @@
 /**
  * Global framework functions
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkDatabase
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 

@@ -14,8 +14,7 @@
  * Index.php
  * 
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 

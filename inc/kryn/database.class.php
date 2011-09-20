@@ -13,10 +13,7 @@
 /**
  * Database class
  * 
- * @package Kryn
- * @subpackage Database
- * @internal
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 define("DB_FETCH_ALL", -1);

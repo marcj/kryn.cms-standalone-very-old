@@ -14,9 +14,7 @@
 /**
  * Global important functions for working with Kryn.cms
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage Framework
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 

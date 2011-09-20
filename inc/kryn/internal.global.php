@@ -16,9 +16,7 @@
 /**
  * Internal functions
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage Core
+ * @author MArc Schmidt <marc@kryn.org>
  * @internal
  */
 

@@ -1,11 +1,10 @@
 <?php
 
 /**
-* krynAuth - class to handle the sessions.
-*
-* @package Kryn
-* @subpackage Auth
-*/
+ * krynAuth - class to handle the sessions.
+ *
+ * @author MArc Schmidt <marc@kryn.org>
+ */
 
 class krynAuth {
 

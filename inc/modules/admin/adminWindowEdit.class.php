@@ -17,9 +17,7 @@
  * This class have to be used as motherclass in your framework classes, which
  * are defined from the links in your extension.
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkWindow
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 
