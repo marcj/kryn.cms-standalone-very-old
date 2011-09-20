@@ -1127,7 +1127,7 @@ class adminPages {
             }
             
             dbDelete('system_search', 'page_rsn	= '.$rsn);
-            systemSearch::cacheAllIndexedPages();
+            krynSearch::cacheAllIndexedPages();
             cache::set('systemSearchIndexedPages', $indexedPages);
         }
     

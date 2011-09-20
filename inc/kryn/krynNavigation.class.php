@@ -17,24 +17,12 @@
  * 
  * Layer between Layouts and navigation (pages)
  * 
- * @package Kryn
- * @internal
- * @subpackage Layout
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 
-class knavigation {
+class krynNavigation {
     public $navigations;
-
-    function getAdminLinks( $pParam, $pIsDomain = false ){
-
-        if( $pIsDomain )
-            $sql = "SELECT * FROM %pfx%system_pages WHERE domain_rsn= ".$pParam['rsn']." AND prsn = 0 ORDER BY sort";
-        else
-            $sql = "SELECT * FROM %pfx%system_pages WHERE prsn = ".$pParam['rsn']." ORDER BY sort";
-        return dbExfetch( $sql, DB_FETCH_ALL );
-    }
 
     public static function getLinks( $pRsn, $pWithFolders = false, $pDomain = false ){
         global $kryn, $user, $time;

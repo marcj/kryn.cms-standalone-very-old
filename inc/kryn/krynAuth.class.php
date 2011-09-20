@@ -15,8 +15,16 @@ class krynAuth {
     public $token = false;
     
     /**
+    * The token id (the name of the cookie on the client side)
+    */
+    public $tokenid = 'krynsessionid';
+    
+    
+    /**
     * Some session informations
     * Modified by set() and get()
+    * The system uses following items, so your should't override it:
+    *    language, time, refreshed, ip, user_rsn, page, useragent
     */
     private $session;
     
@@ -42,6 +50,9 @@ class krynAuth {
     * Constructor
     */
     function __construct(){
+        global $cfg;
+
+        $this->initializeMemcached();
 
         tAssign("client", $this);
         $this->token = $this->getToken();
@@ -73,6 +84,36 @@ class krynAuth {
         
         if( $cfg['session_autoremove'] == 1 )
             $this->removeExpiredSessions();
+    }
+    
+    /**
+    * Initialize memcached object
+    */
+    public function initializeMemcached(){
+        global $cfg;
+
+        if( $cfg['session_storage'] == 'memcached' ){
+            
+            if( class_exists('Memcache') ){
+                
+                $this->memcache = new Memcache;
+                foreach( $cfg['session_storage_memcached_servers'] as $server ){
+                    $this->memcache->addServer( $server['ip'], $server['port']+0 );
+                }
+
+            } else {
+                if( class_exists('Memcached') ){
+                    $this->memcached = new Memcached;
+                    foreach( $cfg['session_storage_memcached_servers'] as $server ){
+                        $this->memcached->addServer( $server['ip'], $server['port']+0 );
+                    }
+                } else {
+                    $cfg['session_storage'] = 'database';
+                    klog('session', 'Can not find Memcache/Memcached extension in php. Fallback to database as session storage.');
+                }
+            }
+            
+        }
     }
     
     /**
@@ -351,14 +392,22 @@ class krynAuth {
         if( $this->needSync != true ) return;
         global $cfg;
 
+        $session['user_rsn'] = $this->user['rsn'];
+        
         switch( $cfg['session_storage'] ){
             case 'memcached':
                 
+                $expired = time()+$cfg['session_timeout'];
+                
+                if( $this->memcache )
+                    $this->memcache->set( $this->tokenid.'_'.$this->token, $this->session, 0, $expired);
+                else if( $this->memcached )
+                    $this->memcached->set( $this->tokenid.'_'.$this->token, $this->session, $expired);
+                    
                 break;
             case 'database':
             default:
-                
-                $session['user_rsn'] = $this->user['rsn'];
+
                 $session['language'] = $this->session['language'];
                 $session['time'] = $this->session['time'];
                 $session['refreshed'] = $this->session['refreshed'];
@@ -408,21 +457,22 @@ class krynAuth {
             switch( $cfg['session_storage'] ){
                 case 'memcached':
                     $session = $this->newSessionMemcached();
+                    break;
                 case 'database':
                 default:
                     $session = $this->newSessionDatabase();
             }
             if( $session ){
-                setCookie("krynsessionid", '', time()-3600*24*700, "/"); 
-                setCookie("krynsessionid", '', time()-3600*24*700, "/admin");
-                setCookie("krynsessionid", '', time()-3600*24*700, "/admin/");
-                setCookie("krynsessionid", $this->token, time()+3600*24*7, "/"); //7 Days
+                setCookie($this->tokenid, '', time()-3600*24*700, "/"); 
+                setCookie($this->tokenid, '', time()-3600*24*700, "/admin");
+                setCookie($this->tokenid, '', time()-3600*24*700, "/admin/");
+                setCookie($this->tokenid, $this->token, time()+3600*24*7, "/"); //7 Days
                 return $session;
             }
         }
         
         //after 25 tries, we stop and log it.
-        klog('session', _l("The system just tried to create a session 25 times, but can't generate a new free session id."));
+        klog('session', _l("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the memached server s full or you forgot to setup a cronjob for the garbage collector."));
         return false;
     }
     
@@ -434,15 +484,17 @@ class krynAuth {
         global $cfg;
         
         $token = $this->generateSessionId();
-        //TODO
-        $row = dbExfetch("SELECT rsn FROM %pfx%system_sessions WHERE id = '$token'", 1);
-        if( $row['rsn'] > 0 ){
-            //another session with this id exists
+        
+        if( $this->memcache )
+            $exist = $this->memcache->get( $this->tokenid.'_'.$token );
+        else if( $this->memached )
+            $exist = $this->memcached->get( $this->tokenid.'_'.$token );
+            
+        if( $exist !== false ){
             return false;
         }
         
         $session = array(
-            'id' => $token,
             'user_rsn' => 0,
             'time' => time(),
             'ip' => $_SERVER['REMOTE_ADDR'],
@@ -451,9 +503,16 @@ class krynAuth {
             'refreshed' => 0
         );
         
-        dbInsert('system_sessions', $session);
+        $expired = time()+$cfg['session_timeout'];
+        if( $this->memcache ){
+            if( !$this->memcache->set( $this->tokenid.'_'.$token, $session, 0, $expired) )
+                return false;
+        } else if( $this->memcached )
+            if( !$this->memcached->set( $this->tokenid.'_'.$token, $session, $expired) )
+                return false;
+            
+        
         $this->token = $token;
-        unset($session['id']);
         return $session;
     }
     
@@ -544,7 +603,25 @@ class krynAuth {
     * Loads the session based on the given token from the client in the memcached server
     */
     public function loadSessionMemcached(){
-        //TODO
+        global $cfg;
+
+        if( $this->memcache )
+            $session = $this->memcache->get( $this->tokenid.'_'.$this->token );
+        else if( $this->memcached )
+            $session = $this->memcached->get( $this->tokenid.'_'.$this->token );
+
+        if( $session && $session['time']+$cfg['session_timeout'] < time() ){
+            if( $this->memcache )
+                $this->memcache->delete( $this->tokenid.'_'.$this->token );
+            else if( $this->memcached )
+                $this->memcached->delete( $this->tokenid.'_'.$this->token );
+            
+            return false;
+        }
+
+        if( !$session ) return false;
+
+        return $session;
     }
     
     /**
@@ -553,9 +630,9 @@ class krynAuth {
     */
     public function getToken(){
         
-        if( $_GET['krynsessionid'] ) return $_GET['krynsessionid'];
-        if( $_POST['krynsessionid'] ) return $_POST['krynsessionid'];
-        if( $_COOKIE['krynsessionid'] ) return $_COOKIE['krynsessionid'];
+        if( $_GET[$this->tokenid] ) return $_GET[$this->tokenid];
+        if( $_POST[$this->tokenid] ) return $_POST[$this->tokenid];
+        if( $_COOKIE[$this->tokenid] ) return $_COOKIE[$this->tokenid];
         
         return false;
     }

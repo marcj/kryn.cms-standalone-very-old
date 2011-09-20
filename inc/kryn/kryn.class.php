@@ -14,9 +14,7 @@
 /**
  * Kryn.core class
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage Core
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 class kryn extends baseModule {
@@ -675,11 +673,11 @@ class kryn extends baseModule {
      * @static
      */
     public static function toModRewrite($pString){
-        $res = @preg_replace('ä', "ae", strtolower($pString));
-        $res = @preg_replace('ö', "oe", strtolower($pString));
-        $res = @preg_replace('ü', "ue", strtolower($pString));
-        $res = @preg_replace('ß', "ss", strtolower($pString));
-        $res = @preg_replace('/[^a-zA-Z0-9]/', "-", strtolower($pString));
+        $res = @str_replace('ä', "ae", strtolower($pString));
+        $res = @str_replace('ö', "oe", $res);
+        $res = @str_replace('ü', "ue", $res);
+        $res = @str_replace('ß', "ss", $res);
+        $res = @preg_replace('/[^a-zA-Z0-9]/', "-", $res);
         $res = @preg_replace('/--+/', '-', $res);
         return $res;
     }
@@ -829,6 +827,7 @@ class kryn extends baseModule {
             types:
                 1: admin ($admin) and frontend
                 2: pages (backend access for special uses)
+                3: files (internal)
 
             target_type:
                 1: group
@@ -836,7 +835,8 @@ class kryn extends baseModule {
         */
 
         $inGroups = $client->user['inGroups'];
-        
+        if( !$inGroups ) $inGroups = 0;
+
         $code = esc($pUrl);
         if( substr( $code, -1 ) != '/' )
             $code .= '/';
@@ -932,11 +932,8 @@ class kryn extends baseModule {
     public function initConfig(){
         global $cfg;
         
-        
-        $cfg['upfx'] = ($cfg['mod_rewrite'] == 0) ? '?_kurl=' : '';
         $cfg['templatepath'] = $cfg['path']."inc/template";
-        $cfg['path'] .= $cfg['upfx'];
-        
+
         if( !$cfg['sessiontime'] && !$cfg['session_timeout'] )
             $cfg['session_timeout'] = 3600;
 
@@ -993,7 +990,7 @@ class kryn extends baseModule {
     public function initAuth(){
         global $cfg, $user, $client;
             
-        if( $cfg['auth_class'] == 'kryn' ){
+        if( true || $cfg['auth_class'] == 'kryn' ){
             $client = new krynAuth();
             $user = $client;
         } else {
@@ -1175,6 +1172,13 @@ class kryn extends baseModule {
      */
     public function domainNotFound( $pDomain ){
         die( "Domain <i>$pDomain</i> not found." );
+    }
+    
+    /**
+    * returns the path of the current request without parameters
+    */
+    public static function getRequestPath(){
+        return self::getRequestPageUrl();
     }
 
     /**
@@ -2117,19 +2121,19 @@ class kryn extends baseModule {
         }
     
         if( kryn::$domain['startpage_rsn'] == $page['rsn'] && !kryn::$isStartpage ){
-            systemSearch::toBlacklist();
+            krynSearch::toBlacklist();
         
             kryn::redirect( kryn::$baseUrl );
         }
         
         if( $page['unsearchable'] == 1 ){
-            systemSearch::toBlacklist();
+            krynSearch::toBlacklist();
         }
         
         if( $page['type'] == 1 ){//is link
             $to = $page['link'];
          
-            systemSearch::toBlacklist();
+            krynSearch::toBlacklist();
             if( $page['link']+0 > 0 ){
                 kryn::redirectToPage( $page['link'] );
             } else {
@@ -2257,59 +2261,19 @@ class kryn extends baseModule {
                 die( kryn::$pageHtml );
             }
         }
-
-        //print_r(kryn::$page);
-        
-       /* $indexedPages = kryn::getCache('systemSearchIndexedPages');
-        $contentHash = md5( systemSearch::stripContent(kryn::$pageHtml) );
-        $hashkey = kryn::$page['rsn'].'_'.$contentHash;
-        */
-                
-        /*$a = '/'.kryn::getRequestPageUrl(true);
-        $b = $indexedPages[$hashkey]['url'];
-        
-        if( $indexedPages[$hashkey] && $b === "" )
-            $b = '/';
-        */
-        //print_r($indexedPages);
-        //print "<br />$b <=> $a ===> $hashkey => ".$indexedPages[$hashkey]."<br/>";
         
         if( !getArgv('enableSearchIndexMode') )
-        		systemSearch::$returnCodes = true;
+        		krynSearch::$returnCodes = true;
         
-        $resCode = systemSearch::createPageIndex(kryn::$pageHtml);
+        $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
         
         if( $resCode == 2 ){
-            kryn::redirect(systemSearch::$redirectTo);
+            kryn::redirect(krynSearch::$redirectTo);
         }
-            
-        /*if( !$indexedPages[$hashkey] || $b != $a ){
-            //this url and its content-hash is not available in the searchindex
-            $searchIndexMode = true;
-            systemSearch::$returnCodes = true;
-            $resCode = systemSearch::createPageIndex(kryn::$pageHtml);
-            $indexedPages = kryn::getCache('systemSearchIndexedPages');
-        }*/
         
         kryn::$pageHtml = self::removeSearchBlocks( kryn::$pageHtml );
         
-        //print_r($indexedPages);
-        //print '<br />'.$hashkey.' => /'.kryn::getRequestPageUrl(true).'<br/> =>'.$indexedPages[$hashkey]['url'];
-
-        
-        /*if( 
-            !$indexedPages[$hashkey] &&
-            //$indexedPages[$hashkey] &&
-            //$a != $b &&
-            //strlen($a) > strlen($b) &&
-            self::$deactivateContentCheck == false
-            
-            ){
-            
-            kryn::notFound();
-        }*/
-        
-        kryn::$pageHtml = tpl::buildPage( kryn::$pageHtml ); 
+        kryn::$pageHtml = krynHtml::buildPage( kryn::$pageHtml ); 
 
         //replace all href="#anchor" with valid ones //workaround for <base>
         
@@ -2856,7 +2820,7 @@ class kryn extends baseModule {
             case 'navigation':
                 $temp = json_decode( $content['content'], 1 );
                 $temp['id'] = $temp['entryPoint'];
-                $_content = knavigation::plugin( $temp );
+                $_content = krynNavigation::plugin( $temp );
                 
                 break;
             case 'picture':

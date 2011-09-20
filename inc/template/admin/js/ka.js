@@ -1547,7 +1547,7 @@ ka._openLinkContext = function( pLink ){
 
 ka.parse = new Class({
 
-    objects: {},
+    fields: {},
 
     initialize: function( pContainer, pDefinition ){
     
@@ -1568,7 +1568,7 @@ ka.parse = new Class({
             document.id(obj).inject( pContainer );
             
             if( pDependField && field.needValue ){
-                pDependField.addEvent('change', function(){
+                pDependField.addEvent('check-depends', function(){
                     if( field.needValue == pDependField.getValue() ){
                         obj.show();   
                     } else {
@@ -1584,27 +1584,27 @@ ka.parse = new Class({
                 this.parseLevel( field.depends, childContainer, obj );
                 obj.fireEvent('change');
             }
-            this.objects[ id ] = obj;
+            this.fields[ id ] = obj;
         
         }.bind(this));
     },
     
     setValue: function( pValues ){
     
-        Object.each( this.objects, function(obj,id){
+        Object.each( this.fields, function(obj,id){
             obj.setValue( pValues[id] );
         });
     },
     
-    getObjects: function(){
-        return this.objects;
+    getFields: function(){
+        return this.fields;
     },
     
     getValue: function(){
     
         var res = {};
         
-        Object.each( this.objects, function(obj,id){
+        Object.each( this.fields, function(obj,id){
             res[id] = obj.getValue();
         });
         

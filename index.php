@@ -74,13 +74,14 @@ include( 'inc/kryn/checkFile.php' );
 include('inc/smarty/Smarty.class.php');
 include('inc/kryn/database.class.php');
 include('inc/kryn/baseModule.class.php');
+
 include('inc/kryn/kryn.class.php');
-include('inc/kryn/acl.class.php');
+include('inc/kryn/krynAcl.class.php');
 include("inc/kryn/adminForm.class.php");
-include('inc/kryn/knavigation.class.php');
-include('inc/kryn/tpl.class.php');
+include('inc/kryn/krynNavigation.class.php');
+include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');
-include('inc/kryn/systemSearch.class.php');
+include('inc/kryn/krynSearch.class.php');
 
 # Init classes and globals
 $tpl = new Smarty();
@@ -146,7 +147,7 @@ tAssign("user", $user->user);
 
 $kryn->checkAccess();
 
-systemSearch::initSearch();
+krynSearch::initSearch();
 
 register_shutdown_function('kryn_shutdown');
 

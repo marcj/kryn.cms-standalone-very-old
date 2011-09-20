@@ -46,16 +46,13 @@ ka.windowEdit = new Class({
 
     load: function(){
         var _this = this;
-        new Request.JSON({url: _path+'admin/backend/window/loadClass/', noCache: true, onComplete: function(res){
+        new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code, noCache: true, onComplete: function(res){
             this.render( res );
-        }.bind(this)}).post({ module: this.win.module, 'code': this.win.code });
+        }.bind(this)}).post();
     },
     
     generateItemParams: function( pVersion ){
     	var req = {};
-	   
-	    req['module'] = this.win.module;
-	    req['code'] = this.win.code;
 	    
 	    if( pVersion )
 	    	req.version = pVersion;
@@ -76,7 +73,8 @@ ka.windowEdit = new Class({
             this.lastRq.cancel();
 
         this.loader.show();
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
+        this.lastRq = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItem',
+        noCache: true, onComplete: function(res){
             
             this._loadItem( res );
             
@@ -300,7 +298,7 @@ ka.windowEdit = new Class({
     loadVersions: function(){
     	
         var req = this.generateItemParams();
-        new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
+        new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItem', noCache: true, onComplete: function(res){
             
         	if( res && res.versions ){
 	        	this.item.versions = res.versions;
@@ -634,9 +632,6 @@ ka.windowEdit = new Class({
         if( this.item )
             req = this.item.values;
         
-        req[ '_kryn_module' ] = this.win.module;
-        req[ '_kryn_code' ] = this.win.code;
-        
         
         this.fields.each(function(item, fieldId){
             
@@ -724,7 +719,7 @@ ka.windowEdit = new Class({
     	        }
     	    }
             
-            new Request.JSON({url: _path+'admin/backend/window/loadClass/saveItem', noCache: true, onComplete: function(res){
+            new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=saveItem', noCache: true, onComplete: function(res){
 
                 window.fireEvent('softReload', this.win.module+'/'+this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
             	

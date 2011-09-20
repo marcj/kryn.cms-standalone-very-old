@@ -458,7 +458,7 @@ ka.windowCombine = new Class({
         if( this.loader )
             this.loader.show();
         
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
             if( !res.items && this.from == 0 ){
                 this.itemLoaderNoItems();
@@ -1073,7 +1073,7 @@ ka.windowCombine = new Class({
         //    this.loader.show();
 
         //logger( pPrimaries );
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
             //logger( res );
             if( res > 0 ){
@@ -1165,7 +1165,7 @@ ka.windowCombine = new Class({
                 if( this.currentEdit.values.multiLanguage )
                     req['language'] = this.currentItem.values['lang'];
                 
-                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/',
+                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems',
                 noCache: true, onComplete:function( res ){
                                         
                     var newItem = this.addItem( res.items[0] );

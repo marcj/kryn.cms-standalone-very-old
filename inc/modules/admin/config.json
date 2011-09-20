@@ -141,7 +141,7 @@
           }
         },
         "layout": {
-          "title": "Layouts",
+          "title": "Templates",
           "type": "custom",
           "multi": false,
           "defaultWidth": 900,
@@ -233,7 +233,15 @@
           "type": "custom",
           "multi": false,
           "defaultWidth": 400,
-          "defaultHeight": 480
+          "defaultHeight": 480,
+          "childs": {
+              "group_store": {
+                 "type": "store",
+                 "table": "system_groups",
+                 "label": "name",
+                 "id": "rsn"
+              }
+          }
         }
       }
     },

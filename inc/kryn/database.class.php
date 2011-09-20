@@ -556,7 +556,6 @@ class database {
     	    if( !database::$hideSql )
             	$this->lastError = null;
 
-
             $queries = explode(';', $pQuery);
             foreach( $queries as $query ){
                 if( preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $query, $matches) ){

@@ -11,7 +11,6 @@
  *
  */
 
-
 class admin {
     
     function __construct(){
@@ -45,10 +44,10 @@ class admin {
     public function content(){
         global $tpl, $kryn, $navigation, $modules, $cfg, $client;
 
-//        if(getArgv('loginLang') != '')
+
         if( getArgv('getLanguage') != '' )
             self::printLanguage();
-//            return admin::loginLang();
+
         if( getArgv('getPossibleLangs') == '1' )
             self::printPossibleLangs();
 
@@ -61,13 +60,43 @@ class admin {
         require( 'inc/modules/admin/adminSettings.class.php' );
         require( 'inc/modules/admin/adminFilemanager.class.php' );
         require( 'inc/modules/admin/adminSearchIndexer.class.php' );  
+        require( 'inc/modules/admin/adminStore.class.php' );  
 
         tAssign("admin", true);
-        if( $modules[ getArgv(2) ] ){
+                    
+        $code = kryn::getRequestPath();
+        $info = self::getPathItem( $code );
+
+        if( !$info ){
+            $info = self::getPathItem( substr($code,6) );
+        }
+
+        if( $info ){
+            if( $info['type'] == 'store' ){
+                if( !$info['class'] ){
+                    $obj = new adminStore();
+                    json($obj->handle($info));
+                }
+            } else {
+                $adminWindows = array('edit', 'list', 'add', 'combine');
+                require( 'inc/modules/admin/adminWindow.class.php' );
+                $obj = new adminWindow();
+
+                if( getArgv('cmd') == 'getInfo' ){
+                    json( $info );
+                } else if( in_array( $info['type'], $adminWindows ) ){
+                    json($obj->handle($info));
+                }
+            }
+        }
+        
+        if( $modules[ getArgv(2) ] && getArgv(2) != 'admin' ){
+            
             $content = $modules[ getArgv(2) ]->admin();
 
             tAssign( "content", $content );
             die( tFetch('admin/iframe.tpl') );
+
         } else {
             switch( getArgv(2) ){
                 case 'mini-search':
@@ -99,6 +128,8 @@ class admin {
                             json( admin::clearCache() );
                         case 'loadJs':
                             return self::loadJs();
+                        case 'loadCustomJs':
+                            return self::loadCustomJs();
                         case 'loadLayoutElementFile':
                             return self::loadLayoutElementFile( getArgv('template') );
                         case 'fixDb':
@@ -128,10 +159,6 @@ class admin {
                         case 'plugins':
                             require("inc/modules/admin/adminPlugins.class.php");
                             return adminPlugins::init();
-                        case 'window':
-                            require( 'inc/modules/admin/adminWindow.class.php' );
-                            $content = adminWindow::init();
-                            break;
                         case 'searchIndexer' :                         
                             adminSearchIndexer::init();
                             break;
@@ -173,6 +200,86 @@ class admin {
         json('param-failed');
     }
     
+    /**
+    * Gets the item from the 'admin' entry points defined in the config.json, by the given code
+    * @param string $pCode Example publication/news/list returns the hash of 'list'
+    */
+    
+    public static function getPathItem( $pCode ){
+        
+        $codes = explode( '/', $pCode );
+        if( kryn::$configs[ 'admin' ]['admin'][ $codes[1] ] ){
+            //inside admin extension
+            $adminInfo = kryn::$configs[ 'admin' ]['admin'];
+            $start = 1;
+            $module = 'admin';
+            $code = substr( $pCode, 6 );
+        } else if( kryn::$configs[ $codes[1] ]['admin'] ){
+            //inside other extension
+            $adminInfo = kryn::$configs[ $codes[1] ]['admin'];
+            $start = 2;
+            $module = $codes[1];
+            $code = substr( $pCode, 6+strlen($codes[1])+1 );
+        }
+
+        $_info = $adminInfo[$codes[$start]];
+        $path = array();
+        $path[] = $_info['title'];
+
+        $count = count($codes);
+        for($i=$start+1;$i<=$count;$i++){
+            if( $codes[$i] != "" ){
+                $_info = $_info['childs'][$codes[$i]];
+                $path[] = $_info['title'];
+            }
+        }
+
+        unset( $path[ count($path)-1 ] );
+        unset( $_info['childs'] );
+        
+        if( !$_info ){
+            return false;
+        }
+        
+        $_info['_path'] = $path;
+        $_info['_module'] = $module;
+        $_info['_code'] = $code;
+        
+        $cssPath = str_replace( '/', '_', $code ); //this.code.replace(/\//g,'_');;
+        if( $pModule == 'admin' ){
+            $cssPath = 'inc/template/admin/css/'.$cssPath.'.css';
+        } else {
+            $cssPath = 'inc/template/'.$module.'/admin/css/'.$cssPath.'.css';
+        }
+        if( file_exists( $cssPath ) )
+            $_info['cssmdate'] = filemtime( $cssPath );
+            
+        
+        return $_info;
+    }
+    
+    public static function loadCustomJs(){
+    
+        $module = getArgv('module');
+        $code = getArgv('code');
+        
+        $module = preg_replace('/[^a-zA-Z-\\/_]/', '', $module);
+        $code = preg_replace('/[^a-zA-Z-\\/_]/', '', $code);
+        
+        if( $module == 'admin' )
+           $file = "inc/template/admin/js/$code.js";
+        else
+            $file = "inc/template/$module/admin/js/$code.js";
+
+        if(! file_exists($file) ){
+            print "contentCantLoaded_".getArgv('onLoad')."('$file');\n";
+        } else {
+            readFile( $file );
+            print "\n";
+            print "contentLoaded_".getArgv('onLoad').'();'."\n";
+        }
+        die();
+    }
     
     public static function loadLayoutElementFile( $pFile ){
         

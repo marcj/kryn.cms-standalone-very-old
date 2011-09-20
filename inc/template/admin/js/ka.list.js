@@ -30,7 +30,7 @@ ka.list = new Class({
 
     load: function(){
         var _this = this;
-        new Request.JSON({url: _path+'admin/backend/window/loadClass/', noCache: true, onComplete:function( res ){
+        new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=', noCache: true, onComplete:function( res ){
             this.render( res );
             this.classLoaded = true;
             this.fireEvent('render');
@@ -39,7 +39,7 @@ ka.list = new Class({
 
     deleteItem: function(pItem){
         var _this = this;
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/deleteItem/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=deleteItem', noCache: true, onComplete:function( res ){
             _this.win.softReload();
             _this._deleteSuccess();
         }}).post({ 
@@ -477,7 +477,7 @@ ka.list = new Class({
                 if( this.loader )
                     this.loader.show();
                     
-                new Request.JSON({url: _path+'admin/backend/window/loadClass/removeSelected/', noCache: 1, onComplete: function(res){
+                new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=removeSelected', noCache: 1, onComplete: function(res){
                     
                     if( this.loader )
                         this.loader.hide();
@@ -525,7 +525,7 @@ ka.list = new Class({
             this.lastExportFrame.destroy();
         }
         this.lastExportForm = new Element('form', {
-            action: _path+'admin/backend/window/loadClass/exportItems/?'+params.toQueryString(),
+            action: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=exportItems&'+params.toQueryString(),
             method: 'post',
             target: 'myExportFrame'+this.win.id
         }).inject( document.hidden );
@@ -604,7 +604,7 @@ ka.list = new Class({
         
         this.relation_params_filtered = params;
 
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             this.renderItems(res);
         }.bind(this)}).post({ 
             module: this.win.module,

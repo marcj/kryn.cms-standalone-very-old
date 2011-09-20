@@ -23,7 +23,7 @@
  * 
  */
 
-class windowEdit {
+class adminWindowEdit {
 
     /**
      * 
@@ -113,7 +113,7 @@ class windowEdit {
             $cachedPluginRelations =& cache::get('kryn_pluginrelations');
         }
         
-        $module = getArgv('module');
+        $module = $this->module;
         
         foreach( $this->previewPlugins as $plugin => $urlGetter ){
             
@@ -511,7 +511,7 @@ class windowEdit {
         if( $this->previewPlugins ){
             
             $cachedPluginRelations =& cache::get('kryn_pluginrelations');
-            $module = getArgv('module');
+            $module = $this->module;
             
             foreach( $this->previewPlugins as $plugin => $urlGetter ){
                 
@@ -542,6 +542,16 @@ class windowEdit {
         }
         return $previewUrls;
     }
+
+}
+
+
+
+/*
+* Compatibility for older extension
+* @deprecated
+*/
+class windowEdit extends adminWindowEdit {
 
 }
 

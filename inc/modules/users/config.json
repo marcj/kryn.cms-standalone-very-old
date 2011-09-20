@@ -104,8 +104,66 @@
             "type": "checkbox"
         },
         "default_group": {
-            "label": "Default group",
-            "type": "group"
+            "label": "Group mapping",
+            "desc": "Regex in the domain field is possible.",
+            "type": "array",
+            "columns": [
+                {"label": "Domain"},
+                {"label": "Group", "width": "65%"}
+            ],
+            "fields": {
+                "domain": {
+                    "type": "text"
+                },
+                "group": {
+                    "type": "textlist",
+                    "multi": true,
+                    "store": "admin/system/settings/group_store"
+                }
+            }
+        }
+    },
+    "auth_ldap": {
+    
+        "server": {
+            "label": "Server",
+            "type": "text"
+        }
+    },
+    
+    "auth_ftp": {
+    
+        "server": {
+            "label": "Server",
+            "type": "text"
+        }
+    },
+    "auth_sql": {
+    
+        "server": {
+            "label": "Server",
+            "type": "text"
+        }
+    },
+    "auth_pam": {
+    
+        "server": {
+            "label": "Server",
+            "type": "text"
+        }
+    },
+    "auth_passwd": {
+    
+        "server": {
+            "label": "Server",
+            "type": "text"
+        }
+    },
+    "auth_samba": {
+    
+        "server": {
+            "label": "Server",
+            "type": "text"
         }
     }
   },

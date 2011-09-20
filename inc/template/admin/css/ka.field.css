@@ -43,7 +43,6 @@ h2.ka-field-headline {
 }
 
 .ka-field-title {
-   
 }
 
 div.ka-field-main div.desc {
@@ -60,6 +59,7 @@ tr.ka-field-main td div.desc {
     border-bottom: 1px solid #ddd;
     padding: 1px 1px 1px 10px;
     width: 312px;
+    font-size: 11px;
 }
 
 .ka-field-main .ka-field-field {
@@ -76,12 +76,12 @@ tr.ka-field-main td div.desc {
 select,
 textarea,
 input.text {
-    border: 1px solid silver;
-    padding: 2px;
+    border: 1px solid #bbb;
+    padding: 5px;
     color: #444;
     font-size: 11px;
-    -moz-border-radius: 4px;
-    background-color: #f7f7f7;
+    -moz-border-radius: 3px;
+    background-color: white;
 }
 
 input.text {
@@ -140,3 +140,144 @@ input.ka-field-dateTime {
     height: 60px;
     left: 260px;
 }
+
+.ka-field-array .ka-field-main,
+.ka-field-array .ka-field-field {
+    padding: 0px;
+    margin: 0px;
+}
+
+.ka-field-array .ka-field-field textarea,
+.ka-field-array .ka-field-field select,
+.ka-field-array .ka-field-field input {
+    width: auto;
+}
+
+.ka-field-textlist {
+    border: 1px solid silver;
+    background-color: white;
+    padding: 1px;
+    min-height: 8px;
+    overflow: hidden;
+    padding-right: 15px;
+    -moz-border-radius: 3px;
+}
+
+.ka-field-textlist-item {
+    position: relative;
+    -moz-border-radius: 3px;
+    padding: 2px 3px;
+    padding-right: 16px;
+    float: left;
+    cursor: pointer;
+    margin: 3px 2px;
+    color: white;
+    background-color: #399bc7;
+}
+
+
+.ka-field-textlist-item a {
+    background-color: #444;
+    color: white;
+    position: absolute;
+    right: 2px;
+    font-size: 10px;
+    padding: 0px 3px;
+    height: 12px;
+    line-heihgt: 10px;
+    top: 2px;
+    -moz-border-radius: 12px;
+}
+
+.ka-field-textlist-item a:hover {
+    background-color: gray;
+}
+
+.ka-field-textlist-item-active {
+    background-color: #4bbdda;
+}
+
+.ka-field-textlist input {
+    padding: 1px;
+    border: 0px;
+    height: 19px;
+    float: left;
+    background-color: transparent;
+}
+
+.ka-field-textlist-clear {
+    clear: left;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    border: 1px solid silver;
+    width: 15px;
+    padding-left: 1px;
+    padding-top: 6px;
+    cursor: pointer;
+    -moz-border-radius-topright: 3px;
+    -moz-border-radius-bottomright: 3px;
+    text-align: center;
+}
+
+.ka-field-textlist-clear:hover {
+    background-color: #eee;
+}
+
+.ka-field-textlist-searchbox {
+    height: 140px;
+    position: absolute;
+    min-width: 150px;
+    border: 4px solid #444;
+    box-shadow: 0px 0px 3px #777;
+    background-color: white;
+    -moz-border-radius: 4px;
+}
+
+.ka-field-textlist-searchbox-head {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    height: 25px;
+    border-bottom: 1px solid silver;
+    background-color: #eee;
+}
+
+.ka-field-textlist-searchbox-head-c {
+    position: absolute;
+    left: 3px;
+    top: 5px;
+    right: 5px;
+    height: 22px;
+}
+
+.ka-field-textlist-searchbox-head input {
+    padding: 0px;
+    border: 0px;
+    background-color: #eee;
+    height: 19px;
+}
+
+.ka-field-textlist-searchbox-body {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+}
+
+
+.ka-field-textlist-searchbox-body a,
+.ka-field-textlist-searchbox-body a:link {
+    display: block;
+    padding: 3px 15px;
+}
+
+
+.ka-field-textlist-searchbox-body a:hover {
+    background-color: #f6f6f6;
+}
+
+

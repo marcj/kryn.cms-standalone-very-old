@@ -12,7 +12,7 @@ function smarty_function_kryn($params, &$smarty){
             if($searchIndexMode && (!isset($params['search']) || !$params['search']))
                 $result = '';
             else
-                $result = knavigation::plugin( $params );
+                $result = krynNavigation::plugin( $params );
             
             break;
         case 'template':

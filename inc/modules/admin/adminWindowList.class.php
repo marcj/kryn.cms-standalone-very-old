@@ -23,7 +23,7 @@
  */
 
 
-class windowList {
+class adminWindowList {
 	/**
 	 * Defines the table which should be accessed.
 	 *
@@ -462,10 +462,9 @@ class windowList {
 	 * Gets all Items for getArvg('page')
 	 * @return array
 	 */
-    function getItems(){
+    function getItems( $pPage ){
         global $kdb, $cfg;
-        
-        $pPage = getArgv('page');
+
         $results['page'] = $pPage;
 
         $start = ($pPage*$this->itemsPerPage)-$this->itemsPerPage;
@@ -545,7 +544,7 @@ class windowList {
         
         } else {
             
-            if( !getArgv('page') ){
+            if( !$pPage ){
             
                 $from = getArgv('from')+0;
                 $max = getArgv('max')+0;
@@ -666,6 +665,16 @@ class windowList {
         }
         return $res;
     }
+
+}
+
+
+
+/*
+* Compatibility for older extension
+* @deprecated
+*/
+class windowList extends adminWindowList {
 
 }
 

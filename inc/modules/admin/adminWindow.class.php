@@ -16,57 +16,52 @@
 
 class adminWindow {
 
-    public static function init(){
+    public static function handle( $pDefinition ){
         
-        switch( getArgv(4) ){
+        switch( getArgv('cmd') ){
         case 'custom':
             return self::custom();
-        case 'checkAccess':
-            return self::checkAccess();
-        case 'getInfo':
-            json( self::getInfo( getArgv('module'), getArgv('code') ) );
-        case 'loadClass': 
-            return self::loadClass();
         case 'sessionbasedFileUpload': 
             return self::sessionbasedFileUpload();
-        default: 
-            json('self::init::no-param-4');
+        case 'getItems':
+        case 'exportItems':
+        case 'getItem':
+        case 'saveItem':
+        case 'deleteItem':
+        case 'removeSelected':
+        default:
+            return self::loadClass();
         }
     }
 
-    public static function checkAccess( $pRes = false ){
-        $url = getArgv('module').'/'.getArgv('code');
-
-        if( getArgv('module') != 'admin' )
-            $url = 'admin/'.$url;
-        
-        $res = kryn::checkUrlAccess( $url );
-
-        if( $pRes )
-            return $res;
-        else
-            json($res); 
+    public static function getModule(){
+        $url = kryn::getRequestPath();
+        //admin/ = 6
+        $url = substr( $url, 6);
+        $firstSlash = strpos( $url, '/' );
+        return substr($url, 0, $firstSlash);
+    }
+    
+    public static function getCode(){
+        $url = kryn::getRequestPath();
+        //admin/ = 6
+        $url = substr( $url, 6);
+        $firstSlash = strpos( $url, '/' );
+        return substr($url, $firstSlash+1);
     }
 
     public static function loadClass(){
         global $kryn;
 
-        if(! self::checkAccess(true) ) json(false);
+        require( 'inc/modules/admin/adminWindowList.class.php' );
+        require( 'inc/modules/admin/adminWindowCombine.class.php' );
+        require( 'inc/modules/admin/adminWindowEdit.class.php' );
+        require( 'inc/modules/admin/adminWindowAdd.class.php' );
 
-        require( 'inc/kryn/windowList.class.php' );
-        require( 'inc/kryn/windowCombine.class.php' );
-        require( 'inc/kryn/windowEdit.class.php' );
-        require( 'inc/kryn/windowAdd.class.php' );
+        $info = admin::getPathItem( kryn::getRequestPath() );
+        $class = $info['class'];
         
-        $module = (getArgv('_kryn_module')) ? getArgv('_kryn_module'): getArgv('module');
-        $code = (getArgv('_kryn_code')) ? getArgv('_kryn_code'): getArgv('code');
-
-        $info = self::getInfo( $module, $code );
-        $class = $info['values']['class'];
-        
-        
-        
-        $module2LoadClass = $module;
+        $module2LoadClass = $info['_module'];
         
         if( strpos($class, '/') ){
             $t = explode('/', $class);
@@ -97,16 +92,18 @@ class adminWindow {
 //            require($dbFile);
 
         $obj->db = ($config['db'])?$config['db']:array();
+        $obj->module = $info['_module'];
+        $obj->code = $info['_code'];
         $obj->init();
 
-        switch( getArgv(5) ){
+        switch( getArgv('cmd') ){
         case 'getItems':
             $obj->params = json_decode( getArgv('params') );
-            $res = $obj->getItems(getArgv('page'));
+            $res = $obj->getItems( getArgv('page')?getArgv('page'):1 );
             break;
         case 'exportItems':
             $obj->params = json_decode( getArgv('params') );
-            $res = $obj->exportItems(getArgv('page'));
+            $res = $obj->exportItems( getArgv('page')?getArgv('page'):1 );
             break;
         case 'getItem':
             $res = $obj->getItem();
@@ -132,79 +129,12 @@ class adminWindow {
         $obj = NULL;
         json($res);
     }
-
-    public static function getInfo( $pModule, $pCode ){
-        global $kryn;
-
-        $pModule = preg_replace('/\W/', '', $pModule);
-        
-        $url = $pModule.'/'.$pCode;
-        
-        $res = kryn::checkUrlAccess( $url );
-        if(!$res){
-            json(array('noAccess'=>1));
-        }
-
-        $codes = explode( '/', $pCode );
-        $adminInfo = $kryn->installedMods[$pModule]['admin'];
-        
-        $_info = $adminInfo[$codes[0]];
-        
-        $path = array();
-        $path[] = $_info['title'];
-        
-        $count = count($codes);
-        if( $count > 1 ){
-            for($i=1;$i<=$count;$i++){
-                if( $codes[$i] != "" ){
-                    $_info = $_info['childs'][$codes[$i]];
-                    $path[] = $_info['title'];
-                }
-            }
-        }
-        
-        unset( $path[ count($path)-1 ] );
-        
-        if( !$_info ){
-            json(array('pathNotFound' => 1));
-        }
-        
-        
-        $cssPath = str_replace( '/', '_', $pCode ); //this.code.replace(/\//g,'_');;
-        if( $pModule == 'admin' ){
-            $cssPath = 'inc/template/admin/css/'.$cssPath.'.css';
-        } else {
-            $cssPath = 'inc/template/'.$pModule.'/admin/css/'.$cssPath.'.css';
-        }
-        if( file_exists( $cssPath ) )
-            $_info['cssmdate'] = filemtime( $cssPath );
-        
-        return array('values'=>$_info, 'path' => $path);
-    }
-
-    public static function custom(){
-        if( getArgv(5) == 'js' ){
-            $module = getArgv('module');
-            $code = getArgv('code');
-            if( $module == 'admin' )
-               $file = "inc/template/admin/js/$code.js";
-            else
-                $file = "inc/template/$module/admin/js/$code.js";
-
-            if(! file_exists($file) ){
-                print "contentCantLoaded_".getArgv('onLoad')."('$file');\n";
-            } else {
-                readFile( $file );
-                print "\n";
-                print "contentLoaded_".getArgv('onLoad').'();'."\n";
-            }
-            die();
-        }
-    }
     
     public static function sessionbasedFileUpload() {
+        global $client;
+    
         //get session id
-        $sessionId = getArgv('krynsessionid');        
+        $sessionId = $client->token;        
         
         //path for session folder
         $path = 'inc/template' . getArgv( 'path' ) . $sessionId;
@@ -214,9 +144,8 @@ class adminWindow {
         if(!is_dir($path))
             mkdir( $path );
 
-        //override path    
+        //override path
         $_REQUEST['path'] = $_POST['path'] = $_GET['path'] = getArgv( 'path' ) . $sessionId;
-        
         
         //now upload the file
         return adminFilemanager::uploadFile();

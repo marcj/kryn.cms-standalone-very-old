@@ -12,22 +12,19 @@
 
 
 /**
- * tpl class
+ * Html class
  * 
- * @internal
- * @package Kryn
- * @subpackage Core
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 
-class tpl {
+class krynHtml {
 
     public static function plugin( $pMethod ){
         
         switch( $pMethod ){
         case 'head':
-            return tpl::buildHead();
+            return self::buildHead();
         }
 
     }
@@ -47,7 +44,7 @@ class tpl {
         }
 
         $res = $doctypeHead.'<head>'.$kryn->htmlHeadTop;
-        $res .= tpl::buildHead(true);
+        $res .= self::buildHead(true);
 
         $res .= $kryn->htmlHeadEnd.'</head><body>'.$kryn->htmlBodyTop.$pContent."\n\n".$kryn->htmlBodyEnd.'</body></html>';
 

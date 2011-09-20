@@ -99,30 +99,65 @@ var admin_system_settings = new Class({
         
         var p = this.panes['auth'];
         
-        var fields ={
+        var fields = {
+            'session_storage': {
+                label: _('Session storage'),
+                type: 'select',
+                table_items: {
+                    'database': _('SQL Database'),
+                    'memcached': _('Memcached')
+                },
+                'depends': {
+                
+                    'session_storage_memcached_servers': {
+                        needValue: 'memcached',
+                        'label': 'Memcached servers',
+                        'type': 'array',
+                        'width': 310,
+                        'columns': [
+                            {'label': _('IP')},
+                            {'label': _('Port'), width: 50}
+                        ],
+                        'fields': {
+                            ip: {
+                                type: 'text',
+                                width: '95%',
+                                empty: false
+                            },
+                            port: {
+                                type: 'number',
+                                width: 50,
+                                'default': 11211,
+                                empty: false
+                            }
+                        }
+                    }
+                }
+            },
             'session_timeout': {
                 label: _('Session timeout'),
                 type: 'text',
                 'default': '3600'
             },
 
-            'session_autoclear': {
-                label: _('Activate session garbage collector'),
-                desc: 'Decreases the performance when dealing with huge count of sessions.',
+            'session_auto_garbage_collector': {
+                label: _('Automatic session garbage collector'),
+                desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
+                help: 'session_garbage_collector',
                 type: 'checkbox',
                 'default': '0'
             },
 
             'auth_class': {
-                'label': _('Backend Authentification'),
+                'label': _('Backend authentification'),
                 'type': 'select',
                 'table_items': {
-                    'kryn': 'Kryn'
+                    'kryn': _('Kryn.cms users')
                 },
                 depends: {}
             }
         };
-        
+
         this.auth_params = {};
 
         Object.each(ka.settings.configs, function(config,id){
@@ -130,20 +165,22 @@ var admin_system_settings = new Class({
                 Object.each( config.auth, function(auth_fields,auth_class){
                     Object.each( auth_fields, function( field, field_id){
                         field.needValue = auth_class;
-                        fields.auth_class.depends[ auth_class+'_'+field_id  ] = field;
+                        fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
                         fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
                     }.bind(this));
                 }.bind(this));
             }
         }.bind(this));
 
-        new ka.parse( p, fields );
-        
-        
+        this.authObj = new ka.parse( p, fields );
+        Object.each( this.authObj.getFields(), function(item,id){
+            this.fields[ id ] = item;
+        }.bind(this));
+
         var p = this.panes['database'];
         this.fields['db_type'] = new ka.field({
             label: _('Database type'), empty: false, type: 'select',
-            tableItems: [
+            table_items: [
                 {i: 'mysql', v:'MySQL'},
                 {i: 'postgresql', v:'PostgreSQL'},
                 {i: 'sqlite', v:'SQLite'}
@@ -261,11 +298,13 @@ var admin_system_settings = new Class({
         	this.systemValues = res.system;
             $H(this.fields).each(function(field,key){
             	if( !field ) return;
-            	
-                if( res.system[key] )
-                    field.setValue(res.system[key]);
-                if( key == 'caching_type' )
-                	field.fireEvent('change');
+
+                if( res.system[key] ){
+                    field.setValue( res.system[key] );
+                } else if( key.indexOf('[') != -1 ){
+                    field.setArrayValue( res.system, key );
+                }
+
             });
             this.oldCommunityEmail = res.system['communityEmail'];
             
@@ -287,7 +326,6 @@ var admin_system_settings = new Class({
         $H(this.fields).each(function(field,key){
         	if( !field ) return;
             if( dontGo ) return;
-            logger(key);
             if( !field.isOk() ){
                 dontGo = true;
                 var parent = field.main.getParent();
@@ -314,9 +352,9 @@ var admin_system_settings = new Class({
                 this.win._passwordPrompt( _('Please enter your password'), '', this.saveCommunity.bind(this));
             } else {
                 this.saveButton.stopTip( _('Saved') );
+                ka.loadSettings();
                 this.loader.hide();
             }
-            ka.loadSettings();
         }.bind(this)}).post(req);
     },
 

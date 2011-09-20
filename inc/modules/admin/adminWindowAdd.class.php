@@ -1,23 +1,9 @@
 <?php
 
 
-
-/*
- * This file is part of Kryn.cms.
- *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
- *
- * To get the full copyright and license informations, please view the
- * LICENSE file, that was distributed with this source code.
- *
- */
-
-
-
-
 /**
- * This class have to be used as motherclass in your framework classes, which
- * are defined from the links in your extension.
+ * This class should be used as motherclass in your window classes, which
+ * are defined from the admin entry points in your extension.
  * 
  * @author Kryn.labs <info@krynlabs.com>
  * @package Kryn
@@ -25,7 +11,7 @@
  * 
  */
 
-class windowAdd extends windowEdit {
+class adminWindowAdd extends adminWindowEdit {
 
     public $versioning = false;
     
@@ -104,6 +90,14 @@ class windowAdd extends windowEdit {
         
         return array('last_id' => $this->last);
     }
+}
+
+/*
+* Compatibility for older extension
+* @deprecated
+*/
+class windowAdd extends adminWindowAdd {
+
 }
 
 ?>
