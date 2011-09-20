@@ -139,10 +139,14 @@ $kryn->loadModules();
 $kryn->loadLanguage();
 
 $kryn->initAuth();
-$kryn->initModules();
 
 tAssign("request", $_REQUEST);
 tAssign("user", $user->user);
+
+if( getArgv(1) == 'admin' ){
+    require("inc/modules/admin/admin.class.php");
+    $modules['admin'] = new admin();
+}
 
 $kryn->checkAccess();
 
@@ -153,6 +157,7 @@ register_shutdown_function('kryn_shutdown');
 $kryn->admin = false;
 tAssign( 'admin', false );
 if( getArgv(1) == 'admin' ){
+    
     tAssign( 'admin', true );
     $kryn->admin = true;
     $modules['admin']->content();

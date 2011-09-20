@@ -115,7 +115,7 @@ class krynNavigation {
             $currentLevel = count( $kryn->menus[kryn::$page['rsn']] )+1;
 
             $page = self::arrayLevel( $kryn->menus[kryn::$page['rsn']], $pOptions['level'] );
-
+            
             if( $page['rsn'] > 0 )
                 $navi = kryn::getPage( $page['rsn'] );
             elseif( $pOptions['level'] == $currentLevel+1 )
@@ -137,7 +137,7 @@ class krynNavigation {
         switch( $pOptions['id'] ){
             case 'history':
                 $tpl = (!$pTemplate) ? 'main' : $pTemplate;
-                tAssign( 'menus', kryn::readCache('menus') );
+                tAssign( 'menus', $kryn->menus );
                 if( file_exists( "inc/template/$tpl" ))
                     return tFetch( $tpl );
                 return tFetch("kryn/history/$tpl.tpl");

@@ -1423,7 +1423,7 @@ class adminPages {
             else
                 $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
         }
-        kryn::setPhpCache( "menus_$pDomainRsn", $res );
+        cache::set( "menus_$pDomainRsn", $res );
         
         cache::clear('navigations');
         

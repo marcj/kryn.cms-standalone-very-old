@@ -393,7 +393,7 @@ class kryn extends baseModule {
      */
     public static function addMenu( $pName, $pUrl = "" ){
         global $kryn;
-        $kryn->menus[] = array("name" => $pName, "url" => $pUrl);
+        $kryn->menus[ kryn::$page['rsn'] ][] = array("title" => $pName, "realUrl" => $pUrl);
         tAssign("menus", $kryn->menus);
     }
 
@@ -575,9 +575,7 @@ class kryn extends baseModule {
     public function initModules(){
         global $modules;
         
-        include_once("inc/modules/admin/admin.class.php");
         include_once("inc/modules/users/users.class.php");
-        $modules['admin'] = new admin();
         $modules['users'] = new users();
 
         foreach( $this->installedMods as $mod => $config ){
@@ -1962,7 +1960,11 @@ class kryn extends baseModule {
      * @internal
      */
     public function loadMenus(){
-        $this->menus = kryn::readCache( 'menus' );
+        $this->menus =& cache::get( 'menus_'.kryn::$domain['rsn'] );
+        if( count($this->menus) == 0 ){
+            require_once( "inc/modules/admin/adminPages.class.php" );
+            adminPages::updateMenuCache( kryn::$domain['rsn'] );
+        }
         tAssign( 'menus', $this->menus );
     }
     
@@ -2199,8 +2201,10 @@ class kryn extends baseModule {
             print kryn::fileRead( "inc/cache/_pages/".kryn::$page['rsn'].".html" );
             exit;
         }
-        
+
         $this->loadMenus();
+        $this->menus[ kryn::$page['rsn'] ][] = kryn::$page;
+        $this->initModules();
 
         if( kryn::$keditAccess ){
             kryn::addJs( 'admin/js/ka.kedit.js' );
