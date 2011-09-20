@@ -234,7 +234,8 @@ ka.field = new Class({
         
         var input = new Element('input', {
             autocomplete: false,
-            tabindex: 0
+            tabindex: 0,
+            style: 'width: 7px;'
         }).inject( div );
         
         var clear = new Element('div', {
@@ -249,10 +250,37 @@ ka.field = new Class({
         
         var addTextlistItem = function( pLabel, pValue ){
         
+            if( !pValue )
+            pValue = pLabel;
+        
+            if( !_this.field.doubles || _this.field.doubles != true || _this.field.doubles != 1 ){
+                //check for doubles
+                
+                var found = false;
+                div.getElements('.ka-field-textlist-item').each(function(item){
+                    if( found == true ) return;
+                    if( item.retrieve('value') == pValue ){
+                        found = true;
+                    }
+                
+                });
+                if( found ) return;
+            }
+        
             var item = new Element('div', {
-                'class': 'ka-field-textlist-item',
-                text: pLabel
+                'class': 'ka-field-textlist-item'
             }).inject( input, 'before' );
+            
+            var title = new Element('span',{
+                text: pLabel?pLabel:'...'
+            }).inject( item );
+            
+            if( !pLabel ){
+                
+                new Request.JSON({url: _path+'admin/'+_this.field.store, onComplete:function(res){
+                    title.set('text', res.label )
+                }}).get({cmd: 'item', id: pValue});
+            }
             
             item.addEvent('mousedown', function(e){
             
@@ -267,7 +295,7 @@ ka.field = new Class({
             
             });
             
-            item.store( 'value', pValue?pValue:pLabel );
+            item.store( 'value', pValue );
             
             new Element('a', {
                 text: 'x'
@@ -302,8 +330,9 @@ ka.field = new Class({
         
         var checkAndCreateItem = function(){
             
-            if( curSelection ){
-                addTextlistItem( );
+            if( boxBody.getElement('.active') ){
+                var item = boxBody.getElement('.active');
+                addTextlistItem( item.get('text'), item.retrieve('value') );
             }
         
         }
@@ -325,10 +354,10 @@ ka.field = new Class({
             if( lastRq )
                 lastRq.cancel();
 
-            var lastRq = new Request.JSON({url: _path+'admin/backend/store', noCache: 1, onComplete:function(res){
+            var lastRq = new Request.JSON({url: _path+'admin/'+_this.field.store, noCache: 1, onComplete:function(res){
                 
                 boxBody.empty();
-                if( !res || Object.getLength(res) == 0 ){
+                if( typeOf(res) != 'object' ){
                     boxBody.set('html', _('No results.'));
                 } else {
                     Object.each(res, function(label,value){
@@ -337,10 +366,11 @@ ka.field = new Class({
                         }).inject( boxBody );
                         a.store('value', value);
                     });
-                
+                    if( boxBody.getElement('a') )
+                        boxBody.getElement('a').addClass( 'active' );
                 }
                 
-            }}).post({store: _this.field.store});
+            }}).post({search: pValue});
         }
 
         var searchValue = function( pValue ){
@@ -379,13 +409,19 @@ ka.field = new Class({
 
         var hideSearchBox = function(){
             if( box ){
+                boxBody.empty();
                 box.destroy();
                 box = null;
             }
         }
     
         if( this.field.store ){
-            //input.addEvent('blur', hideSearchBox);
+            input.addEvent('blur', hideSearchBox);
+            input.addEvent('focus', function(){
+                if( this.value.length > 0 ){
+                    searchValue( this.value );
+                }
+            });
         }
         
 
@@ -397,6 +433,10 @@ ka.field = new Class({
                     addTextlistItem( this.value );
                 }
                 this.value = '';
+            }
+            
+            if( e.key == 'top' || e.key == 'bottom' ){
+                e.stop();
             }
             
             if( e.key == 'backspace' ){
@@ -450,23 +490,75 @@ ka.field = new Class({
                     this.focus();
                 }
             }
-
+            
+            if( _this.field.store ){
+                if( e.key == 'down' ){
+                    var oldActive = boxBody.getElement('.active');
+                    if( oldActive && oldActive.getNext() ){
+                        oldActive.getNext().addClass( 'active' );
+                        oldActive.removeClass('active');
+                    }
+                }
+                
+                if( e.key == 'up' ){
+                    var oldActive = boxBody.getElement('.active');
+                    if( oldActive && oldActive.getPrevious() ){
+                        oldActive.getPrevious().addClass( 'active' );
+                        oldActive.removeClass('active');
+                    }
+                }
+            }
+        });
+        
+        var lastSearch = false;
+        input.addEvent('keyup', function(e){
             if( _this.field.store ){
                 if( this.value.length > 0 ){
+                    if( lastSearch == this.value ){
+                        return;
+                    }
+                    lastSearch = this.value;
                     searchValue( this.value );
                 } else {
                     hideSearchBox();
+                    lastSearch = '';
                 }
             }
-
             this.setStyle('width', 6.5*(this.value.length+1));
         });
         
         div.addEvent('click', function(e){
             if( e.target && !e.target.hasClass('ka-field-textlist') ) return;
             input.inject( clear, 'before' );
+            input.setStyle('position', '');
+            input.setStyle('left', '');
+            if( active )
+                active.removeClass('ka-field-textlist-item-active');
             input.focus();
+            active = input;
         });
+        
+        this._setValue = function( pValue ){
+        
+            if( _this.field.store ){
+                Array.each( pValue, function(item){
+                    addTextlistItem( false, item );
+                });
+            } else {
+                Array.each( pValue, function(item){
+                    addTextlistItem( item );
+                });
+            }
+        
+        }
+        
+        this.getValue = function(){
+            var res = [];            
+            div.getElements('.ka-field-textlist-item').each(function(item){
+                res.include( item.retrieve('value') );
+            });
+            return res;
+        }
     
     },
     

@@ -272,12 +272,23 @@ input.ka-field-dateTime {
 .ka-field-textlist-searchbox-body a,
 .ka-field-textlist-searchbox-body a:link {
     display: block;
-    padding: 3px 15px;
+    padding: 5px 15px;
+    cursor: default;
 }
 
 
+.ka-field-textlist-searchbox-body a.active,
+.ka-field-textlist-searchbox-body a.active:link {
+    background-color: #399bc7;
+    color: white;
+}
+
+.ka-field-textlist-searchbox-body a.active:hover {
+    background-color: #4bbdda;
+}
+
 .ka-field-textlist-searchbox-body a:hover {
-    background-color: #f6f6f6;
+    background-color: #eee;
 }
 
 

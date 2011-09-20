@@ -29,11 +29,34 @@ class adminStore {
         }
 
         switch( getArgv('cmd') ){
+            case 'item':
+                return self::getItem( getArgv('id') );
             case 'items':
             default:
                 return self::getItems( getArgv('from')+0, getArgv('count')+0 );
         }
     
+    }
+    
+    public function getItem( $pId ){
+    
+        $res = array();
+        if( !$this->table ) return $res;
+        $table = database::getTable( $this->table );
+        
+        $id = $pId;
+        if( $id+0 > 0 ){
+            $id += 0;
+        } else {
+            $id = "'".esc($id)."'";
+        }
+        
+        $sql = ' SELECT '.$this->id.' as id, '.$this->label.' as label
+            FROM '.$table.'
+            WHERE '.$this->id.' = '.$id;
+            
+        $res = dbExfetch( $sql , 1 );
+        return $res;
     }
     
     /**
@@ -64,6 +87,15 @@ class adminStore {
         $where = $this->where;
         if( !$where )
             $where = $this->getItemsWhere();
+            
+        if( getArgv('search') ){
+            $search = strtolower(getArgv('search', 1));
+            
+            $add = strlen($where) > 0 ? ' AND ':'';
+            
+            $where = $add.' LOWER('.$this->label.") LIKE '$search%'";
+
+        }
         
         if( $this->sql ){
             $sql .= $limit;

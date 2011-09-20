@@ -97,7 +97,8 @@
         },
         "port": {
             "label": "Port",
-            "type": "number"
+            "type": "number",
+            "width": 50
         },
         "ssl": {
             "label": "SSL",
@@ -105,10 +106,10 @@
         },
         "default_group": {
             "label": "Group mapping",
-            "desc": "Regex in the domain field is possible.",
+            "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
             "type": "array",
             "columns": [
-                {"label": "Domain"},
+                {"label": "Login"},
                 {"label": "Group", "width": "65%"}
             ],
             "fields": {
@@ -218,12 +219,12 @@
         },
         "groups": {
           "title": "Groups",
-          "type": "custom",
+          "type": "list",
           "class": "usersAdminGroupList",
           "childs": {
             "edit": {
               "title": "Group edit",
-              "type": "custom",
+              "type": "edit",
               "class": "usersAdminGroupEdit",
               "isLink": false,
               "fixedWidth": 475,
@@ -231,7 +232,7 @@
             },
             "add": {
               "title": "Group add",
-              "type": "custom",
+              "type": "add",
               "class": "usersAdminGroupAdd",
               "isLink": false,
               "fixedWidth": 375,

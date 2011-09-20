@@ -40,9 +40,10 @@ ka.list = new Class({
     deleteItem: function(pItem){
         var _this = this;
         this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=deleteItem', noCache: true, onComplete:function( res ){
-            _this.win.softReload();
-            _this._deleteSuccess();
-        }}).post({ 
+            this.win.softReload();
+            this._deleteSuccess();
+            this.reload();
+        }.bind(this)}).post({ 
             module: this.win.module,
             code: this.win.code,
             item: pItem.values
@@ -567,7 +568,8 @@ ka.list = new Class({
 
 
     prepareLoadPage: function(){
-        this.tbody.empty();
+        if( this.tbody )
+            this.tbody.empty();
     },
     
     loadPage: function( pPage ){
