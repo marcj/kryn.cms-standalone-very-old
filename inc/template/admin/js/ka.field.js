@@ -257,6 +257,7 @@ ka.field = new Class({
                 input.setStyle('position', '');
                 input.focus();
                 active = input;
+                input.value = '';
                 div.getElements('.ka-field-textlist-item-active').removeClass('ka-field-textlist-item-active');
                 searchValue();
                 e.stop();
@@ -391,6 +392,7 @@ ka.field = new Class({
                             checkAndCreateItem();
                             this.removeClass('active');
                             input.focus();
+                            input.value = '';
                             e.stop();
                         });
                         a.store('value', value);

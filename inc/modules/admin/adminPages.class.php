@@ -622,29 +622,7 @@ class adminPages {
         $kryn->current_page = $page;
         kryn::$page = $page;
 
-        $page = tpl::buildPage('');
-
-        /*tAssign('layout', '<div id="krynContentManager_layoutContent"></div>');
-        tAssign('page', $page);
-        $kryn->current_page['template'] = $pTemplate;
-        kryn::$domain = dbTableFetch('system_domains', 1, "rsn = ".$page['domain_rsn']);
-        $kryn->loadMenus();
-
-
-        $pTemplate = str_replace('..', '', $pTemplate);
-
-        if( $pTemplate == '__kTemplate' )
-            $pTemplate = 'kryn/kTemplate.tpl';
-        else
-            $pTemplate = "kryn/templates/$pTemplate.tpl";
-
-        $kryn->admin = false; //for buildHeader
-        $page = tFetch( $pTemplate );
-        kryn::replacePageIds( $page );
-        $kryn->noCssLayout = true;
-
-        $page = str_replace('{$kryn.header}', tpl::buildHead(true), $page );
-        */
+        $page = krynHtml::buildPage('');
 
         if( getArgv('json') == '0' )
             die( $page );

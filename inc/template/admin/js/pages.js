@@ -1888,7 +1888,7 @@ var admin_pages = new Class({
         
         this.generalFields['access_from_groups'] = new ka.field(
             {label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
-            type: 'textlist',
+            type: 'textlist', panel_width: 320,
             store: 'admin/backend/stores/groups'
             }
         ).inject( p );

@@ -687,10 +687,11 @@ input.round {
 }
 
 #ka-search-query {
-   width: 135px;	
+   width: 135px;
 }
 
 .ka-search input.text {
+    padding: 2px;
     padding-left: 20px;
     border: 1px solid #888;
     background-color: #ddd;
