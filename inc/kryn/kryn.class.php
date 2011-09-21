@@ -1339,10 +1339,11 @@ class kryn extends baseModule {
 
         $code = 'cacheLang_'.$pLang;
         $lang =& cache::get($code);
-        $mods = $kryn->installedMods;
-        $mods['kryn'] = 'kryn';
         
-        if( (!$lang || count($lang) == 0 ) && $pLang != 'en' ){
+        if( (!$lang || count($lang) == 0 ) ){
+        
+            $mods = $kryn->installedMods;
+            $mods['kryn'] = 'kryn';
             $lang = array();
             foreach( $mods as $key => $mod ){
                 if( $key != 'kryn' )
@@ -1350,11 +1351,13 @@ class kryn extends baseModule {
                 else
                     $json = kryn::fileRead( 'inc/kryn/lang/'.$pLang.'.json' );
                 $ar = json_decode($json,true);
+
                 if( is_array($ar) )
                     $lang = array_merge( $lang, $ar );
             }
-            cache::get( $code, $lang );
+            cache::set( $code, $lang );
             return cache::get( $code );
+
         }
         
         return $lang;

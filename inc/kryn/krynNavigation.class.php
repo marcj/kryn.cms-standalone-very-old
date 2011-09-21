@@ -41,7 +41,7 @@ class krynNavigation {
             $links[$code] = dbExfetch("
             SELECT 
                 rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
-                access_from, access_to, access_nohidenavi, access_from_groups
+                access_from, access_to, access_nohidenavi, access_from_groups, properties
             FROM
                 %pfx%system_pages
             WHERE
@@ -69,6 +69,10 @@ class krynNavigation {
             //permission check
         	if( $page['access_nohidenavi'] != 1 )
         	    $page = kryn::checkPageAccess( $page, false );
+        	    
+            if( $page['properties'] ){
+                $page['properties'] = json_decode( $page['properties'], true );
+            }
             
 	        if( $page ){
 	            $page[ 'links' ] = self::getLinks( $page['rsn'] );

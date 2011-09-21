@@ -3,7 +3,7 @@ class adminSearchIndexer {
 
     public static function init() {
         
-        require_once('inc/kryn/systemSearch.class.php');  
+        require_once('inc/kryn/krynSearch.class.php');  
         
         switch(getArgv(4)) {
             
