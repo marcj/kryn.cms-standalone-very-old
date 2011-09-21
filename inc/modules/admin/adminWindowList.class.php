@@ -543,7 +543,6 @@ class adminWindowList {
         } else {
             
             if( !$pPage ){
-            
                 $from = getArgv('from')+0;
                 $max = getArgv('max')+0;
                 $limit = " LIMIT $max OFFSET $from";

@@ -594,6 +594,7 @@ var admin_pages = new Class({
         this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton( _('Domain'), p+'icons/world.png', this.viewType.bind(this,'domain'));
         this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton( _('Theme'), p+'icons/layout.png', this.viewType.bind(this,'domainTheme'));
         this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton( _('Properties'), p+'icons/layout.png', this.viewType.bind(this,'domainProperties'));
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/user_bw.png', this.viewType.bind(this,'domainSessions') );
         this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton( _('Settings'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'domainSettings') );
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
@@ -895,6 +896,7 @@ var admin_pages = new Class({
 
         this.generalFields.each(function(field){
         	field.show();
+        	field.fireEvent('check-depends');
         })
         
         this.viewButtons.each(function(field){
@@ -1185,6 +1187,7 @@ var admin_pages = new Class({
             
             this.domainFields.each(function(item, key){
             	item.show();
+                item.fireEvent('check-depends');
             });
             
             this.viewButtons.each(function(field){
@@ -1513,6 +1516,106 @@ var admin_pages = new Class({
         }.bind(this));
 
         this.panes['domainTheme'] = p;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        /* Sessions */
+
+        var p = new Element('div', {
+            'class': 'admin-pages-pane'
+        }).inject( this.main );
+
+        var fields = {
+            'session_storage': {
+                label: _('Session storage'),
+                type: 'select',
+                table_items: {
+                    'database': _('SQL Database'),
+                    'memcached': _('Memcached')
+                },
+                'depends': {
+                
+                    'session_storage_memcached_servers': {
+                        needValue: 'memcached',
+                        'label': 'Memcached servers',
+                        'type': 'array',
+                        'width': 310,
+                        'columns': [
+                            {'label': _('IP')},
+                            {'label': _('Port'), width: 50}
+                        ],
+                        'fields': {
+                            ip: {
+                                type: 'text',
+                                width: '95%',
+                                empty: false
+                            },
+                            port: {
+                                type: 'number',
+                                width: 50,
+                                'default': 11211,
+                                empty: false
+                            }
+                        }
+                    }
+                }
+            },
+            'session_timeout': {
+                label: _('Session timeout'),
+                type: 'text',
+                'default': '3600'
+            },
+
+            'session_auto_garbage_collector': {
+                label: _('Automatic session garbage collector'),
+                desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
+                help: 'session_garbage_collector',
+                type: 'checkbox',
+                'default': '0'
+            },
+
+            'auth_class': {
+                'label': _('Backend authentification'),
+                'type': 'select',
+                'panel_width': 400,
+                'default': 'kryn',
+                'table_items': {
+                    'kryn': _('Kryn.cms users')
+                },
+                depends: {}
+            }
+        };
+
+        this.auth_params = {};
+
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each( config.auth, function(auth_fields,auth_class){
+                    Object.each( auth_fields, function( field, field_id){
+                        field.needValue = auth_class;
+                        fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
+                        fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
+                    }.bind(this));
+                }.bind(this));
+            }
+        }.bind(this));
+
+        this.authObj = new ka.parse( p, fields );
+        Object.each( this.authObj.getFields(), function(item,id){
+            this.domainFields[ id ] = item;
+        }.bind(this));
+        
+        this.panes['domainSessions'] = p;
+        
+        
+        
   
         /* Domain-Settings */
 
@@ -1542,54 +1645,7 @@ var admin_pages = new Class({
 
         this.domainFields['resourcecompression'] = new ka.field(
             {label: _('Css and JS compression'), desc: _('Merge all css files in one, same with javascript files. This improve the page render time'), type: 'checkbox'}
-        ).inject( p );
-        
-        /*this.domainFields['langSync'] = new ka.field(
-        {label: _('Synchronize with'), type: 'select', desc: _(''),
-            table_label: 'label', table_key: 'id', multiple: true,
-            tableItems: tableItems
-        }).inject( p );*/
-        
-        var fields ={
-            'session_timeout': {
-                label: _('Session timeout'),
-                type: 'text',
-                'default': '3600'
-            },
-
-            'session_autoclear': {
-                label: _('Activate session garbage collector'),
-                desc: 'Decreases the performance when dealing with huge count of sessions.',
-                type: 'checkbox',
-                'default': '0'
-            },
-
-            'auth_class': {
-                'label': _('Backend Authentification'),
-                'type': 'select',
-                'table_items': {
-                    'kryn': 'Kryn'
-                },
-                depends: {}
-            }
-        };
-
-        Object.each(ka.settings.configs, function(config,id){
-            if( config.auth ){
-                Object.each( config.auth, function(auth_fields,auth_class){
-                    Object.each( auth_fields, function( field, field_id){
-                        field.needValue = auth_class;
-                        fields.auth_class.depends[ auth_class+'_'+field_id  ] = field;
-                        fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
-                    }.bind(this));
-                }.bind(this));
-            }
-        }.bind(this));
-
-        new ka.parse( p, fields );
-        
-        
-        
+        ).inject( p );        
 
         this.domainFields['page404_rsn'] = new ka.field(
             {label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}
@@ -1832,8 +1888,8 @@ var admin_pages = new Class({
         
         this.generalFields['access_from_groups'] = new ka.field(
             {label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
-            type: 'select', size: 5, multiple: true,
-            tableItems: ka.settings.groups, table_label: 'name', table_key: 'rsn'
+            type: 'textlist',
+            store: 'admin/backend/stores/groups'
             }
         ).inject( p );
         
@@ -1849,7 +1905,7 @@ var admin_pages = new Class({
         this.generalFields['access_need_via'] = new ka.field(
             {label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
             tableItems: [
-                {rsn: 0, name: 'Kryn-Session'},
+                {rsn: 0, name: 'Kryn.cms-Session'},
                 {rsn: 1, name: 'Htaccess'}
             ], table_label: 'name', table_key: 'rsn'
             }

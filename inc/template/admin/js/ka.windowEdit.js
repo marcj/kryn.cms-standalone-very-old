@@ -74,10 +74,9 @@ ka.windowEdit = new Class({
 
         this.loader.show();
         this.lastRq = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItem',
+
         noCache: true, onComplete: function(res){
-            
             this._loadItem( res );
-            
         }.bind(this)}).post(req);
     },
 
@@ -105,8 +104,8 @@ ka.windowEdit = new Class({
             initResizeTiny( field.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
         }
 
-        this.fields.include( pFieldId, field );
-        this._fields.include( pFieldId, pField );
+        this.fields[pFieldId] = field;
+        this._fields[ pFieldId ] = pField;
         return field;
     },
 
@@ -115,8 +114,10 @@ ka.windowEdit = new Class({
         this.item = pItem;
         
         this.previewUrls = pItem.preview_urls;
+        logger( pItem );
+        logger( this.fields );
         
-        this.fields.each(function(field, fieldId){
+        Object.each(this.fields, function(field, fieldId){
             try {
             	
             	if( this.windowAdd && this.win.params && this.win.params.relation_table &&
@@ -130,8 +131,10 @@ ka.windowEdit = new Class({
                 } else if( $type(pItem.values[fieldId]) == false )
                     field.setValue( '' );
 
-                else if( !this._fields[fieldId].startempty )
+                else if( !this._fields[fieldId].startempty ){
+                    logger( pItem.values[fieldId] );
                     field.setValue( pItem.values[fieldId] );
+                }
 
                 if( !this.windowAdd ){
                     var contentCss = _path+"inc/template/css/kryn_tinyMceContentElement.css";
@@ -339,8 +342,8 @@ ka.windowEdit = new Class({
         this.loader = new ka.loader().inject( this.container );
         this.loader.show();
 
-        this.fields = $H({});
-        this._fields = $H({});
+        this.fields = {};
+        this._fields = {};
         
         this.renderMultilanguage();
         
@@ -372,7 +375,7 @@ ka.windowEdit = new Class({
             	this.form.set('html', this.values.layout);
             }
             
-            $H(this.values.fields).each(function(field, fieldId){
+            Object.each(this.values.fields, function(field, fieldId){
 
                 var target = this.form;
                 
@@ -381,7 +384,7 @@ ka.windowEdit = new Class({
                     var id = '*[id=default]';
                     if( field.target )
                         id = '*[id='+field.target+']';
-        
+
                     target = this.form.getElement( id );
                 	
                 	if( !target ){
@@ -397,10 +400,10 @@ ka.windowEdit = new Class({
             this.topTabGroup = this.win.addSmallTabGroup();
             
             this._panes = {};
-            this._buttons = $H({});
+            this._buttons = {};
             this.firstTab = '';
             
-            $H(this.values.tabFields).each(function(fields,title){
+            Object.each(this.values.tabFields, function(fields,title){
                 if( this.firstTab == '' ) this.firstTab = title;
                 
                 this._panes[ title ] = new Element('div', {
@@ -474,7 +477,7 @@ ka.windowEdit = new Class({
                 value: ''
             }).inject( this.languageSelect );*/
 
-            $H(ka.settings.langs).each(function(lang,id){
+            Object.each(ka.settings.langs, function(lang,id){
                 /*new Element('option', {
                     text: lang.langtitle+' ('+lang.title+', '+id+')',
                     value: id
@@ -501,7 +504,7 @@ ka.windowEdit = new Class({
 
     changeLanguage: function(){
     	var newFields = {};
-        this.fields.each(function(item, fieldId){
+        Object.each(this.fields, function(item, fieldId){
 
         	if( item.field.type == 'select' && item.field.multiLanguage ){
         		item.field.lang = this.languageSelect.getValue();
@@ -514,22 +517,20 @@ ka.windowEdit = new Class({
         	}
         }.bind(this));
         
-        $H(newFields).each(function(item,fieldId){
-        	this.fields.set(fieldId, item);
+        Object.each(newFields, function(item,fieldId){
+        	this.fields[ fieldId ] = item;
         }.bind(this));
     },
     
     _renderFields: function( pFields, pContainer, pParentField ){
-        if(!pFields.each) pFields = $H(pFields);
         
-        
-        pFields.each(function(field,id){
+        Object.each(pFields, function(field,id){
 
-            var id = '*[id=default]';
+            var targetId = '*[id=default]';
             if( field.target )
-                id = '*[id='+field.target+']';
+                targetId = '*[id='+field.target+']';
 
-        	var target = pContainer.getElement( id );
+        	var target = pContainer.getElement( targetId );
 
             if( !target )
             	target = pContainer;
@@ -560,7 +561,7 @@ ka.windowEdit = new Class({
 
     changeTab: function( pTab ){
     	this.currentTab = pTab;
-        this._buttons.each(function(button,id){
+        Object.each(this._buttons, function(button,id){
             button.setPressed(false);
             this._panes[ id ].setStyle('display', 'none');
         }.bind(this));
@@ -633,7 +634,7 @@ ka.windowEdit = new Class({
             req = this.item.values;
         
         
-        this.fields.each(function(item, fieldId){
+        Object.each(this.fields, function(item, fieldId){
             
             if( ['window_list'].contains(item.type) ) return;
         
@@ -641,8 +642,8 @@ ka.windowEdit = new Class({
             	
             	if( this.currentTab && this.values.tabFields){
             		var currenTab2highlight = false;
-            		$H(this.values.tabFields).each(function(fields,key){
-            			$H(fields).each(function(field, fieldKey){
+            		Object.each(this.values.tabFields, function(fields,key){
+            			Object.each(fields, function(field, fieldKey){
             				if( fieldKey == fieldId ){
             					currenTab2highlight = key;
             				}
@@ -709,7 +710,6 @@ ka.windowEdit = new Class({
         	        }.bind(this));
     	        }
     	        
-    	        logger( this.win.params );
     	        if( this.win.params.relation_params ){
         	        Object.each(this.win.params.relation_params, function(value,id){
         	           req[ id ] = value;

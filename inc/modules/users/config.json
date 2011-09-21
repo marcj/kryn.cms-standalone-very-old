@@ -119,7 +119,7 @@
                 "group": {
                     "type": "textlist",
                     "multi": true,
-                    "store": "admin/system/settings/group_store"
+                    "store": "admin/backend/stores/groups"
                 }
             }
         }

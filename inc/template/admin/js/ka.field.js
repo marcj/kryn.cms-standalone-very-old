@@ -27,6 +27,11 @@ ka.field = new Class({
                 'class': 'ka-field-main'
             }).inject( document.hidden );
             
+            
+        
+            if( this.field.panel_width )
+                this.main.setStyle('width', this.field.panel_width);
+            
             if( pField.type == 'headline' ){
                 new Element('div', {
                     style: 'clear: both;'
@@ -101,7 +106,6 @@ ka.field = new Class({
         if( this.field['default'] && this.field['default'] != "" && this.field.type != 'datetime' ){
             this.setValue( this.field['default'] );
         }
-        
         
         if(! this.field.startempty && this.field.value ){
             this.setValue( this.field.value, true );
@@ -227,10 +231,16 @@ ka.field = new Class({
     
     renderTextlist: function(){
         var _this = this;
+        var _searchValue;
     
+        var box, timer, boxHead, boxBody, lastRq, curSelection;
+        
         var div = new Element('div', {
             'class': 'ka-field-textlist'
         }).inject( this.fieldPanel );
+        
+        if( this.field.width )
+            this.div.setStyle('width', this.field.width);
         
         var input = new Element('input', {
             autocomplete: false,
@@ -240,6 +250,17 @@ ka.field = new Class({
         
         var clear = new Element('div', {
             'class': 'ka-field-textlist-clear'
+        })
+        .addEvent('click', function(e){
+            if( _this.field.store ){
+                input.setStyle('left', '');  
+                input.setStyle('position', '');
+                input.focus();
+                active = input;
+                div.getElements('.ka-field-textlist-item-active').removeClass('ka-field-textlist-item-active');
+                searchValue();
+                e.stop();
+            }
         }).inject( div );
         
         new Element('img', {
@@ -266,7 +287,7 @@ ka.field = new Class({
                 });
                 if( found ) return;
             }
-        
+
             var item = new Element('div', {
                 'class': 'ka-field-textlist-item'
             }).inject( input, 'before' );
@@ -325,8 +346,6 @@ ka.field = new Class({
             .inject( item );
         
         };
-
-        var box, timer, boxHead, boxBody, lastRq, curSelection;
         
         var checkAndCreateItem = function(){
             
@@ -350,7 +369,7 @@ ka.field = new Class({
             }
         }
         
-        var _searchValue = function( pValue ){
+        _searchValue = function( pValue ){
             if( lastRq )
                 lastRq.cancel();
 
@@ -364,6 +383,16 @@ ka.field = new Class({
                         var a = new Element('a', {
                             text: label
                         }).inject( boxBody );
+                        
+                        a.addEvent('mousedown', function(e){
+                            boxBody.getElements('a').removeClass('active');
+                            this.addClass('active');
+                            active = input;
+                            checkAndCreateItem();
+                            this.removeClass('active');
+                            input.focus();
+                            e.stop();
+                        });
                         a.store('value', value);
                     });
                     if( boxBody.getElement('a') )
@@ -623,7 +652,7 @@ ka.field = new Class({
             tr.fields = {};
 
             Object.each(this.field.fields, function(field, field_key){
-            
+                
                 var nField = new ka.field( field );
                 var td = new Element('td').inject( tr );
                 nField.inject( td );

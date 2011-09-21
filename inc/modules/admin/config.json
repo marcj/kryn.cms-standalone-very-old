@@ -233,15 +233,7 @@
           "type": "custom",
           "multi": false,
           "defaultWidth": 400,
-          "defaultHeight": 480,
-          "childs": {
-              "group_store": {
-                 "type": "store",
-                 "table": "system_groups",
-                 "label": "name",
-                 "id": "rsn"
-              }
-          }
+          "defaultHeight": 480
         }
       }
     },
@@ -256,6 +248,24 @@
           "defaultWidth": 500,
           "defaultHeight": 470,
           "type": "custom"
+        },
+        "stores": {
+          "title": "Stores",
+          "isLink": false,
+          "childs": {
+              "groups": {
+                 "type": "store",
+                 "table": "system_groups",
+                 "label": "name",
+                 "id": "rsn"
+              },
+              "languages": {
+                 "type": "store",
+                 "table": "system_langs",
+                 "label": "title",
+                 "id": "rsn"
+              }
+          }
         }
       }
     },

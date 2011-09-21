@@ -99,11 +99,11 @@ class adminWindow {
         switch( getArgv('cmd') ){
         case 'getItems':
             $obj->params = json_decode( getArgv('params') );
-            $res = $obj->getItems( getArgv('page')?getArgv('page'):1 );
+            $res = $obj->getItems( getArgv('page')?getArgv('page'):false );
             break;
         case 'exportItems':
             $obj->params = json_decode( getArgv('params') );
-            $res = $obj->exportItems( getArgv('page')?getArgv('page'):1 );
+            $res = $obj->exportItems( getArgv('page')?getArgv('page'):false );
             break;
         case 'getItem':
             $res = $obj->getItem();

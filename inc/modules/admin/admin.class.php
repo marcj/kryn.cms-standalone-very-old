@@ -193,10 +193,11 @@ class admin {
                         default: $content = self::systemInfo(); break;
                     }
                     break;
-                default:
-                    admin::showLogin();
             }
         }
+        if( !getArgv(2) )
+            admin::showLogin();
+
         json('param-failed');
     }
     
@@ -208,6 +209,7 @@ class admin {
     public static function getPathItem( $pCode ){
         
         $codes = explode( '/', $pCode );
+        
         if( kryn::$configs[ 'admin' ]['admin'][ $codes[1] ] ){
             //inside admin extension
             $adminInfo = kryn::$configs[ 'admin' ]['admin'];

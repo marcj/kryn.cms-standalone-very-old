@@ -71,10 +71,16 @@ var admin_system_settings = new Class({
             label: _('Community connect'), desc: _('If you want to develop your own extensions, layoutpacks or other stuff, you have to connect with the community server. Enter your community email to connect with.')
         }).inject( p );
 
-        this.fields['languages'] = new ka.field({
+        /*this.fields['languages'] = new ka.field({
             label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
             type: 'select', size: 10,
             multiple: true, tableItems: this.langs, table_key: 'rsn', table_label: 'title'
+        }).inject℗;*/
+        
+        this.fields['languages'] = new ka.field({
+            label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
+            type: 'textlist', store: 'admin/backend/stores/languages',
+            width: 307
         }).inject(p);
 
         this.changeType( 'general' );

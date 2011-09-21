@@ -9,6 +9,10 @@ ka.streamParams = {};
 ka.uploads = {};
 ka._links = {};
 
+/*Request.JSON = new Class({
+    Extends: Request.JSON
+});*/
+
 /*
  * Build the administration interface
 */
@@ -410,12 +414,12 @@ ka.loadStream = function(){
 	    if( window._session.user_rsn > 0 ){
 	        new Request.JSON({url: _path+'admin/backend/stream', noCache: 1, onComplete: function(res){
 	            if( res ){
-    	        	ka.streamParams.last = res.last;
-    	        	window.fireEvent('stream', res);
-    	            if( res ){
-    	                $('serverTime').set('html', res.time);
-    	            } else {
+                    if( res.error == 'access_denied' ){
     	                ka.ai.logout( true );
+                    } else {
+        	        	ka.streamParams.last = res.last;
+        	        	window.fireEvent('stream', res);
+        	            $('serverTime').set('html', res.time);
     	            }
 	            }
 	            ka._lastStreamid = ka.loadStream.delay(5*1000);
@@ -431,7 +435,7 @@ ka.startSearchCrawlerInfo = function( pHtml ){
         'class': 'ka-updates-menu',
         style: 'left: 170px; width: 177px;'
     }).inject( $('border') );
-	
+
 	this.startSearchCrawlerInfoMenuHtml = new Element('div', {
 	    html: pHtml
 	}).inject( this.startSearchCrawlerInfoMenu );
@@ -922,7 +926,6 @@ ka.renderAdminLink = function(){
 	
 	var windowSize = window.getSize().x;
 	if( windowSize < 770 ){
-		logger('show blocker');
 		if( !ka.toSmallWindowBlocker ){
 			ka.toSmallWindowBlocker = new Element('div', {
 				'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
@@ -935,7 +938,6 @@ ka.renderAdminLink = function(){
 			}).inject(tr);
 		}
 	} else if( ka.toSmallWindowBlocker ){
-		logger('destroy: '+ka.toSmallWindowBlocker);
 		ka.toSmallWindowBlocker.destroy();
 		ka.toSmallWindowBlocker = null;
 	}
@@ -1568,7 +1570,7 @@ ka.parse = new Class({
             document.id(obj).inject( pContainer );
             
             if( pDependField && field.needValue ){
-                pDependField.addEvent('check-depends', function(){
+                pDependField.addEvent('check-depends', function(){    
                     if( field.needValue == pDependField.getValue() ){
                         obj.show();   
                     } else {
@@ -1582,7 +1584,8 @@ ka.parse = new Class({
                     'class': 'ka-fields-sub'
                 }).inject( document.id(obj) );
                 this.parseLevel( field.depends, childContainer, obj );
-                obj.fireEvent('change');
+                logger( id +' check-depends');
+                obj.fireEvent('check-depends');
             }
             this.fields[ id ] = obj;
         
