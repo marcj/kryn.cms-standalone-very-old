@@ -240,7 +240,7 @@ ka.field = new Class({
         }).inject( this.fieldPanel );
         
         if( this.field.width )
-            this.div.setStyle('width', this.field.width);
+            div.setStyle('width', this.field.width);
         
         var input = new Element('input', {
             autocomplete: false,
@@ -1567,11 +1567,16 @@ ka.field = new Class({
 
     setValue: function( pValue, pIntern ){
         
+        if( pValue == null && this.field.default ){
+            pValue = this.field.default;
+        }
+        
         if( this.input )
             this.input.value = pValue;
 
-        if( this._setValue )
+        if( this._setValue ){
             this._setValue( pValue, pIntern );
+        }
 
         if( pIntern )
             this.fireEvent('change', this.getValue()); //fires check-depends too
@@ -1671,6 +1676,11 @@ ka.field = new Class({
     },
     
     setArrayValue: function( pValues, pKey ){
+    
+        if( pValues == null ){
+            this.setValue(null,true);
+            return;
+        }
     
         var values = pValues;
         var keys = pKey.split('[');

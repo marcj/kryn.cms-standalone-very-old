@@ -44,12 +44,19 @@ class krynAuth {
     * instead of saving as far as it has been changed.
     */
     private $needSync = false;
+    
+    
+    /**
+    * Contains the config. Items: 'session_timeout', 'session_storage', 'auth_class', 'auth_params' => array('<auth_class>' => array())
+    */
+    private $cfg = array();
 
     /**
     * Constructor
     */
-    function __construct(){
-        global $cfg;
+    function __construct( $pConfig ){
+        
+        $this->cfg = $pConfig;
 
         $this->initializeMemcached();
 
@@ -67,7 +74,7 @@ class krynAuth {
         } else {
     
             //maybe we wanna check the ip ?
-            if( $cfg['session_ipcheck'] == 1 ){
+            if( $this->cfg['session_ipcheck'] == 1 ){
                 $ip = $this->get('ip');
 
                 if( $ip != $_SERVER['REMOTE_ADDR'] ){
@@ -81,7 +88,7 @@ class krynAuth {
         
         $this->processClient();
         
-        if( $cfg['session_autoremove'] == 1 )
+        if( $this->cfg['session_autoremove'] == 1 )
             $this->removeExpiredSessions();
     }
     
@@ -89,25 +96,24 @@ class krynAuth {
     * Initialize memcached object
     */
     public function initializeMemcached(){
-        global $cfg;
 
-        if( $cfg['session_storage'] == 'memcached' ){
+        if( $this->cfg['session_storage'] == 'memcached' ){
             
             if( class_exists('Memcache') ){
                 
                 $this->memcache = new Memcache;
-                foreach( $cfg['session_storage_memcached_servers'] as $server ){
+                foreach( $this->cfg['session_storage_memcached_servers'] as $server ){
                     $this->memcache->addServer( $server['ip'], $server['port']+0 );
                 }
 
             } else {
                 if( class_exists('Memcached') ){
                     $this->memcached = new Memcached;
-                    foreach( $cfg['session_storage_memcached_servers'] as $server ){
+                    foreach( $this->cfg['session_storage_memcached_servers'] as $server ){
                         $this->memcached->addServer( $server['ip'], $server['port']+0 );
                     }
                 } else {
-                    $cfg['session_storage'] = 'database';
+                    $this->cfg['session_storage'] = 'database';
                     klog('session', 'Can not find Memcache/Memcached extension in php. Fallback to database as session storage.');
                 }
             }
@@ -221,28 +227,27 @@ class krynAuth {
     *
     */
     public function &getOrCreateUser( $pLogin ){
-        global $cfg;
-    
+
         
         if( $this->credentials_row ){
             $user =& $this->credentials_row;
         } else {
             $where = "username = '".esc($pLogin)."'";
-            if( !$cfg['auth_class'] || $cfg['auth_class'] == 'kryn' )
+            if( !$this->cfg['auth_class'] || $this->cfg['auth_class'] == 'kryn' )
                 $where .= " AND (auth IS NULL OR auth = 'kryn')";
             else
-                $where .= " AND auth = '".$cfg['auth_class']."'";
+                $where .= " AND auth = '".$this->cfg['auth_class']."'";
                 
             $user = dbExfetch("
             SELECT rsn FROM %pfx%system_user
             WHERE
                 username = '".esc($pLogin)."' AND
-                auth = '".$cfg['auth_class']."'",
+                auth = '".$this->cfg['auth_class']."'",
             1);
         }
         
         if( !$user ){
-            $rsn = dbInsert( 'system_user', array('username' => $pLogin, 'auth' => $cfg['auth_class']) );
+            $rsn = dbInsert( 'system_user', array('username' => $pLogin, 'auth' => $this->cfg['auth_class']) );
             $user = dbTableFetch('system_user', 'rsn = '.$rsn, 1);
             $this->firstLogin( $user );
         }
@@ -258,11 +263,10 @@ class krynAuth {
     * the authentication backend.
     */
     public function firstLogin( $pUser ){
-        global $cfg;
-        
-        if( $cfg['auth_default_group'] ){
+
+        if( $this->cfg['auth_default_group'] ){
             dbInsert('system_groupaccess', array(
-                'group_rsn' => $cfg['auth_default_group'],
+                'group_rsn' => $this->cfg['auth_default_group'],
                 'user_rsn' => $pUser['rsn']
             ));
         }
@@ -305,7 +309,6 @@ class krynAuth {
      * @return &array returns false if not found
      */
     public static function &getUser( $pUserId, $pForceReload = false ){
-    	global $cfg;
 
     	$pUserId += 0;
 
@@ -349,7 +352,6 @@ class krynAuth {
     * Do the logout mechanism
     */
     public function logout(){
-        global $cfg;
         $this->setUser(0);
     }
     
@@ -361,9 +363,8 @@ class krynAuth {
     * the performance.
     */
     public function removeExpiredSessions(){
-        global $cfg;
         
-        $lastTime = time()-$cfg['session_timeout'];
+        $lastTime = time()-$this->cfg['session_timeout'];
         dbDelete('system_sessions', 'time < '.$lastTime);
 
     }
@@ -389,14 +390,13 @@ class krynAuth {
     */
     public function syncStore(){
         if( $this->needSync != true ) return;
-        global $cfg;
 
         $session['user_rsn'] = $this->user['rsn'];
         
-        switch( $cfg['session_storage'] ){
+        switch( $this->cfg['session_storage'] ){
             case 'memcached':
                 
-                $expired = time()+$cfg['session_timeout'];
+                $expired = time()+$this->cfg['session_timeout'];
                 
                 if( $this->memcache )
                     $this->memcache->set( $this->tokenid.'_'.$this->token, $this->session, 0, $expired);
@@ -448,12 +448,11 @@ class krynAuth {
     * Creates a new token and session in the backend
     */
     public function newSession(){
-        global $cfg;
-        
+
         $session = false;
 
         for( $i=1; $i <= 25; $i++ ){
-            switch( $cfg['session_storage'] ){
+            switch( $this->cfg['session_storage'] ){
                 case 'memcached':
                     $session = $this->newSessionMemcached();
                     break;
@@ -480,8 +479,7 @@ class krynAuth {
     * Creates a new token and session in the memcached-server
     */
     public function newSessionMemcached(){
-        global $cfg;
-        
+
         $token = $this->generateSessionId();
         
         if( $this->memcache )
@@ -502,7 +500,7 @@ class krynAuth {
             'refreshed' => 0
         );
         
-        $expired = time()+$cfg['session_timeout'];
+        $expired = time()+$this->cfg['session_timeout'];
         if( $this->memcache ){
             if( !$this->memcache->set( $this->tokenid.'_'.$token, $session, 0, $expired) )
                 return false;
@@ -520,8 +518,7 @@ class krynAuth {
     * Creates a new token and session in the database
     */
     public function newSessionDatabase(){
-        global $cfg;
-        
+
         $token = $this->generateSessionId();
         $row = dbExfetch("SELECT rsn FROM %pfx%system_sessions WHERE id = '$token'", 1);
         if( $row['rsn'] > 0 ){
@@ -556,11 +553,10 @@ class krynAuth {
     * Loads the session based on the given token from the client
     */
     public function loadSession(){
-        global $cfg;
 
         if( !$this->token ) return false;
 
-        switch( $cfg['session_storage'] ){
+        switch( $this->cfg['session_storage'] ){
             case 'memcached':
                 return $this->loadSessionMemcached();
             case 'database':
@@ -575,12 +571,11 @@ class krynAuth {
     * Loads the session based on the given token from the client in the database
     */
     public function loadSessionDatabase(){
-        global $cfg;
 
         $row = dbExfetch('SELECT * FROM %pfx%system_sessions WHERE id = \''.esc($this->token).'\'', 1);
 
         if( !$row ) return false;
-        if( $row['time']+$cfg['session_timeout'] < time() ){
+        if( $row['time']+$this->cfg['session_timeout'] < time() ){
             dbDelete('system_sessions', 'id = \''.esc($this->token).'\'');
             return false;
         }
@@ -602,14 +597,13 @@ class krynAuth {
     * Loads the session based on the given token from the client in the memcached server
     */
     public function loadSessionMemcached(){
-        global $cfg;
 
         if( $this->memcache )
             $session = $this->memcache->get( $this->tokenid.'_'.$this->token );
         else if( $this->memcached )
             $session = $this->memcached->get( $this->tokenid.'_'.$this->token );
 
-        if( $session && $session['time']+$cfg['session_timeout'] < time() ){
+        if( $session && $session['time']+$this->cfg['session_timeout'] < time() ){
             if( $this->memcache )
                 $this->memcache->delete( $this->tokenid.'_'.$this->token );
             else if( $this->memcached )
@@ -643,8 +637,7 @@ class krynAuth {
     * @return bool
     */
     public function checkCredentials( $pLogin, $pPassword ){
-        global $cfg;
-        
+
         return $this->checkCredentialsDatabase( $pLogin, $pPassword );
     }
     

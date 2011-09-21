@@ -766,6 +766,12 @@
         "-",
         false
       ],
+      "session": [
+        "text",
+        "",
+        "-",
+        false
+      ],
       "favicon": [
         "varchar",
         "255",

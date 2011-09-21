@@ -1594,8 +1594,16 @@ ka.parse = new Class({
     
     setValue: function( pValues ){
     
+        if( typeOf(pValues) == 'string' ){
+            pValues = JSON.decode( pValues );
+        }
+    
         Object.each( this.fields, function(obj,id){
-            obj.setValue( pValues[id] );
+            if( id.indexOf('[') != -1 ){
+                obj.setArrayValue( pValues, id );
+            } else {
+                obj.setValue( pValues?pValues[id]:null );
+            }
         });
     },
     
@@ -1608,7 +1616,28 @@ ka.parse = new Class({
         var res = {};
         
         Object.each( this.fields, function(obj,id){
-            res[id] = obj.getValue();
+            if( id.indexOf('[') != -1 ){
+                //todo bug is here, doesnt work
+                var items = id.split('[');
+                var key = '';
+                var last = {};
+                var newRes = last;
+                
+                items.each(function(item, pos){
+                    key = item.replace(']', '');
+
+                    if( pos == items.length-1 ){
+                        last[key] = obj.getValue();
+                    } else {
+                        last[key] = {};
+                        last = last[key];
+                    }
+                });
+                logger(newRes);
+                res = Object.merge( res, newRes );
+            } else {
+                res[id] = obj.getValue();
+            }
         });
         
         return res;

@@ -986,25 +986,43 @@ class kryn extends baseModule {
     }
     
     public function initAuth(){
-        global $cfg, $user, $client;
-            
+        global $cfg, $user, $client, $adminClient;
+                     
         if( true || $cfg['auth_class'] == 'kryn' ){
-            $client = new krynAuth();
-            $user = $client;
+            $client = new krynAuth( $cfg );
         } else {
             $ex = explode( '/', $cfg['auth_class'] );
             $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
             if( file_exists($class) ){
                 require_once( $class );
                 $authClass = $ex[1];
-                
-                $user = new $authClass();
+                $user = new $authClass( $cfg );
             }
         }
+        $adminClient = $client;
     
+        if( getArgv(1) != 'admin' ){
+            $sessionDefinition = kryn::$domain['session'];
+            if( !$sessionDefinition || $sessionDefinition['auth_class'] == 'kryn' ){
+                $client = new krynAuth( $sessionDefinition );
+            } else {
+                $ex = explode( '/', $cfg['auth_class'] );
+                $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+                if( file_exists($class) ){
+                    require_once( $class );
+                    $authClass = $ex[1];
+                    $client = new $authClass( $sessionDefinition );
+                }
+            }
+        }
+        
+        //compatibility with older extension
+        $user = $client;
         if( $client->user['rsn'] != 0 ){
             $user->user_logged_in = true;
-        }    
+        }
+        
+        
     }
     
     /**

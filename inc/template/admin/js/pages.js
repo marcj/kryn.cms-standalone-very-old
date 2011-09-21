@@ -594,7 +594,7 @@ var admin_pages = new Class({
         this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton( _('Domain'), p+'icons/world.png', this.viewType.bind(this,'domain'));
         this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton( _('Theme'), p+'icons/layout.png', this.viewType.bind(this,'domainTheme'));
         this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton( _('Properties'), p+'icons/layout.png', this.viewType.bind(this,'domainProperties'));
-        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/user_bw.png', this.viewType.bind(this,'domainSessions') );
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/group.png', this.viewType.bind(this,'domainSessions') );
         this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton( _('Settings'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'domainSettings') );
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
@@ -1265,6 +1265,8 @@ var admin_pages = new Class({
             this.viewType( 'domain' );
             
             this.changeType();
+
+            this.domainSessionFields.setValue( this.currentDomain.session );
             
             this.showDomainMaster( pDomain.domain_rsn );
             
@@ -1396,6 +1398,7 @@ var admin_pages = new Class({
         req.layouts = JSON.encode( this.domainFields['layouts'].getValue() );
         req.publicproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
 
+        req.session = this.domainSessionFields.getValue();
 
         //properties
         var properties = {};
@@ -1601,16 +1604,13 @@ var admin_pages = new Class({
                     Object.each( auth_fields, function( field, field_id){
                         field.needValue = auth_class;
                         fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
-                        fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
+                        fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
                     }.bind(this));
                 }.bind(this));
             }
         }.bind(this));
 
-        this.authObj = new ka.parse( p, fields );
-        Object.each( this.authObj.getFields(), function(item,id){
-            this.domainFields[ id ] = item;
-        }.bind(this));
+        this.domainSessionFields = new ka.parse( p, fields );
         
         this.panes['domainSessions'] = p;
         

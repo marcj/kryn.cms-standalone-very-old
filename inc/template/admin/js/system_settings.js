@@ -172,7 +172,7 @@ var admin_system_settings = new Class({
                     Object.each( auth_fields, function( field, field_id){
                         field.needValue = auth_class;
                         fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
-                        fields.auth_class.table_items[ auth_class  ] = auth_class.capitalize();
+                        fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
                     }.bind(this));
                 }.bind(this));
             }

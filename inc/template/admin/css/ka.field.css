@@ -161,6 +161,7 @@ input.ka-field-dateTime {
     overflow: hidden;
     padding-right: 15px;
     -moz-border-radius: 3px;
+    position: relative;
 }
 
 .ka-field-textlist-item {
@@ -208,9 +209,9 @@ input.ka-field-dateTime {
 .ka-field-textlist-clear {
     clear: left;
     position: absolute;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
+    right: -1px;
+    top: -1px;
+    bottom: -1px;
     border: 1px solid silver;
     width: 15px;
     padding-left: 1px;

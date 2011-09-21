@@ -388,6 +388,9 @@ class adminPages {
             $dbUpdate[] = 'resourcecompression';
         }
         
+        //todo need a acl for that
+        $dbUpdate['session'] = json_encode(getArgv('session'));
+        
         $domain = getArgv('domain',1);
         if( $canChangeMaster ){
             if( getArgv('master') == 1 ){
@@ -406,7 +409,7 @@ class adminPages {
         $rsn = getArgv('rsn')+0;
         
         if( !kryn::checkPageAcl($rsn, 'showDomain', 'd') ){
-            json('access-denied');
+            json(array('error'=>'access_denied'));
         }
     	
         $res['domain'] = dbExfetch( "SELECT * FROM %pfx%system_domains WHERE rsn = $rsn" );
