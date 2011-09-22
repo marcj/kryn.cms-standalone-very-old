@@ -14,7 +14,6 @@
 /**
  * Defines an old way to create framework forms.
  * 
- * @package Kryn
  * @deprecated
  * @access private
  * @internal

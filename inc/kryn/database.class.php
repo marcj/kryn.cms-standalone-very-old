@@ -13,10 +13,7 @@
 /**
  * Database class
  * 
- * @package Kryn
- * @subpackage Database
- * @internal
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 define("DB_FETCH_ALL", -1);
@@ -65,9 +62,6 @@ class database {
         
         public static function readTables( $pForceAll = false ){
             global $kdb, $cfg;
-            
-            //$mtables = dbExfetch('SHOW TABLES', -1);
-            //self::$tables = array();
 			
             if( pForceAll == true || !is_array(self::$tables) || count(self::$tables) == 0){// !is_array($kdb->tableInfos) ){
                 //if cache is clear, read all tables in the database
@@ -76,42 +70,32 @@ class database {
 					if( !$kdb->tableInfos[ $table ] )
 						$kdb->tableInfos[ $table ] = self::getColumns( $table );
                 }
-            }
-            self::$tables = array();
-            
-            if( is_array($kdb->tableInfos) ){
-                foreach( $kdb->tableInfos as $table => $columns ){
-                    
-                    //$table = $tableInfo['Tables_in_'.$cfg['db_name']];
-                    
-                    /*$tableWithoutPrefix = substr($table, strlen(pfx));
-                    if( $kdb->tableInfos[$tableWithoutPrefix] ){
-                        $columns = $kdb->tableInfos[$tableWithoutPrefix];
-                        $table = $tableWithoutPrefix;
-                    } else { 
-                        $columns = dbExfetch("SHOW COLUMNS FROM $table", -1);
-                    }*/
-                	
-    
-                    foreach( $columns as $key => $column ){
-                    
-                        $column['escape'] = 'text';
-                        if( self::isIntEscape($column['Type']) || self::isIntEscape($column['type']) || self::isIntEscape($column[0]) ){
-                            $column['escape'] = 'int';
-                        }
-                        
-                        $column['auto_increment'] = ($column['Extras'] == 'auto_increment') ? true : false;
-                        if( $column[3] === true )
-                            $column['auto_increment'] = true;
-                        
-                        $fieldname = $column['Field'] ? $column['Field'] : $key;
-                        
-                        self::$tables[ $table ][ $fieldname ] = $column;
-                    }
                 
+                self::$tables = array();
+                
+                if( is_array($kdb->tableInfos) ){
+                    foreach( $kdb->tableInfos as $table => $columns ){
+        
+                        foreach( $columns as $key => $column ){
+                        
+                            $column['escape'] = 'text';
+                            if( self::isIntEscape($column['Type']) || self::isIntEscape($column['type']) || self::isIntEscape($column[0]) ){
+                                $column['escape'] = 'int';
+                            }
+                            
+                            $column['auto_increment'] = ($column['Extras'] == 'auto_increment') ? true : false;
+                            if( $column[3] === true )
+                                $column['auto_increment'] = true;
+                            
+                            $fieldname = $column['Field'] ? $column['Field'] : $key;
+                            
+                            self::$tables[ $table ][ $fieldname ] = $column;
+                        }
+                    
+                    }
                 }
+                kryn::setCache('tables', self::$tables);
             }
-            kryn::setCache('tables', self::$tables);
         }
         
         public static function isIntEscape( $pType ){
@@ -568,7 +552,6 @@ class database {
 
     	    if( !database::$hideSql )
             	$this->lastError = null;
-
 
             $queries = explode(';', $pQuery);
             foreach( $queries as $query ){

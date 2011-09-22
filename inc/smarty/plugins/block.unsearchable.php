@@ -20,7 +20,7 @@ function smarty_block_unsearchable($params, $content, &$smarty) {
     global $searchIndexMode;
     
     if($crawlLinks && $searchIndexMode)
-        systemSearch::getLinksInContent($content);
+        krynSearch::getLinksInContent($content);
     
     return '<!--unsearchable-begin-->'.$content.'<!--unsearchable-end-->';
 }

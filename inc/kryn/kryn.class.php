@@ -14,9 +14,7 @@
 /**
  * Kryn.core class
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage Core
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 class kryn extends baseModule {
@@ -395,7 +393,7 @@ class kryn extends baseModule {
      */
     public static function addMenu( $pName, $pUrl = "" ){
         global $kryn;
-        $kryn->menus[] = array("name" => $pName, "url" => $pUrl);
+        $kryn->menus[ kryn::$page['rsn'] ][] = array("title" => $pName, "realUrl" => $pUrl);
         tAssign("menus", $kryn->menus);
     }
 
@@ -577,9 +575,7 @@ class kryn extends baseModule {
     public function initModules(){
         global $modules;
         
-        include_once("inc/modules/admin/admin.class.php");
         include_once("inc/modules/users/users.class.php");
-        $modules['admin'] = new admin();
         $modules['users'] = new users();
 
         foreach( $this->installedMods as $mod => $config ){
@@ -645,41 +641,6 @@ class kryn extends baseModule {
         }
     }
 
-/*
- * todo in table
-    public function unlock( $pType, $pId ){
-        dbDelete('system_lock', "type = '$pType' AND key = '$pId'");
-        return true;
-    }
-
-    public function canLock( $pType, $pId ){
-        global $user;
-
-        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if( $row['session_id'] == $user->sessionid ) return true;
-        if(! $row['rsn'] > 0 ) return true;
-
-        $user = dbTableFetch('system_user')
-        return false;
-    }
-
-    public function lock( $pType, $pId ){
-        global $user;
-
-        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if($row['rsn']>0) return false;
-
-        dbInsert('system_lock', array(
-            'type' => $pType,
-            'key' => $pId,
-            'session_id' => $user->sessionid,
-            'time' => time()
-        ));
-        return true;
-
-    }
-*/
-
     /**
      * 
      * Sends a E-Mail in UTF-8
@@ -710,11 +671,11 @@ class kryn extends baseModule {
      * @static
      */
     public static function toModRewrite($pString){
-        $res = @preg_replace('ä', "ae", strtolower($pString));
-        $res = @preg_replace('ö', "oe", strtolower($pString));
-        $res = @preg_replace('ü', "ue", strtolower($pString));
-        $res = @preg_replace('ß', "ss", strtolower($pString));
-        $res = @preg_replace('/[^a-zA-Z0-9]/', "-", strtolower($pString));
+        $res = @str_replace('ä', "ae", strtolower($pString));
+        $res = @str_replace('ö', "oe", $res);
+        $res = @str_replace('ü', "ue", $res);
+        $res = @str_replace('ß', "ss", $res);
+        $res = @preg_replace('/[^a-zA-Z0-9]/', "-", $res);
         $res = @preg_replace('/--+/', '-', $res);
         return $res;
     }
@@ -848,11 +809,12 @@ class kryn extends baseModule {
      * @return bool
      * @static
      */
-    public static function checkUrlAccess( $pUrl, $pUser = false ){
-        if( ! $pUser )
-            global $user;
+    public static function checkUrlAccess( $pUrl, $pClient = false ){
+        
+        if( !$pClient )
+            global $client;
         else
-            $user = $pUser;
+            $client = $pClient;
             
             
         if( substr($pUrl, 0, 6) != 'admin/' ){
@@ -863,25 +825,21 @@ class kryn extends baseModule {
             types:
                 1: admin ($admin) and frontend
                 2: pages (backend access for special uses)
-        */
+                3: files (internal)
 
-        /*
             target_type:
                 1: group
                 2: user
         */
 
-        if( count($user->groups) > 0 )
-            foreach( $user->groups as $group ) {
-                $inGroups .= $group['group_rsn'].",";
-            }
-        $inGroups .= "0";
+        $inGroups = $client->user['inGroups'];
+        if( !$inGroups ) $inGroups = 0;
 
         $code = esc($pUrl);
         if( substr( $code, -1 ) != '/' )
             $code .= '/';
 
-        $userRsn = $user->user_rsn;
+        $userRsn = $client->user_rsn;
         
         $acls = dbExfetch( "
                 SELECT code, access FROM %pfx%system_acl
@@ -924,7 +882,8 @@ class kryn extends baseModule {
      * @static
      */
     public static function checkAccess(){
-        global $user;
+        global $client;
+
         $bypass = array('loadJs', 'loadCss'); 
         if(in_array(getArgv(2), $bypass))
             return true;
@@ -938,8 +897,12 @@ class kryn extends baseModule {
                 admin::printPossibleLangs();
             
             //klog("authentication", "checkAccess: ".$_REQUEST['_kurl']." ACCESS DENIED");
-            admin::showLogin();
-            exit;
+            if( !getArgv(2) ){
+                admin::showLogin();
+                exit;
+            } else {
+                json(array('error'=>'access_denied'));
+            }
         }
     }
     
@@ -968,11 +931,19 @@ class kryn extends baseModule {
         global $cfg;
         
         $cfg['templatepath'] = $cfg['path']."inc/template";
-        $cfg['path'] .= $cfg['upfx'];
+
+        if( !$cfg['sessiontime'] && !$cfg['session_timeout'] )
+            $cfg['session_timeout'] = 3600;
+
+        if( $cfg['sessiontime'] && !$cfg['session_timeout'] )
+            $cfg['session_timeout'] = $cfg['sessiontime'];
         
-        if( !$cfg['sessiontime'] ){
-            $cfg['sessiontime'] = 3600;
+        if( !$cfg['session_tokenid'] ){
+            $cfg['session_tokenid'] = 'krynsessionid_ba';
         }
+        
+        if( !$cfg['auth_class'] )
+            $cfg['auth_class'] = 'kryn';
         
         $this->cfg = $cfg;
         tAssign('path', $cfg['path']);
@@ -1016,6 +987,57 @@ class kryn extends baseModule {
         	if( !@mkdir($cfg['template_cache']) )
         	   die('Can not access to or create folder for template caching: '.$cfg['template_cache']);
         }
+    }
+    
+    public function initAuth(){
+        global $cfg, $user, $client, $adminClient;
+                                 
+        if( !$cfg['auth_class'] || $cfg['auth_class'] == 'kryn' ){
+        
+            $adminClient = new krynAuth( $cfg );
+            
+        } else {
+            $ex = explode( '/', $cfg['auth_class'] );
+            $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+            if( file_exists($class) ){
+                require_once( $class );
+                $authClass = $ex[1];
+                $adminClient = new $authClass( $cfg );
+
+            }
+        }
+
+        $adminClient->start();
+        $client = $adminClient;
+    
+        if( getArgv(1) != 'admin' ){
+
+            $sessionDefinition = kryn::$domain['session'];
+            $sessionDefinition['session_tokenid'] =
+                ($sessionDefinition['session_tokenid'])?$sessionDefinition['session_tokenid']:'krynsessionid';
+            
+            if( !$sessionDefinition || $sessionDefinition['auth_class'] == 'kryn' ){
+                $client = new krynAuth( $sessionDefinition );
+            } else {
+                $ex = explode( '/', $sessionDefinition['auth_class'] );
+                $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+                if( file_exists($class) ){
+                    require_once( $class );
+                    $authClass = $ex[1];
+                    $client = new $authClass( $sessionDefinition );
+                }
+            }
+            
+            $client->start();
+        }
+        
+        //compatibility with older extension
+        $user = $client;
+        if( $client->user['rsn'] != 0 ){
+            $user->user_logged_in = true;
+        }
+        
+        
     }
     
     /**
@@ -1182,6 +1204,13 @@ class kryn extends baseModule {
     public function domainNotFound( $pDomain ){
         die( "Domain <i>$pDomain</i> not found." );
     }
+    
+    /**
+    * returns the path of the current request without parameters
+    */
+    public static function getRequestPath(){
+        return self::getRequestPageUrl();
+    }
 
     /**
      * 
@@ -1218,17 +1247,6 @@ class kryn extends baseModule {
         }
             
         return $url;
-    }
-
-    
-    /**
-     * 
-     * Banns a user via IP
-     * @todo implement
-     */
-    public static function bannUser(){
-        global $user;
-        //Todo
     }
 
     /**
@@ -1343,10 +1361,11 @@ class kryn extends baseModule {
 
         $code = 'cacheLang_'.$pLang;
         $lang =& cache::get($code);
-        $mods = $kryn->installedMods;
-        $mods['kryn'] = 'kryn';
         
-        if( (!$lang || count($lang) == 0 ) && $pLang != 'en' ){
+        if( (!$lang || count($lang) == 0 ) ){
+        
+            $mods = $kryn->installedMods;
+            $mods['kryn'] = 'kryn';
             $lang = array();
             foreach( $mods as $key => $mod ){
                 if( $key != 'kryn' )
@@ -1354,11 +1373,13 @@ class kryn extends baseModule {
                 else
                     $json = kryn::fileRead( 'inc/kryn/lang/'.$pLang.'.json' );
                 $ar = json_decode($json,true);
+
                 if( is_array($ar) )
                     $lang = array_merge( $lang, $ar );
             }
-            cache::get( $code, $lang );
+            cache::set( $code, $lang );
             return cache::get( $code );
+
         }
         
         return $lang;
@@ -1374,8 +1395,10 @@ class kryn extends baseModule {
     public static function getDomain( $pDomainRsn ){
      
         $domains = kryn::getPhPCache('domains');
+
         if( !$domains['r2d'] )
            $domains = adminPages::updateDomainCache();
+
         return $domains['r2d']['rsn='.$pDomainRsn];
     }
 
@@ -1485,12 +1508,17 @@ class kryn extends baseModule {
         if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
             $domain['publicproperties'] = @json_decode($domain['publicproperties'], true);
         }
+        
+        if( $domain['session'] && !is_array($domain['session']) ){
+            $domain['session'] = @json_decode($domain['session'], true);
+        }
     
         if( $domain['extproperties'] && !is_array($domain['extproperties']) ){
             $domain['extensionProperties'] = @json_decode($domain['extproperties'], true);
-            $domain['extproperties'] = &$domain['extensionProperties'];
         }
 
+        $domain['extproperties'] = &$domain['extensionProperties'];
+            
         #setCookie("lang", $language, time()+3600*24*300, "/"); # 300 Days
         if( getArgv(1) == 'admin' ){
             $domain['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );
@@ -1561,7 +1589,7 @@ class kryn extends baseModule {
      * @internal
      */
     public static function checkPageAccess( $page, $pWithRedirect = true ){
-        global $user;
+        global $client;
         
         $oriPage = $page;
         if( $page['access_from'] > 0 && ($page['access_from'] > time() ))
@@ -1576,15 +1604,12 @@ class kryn extends baseModule {
             
             
             if( $page['access_need_via'] == 0 ){
-                $cgroups =& $user->user['groups'];
+                $cgroups =& $client->user['groups'];
             } else {
             	
-	            $u = esc($_SERVER['PHP_AUTH_USER']);
-	            $p = md5($_SERVER['PHP_AUTH_PW']);
+                $htuser = $client->login( $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'] );
 	            
-	            $htuser =& user::getUserForUsername( $u );
-	            
-	            if( $htuser && $htuser['passwd'] == $p ){ 
+	            if( $htuser > 0 && $htuser['passwd'] == $p ){ 
                     $cgroups =& $htuser['groups'];
 	            }
             }
@@ -1627,16 +1652,11 @@ class kryn extends baseModule {
      * @internal
      */
     public static function getPageAcls(){
-    	global $user;
+    	global $client;
     	if( kryn::$cachedPageAcls ) return kryn::$cachedPageAcls;
     	
-        $userRsn = $user->user_rsn;
-        $inGroups = '';
- 		if( count($user->groups) > 0 )
-            foreach( $user->groups as $group ) {
-                $inGroups .= $group['group_rsn'].",";
-            }
-        $inGroups .= "0";
+        $userRsn = $client->user_rsn;
+        $inGroups = $client->user['inGroups'];
         
     	kryn::$cachedPageAcls = dbExfetch("
                 SELECT code, access FROM %pfx%system_acl
@@ -1844,7 +1864,7 @@ class kryn extends baseModule {
      * @internal
      */
     public static function searchPage(){
-        global $path, $cfg, $_start, $user, $kcache;
+        global $path, $cfg, $_start, $client, $kcache;
 
         if( getArgv(1) == 'admin' ) return;
 
@@ -1978,7 +1998,11 @@ class kryn extends baseModule {
      * @internal
      */
     public function loadMenus(){
-        $this->menus = kryn::readCache( 'menus' );
+        $this->menus =& cache::get( 'menus_'.kryn::$domain['rsn'] );
+        if( count($this->menus) == 0 ){
+            require_once( "inc/modules/admin/adminPages.class.php" );
+            adminPages::updateMenuCache( kryn::$domain['rsn'] );
+        }
         tAssign( 'menus', $this->menus );
     }
     
@@ -2020,7 +2044,7 @@ class kryn extends baseModule {
      * @static
      */
     public static function &getPageContents( $pRsn, $pBoxId = false, $pWithoutCache = false ){
-    	global $time, $user, $kcache;
+    	global $time, $client, $kcache;
     	
         $pRsn = $pRsn+0;
         
@@ -2137,19 +2161,19 @@ class kryn extends baseModule {
         }
     
         if( kryn::$domain['startpage_rsn'] == $page['rsn'] && !kryn::$isStartpage ){
-            systemSearch::toBlacklist();
+            krynSearch::toBlacklist();
         
             kryn::redirect( kryn::$baseUrl );
         }
         
         if( $page['unsearchable'] == 1 ){
-            systemSearch::toBlacklist();
+            krynSearch::toBlacklist();
         }
         
         if( $page['type'] == 1 ){//is link
             $to = $page['link'];
          
-            systemSearch::toBlacklist();
+            krynSearch::toBlacklist();
             if( $page['link']+0 > 0 ){
                 kryn::redirectToPage( $page['link'] );
             } else {
@@ -2215,8 +2239,10 @@ class kryn extends baseModule {
             print kryn::fileRead( "inc/cache/_pages/".kryn::$page['rsn'].".html" );
             exit;
         }
-        
+
         $this->loadMenus();
+        $this->menus[ kryn::$page['rsn'] ][] = kryn::$page;
+        $this->initModules();
 
         if( kryn::$keditAccess ){
             kryn::addJs( 'admin/js/ka.kedit.js' );
@@ -2277,59 +2303,19 @@ class kryn extends baseModule {
                 die( kryn::$pageHtml );
             }
         }
-
-        //print_r(kryn::$page);
-        
-       /* $indexedPages = kryn::getCache('systemSearchIndexedPages');
-        $contentHash = md5( systemSearch::stripContent(kryn::$pageHtml) );
-        $hashkey = kryn::$page['rsn'].'_'.$contentHash;
-        */
-                
-        /*$a = '/'.kryn::getRequestPageUrl(true);
-        $b = $indexedPages[$hashkey]['url'];
-        
-        if( $indexedPages[$hashkey] && $b === "" )
-            $b = '/';
-        */
-        //print_r($indexedPages);
-        //print "<br />$b <=> $a ===> $hashkey => ".$indexedPages[$hashkey]."<br/>";
         
         if( !getArgv('enableSearchIndexMode') )
-        		systemSearch::$returnCodes = true;
+        		krynSearch::$returnCodes = true;
         
-        $resCode = systemSearch::createPageIndex(kryn::$pageHtml);
+        $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
         
         if( $resCode == 2 ){
-            kryn::redirect(systemSearch::$redirectTo);
+            kryn::redirect(krynSearch::$redirectTo);
         }
-            
-        /*if( !$indexedPages[$hashkey] || $b != $a ){
-            //this url and its content-hash is not available in the searchindex
-            $searchIndexMode = true;
-            systemSearch::$returnCodes = true;
-            $resCode = systemSearch::createPageIndex(kryn::$pageHtml);
-            $indexedPages = kryn::getCache('systemSearchIndexedPages');
-        }*/
         
         kryn::$pageHtml = self::removeSearchBlocks( kryn::$pageHtml );
         
-        //print_r($indexedPages);
-        //print '<br />'.$hashkey.' => /'.kryn::getRequestPageUrl(true).'<br/> =>'.$indexedPages[$hashkey]['url'];
-
-        
-        /*if( 
-            !$indexedPages[$hashkey] &&
-            //$indexedPages[$hashkey] &&
-            //$a != $b &&
-            //strlen($a) > strlen($b) &&
-            self::$deactivateContentCheck == false
-            
-            ){
-            
-            kryn::notFound();
-        }*/
-        
-        kryn::$pageHtml = tpl::buildPage( kryn::$pageHtml ); 
+        kryn::$pageHtml = krynHtml::buildPage( kryn::$pageHtml ); 
 
         //replace all href="#anchor" with valid ones //workaround for <base>
         
@@ -2876,7 +2862,7 @@ class kryn extends baseModule {
             case 'navigation':
                 $temp = json_decode( $content['content'], 1 );
                 $temp['id'] = $temp['entryPoint'];
-                $_content = knavigation::plugin( $temp );
+                $_content = krynNavigation::plugin( $temp );
                 
                 break;
             case 'picture':

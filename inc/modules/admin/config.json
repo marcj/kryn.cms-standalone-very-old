@@ -141,7 +141,7 @@
           }
         },
         "layout": {
-          "title": "Layouts",
+          "title": "Templates",
           "type": "custom",
           "multi": false,
           "defaultWidth": 900,
@@ -248,6 +248,24 @@
           "defaultWidth": 500,
           "defaultHeight": 470,
           "type": "custom"
+        },
+        "stores": {
+          "title": "Stores",
+          "isLink": false,
+          "childs": {
+              "groups": {
+                 "type": "store",
+                 "table": "system_groups",
+                 "label": "name",
+                 "id": "rsn"
+              },
+              "languages": {
+                 "type": "store",
+                 "table": "system_langs",
+                 "label": "title",
+                 "id": "rsn"
+              }
+          }
         }
       }
     },
@@ -320,6 +338,10 @@
           "defaultWidth": 680,
           "defaultHeight": 420,
           "type": "custom"
+        },
+        "systemfiles": {
+          "title": "System files",
+          "isLink": false
         },
         "properties": {
           "title": "Properties",
@@ -739,6 +761,12 @@
         false
       ],
       "robots": [
+        "text",
+        "",
+        "-",
+        false
+      ],
+      "session": [
         "text",
         "",
         "-",

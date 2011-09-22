@@ -458,7 +458,7 @@ ka.windowCombine = new Class({
         if( this.loader )
             this.loader.show();
         
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
             if( !res.items && this.from == 0 ){
                 this.itemLoaderNoItems();
@@ -783,6 +783,7 @@ ka.windowCombine = new Class({
     getSplitTitle: function( pItem ){    
         
         var value = this.getItemTitle( pItem, this.sortField );
+        if( value == '' ) return _('-- No value --');
                 
         if( !this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text" ){
             
@@ -834,8 +835,9 @@ ka.windowCombine = new Class({
         if( column.imageMap ){
             value = '<img src="'+_path+column.imageMap[value]+'"/>';
         }
+        
     
-        return value;
+        return value?value:'';
     },
     
     prepareLoadPage: function(){
@@ -969,7 +971,7 @@ ka.windowCombine = new Class({
             
             });*/
         } else {
-        
+
             this.currentEdit.win.params = pItem;
             this.currentEdit.loadItem();
         
@@ -1039,11 +1041,11 @@ ka.windowCombine = new Class({
     },
     
     setTitle: function(){
-        this.win.clearTitle();
+    
         if( this.currentEdit && this.currentEdit.item ){
         
             var item = this.currentEdit.item;
-            
+
             var title = item.values.title;
             if( !title )
                 title = item.values.name;
@@ -1052,9 +1054,17 @@ ka.windowCombine = new Class({
                 
             if( this.currentEdit.values.editTitleField )
                 title = item.values[ editTitleField ];
-            
+            else if( this.currentEdit.values.titleField ){
+                title = item.values[ titleField ];
+            } else if( !title ){
+                Object.each( item.values, function(item){
+                    if( !title && item != '' && typeOf(item) == 'string' ){
+                        title = item;
+                    }
+                })
+            }
                 
-            this.win.addTitle(title);
+            this.win.setTitle(title);
         }
     },
     
@@ -1073,7 +1083,7 @@ ka.windowCombine = new Class({
         //    this.loader.show();
 
         //logger( pPrimaries );
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
             //logger( res );
             if( res > 0 ){
@@ -1085,11 +1095,9 @@ ka.windowCombine = new Class({
                 } else {
                     from = res-Math.floor(range/2);
                 }
-                
-                //if( this.lastItemPosition != res ){
+
                 this.clearItemList();
                 this.loadItems( from, range );
-                //}
             }
             
         }.bind(this)}).post({ 
@@ -1165,7 +1173,7 @@ ka.windowCombine = new Class({
                 if( this.currentEdit.values.multiLanguage )
                     req['language'] = this.currentItem.values['lang'];
                 
-                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/',
+                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems',
                 noCache: true, onComplete:function( res ){
                                         
                     var newItem = this.addItem( res.items[0] );
@@ -1316,11 +1324,11 @@ ka.windowCombine = new Class({
         //parse
         this.values.columns.each(function(column,columnId){
         
-            if( item.getElement('[id='+columnId+']') ){
+            if( item.getElement('*[id='+columnId+']') ){
                 
                 var value = this.getItemTitle( pItem, columnId );
                 
-                item.getElement('[id='+columnId+']').set('html', value);
+                item.getElement('*[id='+columnId+']').set('html', value);
             
             }
 

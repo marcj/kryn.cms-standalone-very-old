@@ -40,7 +40,7 @@ ka.wm = {
     },
     
     _checkDimensions: function(){
-    	ka.wm.windows.each(function(win){
+    	Object.each(ka.wm.windows, function(win){
             if(win){
                 win.checkDimensions();
     			win.fireEvent('resize');
@@ -57,7 +57,7 @@ ka.wm = {
 
     fireEvent: function( pEv ){
         if( ka.wm.events[pEv] )
-            ka.wm.events[pEv].each(function(func){
+            Object.each(ka.wm.events[pEv], function(func){
                 $try(func);
             });
     },
@@ -71,7 +71,7 @@ ka.wm = {
 
     dependExist: function( pWindowId ){
         var dep = false;
-        ka.wm.depend.each(function(win,key){
+        Object.each(ka.wm.depend, function(win,key){
             if( win == pWindowId )
                 dep = true; //a depend exist
         });
@@ -80,9 +80,8 @@ ka.wm = {
 
     getDepend: function( pWindowId ){
         //irgendwie unnötig ?
-        // bzw ist doch getWindow()
-        //return ka.wm.windows.get( pWindowId );
-        return ka.wm.depend.get( pWindowId );
+        // bzw ist doch getWindow()?
+        return ka.wm.depend[ pWindowId ];
     },
 
     getOpener: function( pId ){
@@ -91,20 +90,20 @@ ka.wm = {
     	logger(ka.wm.windows);
     	logger(ka.wm.depend);
     	
-        return ka.wm.windows.get( ka.wm.getDepend(pId) );
+        return ka.wm.windows[ ka.wm.getDepend(pId) ];
     },
 
     getWindow: function( pId ){
         if( pId == -1 )
             pId == ka.wm.lastWindow;
-        return ka.wm.windows.get( pId );
+        return ka.wm.windows[ pId ];
     },
 
     getDependOn: function( pWindowId ){
         var reswin = null;
-        ka.wm.depend.each(function(win,key){
+        Object.each(ka.wm.depend, function(win,key){
             if( win == pWindowId )
-                reswin = ka.wm.windows.get(key); //a depend exist
+                reswin = ka.wm.windows[key]; //a depend exist
         });
         return reswin;
     },
@@ -117,15 +116,15 @@ ka.wm = {
     },
 
     softReloadWindows: function( pModule, pCode ){
-        ka.wm.windows.each(function(win){
+        Object.each(ka.wm.windows, function(win){
             if( win && win.module == pModule && win.code == pCode )
                 win.softReload();
         });
     },
 
     resizeAll: function(){
-        ka.settings.get('user').set('windows', $H());
-        ka.wm.windows.each(function(win){
+        ka.settings['user']['windows'] = {};
+        Object.each(ka.wm.windows, function(win){
             if(win){
                 win.loadDimensions();
             }
@@ -136,8 +135,8 @@ ka.wm = {
         if( ka.wm.dependExist( pWindowId ) ){
             return false;
         }
-        if( ka.wm.lastWindow > 0 && ka.wm.windows.get( ka.wm.lastWindow ) && ka.wm.lastWindow != pWindowId ){
-            ka.wm.windows.get( ka.wm.lastWindow ).toBack();
+        if( ka.wm.lastWindow > 0 && ka.wm.windows[ ka.wm.lastWindow ] && ka.wm.lastWindow != pWindowId ){
+            ka.wm.windows[ ka.wm.lastWindow ].toBack();
         }
         ka.wm.lastWindow = pWindowId;
         return true;
@@ -148,7 +147,7 @@ ka.wm = {
 
         if( pDependOn > 0 ){
             ka.wm.depend.include( instance, pDependOn );
-            var w = ka.wm.windows.get( pDependOn );
+            var w = ka.wm.windows[ pDependOn ];
             if( w ) 
                 w.toDependMode(pInline);
         }
@@ -188,18 +187,18 @@ ka.wm = {
     close: function( pWindow ){
         var id = pWindow.id;
 
-        var dependOn = ka.wm.depend.get( id );
+        var dependOn = ka.wm.depend[ id ];
         if( dependOn ){
-            if( ka.wm.windows.get(dependOn) ){
-                ka.wm.windows.get(dependOn).removeDependMode();
+            if( ka.wm.windows[dependOn] ){
+                ka.wm.windows[dependOn].removeDependMode();
             }
         }
-        ka.wm.windows.set( id, null );
-        ka.wm.depend.erase( id );
+        delete ka.wm.depend[ id ];
+        delete ka.wm.windows[ id ];
 
         if( dependOn ){
-            if( ka.wm.windows.get(dependOn) ){
-                ka.wm.windows.get(dependOn).toFront();
+            if( ka.wm.windows[dependOn] ){
+                ka.wm.windows[dependOn].toFront();
             }
         }
 
@@ -210,7 +209,7 @@ ka.wm = {
         $('windowList').empty();
         
         var c = 0;
-        ka.wm.windows.each(function(win, winId){
+        Object.each(ka.wm.windows, function(win, winId){
             if(! win ) return;
             if( win.inline ) return;
             
@@ -228,8 +227,7 @@ ka.wm = {
             
             if( win.isOpen )
                 item.set('class', 'wm-bar-item-active');
-            
-            
+
         });
         
         if( c > 0 ){
@@ -246,7 +244,7 @@ ka.wm = {
 
     checkOpen: function( pModule, pCode, pInstanceId, pParams ){
         opened = false;
-        ka.wm.windows.each(function(win){
+        Object.each(ka.wm.windows, function(win){
             //if( win && win.module == pModule && win.code == pCode && win.params == pParams ){
             if( win && win.module == pModule && win.code == pCode ){
                 if( pInstanceId > 0 && pInstanceId == win.id){
@@ -259,21 +257,21 @@ ka.wm = {
     },
 
     closeAll: function(){  
-        ka.wm.windows.each(function(win){
+        Object.each(ka.wm.windows, function(win){
             if( win )
                 win.close();
         });
     },
 
     createOverlays: function(){
-        ka.wm.windows.each(function(win, winId){
+        Object.each(ka.wm.windows, function(win, winId){
             if( win )
                 win.createOverlay();
         });
     },
 
     removeOverlays: function(){
-        ka.wm.windows.each(function(win, winId){
+        Object.each(ka.wm.windows, function(win, winId){
             if( win )
                 win.deleteOverlay();
         });

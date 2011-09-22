@@ -1,16 +1,14 @@
 <?php
 
 /**
- * SystemSearch class
+ * krynSearch class
  * 
- * @package Kryn
  * @internal
- * @subpackage Core
  * @author Kryn.labs <info@krynlabs.com>
  */
 
 
-class systemSearch extends baseModule{
+class krynSearch extends baseModule{
     static $indexedPages;
     static $indexedPagesName;
     static $indexBlacklistUrls;
@@ -95,7 +93,7 @@ class systemSearch extends baseModule{
         
             self::updateBlacklist( self::$pageUrl );
             self::$redirectTo = $b;
-            return self::exitPage('Given arguments doesnt change the content!', 2);
+            return self::exitPage('Given arguments does not change the content!', 2);
                 
         }
         
@@ -205,8 +203,6 @@ class systemSearch extends baseModule{
                       
         );
         $pContent = preg_replace($arSearch, '', $pContent);
-            
-        $contentMd5 = md5(strip_tags($pContent));
         return kryn::compress(strip_tags($pContent, '<p><br><br /><h1><h2><h3><h4><h5><h6>'));
     }
     

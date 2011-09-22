@@ -7,8 +7,7 @@
  * tiny URLs are in Kryn URLs to inc/template/ but without inc/template.
  * 
  * @internal
- * @package Kryn
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 $pfile = preg_replace('/\.\.+/', '.', $_REQUEST['_kurl']);
@@ -25,6 +24,11 @@ if( $file && !is_dir($file) ){
     $cfg['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );
 	header( "HTTP/1.1 301 Moved Permanently" );
     header('Location: '.$cfg['path'].$file);
+    exit;
+}
+
+if( substr($pfile, 0, 6) != 'admin/' && strpos( $pfile, '.' ) ){
+	header( "HTTP/1.1 404 Not found" );
     exit;
 }
 ?>

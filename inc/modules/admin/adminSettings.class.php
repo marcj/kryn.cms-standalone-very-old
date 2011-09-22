@@ -52,16 +52,15 @@ class adminSettings {
         
         include('inc/config.php');
         
-        $values = array('db_forceutf8', 'systemtitle', 'display_errors', 'log_errors',
-        'log_errors_file', 'timezone', 'db_server', 'db_user', 'db_passwd',
-        'db_name', 'db_prefix', 'db_type', 'caching_type', 'memcache_server', 'memcache_port',
-        'files_path', 'template_cache', 'communityEmail', 'communityId', 'sessiontime');
+        $blacklist = array('communityEmail', 'communityId', 'languages');
         
-        foreach( $values as $value )
-            $cfg[ $value ] = getArgv( $value );
+        foreach( $_POST as $key => $value ){
+            if( !in_array($key,$blacklist) ){
+                $cfg[ $key ] = getArgv( $key );
+            }
+        }
         
         kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
-        
 
         dbUpdate('system_langs', array('visible'=>1), array('visible'=>0));
         $langs = getArgv('languages');

@@ -7,7 +7,7 @@ class publicationNewsComments extends windowList {
     public $itemsPerPage = 20;
     public $orderBy = 'created';
 
-    public $filter = array('name', 'email');
+    public $filter = array('owner_username', 'email');
 
     public $add = true;
     public $edit = true;

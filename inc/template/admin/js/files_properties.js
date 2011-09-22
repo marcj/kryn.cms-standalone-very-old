@@ -326,8 +326,7 @@ var admin_files_properties = new Class({
 		this.applyInternalAclBtn = new ka.Button(_('Apply'))
 		.addEvent('click', this.applyInternalAcls.bind(this))
 		.inject( p );
-		
-		logger(this.file.internalacls);
+
 		if( this.file.internalacls && $type(this.file.internalacls) == 'array' ){
 			this.file.internalacls.each(function(rule){
 			

@@ -17,13 +17,11 @@
  * This class have to be used as motherclass in your framework classes, which
  * are defined from the links in your extension.
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkWindow
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 
-class windowEdit {
+class adminWindowEdit {
 
     /**
      * 
@@ -113,7 +111,7 @@ class windowEdit {
             $cachedPluginRelations =& cache::get('kryn_pluginrelations');
         }
         
-        $module = getArgv('module');
+        $module = $this->module;
         
         foreach( $this->previewPlugins as $plugin => $urlGetter ){
             
@@ -138,6 +136,38 @@ class windowEdit {
         }
     
     }
+    
+    public function unlock( $pType, $pId ){
+        dbDelete('system_lock', "type = '$pType' AND key = '$pId'");
+        return true;
+    }
+
+    public function canLock( $pType, $pId ){
+        global $user;
+
+        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
+        if( $row['session_id'] == $user->sessionid ) return true;
+        if(! $row['rsn'] > 0 ) return true;
+
+        $user = dbTableFetch('system_user');
+        return false;
+    }
+
+    public function lock( $pType, $pId ){
+        global $user;
+
+        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
+        if($row['rsn']>0) return false;
+
+        dbInsert('system_lock', array(
+            'type' => $pType,
+            'key' => $pId,
+            'session_id' => $user->sessionid,
+            'time' => time()
+        ));
+        return true;
+    }
+
     
     /**
      * Loads all plugins from system_contents to a indexed cached array
@@ -323,21 +353,35 @@ class windowEdit {
                 $func = $field['customValue'];
                 $res['values'][$key] = $this->$func( $primaries, $res );
             }
-            if( $field['type'] == 'select' && $field['relation'] == 'n-n' ){
-                $sql = "
-                    SELECT tableright.*, tablemiddle.".$field['n-n']['middle_keyright']."
-                    FROM 
-                        %pfx%".$field['n-n']['right']." as tableright, 
-                        %pfx%".$field['n-n']['middle']." as tablemiddle, 
-                        %pfx%".$this->table." as tableleft
-                    WHERE 
-                        tableright.".$field['n-n']['right_key']." = tablemiddle.".$field['n-n']['middle_keyright']." AND
-                        tableleft.".$field['n-n']['left_key']." = tablemiddle.".$field['n-n']['middle_keyleft']." AND
-                        tableleft.".$field['n-n']['left_key']." = ".$res['values'][$field['n-n']['left_key']]."
+            if( $field['relation'] == 'n-n' ){
+                if( $field['type'] == 'select' ) {
+                    $sql = "
+                        SELECT tableright.*, tablemiddle.".$field['n-n']['middle_keyright']."
+                        FROM 
+                            %pfx%".$field['n-n']['right']." as tableright, 
+                            %pfx%".$field['n-n']['middle']." as tablemiddle, 
+                            %pfx%".$this->table." as tableleft
+                        WHERE 
+                            tableright.".$field['n-n']['right_key']." = tablemiddle.".$field['n-n']['middle_keyright']." AND
+                            tableleft.".$field['n-n']['left_key']." = tablemiddle.".$field['n-n']['middle_keyleft']." AND
+                            tableleft.".$field['n-n']['left_key']." = ".$res['values'][$field['n-n']['left_key']]."
+                        ";
+                    $res['values'][$key] = dbExfetch( $sql, DB_FETCH_ALL);
+                } else {
+                    $sql = "
+                        SELECT 
+                            tablemiddle.".$field['n-n']['middle_keyright']." as middlevalue
+                        FROM
+                            %pfx%".$field['n-n']['middle']." as tablemiddle
+                        WHERE
+                            tablemiddle.".$field['n-n']['middle_keyleft']." = ".$res['values'][$field['n-n']['left_key']]."
                     ";
-                $res['values'][$key] = dbExfetch( $sql, DB_FETCH_ALL);
-            }else if($field['type'] == 'select' && $field['multi'] && !$field['relation'] ) {
-                $res['values'][$key] = json_decode( $res['values'][$key]);
+                    $dbRes = dbExec( $sql );
+                    $res['values'][$key] = array();
+                    while( $row = dbFetch($dbRes) ){
+                        $res['values'][$key][] = $row['middlevalue'];
+                    }
+                }
             }
         }
         
@@ -349,9 +393,9 @@ class windowEdit {
      * Saves the item to database.
      */
     public function saveItem(){
+
         $tableInfo = $this->db[$this->table];
 
-        $sql = 'UPDATE %pfx%'.$this->table.' SET ';
         $values = array();
         
         $row = array();
@@ -387,10 +431,10 @@ class windowEdit {
             $mod = ($field['update']['modifier'])?$field['update']['modifier']:$field['modifier'];
             if( $mod ){
                 #$val = $this->$mod($val);
-                if( function_exists( $mod ) )
-                    $val = $mod($val);
                 if( method_exists( $this, $mod ) )
                     $val = $this->$mod( $val );
+                else if( function_exists( $mod ) )
+                    $val = $mod($val);
             }
 
             if( $field['type'] == 'fileList' ){
@@ -416,27 +460,22 @@ class windowEdit {
         
      	if( $this->multiLanguage ){
         	$curLang = getArgv('lang', 2);
-        	$sql .= "lang = '$curLang',";
+        	$row['lang'] = $curLang;
         }
-		
-        $sql = substr($sql, 0, -1);
-        $sql .= " WHERE 1=1 ";
 
         $primary = array();
-        foreach( $tableInfo as $key => $field ){
-            
-            if( $field[2] != "DB_PRIMARY" ) continue;
-            $val = getArgv($key);
+        foreach( $this->primary as $field ){
+            $val = getArgv($field);
             
             if( isset($val) ){
-                $primary[$key] = $val;
-                $row[$key] = $val;
+                $primary[$field] = $val;
+                $row[$field] = $val;
             }
         }
         
         $res = array();
         if( $this->versioning == true && getArgv('publish') != 1  ){
-            
+
             //only save in versiontable
             $res['version_rsn'] = admin::addVersionRow( $this->table, $primary, $row );
             
@@ -479,7 +518,7 @@ class windowEdit {
         if( $this->previewPlugins ){
             
             $cachedPluginRelations =& cache::get('kryn_pluginrelations');
-            $module = getArgv('module');
+            $module = $this->module;
             
             foreach( $this->previewPlugins as $plugin => $urlGetter ){
                 
@@ -510,6 +549,16 @@ class windowEdit {
         }
         return $previewUrls;
     }
+
+}
+
+
+
+/*
+* Compatibility for older extension
+* @deprecated
+*/
+class windowEdit extends adminWindowEdit {
 
 }
 

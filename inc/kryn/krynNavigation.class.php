@@ -17,24 +17,12 @@
  * 
  * Layer between Layouts and navigation (pages)
  * 
- * @package Kryn
- * @internal
- * @subpackage Layout
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 
-class knavigation {
+class krynNavigation {
     public $navigations;
-
-    function getAdminLinks( $pParam, $pIsDomain = false ){
-
-        if( $pIsDomain )
-            $sql = "SELECT * FROM %pfx%system_pages WHERE domain_rsn= ".$pParam['rsn']." AND prsn = 0 ORDER BY sort";
-        else
-            $sql = "SELECT * FROM %pfx%system_pages WHERE prsn = ".$pParam['rsn']." ORDER BY sort";
-        return dbExfetch( $sql, DB_FETCH_ALL );
-    }
 
     public static function getLinks( $pRsn, $pWithFolders = false, $pDomain = false ){
         global $kryn, $user, $time;
@@ -53,7 +41,7 @@ class knavigation {
             $links[$code] = dbExfetch("
             SELECT 
                 rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
-                access_from, access_to, access_nohidenavi, access_from_groups
+                access_from, access_to, access_nohidenavi, access_from_groups, properties
             FROM
                 %pfx%system_pages
             WHERE
@@ -81,6 +69,10 @@ class knavigation {
             //permission check
         	if( $page['access_nohidenavi'] != 1 )
         	    $page = kryn::checkPageAccess( $page, false );
+        	    
+            if( $page['properties'] ){
+                $page['properties'] = json_decode( $page['properties'], true );
+            }
             
 	        if( $page ){
 	            $page[ 'links' ] = self::getLinks( $page['rsn'] );
@@ -127,7 +119,7 @@ class knavigation {
             $currentLevel = count( $kryn->menus[kryn::$page['rsn']] )+1;
 
             $page = self::arrayLevel( $kryn->menus[kryn::$page['rsn']], $pOptions['level'] );
-
+            
             if( $page['rsn'] > 0 )
                 $navi = kryn::getPage( $page['rsn'] );
             elseif( $pOptions['level'] == $currentLevel+1 )
@@ -149,7 +141,7 @@ class knavigation {
         switch( $pOptions['id'] ){
             case 'history':
                 $tpl = (!$pTemplate) ? 'main' : $pTemplate;
-                tAssign( 'menus', kryn::readCache('menus') );
+                tAssign( 'menus', $kryn->menus );
                 if( file_exists( "inc/template/$tpl" ))
                     return tFetch( $tpl );
                 return tFetch("kryn/history/$tpl.tpl");

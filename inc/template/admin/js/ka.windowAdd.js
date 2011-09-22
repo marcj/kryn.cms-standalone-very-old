@@ -10,12 +10,14 @@ ka.windowAdd = new Class({
         
         if( this.saveNoClose )
             this.saveNoClose.hide();
-            
-        this.saveNoClose = new ka.Button(_('Add'))
-        .addEvent('click', function(){
-            this._save(true);
-        }.bind(this))
-        .inject( this.actions );
+        
+        if( this.actions ){
+            this.saveNoClose = new ka.Button(_('Add'))
+            .addEvent('click', function(){
+                this._save(true);
+            }.bind(this))
+            .inject( this.actions );
+        }
         
         if( this.win.params && this.win.params.relation_params ){
 	        Object.each(this.win.params.relation_params, function(value,id){

@@ -5,7 +5,7 @@ class publicationNews
     
     public static function itemDetail( $pConf )
     {
-        global $user;
+        global $user, $client;
         
         // Get important variables from config
         $replaceTitle = $pConf['replaceTitle']+0 == 1; // Ensure it's set
@@ -81,7 +81,7 @@ class publicationNews
                                     'owner_username' => $name,
                                     'created' => time(),
                                     'ip' => $_SERVER['REMOTE_ADDR'],
-                                    'session_id' => $user->sessionid,
+                                    'session_id' => $client->token,
                                     'subject',
                                     'website',
                                     'email',

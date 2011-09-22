@@ -388,6 +388,9 @@ class adminPages {
             $dbUpdate[] = 'resourcecompression';
         }
         
+        //todo need a acl for that
+        $dbUpdate['session'] = json_encode(getArgv('session'));
+        
         $domain = getArgv('domain',1);
         if( $canChangeMaster ){
             if( getArgv('master') == 1 ){
@@ -406,7 +409,7 @@ class adminPages {
         $rsn = getArgv('rsn')+0;
         
         if( !kryn::checkPageAcl($rsn, 'showDomain', 'd') ){
-            json('access-denied');
+            json(array('error'=>'access_denied'));
         }
     	
         $res['domain'] = dbExfetch( "SELECT * FROM %pfx%system_domains WHERE rsn = $rsn" );
@@ -440,6 +443,19 @@ class adminPages {
             
             if( $code != '' )
             	$domains['n2d'][$code] = $domain;
+            	
+            if( $domain['session'] ){
+                $domain['session'] = @json_decode($domain['session'], true);
+            }
+            
+            if( $domain['publicproperties'] ){
+                $domain['publicproperties'] = @json_decode($domain['publicproperties'], true);
+            }
+            
+            if( $domain['extproperties'] ){
+                $domain['extensionProperties'] = @json_decode($domain['extproperties'], true);
+            }
+        
             	
             $domains['r2d']['rsn='.$domain['rsn']] = $domain;
             $alias = explode(",", $domain['alias']);
@@ -622,29 +638,7 @@ class adminPages {
         $kryn->current_page = $page;
         kryn::$page = $page;
 
-        $page = tpl::buildPage('');
-
-        /*tAssign('layout', '<div id="krynContentManager_layoutContent"></div>');
-        tAssign('page', $page);
-        $kryn->current_page['template'] = $pTemplate;
-        kryn::$domain = dbTableFetch('system_domains', 1, "rsn = ".$page['domain_rsn']);
-        $kryn->loadMenus();
-
-
-        $pTemplate = str_replace('..', '', $pTemplate);
-
-        if( $pTemplate == '__kTemplate' )
-            $pTemplate = 'kryn/kTemplate.tpl';
-        else
-            $pTemplate = "kryn/templates/$pTemplate.tpl";
-
-        $kryn->admin = false; //for buildHeader
-        $page = tFetch( $pTemplate );
-        kryn::replacePageIds( $page );
-        $kryn->noCssLayout = true;
-
-        $page = str_replace('{$kryn.header}', tpl::buildHead(true), $page );
-        */
+        $page = krynHtml::buildPage('');
 
         if( getArgv('json') == '0' )
             die( $page );
@@ -1127,7 +1121,7 @@ class adminPages {
             }
             
             dbDelete('system_search', 'page_rsn	= '.$rsn);
-            systemSearch::cacheAllIndexedPages();
+            krynSearch::cacheAllIndexedPages();
             cache::set('systemSearchIndexedPages', $indexedPages);
         }
     
@@ -1423,7 +1417,7 @@ class adminPages {
             else
                 $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
         }
-        kryn::setPhpCache( "menus_$pDomainRsn", $res );
+        cache::set( "menus_$pDomainRsn", $res );
         
         cache::clear('navigations');
         

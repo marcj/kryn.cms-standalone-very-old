@@ -14,8 +14,7 @@
  * Index.php
  * 
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 
@@ -74,13 +73,14 @@ include( 'inc/kryn/checkFile.php' );
 include('inc/smarty/Smarty.class.php');
 include('inc/kryn/database.class.php');
 include('inc/kryn/baseModule.class.php');
+
 include('inc/kryn/kryn.class.php');
-include('inc/kryn/acl.class.php');
+include('inc/kryn/krynAcl.class.php');
 include("inc/kryn/adminForm.class.php");
-include('inc/kryn/knavigation.class.php');
-include('inc/kryn/tpl.class.php');
-include('inc/kryn/user.class.php');
-include('inc/kryn/systemSearch.class.php');
+include('inc/kryn/krynNavigation.class.php');
+include('inc/kryn/krynHtml.class.php');
+include('inc/kryn/krynAuth.class.php');
+include('inc/kryn/krynSearch.class.php');
 
 # Init classes and globals
 $tpl = new Smarty();
@@ -138,23 +138,26 @@ $kryn->initConfig();
 $kryn->loadModules();
 $kryn->loadLanguage();
 
-$user = new user();
-if($user->user['rsn'] != GUEST){
-    $user->user_logged_in = true;
-}
-
-$kryn->initModules();
+$kryn->initAuth();
 
 tAssign("request", $_REQUEST);
 tAssign("user", $user->user);
 
+if( getArgv(1) == 'admin' ){
+    require("inc/modules/admin/admin.class.php");
+    $modules['admin'] = new admin();
+}
+
 $kryn->checkAccess();
 
-systemSearch::initSearch();
+krynSearch::initSearch();
+
+register_shutdown_function('kryn_shutdown');
 
 $kryn->admin = false;
 tAssign( 'admin', false );
 if( getArgv(1) == 'admin' ){
+    
     tAssign( 'admin', true );
     $kryn->admin = true;
     $modules['admin']->content();
