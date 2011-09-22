@@ -1266,7 +1266,16 @@ var admin_pages = new Class({
             
             this.changeType();
 
+
+            this.currentDomain.session = JSON.decode(this.currentDomain.session);
             this.domainSessionFields.setValue( this.currentDomain.session );
+            
+
+            if( this.currentDomain.session.auth_class ){
+                if( this.auth_params_objects[this.currentDomain.session.auth_class] ){
+                    this.auth_params_objects[this.currentDomain.session.auth_class].setValue( this.currentDomain.session.auth_params );
+                }
+            }
             
             this.showDomainMaster( pDomain.domain_rsn );
             
@@ -1399,6 +1408,16 @@ var admin_pages = new Class({
         req.publicproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
 
         req.session = this.domainSessionFields.getValue();
+        
+        var obj = this.auth_params_objects[ req.session.auth_class ];
+        
+        if( !obj.isOk() ){
+            
+            this.saveDomainBtn.stopTip( _('Failed - Check values') );
+            return;
+        }
+        
+        req.session['auth_params'] = obj.getValue();
 
         //properties
         var properties = {};
@@ -1520,9 +1539,7 @@ var admin_pages = new Class({
 
         this.panes['domainTheme'] = p;
         
-        
-        
-        
+
         
         
         
@@ -1534,7 +1551,7 @@ var admin_pages = new Class({
         var p = new Element('div', {
             'class': 'admin-pages-pane'
         }).inject( this.main );
-
+        
         var fields = {
             'session_storage': {
                 label: _('Session storage'),
@@ -1544,7 +1561,6 @@ var admin_pages = new Class({
                     'memcached': _('Memcached')
                 },
                 'depends': {
-                
                     'session_storage_memcached_servers': {
                         needValue: 'memcached',
                         'label': 'Memcached servers',
@@ -1586,31 +1602,57 @@ var admin_pages = new Class({
 
             'auth_class': {
                 'label': _('Backend authentification'),
+                'desc': _('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
                 'type': 'select',
-                'panel_width': 400,
-                'default': 'kryn',
                 'table_items': {
                     'kryn': _('Kryn.cms users')
                 },
                 depends: {}
             }
         };
-
+        
         this.auth_params = {};
+        this.auth_params_panes = {};
 
         Object.each(ka.settings.configs, function(config,id){
             if( config.auth ){
                 Object.each( config.auth, function(auth_fields,auth_class){
                     Object.each( auth_fields, function( field, field_id){
-                        field.needValue = auth_class;
-                        fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
+                        //field.needValue = id+'/'+auth_class;
+                        //fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
                         fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
                     }.bind(this));
                 }.bind(this));
             }
         }.bind(this));
-
+        
         this.domainSessionFields = new ka.parse( p, fields );
+        
+        this.auth_params_objects = {};
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each(config.auth, function(auth_fields,auth_class){
+                
+                    this.auth_params_panes[id+'/'+auth_class] = new Element('div', {
+                        'style': 'display: none;'
+                    }).inject( this.domainSessionFields.fields['auth_class'].childContainer );
+                    
+                    this.auth_params_objects[ id+'/'+auth_class ] = new ka.parse( this.auth_params_panes[id+'/'+auth_class], auth_fields );
+                }.bind(this));
+            }
+        }.bind(this));
+        
+        this.domainSessionFields.fields['auth_class'].addEvent('check-depends', function(){
+            Object.each(this.auth_params_panes, function(pane){
+                pane.setStyle('display', 'none');
+            }.bind(this));
+            var pane = this.auth_params_panes[ this.domainSessionFields.fields['auth_class'].getValue() ];
+            
+            if( pane )
+                pane.setStyle('display', 'block');
+        }.bind(this));
+        
+        this.domainSessionFields.fields['auth_class'].fireEvent('check-depends');
         
         this.panes['domainSessions'] = p;
         

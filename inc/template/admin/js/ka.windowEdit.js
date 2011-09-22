@@ -114,10 +114,14 @@ ka.windowEdit = new Class({
         this.item = pItem;
         
         this.previewUrls = pItem.preview_urls;
-        logger( pItem );
-        logger( this.fields );
+        
+        var first = false;
         
         Object.each(this.fields, function(field, fieldId){
+            if( first == false && typeOf(pItem.values[fieldId]) == 'string' ){
+                this.win.setTitle(pItem.values[fieldId]);
+                first = true;
+            }
             try {
             	
             	if( this.windowAdd && this.win.params && this.win.params.relation_table &&
@@ -132,7 +136,6 @@ ka.windowEdit = new Class({
                     field.setValue( '' );
 
                 else if( !this._fields[fieldId].startempty ){
-                    logger( pItem.values[fieldId] );
                     field.setValue( pItem.values[fieldId] );
                 }
 
@@ -699,7 +702,8 @@ ka.windowEdit = new Class({
                 || _this.win.code == 'users/editMe'
                 || _this.win.code == 'users/editMe/'
                 ) ){
-                ka.settings.get('user').set('adminLanguage', req.get('adminLanguage') );
+                if( !ka.settings['user'] ) ka.settings['user'] = {};
+                ka.settings['user']['adminLanguage'] = req['adminLanguage'];
             }
             
             if( this.win.params ){
@@ -745,9 +749,10 @@ ka.windowEdit = new Class({
             	if( this.values.load_settings == true ) ka.loadSettings();
                 
                 this.previewUrls = res.preview_urls;
-                // Before close, perform saveSuccess
+                
                 this.fireEvent('save', [req, res, pPublish]);
                 
+                // Before close, perform saveSuccess
                 this._saveSuccess();
                 
             	if( (!pClose || this.inline ) && this.values.versioning == true ) this.loadVersions();

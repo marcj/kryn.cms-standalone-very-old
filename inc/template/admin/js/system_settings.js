@@ -60,8 +60,8 @@ var admin_system_settings = new Class({
         this.fields['systemtitle'] = new ka.field({
             label: _('System title'), desc: 'Adds a title to the administration titel'
         }).inject( p );
-        
-        
+
+
         this.fields['update finder'] = new ka.field({
             label: _('Update finder'),
             type: 'checkbox'
@@ -79,8 +79,7 @@ var admin_system_settings = new Class({
         
         this.fields['languages'] = new ka.field({
             label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
-            type: 'textlist', store: 'admin/backend/stores/languages',
-            width: 307
+            type: 'textlist', store: 'admin/backend/stores/languages'
         }).inject(p);
 
         this.changeType( 'general' );
@@ -114,7 +113,6 @@ var admin_system_settings = new Class({
                     'memcached': _('Memcached')
                 },
                 'depends': {
-                
                     'session_storage_memcached_servers': {
                         needValue: 'memcached',
                         'label': 'Memcached servers',
@@ -156,6 +154,7 @@ var admin_system_settings = new Class({
 
             'auth_class': {
                 'label': _('Backend authentification'),
+                'desc': _('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
                 'type': 'select',
                 'table_items': {
                     'kryn': _('Kryn.cms users')
@@ -165,23 +164,51 @@ var admin_system_settings = new Class({
         };
 
         this.auth_params = {};
+        this.auth_params_panes = {};
 
         Object.each(ka.settings.configs, function(config,id){
             if( config.auth ){
                 Object.each( config.auth, function(auth_fields,auth_class){
                     Object.each( auth_fields, function( field, field_id){
-                        field.needValue = auth_class;
-                        fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
+                        //field.needValue = id+'/'+auth_class;
+                        //fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
                         fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
                     }.bind(this));
                 }.bind(this));
             }
         }.bind(this));
-
+        
         this.authObj = new ka.parse( p, fields );
         Object.each( this.authObj.getFields(), function(item,id){
             this.fields[ id ] = item;
         }.bind(this));
+        
+        this.auth_params_objects = {};
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each(config.auth, function(auth_fields,auth_class){
+                
+                    this.auth_params_panes[id+'/'+auth_class] = new Element('div', {
+                        'style': 'display: none;'
+                    }).inject( this.fields['auth_class'].childContainer );
+                    
+                    this.auth_params_objects[ id+'/'+auth_class ] = new ka.parse( this.auth_params_panes[id+'/'+auth_class], auth_fields );
+                }.bind(this));
+            }
+        }.bind(this));
+        
+        this.fields['auth_class'].addEvent('check-depends', function(){
+            Object.each(this.auth_params_panes, function(pane){
+                pane.setStyle('display', 'none');
+            }.bind(this));
+            var pane = this.auth_params_panes[ this.fields['auth_class'].getValue() ];
+            
+            if( pane )
+                pane.setStyle('display', 'block');
+        }.bind(this));
+        
+        this.fields['auth_class'].fireEvent('check-depends');
+        
 
         var p = this.panes['database'];
         this.fields['db_type'] = new ka.field({
@@ -302,24 +329,30 @@ var admin_system_settings = new Class({
         this.lr = new Request.JSON({url: _path+'admin/system/settings/loadSettings', noCache: 1, onComplete: function(res){
 
         	this.systemValues = res.system;
-            $H(this.fields).each(function(field,key){
+            Object.each(this.fields, function(field,key){
             	if( !field ) return;
 
                 if( res.system[key] ){
-                    field.setValue( res.system[key] );
+                    field.setValue( res.system[key], true );
                 } else if( key.indexOf('[') != -1 ){
-                    field.setArrayValue( res.system, key );
+                    field.setArrayValue( res.system, key, true );
                 }
 
             });
+            
+            if( res.system.auth_params ){
+                if( this.auth_params_objects[res.system.auth_class] ){
+                    this.auth_params_objects[res.system.auth_class].setValue( res.system.auth_params );
+                }
+            }
+
             this.oldCommunityEmail = res.system['communityEmail'];
             
             var langs = [];
             $H(res.langs).each(function(l,k){
                 langs.include(l.rsn+'');
             });
-            this.fields['languages'].setValue(langs);
-            
+            this.fields['languages'].setValue(langs);            
 
             this.loader.hide();
         }.bind(this)}).post();
@@ -329,7 +362,7 @@ var admin_system_settings = new Class({
         var req = new Hash();
         var dontGo = false;
         
-        $H(this.fields).each(function(field,key){
+        Object.each(this.fields, function(field,key){
         	if( !field ) return;
             if( dontGo ) return;
             if( !field.isOk() ){
@@ -342,6 +375,13 @@ var admin_system_settings = new Class({
             }
             req.set(key, field.getValue());
         }.bind(this));
+        
+        var auth_class = this.fields['auth_class'].getValue();
+        var obj = this.auth_params_objects[ auth_class ];
+        
+        if( !obj.isOk() ) return;
+        
+        req['auth_params'] = obj.getValue();
         
         if( dontGo ) return;
         

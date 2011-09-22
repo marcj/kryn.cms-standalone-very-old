@@ -444,6 +444,19 @@ class adminPages {
             if( $code != '' )
             	$domains['n2d'][$code] = $domain;
             	
+            if( $domain['session'] ){
+                $domain['session'] = @json_decode($domain['session'], true);
+            }
+            
+            if( $domain['publicproperties'] ){
+                $domain['publicproperties'] = @json_decode($domain['publicproperties'], true);
+            }
+            
+            if( $domain['extproperties'] ){
+                $domain['extensionProperties'] = @json_decode($domain['extproperties'], true);
+            }
+        
+            	
             $domains['r2d']['rsn='.$domain['rsn']] = $domain;
             $alias = explode(",", $domain['alias']);
             if( count($alias) > 0 ){

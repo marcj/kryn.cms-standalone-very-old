@@ -32,12 +32,9 @@ class adminWindowAdd extends adminWindowEdit {
             if( !empty($field['customSave']) ){
                 continue;
             }
-
-            if( $field['type'] == 'fileList' ){
+            
+            if( is_array($val) )
                 $val = json_encode( $val );
-            } else if($field['type'] == 'select' && $field['multi'] && !$field['relation']) {
-                $val = json_encode( $val);
-            }
 
             $row[ $key ] = $val;
         }

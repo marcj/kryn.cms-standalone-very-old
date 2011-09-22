@@ -68,6 +68,9 @@ function esc( $p, $pEscape = false ){
  */
 function dbExfetch( $pSql, $pRowCount = 1, $pMode = PDO::FETCH_ASSOC ){
     global $kdb, $cfg;
+    if( !$kdb ){
+        error_log("kdb is empty. sql: $pSql ,info: ".print_r($_REQUEST,true) );
+    }
     $pSql = str_replace( '%pfx%', $cfg['db_prefix'], $pSql );
     return $kdb->exfetch( $pSql, $pRowCount, $pMode );
 }

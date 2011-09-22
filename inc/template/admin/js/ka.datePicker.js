@@ -24,6 +24,15 @@ ka.datePicker = new Class({
         }
 
         this.input = pInput;
+        
+        var kwindow = this.input.getParent('.kwindow-border');
+        if( kwindow ){
+            kwindow.retrieve('win').addEvent('close', function(){
+                if( this.chooser )
+                    this.chooser.destroy();
+            }.bind(this));
+        }
+        
         this._attach();
     },
 
@@ -221,6 +230,7 @@ ka.datePicker = new Class({
 
     _renderChooser: function(){
     	this.mouseover = false;
+
         this.chooser = new Element('div', {
             'class': 'ka-datePicker-chooser',
             styles: {

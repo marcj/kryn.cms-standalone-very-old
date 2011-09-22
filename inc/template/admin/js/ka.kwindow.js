@@ -20,7 +20,7 @@ ka.kwindow = new Class({
         this.loadContent();
 
         this.addHotkey('esc', false, false, function(){
-            this.close( true );
+            this.close();
         }.bind(this));
     },
 
@@ -628,10 +628,14 @@ ka.kwindow = new Class({
         }
     },
 
-    close: function( pIntern ){
+    close: function(){
+    
         if( this.isActive() == false ) return;
-        var _this = this;
 
+        ka.wm.close( this );
+
+        this.fireEvent('close');
+        
         //save dimension
         if( this.border ){ //war schon richtig auf 
 
@@ -640,30 +644,19 @@ ka.kwindow = new Class({
             } else {
                 this.saveDimension();
             }
-
-            //close fx
-            this.border.set('tween', {onComplete: function(){
-                _this.border.destroy();
-            }}),
-            //this.border.set('tween', {duration: 200});
-            //this.border.tween('opacity', 0 );
+    
+            this.border.getElements('a.kwindow-win-buttonWrapper').each(function(button){
+                if(button.toolTip && button.toolTip.main )
+                    button.toolTip.main.destroy();
+            });
+        
             this.border.destroy();
         }
 
         this.inFront = false;
+
         if( this.onClose )
             this.onClose();
-        
-        if( pIntern )
-            this.fireEvent('close');
-    
-        this.border.getElements('a.kwindow-win-buttonWrapper').each(function(button){
-            if(button.toolTip)
-                button.toolTip.main.destroy();
-        });
-        
-
-        ka.wm.close( this );
     },
 
     loadContent: function( pVals ){
@@ -682,12 +675,12 @@ ka.kwindow = new Class({
 
                 if(res.error == 'access_denied' ){
                     alert( _('Access denied') );
-                    _this.close( true );
+                    _this.close();
                     return;
                 }
                 if( !res ){
                     alert( _('Admin-Path not found')+ ': '+_this.module+' => '+_this.code );
-                    _this.close( true );
+                    _this.close();
                     return;
                 }
                 this._loadContent( res, res._path );
@@ -700,7 +693,7 @@ ka.kwindow = new Class({
         if( this.values.multi === false ){
             var win = ka.wm.checkOpen( this.module, this.code, this.id );
             if( win ){
-                this.close( true );
+                this.close();
                 if( win.softOpen ) win.softOpen( this.params );
                 win.toFront();
                 return;
@@ -852,7 +845,7 @@ ka.kwindow = new Class({
         
         window['contentCantLoaded_'+id] = function( pFile ){
             _this._alert('custom javascript file not found: '+pFile, function(){
-                _this.close( true );
+                _this.close();
             });
         }
         window['contentLoaded_'+id] = function(){
@@ -1109,7 +1102,7 @@ ka.kwindow = new Class({
             'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
         })
         .addEvent('click',function(){
-            _this.close( true );
+            _this.close();
         })
         .inject( this.titleBar );
 

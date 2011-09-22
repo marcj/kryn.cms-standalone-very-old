@@ -21,7 +21,6 @@ ka.init = function(){
     ka.buildUploadMenu();
 
 
-    logger('ka-init');
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
     
@@ -136,11 +135,11 @@ ka.loadSettings = function(){
         ka.settings.set('user', $H(ka.settings.user));
         ka.settings.get('user').set('windows', $H(ka.settings.get('user').get('windows')));
         
-        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')'); //admin/images/userBgs/'+pId.user_rsn+'.jpg)');
+        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
         if( ka.settings.system.systemtitle ){
-            document.title = ka.settings.system.systemtitle + ' | kryn.cms administstration';
+            document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
         }
-    }.bind(this)}).post();
+    }.bind(this)}).get();
 }
 
 ka.loadLanguage = function( pLang ){
@@ -1570,9 +1569,9 @@ ka.parse = new Class({
             document.id(obj).inject( pContainer );
             
             if( pDependField && field.needValue ){
-                pDependField.addEvent('check-depends', function(){    
+                pDependField.addEvent('check-depends', function(){
                     if( field.needValue == pDependField.getValue() ){
-                        obj.show();   
+                        obj.show();
                     } else {
                         obj.hide();
                     }
@@ -1583,26 +1582,40 @@ ka.parse = new Class({
                 var childContainer = new Element('div', {
                     'class': 'ka-fields-sub'
                 }).inject( document.id(obj) );
+                obj.childContainer = childContainer;
                 this.parseLevel( field.depends, childContainer, obj );
-                logger( id +' check-depends');
-                obj.fireEvent('check-depends');
             }
+            obj.fireEvent('check-depends');
             this.fields[ id ] = obj;
         
         }.bind(this));
     },
     
-    setValue: function( pValues ){
+    isOk: function(){
+    
+        var ok = true;
+        Object.each( this.fields, function(field){
+        
+            if( !field.isOk() ){
+                ok = false;
+            }
+        
+        });
+        
+        return ok;
+    },
+    
+    setValue: function( pValues, pInternal ){
     
         if( typeOf(pValues) == 'string' ){
             pValues = JSON.decode( pValues );
         }
-    
+        
         Object.each( this.fields, function(obj,id){
             if( id.indexOf('[') != -1 ){
-                obj.setArrayValue( pValues, id );
+                obj.setArrayValue( pValues, id, pInternal );
             } else {
-                obj.setValue( pValues?pValues[id]:null );
+                obj.setValue( pValues?pValues[id]:null, pInternal );
             }
         });
     },
@@ -1633,7 +1646,6 @@ ka.parse = new Class({
                         last = last[key];
                     }
                 });
-                logger(newRes);
                 res = Object.merge( res, newRes );
             } else {
                 res[id] = obj.getValue();

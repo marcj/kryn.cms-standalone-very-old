@@ -104,6 +104,14 @@
             "label": "SSL",
             "type": "checkbox"
         },
+        "novalidate-cert": {
+            "label": "No cert validation",
+            "type": "checkbox"
+        },
+        "tls": {
+            "label": "TLS",
+            "type": "checkbox"
+        },
         "default_group": {
             "label": "Group mapping",
             "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
@@ -113,7 +121,7 @@
                 {"label": "Group", "width": "65%"}
             ],
             "fields": {
-                "domain": {
+                "login": {
                     "type": "text"
                 },
                 "group": {
@@ -137,24 +145,49 @@
         "server": {
             "label": "Server",
             "type": "text"
+        },
+        "port": {
+            "label": "Port",
+            "type": "number",
+            "width": 50
+        },
+        "ssl": {
+            "label": "SSL",
+            "type": "checkbox"
+        },
+        "default_group": {
+            "label": "Group mapping",
+            "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
+            "type": "array",
+            "columns": [
+                {"label": "Login"},
+                {"label": "Group", "width": "65%"}
+            ],
+            "fields": {
+                "login": {
+                    "type": "text"
+                },
+                "group": {
+                    "type": "textlist",
+                    "multi": true,
+                    "store": "admin/backend/stores/groups"
+                }
+            }
         }
     },
     "auth_sql": {
-    
         "server": {
             "label": "Server",
             "type": "text"
         }
     },
     "auth_pam": {
-    
         "server": {
             "label": "Server",
             "type": "text"
         }
     },
     "auth_passwd": {
-    
         "server": {
             "label": "Server",
             "type": "text"
@@ -254,8 +287,8 @@
     }
   },
   "plugins": {
-    "pluginEmailLogin": [
-      "Login [via email]",
+    "pluginLogin": [
+      "Login",
       {
         "template": {
           "label": "Template",
@@ -270,11 +303,11 @@
           "directory": "inc\/template\/users\/loggedIn\/"
         },
         "target": {
-          "label": "Target page [login]",
+          "label": "Target page [after login]",
           "type": "page"
         },
         "logoutTarget": {
-          "label": "Target page [logout]",
+          "label": "Target page [after logout]",
           "type": "page"
         },
         "category_rsn": {
@@ -644,8 +677,8 @@
         "DB_INDEX",
         false
       ],
-      "auth": [
-        "auth",
+      "auth_class": [
+        "varchar",
         "16",
         "-",
         false

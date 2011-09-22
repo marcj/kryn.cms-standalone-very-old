@@ -938,6 +938,10 @@ class kryn extends baseModule {
         if( $cfg['sessiontime'] && !$cfg['session_timeout'] )
             $cfg['session_timeout'] = $cfg['sessiontime'];
         
+        if( !$cfg['session_tokenid'] ){
+            $cfg['session_tokenid'] = 'krynsessionid_ba';
+        }
+        
         if( !$cfg['auth_class'] )
             $cfg['auth_class'] = 'kryn';
         
@@ -987,26 +991,35 @@ class kryn extends baseModule {
     
     public function initAuth(){
         global $cfg, $user, $client, $adminClient;
-                     
-        if( true || $cfg['auth_class'] == 'kryn' ){
-            $client = new krynAuth( $cfg );
+                                 
+        if( !$cfg['auth_class'] || $cfg['auth_class'] == 'kryn' ){
+        
+            $adminClient = new krynAuth( $cfg );
+            
         } else {
             $ex = explode( '/', $cfg['auth_class'] );
             $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
             if( file_exists($class) ){
                 require_once( $class );
                 $authClass = $ex[1];
-                $user = new $authClass( $cfg );
+                $adminClient = new $authClass( $cfg );
+
             }
         }
-        $adminClient = $client;
+
+        $adminClient->start();
+        $client = $adminClient;
     
         if( getArgv(1) != 'admin' ){
+
             $sessionDefinition = kryn::$domain['session'];
+            $sessionDefinition['session_tokenid'] =
+                ($sessionDefinition['session_tokenid'])?$sessionDefinition['session_tokenid']:'krynsessionid';
+            
             if( !$sessionDefinition || $sessionDefinition['auth_class'] == 'kryn' ){
                 $client = new krynAuth( $sessionDefinition );
             } else {
-                $ex = explode( '/', $cfg['auth_class'] );
+                $ex = explode( '/', $sessionDefinition['auth_class'] );
                 $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
                 if( file_exists($class) ){
                     require_once( $class );
@@ -1014,6 +1027,8 @@ class kryn extends baseModule {
                     $client = new $authClass( $sessionDefinition );
                 }
             }
+            
+            $client->start();
         }
         
         //compatibility with older extension
@@ -1234,17 +1249,6 @@ class kryn extends baseModule {
         return $url;
     }
 
-    
-    /**
-     * 
-     * Banns a user via IP
-     * @todo implement
-     */
-    public static function bannUser(){
-        global $user;
-        //Todo
-    }
-
     /**
      * 
      * Reads all parameter out of the URL and insert them to $_REQUEST
@@ -1391,8 +1395,10 @@ class kryn extends baseModule {
     public static function getDomain( $pDomainRsn ){
      
         $domains = kryn::getPhPCache('domains');
+
         if( !$domains['r2d'] )
            $domains = adminPages::updateDomainCache();
+
         return $domains['r2d']['rsn='.$pDomainRsn];
     }
 
@@ -1496,12 +1502,17 @@ class kryn extends baseModule {
         if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
             $domain['publicproperties'] = @json_decode($domain['publicproperties'], true);
         }
+        
+        if( $domain['session'] && !is_array($domain['session']) ){
+            $domain['session'] = @json_decode($domain['session'], true);
+        }
     
         if( $domain['extproperties'] && !is_array($domain['extproperties']) ){
             $domain['extensionProperties'] = @json_decode($domain['extproperties'], true);
-            $domain['extproperties'] = &$domain['extensionProperties'];
         }
 
+        $domain['extproperties'] = &$domain['extensionProperties'];
+            
         #setCookie("lang", $language, time()+3600*24*300, "/"); # 300 Days
         if( getArgv(1) == 'admin' ){
             $domain['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );

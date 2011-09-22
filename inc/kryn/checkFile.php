@@ -26,4 +26,9 @@ if( $file && !is_dir($file) ){
     header('Location: '.$cfg['path'].$file);
     exit;
 }
+
+if( substr($pfile, 0, 6) != 'admin/' && strpos( $pfile, '.' ) ){
+	header( "HTTP/1.1 404 Not found" );
+    exit;
+}
 ?>

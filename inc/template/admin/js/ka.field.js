@@ -27,10 +27,8 @@ ka.field = new Class({
                 'class': 'ka-field-main'
             }).inject( document.hidden );
             
-            
-        
             if( this.field.panel_width )
-                this.main.setStyle('width', this.field.panel_width);
+                this.main.setStyle('width', this.field.panel_width);    
             
             if( pField.type == 'headline' ){
                 new Element('div', {
@@ -571,6 +569,8 @@ ka.field = new Class({
         
         this._setValue = function( pValue ){
         
+            if( typeOf(pValue) == 'string' ) pValue = JSON.decode( pValue );
+        
             if( _this.field.store ){
                 Array.each( pValue, function(item){
                     addTextlistItem( false, item );
@@ -580,7 +580,6 @@ ka.field = new Class({
                     addTextlistItem( item );
                 });
             }
-        
         }
         
         this.getValue = function(){
@@ -654,6 +653,8 @@ ka.field = new Class({
             tr.fields = {};
 
             Object.each(this.field.fields, function(field, field_key){
+                
+                if( !field.panel_width ) field.panel_width = '100%';
                 
                 var nField = new ka.field( field );
                 var td = new Element('td').inject( tr );
@@ -1243,7 +1244,12 @@ ka.field = new Class({
                 option.selected = false;
             });
             
-            if( pValue && _this.field['relation'] == 'n-n' ){
+            if( _this.field['relation'] == 'n-n' || multiple ){
+                if( typeOf(pValue) == 'string' ) pValue = JSON.decode( pValue );
+                if( typeOf(pValue) != 'array' ) pValue = []; 
+            }
+            
+            if( _this.field['relation'] == 'n-n' ){
                 pValue.each(function( _item ){
                    _this.input.getElements('option').each(function(option){
                         if( option.value == _item[_this.field['n-n'].middle_keyright] )
@@ -1257,7 +1263,7 @@ ka.field = new Class({
                     }.bind(this));
                 }.bind(this));
                 
-            } else if( $type(pValue) == 'array' && multiple && !sortable){
+            } else if( multiple && !sortable){
                 
                 this.input.getElements('option').each(function(option){
                     if( pValue.contains( option.value ) ){
@@ -1266,7 +1272,7 @@ ka.field = new Class({
                      option.set('selected', false);
                     }
                 }.bind(this));
-            } else if( $type(pValue) == 'array' && multiple ){
+            } else if( multiple ){
                  pValue.each(function(pItem) {
                    iSelOption = this.input.getElement('option[value="'+pItem+'"]');
                          if($defined(iSelOption) && $type(iSelOption) != 'null'){
@@ -1588,7 +1594,7 @@ ka.field = new Class({
         //Override this function to define a own setter
     },
 
-    //should no be used anymore
+    //should not be used anymore
     //use instead: this.fireEvent('change', this.getValue());
     onChange: function(){
         this.fireEvent('change', this.getValue());

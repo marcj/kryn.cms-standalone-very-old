@@ -17,6 +17,8 @@ class usersAdminList extends windowList {
     public $remove = true;
 
     public $primary = array('rsn');
+    
+    public $itemLayout = '<b id="username"></b> (<span id="first_name"></span> <span id="last_name"></span>)';
 
     public $columns = array(
         'last_name' => array(
