@@ -714,7 +714,7 @@ class adminPages {
         
         $domain['childs'] = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
         
-        $cachedUrls = kryn::readCache( 'urls' );
+        $cachedUrls =& cache::get( 'urls' );
         
         foreach( $domain['childs'] as &$page ){
             if( kryn::checkPageAcl( $page['rsn'], 'showPage' ) ){
@@ -734,6 +734,8 @@ class adminPages {
         
         $items = dbTableFetch('system_pages', DB_FETCH_ALL, "prsn = $pPageRsn ORDER BY sort");
 
+        $cachedUrls =& cache::get('urls');
+
         if( count($items) > 0 ){
             foreach( $items as &$item ){
                 
@@ -742,18 +744,13 @@ class adminPages {
                 } else {
                     unset( $item );
                 }
-    
             }
-            
             json($items);
             
         } else {
             json(array());
         }
-        
-        
 
-        
     
     	$pDomainRsn = $pDomainRsn+0;
     	
@@ -770,7 +767,7 @@ class adminPages {
         $domain = dbExfetch("SELECT d.rsn FROM %pfx%system_domains d WHERE d.rsn = $pDomainRsn", 1);
         kryn::$domain = $domain;
 
-        $cachedUrls = kryn::readCache( 'urls' );
+        $cachedUrls =& cache::get( 'urls' );
         $count = 1;
         $res = array('pages'=>array());
         $pages = array();
@@ -817,17 +814,19 @@ class adminPages {
         $targetId = $_REQUEST['torsn']+0;
         $mode = getArgv('mode', 1);
 
+        error_log( print_r($_POST,true) );
         //get page data
         $who = self::getPageByRsn( $whoId );
         $target = self::getPageByRsn( $targetId );
 
-        if( $targetId == 'domain' ){ //then move to domain
-            $target['domain_rsn'] = getArgv('domain_rsn');
+        if( getArgv('toDomain') == 1){
+            $target['domain_rsn'] = $targetId;
             $targetId = 0;
             $mode = 'into';
-            if( !kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd') ){
-                json('access-denied2');
-            }
+        }
+
+        if( !kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd') ){
+            json('access-denied');
         }
         
         $oldRealUrl  = kryn::pageUrl($whoId, $who['domain_rsn']);
@@ -870,7 +869,8 @@ class adminPages {
         }
 
         
-        
+        /*
+        todo need a sign from the user to do this
         $newRealUrl = kryn::pageUrl($whoId, $who['domain_rsn']);
         dbDelete('system_urlalias', 'domain_rsn = '.$who['domain_rsn']." AND url = '".$newRealUrl."'");
         
@@ -879,7 +879,7 @@ class adminPages {
          
             if( $existRow['rsn']+0 == 0 )
                 dbInsert('system_urlalias', array( 'domain_rsn' => $who['domain_rsn'], 'url' => $oldRealUrl, 'to_page_rsn' => $whoId));
-        }
+        }*/
         
 
         self::cleanSort( $target['domain_rsn'], 0 );
@@ -891,6 +891,33 @@ class adminPages {
             self::updateUrlCache( $who['domain_rsn'] );
             self::updateMenuCache( $who['domain_rsn'] );
         }
+        
+        /*
+        maybe a little bit useless lol
+        if( getArgv('withPagesToReload') ){
+        
+            if( $whoId['prsn'] == 0 ){
+                $pages2Reload[] = 'd'.$whoId['domain_rsn'];
+            } else {
+                $pages2Reload[] = $whoId['prsn'];
+            }
+            
+            if( getArgv('toDomain') ){
+                $pages2Reload[] = 'd'.$targetId;
+            }
+            
+            $menus =& cache::get('menus_'.$target['domain_rsn']);
+            
+            if( is_array($menus[$whoId]) ){
+                foreach( $menus[$whoId] as $page ){
+                    $pages2Reload[] = $page['rsn'];
+                    break;
+                }
+            }
+            
+            return $pages2Reload;
+
+        }*/
         
         return true;
     }
@@ -1651,7 +1678,7 @@ class adminPages {
         
         $domain = dbExfetch("SELECT d.rsn FROM %pfx%system_domains d, %pfx%system_pages p WHERE p.domain_rsn = d.rsn AND p.rsn = $pRsn");
         kryn::$domain = $domain;
-        $cachedUrls = kryn::readCache( 'urls' );
+        $cachedUrls =& cache::get( 'urls' );
         $res['realUrl'] = $cachedUrls['rsn']['rsn='.$pRsn];
         $res['contents'] = json_encode( $contents );
 
