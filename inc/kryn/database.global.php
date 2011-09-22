@@ -15,9 +15,7 @@
 /**
  * Global framework functions
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkDatabase
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 
@@ -70,6 +68,9 @@ function esc( $p, $pEscape = false ){
  */
 function dbExfetch( $pSql, $pRowCount = 1, $pMode = PDO::FETCH_ASSOC ){
     global $kdb, $cfg;
+    if( !$kdb ){
+        error_log("kdb is empty. sql: $pSql ,info: ".print_r($_REQUEST,true) );
+    }
     $pSql = str_replace( '%pfx%', $cfg['db_prefix'], $pSql );
     return $kdb->exfetch( $pSql, $pRowCount, $pMode );
 }
@@ -158,6 +159,8 @@ function dbInsert( $pTable, $pFields ){
             $val = $field;
         }
 
+        if( !$options[$fieldName] ) continue;
+
         $sqlFields .= "$fieldName,";
 
         if( $options[$fieldName]['escape'] == 'int' ){
@@ -212,6 +215,8 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
     if( is_array($pPrimary) ){
         $where = ' ';
         foreach( $pPrimary as $fieldName => $fieldValue) {
+            if( !$options[$fieldName] ) continue;
+            
             $where .= '' . $fieldName . ' ';
             if( $options[$fieldName]['escape'] == 'int' ){
                 $where .= ' = ' . ($fieldValue+0) . " AND ";
@@ -219,21 +224,14 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
                 $where .= " = '" . esc($fieldValue) . "' AND ";
             }
         }
-
-        /*foreach( $options['_primary'] as $key => $primary ){
-            $where = '' . $key . ' = ';
-            if( $primary[0] == 'int' )
-                $where .= $pPrimary[$key] . ' AND ';
-            else
-                $where .= "'" . $pPrimary[$key] . "' AND ";
-        }*/
+        
         $where = substr( $where, 0, -4 );
     } else {
         $where = $pPrimary;
     }
 
-    foreach( $pFields as $key => $field ){
-
+    foreach( $pFields as $key => $field ){    
+            
         if( is_numeric($key) ){
             $fieldName = $field;
             $val = getArgv( $field );
@@ -241,6 +239,8 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
             $fieldName = $key;
             $val = $field;
         }
+        
+        if( !$options[$fieldName] ) continue;
 
         $sqlInsert .= "$fieldName";
 
@@ -252,7 +252,6 @@ function dbUpdate( $pTable, $pPrimary, $pFields ){
     }
 
     $sqlInsert = substr( $sqlInsert, 0, -1 );
-    
     
     $sql .= " $sqlInsert WHERE $where ";
     return dbExec( $sql );

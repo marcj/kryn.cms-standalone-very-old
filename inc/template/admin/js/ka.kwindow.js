@@ -20,7 +20,7 @@ ka.kwindow = new Class({
         this.loadContent();
 
         this.addHotkey('esc', false, false, function(){
-            this.close( true );
+            this.close();
         }.bind(this));
     },
 
@@ -628,10 +628,14 @@ ka.kwindow = new Class({
         }
     },
 
-    close: function( pIntern ){
+    close: function(){
+    
         if( this.isActive() == false ) return;
-        var _this = this;
 
+        ka.wm.close( this );
+
+        this.fireEvent('close');
+        
         //save dimension
         if( this.border ){ //war schon richtig auf 
 
@@ -640,30 +644,19 @@ ka.kwindow = new Class({
             } else {
                 this.saveDimension();
             }
-
-            //close fx
-            this.border.set('tween', {onComplete: function(){
-                _this.border.destroy();
-            }}),
-            //this.border.set('tween', {duration: 200});
-            //this.border.tween('opacity', 0 );
+    
+            this.border.getElements('a.kwindow-win-buttonWrapper').each(function(button){
+                if(button.toolTip && button.toolTip.main )
+                    button.toolTip.main.destroy();
+            });
+        
             this.border.destroy();
         }
 
         this.inFront = false;
+
         if( this.onClose )
             this.onClose();
-        
-        if( pIntern )
-            this.fireEvent('close');
-    
-        this.border.getElements('a.kwindow-win-buttonWrapper').each(function(button){
-            if(button.toolTip)
-                button.toolTip.main.destroy();
-        });
-        
-
-        ka.wm.close( this );
     },
 
     loadContent: function( pVals ){
@@ -672,28 +665,35 @@ ka.kwindow = new Class({
             this._loadContent( pVals );
         } else {
             var _this = this;
-            this._ = new Request.JSON({url: _path+'admin/backend/window/getInfo', onComplete: function(res){
-                if(res.noAccess == 1 ){
+//            this._ = new Request.JSON({url: _path+'admin/backend/window/getInfo', onComplete: function(res){
+
+            var module = this.module+'/';
+            if( this.module == 'admin' )
+                module = '';
+                
+            this._ = new Request.JSON({url: _path+'admin/'+module+this.code+'?cmd=getInfo', onComplete: function(res){
+
+                if(res.error == 'access_denied' ){
                     alert( _('Access denied') );
-                    _this.close( true );
+                    _this.close();
                     return;
                 }
-                if( res.pathNotFound ){
+                if( !res ){
                     alert( _('Admin-Path not found')+ ': '+_this.module+' => '+_this.code );
-                    _this.close( true );
+                    _this.close();
                     return;
                 }
-                this._loadContent( res.values, res.path );
-            }.bind(this)}).post({ module: _this.module, code: _this.code });
+                this._loadContent( res, res._path );
+            }.bind(this)}).post();
         }
     },
 
-    _loadContent: function( pVals,pPath ){
+    _loadContent: function( pVals, pPath ){
         this.values = pVals;
         if( this.values.multi === false ){
             var win = ka.wm.checkOpen( this.module, this.code, this.id );
             if( win ){
-                this.close( true );
+                this.close();
                 if( win.softOpen ) win.softOpen( this.params );
                 win.toFront();
                 return;
@@ -834,6 +834,7 @@ ka.kwindow = new Class({
         
         var mdate = this.values.cssmdate;
         
+
         if( this.module == 'admin' ){
             new Asset.css( _path+'inc/template/admin/css/'+javascript+'.css?mdate='+mdate );
         } else {
@@ -841,20 +842,17 @@ ka.kwindow = new Class({
         }
         
         var id = parseInt(Math.random()*100)+parseInt(Math.random()*100);
-        new Asset.javascript( _path+'admin/backend/window/custom/js/module:'+this.module+'/code:'+javascript+'/onLoad:'+id);
+        
         window['contentCantLoaded_'+id] = function( pFile ){
             _this._alert('custom javascript file not found: '+pFile, function(){
-                _this.close( true );
+                _this.close();
             });
         }
         window['contentLoaded_'+id] = function(){
-//            _this.custom = eval( 'new '+_this.module+'_'+javascript+'(_this);' );
             _this.custom = new window[ _this.module+'_'+javascript ]( _this );
         }
         
-        /*new Request({url: _path+'admin/window/custom/js', noCache: true, evalResponse: true, onComplete: function(){
-            _this.custom = eval( 'new '+_this.module+'_'+_this.code+'(_this);' );
-        }}).get({ module: this.module, code: this.code  });*/
+        new Asset.javascript( _path+'admin/backend/loadCustomJs/module:'+this.module+'/code:'+javascript+'/onLoad:'+id);
     },
     
     createWin: function(){
@@ -1104,7 +1102,7 @@ ka.kwindow = new Class({
             'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
         })
         .addEvent('click',function(){
-            _this.close( true );
+            _this.close();
         })
         .inject( this.titleBar );
 

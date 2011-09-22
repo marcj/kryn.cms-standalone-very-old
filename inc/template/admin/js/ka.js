@@ -9,6 +9,10 @@ ka.streamParams = {};
 ka.uploads = {};
 ka._links = {};
 
+/*Request.JSON = new Class({
+    Extends: Request.JSON
+});*/
+
 /*
  * Build the administration interface
 */
@@ -17,7 +21,6 @@ ka.init = function(){
     ka.buildUploadMenu();
 
 
-    logger('ka-init');
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
     
@@ -132,11 +135,11 @@ ka.loadSettings = function(){
         ka.settings.set('user', $H(ka.settings.user));
         ka.settings.get('user').set('windows', $H(ka.settings.get('user').get('windows')));
         
-        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')'); //admin/images/userBgs/'+pId.user_rsn+'.jpg)');
+        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
         if( ka.settings.system.systemtitle ){
-            document.title = ka.settings.system.systemtitle + ' | kryn.cms administstration';
+            document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
         }
-    }.bind(this)}).post();
+    }.bind(this)}).get();
 }
 
 ka.loadLanguage = function( pLang ){
@@ -415,12 +418,12 @@ ka.loadStream = function(){
 	    if( window._session.user_rsn > 0 ){
 	        new Request.JSON({url: _path+'admin/backend/stream', noCache: 1, onComplete: function(res){
 	            if( res ){
-    	        	ka.streamParams.last = res.last;
-    	        	window.fireEvent('stream', res);
-    	            if( res ){
-    	                $('serverTime').set('html', res.time);
-    	            } else {
+                    if( res.error == 'access_denied' ){
     	                ka.ai.logout( true );
+                    } else {
+        	        	ka.streamParams.last = res.last;
+        	        	window.fireEvent('stream', res);
+        	            $('serverTime').set('html', res.time);
     	            }
 	            }
 	            ka._lastStreamid = ka.loadStream.delay(5*1000);
@@ -436,7 +439,7 @@ ka.startSearchCrawlerInfo = function( pHtml ){
         'class': 'ka-updates-menu',
         style: 'left: 170px; width: 177px;'
     }).inject( $('border') );
-	
+
 	this.startSearchCrawlerInfoMenuHtml = new Element('div', {
 	    html: pHtml
 	}).inject( this.startSearchCrawlerInfoMenu );
@@ -927,7 +930,6 @@ ka.renderAdminLink = function(){
 	
 	var windowSize = window.getSize().x;
 	if( windowSize < 770 ){
-		logger('show blocker');
 		if( !ka.toSmallWindowBlocker ){
 			ka.toSmallWindowBlocker = new Element('div', {
 				'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
@@ -940,7 +942,6 @@ ka.renderAdminLink = function(){
 			}).inject(tr);
 		}
 	} else if( ka.toSmallWindowBlocker ){
-		logger('destroy: '+ka.toSmallWindowBlocker);
 		ka.toSmallWindowBlocker.destroy();
 		ka.toSmallWindowBlocker = null;
 	}
@@ -1550,6 +1551,115 @@ ka._openLinkContext = function( pLink ){
 	
 }
 
+ka.parse = new Class({
+
+    fields: {},
+
+    initialize: function( pContainer, pDefinition ){
+    
+        this.main = new Element('div', {
+            'class': 'ka-fields-main'
+        }).inject( pContainer );
+        this.parseLevel( pDefinition, this.main );
+    },
+    
+    toElement: function(){
+        return this.main;
+    },
+    
+    parseLevel: function( pLevel, pContainer, pDependField ){
+        Object.each( pLevel, function(field,id){
+            
+            var obj = new ka.field( field );
+            document.id(obj).inject( pContainer );
+            
+            if( pDependField && field.needValue ){
+                pDependField.addEvent('check-depends', function(){
+                    if( field.needValue == pDependField.getValue() ){
+                        obj.show();
+                    } else {
+                        obj.hide();
+                    }
+                }.bind(this));
+            }
+            
+            if( field.depends ){
+                var childContainer = new Element('div', {
+                    'class': 'ka-fields-sub'
+                }).inject( document.id(obj) );
+                obj.childContainer = childContainer;
+                this.parseLevel( field.depends, childContainer, obj );
+            }
+            obj.fireEvent('check-depends');
+            this.fields[ id ] = obj;
+        
+        }.bind(this));
+    },
+    
+    isOk: function(){
+    
+        var ok = true;
+        Object.each( this.fields, function(field){
+        
+            if( !field.isOk() ){
+                ok = false;
+            }
+        
+        });
+        
+        return ok;
+    },
+    
+    setValue: function( pValues, pInternal ){
+    
+        if( typeOf(pValues) == 'string' ){
+            pValues = JSON.decode( pValues );
+        }
+        
+        Object.each( this.fields, function(obj,id){
+            if( id.indexOf('[') != -1 ){
+                obj.setArrayValue( pValues, id, pInternal );
+            } else {
+                obj.setValue( pValues?pValues[id]:null, pInternal );
+            }
+        });
+    },
+    
+    getFields: function(){
+        return this.fields;
+    },
+    
+    getValue: function(){
+    
+        var res = {};
+        
+        Object.each( this.fields, function(obj,id){
+            if( id.indexOf('[') != -1 ){
+                //todo bug is here, doesnt work
+                var items = id.split('[');
+                var key = '';
+                var last = {};
+                var newRes = last;
+                
+                items.each(function(item, pos){
+                    key = item.replace(']', '');
+
+                    if( pos == items.length-1 ){
+                        last[key] = obj.getValue();
+                    } else {
+                        last[key] = {};
+                        last = last[key];
+                    }
+                });
+                res = Object.merge( res, newRes );
+            } else {
+                res[id] = obj.getValue();
+            }
+        });
+        
+        return res;
+    }
+});
 
 
 

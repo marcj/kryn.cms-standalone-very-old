@@ -12,22 +12,38 @@
 
 
 /**
- * tpl class
+ * Html class
  * 
- * @internal
- * @package Kryn
- * @subpackage Core
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 
-class tpl {
+class krynHtml {
+
+    public static $docType = 'html 4.01 transitional';
+
+
+    public static $docTypeMap = array(
+    
+        'html 4.01 transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',    
+        'html 4.01 strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+        'html 4.01 frameset' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
+        
+        'xhtml 1.0 transitional' => 
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+        'xhtml 1.0 strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+        'xhtml 1.0 frameset' => 
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
+        'xhtml 1.1 dtd' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
+        
+        'html5' => '<!DOCTYPE html>'
+    );
 
     public static function plugin( $pMethod ){
         
         switch( $pMethod ){
         case 'head':
-            return tpl::buildHead();
+            return self::buildHead();
         }
 
     }
@@ -36,18 +52,11 @@ class tpl {
     public static function buildPage( $pContent ){
         global $kryn, $cfg;
 
-        $doctypeXhtml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de" dir="ltr">';
 
-        switch( $kryn->doctype ){
-        case 'xhtml':
-        default:
-            $doctypeHead = $doctypeXhtml;
-        }
+        $res = self::$docTypeMap[ strtolower(self::$docType) ];
 
-        $res = $doctypeHead.'<head>'.$kryn->htmlHeadTop;
-        $res .= tpl::buildHead(true);
+        $res .= "\n<head>".$kryn->htmlHeadTop;
+        $res .= self::buildHead(true);
 
         $res .= $kryn->htmlHeadEnd.'</head><body>'.$kryn->htmlBodyTop.$pContent."\n\n".$kryn->htmlBodyEnd.'</body></html>';
 
@@ -57,7 +66,7 @@ class tpl {
     public static function buildHead( $pContinue = false ){
         global $kryn, $cfg;
 
-        $tagEnd = ($kryn->doctype=='xhtml')?' />':' >';
+        $tagEnd = (strpos(strtolower($kryn->doctype), 'xhtml')!==false)?' />':' >';
 
         if( $pContinue == false && $kryn->admin == false ){
             return '{$kryn.header}';
@@ -192,7 +201,7 @@ class tpl {
             foreach( $myJsFiles as $js ){
                 $file = 'inc/template/'.$js;
                 if( $mtime = @filemtime($file) ){
-                    $jsCode .= $mtime;
+                    $jsCode .= $file.'_'.$mtime;
                 }
                 if( strpos( $js, "http://" ) !== FALSE ){
                     $html .= '<script type="text/javascript" src="'.$js.'" ></script>'."\n";

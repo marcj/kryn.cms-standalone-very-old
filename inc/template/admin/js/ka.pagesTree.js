@@ -981,8 +981,8 @@ ka.pagesTree = new Class({
 
         var wsize = window.getSize();
         
-        var left = pEvent.page.x - (this.container.getPosition(window).x);
-        var mtop = pEvent.page.y - (this.container.getPosition(window).y);
+        var left = pEvent.page.x - (this.container.getPosition(document.body).x);
+        var mtop = pEvent.page.y - (this.container.getPosition(document.body).y);
         var left = pEvent.page.x;
         var mtop = pEvent.page.y;
         if( mtop < 0 )
@@ -1187,6 +1187,8 @@ ka.pagesTree = new Class({
             if( !this.options.noDrag ){
 
                 title.addEvent( 'mousedown', function(e){
+                	
+                	if( e.rightClick ) return;
                 	
                     if( !pDomain && !ka.checkPageAccess( pPage.rsn, 'movePages' ) ){
                     	return;

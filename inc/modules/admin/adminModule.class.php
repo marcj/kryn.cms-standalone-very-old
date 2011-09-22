@@ -417,9 +417,9 @@ class adminModule {
 
         $classes = glob('inc/modules/'.$mod.'/*.class.php');
         if( count($classes) > 0 ){
-            require_once('inc/kryn/windowEdit.class.php');
-            require_once('inc/kryn/windowAdd.class.php');
-            require_once('inc/kryn/windowList.class.php');
+            require_once('inc/modules/admin/adminWindowEdit.class.php');
+            require_once('inc/modules/admin/adminWindowAdd.class.php');
+            require_once('inc/modules/admin/adminWindowList.class.php');
             foreach( $classes as $class ){
                //todo extract $fields usw 
                 $classPlain = kryn::fileRead( $class );

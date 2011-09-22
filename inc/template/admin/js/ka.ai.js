@@ -334,12 +334,6 @@ ka.ai.logout = function( pScreenlocker ){
         new Request({url: _path+'admin/user:logout'}).post();
     }
     
-    /*Cookie.dispose('krynsessionid', {path: '/admin/'});
-    Cookie.dispose('krynsessionid', {path: '/admin'});
-    Cookie.dispose('krynsessionid', {path: '/'});
-    Cookie.dispose('krynsessionid');
-    */
-    
     if( ka.ai.loader )
         ka.ai.loader.destroy();
 
@@ -358,12 +352,6 @@ ka.ai.loginSuccess = function(pId, pAlready){
     
     if( pAlready && window._session.hasBackendAccess == '0' )
         return;
-    
-    Cookie.dispose('krynsessionid', {path: '/admin/'});
-    Cookie.dispose('krynsessionid', {path: '/admin'});
-    Cookie.dispose('krynsessionid', {path: '/'});
-    Cookie.dispose('krynsessionid');
-    Cookie.write('krynsessionid', pId.sessionid, {duration: 365, path: '/'} );
 
     ka.ai.loginName.value = pId.username;
     

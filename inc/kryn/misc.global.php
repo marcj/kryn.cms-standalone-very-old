@@ -16,9 +16,7 @@
  * Global misc functions
  * 
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkMisc
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 

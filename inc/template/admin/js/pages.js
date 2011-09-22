@@ -594,6 +594,7 @@ var admin_pages = new Class({
         this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton( _('Domain'), p+'icons/world.png', this.viewType.bind(this,'domain'));
         this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton( _('Theme'), p+'icons/layout.png', this.viewType.bind(this,'domainTheme'));
         this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton( _('Properties'), p+'icons/layout.png', this.viewType.bind(this,'domainProperties'));
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/group.png', this.viewType.bind(this,'domainSessions') );
         this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton( _('Settings'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'domainSettings') );
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
@@ -895,6 +896,7 @@ var admin_pages = new Class({
 
         this.generalFields.each(function(field){
         	field.show();
+        	field.fireEvent('check-depends');
         })
         
         this.viewButtons.each(function(field){
@@ -1185,6 +1187,7 @@ var admin_pages = new Class({
             
             this.domainFields.each(function(item, key){
             	item.show();
+                item.fireEvent('check-depends');
             });
             
             this.viewButtons.each(function(field){
@@ -1260,6 +1263,17 @@ var admin_pages = new Class({
             this.viewType( 'domain' );
             
             this.changeType();
+
+
+            this.currentDomain.session = JSON.decode(this.currentDomain.session);
+            this.domainSessionFields.setValue( this.currentDomain.session );
+            
+
+            if( this.currentDomain.session.auth_class ){
+                if( this.auth_params_objects[this.currentDomain.session.auth_class] ){
+                    this.auth_params_objects[this.currentDomain.session.auth_class].setValue( this.currentDomain.session.auth_params );
+                }
+            }
             
             this.showDomainMaster( pDomain.rsn );
             
@@ -1391,6 +1405,17 @@ var admin_pages = new Class({
         req.layouts = JSON.encode( this.domainFields['layouts'].getValue() );
         req.publicproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
 
+        req.session = this.domainSessionFields.getValue();
+        
+        var obj = this.auth_params_objects[ req.session.auth_class ];
+        
+        if( !obj.isOk() ){
+            
+            this.saveDomainBtn.stopTip( _('Failed - Check values') );
+            return;
+        }
+        
+        req.session['auth_params'] = obj.getValue();
 
         //properties
         var properties = {};
@@ -1511,6 +1536,126 @@ var admin_pages = new Class({
         }.bind(this));
 
         this.panes['domainTheme'] = p;
+        
+
+        
+        
+        
+        
+        
+        
+        /* Sessions */
+
+        var p = new Element('div', {
+            'class': 'admin-pages-pane'
+        }).inject( this.main );
+        
+        var fields = {
+            'session_storage': {
+                label: _('Session storage'),
+                type: 'select',
+                table_items: {
+                    'database': _('SQL Database'),
+                    'memcached': _('Memcached')
+                },
+                'depends': {
+                    'session_storage_memcached_servers': {
+                        needValue: 'memcached',
+                        'label': 'Memcached servers',
+                        'type': 'array',
+                        'width': 310,
+                        'columns': [
+                            {'label': _('IP')},
+                            {'label': _('Port'), width: 50}
+                        ],
+                        'fields': {
+                            ip: {
+                                type: 'text',
+                                width: '95%',
+                                empty: false
+                            },
+                            port: {
+                                type: 'number',
+                                width: 50,
+                                'default': 11211,
+                                empty: false
+                            }
+                        }
+                    }
+                }
+            },
+            'session_timeout': {
+                label: _('Session timeout'),
+                type: 'text',
+                'default': '3600'
+            },
+
+            'session_auto_garbage_collector': {
+                label: _('Automatic session garbage collector'),
+                desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
+                help: 'session_garbage_collector',
+                type: 'checkbox',
+                'default': '0'
+            },
+
+            'auth_class': {
+                'label': _('Backend authentification'),
+                'desc': _('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
+                'type': 'select',
+                'table_items': {
+                    'kryn': _('Kryn.cms users')
+                },
+                depends: {}
+            }
+        };
+        
+        this.auth_params = {};
+        this.auth_params_panes = {};
+
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each( config.auth, function(auth_fields,auth_class){
+                    Object.each( auth_fields, function( field, field_id){
+                        //field.needValue = id+'/'+auth_class;
+                        //fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
+                        fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
+                    }.bind(this));
+                }.bind(this));
+            }
+        }.bind(this));
+        
+        this.domainSessionFields = new ka.parse( p, fields );
+        
+        this.auth_params_objects = {};
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each(config.auth, function(auth_fields,auth_class){
+                
+                    this.auth_params_panes[id+'/'+auth_class] = new Element('div', {
+                        'style': 'display: none;'
+                    }).inject( this.domainSessionFields.fields['auth_class'].childContainer );
+                    
+                    this.auth_params_objects[ id+'/'+auth_class ] = new ka.parse( this.auth_params_panes[id+'/'+auth_class], auth_fields );
+                }.bind(this));
+            }
+        }.bind(this));
+        
+        this.domainSessionFields.fields['auth_class'].addEvent('check-depends', function(){
+            Object.each(this.auth_params_panes, function(pane){
+                pane.setStyle('display', 'none');
+            }.bind(this));
+            var pane = this.auth_params_panes[ this.domainSessionFields.fields['auth_class'].getValue() ];
+            
+            if( pane )
+                pane.setStyle('display', 'block');
+        }.bind(this));
+        
+        this.domainSessionFields.fields['auth_class'].fireEvent('check-depends');
+        
+        this.panes['domainSessions'] = p;
+        
+        
+        
   
         /* Domain-Settings */
 
@@ -1540,13 +1685,7 @@ var admin_pages = new Class({
 
         this.domainFields['resourcecompression'] = new ka.field(
             {label: _('Css and JS compression'), desc: _('Merge all css files in one, same with javascript files. This improve the page render time'), type: 'checkbox'}
-        ).inject( p );
-        
-        this.domainFields['langSync'] = new ka.field(
-        {label: _('Synchronize with'), type: 'select', desc: _(''),
-            table_label: 'label', table_key: 'id', multiple: true,
-            tableItems: tableItems
-        }).inject( p );
+        ).inject( p );        
 
         this.domainFields['page404_rsn'] = new ka.field(
             {label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}
@@ -1789,8 +1928,8 @@ var admin_pages = new Class({
         
         this.generalFields['access_from_groups'] = new ka.field(
             {label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
-            type: 'select', size: 5, multiple: true,
-            tableItems: ka.settings.groups, table_label: 'name', table_key: 'rsn'
+            type: 'textlist', panel_width: 320,
+            store: 'admin/backend/stores/groups'
             }
         ).inject( p );
         
@@ -1806,7 +1945,7 @@ var admin_pages = new Class({
         this.generalFields['access_need_via'] = new ka.field(
             {label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
             tableItems: [
-                {rsn: 0, name: 'Kryn-Session'},
+                {rsn: 0, name: 'Kryn.cms-Session'},
                 {rsn: 1, name: 'Htaccess'}
             ], table_label: 'name', table_key: 'rsn'
             }

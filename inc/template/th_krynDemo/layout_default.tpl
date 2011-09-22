@@ -1,6 +1,4 @@
-
 {addCss file="th_krynDemo/base.css"}
-
 
 <div class="header">
     <div class="wrapper">
@@ -37,6 +35,7 @@
                 <td valign="top">
                     <div class="content-main">
                         <div class="content-main-padding">
+                            {navigation id="history" template="th_krynDemo/navigation_breadcrumb.tpl"}
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>
                     </div>

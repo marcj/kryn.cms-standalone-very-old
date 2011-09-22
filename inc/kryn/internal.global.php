@@ -16,15 +16,18 @@
 /**
  * Internal functions
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage Core
+ * @author MArc Schmidt <marc@kryn.org>
  * @internal
  */
 
 $errorHandlerInside = false;
 
 
+
+function kryn_shutdown(){
+    global $user;
+    $user->syncStore();
+}
 
 
 
@@ -43,7 +46,8 @@ if (get_magic_quotes_gpc()) {
 
 
 function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
-    global $errorHandlerInside, $user, $cfg, $kryn;
+    global $errorHandlerInside, $user, $cfg, $kryn, $client;
+
     if( $errorHandlerInside ) return;
     
     $errorHandlerInside = true;
@@ -74,7 +78,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     
     if(! database::isActive() ) return;
     
-    $sid = $user->user['sessionid'];
+    $sid = esc($client->token);
     $ip = $_SERVER['REMOTE_ADDR'];
     $username = $user->user['username'];
     $pCode = preg_replace('/\W/', '-', $pCode);

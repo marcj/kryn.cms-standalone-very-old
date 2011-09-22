@@ -3,7 +3,7 @@ class adminSearchIndexer {
 
     public static function init() {
         
-        require_once('inc/kryn/systemSearch.class.php');  
+        require_once('inc/kryn/krynSearch.class.php');  
         
         switch(getArgv(4)) {
             
@@ -21,36 +21,36 @@ class adminSearchIndexer {
                 
             
             case 'clearIndex' : 
-                json(systemSearch::clearSearchIndex());
+                json(krynSearch::clearSearchIndex());
             break;
             
             case 'getNewUnindexedPages':
                 json(self::getNewUnindexedPages());
             
             case 'getSearchIndexOverview' :
-                json(systemSearch::getSearchIndexOverview(getArgv('page_rsn')+0));    
+                json(krynSearch::getSearchIndexOverview(getArgv('page_rsn')+0));    
 				break; 
             /*    
             case 'getFullSiteIndexUrls' :
-               //systemSearch::initSearchFromBackend($_REQUEST['domain_rsn']+0);     
-                json(systemSearch::getFullSiteIndexUrls($_REQUEST['domain_rsn']+0));
+               //krynSearch::initSearchFromBackend($_REQUEST['domain_rsn']+0);     
+                json(krynSearch::getFullSiteIndexUrls($_REQUEST['domain_rsn']+0));
             break;
             
             case 'getUnindexSitePercent' :
-                //systemSearch::initSearchFromBackend($_REQUEST['domain_rsn']+0);     
-                json(systemSearch::getUnindexSitePercent($_REQUEST['domain_rsn']+0));
+                //krynSearch::initSearchFromBackend($_REQUEST['domain_rsn']+0);     
+                json(krynSearch::getUnindexSitePercent($_REQUEST['domain_rsn']+0));
             break;    
                 
             
             
             case 'getWaitlist' :
-            		json(systemSearch::getWaitlist());
+            		json(krynSearch::getWaitlist());
             break;
             case 'getUpdatelist':
-            	json(systemSearch::getUpdatelist());
+            	json(krynSearch::getUpdatelist());
             break;
             case 'pushPageTree':
-            	json(systemSearch::pushPageTree());
+            	json(krynSearch::pushPageTree());
             break;
             
             
@@ -59,7 +59,7 @@ class adminSearchIndexer {
             
             
             case 'hasPermissionCheck':
-            	json(array('hasPermission' => systemSearch::checkAutoCrawlPermission()));
+            	json(array('hasPermission' => krynSearch::checkAutoCrawlPermission()));
             break;
             */	  
             default:
@@ -110,7 +110,7 @@ class adminSearchIndexer {
             }
             
             $row['url'] = $urls['rsn']['rsn='.$row['rsn']];
-            systemSearch::disposePageForIndex('/'.$row['url'], $row['title'], $row['domain_rsn'], $row['rsn']);
+            krynSearch::disposePageForIndex('/'.$row['url'], $row['title'], $row['domain_rsn'], $row['rsn']);
             
         }
         
@@ -121,7 +121,7 @@ class adminSearchIndexer {
         $res['access'] = self::hasPermission();
         if( $res['access'] == false ) return $res;
         
-        $blacklistTimeout = time() - systemSearch::$blacklistTimeout;
+        $blacklistTimeout = time() - krynSearch::$blacklistTimeout;
         
         $res['pages'] = dbExfetch('
         	SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
@@ -134,8 +134,8 @@ class adminSearchIndexer {
         $res['access'] = self::hasPermission();
         if( $res['access'] == false ) return $res;
         
-        $blacklistTimeout = time() - systemSearch::$blacklistTimeout;
-        $nextCheckTimeout = time() - systemSearch::$minWaitTimeTillNextCrawl;
+        $blacklistTimeout = time() - krynSearch::$blacklistTimeout;
+        $nextCheckTimeout = time() - krynSearch::$minWaitTimeTillNextCrawl;
         
         $res['pages'] = dbExfetch('
         	SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
