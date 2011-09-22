@@ -62,17 +62,6 @@ class kryn extends baseModule {
      */
     public $cssFiles = array('css/kryn_defaults.css');
     
-    
-    /**
-     * 
-     * Defines which doctype Kryn should send.
-     * Use kryn::setDoctype( $pDoctype ) to change this.
-     * @var string
-     * @internal
-     */
-    public $doctype = 'xhtml';
-
-    
     /**
      * 
      * Contains all translations as key -> value pair. 
@@ -464,8 +453,8 @@ class kryn extends baseModule {
      * 'xhtml 1.0 strict', 'xhtml 1.0 transitional', 'xhtml 1.0 frameset',
      * 'xhtml 1.1 dtd', 'html5'
      * 
-     * If you want to add a own doctype, you have the extend the static var:
-     *  krynHtml::$docTypeMap = array(array('<id>' => '<fullDocType>'));
+     * If you want to add a own doctype, you have to extend the static var:
+     *   krynHtml::$docTypeMap = array(array('<id>' => '<fullDocType>'));
      *
      * The default is 'html 4.01 transitional'
      *
