@@ -1,6 +1,4 @@
-
 {addCss file="th_krynDemo/base.css"}
-
 
 <div class="header">
     <div class="wrapper">

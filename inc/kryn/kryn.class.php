@@ -455,6 +455,35 @@ class kryn extends baseModule {
         if( array_search( $pHeader, $kryn->header ) === false )
             $kryn->header[] = $pHeader;
     }
+    
+    /**
+     * Sets the doctype in the krynHtml class
+     *
+     * Possible doctypes are:
+     * 'html 4.01 strict', 'html 4.01 transitional', 'html 4.01 frameset',
+     * 'xhtml 1.0 strict', 'xhtml 1.0 transitional', 'xhtml 1.0 frameset',
+     * 'xhtml 1.1 dtd', 'html5'
+     * 
+     * If you want to add a own doctype, you have the extend the static var:
+     *  krynHtml::$docTypeMap = array(array('<id>' => '<fullDocType>'));
+     *
+     * The default is 'html 4.01 transitional'
+     *
+     * Can also be called through the smarty function {setDocType value='html 4.01 strict'}
+     *
+     * @param string $pDocType
+     */
+    public static function setDocType( $pDocType ){
+        krynHtml::$docType = $pDocType;
+    }
+    
+    /**
+    * Returns the current defined doctype
+    * @return string Doctype
+    */
+    public static function getDocType( ){
+        return krynHtml::$docType;
+    }
 
     /**
      * 
