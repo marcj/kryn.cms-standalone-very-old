@@ -27,7 +27,7 @@ if( $file && !is_dir($file) ){
     exit;
 }
 
-if( substr($pfile, 0, 6) != 'admin/' && strpos( $pfile, '.' ) ){
+if( substr($pfile, 0, 6) != 'admin/' && strpos($pfile, '=') === false && strpos( $pfile, '.' ) !== false ){
 	header( "HTTP/1.1 404 Not found" );
     exit;
 }
