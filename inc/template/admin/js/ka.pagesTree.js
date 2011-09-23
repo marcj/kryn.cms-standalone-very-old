@@ -32,18 +32,54 @@ ka.pagesTree = new Class({
             'class': 'ka-pageTree-top-dummy'
         }).inject( this.main );
         
+        this.panePagesTable = new Element('table', {
+        	style: 'width: 100%',
+        	cellpadding: 0,
+        	cellspacing: 0
+        }).inject( this.main );
+        
+        this.container.addEvent('scroll', this.setDomainPosition.bind(this));
+        
+        this.panePagesTBody = new Element('tbody').inject( this.panePagesTable );
+        this.panePagesTr = new Element('tr').inject( this.panePagesTBody );
+        this.panePagesTd = new Element('td').inject( this.panePagesTr );
+
+        this.panePages = new Element('div', {
+            'class': 'ka-pageTree-pages'
+        }).inject( this.panePagesTd );
+        
         this.paneDomain = new Element('div', {
             'class': 'ka-pageTree-domain'
         }).inject( this.main );
         
-        this.panePages = new Element('div', {
-            'class': 'ka-pageTree-pages'
-        }).inject( this.main );
+        this.paneDomain.set('morph', {duration: 200});
         
         this.loadFirstLevel();
         
         this.main.addEvent('click', this.onClick.bind(this));
         this.main.addEvent('mousedown', this.onMousedown.bind(this));
+    },
+    
+    setDomainPosition: function(){
+    
+        var size = this.container.getSize();
+        var nLeft = this.container.scrollLeft;
+        var nWidth = size.x;
+        var nTop = 0;
+    
+        var panePos = this.panePagesTable.getPosition(this.container).y;
+        if( panePos-20 < 0 ){
+            nTop = (panePos-20)*-1;
+            var maxTop = this.panePages.getSize().y-20;
+            if( nTop > maxTop ) nTop = maxTop;
+        }
+    
+        this.paneDomain.morph({
+            'width': nWidth,
+            'left': nLeft,
+            'top': nTop
+        });
+    
     },
     
     loadFirstLevel: function(){
@@ -128,7 +164,6 @@ ka.pagesTree = new Class({
 
             this.lastSelectedItem = a;
             this.lastSelectedPage = item;
-
         }
     
     },
@@ -139,6 +174,8 @@ ka.pagesTree = new Class({
             'class': 'ka-pageTree-item',
             title: 'ID='+pItem.rsn
         }).inject( pContainer );
+
+        a.pageTreeObj = this;
 
         a.span = new Element('span', {
             'class': 'ka-pageTree-item-title',
@@ -178,6 +215,9 @@ ka.pagesTree = new Class({
         });
 
         var parentA = a.getParent().getPrevious();
+        if( !parentA )
+            parentA = a.getParent().getParent().getParent().getParent().getParent().getPrevious();
+
         if( !pItem.domain && parentA ){
             a.setStyle('padding-left', parentA.getStyle('padding-left').toInt()+15);
         }
@@ -526,13 +566,13 @@ ka.pagesTree = new Class({
             mode: pCode,
             toDomain: pToDomain?1:0,
         };
+
         new Request.JSON({url: _path+'admin/pages/move', onComplete: function( res ){
-            this.reload();
             
-            if( pToDomain ){
-                var otherDomainPageTreeObj = this.dragNDropElement.pageTreeObj;
+            this.reload();
+            var otherDomainPageTreeObj = this.dragNDropElement.pageTreeObj;
+            if( otherDomainPageTreeObj != this )
                 otherDomainPageTreeObj.loadFirstLevel();
-            }
 
         }.bind(this)}).post(req);
     },

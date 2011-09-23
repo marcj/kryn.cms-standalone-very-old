@@ -1113,7 +1113,6 @@ class kryn extends baseModule {
         $pRsn += 0;
 
         $domain = self::getDomainOfPage( $pRsn );
-        if( !$domain ) return false;
     
         $page =& self::getPage( $pRsn, $domain );
         
@@ -1845,7 +1844,7 @@ class kryn extends baseModule {
      */
     public static function getDomainOfPage( $pRsn ){
     	$rsn = false;
-        $r2d = kryn::getPhpCache('r2d');
+        $r2d =& cache::get('r2d');
         if( !is_array($r2d) ) {
             require_once('inc/modules/admin/adminPages.class.php');
             $r2d = adminPages::updatePage2DomainCache();
@@ -2042,7 +2041,7 @@ class kryn extends baseModule {
     }
     
     
-    public static function getPage( $pPageRsn = false , $pNoActions = false ){
+    public static function &getPage( $pPageRsn = false , $pReloadCache = false ){
         global $kryn;
         
         $pPageRsn += 0;
@@ -2053,7 +2052,7 @@ class kryn extends baseModule {
         
         $page = cache::get('page_'.$pPageRsn);
         
-        if( !$page ){
+        if( !$page || $pReloadCache == true ){
 
             $page = dbTableFetch('system_pages', 1, "rsn = $pPageRsn");
             $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pPageRsn AND active = 1");
@@ -2063,11 +2062,14 @@ class kryn extends baseModule {
             $page['realUrl'] = $kcache['realUrl']['rsn'][ 'rsn='.$page['rsn'] ];
             $page['active_version_rsn'] = $curVersion['rsn'];
 
-            $row = dbTableFetch('system_pages', 1, "prsn = $pPageRsn");
+            $row = dbExfetch('SELECT rsn FROM %pfx%system_pages WHERE prsn = '.$pPageRsn.' LIMIT 1', 1);
             if( $row['rsn']+0 > 0 )
                 $page['hasChilds'] = true;
+            else
+                $page['hasChilds'] = false;
             
             cache::set('page_'.$pPageRsn, $page);
+            $page = cache::get('page_'.$pPageRsn);
         }
             
         

@@ -1269,7 +1269,7 @@ var admin_pages = new Class({
             this.domainSessionFields.setValue( this.currentDomain.session );
             
 
-            if( this.currentDomain.session.auth_class ){
+            if( this.currentDomain.session && this.currentDomain.session.auth_class ){
                 if( this.auth_params_objects[this.currentDomain.session.auth_class] ){
                     this.auth_params_objects[this.currentDomain.session.auth_class].setValue( this.currentDomain.session.auth_params );
                 }
@@ -3287,7 +3287,7 @@ var admin_pages = new Class({
         	
         	if( domain.lang != this.language ) return;
         	
-            _this.domainTrees.include(domain.rsn, new ka.pagesTree( _this.treeContainerTd, domain.rsn, {
+            _this.domainTrees.include(domain.rsn, new ka.pagesTree( _this.treeContainer, domain.rsn, {
                 onClick: function( pPage ){
                     _this.domainTrees.each(function(_domain){
                         _domain.unselect();

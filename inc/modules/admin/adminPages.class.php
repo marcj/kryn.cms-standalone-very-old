@@ -719,11 +719,10 @@ class adminPages {
         foreach( $domain['childs'] as &$page ){
             if( kryn::checkPageAcl( $page['rsn'], 'showPage' ) ){
                 $page['realUrl'] = $cachedUrls['rsn']['rsn='.$page['rsn']];
+                $page['hasChilds'] = kryn::pageHasChilds( $page['rsn'] );
             } else {
                 unset($page);
             }
-            
-            $page['hasChilds'] = kryn::pageHasChilds( $page['rsn'] );
         }
         
         json( $domain );
@@ -738,9 +737,9 @@ class adminPages {
 
         if( count($items) > 0 ){
             foreach( $items as &$item ){
-                
                 if( kryn::checkPageAcl( $item['rsn'], 'showPage' ) ){
                     $item['realUrl'] = $cachedUrls['rsn']['rsn='.$item['rsn']];
+                    $item['hasChilds'] = kryn::pageHasChilds( $item['rsn'] );
                 } else {
                     unset( $item );
                 }
@@ -824,6 +823,10 @@ class adminPages {
             $targetId = 0;
             $mode = 'into';
         }
+        
+        if( $who['domain_rsn'] != $target['domain_rsn'] ){
+             $domainChanged = true;   
+        }
 
         if( !kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd') ){
             json('access-denied');
@@ -839,6 +842,7 @@ class adminPages {
             }
             dbExec( "UPDATE %pfx%system_pages SET prsn = $targetId, domain_rsn = '".$target['domain_rsn']."', sort = 1, sort_mode = 'up' WHERE rsn = $whoId" );
             break;
+
         case 'down':
             if( $target['prsn'] == 0 ){
              if( !kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd') ){
@@ -867,10 +871,16 @@ class adminPages {
             sort_mode = 'up', domain_rsn = '".$target['domain_rsn']."' WHERE rsn = $whoId" );
             break;
         }
-
+        
+        if( getArgv('toDomain') || $domainChanged ){
+            self::fixPageDomainRsn( $whoId, $target['domain_rsn'] );
+        }
+        
+        kryn::getPage( $whoId, true ); //reload cache
+        
         
         /*
-        todo need a sign from the user to do this
+        //todo need a sign from the user to do this
         $newRealUrl = kryn::pageUrl($whoId, $who['domain_rsn']);
         dbDelete('system_urlalias', 'domain_rsn = '.$who['domain_rsn']." AND url = '".$newRealUrl."'");
         
@@ -892,34 +902,18 @@ class adminPages {
             self::updateMenuCache( $who['domain_rsn'] );
         }
         
-        /*
-        maybe a little bit useless lol
-        if( getArgv('withPagesToReload') ){
-        
-            if( $whoId['prsn'] == 0 ){
-                $pages2Reload[] = 'd'.$whoId['domain_rsn'];
-            } else {
-                $pages2Reload[] = $whoId['prsn'];
-            }
-            
-            if( getArgv('toDomain') ){
-                $pages2Reload[] = 'd'.$targetId;
-            }
-            
-            $menus =& cache::get('menus_'.$target['domain_rsn']);
-            
-            if( is_array($menus[$whoId]) ){
-                foreach( $menus[$whoId] as $page ){
-                    $pages2Reload[] = $page['rsn'];
-                    break;
-                }
-            }
-            
-            return $pages2Reload;
-
-        }*/
-        
         return true;
+    }
+    
+    public static function fixPageDomainRsn( $pPageRsn, $pDomainRsn ){
+        $pPageRsn += 0;
+        
+        dbUpdate('system_pages', 'prsn = '.$pPageRsn, array('domain_rsn' => $pDomainRsn));
+
+        $res = dbExec('SELECT rsn FROM %pfx%system_pages WHERE prsn = '.$pPageRsn);
+        while( $row = dbFetch($res) ){
+            self::fixPageDomainRsn( $row['rsn'], $pDomainRsn );
+        }
     }
 
     public static function cleanSort( $pDomain, $pParent ){
@@ -1566,7 +1560,7 @@ class adminPages {
         while( $row = dbFetch($res) ){
         	$r2d[ $row['domain_rsn'] ] .= $row['rsn'].',';
         }
-        kryn::setPhpCache( "r2d", $r2d );
+        cache::set( "r2d", $r2d );
         return $r2d;
     }
 
