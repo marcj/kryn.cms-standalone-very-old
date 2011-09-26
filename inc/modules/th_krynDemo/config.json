@@ -17,7 +17,8 @@
         "Default": "th_krynDemo\/layout_default.tpl"
       },
       "navigations": {
-        "Default": "th_krynDemo\/navigation_default.tpl"
+        "Default": "th_krynDemo\/navigation_default.tpl",
+        "Unlimited": "th_krynDemo\/navigation_unlimited.tpl"
       },
       "contents": {
         "Default": "th_krynDemo\/content_default.tpl",
