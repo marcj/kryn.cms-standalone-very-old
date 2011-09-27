@@ -2605,10 +2605,9 @@ class kryn extends baseModule {
     public static function &readCache( $pCode ){
         $rsn = kryn::$domain['rsn'];
         $pCode = str_replace('..', '', $pCode);
-        return kryn::getPhpCache( $pCode.'_'.$rsn );
+        return cache::get( $pCode.'_'.$rsn );
     }
-    
-    
+
     /* 
      * Resize a image to a fix resolution or to max dimension.
      *

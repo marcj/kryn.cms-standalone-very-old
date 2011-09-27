@@ -17,18 +17,6 @@ class adminPages {
 
     public static function init(){
 
-        /*
-        kryn::addCss( 'admin/pages.css' );
-        kryn::addJs( 'admin/pages.js' );
-        kryn::addJs( 'admin/ka.pluginChooser.js' );
-        kryn::addJs( 'admin/pages_addDialog.js' );
-        kryn::addJs( 'admin/filebrowser.js' );
-        kryn::addJs( 'admin/dialog.js' );
-
-        kryn::addJs( 'admin/js/ka.pagesTree.js' );
-        kryn::addCss( 'admin/css/ka.pagesTree.css' );*/
-        //<script type="text/javascript" src="{$cfg.path}inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
-
         switch( getArgv(3) ){
         case 'domain':
             return self::domain();
@@ -42,19 +30,21 @@ class adminPages {
             return self::add();
 //            return self::save( true );
         case 'getPage':
-            return self::getPage( getArgv( 'rsn' ), true );
+            return self::getPage( getArgv('rsn')+0, true );
+        case 'getPageInfo':
+            return self::getPageInfo( getArgv('rsn')+0, true );
         case 'deletePage':
-            return self::deletePage( getArgv('rsn') );
+            return self::deletePage( getArgv('rsn')+0 );
         case 'getNotices':
-            return self::getNotices( getArgv( 'rsn' ) );
+            return self::getNotices( getArgv('rsn')+0 );
         case 'addNotice':
-            return self::addNotice( getArgv( 'rsn' ) );
+            return self::addNotice( getArgv('rsn')+0 );
         case 'getIcons':
-            return json( self::getIcons( getArgv('rsn') ) );
+            return json( self::getIcons(getArgv('rsn')) );
         case 'getDomains':
             return self::getDomains(getArgv('language'));
         case 'getTree':
-            return self::getTree( getArgv('page_rsn') );
+            return self::getTree( getArgv('page_rsn')+0 );
         case 'getTreeDomain':
             return self::getTreeDomain( getArgv('domain_rsn')+0 );
         case 'getTemplate':
@@ -85,6 +75,17 @@ class adminPages {
         default:
             return self::itemList();
         }
+    }
+    
+    public static function getPageInfo( $pRsn ){
+        
+        $pRsn += 0;
+        $page = dbTableFetch('system_pages', "rsn = $pRsn", 1);
+        $menus =& cache::get('menus_'.$page['domain_rsn']);
+        $page['_parents'] = $menus[ $page['rsn'] ];
+        
+        return $page;
+    
     }
     
     public static function getAliases( $pRsn ){
@@ -714,7 +715,7 @@ class adminPages {
         
         $domain['childs'] = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
         
-        $cachedUrls =& cache::get( 'urls' );
+        $cachedUrls =& kryn::readCache( 'urls' );
         
         foreach( $domain['childs'] as &$page ){
             if( kryn::checkPageAcl( $page['rsn'], 'showPage' ) ){
@@ -733,7 +734,7 @@ class adminPages {
         
         $items = dbTableFetch('system_pages', DB_FETCH_ALL, "prsn = $pPageRsn ORDER BY sort");
 
-        $cachedUrls =& cache::get('urls');
+        $cachedUrls =& kryn::readCache('urls');
 
         if( count($items) > 0 ){
             foreach( $items as &$item ){
@@ -766,7 +767,7 @@ class adminPages {
         $domain = dbExfetch("SELECT d.rsn FROM %pfx%system_domains d WHERE d.rsn = $pDomainRsn", 1);
         kryn::$domain = $domain;
 
-        $cachedUrls =& cache::get( 'urls' );
+        $cachedUrls =& kryn::readCache( 'urls' );
         $count = 1;
         $res = array('pages'=>array());
         $pages = array();
@@ -812,11 +813,11 @@ class adminPages {
         $whoId = $_REQUEST['rsn']+0;
         $targetId = $_REQUEST['torsn']+0;
         $mode = getArgv('mode', 1);
-
-        error_log( print_r($_POST,true) );
-        //get page data
+        
+        
         $who = self::getPageByRsn( $whoId );
         $target = self::getPageByRsn( $targetId );
+
 
         if( getArgv('toDomain') == 1){
             $target['domain_rsn'] = $targetId;
@@ -1313,160 +1314,6 @@ class adminPages {
         json( $res );
     }
 
-    public static function saveold( $pNew = false ){
-        global $db, $kryn;
-        $rsn = $_REQUEST['rsn']+0;
-        $title = esc($_REQUEST['title']);
-        $page_title = esc($_REQUEST['page_title']);
-        $template = $_REQUEST['template'];
-
-        $type = $_REQUEST['type']+0;
-
-        $pageurl = esc($_REQUEST['purl']);
-        if( $type != 1 ){
-            //is not a Link
-            $pageurl = kryn::toModRewrite($_REQUEST['purl']);
-        }
-
-        $visible = ( empty($_REQUEST['visible']) ) ? '0' : '1';
-        $access_denied = ( empty($_REQUEST['access_denied']) ) ? 0 : 1;
-        $meta = $_REQUEST['meta'];
-
-        $delete = $_REQUEST['delete'];
-        $layout = $_REQUEST['layout'];
-        $domain_rsn = $_REQUEST['domain_rsn']+0;
-        $cache = $_REQUEST['cache']+0;
-
-        $accessFrom = strtotime($_REQUEST['access_from'])+0;
-        $accessTo = strtotime($_REQUEST['access_to'])+0;
-
-        //$content = preg_replace('/<img(.*) src="(.*)admin\/plugins\/icon\/plugin=(.*)?\/"(.*)\/>/', '{krynplugin plugin="$3"}', $_REQUEST['content']);
-
-        $res = false;
-        if (!empty($_REQUEST['adminPageSave'])) {
-            if($delete == "1"){
-                $page = dbExfetch( "SELECT* FROM %pfx%system_pages WHERE rsn = $rsn" );
-                dbExec( "UPDATE %pfx%system_pages SET prsn = " . $page['prsn'] . " WHERE prsn = $rsn" );
-                dbExec( "DELETE FROM %pfx%system_pages WHERE rsn = $rsn" );
-            } else if( $pNew ) {
-                $navi = $_REQUEST['navigation_rsn']+0;
-                $time = time();
-
-                $domain_rsn = $_REQUEST['domain_rsn']+0;
-                $prsn = $_REQUEST['prsn'];
-                $where = $_REQUEST['where'];
-
-                if( $prsn == "" ){ //oberstes
-                    $sort = 1;
-                    $mode = 'up';
-                    $prsn = 0;
-                } else {
-                    $page = self::getPageByRsn( $prsn );
-                    if( $where == 'into' ){ //erstes in pRsn
-                        $sort = 1; 
-                        $mode = 'up';
-                    } else { //nach pRsn
-                        $prsn = $page['prsn'];
-                        $sort = $page['sort'];
-                        $mode = 'down';
-                    }
-                }
-
-                /*
-                 dbExec( "INSERT INTO %pfx%system_pages
-                         (domain_rsn, prsn, type, title, page_title, url, template, layout, language, sort, sort_mode,
-                         visible, access_denied, meta, cdate, mdate)
-                         VALUES( $domain_rsn, $prsn, $type, '$title', '$page_title', '$pageurl', '$template', '$layout', '$language', $sort, '$mode',
-                             $visible, '$access_denied', '$meta', '$time', '$time'  ) ");
-                 */
-                $rsn = dbInsert( 'system_pages', array(
-                    'domain_rsn' => $domain_rsn,
-                    'prsn' => $prsn,
-                    'type' => $type,
-                    'title' => $title,
-                    'page_title' => $page_title,
-                    'url' => $pageurl,
-                    'template' => $template,
-                    'layout' => $layout,
-                    'sort' => $sort,
-                    'sort_mode' => $mode,
-                    'visible' => $visible,
-                    'access_denied' => $access_denied,
-                    'meta' => $meta,
-                    'cdate' => $time,
-                    'mdate' => $time,
-                    'cache' => $cache,
-                    'access_to' => $accessTo,
-                    'access_from' => $accessFrom,
-                ));
-
-                self::cleanSort( $domain_rsn, 0 );
-
-                //$page = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE title = '$title' AND cdate = $time " );
-                $page = self::getPageByRsn($rsn);
-
-            } else { //sa've normal
-                dbExec("UPDATE ".pfx."system_pages SET
-                        title = '$title',
-                        page_title = '$page_title',
-                        url = '$pageurl',
-                        template = '$template',
-                        type = $type,
-                        layout = '$layout',
-                        visible = $visible,
-                        access_denied = '$access_denied',
-                        meta = '$meta',
-                        cache = $cache,
-                        mdate = ".time().",
-                        access_to = $accessTo,
-                        access_from = $accessFrom
-                        WHERE rsn = $rsn");
-            }
-
-            //$_conts = str_replace( "'", "\'", $_POST['contents'] );
-            $_conts = $_POST['contents'];
-            $contents = json_decode( $_conts, true);
-
-            // SAVE IN DATABASE
-            dbExec( 'UPDATE %pfx%system_contents SET version_rsn = version_rsn+1 WHERE page_rsn = '.$rsn);
-            dbDelete( 'system_contents', "page_rsn = $rsn AND version_rsn > 10");
-            if( count($contents) > 0 ){
-                foreach( $contents as $boxId=>$box ){
-                    $sort = 1;
-                    foreach( $box as $content ){
-                        //$content['content'] = mysql_real_escape_string( $content['content'] );
-                        dbInsert('system_contents', array(
-                            'page_rsn' => $rsn,
-                            'box_id' => $boxId,
-                            'title' => $content['title'],
-                            'content' => $content['content'],
-                            'template' => $content['template'],
-                            'type' => $content['type'],
-                            'mdate' => time(),
-                            'sort' => $sort,
-                            'version_rsn' => 1 
-                        ));
-                        /*dbExec( "
-                            INSERT INTO %pfx%system_contents (page_rsn, box_id, title, content, template, type, mdate, sort)
-                            VALUES( $rsn, $boxId, '".$content['title']."', '".$content['content']."', '".$content['template']."',
-                                '".$content['type']."', ".time().", $sort )
-                                ");*/
-                        $sort++;
-                    }
-                }
-            }
-
-            //save resources
-            kryn::fileWrite( "inc/template/css/_pages/$rsn.css", getArgv('resourcesCss') );
-            kryn::fileWrite( "inc/template/js/_pages/$rsn.js", getArgv('resourcesJs') );
-
-            self::updateUrlCache( $domain_rsn );
-            self::updateMenuCache( $domain_rsn );
-            $res = self::getVersion( $rsn, 1 );
-        }
-        json( $res );
-    }
-
     public static function updatePageCaches( $pDomainRsn, $pAll = false ){
         global $kryn, $admin;
         $resu = dbExec( "SELECT * FROM %pfx%system_pages WHERE domain_rsn = $pDomainRsn". (($pAll == false) ? " AND cache = 1":"")  );
@@ -1637,26 +1484,10 @@ class adminPages {
         return $page;
     }
 
-    //not in use - may delete it
-    public static function writeContent( $pRsn, $pLayout, $pContent ){
-        $_layout = kryn::readTempFile( "kryn/layouts/$pLayout.tpl" );
-        foreach( $pContent as $layout ){
-            $html = '';
-            foreach( $layout as $content ){
-                $html .= $content['type'].'<br />';
-            }
-            $_layout = preg_replace( '/\{krynContent .*\}/', $html, $_layout );
-        }   
-        kryn::writeTempFile( '_pages/' . $pRsn . '.tpl', $_layout );
-    }
-
-    public static function edit(){
-        return template::edit();
-    }
-
     public static function getPage( $pRsn, $pLock = false){
         global $kryn;
         $pRsn = $pRsn+0;
+
         $res = self::getPageByRsn( $pRsn );
         $res['resourcesCss'] = kryn::readTempFile( "css/_pages/$pRsn.css"); 
         $res['resourcesJs'] = kryn::readTempFile( "js/_pages/$pRsn.js"); 
@@ -1672,24 +1503,14 @@ class adminPages {
         
         $domain = dbExfetch("SELECT d.rsn FROM %pfx%system_domains d, %pfx%system_pages p WHERE p.domain_rsn = d.rsn AND p.rsn = $pRsn");
         kryn::$domain = $domain;
-        $cachedUrls =& cache::get( 'urls' );
+
+        $cachedUrls =& kryn::readCache( 'urls' );
         $res['realUrl'] = $cachedUrls['rsn']['rsn='.$pRsn];
         $res['contents'] = json_encode( $contents );
 
         $res['versions'] = dbExfetch( "SELECT version_rsn, MAX(mdate) FROM %pfx%system_contents WHERE page_rsn = $pRsn GROUP BY version_rsn", DB_FETCH_ALL );
 
         json( $res );
-    }
-    
-    public static function getValidUrl(){
-        
-    }
-    
-    public static function increasePage($pRsn){
-            global $db;
-            $currentPage = $db->exfetch("SELECT * FROM ".pfx."system_pages WHERE rsn = ".$pRsn);
-            $sort = $currentPage['sort']+1;
-            $db->exec("UPDATE ".pfx."system_pages SET sort = $sort WHERE rsn = ".$pRsn);
     }
 }
 

@@ -13,6 +13,8 @@ ka.pagesTree = new Class({
         '-1': 'world.png'
     },
     
+    firstTimeAlreadyLoaded: false,
+    
     //contains the open state of the pages
     opens: {},
 	
@@ -95,6 +97,7 @@ ka.pagesTree = new Class({
         this.paneDomain.empty();
         this.panePages.empty();
         this.panePages.setStyle('display', '');
+        
         this.domainA = this.addItem( pDomain, this.paneDomain );
         this.domainA.pageTreeObj = this;
 
@@ -167,13 +170,37 @@ ka.pagesTree = new Class({
         }
     
     },
+    
+    reloadParentOfActive: function(){
+    
+        if( !this.lastSelectedItem ) return;
+        
+        if( this.lastSelectedPage.domain ){
+            this.reload();
+            return;
+        }
+        
+        var parent = this.lastSelectedItem.getParent().getPrevious();
+        if( parent && parent.hasClass('ka-pageTree-item') ){
+            this.loadChilds( parent );
+        }
+    
+    },
 
-    addItem: function( pItem, pContainer ){
-
+    addItem: function( pItem, pParent ){
+        
         var a = new Element('div', {
             'class': 'ka-pageTree-item',
             title: 'ID='+pItem.rsn
-        }).inject( pContainer );
+        });
+        
+        var container = pParent;
+        if( pParent.childContainer ){
+            container = pParent.childContainer;
+            a.parent = pParent;
+        }
+        
+        a.inject( container );
 
         a.pageTreeObj = this;
 
@@ -181,6 +208,17 @@ ka.pagesTree = new Class({
             'class': 'ka-pageTree-item-title',
             text: (pItem.title)?pItem.title:pItem.domain
         }).inject( a );
+        
+        if( this.lastSelectedPage &&
+            (!this.lastSelectedPage.domain || this.lastSelectedPage.domain == pItem.domain)
+            &&
+            this.lastSelectedPage.rsn == pItem.rsn
+        ){
+            if( this.options.noActive != true )
+                a.addClass('ka-pageTree-item-selected');
+            this.lastSelectedItem = a;
+            this.lastSelectedPage = pItem;
+        }
 
         if( pItem.domain ){
             this.items[0] = a;
@@ -287,44 +325,56 @@ ka.pagesTree = new Class({
         } else {
             a.childContainer = new Element('div', {
                 'class': 'ka-pageTree-item-childs'
-            }).inject( pContainer );
+            }).inject( container );
         }
         
         
         if( pItem.childs ){
             a.childsLoaded = true;
             Array.each(pItem.childs, function(item){
-                this.addItem( item, a.childContainer );
+                this.addItem( item, a );
             }.bind(this));           
         } else {
             a.childsLoaded = false;
         }
         
         var openId =( pItem.domain )?'p'+pItem.rsn:pItem.rsn;
-        if( this.opens[openId] && a.childContainer.getStyle('display') != 'block' ){
+
+        if( !this.firstTimeAlreadyLoaded ){
+        
+            if( this.options.load_page_childs && this.options.load_page_childs.contains(pItem.rsn) ){
+                this.openChilds( a );
+                return a;
+            } else if( this.options.selectDomain && pItem.domain ){
+                a.addClass('ka-pageTree-item-selected');
+                this.lastSelectedItem = a;
+                this.lastSelectedPage = pItem;
+            }
+        } else if( this.opens[openId] && a.childContainer.getStyle('display') != 'block' ){
             this.openChilds( a );
         }
+        
+        this.firstTimeAlreadyLoaded = true;
     
         return a;
     },
     
     toggleChilds: function( pA ){
-    
-        
+
         if( pA.childContainer.getStyle('display') != 'block' ){
-            //wanna open
             this.openChilds( pA );
-            
         } else {
-            //wanna close
-            pA.childContainer.setStyle( 'display', '' );
-            pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_plus.png');
+            this.closeChilds( pA );
         }
-        
+    },
+    
+    closeChilds: function( pA ){
         var item = pA.retrieve('item');
         var id = item.domain?'p'+item.rsn:item.rsn;
-        var open = pA.childContainer.getStyle('display')=='block'?true:false;
-        this.opens[ id ] = open;
+        
+        pA.childContainer.setStyle( 'display', '' );
+        pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_plus.png');
+        this.opens[ id ] = false;
     },
     
     openChilds: function( pA ){
@@ -337,14 +387,18 @@ ka.pagesTree = new Class({
         pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
         if( pA.childsLoaded == true ){
             pA.childContainer.setStyle( 'display', 'block' );
-            this.opens[ id ] = open;
+            this.opens[ id ] = true;
         } else {
-            this.loadChilds( pA );
+            this.loadChilds( pA, true );
         }
 
     },
     
-    loadChilds: function( pA ){
+    reloadChilds: function( pA ){
+        this.loadChilds( pA, false );
+    },
+    
+    loadChilds: function( pA, pAndOpen ){
     
         
         var loader = new Element('img', {
@@ -359,7 +413,13 @@ ka.pagesTree = new Class({
             pA.childContainer.empty();
             
             loader.destroy();
-            pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
+            
+            if( pAndOpen ){
+                pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
+                pA.childContainer.setStyle( 'display', 'block' );                
+                this.opens[ id ] = true;
+            }
+            
             pA.childsLoaded = true;
         
             if( pItems.length == 0 ){
@@ -368,12 +428,8 @@ ka.pagesTree = new Class({
             }
 
             Array.each(pItems, function(item){
-                this.addItem( item, pA.childContainer );
+                this.addItem( item, pA );
             }.bind(this));
-            
-            pA.childContainer.setStyle( 'display', 'block' );
-            
-            this.opens[ id ] = true;
         
         }.bind(this)}).get({ page_rsn: item.rsn });
     
@@ -569,11 +625,26 @@ ka.pagesTree = new Class({
 
         new Request.JSON({url: _path+'admin/pages/move', onComplete: function( res ){
             
+            //target item this.dragNDropElement
+            if( this.dragNDropElement.parent )
+                this.reloadChilds( this.dragNDropElement );
+            else
+                this.dragNDropElement.pageTreeObj.reload();
+            
+            
+            //origin item this.currentPageToDrag
+            if( this.currentPageToDrag.parent )
+                this.reloadChilds( this.currentPageToDrag.parent );
+            else
+                this.currentPageToDrag.pageTreeObj.reload();
+    
+            /*
             this.reload();
             var otherDomainPageTreeObj = this.dragNDropElement.pageTreeObj;
             if( otherDomainPageTreeObj != this )
                 otherDomainPageTreeObj.loadFirstLevel();
-
+            */
+            
         }.bind(this)}).post(req);
     },
 
