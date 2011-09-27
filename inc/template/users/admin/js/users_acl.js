@@ -1050,22 +1050,19 @@ var users_users_acl = new Class({
                         Object.each(this.pageTrees, function(_domain){
                             _domain.unselect();
                         });
-                        
-                        var rsn = 'p'+pPage.rsn;
-                        if( pPage.domain )
-                            rsn = 'd'+pPage.rsn;
-
-                        this.renderAcl( rsn, 2 );
+                        this.renderAcl( 'p'+pPage.rsn, 2 );
                         
                     }.bind(this),
                     onDomainClick: function( pDomain ){
-                         Object.each(_this.pageTrees, function(_domain){
+                        Object.each(this.pageTrees, function(_domain){
                             _domain.unselect();
                         });
-                        //_this.showDomain( pDomain );
-                    },
+                        
+                        this.renderAcl( 'd'+pDomain.rsn, 2 );
+                        
+                    }.bind(this),
                     onChildsLoaded: function( pItem, pA ){
-                        _this._updatePageTreeInfos( this.pageTrees[domain['rsn']] );
+                        _this._updatePageTreeInfos( _this.pageTrees[domain['rsn']] );
                     },
                     noDrag: true,
                     viewAllPages: true,
@@ -1198,15 +1195,13 @@ var users_users_acl = new Class({
     _updatePageTreeInfos: function( pTree ){
         
         pTree.main.getElements('.ka-pageTree-item').each(function(element){
-
-            if( element.getChildren('img.users-acl-info') )
-                element.getChildren('img.users-acl-info').destroy();
             
             if( element.aclBorderLine ){
                 element.aclBorderLine.destroy();
                 delete element.aclBorderLine;
+                element.aclBorderLineSmall.destroy();
+                delete element.aclBorderLineSmall;
             }
-            
             
             var found = false;
             var item = element.retrieve('item');
@@ -1218,36 +1213,55 @@ var users_users_acl = new Class({
             var acl = false;
             if( this.currentAcls )
                 acl = this.currentAcls[ rsn ];
-            
-            logger(this.currentAcls);
-            if( !acl ) return;
+                
+                
+            if( element.aclAccept ){
+                element.aclAccept.destroy();
+                delete element.aclAccept;
+            }
+
+            if( !acl ){
+                element.aclAccept = new Element('div', {
+                    style:'width: 10px; float: left; height: 10px'
+                }).inject( element, 'top' );
+                return;
+            }
             
             var withSub = acl.code.test('%');
             
             var left = -7+element.getStyle('padding-left').toInt();
             
             var img = (acl.access==1)?'accept.png':'stop.png';
-            new Element('img', {
+            element.aclAccept = new Element('img', {
                 src: _path+'inc/template/admin/images/icons/'+img,
                 'class': 'users-acl-info',
-                style: 'position: absolute; left: '+left+'px; top: 3px',
+                style: 'float: left; position: relative; top: 3px; margin-left: 1px;',
                 width: 10,
                 height: 10
-            }).inject( element );
+            }).inject( element, 'top' );
             
             var color = 'green';
             if( acl.access != 1 )
                 color = 'red';
+
+            var lineLeft = 6;
+            if( !item.domain )
+                lineLeft = element.getStyle('padding-left').toInt()+5;
             
             element.aclBorderLine = new Element('div', {
                 style: 'position: absolute; top: 0px; bottom: 0px; width: 2px;',
                 styles: {
-                    left: element.getStyle('padding-left').toInt()
+                    left: lineLeft
                 }
             }).inject( element.childContainer );
             
+            element.aclBorderLineSmall = new Element('div', {
+                style: 'position: relative; float: left; width: 1px; height: 7px; left: -6px; top: 12px;'
+            }).inject( element.aclAccept, 'after');
+            
             if( withSub ){
                 element.aclBorderLine.setStyle('border-left', '1px solid '+color);
+                element.aclBorderLineSmall.setStyle('border-left', '1px solid '+color);
             }
             
 
@@ -1453,6 +1467,9 @@ var users_users_acl = new Class({
 
     loadAcl: function( pTargetType ){
 
+        var list = (pTargetType == 'group') ? this.listGroup : this.listUser;
+        if( !list.value ) return;
+        
         this.currentAcls = {};
         this.lastActiveAclObj = null;
         
@@ -1462,9 +1479,7 @@ var users_users_acl = new Class({
 
         this.tabGroup.show();
         this.saveGroup.show();
-        //this.aclType = pTargetType;
 
-        var list = (pTargetType == 'group') ? this.listGroup : this.listUser;
 
         this.aclContainer['general'].empty();
         this.aclContainer['pages'].empty();
@@ -1472,26 +1487,10 @@ var users_users_acl = new Class({
         var list2Deselect = (pTargetType == 'group') ? this.listUser : this.listGroup;
         list2Deselect.getElements('option').set('selected', false);
 
-        /*this.currentAcl = { //for information display
-            rsn: list.value,
-            title: list.getSelected().get('text')
-        };*/
-
         if( !this.type )
             this.type = 'general';
         
         this.setType(this.type);
-        
-        /*this._acls.each(function(obj){
-            if( obj.get('tag') == 'a' )
-                obj.set('class', 'users-acl-item');
-            else
-                obj.set('class', 'users-acl-group');
-        });
-
-        this.allAccessCb.setValue( false );
-        this.loginAccessCb.setValue( false );
-        */
         
         var type = (this.type == 'general') ? 1 : 2;
         this.aclType = type;

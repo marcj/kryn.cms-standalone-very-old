@@ -515,7 +515,7 @@ var admin_pages = new Class({
         }).inject( this.win.content );
 
         this.treeContainer = new Element('div', {
-        	'class': 'treeContainer',
+        	'class': 'treeContainer ka-pages-treeContainer',
             styles: {
                 position: 'absolute',
                 'background-color': '#f3f3f3',

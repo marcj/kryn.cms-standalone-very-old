@@ -21,8 +21,12 @@
     background-position: right top;
 }
 
-.treeContainer .ka-pageTree-domain {
+.ka-pages-treeContainer .ka-pageTree-domain {
     border-top: 1px solid #ddd;
+}
+
+.ka-pages-treeContainer .ka-pageTree-top-dummy {
+    height: 21px;
 }
 
 .ka-pages-nolayoutoverlay-text {

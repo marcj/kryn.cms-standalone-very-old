@@ -102,15 +102,26 @@ ka.pagesTree = new Class({
 
         if( this.lastFirstLevelRq )
             this.lastFirstLevelRq.cancel();
+            
+            
+        var viewAllPages = 0;
+        if( this.options.viewAllPages )
+            viewAllPages = 1;
 
         this.lastFirstLevelRq = new Request.JSON({url: _path+'admin/pages/getTreeDomain', noCache: 1, onComplete:
         this.renderFirstLevel.bind(this)}).get({
-            domain_rsn: this.domain_rsn
+            domain_rsn: this.domain_rsn,
+            viewAllPages: viewAllPages
         });
 
     },
-    
+
     renderFirstLevel: function( pDomain ){
+
+        if( pDomain.error ) {
+            this.main.destroy();
+            return;
+        }
 
         this.paneDomain.empty();
         this.panePages.empty();
@@ -130,6 +141,8 @@ ka.pagesTree = new Class({
                 .inject( this.items[0] );
             }
         }
+        if( this.options.onChildsLoaded )
+            this.options.onChildsLoaded( pDomain, this.domainA );
 
     },
 
@@ -430,6 +443,10 @@ ka.pagesTree = new Class({
         
             var id =( item.domain )?'p'+item.rsn:item.rsn;
             
+            var viewAllPages = 0;
+            if( this.options.viewAllPages )
+                viewAllPages = 1;
+            
             new Request.JSON({url: _path+'admin/pages/getTree', noCache: 1, onComplete: function( pItems ){
     
                 pA.childContainer.empty();
@@ -448,7 +465,7 @@ ka.pagesTree = new Class({
                     pA.toggler.setStyle('visibility', 'hidden');
                     return;
                 }
-    
+
                 Array.each(pItems, function(childitem){
                     this.addItem( childitem, pA );
                 }.bind(this));
@@ -456,7 +473,7 @@ ka.pagesTree = new Class({
                 if( this.options.onChildsLoaded )
                     this.options.onChildsLoaded( item, pA );
             
-            }.bind(this)}).get({ page_rsn: item.rsn });
+            }.bind(this)}).get({ page_rsn: item.rsn, viewAllPages: viewAllPages });
         
         }
     },
@@ -603,14 +620,16 @@ ka.pagesTree = new Class({
         }
 
         var canMoveAround = true;
-        var parentPage = pTarget.parent.retrieve('item');
-        if( parentPage.domain ){
-            if( !ka.checkPageAccess( parentPage.rsn, 'addPages', 'd' ) ){
-                canMoveAround = false;
-            }
-        } else {
-            if( !ka.checkPageAccess( parentPage.rsn, 'addPages' ) ){
-                canMoveAround = false;
+        if( pTarget.parent ){
+            var parentPage = pTarget.parent.retrieve('item');
+            if( parentPage.domain ){
+                if( !ka.checkPageAccess( parentPage.rsn, 'addPages', 'd' ) ){
+                    canMoveAround = false;
+                }
+            } else {
+                if( !ka.checkPageAccess( parentPage.rsn, 'addPages' ) ){
+                    canMoveAround = false;
+                }
             }
         }
 
