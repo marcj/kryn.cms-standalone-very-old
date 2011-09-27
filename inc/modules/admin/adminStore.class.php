@@ -75,14 +75,18 @@ class adminStore {
     public function getItems( $pFrom = 0, $pCount = 0 ){
         
         $res = array();
+        $pFrom += 0;
+        $pCount += 0;
         
         if( !$this->table ) return $res;
         
         $table = database::getTable( $this->table );
         
-        $limit = 'OFFSET '.($pFrom+0);
+        if( $pFrom > 0 )
+            $limit = 'OFFSET '.$pFrom;
+
         if( $pCount > 0 )
-            $limit .= ' LIMIT '.($pCount+0);
+                $limit .= ' LIMIT '.$pCount;
         
         $where = $this->where;
         if( !$where )
