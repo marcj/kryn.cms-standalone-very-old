@@ -86,7 +86,7 @@ class adminStore {
             $limit = 'OFFSET '.$pFrom;
 
         if( $pCount > 0 )
-                $limit .= ' LIMIT '.$pCount;
+            $limit .= ' LIMIT '.$pCount;
         
         $where = $this->where;
         if( !$where )
