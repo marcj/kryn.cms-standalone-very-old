@@ -64,6 +64,8 @@ class admin {
 
         tAssign("admin", true);
                     
+        $kryn->initModules();
+                    
         $code = kryn::getRequestPath();
         $info = self::getPathItem( $code );
 
@@ -89,9 +91,10 @@ class admin {
                 }
             }
         }
+
         
         if( $modules[ getArgv(2) ] && getArgv(2) != 'admin' ){
-            
+
             $content = $modules[ getArgv(2) ]->admin();
 
             tAssign( "content", $content );

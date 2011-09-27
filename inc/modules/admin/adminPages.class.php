@@ -819,11 +819,27 @@ class adminPages {
         $target = self::getPageByRsn( $targetId );
 
 
+        //check if $who is parent of $target, then cancel
+        $whoIsParent = false;
+        $menus =& cache::get('menus_'.$who['domain_rsn']);
+        if( is_array( $menus[$targetId] ) ){
+            foreach( $menus[$targetId] as $parent ){
+                if( $parent['rsn'] == $whoId ){
+                    $whoIsParent = true;
+                }
+            }
+        }
+        
+        if( $whoIsParent ){
+            return false;
+        }
+
         if( getArgv('toDomain') == 1){
             $target['domain_rsn'] = $targetId;
             $targetId = 0;
             $mode = 'into';
         }
+        
         
         if( $who['domain_rsn'] != $target['domain_rsn'] ){
              $domainChanged = true;   

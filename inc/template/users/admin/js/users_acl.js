@@ -1046,46 +1046,35 @@ var users_users_acl = new Class({
             
                 this.pageTrees[domain['rsn']] = new ka.pagesTree( this.aclPageTreeContainer, domain['rsn'], {
                     onClick: function( pPage ){
-                        $H(_this.pageTrees).each(function(_domain){
+                                        
+                        Object.each(this.pageTrees, function(_domain){
                             _domain.unselect();
                         });
-                        //_this.loadPage( pPage.rsn );
-                    },
+                        
+                        var rsn = 'p'+pPage.rsn;
+                        if( pPage.domain )
+                            rsn = 'd'+pPage.rsn;
+
+                        this.renderAcl( rsn, 2 );
+                        
+                    }.bind(this),
                     onDomainClick: function( pDomain ){
-                         $H(_this.pageTrees).each(function(_domain){
+                         Object.each(_this.pageTrees, function(_domain){
                             _domain.unselect();
                         });
                         //_this.showDomain( pDomain );
                     },
+                    onChildsLoaded: function( pItem, pA ){
+                        _this._updatePageTreeInfos( this.pageTrees[domain['rsn']] );
+                    },
                     noDrag: true,
                     viewAllPages: true,
-                    win: this.win,
-                    onReady: function(){
-                        _this.prepareDragnDropPagesTree( _this.pageTrees[domain['rsn']] );
-                        _this.updatePageTreeInfos( domain['rsn'] );
-                    }
+                    win: this.win
                 });
             }.bind(this));
         
         }.bind(this)}).post({lang: this.languageChooser.value});
         
-    },
-    
-    prepareDragnDropPagesTree: function( pPageTree ){
-        var _this = this;
-        pPageTree.pane.getElements('div.pagesTree-pageItem div.title').each(function(element){
-        
-            var item = element.getParent().retrieve('item');
-            
-            var rsn = 'p'+item.rsn;
-            if( item.rsn == 0 )
-                rsn = 'd'+item.domain_rsn;
-            
-            element.addEvent('click', function(){
-                this.renderAcl( rsn, 2 );
-            }.bind(this));
-            
-        }.bind(this));
     },
 
     /*loadExts: function(){
@@ -1196,55 +1185,52 @@ var users_users_acl = new Class({
     updatePageTreeInfos: function( pDomainRsn ){
         
         if( pDomainRsn ){
-            
-            this._updatePageTreeInfos( this.pageTrees[pDomainRsn], pDomainRsn );
-            
+            this._updatePageTreeInfos( this.pageTrees[pDomainRsn] );
         } else {
-            $H(this.pageTrees).each(function(domainTree, domainRsn){
+            Object.each(this.pageTrees, function(domainTree, domainRsn){
                 domainTree.updateDomainBar();
-                this._updatePageTreeInfos( domainTree, domainRsn );
+                this._updatePageTreeInfos( domainTree );
             }.bind(this));
         }
         
     },
     
-    _updatePageTreeInfos: function( pDomain, pDomainRsn ){
+    _updatePageTreeInfos: function( pTree ){
         
-        
-        pDomain.pane.getElements('.pagesTree-pageItem').each(function(element){
-            
-            
+        pTree.main.getElements('.ka-pageTree-item').each(function(element){
+
             if( element.getChildren('img.users-acl-info') )
                 element.getChildren('img.users-acl-info').destroy();
             
-            var childContainer = element.getNext('.pagesTree-newLvL');
-            if( !childContainer )
-                childContainer = element.getPrevious('.pagesTree-newLvL');
+            if( element.aclBorderLine ){
+                element.aclBorderLine.destroy();
+                delete element.aclBorderLine;
+            }
             
-            if( childContainer )
-                childContainer.setStyle('border-left', '0px');
-
             
             var found = false;
             var item = element.retrieve('item');
             
             var rsn = 'p'+item.rsn;
-            if( item.rsn == 0 )
-                rsn = 'd'+item.domain_rsn;
+            if( item.domain )
+                rsn = 'd'+item.rsn;
             
             var acl = false;
             if( this.currentAcls )
                 acl = this.currentAcls[ rsn ];
             
+            logger(this.currentAcls);
             if( !acl ) return;
             
             var withSub = acl.code.test('%');
+            
+            var left = -7+element.getStyle('padding-left').toInt();
             
             var img = (acl.access==1)?'accept.png':'stop.png';
             new Element('img', {
                 src: _path+'inc/template/admin/images/icons/'+img,
                 'class': 'users-acl-info',
-                style: 'position: absolute; left: -7px; top: 3px',
+                style: 'position: absolute; left: '+left+'px; top: 3px',
                 width: 10,
                 height: 10
             }).inject( element );
@@ -1253,12 +1239,15 @@ var users_users_acl = new Class({
             if( acl.access != 1 )
                 color = 'red';
             
-            var childContainer = element.getNext('.pagesTree-newLvL');
-            if( item.rsn == 0 )
-                childContainer = element.getPrevious('.pagesTree-newLvL');
+            element.aclBorderLine = new Element('div', {
+                style: 'position: absolute; top: 0px; bottom: 0px; width: 2px;',
+                styles: {
+                    left: element.getStyle('padding-left').toInt()
+                }
+            }).inject( element.childContainer );
             
-            if( withSub && childContainer  ){
-                childContainer.setStyle('border-left', '1px solid '+color);
+            if( withSub ){
+                element.aclBorderLine.setStyle('border-left', '1px solid '+color);
             }
             
 
@@ -1316,7 +1305,6 @@ var users_users_acl = new Class({
             pObj.addClass('selected');
             this.lastSelectedObj = pObj;
         }
-        
         
         if( this.lastActiveAclObj ){
             this.currentAcls[ this.lastActiveAclCode ] = this.lastActiveAclObj.getValue();
@@ -1446,7 +1434,7 @@ var users_users_acl = new Class({
         if( this.lastSelectedObj )
             this.lastSelectedObj.removeClass('selected');
         
-        $H(this.pageTrees).each(function(_domain){
+        Object.each(this.pageTrees, function(_domain){
             _domain.unselect();
         });
         

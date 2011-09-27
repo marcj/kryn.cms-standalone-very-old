@@ -525,7 +525,7 @@ var admin_pages = new Class({
         }).inject( this.tree );
         this.treeContainer.set('tween', {duration: 300});
 
-        this.treeContainerTable = new Element('table', {
+        /*this.treeContainerTable = new Element('table', {
         	style: 'width: 100%',
         	cellpadding: 0,
         	cellspacing: 0
@@ -533,7 +533,7 @@ var admin_pages = new Class({
         
         this.treeContainerTbody = new Element('tbody').inject(this.treeContainerTable);
         this.treeContainerTr = new Element('tr').inject(this.treeContainerTbody);
-        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);
+        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);*/
 
         this.treeSizer = new Element('div', {
             style: 'position: absolute; right: -7px; top: 0px; width: 5px; height: 100%; cursor: e-resize; border-left: 1px solid silver; border-right: 1px solid silver;'
@@ -862,7 +862,7 @@ var admin_pages = new Class({
 
     changeLanguage: function(){
         this.language = this.languageSelect.value;
-        this.treeContainerTd.empty();
+        this.treeContainer.empty();
         this.loadTree();
         this.viewType( 'empty' );
         this.savePageGrp.hide();
@@ -3312,7 +3312,7 @@ var admin_pages = new Class({
         var _this = this;
         this.domainTrees = {};
 
-        this.treeContainerTd.empty();
+        this.treeContainer.empty();
         
         if( !pOpts )
             pOpts = {};
