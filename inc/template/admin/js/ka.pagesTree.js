@@ -1138,12 +1138,16 @@ ka.pagesTree = new Class({
         var mtop = pos.y-15;
         if( mtop < 0 )
             mtop = 1;
+            
+        var mleft = 6;
+        if( this.currentDropper.getStyle('padding-left') )
+            mleft = this.currentDropper.getStyle('padding-left').toInt();
         
         var context = new Element( 'div', {
             'class': 'pagesTree-context-move'
         })
         .setStyles({
-            left: pos.x+10,
+            left: mleft,
             top: mtop,
             opacity: 0
         })
