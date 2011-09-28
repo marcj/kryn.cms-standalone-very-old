@@ -159,7 +159,7 @@ var admin_system_module = new Class({
                 if( item.version != item.serverVersion && item.serverVersion != ''){
                     icon = 'cog_go';
                     _title = _('New version available');
-                    new ka.Button(_('Update'))
+                    new ka.Button(item.serverCompare == '>' ? _('Downgrade') : _('Update'))
                     .addEvent('click', function(){
                         ka.wm.open('admin/system/module/view/', {name: key, type: 0, updateNow: 1});
                     }.bind(this))

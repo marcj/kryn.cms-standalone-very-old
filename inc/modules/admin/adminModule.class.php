@@ -797,6 +797,7 @@ class adminModule {
             $res[ $mod ] = $config;
             $res[ $mod ]['activated'] = ($kryn->installedMods[$mod])?1:0;
             $res[ $mod ]['serverVersion'] =  wget($cfg['repoServer']."/?version=".$mod);
+            $res[ $mod ]['serverCompare'] = self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
         }
 
         json( $res );
@@ -1055,6 +1056,22 @@ class adminModule {
         json( $res );
     }
     
+    private static function versionCompareToServer($local, $server)
+    {
+        list($major, $minor, $patch) = explode(".", $local);
+        $lversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
+        
+        list($major, $minor, $patch) = explode(".", $server);
+        $sversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
+        
+        if($lversion == $sversion)
+            return '='; // Same version
+        else if($lversion < $sversion)
+            return '<'; // Local older
+        else 
+            return '>'; // Local newer
+    }
+    
     public static function getInstallInfo( $pModuleName, $pType ){
         global $kryn, $cfg;
 
@@ -1076,6 +1093,7 @@ class adminModule {
         //$res['serverVersion'] = $serverVersion;
 
         $res['module'] = $info;
+        $res['serverCompare'] = self::versionCompareToServer($info['version'], $res['serverVersion']);
         
         if( $kryn->installedMods[$pModuleName] || $pModuleName == 'kryn-core' ){
             $res['installed'] = true;
@@ -1137,7 +1155,7 @@ class adminModule {
         
         if( file_exists("inc/modules/$pModuleName/$pModuleName.class.php") ){
             require_once( "inc/modules/$pModuleName/$pModuleName.class.php" );
-            $m = new $module();
+            $m = new $pModuleName();
             $m->install();
         }
         

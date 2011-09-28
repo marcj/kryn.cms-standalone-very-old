@@ -46,7 +46,10 @@ var admin_system_module_view = new Class({
             this.renderContent(res);
             if( this.twiceLoading != true ){
                 if( this.win.params.updateNow == 1 ){
-                    this.update();
+                    if(res.serverCompare == '>')
+                        this.confirmDowngrade();
+                    else
+                        this.update();
                 }
                 if( this.win.params.removeNow == 1 ){
                     this.renderRemove();
@@ -55,6 +58,16 @@ var admin_system_module_view = new Class({
             this.twiceLoading = true;
         }.bind(this)}).post({type: this.win.params.type, name: id});
     },
+    
+    confirmDowngrade: function() {
+        this.win._confirm(_('Really downgrade extension?'), function(p) {
+            if(!p)
+                this.loadInfos();
+            else
+                this.update(false);
+        }.bind(this));
+    },
+    
     
     renderContent: function( pItem ){
         this.item = pItem;
@@ -126,11 +139,13 @@ var admin_system_module_view = new Class({
         if( pItem.installed ){
             var tr = new Element('tr').inject( tablebody );
             var td = new Element('td', {height: 25,html:_('Installed version')}).inject( tr );
-            var td = new Element('td', {text: pItem.installedModule.version}).inject( tr );
+            var td = new Element('td', {text: pItem.installedModule.version+' '}).inject( tr );
             if( pItem.installedModule && pItem.installedModule.version != pItem.serverVersion )
                 td.setStyle('color', 'red');
             else
                 td.setStyle('color', 'green');
+            if( pItem.serverCompare == '>')
+            	new Element('img', { title: _('Local version newer than server version!'), src: '/inc/admin/images/icons/error.png' }).inject(td);
         }
         
 
@@ -188,9 +203,18 @@ var admin_system_module_view = new Class({
 
         if( (pItem.installedModule && pItem.installedModule.version != pItem.serverVersion) ||
         	( ( this.win.params.type != 1 && this.win.params.type != 0) && pItem.module.version != pItem.installedModule.version )){
-            new ka.Button(_('Update'))
-            .addEvent('click', this.update.bind(this, false))
-            .inject( td );
+            
+            if(pItem.serverCompare == '>') {
+                new ka.Button(_('Downgrade'))
+                .addEvent('click', this.confirmDowngrade.bind(this))
+                .inject(td);
+            }
+            else
+            {
+                new ka.Button(_('Update'))
+                .addEvent('click', this.update.bind(this, false))
+                .inject(td);
+            }
         }
 
         var border = new Element('div', {
@@ -244,7 +268,6 @@ var admin_system_module_view = new Class({
         		html += '<b style=" color: gray;">'+table+'</b><br />';
         	});
         	td.set('html', html);
-        	logger(html);
 	        if( pItem.installed ){
 		        new ka.Button(_('Database update'))
 		        .addEvent('click', function(){
