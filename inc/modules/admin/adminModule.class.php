@@ -1194,7 +1194,7 @@ class adminModule {
             $version = '0';
             $name = $key;
             $version = wget($cfg['repoServer']."/?version=$name");
-            if( $version && $version != $config['version'] && $version != ''){
+            if( $version && $version != '' && self::versionCompareToServer($config['version'], $version) == '<' ){
                 $res['found'] = true;
                 $temp = array();
                 $temp['newVersion'] = $version;
