@@ -248,6 +248,15 @@
           "defaultWidth": 500,
           "defaultHeight": 470,
           "type": "custom"
+        },        
+        "chooser": {
+          "title": "Chooser",
+          "isLink": false,
+          "acl": false,
+          "defaultWidth": 560,
+          "minWidth": 560,
+          "defaultHeight": 400,
+          "type": "custom"
         },
         "stores": {
           "title": "Stores",
@@ -297,15 +306,6 @@
           "isLink": false,
           "defaultWidth": 710,
           "defaultHeight": 500,
-          "type": "custom"
-        },
-        "chooser": {
-          "title": "Chooser",
-          "isLink": false,
-          "acl": false,
-          "defaultWidth": 560,
-          "minWidth": 560,
-          "defaultHeight": 400,
           "type": "custom"
         },
         "bigEditor": {

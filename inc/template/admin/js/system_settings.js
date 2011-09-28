@@ -379,10 +379,10 @@ var admin_system_settings = new Class({
         var auth_class = this.fields['auth_class'].getValue();
         var obj = this.auth_params_objects[ auth_class ];
         
-        if( !obj.isOk() ) return;
-        
-        req['auth_params'] = obj.getValue();
-        
+        if( obj ){
+            if( !obj.isOk() ) return;
+            req['auth_params'] = obj.getValue();
+        }
         if( dontGo ) return;
         
         this.saveButton.startTip( _('Saving ...') );

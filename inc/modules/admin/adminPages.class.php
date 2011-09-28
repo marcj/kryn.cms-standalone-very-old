@@ -720,7 +720,7 @@ class adminPages {
         $childs = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
         $domain['childs'] = array();
         
-        $cachedUrls =& kryn::readCache( 'urls' );
+        $cachedUrls =& cache::get( 'urls_'.$pDomainRsn );
         
         foreach( $childs as &$page ){
             if( $viewAllPages || kryn::checkPageAcl( $page['rsn'], 'showPage' ) == true ){
@@ -742,7 +742,7 @@ class adminPages {
         if( $viewAllPages && !kryn::checkUrlAccess('users/users/acl') )
             $viewAllPages = false;
         
-        $page = dbExfetch('SELECT prsn, domain_rsn FROM %pfx%system_pages WHERE rsn = '.$pPagersn);
+        $page = dbExfetch('SELECT prsn, domain_rsn FROM %pfx%system_pages WHERE rsn = '.$pPageRsn);
         
         if( !$viewAllPages && !kryn::checkPageAcl( $page['domain_rsn'], 'showDomain', 'd') ){
             json(array('error' => 'access_denied'));;
@@ -754,7 +754,7 @@ class adminPages {
         
         $items = dbTableFetch('system_pages', DB_FETCH_ALL, "prsn = $pPageRsn ORDER BY sort");
 
-        $cachedUrls =& kryn::readCache('urls');
+        $cachedUrls =& cache::get( 'urls_'.$page['domain_rsn'] );
 
         if( count($items) > 0 ){
             foreach( $items as &$item ){

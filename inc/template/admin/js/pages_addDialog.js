@@ -5,8 +5,6 @@ var admin_pages_addDialog = new Class({
         this.win = pWin;
         this.input = [];
         
-        this.win.setTitle( _('Add pages to %s').replace('%s', this.win.params.domain_title) );
-        
         this._renderLayout();
     },
 
@@ -40,7 +38,7 @@ var admin_pages_addDialog = new Class({
         
         new Element('div',{
         	style: 'padding: 3px; font-size: 13px; font-weight: bold; color: gray; padding-bottom: 25px;',
-        	html: _('Step 1: Define the new item')
+        	html: _('Step 1: Define new items')
         }).inject( leftSide );
         
         this.type = new ka.field({
@@ -148,21 +146,31 @@ var admin_pages_addDialog = new Class({
         this.win.content.addEvent('mouseover', function(){
             if( this.lastContext ) this.lastContext.destroy();
         }.bind(this));
+        
+        var selectDomain = (this.win.params)?this.win.params.selectDomain:null;
+        var selectPage = (this.win.params)?this.win.params.selectPage:null;
 
-        new ka.pagesTree( rightSide, this.win.params.domain_rsn, {
+        this.pageTree = new ka.pagesTree( rightSide, this.win.params.domain_rsn, {
             move: false,
             noActive: true,
-            onSelection: function( pPage, pTitle, pDomain ){
+            openFirstLevel: true,
+            onReady: function(){
+                var domainItem = this.pageTree.domainA.retrieve('item');
+                this.win.setTitle( _('Add pages to %s').replace('%s', domainItem.domain) );
+                var selected = this.pageTree.getSelected();
+                if( selected )
+                    this.choosePlace( selected, 'into' );
+
+            }.bind(this),
+            selectDomain: selectDomain,
+            selectPage: selectPage,
+            onSelection: function( pPage, pTitle ){
                 if( this.lastContext ) this.lastContext.destroy();
                 
-                if( pDomain ){
-                	if( !ka.checkPageAccess( pPage.domain_rsn, 'addPages', 'd') ){
+                if( pPage.domain ){
+                	if( !ka.checkPageAccess( pPage.rsn, 'addPages', 'd') ){
                     	return;
                     }
-                } else {
-	                if( !ka.checkPageAccess( pPage.rsn, 'addPages', 'p') ){
-	                	return;
-	                }
                 }
                 
                 this.lastContext = new Element('div',{
@@ -173,13 +181,22 @@ var admin_pages_addDialog = new Class({
                 })
                 .inject( this.win.content );
                 
-                if(! pDomain ){
-                    new Element( 'a', {
-                        text: _('Above'),
-                        'class': 'up'
-                    })
-                    .addEvent( 'click', function(){ this.choosePlace( pPage, 'up' )}.bind(this))
-                    .inject( this.lastContext );
+                var parent = pPage.parent;
+                if( parent ) parent = parent.retrieve('item');
+                
+                if(! pPage.domain ){
+                    if( !parent || (
+                          (!parent.domain && ka.checkPageAccess( parent.rsn, 'addPages') )
+                        &&(parent.domain && ka.checkPageAccess( parent.rsn, 'addPages', 'd') ) 
+                    ) ){
+                        new Element( 'a', {
+                            text: _('Above'),
+                            'class': 'up'
+                        })
+                        .addEvent( 'click', function(){ this.choosePlace( pPage, 'up' )}.bind(this))
+                        .inject( this.lastContext );
+                        
+                    }
                 }
                 new Element( 'a', {
                     text: _('Into'),
@@ -188,32 +205,32 @@ var admin_pages_addDialog = new Class({
                 .addEvent( 'click', function(){ this.choosePlace( pPage, 'into' )}.bind(this))
                 .inject( this.lastContext );
                 
-                if(! pDomain ){
-                    new Element( 'a', {
-                        text: _('Below'),
-                        'class': 'down'
-                    })
-                    .addEvent( 'click', function(){ this.choosePlace( pPage, 'down' ) }.bind(this))
-                    .inject( this.lastContext );
+                if(! pPage.domain ){
+                    if( !parent || (
+                          (!parent.domain && ka.checkPageAccess( parent.rsn, 'addPages') )
+                        &&(parent.domain && ka.checkPageAccess( parent.rsn, 'addPages', 'd') ) 
+                    ) ){
+                        new Element( 'a', {
+                            text: _('Below'),
+                            'class': 'down'
+                        })
+                        .addEvent( 'click', function(){ this.choosePlace( pPage, 'down' ) }.bind(this))
+                        .inject( this.lastContext );
+                    }
                 }
                 
                 var pos = pTitle.getPosition( this.win.content );
-                Y = 0;
-                
-                if(! pDomain )
-                    Y = 19;
-                
+
                 var mleft = pos.x;
                 if( pTitle.getStyle('padding-left') )
                     mleft = pos.x+pTitle.getStyle('padding-left').toInt();
                 
                 this.lastContext.setStyles({
                     left: mleft,
-                    top: pos.y-Y+rightSide.scrollTop
+                    top: pos.y-(this.lastContext.getSize().y/2)+7+rightSide.scrollTop
                 });
             }.bind(this)
         });
-
 
         this.bottom = new Element('div', {
         	'class': 'kwindow-win-buttonBar' }).inject( this.win.content );

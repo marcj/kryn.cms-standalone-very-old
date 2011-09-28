@@ -218,6 +218,7 @@
 .ka-pagesTree-context {
     position: absolute;
     z-index: 50000000;
+    min-width: 100px;
     left: 0px;
     top: 0px;
     padding: 3px 0px;
