@@ -29,9 +29,36 @@ var admin_pages = new Class({
         this.panes = new Hash();
         this._createLayout();
 
-        this.domainTrees = new Hash();
+        this.domainTrees = {};
         this.alreadyOnLoadPageLoaded = false;
-        this.loadTree();
+        
+        logger( this.win.params );
+        if( this.win.params && this.win.params.rsn && !this.win.params.domain ){
+            this.startupWithPageInfo( this.win.params.rsn );
+        } else if( this.win.params && this.win.params.domain ){
+            this.loadTree( {selectDomain:this.win.params.rsn} );
+        } else {
+            this.loadTree();
+        }
+    },
+    
+    startupWithPageInfo: function( pRsn ){
+    
+        new Request.JSON({url: _path+'admin/pages/getPageInfo', noCache: 1, onComplete: function(res){
+            
+            this.language = res.lang;
+            this.languageSelect.value = this.language;
+            
+            var pageChilds = {};
+            pageChilds[res.domain_rsn] = [];
+            res._parents.each(function(page){
+                pageChilds[res.domain_rsn].include( page.rsn );
+            });
+            //todo, geht noch net, wahs
+            this.loadTree({load_page_childs: pageChilds});
+            
+        }.bind(this)}).get({rsn: this.win.params.rsn});
+    
     },
 
     overlayStart: function(){
@@ -89,7 +116,7 @@ var admin_pages = new Class({
             this.page = res;
 
             if( pSelect && this.page.rsn ){
-            	var pTree =  this.domainTrees.get( this.page.domain_rsn );
+            	var pTree =  this.domainTrees[ this.page.domain_rsn ];
             	if( pTree.isReady() ){
             		pTree.select( this.page.rsn );
             	} else {
@@ -121,7 +148,7 @@ var admin_pages = new Class({
         }
         this.generalFieldsUrlPath.set('html', '<b>http://'+ka.getDomain(this.page.domain_rsn).domain+'/'+myurl+'</b>' );
             
-        this.win.setTitle ( this.page.title + ' - '+_('Page edit') );
+        this.win.setTitle ( this.page.title );
         this.generalFields['type'].setValue( this.page.type  );
         this.generalFields['title'].setValue( this.page.title  );
         this.generalFields['page_title'].setValue( this.page.page_title  );
@@ -488,17 +515,17 @@ var admin_pages = new Class({
         }).inject( this.win.content );
 
         this.treeContainer = new Element('div', {
-        	'class': 'treeContainer',
+        	'class': 'treeContainer ka-pages-treeContainer',
             styles: {
                 position: 'absolute',
                 'background-color': '#f3f3f3',
-                left: 0, right: 0, 'top': 17, bottom: 3,
+                left: 0, right: 0, 'top': 16, bottom: 3,
                 overflow: 'auto'
             }
         }).inject( this.tree );
         this.treeContainer.set('tween', {duration: 300});
 
-        this.treeContainerTable = new Element('table', {
+        /*this.treeContainerTable = new Element('table', {
         	style: 'width: 100%',
         	cellpadding: 0,
         	cellspacing: 0
@@ -506,7 +533,7 @@ var admin_pages = new Class({
         
         this.treeContainerTbody = new Element('tbody').inject(this.treeContainerTable);
         this.treeContainerTr = new Element('tr').inject(this.treeContainerTbody);
-        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);
+        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);*/
 
         this.treeSizer = new Element('div', {
             style: 'position: absolute; right: -7px; top: 0px; width: 5px; height: 100%; cursor: e-resize; border-left: 1px solid silver; border-right: 1px solid silver;'
@@ -582,6 +609,7 @@ var admin_pages = new Class({
             },
             onComplete: function(el){
                 _this.overlayEnd();
+                _this.refreshPageTrees();
             },
             onCancel: function(){
                 _this.overlayEnd();
@@ -720,7 +748,14 @@ var admin_pages = new Class({
         .setStyle('display', 'none')
         .inject( this.main );
 
-
+    },
+    
+    refreshPageTrees: function(){
+    
+        Object.each(this.domainTrees, function( domainTree ){
+            domainTree.setDomainPosition();
+        });
+    
     },
 
     toPage: function( pPage ){
@@ -827,7 +862,7 @@ var admin_pages = new Class({
 
     changeLanguage: function(){
         this.language = this.languageSelect.value;
-        this.treeContainerTd.empty();
+        this.treeContainer.empty();
         this.loadTree();
         this.viewType( 'empty' );
         this.savePageGrp.hide();
@@ -858,7 +893,7 @@ var admin_pages = new Class({
         this.win._confirm( _('Really remove?'), function(res){
             if(!res) return;
             new Request.JSON({url: _path+'admin/pages/deletePage', async: false, noCache: 1, onComplete: function(){
-                _this.domainTrees.get( pPage.domain_rsn ).reload();
+                _this.domainTrees[ pPage.domain_rsn ].reload();
             }}).post({ rsn: pPage.rsn });
         });
     },
@@ -872,7 +907,7 @@ var admin_pages = new Class({
             this.viewTypeGrpDomain.show();
             this.viewTypeGrp.hide();
             
-            if( !ka.checkPageAccess( this.currentDomain.rsn, 'deleteDomain', 'd' ) ){
+            if( !ka.checkDomainAccess( this.currentDomain.rsn, 'deleteDomain' ) ){
                 this.deleteDomainGrp.hide();
             } else {
                 this.deleteDomainGrp.show();
@@ -1195,66 +1230,64 @@ var admin_pages = new Class({
             })
             
             
-            this.win.setTitle ( pDomain.domain + ' - '+_('Domain edit') );
+            this.win.setTitle ( pDomain.domain );
             
             this.deleteDomainGrp.show();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'deleteDomain', 'd' ) ){
+            if( !ka.checkDomainAccess( pDomain.rsn, 'deleteDomain' ) ){
             	this.deleteDomainGrp.hide();
             }
             	
 
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domain', 'd' ) ){
-            	this.viewButtons['domain'].hide();
-            }
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domain' ) )
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'theme', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'theme' ) )
             	this.viewButtons['domainTheme'].hide();
 
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainProperties', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainProperties' ) )
             	this.viewButtons['domainProperties'].hide();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'settings', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'settings' ) )
             	this.viewButtons['domainSettings'].hide();
             
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainName', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainName' ) )
             	this.domainFields['domain'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainTitle', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainTitle' ) )
             	this.domainFields['title_format'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainStartpage', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainStartpage' ) )
             	this.domainFields['startpage_rsn'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainPath', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainPath' ) )
             	this.domainFields['path'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainFavicon', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainFavicon' ) )
             	this.domainFields['favicon'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainLanguage', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainLanguage' ) )
             	this.domainFields['lang'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainLanguageMaster', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainLanguageMaster' ) )
             	this.domainFields['master'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainEmail', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainEmail' ) )
             	this.domainFields['email'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'limitLayouts', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'limitLayouts' ) )
             	this.domainFields['layouts'].hide();
             
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'aliasRedirect', 'd' ) ){
+            if( !ka.checkDomainAccess( pDomain.rsn, 'aliasRedirect' ) ){
             	this.domainFields['alias'].hide();
             	this.domainFields['redirect'].hide();
             }
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'phpLocale', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'phpLocale' ) )
             	this.domainFields['phplocale'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'robotRules', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'robotRules' ) )
             	this.domainFields['robots'].hide();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, '404', 'd' ) ){
+            if( !ka.checkDomainAccess( pDomain.rsn, '404' ) ){
             	this.domainFields['page404_rsn'].hide();
             	this.domainFields['page404interface'].hide();
             }
             	
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainOther', 'd' ) )
+            if( !ka.checkDomainAccess( pDomain.rsn, 'domainOther' ) )
             	this.domainFields['resourcecompression'].hide();
             
 
@@ -1265,19 +1298,20 @@ var admin_pages = new Class({
             this.viewType( 'domain' );
             
             this.changeType();
-
+            
+            this.win.params = {rsn: res.rsn, lang: res.lang, domain:true};
 
             this.currentDomain.session = JSON.decode(this.currentDomain.session);
             this.domainSessionFields.setValue( this.currentDomain.session );
             
 
-            if( this.currentDomain.session.auth_class ){
+            if( this.currentDomain.session && this.currentDomain.session.auth_class ){
                 if( this.auth_params_objects[this.currentDomain.session.auth_class] ){
                     this.auth_params_objects[this.currentDomain.session.auth_class].setValue( this.currentDomain.session.auth_params );
                 }
             }
             
-            this.showDomainMaster( pDomain.domain_rsn );
+            this.showDomainMaster( pDomain.rsn );
             
             //set domain propertie to default
         	$H(this._domainPropertiesFields).each(function(fields, extKey){
@@ -1323,7 +1357,7 @@ var admin_pages = new Class({
             
             this.toAlternativPane();
 
-        }.bind(this)}).post({rsn: pDomain.domain_rsn});
+        }.bind(this)}).post({rsn: pDomain.rsn});
 
     },
     
@@ -1435,7 +1469,7 @@ var admin_pages = new Class({
             if( this.currentDomain.lang != req.lang ){
                 this.changeLanguage();
             } else {
-                this.domainTrees.get(this.currentDomain.rsn ).reload();
+                this.domainTrees[this.currentDomain.rsn].reload();
             }
             this.currentDomain = req;
             ka.settings.domains.each(function(d, index) {
@@ -2894,7 +2928,7 @@ var admin_pages = new Class({
                 new Request.JSON({url: _path+'admin/pages/setLive/', noCache: 1, onComplete: function(){
                     this.loadVersionOverview();
                     this.loadVersions();
-                    var d = this.domainTrees.get(this.page.domain_rsn);
+                    var d = this.domainTrees[this.page.domain_rsn];
                     if( d )
                         d.reload()
                 }.bind(this)}).post({version: pValues.rsn});
@@ -3196,12 +3230,12 @@ var admin_pages = new Class({
             else
                 this.saveButton.stopTip( _('Saved') );
 
-            var d = this.domainTrees.get(this.page.domain_rsn);
+            var d = this.domainTrees[this.page.domain_rsn];
             if( d && (this.page.title != res.title || this.page.type != res.type || this.page.visible != res.visible 
                     || this.page.access_denied != res.access_denied) || ( this.page.draft_exist == 1 && pAndPublish)
                     || this.page.access_from_groups != res.access_from_groups
                     || ( this.page.draft_exist == 0 && !pAndPublish))
-                d.reload()
+                d.reloadParentOfActive();
             if( res ){
                 this.page = res;
                 this.toggleSearchIndexButton( this.page.type);
@@ -3269,35 +3303,38 @@ var admin_pages = new Class({
             domain_rsn: pDomain,
             domain_title: domaintitle,
             onComplete: function( pDomain ){
-                this.domainTrees.get(pDomain).reload();
+                this.domainTrees[pDomain].reload();
             }.bind(this)
         });
     },
 
-    loadTree: function(){
+    loadTree: function( pOpts ){
         var _this = this;
-        this.domainTrees = new Hash();
+        this.domainTrees = {};
+
+        this.treeContainer.empty();
         
-        this.treeContainerTd.empty();
+        if( !pOpts )
+            pOpts = {};
             
         var openDomain = false;
         if( ka.settings.domains.length == 1 ){
         	openDomain = true;
         }
-        
+
         ka.settings.domains.each(function(domain){
-        	
+
         	if( domain.lang != this.language ) return;
         	
-            _this.domainTrees.include(domain.rsn, new ka.pagesTree( _this.treeContainerTd, domain.rsn, {
+            _this.domainTrees[domain.rsn] = new ka.pagesTree( _this.treeContainer, domain.rsn, {
                 onClick: function( pPage ){
-                    _this.domainTrees.each(function(_domain){
+                    Object.each(_this.domainTrees, function(_domain){
                         _domain.unselect();
                     });
                     _this.loadPage( pPage.rsn );
                 },
                 onDomainClick: function( pDomain ){
-                    _this.domainTrees.each(function(_domain){
+                    Object.each(_this.domainTrees, function(_domain){
                         _domain.unselect();
                     });
                     _this.showDomain( pDomain );
@@ -3310,18 +3347,17 @@ var admin_pages = new Class({
                 withPageAdd: _this.pageAdd.bind(_this),
                 withContext: true,
                 pageObj: _this,
-                openDomain: openDomain,
+                openFirstLevel: openDomain,
+                selectDomain: (pOpts.selectDomain==domain.rsn)?true:false,
+                load_page_childs: (pOpts.load_page_childs&&pOpts.load_page_childs[domain.rsn])?pOpts.load_page_childs[domain.rsn]:false,
                 win: this.win
-            }));
+            });
             
+            if( pOpts.selectDomain == domain.rsn ){
+                this.showDomain( domain );
+            }
             
         }.bind(this));
-        
-
-        if( this.win.params && this.win.params.rsn > 0 && !this.alreadyOnLoadPageLoaded ){
-            this.alreadyOnLoadPageLoaded = true;
-            this.loadPage( this.win.params.rsn, true );
-        }
         
     },
     

@@ -1102,6 +1102,23 @@ class kryn extends baseModule {
             
     }
 
+
+    /**
+    * Returns whether the given page has childs or not
+    * $param integer $pRsn
+    * @return bool
+    * @static
+    */    
+    public static function pageHasChilds( $pRsn ){
+        $pRsn += 0;
+
+        $domain = self::getDomainOfPage( $pRsn );
+    
+        $page =& self::getPage( $pRsn, $domain );
+        
+        return $page['hasChilds'] ? true : false;
+    }
+
     /**
      * 
      * Returns the URL of the specified page
@@ -1111,14 +1128,13 @@ class kryn extends baseModule {
      * @return string
      * @static
      */
-    public static function pageUrl( $pRsn = 0, $pDomainRsn = false, $pWithoutHttp = false ){
+    public static function &pageUrl( $pRsn = 0, $pDomainRsn = false, $pWithoutHttp = false ){
         global $kryn;
         if(! $pRsn > 0 )
             $pRsn = kryn::$page['rsn'];
         
         if( $pDomainRsn )
             kryn::$domain['rsn'] = $pDomainRsn;
-        
             
         if( kryn::$domain['startpage_rsn'] == $pRsn )
             return './'; 
@@ -1828,7 +1844,7 @@ class kryn extends baseModule {
      */
     public static function getDomainOfPage( $pRsn ){
     	$rsn = false;
-        $r2d = kryn::getPhpCache('r2d');
+        $r2d =& cache::get('r2d');
         if( !is_array($r2d) ) {
             require_once('inc/modules/admin/adminPages.class.php');
             $r2d = adminPages::updatePage2DomainCache();
@@ -2025,26 +2041,35 @@ class kryn extends baseModule {
     }
     
     
-    public static function getPage( $pPageRsn = false , $pNoActions = false ){
+    public static function &getPage( $pPageRsn = false , $pReloadCache = false ){
         global $kryn;
+        
+        $pPageRsn += 0;
         
         if( !$pPageRsn ){
             $pPageRsn = kryn::searchPage();
         }
         
-        $page = cache::get('getPage_'.$pPageRsn);
+        $page = cache::get('page_'.$pPageRsn);
         
-        if( !$page ){
-            
-            $page = dbTableFetch('system_pages', 1, 'rsn = '.($pPageRsn+0));
+        if( !$page || $pReloadCache == true ){
+
+            $page = dbTableFetch('system_pages', 1, "rsn = $pPageRsn");
             $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pPageRsn AND active = 1");
-            
+
             $page['extensionProperties'] = json_decode($page['properties'],true);
             $page['properties'] = $page['extensionProperties'];
             $page['realUrl'] = $kcache['realUrl']['rsn'][ 'rsn='.$page['rsn'] ];
             $page['active_version_rsn'] = $curVersion['rsn'];
+
+            $row = dbExfetch('SELECT rsn FROM %pfx%system_pages WHERE prsn = '.$pPageRsn.' LIMIT 1', 1);
+            if( $row['rsn']+0 > 0 )
+                $page['hasChilds'] = true;
+            else
+                $page['hasChilds'] = false;
             
-            cache::set('getPage_'.$pPageRsn, $page);
+            cache::set('page_'.$pPageRsn, $page);
+            $page = cache::get('page_'.$pPageRsn);
         }
             
         
@@ -2580,10 +2605,9 @@ class kryn extends baseModule {
     public static function &readCache( $pCode ){
         $rsn = kryn::$domain['rsn'];
         $pCode = str_replace('..', '', $pCode);
-        return kryn::getPhpCache( $pCode.'_'.$rsn );
+        return cache::get( $pCode.'_'.$rsn );
     }
-    
-    
+
     /* 
      * Resize a image to a fix resolution or to max dimension.
      *

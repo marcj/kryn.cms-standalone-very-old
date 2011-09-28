@@ -64,6 +64,8 @@ class admin {
 
         tAssign("admin", true);
                     
+        $kryn->initModules();
+                    
         $code = kryn::getRequestPath();
         $info = self::getPathItem( $code );
 
@@ -89,9 +91,10 @@ class admin {
                 }
             }
         }
+
         
         if( $modules[ getArgv(2) ] && getArgv(2) != 'admin' ){
-            
+
             $content = $modules[ getArgv(2) ]->admin();
 
             tAssign( "content", $content );
@@ -732,9 +735,8 @@ class admin {
                $res['r2d'] = array();
         }
         
-        
         $res['domains'] = array();
-        $qr = dbExec('SELECT * FROM %pfx%system_domains');
+        $qr = dbExec('SELECT * FROM %pfx%system_domains ORDER BY domain');
         while($row = dbFetch($qr)){
             if( kryn::checkPageAcl( $row['rsn'], 'showDomain', 'd') ){
                 $res['domains'][] = $row;
@@ -742,6 +744,7 @@ class admin {
         }
         
         
+        /*
         include_once('inc/modules/admin/adminPages.class.php');
         foreach( $res['domains'] as $domain ){
             $domainRsn = $domain['rsn'];
@@ -755,6 +758,7 @@ class admin {
                 $res["menus_$domainRsn"] = adminPages::updateMenuCache( $domainRsn );
             }
         }
+        */
         
         $userRsn = $client->user_rsn;
             

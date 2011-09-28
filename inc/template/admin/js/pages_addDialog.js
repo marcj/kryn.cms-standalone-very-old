@@ -203,8 +203,12 @@ var admin_pages_addDialog = new Class({
                 if(! pDomain )
                     Y = 19;
                 
+                var mleft = pos.x;
+                if( pTitle.getStyle('padding-left') )
+                    mleft = pos.x+pTitle.getStyle('padding-left').toInt();
+                
                 this.lastContext.setStyles({
-                    left: pos.x,
+                    left: mleft,
                     top: pos.y-Y+rightSide.scrollTop
                 });
             }.bind(this)

@@ -209,6 +209,11 @@ ka.checkPageAccessHasCode = function( pCodes, pAction ){
 	*/
 }
 
+
+ka.checkDomainAccess = function( pRsn, pAction ){
+    return ka.checkPageAccess( pRsn, pAction, 'd' );
+}
+
 ka.checkPageAccess = function( pRsn, pAction, pType ){
 	if(!pType) pType = 'p'; //p=page, d=domain
 	

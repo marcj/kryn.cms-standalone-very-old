@@ -29,6 +29,8 @@ ka.field = new Class({
             
             if( this.field.panel_width )
                 this.main.setStyle('width', this.field.panel_width);    
+            else
+                this.main.setStyle('width', 330);
             
             if( pField.type == 'headline' ){
                 new Element('div', {
@@ -736,6 +738,9 @@ ka.field = new Class({
                 height: this.field.height
             }
         }).inject(this.fieldPanel);
+        
+        if(! this.field.panel_width )
+            this.main.setStyle('width', '');
         
         var titleGroups = new Element('div', {
             'class': 'kwindow-win-title kwindow-win-titleGroups',
