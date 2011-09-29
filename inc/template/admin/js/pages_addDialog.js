@@ -8,9 +8,35 @@ var admin_pages_addDialog = new Class({
         this._renderLayout();
     },
 
-    choosePlace: function( pPage, pPos ){
+    choosePlace: function( pTitle, pPos ){
         if( this.lastContext ) this.lastContext.destroy();
-        this.choosenPage = pPage;
+
+        if( this.lastChoosenTitle )
+            this.lastChoosenTitle.removeClass('ka-pageTree-item-selected');
+        
+        if( this.lastLine )
+            this.lastLine.destroy();
+        
+        var page = pTitle.retrieve('item');
+        this.lastChoosenTitle = pTitle;
+        if( pPos == 'into' )
+            this.lastChoosenTitle.addClass('ka-pageTree-item-selected');
+        else {
+            this.lastLine = new Element('div', {
+                style: 'border-top: 1px solid gray; height: 1px;',
+                styles: {
+                    'margin-left': pTitle.getStyle('padding-left').toInt()+10
+                }
+            });
+            
+            if( pPos == 'up' ){
+                this.lastLine.inject( pTitle, 'before');
+            } else {
+                this.lastLine.inject( pTitle, 'after');
+            }
+        }
+        
+        this.choosenPage = page;
         this.choosenPos = pPos;
         this.renderChoosenPlace();
     },
@@ -155,9 +181,11 @@ var admin_pages_addDialog = new Class({
             noActive: true,
             openFirstLevel: true,
             onReady: function(){
+                
                 var domainItem = this.pageTree.domainA.retrieve('item');
                 this.win.setTitle( _('Add pages to %s').replace('%s', domainItem.domain) );
                 var selected = this.pageTree.getSelected();
+                
                 if( selected )
                     this.choosePlace( selected, 'into' );
 
@@ -193,7 +221,7 @@ var admin_pages_addDialog = new Class({
                             text: _('Above'),
                             'class': 'up'
                         })
-                        .addEvent( 'click', function(){ this.choosePlace( pPage, 'up' )}.bind(this))
+                        .addEvent( 'click', function(){ this.choosePlace( pTitle, 'up' )}.bind(this))
                         .inject( this.lastContext );
                         
                     }
@@ -202,7 +230,7 @@ var admin_pages_addDialog = new Class({
                     text: _('Into'),
                     'class': 'into'
                 })
-                .addEvent( 'click', function(){ this.choosePlace( pPage, 'into' )}.bind(this))
+                .addEvent( 'click', function(){ this.choosePlace( pTitle, 'into' )}.bind(this))
                 .inject( this.lastContext );
                 
                 if(! pPage.domain ){
@@ -214,7 +242,7 @@ var admin_pages_addDialog = new Class({
                             text: _('Below'),
                             'class': 'down'
                         })
-                        .addEvent( 'click', function(){ this.choosePlace( pPage, 'down' ) }.bind(this))
+                        .addEvent( 'click', function(){ this.choosePlace( pTitle, 'down' ) }.bind(this))
                         .inject( this.lastContext );
                     }
                 }

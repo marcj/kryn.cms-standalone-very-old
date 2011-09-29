@@ -965,8 +965,8 @@ ka.pagesTree = new Class({
     },
 
     getSelected: function(){
-        if( this.lastSelectedPage )
-            return this.lastSelectedPage;
+        if( this.lastSelectedItem )
+            return this.lastSelectedItem;
         return false;
     },
 
