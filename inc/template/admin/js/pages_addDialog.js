@@ -293,7 +293,8 @@ var admin_pages_addDialog = new Class({
         req.visible = this.visible.getValue();
 
         new Request.JSON({url: _path+'admin/pages/add', noCache: 1, async: false, onComplete: function(){
-            this.win.params.onComplete( req.domain_rsn );
+            if( this.win.params.onComplete )
+                this.win.params.onComplete( req.domain_rsn );
             this.win.close();
         }.bind(this)}).post(req);
 

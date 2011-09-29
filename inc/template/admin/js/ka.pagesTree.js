@@ -1046,7 +1046,7 @@ ka.pagesTree = new Class({
             canAdd = ka.checkPageAccess( pPage.rsn, 'addPages', 'd' );
         } else {
             canDelete = ka.checkPageAccess( pPage.rsn, 'deletePages' );
-            canAdd = ka.checkPageAccess( pPage.rsn, 'addPages', 'd' );
+            canAdd = ka.checkPageAccess( pPage.rsn, 'addPages' );
             canHide = ka.checkPageAccess( pPage.rsn, 'visible' );
         }
         
@@ -1064,6 +1064,10 @@ ka.pagesTree = new Class({
                     param.selectPage = pPage.rsn;
                     param.domain_rsn = pPage.domain_rsn;
                 }
+                
+                param.onComplete = function( pDomain ){
+                    this.options.pageObj.domainTrees[pDomain].reload();
+                }.bind(this)
 
                 ka.wm.open('admin/pages/addDialog', param);
                 
