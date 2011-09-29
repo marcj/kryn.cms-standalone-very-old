@@ -784,6 +784,13 @@ ka.pagesTree = new Class({
     },
 
 
+    reloadParent: function( pA ){
+        if( pA.parent )
+            pA.pageTreeObj.reloadChilds( pA.parent );
+        else
+            pA.pageTreeObj.reload();
+    },
+
     movePage: function( pWhereRsn, pToRsn, pCode, pToDomain ){
         var _this = this;
         var req = {
@@ -1086,9 +1093,7 @@ ka.pagesTree = new Class({
                 html: _('Hide/Unhide')
             })
             .addEvent('click', function(){
-                if( this.options.pageObj ){
-                        this.options.pageObj.toggleHide( pPage );
-                }
+                this.toggleHide( pA );
             }.bind(this))
             .inject( this.oldContext );
         }
@@ -1204,6 +1209,18 @@ ka.pagesTree = new Class({
             this.oldContext.setStyle('top', mtop+1);
         }
     },
+    
+    toggleHide: function( pA ){
+    
+        var item = pA.retrieve('item');
+        
+        var req = {rsn: item.rsn};
+        req.visible = item.visible == 1?0:1;
+            
+        new Request.JSON({url: _path+'admin/pages/setHide', noCache: 1, async: false, onComplete: function(){
+            this.reloadParent( pA );
+        }.bind(this)}).post(req);
+    },
 
     paste: function( pPos, pPage ){
         var clipboard = ka.getClipboard();
@@ -1214,12 +1231,12 @@ ka.pagesTree = new Class({
         req.page = clipboard.value.rsn;
 
         req.to = pPage.rsn;
+        req.to_domain = pPage.domain?1:0;
         req.pos = pPos;
         req.type = clipboard.type;
 
         new Request.JSON({url: _path+'admin/pages/paste', noCache: 1, async: false, onComplete: function(){
             this.reload();
         }.bind(this)}).post(req);
-    
     }
 });

@@ -67,6 +67,9 @@ class adminPages {
         case 'paste':
             return json( self::paste() );
             
+        case 'setHide':
+            return json( self::setHide(getArgv('rsn'),getArgv('visible')) );
+            
         case 'deleteAlias':
             return self::deleteAlias( getArgv('rsn')+0 );
         case 'getAliases':
@@ -75,6 +78,14 @@ class adminPages {
         default:
             return self::itemList();
         }
+    }
+    
+    public static function setHide( $pRsn, $pVisible ){
+        $pRsn += 0;
+        $pVisible += 0;
+        
+        if( kryn::checkPageAcl( $pRsn, 'visible' ) )
+            dbUpdate('system_pages', 'rsn = '.$pRsn, array('visible'=>$pVisible));
     }
     
     public static function getPageInfo( $pRsn ){
@@ -124,54 +135,67 @@ class adminPages {
 
     public static function paste(){
 
-        //$to = getArgv('');
-        //$page = dbTableFetch('system_pages', 1, 'rsn = ');
+        $domain = getArgv('to_domain')==1?true:false;
         if( getArgv('type') == 'pageCopy' ){
-            self::copyPage( getArgv('page'), getArgv('to'), getArgv('pos') );
+            self::copyPage( getArgv('page'), getArgv('to'), $domain, getArgv('pos') );
         }
         if( getArgv('type') == 'pageCopyWithSubpages' ){
-            self::copyPage( getArgv('page'), getArgv('to'), getArgv('pos'), true );
+            self::copyPage( getArgv('page'), getArgv('to'), $domain, getArgv('pos'), true );
         }
 
-        $page = dbTableFetch('system_pages', 1, 'rsn = '.(getArgv('to')+0));
-        self::cleanSort( $page['domain_rsn'], $page['prsn'] );
-        self::updateUrlCache( $page['domain_rsn'] );
-        self::updateMenuCache( $page['domain_rsn'] );
+        $pageTo = dbTableFetch('system_pages', 1, 'rsn = '.(getArgv('to')+0));
+        self::cleanSort( $pageTo['domain_rsn'], $pageTo['prsn'] );
+        self::updateUrlCache( $pageTo['domain_rsn'] );
+        self::updateMenuCache( $pageTo['domain_rsn'] );
 
         $page = dbTableFetch('system_pages', 1, 'rsn = '.(getArgv('page')+0));
         self::cleanSort( $page['domain_rsn'], $page['prsn'] );
-        self::updateUrlCache( $page['domain_rsn'] );
-        self::updateMenuCache( $page['domain_rsn'] );
+        if( $page['domain_rsn'] != $pageTo['domain_rsn'] ){
+            self::updateUrlCache( $page['domain_rsn'] );
+            self::updateMenuCache( $page['domain_rsn'] );
+        }
 
         return true;
 
     }
 
-    public static function copyPage( $pFrom, $pTo, $pPos, $pWithSubpages = false, $pWithoutThisPage = false ){
+    public static function copyPage( $pFrom, $pTo, $pToDomain, $pPos, $pWithSubpages = false, $pWithoutThisPage = false ){
         global $user;
         
-        $pFrom = $pFrom+0;
-        $pTo = $pTo+0;
-        $pWithoutThisPage = $pWithoutThisPage+0;
+        $pFrom += 0;
+        $pTo += 0;
+        $pWithoutThisPage += 0;
         
-        $toPage = dbTableFetch('system_pages', 1, 'rsn = '.$pTo);
-        $fromPage = dbTableFetch('system_pages', 1, 'rsn = '.$pFrom);
+        $fromPage = dbTableFetch('system_pages', 1, 'rsn = '.$pFrom);        
         $newPage = $fromPage;
 
-        $siblingWhere = "prsn = ".$toPage['prsn'];
-        $newPage['domain_rsn'] = $toPage['domain_rsn'];
+        if( !$pToDomain ){
+            $toPage = dbTableFetch('system_pages', 1, 'rsn = '.$pTo);        
+            $siblingWhere = "prsn = ".$toPage['prsn'];
+            $newPage['domain_rsn'] = $toPage['domain_rsn'];
+        }
+        
         if( $pPos == 'down' || $pPos == 'up'){
             $newPage['sort'] = $toPage['sort'];
             $newPage['prsn'] = $toPage['prsn'];
             $newPage['sort_mode'] = $pPos;
+            if( $pToDomain ){
+                return false;
+            }
         } else {
             $newPage['sort'] = 1;
-            $siblingWhere = "prsn = ".$toPage['rsn'];
             $newPage['sort_mode'] = 'up';
-            $newPage['prsn'] = $toPage['rsn'];
+            if( !$pToDomain ){
+                $siblingWhere = "prsn = ".$toPage['rsn'];
+                $newPage['prsn'] = $toPage['rsn'];
+            } else {
+                $newPage['prsn'] = 0;
+                $newPage['domain_rsn'] = $pTo;
+                $siblingWhere = "prsn = 0 AND domain_rsn = ".$pTo;
+            }
         }
         $newPage['draft_exist'] = 1;
-        $newPage['rsn'] = null;
+        unset($newPage['rsn']);
         $newPage['visible'] = 0;
         
         if( $pWithSubpages ){
@@ -187,12 +211,11 @@ class adminPages {
         $siblings = dbTableFetch('system_pages', -1, $siblingWhere);
        
         if( count($siblings) > 0 ){
-                    
+
             $newCount = 0;
             $t = $newPage['title'];
             $needlePos = strpos( $t, ' #')+2;
-            $needleLast = substr( $t, $needlePos );
-            
+            $needleLast = substr( $t, $needlePos );            
             
             foreach( $siblings as &$sibling ){
                 
