@@ -162,18 +162,19 @@ ka.wm = {
         pWindow.setBarButton( bar );
         var bar = new Element('a',{
             'class': 'wm-bar-item',
-            title: pWindow.getTitle()
+            title: pWindow.getFullTitle()
         });
         
         pWindow.setBarButton( bar );
         
         bar.addEvent('click', function(){
-            if( pWindow.isOpen )
+            if( pWindow.isOpen && pWindow.inFront )
                 pWindow.minimize();
-            else
+            else if( !pWindow.inFront || !pWindow.isOpen )
                 pWindow.toFront();
         });
-        shortTitle = pWindow.getTitle();
+        shortTitle = pWindow.getFullTitle();
+
         if( shortTitle.length > 22 )
             shortTitle = shortTitle.substr(0,19)+'...';
         
@@ -216,28 +217,21 @@ ka.wm = {
             var item = ka.wm.newListBar( win );
             item.inject( $('windowList') );
 
-            if( win.isOpen ){
-                item.setStyle('display', 'none');
-            } else {
-                c++;
-            }
-            return
-//           if( winId == ka.wm.lastWindow )
+            c++;
             
-            
-            if( win.isOpen )
-                item.set('class', 'wm-bar-item-active');
+            if( win.inFront && win.isOpen )
+                item.addClass('wm-bar-item-active');
+            else
+                item.removeClass('wm-bar-item-active');
 
         });
         
-        if( c > 0 ){
+        if( c > 1 ){
             $('windowList').setStyle('display', 'block');
             $('middle').setStyle('bottom', 25);
-            //$('middle').setStyle('right', 35);
         } else {
             $('windowList').setStyle('display', 'none');
             $('middle').setStyle('bottom', 0);
-            //$('middle').setStyle('right', 0);
         }
         
     },

@@ -77,11 +77,15 @@ select,
 textarea,
 input.text {
     border: 1px solid #bbb;
-    padding: 5px;
     color: #444;
     font-size: 11px;
     -moz-border-radius: 3px;
     background-color: white;
+}
+
+textarea,
+input.text {
+    padding: 5px;
 }
 
 input.text {

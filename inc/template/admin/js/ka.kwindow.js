@@ -337,16 +337,22 @@ ka.kwindow = new Class({
         }}).post( req );
     },
     */
-
+    
+    parseTitle: function( pHtml ){
+    
+        pHtml = pHtml.replace('<img', ' » <img');
+        return pHtml.stripTags();
+    },
+    
     getTitle: function(){
         if( this.titleAdditional )
-            return this.titleAdditional.get('text');
+            return this.parseTitle(this.titleAdditional.get('html'));
         return '';
     },
     
     getFullTitle: function(){
         if( this.titlePath )
-            return this.titlePath.get('text');
+            return this.parseTitle(this.titlePath.get('html'));
         return '';
     },
 
@@ -357,7 +363,7 @@ ka.kwindow = new Class({
 
     toBack: function(){
         //this.title.set('class', 'kwindow-win-title-inaktive'):
-        this.title.setStyle('opacity', 0.7 );
+        this.title.setStyle('opacity', 0.4 );
         this.inFront = false;
         //this.createOverlay();
     },
@@ -460,7 +466,6 @@ ka.kwindow = new Class({
     minimize: function(){
         
         this.isOpen = false;
-        
         
         ka.wm.updateWindowBar();
         
