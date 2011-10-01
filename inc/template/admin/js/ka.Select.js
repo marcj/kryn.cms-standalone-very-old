@@ -30,9 +30,6 @@ ka.Select = new Class({
             src: _path+this.arrow,
         }).inject( this.arrowBox );
         
-        
-        window.addEvent('click', this.close.bind(this));
-        
         this.chooser = new Element('div', {
             'class': 'ka-Select-chooser'
         });
@@ -72,8 +69,7 @@ ka.Select = new Class({
         })
         .addEvent('click', function(){
             
-            this.setValue( pId, true);
-            this.close();
+            this.setValue( pId, true );
             
         }.bind(this))
         .inject( this.chooser );
@@ -132,7 +128,7 @@ ka.Select = new Class({
     
     toggle: function( e ){
     
-        if( this.opened == true )
+        if( this.chooser.getParent() )
             this.close();
         else {
             if( e && e.stop ){
@@ -144,14 +140,18 @@ ka.Select = new Class({
     },
     
     open: function(){
+
+        ka.openDialog({
+            element: this.chooser,
+            target: this.box
+        });
+        
+        return;
     
-        var target = document.body;
-        if( this.box.getParent('.kwindow-border') ){
-            target = this.box.getParent('.kwindow-border');
-        }
-        this.chooser.inject( target );
-        
-        
+    },
+    
+    updatePos: function(){
+
         this.chooser.position({
             relativeTo: this.box,
             position: 'bottomRight',
@@ -161,7 +161,7 @@ ka.Select = new Class({
         var pos = this.chooser.getPosition();
         var size = this.chooser.getSize();
         
-        var bsize = window.getSize( $('desktop') );
+        var bsize = $('desktop').getSize();
         
         var height;
 
@@ -184,17 +184,9 @@ ka.Select = new Class({
             }
             
         }
-        
-        this.opened = true;
-    
+
     },
-    
-    close: function(){
-    
-        this.opened = false;
-        this.chooser.dispose();
-    },
-    
+
     toElement: function(){
         return this.box;
     }

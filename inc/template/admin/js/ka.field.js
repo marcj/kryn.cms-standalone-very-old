@@ -1458,8 +1458,11 @@ ka.field = new Class({
         if( this.field.win ){
             this.field.win.addEvent('resize', datePicker.updatePos.bind(datePicker));
             this.field.win.addEvent('move', datePicker.updatePos.bind(datePicker));
-            
         }
+        
+        datePicker.addEvent('change', function(){
+            this.fireEvent('change', this.getValue());
+        }.bind(this));
         
         this.getValue = function(){
             return datePicker.getTime();

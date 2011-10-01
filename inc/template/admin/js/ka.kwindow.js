@@ -408,8 +408,9 @@ ka.kwindow = new Class({
             }
             this.isOpen = true;
             this.inFront = true;
-            ka.kwindowZIndex++;
-            this.border.setStyle('z-index', ka.kwindowZIndex);
+            
+            this.border.inject( this.border.getParent() );
+            
             this.deleteOverlay();
             ka.wm.updateWindowBar();
             return true;

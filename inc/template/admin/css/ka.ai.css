@@ -45,7 +45,6 @@ html {
 /* main layout */
 div.header {
     position: absolute;
-    z-index: 2600000; /*2.6mill*/
     left: 47px;
     right: 45px;
     text-align: left;
@@ -114,7 +113,6 @@ div.ka-mainlink-additionalmenubar {
     color: white;
     text-decoration: none;
     position: relative;
-    z-index: 16000;
     display: block;
     height: 32px;
     cursor: pointer;
@@ -154,7 +152,6 @@ div.mainlinks a.bar-dock-logo {
 
 div.bar-dock-logo-menu-style {
     position: absolute;
-    z-index: 2550000;
     padding-top: 12px;
     width: 170px;
     min-height: 50px;
@@ -262,7 +259,6 @@ div.headRight > a.last:link {
     -webkit-border-bottom-right-radius: 9px;
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
-    z-index: 2500000; /*2.5mill*/
 }
 
 .ka-module-menu div.kwindow-win-buttonGroup {
@@ -379,7 +375,6 @@ div.headRight > a.last:link {
 .ka-upload-menu {
     position: absolute;
     top: 20px;
-    z-index: 2500002;
     right: 310px;
     width: 200px;
     text-align: left;
@@ -498,7 +493,6 @@ div.headRight > a.last:link {
     color: white;
     text-align: right;
     line-height: 24px;
-    z-index: 2500001;
 }
 
 
@@ -507,7 +501,6 @@ div.headRight > a.last:link {
 div.ka-subnavi {
     position: absolute;
     min-width: 150px;
-    z-index: 16000;
     padding: 5px;
     -moz-border-radius-topright: 10px;
     -moz-border-radius-bottomright: 10px;
@@ -544,7 +537,6 @@ a.ka-subnavi,
 a.ka-subnavi:link { 
     position: relative;
     float: none;
-    z-index: 16000;
     color: white;
     padding: 6px 5px 6px 10px;
     display: block;
@@ -598,7 +590,6 @@ div.windowList {
     padding: 0px 11px 0 11px;
     padding-left: 3px;
     padding-right: 150px;
-	z-index: 11000000;
 }
 
 .iconbar {
@@ -608,12 +599,10 @@ div.windowList {
     top: 16px;
     color: white;
     font-family: monospace;
-    z-index: 500501;
     line-height: 38px;
     font-size: 11px;
     text-align: right;
     color: #ddd;
-	z-index: 15000000;
 }
 
 .iconbar .iconbar-item {
@@ -779,7 +768,6 @@ a.ka-create-search-index-icon.red {
     min-height: 25px;
     background-color: #ddd;
     padding: 4px;
-    z-index: 2147483600;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius-topright: 0px;
@@ -831,7 +819,6 @@ a.ka-create-search-index-icon.red {
     background-repeat: repeat-x;
     background-color: #817f84;
     background-color: #656465;
-    z-index: 500000000;
     -moz-border-radius-bottomleft: 5px;
     -moz-border-radius-bottomright: 5px;
 }
@@ -972,7 +959,6 @@ a.ka-create-search-index-icon.red {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
-    z-index: 890000000;
     -moz-box-shadow: 0 0 2em #656465;
     -webkit-box-shadow: 0 0 2em #656465;
     box-shadow: 0 0 2em #656465;

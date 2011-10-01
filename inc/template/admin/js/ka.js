@@ -9,17 +9,12 @@ ka.streamParams = {};
 ka.uploads = {};
 ka._links = {};
 
-/*Request.JSON = new Class({
-    Extends: Request.JSON
-});*/
-
 /*
  * Build the administration interface
 */
 ka.init = function(){
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
-
 
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
@@ -616,7 +611,7 @@ ka.displayNewUpdates = function( pModules ){
 ka.buildClipboardMenu = function(){
     ka.clipboardMenu = new Element('div', {
         'class': 'ka-clipboard-menu'
-    }).inject( $('border') );
+    }).inject( $('header'), 'before' );
 }
 
 ka.buildUploadMenu = function(){
@@ -632,7 +627,7 @@ ka.buildUploadMenu = function(){
     .addEvent('mouseout', function(){
         this.tween('height', 22);
     })
-    .inject( $('border') );
+    .inject( $('header'), 'before' );
 
     ka.uploadMenuInfo = new Element('div', {
         'class': 'ka-upload-menu-info'
@@ -1120,7 +1115,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
         .addEvent('mouseout', function(){
             mlink.fireEvent('mouseout');
         })
-        .inject( $('border') );
+        .inject( $('header'), 'before' );
 
         $H(pLink.childs).each(function(item, code){
         	
@@ -1550,6 +1545,90 @@ ka._openLinkContext = function( pLink ){
 	}
 	
 }
+
+ka.autoPositionLastOverlay = false;
+ka.autoPositionLastItem = false;
+
+ka.closeDialog = function(){
+    if( ka.autoPositionLastOverlay )
+        ka.autoPositionLastOverlay.destroy();
+    delete ka.autoPositionLastOverlay;
+    
+    if( ka.autoPositionLastItem ){
+        ka.autoPositionLastItem.addEvent('close');
+        ka.autoPositionLastItem.dispose();
+    }
+
+    delete ka.autoPositionLastItem;
+}
+
+ka.openDialog = function( item ){
+    if( !item.element || !item.element.getParent ){
+        return;
+    }
+    if( ka.autoPositionLastItem == item.element )
+        return;
+        
+    ka.closeDialog();
+    
+    ka.autoPositionLastOverlay = new Element('div', {
+        style: 'position: absolute; left:0px; top: 0px; right:0px;bottom:0px;background-color: white;',
+        styles: {
+            opacity: 0.001
+        }
+    })
+    .addEvent('click', function(){
+        ka.closeDialog();
+    })
+    .inject( document.body );
+    
+    ka.autoPositionLastItem = item.element;
+
+    item.element.inject( document.body );
+    item.element.removeEvent('click', ka.closeDialog);
+    item.element.addEvent('click', ka.closeDialog);
+
+    if( !item.primary ){
+        item.primary = {
+            'position': 'bottomRight',
+            'edge': 'upperRight'
+        }
+    }
+    if( !item.secondary ){
+        item.secondary = {
+            'position': 'upperRight',
+            'edge': 'bottomRight'
+        }
+    }
+
+    item.primary.relativeTo = item.target;
+    item.secondary.relativeTo = item.target;
+
+    item.element.position(item.primary);
+
+    var pos = item.element.getPosition();
+    var size = item.element.getSize();
+
+    var bsize = item.element.getParent().getSize();
+    var height;
+
+    item.element.setStyle('height', '');
+    
+    item.minHeight = item.element.getSize().y;
+
+    if( size.y+pos.y > bsize.y ){
+        height = bsize.y-pos.y-10;
+    }
+
+    if( height ){
+        if( item.minHeight && height < item.minHeight ){
+            item.element.position( item.secondary );
+        } else {
+            item.element.setStyle('height', height);
+        }
+    }
+}
+
 
 ka.parse = new Class({
 
