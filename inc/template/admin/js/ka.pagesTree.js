@@ -1112,16 +1112,25 @@ ka.pagesTree = new Class({
         new Element('a', {
             html: _('Export')
         }).addEvent('click', function(){
+            var param = {};
             if( pPage.domain )
-                ka.exportDomain( pPage.rsn)
+                param.domain = pPage.rsn;
             else
-                ka.exportPageTree( pPage.rsn );
+                param.page = pPage.rsn;
+            param.type = 'export'; 
+            ka.wm.open('admin/system/backup', param);
         }.bind(this)).inject( this.oldContext );
 
         new Element('a', {
             html: _('Import')
         }).addEvent('click', function(){
-            ka.importPageTree( pPage.rsn );
+            var param = {};
+            if( pPage.domain )
+                param.domain = pPage.rsn;
+            else
+                param.page = pPage.rsn;
+            param.type = 'import'; 
+            ka.wm.open('admin/system/backup', param);
         }.bind(this)).inject( this.oldContext );
 
         new Element('a', {

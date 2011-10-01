@@ -1,10 +1,22 @@
 ka.field = new Class({
     
-    Implements: Events,
+    Implements: [Options,Events],
     
-    initialize: function( pField, pFieldId ){
+    options: {
+    
+    },
+    
+    field: {},
+    
+    initialize: function( pField, pContainer, pRefs ){
         this.field = pField;
-        this.fieldId = pFieldId;
+        
+        this.setOptions(pField);
+        if( typeOf(pRefs) == 'object' ){
+            Object.each(pRefs, function(item,key){
+                this.field[key] = item;
+            }.bind(this));
+        }
                
         if(! this.field.value ) this.field.value = '';
 
@@ -12,7 +24,7 @@ ka.field = new Class({
         if( this.field.tableitem ){
             this.tr = new Element('tr', {
                 'class': 'ka-field-main'
-            }).inject( document.hidden );
+            }).inject( pContainer||document.hidden );
 
             this.title = new Element('td', {
                 'class': 'ka-field-tdtitle',
@@ -25,7 +37,7 @@ ka.field = new Class({
         } else {
             this.main = new Element( 'div', {
                 'class': 'ka-field-main'
-            }).inject( document.hidden );
+            }).inject( pContainer||document.hidden );
             
             if( this.field.panel_width )
                 this.main.setStyle('width', this.field.panel_width);    
@@ -68,6 +80,7 @@ ka.field = new Class({
         if( pField.help && this.titleText ){
             new Element('img', {
                 src: _path+'inc/template/admin/images/icons/help_gray.png',
+                width: 14,
                 style: 'float: right; cursor: pointer; position: relative; top: -1px;',
                 title: _('View help to this field'),
                 styles: {
@@ -178,6 +191,9 @@ ka.field = new Class({
         case 'file':
         case 'filechooser':
             this.renderChooser({pagefiles: 1, upload: 1, files:1});
+            break;
+        case 'folder':
+            this.renderChooser({pagefiles: 1, upload: 1, files:1, onlyDir: 1});
             break;
         case 'pagechooser':
         case 'page':
@@ -359,14 +375,41 @@ ka.field = new Class({
         
         var updatePosition = function(){
             if( box && box.getParent ){
-                var pos = input.getPosition( box.getParent() );
-                var size = input.getSize();
-                box.setStyles({
-                    'left': pos.x,
-                    'top': pos.y-150,
-                    'width': size.x
+            
+                box.position({
+                    relativeTo: div,
+                    position: 'bottomLeft',
+                    edge: 'upperLeft'
                 });
-                timer = updatePosition.delay(200);
+
+                var pos = box.getPosition();
+                var size = box.getSize();
+                
+                var bsize = window.getSize( $('desktop') );
+                
+                var height;
+        
+                if( size.y+pos.y > bsize.y ){
+                    height = bsize.y-pos.y-10;
+                }
+
+                if( height ) {
+                
+                    if( height < 100 ){
+                    
+                        box.position({
+                            relativeTo: div,
+                            position: 'upperLeft',
+                            edge: 'bottomLeft'
+                        });
+                        
+                    } else {
+                        box.setStyle('height', height);
+                    }
+                    
+                }
+
+                timer = updatePosition.delay(500);
             }
         }
         
@@ -397,7 +440,7 @@ ka.field = new Class({
                         });
                         a.store('value', value);
                     });
-                    if( boxBody.getElement('a') )
+                    if( boxBody.getElement('a') && pValue )
                         boxBody.getElement('a').addClass( 'active' );
                 }
                 
@@ -417,6 +460,7 @@ ka.field = new Class({
                 
                 if( timer )
                     clearTimeout( timer );
+
                 updatePosition();
             
                 /*boxHead = new Element('div', {
@@ -448,6 +492,7 @@ ka.field = new Class({
     
         if( this.field.store ){
             input.addEvent('blur', hideSearchBox);
+            window.addEvent('click', hideSearchBox);
             input.addEvent('focus', function(){
                 if( this.value.length > 0 ){
                     searchValue( this.value );
@@ -684,7 +729,7 @@ ka.field = new Class({
         
         }.bind(this);
         
-        new ka.Button(_('Add'))
+        new ka.Button(this.field.addText?this.field.addText:_('Add'))
         .addEvent('click', addRow)
         .inject( actions );
         
@@ -727,6 +772,12 @@ ka.field = new Class({
             Array.each( pValue, function(item){
                 addRow( item );
             });
+        }
+        
+        if( this.field.startWith && this.field.startWith > 0 ){
+            for( var i=0; i<this.field.startWith; i++ ){
+                addRow();
+            }
         }
     
     },
@@ -1043,13 +1094,14 @@ ka.field = new Class({
         var _this = this;
         var multiple = ( this.field.multi || this.field.multiple );
         var sortable = this.field.sortable;
-          
+
+
         var selWidth = 133;
         if( this.field.tinyselect )
             selWidth = 75;
         if( sortable )
             selWidth -= 8;
-            
+
         if( !this.field.tableItems && this.field.table_items ){
             this.field.tableItems = this.field.table_items;
         }
@@ -1057,23 +1109,19 @@ ka.field = new Class({
         if( multiple && (!this.field.size || this.field.size+0 < 4 ) )
             this.field.size = 4;
         
-        this.input = new Element('select', {
-            size: this.field.size
-        })
-        .addEvent('change', function(){
-            this.fireEvent('change', this.getValue());
-        }.bind(this))
-        .inject( this.fieldPanel );
-
-        if( this.field.directory ){
-            this.input.set('title', _('This list is based on files on this directory:')+' '+this.field.directory);
-            new Element('div', {
-                text:  _('Based on:')+' '+this.field.directory,
-                style: 'font-size: 11px; color: silver'
-            }).inject( this.input, 'after' );
+        if( multiple ){
+            this.input = new Element('select', {
+                size: this.field.size
+            })
+            .addEvent('change', function(){
+                this.fireEvent('change', this.getValue());
+            }.bind(this))
+            .inject( this.fieldPanel );
         }
-        
-        
+            
+        if( !this.field.tableItems && this.field.items )
+            this.field.tableItems = this.field.items;
+
         
         var label = _this.field.table_label;
         var key = _this.field.table_key ? _this.field.table_key : _this.field.table_id;
@@ -1082,54 +1130,52 @@ ka.field = new Class({
             var label = _this.field['n-n'].right_label;
             var key = _this.field['n-n'].right_key;
         }
-        
-        if( !this.field.tableItems && this.field.items )
-            this.field.tableItems = this.field.items;
-
-        if( $type(this.field.tableItems) == 'array' ){
-            this.field.tableItems.each(function(item){
-                if(!item) return;
-                
-                if( _this.field.lang && item.lang != _this.field.lang && item.lang ) return;
-                
-                var text = '';
-                if( _this.field.table_view ){
-                    $H(_this.field.table_view).each(function(val, mykey){
-                        var _val = '';
-                        switch( val ){
-                        case 'time':
-                            _val = new Date(item[mykey]*1000).format('db');
-                            break;
-                        default:
-                            _val = item[mykey];
-                        }
-                        text = text + ', ' + _val;
-                    });
-                    text = text.substr(2, text.length);
-                } else if( item && item[label] ){
-                    text = item[label];
-                }
-
-                var t = new Element('option', {
-                    text: text,
-                    value: item[key]
-                })
-                if(t && _this.input )
-                    t.inject( _this.input );
-            });
-        } else if ( $type(this.field.tableItems) == 'object' ){
-
-            $H(this.field.tableItems).each(function(item, key){
-                var t = new Element('option', {
-                    text: item,
-                    value: key
-                })
-                if(t && _this.input )
-                    t.inject( _this.input );
-            });
-        }
 
         if( multiple ){
+    
+            if( $type(this.field.tableItems) == 'array' ){
+                this.field.tableItems.each(function(item){
+                    if(!item) return;
+                    
+                    if( _this.field.lang && item.lang != _this.field.lang && item.lang ) return;
+                    
+                    var text = '';
+                    if( _this.field.table_view ){
+                        $H(_this.field.table_view).each(function(val, mykey){
+                            var _val = '';
+                            switch( val ){
+                            case 'time':
+                                _val = new Date(item[mykey]*1000).format('db');
+                                break;
+                            default:
+                                _val = item[mykey];
+                            }
+                            text = text + ', ' + _val;
+                        });
+                        text = text.substr(2, text.length);
+                    } else if( item && item[label] ){
+                        text = item[label];
+                    }
+    
+                    var t = new Element('option', {
+                        text: text,
+                        value: item[key]
+                    })
+                    if(t && _this.input )
+                        t.inject( _this.input );
+                });
+            } else if ( $type(this.field.tableItems) == 'object' ){
+    
+                $H(this.field.tableItems).each(function(item, key){
+                    var t = new Element('option', {
+                        text: item,
+                        value: key
+                    })
+                    if(t && _this.input )
+                        t.inject( _this.input );
+                });
+            }
+
 
             this.main.setStyle('width', 355);
             //if( this.field.small )
@@ -1195,6 +1241,29 @@ ka.field = new Class({
             if( this.field.tinyselect )
                 this.inputVals.setStyle('width', 75);
             
+        } else {
+            ///not mutiple
+            this.select = new ka.Select();
+            
+            this.select.addEvent('change', function(){
+                this.fireEvent('change', this.getValue());
+            }.bind(this));
+
+            this.select.inject( this.fieldPanel );
+                        
+            if( typeOf(this.field.tableItems) == 'array' ){
+
+                Array.each(this.field.tableItems, function(item, key){
+                    this.select.add( item[key], item[label] );
+                }.bind(this));
+
+            } else if ( typeOf(this.field.tableItems) == 'object' ){
+    
+                Object.each(this.field.tableItems, function(item, key){
+                    this.select.add( key, item );
+                }.bind(this));
+
+            }
         }
         
         if( sortable ){
@@ -1235,26 +1304,35 @@ ka.field = new Class({
                 selOption.destroy();
 
             }.bind(this)).inject(td4);         
-        }         
-        
+        }
+
+        if( this.field.directory ){
+            this.input.set('title', _('This list is based on files on this directory:')+' '+this.field.directory);
+            new Element('div', {
+                text:  _('Based on:')+' '+this.field.directory,
+                style: 'font-size: 11px; color: silver'
+            }).inject( this.select||this.input, 'after' );
+        }
 
         this._setValue = function( pValue, pIntern ){
          
             if( multiple ){
                 this.inputVals.empty();
                 this.input.getElements('option').set('disabled', false);
-            }
-         
-            this.input.getElements('option').each(function(option){
-                option.selected = false;
-            });
             
+         
+                this.input.getElements('option').each(function(option){
+                    option.selected = false;
+                });
+            }
+
             if( _this.field['relation'] == 'n-n' || multiple ){
                 if( typeOf(pValue) == 'string' ) pValue = JSON.decode( pValue );
                 if( typeOf(pValue) != 'array' ) pValue = []; 
             }
             
             if( _this.field['relation'] == 'n-n' ){
+
                 pValue.each(function( _item ){
                    _this.input.getElements('option').each(function(option){
                         if( option.value == _item[_this.field['n-n'].middle_keyright] )
@@ -1277,6 +1355,7 @@ ka.field = new Class({
                      option.set('selected', false);
                     }
                 }.bind(this));
+
             } else if( multiple ){
                  pValue.each(function(pItem) {
                    iSelOption = this.input.getElement('option[value="'+pItem+'"]');
@@ -1290,7 +1369,7 @@ ka.field = new Class({
                
                 
             } else {
-                _this.input.value = pValue;
+                this.select.setValue( pValue );
             }
             
             if( pIntern )
@@ -1299,12 +1378,12 @@ ka.field = new Class({
 
         this.getValue = function(){
             var res = [];
-            if( multiple == true ){
+            if( multiple ){
                 _this.inputVals.getElements('option').each(function(option){
                     res.include( option.value );
                 });
             } else {
-                res = _this.input.value;
+                res = _this.select.getValue();
             }
             return res;
         }
@@ -1403,23 +1482,48 @@ ka.field = new Class({
 
     renderCheckbox: function(){
         var _this = this;
-        this.input = new Element('input', {
-            type: 'checkbox'
-        })
-        .inject( this.fieldPanel );
+        
+        var div = new Element('div', {
+            'class': 'ka-field-checkbox ka-field-checkbox-off'
+        }).inject( this.fieldPanel );
+        
+        new Element('div', {
+            text: 'l',
+            style: 'font-weight: bold; color: white; position: absolute; left: 18px; font-size: 15px; top: 2px;'
+        }).inject( div );
+        
+        
+        new Element('div', {
+            text: 'O',
+            style: 'font-weight: bold; color: #f4f4f4; position: absolute; right: 15px; font-size: 15px; top: 2px;'
+        }).inject( div );
+        
+        var knob = new Element('div', {
+            'class': 'ka-field-checkbox-knob'
+        }).inject( div );
+        
+        this.value = false;
+        
+        knob.addEvent('click', function(){
+            this.setValue( this.value==false?1:0 );
+        }.bind(this));
 
         this.getValue = function(){
-            return (this.input.checked)?1:0;
-        }
+            return this.value;
+        }.bind(this);
 
-        this._setValue = function(p, pIntern){
+        this._setValue = function( p ){
             if( p == 0 ) p = false;
             if( p == 1 ) p = true;
-            this.input.checked = p;
-            
-            if( pIntern )
-                this.fireEvent('change', this.getValue());
-        }
+            this.value = p;
+            if( this.value ){
+                div.addClass('ka-field-checkbox-on');
+                div.removeClass('ka-field-checkbox-off');
+            } else {
+                div.addClass('ka-field-checkbox-off');
+                div.removeClass('ka-field-checkbox-on');
+            }
+        }.bind(this);
 
     },
 

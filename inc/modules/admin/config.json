@@ -175,6 +175,15 @@
             }
           }
         },
+        "backup": {
+          "title": "Backup",
+          "type": "custom",
+          "multi": false,
+          "defaultWidth": 600,
+          "defaultHeight": 400,
+          "minWidth": 500,
+          "minHeight": 400	
+        },
         "module": {
           "title": "Extensionmanager",
           "type": "custom",
@@ -271,6 +280,12 @@
               "languages": {
                  "type": "store",
                  "table": "system_langs",
+                 "label": "title",
+                 "id": "rsn"
+              },
+              "extensions": {
+                 "type": "store",
+                 "class": "adminStoreExtensions",
                  "label": "title",
                  "id": "rsn"
               }

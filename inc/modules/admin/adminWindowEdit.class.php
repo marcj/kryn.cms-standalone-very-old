@@ -405,10 +405,6 @@ class adminWindowEdit {
 
             $val = getArgv($key);
             
-            //if( $field['needAccess'] && !kryn::checkUrlAccess($field['needAccess']) ){
-            //    continue;
-            //}
-            
             if( $field['customSave'] != '' ){
                 $func = $field['customSave'];
                 if( function_exists( $func ) )

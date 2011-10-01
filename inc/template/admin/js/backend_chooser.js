@@ -186,7 +186,12 @@ var admin_backend_chooser = new Class({
         this.filesPane = new ka.filesPane( this.panes['files'], {
             value: this.value,
             onChoose: function( pFile ){
-                //unselect pages
+                if( this.options.onlyDir ){
+                    if( !pFile.isDir ){
+                        this.filesPane.deselect();
+                        return;
+                    }
+                }
                 if( this.options.pages )
                     this.domainTrees.each(function(domain){
                         domain.unselect();
@@ -194,7 +199,13 @@ var admin_backend_chooser = new Class({
                 this.value = pFile.path;
             }.bind(this),
             path: '/',
-            dblClick: function(){
+            dblClick: function( pFile ){
+                if( this.options.onlyDir ){
+                    if( !pFile.isDir ){
+                        this.filesPane.deselect();
+                        return;
+                    }
+                }
                 this.choose();
             }.bind(this),
             cookie: this.cookie,

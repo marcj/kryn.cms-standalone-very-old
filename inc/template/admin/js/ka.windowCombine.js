@@ -20,7 +20,7 @@ ka.windowCombine = new Class({
         }).inject( this.main );
         
         this.mainLeftTop = new Element('div', {
-            style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 14px; right: 0px; border-bottom: 1px solid gray;',
+            style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 20px; right: 0px; border-bottom: 1px solid gray;',
             'class': 'ka-list-combine-left-top'
         }).inject( this.mainLeft );
         
@@ -43,7 +43,7 @@ ka.windowCombine = new Class({
         }).inject( this.mainLeft );
         
         this.mainLeftItems = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 25px; bottom: 0px; right: 0px; overflow: auto;'
+            style: 'position: absolute; left: 0px; top: 31px; bottom: 0px; right: 0px; overflow: auto;'
         })
         .addEvent('scroll', this.checkScrollPosition.bind(this, true))
         .inject( this.mainLeft );
@@ -175,7 +175,11 @@ ka.windowCombine = new Class({
         }
 
         if( this.values.add ){
-            this.actionsNavi.addButton(_('Add'), _path+'inc/template/admin/images/icons/'+this.values.iconAdd, this.add.bind(this));
+            this.addBtn = this.actionsNavi.addButton(
+                _('Add'),
+                _path+'inc/template/admin/images/icons/'+this.values.iconAdd,
+                this.add.bind(this)
+            );
             /*function(){
                 ka.wm.openWindow( _this.win.module, _this.win.code+'/add', null, null, {
                 	lang: (_this.languageSelect)?_this.languageSelect.value:false
@@ -311,18 +315,21 @@ ka.windowCombine = new Class({
                 field.tableitem = true;
                 field.tableitem_title_width = 50;
                 
-                var fieldObj = new ka.field(field)
-                .addEvent('change', this.doSearch.bind(this))
-                .inject( this.searchPane );
-                
+                var fieldObj = new ka.field(field, this.searchPane)
+                .addEvent('change', this.doSearch.bind(this));                
                 this.searchFields.set(mkey, fieldObj );
                 
                 if( field.type == 'select' ){
-                	new Element('option',{
-                		value: '',
-                		text: _('-- Please choose --')
-                	}).inject(fieldObj.input, 'top');
-                	fieldObj.setValue("");
+                    if( field.multiple ){
+                    	new Element('option',{
+                    		value: '',
+                    		text: _('-- Please choose --')
+                    	}).inject(fieldObj.input, 'top');
+                    	
+                    	fieldObj.setValue("");
+                	} else {
+                	   fieldObj.select.add('', _('-- Please choose --'));
+                	}
                 }
                 
                 if( this.win.params && this.win.params.filter ){
@@ -635,7 +642,7 @@ ka.windowCombine = new Class({
             this.searchIcon.addClass('ka-list-combine-searchicon-active');
             this.mainLeftSearch.tween('height', this.searchPaneHeight);
             this.mainLeftSearch.setStyle('border-bottom', '1px solid silver');
-            this.mainLeftItems.tween('top', 25+this.searchPaneHeight+1);
+            this.mainLeftItems.tween('top', 31+this.searchPaneHeight+1);
             this.searchOpened = true;
             this.doSearch();
         } else {
@@ -648,7 +655,7 @@ ka.windowCombine = new Class({
                 this.checkScrollPosition();
             }.bind(this));
             
-            this.mainLeftItems.tween('top', 25);
+            this.mainLeftItems.tween('top', 31);
             this.searchOpened = false;
             this.reload();
         }
@@ -848,8 +855,9 @@ ka.windowCombine = new Class({
     },
     
     add: function(){
-    
-    
+        
+        this.addBtn.setPressed(true);
+        
         this.win.setTitle(_('Add'));
         
         this.lastItemPosition = null;
@@ -934,6 +942,8 @@ ka.windowCombine = new Class({
     
     loadItem: function( pItem ){
         var _this = this;
+        
+        this.addBtn.setPressed(false);
         
         if( this.currentAdd ){
             this.currentAdd.destroy();

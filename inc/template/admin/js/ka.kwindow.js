@@ -977,6 +977,7 @@ ka.kwindow = new Class({
                     this.content.setStyle('display', 'none');
                     this.titleGroups.setStyle('display', 'none');
                 }
+                window.fireEvent('click');
                 ka.wm.createOverlays()
             }.bind(this),
             onComplete: function(){
@@ -1177,28 +1178,11 @@ ka.kwindow = new Class({
             grid: 1,
             limit: {x:[minWidth,2000], y: [minHeight,2000]},
             handle: this.resizeBottomRight,
-            onDrag: function( el, ev ){
-            /*
-                var cor = el.getCoordinates();
-                var cor2 = $('desktop').getCoordinates();
-                if( cor.width < 350 ){
-                    el.setStyle('width', 350 );
-                }
-                if( cor.height < 300 ){
-                    el.setStyle('height', 300 );
-                }
-                if( cor.left+cor.width > cor2.width ){
-                    el.setStyle('width', cor2.width-cor.left );
-                }
-                if( cor.top+cor.height > cor2.height ){
-                    el.setStyle('height', cor2.height-cor.top );
-                }
-            */
-            },
             onStart: function(){
                 if( ka.performance ){
                     this.content.setStyle('display', 'none');
                 }
+                window.fireEvent('click');
                 ka.wm.createOverlays()
             }.bind(this),
             onComplete: function(){

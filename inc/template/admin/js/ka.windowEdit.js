@@ -87,15 +87,16 @@ ka.windowEdit = new Class({
         if( pField.type == 'wysiwyg' && !this.windowAdd ){
             pField.withOutTinyInit = true;
         }
-        pField.win = this.win;
+        
         pField.label = _(pField.label);
         pField.desc = _(pField.desc);
         
         if( this.languageSelect && pField.multiLanguage )
         	pField.lang = this.languageSelect.getValue();
         
-        var field = new ka.field(pField, pFieldId );
-        field.inject( pContainer );
+        var field = new ka.field( pField, pContainer, {
+            win: this.win
+        });
 
         if( pField.type == 'wysiwyg' && this.windowAdd ){
             //var contentCss = _path+"inc/template/css/kryn_tinyMceContentElement.css";
@@ -443,7 +444,7 @@ ka.windowEdit = new Class({
             this.versioningSelect = new ka.Select();
             this.versioningSelect.inject( this.win.border );
             this.versioningSelect.setStyle('width', 120);
-            this.versioningSelect.setStyle('top', 29);
+            this.versioningSelect.setStyle('top', 26);
             this.versioningSelect.setStyle('right', versioningSelectRight);
             this.versioningSelect.setStyle('position', 'absolute');
         	
@@ -458,11 +459,10 @@ ka.windowEdit = new Class({
         if( this.values.multiLanguage ){
         	this.win.extendHead();
         	
-        	
             this.languageSelect = new ka.Select();
             this.languageSelect.inject( this.win.border );
             this.languageSelect.setStyle('width', 120);
-            this.languageSelect.setStyle('top', 29);
+            this.languageSelect.setStyle('top', 26);
             this.languageSelect.setStyle('right', 5);
             this.languageSelect.setStyle('position', 'absolute');
         	

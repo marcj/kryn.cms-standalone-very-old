@@ -147,7 +147,7 @@
 
 .ka-list-combine-searchicon img {
     position: relative;
-    top: 4px;
+    top: 7px;
 }
 
 
@@ -359,7 +359,7 @@ a.ka-list-search-button-active:link {
     position: absolute; 
     background-color: #f8f8f8; 
     left: 0px;
-    top: 25px; 
+    top: 31px; 
     height: 0px; 
     right: 0px;
     overflow: auto;

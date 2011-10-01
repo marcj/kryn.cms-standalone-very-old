@@ -288,6 +288,10 @@ ka.filesPane = new Class({
         	this.goDetailView();
     },
 
+    deselect: function(){
+        this.unselect();
+    },
+
     unselect: function(){
         this.choosenFiles.each(function(p){
             p.item.set('class', p.item.retrieve('realClass'));

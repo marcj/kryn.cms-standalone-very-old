@@ -1560,6 +1560,7 @@ ka.parse = new Class({
         this.main = new Element('div', {
             'class': 'ka-fields-main'
         }).inject( pContainer );
+
         this.parseLevel( pDefinition, this.main );
     },
     
@@ -1570,15 +1571,20 @@ ka.parse = new Class({
     parseLevel: function( pLevel, pContainer, pDependField ){
         Object.each( pLevel, function(field,id){
             
-            var obj = new ka.field( field );
-            document.id(obj).inject( pContainer );
+            var obj = new ka.field( field, pContainer );
             
             if( pDependField && field.needValue ){
                 pDependField.addEvent('check-depends', function(){
-                    if( field.needValue == pDependField.getValue() ){
-                        obj.show();
+                    if( typeOf(field.needValue) != 'array' ){
+                        if( field.needValue == pDependField.getValue() )
+                            obj.show();
+                        else
+                            obj.hide();
                     } else {
-                        obj.hide();
+                        if( field.needValue.contains(pDependField.getValue()) )
+                            obj.show();
+                        else
+                            obj.hide();
                     }
                 }.bind(this));
             }
@@ -1629,33 +1635,38 @@ ka.parse = new Class({
         return this.fields;
     },
     
-    getValue: function(){
+    getValue: function( pField ){
     
         var res = {};
+        if( pField && this.fields[pField] ){
         
-        Object.each( this.fields, function(obj,id){
-            if( id.indexOf('[') != -1 ){
-                //todo bug is here, doesnt work
-                var items = id.split('[');
-                var key = '';
-                var last = {};
-                var newRes = last;
-                
-                items.each(function(item, pos){
-                    key = item.replace(']', '');
-
-                    if( pos == items.length-1 ){
-                        last[key] = obj.getValue();
-                    } else {
-                        last[key] = {};
-                        last = last[key];
-                    }
-                });
-                res = Object.merge( res, newRes );
-            } else {
-                res[id] = obj.getValue();
-            }
-        });
+            res = this.fields[pField].getValue(); 
+        
+        } else {        
+            Object.each( this.fields, function(obj,id){
+                if( id.indexOf('[') != -1 ){
+                    //todo bug is here, doesnt work
+                    var items = id.split('[');
+                    var key = '';
+                    var last = {};
+                    var newRes = last;
+                    
+                    items.each(function(item, pos){
+                        key = item.replace(']', '');
+    
+                        if( pos == items.length-1 ){
+                            last[key] = obj.getValue();
+                        } else {
+                            last[key] = {};
+                            last = last[key];
+                        }
+                    });
+                    res = Object.merge( res, newRes );
+                } else {
+                    res[id] = obj.getValue();
+                }
+            });
+        }
         
         return res;
     }

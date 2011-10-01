@@ -3487,19 +3487,14 @@ var admin_pages = new Class({
         $H(ka.settings.configs).each(function(config, key){
 			
 			if( config['themes'] ){
-				$H(config['themes']).each(function(options, themeTitle){
+				Object.each(config['themes'], function(options, themeTitle){
 					
 					if( options['layoutElement'] ){
 						
-			    		var group = new Element('optgroup', {
-			                label: _(themeTitle)
-			            }).inject( this.elementPropertyFields.eLayoutSelect.input );
+						this.elementPropertyFields.eLayoutSelect.select.addSplit( _(themeTitle) );
 			    		
 						$H(options['layoutElement']).each(function(templatefile, label){
-							new Element('option', {
-			                    html: _(label),
-			                    value: templatefile
-			                }).inject( group );
+						    this.elementPropertyFields.eLayoutSelect.select.addSplit( templatefile, _(label) );
 						}.bind(this));
 				
 					}

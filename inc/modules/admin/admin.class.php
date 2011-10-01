@@ -72,13 +72,17 @@ class admin {
         if( !$info ){
             $info = self::getPathItem( substr($code,6) );
         }
-
+                
         if( $info ){
             if( $info['type'] == 'store' ){
                 if( !$info['class'] ){
                     $obj = new adminStore();
-                    json($obj->handle($info));
+                } else {
+                    require_once('inc/modules/'.$info['_module'].'/'.$info['class'].'.class.php');
+                    $class = $info['class'];
+                    $obj = new $class();
                 }
+                json($obj->handle($info));
             } else {
                 $adminWindows = array('edit', 'list', 'add', 'combine');
                 require( 'inc/modules/admin/adminWindow.class.php' );

@@ -22,7 +22,6 @@ class adminWindowAdd extends adminWindowEdit {
             if( $field['fake'] == true ) continue;
 
             $val = getArgv($key);
-            print $key." => ".$val."<br/>";
 
             $mod = ($field['add']['modifier'])?$field['add']['modifier']:$field['modifier'];
             if( $mod ){

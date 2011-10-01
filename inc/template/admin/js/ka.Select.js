@@ -31,7 +31,7 @@ ka.Select = new Class({
         }).inject( this.arrowBox );
         
         
-        document.body.addEvent('click', this.close.bind(this));
+        window.addEvent('click', this.close.bind(this));
         
         this.chooser = new Element('div', {
             'class': 'ka-Select-chooser'
@@ -41,23 +41,11 @@ ka.Select = new Class({
             e.stop();
         });
         
-        var target = document.body;
-        if( this.box.getParent('.kwindow-border') ){
-            target = this.box.getParent('.kwindow-border');
-        }
-        this.chooser.inject( target );
-        
-        this.chooser.setStyle('display', 'none');
-        
     },
     
     inject: function( p, p2 ){
         this.box.inject( p, p2 );
-        var target = document.body;
-        if( this.box.getParent('.kwindow-border') ){
-            target = this.box.getParent('.kwindow-border');
-        }
-        this.chooser.inject( target );
+        return this;
     },
     
     destroy: function(){
@@ -65,6 +53,13 @@ ka.Select = new Class({
         this.box.destroy();
         this.chooser = null;
         this.box = null;
+    },
+    
+    addSplit: function( pLabel ){
+        new Element('div', {
+            html: pLabel,
+            'class': 'group'
+        }).inject( this.chooser );
     },
     
     add: function( pId, pLabel ){
@@ -92,6 +87,7 @@ ka.Select = new Class({
     
     setStyle: function( p, p2 ){
         this.box.setStyle( p, p2 );
+        return this;
     },
     
     empty: function(){
@@ -119,9 +115,9 @@ ka.Select = new Class({
         });
         
         //chrome rendering bug
-        this.arrowBox.setStyle('right', 5);
+        this.arrowBox.setStyle('right', 3);
         (function(){
-            this.arrowBox.setStyle('right', 0);
+            this.arrowBox.setStyle('right', 2);
         }.bind(this)).delay(10);
         
         if( pEvent )
@@ -140,7 +136,7 @@ ka.Select = new Class({
             this.close();
         else {
             if( e && e.stop ){
-                document.body.fireEvent('click');
+                window.fireEvent('click');
                 e.stop();
             }
             this.open();
@@ -149,7 +145,12 @@ ka.Select = new Class({
     
     open: function(){
     
-        this.chooser.setStyle('display', 'block');
+        var target = document.body;
+        if( this.box.getParent('.kwindow-border') ){
+            target = this.box.getParent('.kwindow-border');
+        }
+        this.chooser.inject( target );
+        
         
         this.chooser.position({
             relativeTo: this.box,
@@ -162,10 +163,27 @@ ka.Select = new Class({
         
         var bsize = window.getSize( $('desktop') );
         
-        if( size.y+pos.y > bsize.y )
-            this.chooser.setStyle('height', bsize.y-pos.y-10);
+        var height;
+
+        if( size.y+pos.y > bsize.y ){
+            height = bsize.y-pos.y-10;
+        }
     
-        //new ka.blocker( this.chooser ).addEvent('click', this.close.bind(this));
+        if( height ) {
+        
+            if( height < 100 ){
+            
+                this.chooser.position({
+                    relativeTo: this.box,
+                    position: 'upperRight',
+                    edge: 'bottomRight'
+                });
+                
+            } else {
+                this.chooser.setStyle('height', height);
+            }
+            
+        }
         
         this.opened = true;
     
@@ -174,9 +192,7 @@ ka.Select = new Class({
     close: function(){
     
         this.opened = false;
-        if( this.chooser )
-            this.chooser.setStyle('display', 'none');
-    
+        this.chooser.dispose();
     },
     
     toElement: function(){

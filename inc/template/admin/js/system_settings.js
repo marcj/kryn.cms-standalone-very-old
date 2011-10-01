@@ -257,51 +257,46 @@ var admin_system_settings = new Class({
         
         this.fields['caching_type'] = new ka.field({
             label: _('Internal caching type'), desc: _('Internal data caching.'), empty: false, type: 'select',
-            tableItems: [
-                {i: 'files', v:'Files'},
-                {i: 'memcache', v:'Memcache'}
-            ],
-            table_id: 'i',
-            table_label: 'v'
+            items: {
+                files: _('Files'),
+                memcache: _('Memcached')
+            },
+            onChange: function(){
+        	
+            	this.chachingPane.empty();
+    
+            	this.fields['memcache_server'] = null;
+            	this.fields['memcache_port'] = null;
+            	this.fields['memcache_files'] = null;
+            	
+            	if( this.fields['caching_type'].getValue() == 'memcache' ){
+            		
+            		 this.fields['memcache_server'] = new ka.field({
+        	            label: _('Memcache Server'), value: this.systemValues['memcache_server'],
+    	   	            empty: false
+        	        }).inject( this.chachingPane );
+            		 
+            		 this.fields['memcache_port'] = new ka.field({
+         	            label: _('Memcache Port'), value: this.systemValues['memcache_port'],
+    	   	            empty: false,
+         	            desc: 'Default is 11211', 'default': '11211', type: 'integer'
+         	        }).inject( this.chachingPane );
+            		
+            	}
+            	if( this.fields['caching_type'].getValue() == 'files' ){
+            		
+            		if( !this.systemValues['files_path'] )
+            			this.systemValues['files_path'] = 'inc/cache/';
+            		
+    	       		this.fields['files_path'] = new ka.field({
+    	   	            label: _('Internal caching path'), value: this.systemValues['files_path'],
+    	   	            empty: false,
+    	   	            desc: 'Default is inc/cache/. Please define the path for the cache folder.'
+    	   	        }).inject( this.chachingPane );
+    	       	}
+            	
+            }.bind(this)
         })
-        .addEvent('change', function(){
-        	
-        	this.chachingPane.empty();
-
-        	this.fields['memcache_server'] = null;
-        	this.fields['memcache_port'] = null;
-        	this.fields['memcache_files'] = null;
-        	
-        	if( this.fields['caching_type'].getValue() == 'memcache' ){
-        		
-        		 this.fields['memcache_server'] = new ka.field({
-    	            label: _('Memcache Server'), value: this.systemValues['memcache_server'],
-	   	            empty: false
-    	        }).inject( this.chachingPane );
-        		 
-        		 this.fields['memcache_port'] = new ka.field({
-     	            label: _('Memcache Port'), value: this.systemValues['memcache_port'],
-	   	            empty: false,
-     	            desc: 'Default is 11211', 'default': '11211', type: 'integer'
-     	        }).inject( this.chachingPane );
-        		
-        	}
-        	if( this.fields['caching_type'].getValue() == 'files' ){
-        		
-        		if( !this.systemValues['files_path'] )
-        			this.systemValues['files_path'] = 'inc/cache/';
-        		
-	       		this.fields['files_path'] = new ka.field({
-	   	            label: _('Internal caching path'), value: this.systemValues['files_path'],
-	   	            empty: false,
-	   	            desc: 'Default is inc/cache/. Please define the path for the cache folder.'
-	   	        }).inject( this.chachingPane );
-	       	}
-        	
-        	
-        	
-        	
-        }.bind(this))
         .inject( p );
         
         this.chachingPane = new Element('div').inject( p );

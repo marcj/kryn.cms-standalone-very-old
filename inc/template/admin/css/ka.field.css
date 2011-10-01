@@ -85,7 +85,7 @@ input.text {
 
 textarea,
 input.text {
-    padding: 5px;
+    padding: 4px;
 }
 
 input.text {
@@ -108,6 +108,7 @@ input.ka-field-dateTime {
     padding-left: 18px;
     background-image: url(../images/icons/calendar.png);
     background-repeat: no-repeat;
+    background-position: 2px 3px;
 }
 
 .ka-field-main-small input.text.multiUpload-firstInput {
@@ -155,6 +156,53 @@ input.ka-field-dateTime {
 .ka-field-array .ka-field-field select,
 .ka-field-array .ka-field-field input {
     width: auto;
+}
+
+.ka-field-checkbox {
+    border: 1px solid silver;
+    height: 21px;
+    width: 80px;
+    -moz-border-radius: 3px;
+    position: relative;
+    cursor: default;
+}
+
+.ka-field-checkbox-off {
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, #e88, to(#fbb)); 
+    background-image: -webkit-linear-gradient(top, #e88, #fbb); 
+    background-image:    -moz-linear-gradient(top, #e88, #fbb); 
+    background-image:     -ms-linear-gradient(top, #e88, #fbb); 
+    background-image:      -o-linear-gradient(top, #e88, #fbb); 
+    background-image:         linear-gradient(top, #e88, #fbb);
+}
+
+.ka-field-checkbox-on {
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, #6b6, to(#8d8)); 
+    background-image: -webkit-linear-gradient(top, #6b6, #8d8); 
+    background-image:    -moz-linear-gradient(top, #6b6, #8d8); 
+    background-image:     -ms-linear-gradient(top, #6b6, #8d8); 
+    background-image:      -o-linear-gradient(top, #6b6, #8d8); 
+    background-image:         linear-gradient(top, #6b6, #8d8);
+}
+
+.ka-field-checkbox-knob {
+    background-color: #f7f7f7;
+    background-image: -webkit-gradient(linear, left top, left bottom, #f7f7f7, to(#ddd)); 
+    background-image: -webkit-linear-gradient(top, #f7f7f7, #ddd); 
+    background-image:    -moz-linear-gradient(top, #f7f7f7, #ddd); 
+    background-image:     -ms-linear-gradient(top, #f7f7f7, #ddd); 
+    background-image:      -o-linear-gradient(top, #f7f7f7, #ddd); 
+    background-image:         linear-gradient(top, #f7f7f7, #ddd);
+    -moz-border-radius: 3px;
+    width: 40px;
+    height: 21px;
+    position: relative;
+}
+
+.ka-field-checkbox-on .ka-field-checkbox-knob {
+    left: 40px;
 }
 
 .ka-field-textlist {
@@ -234,9 +282,9 @@ input.ka-field-dateTime {
     height: 140px;
     position: absolute;
     min-width: 150px;
-    border: 4px solid #444;
+    border: 4px solid #555;
     box-shadow: 0px 0px 3px #777;
-    background-color: white;
+    background-color: #eee;
     -moz-border-radius: 4px;
 }
 
@@ -294,7 +342,5 @@ input.ka-field-dateTime {
 }
 
 .ka-field-textlist-searchbox-body a:hover {
-    background-color: #eee;
+    background-color: #ddd;
 }
-
-

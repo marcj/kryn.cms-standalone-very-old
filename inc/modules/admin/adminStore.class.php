@@ -30,10 +30,14 @@ class adminStore {
 
         switch( getArgv('cmd') ){
             case 'item':
-                return self::getItem( getArgv('id') );
+                return $this->getItem( getArgv('id') );
             case 'items':
+                return $this->getItems( getArgv('from')+0, getArgv('count')+0 );
             default:
-                return self::getItems( getArgv('from')+0, getArgv('count')+0 );
+                if( getArgv('id') )
+                    return $this->getItem( getArgv('id') );
+                else
+                    return $this->getItems( getArgv('from')+0, getArgv('count')+0 );
         }
     
     }
