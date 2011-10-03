@@ -9,7 +9,7 @@ ka.field = new Class({
     field: {},
     
     initialize: function( pField, pContainer, pRefs ){
-        this.field = pField;
+        this.field = Object.clone(pField);
         
         this.setOptions(pField);
         if( typeOf(pRefs) == 'object' ){
@@ -161,9 +161,6 @@ ka.field = new Class({
         case 'password':
             this.renderPassword();
             break;
-        //case 'file':
-        //    this.renderFile();
-        //    break;
         case 'select':
             this.renderSelect();
             break;
@@ -1006,13 +1003,6 @@ ka.field = new Class({
         this.input.store( 'oldBg', bg);
     },
 
-    renderFileChooser: function(){
-        this.input = new Element('input', {
-            'class': 'text',
-            type: 'text'
-        })
-        .inject( this.fieldPanel );
-    },
 
     renderChooser: function( pOpts ){
         this.input = new Element('input', {
@@ -1058,8 +1048,13 @@ ka.field = new Class({
         this.pageChooserPanel = new Element('span', {style: 'color: gray;'}).inject( button, 'after' );
 
         this._setValue = function( pVal, pIntern ){
+
+            if( typeOf(pVal) == 'null' ) pVal = '';
+
             this._value = pVal;
+
             this.pageChooserPanel.empty();
+
             if( pVal+0 > 0 ){
                 this.setInputActive( false );
                 this.pageChooserGetUrl();
@@ -1068,6 +1063,7 @@ ka.field = new Class({
                 this.input.value = pVal;
             }
             this.input.title = this.input.value;
+
             if( pIntern )
                 this.fireEvent('change', this.getValue());
         }
@@ -1095,13 +1091,12 @@ ka.field = new Class({
         var multiple = ( this.field.multi || this.field.multiple );
         var sortable = this.field.sortable;
 
-
         var selWidth = 133;
         if( this.field.tinyselect )
             selWidth = 75;
         if( sortable )
             selWidth -= 8;
-
+        
         if( !this.field.tableItems && this.field.table_items ){
             this.field.tableItems = this.field.table_items;
         }
@@ -1492,13 +1487,13 @@ ka.field = new Class({
         
         new Element('div', {
             text: 'l',
-            style: 'font-weight: bold; color: white; position: absolute; left: 18px; font-size: 15px; top: 2px;'
+            style: 'font-weight: bold; color: white; position: absolute; left: 13px; font-size: 15px; top: 2px;'
         }).inject( div );
         
         
         new Element('div', {
             text: 'O',
-            style: 'font-weight: bold; color: #f4f4f4; position: absolute; right: 15px; font-size: 15px; top: 2px;'
+            style: 'font-weight: bold; color: #f4f4f4; position: absolute; right: 9px; font-size: 15px; top: 2px;'
         }).inject( div );
         
         var knob = new Element('div', {
@@ -1580,6 +1575,16 @@ ka.field = new Class({
                  
             });
         }
+        
+        this._setValue = function( pVal ){
+            if( typeOf(pVal) == 'null' ) pVal = '';
+            
+            this.input.value = pVal;
+        }
+        
+        this.getValue = function(){
+            return this.input.value;
+        }
     },
 
     checkKurl: function( pValue ){
@@ -1609,16 +1614,17 @@ ka.field = new Class({
             _this.isEmpty();
         })
         .inject( this.fieldPanel );
-    },
-    
-    renderFile: function(){
-        this.input = new Element('input', {
-            'class': 'text',
-            type: 'file',
-            name: this.fieldId
-        }).inject( this.fieldPanel );
-        var _this = this;
-        this._setValue = function(){};
+
+        this._setValue = function( pVal ){
+            if( typeOf(pVal) == 'null' ) pVal = '';
+            
+            this.input.value = pVal;
+        }
+        
+        this.getValue = function(){
+            return this.input.value;
+        }
+        
     },
 
     renderPassword: function(){
@@ -1631,6 +1637,17 @@ ka.field = new Class({
             _this.isEmpty();
         })
         .inject( this.fieldPanel );
+        
+        this._setValue = function( pVal ){
+            if( typeOf(pVal) == 'null' ) pVal = '';
+            
+            this.input.value = pVal;
+        }
+        
+        this.getValue = function(){
+            return this.input.value;
+        }
+        
     },
 
     empty: function(){
@@ -1688,9 +1705,6 @@ ka.field = new Class({
         if( pValue == null && this.field.default ){
             pValue = this.field.default;
         }
-        
-        if( this.input )
-            this.input.value = pValue;
 
         if( this._setValue ){
             this._setValue( pValue, pIntern );

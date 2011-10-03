@@ -4,10 +4,8 @@ var admin_files_properties = new Class({
 		this.win = pWindow;
 		
 		this.win.addEvent('close', function(){
-			
 			if( this.lastSizeRq )
 				this.lastSizeRq.cancel();
-			
 		}.bind(this));
 		
 		this.file = this.win.params;
@@ -17,7 +15,7 @@ var admin_files_properties = new Class({
 	render: function(){
 		
 		this.tabGroup = this.win.addSmallTabGroup();
-        this.tabButtons = $H();
+        this.tabButtons = {};
         this.tabButtons['general'] = this.tabGroup.addButton(_('General'), this.changeType.bind(this,'general'));
         this.tabButtons['access'] = this.tabGroup.addButton(_('Access'), this.changeType.bind(this,'access'));
         this.tabButtons['filesystem'] = this.tabGroup.addButton(_('Filesystem'), this.changeType.bind(this,'filesystem'));
@@ -678,11 +676,11 @@ var admin_files_properties = new Class({
 	},
 	
 	changeType: function( pType ){
-        this.tabButtons.each(function(button, id){ 
+        Object.each(this.tabButtons, function(button, id){ 
             button.setPressed( false );
             this.panes[id].setStyle('display', 'none');
         }.bind(this));
-        
+
         this.tabButtons[ pType ].setPressed(true);
         this.panes[ pType ].setStyle('display', 'block');
     }
@@ -791,17 +789,12 @@ var files_properties_rule = new Class({
 	},
 
 	newRule: function(){
-
-		ka.wm.open('users/browser/', {onChoose: this.didChooseATarget.bind(this)}, this.win.id);
-		
+		ka.wm.open('users/browser', {onChoose: this.didChooseATarget.bind(this)}, this.win.id);
 		
 	},
 	
 	didChooseATarget: function( pType, pValue ){
-		
-		
-		
-		
+
 		if( !pType ){
 			this.remove();
 			return;

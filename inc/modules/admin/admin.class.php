@@ -60,7 +60,8 @@ class admin {
         require( 'inc/modules/admin/adminSettings.class.php' );
         require( 'inc/modules/admin/adminFilemanager.class.php' );
         require( 'inc/modules/admin/adminSearchIndexer.class.php' );  
-        require( 'inc/modules/admin/adminStore.class.php' );  
+        require( 'inc/modules/admin/adminStore.class.php' );   
+        require( 'inc/modules/admin/adminBackup.class.php' );  
 
         tAssign("admin", true);
                     
@@ -105,6 +106,7 @@ class admin {
             die( tFetch('admin/iframe.tpl') );
 
         } else {
+            $content = null;
             switch( getArgv(2) ){
                 case 'mini-search':
                     return self::miniSearch( getArgv('q', 1) );
@@ -190,6 +192,7 @@ class admin {
                             break;
                         case 'module': $content = adminModule::init(); break;
                         case 'settings': $content = adminSettings::init(); break;
+                        case 'backup': $content = adminBackup::init(); break;
                         case 'languages':
                             require("inc/modules/admin/adminLanguages.class.php");
                             $content = adminLanguages::init();
@@ -201,11 +204,14 @@ class admin {
                     }
                     break;
             }
+            if( $content !== null )
+                json( $content );
         }
+
         if( !getArgv(2) )
             admin::showLogin();
 
-        json('param-failed');
+        json(array('error'=>'param_failed'));
     }
     
     /**
