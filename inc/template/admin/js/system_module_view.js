@@ -201,7 +201,7 @@ var admin_system_module_view = new Class({
         	}
         }
 
-        if( (pItem.installedModule && pItem.installedModule.version != pItem.serverVersion) ||
+        if( (pItem.installedModule && pItem.serverVersion && pItem.installedModule.version != pItem.serverVersion) ||
         	( ( this.win.params.type != 1 && this.win.params.type != 0) && pItem.module.version != pItem.installedModule.version )){
             
             if(pItem.serverCompare == '>') {
