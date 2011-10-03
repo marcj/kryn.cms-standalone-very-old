@@ -698,20 +698,23 @@ var admin_pages = new Class({
         }).inject( this.win.border );
         */
 
-        this.languageSelect = new Element('select', {
-            style: 'position: absolute; left: 5px; top: 27px; width: 160px; height: 21px'
-        }).inject( this.win.border );
+        this.languageSelect = new ka.Select()
+        .inject( this.win.border );
+        
+        document.id(this.languageSelect).setStyles({
+            'position': 'absolute',
+            'left': 5,
+            'top': 26,
+            'width': 140
+        });
 
         this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-        $H(ka.settings.langs).each(function(lang,id){
-            new Element('option', {
-                text: lang.langtitle+' ('+lang.title+', '+id+')',
-                value: id
-            }).inject( this.languageSelect );
+        Object.each(ka.settings.langs, function(lang,id){
+            this.languageSelect.add( id, lang.langtitle+' ('+lang.title+', '+id+')' );
         }.bind(this));
 
-        this.languageSelect.value = this.language;
+        this.languageSelect.setValue( this.language );
         
         this._createDomain();
 
@@ -847,7 +850,7 @@ var admin_pages = new Class({
     },
 
     changeLanguage: function(){
-        this.language = this.languageSelect.value;
+        this.language = this.languageSelect.getValue();
         this.treeContainer.empty();
         this.loadTree();
         this.viewType( 'empty' );

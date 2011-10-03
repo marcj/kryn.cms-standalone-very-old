@@ -7,6 +7,8 @@ users_field_picture = new Class({
 		this.field = pField;
 		this.parent = pParent;
 		
+		this.parent.setStyle('margin', 0);
+		
 		this.value = '';
 		
 		this.main = new Element('div', {

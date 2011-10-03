@@ -389,14 +389,7 @@ ka.kwindow = new Class({
 
     toFront: function(){
         if( this.active ){
-            if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
-                var win = ka.wm.getDependOn( this.id );
-                if( win )
-                    win.highlight();
-                return false;
-            }
-            if( this.inDependMode ) return;
-            
+
             this.title.setStyle('opacity', 1);
             if( this.border.getStyle('display') != 'block' ){
                 this.border.setStyles({
@@ -410,9 +403,20 @@ ka.kwindow = new Class({
             this.inFront = true;
             
             this.border.inject( this.border.getParent() );
-            
+
             this.deleteOverlay();
             ka.wm.updateWindowBar();
+            
+            if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
+                var win = ka.wm.getDependOn( this.id );
+                if( win ){
+                    win.toFront();
+                    win.highlight();
+                }
+                return false;
+            }
+            if( this.inDependMode ) return;
+            
             return true;
         }
     },

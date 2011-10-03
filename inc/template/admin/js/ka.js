@@ -854,7 +854,6 @@ ka.loadMenu = function(){
         ka.moduleItems.empty();
         
         var mlinks = $H(res);
-        
 
         $H(mlinks.get('admin')).each(function(item, pCode){
             ka.addAdminLink( item, pCode, 'admin' );
@@ -1648,19 +1647,24 @@ ka.parse = new Class({
     },
     
     parseLevel: function( pLevel, pContainer, pDependField ){
-        Object.each( pLevel, function(field,id){
-            
+        Object.each( pLevel, function( field, id ){
+
             var obj = new ka.field( field, pContainer );
             
             if( pDependField && field.needValue ){
                 pDependField.addEvent('check-depends', function(){
-                    if( typeOf(field.needValue) != 'array' ){
+                    if( typeOf(field.needValue) == 'string' || typeOf(field.needValue) == 'number' ){
                         if( field.needValue == pDependField.getValue() )
                             obj.show();
                         else
                             obj.hide();
-                    } else {
+                    } else if( typeOf(field.needValue) == 'array' ){
                         if( field.needValue.contains(pDependField.getValue()) )
+                            obj.show();
+                        else
+                            obj.hide();
+                    } else if( typeOf(field.needValue) == 'function' ){
+                        if( field.needValue.attempt( pDependField.getValue() ) )
                             obj.show();
                         else
                             obj.hide();
@@ -1674,8 +1678,8 @@ ka.parse = new Class({
                 }).inject( document.id(obj) );
                 obj.childContainer = childContainer;
                 this.parseLevel( field.depends, childContainer, obj );
+                obj.fireEvent('check-depends');
             }
-            obj.fireEvent('check-depends');
             this.fields[ id ] = obj;
         
         }.bind(this));
