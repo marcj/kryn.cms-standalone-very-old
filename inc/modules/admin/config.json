@@ -285,9 +285,11 @@
               },
               "extensions": {
                  "type": "store",
-                 "class": "adminStoreExtensions",
-                 "label": "title",
-                 "id": "rsn"
+                 "class": "adminStoreExtensions"
+              },
+              "domains": {
+                 "type": "store",
+                 "class": "adminStoreDomains"
               }
           }
         }
@@ -1283,6 +1285,7 @@
     "admin\/js\/ka.tooltip.js",
     "admin\/js\/ka.AutoTable.js",
     "admin\/js\/ka.Select.js",
+    "admin\/js\/ka.Progress.js",
     "admin\/js\/ka.Accordion.js",
     "admin\/js\/ka.imageGroup.js",
     "admin\/js\/ka.customField.js",
@@ -1320,6 +1323,7 @@
     "admin\/css\/ka.filesPane.css",
     "admin\/css\/ka.AutoTable.css",
     "admin\/css\/ka.Select.css",
+    "admin\/css\/ka.Progress.css",
     "admin\/css\/ka.Accordion.css",
     "admin\/css\/ka.imageGroup.css",
     "admin\/css\/ka.layoutBox.css",

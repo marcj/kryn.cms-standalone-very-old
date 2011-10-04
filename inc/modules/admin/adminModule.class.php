@@ -70,7 +70,6 @@ class adminModule {
             case 'getPackage':
                 json( self::getPackage( getArgv('name',2) ) );
 
-
             case 'getChangedFiles':
                 json( self::getChangedFiles( getArgv('name',2) ) );
             case 'remove':

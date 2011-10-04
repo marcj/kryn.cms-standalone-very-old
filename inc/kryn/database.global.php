@@ -63,16 +63,15 @@ function esc( $p, $pEscape = false ){
  * Execute a query and return the items
  * @param string $pSql The SQL
  * @param integer $pRowCount How much rows you want. Use -1 for all, with 1 you'll get direct the array without a list.
- * @param type $pMode Obsolete
  * @return array
  */
-function dbExfetch( $pSql, $pRowCount = 1, $pMode = PDO::FETCH_ASSOC ){
+function dbExfetch( $pSql, $pRowCount = 1 ){
     global $kdb, $cfg;
     if( !$kdb ){
         error_log("kdb is empty. sql: $pSql ,info: ".print_r($_REQUEST,true) );
     }
     $pSql = str_replace( '%pfx%', $cfg['db_prefix'], $pSql );
-    return $kdb->exfetch( $pSql, $pRowCount, $pMode );
+    return $kdb->exfetch( $pSql, $pRowCount );
 }
 
 
@@ -107,11 +106,10 @@ function dbTableLang( $pTable, $pCount = -1, $pWhere = false ){
  * 
  * @param string $pTable The table name based on your extension table definition.
  * @param integer $pCount How many items it will returns, with 1 you'll get direct the array without a list.
- * @param string $pWhere 
- * @param type $pMode obsolete
+ * @param string $pWhere
  * @return type 
  */
-function dbTableFetch( $pTable, $pCount = -1, $pWhere = false, $pMode = PDO::FETCH_ASSOC ){
+function dbTableFetch( $pTable, $pCount = -1, $pWhere = false ){
     
     //to change pCount <-> pWhere
     if( gettype($pCount) == 'string' ) $pNewWhere = $pCount;
@@ -124,7 +122,7 @@ function dbTableFetch( $pTable, $pCount = -1, $pWhere = false, $pMode = PDO::FET
     $sql = "SELECT * FROM $table";
     if( $pWhere != false)
         $sql .= " WHERE $pWhere";
-    return dbExfetch( $sql, $pCount, $pMode );
+    return dbExfetch( $sql, $pCount );
 }
 
 
@@ -282,12 +280,11 @@ function dbCount( $pTable, $pWhere = false){
  * 
  * @param type $pRes The result of dbExec()
  * @param type $pCount Defines how many items the function returns
- * @param type $pMode Obsolete
  * @return type 
  */
-function dbFetch( $pRes, $pCount = 1, $pMode = PDO::FETCH_ASSOC ){
+function dbFetch( $pRes, $pCount = 1 ){
     global $kdb;
-    return $kdb->fetch( $pRes, $pCount, $pMode );
+    return $kdb->fetch( $pRes, $pCount );
 }
 
 ?>

@@ -214,6 +214,12 @@ ka.field = new Class({
         case 'info':
             this.renderInfo();
             break;
+        case 'label':
+            this.renderLabel(true);
+            break;
+        case 'html':
+            this.renderLabel();
+            break;
         case 'imagegroup':
             this.renderImageGroup();
             break;
@@ -234,12 +240,28 @@ ka.field = new Class({
         if(this.input){
 
             if( this.field.length+0 > 0 ){
-                //alert(this.field.length);
                 this.input.setStyle('width', (this.field.length.toInt()*9));
             }
             
             this.input.store('oldClass', this.input.get('class') );
         }
+    },
+    
+    renderLabel: function( pStripHtml ){
+        
+        var div = new Element('div').inject( this.fieldPanel );
+        
+        this._setValue = function( pVal ){
+            this.value = pVal;
+            if( pStripHtml )
+                div.set('text', pVal);
+            else
+                div.set('html', pVal);
+        }.bind(this);
+        
+        this.getValue = function(){
+            return this.value;
+        }.bind(this);
     },
     
     renderTextlist: function(){
@@ -897,12 +919,6 @@ ka.field = new Class({
         this.input = new Element('h2',{
             html: this.field.label
         }).inject( this.fieldPanel );
-        
-    },
- 
-    renderInfo: function(){
-        
-        return;
         
     },
     

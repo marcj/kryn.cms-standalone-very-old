@@ -9,6 +9,10 @@ class adminStore {
     public $table;
     public $label;
     public $id;
+
+    /**
+    * Additional where clauses started with 'AND '
+    */
     public $where;
     
     public $sql;
@@ -72,6 +76,27 @@ class adminStore {
         return '';
     }
     
+    public function getSearchWhere(){
+    
+        if( getArgv('search') ){
+            $search = strtolower(getArgv('search', 1));
+            return ' AND LOWER('.$this->label.") LIKE '$search%' ";
+        }
+
+        return '';
+    }
+    
+    public function getLimit( $pFrom, $pCount ){
+        $limit = '';
+        if( $pFrom > 0 )
+            $limit = 'OFFSET '.$pFrom;
+
+        if( $pCount > 0 )
+            $limit .= ' LIMIT '.$pCount;
+            
+        return $limit;
+    }
+    
     /**
     * Returns the items as a hash ( id => label)
     * @return array 
@@ -86,33 +111,23 @@ class adminStore {
         
         $table = database::getTable( $this->table );
         
-        if( $pFrom > 0 )
-            $limit = 'OFFSET '.$pFrom;
-
-        if( $pCount > 0 )
-            $limit .= ' LIMIT '.$pCount;
+        $limit = $this->getLimit( $pFrom, $pCount );
         
         $where = $this->where;
         if( !$where )
             $where = $this->getItemsWhere();
             
-        if( getArgv('search') ){
-            $search = strtolower(getArgv('search', 1));
-            
-            $add = strlen($where) > 0 ? ' AND ':'';
-            
-            $where = $add.' LOWER('.$this->label.") LIKE '$search%'";
-
-        }
+        $where .= $this->getSearchWhere();
         
         if( $this->sql ){
             $sql .= $limit;
         } else {
             $sql = ' SELECT '.$this->id.', '.$this->label.'
-            FROM '.$table.'
-            '.($where?'WHERE '.$where:'').'
-            '.$limit;
+            FROM '.$table.
+            'WHERE 1=1 '.$where.')'
+            .$limit;
         }
+
         $dbRes = dbExec( $sql );
         while( $row = dbFetch($dbRes) ){
             $res[ $row[$this->id] ] = $row[$this->label];

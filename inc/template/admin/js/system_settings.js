@@ -86,6 +86,10 @@ var admin_system_settings = new Class({
         
         var p = this.panes['system'];
         
+        this.fields['cronjob_key'] = new ka.field({
+            label: _('Cronjob key'), type: 'label'
+        }).inject( p );
+        
         this.fields['display_errors'] = new ka.field({
             label: _('Display errors'), desc: _('Prints errors to the frontend clients. You should deactivate this in productive systems'), type: 'checkbox'
         }).inject( p );

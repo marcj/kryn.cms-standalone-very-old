@@ -29,8 +29,6 @@ class database {
         public $lastError;
         public $lastInsertTable;
         
-        public static $fetchmode = PDO::FETCH_ASSOC;
-        
         public static $hideSql = false;
         
         public static $needToInt = array('int*', 'tinyint*', 'bit*', 'timestamp', 'double', 'float', 'bigint*');
@@ -56,7 +54,7 @@ class database {
             if( $pDatabaseType && $pHost ){
                 $this->login( $pHost, $pUser, $pPassword, $pDatabaseName, $pForceUtf8 );
             }
-            
+
             self::$tables = kryn::getCache('tables');
         }
         
@@ -253,11 +251,12 @@ class database {
         
         public function login( $host, $user = '', $pw = '', $kdb = NULL, $pForceUtf8 = false ){
         	
-            $t = explode(":", $host);
-        	if( is_array($t) && $t[1] != "" )
-        		$port = $t[1];
-				
-				
+        	if( strpos( $host, ':') !== false ){
+                $t = explode(":", $host);
+            	if( is_array($t) && $t[1] != "" )
+            		$port = $t[1];
+            }
+
             $this->databaseName = $kdb;
             $this->user = $user;
             
@@ -397,7 +396,7 @@ class database {
             return false;
         }
         
-        public function fetch( $pStatement, $pRows = 1, $pMode = false ){
+        public function fetch( $pStatement, $pRows = 1 ){
             if( $pStatement === false ) return;
             if( !$this->usePdo ){
                 
@@ -445,15 +444,14 @@ class database {
                     }
                 }
             } else {
-                if( $pMode == false ) $pMode = database::$fetchmode;
                 
                 if( gettype($result_id) == 'boolean' ) return false;
                 if( !$pStatement ) return false;
                 
             	if ( $pRows == 1 )
-                  $res = $pStatement->fetch($pMode);
+                  $res = $pStatement->fetch(PDO::FETCH_ASSOC);
                 else
-                  $res = $pStatement->fetchAll($pMode);
+                  $res = $pStatement->fetchAll(PDO::FETCH_ASSOC);
             }
             
             if( $res && is_array($res) ){
@@ -661,8 +659,8 @@ class database {
         	return $pStatement->rowCount();
         }
         
-        public function exfetch( $pQuery, $pRowcount = 1, $pMode = PDO::FETCH_ASSOC ){
-            return $this->fetch($this->exec($pQuery), $pRowcount, $pMode);
+        public function exfetch( $pQuery, $pRowcount = 1 ){
+            return $this->fetch($this->exec($pQuery), $pRowcount);
         }
         
         public function rowExist( $pQuery ){

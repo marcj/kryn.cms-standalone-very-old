@@ -967,6 +967,11 @@ class kryn extends baseModule {
         tAssign('path', $cfg['path']);
         tAssign("cfg", $cfg);
         
+        if( !$cfg['cronjob_key'] ){
+            $cfg['cronjob_key'] = dechex(time()/mt_rand(100, 500));
+            kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
+        }
+        
         if( !$cfg['caching_type'] || $cfg['caching_type'] == '' )
             $cfg['caching_type'] = 'files';
         
@@ -1741,11 +1746,32 @@ class kryn extends baseModule {
     	return $access;
     }
     
+    /** 
+     * Checks the access of a domain
+     *
+     * @param integer $pRsn
+     * @param string $pAction
+     * @return bool
+     */
+    public static function checkDomainAccess( $pRsn, $pAction ){
+        return self::checkPageAcl( $pRsn, $pAction, 'd' );
+    }
     
+     /** 
+     * Checks the access of a node (page)
+     *
+     * @param integer $pRsn
+     * @param string $pAction
+     * @return bool
+     *
+     */
+    public static function checkNodeAccess( $pRsn, $pAction ){
+        return self::checkPageAcl( $pRsn, $pAction, 'p' );
+    }
     
     /**
-     * 
-     * Checls the access to a ACL of page level
+     * Checks the access of a page or domain
+     *
      * @param integer $pRsn
      * @param string $pAction
      * @param string $pType p,d
