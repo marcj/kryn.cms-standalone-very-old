@@ -80,25 +80,21 @@ var admin_pages_addDialog = new Class({
         	label: _('Layout'), type: 'select', table_key: "i", table_label: "l", tableItems: []
         }).inject( leftSide );
         
-        new Element('option', {
-            html: _(' -- No layout --'),
-            value: ''
-        }).inject( this.layout.input );
+        this.layout.select.add( '', _(' -- No layout --') );
 
-        $H(ka.settings.layouts).each(function(la, key){
-            var group = new Element('optgroup', {
-                label: key
-            }).inject( this.layout.input );
+        Object.each(ka.settings.layouts, function(la, key){
+            this.layout.select.addSplit( key );
             var count = 0;
-            $H(la).each(function(layoutFile,layoutTitle){
-                new Element('option', {
-                    html: (layoutTitle),
-                    value: layoutFile
-                }).inject( group );
+            Object.each(la, function(layoutFile,layoutTitle){
+
+                this.layout.select.add( layoutFile, layoutTitle );
                 count++;
-            })
+
+            }.bind(this));
+
             if( count == 0 )
                 group.destroy();
+
         }.bind(this));
         
         this.visible = new ka.field({
