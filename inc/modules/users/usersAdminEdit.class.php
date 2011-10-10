@@ -117,7 +117,7 @@ class usersAdminEdit extends windowEdit {
                     array('name' => 'No', 'value' => 0)
                 ),
                 'table_label' => 'name',
-                'table_id' => 'value',
+                'table_key' => 'value',
             ),
             'userBg' => array(
                'label' => 'Desktop background image',
