@@ -32,7 +32,12 @@ var admin_pages_addDialog = new Class({
             if( pPos == 'up' ){
                 this.lastLine.inject( pTitle, 'before');
             } else {
-                this.lastLine.inject( pTitle, 'after');
+                var target = pTitle;
+
+                if( pTitle.getNext() && pTitle.getNext().hasClass('ka-pageTree-item-childs') )
+                    target = pTitle.getNext();
+
+                this.lastLine.inject( target, 'after');
             }
         }
         
