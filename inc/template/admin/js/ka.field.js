@@ -1263,10 +1263,16 @@ ka.field = new Class({
             this.select.inject( this.fieldPanel );
                         
             if( typeOf(this.field.tableItems) == 'array' ){
-
-                Array.each(this.field.tableItems, function(item, key){
-                    this.select.add( item[key], item[label] );
-                }.bind(this));
+				if(this.field.table_key) {
+					Array.each(this.field.tableItems, function(item){
+	               		this.select.add( item[key], item[label] );
+	                }.bind(this));
+				} else {
+					Array.each(this.field.tableItems, function(item, key){
+						this.select.add( item[key], item[label]);
+					}.bind(this));
+				}
+                
 
             } else if ( typeOf(this.field.tableItems) == 'object' ){
     
