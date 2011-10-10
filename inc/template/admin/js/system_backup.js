@@ -382,13 +382,25 @@ var admin_system_backup = new Class({
             error: _('Error'),
             start: _('Started'),
             not_found: _('Backup deleted.'),
-            done: '<b style="color: green">'+_('Done')+'</b>'
+            done: '<b style="color: green">'+_('Done')+'</b>',
+            domain: 'Domain: %s'
         };
         
         update = function(){
             new Request.JSON({url: _path+'admin/system/backup/state', onComplete: function(res){
                 if( !this.closed ){
-                    progress.setText( res+': '+translate[res] );
+                    var expl = res.split(':');
+                    var trans_id = res;
+                    var param = false;
+                    if( res.indexOf(':') !== false ){
+                        trans_id = res.split(':')[0];
+                        param = res.split(':')[1];
+                    }
+                    var label = translate[trans_id];
+                    if( param && label )
+                        label = label.replace('%s', param);
+
+                    progress.setText( res+': '+label );
                     if( res != 'done' && res != 'error' && res != 'not_found' )
                         update.delay(1000, this);
                 }
@@ -405,6 +417,7 @@ var admin_system_backup = new Class({
 
     save: function(){
 
+        this.addSaveBtn.startTip(_('Save ...'));
         var id = '';
         if( this.lastSelect )
             id = '?id='+this.lastSelect.retrieve('id');
@@ -412,6 +425,7 @@ var admin_system_backup = new Class({
         var req = this.fields.getValue();
         new Request.JSON({url: _path+'admin/system/backup/save'+id, onComplete: function(){
             this.loadItems();
+            this.addSaveBtn.stopTip(_('Done'));
         }.bind(this)}).post(req);
 
     },
@@ -435,9 +449,13 @@ var admin_system_backup = new Class({
     
         
     generate: function(){
+        this.addGenerateBtn.startTip(_('Starting ...'));
         var req = this.fields.getValue();
         new Request.JSON({url: _path+'admin/system/backup/save?start=1', onComplete: function(){
             this.loadItems();
+            this.addGenerateBtn.stopTip(_('Started'));
+            this.main.empty();
+            this.addGrp.hide();
         }.bind(this)}).post(req);
     },
     

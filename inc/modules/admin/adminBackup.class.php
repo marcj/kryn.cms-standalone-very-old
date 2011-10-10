@@ -134,7 +134,7 @@ class adminBackup {
 
     public static function startBackup( $pBackupCode ){
         global $cfg;
-        
+
         $definitions = $cfg['backups'][$pBackupCode];
         if( $definitions ){
             $path = self::getTempFolder().'kryn_backup_'.$pBackupCode;
@@ -145,7 +145,7 @@ class adminBackup {
         kryn::fileWrite( $path.'/step', 'preparing' );
         chmod($path, 0777);
         chmod($path.'/step', 0666);
-        
+
         if( function_exists('popen') ){
             $cmd = 'cronjob.php '.$cfg['cronjob_key'].' backup '.$pBackupCode;
             
@@ -173,12 +173,130 @@ class adminBackup {
         $definitions = $cfg['backups'][ $pBackupCode ];
         
         $path = $definitions['_path'];
+        error_log("start backup $path");
+        exec("logger start backup $path");
         kryn::fileWrite( $path.'/step', 'start' );
+        
+        @delDir($path.'/domains');
+        @delDir($path.'/nodes');
+        
+        @mkdir($path.'/domains');
+        @mkdir($path.'/nodes');
+
+        //pages/sites
+        if( $definitions['pages'] == 'all' ){
+        
+            $domains = dbTableFetch('system_domains', -1);
+            foreach( $domains as $domain ){
+                kryn::fileWrite( $path.'/step', 'domain:'.$domain['domain'] );
+                self::exportWebsite( $path, $domain['rsn'] );
+            }
+                
+        } else if( $definitions['pages'] == 'choose' ){
+        
+            foreach( $definitions['pages_domains'] as $domainRsn ){
+                
+                $domain = dbTableFetch('system_domains', 'rsn = '.$domainRsn, 1);
+                kryn::fileWrite( $path.'/step', 'domain:'.$domain['domain'] );
+
+                self::exportWebsite( $path, $domainRsn );
+            }
+
+            foreach( $definitions['pages_nodes'] as $nodeRsn ){
+                $node = dbTableFetch('system_pages', ' rsn = '.$nodeRsn, 1);
+                kryn::fileWrite( $path.'/step', 'node:'.$node['title'] );
+                self::exportNode( $path, $nodeRsn );
+            }
+
+        }
 
         sleep(15);
 
         kryn::fileWrite( $path.'/step', 'done' );
+    }
+    
+    public static function getNextFileId( $pPath, $pExt = '.json' ){
+        
+        $found = false;
+        $curId = 0;
+        do {
+        
+            $curId++;
+            if( !file_exists( $pPath.'/'.$curId.$pExt) ){
+                $found = true;
+            }
+        
+        } while( !$found );
+    
+        return $curId;
+    }
+    
+    public static function exportWebsite( $pPath, $pDomainRsn ){
 
+        
+
+        $pDomainRsn += 0;
+        $nodes = self::exportTree( 0, $pDomainRsn );
+        $domain = dbTableFetch('system_domains', 'rsn = '.$pDomainRsn, 1);
+              
+        unset($domain['rsn']);
+                
+        $export = array(
+            'domain' => $domain,
+            'nodes' => &$nodes
+        );
+        
+        $id = self::getNextFileId( $pPath.'/domains' );
+
+        kryn::fileWrite( $pPath.'/domains/'.$id.'.json', json_encode($export) );
+        
+    }
+
+    public static function exportNode( $pPath, $pNodeRsn ){
+        
+        $pNodeRsn += 0;
+        $nodes = self::exportTree( $pNodeRsn );
+        
+        $id = self::getNextFileId( $pPath.'/nodes' );
+        kryn::fileWrite( $pPath.'/nodes/'.$id.'.json', json_encode($nodes) );
+
+    }
+    
+    public static function exportTree( $pNodeRsn, $pDomainRsn = false, $pAndAllVersions = false ){
+	
+    	$pNodeRsn += 0;
+        $pagesRes = dbExec("SELECT * FROM %pfx%system_pages WHERE prsn = $pNodeRsn ".($pDomainRsn?' AND domain_rsn = '.$pDomainRsn:''));
+        
+        $childs = array();
+        while( $row = dbFetch($pagesRes) ){
+    	     
+        	$contentRes = dbExec("SELECT c.* FROM %pfx%system_contents c, %pfx%system_pagesversions v
+                    WHERE 
+                    c.page_rsn = ".$row['rsn']."
+                    AND v.active = 1
+                    AND c.version_rsn = v.rsn");
+            
+            while( $contentRow = dbFetch($contentRes) ){
+                
+                unset($contentRow['rsn']);
+                unset($contentRow['page_rsn']);
+                $row['contents'][] = $contentRow;
+                
+            }
+            
+            //TODO $pAndAllVersions
+            
+            
+            $row['childs'] = self::exportTree($row['rsn'], $pDomainRsn, $pAndAllVersions);
+            
+            unset($row['rsn']);
+            unset($row['domain_rsn']);
+            unset($row['prsn']);
+            
+            $childs[] = $row;
+        }
+    
+        return $childs;
     }
 
 }

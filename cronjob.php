@@ -40,6 +40,8 @@ include('inc/config.php');
 
 if( $argv[1] != $cfg['cronjob_key'] || !$cfg['cronjob_key'] ) exit;
 
+define('pfx', $cfg['db_prefix']);
+
 $umask = (in_array('umask', $cfg))?$cfg['umask']:002;
 @umask($umask);
 
@@ -65,10 +67,10 @@ $kdb = new database(
              ($cfg['db_forceutf8']=='1')?true:false
 );
 
-/*if( !database::isActive() ){
+if( !database::isActive() ){
     exec("logger die. not active");
     die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
-}*/
+}
 
 
 if( $argv[2] == 'backup' ){

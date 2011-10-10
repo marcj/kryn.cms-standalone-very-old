@@ -108,16 +108,17 @@ class database {
         
         //checks whether a table exists in prefix form or without. update cache if not found
         public static function getTable( $pTable ){
-        
+            
             if(! is_array(self::$tables) ){
 				return pfx.$pTable;
 			}
-			if( self::$tables[ $pTable ] ){
-                return $pTable;
-            }
-				
+			
 			if( self::$tables[ pfx.$pTable ] ){
                 return pfx.$pTable;
+            }
+            
+			if( self::$tables[ $pTable ] ){
+                return $pTable;
             }
             
 			/*
