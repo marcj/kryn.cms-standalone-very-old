@@ -3300,7 +3300,7 @@ var admin_pages = new Class({
             onComplete: function( pDomain ){
                 this.domainTrees[pDomain].reload();
             }.bind(this)
-        });
+        }, true);
     },
 
     loadTree: function( pOpts ){

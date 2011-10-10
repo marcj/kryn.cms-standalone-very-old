@@ -62,11 +62,11 @@ ka.wm = {
             });
     },
 
-    open: function( pTarget, pParams, pDepend ){
+    open: function( pTarget, pParams, pDepend, pInline ){
         var firstSlash = pTarget.indexOf( '/' );
         var module = pTarget.substr(0,firstSlash);
         var path = pTarget.substr(firstSlash+1, pTarget.length);
-        return ka.wm.openWindow( module, path, null, pDepend, pParams );
+        return ka.wm.openWindow( module, path, null, pDepend, pParams, pInline );
     },
 
     dependExist: function( pWindowId ){

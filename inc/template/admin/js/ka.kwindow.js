@@ -123,9 +123,8 @@ ka.kwindow = new Class({
             var td = new Element('td', { align: 'center', valign: 'center'}).inject(tr);
 
             this.inlineContainer = new Element('div', {
-                style: 'width: 150px; height: 50px; padding: 5px; border: 1px solid gray;'+
-                'background-color: #eee; overflow: auto; position: relative; -moz-border-radius: 5px; -webkit-border-radius: 5px;',
-                html: '<img src="'+_path+'inc/template/admin/images/loading.gif" />'
+                'class': 'kwindow-win-inline',
+                html: '<center><img src="'+_path+'inc/template/admin/images/loading.gif" /></center>'
             }).inject( td );
         }
     },

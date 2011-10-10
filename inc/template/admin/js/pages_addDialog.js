@@ -51,6 +51,10 @@ var admin_pages_addDialog = new Class({
     },
 
     _renderLayout: function(){
+        
+        this.win.border.setStyle('height', 400);
+        this.win.border.setStyle('width', 500);
+    
         var c = new Element('div', {
             style: 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 31px; overflow: auto;'
         }).inject( this.win.content );
@@ -68,16 +72,17 @@ var admin_pages_addDialog = new Class({
         }).inject( leftSide );
         
         this.type = new ka.field({
-        	label: _('Type'), type: 'select', table_key: "i", table_label: "l", tableItems: [
-        	     {i: 0, l: _('Page')},
-        	     {i: 1, l: _('Link')},
-        	     {i: 2, l: _('Folder')},
-        	     {i: 3, l: _('Deposit')},
-            ]
+        	label: _('Type'), type: 'select', 
+        	items: {
+        	   "0": _('Page'),
+        	   "1": _('Link'),
+        	   "2": _('Folder'),
+        	   "3": _('Deposit'),
+        	}
         }).inject( leftSide );
         
         this.layout = new ka.field({
-        	label: _('Layout'), type: 'select', table_key: "i", table_label: "l", tableItems: []
+        	label: _('Layout'), type: 'select'
         }).inject( leftSide );
         
         this.layout.select.add( '', _(' -- No layout --') );
