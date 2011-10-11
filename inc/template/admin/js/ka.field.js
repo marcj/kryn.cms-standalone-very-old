@@ -1525,11 +1525,11 @@ ka.field = new Class({
         this.value = false;
         
         knob.addEvent('click', function(){
-            this.setValue( this.value==false?1:0 );
+            this.setValue( this.value==false?true:false );
         }.bind(this));
 
         this.getValue = function(){
-            return this.value;
+            return this.value==faslse?0:1;
         }.bind(this);
 
         this._setValue = function( p ){
