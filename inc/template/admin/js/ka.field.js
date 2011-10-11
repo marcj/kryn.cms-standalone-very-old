@@ -1529,7 +1529,7 @@ ka.field = new Class({
         }.bind(this));
 
         this.getValue = function(){
-            return this.value==faslse?0:1;
+            return this.value==false?0:1;
         }.bind(this);
 
         this._setValue = function( p ){
