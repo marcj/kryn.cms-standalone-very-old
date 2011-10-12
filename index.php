@@ -76,7 +76,6 @@ include('inc/kryn/baseModule.class.php');
 
 include('inc/kryn/kryn.class.php');
 include('inc/kryn/krynAcl.class.php');
-include("inc/kryn/adminForm.class.php");
 include('inc/kryn/krynNavigation.class.php');
 include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');
@@ -95,7 +94,6 @@ date_default_timezone_set( $cfg['timezone'] );
 
 if( !empty($cfg['locate']) )
     setlocale( LC_ALL, $cfg['locale']);
-    
 
 # Init db/stdn config
 $kdb = new database(
@@ -107,7 +105,6 @@ $kdb = new database(
              ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
              ($cfg['db_forceutf8']=='1')?true:false
 );
-
 
 if( !$kdb->isActive() ){
     die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
@@ -144,6 +141,7 @@ tAssign("request", $_REQUEST);
 tAssign("user", $user->user);
 
 if( getArgv(1) == 'admin' ){
+	include("inc/kryn/adminForm.class.php");
     require("inc/modules/admin/admin.class.php");
     $modules['admin'] = new admin();
 }

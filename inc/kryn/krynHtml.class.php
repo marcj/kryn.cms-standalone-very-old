@@ -20,7 +20,7 @@
 
 class krynHtml {
 
-    public static $docType = 'html 4.01 transitional';
+    public static $docType = 'xhtml 4.01 transitional';
 
 
     public static $docTypeMap = array(
