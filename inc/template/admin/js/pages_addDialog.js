@@ -52,7 +52,10 @@ var admin_pages_addDialog = new Class({
             pos = _('Above');
         if( this.choosenPos == 'into' )
             pos = _('Into');
-        this.choosenPlaceDiv.set('html', _('Position')+': <b>'+pos+' <u>'+this.choosenPage.title+'</u></b>');
+        var title = this.choosenPage.title;
+        if(this.choosenPage.type == -1) // Domain
+        	title = this.choosenPage.domain;
+        this.choosenPlaceDiv.set('html', _('Position')+': <b>'+pos+' <u>'+title+'</u></b>');
     },
 
     _renderLayout: function(){
