@@ -671,21 +671,6 @@ ka.layoutContent = new Class({
         field.setValue(this.content.content);
         
         var _this = this;
-        /*
-        var loadDiv = function(){
-            _this.pointerWindow = ka.wm.openWindow( 'admin', 'pages/chooser', null, _this.w.win.id, {onChoose: function( pPage ){
-                _this.content.content = pPage;
-                _this.setDivPointer( );
-                this.win.close();
-            },
-            cookie: 'pointer',
-            domain: _this.w.currentPage.domain_rsn,
-            value: _this.content.content,
-            opts: {pages: 1}
-            });
-        }
-        this.setDivPointer();
-        */
 
         field.addEvent('change', function( pPage ){
             _this.content.content = pPage;
@@ -718,34 +703,6 @@ ka.layoutContent = new Class({
         this.templateFileField.setValue( this.content.content );
 
         return;
-        /*
-        var temp = new Element('div', {
-            style: 'margin-right: 4px; margin-bottom: 3px;'
-        }).inject( this.ePanel );
-
-        this.type2TemplateInput = new Element('input', {
-            value: this.content.content,
-            style: 'width: 100%'
-        })
-        .inject( temp );
-
-        var div = new Element('div').inject( this.ePanel );
-        this.type2PicBtn = new ka.Button(_('Choose'))
-        .addEvent('click', function(){
-            var _this = this;
-            ka.wm.openWindow( 'admin', 'pages/chooser', null, _this.w.win.id, {
-                onChoose: function( pPage ){
-                    _this.type2TemplateInput.value = pPage;
-                    this.win.close();
-                },
-                display: 'icon',
-                value: this.content.content,
-                opts: {files: 1, upload: 1}
-            });
-
-        }.bind(this)) //this.type2PicChoose.bind(this))
-        .inject( div );
-        */
     },
 
 

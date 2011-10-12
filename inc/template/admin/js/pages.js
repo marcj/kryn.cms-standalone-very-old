@@ -2678,47 +2678,6 @@ var admin_pages = new Class({
             height: 200, width: 600
         });
 
-        /*this.resourcesCssPanel = new Element('div', {
-            style: 'padding-left: 25px; padding-bottom: 7px;'
-        }).inject( p );
-
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/add.png',
-            title: _('Add'),
-            style: 'cursor: pointer'
-        })
-        .inject( this.resourcesCssPanel );
-
-        this.resourcesCssFiles = new Element('div', {
-        }).inject( this.resourcesCssPanel );
-
-        
-
-        this.resourcesJsPanel = new Element('div', {
-            style: 'padding-left: 25px;'
-        }).inject( p );
-
-        var _this = this;
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/add.png',
-            title: _('Add'),
-            style: 'cursor: pointer'
-        })
-        .addEvent('click', function(){
-            ka.wm.openWindow( 'admin', 'pages/chooser', null, -1, {onChoose: function( pValue ){
-                _this.addJsRessource( pValue );
-                this.win.close();
-            },
-            opts: {files: 1, upload: 1}});
-        })
-        .inject( this.resourcesJsPanel );
-
-        this.resourcesJsFiles = new Element('div', {
-            style: 'width: 307px; padding-top: 3px;'
-        }).inject( this.resourcesJsPanel );
-
-		*/
-
         this.panes['resources'] = p;
     },
 

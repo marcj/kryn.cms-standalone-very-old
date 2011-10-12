@@ -959,7 +959,7 @@ ka.field = new Class({
         })
         .addEvent('click', function(){
 
-            ka.wm.openWindow( 'admin', 'pages/chooser', null, -1, {onChoose: function( pValue ){
+            ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
                 addFile( pValue );
                 this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler
             },
