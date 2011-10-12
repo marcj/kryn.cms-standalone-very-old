@@ -398,10 +398,13 @@ ka.kwindow = new Class({
                 this.border.set('tween', {duration: 300});
                 this.border.tween('opacity', 1);
             }
+
+            this.border.inject( this.border.getParent() );
+
+            ka.wm.setFrontWindow( this.id );
+
             this.isOpen = true;
             this.inFront = true;
-            
-            this.border.inject( this.border.getParent() );
 
             this.deleteOverlay();
             ka.wm.updateWindowBar();

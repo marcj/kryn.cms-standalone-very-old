@@ -142,6 +142,12 @@ ka.wm = {
         return true;
     },
 
+	setFrontWindow: function( pWinId ){
+        Object.each(ka.wm.windows, function(win, winId){
+        	if( win ) win.inFront = false;
+        });
+	},
+
     loadWindow: function( pModule, pWindowCode, pLink, pDependOn, pParams, pInline ){
         var instance = ka.wm.windows.getLength()+1;
 
@@ -223,6 +229,13 @@ ka.wm = {
                 item.addClass('wm-bar-item-active');
             else
                 item.removeClass('wm-bar-item-active');
+                
+            if( ka.wm.dependExist(winId) ){
+            	var dependWindow = ka.wm.getDependOn(winId);
+            	if( dependWindow.inFront && dependWindow.isOpen ){
+                	item.addClass('wm-bar-item-active');
+            	}
+            }
 
         });
         
