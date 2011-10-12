@@ -292,8 +292,15 @@ var admin_pages_addDialog = new Class({
             this.win._alert(_('Please choose a position.'));
             return;
         }
-        req.rsn = this.choosenPage.rsn;
-        req.domain_rsn = this.choosenPage.domain_rsn;
+        if(this.choosenPage.type == -1) {
+        	// Domain
+        	req.rsn = 0;
+            req.domain_rsn =  this.choosenPage.rsn;
+        } else {
+        	// Everything else
+        	req.rsn = this.choosenPage.rsn;
+            req.domain_rsn =  this.choosenPage.domain_rsn;
+        }
         req.type = this.type.getValue();
         req.layout = this.layout.getValue();
         req.visible = this.visible.getValue();
