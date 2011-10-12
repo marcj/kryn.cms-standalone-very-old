@@ -286,6 +286,7 @@ class admin {
         else
             $file = "inc/template/$module/admin/js/$code.js";
 
+        header('Content-Type: text/javascript');
         if(! file_exists($file) ){
             print "contentCantLoaded_".getArgv('onLoad')."('$file');\n";
         } else {
@@ -589,6 +590,7 @@ class admin {
         $langs = dbTableFetch('system_langs', -1, $where);
         
         $json = json_encode( $langs );
+        header('Content-Type: text/javascript');
         print "if( typeof(ka)=='undefined') window.ka = {}; ka.possibleLangs = ".$json;
         exit;
     }
@@ -611,6 +613,7 @@ class admin {
         kryn::$lang = kryn::getAllLanguage( $lang );
         
         if( getArgv('js') == 1 ){
+            header('Content-Type: text/javascript');
             print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = ".$json;
             if( !$json ){
                 print "\nLocale.define('en-US', 'Date', ".tFetch('admin/mootools-locale.tpl').");";

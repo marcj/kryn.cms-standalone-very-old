@@ -128,6 +128,7 @@ $kryn->prepareUrl();
 # Javascript
 if($_REQUEST['js'] == 'global.js'){
     $cfg['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );
+    header("Content-type: text/javascript");
 	die("var path = '".$cfg['path']."'; var _path = '".$cfg['path']."'; var _baseUrl = 'http://".$_SERVER['SERVER_NAME'].($cfg['port']?':'.$cfg['port']:'').$cfg['path']."'");
 }
 
