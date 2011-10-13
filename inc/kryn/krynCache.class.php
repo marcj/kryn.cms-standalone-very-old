@@ -49,7 +49,7 @@ class krynCache {
     
     }
     
-    public function initMemchached(){
+    public function initMemcached(){
     
         if( class_exists('Memcache') ){
             
