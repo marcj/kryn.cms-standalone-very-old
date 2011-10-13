@@ -337,13 +337,13 @@
         "-",
         false
       ],
-      "introImage": [
+      "introimage": [
         "varchar",
         "255",
         "-",
         false
       ],
-      "introImage2": [
+      "introimage2": [
         "varchar",
         "255",
         "-",

@@ -53,7 +53,7 @@ function esc( $p, $pEscape = false ){
             case 'mysqli':
                 return mysqli_real_escape_string( $kdb->connection, $p  );
             case 'postgresql':
-                return pg_escape_string  ( $p );
+                return pg_escape_string ( $kdb->connection, $p );
         }
 	}
 }

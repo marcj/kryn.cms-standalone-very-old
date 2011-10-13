@@ -75,6 +75,7 @@ class krynHtml {
         $domain = kryn::$domain;
 
         $title = ( $page['page_title'] ) ? $page['page_title'] : $page['title'];
+        
         if( !empty(kryn::$pageTitle) )
             $title = kryn::$pageTitle.' '.$title;
 
@@ -91,7 +92,7 @@ class krynHtml {
         $html .= "<base href=\"".kryn::$baseUrl."\" $tagEnd\n";
         $html .= '<meta name="DC.language" content="'.$domain['lang'].'" '.$tagEnd."\n";
 
-        $html .= '<link rel="canonical" href="'.kryn::$canonical.'" />'."\n";
+        $html .= '<link rel="canonical" href="'.kryn::$baseUrl.substr( kryn::$url, 1 ).'" '.$tagEnd."\n";
         
         $metas = @json_decode($page['meta'],1);
         if( count($metas) > 0 )

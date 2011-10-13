@@ -126,11 +126,20 @@ class kryn {
     
     
     /**
-     * Contains the current requested URL without http://, but filtered with ^a-Z0-9-/
+     * Contains the current requested URL without http://, urlencoded
+     * use urldecode(htmlspecialchars(kryn::$url)) to display it in your page.
      * 
      * @var string 
      */
     public static $url;
+    
+    /**
+     * Contains the current requested URL without http:// and with _GET params, urlencoded
+     * use urldecode(htmlspecialchars(kryn::$urlWithGet)) to display it in your page.
+     *
+     * @var string 
+     */
+    public static $urlWithGet;
     
     /**
      * 
@@ -864,6 +873,9 @@ class kryn {
             if($pUrl != '' && substr($path, 0, 1) == '/')
                 $pUrl = substr($pUrl, 1);
             
+            if( $pUrl == '/' )
+                $pUrl = '';
+
             $pUrl = 'http://'.$domain.$path.$pUrl;
         }
         
@@ -1345,31 +1357,39 @@ class kryn {
      */
     public static function prepareUrl(){
         global $_AGET;
+
+        $url = $_REQUEST['_kurl'];
+
+        kryn::$url = '';
         
-        $url = esc($_REQUEST['_kurl']);
+        $t = explode("/", $url);
+        $c = 1;
         
-        $tUrl = explode('?', $url);
-        
-        kryn::$url = preg_replace('/[^a-zA-Z-\/]/', '', $url);
-        
-        if(strpos($url, "/") >= 0){
-            $t = explode("/", $url);
-            $c = 1;
-            foreach($t as $i){
-                if(strpos($i, "=")){
-                    $param = explode("=", $i);
-                    $_REQUEST[$param[0]] = esc($param[1]);
-                    $_AGET[$param[0]] = esc($param[1]);
-                } elseif( strpos($i, ":")){
-                    $param = explode(":", $i);
-                    $_REQUEST[$param[0]] = esc($param[1]);
-                    $_AGET[$param[0]] = esc($param[1]);
-                } else {
-                    $_REQUEST['param'.$c] = esc($i);
-                    $_REQUEST[$c] = esc($i);
-                    $c++;
-                }
+        foreach($t as $i){
+            if(strpos($i, "=")){
+                $param = explode("=", $i);
+                $_REQUEST[$param[0]] = $param[1];
+                $_AGET[$param[0]] = $param[1];
+                kryn::$url .= '/'.urlencode($param[0]).'='.urlencode($param[1]);
+            } elseif( strpos($i, ":")){
+                $param = explode(":", $i);
+                $_REQUEST[$param[0]] = $param[1];
+                $_AGET[$param[0]] = $param[1];
+                kryn::$url .= '/'.urlencode($param[0]).'='.urlencode($param[1]);
+            } else {
+                $_REQUEST['param'.$c] = $i;
+                $_REQUEST[$c] = $i;
+                kryn::$url .= '/'.urlencode($i);
+                $c++;
             }
+        }
+        
+        kryn::$urlWithGet = kryn::$url;
+        $f = false;
+        foreach( $_GET as $k => &$v ){
+            if( $k == '_kurl' ) continue;
+            kryn::$urlWithGet .= (!$f?'?':'&').urlencode($k).'='.urlencode($v);
+            if( $f == false ) $f = true;
         }
         
         //small securty check for third party modules
@@ -2352,7 +2372,7 @@ class kryn {
         kryn::$page = $page;
         tAssign( 'page', $page );
         
-        kryn::$canonical = urlencode(kryn::$baseUrl.kryn::getRequestPageUrl(true));
+        kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
 
         if( kryn::$page['cache'] == "1" && $pReturn == false ){ //only in frontend and not in searchindex mode 
             print kryn::fileRead( "inc/cache/_pages/".kryn::$page['rsn'].".html" );
@@ -2393,6 +2413,9 @@ class kryn {
 
         $content = str_replace('\[[', '[[', $content);
         kryn::replacePageIds( $content );
+
+        
+        //htmlspecialchars(urldecode(kryn::$url));
         $content = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', $content);
         kryn::$pageHtml =& $content;
         
