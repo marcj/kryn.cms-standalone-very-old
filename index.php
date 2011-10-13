@@ -92,7 +92,7 @@ tAssign( 'time', $time);
 
 date_default_timezone_set( $cfg['timezone'] );
 
-if( !empty($cfg['locate']) )
+if( !empty($cfg['locale']) )
     setlocale( LC_ALL, $cfg['locale']);
 
 define('pfx', $cfg['db_prefix']);
