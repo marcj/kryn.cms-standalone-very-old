@@ -42,7 +42,7 @@ class admin {
     }
 
     public function content(){
-        global $tpl, $kryn, $navigation, $modules, $cfg, $client;
+        global $tpl, $navigation, $modules, $cfg, $client;
 
 
         if( getArgv('getLanguage') != '' )
@@ -65,7 +65,7 @@ class admin {
 
         tAssign("admin", true);
                     
-        $kryn->initModules();
+        kryn::initModules();
                     
         $code = kryn::getRequestPath();
         $info = self::getPathItem( $code );
@@ -445,7 +445,6 @@ class admin {
     }
     
     public function searchAdmin( $pQuery ){
-        global $kryn;
         
         $res = array();
         
@@ -464,7 +463,7 @@ class admin {
         
         //help
         $helps = array();
-        foreach( $kryn->installedMods as $key => $mod ){
+        foreach( kryn::$configs as $key => $mod ){
             $helpFile = "inc/modules/$key/lang/help_$lang.json";
             if( !file_exists( $helpFile ) ) continue;
             if( count($helps) > 10 ) continue;
@@ -526,10 +525,9 @@ class admin {
     
     
     public static function loadHelpTree( $pLang = 'en'){
-        global $kryn;
         
         $res = array();
-        foreach( $kryn->installedMods as $modCode => &$config ){
+        foreach( kryn::$configs as $modCode => &$config ){
             
             $langFile = "inc/modules/$modCode/lang/help_$lang.json";
             if( !file_exists($langFile) )
@@ -691,12 +689,12 @@ class admin {
     }
 
     public static function getSettings(){
-        global $modules, $client, $kryn, $cfg;
+        global $modules, $client, $cfg;
 
         $res = array();
         
         $res['modules'] = array();
-        foreach( $kryn->installedMods as $key => $mod ){
+        foreach( kryn::$configs as $key => $mod ){
             $res['modules'][] = $key;
             if( $mod )
                 $res['configs'][$key] = $mod;
@@ -707,7 +705,7 @@ class admin {
         $res['navigations'] = array();
         
         $res['navigations'] = array();
-        foreach( $kryn->installedMods as $key => $config ){
+        foreach( kryn::$configs as $key => $config ){
             if( $config['themes'] ){
                 foreach( $config['themes'] as $themeTitle => $theme ){
                     if( $theme['layouts'] ){
@@ -742,7 +740,7 @@ class admin {
             $code .= '/';
         
         $res['ingroups'] = $inGroups;
-        $res['r2d'] =& cache::get("r2d");
+        $res['r2d'] =& kryn::getCache("r2d");
         
         if( !$res['r2d'] ){
                $res['r2d'] = array();
@@ -765,7 +763,7 @@ class admin {
                 adminPages::updatePage2DomainCache();
             }
 
-            $res["menus_$domainRsn"] =& cache::get("menus_$domainRsn");
+            $res["menus_$domainRsn"] =& kryn::getCache("menus_$domainRsn");
 
             if( !$res["menus_$domainRsn"] || $domainRsn == 2 ){
                 $res["menus_$domainRsn"] = adminPages::updateMenuCache( $domainRsn );
@@ -818,7 +816,7 @@ class admin {
     }
 
     public static function stream(){
-    	global $kryn, $modules, $client;
+    	global $modules, $client;
     	
         $res['time'] = date('H:i');
         $res['last'] = time();
@@ -828,7 +826,7 @@ class admin {
         
         $res['hasCrawlPermission'] = adminSearchIndexer::hasPermission();
         
-        foreach( $kryn->installedMods as $key => $conf ){
+        foreach( kryn::$configs as $key => $conf ){
         	$stream = $conf['stream'];
         	
         	if( $stream && method_exists($modules[$key], $stream) ){
@@ -842,20 +840,18 @@ class admin {
     }
 
     public static function systemInfo(){
-        global $kryn;
         
-        $res['version'] = $kryn->version;
+        $res['version'] = kryn::$configs['kryn']['version'];
         
         json($res);
     }
     
     public static function loadJs(){
-        global $kryn;
         
         header('Content-Type: application/x-javascript');
 
         $md5Hash = '';
-        foreach( $kryn->installedMods as &$config ){
+        foreach( kryn::$configs as &$config ){
             if( $config['adminJavascript'] && is_array( $config['adminJavascript'] )  ) {
                 foreach( $config['adminJavascript'] as $jsFile ){
                     if( file_exists('inc/template/'.$jsFile) ){
@@ -872,7 +868,7 @@ class admin {
             readFile( 'inc/cache/cachedAdminJs_'.$md5Hash.'.js' );
         } else {
             $content = '';
-            foreach( $kryn->installedMods as &$config ){
+            foreach( kryn::$configs as &$config ){
                 if( $config['adminJavascript'] && is_array( $config['adminJavascript'] )  ) {
                     
                     foreach( $config['adminJavascript'] as $jsFile ){
@@ -894,7 +890,6 @@ class admin {
     }
 
     public static function loadCss(){
-        global $kryn;
         
         header('Content-Type: text/css');
         
@@ -922,7 +917,7 @@ class admin {
         );
         
         $md5Hash = '';
-        foreach( $kryn->installedMods as &$config ){
+        foreach( kryn::$configs as &$config ){
             if( $config['adminCss'] && is_array( $config['adminCss'] )  ) {
                 foreach( $config['adminCss'] as $cssFile ){
                     if( file_exists('inc/template/'.$cssFile) ){
@@ -939,7 +934,7 @@ class admin {
             readFile( 'inc/cache/cachedAdminCss_'.$md5Hash.'.css' );
         } else {
             $content = '';
-            foreach( $kryn->installedMods as &$config ){
+            foreach( kryn::$configs as &$config ){
                 if( $config['adminCss'] && is_array( $config['adminCss'] )  ) {
                     
                     foreach( $config['adminCss'] as $cssFile ){
@@ -977,12 +972,10 @@ class admin {
     }
     
     public static function getMenus(){
-        global $kryn;
-        
         
         $links = array();
         
-        foreach( $kryn->installedMods as $extCode => $config ){
+        foreach( kryn::$configs as $extCode => $config ){
             
             if( $config['admin'] ){
                 foreach( $config['admin'] as $key => $value ){
@@ -1050,25 +1043,24 @@ class admin {
     }
 
     public static function pointerPreview( $pContent ){
-        global $kryn;
+
         $page = dbExfetch( 'SELECT * FROM %pfx%system_pages WHERE rsn = ' . ($pContent+0) );
         kryn::$domain['rsn'] = $page['domain_rsn'];
-        $kryn->realUrls = kryn::readCache( 'urls' );
-        #$_content = tFetch( 'kryn/layouts/' . $kryn->current_page['layout'] . '.tpl' );
-        $_content = "$pContent: <strong>".$page['title']."</strong> (".$kryn->realUrls['rsn']["rsn=".$pContent].")";
-        #$kryn->current_page = $oldPage;
+        kryn::$realUrls =& kryn::readCache( 'urls' );
+
+        $_content = "$pContent: <strong>".$page['title']."</strong> (".kryn::$realUrls['rsn']["rsn=".$pContent].")";
+        
         json( $_content );
     }
 
     public static function navigationPreview( $pContent ){
-        global $kryn;
 
         $page = adminPages::getPageByRsn( $pContent );
 
         kryn::$domain['rsn'] = $page['domain_rsn'];
-        $kryn->realUrls = kryn::readCache( 'urls' );
+        kryn::$realUrls =& kryn::readCache( 'urls' );
 
-        $_content = "<strong>".$page['title']."</strong> (".$kryn->realUrls['rsn']["rsn=".$pContent].")";
+        $_content = "<strong>".$page['title']."</strong> (".kryn::$realUrls['rsn']["rsn=".$pContent].")";
         json($_content);
         /*
         $options[ 'id' ] = $temp[0];
@@ -1283,9 +1275,8 @@ class admin {
     }
 
     public function widgetVersion(){
-        global $kryn;
 
-        $res['title'] = 'Kryn '.$kryn->version;
+        $res['title'] = 'Kryn '.kryn::$configs['kryn']['version'];
         $res['content'] = '
             <span style="color: green;">Sie benutzen die aktuellste Version.</span>    
         '; 

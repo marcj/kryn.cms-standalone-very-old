@@ -50,33 +50,33 @@ class krynHtml {
 
 
     public static function buildPage( $pContent ){
-        global $kryn, $cfg;
+        global $cfg;
 
 
         $res = self::$docTypeMap[ strtolower(self::$docType) ];
 
-        $res .= "\n<head>".$kryn->htmlHeadTop;
+        $res .= "\n<head>".kryn::$htmlHeadTop;
         $res .= self::buildHead(true);
 
-        $res .= $kryn->htmlHeadEnd.'</head><body>'.$kryn->htmlBodyTop.$pContent."\n\n".$kryn->htmlBodyEnd.'</body></html>';
+        $res .= kryn::$htmlHeadEnd.'</head><body>'.kryn::$htmlBodyTop.$pContent."\n\n".kryn::$htmlBodyEnd.'</body></html>';
 
         return $res;
     }
 
     public static function buildHead( $pContinue = false ){
-        global $kryn, $cfg;
+        global $cfg;
 
-        $tagEnd = (strpos(strtolower($kryn->doctype), 'xhtml')!==false)?' />':' >';
+        $tagEnd = (strpos(strtolower(krynHtml::$docType), 'xhtml')!==false)?' />':' >';
 
-        if( $pContinue == false && $kryn->admin == false ){
-            return '{$kryn.header}';
+        if( $pContinue == false && kryn::$admin == false ){
+            return '{*kryn-header*}';
         }
         $page = kryn::$page;
         $domain = kryn::$domain;
 
         $title = ( $page['page_title'] ) ? $page['page_title'] : $page['title'];
-        if( !empty($kryn->pageTitle) )
-            $title = $kryn->pageTitle.' '.$title;
+        if( !empty(kryn::$pageTitle) )
+            $title = kryn::$pageTitle.' '.$title;
 
         $html = '<title>' .
             str_replace(
@@ -99,7 +99,9 @@ class krynHtml {
                 if( $meta['value'] != '' )
                     $html .= '<meta name="' . str_replace('"', '\"',$meta['name']) . '" content="' . str_replace('"', '\"',$meta['value']) . '" '.$tagEnd."\n";
 
-        $html .= '<meta name="generator" content="Kryn.cms '.$kryn->version.'" '.$tagEnd."\n";
+        if( kryn::$cfg['show_banner'] == 1 ){
+            $html .= '<meta name="generator" content="Kryn.cms" '.$tagEnd."\n";
+        }
         
         
         $myCssFiles = array();
@@ -117,7 +119,7 @@ class krynHtml {
          * 
          */
         
-        foreach( $kryn->cssFiles as $css ){
+        foreach( kryn::$cssFiles as $css ){
             $myCssFiles[] = $css;
         }
 
@@ -178,7 +180,7 @@ class krynHtml {
          * 
          */
 
-        foreach( $kryn->jsFiles as $js ){
+        foreach( kryn::$jsFiles as $js ){
             $myJsFiles[] = $js;
         }
 
@@ -232,7 +234,7 @@ class krynHtml {
          * HEADER
          */
 
-        foreach( $kryn->header as $head )
+        foreach( kryn::$header as $head )
             $html .= "$head\n";
 
         //customized metas

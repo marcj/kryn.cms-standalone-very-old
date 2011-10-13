@@ -119,6 +119,7 @@ function dbTableFetch( $pTable, $pCount = -1, $pWhere = false ){
     if( $pNewCount ) $pCount = $pNewCount;
     
     $table = database::getTable( $pTable );
+
     $sql = "SELECT * FROM $table";
     if( $pWhere != false)
         $sql .= " WHERE $pWhere";

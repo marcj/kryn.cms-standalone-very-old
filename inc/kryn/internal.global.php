@@ -46,7 +46,7 @@ if (get_magic_quotes_gpc()) {
 
 
 function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
-    global $errorHandlerInside, $user, $cfg, $kryn, $client;
+    global $errorHandlerInside, $user, $cfg, $client;
 
     if( $errorHandlerInside ) return;
     
@@ -57,7 +57,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
 
     	if( $pCode != 8 && $pCode != 2 ){
 	    	//only if administrator want to see
-	    	if( $cfg['display_errors']+0 == 1 && !$kryn->admin ){
+	    	if( $cfg['display_errors']+0 == 1 && !kryn::$admin ){
 	    		print $user->user['username']." - $pCode: $pMsg in $pFile on $pLine<br />\n";
 	    	}
 	    	if( array_key_exists('log_errors', $cfg) && array_key_exists('log_errors_file', $cfg) &&

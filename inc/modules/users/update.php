@@ -1,7 +1,5 @@
 <?php
 
-global $kryn;
-
 //auto updater for structure changes
 
 //
@@ -10,10 +8,7 @@ global $kryn;
 
 
 if( $GLOBALS['krynInstaller'] != true ){
-    
-    if( !$kryn ) die();
-    
-    if( $kryn->canCompare == true ){
+    if( kryn::$canCompare == true ){
         
         if( kryn::compareVersion('kryn', '<', '0.7.0') ){
             require_once("inc/modules/admin/admin.class.php");
@@ -23,7 +18,7 @@ if( $GLOBALS['krynInstaller'] != true ){
             $die = true;
         }
             
-        if( $kryn->installedMods['admin']['version'] != '' && kryn::compareVersion('admin', '<', '0.7.0') ){
+        if( kryn::$configs['admin']['version'] != '' && kryn::compareVersion('admin', '<', '0.7.0') ){
             require_once("inc/modules/admin/admin.class.php");
             require_once("inc/modules/admin/adminModule.class.php");
             require_once("inc/modules/admin/adminDb.class.php");
@@ -34,7 +29,7 @@ if( $GLOBALS['krynInstaller'] != true ){
     } else {
         
         //we have to check manually if admin or kryn is not 0.7.0
-        if( $kryn->installedMods['kryn']['version'] != '0.7.0' ){
+        if( kryn::$configs['kryn']['version'] != '0.7.0' ){
             require_once("inc/modules/admin/admin.class.php");
             require_once("inc/modules/admin/adminModule.class.php");
             require_once("inc/modules/admin/adminDb.class.php");
@@ -42,7 +37,7 @@ if( $GLOBALS['krynInstaller'] != true ){
             $die = true;
         }
         
-        if( $kryn->installedMods['admin']['version'] != '' && $kryn->installedMods['admin']['version'] != '0.7.0' ){
+        if( kryn::$configs['admin']['version'] != '' && kryn::$configs['admin']['version'] != '0.7.0' ){
             require_once("inc/modules/admin/admin.class.php");
             require_once("inc/modules/admin/adminModule.class.php");
             require_once("inc/modules/admin/adminDb.class.php");

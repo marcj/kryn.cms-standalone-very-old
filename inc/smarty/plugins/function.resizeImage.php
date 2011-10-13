@@ -1,7 +1,6 @@
 <?php
 
 function smarty_function_resizeImage( $params, &$smarty ){
-    global $kryn;
     
     $imagelink = $params['file'];
     

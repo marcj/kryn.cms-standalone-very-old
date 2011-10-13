@@ -136,12 +136,11 @@ class usersAcl {
     }
 
     public static function loadTree(){
-        global $kryn;
         $res = array();
 
         $dbmods = dbTableFetch('system_modules', -1, 'activated = 1');
         foreach( $dbmods as $mod ){
-            $res[ $mod['name'] ] = $kryn->installedMods[$mod['name']];
+            $res[ $mod['name'] ] = kryn::$configs[$mod['name']];
             $res[ $mod['name'] ]['name'] = $mod['name'];
         }
 

@@ -147,7 +147,6 @@ class users extends baseModule{
     }
 
     function install(){
-        global $kryn;
         
         dbDelete('system_user');
         dbInsert('system_user', array( 'username' => 'Guest', 'created' => time(),

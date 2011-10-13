@@ -28,12 +28,11 @@ class adminLanguages {
     }
 
     public function getAllLanguages( $pLang = 'en' ){
-        global $kryn;
     
         if( $pLang == '' ) $pLang = 'en';
 
         $res = array(); 
-        foreach( $kryn->installedMods as $key => $mod ){
+        foreach( kryn::$configs as $key => $mod ){
             $res[ $key ]['config'] = $mod;
             $res[ $key ]['lang'] = adminModule::extractLanguage( $key );
             if( count($res[ $key ]['lang']) > 0 ){

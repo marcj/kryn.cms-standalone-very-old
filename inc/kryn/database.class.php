@@ -14,6 +14,7 @@
  * Database class
  * 
  * @author MArc Schmidt <marc@kryn.org>
+ * @internal
  */
 
 define("DB_FETCH_ALL", -1);
@@ -33,7 +34,6 @@ class database {
         
         public static $needToInt = array('int*', 'tinyint*', 'bit*', 'timestamp', 'double', 'float', 'bigint*');
         public static $alreadyLoaded = false;
-        public static $tables;
         
         public $usePdo = false;
         public $databaseName = '';
@@ -54,47 +54,8 @@ class database {
             if( $pDatabaseType && $pHost ){
                 $this->login( $pHost, $pUser, $pPassword, $pDatabaseName, $pForceUtf8 );
             }
-
-            self::$tables = kryn::getCache('tables');
         }
         
-        public static function readTables( $pForceAll = false ){
-            global $kdb, $cfg;
-			
-            if( pForceAll == true || !is_array(self::$tables) || count(self::$tables) == 0){// !is_array($kdb->tableInfos) ){
-                //if cache is clear, read all tables in the database
-                $tables = self::getAllTables();
-                foreach( $tables as $table ){
-					if( !$kdb->tableInfos[ $table ] )
-						$kdb->tableInfos[ $table ] = self::getColumns( $table );
-                }
-                
-                self::$tables = array();
-                
-                if( is_array($kdb->tableInfos) ){
-                    foreach( $kdb->tableInfos as $table => $columns ){
-        
-                        foreach( $columns as $key => $column ){
-                        
-                            $column['escape'] = 'text';
-                            if( self::isIntEscape($column['Type']) || self::isIntEscape($column['type']) || self::isIntEscape($column[0]) ){
-                                $column['escape'] = 'int';
-                            }
-                            
-                            $column['auto_increment'] = ($column['Extras'] == 'auto_increment') ? true : false;
-                            if( $column[3] === true )
-                                $column['auto_increment'] = true;
-                            
-                            $fieldname = $column['Field'] ? $column['Field'] : $key;
-                            
-                            self::$tables[ $table ][ $fieldname ] = $column;
-                        }
-                    
-                    }
-                }
-                kryn::setCache('tables', self::$tables);
-            }
-        }
         
         public static function isIntEscape( $pType ){
 			if( !$pType ) return false;
@@ -104,39 +65,13 @@ class database {
             }
         }
         
-        
-        
-        //checks whether a table exists in prefix form or without. update cache if not found
         public static function getTable( $pTable ){
-            
-            if(! is_array(self::$tables) ){
-				return pfx.$pTable;
-			}
-			
-			if( self::$tables[ pfx.$pTable ] ){
-                return pfx.$pTable;
-            }
-            
-			if( self::$tables[ $pTable ] ){
-                return $pTable;
-            }
-            
-			/*
-            foreach( self::$tables as $table => $columns ){
-                if( $table == pfx.$pTable )
+    
+            foreach( kryn::$configs as &$config ){
+                if( $config['db'] && $config['db'][$pTable] )
                     return pfx.$pTable;
-                    
-                if( $table == $pTable )
-                    return $table;
-            }*/
-            
-            //no table found, delete cache, read tables and try one time again
-            if( self::$alreadyLoaded == false ){
-                //kryn::removePhpCache('tables');
-                //self::readTables();
-                self::$alreadyLoaded = true;
-                return self::getTable( $pTable );
             }
+            
             return $pTable;
         }
         
@@ -215,7 +150,7 @@ class database {
                 case 'sqlite':
                     $ttemp = dbExfetch( "PRAGMA table_info($pTable)", -1 );
                     if( count($ttemp) > 0 ){
-                    foreach( $ttemp as $t ){
+                        foreach( $ttemp as $t ){
                             $res[$t['name']] = array(
                                 'type' => $t['type']
                             );
@@ -224,9 +159,9 @@ class database {
                     break;
                     
                 case 'postgresql':
-                    $ttemp = dbExfetch( "SELECT * FROM information_schema.columns WHERE table_name = '$pTable';", -1 );
+                    $ttemp = dbExfetch( "SELECT * FROM information_schema.columns WHERE table_name = '$pTable'", -1 );
                     if( count($ttemp) > 0 ){
-                    foreach( $ttemp as $t ){
+                        foreach( $ttemp as $t ){
                             $res[$t['column_name']] = array(
                                 'type' => $t['data_type']
                             );
@@ -474,16 +409,69 @@ class database {
         }		
 
         public static function getOptions( $pTable ){
-        	return self::$tables[ $pTable ];
-        }
+            
+            $columnDefs =& kryn::getCache( 'kryn_database_table_'.$pTable );
+            
+            if( !$columnDefs ){
+        
+                $columns = false;
+                foreach( kryn::$configs as &$config ){
+                    if( $config['db'] && $config['db'][$pTable] ){
+                        $columns = $config['db'][$pTable];
+                        break;
+                    }
+                }
+                
+                if( $columns ){
+                
+                    foreach( $columns as $key => &$column ){
+                        $column['auto_increment'] = ($column[4] == true) ? true : false;
+                        $column['escape'] = self::isIntEscape($column['Type'])?'int':'text';
+                        
+                    }
+                    kryn::setCache( 'kryn_database_table_'.$pTable, $columns);
+                    return $columns;
+                } else {
+                    $columns = self::getColumns( $pTable );
+                    if( is_array($columns) && count($columns) > 0 ){
+                        $ncolumns = array();
+                        
+                        foreach( $columns as $key => $column ){
+                            $column['escape'] = 'text';
+                            if( self::isIntEscape($column['Type']) || self::isIntEscape($column['type'])
+                                || self::isIntEscape($column[0]) ){
+                                $column['escape'] = 'int';
+                            }
+                            $column['auto_increment'] = ($column['Extras'] == 'auto_increment') ? true : false;
+                            if( $column[3] === true )
+                                $column['auto_increment'] = true;
+                            
+                            $fieldname = $column['Field'] ? $column['Field'] : $key;
+                            
+                            $ncolumns[ $fieldname ] = $column;
+                        }
+                        
+                        kryn::setCache( 'kryn_database_table_'.$pTable, $ncolumns);
+                        return $ncolumns;
+                    } else {
+                        kryn::setCache( 'kryn_database_table_'.$pTable, 'doesnt_exist');
+                    }
+                }
+                
+            } else if( $columnDefs == 'doesnt_exist' ){
+                return false;
+            } else {
+                return $columnDefs;
+            }
+       }
         
         public static function last_id(){
         	global $kdb;
             $seqName = null;
     	    if( $kdb->type == 'postgresql' ){
-    	        $tableDefinition = self::$tables[$kdb->lastInsertTable];
-    	        if( is_array($tableDefinition) ){
-    	            foreach( $tableDefinition as $fKey => $field ){
+    	        $columns = self::getOptions( $kdb->lastInsertTable );
+    	        if( is_array($columns) ){
+    	            foreach( $columns as $fKey => $field ){
         	            if( $field['auto_increment'] == 1 ){
         	                $seqName = 'kryn_'.$kdb->lastInsertTable.'_seq';
         	            }
@@ -513,16 +501,11 @@ class database {
 
     
         public static function updateSequences( $pDb = false ){
-            global $kdb;
-                
-            if( $pDb && is_array( $pDb ) ){
-                foreach( $pDb as $key => $val ){
-                    $kdb->tableInfos[ pfx.$key ] = $val;
-                }
-                self::readTables();
-            }
             
-            foreach( self::$tables as $table => $fields ){
+            $tables = self::getAllTables();
+
+            foreach( $tables as $table ){
+                $fields = self::getOptions( pfx.$table );
                 foreach( $fields as $fieldKey => $field ){
                     if( $field['auto_increment'] == 1 ){
                         $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.$table, 1);
@@ -532,8 +515,7 @@ class database {
                 }
             }
         }
-        
-        
+
         public static function isActive(){
             global $kdb, $cfg;
             

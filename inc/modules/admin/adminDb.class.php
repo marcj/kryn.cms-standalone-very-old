@@ -68,7 +68,7 @@ class adminDb {
     }
 
     function _install( $pDb, $pDelete4Install = false ){
-        global $cfg, $kdb, $kryn;
+        global $cfg, $kdb;
 
         $db = &$pDb;
         

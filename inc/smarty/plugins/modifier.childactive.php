@@ -1,6 +1,5 @@
 <?php
 function smarty_modifier_childactive($string){
-    global $kryn;
 
     if( is_numeric( $string ) )
         $rsn = $string;

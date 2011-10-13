@@ -24,21 +24,23 @@
 class krynNavigation {
     public $navigations;
 
-    public static function getLinks( $pRsn, $pWithFolders = false, $pDomain = false ){
-        global $kryn, $user, $time;
+    public static function getLinks( $pRsn, $pWithFolders = false, $pDomain = false, $pWithoutCache = false ){
+        global $user, $time;
 
         if(! is_numeric($pRsn) )
             return array();
         
-        $code = $pRsn;
-        if( $pRsn == 0 )
-            $code .= '_'.(($pDomain) ? $pDomain : kryn::$domain['rsn']);
-        
-        $links =& cache::get( 'navigations' );
-        
-        if( !$links[$code] && !is_array($links[$code]) ){
+        if( $pWithoutCache == false ){
+            
+            $code = (($pDomain) ? $pDomain : kryn::$domain['rsn']);
+            $code .= '_'.$pRsn;
+            
+            $navigation =& kryn::getCache( 'navigation_'.$code );
+        }
 
-            $links[$code] = dbExfetch("
+        if( $pWithoutCache == 1 || !is_array($navigation) ){
+
+            $links = dbExfetch("
             SELECT 
                 rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
                 access_from, access_to, access_nohidenavi, access_from_groups, properties
@@ -57,35 +59,46 @@ class krynNavigation {
                 )
                 AND access_denied != '1'
             ORDER BY sort", -1);
+    
+            $pages = array();
+            foreach( $links as &$page ){
+            
+                if( !$pWithFolders && $page['type'] == 2 ) continue;
 
-            cache::set('navigations', $links);
-        }
-
-        foreach( $links[$code] as &$page ){
-        
-            if( !$pWithFolders && $page['type'] == 2 ) continue;
-            if( $pRsn == 0 && $pDomain && ($page['prsn'] != 0 || $page['domain_rsn'] != kryn::$domain['rsn'] ) ) continue;
-        
-            //permission check
-        	if( $page['access_nohidenavi'] != 1 )
-        	    $page = kryn::checkPageAccess( $page, false );
-        	    
-            if( $page['properties'] ){
-                $page['properties'] = json_decode( $page['properties'], true );
+                if( $pRsn == 0 && $pDomain && ($page['prsn'] != 0 || $page['domain_rsn'] != kryn::$domain['rsn'] ) ) continue;
+            	    
+                if( $page['properties'] ){
+                    $page['properties'] = json_decode( $page['properties'], true );
+                }
+                
+                $page[ 'links' ] = self::getLinks( $page['rsn'], $pWithFolders, null, true );
+                
+                $pages[] = $page;
             }
             
-	        if( $page ){
-	            $page[ 'links' ] = self::getLinks( $page['rsn'] );
-	            $pages[] = $page;
-	        }
+            if( !$pWithoutCache ){
+                kryn::setCache( 'navigation_'.$code, $pages );
+            }
+
+        } else {
+            $pages =& $navigation;
         }
-        return $pages;
+        
+        $result = array();
+        foreach( $pages as &$page ){
+
+        	if( $page['access_nohidenavi'] != 1 )
+        	   if( kryn::checkPageAccess( $page, false ) )
+        	       $result[] = $page;
+
+        }
+        
+        return $result;
     }
 
 
     public static function activePage( $pRsn ){
-        global $kryn;
-        $isActive = self::_activePage( $kryn->menus[ $pRsn ], $pRsn );
+        $isActive = self::_activePage( kryn::$menus[ $pRsn ], $pRsn );
     }
 
     public static function _activePage( $pages, $pRsn ){
@@ -102,7 +115,7 @@ class krynNavigation {
     }
 
     public static function plugin( $pOptions ){
-        global $kryn, $user, $cfg;
+        global $user, $cfg;
 
         $pTemplate = $pOptions['template'];
         $pWithFolders = ($pOptions['folders']==1)?true:false;
@@ -116,9 +129,9 @@ class krynNavigation {
 
         if( $pOptions['level'] > 1 ){
 
-            $currentLevel = count( $kryn->menus[kryn::$page['rsn']] )+1;
+            $currentLevel = count( kryn::$menus[kryn::$page['rsn']] )+1;
 
-            $page = self::arrayLevel( $kryn->menus[kryn::$page['rsn']], $pOptions['level'] );
+            $page = self::arrayLevel( kryn::$menus[kryn::$page['rsn']], $pOptions['level'] );
             
             if( $page['rsn'] > 0 )
                 $navi = kryn::getPage( $page['rsn'] );
@@ -141,7 +154,7 @@ class krynNavigation {
         switch( $pOptions['id'] ){
             case 'history':
                 $tpl = (!$pTemplate) ? 'main' : $pTemplate;
-                tAssign( 'menus', $kryn->menus );
+                tAssign( 'menus', kryn::$menus );
                 if( file_exists( "inc/template/$tpl" ))
                     return tFetch( $tpl );
                 return tFetch("kryn/history/$tpl.tpl");

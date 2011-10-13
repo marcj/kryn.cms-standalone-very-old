@@ -51,7 +51,7 @@ class adminWindow {
     }
 
     public static function loadClass(){
-        global $kryn, $kdb;
+        global $kdb;
 
         require( 'inc/modules/admin/adminWindowList.class.php' );
         require( 'inc/modules/admin/adminWindowCombine.class.php' );
@@ -85,7 +85,7 @@ class adminWindow {
 
         }
         
-        $config = $kryn->installedMods[$module];
+        $config = kryn::$configs[$module];
 
 //        $dbFile = "inc/modules/$module/db.php";
 //        if( file_exists($dbFile) )

@@ -105,10 +105,10 @@ class adminWindowEdit {
         if( !$this->previewPlugins )
             return;
             
-        $cachedPluginRelations =& cache::get('kryn_pluginrelations');
+        $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
         if( true || !$cachedPluginRelations || count($cachedPluginRelations) == 0 ){
             self::cachePluginsRelations();
-            $cachedPluginRelations =& cache::get('kryn_pluginrelations');
+            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
         }
         
         $module = $this->module;
@@ -191,7 +191,7 @@ class adminWindowEdit {
         ');
         
         if( !$res ){
-            cache::set('kryn_pluginrelations', array());
+            kryn::setCache('kryn_pluginrelations', array());
             return;
         }
         
@@ -203,7 +203,7 @@ class adminWindowEdit {
             $pluginRelations[$matches[1]][$matches[2]][] = $row;
         
         }
-        cache::set('kryn_pluginrelations', $pluginRelations);
+        kryn::setCache('kryn_pluginrelations', $pluginRelations);
     }
 
     /**
@@ -513,7 +513,7 @@ class adminWindowEdit {
     
         if( $this->previewPlugins ){
             
-            $cachedPluginRelations =& cache::get('kryn_pluginrelations');
+            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
             $module = $this->module;
             
             foreach( $this->previewPlugins as $plugin => $urlGetter ){

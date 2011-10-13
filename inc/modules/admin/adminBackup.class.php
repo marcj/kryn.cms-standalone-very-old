@@ -173,25 +173,25 @@ class adminBackup {
         $definitions = $cfg['backups'][ $pBackupCode ];
         
         $path = $definitions['_path'];
-        error_log("start backup $path");
-        exec("logger start backup $path");
+        klog('backup', 'start');
+
         kryn::fileWrite( $path.'/step', 'start' );
         
         @delDir($path.'/domains');
         @delDir($path.'/nodes');
-        
+
         @mkdir($path.'/domains');
         @mkdir($path.'/nodes');
 
         //pages/sites
         if( $definitions['pages'] == 'all' ){
-        
+
             $domains = dbTableFetch('system_domains', -1);
             foreach( $domains as $domain ){
                 kryn::fileWrite( $path.'/step', 'domain:'.$domain['domain'] );
                 self::exportWebsite( $path, $domain['rsn'] );
             }
-                
+
         } else if( $definitions['pages'] == 'choose' ){
         
             foreach( $definitions['pages_domains'] as $domainRsn ){
@@ -211,6 +211,7 @@ class adminBackup {
         }
 
         sleep(15);
+        klog('backup', 'done');
 
         kryn::fileWrite( $path.'/step', 'done' );
     }

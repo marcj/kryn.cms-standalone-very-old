@@ -92,7 +92,7 @@ class adminPages {
         
         $pRsn += 0;
         $page = dbTableFetch('system_pages', "rsn = $pRsn", 1);
-        $menus =& cache::get('menus_'.$page['domain_rsn']);
+        $menus =& kryn::getCache('menus_'.$page['domain_rsn']);
         $page['_parents'] = $menus[ $page['rsn'] ];
         
         return $page;
@@ -430,7 +430,7 @@ class adminPages {
     }
 
     public static function getDomain(){
-    	global $kryn;
+
     	
         $rsn = getArgv('rsn')+0;
         
@@ -501,7 +501,7 @@ class adminPages {
                 }
             }
         }
-        kryn::setPhpCache('domains', $domains);
+        kryn::setFastCache('domains', $domains);
         return $domains;
     }
 
@@ -557,7 +557,7 @@ class adminPages {
             json(array('error' => 'access_denied'));;
         }
         
-        cache::clear('getPage_'.$pPage);
+        kryn::deleteCache('getPage_'.$pPage);
         
         $page = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE rsn = $pPage", 1);
 
@@ -597,10 +597,10 @@ class adminPages {
 
 
     public static function getTemplate( $pTemplate ){
-        global $kryn, $cfg;
+        global $cfg;
         
-        $kryn->resetJs();
-        $kryn->resetCss();
+        kryn::resetJs();
+        kryn::resetCss();
 
         $domainPath = str_replace('\\','/',str_replace('\\\\\\\\','\\',urldecode(getArgv('path'))));
 //        $url = 'http://'.getArgv('domain').str_replace('\\','/',str_replace('\\\\\\\\','\\',urldecode(getArgv('path'))));
@@ -661,7 +661,7 @@ class adminPages {
             kryn::$baseUrl = $http.$domainName.$port.$cfg['path'].$possibleLanguage.'/';
         }
 
-        $kryn->current_page = $page;
+        kryn::$current_page = $page;
         kryn::$page = $page;
 
         $page = krynHtml::buildPage('');
@@ -743,7 +743,7 @@ class adminPages {
         $childs = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
         $domain['childs'] = array();
         
-        $cachedUrls =& cache::get( 'urls_'.$pDomainRsn );
+        $cachedUrls =& kryn::getCache( 'urls_'.$pDomainRsn );
         
         foreach( $childs as &$page ){
             if( $viewAllPages || kryn::checkPageAcl( $page['rsn'], 'showPage' ) == true ){
@@ -777,7 +777,7 @@ class adminPages {
         
         $items = dbTableFetch('system_pages', DB_FETCH_ALL, "prsn = $pPageRsn ORDER BY sort");
 
-        $cachedUrls =& cache::get( 'urls_'.$page['domain_rsn'] );
+        $cachedUrls =& kryn::getCache( 'urls_'.$page['domain_rsn'] );
 
         if( count($items) > 0 ){
             foreach( $items as &$item ){
@@ -829,7 +829,7 @@ class adminPages {
 
         //check if $who is parent of $target, then cancel
         $whoIsParent = false;
-        $menus =& cache::get('menus_'.$who['domain_rsn']);
+        $menus =& kryn::getCache('menus_'.$who['domain_rsn']);
         if( is_array( $menus[$targetId] ) ){
             foreach( $menus[$targetId] as $parent ){
                 if( $parent['rsn'] == $whoId ){
@@ -979,8 +979,8 @@ class adminPages {
 
 
     public static function itemList(){
-        global $modules, $tpl, $kryn, $db, $navigation;
-        $kryn->addMenu("Seiten", "pages");
+        global $modules, $tpl,  $db, $navigation;
+        kryn::addMenu("Seiten", "pages");
 
         $path = "inc/template/kryn/templates/";
         $h = opendir($path);
@@ -1087,8 +1087,8 @@ class adminPages {
 
         $rsn = getArgv('rsn')+0;
         
-        cache::clear('getPage_'.$rsn);
-        cache::clear('page_contents_'.$rsn);
+        kryn::deleteCache('getPage_'.$rsn);
+        kryn::deleteCache('page_contents_'.$rsn);
         
         $domain_rsn = getArgv('domain_rsn')+0;
 
@@ -1211,7 +1211,7 @@ class adminPages {
         }
         
         if( $oldPage['url'] != getArgv('url') ){
-            $indexedPages =& cache::get('systemSearchIndexedPages');
+            $indexedPages =& kryn::getCache('systemSearchIndexedPages');
             
             $need = $rsn.'_';
             foreach( $indexedPages as $key => &$index ){
@@ -1222,7 +1222,7 @@ class adminPages {
             
             dbDelete('system_search', 'page_rsn	= '.$rsn);
             krynSearch::cacheAllIndexedPages();
-            cache::set('systemSearchIndexedPages', $indexedPages);
+            kryn::setCache('systemSearchIndexedPages', $indexedPages);
         }
     
         dbUpdate('system_pages', array('rsn' => $rsn), $updateArray);
@@ -1339,17 +1339,18 @@ class adminPages {
     }
 
     public static function updatePageCaches( $pDomainRsn, $pAll = false ){
-        global $kryn, $admin;
+        global  $admin;
         $resu = dbExec( "SELECT * FROM %pfx%system_pages WHERE domain_rsn = $pDomainRsn". (($pAll == false) ? " AND cache = 1":"")  );
-        $kryn->forceKrynContent = true;
-        $kryn->admin = false;
-        $kryn->resetCss();
-        $kryn->resetJs();
+
+        kryn::$forceKrynContent = true;
+        kryn::$admin = false;
+        kryn::resetCss();
+        kryn::resetJs();
         tAssign( 'admin', false );
 
         while( $page = dbFetch( $resu ) ){
-            $kryn->current_page = $page;
-            kryn::fileWrite( "inc/cache/_pages/".$page['rsn'].".html", $kryn->display(true) );
+            kryn::$current_page = $page;
+            kryn::fileWrite( "inc/cache/_pages/".$page['rsn'].".html", kryn::$display(true) );
         }
     }
 
@@ -1365,15 +1366,14 @@ class adminPages {
                 $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
 
         }
-        cache::set( "menus_$pDomainRsn", $res );
+        kryn::setCache( "menus_$pDomainRsn", $res );
         
-        cache::clear('navigations');
+        kryn::deleteCache('navigations');
         
         return $res;
     }
 
     public static function getParentMenus( $pPage, $pAllParents = false ){
-        global $kryn;
         $prsn = $pPage['prsn'];
         $res = array();
         while( $prsn != 0 ){
@@ -1390,7 +1390,6 @@ class adminPages {
     }
 
     public static function updateUrlCache( $pDomainRsn ){
-        global $kryn;
         
         $pDomainRsn = $pDomainRsn+0;
         
@@ -1400,7 +1399,7 @@ class adminPages {
         $domain = kryn::getDomain( $pDomainRsn );
         while( $page = dbFetch( $resu, 1 ) ){
 
-            cache::clear( 'page_'.$page['rsn'] );
+            kryn::deleteCache( 'page_'.$page['rsn'] );
 
             $page = self::__pageModify( $page, array('realurl' => '') );
             $newRes = self::updateUrlCacheChilds( $page, $domain );
@@ -1408,7 +1407,7 @@ class adminPages {
             $res['rsn'] = array_merge( $res['rsn'], $newRes['rsn'] );
             //$res['r2d'] = array_merge( $res['r2d'], $newRes['r2d'] );
         }
-        $kryn->realUrls = $res;
+        kryn::$realUrls = $res;
         
         $aliasRes = dbExec('SELECT to_page_rsn, url FROM %pfx%system_urlalias WHERE domain_rsn = '.$pDomainRsn);
         while( $row = dbFetch( $aliasRes ) ){
@@ -1431,12 +1430,11 @@ class adminPages {
         while( $row = dbFetch($res) ){
         	$r2d[ $row['domain_rsn'] ] .= $row['rsn'].',';
         }
-        cache::set( "r2d", $r2d );
+        kryn::setCache( "r2d", $r2d );
         return $r2d;
     }
 
     public static function updateUrlCacheChilds( $pPage, $pDomain = false ){
-        global $kryn;
         $res = array( 'url' => array(), 'rsn' => array(), 'r2d' => array() );
 
         if( $pPage['type'] == 1 ){ //link
@@ -1469,7 +1467,7 @@ class adminPages {
             foreach( $pages as $page ){
                 
                 
-                cache::clear( 'page_'.$page['rsn'] );
+                kryn::deleteCache( 'page_'.$page['rsn'] );
             
                 $page = self::__pageModify( $page, $pPage );
                 $newRes = self::updateUrlCacheChilds( $page );
@@ -1509,7 +1507,7 @@ class adminPages {
     }
 
     public static function getPage( $pRsn, $pLock = false){
-        global $kryn;
+
         $pRsn = $pRsn+0;
 
         $res = self::getPageByRsn( $pRsn );

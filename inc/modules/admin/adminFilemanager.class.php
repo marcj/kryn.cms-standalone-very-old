@@ -513,14 +513,13 @@ $pAccess from all
     }
     
     public static function loadModules(){
-        global $kryn;
         
         $h = opendir( 'inc/template/' );
         $mfiles = array();
         while( $file = readdir($h) ){
             if( $file != '.' && $file != '..' && $file != '.svn' &&
                 $file != 'admin' && $file != 'css' && $file != 'images' && $file != 'js' && $file != 'kryn' ){
-                if( $kryn->installedMods[ $file ] ){
+                if( kryn::$configs[ $file ] ){
                     $mfiles[] = '/'.$file; 
                 }
             }

@@ -63,11 +63,11 @@ class krynSearch extends baseModule{
     
     //create a new search index for this page
     public static function createPageIndex($pContent) {  
-        global $kryn, $cfg;
+        global $cfg;
         
         if( getArgv(1) == 'admin' || kryn::$page['rsn']+0 == 0 ) return;
         
-        self::$indexedPages =& cache::get('systemSearchIndexedPages');
+        self::$indexedPages =& kryn::getCache('systemSearchIndexedPages');
         $indexedPages =& self::$indexedPages;
         
         $indexedContent = self::stripContent( $pContent );
@@ -220,9 +220,9 @@ class krynSearch extends baseModule{
     
     //search for links in parsed html content
     public static function getLinksInContent($pContent) {
-        global $cfg, $kryn;
+        global $cfg;
         
-        $kryn->replacePageIds($pContent);       
+        kryn::replacePageIds($pContent);       
         $searchPattern = '#<a[^>]+href[^>]*=[^>]*\"([^\"]+)\"[^>]*>(.*)<\/a>#Uis';          
         preg_match_all($searchPattern, $pContent, $matches, PREG_SET_ORDER);
         
