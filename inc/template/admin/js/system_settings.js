@@ -111,49 +111,15 @@ var admin_system_settings = new Class({
         var fields = {
             'session_storage': {
                 label: _('Session storage'),
-                type: 'select',
-                table_items: {
-                    'database': _('SQL Database'),
-                    'memcached': _('Memcached')
-                },
-                'depends': {
-                    'session_storage_memcached_servers': {
-                        needValue: 'memcached',
-                        'label': 'Memcached servers',
-                        'type': 'array',
-                        'width': 310,
-                        'columns': [
-                            {'label': _('IP')},
-                            {'label': _('Port'), width: 50}
-                        ],
-                        'fields': {
-                            ip: {
-                                type: 'text',
-                                width: '95%',
-                                empty: false
-                            },
-                            port: {
-                                type: 'number',
-                                width: 50,
-                                'default': 11211,
-                                empty: false
-                            }
-                        }
-                    }
+                'default': 'database',
+                items: {
+                    'database': _('SQL Database')
                 }
             },
             'session_timeout': {
                 label: _('Session timeout'),
                 type: 'text',
                 'default': '3600'
-            },
-
-            'session_auto_garbage_collector': {
-                label: _('Automatic session garbage collector'),
-                desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
-                help: 'session_garbage_collector',
-                type: 'checkbox',
-                'default': '0'
             },
 
             'auth_class': {
@@ -165,6 +131,33 @@ var admin_system_settings = new Class({
                 },
                 depends: {}
             }
+        };
+        
+        var origin = ka.getFieldCaching();
+        fields = Object.merge( fields, origin );
+        
+        fields.cache_type.label = _('Session storage');
+        
+        delete fields.cache_type.items.files;
+        fields.session_storage = Object.merge(fields.session_storage, fields.cache_type);
+        
+        fields.session_storage['depends']['session_storage_config[servers]'] = 
+            Object.clone(origin.cache_type['depends']['cache_params[servers]']);
+        delete fields.session_storage['depends']['cache_params[servers]'];
+
+        fields.session_storage['depends']['session_storage_config[files_path]'] = 
+            Object.clone(origin.cache_type['depends']['cache_params[files_path]']);
+        delete fields.session_storage['depends']['cache_params[files_path]'];
+        
+        delete fields.cache_type;
+
+        fields.session_storage['depends']['session_auto_garbage_collector'] = {
+            needValue: 'database',
+            label: _('Automatic session garbage collector'),
+            desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
+            help: 'session_garbage_collector',
+            type: 'checkbox',
+            'default': '0'
         };
 
         this.auth_params = {};
@@ -259,53 +252,16 @@ var admin_system_settings = new Class({
         	label: _('Template cache path'), desc: 'Default is inc/tcache/. This folder is for caching template files, so it should be available via HTTP.'
         }).inject( p );
         
-        this.fields['caching_type'] = new ka.field({
-            label: _('Internal caching type'), desc: _('Internal data caching.'), empty: false, type: 'select',
-            items: {
-                files: _('Files'),
-                memcache: _('Memcached')
-            },
-            onChange: function(){
-        	
-            	this.chachingPane.empty();
-    
-            	this.fields['memcache_server'] = null;
-            	this.fields['memcache_port'] = null;
-            	this.fields['memcache_files'] = null;
-            	
-            	if( this.fields['caching_type'].getValue() == 'memcache' ){
-            		
-            		 this.fields['memcache_server'] = new ka.field({
-        	            label: _('Memcache Server'), value: this.systemValues['memcache_server'],
-    	   	            empty: false
-        	        }).inject( this.chachingPane );
-            		 
-            		 this.fields['memcache_port'] = new ka.field({
-         	            label: _('Memcache Port'), value: this.systemValues['memcache_port'],
-    	   	            empty: false,
-         	            desc: 'Default is 11211', 'default': '11211', type: 'integer'
-         	        }).inject( this.chachingPane );
-            		
-            	}
-            	if( this.fields['caching_type'].getValue() == 'files' ){
-            		
-            		if( !this.systemValues['files_path'] )
-            			this.systemValues['files_path'] = 'inc/cache/';
-            		
-    	       		this.fields['files_path'] = new ka.field({
-    	   	            label: _('Internal caching path'), value: this.systemValues['files_path'],
-    	   	            empty: false,
-    	   	            desc: 'Default is inc/cache/. Please define the path for the cache folder.'
-    	   	        }).inject( this.chachingPane );
-    	       	}
-            	
-            }.bind(this)
-        })
-        .inject( p );
+        var origin = Object.clone(ka.fieldCaching);
+        
+        origin.cache_type['default'] = 'files';
+        
+        this.cacheObj = new ka.parse( p, origin );
+        Object.each( this.cacheObj.getFields(), function(item,id){
+            this.fields[ id ] = item;
+        }.bind(this));
         
         this.chachingPane = new Element('div').inject( p );
-        
-        this.fields['caching_type'].fireEvent('change');
         
     },
 

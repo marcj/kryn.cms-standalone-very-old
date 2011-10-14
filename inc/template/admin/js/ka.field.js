@@ -1324,7 +1324,7 @@ ka.field = new Class({
         }
 
         if( this.field.directory ){
-            this.input.set('title', _('This list is based on files on this directory:')+' '+this.field.directory);
+            document.id(this.select).set('title', _('This list is based on files on this directory:')+' '+this.field.directory);
             new Element('div', {
                 text:  _('Based on:')+' '+this.field.directory,
                 style: 'font-size: 11px; color: silver'

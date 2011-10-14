@@ -22,54 +22,65 @@ class krynCache {
     
         $this->type = $pType;
         $this->config = $pConfig;
-    
+
         switch( $this->type ){
             case 'memcached':
-                $this->initMemcached();
+                if( !$this->initMemcached() ){
+                    klog('cache', _l('Can not load the memcache(d) class. Fallback to file caching.'));
+                    $this->type = 'files';
+                    $this->config['files_path'] = 'inc/cache/';
+                }
                 break;
             case 'redis':
-                $this->initRedis();
+                if( !$this->initRedis() ){
+                    klog('cache', _l('Can not load the Redis class. Fallback to file caching.'));
+                    $this->type = 'files';
+                    $this->config['files_path'] = 'inc/cache/';
+                } 
                 break;
-            case 'files':            
-                if( !is_dir($this->config['files_path']) ){
-                    if( !mkdir($this->config['files_path']) ){
-                        die('Can not create cache folder: '.$this->config['files_path']);
-                    }
+        }
+        
+        if( $this->type == 'files' ){
+            if( !is_dir($this->config['files_path']) ){
+                if( !mkdir($this->config['files_path']) ){
+                    die('Can not create cache folder: '.$this->config['files_path']);
+                }
             }
         }
 
     }
     
     public function initRedis(){
-        
+                if( !class_exists('Redis') ) return false;
+
         $this->redis = new Redis;
-        foreach( $this->config['redis_servers'] as $server ){
+
+        foreach( $this->config['servers'] as $server ){
             $this->redis->connect( $server['ip'], $server['port']+0 );
         }
-    
+        
+        $this->redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_IGBINARY);
+        
+        return true;
     }
     
     public function initMemcached(){
     
         if( class_exists('Memcache') ){
-            
             $this->memcache = new Memcache;
-            foreach( $this->config['memcached_servers'] as $server ){
+            foreach( $this->config['servers'] as $server ){
                 $this->memcache->addServer( $server['ip'], $server['port']+0 );
             }
-
-        } else {
-
-            if( class_exists('Memcached') ){
-                $this->memcached = new Memcached;
-                foreach( $this->config['memcached_servers'] as $server ){
-                    $this->memcached->addServer( $server['ip'], $server['port']+0 );
-                }
-            } else {
-                $this->config['session_storage'] = 'database';
+        } else if( class_exists('Memcached') ){
+            $this->memcached = new Memcached;
+            foreach( $this->config['servers'] as $server ){
+                $this->memcached->addServer( $server['ip'], $server['port']+0 );
             }
+        } else {
+            return false;
         }
     
+        return true;
     }
     
     /**
@@ -96,8 +107,9 @@ class krynCache {
                 return $this->redis->get( $pCode );
                 
             case 'files':
-                if( $kcache[$cacheCode] ) return $kcache[$cacheCode];
+            
                 $cacheCode = 'krynPhpCache_'.$pCode;
+                if( $kcache[$cacheCode] ) return $kcache[$cacheCode];
                 include( $this->config['files_path'].$pCode.'.php' );
                 return $kcache[$cacheCode];
         }
@@ -125,9 +137,9 @@ class krynCache {
                 }
             
             case 'redis':
-                
+
                 if( $pTimeout )
-                    $this->redis->setex( $pCode, $pTimeout, $pValue );
+                    return $this->redis->setex( $pCode, $pTimeout, $pValue );
                 else
                     return $this->redis->set( $pCode, $pValue );
 

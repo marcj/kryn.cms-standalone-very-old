@@ -1585,35 +1585,9 @@ var admin_pages = new Class({
         var fields = {
             'session_storage': {
                 label: _('Session storage'),
-                type: 'select',
-                table_items: {
-                    'database': _('SQL Database'),
-                    'memcached': _('Memcached')
-                },
-                'depends': {
-                    'session_storage_memcached_servers': {
-                        needValue: 'memcached',
-                        'label': 'Memcached servers',
-                        'type': 'array',
-                        'width': 310,
-                        'columns': [
-                            {'label': _('IP')},
-                            {'label': _('Port'), width: 50}
-                        ],
-                        'fields': {
-                            ip: {
-                                type: 'text',
-                                width: '95%',
-                                empty: false
-                            },
-                            port: {
-                                type: 'number',
-                                width: 50,
-                                'default': 11211,
-                                empty: false
-                            }
-                        }
-                    }
+                'default': 'database',
+                items: {
+                    'database': _('SQL Database')
                 }
             },
             'session_timeout': {
@@ -1622,16 +1596,8 @@ var admin_pages = new Class({
                 'default': '3600'
             },
 
-            'session_auto_garbage_collector': {
-                label: _('Automatic session garbage collector'),
-                desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
-                help: 'session_garbage_collector',
-                type: 'checkbox',
-                'default': '0'
-            },
-
             'auth_class': {
-                'label': _('Backend authentification'),
+                'label': _('Frontend authentification'),
                 'desc': _('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
                 'type': 'select',
                 'table_items': {
@@ -1639,6 +1605,33 @@ var admin_pages = new Class({
                 },
                 depends: {}
             }
+        };
+        
+        var origin = ka.getFieldCaching();
+        fields = Object.merge( fields, origin );
+        
+        fields.cache_type.label = _('Session storage');
+        
+        delete fields.cache_type.items.files;
+        fields.session_storage = Object.merge(fields.session_storage, fields.cache_type);
+        
+        fields.session_storage['depends']['session_storage_config[servers]'] = 
+            Object.clone(origin.cache_type['depends']['cache_params[servers]']);
+        delete fields.session_storage['depends']['cache_params[servers]'];
+
+        fields.session_storage['depends']['session_storage_config[files_path]'] = 
+            Object.clone(origin.cache_type['depends']['cache_params[files_path]']);
+        delete fields.session_storage['depends']['cache_params[files_path]'];
+        
+        delete fields.cache_type;
+
+        fields.session_storage['depends']['session_auto_garbage_collector'] = {
+            needValue: 'database',
+            label: _('Automatic session garbage collector'),
+            desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
+            help: 'session_garbage_collector',
+            type: 'checkbox',
+            'default': '0'
         };
         
         this.auth_params = {};

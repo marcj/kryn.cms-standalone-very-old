@@ -113,9 +113,10 @@
             "type": "checkbox"
         },
         "default_group": {
-            "label": "Group mapping",
+            "label": "Login mapping",
             "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
             "type": "array",
+            "startWith": 1,
             "columns": [
                 {"label": "Login"},
                 {"label": "Group", "width": "65%"}
@@ -133,7 +134,6 @@
         }
     },
     "auth_ldap": {
-    
         "server": {
             "label": "Server",
             "type": "text"

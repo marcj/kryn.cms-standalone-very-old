@@ -124,10 +124,10 @@ class adminStore {
         } else {
             $sql = ' SELECT '.$this->id.', '.$this->label.'
             FROM '.$table.
-            'WHERE 1=1 '.$where.')'
+            ' WHERE 1=1 '.$where
             .$limit;
         }
-
+        
         $dbRes = dbExec( $sql );
         while( $row = dbFetch($dbRes) ){
             $res[ $row[$this->id] ] = $row[$this->label];

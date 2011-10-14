@@ -1193,7 +1193,7 @@ class adminPages {
         $oldPage = dbTableFetch("system_pages", "rsn = ".($rsn+0), 1);
         
         
-        $kcache['realUrl'] = kryn::getcache( 'urls_'.$oldPage['domain_rsn'] );
+        $kcache['realUrl'] =& kryn::getCache( 'urls_'.$oldPage['domain_rsn'] );
         $oldRealUrl = $kcache['realUrl']['rsn'][ 'rsn='.$rsn ];
         
         if( in_array('url', $updateArray) && $oldPage['url'] != getArgv('url') && getArgv('newAlias') ){

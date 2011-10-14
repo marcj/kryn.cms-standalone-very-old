@@ -415,40 +415,52 @@ class database {
             if( !$columnDefs ){
         
                 $columns = false;
+                $ncolumns = array();
+                    
                 foreach( kryn::$configs as &$config ){
                     if( $config['db'] && $config['db'][$pTable] ){
                         $columns = $config['db'][$pTable];
                         break;
                     }
                 }
-                
+
                 if( $columns ){
                 
                     foreach( $columns as $key => &$column ){
-                        $column['auto_increment'] = ($column[4] == true) ? true : false;
-                        $column['escape'] = self::isIntEscape($column['Type'])?'int':'text';
-                        
+
+                        $ncolumn = array();                        
+                        $ncolumn['auto_increment'] = ($column[3]) ? true : false;
+                        $ncolumn['escape'] = self::isIntEscape($column[0])?'int':'text';
+                        $ncolumn['type'] = $column[0];
+                        $ncolumns[$key] = $ncolumn;
+
                     }
-                    kryn::setCache( 'kryn_database_table_'.$pTable, $columns);
+                    kryn::setCache( 'kryn_database_table_'.$pTable, $ncolumns);
+
                     return $columns;
                 } else {
                     $columns = self::getColumns( $pTable );
                     if( is_array($columns) && count($columns) > 0 ){
-                        $ncolumns = array();
-                        
+
                         foreach( $columns as $key => $column ){
-                            $column['escape'] = 'text';
+                            
+                            $ncolumn = array();
+                            
+                            $ncolumn['escape'] = 'text';
+                            $ncolumn['type'] = $column['type'];
+
                             if( self::isIntEscape($column['Type']) || self::isIntEscape($column['type'])
                                 || self::isIntEscape($column[0]) ){
-                                $column['escape'] = 'int';
+                                $ncolumn['escape'] = 'int';
                             }
-                            $column['auto_increment'] = ($column['Extras'] == 'auto_increment') ? true : false;
-                            if( $column[3] === true )
-                                $column['auto_increment'] = true;
+                            
+                            //only for mysql
+                            $ncolumn['auto_increment'] = ($column['Extras'] == 'auto_increment') ? true : false;
+                            //todo need it for sqlite&pgsql
                             
                             $fieldname = $column['Field'] ? $column['Field'] : $key;
                             
-                            $ncolumns[ $fieldname ] = $column;
+                            $ncolumns[ $fieldname ] = $ncolumn;
                         }
                         
                         kryn::setCache( 'kryn_database_table_'.$pTable, $ncolumns);
@@ -468,16 +480,23 @@ class database {
         public static function last_id(){
         	global $kdb;
             $seqName = null;
+
     	    if( $kdb->type == 'postgresql' ){
-    	        $columns = self::getOptions( $kdb->lastInsertTable );
+                
+                $table = substr( $kdb->lastInsertTable, strlen(pfx) );                $columns = self::getOptions( $table );
+    	        
+    	        if( !$columns )
+        	        $columns = self::getOptions( $kdb->lastInsertTable );
+
     	        if( is_array($columns) ){
     	            foreach( $columns as $fKey => $field ){
-        	            if( $field['auto_increment'] == 1 ){
+        	            if( $field['auto_increment'] ){
         	                $seqName = 'kryn_'.$kdb->lastInsertTable.'_seq';
         	            }
     	            }
     	        }
     	    }
+
         	if( $kdb->usePdo ){
         	    return $kdb->pdo->lastInsertId( $seqName )+0;
         	}

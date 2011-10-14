@@ -69,8 +69,9 @@ class krynAuth {
             $this->tokenid = $pConfig['session_tokenid'];
         }
 
-        if( $pConfig['session_storage'] != 'database' )
+        if( $pConfig['session_storage'] != 'database' ){
             $this->cache = new krynCache( $pConfig['session_storage'], $pConfig['session_storage_config'] );
+        }
 
         tAssign("client", $this);
         
@@ -469,7 +470,7 @@ class krynAuth {
     public function newSession(){
 
         $session = false;
-
+        
         for( $i=1; $i <= 25; $i++ ){
             if( $this->config['session_storage'] == 'database' ){
                 $session = $this->newSessionDatabase();
@@ -499,7 +500,7 @@ class krynAuth {
         $token = $this->generateSessionId();
         
         $exist = $this->cache->get( $this->tokenid.'_'.$token );
-            
+        
         if( $exist !== false ){
             return false;
         }
@@ -514,6 +515,7 @@ class krynAuth {
         );
         
         $expired = $this->config['session_timeout'];
+        
         if( !$this->cache->set( $this->tokenid.'_'.$token, $session, $expired) )
             return false;
             

@@ -135,9 +135,11 @@ function dbTableFetch( $pTable, $pCount = -1, $pWhere = false ){
  * @return integer The last_insert_id() (if you use auto_increment/sequences) 
  */
 function dbInsert( $pTable, $pFields ){
+    
+    $options = database::getOptions( $pTable );
+    
     $table = database::getTable( $pTable );
     $sql .= "INSERT INTO $table (";
-    $options = database::getOptions( $table );
     
     $fields = array();
     foreach( $pFields as $key => $field ){
@@ -206,10 +208,11 @@ function dbError(){
  * @return type 
  */
 function dbUpdate( $pTable, $pPrimary, $pFields ){
-    $table = database::getTable( $pTable );
     
+    $options = database::getOptions( $pTable );
+
+    $table = database::getTable( $pTable );
     $sql = "UPDATE $table SET ";
-    $options = database::getOptions( $table );
 
     if( is_array($pPrimary) ){
         $where = ' ';

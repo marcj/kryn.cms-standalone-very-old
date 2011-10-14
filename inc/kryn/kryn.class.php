@@ -1034,6 +1034,9 @@ class kryn {
             
         if( !$cfg['session_storage'] )
             $cfg['session_storage'] = 'database';
+            
+        if( !$cfg['cache_type'] )
+            $cfg['cache_type'] = 'files';
         
         tAssign('path', $cfg['path']);
         tAssign("cfg", $cfg);

@@ -1755,6 +1755,51 @@ ka.parse = new Class({
     }
 });
 
+ka.getFieldCaching = function (){
+
+    return {    
+        'cache_type': {
+            label: _('Cache storage'),
+            type: 'select',
+            items: {
+                'memcached': _('Memcached'),
+                'redis': _('Redis'),
+                'files': _('Files')
+            },
+            'depends': {
+                'cache_params[servers]': {
+                    needValue: ['memcached', 'redis'],
+                    'label': 'Servers',
+                    'type': 'array',
+                    startWith: 1,
+                    'width': 310,
+                    'columns': [
+                        {'label': _('IP')},
+                        {'label': _('Port'), width: 50}
+                    ],
+                    'fields': {
+                        ip: {
+                            type: 'text',
+                            width: '95%',
+                            empty: false
+                        },
+                        port: {
+                            type: 'number',
+                            width: 50,
+                            empty: false
+                        }
+                    }
+                },
+                'cache_params[files_path]': {
+                    needValue: 'files',
+                    type: 'text',
+                    label: 'Caching directory',
+                    'default': 'inc/cache/'
+                }
+            }
+        }
+    }
+}
 
 
 ka.renderLayoutElements = function( pDom, pClassObj ){
