@@ -13,7 +13,6 @@ header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
 
-include('inc/kryn/cache.class.php');
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
@@ -439,10 +438,6 @@ function step5(){
     @copy( 'inc/template/trash/.htaccess', 'inc/cache/.htaccess');
     @mkdir( 'inc/upload' );
     @mkdir( 'inc/upload/modules' );
-
-    adminPages::updateUrlCache( 1 );
-    adminPages::updateMenuCache( 1 );
-    adminPages::updateDomainCache();
 
     
     if( !rename( 'install.php', 'install.php.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
