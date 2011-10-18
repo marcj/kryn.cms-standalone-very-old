@@ -543,7 +543,7 @@ class kryn {
      * If you want to add a own doctype, you have to extend the static var:
      *   krynHtml::$docTypeMap = array(array('<id>' => '<fullDocType>'));
      *
-     * The default is 'html 4.01 transitional'
+     * The default is 'xhtml 1.0 transitional'
      *
      * Can also be called through the smarty function {setDocType value='html 4.01 strict'}
      *
