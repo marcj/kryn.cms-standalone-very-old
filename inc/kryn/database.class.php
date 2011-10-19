@@ -416,11 +416,13 @@ class database {
         
                 $columns = false;
                 $ncolumns = array();
-                    
-                foreach( kryn::$configs as &$config ){
-                    if( $config['db'] && $config['db'][$pTable] ){
-                        $columns = $config['db'][$pTable];
-                        break;
+                
+                if( kryn::$configs ){
+                    foreach( kryn::$configs as &$config ){
+                        if( $config['db'] && $config['db'][$pTable] ){
+                            $columns = $config['db'][$pTable];
+                            break;
+                        }
                     }
                 }
 
@@ -483,7 +485,8 @@ class database {
 
     	    if( $kdb->type == 'postgresql' ){
                 
-                $table = substr( $kdb->lastInsertTable, strlen(pfx) );                $columns = self::getOptions( $table );
+                $table = substr( $kdb->lastInsertTable, strlen(pfx) );
+                $columns = self::getOptions( $table );
     	        
     	        if( !$columns )
         	        $columns = self::getOptions( $kdb->lastInsertTable );
@@ -522,14 +525,16 @@ class database {
         public static function updateSequences( $pDb = false ){
             
             $tables = self::getAllTables();
-
-            foreach( $tables as $table ){
-                $fields = self::getOptions( pfx.$table );
-                foreach( $fields as $fieldKey => $field ){
-                    if( $field['auto_increment'] == 1 ){
-                        $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.$table, 1);
-        	            $sql = 'ALTER SEQUENCE kryn_'.$table.'_seq RESTART WITH '.($row['mmax']+1);
-        	            dbExec( $sql );
+            
+            if( $tables ){
+                foreach( $tables as $table ){
+                    $fields = self::getOptions( pfx.$table );
+                    foreach( $fields as $fieldKey => $field ){
+                        if( $field['auto_increment'] == 1 ){
+                            $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.$table, 1);
+            	            $sql = 'ALTER SEQUENCE kryn_'.$table.'_seq RESTART WITH '.($row['mmax']+1);
+            	            dbExec( $sql );
+                        }
                     }
                 }
             }
