@@ -67,9 +67,11 @@ class database {
         
         public static function getTable( $pTable ){
     
-            foreach( kryn::$configs as &$config ){
-                if( $config['db'] && $config['db'][$pTable] )
-                    return pfx.$pTable;
+            if( kryn::$configs ){
+                foreach( kryn::$configs as &$config ){
+                    if( $config['db'] && $config['db'][$pTable] )
+                        return pfx.$pTable;
+                }
             }
             
             return $pTable;
@@ -77,25 +79,27 @@ class database {
         
         public static function getRelation( $pTableOne, $pTableTwo ){
             
-            foreach( kryn::$configs as $config ){
-                if( $config['db_relations'] ){
-                
-                    if( $config['db_relations'][$pTableOne] && $config['db_relations'][$pTableOne]['table'] == $pTableTwo ){
-                        return $config['db_relations'][$pTableOne];
-
-                    } else if( $config['db_relations'][$pTableTwo] && $config['db_relations'][$pTableTwo]['table'] == $pTableOne ){
-                        $res = array(
-                            'table' => $pTableOne
-                        );
-                        if( $config['db_relations'][$pTableTwo]['relation'] == '1-n' )
-                            $res['relation'] = 'n-1';
-                        if( $config['db_relations'][$pTableTwo]['relation'] == 'n-1' )
-                            $res['relation'] = '1-n';
-
-                        foreach( $config['db_relations'][$pTableTwo]['relation'] as $left_field => $right_field ) {
-                            $res['fields'][ $right_field ] = $left_field;
+            if( kryn::$configs ){
+                foreach( kryn::$configs as $config ){
+                    if( $config['db_relations'] ){
+                    
+                        if( $config['db_relations'][$pTableOne] && $config['db_relations'][$pTableOne]['table'] == $pTableTwo ){
+                            return $config['db_relations'][$pTableOne];
+    
+                        } else if( $config['db_relations'][$pTableTwo] && $config['db_relations'][$pTableTwo]['table'] == $pTableOne ){
+                            $res = array(
+                                'table' => $pTableOne
+                            );
+                            if( $config['db_relations'][$pTableTwo]['relation'] == '1-n' )
+                                $res['relation'] = 'n-1';
+                            if( $config['db_relations'][$pTableTwo]['relation'] == 'n-1' )
+                                $res['relation'] = '1-n';
+    
+                            foreach( $config['db_relations'][$pTableTwo]['relation'] as $left_field => $right_field ) {
+                                $res['fields'][ $right_field ] = $left_field;
+                            }
+                            return $res;
                         }
-                        return $res;
                     }
                 }
             }
