@@ -384,9 +384,12 @@ function step5(){
                  ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
                  ($cfg['db_forceutf8']=='1')?true:false
     );
+    kryn::$configs = array();
+    
     foreach( $modules as $module ){
         if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
             $config = adminModule::loadInfo( $module );
+            kryn::$configs[$module] = $config;
             print "Install <b>$module</b>:<br />
             <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
             print adminDb::install( $config, true );
