@@ -163,6 +163,23 @@
     bottom: 0px;
     background-color: #eee;
     overflow: auto;
+    text-align: left;
+}
+
+.kwindow-win-inline {
+    width: 80%;
+    height: 90%;
+    padding: 5px;
+    border: 1px solid gray;
+    background-color: #eee;
+    overflow: auto;
+    position: relative;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+.kwindow-win-inline .kwindow-win-content {
+    top: 0px;
 }
 
 .kwindow-win-bottom {

@@ -6,10 +6,9 @@ var users_browser = new Class({
 		
 		this.options = this.win.params;
 		
-		
 		this.tabGroup = this.win.addTabGroup();
 
-		this.buttons = $H({});
+		this.buttons = {};
 		this.buttons['users'] = this.tabGroup.addButton(_('Users'), _path+'inc/template/admin/images/icons/user.png', this.selectTab.bind(this, 'users'));
 		this.buttons['groups'] = this.tabGroup.addButton(_('Groups'), _path+'inc/template/admin/images/icons/group.png', this.selectTab.bind(this, 'groups'));
 	
@@ -20,8 +19,8 @@ var users_browser = new Class({
 		.addEvent('keyup', this.didKeyup.bind(this))
 		.inject( this.win.border );
 		
-		this.panes = $H();
-		this.buttons.each(function(button, key){
+		this.panes = {};
+		Object.each(this.buttons, function(button, key){
 			this.panes[key] = new Element('div').inject( this.win.content );
 		}.bind(this));
 		
@@ -38,7 +37,7 @@ var users_browser = new Class({
 		
 		this.bottomBar = this.win.addBottomBar();
 
-		this.bottomBar.addButton(_('Cancel')).addEvent('click', this.cancel.bind(this));
+		this.bottomBar.addButton(_('Cancel')).addEvent('click', this.cancelAndClose.bind(this));
 		this.bottomBar.addButton(_('Choose')).addEvent('click', this.choose.bind(this));
 		
 		this.win.addEvent('close', this.cancel.bind(this));
@@ -47,13 +46,15 @@ var users_browser = new Class({
 	},
 	
 	cancel: function(){
-
-		
 		if( this.options.onChoose )
-			this.options.onChoose( false );
-		
-		this.win.close();
-		
+        	this.options.onChoose.attempt( false );
+	},
+	
+	cancelAndClose: function(){
+	
+	   this.cancel();
+	   this.win.close();
+	
 	},
 	
 	choose: function(){
@@ -74,7 +75,7 @@ var users_browser = new Class({
 		}
 		
 		if( this.options.onChoose )
-			this.options.onChoose( target_type, target_rsn );
+			this.options.onChoose.attempt( [target_type, target_rsn] );
 		
 		this.win.close();
 		
@@ -84,7 +85,7 @@ var users_browser = new Class({
 		
 		this.type = pId;
 		
-		this.buttons.each(function(button, key){
+		Object.each(this.buttons, function(button, key){
 			button.setPressed(false);
 			this.panes[key].setStyle('display', 'none');
 		}.bind(this));
@@ -135,7 +136,7 @@ var users_browser = new Class({
 			table = this.tableUsers;
 			
 			table.empty();
-			pRes.each(function(row){
+			Array.each(pRes, function(row){
 				var tr = table.addRow([row.first_name, row.last_name, row.username]);
 				tr.store('row', row);
 				this.prepareTr(tr, 'users');
@@ -143,7 +144,7 @@ var users_browser = new Class({
 		} else {
 
 			table.empty();
-			pRes.each(function(row){
+			Array.each(pRes, function(row){
 				var tr = table.addRow([row.name, row.usercount]);
 				tr.store('row', row);
 				this.prepareTr(tr, 'groups');

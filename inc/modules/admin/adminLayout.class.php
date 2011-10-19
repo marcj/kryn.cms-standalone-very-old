@@ -25,10 +25,9 @@ class adminLayout {
     }
 
     function loadFile( $pFile ){
-        global $kryn;
 
         $res = array();
-        foreach( $kryn->installedMods as $config ){
+        foreach( kryn::$configs as $config ){
             if( $config['themes'] ){
                 foreach( $config['themes'] as $themeTitle => $theme ){
                     foreach( $theme as $typeId => $typeItems ){
@@ -48,10 +47,9 @@ class adminLayout {
 
 
     function load( $pType ){
-        global $kryn;
 
         $res = array();
-        foreach( $kryn->installedMods as $config ){
+        foreach( kryn::$configs as $config ){
             if( $config['themes'] ){
                 foreach( $config['themes'] as $themeTitle => $theme ){
                     if( $theme[$pType] ){
@@ -64,15 +62,14 @@ class adminLayout {
     }
     
     function get( $pFile, $pPlain = false ){
-        global $kryn;
 
         $rsn = getArgv('rsn')+0;
         $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
-        $kryn->current_page = $page;
+        kryn::$current_page = $page;
         kryn::$page = $page;
         tAssign('page', $page);
         kryn::$domain = dbTableFetch('system_domains', 1, "rsn = ".$page['domain_rsn']);
-        $kryn->loadMenus();
+        kryn::loadMenus();
 
         $pFile = str_replace("..","",$pFile);
         if( $pFile != '' )
@@ -85,7 +82,7 @@ class adminLayout {
         }
             
         $css = array();
-        foreach( $kryn->cssFiles as &$file ){
+        foreach( kryn::$cssFiles as &$file ){
             if( $mtime = @filemtime("inc/template/$file") )
                 $css[] = $file . '?modified='.$mtime;
         }

@@ -12,62 +12,72 @@
 
 
 /**
- * tpl class
+ * Html class
  * 
- * @internal
- * @package Kryn
- * @subpackage Core
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 
-class tpl {
+class krynHtml {
+
+    public static $docType = 'xhtml 1.0 transitional';
+
+
+    public static $docTypeMap = array(
+    
+        'html 4.01 transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',    
+        'html 4.01 strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+        'html 4.01 frameset' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
+        
+        'xhtml 1.0 transitional' => 
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+        'xhtml 1.0 strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+        'xhtml 1.0 frameset' => 
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
+        'xhtml 1.1 dtd' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
+        
+        'html5' => '<!DOCTYPE html>'
+    );
 
     public static function plugin( $pMethod ){
         
         switch( $pMethod ){
         case 'head':
-            return tpl::buildHead();
+            return self::buildHead();
         }
 
     }
 
 
     public static function buildPage( $pContent ){
-        global $kryn, $cfg;
+        global $cfg;
 
-        $doctypeXhtml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de" dir="ltr">';
 
-        switch( $kryn->doctype ){
-        case 'xhtml':
-        default:
-            $doctypeHead = $doctypeXhtml;
-        }
+        $res = self::$docTypeMap[ strtolower(self::$docType) ];
 
-        $res = $doctypeHead.'<head>'.$kryn->htmlHeadTop;
-        $res .= tpl::buildHead(true);
+        $res .= "\n<head>".kryn::$htmlHeadTop;
+        $res .= self::buildHead(true);
 
-        $res .= $kryn->htmlHeadEnd.'</head><body>'.$kryn->htmlBodyTop.$pContent."\n\n".$kryn->htmlBodyEnd.'</body></html>';
+        $res .= kryn::$htmlHeadEnd.'</head><body>'.kryn::$htmlBodyTop.$pContent."\n\n".kryn::$htmlBodyEnd.'</body></html>';
 
         return $res;
     }
 
     public static function buildHead( $pContinue = false ){
-        global $kryn, $cfg;
+        global $cfg;
 
-        $tagEnd = ($kryn->doctype=='xhtml')?' />':' >';
+        $tagEnd = (strpos(strtolower(krynHtml::$docType), 'xhtml')!==false)?' />':' >';
 
-        if( $pContinue == false && $kryn->admin == false ){
-            return '{$kryn.header}';
+        if( $pContinue == false && kryn::$admin == false ){
+            return '{*kryn-header*}';
         }
         $page = kryn::$page;
         $domain = kryn::$domain;
 
         $title = ( $page['page_title'] ) ? $page['page_title'] : $page['title'];
-        if( !empty($kryn->pageTitle) )
-            $title = $kryn->pageTitle.' '.$title;
+        
+        if( !empty(kryn::$pageTitle) )
+            $title = kryn::$pageTitle.' '.$title;
 
         $html = '<title>' .
             str_replace(
@@ -82,7 +92,7 @@ class tpl {
         $html .= "<base href=\"".kryn::$baseUrl."\" $tagEnd\n";
         $html .= '<meta name="DC.language" content="'.$domain['lang'].'" '.$tagEnd."\n";
 
-        $html .= '<link rel="canonical" href="'.kryn::$canonical.'" />'."\n";
+        $html .= '<link rel="canonical" href="'.kryn::$baseUrl.substr( kryn::$url, 1 ).'" '.$tagEnd."\n";
         
         $metas = @json_decode($page['meta'],1);
         if( count($metas) > 0 )
@@ -90,7 +100,9 @@ class tpl {
                 if( $meta['value'] != '' )
                     $html .= '<meta name="' . str_replace('"', '\"',$meta['name']) . '" content="' . str_replace('"', '\"',$meta['value']) . '" '.$tagEnd."\n";
 
-        $html .= '<meta name="generator" content="Kryn.cms '.$kryn->version.'" '.$tagEnd."\n";
+        if( kryn::$cfg['show_banner'] == 1 ){
+            $html .= '<meta name="generator" content="Kryn.cms" '.$tagEnd."\n";
+        }
         
         
         $myCssFiles = array();
@@ -108,7 +120,7 @@ class tpl {
          * 
          */
         
-        foreach( $kryn->cssFiles as $css ){
+        foreach( kryn::$cssFiles as $css ){
             $myCssFiles[] = $css;
         }
 
@@ -169,7 +181,7 @@ class tpl {
          * 
          */
 
-        foreach( $kryn->jsFiles as $js ){
+        foreach( kryn::$jsFiles as $js ){
             $myJsFiles[] = $js;
         }
 
@@ -192,7 +204,7 @@ class tpl {
             foreach( $myJsFiles as $js ){
                 $file = 'inc/template/'.$js;
                 if( $mtime = @filemtime($file) ){
-                    $jsCode .= $mtime;
+                    $jsCode .= $file.'_'.$mtime;
                 }
                 if( strpos( $js, "http://" ) !== FALSE ){
                     $html .= '<script type="text/javascript" src="'.$js.'" ></script>'."\n";
@@ -223,7 +235,7 @@ class tpl {
          * HEADER
          */
 
-        foreach( $kryn->header as $head )
+        foreach( kryn::$header as $head )
             $html .= "$head\n";
 
         //customized metas

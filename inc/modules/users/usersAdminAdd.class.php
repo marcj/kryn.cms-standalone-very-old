@@ -113,9 +113,8 @@ class usersAdminAdd extends windowAdd {
             ),
             'groups' => array(
                 'label' => 'Groups',
-                'type' => 'select',
-                'table' => 'system_groupaccess',
-                //TODO geht so nicht,aber so vllt:
+                'type' => 'textlist',
+                'store' => 'admin/backend/stores/groups',
                 'relation' => 'n-n',
                 'n-n' => array(
                     'right' => 'system_groups',
@@ -125,10 +124,7 @@ class usersAdminAdd extends windowAdd {
                     'middle_keyright' => 'group_rsn',
                     'middle_keyleft' => 'user_rsn',
                     'left_key' => 'rsn'
-                ),
-                'size' => 6,
-                'multiple' => 1,
-                'fake' => true //'group' will not be used in update
+                )
             )
         )
     );

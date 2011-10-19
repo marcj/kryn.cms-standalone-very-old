@@ -16,15 +16,18 @@
 /**
  * Internal functions
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage Core
+ * @author MArc Schmidt <marc@kryn.org>
  * @internal
  */
 
 $errorHandlerInside = false;
 
 
+
+function kryn_shutdown(){
+    global $user;
+    $user->syncStore();
+}
 
 
 
@@ -43,7 +46,8 @@ if (get_magic_quotes_gpc()) {
 
 
 function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
-    global $errorHandlerInside, $user, $cfg, $kryn;
+    global $errorHandlerInside, $user, $cfg, $client;
+
     if( $errorHandlerInside ) return;
     
     $errorHandlerInside = true;
@@ -53,7 +57,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
 
     	if( $pCode != 8 && $pCode != 2 ){
 	    	//only if administrator want to see
-	    	if( $cfg['display_errors']+0 == 1 && !$kryn->admin ){
+	    	if( $cfg['display_errors']+0 == 1 && !kryn::$admin ){
 	    		print $user->user['username']." - $pCode: $pMsg in $pFile on $pLine<br />\n";
 	    	}
 	    	if( array_key_exists('log_errors', $cfg) && array_key_exists('log_errors_file', $cfg) &&
@@ -74,7 +78,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     
     if(! database::isActive() ) return;
     
-    $sid = $user->user['sessionid'];
+    $sid = esc($client->token);
     $ip = $_SERVER['REMOTE_ADDR'];
     $username = $user->user['username'];
     $pCode = preg_replace('/\W/', '-', $pCode);

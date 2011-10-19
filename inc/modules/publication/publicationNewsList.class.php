@@ -6,6 +6,9 @@ class publicationNewsList extends windowList {
     public $itemsPerPage = 5;
     public $orderBy = 'category_rsn';
     public $orderByDirection = 'DESC';
+    
+    public $secondOrderBy = 'title';  /* optional */
+    public $secondOrderByDirection = 'ASC'; /* optional */
 
     public $iconAdd = 'add.png';
     public $iconDelete = 'cross.png';
@@ -19,11 +22,6 @@ class publicationNewsList extends windowList {
     public $multiLanguage = true;
 
     public $primary = array('rsn');
-
-
-    public $itemActions = array(
-        array('View comments', 'admin/images/icons/comment.png', 'publication/news/comments'),
-    );
 
     public $columns = array(
         'title' => array(

@@ -13,7 +13,6 @@ header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
 
-include('inc/kryn/cache.class.php');
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
@@ -385,16 +384,18 @@ function step5(){
                  ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
                  ($cfg['db_forceutf8']=='1')?true:false
     );
+    kryn::$configs = array();
+    
     foreach( $modules as $module ){
         if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
             $config = adminModule::loadInfo( $module );
+            kryn::$configs[$module] = $config;
             print "Install <b>$module</b>:<br />
             <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
             print adminDb::install( $config, true );
             print "</div>";
         }
     }
-	database::readTables(true);
 
     dbDelete( 'system_domains' );
 
@@ -439,10 +440,6 @@ function step5(){
     @copy( 'inc/template/trash/.htaccess', 'inc/cache/.htaccess');
     @mkdir( 'inc/upload' );
     @mkdir( 'inc/upload/modules' );
-
-    adminPages::updateUrlCache( 1 );
-    adminPages::updateMenuCache( 1 );
-    adminPages::updateDomainCache();
 
     
     if( !rename( 'install.php', 'install.php.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){

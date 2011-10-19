@@ -1,4 +1,4 @@
-var admin_pages_chooser = new Class({
+var admin_backend_chooser = new Class({
 
     initialize: function( pWin ){
         this.win = pWin;
@@ -138,6 +138,7 @@ var admin_pages_chooser = new Class({
             res.each(function(domain){
                 _this._domains.include( domain.rsn, domain );
                 _this.domainTrees.include(domain.rsn, new ka.pagesTree( _this.panes['pages'], domain.rsn, {
+
                     onClick: function( pPage ){
                         _this.domainTrees.each(function(_domain){
                             _domain.unselect();
@@ -146,8 +147,9 @@ var admin_pages_chooser = new Class({
                             _this.filesPane.unselect();
                         _this.value = pPage.rsn;
                     },
-                    select_rsn: _this.value,
+                    selectPage: _this.value,
                     no_domain_select: true
+
                 }));
             });
         }}).post({language: this.language });
@@ -168,7 +170,7 @@ var admin_pages_chooser = new Class({
                     _this.filesPane.unselect();
                 _this.value = pPage.rsn;
             },
-            select_rsn: _this.value,
+            selectPage: _this.value,
             no_domain_select: true
             }
         ));
@@ -184,7 +186,12 @@ var admin_pages_chooser = new Class({
         this.filesPane = new ka.filesPane( this.panes['files'], {
             value: this.value,
             onChoose: function( pFile ){
-                //unselect pages
+                if( this.options.onlyDir ){
+                    if( !pFile.isDir ){
+                        this.filesPane.deselect();
+                        return;
+                    }
+                }
                 if( this.options.pages )
                     this.domainTrees.each(function(domain){
                         domain.unselect();
@@ -192,7 +199,13 @@ var admin_pages_chooser = new Class({
                 this.value = pFile.path;
             }.bind(this),
             path: '/',
-            dblClick: function(){
+            dblClick: function( pFile ){
+                if( this.options.onlyDir ){
+                    if( !pFile.isDir ){
+                        this.filesPane.deselect();
+                        return;
+                    }
+                }
                 this.choose();
             }.bind(this),
             cookie: this.cookie,

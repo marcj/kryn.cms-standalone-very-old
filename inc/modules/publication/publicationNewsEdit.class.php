@@ -37,6 +37,13 @@ class publicationNewsEdit extends windowEdit {
                 'label' => 'Tags',
                 'type' => 'text'
             ),
+           /*'meta_description' => array(
+                'label' => 'Meta description',
+                'type' => 'text'
+            )
+            */
+        ),
+        'Access' => array(
             'releaseat' => array(
                 'label' => 'Release at',
                 'desc' => 'If you want to release the news now, let it empty',
@@ -48,7 +55,7 @@ class publicationNewsEdit extends windowEdit {
                 'empty' => false
             ),
             'deactivate' => array(
-                'label' => 'Deactivate',
+                'label' => 'Hide',
                 'type' => 'checkbox'
             ),
             'deactivatecomments' => array(
@@ -84,6 +91,14 @@ class publicationNewsEdit extends windowEdit {
                 'type' => 'fileList',
                 'size' => 10,
                 'width' => 500
+            )
+        ),
+        'Comments' => array(
+            'comments' => array(
+                'label' => 'Comments',
+                'type' => 'window_list',
+                'window' => 'publication/news/comments',
+                'height' => 300
             )
         )
     );

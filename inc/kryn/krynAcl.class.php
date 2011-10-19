@@ -11,9 +11,8 @@
  */
 
 
-class acl {
-    
-    
+class krynAcl {
+
     
     public static $cache = array();
 

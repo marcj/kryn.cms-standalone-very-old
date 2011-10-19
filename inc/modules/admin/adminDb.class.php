@@ -68,7 +68,7 @@ class adminDb {
     }
 
     function _install( $pDb, $pDelete4Install = false ){
-        global $cfg, $kdb, $kryn;
+        global $cfg, $kdb;
 
         $db = &$pDb;
         
@@ -106,11 +106,10 @@ class adminDb {
                 $res .= "Create table <i>$tableName</i>\n";
                 $res .= self::updateIndexes( $tableName, $tableFields );
             }
-            $kdb->tableInfos[$tableName] = $tableFields;
+            kryn::deleteCache('kryn_database_'.$tableName);
         }
         $res .= "\nDatabase installed.\n";
         
-		database::readTables();
         database::updateSequences( $db );
         return $res;
     }
@@ -143,7 +142,7 @@ class adminDb {
 
                 if( $pTable == 'kryn_publication_news_category' ){
                 }
-                if( $isType != $nType || 
+                if( $isType != $nType ||
                     ($isType == 'varchar' && $varcharLength != $fOptions[1] ) ){
                     //different field type => alter this field
 
@@ -154,7 +153,7 @@ class adminDb {
                     if( $cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli' ){
                         $sql = 'ALTER TABLE '.$pTable.' CHANGE COLUMN '.$fName.' '.$sql;
                     } else {
-                        $sql = 'ALTER TABLE '.$pTable.' ALTER COLUMN '.$fName.' '.$sql;
+                        $sql = 'ALTER TABLE '.$pTable.' ALTER COLUMN '.$sql;
                     }
                     dbExec($sql);
                 }

@@ -117,7 +117,7 @@ class usersAdminEdit extends windowEdit {
                     array('name' => 'No', 'value' => 0)
                 ),
                 'table_label' => 'name',
-                'table_id' => 'value',
+                'table_key' => 'value',
             ),
             'userBg' => array(
                'label' => 'Desktop background image',
@@ -127,8 +127,8 @@ class usersAdminEdit extends windowEdit {
             ),
             'groups' => array(
                 'label' => 'Groups',
-                'type' => 'select',
-                'table' => 'system_groupaccess',
+                'type' => 'textlist',
+                'store' => 'admin/backend/stores/groups',
                 'relation' => 'n-n',
                 'n-n' => array(
                     'right' => 'system_groups',
@@ -138,9 +138,7 @@ class usersAdminEdit extends windowEdit {
                     'middle_keyright' => 'group_rsn',
                     'middle_keyleft' => 'user_rsn',
                     'left_key' => 'rsn'
-                ),
-                'size' => 6,
-                'multiple' => 1
+                )
             )
         ),
         'Administration' => array(
@@ -269,7 +267,8 @@ class usersAdminEdit extends windowEdit {
     }
     
     function __destruct(){
-    	user::getUser( getArgv('rsn'), true ); //refresh cache
+        global $client;
+        $client->getUser( getArgv('rsn')+0, true ); //refresh cache
     }
 
 }

@@ -1,31 +1,15 @@
 <?php
 
 
-
-/*
- * This file is part of Kryn.cms.
- *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
- *
- * To get the full copyright and license informations, please view the
- * LICENSE file, that was distributed with this source code.
- *
- */
-
-
-
-
 /**
- * This class have to be used as motherclass in your framework classes, which
- * are defined from the links in your extension.
+ * This class should be used as motherclass in your window classes, which
+ * are defined from the admin entry points in your extension.
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkWindow
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 
-class windowAdd extends windowEdit {
+class adminWindowAdd extends adminWindowEdit {
 
     public $versioning = false;
     
@@ -38,7 +22,6 @@ class windowAdd extends windowEdit {
             if( $field['fake'] == true ) continue;
 
             $val = getArgv($key);
-            print $key." => ".$val."<br/>";
 
             $mod = ($field['add']['modifier'])?$field['add']['modifier']:$field['modifier'];
             if( $mod ){
@@ -48,35 +31,31 @@ class windowAdd extends windowEdit {
             if( !empty($field['customSave']) ){
                 continue;
             }
-
-            if( $field['type'] == 'fileList' ){
+            
+            if( is_array($val) )
                 $val = json_encode( $val );
-            }else if($field['type'] == 'select' && $field['multi'] && !$field['relation']) {
-                $val = json_encode( $val);
-            }
 
-            if( $tableInfo[$key][0] == 'int' || $field['update']['type'] == 'int' )
-                $val = $val+0;
-            else
-                $val = "'".esc($val)."'";
-
-            $values .= "$val,";
-            $fields .= "$key,";
+            $row[ $key ] = $val;
         }
+        
+        if( getArgv('_kryn_relation_table') ){
+		    $relation = database::getRelation( getArgv('_kryn_relation_table'), $this->table );
+		    if( $relation ){
+                $params = getArgv('_kryn_relation_params');
+                foreach( $relation['fields'] as $field_left => $field_right ){
+    		          if( !$row[$field_right] ){
+    		              $row[$field_right] = $params[ $field_right ];
+    		          }
+    		    }
+		    }
+		}
         
         if( $this->multiLanguage ){
         	$curLang = getArgv('lang', 2);
-        	$fields .= "lang,";
-        	$values .= "'$curLang',";
+        	$row['lang'] = $curLang;
         }
-        
-        $values = substr($values, 0, -1);
-        $fields = substr($fields, 0, -1);
-        $sql .= " ($fields) VALUES ($values) ";
 
-#       error_log( $sql );
-
-        dbExec( $sql );
+        dbInsert( $this->table, $row );
         $this->last = database::last_id();
         $_REQUEST[$this->primary[0]] = $this->last;
 
@@ -105,6 +84,14 @@ class windowAdd extends windowEdit {
         
         return array('last_id' => $this->last);
     }
+}
+
+/*
+* Compatibility for older extension
+* @deprecated
+*/
+class windowAdd extends adminWindowAdd {
+
 }
 
 ?>

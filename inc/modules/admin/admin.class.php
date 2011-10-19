@@ -11,7 +11,6 @@
  *
  */
 
-
 class admin {
     
     function __construct(){
@@ -43,12 +42,12 @@ class admin {
     }
 
     public function content(){
-        global $tpl, $kryn, $navigation, $modules, $cfg, $user;
+        global $tpl, $navigation, $modules, $cfg, $client;
 
-//        if(getArgv('loginLang') != '')
+
         if( getArgv('getLanguage') != '' )
             self::printLanguage();
-//            return admin::loginLang();
+
         if( getArgv('getPossibleLangs') == '1' )
             self::printPossibleLangs();
 
@@ -61,14 +60,53 @@ class admin {
         require( 'inc/modules/admin/adminSettings.class.php' );
         require( 'inc/modules/admin/adminFilemanager.class.php' );
         require( 'inc/modules/admin/adminSearchIndexer.class.php' );  
+        require( 'inc/modules/admin/adminStore.class.php' );   
+        require( 'inc/modules/admin/adminBackup.class.php' );  
 
         tAssign("admin", true);
-        if( $modules[ getArgv(2) ] ){
+                    
+        kryn::initModules();
+                    
+        $code = kryn::getRequestPath();
+        $info = self::getPathItem( $code );
+
+        if( !$info ){
+            $info = self::getPathItem( substr($code,6) );
+        }
+                
+        if( $info ){
+            if( $info['type'] == 'store' ){
+                if( !$info['class'] ){
+                    $obj = new adminStore();
+                } else {
+                    require_once('inc/modules/'.$info['_module'].'/'.$info['class'].'.class.php');
+                    $class = $info['class'];
+                    $obj = new $class();
+                }
+                json($obj->handle($info));
+            } else {
+                $adminWindows = array('edit', 'list', 'add', 'combine');
+                require( 'inc/modules/admin/adminWindow.class.php' );
+                $obj = new adminWindow();
+
+                if( getArgv('cmd') == 'getInfo' ){
+                    json( $info );
+                } else if( in_array( $info['type'], $adminWindows ) ){
+                    json($obj->handle($info));
+                }
+            }
+        }
+
+        
+        if( $modules[ getArgv(2) ] && getArgv(2) != 'admin' ){
+
             $content = $modules[ getArgv(2) ]->admin();
 
             tAssign( "content", $content );
             die( tFetch('admin/iframe.tpl') );
+
         } else {
+            $content = null;
             switch( getArgv(2) ){
                 case 'mini-search':
                     return self::miniSearch( getArgv('q', 1) );
@@ -99,6 +137,8 @@ class admin {
                             json( admin::clearCache() );
                         case 'loadJs':
                             return self::loadJs();
+                        case 'loadCustomJs':
+                            return self::loadCustomJs();
                         case 'loadLayoutElementFile':
                             return self::loadLayoutElementFile( getArgv('template') );
                         case 'getContentTemplate':
@@ -130,10 +170,6 @@ class admin {
                         case 'plugins':
                             require("inc/modules/admin/adminPlugins.class.php");
                             return adminPlugins::init();
-                        case 'window':
-                            require( 'inc/modules/admin/adminWindow.class.php' );
-                            $content = adminWindow::init();
-                            break;
                         case 'searchIndexer' :                         
                             adminSearchIndexer::init();
                             break;
@@ -158,6 +194,7 @@ class admin {
                             break;
                         case 'module': $content = adminModule::init(); break;
                         case 'settings': $content = adminSettings::init(); break;
+                        case 'backup': $content = adminBackup::init(); break;
                         case 'languages':
                             require("inc/modules/admin/adminLanguages.class.php");
                             $content = adminLanguages::init();
@@ -168,11 +205,74 @@ class admin {
                         default: $content = self::systemInfo(); break;
                     }
                     break;
-                default:
-                    admin::showLogin();
+            }
+            if( $content !== null )
+                json( $content );
+        }
+
+        if( !getArgv(2) )
+            admin::showLogin();
+
+        json(array('error'=>'param_failed'));
+    }
+    
+    /**
+    * Gets the item from the 'admin' entry points defined in the config.json, by the given code
+    * @param string $pCode Example publication/news/list returns the hash of 'list'
+    */
+    
+    public static function getPathItem( $pCode ){
+        
+        $codes = explode( '/', $pCode );
+        
+        if( kryn::$configs[ 'admin' ]['admin'][ $codes[1] ] ){
+            //inside admin extension
+            $adminInfo = kryn::$configs[ 'admin' ]['admin'];
+            $start = 1;
+            $module = 'admin';
+            $code = substr( $pCode, 6 );
+        } else if( kryn::$configs[ $codes[1] ]['admin'] ){
+            //inside other extension
+            $adminInfo = kryn::$configs[ $codes[1] ]['admin'];
+            $start = 2;
+            $module = $codes[1];
+            $code = substr( $pCode, 6+strlen($codes[1])+1 );
+        }
+
+        $_info = $adminInfo[$codes[$start]];
+        $path = array();
+        $path[] = $_info['title'];
+
+        $count = count($codes);
+        for($i=$start+1;$i<=$count;$i++){
+            if( $codes[$i] != "" ){
+                $_info = $_info['childs'][$codes[$i]];
+                $path[] = $_info['title'];
             }
         }
-        json('param-failed');
+
+        unset( $path[ count($path)-1 ] );
+        unset( $_info['childs'] );
+        
+        if( !$_info ){
+            return false;
+        }
+        
+        $_info['_path'] = $path;
+        $_info['_module'] = $module;
+        $_info['_code'] = $code;
+        
+        $cssPath = str_replace( '/', '_', $code ); //this.code.replace(/\//g,'_');;
+        if( $pModule == 'admin' ){
+            $cssPath = 'inc/template/admin/css/'.$cssPath.'.css';
+        } else {
+            $cssPath = 'inc/template/'.$module.'/admin/css/'.$cssPath.'.css';
+        }
+        if( file_exists( $cssPath ) )
+            $_info['cssmdate'] = filemtime( $cssPath );
+            
+        
+        return $_info;
     }
     
     public static function loadContentLayout(){
@@ -194,6 +294,30 @@ class admin {
         $tpl = str_replace('{$content.content}', '<div class="ka-layoutelement-content-content"></div>', $tpl);
 
         json( tFetch('string:'.$tpl) );
+    }
+
+    public static function loadCustomJs(){
+    
+        $module = getArgv('module');
+        $code = getArgv('code');
+        
+        $module = preg_replace('/[^a-zA-Z-\\/_]/', '', $module);
+        $code = preg_replace('/[^a-zA-Z-\\/_]/', '', $code);
+        
+        if( $module == 'admin' )
+           $file = "inc/template/admin/js/$code.js";
+        else
+            $file = "inc/template/$module/admin/js/$code.js";
+
+        header('Content-Type: text/javascript');
+        if(! file_exists($file) ){
+            print "contentCantLoaded_".getArgv('onLoad')."('$file');\n";
+        } else {
+            readFile( $file );
+            print "\n";
+            print "contentLoaded_".getArgv('onLoad').'();'."\n";
+        }
+        die();
     }
     
     public static function loadLayoutElementFile( $pFile ){
@@ -344,7 +468,6 @@ class admin {
     }
     
     public function searchAdmin( $pQuery ){
-        global $kryn;
         
         $res = array();
         
@@ -363,7 +486,7 @@ class admin {
         
         //help
         $helps = array();
-        foreach( $kryn->installedMods as $key => $mod ){
+        foreach( kryn::$configs as $key => $mod ){
             $helpFile = "inc/modules/$key/lang/help_$lang.json";
             if( !file_exists( $helpFile ) ) continue;
             if( count($helps) > 10 ) continue;
@@ -425,10 +548,9 @@ class admin {
     
     
     public static function loadHelpTree( $pLang = 'en'){
-        global $kryn;
         
         $res = array();
-        foreach( $kryn->installedMods as $modCode => &$config ){
+        foreach( kryn::$configs as $modCode => &$config ){
             
             $langFile = "inc/modules/$modCode/lang/help_$lang.json";
             if( !file_exists($langFile) )
@@ -463,14 +585,14 @@ class admin {
     }
 
     public static function showLogin(){
-        global $user;
+        global $client;
         
-        $language  = $user->user['settings']['adminLanguage']?$user->user['settings']['adminLanguage']:'en';
+        $language  = $client->user['settings']['adminLanguage']?$client->user['settings']['adminLanguage']:'en';
         
         if( getArgv('setLang') != '' )
             $language = getArgv('setLang',2);
 
-        if( $user->user_rsn > 0 ){
+        if( $client->user_rsn > 0 ){
             $access = kryn::checkUrlAccess('admin/backend');
             tAssign( 'hasBackendAccess', $access+0 );
         }
@@ -489,12 +611,13 @@ class admin {
         $langs = dbTableFetch('system_langs', -1, $where);
         
         $json = json_encode( $langs );
+        header('Content-Type: text/javascript');
         print "if( typeof(ka)=='undefined') window.ka = {}; ka.possibleLangs = ".$json;
         exit;
     }
 
     public static function printLanguage(){
-        global $user;
+        global $client;
         
         $lang = getArgv('getLanguage',2);
 
@@ -505,12 +628,13 @@ class admin {
             $json = json_encode($json);
             kryn::fileWrite('inc/cache/lang_'.$lang.'.json', $json);
         }
-        $user->setSessionLanguage( $lang );
+        $client->setLang( $lang );
         
         
         kryn::$lang = kryn::getAllLanguage( $lang );
         
         if( getArgv('js') == 1 ){
+            header('Content-Type: text/javascript');
             print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = ".$json;
             if( !$json ){
                 print "\nLocale.define('en-US', 'Date', ".tFetch('admin/mootools-locale.tpl').");";
@@ -534,32 +658,32 @@ class admin {
     }
 
     public static function saveDesktop( $pIcons ){
-        global $user;
-        if( $user->user_rsn > 0 )
-            dbUpdate( 'system_user', array('rsn' => $user->user_rsn), array('desktop' => $pIcons));
+        global $client;
+        if( $client->user_rsn > 0 )
+            dbUpdate( 'system_user', array('rsn' => $client->user_rsn), array('desktop' => $pIcons));
         json( true );
     }
     
     public static function saveWidgets( $pWidgets ){
-        global $user;
-        if( $user->user_rsn > 0 )
-            dbUpdate( 'system_user', array('rsn' => $user->user_rsn), array('widgets' => $pWidgets));
+        global $client;
+        if( $client->user_rsn > 0 )
+            dbUpdate( 'system_user', array('rsn' => $client->user_rsn), array('widgets' => $pWidgets));
         json( true );
     }
     
     public static function getWidgets(){
-        global $user;
-        if( $user->user_rsn > 0 ){
-            $row = dbTableFetch( 'system_user', 1, "rsn = ".$user->user_rsn );
+        global $client;
+        if( $client->user_rsn > 0 ){
+            $row = dbTableFetch( 'system_user', 1, "rsn = ".$client->user_rsn );
             json( $row['widgets'] );
         }
         json( false );
     }
 
     public static function getDesktop(){
-        global $user;
-        if( $user->user_rsn > 0 ){
-            $row = dbTableFetch( 'system_user', 1, "rsn = ".$user->user_rsn );
+        global $client;
+        if( $client->user_rsn > 0 ){
+            $row = dbTableFetch( 'system_user', 1, "rsn = ".$client->user_rsn );
             json( $row['desktop'] );
         }
         json( false );
@@ -573,27 +697,27 @@ class admin {
     }
 
     public static function saveUserSettings(){
-        global $user;
+        global $client;
 
         $settings = json_decode(getArgv('settings'),true);
         
         if( $settings['adminLanguage'] == '' )
-            $settings['adminLanguage'] = $user->user['settings']['adminLanguage'];
+            $settings['adminLanguage'] = $client->user['settings']['adminLanguage'];
 
         $settings = serialize( $settings );
-        dbUpdate( 'system_user', array('rsn' => $user->user_rsn), array('settings' => $settings) );
+        dbUpdate( 'system_user', array('rsn' => $client->user_rsn), array('settings' => $settings) );
+        $client->getUser( $client->user_rsn, true ); //reload from cache
 
-        user::getUser( $user->user_rsn, true ); //reload from cache
         json(1);
     }
 
     public static function getSettings(){
-        global $modules, $user, $kryn, $cfg;
+        global $modules, $client, $cfg;
 
         $res = array();
         
         $res['modules'] = array();
-        foreach( $kryn->installedMods as $key => $mod ){
+        foreach( kryn::$configs as $key => $mod ){
             $res['modules'][] = $key;
             if( $mod )
                 $res['configs'][$key] = $mod;
@@ -604,7 +728,7 @@ class admin {
         $res['navigations'] = array();
         
         $res['navigations'] = array();
-        foreach( $kryn->installedMods as $key => $config ){
+        foreach( kryn::$configs as $key => $config ){
             if( $config['themes'] ){
                 foreach( $config['themes'] as $themeTitle => $theme ){
                     if( $theme['layouts'] ){
@@ -624,35 +748,29 @@ class admin {
         }
         
         $res['groups'] = dbTableFetch( 'system_groups', DB_FETCH_ALL);
-        $res['user'] = $user->user['settings'];
+        $res['user'] = $client->user['settings'];
 
         $res['system'] = $cfg;
         $res['system']['db_name'] = '';
         $res['system']['db_user'] = '';
         $res['system']['db_passwd'] = '';
 
-            
-        $inGroups = '';
-         if( count($user->groups) > 0 )
-            foreach( $user->groups as $group ) {
-                $inGroups .= $group['group_rsn'].",";
-            }
-        $inGroups .= "0";
+        $inGroups = $client->user['inGroups'];
+        
 
         $code = esc($pUrl);
         if( substr( $code, -1 ) != '/' )
             $code .= '/';
         
         $res['ingroups'] = $inGroups;
-        $res['r2d'] =& cache::get("r2d");
+        $res['r2d'] =& kryn::getCache("r2d");
         
         if( !$res['r2d'] ){
                $res['r2d'] = array();
         }
         
-        
         $res['domains'] = array();
-        $qr = dbExec('SELECT * FROM %pfx%system_domains');
+        $qr = dbExec('SELECT * FROM %pfx%system_domains ORDER BY domain');
         while($row = dbFetch($qr)){
             if( kryn::checkPageAcl( $row['rsn'], 'showDomain', 'd') ){
                 $res['domains'][] = $row;
@@ -660,6 +778,7 @@ class admin {
         }
         
         
+        /*
         include_once('inc/modules/admin/adminPages.class.php');
         foreach( $res['domains'] as $domain ){
             $domainRsn = $domain['rsn'];
@@ -667,14 +786,15 @@ class admin {
                 adminPages::updatePage2DomainCache();
             }
 
-            $res["menus_$domainRsn"] =& cache::get("menus_$domainRsn");
+            $res["menus_$domainRsn"] =& kryn::getCache("menus_$domainRsn");
 
             if( !$res["menus_$domainRsn"] || $domainRsn == 2 ){
                 $res["menus_$domainRsn"] = adminPages::updateMenuCache( $domainRsn );
             }
         }
+        */
         
-        $userRsn = $user->user_rsn;
+        $userRsn = $client->user_rsn;
             
         $res['acl_pages'] = dbExfetch("
                 SELECT code, access FROM %pfx%system_acl
@@ -719,7 +839,7 @@ class admin {
     }
 
     public static function stream(){
-    	global $kryn, $modules, $user;
+    	global $modules, $client;
     	
         $res['time'] = date('H:i');
         $res['last'] = time();
@@ -729,7 +849,7 @@ class admin {
         
         $res['hasCrawlPermission'] = adminSearchIndexer::hasPermission();
         
-        foreach( $kryn->installedMods as $key => $conf ){
+        foreach( kryn::$configs as $key => $conf ){
         	$stream = $conf['stream'];
         	
         	if( $stream && method_exists($modules[$key], $stream) ){
@@ -743,20 +863,18 @@ class admin {
     }
 
     public static function systemInfo(){
-        global $kryn;
         
-        $res['version'] = $kryn->version;
+        $res['version'] = kryn::$configs['kryn']['version'];
         
         json($res);
     }
     
     public static function loadJs(){
-        global $kryn;
         
         header('Content-Type: application/x-javascript');
 
         $md5Hash = '';
-        foreach( $kryn->installedMods as &$config ){
+        foreach( kryn::$configs as &$config ){
             if( $config['adminJavascript'] && is_array( $config['adminJavascript'] )  ) {
                 foreach( $config['adminJavascript'] as $jsFile ){
                     if( file_exists('inc/template/'.$jsFile) ){
@@ -773,7 +891,7 @@ class admin {
             readFile( 'inc/cache/cachedAdminJs_'.$md5Hash.'.js' );
         } else {
             $content = '';
-            foreach( $kryn->installedMods as &$config ){
+            foreach( kryn::$configs as &$config ){
                 if( $config['adminJavascript'] && is_array( $config['adminJavascript'] )  ) {
                     
                     foreach( $config['adminJavascript'] as $jsFile ){
@@ -795,7 +913,6 @@ class admin {
     }
 
     public static function loadCss(){
-        global $kryn;
         
         header('Content-Type: text/css');
         
@@ -823,7 +940,7 @@ class admin {
         );
         
         $md5Hash = '';
-        foreach( $kryn->installedMods as &$config ){
+        foreach( kryn::$configs as &$config ){
             if( $config['adminCss'] && is_array( $config['adminCss'] )  ) {
                 foreach( $config['adminCss'] as $cssFile ){
                     if( file_exists('inc/template/'.$cssFile) ){
@@ -840,7 +957,7 @@ class admin {
             readFile( 'inc/cache/cachedAdminCss_'.$md5Hash.'.css' );
         } else {
             $content = '';
-            foreach( $kryn->installedMods as &$config ){
+            foreach( kryn::$configs as &$config ){
                 if( $config['adminCss'] && is_array( $config['adminCss'] )  ) {
                     
                     foreach( $config['adminCss'] as $cssFile ){
@@ -878,12 +995,10 @@ class admin {
     }
     
     public static function getMenus(){
-        global $kryn;
-        
         
         $links = array();
         
-        foreach( $kryn->installedMods as $extCode => $config ){
+        foreach( kryn::$configs as $extCode => $config ){
             
             if( $config['admin'] ){
                 foreach( $config['admin'] as $key => $value ){
@@ -951,25 +1066,24 @@ class admin {
     }
 
     public static function pointerPreview( $pContent ){
-        global $kryn;
+
         $page = dbExfetch( 'SELECT * FROM %pfx%system_pages WHERE rsn = ' . ($pContent+0) );
         kryn::$domain['rsn'] = $page['domain_rsn'];
-        $kryn->realUrls = kryn::readCache( 'urls' );
-        #$_content = tFetch( 'kryn/layouts/' . $kryn->current_page['layout'] . '.tpl' );
-        $_content = "$pContent: <strong>".$page['title']."</strong> (".$kryn->realUrls['rsn']["rsn=".$pContent].")";
-        #$kryn->current_page = $oldPage;
+        kryn::$realUrls =& kryn::readCache( 'urls' );
+
+        $_content = "$pContent: <strong>".$page['title']."</strong> (".kryn::$realUrls['rsn']["rsn=".$pContent].")";
+        
         json( $_content );
     }
 
     public static function navigationPreview( $pContent ){
-        global $kryn;
 
         $page = adminPages::getPageByRsn( $pContent );
 
         kryn::$domain['rsn'] = $page['domain_rsn'];
-        $kryn->realUrls = kryn::readCache( 'urls' );
+        kryn::$realUrls =& kryn::readCache( 'urls' );
 
-        $_content = "<strong>".$page['title']."</strong> (".$kryn->realUrls['rsn']["rsn=".$pContent].")";
+        $_content = "<strong>".$page['title']."</strong> (".kryn::$realUrls['rsn']["rsn=".$pContent].")";
         json($_content);
         /*
         $options[ 'id' ] = $temp[0];
@@ -1101,7 +1215,7 @@ class admin {
     }
     
     public static function addVersionRow( $pTable, $pPrimary, $pRow ){
-        global $user;
+        global $client;
         
         $code = $pTable;
         foreach( $pPrimary as $fieldName => $fieldValue ){
@@ -1118,7 +1232,7 @@ class admin {
             'content' => $content,
             'version' => $version,
             'cdate' => time(),
-            'user_rsn' => $user->user_rsn
+            'user_rsn' => $client->user_rsn
         );
         
         dbInsert('system_frameworkversion', $new);
@@ -1184,9 +1298,8 @@ class admin {
     }
 
     public function widgetVersion(){
-        global $kryn;
 
-        $res['title'] = 'Kryn '.$kryn->version;
+        $res['title'] = 'Kryn '.kryn::$configs['kryn']['version'];
         $res['content'] = '
             <span style="color: green;">Sie benutzen die aktuellste Version.</span>    
         '; 

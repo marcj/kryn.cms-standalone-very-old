@@ -34,12 +34,12 @@ class adminWidgets {
     }
     
     public static function getPage(){
-        global $kryn, $modules;
+        global $modules;
     
         $ext = getArgv('extension');
         $widgetCode = getArgv('widget');
         
-        $widget = $kryn->installedMods[ $ext ]['widgets'][$widgetCode];
+        $widget = kryn::$configs[ $ext ]['widgets'][$widgetCode];
         
         if( $widget['sql'] ){
             $perPage = $widget['itemsPerPage'] ? $widget['itemsPerPage'] : 15;
@@ -114,10 +114,10 @@ class adminWidgets {
     }
     
     public static function getWidgets( $pCategory ){
-        global $kryn, $user;
+        global $user;
         
         $res = array();
-        foreach( $kryn->installedMods as $modCode => $mod ){
+        foreach( kryn::$configs as $modCode => $mod ){
             if( $mod['widgets'] && is_array($mod['widgets']) ){
                 foreach( $mod['widgets'] as $key => $widget ){
                 
@@ -139,10 +139,10 @@ class adminWidgets {
     }
 
     public static function getWidgetInfo(){
-        global $kryn;
+
         $module = getArgv('module');
         $widget = getArgv('widget');
-        $widgets = $kryn->installedMods[$module]['widgets'];
+        $widgets = kryn::$configs[$module]['widgets'];
         $res = $widgets[$widget][1];
         $res['module'] = $module;
         $res['widget'] = $widget;
@@ -150,9 +150,8 @@ class adminWidgets {
     }
 
     public static function getAll(){
-        global $kryn;
 
-        foreach( $kryn->installedMods as $key => $config ){
+        foreach( kryn::$configs as $key => $config ){
             if( count($config['widgets']) > 0 )
                 $widgets[$key] = array($module, $config['widgets']);
         }

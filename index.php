@@ -14,8 +14,7 @@
  * Index.php
  * 
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 
@@ -59,7 +58,8 @@ if( $cfg['display_errors'] == 0 ){
     @ini_set('error_reporting', E_ALL & ~E_NOTICE);
 }
 
-include('inc/kryn/cache.class.php');
+include( 'inc/kryn/checkFile.php' );
+
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
@@ -68,19 +68,19 @@ include('inc/kryn/framework.global.php');
 
 @set_error_handler('errorHandler');
 
-include( 'inc/kryn/checkFile.php' );
 
 # Load important classes
 include('inc/smarty/Smarty.class.php');
 include('inc/kryn/database.class.php');
 include('inc/kryn/baseModule.class.php');
+
 include('inc/kryn/kryn.class.php');
-include('inc/kryn/acl.class.php');
-include("inc/kryn/adminForm.class.php");
-include('inc/kryn/knavigation.class.php');
-include('inc/kryn/tpl.class.php');
-include('inc/kryn/user.class.php');
-include('inc/kryn/systemSearch.class.php');
+include('inc/kryn/krynCache.class.php');
+include('inc/kryn/krynAcl.class.php');
+include('inc/kryn/krynNavigation.class.php');
+include('inc/kryn/krynHtml.class.php');
+include('inc/kryn/krynAuth.class.php');
+include('inc/kryn/krynSearch.class.php');
 
 # Init classes and globals
 $tpl = new Smarty();
@@ -88,30 +88,12 @@ $tpl->caching = false;
 $tpl->template_dir = 'inc/template/';
 $tpl->compile_dir = $cfg['tpl_cpl'];
 
-$kryn = new kryn();
 tAssign( 'time', $time);
 
 date_default_timezone_set( $cfg['timezone'] );
 
-if( !empty($cfg['locate']) )
+if( !empty($cfg['locale']) )
     setlocale( LC_ALL, $cfg['locale']);
-    
-
-# Init db/stdn config
-$kdb = new database(
-             $cfg['db_type'],
-             $cfg['db_server'],
-             $cfg['db_user'],
-             $cfg['db_passwd'],
-             $cfg['db_name'],
-             ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
-             ($cfg['db_forceutf8']=='1')?true:false
-);
-
-
-if( !$kdb->isActive() ){
-    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
-}
 
 define('pfx', $cfg['db_prefix']);
 
@@ -127,39 +109,61 @@ if( $_SERVER['SERVER_PORT'] != 80 ){
     
 $_REQUEST['lang'] = ($_GET['lang']) ? $_GET['lang'] : $_POST['lang'];
 
-$kryn->prepareUrl();
+kryn::prepareUrl();
 # Javascript
 if($_REQUEST['js'] == 'global.js'){
     $cfg['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );
+    header("Content-type: text/javascript");
 	die("var path = '".$cfg['path']."'; var _path = '".$cfg['path']."'; var _baseUrl = 'http://".$_SERVER['SERVER_NAME'].($cfg['port']?':'.$cfg['port']:'').$cfg['path']."'");
 }
 
-$kryn->initConfig();
-$kryn->loadModules();
-$kryn->loadLanguage();
+kryn::initConfig();
 
-$user = new user();
-if($user->user['rsn'] != GUEST){
-    $user->user_logged_in = true;
+# Init db/stdn config
+$kdb = new database(
+             $cfg['db_type'],
+             $cfg['db_server'],
+             $cfg['db_user'],
+             $cfg['db_passwd'],
+             $cfg['db_name'],
+             ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
+             ($cfg['db_forceutf8']=='1')?true:false
+);
+
+if( !$kdb->isActive() ){
+    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
 }
 
-$kryn->initModules();
+kryn::loadModules();
+
+kryn::loadLanguage();
+
+kryn::initAuth();
 
 tAssign("request", $_REQUEST);
 tAssign("user", $user->user);
 
-$kryn->checkAccess();
-
-systemSearch::initSearch();
-
-$kryn->admin = false;
-tAssign( 'admin', false );
 if( getArgv(1) == 'admin' ){
+	include("inc/kryn/adminForm.class.php");
+    require("inc/modules/admin/admin.class.php");
+    $modules['admin'] = new admin();
+}
+
+kryn::checkAccess();
+krynSearch::initSearch();
+
+register_shutdown_function('kryn_shutdown');
+
+kryn::$admin = false;
+tAssign( 'admin', false );
+
+if( getArgv(1) == 'admin' ){
+    
     tAssign( 'admin', true );
-    $kryn->admin = true;
+    kryn::$admin = true;
     $modules['admin']->content();
 } else {
-    $kryn->display();
+    kryn::display();
 }
 
 ?>

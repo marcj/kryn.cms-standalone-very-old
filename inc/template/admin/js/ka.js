@@ -16,8 +16,6 @@ ka.init = function(){
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
-
-    logger('ka-init');
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
     
@@ -132,11 +130,11 @@ ka.loadSettings = function(){
         ka.settings.set('user', $H(ka.settings.user));
         ka.settings.get('user').set('windows', $H(ka.settings.get('user').get('windows')));
         
-        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')'); //admin/images/userBgs/'+pId.user_rsn+'.jpg)');
+        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
         if( ka.settings.system.systemtitle ){
-            document.title = ka.settings.system.systemtitle + ' | kryn.cms administstration';
+            document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
         }
-    }.bind(this)}).post();
+    }.bind(this)}).get();
 }
 
 ka.loadLanguage = function( pLang ){
@@ -204,6 +202,11 @@ ka.checkPageAccessHasCode = function( pCodes, pAction ){
 	}
 	return access;
 	*/
+}
+
+
+ka.checkDomainAccess = function( pRsn, pAction ){
+    return ka.checkPageAccess( pRsn, pAction, 'd' );
 }
 
 ka.checkPageAccess = function( pRsn, pAction, pType ){
@@ -409,12 +412,14 @@ ka.loadStream = function(){
 	_lastStreamCounter = (function(){
 	    if( window._session.user_rsn > 0 ){
 	        new Request.JSON({url: _path+'admin/backend/stream', noCache: 1, onComplete: function(res){
-	        	ka.streamParams.last = res.last;
-	        	window.fireEvent('stream', res);
 	            if( res ){
-	                $('serverTime').set('html', res.time);
-	            } else {
-	                ka.ai.logout( true );
+                    if( res.error == 'access_denied' ){
+    	                ka.ai.logout( true );
+                    } else {
+        	        	ka.streamParams.last = res.last;
+        	        	window.fireEvent('stream', res);
+        	            $('serverTime').set('html', res.time);
+    	            }
 	            }
 	            ka._lastStreamid = ka.loadStream.delay(5*1000);
 	        }}).post(ka.streamParams);
@@ -429,7 +434,7 @@ ka.startSearchCrawlerInfo = function( pHtml ){
         'class': 'ka-updates-menu',
         style: 'left: 170px; width: 177px;'
     }).inject( $('border') );
-	
+
 	this.startSearchCrawlerInfoMenuHtml = new Element('div', {
 	    html: pHtml
 	}).inject( this.startSearchCrawlerInfoMenu );
@@ -606,7 +611,7 @@ ka.displayNewUpdates = function( pModules ){
 ka.buildClipboardMenu = function(){
     ka.clipboardMenu = new Element('div', {
         'class': 'ka-clipboard-menu'
-    }).inject( $('border') );
+    }).inject( $('header'), 'before' );
 }
 
 ka.buildUploadMenu = function(){
@@ -622,7 +627,7 @@ ka.buildUploadMenu = function(){
     .addEvent('mouseout', function(){
         this.tween('height', 22);
     })
-    .inject( $('border') );
+    .inject( $('header'), 'before' );
 
     ka.uploadMenuInfo = new Element('div', {
         'class': 'ka-upload-menu-info'
@@ -849,7 +854,6 @@ ka.loadMenu = function(){
         ka.moduleItems.empty();
         
         var mlinks = $H(res);
-        
 
         $H(mlinks.get('admin')).each(function(item, pCode){
             ka.addAdminLink( item, pCode, 'admin' );
@@ -920,7 +924,6 @@ ka.renderAdminLink = function(){
 	
 	var windowSize = window.getSize().x;
 	if( windowSize < 770 ){
-		logger('show blocker');
 		if( !ka.toSmallWindowBlocker ){
 			ka.toSmallWindowBlocker = new Element('div', {
 				'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
@@ -933,7 +936,6 @@ ka.renderAdminLink = function(){
 			}).inject(tr);
 		}
 	} else if( ka.toSmallWindowBlocker ){
-		logger('destroy: '+ka.toSmallWindowBlocker);
 		ka.toSmallWindowBlocker.destroy();
 		ka.toSmallWindowBlocker = null;
 	}
@@ -1112,7 +1114,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
         .addEvent('mouseout', function(){
             mlink.fireEvent('mouseout');
         })
-        .inject( $('border') );
+        .inject( $('header'), 'before' );
 
         $H(pLink.childs).each(function(item, code){
         	
@@ -1543,14 +1545,266 @@ ka._openLinkContext = function( pLink ){
 	
 }
 
-ka.renderLayoutElements = function( pDom, pClassObj, pOptions ){
+ka.autoPositionLastOverlay = false;
+ka.autoPositionLastItem = false;
 
-    if( pDom.get('tag') == 'iframe' ){
-        pOptions = {dialogContainer: pDom.getParent('.kwindow-border')};
-        pDom = pDom.contentWindow.document.body;
+ka.closeDialog = function(){
+    if( ka.autoPositionLastOverlay )
+        ka.autoPositionLastOverlay.destroy();
+    delete ka.autoPositionLastOverlay;
+    
+    if( ka.autoPositionLastItem ){
+        ka.autoPositionLastItem.addEvent('close');
+        ka.autoPositionLastItem.dispose();
     }
+
+    delete ka.autoPositionLastItem;
+}
+
+ka.openDialog = function( item ){
+    if( !item.element || !item.element.getParent ){
+        return;
+    }
+    if( ka.autoPositionLastItem == item.element )
+        return;
+        
+    ka.closeDialog();
+    
+    ka.autoPositionLastOverlay = new Element('div', {
+        style: 'position: absolute; left:0px; top: 0px; right:0px;bottom:0px;background-color: white;',
+        styles: {
+            opacity: 0.001
+        }
+    })
+    .addEvent('click', function(){
+        ka.closeDialog();
+    })
+    .inject( document.body );
+    
+    ka.autoPositionLastItem = item.element;
+
+    item.element.inject( document.body );
+    item.element.removeEvent('click', ka.closeDialog);
+    item.element.addEvent('click', ka.closeDialog);
+
+    if( !item.primary ){
+        item.primary = {
+            'position': 'bottomRight',
+            'edge': 'upperRight'
+        }
+    }
+    if( !item.secondary ){
+        item.secondary = {
+            'position': 'upperRight',
+            'edge': 'bottomRight'
+        }
+    }
+
+    item.primary.relativeTo = item.target;
+    item.secondary.relativeTo = item.target;
+
+    item.element.position(item.primary);
+
+    var pos = item.element.getPosition();
+    var size = item.element.getSize();
+
+    var bsize = item.element.getParent().getSize();
+    var height;
+
+    item.element.setStyle('height', '');
+    
+    item.minHeight = item.element.getSize().y;
+
+    if( size.y+pos.y > bsize.y ){
+        height = bsize.y-pos.y-10;
+    }
+
+    if( height ){
+        if( item.minHeight && height < item.minHeight ){
+            item.element.position( item.secondary );
+        } else {
+            item.element.setStyle('height', height);
+        }
+    }
+}
+
+
+ka.parse = new Class({
+
+    fields: {},
+
+    initialize: function( pContainer, pDefinition ){
+    
+        this.main = new Element('div', {
+            'class': 'ka-fields-main'
+        }).inject( pContainer );
+
+        this.parseLevel( pDefinition, this.main );
+    },
+    
+    toElement: function(){
+        return this.main;
+    },
+    
+    parseLevel: function( pLevel, pContainer, pDependField ){
+        Object.each( pLevel, function( field, id ){
+
+            var obj = new ka.field( field, pContainer );
+            
+            if( pDependField && field.needValue ){
+                pDependField.addEvent('check-depends', function(){
+                    if( typeOf(field.needValue) == 'string' || typeOf(field.needValue) == 'number' ){
+                        if( field.needValue == pDependField.getValue() )
+                            obj.show();
+                        else
+                            obj.hide();
+                    } else if( typeOf(field.needValue) == 'array' ){
+                        if( field.needValue.contains(pDependField.getValue()) )
+                            obj.show();
+                        else
+                            obj.hide();
+                    } else if( typeOf(field.needValue) == 'function' ){
+                        if( field.needValue.attempt( pDependField.getValue() ) )
+                            obj.show();
+                        else
+                            obj.hide();
+                    }
+                }.bind(this));
+            }
+            
+            if( field.depends ){
+                var childContainer = new Element('div', {
+                    'class': 'ka-fields-sub'
+                }).inject( document.id(obj) );
+                obj.childContainer = childContainer;
+                this.parseLevel( field.depends, childContainer, obj );
+                obj.fireEvent('check-depends');
+            }
+            this.fields[ id ] = obj;
+        
+        }.bind(this));
+    },
+    
+    isOk: function(){
+    
+        var ok = true;
+        Object.each( this.fields, function(field){
+        
+            if( !field.isOk() ){
+                ok = false;
+            }
+        
+        });
+        
+        return ok;
+    },
+    
+    setValue: function( pValues, pInternal ){
+    
+        if( typeOf(pValues) == 'string' ){
+            pValues = JSON.decode( pValues );
+        }
+        
+        Object.each( this.fields, function(obj,id){
+            if( id.indexOf('[') != -1 ){
+                obj.setArrayValue( pValues, id, pInternal );
+            } else {
+                obj.setValue( pValues?pValues[id]:null, pInternal );
+            }
+        });
+    },
+    
+    getFields: function(){
+        return this.fields;
+    },
+    
+    getValue: function( pField ){
+    
+        var res = {};
+        if( pField && this.fields[pField] ){
+        
+            res = this.fields[pField].getValue(); 
+        
+        } else {        
+            Object.each( this.fields, function(obj,id){
+                if( id.indexOf('[') != -1 ){
+                    //todo bug is here, doesnt work
+                    var items = id.split('[');
+                    var key = '';
+                    var last = {};
+                    var newRes = last;
+                    
+                    items.each(function(item, pos){
+                        key = item.replace(']', '');
+    
+                        if( pos == items.length-1 ){
+                            last[key] = obj.getValue();
+                        } else {
+                            last[key] = {};
+                            last = last[key];
+                        }
+                    });
+                    res = Object.merge( res, newRes );
+                } else {
+                    res[id] = obj.getValue();
+                }
+            });
+        }
+        
+        return res;
+    }
+});
+
+ka.getFieldCaching = function (){
+
+    return {    
+        'cache_type': {
+            label: _('Cache storage'),
+            type: 'select',
+            items: {
+                'memcached': _('Memcached'),
+                'redis': _('Redis'),
+                'files': _('Files')
+            },
+            'depends': {
+                'cache_params[servers]': {
+                    needValue: ['memcached', 'redis'],
+                    'label': 'Servers',
+                    'type': 'array',
+                    startWith: 1,
+                    'width': 310,
+                    'columns': [
+                        {'label': _('IP')},
+                        {'label': _('Port'), width: 50}
+                    ],
+                    'fields': {
+                        ip: {
+                            type: 'text',
+                            width: '95%',
+                            empty: false
+                        },
+                        port: {
+                            type: 'number',
+                            width: 50,
+                            empty: false
+                        }
+                    }
+                },
+                'cache_params[files_path]': {
+                    needValue: 'files',
+                    type: 'text',
+                    label: 'Caching directory',
+                    'default': 'inc/cache/'
+                }
+            }
+        }
+    }
+}
+
+
+ka.renderLayoutElements = function( pDom, pClassObj ){
 	
-	var layoutBoxes = $H({});
+    var layoutBoxes = $H({});
     if( !pDom.getFirst() && (pDom.get('text').search(/{slot.+}/) >= 0 || pDom.get('text').search(/{content.+}/) >= 0) ){
     	
         var value = pDom.get('text');

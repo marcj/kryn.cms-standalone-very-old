@@ -46,23 +46,20 @@ ka.windowEdit = new Class({
 
     load: function(){
         var _this = this;
-        new Request.JSON({url: _path+'admin/backend/window/loadClass/', noCache: true, onComplete: function(res){
+        new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code, noCache: true, onComplete: function(res){
             this.render( res );
-        }.bind(this)}).post({ module: this.win.module, 'code': this.win.code });
+        }.bind(this)}).post();
     },
     
     generateItemParams: function( pVersion ){
-    	var req = $H({});
-	   
-	    req.include( 'module', this.win.module );
-	    req.include( 'code', this.win.code );
+    	var req = {};
 	    
 	    if( pVersion )
 	    	req.version = pVersion;
 	
 	    if( this.win.params ){
 	        this.values.primary.each(function(prim){
-	            req.include( prim, this.win.params.values[prim] );
+	            req[ prim ] = this.win.params.values[prim];
 	        }.bind(this));
 	    }
 	    return req;
@@ -76,10 +73,10 @@ ka.windowEdit = new Class({
             this.lastRq.cancel();
 
         this.loader.show();
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
-            
+        this.lastRq = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItem',
+
+        noCache: true, onComplete: function(res){
             this._loadItem( res );
-            
         }.bind(this)}).post(req);
     },
 
@@ -90,15 +87,16 @@ ka.windowEdit = new Class({
         if( pField.type == 'wysiwyg' && !this.windowAdd ){
             pField.withOutTinyInit = true;
         }
-        pField.win = this.win;
+        
         pField.label = _(pField.label);
         pField.desc = _(pField.desc);
         
         if( this.languageSelect && pField.multiLanguage )
         	pField.lang = this.languageSelect.getValue();
         
-        var field = new ka.field(pField, pFieldId );
-        field.inject( pContainer );
+        var field = new ka.field( pField, pContainer, {
+            win: this.win
+        });
 
         if( pField.type == 'wysiwyg' && this.windowAdd ){
             //var contentCss = _path+"inc/template/css/kryn_tinyMceContentElement.css";
@@ -107,8 +105,8 @@ ka.windowEdit = new Class({
             initResizeTiny( field.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
         }
 
-        this.fields.include( pFieldId, field );
-        this._fields.include( pFieldId, pField );
+        this.fields[pFieldId] = field;
+        this._fields[ pFieldId ] = pField;
         return field;
     },
 
@@ -118,13 +116,29 @@ ka.windowEdit = new Class({
         
         this.previewUrls = pItem.preview_urls;
         
-        this.fields.each(function(field, fieldId){
+        var first = false;
+        
+        Object.each(this.fields, function(field, fieldId){
+            if( first == false && typeOf(pItem.values[fieldId]) == 'string' ){
+                this.win.setTitle(pItem.values[fieldId]);
+                first = true;
+            }
             try {
             	
-                if( $type(pItem.values[fieldId]) == false )
+            	if( this.windowAdd && this.win.params && this.win.params.relation_table &&
+                    this.win.params.relation_params[fieldId]
+            	){
+            	   field.setValue( this.win.params.relation_params[fieldId] );
+            	   
+            	} else if( this._fields[fieldId].type == 'window_list' ){
+                    field.setValue({table: this.values.table, params: pItem.values});
+                    
+                } else if( $type(pItem.values[fieldId]) == false )
                     field.setValue( '' );
-                else if( !this._fields[fieldId].startempty )
+
+                else if( !this._fields[fieldId].startempty ){
                     field.setValue( pItem.values[fieldId] );
+                }
 
                 if( !this.windowAdd ){
                     var contentCss = _path+"inc/template/css/kryn_tinyMceContentElement.css";
@@ -291,7 +305,7 @@ ka.windowEdit = new Class({
     loadVersions: function(){
     	
         var req = this.generateItemParams();
-        new Request.JSON({url: _path+'admin/backend/window/loadClass/getItem', noCache: true, onComplete: function(res){
+        new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItem', noCache: true, onComplete: function(res){
             
         	if( res && res.versions ){
 	        	this.item.versions = res.versions;
@@ -332,8 +346,8 @@ ka.windowEdit = new Class({
         this.loader = new ka.loader().inject( this.container );
         this.loader.show();
 
-        this.fields = $H({});
-        this._fields = $H({});
+        this.fields = {};
+        this._fields = {};
         
         this.renderMultilanguage();
         
@@ -365,14 +379,21 @@ ka.windowEdit = new Class({
             	this.form.set('html', this.values.layout);
             }
             
-            $H(this.values.fields).each(function(field, fieldId){
+            Object.each(this.values.fields, function(field, fieldId){
 
-            	if( field.target )
-            		field.target = '#'+field.target;
-            	
+                var target = this.form;
+                
                 if( this.values.layout ){
-                	target = this.form.getElement( field.target || '#default' );
-                	this.win._alert(_('Layout is defined but target is invalid for field %s'.replace('%s', fieldId)));
+                    
+                    var id = '*[id=default]';
+                    if( field.target )
+                        id = '*[id='+field.target+']';
+
+                    target = this.form.getElement( id );
+                	
+                	if( !target ){
+                    	target = this.form;
+                    }
                 }
             	
                 this.addField( field, fieldId, target );
@@ -383,11 +404,12 @@ ka.windowEdit = new Class({
             this.topTabGroup = this.win.addSmallTabGroup();
             
             this._panes = {};
-            this._buttons = $H({});
+            this._buttons = {};
             this.firstTab = '';
             
-            $H(this.values.tabFields).each(function(fields,title){
+            Object.each(this.values.tabFields, function(fields,title){
                 if( this.firstTab == '' ) this.firstTab = title;
+                
                 this._panes[ title ] = new Element('div', {
                     'class': 'ka-windowEdit-form',
                     style: 'display: none;'
@@ -422,7 +444,7 @@ ka.windowEdit = new Class({
             this.versioningSelect = new ka.Select();
             this.versioningSelect.inject( this.win.border );
             this.versioningSelect.setStyle('width', 120);
-            this.versioningSelect.setStyle('top', 29);
+            this.versioningSelect.setStyle('top', 26);
             this.versioningSelect.setStyle('right', versioningSelectRight);
             this.versioningSelect.setStyle('position', 'absolute');
         	
@@ -437,11 +459,10 @@ ka.windowEdit = new Class({
         if( this.values.multiLanguage ){
         	this.win.extendHead();
         	
-        	
             this.languageSelect = new ka.Select();
             this.languageSelect.inject( this.win.border );
             this.languageSelect.setStyle('width', 120);
-            this.languageSelect.setStyle('top', 29);
+            this.languageSelect.setStyle('top', 26);
             this.languageSelect.setStyle('right', 5);
             this.languageSelect.setStyle('position', 'absolute');
         	
@@ -459,7 +480,7 @@ ka.windowEdit = new Class({
                 value: ''
             }).inject( this.languageSelect );*/
 
-            $H(ka.settings.langs).each(function(lang,id){
+            Object.each(ka.settings.langs, function(lang,id){
                 /*new Element('option', {
                     text: lang.langtitle+' ('+lang.title+', '+id+')',
                     value: id
@@ -486,7 +507,7 @@ ka.windowEdit = new Class({
 
     changeLanguage: function(){
     	var newFields = {};
-        this.fields.each(function(item, fieldId){
+        Object.each(this.fields, function(item, fieldId){
 
         	if( item.field.type == 'select' && item.field.multiLanguage ){
         		item.field.lang = this.languageSelect.getValue();
@@ -499,24 +520,24 @@ ka.windowEdit = new Class({
         	}
         }.bind(this));
         
-        $H(newFields).each(function(item,fieldId){
-        	this.fields.set(fieldId, item);
+        Object.each(newFields, function(item,fieldId){
+        	this.fields[ fieldId ] = item;
         }.bind(this));
     },
     
     _renderFields: function( pFields, pContainer, pParentField ){
-        if(!pFields.each) pFields = $H(pFields);
         
-        
-        pFields.each(function(field,id){
+        Object.each(pFields, function(field,id){
 
-        	if( field.target )
-        		field.target = '#'+field.target;
+            var targetId = '*[id=default]';
+            if( field.target )
+                targetId = '*[id='+field.target+']';
 
-        	var target = pContainer.getElement( field.target || '#default' );
+        	var target = pContainer.getElement( targetId );
+
             if( !target )
             	target = pContainer;
-        	
+
             var fieldOnj = this.addField( field, id, target );
 
             if( pParentField && field.needValue ){
@@ -543,7 +564,7 @@ ka.windowEdit = new Class({
 
     changeTab: function( pTab ){
     	this.currentTab = pTab;
-        this._buttons.each(function(button,id){
+        Object.each(this._buttons, function(button,id){
             button.setPressed(false);
             this._panes[ id ].setStyle('display', 'none');
         }.bind(this));
@@ -584,7 +605,7 @@ ka.windowEdit = new Class({
                 'class': 'ka-windowEdit-actions'
             }).inject( this.container );
     
-            this.exit = new ka.Button(_('Cancel'))
+            this.exit = new ka.Button(_('Close'))
             .addEvent( 'click', function(){
                 _this.win.close();
             })
@@ -610,22 +631,22 @@ ka.windowEdit = new Class({
     _save: function( pClose, pPublish ){
         var go = true;
         var _this = this;
-        var req = $H();
+        var req = {};
         
         if( this.item )
-            req = $H(this.item.values);
-        
-        req.include( 'module', this.win.module );
-        req.include( 'code', this.win.code );
+            req = this.item.values;
         
         
-        this.fields.each(function(item, fieldId){
+        Object.each(this.fields, function(item, fieldId){
+            
+            if( ['window_list'].contains(item.type) ) return;
+        
             if( !item.isHidden() && !item.isOk() ){
             	
             	if( this.currentTab && this.values.tabFields){
             		var currenTab2highlight = false;
-            		$H(this.values.tabFields).each(function(fields,key){
-            			$H(fields).each(function(field, fieldKey){
+            		Object.each(this.values.tabFields, function(fields,key){
+            			Object.each(fields, function(field, fieldKey){
             				if( fieldKey == fieldId ){
             					currenTab2highlight = key;
             				}
@@ -648,20 +669,18 @@ ka.windowEdit = new Class({
             var value = item.getValue();
             
             if( item.field.relation == 'n-n' )
-                req.set( fieldId, JSON.encode(value) );
+                req[ fieldId ] = JSON.encode(value);
             else if( $type(value) == 'object' )
-                req.set( fieldId, JSON.encode(value) );
+                req[ fieldId ] = JSON.encode(value);
             else
-                req.set( fieldId, value );
+                req[ fieldId ] = value;
         }.bind(this));
         
         if( this.values.multiLanguage ){
-        	req.set('lang', this.languageSelect.value);
+        	req['lang'] = this.languageSelect.value;
         }
         
         req.publish = (pPublish==true)?1:0;
-        
-        
         
         if( go ){
                 
@@ -683,19 +702,30 @@ ka.windowEdit = new Class({
                 || _this.win.code == 'users/editMe'
                 || _this.win.code == 'users/editMe/'
                 ) ){
-                ka.settings.get('user').set('adminLanguage', req.get('adminLanguage') );
+                if( !ka.settings['user'] ) ka.settings['user'] = {};
+                ka.settings['user']['adminLanguage'] = req['adminLanguage'];
             }
             
             if( this.win.params ){
-    	        this.values.primary.each(function(prim){
-    	            req.include( prim, this.win.params.values[prim] );
-    	        }.bind(this));
+            
+                if( !this.windowAdd ){
+        	        this.values.primary.each(function(prim){
+        	            req[ prim ] = this.win.params.values[prim];
+        	        }.bind(this));
+    	        }
+    	        
+    	        if( this.win.params.relation_params ){
+        	        Object.each(this.win.params.relation_params, function(value,id){
+        	           req[ id ] = value;
+        	        });
+        	        req['_kryn_relation_table'] = this.win.params.relation_table;
+        	        req['_kryn_relation_params'] = this.win.params.relation_params;
+    	        }
     	    }
             
-            new Request.JSON({url: _path+'admin/backend/window/loadClass/saveItem', noCache: true, onComplete: function(res){
-                
-                if( !_this.inline )
-                	ka.wm.softReloadWindows( this.win.module, this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
+            new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=saveItem', noCache: true, onComplete: function(res){
+
+                window.fireEvent('softReload', this.win.module+'/'+this.win.code.substr(0, this.win.code.lastIndexOf('/')) );
             	
             	if( this.inline ) {
                     if( pPublish ){
@@ -719,9 +749,10 @@ ka.windowEdit = new Class({
             	if( this.values.load_settings == true ) ka.loadSettings();
                 
                 this.previewUrls = res.preview_urls;
-                // Before close, perform saveSuccess
+                
                 this.fireEvent('save', [req, res, pPublish]);
                 
+                // Before close, perform saveSuccess
                 this._saveSuccess();
                 
             	if( (!pClose || this.inline ) && this.values.versioning == true ) this.loadVersions();

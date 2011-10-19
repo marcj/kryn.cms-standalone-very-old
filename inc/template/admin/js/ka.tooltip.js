@@ -113,7 +113,6 @@ ka.tooltip = new Class({
             yOffset = 14 + this.target.getSize().y+33;
         }
 
-
         var position = 'leftTop';
         var edge = 'bottomLeft';
         var offset = {y: -7, x: -3};

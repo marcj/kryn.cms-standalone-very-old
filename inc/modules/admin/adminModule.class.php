@@ -3,7 +3,7 @@
 class adminModule {
 
     public static function init(){
-        global $kryn, $cfg;
+        global $cfg;
 
         
         if( !$cfg['repoServer'] ){
@@ -69,7 +69,6 @@ class adminModule {
                 json( self::getVersion( getArgv('name',2) ) );
             case 'getPackage':
                 json( self::getPackage( getArgv('name',2) ) );
-
 
             case 'getChangedFiles':
                 json( self::getChangedFiles( getArgv('name',2) ) );
@@ -417,9 +416,9 @@ class adminModule {
 
         $classes = glob('inc/modules/'.$mod.'/*.class.php');
         if( count($classes) > 0 ){
-            require_once('inc/kryn/windowEdit.class.php');
-            require_once('inc/kryn/windowAdd.class.php');
-            require_once('inc/kryn/windowList.class.php');
+            require_once('inc/modules/admin/adminWindowEdit.class.php');
+            require_once('inc/modules/admin/adminWindowAdd.class.php');
+            require_once('inc/modules/admin/adminWindowList.class.php');
             foreach( $classes as $class ){
                //todo extract $fields usw 
                 $classPlain = kryn::fileRead( $class );
@@ -784,7 +783,7 @@ class adminModule {
     }
 
     public static function loadInstalled(){
-        global $kryn, $cfg;
+        global $cfg;
 
         $res = array();
         $mods = dbTableFetch("system_modules", -1);
@@ -795,15 +794,16 @@ class adminModule {
         foreach( $installed as $mod ){
             $config = self::loadInfo( $mod );
             $res[ $mod ] = $config;
-            $res[ $mod ]['activated'] = ($kryn->installedMods[$mod])?1:0;
+            $res[ $mod ]['activated'] = (kryn::$configs[$mod])?1:0;
             $res[ $mod ]['serverVersion'] =  wget($cfg['repoServer']."/?version=".$mod);
+            $res[ $mod ]['serverCompare'] = self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
         }
 
         json( $res );
     }
 
     static public function loadLocal(){
-        global $cfg, $kryn;
+        global $cfg;
 
         $modules = kryn::readFolder( 'inc/modules' );
         $modules[] = 'kryn';
@@ -812,7 +812,7 @@ class adminModule {
             $config = self::loadInfo( $module );
             if( ($config['owner']+0 > 0 && $config['owner'] == $cfg['communityId'] ) || $config['owner'] == "" || !$config['owner'] ){
                 $res[ $module ] = $config;
-                $res[ $module ][ 'activated'] = ($kryn->installedMods[$module])?1:0;
+                $res[ $module ][ 'activated'] = (kryn::$configs[$module])?1:0;
             }
         }
 
@@ -831,7 +831,7 @@ class adminModule {
     }
 
     static public function loadInfo( $pModuleName, $pType = false, $pExtract = false ){
-        global $kryn, $cfg;
+        global $cfg;
         
         /*
          * pType: false => load from local (dev) inc/module/$pModuleName
@@ -921,13 +921,13 @@ class adminModule {
             }
 
             $config['__path'] = dirname( $configFile );
-            if( $kryn && is_array($kryn->installedMods) && array_key_exists( $pModuleName, $kryn->installedMods ) )
+            if( is_array(kryn::$configs) && array_key_exists( $pModuleName, kryn::$configs ) )
                 $config['installed'] = true;
                
             $config['extensionCode'] = $pModuleName;
                 
-            if( $kryn->installedMods )
-                foreach( $kryn->installedMods as $extender => &$modConfig ){
+            if( kryn::$configs )
+                foreach( kryn::$configs as $extender => &$modConfig ){
                     if( is_array($modConfig['extendConfig']) ){
                         foreach( $modConfig['extendConfig'] as $extendModule => $extendConfig ){
                             if( $extendModule == $pModuleName ){
@@ -972,7 +972,7 @@ class adminModule {
     }
 
     public static function getPrepareInstall( $pModuleName, $pType ){
-        global $kryn, $cfg;
+        global $cfg;
 
         if( $pType != "0" && $pType != "1" ){
             $temp = explode("-", basename($pType));
@@ -1006,13 +1006,13 @@ class adminModule {
                 $res['depends_ext'][ $dependKey ]['installed'] = false;
                 $res['depends_ext'][ $dependKey ]['needVersion'] = $del.$dependInfo[1];
                 
-                if( !$kryn->installedMods[$dependInfo[0]] ){
+                if( !kryn::$configs[$dependInfo[0]] ){
                        
                     $res['needPackages'] = true;
                     
                 } else {
                     
-                    $dependConfig = $kryn->installedMods[$dependInfo[0]];
+                    $dependConfig = kryn::$configs[$dependInfo[0]];
                     $res['depends_ext'][ $dependKey ]['installedVersion'] = $dependConfig['version'];
                     $res['depends_ext'][ $dependKey ]['toVersion'] = $dependInfo[1];
                     
@@ -1055,8 +1055,24 @@ class adminModule {
         json( $res );
     }
     
+    private static function versionCompareToServer($local, $server)
+    {
+        list($major, $minor, $patch) = explode(".", $local);
+        $lversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
+        
+        list($major, $minor, $patch) = explode(".", $server);
+        $sversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
+        
+        if($lversion == $sversion)
+            return '='; // Same version
+        else if($lversion < $sversion)
+            return '<'; // Local older
+        else 
+            return '>'; // Local newer
+    }
+    
     public static function getInstallInfo( $pModuleName, $pType ){
-        global $kryn, $cfg;
+        global $cfg;
 
         if( $pType != "0" && $pType != "1" ){
             $temp = explode("-", basename($pType));
@@ -1076,11 +1092,12 @@ class adminModule {
         //$res['serverVersion'] = $serverVersion;
 
         $res['module'] = $info;
+        $res['serverCompare'] = self::versionCompareToServer($info['version'], $res['serverVersion']);
         
-        if( $kryn->installedMods[$pModuleName] || $pModuleName == 'kryn-core' ){
+        if( kryn::$configs[$pModuleName] || $pModuleName == 'kryn-core' ){
             $res['installed'] = true;
             $res['installedModule'] = self::loadInfo( $pModuleName );//fetch local installed module infos
-            $res[ 'activated'] = ($kryn->installedMods[$pModuleName])?1:0;
+            $res[ 'activated'] = (kryn::$configs[$pModuleName])?1:0;
         } 
         json($res);
     }
@@ -1137,7 +1154,7 @@ class adminModule {
         
         if( file_exists("inc/modules/$pModuleName/$pModuleName.class.php") ){
             require_once( "inc/modules/$pModuleName/$pModuleName.class.php" );
-            $m = new $module();
+            $m = new $pModuleName();
             $m->install();
         }
         
@@ -1149,11 +1166,11 @@ class adminModule {
 
     //list all modules which have plugins -> for pluginChoooser
     public static function getModules(){
-        global $kryn, $user;
+        global $user;
 
         $lang = $user->user['settings']['adminLanguage']?$user->user['settings']['adminLanguage']:'en';
 
-        foreach( $kryn->installedMods as $key => $config ){
+        foreach( kryn::$configs as $key => $config ){
             if( !$config['plugins'] ) continue;
             $config['title'] = $config['title'][$lang] ? $config['title'][$lang] : $config['title']['en'];
             $config['name'] = $key;
@@ -1165,18 +1182,18 @@ class adminModule {
     }
     
     public static function check4updates(){
-        global $kryn, $cfg;
+        global $cfg;
         
         $res['found'] = false;
         
         # add kryn-core
-        $tmodules = array_merge(array($kryn), $kryn->installedMods);
+        $tmodules = kryn::$configs;
         
         foreach($tmodules as $key => $config){
             $version = '0';
             $name = $key;
             $version = wget($cfg['repoServer']."/?version=$name");
-            if( $version && $version != $config['version'] && $version != ''){
+            if( $version && $version != '' && self::versionCompareToServer($config['version'], $version) == '<' ){
                 $res['found'] = true;
                 $temp = array();
                 $temp['newVersion'] = $version;
@@ -1212,12 +1229,12 @@ class adminModule {
     public static function deactivate($pName){
         dbUpdate('system_modules', array('name' => $pName), array('activated'=>0));
         kryn::clearLanguageCache();
+        cache::clear('active_modules');
         json(1);
     }
     
     public static function exists( $pModule ){
-        global $kryn;
-        if( $kryn->installedMods[ $pModule ] )
+        if( kryn::$configs[ $pModule ] )
             return true;
         return false;
     }
@@ -1229,6 +1246,7 @@ class adminModule {
         else
             dbUpdate('system_modules', array('name' => $pName), array('activated'=>1));
         kryn::clearLanguageCache();
+        cache::clear('active_modules');
         json(1);
     }
     /*

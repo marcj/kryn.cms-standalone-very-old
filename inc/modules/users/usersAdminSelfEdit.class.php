@@ -38,24 +38,22 @@ class usersAdminSelfEdit extends windowEdit {
 	            'onlyIfFilled' => true,
 	            'modifier' => 'toPasswd'
 	        ),
-	        'groups' => array(
-	            'label' => 'Groups',
-	            'type' => 'select',
+            'groups' => array(
+                'label' => 'Groups',
+                'type' => 'textlist',
 	            'needAccess' => 'admin/users/users/editMe/groups',
-	            'table' => 'system_groupaccess',
-	            'relation' => 'n-n',
-	            'n-n' => array(
-	                'right' => 'system_groups',
-	                'right_key' => 'rsn',
-	                'right_label' => 'name',
-	                'middle' => 'system_groupaccess',
-	                'middle_keyright' => 'group_rsn',
-	                'middle_keyleft' => 'user_rsn',
-	                'left_key' => 'rsn'
-	            ),
-	            'size' => 6,
-	            'multiple' => 1
-	        )
+                'store' => 'admin/backend/stores/groups',
+                'relation' => 'n-n',
+                'n-n' => array(
+                    'right' => 'system_groups',
+                    'right_key' => 'rsn',
+                    'right_label' => 'name',
+                    'middle' => 'system_groupaccess',
+                    'middle_keyright' => 'group_rsn',
+                    'middle_keyleft' => 'user_rsn',
+                    'left_key' => 'rsn'
+                )
+            )
         ),
         'Administration' => array(
             
@@ -183,7 +181,8 @@ class usersAdminSelfEdit extends windowEdit {
     }
     
     function __destruct(){
-        user::getUser( getArgv('rsn'), true ); //refresh cache
+        global $client;
+        $client->getUser( getArgv('rsn')+0, true ); //refresh cache
     }
 
 }

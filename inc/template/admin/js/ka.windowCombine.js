@@ -20,7 +20,7 @@ ka.windowCombine = new Class({
         }).inject( this.main );
         
         this.mainLeftTop = new Element('div', {
-            style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 14px; right: 0px; border-bottom: 1px solid gray;',
+            style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 20px; right: 0px; border-bottom: 1px solid gray;',
             'class': 'ka-list-combine-left-top'
         }).inject( this.mainLeft );
         
@@ -43,7 +43,7 @@ ka.windowCombine = new Class({
         }).inject( this.mainLeft );
         
         this.mainLeftItems = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 25px; bottom: 0px; right: 0px; overflow: auto;'
+            style: 'position: absolute; left: 0px; top: 31px; bottom: 0px; right: 0px; overflow: auto;'
         })
         .addEvent('scroll', this.checkScrollPosition.bind(this, true))
         .inject( this.mainLeft );
@@ -175,7 +175,11 @@ ka.windowCombine = new Class({
         }
 
         if( this.values.add ){
-            this.actionsNavi.addButton(_('Add'), _path+'inc/template/admin/images/icons/'+this.values.iconAdd, this.add.bind(this));
+            this.addBtn = this.actionsNavi.addButton(
+                _('Add'),
+                _path+'inc/template/admin/images/icons/'+this.values.iconAdd,
+                this.add.bind(this)
+            );
             /*function(){
                 ka.wm.openWindow( _this.win.module, _this.win.code+'/add', null, null, {
                 	lang: (_this.languageSelect)?_this.languageSelect.value:false
@@ -311,18 +315,21 @@ ka.windowCombine = new Class({
                 field.tableitem = true;
                 field.tableitem_title_width = 50;
                 
-                var fieldObj = new ka.field(field)
-                .addEvent('change', this.doSearch.bind(this))
-                .inject( this.searchPane );
-                
+                var fieldObj = new ka.field(field, this.searchPane)
+                .addEvent('change', this.doSearch.bind(this));                
                 this.searchFields.set(mkey, fieldObj );
                 
                 if( field.type == 'select' ){
-                	new Element('option',{
-                		value: '',
-                		text: _('-- Please choose --')
-                	}).inject(fieldObj.input, 'top');
-                	fieldObj.setValue("");
+                    if( field.multiple ){
+                    	new Element('option',{
+                    		value: '',
+                    		text: _('-- Please choose --')
+                    	}).inject(fieldObj.input, 'top');
+                    	
+                    	fieldObj.setValue("");
+                	} else {
+                	   fieldObj.select.add('', _('-- Please choose --'));
+                	}
                 }
                 
                 if( this.win.params && this.win.params.filter ){
@@ -458,7 +465,7 @@ ka.windowCombine = new Class({
         if( this.loader )
             this.loader.show();
         
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
             if( !res.items && this.from == 0 ){
                 this.itemLoaderNoItems();
@@ -635,7 +642,7 @@ ka.windowCombine = new Class({
             this.searchIcon.addClass('ka-list-combine-searchicon-active');
             this.mainLeftSearch.tween('height', this.searchPaneHeight);
             this.mainLeftSearch.setStyle('border-bottom', '1px solid silver');
-            this.mainLeftItems.tween('top', 25+this.searchPaneHeight+1);
+            this.mainLeftItems.tween('top', 31+this.searchPaneHeight+1);
             this.searchOpened = true;
             this.doSearch();
         } else {
@@ -648,7 +655,7 @@ ka.windowCombine = new Class({
                 this.checkScrollPosition();
             }.bind(this));
             
-            this.mainLeftItems.tween('top', 25);
+            this.mainLeftItems.tween('top', 31);
             this.searchOpened = false;
             this.reload();
         }
@@ -783,6 +790,7 @@ ka.windowCombine = new Class({
     getSplitTitle: function( pItem ){    
         
         var value = this.getItemTitle( pItem, this.sortField );
+        if( value == '' ) return _('-- No value --');
                 
         if( !this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text" ){
             
@@ -834,8 +842,9 @@ ka.windowCombine = new Class({
         if( column.imageMap ){
             value = '<img src="'+_path+column.imageMap[value]+'"/>';
         }
+        
     
-        return value;
+        return value?value:'';
     },
     
     prepareLoadPage: function(){
@@ -846,8 +855,9 @@ ka.windowCombine = new Class({
     },
     
     add: function(){
-    
-    
+        
+        this.addBtn.setPressed(true);
+        
         this.win.setTitle(_('Add'));
         
         this.lastItemPosition = null;
@@ -933,6 +943,8 @@ ka.windowCombine = new Class({
     loadItem: function( pItem ){
         var _this = this;
         
+        this.addBtn.setPressed(false);
+        
         if( this.currentAdd ){
             this.currentAdd.destroy();
             this.currentAdd = null;
@@ -951,19 +963,13 @@ ka.windowCombine = new Class({
         
         if( !this.currentEdit ){
         
-            this.currentEdit = new ka.windowEdit({
-                extendHead: this.win.extendHead.bind(this.win),
-                addSmallTabGroup: this.win.addSmallTabGroup.bind(this.win),
-                addButtonGroup: this.win.addButtonGroup.bind(this.win),
-                addEvent: this.win.addEvent.bind(this.win),
-                border: this.win.border,
-                module: this.win.module,
+            var cloned = {};
+            Object.append(cloned, this.win);
+
+            this.currentEdit = new ka.windowEdit(Object.append( cloned, {
                 code: this.win.code+'/edit',
                 params: pItem,
-                content: this.win.content,
-                inlineContainer: this.win.inlineContainer,
-                id: this.win.id
-            }, this.mainRight);
+            }), this.mainRight);
             
             this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
@@ -975,7 +981,7 @@ ka.windowCombine = new Class({
             
             });*/
         } else {
-        
+
             this.currentEdit.win.params = pItem;
             this.currentEdit.loadItem();
         
@@ -1045,11 +1051,11 @@ ka.windowCombine = new Class({
     },
     
     setTitle: function(){
-        this.win.clearTitle();
+    
         if( this.currentEdit && this.currentEdit.item ){
         
             var item = this.currentEdit.item;
-            
+
             var title = item.values.title;
             if( !title )
                 title = item.values.name;
@@ -1058,9 +1064,17 @@ ka.windowCombine = new Class({
                 
             if( this.currentEdit.values.editTitleField )
                 title = item.values[ editTitleField ];
-            
+            else if( this.currentEdit.values.titleField ){
+                title = item.values[ titleField ];
+            } else if( !title ){
+                Object.each( item.values, function(item){
+                    if( !title && item != '' && typeOf(item) == 'string' ){
+                        title = item;
+                    }
+                })
+            }
                 
-            this.win.addTitle(title);
+            this.win.setTitle(title);
         }
     },
     
@@ -1079,7 +1093,7 @@ ka.windowCombine = new Class({
         //    this.loader.show();
 
         //logger( pPrimaries );
-        this.lastRequest = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/', noCache: true, onComplete:function( res ){
+        this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
             //logger( res );
             if( res > 0 ){
@@ -1091,11 +1105,9 @@ ka.windowCombine = new Class({
                 } else {
                     from = res-Math.floor(range/2);
                 }
-                
-                //if( this.lastItemPosition != res ){
+
                 this.clearItemList();
                 this.loadItems( from, range );
-                //}
             }
             
         }.bind(this)}).post({ 
@@ -1171,7 +1183,7 @@ ka.windowCombine = new Class({
                 if( this.currentEdit.values.multiLanguage )
                     req['language'] = this.currentItem.values['lang'];
                 
-                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/backend/window/loadClass/getItems/',
+                this.lastSavedUpdateRq = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems',
                 noCache: true, onComplete:function( res ){
                                         
                     var newItem = this.addItem( res.items[0] );
@@ -1322,11 +1334,11 @@ ka.windowCombine = new Class({
         //parse
         this.values.columns.each(function(column,columnId){
         
-            if( item.getElement('[id='+columnId+']') ){
+            if( item.getElement('*[id='+columnId+']') ){
                 
                 var value = this.getItemTitle( pItem, columnId );
                 
-                item.getElement('[id='+columnId+']').set('html', value);
+                item.getElement('*[id='+columnId+']').set('html', value);
             
             }
 

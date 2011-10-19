@@ -1,5 +1,8 @@
 if( !window.ka ) window.ka = {};
 ka.datePicker = new Class({
+    
+    Implements: [Options,Events],
+
     initialize: function( pInput, pOptions ){
 
 
@@ -9,13 +12,8 @@ ka.datePicker = new Class({
             shortDays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
             time: false
         });
-
-        if( pOptions && pOptions.time )
-            this.options.time = true;
-        if( pOptions && pOptions.empty )
-            this.options.empty = true;
-
-        //this.choosenDate = new Date();
+        
+        this.setOptions(pOptions);
 
         if( this.options.time == true){
             this.options.format = '%d.%m.%Y %H:%M';
@@ -24,6 +22,15 @@ ka.datePicker = new Class({
         }
 
         this.input = pInput;
+        
+        var kwindow = this.input.getParent('.kwindow-border');
+        if( kwindow ){
+            kwindow.retrieve('win').addEvent('close', function(){
+                if( this.chooser )
+                    this.chooser.destroy();
+            }.bind(this));
+        }
+        
         this._attach();
     },
 
@@ -32,10 +39,9 @@ ka.datePicker = new Class({
         this.input.addEvent('keydown', function(e){
             e.stop();
         });
-        //this.input.addEvent('focus', this.show.bind(this));
+        
         this.input.addEvent('click', this.show.bind(this));
-        //this.input.addEvent('blur', this.hide.bind(this));
-        window.addEvent('click', this.hide.bind(this));
+        
         this.choose(this.choosenDate);
     },
 
@@ -107,7 +113,7 @@ ka.datePicker = new Class({
         this.noDate = (pDate == null) ? true: false;
         this.choosenDate = pDate;
         this.renderInput();
-        this.hide(true);
+        this.fireEvent('change', this.getTime());
     },
 
     renderInput: function(){
@@ -123,7 +129,6 @@ ka.datePicker = new Class({
 
     getDate: function(){
         return ( this.noDate == false )? this.choosenDate : null;
-
     },
 
     getTime: function(){
@@ -172,7 +177,16 @@ ka.datePicker = new Class({
 
     updatePos: function(){
     	
-	   if(  this.chooser ){
+	   if( this.chooser ){
+	           
+            this.chooser.position({
+                relativeTo: this.input,
+                position: 'bottomRight',
+                edge: 'upperRight'
+            });
+            
+            return;
+
 	        var cor = this.input.getCoordinates(document.body);
 
 	        this.chooser.setStyles({
@@ -191,40 +205,24 @@ ka.datePicker = new Class({
     },
     
     show: function(e){
-    	if( e ){
-    		e = new Event(e);
-    		e.stop();
-            e.stopPropagation();
-    	}
-    	
-        this.allowFadeout = false;
-
+    
         if( this.noDate )
             this.choosenDate = new Date();
 
         this.renderMonth();
-        this.renderTime();
-
-        if( this.chooser.getStyle('display') == 'block' ) return;
-
-        this.chooser.setStyle('display', 'block');
-        this.updatePos();
-    },
-
-    hide: function( pForce ){
-        this.allowFadeout = true;
-        (function(){
-            if( (this.allowFadeout && this.mouseover == false) || pForce == true)
-                this.chooser.setStyle('display', 'none');
-        }).bind(this).delay(70);
+        
+        ka.openDialog({
+            element: this.chooser,
+            target: this.input
+        });
     },
 
     _renderChooser: function(){
     	this.mouseover = false;
+
         this.chooser = new Element('div', {
             'class': 'ka-datePicker-chooser',
             styles: {
-                display: 'none',
                 'z-index': 80000000
             }
         })
@@ -233,15 +231,11 @@ ka.datePicker = new Class({
         }.bind(this))
         .addEvent('mouseout', function(){
             this.mouseover = false;
-            //this.hide();
-        }.bind(this))
-        .inject( document.body );
+        }.bind(this));
 
         this.body = new Element('div', {
             'class': 'ka-datePicker-body'
         }).inject( this.chooser );
-
-
 
         /*******
             month Selection
@@ -284,18 +278,8 @@ ka.datePicker = new Class({
             'class': 'ka-datePicker-year'
         }).inject( this.body );
         
-        this.yearSelect = new Element('span').inject( this.year ); 
-        var a = new Element('a', {
-            text: '«',
-            'class': 'ka-Button ka-button'
-        })
-        .addEvent('click', function(){
-            this.choosenDate.decrement('year');
-            this.renderMonth(true);
-        }.bind(this))
-        .inject( this.yearSelect, 'after');
-        new Element('span').inject(a);
-
+        this.yearSelect = new Element('span').inject( this.year );
+        
 
         var a = new Element('a', {
             text: '»',
@@ -307,6 +291,19 @@ ka.datePicker = new Class({
         }.bind(this))
         .inject( this.yearSelect, 'after');
         new Element('span').inject(a);
+
+
+        var a = new Element('a', {
+            text: '«',
+            'class': 'ka-Button ka-button'
+        })
+        .addEvent('click', function(){
+            this.choosenDate.decrement('year');
+            this.renderMonth(true);
+        }.bind(this))
+        .inject( this.yearSelect, 'after');
+        new Element('span').inject(a);
+
 
 
         new Element('div', {
@@ -368,7 +365,7 @@ ka.datePicker = new Class({
 
         var a = new Element('a', {
             href: 'javascript: ;',
-            html: _('Today'),
+            html: _('Now'),
             'class': 'ka-Button ka-button'
         })
         .addEvent('click', function(){

@@ -20,7 +20,7 @@ ka.kwindow = new Class({
         this.loadContent();
 
         this.addHotkey('esc', false, false, function(){
-            this.close( true );
+            this.close();
         }.bind(this));
     },
 
@@ -123,9 +123,8 @@ ka.kwindow = new Class({
             var td = new Element('td', { align: 'center', valign: 'center'}).inject(tr);
 
             this.inlineContainer = new Element('div', {
-                style: 'width: 150px; height: 50px; padding: 5px; border: 1px solid gray;'+
-                'background-color: #eee; overflow: auto; position: relative; -moz-border-radius: 5px; -webkit-border-radius: 5px;',
-                html: '<img src="'+_path+'inc/template/admin/images/loading.gif" />'
+                'class': 'kwindow-win-inline',
+                html: '<center><img src="'+_path+'inc/template/admin/images/loading.gif" /></center>'
             }).inject( td );
         }
     },
@@ -334,16 +333,22 @@ ka.kwindow = new Class({
         }}).post( req );
     },
     */
-
+    
+    parseTitle: function( pHtml ){
+    
+        pHtml = pHtml.replace('<img', ' » <img');
+        return pHtml.stripTags();
+    },
+    
     getTitle: function(){
         if( this.titleAdditional )
-            return this.titleAdditional.get('text');
+            return this.parseTitle(this.titleAdditional.get('html'));
         return '';
     },
     
     getFullTitle: function(){
         if( this.titlePath )
-            return this.titlePath.get('text');
+            return this.parseTitle(this.titlePath.get('html'));
         return '';
     },
 
@@ -354,7 +359,7 @@ ka.kwindow = new Class({
 
     toBack: function(){
         //this.title.set('class', 'kwindow-win-title-inaktive'):
-        this.title.setStyle('opacity', 0.7 );
+        this.title.setStyle('opacity', 0.4 );
         this.inFront = false;
         //this.createOverlay();
     },
@@ -380,14 +385,7 @@ ka.kwindow = new Class({
 
     toFront: function(){
         if( this.active ){
-            if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
-                var win = ka.wm.getDependOn( this.id );
-                if( win )
-                    win.highlight();
-                return false;
-            }
-            if( this.inDependMode ) return;
-            
+
             this.title.setStyle('opacity', 1);
             if( this.border.getStyle('display') != 'block' ){
                 this.border.setStyles({
@@ -397,14 +395,26 @@ ka.kwindow = new Class({
                 this.border.set('tween', {duration: 300});
                 this.border.tween('opacity', 1);
             }
+
+            this.border.inject( this.border.getParent() );
+
+            ka.wm.setFrontWindow( this.id );
+
             this.isOpen = true;
             this.inFront = true;
-            ka.kwindowZIndex++;
-            this.border.setStyle('z-index', ka.kwindowZIndex);
-            
-            //this.deleteOverlay();
-            
+            this.deleteOverlay();
             ka.wm.updateWindowBar();
+            
+            if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
+                var win = ka.wm.getDependOn( this.id );
+                if( win ){
+                    win.toFront();
+                    win.highlight();
+                }
+                return false;
+            }
+            if( this.inDependMode ) return;
+            
             return true;
         }
     },
@@ -414,8 +424,10 @@ ka.kwindow = new Class({
             if( this.inFront && !this.inOverlayMode ){
                 if( pControl && !e.control ) return;
                 if( pAlt && !e.alt ) return;
-                if( e.key == pKey )
+                if( e.key == pKey ){
+                    e.preventDefault();
                     try{ pCallback(); }catch(e){ logger(e) };
+                }
                 
             }
         }.bind(this));
@@ -457,7 +469,6 @@ ka.kwindow = new Class({
     minimize: function(){
         
         this.isOpen = false;
-        
         
         ka.wm.updateWindowBar();
         
@@ -625,10 +636,14 @@ ka.kwindow = new Class({
         }
     },
 
-    close: function( pIntern ){
+    close: function(){
+    
         if( this.isActive() == false ) return;
-        var _this = this;
 
+        ka.wm.close( this );
+
+        this.fireEvent('close');
+        
         //save dimension
         if( this.border ){ //war schon richtig auf 
 
@@ -637,30 +652,19 @@ ka.kwindow = new Class({
             } else {
                 this.saveDimension();
             }
-
-            //close fx
-            this.border.set('tween', {onComplete: function(){
-                _this.border.destroy();
-            }}),
-            //this.border.set('tween', {duration: 200});
-            //this.border.tween('opacity', 0 );
+    
+            this.border.getElements('a.kwindow-win-buttonWrapper').each(function(button){
+                if(button.toolTip && button.toolTip.main )
+                    button.toolTip.main.destroy();
+            });
+        
             this.border.destroy();
         }
 
         this.inFront = false;
+
         if( this.onClose )
             this.onClose();
-        
-        if( pIntern )
-            this.fireEvent('close');
-    
-        this.border.getElements('a.kwindow-win-buttonWrapper').each(function(button){
-            if(button.toolTip)
-                button.toolTip.main.destroy();
-        });
-        
-
-        ka.wm.close( this );
     },
 
     loadContent: function( pVals ){
@@ -669,28 +673,35 @@ ka.kwindow = new Class({
             this._loadContent( pVals );
         } else {
             var _this = this;
-            this._ = new Request.JSON({url: _path+'admin/backend/window/getInfo', onComplete: function(res){
-                if(res.noAccess == 1 ){
+//            this._ = new Request.JSON({url: _path+'admin/backend/window/getInfo', onComplete: function(res){
+
+            var module = this.module+'/';
+            if( this.module == 'admin' )
+                module = '';
+                
+            this._ = new Request.JSON({url: _path+'admin/'+module+this.code+'?cmd=getInfo', onComplete: function(res){
+
+                if(res.error == 'access_denied' ){
                     alert( _('Access denied') );
-                    _this.close( true );
+                    _this.close();
                     return;
                 }
-                if( res.pathNotFound ){
+                if( !res ){
                     alert( _('Admin-Path not found')+ ': '+_this.module+' => '+_this.code );
-                    _this.close( true );
+                    _this.close();
                     return;
                 }
-                this._loadContent( res.values, res.path );
-            }.bind(this)}).post({ module: _this.module, code: _this.code });
+                this._loadContent( res, res._path );
+            }.bind(this)}).post();
         }
     },
 
-    _loadContent: function( pVals,pPath ){
+    _loadContent: function( pVals, pPath ){
         this.values = pVals;
         if( this.values.multi === false ){
             var win = ka.wm.checkOpen( this.module, this.code, this.id );
             if( win ){
-                this.close( true );
+                this.close();
                 if( win.softOpen ) win.softOpen( this.params );
                 win.toFront();
                 return;
@@ -831,6 +842,7 @@ ka.kwindow = new Class({
         
         var mdate = this.values.cssmdate;
         
+
         if( this.module == 'admin' ){
             new Asset.css( _path+'inc/template/admin/css/'+javascript+'.css?mdate='+mdate );
         } else {
@@ -838,20 +850,17 @@ ka.kwindow = new Class({
         }
         
         var id = parseInt(Math.random()*100)+parseInt(Math.random()*100);
-        new Asset.javascript( _path+'admin/backend/window/custom/js/module:'+this.module+'/code:'+javascript+'/onLoad:'+id);
+        
         window['contentCantLoaded_'+id] = function( pFile ){
             _this._alert('custom javascript file not found: '+pFile, function(){
-                _this.close( true );
+                _this.close();
             });
         }
         window['contentLoaded_'+id] = function(){
-//            _this.custom = eval( 'new '+_this.module+'_'+javascript+'(_this);' );
             _this.custom = new window[ _this.module+'_'+javascript ]( _this );
         }
         
-        /*new Request({url: _path+'admin/window/custom/js', noCache: true, evalResponse: true, onComplete: function(){
-            _this.custom = eval( 'new '+_this.module+'_'+_this.code+'(_this);' );
-        }}).get({ module: this.module, code: this.code  });*/
+        new Asset.javascript( _path+'admin/backend/loadCustomJs/module:'+this.module+'/code:'+javascript+'/onLoad:'+id);
     },
     
     createWin: function(){
@@ -971,6 +980,7 @@ ka.kwindow = new Class({
                     this.content.setStyle('display', 'none');
                     this.titleGroups.setStyle('display', 'none');
                 }
+                window.fireEvent('click');
                 ka.wm.createOverlays()
             }.bind(this),
             onComplete: function(){
@@ -1038,14 +1048,6 @@ ka.kwindow = new Class({
     addButtonGroup: function(){
     	this.extendHead();
         return new ka.buttonGroup( this.titleGroups );
-        //this.trans.setStyle('top', 53 );
-        /*var box = new Element('div', {
-            'class': 'kwindow-win-buttonGroup'
-        }).inject( this.titleGroups );*/
-        /*var res = new Element('div', {
-            'class': 'kwindow-win-buttonGroupContent'
-        }).inject( box );*/
-        return box;
     },
     
     /*
@@ -1109,7 +1111,7 @@ ka.kwindow = new Class({
             'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
         })
         .addEvent('click',function(){
-            _this.close( true );
+            _this.close();
         })
         .inject( this.titleBar );
 
@@ -1179,28 +1181,11 @@ ka.kwindow = new Class({
             grid: 1,
             limit: {x:[minWidth,2000], y: [minHeight,2000]},
             handle: this.resizeBottomRight,
-            onDrag: function( el, ev ){
-            /*
-                var cor = el.getCoordinates();
-                var cor2 = $('desktop').getCoordinates();
-                if( cor.width < 350 ){
-                    el.setStyle('width', 350 );
-                }
-                if( cor.height < 300 ){
-                    el.setStyle('height', 300 );
-                }
-                if( cor.left+cor.width > cor2.width ){
-                    el.setStyle('width', cor2.width-cor.left );
-                }
-                if( cor.top+cor.height > cor2.height ){
-                    el.setStyle('height', cor2.height-cor.top );
-                }
-            */
-            },
             onStart: function(){
                 if( ka.performance ){
                     this.content.setStyle('display', 'none');
                 }
+                window.fireEvent('click');
                 ka.wm.createOverlays()
             }.bind(this),
             onComplete: function(){

@@ -40,24 +40,10 @@ ka.Select = new Class({
             e.stop();
         });
         
-        var target = document.body;
-        if( this.box.getParent('.kwindow-border') ){
-            target = this.box.getParent('.kwindow-border');
-        }
-        this.chooser.inject( target );
-        
-        this.chooser.setStyle('display', 'none');
-        
     },
     
     inject: function( p, p2 ){
         this.box.inject( p, p2 );
-        var target = p.getWindow().document.body;
-        if( this.box.getParent('.kwindow-border') ){
-            target = this.box.getParent('.kwindow-border');
-        }
-        this.chooser.inject( target );
-        this.chooser.getWindow().document.body.addEvent('click', this.close.bind(this));
         return this;
     },
     
@@ -68,6 +54,7 @@ ka.Select = new Class({
         this.box = null;
     },
     
+<<<<<<< HEAD
     addSeparator: function( pLabel ){
         
         new Element('a', {
@@ -77,6 +64,13 @@ ka.Select = new Class({
         })
         .inject( this.chooser );
     
+=======
+    addSplit: function( pLabel ){
+        new Element('div', {
+            html: pLabel,
+            'class': 'group'
+        }).inject( this.chooser );
+>>>>>>> develop
     },
     
     add: function( pId, pLabel ){
@@ -89,8 +83,7 @@ ka.Select = new Class({
         })
         .addEvent('click', function(){
             
-            this.setValue( pId, true);
-            this.close();
+            this.setValue( pId, true );
             
         }.bind(this))
         .inject( this.chooser );
@@ -104,6 +97,7 @@ ka.Select = new Class({
     
     setStyle: function( p, p2 ){
         this.box.setStyle( p, p2 );
+        return this;
     },
     
     empty: function(){
@@ -131,9 +125,9 @@ ka.Select = new Class({
         });
         
         //chrome rendering bug
-        this.arrowBox.setStyle('right', 5);
+        this.arrowBox.setStyle('right', 3);
         (function(){
-            this.arrowBox.setStyle('right', 0);
+            this.arrowBox.setStyle('right', 2);
         }.bind(this)).delay(10);
         
         if( pEvent )
@@ -147,6 +141,7 @@ ka.Select = new Class({
     },
     
     toggle: function( e ){
+<<<<<<< HEAD
         if( e && e.stop ){
             e.stop();
         }
@@ -155,15 +150,38 @@ ka.Select = new Class({
         else {
             if( e && e.stop ){
                 this.chooser.getWindow().document.body.fireEvent('click');
+=======
+    
+        if( this.chooser.getParent() )
+            this.close();
+        else {
+            if( e && e.stop ){
+                window.fireEvent('click');
+                e.stop();
+>>>>>>> develop
             }
             this.open();
         }
     },
     
     open: function(){
+<<<<<<< HEAD
         this.chooser.setStyle('display', 'block');
         this.chooser.getWindow().document.body.addEvent('click', this.close.bind(this));
+=======
+
+        ka.openDialog({
+            element: this.chooser,
+            target: this.box
+        });
+>>>>>>> develop
         
+        return;
+    
+    },
+    
+    updatePos: function(){
+
         this.chooser.position({
             relativeTo: this.box,
             position: 'bottomRight',
@@ -173,26 +191,40 @@ ka.Select = new Class({
         var pos = this.chooser.getPosition();
         var size = this.chooser.getSize();
         
+<<<<<<< HEAD
         var bsize = this.chooser.getWindow().getSize( $('desktop') );
         var wscroll = this.chooser.getWindow().getScroll();
         
         if( size.y+pos.y > bsize.y+wscroll.y )
             this.chooser.setStyle('height', (bsize.y+wscroll.y)-pos.y-10);
-    
-        //new ka.blocker( this.chooser ).addEvent('click', this.close.bind(this));
+=======
+        var bsize = $('desktop').getSize();
         
-        this.opened = true;
+        var height;
+
+        if( size.y+pos.y > bsize.y ){
+            height = bsize.y-pos.y-10;
+        }
+>>>>>>> develop
     
+        if( height ) {
+        
+            if( height < 100 ){
+            
+                this.chooser.position({
+                    relativeTo: this.box,
+                    position: 'upperRight',
+                    edge: 'bottomRight'
+                });
+                
+            } else {
+                this.chooser.setStyle('height', height);
+            }
+            
+        }
+
     },
-    
-    close: function(){
-    
-        this.opened = false;
-        if( this.chooser )
-            this.chooser.setStyle('display', 'none');
-    
-    },
-    
+
     toElement: function(){
         return this.box;
     }

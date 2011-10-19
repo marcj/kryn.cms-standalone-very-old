@@ -17,9 +17,7 @@
  * 
  * Global template functions
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkTemplate
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 /**

@@ -16,9 +16,7 @@
  * Global misc functions
  * 
  * 
- * @author Kryn.labs <info@krynlabs.com>
- * @package Kryn
- * @subpackage FrameworkMisc
+ * @author MArc Schmidt <marc@kryn.org>
  * 
  */
 
@@ -98,11 +96,11 @@ function readFolder( $pPath ){
     return $res;
 }
 
-function find( $pPath ){
+function find( $pPath, $pRecursive = true ){
     
     $res = array();
     foreach( glob($pPath) as $f ){
-        if( is_dir($f) ){
+        if( is_dir($f) && $pRecursive ){
             $res = array_merge($res,find($f.'/*'));
         }
         $res[] = $f;
@@ -452,16 +450,14 @@ if(!function_exists('mime_content_type')) {
 
 
 function clearfolder( $pFolder ){
-    $dir = @dir( $pFolder );
-    if( $dir ){
-        while($file = $dir->read()) {
-            if( $file == '.' ||$file == '..' ) continue;
-            $path = $pFolder.$file;
-            if( is_dir($path) )
-                deldir( $path );
-            else
-                unlink( $path );    
-        }
+    
+    $items = find( $pFolder, false );
+    foreach( $items as $item ){
+        if( is_dir($item) )
+            deldir( $item );
+        else
+            unlink( $item ); 
     }
+
 }
 ?>

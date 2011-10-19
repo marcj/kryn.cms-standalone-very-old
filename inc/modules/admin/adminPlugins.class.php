@@ -26,14 +26,14 @@ class adminPlugins {
     }
 
     public static function preview( $pContent ){
-        global $kryn, $user;
+        global $user;
 
         $temp = explode( '::', $pContent );
 
-        if(! $kryn->installedMods[$temp[0]] )
+        if(! kryn::$configs[$temp[0]] )
             json('');
 
-        $config = $kryn->installedMods[$temp[0]];
+        $config = kryn::$configs[$temp[0]];
         $plugins = $config['plugins'];
 
         $lang = $user->user['settings']['adminLanguage']?$user->user['settings']['adminLanguage']:'en';
@@ -70,10 +70,10 @@ class adminPlugins {
     }
 
     public static function get( $pModule, $pResultType = 'json' ){
-        global $kryn, $modules;
+        global $modules;
 
 
-        $config = $kryn->installedMods[ $pModule ];
+        $config = kryn::$configs[ $pModule ];
         $plugins = $config['plugins'];
 
         $moduleObj = $modules[$pModule];

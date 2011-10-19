@@ -4,6 +4,8 @@ var admin_pages = new Class({
 	versionsLoadBtns: [],
 	trys: 0,
 	
+	domainTrees: {},
+	
     initialize: function( pWin ){
         
         Date.defineFormat('version', '%d.%m.%Y, %H:%M:%S');
@@ -29,9 +31,17 @@ var admin_pages = new Class({
         this.panes = new Hash();
         this._createLayout();
 
-        this.domainTrees = new Hash();
+        this.domainTrees = {};
         this.alreadyOnLoadPageLoaded = false;
-        this.loadTree();
+        
+        if( this.win.params && this.win.params.rsn && !this.win.params.domain ){
+            this.loadPage( this.win.params.rsn, true );
+        } else if( this.win.params && this.win.params.domain ){
+            this.loadTree({selectDomain:this.win.params.rsn});
+            this.showDomain( this.win.params.rsn, true );
+        } else {
+            this.loadTree();
+        }
     },
 
     overlayStart: function(){
@@ -87,14 +97,22 @@ var admin_pages = new Class({
             this.page = res;
 
             if( pSelect && this.page.rsn ){
-            	var pTree =  this.domainTrees.get( this.page.domain_rsn );
-            	if( pTree.isReady() ){
-            		pTree.select( this.page.rsn );
-            	} else {
-	            	pTree.addEvent('ready', function(){
-	            		pTree.select( this.page.rsn );
-	            		pTree.removeEvents('ready');
-	            	}.bind(this));
+                var domain = ka.getDomain( this.page.domain_rsn );
+                
+                if( this.language != domain.lang || Object.getLength(this.domainTrees) == 0 ){
+                    this.language = domain.lang;
+                    this.loadTree({selectPage: pRsn});
+                } else {
+                
+                	var tree = this.domainTrees[ this.page.domain_rsn ];
+                	if( tree.isReady() ){
+                		tree.select( this.page.rsn );
+                	} else {
+    	            	tree.addEvent('ready', function(){
+    	            		tree.select( this.page.rsn );
+    	            		tree.removeEvents('ready');
+    	            	}.bind(this));
+                	}
             	}
             }
 
@@ -119,7 +137,7 @@ var admin_pages = new Class({
         }
         this.generalFieldsUrlPath.set('html', '<b>http://'+ka.getDomain(this.page.domain_rsn).domain+'/'+myurl+'</b>' );
             
-        this.win.setTitle ( this.page.title + ' - '+_('Page edit') );
+        this.win.setTitle ( this.page.title );
         this.generalFields['type'].setValue( this.page.type  );
         this.generalFields['title'].setValue( this.page.title  );
         this.generalFields['page_title'].setValue( this.page.page_title  );
@@ -486,17 +504,17 @@ var admin_pages = new Class({
         }).inject( this.win.content );
 
         this.treeContainer = new Element('div', {
-        	'class': 'treeContainer',
+        	'class': 'treeContainer ka-pages-treeContainer',
             styles: {
                 position: 'absolute',
                 'background-color': '#f3f3f3',
-                left: 0, right: 0, 'top': 17, bottom: 3,
+                left: 0, right: 0, 'top': 16, bottom: 3,
                 overflow: 'auto'
             }
         }).inject( this.tree );
         this.treeContainer.set('tween', {duration: 300});
 
-        this.treeContainerTable = new Element('table', {
+        /*this.treeContainerTable = new Element('table', {
         	style: 'width: 100%',
         	cellpadding: 0,
         	cellspacing: 0
@@ -504,7 +522,7 @@ var admin_pages = new Class({
         
         this.treeContainerTbody = new Element('tbody').inject(this.treeContainerTable);
         this.treeContainerTr = new Element('tr').inject(this.treeContainerTbody);
-        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);
+        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);*/
 
         this.treeSizer = new Element('div', {
             style: 'position: absolute; right: -7px; top: 0px; width: 5px; height: 100%; cursor: e-resize; border-left: 1px solid silver; border-right: 1px solid silver;'
@@ -575,6 +593,7 @@ var admin_pages = new Class({
             },
             onComplete: function(el){
                 _this.overlayEnd();
+                _this.refreshPageTrees();
             },
             onCancel: function(){
                 _this.overlayEnd();
@@ -587,6 +606,7 @@ var admin_pages = new Class({
         this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton( _('Domain'), p+'icons/world.png', this.viewType.bind(this,'domain'));
         this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton( _('Theme'), p+'icons/layout.png', this.viewType.bind(this,'domainTheme'));
         this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton( _('Properties'), p+'icons/layout.png', this.viewType.bind(this,'domainProperties'));
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/group.png', this.viewType.bind(this,'domainSessions') );
         this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton( _('Settings'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'domainSettings') );
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
@@ -671,20 +691,23 @@ var admin_pages = new Class({
         }).inject( this.win.border );
         */
 
-        this.languageSelect = new Element('select', {
-            style: 'position: absolute; left: 5px; top: 27px; width: 160px; height: 21px'
-        }).inject( this.win.border );
+        this.languageSelect = new ka.Select()
+        .inject( this.win.border );
+        
+        document.id(this.languageSelect).setStyles({
+            'position': 'absolute',
+            'left': 5,
+            'top': 26,
+            'width': 140
+        });
 
         this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-        $H(ka.settings.langs).each(function(lang,id){
-            new Element('option', {
-                text: lang.langtitle+' ('+lang.title+', '+id+')',
-                value: id
-            }).inject( this.languageSelect );
+        Object.each(ka.settings.langs, function(lang,id){
+            this.languageSelect.add( id, lang.langtitle+' ('+lang.title+', '+id+')' );
         }.bind(this));
 
-        this.languageSelect.value = this.language;
+        this.languageSelect.setValue( this.language );
         
         this._createDomain();
 
@@ -712,26 +735,28 @@ var admin_pages = new Class({
         .setStyle('display', 'none')
         .inject( this.main );
 
-
+    },
+    
+    refreshPageTrees: function(){
+    
+        Object.each(this.domainTrees, function( domainTree ){
+            domainTree.setDomainPosition();
+        });
+    
     },
 
     toPage: function( pPage ){
-        if(! pPage || !(pPage.rsn > 0) ) pPage = this.page;
-        
+        if( !pPage || !pPage.rsn ) pPage = this.page;
         
         if( this.lastPreviewWin ){
             this.lastPreviewWin.close();
         }
-        
+
         var url = this.getBaseUrl( pPage );
 
         var url = url + pPage.realUrl + '/';
         
-        if( this.loadedVersion != '-' ){ //means not live
-        
-        /*if( !this.lastSaveWasPublished &&
-            !this.versions.getSelected()[0].get('text').contains('[LIVE]') &&
-            this.versions.value != "" ){*/
+        if( this.loadedVersion != '-' && this.loadedVersion && this.page && pPage.rsn == this.page.rsn ){
             
             url = url + '/kVersionId:'+this.loadedVersion;
         }
@@ -818,8 +843,8 @@ var admin_pages = new Class({
     },
 
     changeLanguage: function(){
-        this.language = this.languageSelect.value;
-        this.treeContainerTd.empty();
+        this.language = this.languageSelect.getValue();
+        this.treeContainer.empty();
         this.loadTree();
         this.viewType( 'empty' );
         this.savePageGrp.hide();
@@ -830,17 +855,21 @@ var admin_pages = new Class({
         this.deletePageGrp.hide();
     },
 
-    deleteDomain: function(){
-    	
+    deleteDomain: function( pDomain ){
+    
+        if( !pDomain )
+            pDomain = this.currentDomain;
+            
+        if( !pDomain || pDomain.rsn < 0 )
+            return;
 
     	this.win._confirm(_('Really delete this domain?'), function(p){
     		if( !p ) return;
     	
 	        new Request.JSON({url: _path+'admin/pages/domain/delete', async: false, noCache: 1, onComplete: function(){
-	            this.changeLanguage();
 	            ka.loadSettings();
-	            this.loadTree();
-	        }.bind(this)}).post({ rsn: this.currentDomain.rsn });
+	            this.changeLanguage();
+	        }.bind(this)}).post({ rsn: pDomain.rsn });
     	}.bind(this));
     },
 
@@ -850,7 +879,7 @@ var admin_pages = new Class({
         this.win._confirm( _('Really remove?'), function(res){
             if(!res) return;
             new Request.JSON({url: _path+'admin/pages/deletePage', async: false, noCache: 1, onComplete: function(){
-                _this.domainTrees.get( pPage.domain_rsn ).reload();
+                _this.domainTrees[ pPage.domain_rsn ].reload();
             }}).post({ rsn: pPage.rsn });
         });
     },
@@ -864,7 +893,7 @@ var admin_pages = new Class({
             this.viewTypeGrpDomain.show();
             this.viewTypeGrp.hide();
             
-            if( !ka.checkPageAccess( this.currentDomain.rsn, 'deleteDomain', 'd' ) ){
+            if( !ka.checkDomainAccess( this.currentDomain.rsn, 'deleteDomain' ) ){
                 this.deleteDomainGrp.hide();
             } else {
                 this.deleteDomainGrp.show();
@@ -888,6 +917,7 @@ var admin_pages = new Class({
 
         this.generalFields.each(function(field){
         	field.show();
+        	field.fireEvent('check-depends');
         })
         
         this.viewButtons.each(function(field){
@@ -1173,83 +1203,85 @@ var admin_pages = new Class({
     },
 
     showDomain: function( pDomain ){
+    
+        if( typeOf(pDomain) == 'object' )
+            pDomain = pDomain.rsn;
+
         if( this.oldLoadDomainRequest ) this.oldLoadDomainRequest.cancel();
 
         this.oldLoadDomainRequest = new Request.JSON({url: _path+'admin/pages/domain/get', noCache: 1, onComplete: function( pResult ){
             
+        	var res = pResult.domain;
+        	
             this.domainFields.each(function(item, key){
             	item.show();
+                item.fireEvent('check-depends');
             });
             
             this.viewButtons.each(function(field){
             	field.show();
             })
             
-            
-            this.win.setTitle ( pDomain.domain + ' - '+_('Domain edit') );
+            this.win.setTitle ( res.domain );
             
             this.deleteDomainGrp.show();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'deleteDomain', 'd' ) ){
+            if( !ka.checkDomainAccess( res.rsn, 'deleteDomain' ) ){
             	this.deleteDomainGrp.hide();
             }
-            	
 
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domain', 'd' ) ){
-            	this.viewButtons['domain'].hide();
-            }
+            if( !ka.checkDomainAccess( res.rsn, 'domain' ) )
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'theme', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'theme' ) )
             	this.viewButtons['domainTheme'].hide();
 
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainProperties', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainProperties' ) )
             	this.viewButtons['domainProperties'].hide();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'settings', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'settings' ) )
             	this.viewButtons['domainSettings'].hide();
             
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainName', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainName' ) )
             	this.domainFields['domain'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainTitle', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainTitle' ) )
             	this.domainFields['title_format'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainStartpage', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainStartpage' ) )
             	this.domainFields['startpage_rsn'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainPath', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainPath' ) )
             	this.domainFields['path'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainFavicon', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainFavicon' ) )
             	this.domainFields['favicon'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainLanguage', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainLanguage' ) )
             	this.domainFields['lang'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainLanguageMaster', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainLanguageMaster' ) )
             	this.domainFields['master'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainEmail', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainEmail' ) )
             	this.domainFields['email'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'limitLayouts', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'limitLayouts' ) )
             	this.domainFields['layouts'].hide();
             
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'aliasRedirect', 'd' ) ){
+            if( !ka.checkDomainAccess( res.rsn, 'aliasRedirect' ) ){
             	this.domainFields['alias'].hide();
             	this.domainFields['redirect'].hide();
             }
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'phpLocale', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'phpLocale' ) )
             	this.domainFields['phplocale'].hide();
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'robotRules', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'robotRules' ) )
             	this.domainFields['robots'].hide();
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, '404', 'd' ) ){
+            if( !ka.checkDomainAccess( res.rsn, '404' ) ){
             	this.domainFields['page404_rsn'].hide();
             	this.domainFields['page404interface'].hide();
             }
             	
             
-            if( !ka.checkPageAccess( pDomain.domain_rsn, 'domainOther', 'd' ) )
+            if( !ka.checkDomainAccess( res.rsn, 'domainOther' ) )
             	this.domainFields['resourcecompression'].hide();
             
 
-        	var res = pResult.domain;
             this.currentDomain = res;
             
             this.inDomainModus = true;
@@ -1257,7 +1289,19 @@ var admin_pages = new Class({
             
             this.changeType();
             
-            this.showDomainMaster( pDomain.domain_rsn );
+            this.win.params = {rsn: res.rsn, lang: res.lang, domain:true};
+
+            this.currentDomain.session = JSON.decode(this.currentDomain.session);
+            this.domainSessionFields.setValue( this.currentDomain.session );
+            
+
+            if( this.currentDomain.session && this.currentDomain.session.auth_class ){
+                if( this.auth_params_objects[this.currentDomain.session.auth_class] ){
+                    this.auth_params_objects[this.currentDomain.session.auth_class].setValue( this.currentDomain.session.auth_params );
+                }
+            }
+            
+            this.showDomainMaster( res.rsn );
             
             //set domain propertie to default
         	$H(this._domainPropertiesFields).each(function(fields, extKey){
@@ -1303,7 +1347,7 @@ var admin_pages = new Class({
             
             this.toAlternativPane();
 
-        }.bind(this)}).post({rsn: pDomain.domain_rsn});
+        }.bind(this)}).post({rsn: pDomain});
 
     },
     
@@ -1387,6 +1431,17 @@ var admin_pages = new Class({
         req.layouts = JSON.encode( this.domainFields['layouts'].getValue() );
         req.publicproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
 
+        req.session = this.domainSessionFields.getValue();
+        
+        var obj = this.auth_params_objects[ req.session.auth_class ];
+        
+        if( obj ){
+            if( !obj.isOk() ){
+                this.saveDomainBtn.stopTip( _('Failed - Check values') );
+                return;
+            }            
+            req.session['auth_params'] = obj.getValue();
+        }
 
         //properties
         var properties = {};
@@ -1404,7 +1459,7 @@ var admin_pages = new Class({
             if( this.currentDomain.lang != req.lang ){
                 this.changeLanguage();
             } else {
-                this.domainTrees.get(this.currentDomain.rsn ).reload();
+                this.domainTrees[this.currentDomain.rsn].reload();
             }
             this.currentDomain = req;
             ka.settings.domains.each(function(d, index) {
@@ -1507,6 +1562,119 @@ var admin_pages = new Class({
         }.bind(this));
 
         this.panes['domainTheme'] = p;
+        
+
+        
+        
+        
+        
+        
+        
+        /* Sessions */
+
+        var p = new Element('div', {
+            'class': 'admin-pages-pane'
+        }).inject( this.main );
+        
+        var fields = {
+            'session_storage': {
+                label: _('Session storage'),
+                'default': 'database',
+                items: {
+                    'database': _('SQL Database')
+                }
+            },
+            'session_timeout': {
+                label: _('Session timeout'),
+                type: 'text',
+                'default': '3600'
+            },
+
+            'auth_class': {
+                'label': _('Frontend authentification'),
+                'desc': _('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
+                'type': 'select',
+                'table_items': {
+                    'kryn': _('Kryn.cms users')
+                },
+                depends: {}
+            }
+        };
+        
+        var origin = ka.getFieldCaching();
+        fields = Object.merge( fields, origin );
+        
+        fields.cache_type.label = _('Session storage');
+        
+        delete fields.cache_type.items.files;
+        fields.session_storage = Object.merge(fields.session_storage, fields.cache_type);
+        
+        fields.session_storage['depends']['session_storage_config[servers]'] = 
+            Object.clone(origin.cache_type['depends']['cache_params[servers]']);
+        delete fields.session_storage['depends']['cache_params[servers]'];
+
+        fields.session_storage['depends']['session_storage_config[files_path]'] = 
+            Object.clone(origin.cache_type['depends']['cache_params[files_path]']);
+        delete fields.session_storage['depends']['cache_params[files_path]'];
+        
+        delete fields.cache_type;
+
+        fields.session_storage['depends']['session_auto_garbage_collector'] = {
+            needValue: 'database',
+            label: _('Automatic session garbage collector'),
+            desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
+            help: 'session_garbage_collector',
+            type: 'checkbox',
+            'default': '0'
+        };
+        
+        this.auth_params = {};
+        this.auth_params_panes = {};
+
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each( config.auth, function(auth_fields,auth_class){
+                    Object.each( auth_fields, function( field, field_id){
+                        //field.needValue = id+'/'+auth_class;
+                        //fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
+                        fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
+                    }.bind(this));
+                }.bind(this));
+            }
+        }.bind(this));
+        
+        this.domainSessionFields = new ka.parse( p, fields );
+        
+        this.auth_params_objects = {};
+        Object.each(ka.settings.configs, function(config,id){
+            if( config.auth ){
+                Object.each(config.auth, function(auth_fields,auth_class){
+                
+                    this.auth_params_panes[id+'/'+auth_class] = new Element('div', {
+                        'style': 'display: none;'
+                    }).inject( this.domainSessionFields.fields['auth_class'].childContainer );
+                    
+                    this.auth_params_objects[ id+'/'+auth_class ] = new ka.parse( this.auth_params_panes[id+'/'+auth_class], auth_fields );
+                }.bind(this));
+            }
+        }.bind(this));
+        
+        this.domainSessionFields.fields['auth_class'].addEvent('check-depends', function(){
+            Object.each(this.auth_params_panes, function(pane){
+                pane.setStyle('display', 'none');
+            }.bind(this));
+            var pane = this.auth_params_panes[ this.domainSessionFields.fields['auth_class'].getValue() ];
+            
+            if( pane )
+                pane.setStyle('display', 'block');
+        }.bind(this));
+        
+        this.domainSessionFields.fields['auth_class'].fireEvent('check-depends');
+        
+        this.panes['domainSessions'] = p;
+        
+        
+        
   
         /* Domain-Settings */
 
@@ -1536,13 +1704,7 @@ var admin_pages = new Class({
 
         this.domainFields['resourcecompression'] = new ka.field(
             {label: _('Css and JS compression'), desc: _('Merge all css files in one, same with javascript files. This improve the page render time'), type: 'checkbox'}
-        ).inject( p );
-        
-        this.domainFields['langSync'] = new ka.field(
-        {label: _('Synchronize with'), type: 'select', desc: _(''),
-            table_label: 'label', table_key: 'id', multiple: true,
-            tableItems: tableItems
-        }).inject( p );
+        ).inject( p );        
 
         this.domainFields['page404_rsn'] = new ka.field(
             {label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}
@@ -1785,8 +1947,8 @@ var admin_pages = new Class({
         
         this.generalFields['access_from_groups'] = new ka.field(
             {label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
-            type: 'select', size: 5, multiple: true,
-            tableItems: ka.settings.groups, table_label: 'name', table_key: 'rsn'
+            type: 'textlist', panel_width: 320,
+            store: 'admin/backend/stores/groups'
             }
         ).inject( p );
         
@@ -1802,7 +1964,7 @@ var admin_pages = new Class({
         this.generalFields['access_need_via'] = new ka.field(
             {label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
             tableItems: [
-                {rsn: 0, name: 'Kryn-Session'},
+                {rsn: 0, name: 'Kryn.cms-Session'},
                 {rsn: 1, name: 'Htaccess'}
             ], table_label: 'name', table_key: 'rsn'
             }
@@ -2500,47 +2662,6 @@ var admin_pages = new Class({
             height: 200, width: 600
         });
 
-        /*this.resourcesCssPanel = new Element('div', {
-            style: 'padding-left: 25px; padding-bottom: 7px;'
-        }).inject( p );
-
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/add.png',
-            title: _('Add'),
-            style: 'cursor: pointer'
-        })
-        .inject( this.resourcesCssPanel );
-
-        this.resourcesCssFiles = new Element('div', {
-        }).inject( this.resourcesCssPanel );
-
-        
-
-        this.resourcesJsPanel = new Element('div', {
-            style: 'padding-left: 25px;'
-        }).inject( p );
-
-        var _this = this;
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/add.png',
-            title: _('Add'),
-            style: 'cursor: pointer'
-        })
-        .addEvent('click', function(){
-            ka.wm.openWindow( 'admin', 'pages/chooser', null, -1, {onChoose: function( pValue ){
-                _this.addJsRessource( pValue );
-                this.win.close();
-            },
-            opts: {files: 1, upload: 1}});
-        })
-        .inject( this.resourcesJsPanel );
-
-        this.resourcesJsFiles = new Element('div', {
-            style: 'width: 307px; padding-top: 3px;'
-        }).inject( this.resourcesJsPanel );
-
-		*/
-
         this.panes['resources'] = p;
     },
 
@@ -2746,7 +2867,7 @@ var admin_pages = new Class({
                 new Request.JSON({url: _path+'admin/pages/setLive/', noCache: 1, onComplete: function(){
                     this.loadVersionOverview();
                     this.loadVersions();
-                    var d = this.domainTrees.get(this.page.domain_rsn);
+                    var d = this.domainTrees[this.page.domain_rsn];
                     if( d )
                         d.reload()
                 }.bind(this)}).post({version: pValues.rsn});
@@ -3048,12 +3169,12 @@ var admin_pages = new Class({
             else
                 this.saveButton.stopTip( _('Saved') );
 
-            var d = this.domainTrees.get(this.page.domain_rsn);
+            var d = this.domainTrees[this.page.domain_rsn];
             if( d && (this.page.title != res.title || this.page.type != res.type || this.page.visible != res.visible 
                     || this.page.access_denied != res.access_denied) || ( this.page.draft_exist == 1 && pAndPublish)
                     || this.page.access_from_groups != res.access_from_groups
                     || ( this.page.draft_exist == 0 && !pAndPublish))
-                d.reload()
+                d.reloadParentOfActive();
             if( res ){
                 this.page = res;
                 this.toggleSearchIndexButton( this.page.type);
@@ -3119,37 +3240,39 @@ var admin_pages = new Class({
                 alert( pPage.title );
             },
             domain_rsn: pDomain,
-            domain_title: domaintitle,
             onComplete: function( pDomain ){
-                this.domainTrees.get(pDomain).reload();
+                this.domainTrees[pDomain].reload();
             }.bind(this)
-        });
+        }, true);
     },
 
-    loadTree: function(){
+    loadTree: function( pOpts ){
         var _this = this;
-        this.domainTrees = new Hash();
+        this.domainTrees = {};
+
+        this.treeContainer.empty();
         
-        this.treeContainerTd.empty();
+        if( !pOpts )
+            pOpts = {};
             
         var openDomain = false;
         if( ka.settings.domains.length == 1 ){
         	openDomain = true;
         }
-        
+
         ka.settings.domains.each(function(domain){
-        	
+
         	if( domain.lang != this.language ) return;
         	
-            _this.domainTrees.include(domain.rsn, new ka.pagesTree( _this.treeContainerTd, domain.rsn, {
+            _this.domainTrees[domain.rsn] = new ka.pagesTree( _this.treeContainer, domain.rsn, {
                 onClick: function( pPage ){
-                    _this.domainTrees.each(function(_domain){
+                    Object.each(_this.domainTrees, function(_domain){
                         _domain.unselect();
                     });
                     _this.loadPage( pPage.rsn );
                 },
                 onDomainClick: function( pDomain ){
-                    _this.domainTrees.each(function(_domain){
+                    Object.each(_this.domainTrees, function(_domain){
                         _domain.unselect();
                     });
                     _this.showDomain( pDomain );
@@ -3159,21 +3282,22 @@ var admin_pages = new Class({
                     	this.loadAliases();
                     }
                 }.bind(this),
-                withPageAdd: _this.pageAdd.bind(_this),
+                withPageAdd: true,
+                onPageAdd: this.pageAdd.bind(this),
                 withContext: true,
-                pageObj: _this,
-                openDomain: openDomain,
+                openFirstLevel: openDomain,
+                selectDomain: (pOpts.selectDomain==domain.rsn)?true:false,
+                selectPage: pOpts.selectPage
+            }, {
+                pageObj: this,
                 win: this.win
-            }));
+            });
             
+            if( pOpts.selectDomain == domain.rsn ){
+                this.showDomain( domain );
+            }
             
         }.bind(this));
-        
-
-        if( this.win.params && this.win.params.rsn > 0 && !this.alreadyOnLoadPageLoaded ){
-            this.alreadyOnLoadPageLoaded = true;
-            this.loadPage( this.win.params.rsn, true );
-        }
         
     },
     
@@ -3307,19 +3431,14 @@ var admin_pages = new Class({
         $H(ka.settings.configs).each(function(config, key){
 			
 			if( config['themes'] ){
-				$H(config['themes']).each(function(options, themeTitle){
+				Object.each(config['themes'], function(options, themeTitle){
 					
 					if( options['layoutElement'] ){
 						
-			    		var group = new Element('optgroup', {
-			                label: _(themeTitle)
-			            }).inject( this.elementPropertyFields.eLayoutSelect.input );
+						this.elementPropertyFields.eLayoutSelect.select.addSplit( _(themeTitle) );
 			    		
 						$H(options['layoutElement']).each(function(templatefile, label){
-							new Element('option', {
-			                    html: _(label),
-			                    value: templatefile
-			                }).inject( group );
+						    this.elementPropertyFields.eLayoutSelect.select.addSplit( templatefile, _(label) );
 						}.bind(this));
 				
 					}

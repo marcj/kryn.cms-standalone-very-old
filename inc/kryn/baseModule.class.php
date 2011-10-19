@@ -17,9 +17,7 @@
  * Motherclass for all extension class.
  * 
  * 
- * @package Kryn
- * @subpackage Extension
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 class baseModule {

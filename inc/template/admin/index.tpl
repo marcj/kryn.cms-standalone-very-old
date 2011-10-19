@@ -39,7 +39,7 @@
             window._session = new Hash();
             window._session.user_rsn = {$user.rsn+0};
             window._session.username = '{$user.username}';
-            window._session.sessionid = '{$user.sessionid}';
+            window._session.sessionid = '{$client->token}';
             window._session.lang = '{$adminLanguage}';
             window._session.lastlogin = '{$user.lastlogin}';
             window._session.forceLang = '{$request.setLang}';
@@ -48,9 +48,17 @@
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Button.css" />
         <link rel="SHORTCUT ICON" href="{$cfg.templatepath}/admin/images/favicon.ico" />
+        
+        {$adminHeader}
+
     </head>
     <body>
         <div class="border" id="border">
+        
+            <div class="middle" id="middle">
+                <div class="content ka-desktop" id="desktop"></div>
+            </div>
+            
             <div class="header" id="header">
                 <div class="header-left"></div>
                 <div class="headRight">
@@ -67,16 +75,11 @@
                 <div style="clear: both"></div>
                 <div class="mainlinks" id="mainLinks"></div>
                 <div class="header-right"></div>
-            </div>	
+            </div>
 			
             <div class="userInfo">
                 [[Welcome]] <span style="font-weight: bold; text-decoration: underline; cursor: pointer;" title="[[Edit my user settings]]" id="user.username"></span>
                   <span style="font-size: 10px;">(<a style="text-decoration: none; color: #eee;" href="javascript: ka.ai.logout();">logout</a>)</span>
-            </div>
-			
-            <div class="middle" id="middle">
-                <div class="content ka-desktop" id="desktop">
-                </div>
             </div>
             <div class="windowList" id="windowList"></div>
             <div class="iconbar" id="iconbar">

@@ -7,10 +7,25 @@ ka.windowAdd = new Class({
     loadItem: function(){
         //ist in render() am ende also lösche unnötigen balast
         this.loader.hide();
+        
         if( this.saveNoClose )
             this.saveNoClose.hide();
-            
         
+        if( this.actions ){
+            this.saveNoClose = new ka.Button(_('Add'))
+            .addEvent('click', function(){
+                this._save(true);
+            }.bind(this))
+            .inject( this.actions );
+        }
+        
+        if( this.win.params && this.win.params.relation_params ){
+	        Object.each(this.win.params.relation_params, function(value,id){
+	            if( this.fields[ id ] )
+                    this.fields[ id ].setValue( value );
+	        }.bind(this));
+        }
+            
         if( this.actionsNaviDel )
             this.actionsNaviDel.hide();
             

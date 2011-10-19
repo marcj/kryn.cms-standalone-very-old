@@ -14,10 +14,10 @@ var admin_system = new Class({
     
     _createLayout: function(){
         this.content = new Element('div', {
-            html: '<h3>Kryn.cms 0.9</h3>'+
+            html: '<h3>Kryn.cms 1.0</h3>'+
             '<br />Core version: '+(ka.settings.configs.kryn.version)+'<br /><br />'+
             '<b style="color: gray;">'+_('License')+'</b><br />'+
-            'Free (noncommercial)<br /><br />'+
+            'GPL <a target="_blank" href="'+_path+'LICENSE">View</a><br /><br />'+
             '<b style="color: gray;">'+_('Support')+'</b><br />'+
             _('Forum')+': <a href="http://forum.kryn.org" target="_blank">forum.kryn.org</a><br />'+
             _('Email')+': <a href="mailto:support@kryn.org">support@kryn.org</a><br />'+

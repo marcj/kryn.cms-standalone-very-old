@@ -39,7 +39,7 @@ var admin_files = new Class({
     },
 
     setTitle: function(){
-        this.win.setTitle( this.current+' - '+this.title );
+        this.win.setTitle( this.current );
     },
     
     recoverSWFUpload: function(){

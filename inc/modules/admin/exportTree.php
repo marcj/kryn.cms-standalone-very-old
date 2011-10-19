@@ -43,7 +43,6 @@ function _exportTree( $pPage ){
     }
     
     return $childs;
-	
 }
 
 function importTree( $pJson, $pParentRsn, $pDomain ){

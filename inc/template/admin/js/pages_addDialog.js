@@ -5,14 +5,43 @@ var admin_pages_addDialog = new Class({
         this.win = pWin;
         this.input = [];
         
-        this.win.setTitle( _('Add pages to %s').replace('%s', this.win.params.domain_title) );
-        
         this._renderLayout();
     },
 
-    choosePlace: function( pPage, pPos ){
+    choosePlace: function( pTitle, pPos ){
         if( this.lastContext ) this.lastContext.destroy();
-        this.choosenPage = pPage;
+
+        if( this.lastChoosenTitle )
+            this.lastChoosenTitle.removeClass('ka-pageTree-item-selected');
+        
+        if( this.lastLine )
+            this.lastLine.destroy();
+        
+        var page = pTitle.retrieve('item');
+        this.lastChoosenTitle = pTitle;
+        if( pPos == 'into' )
+            this.lastChoosenTitle.addClass('ka-pageTree-item-selected');
+        else {
+            this.lastLine = new Element('div', {
+                style: 'border-top: 1px solid gray; height: 1px;',
+                styles: {
+                    'margin-left': pTitle.getStyle('padding-left').toInt()+10
+                }
+            });
+            
+            if( pPos == 'up' ){
+                this.lastLine.inject( pTitle, 'before');
+            } else {
+                var target = pTitle;
+
+                if( pTitle.getNext() && pTitle.getNext().hasClass('ka-pageTree-item-childs') )
+                    target = pTitle.getNext();
+
+                this.lastLine.inject( target, 'after');
+            }
+        }
+        
+        this.choosenPage = page;
         this.choosenPos = pPos;
         this.renderChoosenPlace();
     },
@@ -23,10 +52,17 @@ var admin_pages_addDialog = new Class({
             pos = _('Above');
         if( this.choosenPos == 'into' )
             pos = _('Into');
-        this.choosenPlaceDiv.set('html', _('Position')+': <b>'+pos+' <u>'+this.choosenPage.title+'</u></b>');
+        var title = this.choosenPage.title;
+        if(this.choosenPage.type == -1) // Domain
+        	title = this.choosenPage.domain;
+        this.choosenPlaceDiv.set('html', _('Position')+': <b>'+pos+' <u>'+title+'</u></b>');
     },
 
     _renderLayout: function(){
+        
+        this.win.border.setStyle('height', 400);
+        this.win.border.setStyle('width', 500);
+    
         var c = new Element('div', {
             style: 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 31px; overflow: auto;'
         }).inject( this.win.content );
@@ -40,41 +76,38 @@ var admin_pages_addDialog = new Class({
         
         new Element('div',{
         	style: 'padding: 3px; font-size: 13px; font-weight: bold; color: gray; padding-bottom: 25px;',
-        	html: _('Step 1: Define the new item')
+        	html: _('Step 1: Define new items')
         }).inject( leftSide );
         
         this.type = new ka.field({
-        	label: _('Type'), type: 'select', table_key: "i", table_label: "l", tableItems: [
-        	     {i: 0, l: _('Page')},
-        	     {i: 1, l: _('Link')},
-        	     {i: 2, l: _('Folder')},
-        	     {i: 3, l: _('Deposit')},
-            ]
+        	label: _('Type'), type: 'select', 
+        	items: {
+        	   "0": _('Page'),
+        	   "1": _('Link'),
+        	   "2": _('Folder'),
+        	   "3": _('Deposit'),
+        	}
         }).inject( leftSide );
         
         this.layout = new ka.field({
-        	label: _('Layout'), type: 'select', table_key: "i", table_label: "l", tableItems: []
+        	label: _('Layout'), type: 'select'
         }).inject( leftSide );
         
-        new Element('option', {
-            html: _(' -- No layout --'),
-            value: ''
-        }).inject( this.layout.input );
+        this.layout.select.add( '', _(' -- No layout --') );
 
-        $H(ka.settings.layouts).each(function(la, key){
-            var group = new Element('optgroup', {
-                label: key
-            }).inject( this.layout.input );
+        Object.each(ka.settings.layouts, function(la, key){
+            this.layout.select.addSplit( key );
             var count = 0;
-            $H(la).each(function(layoutFile,layoutTitle){
-                new Element('option', {
-                    html: (layoutTitle),
-                    value: layoutFile
-                }).inject( group );
+            Object.each(la, function(layoutFile,layoutTitle){
+
+                this.layout.select.add( layoutFile, layoutTitle );
                 count++;
-            })
+
+            }.bind(this));
+
             if( count == 0 )
                 group.destroy();
+
         }.bind(this));
         
         this.visible = new ka.field({
@@ -148,21 +181,33 @@ var admin_pages_addDialog = new Class({
         this.win.content.addEvent('mouseover', function(){
             if( this.lastContext ) this.lastContext.destroy();
         }.bind(this));
+        
+        var selectDomain = (this.win.params)?this.win.params.selectDomain:null;
+        var selectPage = (this.win.params)?this.win.params.selectPage:null;
 
-        new ka.pagesTree( rightSide, this.win.params.domain_rsn, {
+        this.pageTree = new ka.pagesTree( rightSide, this.win.params.domain_rsn, {
             move: false,
             noActive: true,
-            onSelection: function( pPage, pTitle, pDomain ){
+            openFirstLevel: true,
+            onReady: function(){
+                
+                var domainItem = this.pageTree.domainA.retrieve('item');
+                this.win.setTitle( _('Add pages to %s').replace('%s', domainItem.domain) );
+                var selected = this.pageTree.getSelected();
+                
+                if( selected )
+                    this.choosePlace( selected, 'into' );
+
+            }.bind(this),
+            selectDomain: selectDomain,
+            selectPage: selectPage,
+            onSelection: function( pPage, pTitle ){
                 if( this.lastContext ) this.lastContext.destroy();
                 
-                if( pDomain ){
-                	if( !ka.checkPageAccess( pPage.domain_rsn, 'addPages', 'd') ){
+                if( pPage.domain ){
+                	if( !ka.checkPageAccess( pPage.rsn, 'addPages', 'd') ){
                     	return;
                     }
-                } else {
-	                if( !ka.checkPageAccess( pPage.rsn, 'addPages', 'p') ){
-	                	return;
-	                }
                 }
                 
                 this.lastContext = new Element('div',{
@@ -173,43 +218,56 @@ var admin_pages_addDialog = new Class({
                 })
                 .inject( this.win.content );
                 
-                if(! pDomain ){
-                    new Element( 'a', {
-                        text: _('Above'),
-                        'class': 'up'
-                    })
-                    .addEvent( 'click', function(){ this.choosePlace( pPage, 'up' )}.bind(this))
-                    .inject( this.lastContext );
+                var parent = pPage.parent;
+                if( parent ) parent = parent.retrieve('item');
+                
+                if(! pPage.domain ){
+                    if( !parent || (
+                          (!parent.domain && ka.checkPageAccess( parent.rsn, 'addPages') )
+                        &&(parent.domain && ka.checkPageAccess( parent.rsn, 'addPages', 'd') ) 
+                    ) ){
+                        new Element( 'a', {
+                            text: _('Above'),
+                            'class': 'up'
+                        })
+                        .addEvent( 'click', function(){ this.choosePlace( pTitle, 'up' )}.bind(this))
+                        .inject( this.lastContext );
+                        
+                    }
                 }
                 new Element( 'a', {
                     text: _('Into'),
                     'class': 'into'
                 })
-                .addEvent( 'click', function(){ this.choosePlace( pPage, 'into' )}.bind(this))
+                .addEvent( 'click', function(){ this.choosePlace( pTitle, 'into' )}.bind(this))
                 .inject( this.lastContext );
                 
-                if(! pDomain ){
-                    new Element( 'a', {
-                        text: _('Below'),
-                        'class': 'down'
-                    })
-                    .addEvent( 'click', function(){ this.choosePlace( pPage, 'down' ) }.bind(this))
-                    .inject( this.lastContext );
+                if(! pPage.domain ){
+                    if( !parent || (
+                          (!parent.domain && ka.checkPageAccess( parent.rsn, 'addPages') )
+                        &&(parent.domain && ka.checkPageAccess( parent.rsn, 'addPages', 'd') ) 
+                    ) ){
+                        new Element( 'a', {
+                            text: _('Below'),
+                            'class': 'down'
+                        })
+                        .addEvent( 'click', function(){ this.choosePlace( pTitle, 'down' ) }.bind(this))
+                        .inject( this.lastContext );
+                    }
                 }
                 
                 var pos = pTitle.getPosition( this.win.content );
-                Y = 0;
-                
-                if(! pDomain )
-                    Y = 19;
+
+                var mleft = pos.x;
+                if( pTitle.getStyle('padding-left') )
+                    mleft = pos.x+pTitle.getStyle('padding-left').toInt();
                 
                 this.lastContext.setStyles({
-                    left: pos.x,
-                    top: pos.y-Y+rightSide.scrollTop
+                    left: mleft,
+                    top: pos.y-(this.lastContext.getSize().y/2)+7+rightSide.scrollTop
                 });
             }.bind(this)
         });
-
 
         this.bottom = new Element('div', {
         	'class': 'kwindow-win-buttonBar' }).inject( this.win.content );
@@ -237,14 +295,22 @@ var admin_pages_addDialog = new Class({
             this.win._alert(_('Please choose a position.'));
             return;
         }
-        req.rsn = this.choosenPage.rsn;
-        req.domain_rsn = this.choosenPage.domain_rsn;
+        if(this.choosenPage.type == -1) {
+        	// Domain
+        	req.rsn = 0;
+            req.domain_rsn =  this.choosenPage.rsn;
+        } else {
+        	// Everything else
+        	req.rsn = this.choosenPage.rsn;
+            req.domain_rsn =  this.choosenPage.domain_rsn;
+        }
         req.type = this.type.getValue();
         req.layout = this.layout.getValue();
         req.visible = this.visible.getValue();
 
         new Request.JSON({url: _path+'admin/pages/add', noCache: 1, async: false, onComplete: function(){
-            this.win.params.onComplete( req.domain_rsn );
+            if( this.win.params.onComplete )
+                this.win.params.onComplete( req.domain_rsn );
             this.win.close();
         }.bind(this)}).post(req);
 

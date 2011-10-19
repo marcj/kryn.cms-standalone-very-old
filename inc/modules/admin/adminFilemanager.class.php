@@ -109,7 +109,7 @@ class adminFilemanager {
         // Template file
         if( file_exists("inc/template/$path") )
         {
-            $access = acl::checkAccess(3, '/'.$path, 'read', true);
+            $access = krynAcl::checkAccess(3, '/'.$path, 'read', true);
             if(!$access)
                 return 'no-access';
             // On access return file contents
@@ -134,13 +134,20 @@ class adminFilemanager {
     }
     
     public static function setInternalAcl( $pFilePath, $pRules ){
+        global $cfg;
 
         $pFilePath = esc( '/'.$pFilePath );
+        if( $pFilePath == '//' )
+            $pFilePath = '/';
         
-        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath\[%'");
-        
-        //SELECT * FROM krynsvn7_system_acl WHERE code LIKE '/googleanalytics/\\%%'
-        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath\\\%%'");
+        $wc = '\%';
+
+        if( $cfg['db_type'] == 'postgresql' )
+            $wc = '\\%';
+
+        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath"."[%'");
+        dbDelete('system_acl', "type = 3 AND code LIKE '$pFilePath".$wc."[%'");
+        // /\%
         
         $row = dbExfetch('SELECT MAX(prio) as maxium FROM %pfx%system_acl');
         $prio = $row['maxium'];
@@ -438,7 +445,7 @@ $pAccess from all
         
             
             
-        $access = acl::checkAccess( 3, '/'.$pDir, 'read', true );
+        $access = krynAcl::checkAccess( 3, '/'.$pDir, 'read', true );
         if( !$access ) json('no-access');
 
         $dh = opendir( 'inc/template/'.$pDir );
@@ -470,7 +477,7 @@ $pAccess from all
         
         $file = resizeImageCached( $path, '120x70', true );
         
-        $access = acl::checkAccess( 3, '/'.$cfile, 'read', true );
+        $access = krynAcl::checkAccess( 3, '/'.$cfile, 'read', true );
         if( !$access ) json('no-access');
 
         list( $oriWidth, $oriHeight, $type ) = getimagesize( $file );
@@ -506,14 +513,13 @@ $pAccess from all
     }
     
     public static function loadModules(){
-        global $kryn;
         
         $h = opendir( 'inc/template/' );
         $mfiles = array();
         while( $file = readdir($h) ){
             if( $file != '.' && $file != '..' && $file != '.svn' &&
                 $file != 'admin' && $file != 'css' && $file != 'images' && $file != 'js' && $file != 'kryn' ){
-                if( $kryn->installedMods[ $file ] ){
+                if( kryn::$configs[ $file ] ){
                     $mfiles[] = '/'.$file; 
                 }
             }
@@ -549,7 +555,7 @@ $pAccess from all
         
         
         $toDir = dirname($newPath);
-        $access = acl::checkAccess( 3, '/'.$newFilePath, 'write', true );
+        $access = krynAcl::checkAccess( 3, '/'.$newFilePath, 'write', true );
         if( !$access ) json('no-access');
         
         move_uploaded_file($_FILES["file"]["tmp_name"], $newPath );
@@ -577,10 +583,10 @@ $pAccess from all
         
         
         $toDir = dirname($path);
-        $access = acl::checkAccess( 3, '/'.$newFilePath, 'write', true );
+        $access = krynAcl::checkAccess( 3, '/'.$newFilePath, 'write', true );
         if( !$access ) json('no-access');
         
-        $access = acl::checkAccess( 3, '/'.$pOriFile, 'read', true );
+        $access = krynAcl::checkAccess( 3, '/'.$pOriFile, 'read', true );
         if( !$access ) json('no-access');
         
         copyr( "inc/template/".$pOriFile, "inc/template/".$newFilePath);
@@ -593,7 +599,7 @@ $pAccess from all
         
         
         $toDir = str_replace('..', '', getArgv( 'path' ));
-        $access = acl::checkAccess( 3, $toDir, 'write', true );
+        $access = krynAcl::checkAccess( 3, $toDir, 'write', true );
         if( !$access ) json('no-access');
         
         mkdir( $path );
@@ -605,7 +611,7 @@ $pAccess from all
         $path = str_replace( "..", "", $path );
         
         $toDir = str_replace('..', '', getArgv( 'path' ));
-        $access = acl::checkAccess( 3, $toDir, 'write', true );
+        $access = krynAcl::checkAccess( 3, $toDir, 'write', true );
         if( !$access ) json('no-access');
         
         
@@ -628,7 +634,7 @@ $pAccess from all
             @mkdirr($dir );
         }
         
-        $access = acl::checkAccess( 3, '/'.$path, 'write', true );
+        $access = krynAcl::checkAccess( 3, '/'.$path, 'write', true );
         
         if( $access ){
             self::addVersion( "inc/template/".$path );
@@ -649,10 +655,10 @@ $pAccess from all
         
         $toDir = dirname( $newpath );
         
-        $access = acl::checkAccess( 3, '/'.$path, 'read', true );
+        $access = krynAcl::checkAccess( 3, '/'.$path, 'read', true );
         if( !$access ) json('no-access');
         
-        $access = acl::checkAccess( 3, '/'.$toDir, 'write', true );
+        $access = krynAcl::checkAccess( 3, '/'.$toDir, 'write', true );
         if( !$access ) json('no-access');
         
         if( file_exists('inc/template/'.$newpath) )
@@ -678,10 +684,10 @@ $pAccess from all
             $nPath = str_replace('inc/template', '', $item['path']);
             $toDir = dirname($nPath);
             
-            $access = acl::checkAccess( 3, '/'.$toDir, 'write', true );
+            $access = krynAcl::checkAccess( 3, '/'.$toDir, 'write', true );
             if( !$access ) json('no-access');
             
-            $access = acl::checkAccess( 3, '/'.$nPath, 'write', true );
+            $access = krynAcl::checkAccess( 3, '/'.$nPath, 'write', true );
             if( !$access ) json('no-access');
             
             if( file_exists($item['path']) ){
@@ -719,7 +725,7 @@ $pAccess from all
             
             $nPath = str_replace('inc/template', '', $path);
             
-            $access = acl::checkAccess( 3, $nPath, 'write', true );
+            $access = krynAcl::checkAccess( 3, $nPath, 'write', true );
             if( !$access ) json('no-access');
             
             $newTrashId = dbInsert('system_files_log', array(
@@ -774,7 +780,7 @@ $pAccess from all
             $to = '/'.$to;
             
             
-        $access = acl::checkAccess( 3, $to, 'write', true );
+        $access = krynAcl::checkAccess( 3, $to, 'write', true );
         if( !$access ) json('no-access');
 
         $to = "inc/template$to";
@@ -795,7 +801,7 @@ $pAccess from all
             foreach( $from as $file ){
                 $file = str_replace("..", "", $file);
                 
-                $access = acl::checkAccess( 3, '/'.$file, 'read', true );
+                $access = krynAcl::checkAccess( 3, '/'.$file, 'read', true );
                 if( $access ){
                     if( $move )
                         rename( "inc/template/$file", $to.basename($file) );
@@ -856,7 +862,7 @@ $pAccess from all
         foreach( $items as &$item ){
             
             
-            $access = acl::checkAccess( 3, str_replace('inc/template', '', $file), 'read', true );
+            $access = krynAcl::checkAccess( 3, str_replace('inc/template', '', $file), 'read', true );
             if( $access ){
                 if( substr($item, 0, 7) == '/trash/'){
                     continue;
@@ -929,13 +935,13 @@ $pAccess from all
             $checkpath .= '/'; //substr($checkpath, 0, -1);
         
         if( substr($checkpath, 0, 1) != '/' ) $checkpath = '/'.$checkpath;
-        $access = acl::checkAccess( 3, $checkpath, 'read', true );
+        $access = krynAcl::checkAccess( 3, $checkpath, 'read', true );
         if( !$access ) return false;
 
         if( $path == 'inc/template/trash/.htaccess' ) return false;
         
         
-        $res['writeaccess'] = acl::checkAccess( 3, $checkpath, 'write', true );
+        $res['writeaccess'] = krynAcl::checkAccess( 3, $checkpath, 'write', true );
         
         
         if( strpos($path, 'inc/template/trash/') !== false ){
@@ -1054,7 +1060,7 @@ $pAccess from all
                 mkdir("inc/template/trash");
         }
         
-        $access = acl::checkAccess( 3, $pPath, 'read', true );
+        $access = krynAcl::checkAccess( 3, $pPath, 'read', true );
         if( !$access ) return false;
         
         $pPath = 'inc/template/'.substr( $pPath, 0, strlen($pPath) );

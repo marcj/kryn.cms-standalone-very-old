@@ -25,8 +25,8 @@
         <h2><a class="publicationNewsListDefaultItemLink" href="{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.rsn}/" >{$item.title}</a></h2>
         
         <div class="publicationNewsListDefaultItemIntro">
-            {if $item.introImage ne ""}
-                <img src="{$item.introImage}" class="publicationNewsListDefaultItemIntroImage" align="left" />
+            {if $item.introimage ne ""}
+                <img src="{$item.introimage}" class="publicationNewsListDefaultItemIntroImage" align="left" />
             {/if}
             {$item.intro}
             <div style="clear: both;"></div>

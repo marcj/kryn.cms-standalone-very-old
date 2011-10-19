@@ -4,12 +4,11 @@
   
   
   {if $link.properties}
-    {assign var="prop" value=$link.properties|json_decode:true}
-    {if $prop.sitemap && $prop.sitemap.hideInSitemap eq 1}
+    {if $link.properties.sitemap && $link.properties.sitemap.hideInSitemap eq 1}
         {assign var="go" value=0}
     {/if}
-    {if $prop.sitemap && $prop.sitemap.alternativeTitle ne ""}
-        {assign var="title" value=$prop.sitemap.alternativeTitle}
+    {if $link.properties.sitemap && $link.properties.sitemap.alternativeTitle ne ""}
+        {assign var="title" value=$link.properties.sitemap.alternativeTitle}
     {/if}
   {/if}
   {if $go eq 1 }

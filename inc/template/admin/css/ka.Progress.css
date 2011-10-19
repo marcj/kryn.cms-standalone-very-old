@@ -1,0 +1,16 @@
+.ka-progress {
+    border: 1px solid #bbb;
+    color: #444;
+    font-size: 11px;
+    -moz-border-radius: 3px;
+    background-color: white;
+    height: 14px;
+    text-align: center;
+    line-height: 14px;
+    color: #222;
+}
+
+.ka-progress-unlimited {
+    background-image: url(../images/unlimited-loading.gif?nc=1);
+    background-color: #f3f3f3;   
+}

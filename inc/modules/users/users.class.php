@@ -15,25 +15,33 @@ class users extends baseModule{
     public $extensionsfields;
     public $groups;
 
-    public static $authMailSql = "(email = '%email%' OR username = '%email%') AND (passwd = MD5('%passwd%')) AND (activationkey = '' OR activationkey IS NULL)";
-
     function __construct(){
         require_once("inc/modules/users/update.php");
     }
     
-    function pluginEmailLogin( $pConf ){
-        global $user;
+    function pluginLogin( $pConf ){
+        global $client;
         
         tAssign('pConf', $pConf);
 
-        if( getArgv('users-loggedOut') ){
-            $user->logout();
-        }
-
-        if( getArgv('users-logout') ){
-            $user->logout();
+        if( getArgv('users-loggedOut') || getArgv('users-logout') ){
+            $client->logout();
+            if( $pConf['logoutTarget'] ){
+                kryn::redirectToPage( $pConf['logoutTarget'] );
+            }
         }
         
+        if( getArgv('users-login') ){
+            $login = getArgv('users-username')?getArgv('users-username'):getArgv('users-email');
+            
+            $client->login( $login, getArgv('users-passwd') );
+
+            if( $client->user_rsn > 0 && $pConf['logoutTarget'] ){
+                kryn::redirectToPage( $pConf['logoutTarget'] );
+            } else {
+                tAssign('loginFailed', 1);
+            }
+        }
         
         if(! strpos($pConf['template'], '/') > 0 )
             $pConf['template'] = 'users/login/'.$pConf['template'].'.tpl';
@@ -41,32 +49,7 @@ class users extends baseModule{
         if(! strpos($pConf['templateLoggedIn'], '/') > 0 )
             $pConf['templateLoggedIn'] = 'users/loggedIn/'.$pConf['templateLoggedIn'].'.tpl';
 
-
-
-        if( getArgv('users-login') == 1 ){
-
-            $email = strtolower(getArgv('users-email',1));
-            $pw = getArgv('users-passwd',1);
-
-                        $keys = array('%email%', '%passwd%');
-                        $values = array($email, $pw);
-
-            $row = dbTableFetch('system_user', 1, str_replace($keys, $values, self::$authMailSql));
-
-            if( $row['rsn'] > 0 ){
-                $user->newSession( $row['rsn'] );
-                dbExec( 'UPDATE %pfx%system_user SET logins = '.($row['logins']+1).' WHERE rsn = '.$row['rsn'] );
-                $user->loadUser();
-                if( $pConf['target'] > 0 )
-                    kryn::redirectToPage( $pConf['target'] );
-            } else {
-                tAssign('loginFailed', 1);
-                return tFetch($pConf['template']);
-            }
-
-        }
-
-        if( $user->user_rsn > 0 ){
+        if( $client->user_rsn > 0 ){
             return tFetch($pConf['templateLoggedIn']);
         } else {
             return tFetch($pConf['template']);
@@ -164,7 +147,6 @@ class users extends baseModule{
     }
 
     function install(){
-        global $kryn;
         
         dbDelete('system_user');
         dbInsert('system_user', array( 'username' => 'Guest', 'created' => time(),

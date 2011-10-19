@@ -159,7 +159,7 @@ var admin_system_module = new Class({
                 if( item.version != item.serverVersion && item.serverVersion != ''){
                     icon = 'cog_go';
                     _title = _('New version available');
-                    new ka.Button(_('Update'))
+                    new ka.Button(item.serverCompare == '>' ? _('Downgrade') : _('Update'))
                     .addEvent('click', function(){
                         ka.wm.open('admin/system/module/view/', {name: key, type: 0, updateNow: 1});
                     }.bind(this))
@@ -462,7 +462,7 @@ var admin_system_module = new Class({
             position: 'relative',
             top: -1
         }).addEvent('click', function(){
-        	 ka.wm.openWindow( 'admin', 'pages/chooser', null, -1, {onChoose: function( pValue ){
+        	 ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
                  //addFile( pValue );
         		 _this.directInput.value = pValue;
                  this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler

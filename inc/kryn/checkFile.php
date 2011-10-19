@@ -7,8 +7,7 @@
  * tiny URLs are in Kryn URLs to inc/template/ but without inc/template.
  * 
  * @internal
- * @package Kryn
- * @author Kryn.labs <info@krynlabs.com>
+ * @author MArc Schmidt <marc@kryn.org>
  */
 
 $pfile = preg_replace('/\.\.+/', '.', $_REQUEST['_kurl']);
@@ -27,4 +26,5 @@ if( $file && !is_dir($file) ){
     header('Location: '.$cfg['path'].$file);
     exit;
 }
+
 ?>

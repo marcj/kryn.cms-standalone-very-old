@@ -141,7 +141,7 @@
           }
         },
         "layout": {
-          "title": "Layouts",
+          "title": "Templates",
           "type": "custom",
           "multi": false,
           "defaultWidth": 900,
@@ -174,6 +174,15 @@
               "defaultHeight": 430
             }
           }
+        },
+        "backup": {
+          "title": "Backup",
+          "type": "custom",
+          "multi": false,
+          "defaultWidth": 600,
+          "defaultHeight": 400,
+          "minWidth": 500,
+          "minHeight": 400	
         },
         "module": {
           "title": "Extensionmanager",
@@ -248,6 +257,41 @@
           "defaultWidth": 500,
           "defaultHeight": 470,
           "type": "custom"
+        },        
+        "chooser": {
+          "title": "Chooser",
+          "isLink": false,
+          "acl": false,
+          "defaultWidth": 560,
+          "minWidth": 560,
+          "defaultHeight": 400,
+          "type": "custom"
+        },
+        "stores": {
+          "title": "Stores",
+          "isLink": false,
+          "childs": {
+              "groups": {
+                 "type": "store",
+                 "table": "system_groups",
+                 "label": "name",
+                 "id": "rsn"
+              },
+              "languages": {
+                 "type": "store",
+                 "table": "system_langs",
+                 "label": "title",
+                 "id": "rsn"
+              },
+              "extensions": {
+                 "type": "store",
+                 "class": "adminStoreExtensions"
+              },
+              "domains": {
+                 "type": "store",
+                 "class": "adminStoreDomains"
+              }
+          }
         }
       }
     },
@@ -281,15 +325,6 @@
           "defaultHeight": 500,
           "type": "custom"
         },
-        "chooser": {
-          "title": "Chooser",
-          "isLink": false,
-          "acl": false,
-          "defaultWidth": 560,
-          "minWidth": 560,
-          "defaultHeight": 400,
-          "type": "custom"
-        },
         "bigEditor": {
           "title": "WYSIWYG-Editor",
           "isLink": false,
@@ -320,6 +355,10 @@
           "defaultWidth": 680,
           "defaultHeight": 420,
           "type": "custom"
+        },
+        "systemfiles": {
+          "title": "System files",
+          "isLink": false
         },
         "properties": {
           "title": "Properties",
@@ -739,6 +778,12 @@
         false
       ],
       "robots": [
+        "text",
+        "",
+        "-",
+        false
+      ],
+      "session": [
         "text",
         "",
         "-",
@@ -1240,6 +1285,7 @@
     "admin\/js\/ka.tooltip.js",
     "admin\/js\/ka.AutoTable.js",
     "admin\/js\/ka.Select.js",
+    "admin\/js\/ka.Progress.js",
     "admin\/js\/ka.Accordion.js",
     "admin\/js\/ka.imageGroup.js",
     "admin\/js\/ka.customField.js",
@@ -1277,6 +1323,7 @@
     "admin\/css\/ka.filesPane.css",
     "admin\/css\/ka.AutoTable.css",
     "admin\/css\/ka.Select.css",
+    "admin\/css\/ka.Progress.css",
     "admin\/css\/ka.Accordion.css",
     "admin\/css\/ka.imageGroup.css",
     "admin\/css\/ka.layoutBox.css",

@@ -7,6 +7,8 @@ users_field_picture = new Class({
 		this.field = pField;
 		this.parent = pParent;
 		
+		this.parent.setStyle('margin', 0);
+		
 		this.value = '';
 		
 		this.main = new Element('div', {
@@ -36,7 +38,7 @@ users_field_picture = new Class({
 	choose: function(){
 		
 		var _this = this;
-		ka.wm.openWindow( 'admin', 'pages/chooser', null, -1, {onChoose: function( pValue ){
+		ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
             _this.setValue( pValue, true );
             this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler
         },

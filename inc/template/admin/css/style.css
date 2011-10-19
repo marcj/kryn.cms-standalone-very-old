@@ -33,7 +33,6 @@ div.middleLeft{
     top: 0px;
     width: 130px;
     background-color: #e4eef5;
-    z-index: 1000;
 }
 
 div.content {
@@ -123,7 +122,6 @@ div.headRight{
     right: -11px;
     width: 400px;
     top: 0px;
-    z-index: 15000;
     color: #777;
     font-size: 10px;
     line-height: 12px;

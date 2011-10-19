@@ -1,6 +1,6 @@
 <?php
 function smarty_function_kryn($params, &$smarty){
-        global $modules, $user, $kryn, $searchIndexMode;
+        global $modules, $user, $searchIndexMode;
 
         $module = $params['module'];
         $method = $params['plugin'];
@@ -12,7 +12,7 @@ function smarty_function_kryn($params, &$smarty){
             if($searchIndexMode && (!isset($params['search']) || !$params['search']))
                 $result = '';
             else
-                $result = knavigation::plugin( $params );
+                $result = krynNavigation::plugin( $params );
             
             break;
         case 'template':
@@ -23,8 +23,8 @@ function smarty_function_kryn($params, &$smarty){
             //return kryn::getPageContent( $params['id'], true );
             break;
         default:
-            if($kryn->installedMods[$module]){
-                $plugins = $kryn->installedMods[$module]['plugins'];
+            if(kryn::$configs[$module]){
+                $plugins = kryn::$configs[$module]['plugins'];
                 $count = 0;
 
                 $paramsGiven = explode("=", $info[1]);
@@ -50,7 +50,7 @@ function smarty_function_kryn($params, &$smarty){
                 ob_start();
                 print $temp;
                 
-                if($searchIndexMode && isset($kryn->installedMods[$module]['plugins'][$method][2]) && $kryn->installedMods[$module]['plugins'][$method][2] == 1)
+                if($searchIndexMode && isset(kryn::$configs[$module]['plugins'][$method][2]) && kryn::$configs[$module]['plugins'][$method][2] == 1)
                     $result = '';
                 
                 

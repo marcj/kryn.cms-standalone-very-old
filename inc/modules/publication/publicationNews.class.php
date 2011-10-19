@@ -5,7 +5,7 @@ class publicationNews
     
     public static function itemDetail( $pConf )
     {
-        global $user;
+        global $user, $client;
         
         // Get important variables from config
         $replaceTitle = $pConf['replaceTitle']+0 == 1; // Ensure it's set
@@ -81,7 +81,7 @@ class publicationNews
                                     'owner_username' => $name,
                                     'created' => time(),
                                     'ip' => $_SERVER['REMOTE_ADDR'],
-                                    'session_id' => $user->sessionid,
+                                    'session_id' => $client->token,
                                     'subject',
                                     'website',
                                     'email',
@@ -135,7 +135,7 @@ class publicationNews
                     tAssign('currentCommentPage', $page);
                     
                     // Fetch comments
-                    $comments = dbTableFetch('publication_comments', -1, "parent_rsn = $rsn LIMIT $itemsPerPage OFFSET $start");
+                    $comments = dbTableFetch('publication_comments', -1, "parent_rsn = $rsn OFFSET $start LIMIT $itemsPerPage");
                     if($comments !== false)
                         tAssign('comments', $comments);
                 }
@@ -229,7 +229,11 @@ class publicationNews
                 AND c.rsn = n.category_rsn
                 AND (n.releaseAt = 0 OR n.releaseAt <= $now)
             ORDER BY $orderBy
+<<<<<<< HEAD
             LIMIT $itemsPerPage OFFSET $start
+=======
+            OFFSET $start LIMIT $itemsPerPage
+>>>>>>> develop
         ";
         $list = dbExfetch($sql, -1);
         

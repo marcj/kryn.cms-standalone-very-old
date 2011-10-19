@@ -219,7 +219,7 @@ ka.pluginChooser =  new Class({
         	option.tableitem = 1;
             option.label = _(option.label);
             option.desc = _(option.desc);
-            _this.activeOptions[key] = new ka.field( option, key ).inject( this.tbody );
+            _this.activeOptions[key] = new ka.field( option, this.tbody );
             
             if( option.depends ){
             	this._renderDependProperties( _this.activeOptions[key], option.depends );
@@ -256,7 +256,7 @@ ka.pluginChooser =  new Class({
             item.label = _(item.label);
             item.desc = _(item.desc);
             //logger( item.type );
-    		var field = new ka.field( item, key ).inject( this.tbody );
+    		var field = new ka.field( item, this.tbody );
 
     		field.hide();
     		
