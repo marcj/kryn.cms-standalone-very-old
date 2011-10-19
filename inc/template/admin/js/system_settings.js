@@ -252,7 +252,7 @@ var admin_system_settings = new Class({
         	label: _('Template cache path'), desc: 'Default is inc/tcache/. This folder is for caching template files, so it should be available via HTTP.'
         }).inject( p );
         
-        var origin = Object.clone(ka.fieldCaching);
+        var origin = ka.getFieldCaching();
         
         origin.cache_type['default'] = 'files';
         

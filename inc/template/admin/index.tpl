@@ -34,6 +34,9 @@
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Button.css" />
         <link rel="SHORTCUT ICON" href="{$cfg.templatepath}/admin/images/favicon.ico" />
+        
+        {$adminHeader}
+
     </head>
     <body>
         <div class="border" id="border">
