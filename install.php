@@ -393,7 +393,6 @@ function step5(){
             print "</div>";
         }
     }
-	database::readTables(true);
 
     dbDelete( 'system_domains' );
 
