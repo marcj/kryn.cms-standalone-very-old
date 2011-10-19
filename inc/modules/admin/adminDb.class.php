@@ -106,11 +106,10 @@ class adminDb {
                 $res .= "Create table <i>$tableName</i>\n";
                 $res .= self::updateIndexes( $tableName, $tableFields );
             }
-            $kdb->tableInfos[$tableName] = $tableFields;
+            kryn::deleteCache('kryn_database_'.$tableName);
         }
         $res .= "\nDatabase installed.\n";
         
-		database::readTables();
         database::updateSequences( $db );
         return $res;
     }
