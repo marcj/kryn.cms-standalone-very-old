@@ -2668,7 +2668,8 @@ class kryn {
      * @param string $pCode
      */
     public static function deleteCache( $pCode ){
-        kryn::$cache->delete( $pCode );
+        if( kryn::$cache )
+            kryn::$cache->delete( $pCode );
     }
     
     /**
@@ -2681,7 +2682,9 @@ class kryn {
      * @static
      */
     public static function setCache( $pCode, $pValue ){
-    	kryn::$cache->set( $pCode, $pValue );
+        if( kryn::$cache )
+        	return kryn::$cache->set( $pCode, $pValue );
+        return false;
     }
 
     /**
@@ -2694,7 +2697,9 @@ class kryn {
      * @static
      */
     public static function &getCache( $pCode ){
-        return kryn::$cache->get( $pCode );
+        if( kryn::$cache )
+            return kryn::$cache->get( $pCode );
+        return false;
     }
     
     /**
