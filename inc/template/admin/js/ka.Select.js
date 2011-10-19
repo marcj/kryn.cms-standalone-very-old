@@ -54,23 +54,11 @@ ka.Select = new Class({
         this.box = null;
     },
     
-<<<<<<< HEAD
-    addSeparator: function( pLabel ){
-        
-        new Element('a', {
-            html: pLabel,
-            href: 'javascript:;',
-            'class': 'ka-Select-separator'
-        })
-        .inject( this.chooser );
-    
-=======
-    addSplit: function( pLabel ){
+   addSplit: function( pLabel ){
         new Element('div', {
             html: pLabel,
             'class': 'group'
         }).inject( this.chooser );
->>>>>>> develop
     },
     
     add: function( pId, pLabel ){
@@ -141,40 +129,24 @@ ka.Select = new Class({
     },
     
     toggle: function( e ){
-<<<<<<< HEAD
-        if( e && e.stop ){
-            e.stop();
-        }
-        if( this.opened == true )
-            this.close();
-        else {
-            if( e && e.stop ){
-                this.chooser.getWindow().document.body.fireEvent('click');
-=======
-    
+   
         if( this.chooser.getParent() )
             this.close();
         else {
             if( e && e.stop ){
                 window.fireEvent('click');
                 e.stop();
->>>>>>> develop
             }
             this.open();
         }
     },
     
     open: function(){
-<<<<<<< HEAD
-        this.chooser.setStyle('display', 'block');
-        this.chooser.getWindow().document.body.addEvent('click', this.close.bind(this));
-=======
 
         ka.openDialog({
             element: this.chooser,
             target: this.box
         });
->>>>>>> develop
         
         return;
     
@@ -191,13 +163,6 @@ ka.Select = new Class({
         var pos = this.chooser.getPosition();
         var size = this.chooser.getSize();
         
-<<<<<<< HEAD
-        var bsize = this.chooser.getWindow().getSize( $('desktop') );
-        var wscroll = this.chooser.getWindow().getScroll();
-        
-        if( size.y+pos.y > bsize.y+wscroll.y )
-            this.chooser.setStyle('height', (bsize.y+wscroll.y)-pos.y-10);
-=======
         var bsize = $('desktop').getSize();
         
         var height;
@@ -205,7 +170,6 @@ ka.Select = new Class({
         if( size.y+pos.y > bsize.y ){
             height = bsize.y-pos.y-10;
         }
->>>>>>> develop
     
         if( height ) {
         

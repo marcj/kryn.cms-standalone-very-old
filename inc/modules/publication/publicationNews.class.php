@@ -229,11 +229,7 @@ class publicationNews
                 AND c.rsn = n.category_rsn
                 AND (n.releaseAt = 0 OR n.releaseAt <= $now)
             ORDER BY $orderBy
-<<<<<<< HEAD
-            LIMIT $itemsPerPage OFFSET $start
-=======
             OFFSET $start LIMIT $itemsPerPage
->>>>>>> develop
         ";
         $list = dbExfetch($sql, -1);
         
