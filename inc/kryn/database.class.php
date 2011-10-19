@@ -529,11 +529,13 @@ class database {
             if( $tables ){
                 foreach( $tables as $table ){
                     $fields = self::getOptions( pfx.$table );
-                    foreach( $fields as $fieldKey => $field ){
-                        if( $field['auto_increment'] == 1 ){
-                            $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.$table, 1);
-            	            $sql = 'ALTER SEQUENCE kryn_'.$table.'_seq RESTART WITH '.($row['mmax']+1);
-            	            dbExec( $sql );
+                    if( $fields ){
+                        foreach( $fields as $fieldKey => $field ){
+                            if( $field['auto_increment'] == 1 ){
+                                $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.$table, 1);
+                	            $sql = 'ALTER SEQUENCE kryn_'.$table.'_seq RESTART WITH '.($row['mmax']+1);
+                	            dbExec( $sql );
+                            }
                         }
                     }
                 }
