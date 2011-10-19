@@ -2,12 +2,7 @@
 function smarty_function_content( $params, &$smarty ){
 
         if( getArgv(1) == 'admin'  ){
-            $return = "{content";
-            foreach( $params as $key => $val ){
-                $return .= ' '.$key.'="'.str_replace('"', '\"', $val).'"';
-            }
-            $return .= "}";
-            return $return;
+            return '<div class="kryn_layout_content" params="'.htmlspecialchars(json_encode($params)).'"></div>';
         }
         
         return kryn::renderContents( kryn::$contents[$params['id']], $params);

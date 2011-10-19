@@ -1570,6 +1570,10 @@ ka.openDialog = function( item ){
         
     ka.closeDialog();
     
+    var target = document.body;
+    if( item.target && item.target.getWindow() )
+        target = item.target.getWindow().document.body;
+
     ka.autoPositionLastOverlay = new Element('div', {
         style: 'position: absolute; left:0px; top: 0px; right:0px;bottom:0px;background-color: white;',
         styles: {
@@ -1579,11 +1583,11 @@ ka.openDialog = function( item ){
     .addEvent('click', function(){
         ka.closeDialog();
     })
-    .inject( document.body );
+    .inject( target );
     
     ka.autoPositionLastItem = item.element;
 
-    item.element.inject( document.body );
+    item.element.inject( target );
     item.element.removeEvent('click', ka.closeDialog);
     item.element.addEvent('click', ka.closeDialog);
 
@@ -1804,41 +1808,23 @@ ka.getFieldCaching = function (){
 
 ka.renderLayoutElements = function( pDom, pClassObj ){
 	
-    var layoutBoxes = $H({});
-    if( !pDom.getFirst() && (pDom.get('text').search(/{slot.+}/) >= 0 || pDom.get('text').search(/{content.+}/) >= 0) ){
-    	
-        var value = pDom.get('text');
-        var type = 'slot';
-        if( pDom.get('text').search(/{slot.+}/) >= 0 ){
-        	value = value.substr( 6, value.length-7 );
-        } else {
-        	value = value.substr( 9, value.length-10 );
-        	type = 'content';
-        }
-        
-        var options = {};
-        
-        var exp = /([a-zA-Z0-9-_]+)=([^"']([^\s]*)|["]{1}([^"]*)["]{1}|[']{1}([^']*)[']{1})/g;
-        while( res = exp.exec( value ) ){
-            options[ res[1] ] = res[4];
-        }
-        if( pOptions )
-            options = Object.append(options, pOptions);
-
-        exp = null;
-        if( options.id+0 > 0 ){
-        	if( type == 'slot' )
-        		layoutBoxes[ options.id ] = new ka.layoutBox( pDom, options, pClassObj ); //options.name, this.win, options.css, options['default'], this, options );
-        	else
-        		layoutBoxes[ options.id ] = new ka.contentBox( pDom, options, pClassObj );
-        }
-    }
+    var layoutBoxes = {};
     
-    if( pDom.getFirst() ){
-    	pDom.getChildren().each(function(child){
-    		layoutBoxes.combine( ka.renderLayoutElements( child, pClassObj, pOptions ) );
-        });
-    }
+    console.log(pDom);
+    pDom.$$('.kryn_layout_content, .kryn_layout_slot').each(function(item){
+       
+        var options = {}; 
+        if( item.get('params') )
+            var options = JSON.decode(item.get('params'));
+
+        console.log({});
+
+    	if( item.hasClass('kryn_layout_slot') )
+    		layoutBoxes[ options.id ] = new ka.layoutBox( item, options, pClassObj ); //options.name, this.win, options.css, options['default'], this, options );
+    	else
+    		layoutBoxes[ options.id ] = new ka.contentBox( item, options, pClassObj );
+
+    });
     
     return layoutBoxes;
 }

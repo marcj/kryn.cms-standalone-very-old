@@ -2420,16 +2420,18 @@ var admin_pages = new Class({
         this.layoutBoxes = new Hash();
 
         
-        this.layoutBoxes = ka.renderLayoutElements( this.iframe, this );
+        this.layoutBoxes = ka.renderLayoutElements( this.iframe.contentWindow, this );
         //this._renderContentLayoutSearchAndFindBoxes( $(this.iframe.contentWindow.document.body) );
 
         if( this.contentManageMode == 'list' ){
+
             var div = new Element('div', {'class': 'ka-admin-pages-manageModeList'})
-            this.layoutBoxes.each(function(layoutBox){
+            Object.each(this.layoutBoxes, function(layoutBox){
                 layoutBox.inject( div );
             }.bind(this));
             this.iframe.contentWindow.document.body.empty();
             div.inject( this.iframe.contentWindow.document.body );
+
             this.iframe.contentWindow.document.body.setStyle('display', 'block');
             this.iframe.contentWindow.document.body.setStyle('text-align', 'left');
             this.iframe.contentWindow.document.html.setStyle('margin-right', 0);
@@ -2444,7 +2446,7 @@ var admin_pages = new Class({
         if( $type( this.page.contents ) == 'string' )
             contents = new Hash(JSON.decode(this.page.contents));
 
-        this.layoutBoxes.each(function(editLayout,boxId){
+        Object.each(this.layoutBoxes, function(editLayout,boxId){
             editLayout.setContents( contents[boxId] );
         });
 
@@ -2509,7 +2511,7 @@ var admin_pages = new Class({
         });
 
         var _this = this;
-        this.layoutBoxes.each(function(layoutBox){
+        Object.each(this.layoutBoxes, function(layoutBox){
             _this.sortables.removeItems( layoutBox.title );
             if( layoutBox.contents.each ){
                 layoutBox.contents.each(function(layoutContent){
@@ -2532,7 +2534,7 @@ var admin_pages = new Class({
             if( !this.iframe ) {
                 this._loadContent();
             } else {
-                this.layoutBoxes.each(function(editLayout,boxId){
+                Object.each(this.layoutBoxes, function(editLayout,boxId){
                     var contents = [];
                     editLayout.clear();
                     if( res && res[boxId] )
@@ -2632,7 +2634,7 @@ var admin_pages = new Class({
         
         var selected = 0;
     	
-    	this.layoutBoxes.each(function(box,id){
+    	Object.each(this.layoutBoxes, function(box,id){
             selected = selected + box.deselectAll( pContent );
         });
         
@@ -3084,7 +3086,7 @@ var admin_pages = new Class({
 
     retrieveContents: function( pAndClose ){
         var contents = new Hash();
-        this.layoutBoxes.each(function( pBox, pBoxId ){
+        Object.each(this.layoutBoxes, function( pBox, pBoxId ){
             contents.include( pBoxId, pBox.getValue( pAndClose ) );
         });
         return contents;

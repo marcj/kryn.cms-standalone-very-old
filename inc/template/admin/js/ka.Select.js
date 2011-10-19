@@ -54,7 +54,7 @@ ka.Select = new Class({
         this.box = null;
     },
     
-   addSplit: function( pLabel ){
+    addSplit: function( pLabel ){
         new Element('div', {
             html: pLabel,
             'class': 'group'

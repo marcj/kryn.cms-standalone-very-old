@@ -202,7 +202,7 @@ ka.layoutContent = new Class({
 
         Object.each( ka.settings.contents, function(la, key){
             
-            this.sTemplate.addSeparator( key );
+            this.sTemplate.addSplit( key );
              
             Object.each( la, function( layoutFile,layoutTitle ){
                 this.sTemplate.add( layoutFile, _(layoutTitle) );
