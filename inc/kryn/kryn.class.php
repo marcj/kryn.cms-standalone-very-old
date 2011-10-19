@@ -1045,24 +1045,15 @@ class kryn {
             $cfg['cronjob_key'] = dechex(time()/mt_rand(100, 500));
             kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
         }
+
+        if( $cfg['cache_type'] == 'files' ){
         
-        if( !$cfg['caching_type'] || $cfg['caching_type'] == '' )
-            $cfg['caching_type'] = 'files';
-        
-        if( $cfg['caching_type'] == 'files' ){
-        
-            if( !$cfg['files_path'] || $cfg['files_path'] == '' ){
-                $cfg['files_path'] = 'inc/cache/';
-            }
-        
-            if( !$cfg['caching_config'] ){
-                $cfg['caching_config'] = array(
-                    'files_path' => $cfg['files_path']
-                );
+            if( !$cfg['cache_params'] || $cfg['cache_params']['files_path'] == '' ){
+                $cfg['cache_params']['files_path'] = 'inc/cache/';
             }
         }
 
-        kryn::$cache = new krynCache( $cfg['caching_type'], $cfg['caching_config'] );
+        kryn::$cache = new krynCache( $cfg['cache_type'], $cfg['cache_params'] );
 
         kryn::$cacheFast = new krynCache( 'files', array('files_path' => 'inc/cache/') );
         
