@@ -86,16 +86,42 @@ input.ka-layoutContent-title {
     padding: 0px;
     outline: 0;
     position: absolute;
-    left: -2px;
-    top: 0px;
-    right: 179px;
+    left: 2px;
+    top: 3px;
+    right: 310px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
     border: 0px;
-    height: 18px;
+    height: 19px;
     padding: 1px;
     border-right: 1px solid silver;
     border-left: 1px solid silver;
 }
 
+.ka-layoutContent-toolbar-title-selects {
+    position: absolute;
+    right: 133px;
+    top: 1px;
+    width: 180px;
+}
+
+.ka-layoutContent-toolbar-images {
+    right: 4px;
+    position: absolute;
+    top: 1px;
+    height: 24px;
+    width: 132px;
+    text-align: right;
+}
+
+body .ka-layoutContent-toolbar-images img {
+    padding: 0px;
+    border: 0px;
+    float: none;
+    margin: 4px 1px;
+    cursor: pointer;
+}
 
 .ka-layoutContent-toolbar a.mooeditable-ui-toolbar-tab-button,
 .ka-layoutContent-toolbar a.mooeditable-ui-toolbar-tab-button:link {
@@ -106,7 +132,7 @@ input.ka-layoutContent-title {
 
 .ka-layoutContent-toolbar-title {
     position: relative;
-    height: 20px;
+    height: 27px;
     text-align: left;
 }
 
@@ -114,17 +140,9 @@ input.ka-layoutContent-title {
     background-color: #f4f4f4;
 }
 
-.ka-layoutContent-toolbar-title-selects {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    width: 180px;
-}
-
 .ka-layoutContent-toolbar-title .ka-Select-box {
     margin-top: 2px;
 }
-
 
 
 .ka-layoutContent-toolbar-arrow {
@@ -158,12 +176,6 @@ input.ka-layoutContent-title {
     -webkit-border-radius: 4px;
     box-shadow: 0px 0px 5px #eee;
 }
-
-body .ka-layoutBox-main .ka-layoutContent-options img {
-    margin-bottom: 2px;
-    cursor: pointer;
-}
-
 
 body .ka-layoutBox-main .ka-layoutContent-options .ka-layoutContent-options-arrow {
     position: absolute;

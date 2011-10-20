@@ -67,6 +67,46 @@ ka.layoutContent = new Class({
         
         this.w.addEvent('scroll', this.positionToolbar.bind(this));
         this.w.addEvent('resize', this.positionToolbar.bind(this));
+        
+        this.iTitle = new Element('input', {
+            'class': 'ka-normalize ka-layoutContent-title'
+        }).inject( this.toolbarTitleContainer );
+        
+        this.sType = new ka.Select()
+        .addEvent('change', this.changeType.bind(this))
+        .inject( this.toolbarTitleContainerSelects );
+        
+        document.id(this.sType).setStyle('width', 65);
+        
+        Object.each( this.langs, function(item, id){
+            this.sType.add( id, item );
+        }.bind(this));
+        
+        this.sTemplate = new ka.Select()
+        .addEvent('change', function(){
+            this.content.template = this.sTemplate.getValue();
+            this.setDivContent();
+        }.bind(this))
+        .inject( this.toolbarTitleContainerSelects );
+        document.id(this.sTemplate).setStyle('width', 65);
+        
+        this.sTemplate.add( '-', _('-- no layout --') );
+
+        Object.each( ka.settings.contents, function(la, key){
+            
+            this.sTemplate.addSplit( key );
+             
+            Object.each( la, function( layoutFile,layoutTitle ){
+                this.sTemplate.add( layoutFile, _(layoutTitle) );
+            }.bind(this))
+
+        }.bind(this));
+        
+        this.optionsImg = new Element('div', {
+            'class': 'ka-layoutContent-toolbar-images'
+        }).inject( this.toolbarTitleContainer );
+
+        this.renderTitleActions();
     
     },
     
@@ -86,7 +126,7 @@ ka.layoutContent = new Class({
         
         var pos = {
             'left': pos.x-3,
-            'top': pos.y
+            'top': pos.y+7
         };
         
         pos['top'] -= this.toolbar.getSize().y+7;
@@ -132,10 +172,11 @@ ka.layoutContent = new Class({
         
         this.window = this.main.getWindow();
 
-        this.main.addEvent('mouseover', function(){
+        /*this.main.addEvent('mouseover', function(){
             this.options.tween('opacity', 1);
         }.bind(this));
-
+        */
+        
         this.main.addEvent('click', function(e){
             /*_this.hideBubbleBox();*/
             this.select();
@@ -144,7 +185,7 @@ ka.layoutContent = new Class({
         }.bind(this));
 
         this.main.addEvent('mouseout', function(){
-            this.options.tween('opacity', 0);
+            //this.options.tween('opacity', 0);
         }.bind(this));
 
         this.main.store( 'layoutContent', this );
@@ -160,80 +201,6 @@ ka.layoutContent = new Class({
         }).inject( this.main );
         
         this.body = this.div;
-        
-        this.options = new Element('div', {
-            'class': 'ka-layoutContent-options',
-            styles: {
-                opacity: 0
-            }
-        })
-        .inject( this.main );
-        
-        this.toolbarArrow = new Element('img', {
-            src: _path+'inc/template/admin/images/ka-tooltip-corner-top.png',
-            'class': 'ka-layoutContent-options-arrow'
-        }).inject( this.options );
-        
-        
-        this.iTitle = new Element('input', {
-            'class': 'ka-normalize ka-layoutContent-title'
-        }).inject( this.toolbarTitleContainer );
-        
-        this.sType = new ka.Select()
-        .addEvent('change', this.changeType.bind(this))
-        .inject( this.toolbarTitleContainerSelects );
-        
-        document.id(this.sType).setStyle('width', 65);
-        
-        Object.each( this.langs, function(item, id){
-            this.sType.add( id, item );
-        }.bind(this));
-        
-        
-        this.sTemplate = new ka.Select()
-        .addEvent('change', function(){
-            this.content.template = this.sTemplate.getValue();
-            this.setDivContent();
-        }.bind(this))
-        .inject( this.toolbarTitleContainerSelects );
-        document.id(this.sTemplate).setStyle('width', 65);
-        
-        this.sTemplate.add( '-', _('-- no layout --') );
-
-        Object.each( ka.settings.contents, function(la, key){
-            
-            this.sTemplate.addSplit( key );
-             
-            Object.each( la, function( layoutFile,layoutTitle ){
-                this.sTemplate.add( layoutFile, _(layoutTitle) );
-            }.bind(this))
-
-        }.bind(this));
-
-        this.optionsTemplate = new Element('span', {
-        });
-        //.inject( this.options );
-
-        this.bubbleBox = new Element('div', {
-            'class': 'ka-layoutContent-bubbleBox',
-            text: "hi",
-            styles: {
-                opacity: 0,
-                display: 'none'
-            }
-        })
-        .inject( this.main );
-
-        this.bubbleBoxContent = new Element('div').inject( this.bubbleBox );
-
-        this.optionsImg = new Element('div', {
-        })
-        .inject( this.options );
-        //.inject( this.bubbleBox );
-
-        new Element('div', {style: 'clear: both'}).inject( this.options );
-
-        this.renderTitleActions();
 
 //        new Element('div', {style: 'clear: both; height: 1px;'}).inject( this.title );
 
@@ -290,14 +257,6 @@ ka.layoutContent = new Class({
         var p = _path+'inc/template/admin/images/icons/';
 
         if( !this.content.noActions ){
-	        if( !this.noAccess ){
-		        new Element('img', {
-		            src: p+'delete.png',
-		            title: _('Delete')
-		        })
-		        .addEvent('click', this.remove.bindWithEvent(this))
-		        .inject( this.optionsImg );
-	        }
 	        
 	        this.hideImg = new Element('img', {
 	            src: p+'lightbulb.png',
@@ -345,6 +304,15 @@ ka.layoutContent = new Class({
 	        })
 	        .inject( this.optionsImg );
 	
+	        
+	        if( !this.noAccess ){
+		        new Element('img', {
+		            src: p+'delete.png',
+		            title: _('Delete')
+		        })
+		        .addEvent('click', this.remove.bindWithEvent(this))
+		        .inject( this.optionsImg );
+	        }
 	        
 	        if( !this.noAccess ){
 	        	this.hideImg.addEvent('click', this.toggleHide.bindWithEvent(this))
@@ -1260,10 +1228,6 @@ ka.layoutContent = new Class({
         }
         
         this.lastContent = Object.clone(this.content);
-
-        this.optionsTemplate.set('html', '<span style="color: #444;"> | '+
-                this.getTemplateTitle(this.content.template)+
-                '</span>');
 
         this.positionToolbar();
 
