@@ -60,7 +60,7 @@
 .ka-layoutContent-main-selected,
 .ka-layoutContent-main-selected:hover {
     outline: 3px solid #fff170;
-    outline: 3px solid gray;
+    outline: 3px solid #333;
 }
 
 .ka-layoutContent-toolbar {

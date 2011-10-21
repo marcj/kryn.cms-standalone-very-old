@@ -119,34 +119,36 @@ ka.layoutContent = new Class({
         if( !this.toolbar.getParent() ) return;
 
         var pos = this.main.getPosition( this.w.document.body );
+        var size = this.main.getSize();
         
         var size = this.toolbar.getSize();
         var wsize = this.w.getSize();
         var scroll = this.w.getScroll();
         
-        var pos = {
+        var npos = {
             'left': pos.x-3,
-            'top': pos.y+7
+            'top': pos.y+4
         };
         
-        pos['top'] -= this.toolbar.getSize().y+7;
+        npos['top'] -= this.toolbar.getSize().y+7;
         
         //if not in viewport
-        if( pos['top']+size.y > wsize.y+scroll.y ){
-            pos['top'] = wsize.y+scroll.y-size.y;
+        if( npos['top']+size.y > wsize.y+scroll.y ){
+            npos['top'] = wsize.y+scroll.y-size.y;
         }
-        if( pos['top'] < scroll.y ){
-            pos['top'] = scroll.y;
-        }
-        
-        if( pos['left']+size.x > wsize.x+scroll.x ){
-            pos['left'] = wsize.x+scroll.x-size.x;
+        if( npos['top'] < scroll.y ){
+            npos['top'] = scroll.y;
         }
         
-        //arrow position
+        if( npos['left']+size.x > wsize.x+scroll.x ){
+            npos['left'] = wsize.x+scroll.x-size.x;
+        }
         
-        this.toolbar.setStyles(pos);
-    
+        this.toolbar.setStyles(npos);
+        
+        var diff = pos.x-npos['left'];
+        this.toolbarArrow.setStyle('left', diff + size.x/5-10);
+        
     },
     
     hideToolbar: function(){
@@ -341,6 +343,7 @@ ka.layoutContent = new Class({
         var previous = this.main.getPrevious();
         if( previous )
             this.main.inject( previous, 'before' );
+        this.positionToolbar();
     },
 
     toDown: function(e){
@@ -348,6 +351,7 @@ ka.layoutContent = new Class({
         var next = this.main.getNext();
         if( next )
             this.main.inject( next, 'after' );
+        this.positionToolbar();
     },
 
     copy: function( e ){

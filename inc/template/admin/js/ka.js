@@ -1580,8 +1580,9 @@ ka.openDialog = function( item ){
             opacity: 0.001
         }
     })
-    .addEvent('click', function(){
+    .addEvent('click', function( e ){
         ka.closeDialog();
+        e.stop();
     })
     .inject( target );
     

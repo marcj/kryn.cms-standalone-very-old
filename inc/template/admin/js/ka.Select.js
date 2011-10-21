@@ -133,10 +133,6 @@ ka.Select = new Class({
         if( this.chooser.getParent() )
             this.close();
         else {
-            if( e && e.stop ){
-                window.fireEvent('click');
-                e.stop();
-            }
             this.open();
         }
     },
