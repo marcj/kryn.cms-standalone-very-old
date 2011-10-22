@@ -1,4 +1,4 @@
-body a.ka-Button, a.ka-Button:link {
+a.ka-Button, a.ka-Button:link {
     padding: 5px 5px 6px 10px;
     cursor: default;
     position: relative;
@@ -18,12 +18,12 @@ body a.ka-Button, a.ka-Button:link {
     background-repeat: no-repeat;
 }
 
-body a.ka-Button:hover {
+a.ka-Button:hover {
     background-position: left -27px;
     color: white;
 }
 
-body a.ka-Button span, a.ka-Button:link span {
+a.ka-Button span, a.ka-Button:link span {
     position: absolute;
     right: -4px;
     top: 0px;
@@ -40,12 +40,14 @@ a.ka-Button:hover span {
 }
 
 a.ka-Button-active span,
+a.ka-Button-active:hover span,
 a.ka-Button-active:link span {
     background-position: right -53px;
 }
 
 a.ka-Button-active,
-a.ka-Button-active:link {
+a.ka-Button-active:link,
+a.ka-Button-active:hover {
     background-position: left -53px;
     color: white;
 }
