@@ -14,7 +14,7 @@ var admin_pages = new Class({
         this.win.kwin = this;
         this.win.forceOverlay =  true;
 
-        $H(ka.settings.get('langs')).each(function(lang,key){
+        Object.each(ka.settings['langs'], function(lang,key){
             if( this.language ) return;
             this.language = key;
         }.bind(this));
@@ -2160,7 +2160,7 @@ var admin_pages = new Class({
         w.document.body.removeEvents('click');
         w.document.body.addEvent('click', function(e){
             if( !e ) return;
-            
+
         	if( this.ignoreNextDeselectAll ){
         		this.ignoreNextDeselectAll = false;
         		return;
@@ -2234,7 +2234,8 @@ var admin_pages = new Class({
     },
 
     _createDraggerBar: function(){
-
+    
+        return;
         this.win.onResizeComplete = this._updateDraggerBarPosition.bind(this);
         this.contentItems = new Element('div', {
             'class': 'ka-admin-pages-possibleContentItems',
@@ -2467,7 +2468,8 @@ var admin_pages = new Class({
                 });
             }
         });*/
-
+        
+        return;
         if( this.sortables )
             this.sortables.detach();
 
