@@ -362,7 +362,7 @@ class adminWindowList {
 
         //relation stuff
         $rTable = database::getTable( $this->table );
-        
+        $options = database::getOptions( $this->table );
         
         if( getArgv('relation_table') ){
             
@@ -374,7 +374,7 @@ class adminWindowList {
                 foreach( $relation['fields'] as $field_left => $field_right ){
                 
                     $extraWhere .= " AND $table.$field_right = ";
-                    if( database::$tables[ $rTable ][ $field_right ]['escape'] == 'int' )
+                    if( $options[ $field_right ]['escape'] == 'int' )
                         $extraWhere .= $params[ $field_right ]+0;
                     else
                         $extraWhere .= "'".esc($params[ $field_right ])."'";
