@@ -33,8 +33,10 @@ class adminLanguages {
 
         $res = array(); 
         foreach( kryn::$configs as $key => $mod ){
-            $res[ $key ]['config'] = $mod;
+        
+            $res[ $key ]['config'] = $mod;    
             $res[ $key ]['lang'] = adminModule::extractLanguage( $key );
+            
             if( count($res[ $key ]['lang']) > 0 ){
                 $translate = adminModule::getLanguage( $key, $pLang );
                 foreach( $res[ $key ]['lang'] as $key => &$lang ){

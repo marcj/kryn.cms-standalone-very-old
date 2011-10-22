@@ -533,7 +533,7 @@ ka.kwindow = new Class({
 
     saveDimension: function(){
         var pos = this.border.getCoordinates(this.border.getParent());
-        var windows = (ka.settings.get('user')) ? ka.settings.get('user').get('windows'): {};
+        var windows = (ka.settings['user']) ? ka.settings['user']['windows']: {};
         if(! windows.set )
             windows = new Hash();
 
@@ -544,7 +544,7 @@ ka.kwindow = new Class({
         pos.width = pos.width-2;
         pos.height = pos.height-2;
         windows.set( this.module+'::'+this.code, pos );
-        ka.settings.get('user').set('windows', windows);
+        ka.settings['user']['windows'] = windows;
         ka.saveUserSettings();
     },
 
@@ -554,7 +554,7 @@ ka.kwindow = new Class({
         this.border.setStyle('width', 500 );
         this.border.setStyle('height', 320 );
 
-        var windows = ka.settings.get('user').get('windows');
+        var windows = ka.settings['user']['windows'];
         if(! windows.set )
             windows = new Hash();
         var pos = windows.get(this.module+'::'+this.code);

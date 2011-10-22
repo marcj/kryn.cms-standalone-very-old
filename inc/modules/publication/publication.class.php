@@ -41,14 +41,6 @@ class publication extends baseModule
     
     }
     
-    public function getOrderOptions( $pFields ){
-        $array['title'] = _l('Title');
-        $array['releaseat'] = _l('Release date');
-        $array['releasedate'] = _l('News date');
-        $array['category_rsn'] = _l('Category');
-        return $array;
-    }
-    
      public function getOrderDirectionOptions( $pFields ){
         $array['desc'] = _l('Descending');
         $array['asc'] = _l('Ascending');

@@ -72,7 +72,7 @@
     background-color: #ddd;
     box-shadow: 0px 0px 9px #eee;
     font-size: 10px;
-    min-width: 400px;
+    min-width: 310px;
     text-align: left;
 }
 
@@ -87,8 +87,8 @@ input.ka-layoutContent-title {
     outline: 0;
     position: absolute;
     left: 2px;
-    top: 3px;
-    right: 310px;
+    top: 4px;
+    right: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
@@ -101,15 +101,15 @@ input.ka-layoutContent-title {
 
 .ka-layoutContent-toolbar-title-selects {
     position: absolute;
-    right: 133px;
-    top: 1px;
-    width: 180px;
+    left: 1px;
+    top: 27px;
+    width: 185px;
 }
 
 .ka-layoutContent-toolbar-images {
-    right: 4px;
+    right: 5px;
     position: absolute;
-    top: 1px;
+    top: 27px;
     height: 24px;
     width: 132px;
     text-align: right;
@@ -133,11 +133,16 @@ body .ka-layoutContent-toolbar-images img {
 .ka-layoutContent-toolbar-title {
     position: relative;
     height: 27px;
+    height: 55px;
     text-align: left;
 }
 
 .ka-layoutContent-toolbar-wysiwyg {
     background-color: #f4f4f4;
+}
+
+.ka-layoutContent-toolbar-wysiwyg .mooeditable-ui-toolbar {
+    margin-top: 0px;
 }
 
 .ka-layoutContent-toolbar-title .ka-Select-box {

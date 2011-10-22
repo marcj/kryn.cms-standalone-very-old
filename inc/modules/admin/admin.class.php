@@ -776,24 +776,7 @@ class admin {
                 $res['domains'][] = $row;
             }
         }
-        
-        
-        /*
-        include_once('inc/modules/admin/adminPages.class.php');
-        foreach( $res['domains'] as $domain ){
-            $domainRsn = $domain['rsn'];
-            if( !$res['r2d'][ $domainRsn ] ){
-                adminPages::updatePage2DomainCache();
-            }
 
-            $res["menus_$domainRsn"] =& kryn::getCache("menus_$domainRsn");
-
-            if( !$res["menus_$domainRsn"] || $domainRsn == 2 ){
-                $res["menus_$domainRsn"] = adminPages::updateMenuCache( $domainRsn );
-            }
-        }
-        */
-        
         $userRsn = $client->user_rsn;
             
         $res['acl_pages'] = dbExfetch("

@@ -50,6 +50,7 @@ ka._wysiwygId2Win = new Hash({});
 ka.tinyPopup2Win = new Hash({});
 
 window.addEvent( 'load', function(){
+
     window.ka.ai.renderLogin();
     
     document.hidden = new Element('div', {
@@ -276,8 +277,7 @@ ka.ai.renderLogin = function(){
     })
     .inject( form );
 
-    ka.possibleLangs
-    .each(function(lang){
+    ka.possibleLangs.each(function(lang){
         new Element('option', {
             html: lang.title+' ('+lang.langtitle+')',
             value: lang.code
@@ -290,6 +290,8 @@ ka.ai.renderLogin = function(){
     }).inject( middle );
 
     ka.ai.loginName.focus();
+
+    ka.loadLanguage( ka.ai.loginLangSelection.value );
 }
 
 ka.ai.reloadLogin = function(){
@@ -477,7 +479,6 @@ ka.ai.loadDone = function(){
 
         //load settings, bg etc
         ka.loadSettings();
-
         
         ka.init();
         ka._desktop.load();

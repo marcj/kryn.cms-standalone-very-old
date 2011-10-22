@@ -844,6 +844,28 @@ class kryn {
         $pContent 
       );    
     }
+    
+    /**
+     * 
+     * Translates all string which are surrounded with [[ and ]].
+     *
+     * @param string &$pContent
+     * @static
+     * @internal
+     *
+     */
+    public static function translate( $pContent ){
+        return preg_replace_callback(
+            '/([^\\\\]?)\[\[([^\]]*)\]\]/',
+            create_function(
+                '$pP',
+                '
+                return $pP[1]._l( $pP[2] );
+                '
+            ),
+            $pContent
+        );
+    }
 
     /**
      * 
@@ -1536,7 +1558,7 @@ class kryn {
      * Loads the current domain based in the requested URL 
      * @internal
      */
-    public static function loadLanguage(){
+    public static function searchDomain(){
         global $cfg, $languages, $lang, $language;
 
         $languages =& kryn::getCache('systemLanguages');
@@ -1660,7 +1682,7 @@ class kryn {
         kryn::$language =& $language;
         kryn::$domain = $domain;
         tAssign( 'domain', $domain );
-        tAssign( '_domain', $domain );
+        tAssign( '_domain', $domain ); //compatibility
         tAssign("lang", $lang);
         
         
@@ -2539,8 +2561,8 @@ class kryn {
      * @return array All config values from the config.json
      * @static
      */
-    public static function getModuleConfig( $pModule ){
-        $pModule = str_replace(".","",$pModule);
+    public static function getModuleConfig( $pModule, $pLang = false ){
+        $pModule = str_replace( ".","", $pModule );
 
         if( $pModule == 'kryn' )
             $config = "inc/kryn/config.json";
@@ -2550,22 +2572,24 @@ class kryn {
         if( !file_exists($config) ){
             return false;
         }
+
         $ltime = filemtime($config);
+        $lang = $pLang?$pLang:kryn::$domain['lang'];
         
-        $cacheCode = "moduleConfig_$pModule"."_$ltime";
-        $file = "inc/cache/$cacheCode.php";
+        $cacheCode = "moduleConfig_$pModule"."_$lang"."_$ltime";
         
-        $configObj = kryn::getFastCache( $cacheCode ); 
+        $configObj = kryn::getFastCache( $cacheCode );
         if( !$configObj ){
-        
+            
             //delete all config caches from this module
-            $delfiles = glob("inc/cache/moduleConfig_$pModule"."_*.php");
+            $delfiles = glob("inc/cache/moduleConfig_$pModule"."_$lang"."_*.php");
+            
             if( count($delfiles) > 0 )
                 foreach( $delfiles as $delfile )
                     @unlink( $delfile );
-                    
-            $json = kryn::fileRead( $config );
-            $configObj = json_decode($json,1);
+
+            $json = kryn::translate( kryn::fileRead( $config ) );
+            $configObj = json_decode( $json, 1 );
             kryn::setFastCache( $cacheCode, $configObj );
         }
         

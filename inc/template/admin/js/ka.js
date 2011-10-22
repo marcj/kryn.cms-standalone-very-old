@@ -122,27 +122,34 @@ ka.getDomain = function( pRsn ){
 	return result;
 }
 
-
 ka.loadSettings = function(){
     new Request.JSON({url: _path+'admin/backend/getSettings', noCache: 1, async: false, onComplete: function(res){
-        ka.settings = $H(res);
-        ka.settings.set('images', ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd']);
-        ka.settings.set('user', $H(ka.settings.user));
-        ka.settings.get('user').set('windows', $H(ka.settings.get('user').get('windows')));
+        if( res.error == 'access_denied' ) return;
         
-        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
-        if( ka.settings.system.systemtitle ){
+        ka.settings = res;
+        
+        ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
+        
+        if( ka.settings.user )
+            document.id(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
+        
+        if( ka.settings.system && ka.settings.system.systemtitle ){
             document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
         }
-    }.bind(this)}).get();
+
+    }.bind(this)}).get({lang: window._session.lang});
 }
 
 ka.loadLanguage = function( pLang ){
     if(!pLang) pLang = 'en';
     window._session.lang = pLang;
+    
+    Cookie.write('kryn_language', pLang);
+    
     new Request.JSON({url: _path+'admin/getLanguage:'+pLang+'/', async: false, noCache: 1, onComplete: function(res){
         ka.lang = res;
         Locale.define('en-US', 'Date', res.mootools);
+        //ka.loadSettings();
     }}).get();
 }
 
@@ -1575,7 +1582,7 @@ ka.openDialog = function( item ){
         target = item.target.getWindow().document.body;
 
     ka.autoPositionLastOverlay = new Element('div', {
-        style: 'position: absolute; left:0px; top: 0px; right:0px;bottom:0px;background-color: white;',
+        style: 'position: absolute; left:0px; top: 0px; right:0px; bottom:0px;background-color: white;',
         styles: {
             opacity: 0.001
         }
@@ -1585,6 +1592,12 @@ ka.openDialog = function( item ){
         e.stop();
     })
     .inject( target );
+    
+    var size = item.target.getWindow().getScrollSize();
+    ka.autoPositionLastOverlay.setStyles({
+        width: size.x,
+        height: size.y
+    });
     
     ka.autoPositionLastItem = item.element;
 
@@ -1636,9 +1649,17 @@ ka.openDialog = function( item ){
 
 ka.parse = new Class({
 
-    fields: {},
+    Implements: Options,
 
-    initialize: function( pContainer, pDefinition ){
+    fields: {},
+    
+    options: {
+        allTableItems: false
+    },
+
+    initialize: function( pContainer, pDefinition, pOptions ){
+    
+        this.setOptions( pOptions );
     
         this.main = new Element('div', {
             'class': 'ka-fields-main'
@@ -1654,16 +1675,16 @@ ka.parse = new Class({
     parseLevel: function( pLevel, pContainer, pDependField ){
         Object.each( pLevel, function( field, id ){
 
+            if( this.options.allTableItems )
+                field.tableitem = 1;
+            
             var obj = new ka.field( field, pContainer );
             
             if( pDependField && field.needValue ){
+
                 pDependField.addEvent('check-depends', function(){
-                    if( typeOf(field.needValue) == 'string' || typeOf(field.needValue) == 'number' ){
-                        if( field.needValue == pDependField.getValue() )
-                            obj.show();
-                        else
-                            obj.hide();
-                    } else if( typeOf(field.needValue) == 'array' ){
+                
+                    if( typeOf(field.needValue) == 'array' ){
                         if( field.needValue.contains(pDependField.getValue()) )
                             obj.show();
                         else
@@ -1673,16 +1694,40 @@ ka.parse = new Class({
                             obj.show();
                         else
                             obj.hide();
+                    } else {
+                        if( field.needValue == pDependField.getValue() )
+                            obj.show();
+                        else
+                            obj.hide();
                     }
                 }.bind(this));
+
             }
             
             if( field.depends ){
+
+                var childContainer = false;
+                    
+                var target = document.id(obj);    
+                
+                if( target.get('tag') == 'tr' ){
+                    var tr = new Element('tr').inject( document.id(obj), 'after' );
+                    target = new Element('td', {colspan: 2, style: 'border-bottom: 0px;'}).inject( tr );
+                }
+
                 var childContainer = new Element('div', {
                     'class': 'ka-fields-sub'
-                }).inject( document.id(obj) );
+                }).inject( target );
+
                 obj.childContainer = childContainer;
+                
+                if( field.tableitem ){
+                    var table = new Element('table', {width: '100%'}).inject( childContainer );
+                    childContainer = new Element('tbody').inject( table );
+                }
+
                 this.parseLevel( field.depends, childContainer, obj );
+
                 obj.fireEvent('check-depends');
             }
             this.fields[ id ] = obj;

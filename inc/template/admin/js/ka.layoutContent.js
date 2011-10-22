@@ -1190,6 +1190,10 @@ ka.layoutContent = new Class({
             this.mooeditable.detach();
             this.mooeditable = null;
         }
+        
+        if( this.lastContent && this.lastContent.type != this.content.type ){
+            this.toolbarWysiwygContainer.empty();
+        }
             
         switch( this.content.type ){
         case 'text':
