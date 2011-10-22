@@ -10,6 +10,8 @@ class usersAdminEdit extends windowEdit {
     public $loadSettingsAfterSave = true;
     
     private static $cacheUser = false;
+    
+    public $titleField = 'username';
 
     public $tabLayouts = array(
         'General' => '<table width="100%"><tr>

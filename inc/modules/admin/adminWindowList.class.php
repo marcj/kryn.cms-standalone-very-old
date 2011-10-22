@@ -193,7 +193,6 @@ class adminWindowList {
                     if($pFields['modifier'] && !empty($pFields['modifier']) && method_exists( $this, $pFields['modifier'] ))                   
                         $pFields['tableItems'] = $this->$pFields['modifier']( $pFields['tableItems'] );
 
-                        
                     break;
                  case 'files':
                      
@@ -562,8 +561,7 @@ class adminWindowList {
             $limit";
             
         }
-            
-        //klog('huhu', $listSql);
+
         $res = dbExec( $listSql );
         
         $found = false;

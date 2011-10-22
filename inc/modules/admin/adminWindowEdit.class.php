@@ -77,6 +77,11 @@ class adminWindowEdit {
     
     
     /**
+     * Defines which field the windows should use for the title.
+     */
+    public $titleField = false;
+    
+    /**
      * Initialize $fields. Called when opened the window.
      * @return windowEdit 
      */
