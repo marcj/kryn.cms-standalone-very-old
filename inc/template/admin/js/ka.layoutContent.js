@@ -247,7 +247,7 @@ ka.layoutContent = new Class({
     	
     	this.sType.setValue( this.content.type );
     	this.sTemplate.setValue( this.content.template );
-    	this.iTitle.value = this.content.title;
+    	this.iTitle.value = this.content.title?this.content.title:"";
         this.changeType();
     
     },
@@ -704,20 +704,38 @@ ka.layoutContent = new Class({
 
     type2HTML: function(){
         this.body.empty();
+        
         var p = new Element('div', {
             style: 'margin-right: 4px;'
         }).inject( this.body );
         
         this.textarea = new Element( 'textarea', {
-            style: 'width: 100%; margin: 0px; padding: 1px; border: 1px solid silver;',
-            'class': 'text', rows: 5,
+            style: 'width: 100%; overflow: hidden; font-family: "Verdana, sans"; outline: 0; margin: 0px; padding: 1px; height: 40px; line-height: 14px; font-size: 13px; border: 1px solid silver;',
+            'class': 'text', 
             text: this.content.content
         }).inject( p );
         
-        this.textarea.addEvent('keyup', function(){
-        	var t = this.value.split("\n");
-        	this.rows = t.length-1; 
-        });
+        this.dummy = new Element('div', {style: 'white-space: pre;font-family: "Verdana, sans"; word-wrap: break-word; border: 1px solid silver; background-color: white; line-height: 14px; font-size: 13px; position: absolute; left: 0px; top: 0px;'})
+        .inject( document.hidden );
+
+        this.dummy.setStyle('width', this.body.getSize().x-3);
+
+        logger(this.dummy);
+        
+        var adjustHeight = function(){
+        
+            this.dummy.set('text', this.textarea.value);
+            var height = this.dummy.getSize().y;
+
+            if( height > 25 )
+                this.textarea.setStyle('height', height+35);
+            
+        }.bind(this);
+        
+        this.textarea.addEvent('keyup', adjustHeight.bind(this));
+        this.textarea.addEvent('keydown', adjustHeight.bind(this));
+        this.textarea.addEvent('keypress', adjustHeight.bind(this));
+        this.textarea.addEvent('change', adjustHeight.bind(this));
         
         this.textarea.fireEvent('keyup');
     },
