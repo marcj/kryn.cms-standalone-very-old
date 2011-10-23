@@ -147,43 +147,6 @@ ka.Select = new Class({
         return;
     
     },
-    
-    updatePos: function(){
-
-        this.chooser.position({
-            relativeTo: this.box,
-            position: 'bottomRight',
-            edge: 'upperRight'
-        });
-        
-        var pos = this.chooser.getPosition();
-        var size = this.chooser.getSize();
-        
-        var bsize = $('desktop').getSize();
-        
-        var height;
-
-        if( size.y+pos.y > bsize.y ){
-            height = bsize.y-pos.y-10;
-        }
-    
-        if( height ) {
-        
-            if( height < 100 ){
-            
-                this.chooser.position({
-                    relativeTo: this.box,
-                    position: 'upperRight',
-                    edge: 'bottomRight'
-                });
-                
-            } else {
-                this.chooser.setStyle('height', height);
-            }
-            
-        }
-
-    },
 
     toElement: function(){
         return this.box;

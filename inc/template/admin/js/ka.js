@@ -1594,6 +1594,7 @@ ka.openDialog = function( item ){
     .inject( target );
     
     var size = item.target.getWindow().getScrollSize();
+
     ka.autoPositionLastOverlay.setStyles({
         width: size.x,
         height: size.y
@@ -1627,13 +1628,14 @@ ka.openDialog = function( item ){
     var size = item.element.getSize();
 
     var bsize = item.element.getParent().getSize();
+    var bscroll = item.element.getParent().getScroll();
     var height;
 
     item.element.setStyle('height', '');
     
     item.minHeight = item.element.getSize().y;
 
-    if( size.y+pos.y > bsize.y ){
+    if( size.y+pos.y > bsize.y+bscroll.y ){
         height = bsize.y-pos.y-10;
     }
 

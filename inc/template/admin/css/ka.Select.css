@@ -21,6 +21,7 @@
     background-image:     -ms-linear-gradient(top, #fafafa, #f1f1f1); 
     background-image:      -o-linear-gradient(top, #fafafa, #f1f1f1); 
     background-image:         linear-gradient(top, #fafafa, #f1f1f1);
+    text-align: left;
 }
 
 .ka-Select-box:hover {
