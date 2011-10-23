@@ -7,17 +7,39 @@ ka.layoutContent = new Class({
 	
     initialize: function( pContent, pContainer, pLayoutBox ){
         
-        this.content = $H(pContent);
+        this.content = pContent;
         this.container = pContainer;
         
+        
+        if( this.content.type == 'picture' ){
+            var options = this.content.content.split('::');
+            this.content.content = '<img src="'+options[1]+'" ';
+            var properties = typeOf(options[0]) == 'string' ? JSON.decode(options[0]) : {};
+            
+            if( properties.alt )
+                this.content.content += ' alt="'+properties.alt+'" ';
+            if( properties.title )
+                this.content.content += ' title="'+properties.title+'" ';
+                
+            this.content.content += ' />';
+            
+            
+            if( properties.link )
+                this.content.content = '<a href="'+properties.link+'">'+this.content.content+'</a>';
+                
+            if( properties.align )
+                this.content.content = '<div style="text-align: '+properties.align+'">'+this.content.content+'</div>';
+            
+            this.content.type = 'text';
+        }
+
         this.w = this.container.getWindow();
         this.editMode = 0;
         this.layoutBox = pLayoutBox;
 
         this.langs = {
-            picture: _('Picture'),
+            text: _('Text and Picture'),
             template: _('Template'),
-            text: _('Text'),
             layoutelement: _('Layout Element'),
             navigation: _('Navigation'),
             pointer: _('Pointer'),
@@ -515,16 +537,8 @@ ka.layoutContent = new Class({
             if( this.pluginChooser )
                 this.content.content = this.pluginChooser.getValue();
             break;
-        /*case 'text':
-            try {
-                var tiny = this.w.tinyMCE.get(this.lastId);
-                if( tiny )
-                    this.content.content = tiny.getContent();
-            } catch( e ){
-                //logger(e);
-            }
-            break;*/
 
+        case 'picture':
         case 'text':
         case 'html':
         case 'php':
@@ -538,10 +552,6 @@ ka.layoutContent = new Class({
             break;
         case 'template':
             this.content.content = this.templateFileField.getValue();
-            break;
-        case 'picture': 
-            //this.setPicContentValue(true);
-            //this.content.content = 'none::'+this.type2PicInput.value;
             break;
         }
     },
@@ -615,9 +625,6 @@ ka.layoutContent = new Class({
         case 'layoutelement':
         	this.toLayoutElement();
         	break;
-        case 'picture':
-            this.type2Pic();
-            break;
         }
     	
     	this.oldType = this.content.type;
@@ -852,200 +859,6 @@ ka.layoutContent = new Class({
         return;
     },
 
-
-
-    getPicProperties: function(){
-        
-        res = {};
-        
-        res.align = this.picAlign.getValue();
-        res.link = this.picLink.getValue();
-        res.alt = this.picAlt.getValue();
-        res.title = this.picTitle.getValue();
-
-        res.width = this.picDimensionWidth.value;
-        //logger('newWidth: '+this.picDimensionWidth.value);
-        res.height = this.picDimensionHeight.value;
-    
-        return res;
-    },
-
-    setPicContentValue: function( pNoRender ){
-    	if( !this.picUrl ) return;
-        
-        var url = this.picUrl.getValue();
-        
-        var opts = this.getPicProperties();
-        this.content.content = JSON.encode(opts)+'::'+url;
-        
-        if( this.selected == true ){
-            //logger('setPicContentValue: selected=true');
-            if( $type(url) == 'string' && url.length > 0 ){
-            
-                if( this.picBorderDiv.getElement('img.ka-content-type-img') &&
-                    this.picBorderDiv.getElement('img.ka-content-type-img').get('src') == url
-                  ){
-                    
-                } else {
-                    this.picBorderDiv.empty();
-                    //logger(this.picBorderDiv.getElement('img.ka-content-type-img').get('src') +' == '+ url);
-                    var fId = 'adminFilesImgOnLoad'+new Date().getTime()+((Math.random()+"").replace(/\./g, ''));
-                    window[fId] = function(){
-                        this.picLoaded();
-                    }.bind(this);
-                    
-                    this.picBottomPic = new Element('img', {
-                        src: url,
-                        'class': 'ka-content-type-img',
-                        align: 'center',
-                        onLoad: fId+'()'
-                    }).inject( this.picBorderDiv );
-                    
-                    if( this.picLoading )
-                        this.picLoading.destroy();
-                    
-                    this.picLoading = new Element('div', {
-                      style: 'position: absolute; left: 0px; text-align: center; top: 0px; height: 120px; width: 130px; background-color: #eee',
-                      html: '<br /><br /><img src="'+_path+'inc/template/admin/images/loading.gif" />'
-                    }).inject( this.picBorderDiv );
-                }
-            }
-            
-            this.picBorderDiv.setStyle('text-align', opts.align);
-        }
-        
-        if( pNoRender !== true )
-            this.setDivContent();
-    },
-
-    type2Pic: function(){
-        
-        this.body.empty();
-        this.toolbarWysiwygContainer.empty();
-        
-        var div = new Element('div', {
-            style: 'border-bottom: 1px solid silver;'
-        }).inject(this.toolbarWysiwygContainer);
-        
-        
-        var divOne = new Element('div').inject(div);
-        var divSecond= new Element('div', {style: 'padding-left: 5px;'}).inject(div);
-        
-        var url = '';
-        var opts = {align: 'left', link: '', alt: '', title: '', width: '', height: ''};
-        
-        if( this.content.content && this.content.content.split ){
-        
-            var pos = this.content.content.indexOf('::');
-            url = this.content.content.substr(0, pos);
-            var optString = this.content.content.substr(pos+2);
-            if( optString != 'none' && optString != "" && optString.substr(0, 1) == '{' )
-                opts = JSON.decode( optString );
-        }
-        
-        this.picUrl = new ka.field({
-            type: 'file'
-        }).inject( divOne );
-        
-        document.id(this.picUrl).getElement('.ka-field-field').setStyle('margin-left', 0);
-        
-        new Element('input', {'class': 'text', style: 'width: 50px;'}).inject( divSecond );
-        new Element('span', {text: 'x'}).inject( divSecond );
-        new Element('input', {'class': 'text', style: 'width: 50px;'}).inject( divSecond );
-        
-        var btn = new ka.Button(_('Reset')).inject( divSecond );
-        document.id(btn).setStyle('top', -2);
-        
-        var btn = new ka.Button(_('Properties')).inject( divSecond );
-        document.id(btn).setStyle('top', -2);
-
-        return;
-    },
-    
-    picCalcSize: function( pProz ){
-      
-        var faktor = pProz / 100;
-
-        if( !this.imgSize ) return;
-
-        this.picDimensionWidth.value = Math.ceil(this.imgSize.x * faktor);
-        this.picDimensionHeight.value = Math.ceil(this.imgSize.y * faktor);
-
-        
-        if( this.picDivContentImg ){
-            //logger('picCalcSize');
-            this.picDivContentImg.set('width', this.picDimensionWidth.value);
-            this.picDivContentImg.set('height', this.picDimensionHeight.value);            
-        }
-        
-        
-        return;
-        
-        if( this.imgSize.x > this.imgSize.y ){
-            var newX = this.imgSize.x * faktor;
-            this.img.width = newX;
-        } else {
-            var newY = this.imgSize.y * faktor;
-            this.img.height = newY;
-        }
-
-        this.picDimensionHeight.value = this.img.height;
-        this.picDimensionWidth.value = this.img.width;
-    },
-    
-    picLoaded: function(){
-        this.loadingImg = true;
-
-        this.picSizeZoomerText.set('text', '100%');
-        
-        if( this.picBottomPic ){
-            this.imgSize = {x: this.picBottomPic.width, y: this.picBottomPic.height };
-            this.picBottomPic.set('style', 'max-width: 100%; max-height: 100%');
-
-            //this.picDimensionWidth.value = this.imgSize.x;
-            //this.picDimensionHeight.value = this.imgSize.y;
-        }
-
-        if( this.picLoading )
-            this.picLoading.destroy();
-        
-
-        var opts = JSON.decode(this.content.content.split('::')[0]);
-        var proz = 100;
-        if( opts ){
-            if( opts.width && opts.height ){
-
-                proz = Math.floor(opts.width / (this.imgSize.x / 100));
-                var prozHeight = Math.floor(opts.height / (this.imgSize.y / 100));
-                if( proz == prozHeight ){
-                    if( proz > 100 )
-                        proz = 100;
-                    if( proz < 0 )
-                        proz = 0;
-                } else {
-                    proz = -1;
-                    this.picSizeZoomerText.set('text', _('User defined'));
-                }
-                
-            }
-        }
-        if( proz != -1 )
-            this.picSlider.set( proz );
-        
-    },
-
-    type2PicChoose: function(){
-        ka.wm.openWindow( 'admin', 'pages/choosePic', null, this.w.win.id, {
-            input: this.type2PicInput,
-            image: this.type2PicImage,
-            pic: this.content.content
-        });
-    },
-
-    renderType2Pic: function(){
-
-    },
-
     type2Text: function( pForce ){
 
         if( this.lastTextarea && !pForce ) return;
@@ -1162,7 +975,7 @@ ka.layoutContent = new Class({
     _setDivContent: function( pRerender ){
         //here we need a valid this.body ref
 
-        if( this.content.type != 'text' ){
+        if( this.content.type != 'text' &&  this.content.type != 'picture' ){
             this.lastId = false;
         }
         
@@ -1172,21 +985,23 @@ ka.layoutContent = new Class({
             this.main.removeClass('ka-layoutContent-main-selected');
         }
         
-        if( this.content.type != 'text' ){
+        this.toolbar.removeClass('ka-layoutContent-toolbar-withwysiwyg');
+
+        if( !['text', 'picture'].contains(this.content.type) ){
             this.main.addClass('ka-layoutContent-body-notext');
-            this.toolbar.removeClass('ka-layoutContent-toolbar-withwysiwyg');
         } else {
+
             this.main.removeClass('ka-layoutContent-body-notext');
             this.toolbar.addClass('ka-layoutContent-toolbar-withwysiwyg');
         }
-            
+
         if( this.title )
             this.title.set('html', this.content.title);
             
-        if( this.content.type != 'text' )
+        if( this.content.type != 'text' && this.content.type != 'picture' )
             this.lastTextarea = false;
             
-        if( this.content.type != 'text' && this.mooeditable ){
+        if( (this.content.type != 'text' && this.content.type != 'picture' ) && this.mooeditable ){
             this.mooeditable.detach();
             this.mooeditable = null;
         }
@@ -1194,13 +1009,9 @@ ka.layoutContent = new Class({
         if( this.lastContent && this.lastContent.type != this.content.type ){
             this.toolbarWysiwygContainer.empty();
         }
-            
+
         switch( this.content.type ){
         case 'text':
-            /*
-            this.body.set('html', this.content.content);
-            this.body.getElements('a').set('href', 'javascript:;');
-            */
             this.type2Text( pRerender );
             break;
         case 'plugin':
@@ -1223,9 +1034,6 @@ ka.layoutContent = new Class({
         case 'layoutelement':
         	this.toLayoutElement();
         	break;
-        case 'picture':
-            this.type2Pic();
-            break;
         }
         
         this.setHide( this.content.hide );
@@ -1454,7 +1262,7 @@ ka.layoutContent = new Class({
         
         this.main.removeClass('ka-layoutContent-main-selected');
             
-        if( this.content.type == 'text' && this.hideTinyMceToolbar ){
+        if( (this.content.type == 'text' || this.content.type == 'picture') && this.hideTinyMceToolbar ){
             this.hideTinyMceToolbar();
         }
         

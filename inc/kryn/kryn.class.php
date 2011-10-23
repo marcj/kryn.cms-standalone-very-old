@@ -3056,6 +3056,7 @@ class kryn {
                 
                 break;
             case 'picture':
+
                 $temp = explode( '::', $_content );
                 
                 if( $temp[0] != '' && $temp[0] != 'none' ){
@@ -3078,12 +3079,13 @@ class kryn {
                     } else if( $opts['link'] != '' ){
                         $link = $opts['link'];
                     }
-                    
+
                     if( $link == '' ){
                         $_content = '<div style="text-align: '.$align.';"><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></div>';
                     } else {
                         $_content = '<div style="text-align: '.$align.';"><a href="'.$link.'" ><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></a></div>';
                     }
+
                 } else {
                     $_content = '<img src="' . $temp[1] . '" />';
                 }
