@@ -343,7 +343,10 @@ ka.field = new Class({
             if( !pLabel ){
                 
                 new Request.JSON({url: _path+'admin/'+_this.field.store, onComplete:function(res){
-                    title.set('text', res.label )
+                    if( res )
+                        title.set('text', res.label );
+                    else
+                        title.set('text', _('##Failed##') );
                 }}).get({cmd: 'item', id: pValue});
             }
             
@@ -643,6 +646,8 @@ ka.field = new Class({
         
         this._setValue = function( pValue ){
         
+            if( pValue == '' || !pValue ) return;
+
             if( typeOf(pValue) == 'string' ) pValue = JSON.decode( pValue );
         
             if( _this.field.store ){

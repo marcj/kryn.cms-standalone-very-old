@@ -76,7 +76,6 @@
     text-align: left;
 }
 
-
 .ka-layoutContent-toolbar-withwysiwyg {
     min-width: 600px;
 }
@@ -87,8 +86,8 @@ input.ka-layoutContent-title {
     outline: 0;
     position: absolute;
     left: 2px;
-    top: 4px;
-    right: 3px;
+    top: 3px;
+    right: 24px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
@@ -97,6 +96,13 @@ input.ka-layoutContent-title {
     padding: 1px;
     border-right: 1px solid silver;
     border-left: 1px solid silver;
+}
+
+.ka-layoutContent-toolbar-access {
+    position: absolute;
+    right: 6px;
+    cursor: pointer;
+    top: 6px;
 }
 
 .ka-layoutContent-toolbar-title-selects {

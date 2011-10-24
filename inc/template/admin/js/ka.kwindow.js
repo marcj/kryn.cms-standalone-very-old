@@ -26,9 +26,8 @@ ka.kwindow = new Class({
 
     //drops a icon-link to desktop which links to this window
     dropLink: function(){
-    
+
         var title = this.getFullTitle();
-        
         
         if( title.length > 25 ){
             title = title.substr();
@@ -282,6 +281,8 @@ ka.kwindow = new Class({
     
         this.createOverlay();
         
+        this.hasDialog = true;
+
         var main = new Element('div', {
             'class': 'ka-kwindow-prompt'
         }).inject( this.border );
@@ -290,12 +291,13 @@ ka.kwindow = new Class({
             html: pText,
             'class': 'ka-kwindow-prompt-text'
         }).inject( main );
-        
+
         main.close = function(){
             main.destroy();
+            this.hasDialog = false;
             this.deleteOverlay();
         }.bind(this);
-        
+
         main.bottom = new Element('div', {
             'class': 'ka-kwindow-prompt-bottom'
         }).inject( main );
@@ -308,6 +310,8 @@ ka.kwindow = new Class({
             main.setStyle('left', left);
             main.setStyle('top', mtop);
         }.bind(this);
+        
+        this.lastDialog = main;
         
         main.center();
         
@@ -385,7 +389,6 @@ ka.kwindow = new Class({
 
     toFront: function(){
         if( this.active ){
-
             this.title.setStyle('opacity', 1);
             if( this.border.getStyle('display') != 'block' ){
                 this.border.setStyles({
@@ -395,16 +398,11 @@ ka.kwindow = new Class({
                 this.border.set('tween', {duration: 300});
                 this.border.tween('opacity', 1);
             }
+            
 
             this.border.inject( this.border.getParent() );
 
             ka.wm.setFrontWindow( this.id );
-
-            this.isOpen = true;
-            this.inFront = true;
-            this.deleteOverlay();
-            ka.wm.updateWindowBar();
-            
             if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
                 var win = ka.wm.getDependOn( this.id );
                 if( win ){
@@ -414,14 +412,20 @@ ka.kwindow = new Class({
                 return false;
             }
             if( this.inDependMode ) return;
+
+            this.isOpen = true;
+            this.inFront = true;
+            this.deleteOverlay();
+            ka.wm.updateWindowBar();
             
             return true;
         }
     },
 
     addHotkey: function( pKey, pControl, pAlt, pCallback ){
+
         document.addEvent('keydown', function(e){
-            if( this.inFront && !this.inOverlayMode ){
+            if( this.inFront && (!this.inOverlayMode) ){
                 if( pControl && !e.control ) return;
                 if( pAlt && !e.alt ) return;
                 if( e.key == pKey ){
@@ -431,6 +435,7 @@ ka.kwindow = new Class({
                 
             }
         }.bind(this));
+
     },
 
 
@@ -645,7 +650,7 @@ ka.kwindow = new Class({
         this.fireEvent('close');
         
         //save dimension
-        if( this.border ){ //war schon richtig auf 
+        if( this.border ){
 
             if( this.module == 'users' && this.code == 'users/edit/' ){
                 ka.loadSettings();
@@ -1148,6 +1153,8 @@ ka.kwindow = new Class({
     },
 
     deleteOverlay: function(){
+    
+        if( this.hasDialog == true ) return;
     	
         if( ka.performance ){
             this.content.setStyle('display', 'block');
@@ -1182,17 +1189,28 @@ ka.kwindow = new Class({
             limit: {x:[minWidth,2000], y: [minHeight,2000]},
             handle: this.resizeBottomRight,
             onStart: function(){
+                
                 if( ka.performance ){
                     this.content.setStyle('display', 'none');
                 }
                 window.fireEvent('click');
-                ka.wm.createOverlays()
+
+                if( !this.hasDialog )
+                    ka.wm.createOverlays()
             }.bind(this),
             onComplete: function(){
-                ka.wm.removeOverlays();
+                
+                if( !this.hasDialog )
+                    ka.wm.removeOverlays();
+                else
+                    this.lastDialog.center();
+                    
+                this.content.setStyle('display', 'block');
+
                 this.saveDimension();
                 this.onResizeComplete();
                 this.fireEvent('resize');
+
             }.bind(this),
             onCancel: function(){ ka.wm.removeOverlays() }
         });

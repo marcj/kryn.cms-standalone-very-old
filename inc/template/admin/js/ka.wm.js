@@ -86,10 +86,6 @@ ka.wm = {
 
     getOpener: function( pId ){
     	
-    	logger('getOpener: '+pId+' ('+ ka.wm.getDepend(pId)+')');
-    	logger(ka.wm.windows);
-    	logger(ka.wm.depend);
-    	
         return ka.wm.windows[ ka.wm.getDepend(pId) ];
     },
 

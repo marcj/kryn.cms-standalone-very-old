@@ -3030,9 +3030,44 @@ class kryn {
      * @internal
      */
     public static function renderContent( $pContent, $pProperties ){
-        global $modules, $tpl;
+        global $modules, $tpl, $client, $adminClient;
         
-        $content = $pContent;
+        $content =& $pContent;
+        
+        if( 
+            ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
+            ($content['access_to']+0 > 0 && $content['access_to'] < time() )
+        ){
+            return;
+        }
+        
+        if( $content['access_from_groups'] ){
+
+            $access = false;
+            $groups = ','.$content['access_from_groups'].',';
+        
+            foreach( $client->user['groups'] as $group ){
+                if( strpos( $groups, ','.$group.',' ) !== false ){
+                    $access = true;
+                    break;
+                }
+            }
+            
+            if( !$access ){
+                foreach( $adminClient->user['groups'] as $group ){
+                    if( strpos( $groups, ','.$group.',' ) !== false ){
+                        $access = true;
+                        break;
+                    }
+                }
+                if( $access ){
+                    //have acces through the admin login
+                }
+            }
+            
+            if( $access == false ) return '';
+        
+        }
         
         $_content = &$content['content'];
         

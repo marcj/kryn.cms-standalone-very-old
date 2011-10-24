@@ -94,6 +94,14 @@ ka.layoutContent = new Class({
             'class': 'ka-normalize ka-layoutContent-title'
         }).inject( this.toolbarTitleContainer );
         
+        this.imgAccess = new Element('img', {
+            src: _path+'inc/template/admin/images/admin-pages-viewType-versioning.png',
+            'class': 'ka-layoutContent-toolbar-access',
+            title: _('Access settings')
+        })
+        .addEvent('click', this.openAccessDialog.bind(this))
+        .inject( this.toolbarTitleContainer );
+        
         this.sType = new ka.Select()
         .addEvent('change', this.changeType.bind(this))
         .inject( this.toolbarTitleContainerSelects );
@@ -129,6 +137,86 @@ ka.layoutContent = new Class({
         }).inject( this.toolbarTitleContainer );
 
         this.renderTitleActions();
+    
+    },
+    
+    openAccessDialog: function(){
+    
+        var dialog = this.window.win.newDialog();
+        
+        dialog.setStyle('height', 250);
+        dialog.setStyle('width', 360);
+        dialog.center();
+       
+       
+        var fields = {
+        
+            "unsearchable": {
+                label: _('Unsearchable'),
+                desc: _('Hides this element in the search index'),
+                type: "checkbox"
+            },
+            
+            "access_from": {
+                label: _('Release at'),
+                type: 'datetime'
+            },
+            "access_to": {
+                label: _('Hide at'),
+                type: 'datetime'
+            },
+            
+            "access_from_groups": {
+                label: _('Limit access to groups'),
+                type: 'textlist',
+                store: 'admin/backend/stores/groups'
+            }
+        
+        };
+       
+        this.accessFields = new ka.parse( dialog, fields );
+        
+        var groups = this.content.access_from_groups;
+        if( typeOf(groups) == 'string' )
+             groups = groups.split(',');
+
+        this.accessFields.setValue({
+            unsearchable: this.content.unsearchable,
+            access_from: this.content.access_from,
+            access_to: this.content.access_to,
+            access_from_groups: groups
+        });
+
+        var bottom = new Element('div', {
+            'class': 'ka-kwindow-prompt-bottom'
+        }).inject( dialog );
+        
+        new ka.Button(_('Cancel'))
+        .addEvent('click', dialog.close.bind(dialog))
+        .inject( bottom );
+        
+        new ka.Button(_('Ok'))
+        .addEvent('click', function(){
+            
+            var value = this.accessFields.getValue();
+            
+            this.content.unsearchable = value.unsearchable;
+            this.content.access_from = value.access_from;
+            this.content.access_to = value.access_to;
+            this.content.access_from_groups = value.access_from_groups;
+            
+            delete this.accessFields;
+
+            dialog.close();
+
+        }.bind(this))
+        .inject( bottom );
+       
+        /* 
+        dialog.bottom.destroy();
+        dialog.content.destroy();
+        */
+
     
     },
     
@@ -719,8 +807,6 @@ ka.layoutContent = new Class({
         .inject( document.hidden );
 
         this.dummy.setStyle('width', this.body.getSize().x-3);
-
-        logger(this.dummy);
         
         var adjustHeight = function(){
         
@@ -830,7 +916,7 @@ ka.layoutContent = new Class({
         
         dialog.setStyle('height', 300);
         dialog.setStyle('width', 600);
-        dialog.position();
+        dialog.center();
         
         dialog.bottom.destroy();
         dialog.content.destroy();
