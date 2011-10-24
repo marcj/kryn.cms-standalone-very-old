@@ -1693,7 +1693,7 @@ class kryn {
      * @internal
      */
     public static function checkPageAccess( $page, $pWithRedirect = true ){
-        global $client;
+        global $client, $adminClient;
         
         $oriPage = $page;
         if( $page['access_from'] > 0 && ($page['access_from'] > time() ))
@@ -1703,31 +1703,38 @@ class kryn {
             $page = false;
             
         if( $page['access_from_groups'] != '' ){
-        	
-            $groups = ','.$page['access_from_groups'].","; //eg ,2,4,5,
             
+            $access = false;
+            $groups = ','.$page['access_from_groups'].","; //eg ,2,4,5,
             
             if( $page['access_need_via'] == 0 ){
                 $cgroups =& $client->user['groups'];
             } else {
-            	
                 $htuser = $client->login( $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'] );
-	            
-	            if( $htuser > 0 && $htuser['passwd'] == $p ){ 
+                
+                if( $htuser > 0 && $htuser['passwd'] == $p ){ 
                     $cgroups =& $htuser['groups'];
-	            }
+                }
             }
-
+            
             if( $cgroups ){
-	            $go = false;
 	            foreach( $cgroups as $group ){
 	                if( strpos($groups, ",".$group['group_rsn'].",") !== false ){
-	                    $go = true;
+	                    $access = true;
 	                }
 	            }
             }
             
-            if( !$go ){
+            if(!$access) {
+                foreach($adminClient->user['groups'] as $group) {
+                    if( strpos($groups, ",".$group.",") !== false) {
+                        $access = true;
+                        break;
+                    }
+                }
+            }
+            
+            if( !$access ){
                 $page = false;
             }
         }
