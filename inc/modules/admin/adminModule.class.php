@@ -1229,7 +1229,7 @@ class adminModule {
     public static function deactivate($pName){
         dbUpdate('system_modules', array('name' => $pName), array('activated'=>0));
         kryn::clearLanguageCache();
-        cache::clear('active_modules');
+        kryn::$cache->clear('active_modules');
         json(1);
     }
     
@@ -1246,7 +1246,7 @@ class adminModule {
         else
             dbUpdate('system_modules', array('name' => $pName), array('activated'=>1));
         kryn::clearLanguageCache();
-        cache::clear('active_modules');
+        kryn::$cache->clear('active_modules');
         json(1);
     }
     /*
