@@ -3200,7 +3200,7 @@ class kryn {
         
         tAssign( 'content', $content );
         
-        if( $content['template'] == '' ){
+        if( $content['template'] == '' || $content['template'] == '-' ){
             if( $unsearchable )
                 return '<!--unsearchable-begin-->'.$_content.'<!--unsearchable-end-->';
             else
