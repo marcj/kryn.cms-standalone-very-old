@@ -2228,7 +2228,8 @@ class kryn {
             ORDER BY c.sort" );
             
             while( $page = dbFetch($res) ){
-    	        $result[$page['box_id']][] = $page;
+                if(kryn::checkPageAccess($page, false) !== false)
+                   $result[$page['box_id']][] = $page;
             }
                 
         } else {
