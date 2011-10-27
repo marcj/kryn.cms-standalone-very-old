@@ -1,0 +1,10 @@
+
+inc/config.php
+
+inc/tcache/
+
+inc/compile/
+
+inc/cache/
+
+inc/modules/admin/crawler.php

@@ -538,7 +538,7 @@ ka.kwindow = new Class({
 
     saveDimension: function(){
         var pos = this.border.getCoordinates(this.border.getParent());
-        var windows = (ka.settings['user']) ? ka.settings['user']['windows']: {};
+        var windows = (ka.settings['user']&&ka.settings['user']['windows']) ? ka.settings['user']['windows']: {};
         if(! windows.set )
             windows = new Hash();
 
