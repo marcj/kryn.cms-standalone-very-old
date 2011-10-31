@@ -1707,6 +1707,7 @@ class kryn {
             $access = false;
             $groups = ','.$page['access_from_groups'].","; //eg ,2,4,5,
             
+            $cgroups = null;
             if( $page['access_need_via'] == 0 ){
                 $cgroups =& $client->user['groups'];
             } else {
