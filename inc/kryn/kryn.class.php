@@ -3002,7 +3002,7 @@ class kryn {
      * @internal
      */
     public static function renderContents( &$pContents, $pSlotProperties ){
-        global $tpl, $client;
+        global $tpl, $client, $adminClient;
         
         $access = true;
         $contents = array();
