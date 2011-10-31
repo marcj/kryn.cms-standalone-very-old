@@ -115,6 +115,9 @@ ka.layoutContent = new Class({
                 this.setStyle('color', '');
             }
         })
+        .addEvent('keyup', function(){
+            this.fireTemplateRefresh();
+        }.bind(this))
         .inject( this.toolbarTitleContainer );
         
         this.iTitle.store('empty', true);
@@ -166,6 +169,17 @@ ka.layoutContent = new Class({
     
     },
     
+    fireTemplateRefresh: function(){
+    
+        this.content.title = this.iTitle.value;
+        
+        if( this.templateRefreshTimeout )
+            clearTimeout( this.templateRefreshTimeout );
+
+        this.templateRefreshTimeout = this.setDivContent.delay(200, this);
+      
+    },
+
     openAccessDialog: function(){
     
         var win = this.window.win;
@@ -587,8 +601,10 @@ ka.layoutContent = new Class({
         
         switch( this.content.type ){
         case 'plugin':
-            if( this.pluginChooser )
+            if( this.pluginChooser ){
                 this.content.content = this.pluginChooser.getValue();
+                logger(this.content.content);
+            }
             break;
 
         case 'picture':
@@ -869,13 +885,20 @@ ka.layoutContent = new Class({
 
     type2Plugin: function(){
     
-        var dialog = this.window.win.newDialog();
+        var win = this.window.win;
+        if( this.container.getParent('.kwindow-border') ){
+            win = this.container.getParent('.kwindow-border').retrieve('win');
+        }
+    
+        var dialog = win.newDialog();
         
         this.pluginChooser = new ka.pluginChooser( this.content.content, dialog );
         
         this.pluginChooser.addEvent('ok', function(){
-            dialog.close();
+            this.toData();
+            this.setDivPlugin();
             this.deselect();
+            dialog.close();
         }.bind(this));
         
         this.pluginChooser.addEvent('loadOptions', function(){
@@ -1211,12 +1234,17 @@ ka.layoutContent = new Class({
         var pos = info.indexOf('::');
         var plugin = info.substr(0,pos);
         var info = info.substr(pos+2);
+
+        var title = _('Please choose'), pluginTitle;
         
-        var title = ka.settings.configs[extension].title['en'];
-        if( ka.settings.configs[extension].title[window._session.lang] )
-            title = ka.settings.configs[extension].title[window._session.lang];
-            
-        var pluginTitle = _(ka.settings.configs[extension].plugins[plugin][0]);
+        if( ka.settings.configs[extension] ){
+            title = ka.settings.configs[extension].title['en'];
+            if( ka.settings.configs[extension].title[window._session.lang] )
+                title = ka.settings.configs[extension].title[window._session.lang];
+        }
+        
+        if( ka.settings.configs[extension] )
+            pluginTitle = _(ka.settings.configs[extension].plugins[plugin][0]);
         
         mybody.empty();
         new Element('div', {
@@ -1232,6 +1260,9 @@ ka.layoutContent = new Class({
         .addEvent('click', function(){
             this.type2Plugin();
         }.bind(this))
+        .addEvent('click', function(e){
+            e.stopPropagation();
+        })
         .inject( mybody );
         
         return;

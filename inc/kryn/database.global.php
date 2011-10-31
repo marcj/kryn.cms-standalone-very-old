@@ -175,6 +175,9 @@ function dbInsert( $pTable, $pFields ){
     $sqlFields = substr( $sqlFields, 0, -1 );
 
     $sql .= " $sqlFields ) VALUES( $sqlInsert )";
+    
+    error_log( $sql );
+    
     if( dbExec( $sql ) )
         return database::last_id();
     else

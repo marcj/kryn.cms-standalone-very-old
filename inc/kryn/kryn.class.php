@@ -152,8 +152,7 @@ class kryn {
     
     /**
      * 
-     * Contains the values of the public properties from current theme.
-     * Template: $publicProperties
+     * Contains the values of the properties from current theme.
      * @var array
      * @deprecated Use $themeProperties instead.
      * @static
@@ -163,12 +162,29 @@ class kryn {
      /**
      * 
      * Contains the values of the properties from current theme.
-     * Template: $themeProperties
      * @var array
      * @static
      */
     public static $themeProperties = array();
     
+    
+     /**
+     * 
+     * Contains the values of the domain-properties from the current domain.
+     * @var array
+     * @static
+     */
+    public static $domainProperties = array();
+        
+    
+     /**
+     * 
+     * Contains the values of the page-properties from the current page.
+     * @var array
+     * @static
+     */
+    public static $pageProperties = array();
+        
     
     /**
      * 
@@ -590,7 +606,9 @@ class kryn {
         if( !$pointer_page || !$pointer_page['rsn'] > 0 )
             return '';
 
-        $pointer_page['properties'] = json_decode($pointer_page['properties'],true);
+        $pointer_page['properties'] = @json_decode($pointer_page['properties'],true);
+        
+        kryn::$pageProperties = $pointer_page['properties'];
             
         $oldPage = kryn::$current_page;
         
@@ -1632,7 +1650,11 @@ class kryn {
         }
         
         if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
-            $domain['publicproperties'] = @json_decode($domain['publicproperties'], true);
+            kryn::$themeProperties = @json_decode($domain['publicproperties'], true);
+        }
+        
+        if( $domain['themeproperties'] && !is_array($domain['themeproperties']) ){
+            kryn::$themeProperties = @json_decode($domain['themeproperties'], true);
         }
         
         if( $domain['session'] && !is_array($domain['session']) ){
@@ -1644,6 +1666,7 @@ class kryn {
         }
 
         $domain['extproperties'] = &$domain['extensionProperties'];
+        kryn::$domainProperties = &$domain['extensionProperties'];
             
         #setCookie("lang", $language, time()+3600*24*300, "/"); # 300 Days
         if( getArgv(1) == 'admin' ){
@@ -2214,8 +2237,7 @@ class kryn {
             
         if( $page['access_denied'] == 1 )
             return array();
-            
-            
+
         $result =& kryn::getCache('page_contents_'.$pRsn);
         if( $result && !$pWithoutCache ) return $result;
 
@@ -2344,26 +2366,26 @@ class kryn {
                 exit;
             }
     
-            $publicProperties = kryn::$domain['publicproperties'];
+
             foreach( kryn::$configs as $extKey => &$mod ){
                 if( $mod['themes'] ){
                     foreach( $mod['themes'] as $tKey => &$theme ) {
                         if( $theme['layouts'] ) {
                             foreach( $theme['layouts'] as $lKey => &$layout ){
                                 if( $layout == $page['layout'] ){
-                                    kryn::$currentTheme = $theme['properties'];
-                                    kryn::$publicProperties = $publicProperties[$extKey][$tKey];
-                                    kryn::$themeProperties = $theme['properties'];
+                                    if( is_array(kryn::$themeProperties) ){
+                                        kryn::$themeProperties = kryn::$themeProperties[$extKey][$tKey];
+                                        kryn::$publicProperties =& kryn::$themeProperties;
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            
-            tAssign( 'currentTheme', kryn::$currentTheme ); //obsolete
+
             tAssign( 'themeProperties', kryn::$themeProperties );
-            tAssign( 'publicProperties', kryn::$publicProperties );
+            tAssign( 'publicProperties', kryn::$themeProperties );
         }
 
         //prepage for ajax
@@ -2919,6 +2941,8 @@ class kryn {
             $oldContents = kryn::$contents;
         }
         
+        kryn::$forceKrynContent = true;
+        
         $start = microtime(true);
         if( $pPageRsn == kryn::$page['rsn'] ){
             //endless loop
@@ -2956,6 +2980,7 @@ class kryn {
         if( $oldPage ){
             kryn::$page = $oldPage;
         }
+        kryn::$forceKrynContent = false;
         
         return $html;
     }
@@ -2967,10 +2992,57 @@ class kryn {
      * @param array $pSlotProperties
      * @internal
      */
-    public static function renderContents( $pContents, $pSlotProperties ){
-        global $tpl;
+    public static function renderContents( &$pContents, $pSlotProperties ){
+        global $tpl, $client;
         
-        $contents =& $pContents;
+        $access = true;
+        $contents = array();
+
+        foreach( $pContents as $key => &$content ){
+            
+            
+            $access = true;
+
+            if( 
+                ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
+                ($content['access_to']+0 > 0 && $content['access_to'] < time() )
+            ){
+                $access = false;
+            }
+            
+            if( $content['hide'] === 0 ){
+                $access = false;
+            }
+            
+            if( $access && $content['access_from_groups'] ){
+    
+                $access = false;
+                $groups = ','.$content['access_from_groups'].',';
+            
+                foreach( $client->user['groups'] as $group ){
+                    if( strpos( $groups, ','.$group.',' ) !== false ){
+                        $access = true;
+                        break;
+                    }
+                }
+                
+                if( !$access ){
+                    foreach( $adminClient->user['groups'] as $group ){
+                        if( strpos( $groups, ','.$group.',' ) !== false ){
+                            $access = true;
+                            break;
+                        }
+                    }
+                    if( $access ){
+                        //have acces through the admin login
+                    }
+                }
+            }
+                
+            if( $access ){
+                $contents[$key] = $content;
+            }
+        }
     
         $count = count($contents);
         tAssign('layoutContentsMax', $count);
@@ -2990,7 +3062,7 @@ class kryn {
         $oldContent = $tpl->get_template_vars('content');
 
         if( $count > 0 ){
-            foreach( $contents as $content ){
+            foreach( $contents as &$content ){
                 if( $i == $count ) {
                     tAssign('layoutContentsIsLast', true);
                     $slot['isLast'] = true;
@@ -3033,41 +3105,6 @@ class kryn {
         global $modules, $tpl, $client, $adminClient;
         
         $content =& $pContent;
-        
-        if( 
-            ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
-            ($content['access_to']+0 > 0 && $content['access_to'] < time() )
-        ){
-            return;
-        }
-        
-        if( $content['access_from_groups'] ){
-
-            $access = false;
-            $groups = ','.$content['access_from_groups'].',';
-        
-            foreach( $client->user['groups'] as $group ){
-                if( strpos( $groups, ','.$group.',' ) !== false ){
-                    $access = true;
-                    break;
-                }
-            }
-            
-            if( !$access ){
-                foreach( $adminClient->user['groups'] as $group ){
-                    if( strpos( $groups, ','.$group.',' ) !== false ){
-                        $access = true;
-                        break;
-                    }
-                }
-                if( $access ){
-                    //have acces through the admin login
-                }
-            }
-            
-            if( $access == false ) return '';
-        
-        }
         
         $_content = &$content['content'];
         

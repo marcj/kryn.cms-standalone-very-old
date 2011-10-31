@@ -435,7 +435,7 @@ class database {
                     foreach( $columns as $key => &$column ){
 
                         $ncolumn = array();                        
-                        $ncolumn['auto_increment'] = ($column[3]) ? true : false;
+                        $ncolumn['auto_increment'] = ($column[3] == 'DB_PRIMARY') ? true : false;
                         $ncolumn['escape'] = self::isIntEscape($column[0])?'int':'text';
                         $ncolumn['type'] = $column[0];
                         $ncolumns[$key] = $ncolumn;
@@ -528,18 +528,16 @@ class database {
     
         public static function updateSequences( $pDb = false ){
             
-            $tables = self::getAllTables();
+            if( !$pDb ) return;
             
-            if( $tables ){
-                foreach( $tables as $table ){
-                    $fields = self::getOptions( pfx.$table );
-                    if( $fields ){
-                        foreach( $fields as $fieldKey => $field ){
-                            if( $field['auto_increment'] == 1 ){
-                                $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.$table, 1);
-                	            $sql = 'ALTER SEQUENCE kryn_'.$table.'_seq RESTART WITH '.($row['mmax']+1);
-                	            dbExec( $sql );
-                            }
+            foreach( $pDb as $table => $tableFields ){
+                
+                if( $tableFields ){
+                    foreach( $tableFields as $fieldKey => $field ){
+                        if( $field[3] == 'DB_PRIMARY' ){
+                            $row = dbExfetch('SELECT MAX('.$fieldKey.') as mmax FROM '.pfx.$table, 1);
+                            $sql = 'ALTER SEQUENCE kryn_'.pfx.$table.'_seq RESTART WITH '.($row['mmax']+1);
+                            dbExec( $sql );
                         }
                     }
                 }

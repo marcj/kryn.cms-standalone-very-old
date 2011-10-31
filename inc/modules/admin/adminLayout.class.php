@@ -68,8 +68,37 @@ class adminLayout {
         kryn::$current_page = $page;
         kryn::$page = $page;
         tAssign('page', $page);
-        kryn::$domain = dbTableFetch('system_domains', 1, "rsn = ".$page['domain_rsn']);
+        $domain = dbTableFetch('system_domains', 1, "rsn = ".$page['domain_rsn']);
+        kryn::$domain = $domain;
         kryn::loadMenus();
+        
+        if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
+            kryn::$themeProperties = @json_decode($domain['publicproperties'], true);
+        }
+        
+        if( $domain['themeproperties'] && !is_array($domain['themeproperties']) ){
+            kryn::$themeProperties = @json_decode($domain['themeproperties'], true);
+        }
+        
+        foreach( kryn::$configs as $extKey => &$mod ){
+            if( $mod['themes'] ){
+                foreach( $mod['themes'] as $tKey => &$theme ) {
+                    if( $theme['layouts'] ) {
+                        foreach( $theme['layouts'] as $lKey => &$layout ){
+                            if( $layout == $page['layout'] ){
+                                if( is_array(kryn::$themeProperties) ){
+                                    kryn::$themeProperties = kryn::$themeProperties[$extKey][$tKey];
+                                    kryn::$publicProperties =& kryn::$themeProperties;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        tAssign( 'themeProperties', kryn::$themeProperties );
+        tAssign( 'publicProperties', kryn::$themeProperties );
 
         $pFile = str_replace("..","",$pFile);
         if( $pFile != '' )

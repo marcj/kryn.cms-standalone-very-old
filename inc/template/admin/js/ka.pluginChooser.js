@@ -13,16 +13,26 @@ ka.pluginChooser =  new Class({
 
         this.choosen = {};
         this.choosen.module = opts[0];
+
+        if( !ka.settings.configs[this.choosen.module] )
+            this.choosen.module = '-';
+
         this.choosen.plugin = opts[1];
-        this.choosen.options = JSON.decode( opts[2] );
+        if( this.choosen.module != '-' && !ka.settings.configs[this.choosen.module]['plugins'][this.choosen.plugin] )
+            this.choosen.plugin = '-';
+
+        try {
+            this.choosen.options = JSON.decode( opts[2] );
+        } catch(e){};
         
         this.renderLayout();
         
-        
         this.selectModules.setValue( this.choosen.module );
         this.moduleChanged();
+
         this.selectPlugin.setValue( this.choosen.plugin );
         this.loadProperties();
+
         this.setValue( this.choosen.options );
         
     },
@@ -69,6 +79,8 @@ ka.pluginChooser =  new Class({
 
         this.selectModules = new ka.Select();
         
+        this.selectModules.add('-', _('-- Please choose --'));
+        
         Object.each(ka.settings.configs, function(config, ext){
             if( config.plugins ){
                 var title = config.title['en'];
@@ -108,16 +120,29 @@ ka.pluginChooser =  new Class({
         var mod = this.selectModules.getValue();
     
         this.selectPlugin.empty();
+        this.optionsPane.empty();
         
         if( !ka.settings.configs[mod] ){
             return;
         }
+        
+        if( mod != '-' )
+            this.choosen.module = mod;
     
+        logger(this.choosen.plugin);
+    
+        this.selectPlugin.add('-', _('-- Please choose --'));
+
         Object.each(ka.settings.configs[mod].plugins, function(plugin, pluginId){
         
             var properties = this.selectPlugin.add( pluginId, _(plugin[0]) );
         
         }.bind(this));
+        
+        if( this.choosen.plugin != '-' ){
+            this.selectPlugin.setValue( this.choosen.plugin );
+            this.loadProperties();
+        }
     
     },
 
@@ -128,15 +153,17 @@ ka.pluginChooser =  new Class({
 
         this.optionsPane.empty();
         
+        if( plugin != '-' )
+            this.choosen.plugin = plugin;
+        
         this.propertyTable = new Element('table').inject( this.optionsPane );
         this.propertyTBody = new Element('tbody').inject( this.propertyTable );
 
         if( ka.settings.configs[mod] && ka.settings.configs[mod].plugins && ka.settings.configs[mod].plugins[plugin] ){
-            
             var properties = ka.settings.configs[mod].plugins[plugin][1];
             this.fieldObj = new ka.parse( this.propertyTBody, properties, {allTableItems:true} );
         }
-    
+
     },
     
     setValue: function( pValues ){
@@ -146,7 +173,8 @@ ka.pluginChooser =  new Class({
 
     getValue: function(){
         var res = this.choosen.module + '::' + this.choosen.plugin + '::';
-        res += JSON.encode( this.fieldObj.getValue() );
+        if( this.fieldObj )
+            res += JSON.encode( this.fieldObj.getValue() );
         return res;
     },
 

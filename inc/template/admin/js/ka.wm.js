@@ -266,17 +266,17 @@ ka.wm = {
         });
     },
 
-    createOverlays: function(){
+    hideContents: function(){
         Object.each(ka.wm.windows, function(win, winId){
             if( win )
-                win.createOverlay();
+                win.content.setStyle('display', 'none');
         });
     },
 
-    removeOverlays: function(){
+    showContents: function(){
         Object.each(ka.wm.windows, function(win, winId){
             if( win )
-                win.deleteOverlay();
+                win.content.setStyle('display', 'block');
         });
     }
 

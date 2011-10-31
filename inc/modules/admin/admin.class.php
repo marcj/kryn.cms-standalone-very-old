@@ -1129,44 +1129,6 @@ class admin {
         $sqls = explode( ";\n", kryn::fileRead('inc/modules/admin/defaultData.sql') );
         foreach( $sqls as &$sql )
             dbExec( $sql );
-            
-            
-        
-        database::updateSequences();
-
-        /*
-        dbInsert('system_pages', array('prsn'=>0,'domain_rsn'=>1,'type'=>0,'title'=>'Installed','sort'=>1,'visible'=>1,
-            'access_denied' => 0, 'access_from' => 0, 'access_to' => 0,
-            'url'=>'installed','template'=>'default','layout'=>'th_blueSky/two_columns.tpl','cdate'=>time(),'mdate'=>time()));
-
-        dbInsert('system_contents', array('page_rsn'=>1,'version_rsn'=>1,'title'=>'Installed','content'=>'Kryn.cms was installed.',
-            'type'=>'text','template'=>'default','hide'=>0,'sort'=>1,'box_id'=>1));
-
-
-        //links 
-        dbInsert('system_pages', array('prsn'=>1,'domain_rsn'=>1,'type'=>1,'title'=>'Kryn.cms - simply different','sort'=>1,'visible'=>1,
-            'access_denied' => 0, 'access_from' => 0, 'access_to' => 0,
-            'url'=>'www-kryn-org','link'=>'http://www.kryn.org/','template'=>'default','layout'=>'','cdate'=>time(),'mdate'=>time()));
-
-        dbInsert('system_pages', array('prsn'=>1,'domain_rsn'=>1,'type'=>1,'title'=>'www.kryn.org/doku','sort'=>2,'visible'=>1,
-            'access_denied' => 0, 'access_from' => 0, 'access_to' => 0,
-            'url'=>'www-kryn-org-doku','link'=>'http://www.kryn.org/doku','template'=>'default','layout'=>'','cdate'=>time(),'mdate'=>time()));
-
-        dbInsert('system_pages', array('prsn'=>1,'domain_rsn'=>1,'type'=>1,'title'=>'www.kryn.org/community','sort'=>3,'visible'=>1,
-            'access_denied' => 0, 'access_from' => 0, 'access_to' => 0,
-            'url'=>'www-kryn-org-community','link'=>'http://www.kryn.org/community','template'=>'default','layout'=>'','cdate'=>time(),'mdate'=>time()));
-
-        //footer
-        dbInsert('system_pages', array('prsn'=>0,'domain_rsn'=>1,'type'=>3,'title'=>'Footer','sort'=>2,'visible'=>1,
-            'access_denied' => 0, 'access_from' => 0, 'access_to' => 0,
-            'url'=>'','template'=>'','layout'=>'one_column','cdate'=>time(),'mdate'=>time()));
-
-        dbInsert('system_contents', array('page_rsn'=>5,'version_rsn'=>1,'title'=>'','content'=>'&copy; my page - impressum - contact',
-            'type'=>'text','template'=>'th_blueSky/content_default.tpl','hide'=>0,'sort'=>1,'box_id'=>1));
-        */
-
-        //dbDelete('system_workspaces');
-        //dbInsert('system_workspaces', array('name' => 'LIVE'));
 
         dbDelete('system_langs');
         $h = fopen('inc/modules/admin/ISO_639-1_codes.csv', 'r');
@@ -1175,10 +1137,8 @@ class admin {
                 dbInsert('system_langs', array('code' => $data[0], 'title' => $data[1], 'langtitle' => $data[2]));
             }
         }
-        #dbUpdate('system_langs', array('code' => 'de'), array('visible' => 1));
-        dbUpdate('system_langs', array('code' => 'en'), array('visible' => 1));
-        #dbUpdate('system_langs', array('code' => 'fr'), array('visible' => 1));
         
+        dbUpdate('system_langs', array('code' => 'en'), array('visible' => 1));
         
     }
 

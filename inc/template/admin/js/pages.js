@@ -19,6 +19,10 @@ var admin_pages = new Class({
             this.language = key;
         }.bind(this));
         
+        if( Cookie.read('kryn_pages_language') ){
+            this.language = Cookie.read('kryn_pages_language');
+        }
+        
         if( this.win.params && this.win.params.lang ){
             this.language = this.win.params.lang;
         }
@@ -844,6 +848,9 @@ var admin_pages = new Class({
 
     changeLanguage: function(){
         this.language = this.languageSelect.getValue();
+        
+        Cookie.write('kryn_pages_language', this.language);
+        
         this.treeContainer.empty();
         this.loadTree();
         this.viewType( 'empty' );

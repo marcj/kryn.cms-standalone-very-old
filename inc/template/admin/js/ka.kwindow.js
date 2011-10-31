@@ -92,25 +92,18 @@ ka.kwindow = new Class({
     },
 
     toDependMode: function( pInline ){
-        this.createOverlay( true );
-        
         this.inDependMode = true;
         
-        if(! this.inline )
-        	this.overlay.inject( this.win );
-        
+        this.dependModeOverlay = this.createOverlay();
+
         if( pInline ){
 
-            //this.overlayForced = this.overlay.clone().inject( this.win );
-            
             var inlineModeParent = this.win;
             if( this.inline ){
                 inlineModeParent = this.content.getParent();
             }
-        
-            this.overlay.setStyle('opacity', 0.8);
-            
-            this.inlineModeWrapper = this.overlay.clone().setStyle('opacity', 1)
+
+            this.inlineModeWrapper = this.dependModeOverlay.clone().setStyle('opacity', 1)
                 .setStyle('overflow', 'hidden')
                 .setStyle('background-color', 'transparent').inject( inlineModeParent );
             
@@ -135,7 +128,10 @@ ka.kwindow = new Class({
             this.overlayForced.destroy();
         if( this.inlineModeWrapper )
             this.inlineModeWrapper.destroy();
-        this.deleteOverlay();
+            
+        if( this.dependModeOverlay )
+            this.dependModeOverlay.destroy();
+            
     },
 
     getOpener: function(){
@@ -175,46 +171,30 @@ ka.kwindow = new Class({
         if( pOpts['confirm'] == 1 )
             res = true;
 
-        this.toDependMode();
-        var main = new Element('div', {
-            'class': 'ka-kwindow-prompt',
-            styles: {
-                opacity: 0.95
-            }
-        }).inject( this.border );
-
-        new Element('div', {
-            html: pDesc,
-            'class': 'ka-kwindow-prompt-text'
-        }).inject( main );
+        var main = this.newDialog( pDesc );
 
         if( pOpts['alert'] != 1 && pOpts['confirm'] != 1 ){
             var input = new Element('input', {
                 'class': 'text',
                 'type': (pOpts.pw==1)?'password':'text',
                 value: pDefaultValue
-            }).inject( main );
+            }).inject( main.content );
 
             input.focus();
         }
 
-        var bottom = new Element('div', {
-            'class': 'ka-kwindow-prompt-bottom'
-        }).inject( main );
-        
-        main.bottom = bottom;
-
         var ok = false;
 
         if( pOpts['alert'] != 1 ){
+        
             new ka.Button(_('Cancel'))
             .addEvent('click', function(){
-                this.removeDependMode();
-                main.destroy();
+                main.close();
                 if( pCallback )
                     pCallback( false );
             }.bind(this))
-            .inject( bottom );
+            .inject( main.bottom );
+            
             ok = new ka.Button('OK')
             .addEvent('keyup', function(e){
                 e.stopPropagation();
@@ -223,17 +203,17 @@ ka.kwindow = new Class({
             .addEvent('click', function(e){
                 if( e )
                     e.stop();
-                this.removeDependMode();
                 if( input && input.value != '' )
                     res = input.value;
-                main.destroy();
+                main.close();
                 if( pCallback )
                     pCallback.delay(50, null, res );
             }.bind(this))
-            .inject( bottom );
+            .inject( main.bottom );
         }
 
         if( pOpts && pOpts['alert'] == 1 ){
+        
             ok = new ka.Button('OK')
             .addEvent('keyup', function(e){
                 e.stopPropagation();
@@ -242,12 +222,11 @@ ka.kwindow = new Class({
             .addEvent('click', function(e){
                 if( e )
                     e.stop();
-                this.removeDependMode();
-                main.destroy();
+                main.close();
                 if( pCallback )
                     pCallback.delay(50);
             }.bind(this))
-            .inject( bottom );
+            .inject( main.bottom );
         }
 
         if( pOpts['alert'] != 1 && pOpts['confirm'] != 1 ){
@@ -263,14 +242,6 @@ ka.kwindow = new Class({
         if( ok && !input )
             ok.focus();
 
-        main.center = function(){
-            var size = this.border.getSize();
-            var dsize = main.getSize();
-            var left = (size.x.toInt()/2 - dsize.x.toInt()/2);
-            var mtop = (size.y.toInt()/2 - dsize.y.toInt()/2);
-            main.setStyle('left', left);
-            main.setStyle('top', mtop);
-        }.bind(this);
         main.center();
         
         return main;
@@ -278,29 +249,22 @@ ka.kwindow = new Class({
 
 
     newDialog: function( pText ){
-    
-        this.createOverlay();
-        
-        this.hasDialog = true;
 
         var main = new Element('div', {
             'class': 'ka-kwindow-prompt'
-        }).inject( this.border );
+        })
+        .addEvent('click', function(e){
+            e.stopPropagation();
+        });
         
         main.content = new Element('div', {
             html: pText,
             'class': 'ka-kwindow-prompt-text'
         }).inject( main );
 
-        main.close = function(){
-            main.destroy();
-            this.hasDialog = false;
-            this.deleteOverlay();
-        }.bind(this);
-
-        main.bottom = new Element('div', {
-            'class': 'ka-kwindow-prompt-bottom'
-        }).inject( main );
+        main.overlay = this.createOverlay();
+        
+        main.inject( this.border );
     
         main.center = function(){
             var size = this.border.getSize();
@@ -310,6 +274,19 @@ ka.kwindow = new Class({
             main.setStyle('left', left);
             main.setStyle('top', mtop);
         }.bind(this);
+        this.addEvent('resize', main.center);
+
+        main.close = function(){
+            
+            main.overlay.destroy();
+            main.destroy();
+            this.removeEvent('resize', main.center);
+            
+        }.bind(this);
+
+        main.bottom = new Element('div', {
+            'class': 'ka-kwindow-prompt-bottom'
+        }).inject( main );
         
         this.lastDialog = main;
         
@@ -362,10 +339,8 @@ ka.kwindow = new Class({
     },
 
     toBack: function(){
-        //this.title.set('class', 'kwindow-win-title-inaktive'):
         this.title.setStyle('opacity', 0.4 );
         this.inFront = false;
-        //this.createOverlay();
     },
     
     
@@ -988,15 +963,31 @@ ka.kwindow = new Class({
                     this.titleGroups.setStyle('display', 'none');
                 }
                 window.fireEvent('click');
-                ka.wm.createOverlays()
+                
+                ka.wm.hideContents();
+                
             }.bind(this),
             onComplete: function(){
-                ka.wm.removeOverlays();
+                ka.wm.showContents();
+                
+                if( ka.performance ){
+                    this.content.setStyle('display', 'block');
+                    this.titleGroups.setStyle('display', 'block');
+                }
+                
                 ka.wm.fireEvent('move');
                 this.fireEvent('move');
+
                 this.saveDimension();
             }.bind(this),
-            onCancel: function(){ ka.wm.removeOverlays() }
+            onCancel: function(){
+                ka.wm.showContents();
+                
+                if( ka.performance ){
+                    this.content.setStyle('display', 'block');
+                    this.titleGroups.setStyle('display', 'block');
+                }
+            }.bind(this)
         });
 
         this.title.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
@@ -1135,13 +1126,8 @@ ka.kwindow = new Class({
     },
 
     createOverlay: function( pForce ){
-    	
-    	if( this.inDependMode ) return; // we have already a overlay and dont want to detroy them
-    	
-        if( this.overlay ) this.overlay.destroy();
-        
-        this.inOverlayMode = true;
-        this.overlay = new Element('div', {
+
+        var overlay = new Element('div', {
             'class': 'ka-kwindow-overlay',
             styles: {
                 opacity: 0.5,
@@ -1150,20 +1136,21 @@ ka.kwindow = new Class({
                 left: 0, right: 0, 'top': 0, bottom: 0
             }
         });
-        if( pForce || this.forceOverlay || (this.values && this.values.type == 'iframe') )
-            this.overlay.inject( this.border );
+
+        //if( pForce || this.forceOverlay || (this.values && this.values.type == 'iframe') )
+        overlay.inject( this.border );
+
+        return overlay;
     },
 
     deleteOverlay: function(){
-    
-        if( this.hasDialog == true ) return;
-    	
+
         if( ka.performance ){
             this.content.setStyle('display', 'block');
             this.titleGroups.setStyle('display', 'block');
         }
         if( this.inDependMode ) return;
-        if( this.overlay ) this.overlay.destroy();
+
         this.inOverlayMode = false;
     },
 
@@ -1197,16 +1184,13 @@ ka.kwindow = new Class({
                 }
                 window.fireEvent('click');
 
-                if( !this.hasDialog )
-                    ka.wm.createOverlays()
+                ka.wm.hideContents();
+
             }.bind(this),
             onComplete: function(){
                 
-                if( !this.hasDialog )
-                    ka.wm.removeOverlays();
-                else
-                    this.lastDialog.center();
-                    
+                ka.wm.showContents();
+
                 this.content.setStyle('display', 'block');
 
                 this.saveDimension();

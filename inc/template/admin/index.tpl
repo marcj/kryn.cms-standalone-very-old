@@ -61,6 +61,7 @@
             
             <div class="header" id="header">
                 <div class="header-left"></div>
+                <div class="header-right"></div>
                 <div class="headRight">
                     <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]"><img src="{$path}inc/template/admin/images/icons/eye_bw.png" /></a>
                     <div class="ka-search">
@@ -74,7 +75,6 @@
                 </div>
                 <div style="clear: both"></div>
                 <div class="mainlinks" id="mainLinks"></div>
-                <div class="header-right"></div>
             </div>
 			
             <div class="userInfo">
