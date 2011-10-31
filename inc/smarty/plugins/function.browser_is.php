@@ -60,7 +60,7 @@ $plattforms = array(
   );  
                  
   while (list($match,$vendor)=each($vendors)) {
-    if (eregi($match.'[ /(v]{0,2}([0-9].[0-9a-zA-Z]{1,6})',$agent,$info)) {
+    if (preg_match('/'.$match.'[ \/(v]{0,2}([0-9].[0-9a-zA-Z]{1,6})/',$agent,$info)) {
       $version=$info[1];
       $pos=strpos($version,".");
       if ($pos>0) {
@@ -75,7 +75,7 @@ $plattforms = array(
   }
 
 while (list($match,$plattform) = each($plattforms)) {
-      if (eregi($match,$agent)) {
+      if (preg_match('/'.$match.'/',$agent)) {
         break;
     }
   }
