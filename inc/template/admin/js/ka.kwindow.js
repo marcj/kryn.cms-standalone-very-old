@@ -560,9 +560,11 @@ ka.kwindow = new Class({
         this.border.setStyle('height', 320 );
 
         var windows = ka.settings['user']['windows'];
-        if(! windows.set )
-            windows = new Hash();
-        var pos = windows.get(this.module+'::'+this.code);
+
+        if( !windows )
+            windows = {};
+            
+        var pos = windows[this.module+'::'+this.code];
         
         if( pos && pos.width > 50){
             this.border.setStyles( pos );

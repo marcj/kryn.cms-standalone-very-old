@@ -98,7 +98,7 @@ input.text {
 
 .ka-field-field img.emptyIcon {
     position: absolute;
-    top: 1px;
+    top: 6px;
     left: -20px;
     margin-left: 2px;
 }

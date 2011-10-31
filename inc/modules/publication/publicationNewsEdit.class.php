@@ -37,11 +37,14 @@ class publicationNewsEdit extends windowEdit {
                 'label' => 'Tags',
                 'type' => 'text'
             ),
-           /*'meta_description' => array(
-                'label' => 'Meta description',
-                'type' => 'text'
-            )
-            */
+            'introimage' => array(
+                'label' => 'Intro image',
+                'type' => 'fileChooser'
+            ),
+            'introimage2' => array(
+                'label' => 'Intro image 2',
+                'type' => 'fileChooser'
+            ),
         ),
         'Access' => array(
             'releaseat' => array(
@@ -62,16 +65,6 @@ class publicationNewsEdit extends windowEdit {
                 'label' => 'Deactivate comments (override plugin properties)',
                 'type' => 'checkbox'
             )
-        ),
-        'List images' => array(
-            'introimage' => array(
-                'label' => 'Intro image',
-                'type' => 'fileChooser'
-            ),
-            'introimage2' => array(
-                'label' => 'Intro image 2',
-                'type' => 'fileChooser'
-            ),
         ),
         'Intro' => array(
             'intro' => array(

@@ -110,5 +110,5 @@ a.ka-Select-separator:link {
 .ka-Select-chooser a.active:link {
     background-image: url(../images/icons/tick.png);
     background-repeat: no-repeat;
-    background-position: 3px 2px;
+    background-position: 3px 1px;
 }

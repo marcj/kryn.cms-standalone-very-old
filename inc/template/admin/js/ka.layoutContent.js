@@ -4,13 +4,15 @@ ka.layoutContent = new Class({
 	
 	noAccess: false,
     isRemoved: false,
+    content: {},
 	
     initialize: function( pContent, pContainer, pLayoutBox ){
         
         this.content = pContent;
         this.container = pContainer;
         
-        
+        logger( this.content );
+
         if( this.content.type == 'picture' ){
             var options = this.content.content.split('::');
             this.content.content = '<img src="'+options[1]+'" ';
@@ -59,6 +61,12 @@ ka.layoutContent = new Class({
     
     renderToolbar: function(){
     
+    
+        var target = this.w.document.body;
+        if( this.container.getParent('.kwindow-border') ){
+            target = this.container.getParent('.kwindow-border');
+        }
+    
         this.toolbar = new Element('div', {
             'class': 'ka-layoutContent-toolbar SilkTheme'
         })
@@ -68,7 +76,7 @@ ka.layoutContent = new Class({
         })
         .addEvent('click', function(e){
             e.stopPropagation();
-        }).inject( this.w.document.body )
+        }).inject( target )
         
         this.toolbarArrow = new Element('img', {
             src: _path+'inc/template/admin/images/ka-tooltip-corner-top.png',
@@ -92,7 +100,25 @@ ka.layoutContent = new Class({
         
         this.iTitle = new Element('input', {
             'class': 'ka-normalize ka-layoutContent-title'
-        }).inject( this.toolbarTitleContainer );
+        })
+        .addEvent('blur', function(){
+            if( this.iTitle.value == '' ){
+                this.iTitle.store('empty', true);
+            } else {
+                this.iTitle.store('empty', false);
+            }
+            this.iTitleSetBlankText();
+        }.bind(this))
+        .addEvent('focus', function(){
+            if( this.retrieve('empty') == true ){
+                this.value = '';
+                this.setStyle('color', '');
+            }
+        })
+        .inject( this.toolbarTitleContainer );
+        
+        this.iTitle.store('empty', true);
+        this.iTitleSetBlankText();
         
         this.imgAccess = new Element('img', {
             src: _path+'inc/template/admin/images/admin-pages-viewType-versioning.png',
@@ -142,7 +168,12 @@ ka.layoutContent = new Class({
     
     openAccessDialog: function(){
     
-        var dialog = this.window.win.newDialog();
+        var win = this.window.win;
+        if( this.container.getParent('.kwindow-border') ){
+            win = this.container.getParent('.kwindow-border').retrieve('win');
+        }
+    
+        var dialog = win.newDialog();
         
         dialog.setStyle('height', 250);
         dialog.setStyle('width', 360);
@@ -221,19 +252,24 @@ ka.layoutContent = new Class({
     },
     
     showToolbar: function(){
-        this.toolbar.inject( this.w.document.body );
+        var target = this.w.document.body;
+        if( this.container.getParent('.kwindow-border') ){
+            target = this.container.getParent('.kwindow-border');
+        }
+        this.toolbar.inject( target );
         this.positionToolbar();
     },
     
     positionToolbar: function(){
+
         if( !this.toolbar.getParent() ) return;
 
-        var pos = this.main.getPosition( this.w.document.body );
+        var pos = this.main.getPosition( this.toolbar.getParent() );
         var size = this.main.getSize();
         
         var size = this.toolbar.getSize();
-        var wsize = this.w.getSize();
-        var scroll = this.w.getScroll();
+        var wsize = this.toolbar.getParent().getSize();
+        var scroll = this.toolbar.getParent().getScroll();
         
         var npos = {
             'left': pos.x-3,
@@ -335,8 +371,23 @@ ka.layoutContent = new Class({
     	
     	this.sType.setValue( this.content.type );
     	this.sTemplate.setValue( this.content.template );
+    	
     	this.iTitle.value = this.content.title?this.content.title:"";
+    	this.iTitle.store('empty', this.content.title==""||!this.content.title?true:false);
+        this.iTitleSetBlankText();
+
         this.changeType();
+    
+    },
+    
+    iTitleSetBlankText: function(){
+    
+        if( this.iTitle.retrieve('empty') == true ){
+            this.iTitle.value = _('Element title');
+            document.id(this.iTitle).setStyle('color', 'gray');
+        } else {
+            document.id(this.iTitle).setStyle('color', '');
+        }
     
     },
 
@@ -510,88 +561,9 @@ ka.layoutContent = new Class({
         layoutBox.initSort();
     },
 
-    /*toggleEdit: function(){
-        if( this.editMode == 0 ){
-            this.editMode = 1;
-            this.toEditMode();
-        } else {
-            this.editMode = 0;
-            this.toViewMode();
-        }
-    },*/
-
-    /*toEditMode: function(){
-        
-    	return;
-    	
-    	
-        //this.body.empty();
-        this.width = this.main.getSize().x;
-
-        this.layoutBox.pageInst._showElementPropertyToolbar();
-        
-        
-        if(this.content.title && this.content.title.length > 1)
-        	this.layoutBox.pageInst.elementPropertyFields.eTitle.setValue( this.content.title );
-        else
-        	this.layoutBox.pageInst.elementPropertyFields.eTitle.setValue('');
-        
-        //setting accessfields
-        this.layoutBox.pageInst.elementAccessFields.unsearchable.setValue(this.content.unsearchable);
-     
-        if(this.content.access_from > 0)
-        	this.layoutBox.pageInst.elementAccessFields.access_from.setValue( this.content.access_from );
-        else
-        	this.layoutBox.pageInst.elementAccessFields.access_from.setValue('');
-
-        if(this.content.access_to > 0)
-        	this.layoutBox.pageInst.elementAccessFields.access_to.setValue( this.content.access_to );
-        else
-        	this.layoutBox.pageInst.elementAccessFields.access_to.setValue('');
-
-        var temp = '';      
-        if( this.content.access_from_groups && $type(this.content.access_from_groups) != 'array') {
-        	
-        	if( $type(this.content.access_from_groups) == 'number' )
-        		this.content.access_from_groups = ''+this.content.access_from_groups+'';
-
-            temp = this.content.access_from_groups.split(',');
-      
-        }else if($type(this.content.access_from_groups) == 'array') {
-        	temp = this.content.access_from_groups;
-    	}
-        this.layoutBox.pageInst.elementAccessFields.access_from_groups.setValue( temp );
-        
-        this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.addEvent('change', this.changeType.bind(this));
-
-        if( this.content.template == '' || !this.content.template ){
-            var opt = this.layoutBox.pageInst.elementPropertyFields.eTemplate.getElements('option')[1];
-            if( opt ) {
-            	this.layoutBox.pageInst.elementPropertyFields.eTemplate.value = opt.value;
-            }
-        } else {
-        	this.layoutBox.pageInst.elementPropertyFields.eTemplate.value = this.content.template;
-        }
-        
-
-        this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.setValue( this.content.type );
-       // this.layoutBox.pageInst.elementPropertyFields.ePanel = new Element('div', {'class': 'ka-pages-layoutContent-ePanel'}).inject( p );
-
-        this.changeType();
-    },
-    */
-
     toData: function( pForce ){
     	
     	if( this.noAccess ) return;
-    	
-        //fetch data from forms
-        //if( this.editMode != 1 ) return;
-        
-        /*if(! this.layoutBox.pageInst.elementPropertyFields.eTitle ) return;
-        if(! this.layoutBox.pageInst.elementPropertyFields.eTemplate ) return;
-        if( this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue() == "") return;
-        */
         
         
         if( !this.content ) this.content = {};
@@ -602,23 +574,16 @@ ka.layoutContent = new Class({
         	this.saveLayoutElement();
         }
 
-        this.content.title = this.iTitle.value;
+        
+    	if( this.iTitle.retrieve('empty') !== true ){
+            this.content.title = this.iTitle.value;
+    	} else {
+            this.content.title = "";
+    	}
+
         this.content.type = this.sType.getValue();
         this.content.template = this.sTemplate.getValue();
 
-        /* old */
-        
-        /*
-        this.content.title = this.layoutBox.pageInst.elementPropertyFields.eTitle.getValue();
-        this.content.type = this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue();
-        this.content.template = this.layoutBox.pageInst.elementPropertyFields.eTemplate.value;
-      
-        this.content.unsearchable = this.layoutBox.pageInst.elementAccessFields.unsearchable.getValue();
-        this.content.access_from = this.layoutBox.pageInst.elementAccessFields.access_from.getValue();
-        this.content.access_to = this.layoutBox.pageInst.elementAccessFields.access_to.getValue();
-        this.content.access_from_groups = this.layoutBox.pageInst.elementAccessFields.access_from_groups.getValue();
-        */
-        
         
         switch( this.content.type ){
         case 'plugin':
@@ -668,27 +633,7 @@ ka.layoutContent = new Class({
 
     //toEditMode
     changeType: function(){
-    	
-    	//old
-    	/*
-        if( this.layoutBox.pageInst.elementPropertyFields.eTypeSelect )
-            this.content.type = this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.getValue();
 
-        this.layoutBox.pageInst.elementPropertyFields.ePanel.empty();
-
-
-        if( this.content.type != 'plugin' && this.content.type != 'picture' ){
-            this.layoutBox.pageInst.hidePluginChooserPane( true );
-        }
-        
-        if( this.content.type != 'layoutelement' ){
-        	this.oldLayoutElementLayout = null;
-        	this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.hide();
-        } else {
-        	this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.show();
-        }
-        */
-        
     	this.oldType = this.content.type;
         this.content.type = this.sType.getValue();
         this.setDivContent();
@@ -725,7 +670,7 @@ ka.layoutContent = new Class({
     	
     	if( !this.layoutElement ) return;
     	
-    	var layout = this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.getValue();
+    	var layout = this.layoutElementSelect.getValue();
     	var contents = this.layoutElement.getValue();
     	
     	this.content.content = JSON.encode({
@@ -737,13 +682,40 @@ ka.layoutContent = new Class({
     
     toLayoutElement: function(){
 
-        this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.removeEvents();
+        //this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.removeEvents();
+        
+        this.toolbarWysiwygContainer.empty();
+        
+        new Element('span', {
+            text: _('Layout')
+        }).inject( this.toolbarWysiwygContainer );
+
+        this.layoutElementSelect = new ka.Select();
+        
+        
+		Object.each(ka.settings.configs, function(config, key){
+
+			if( config['themes'] ){
+
+				Object.each(config['themes'], function(options, themeTitle){
+					
+					if( options['layoutElement'] ){
+						
+						this.layoutElementSelect.addSplit( themeTitle );
+			    		
+						Object.each(options['layoutElement'], function(templatefile, label){
+                            this.layoutElementSelect.add( templatefile, label );
+						}.bind(this));
+				
+					}
+
+				}.bind(this));
+			}
+		}.bind(this));  
+        
+        this.layoutElementSelect.inject( this.toolbarWysiwygContainer );
         
 		this._loadLayoutElement( true );
-		
-        this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect
-        .addEvent('change', this._loadLayoutElement.bind(this));
-        
     },
     
     _loadLayoutElement: function( pInit ){
@@ -757,13 +729,9 @@ ka.layoutContent = new Class({
     		}
     	}
     	
-    	if( pInit == true ){
-    		this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.setValue( content.layout );
-    	}
     	
     	if( this.oldType == this.content.type && this.layoutElement ){
     		//change layout possible
-    		var newLayout = this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.getValue();
     		this.layoutElement.loadTemplate( newLayout );
     		return;
     	}
@@ -776,15 +744,15 @@ ka.layoutContent = new Class({
     	
     	if( !content ){
     		content = {
-				layout: this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.getValue(),
+				layout: this.layoutElementSelect.getValue(),
 				contents: {}
     		}
     	}
     	
-    	this.layoutElement = new ka.layoutElement( this.layoutBox.pageInst, this.body, content.layout );
+    	this.layoutElement = new ka.layoutElement( this.body, content.layout, this.win );
 
 		if( contents ){
-	    	this.layoutBox.pageInst.elementPropertyFields.eLayoutSelect.setValue(content.layout);
+	    	this.layoutElementSelect.setValue(content.layout);
 			this.layoutElement.setValue( contents );
 		}
 		
@@ -1070,6 +1038,13 @@ ka.layoutContent = new Class({
                 this._setDivContent(true);
             }
             
+            if( this.title ){
+                this.title.addEvent('click', function(){
+                    this.iTitle.focus();
+                    this.iTitle.highlight();
+                }.bind(this));
+            }
+            
             this.lastContent = Object.clone(this.content);
             
         }.bind(this)}).get(this.content);
@@ -1078,6 +1053,8 @@ ka.layoutContent = new Class({
     
     _setDivContent: function( pRerender ){
         //here we need a valid this.body ref
+        
+        if( !this.content ) return;
 
         if( this.content.type != 'text' &&  this.content.type != 'picture' ){
             this.lastId = false;
@@ -1331,7 +1308,7 @@ ka.layoutContent = new Class({
         	this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.show();
         }*/
         
-        this.layoutBox.pageInst._deselectAllElements( this );
+        this.layoutBox.deselectAll( this );
         
         this.selected = true;
         this.showToolbar();

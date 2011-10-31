@@ -1659,9 +1659,12 @@ ka.parse = new Class({
         allTableItems: false
     },
 
-    initialize: function( pContainer, pDefinition, pOptions ){
+    initialize: function( pContainer, pDefinition, pOptions, pRefs ){
     
+        this.mainContainer = pContainer;
+        
         this.setOptions( pOptions );
+        this.refs = pRefs;
     
         this.main = new Element('div', {
             'class': 'ka-fields-main'
@@ -1679,8 +1682,23 @@ ka.parse = new Class({
 
             if( this.options.allTableItems )
                 field.tableitem = 1;
+
+            var targetId = '*[id=default]';
+
+            if( field.target )
+                targetId = '*[id='+field.target+']';
+
+        	var target = this.mainContainer.getElement( targetId );
+
+            if( !target )
+            	target = pContainer;
             
-            var obj = new ka.field( field, pContainer );
+            try {
+                var obj = new ka.field( field, target, this.refs );
+            } catch ( e ) {
+                logger('Error in parsing field: ka.parse + '+id+': '+e);
+                return;
+            }
             
             if( pDependField && field.needValue ){
 
@@ -1858,14 +1876,11 @@ ka.renderLayoutElements = function( pDom, pClassObj ){
 	
     var layoutBoxes = {};
     
-    console.log(pDom);
-    pDom.$$('.kryn_layout_content, .kryn_layout_slot').each(function(item){
+    pDom.getWindow().$$('.kryn_layout_content, .kryn_layout_slot').each(function(item){
        
         var options = {}; 
         if( item.get('params') )
             var options = JSON.decode(item.get('params'));
-
-        console.log({});
 
     	if( item.hasClass('kryn_layout_slot') )
     		layoutBoxes[ options.id ] = new ka.layoutBox( item, options, pClassObj ); //options.name, this.win, options.css, options['default'], this, options );

@@ -10,12 +10,13 @@
 .ka-windowEdit-form .ka-field-layoutelement-layoutcontent {
     position: absolute;
     top: 70px;
-    left: 0px;
-    right: 0px;
+    left: 10px;
+    right: 10px;
     bottom: 0px;
     overflow: auto;
     background-color: #f5f5f5;
     border-top: 1px solid #ddd;
+    padding: 15px;
 }
 
 .ka-windowEdit-form .ka-field-layoutelement-tinytoolbar {
