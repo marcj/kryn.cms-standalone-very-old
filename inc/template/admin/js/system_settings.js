@@ -121,15 +121,27 @@ var admin_system_settings = new Class({
                 type: 'text',
                 'default': '3600'
             },
+            
+            'info': {
+            	'type': 'html',
+            	'label': _('Frontend authentication'),
+            	'desc': _('Frontend authentication settings are set under:<br />Pages -> Domain -> Session.')
+            },
 
             'auth_class': {
-                'label': _('Backend authentification'),
+                'label': _('Backend authentication'),
                 'desc': _('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
                 'type': 'select',
                 'table_items': {
                     'kryn': _('Kryn.cms users')
                 },
-                depends: {}
+                depends: {
+                    'auth_params[email_login]': {
+                        'label': _('Allow email login'),
+                        'type': 'checkbox',
+                        'needValue': 'kryn'
+                    }
+                }
             }
         };
         

@@ -653,7 +653,9 @@ class krynAuth {
         $login = esc($pLogin);
         $password = md5( $pPassword );
         
-        $userColumn = (strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false) ? 'email' : 'username';
+        $userColumn = 'username';
+        if($this->config['auth_params']['email_login'] && strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false)
+            $userColumn = 'email';
 
         $row = dbExfetch("
             SELECT rsn
