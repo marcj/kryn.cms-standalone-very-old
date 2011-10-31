@@ -4,21 +4,35 @@
     <head>
         <title>{if $cfg.systemtitle}{$cfg.systemtitle} | {/if}kryn.cms administration</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        
         <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core.js" ></script>
         <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more.js" ></script>
         <script type="text/javascript" src="{$cfg.templatepath}/admin/mootools-extras/powertools-1.0.5.js" ></script>
         
+        
+		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.UI.MenuList.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.Extras.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
+        
         <script type="text/javascript" src="{$cfg.path}admin/js=global.js/?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getPossibleLangs:1/?noCache={$time}" ></script>
-        <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{$adminLanguage}/js:1/" ></script>
+        <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
         
-        <script type="text/javascript" src="{$cfg.path}inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
         <script type="text/javascript" src="{$cfg.path}inc/codemirror/js/codemirror.js"></script>
 
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc={$time}" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Button.js" ></script>
-		
+        
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.Image.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.Table.css">
+        
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.ai.css" />
 
         <script type="text/javascript" >
@@ -26,7 +40,7 @@
             window._session.user_rsn = {$user.rsn+0};
             window._session.username = '{$user.username}';
             window._session.sessionid = '{$client->token}';
-            window._session.lang = '{$adminLanguage}';
+            window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
             window._session.lastlogin = '{$user.lastlogin}';
             window._session.forceLang = '{$request.setLang}';
         </script>
@@ -47,6 +61,7 @@
             
             <div class="header" id="header">
                 <div class="header-left"></div>
+                <div class="header-right"></div>
                 <div class="headRight">
                     <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]"><img src="{$path}inc/template/admin/images/icons/eye_bw.png" /></a>
                     <div class="ka-search">
@@ -60,7 +75,6 @@
                 </div>
                 <div style="clear: both"></div>
                 <div class="mainlinks" id="mainLinks"></div>
-                <div class="header-right"></div>
             </div>
 			
             <div class="userInfo">

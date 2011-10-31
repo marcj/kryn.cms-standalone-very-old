@@ -13,17 +13,31 @@ ka.pluginChooser =  new Class({
 
         this.choosen = {};
         this.choosen.module = opts[0];
-        this.choosen.plugin = opts[1];
-        this.choosen.options = JSON.decode( opts[2] );
-        this.options = {}
 
-        this.activeOptions = new Hash(); 
+        if( !ka.settings.configs[this.choosen.module] )
+            this.choosen.module = '-';
+
+        this.choosen.plugin = opts[1];
+        if( this.choosen.module != '-' && !ka.settings.configs[this.choosen.module]['plugins'][this.choosen.plugin] )
+            this.choosen.plugin = '-';
+
+        try {
+            this.choosen.options = JSON.decode( opts[2] );
+        } catch(e){};
         
-        this._load();
+        this.renderLayout();
+        
+        this.selectModules.setValue( this.choosen.module );
+        this.moduleChanged();
+
+        this.selectPlugin.setValue( this.choosen.plugin );
+        this.loadProperties();
+
+        this.setValue( this.choosen.options );
+        
     },
 
-    _load: function(){
-        var _this = this;
+    renderLayout: function(){
 
         this.main = new Element( 'div', {
             style: ' ',
@@ -62,269 +76,106 @@ ka.pluginChooser =  new Class({
         var td = new Element('td', {
             width: 200
         }).inject( tr );
-        var selectModules = new Element('select', {style: 'width: 190px;', size:1, name: 'dummy'}).inject( td );
+
+        this.selectModules = new ka.Select();
+        
+        this.selectModules.add('-', _('-- Please choose --'));
+        
+        Object.each(ka.settings.configs, function(config, ext){
+            if( config.plugins ){
+                var title = config.title['en'];
+                if( config.title[ window._session.lang ] ){
+                    title = config.title[ window._session.lang ];
+                }
+                this.selectModules.add( ext, title );
+            }
+        }.bind(this));
+        
+        this.selectModules.addEvent( 'change', this.moduleChanged.bind(this) );
+        this.selectModules.inject( td );
         
         this.pluginDescription = new Element('td', {
             rowspan: 2,
             html: _('Please choose a extension and a plugin.')
         }).inject( tr );
         
-        this.windowEnlarger = new Element('td', {
-            width: '25px',
-            rowspan: 2,
-            valign: 'top'
-        }).inject(tr);
-        
-        this.btnLarger = new Element('img', {
-            title: 'Enlarge window',
-            src: 'inc/template/admin/images/icons/tree_up.png',
-            style: 'width: 11px; height: 11px; border: 0; cursor: pointer; float: right;',
-        })
-        .addEvent('click', function() {
-            this.btnLarger.hide();
-            this.btnSmaller.show();
-            this.target.setStyle('height', '90%');
-        }.bind(this))
-        .inject(this.windowEnlarger);
-        
-        this.btnSmaller = new Element('img', {
-            title: 'Shrink window',
-            src: 'inc/template/admin/images/icons/tree_minus.png',
-            style: 'width: 11px; height: 11px; border: 0; cursor: pointer; float: right;'
-        })
-        .addEvent('click', function() {
-            this.btnSmaller.hide();
-            this.btnLarger.show();
-            this.target.setStyle('height', '221px');
-        }.bind(this))
-        .inject(this.windowEnlarger);
-        
-        // Hide smaller button as window is already at small size
-        this.btnSmaller.hide();
-
-        
         var tr = new Element('tr').inject( tbody );
         var td = new Element('td', {
             html: _('Plugin:'),
             style: 'font-size: 12px; font-weight: bold; padding: 0px 4px;'
         }).inject( tr );
-        var td = new Element('td').inject( tr );
-        var pluginsDiv = new Element( 'span').inject( td );
         
+        var td = new Element('td', {
+            width: 200
+        }).inject( tr );
+
+        this.selectPlugin = new ka.Select();
+        this.selectPlugin.inject( td );
+        this.selectPlugin.addEvent( 'change', this.loadProperties.bind(this) );
         
-        /*var tplDiv = new Element( 'div', { 'class': 'ka-field-main ka-field-main-small' } ).inject( this.main );
-        new Element( 'span', { html: '<div class="title">'+_('Extension')+'</div>', 'class': 'ka-field-title' } ).inject( tplDiv );
-        var tpl = new Element( 'div', { 'class': 'ka-field-field' } ).inject( tplDiv );
-        */
-
-        //plugins
-
-        var selectModulesChange = function(){
-
-            if( _this.optionsPanel )
-                _this.optionsPanel.destroy();
-                
-            pluginsDiv.set( 'html', '' );
-
-
-            if( selectModules.value == '' ){
-                _this.pluginDescription.set('html', _('Please choose a extension and a plugin.'));
-                return;
-            }
-            _this.pluginDescription.set('html', _('Please select a plugin.'));
-
-            _this.choosen.module = selectModules.value;
-
-			if( _this.lastGetRequest )
-				_this.lastGetRequest.cancel();
-
-            _this.lastGetRequest = new Request.JSON({url: _path+'admin/backend/plugins/get/', onComplete: function(res){
-
-                pluginsDiv.set( 'html', _('Loading')+' ...' );
-                if(!res){
-                    pluginsDiv.set( 'html', _('No plugins found') );
-                    return;
-                }
-                pluginsDiv.set( 'html', '' );
-
-                //new Element( 'span', { html: '<div class="title">'+_('Plugin')+'</div>', 'class': 'ka-field-title' } ).inject( pluginsDiv ); 
-                //var pVal = new Element( 'div', { 'class': 'ka-field-field' } ).inject( pluginsDiv );
-                var pSelect = new Element( 'select', {style: 'width: 190px;', size:1, name: 'dummy'} );
-
-                var pSelectChange = function(){
-                    
-                    if( _this.optionsPanel )
-                        _this.optionsPanel.destroy();
-
-                    if( pSelect.value == '' ){
-                        _this.pluginDescription.set('html', _('Please select a plugin.'));
-                        return;
-                    }
-
-                    _this.choosen.plugin = pSelect.value;
-                    _this.loadOptions( pSelect.value );
-                };
-
-                pSelect.addListener( 'change', pSelectChange.bind(_this));
-
-                new Element( 'option', {
-                    value: '',
-                    html: _('-- Please choose --')
-                }).inject( pSelect );
-
-                res = new Hash(res);
-                _this.module = selectModules.value;
-                _this.options = res;
-
-                res.each(function(item, key){
-                    new Element( 'option', {
-                      value: key,
-                      html: _(item[0])
-                    }).inject( pSelect ); 
-                });
-                pSelect.inject( pluginsDiv );
-
-                if( _this.choosen.plugin != '' ){
-                    pSelect.value = _this.choosen.plugin;
-                    pSelectChange();
-                }
-
-            }}).post({ module: selectModules.value, resultType: 'json' });
-        }
-        selectModules.addListener( 'change', selectModulesChange.bind(selectModules));
-
-        //load modules
-        new Element( 'option', {
-            value: '',
-            html: _('-- Please choose --')
-        }).inject( selectModules );
-
-        //new Request.JSON({url: _path+'admin/system/module/getModules/', onComplete: function(res){ 
-        
-        $H(ka.settings.configs).each(function(item, code){
-            var title = item.title[ window._session.lang ] ? item.title[ window._session.lang ] : item.title.en;
-            new Element( 'option', {
-                value: code,
-                html: title
-            }).inject( selectModules );
-            
-        });
-        if( this.choosen && this.choosen.module != '' ){
-            selectModules.value = _this.choosen.module;
-            selectModulesChange();
-        }
-        
-        //}}).post();
-
-        return;
-        //this._loadMenu();
-        //this.choosePlugin( this.modules[0].name );
-    },
-
-
-    loadOptions: function( pId ){
-        var _this = this;
-        if( this.optionsPanel )
-            this.optionsPanel.destroy();
-
-        this.optionsPanel = new Element( 'div', {
-            styles: {
-                'clear': 'both'
-            }
-        }).inject( this.optionsPane );
-        
-        this.table = new Element('table', {width: '100%'}).inject( this.optionsPanel );
-        this.tbody = new Element('tbody').inject( this.table );
-        
-        this.pluginDescription.set('html', _('No plugin description.'));
-        if( this.options[ pId ][2] )
-            this.pluginDescription.set('html', this.options[ pId ][2]);
-        
-        var options = new Hash( _this.options );
-        _this.activeOptions = new Hash({});
-        
-        new Hash(options[ pId ][1]).each(function(option,key){
-
-//            _this.activeOptions[key] = _this.buildOption( option, key );
-        	option.tableitem = 1;
-            option.label = _(option.label);
-            option.desc = _(option.desc);
-            _this.activeOptions[key] = new ka.field( option, this.tbody );
-            
-            if( option.depends ){
-            	this._renderDependProperties( _this.activeOptions[key], option.depends );
-            	
-            }
-            
-            if( this.choosen.options && this.choosen.options[key] ){
-                _this.activeOptions[key].setValue( this.choosen.options[ key ] );
-                _this.activeOptions[key].fireEvent('change', this.choosen.options[ key ]);
-            }
-            
-        }.bind(this));
-        new Element( 'br', {
-            styles: { clear: 'both' }
-        }).inject( this.optionsPanel );
     },
     
-    _renderDependProperties: function( pField, pDepends ){
-    	
-    	/*new Element( 'br', {
-            styles: { clear: 'both' }
-        }).inject( this.optionsPanel );
+    moduleChanged: function(){
+
+        var mod = this.selectModules.getValue();
+    
+        this.selectPlugin.empty();
+        this.optionsPane.empty();
         
-    	var pane = new Element('div', {
-    		style: 'border-left: 2px solid #555; margin-left: 3px;'
-    	}).inject( this.optionsPanel );
-    	*/
-    	
-    	$H(pDepends).each(function(item, key){
-    		
-    		item.tableitem = 1;
-            item.label = _(item.label);
-            item.desc = _(item.desc);
-            //logger( item.type );
-    		var field = new ka.field( item, this.tbody );
+        if( !ka.settings.configs[mod] ){
+            return;
+        }
+        
+        if( mod != '-' )
+            this.choosen.module = mod;
+    
+        logger(this.choosen.plugin);
+    
+        this.selectPlugin.add('-', _('-- Please choose --'));
 
-    		field.hide();
-    		
-    		if( item.depends ){
-    			this._renderDependProperties( field, item.depends );
-    		}
-    		
-    		pField.addEvent('change', function( pValue ){
-    			//logger( '['+key+']: '+pValue+' => Need: '+item.needValue );
-    			if( pValue == item.needValue ){
-    				field.show();
-    			} else {
-    				field.hide();
-    			}
-    		});
-    		
-    		this.activeOptions[ key ] = field;
+        Object.each(ka.settings.configs[mod].plugins, function(plugin, pluginId){
+        
+            var properties = this.selectPlugin.add( pluginId, _(plugin[0]) );
+        
+        }.bind(this));
+        
+        if( this.choosen.plugin != '-' ){
+            this.selectPlugin.setValue( this.choosen.plugin );
+            this.loadProperties();
+        }
+    
+    },
 
-    		if( this.choosen.options && this.choosen.options[key] )
-    			this.activeOptions[key].setValue( this.choosen.options[ key ] );
-		
-    	}.bind(this));
-    	
-    	
-    	
+    loadProperties: function(){
+    
+        var mod = this.selectModules.getValue();
+        var plugin = this.selectPlugin.getValue();
+
+        this.optionsPane.empty();
+        
+        if( plugin != '-' )
+            this.choosen.plugin = plugin;
+        
+        this.propertyTable = new Element('table').inject( this.optionsPane );
+        this.propertyTBody = new Element('tbody').inject( this.propertyTable );
+
+        if( ka.settings.configs[mod] && ka.settings.configs[mod].plugins && ka.settings.configs[mod].plugins[plugin] ){
+            var properties = ka.settings.configs[mod].plugins[plugin][1];
+            this.fieldObj = new ka.parse( this.propertyTBody, properties, {allTableItems:true} );
+        }
+
+    },
+    
+    setValue: function( pValues ){
+        if( this.fieldObj )
+            this.fieldObj.setValue( pValues );
     },
 
     getValue: function(){
         var res = this.choosen.module + '::' + this.choosen.plugin + '::';
-        options = new Hash();
-        this.activeOptions.each(function(item,key){
-            if( item.field.type == 'headline' ) return;
-            options.include( key, item.getValue() );
-        });
-        res += JSON.encode( options );
+        if( this.fieldObj )
+            res += JSON.encode( this.fieldObj.getValue() );
         return res;
-    },
-
-    choosePlugin: function( pName ){
-        
     },
 
     inject: function( pTarget ){

@@ -134,9 +134,8 @@ if( !$kdb->isActive() ){
     die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
 }
 
+kryn::searchDomain();
 kryn::loadModules();
-
-kryn::loadLanguage();
 
 kryn::initAuth();
 

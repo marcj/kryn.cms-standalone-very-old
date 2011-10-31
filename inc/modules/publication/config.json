@@ -2,8 +2,8 @@
   "owner": "1",
   "version": "0.6.0",
   "desc": {
-    "en": "Publication is a small news\/blog system, where you can manage and display news by categories.",
-    "de": "Ein kleines News system, mit dem man News managent und ver\u00f6ffentlichen kann."
+    "en": "Publication is a small news\/blog system, where you can manage and display news.",
+    "de": "Ein Blog und News-System mit Kommentarfunktion und dem Grundsatz an Backendfunktionalitaet"
   },
   "title": {
     "en": "News and Blogs",
@@ -14,12 +14,12 @@
   "writableFiles": "inc\/template\/publication\/*",
   "admin": {
     "news": {
-      "title": "News",
+      "title": "[[News]]",
       "type": "combine",
       "class": "publicationNewsList",
       "childs": {
         "add": {
-          "title": "News add",
+          "title": "[[News add]]",
           "type": "add",
           "class": "publicationNewsAdd",
           "isLink": false,
@@ -29,7 +29,7 @@
           ]
         },
         "edit": {
-          "title": "News edit",
+          "title": "[[News edit]]",
           "type": "edit",
           "class": "publicationNewsEdit",
           "isLink": false,
@@ -39,14 +39,14 @@
           ]
         },
         "category": {
-          "title": "Category",
+          "title": "[[Category]]",
           "type": "list",
           "class": "publicationNewsCatsList",
           "isLink": true,
           "multi": true,
           "childs": {
             "add": {
-              "title": "Add news category",
+              "title": "[[Add news category]]",
               "type": "add",
               "class": "publicationNewsCatsAdd",
               "isLink": true,
@@ -56,7 +56,7 @@
               ]
             },
             "edit": {
-              "title": "Edit news category",
+              "title": "[[Edit news category]]",
               "type": "edit",
               "class": "publicationNewsCatsEdit",
               "isLink": true,
@@ -68,21 +68,21 @@
           }
         },
         "comments": {
-          "title": "Comments",
+          "title": "[[Comments]]",
           "type": "list",
           "class": "publicationNewsComments",
           "isLink": true,
           "multi": true,
           "childs": {
             "edit" : {
-              "title": "Edit comment",
+              "title": "[[Edit comment]]",
               "type": "edit",
               "class": "publicationNewsCommentsEdit",
               "multi": true
             },
             
             "add" : {
-              "title": "Add comment",
+              "title": "[[Add comment]]",
               "type": "add",
               "class": "publicationNewsCommentsAdd",
               "multi": true
@@ -94,22 +94,22 @@
   },
   "plugins": {
     "newsDetail": [
-      "News detail",
+      "[[News detail]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/publication\/news\/detail\/"
         },
         "replaceTitle": {
-          "label": "Replace page title",
+          "label": "[[Replace page title]]",
           "desc": "Replace the title of the item with the page title",
           "type": "checkbox",
           "default": "1"
         },
         "allowComments": {
-          "label": "Allow comments",
+          "label": "[[Allow comments]]",
           "type": "checkbox",
           "depends": {
             "itemsPerPage": {
@@ -121,7 +121,7 @@
             },
             "maxPages": {
               "needValue": 1,
-              "label": "Max pages",
+              "label": "[[Max pages]]",
               "type": "integer",
               "length": "6",
               "default": "10"
@@ -129,7 +129,7 @@
           }
         },
         "category_rsn": {
-          "label": "Limit categories",
+          "label": "[[Limit categories]]",
           "type": "select",
           "multi": true,
           "table": "publication_news_category",
@@ -139,41 +139,41 @@
       }
     ],
     "newsDetailFixed": [
-      "News detail fixed",
+      "[[News detail fixed]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/publication\/news\/detail\/"
         },
         "news_rsn": {
-          "label": "Article",
+          "label": "[[Article]]",
           "type": "select",
           "table": "publication_news",
           "table_label": "title",
           "table_id": "rsn"
         },
         "replaceTitle": {
-          "label": "Replace page title",
+          "label": "[[Replace page title]]",
           "desc": "Replace the title of the item with the page title",
           "type": "checkbox",
           "default": "1"
         },
         "allowComments": {
-          "label": "Allow comments",
+          "label": "[[Allow comments]]",
           "type": "checkbox",
           "depends": {
             "itemsPerPage": {
               "needValue": 1,
-              "label": "Count per page",
+              "label": "[[Count per page]]",
               "type": "integer",
               "length": "6",
               "default": "10"
             },
             "maxPages": {
               "needValue": 1,
-              "label": "Max pages",
+              "label": "[[Max pages]]",
               "type": "integer",
               "length": "6",
               "default": "10"
@@ -183,32 +183,32 @@
       }
     ],
     "newsList": [
-      "News list",
+      "[[News list]]",
       {
         "itemsPerPage": {
-          "label": "Count per page",
+          "label": "[[Count per page]]",
           "type": "integer",
           "length": "6",
           "default": "10"
         },
         "maxPages": {
-          "label": "Max pages",
+          "label": "[[Max pages]]",
           "type": "integer",
           "length": "6",
           "default": "10"
         },
         "detailPage": {
-          "label": "Detailpage",
+          "label": "[[Detailpage]]",
           "type": "page"
         },
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/publication\/news\/list\/"
         },
         "category_rsn": {
-          "label": "Limit categories",
+          "label": "[[Limit categories]]",
           "type": "select",
           "multi": true,
           "table": "publication_news_category",
@@ -216,10 +216,15 @@
           "table_id": "rsn"
         },
         "order": {
-          "label": "Sort by",
+          "label": "[[Sort by]]",
           "type": "select",
           "default": "2",
-          "method": "getOrderOptions"
+          "items": {
+            "title": "[[Title]]",
+            "releaseat": "[[Release date]]",
+            "releasedate": "[[News date]]",
+            "category_rsn": "[[Category]]"
+          }
         },
         "orderDirection": {
           "label": "Sort direction",
@@ -227,12 +232,12 @@
           "method": "getOrderDirectionOptions"
         },
         "enableRss": {
-          "label": "Enable Rss view on this page",
+          "label": "[[Enables Rss view on this page]]",
           "type": "checkbox",
           "depends": {
             "rssTemplate": {
               "needValue": 1,
-              "label": "Rss feed template",
+              "label": "[[Rss feed template]]",
               "type": "files",
               "withoutExtension": true,
               "directory": "inc\/template\/publication\/news\/rss\/"
@@ -242,26 +247,26 @@
       }
     ],
     "rssList": [
-      "News RSS Feed",
+      "[[News RSS Feed]]",
       {
         "itemsPerPage": {
-          "label": "Maximum Items for rss feed",
+          "label": "[[Maximum Items for rss feed]]",
           "type": "integer",
           "length": "6",
           "default": "10"
         },
         "detailPage": {
-          "label": "Detailpage",
+          "label": "[[Detailpage]]",
           "type": "page"
         },
         "rssTemplate": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/publication\/news\/rss\/"
         },
         "category_rsn": {
-          "label": "Category\/s",
+          "label": "[[Category/s]]",
           "type": "select",
           "multi": true,
           "table": "publication_news_category",
@@ -271,20 +276,20 @@
       }
     ],
     "categoryList": [
-      "Category list (with Counts)",
+      "[[Category list (with Counts)]]",
       {
         "listPage": {
-          "label": "Page with list plugin",
+          "label": "[[Page with list plugin]]",
           "type": "page"
         },
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/publication\/categoryList\/"
         },
         "category_rsn": {
-          "label": "Limit categories",
+          "label": "[[Limit categories]]",
           "type": "select",
           "multi": true,
           "table": "publication_news_category",

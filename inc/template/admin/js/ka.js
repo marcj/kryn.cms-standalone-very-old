@@ -122,27 +122,34 @@ ka.getDomain = function( pRsn ){
 	return result;
 }
 
-
 ka.loadSettings = function(){
     new Request.JSON({url: _path+'admin/backend/getSettings', noCache: 1, async: false, onComplete: function(res){
-        ka.settings = $H(res);
-        ka.settings.set('images', ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd']);
-        ka.settings.set('user', $H(ka.settings.user));
-        ka.settings.get('user').set('windows', $H(ka.settings.get('user').get('windows')));
+        if( res.error == 'access_denied' ) return;
         
-        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
-        if( ka.settings.system.systemtitle ){
+        ka.settings = res;
+        
+        ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
+        
+        if( ka.settings.user )
+            document.id(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
+        
+        if( ka.settings.system && ka.settings.system.systemtitle ){
             document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
         }
-    }.bind(this)}).get();
+
+    }.bind(this)}).get({lang: window._session.lang});
 }
 
 ka.loadLanguage = function( pLang ){
     if(!pLang) pLang = 'en';
     window._session.lang = pLang;
+    
+    Cookie.write('kryn_language', pLang);
+    
     new Request.JSON({url: _path+'admin/getLanguage:'+pLang+'/', async: false, noCache: 1, onComplete: function(res){
         ka.lang = res;
         Locale.define('en-US', 'Date', res.mootools);
+        //ka.loadSettings();
     }}).get();
 }
 
@@ -1570,20 +1577,32 @@ ka.openDialog = function( item ){
         
     ka.closeDialog();
     
+    var target = document.body;
+    if( item.target && item.target.getWindow() )
+        target = item.target.getWindow().document.body;
+
     ka.autoPositionLastOverlay = new Element('div', {
-        style: 'position: absolute; left:0px; top: 0px; right:0px;bottom:0px;background-color: white;',
+        style: 'position: absolute; left:0px; top: 0px; right:0px; bottom:0px;background-color: white;',
         styles: {
             opacity: 0.001
         }
     })
-    .addEvent('click', function(){
+    .addEvent('click', function( e ){
         ka.closeDialog();
+        e.stop();
     })
-    .inject( document.body );
+    .inject( target );
+    
+    var size = item.target.getWindow().getScrollSize();
+
+    ka.autoPositionLastOverlay.setStyles({
+        width: size.x,
+        height: size.y
+    });
     
     ka.autoPositionLastItem = item.element;
 
-    item.element.inject( document.body );
+    item.element.inject( target );
     item.element.removeEvent('click', ka.closeDialog);
     item.element.addEvent('click', ka.closeDialog);
 
@@ -1609,13 +1628,14 @@ ka.openDialog = function( item ){
     var size = item.element.getSize();
 
     var bsize = item.element.getParent().getSize();
+    var bscroll = item.element.getParent().getScroll();
     var height;
 
     item.element.setStyle('height', '');
     
     item.minHeight = item.element.getSize().y;
 
-    if( size.y+pos.y > bsize.y ){
+    if( size.y+pos.y > bsize.y+bscroll.y ){
         height = bsize.y-pos.y-10;
     }
 
@@ -1631,9 +1651,20 @@ ka.openDialog = function( item ){
 
 ka.parse = new Class({
 
-    fields: {},
+    Implements: Options,
 
-    initialize: function( pContainer, pDefinition ){
+    fields: {},
+    
+    options: {
+        allTableItems: false
+    },
+
+    initialize: function( pContainer, pDefinition, pOptions, pRefs ){
+    
+        this.mainContainer = pContainer;
+        
+        this.setOptions( pOptions );
+        this.refs = pRefs;
     
         this.main = new Element('div', {
             'class': 'ka-fields-main'
@@ -1649,16 +1680,31 @@ ka.parse = new Class({
     parseLevel: function( pLevel, pContainer, pDependField ){
         Object.each( pLevel, function( field, id ){
 
-            var obj = new ka.field( field, pContainer );
+            if( this.options.allTableItems )
+                field.tableitem = 1;
+
+            var targetId = '*[id=default]';
+
+            if( field.target )
+                targetId = '*[id='+field.target+']';
+
+        	var target = this.mainContainer.getElement( targetId );
+
+            if( !target )
+            	target = pContainer;
+            
+            try {
+                var obj = new ka.field( field, target, this.refs );
+            } catch ( e ) {
+                logger('Error in parsing field: ka.parse + '+id+': '+e);
+                return;
+            }
             
             if( pDependField && field.needValue ){
+
                 pDependField.addEvent('check-depends', function(){
-                    if( typeOf(field.needValue) == 'string' || typeOf(field.needValue) == 'number' ){
-                        if( field.needValue == pDependField.getValue() )
-                            obj.show();
-                        else
-                            obj.hide();
-                    } else if( typeOf(field.needValue) == 'array' ){
+                
+                    if( typeOf(field.needValue) == 'array' ){
                         if( field.needValue.contains(pDependField.getValue()) )
                             obj.show();
                         else
@@ -1668,16 +1714,40 @@ ka.parse = new Class({
                             obj.show();
                         else
                             obj.hide();
+                    } else {
+                        if( field.needValue == pDependField.getValue() )
+                            obj.show();
+                        else
+                            obj.hide();
                     }
                 }.bind(this));
+
             }
             
             if( field.depends ){
+
+                var childContainer = false;
+                    
+                var target = document.id(obj);    
+                
+                if( target.get('tag') == 'tr' ){
+                    var tr = new Element('tr').inject( document.id(obj), 'after' );
+                    target = new Element('td', {colspan: 2, style: 'border-bottom: 0px;'}).inject( tr );
+                }
+
                 var childContainer = new Element('div', {
                     'class': 'ka-fields-sub'
-                }).inject( document.id(obj) );
+                }).inject( target );
+
                 obj.childContainer = childContainer;
+                
+                if( field.tableitem ){
+                    var table = new Element('table', {width: '100%'}).inject( childContainer );
+                    childContainer = new Element('tbody').inject( table );
+                }
+
                 this.parseLevel( field.depends, childContainer, obj );
+
                 obj.fireEvent('check-depends');
             }
             this.fields[ id ] = obj;
@@ -1804,212 +1874,43 @@ ka.getFieldCaching = function (){
 
 ka.renderLayoutElements = function( pDom, pClassObj ){
 	
-	var layoutBoxes = $H({});
-    if( !pDom.getFirst() && (pDom.get('text').search(/{slot.+}/) >= 0 || pDom.get('text').search(/{content.+}/) >= 0) ){
-    	
-        var value = pDom.get('text');
-        var type = 'slot';
-        if( pDom.get('text').search(/{slot.+}/) >= 0 ){
-        	value = value.substr( 6, value.length-7 );
-        } else {
-        	value = value.substr( 9, value.length-10 );
-        	type = 'content';
-        }
-        
-        var options = {};
-        
-        var exp = /([a-zA-Z0-9-_]+)=([^"']([^\s]*)|["]{1}([^"]*)["]{1}|[']{1}([^']*)[']{1})/g;
-        while( res = exp.exec( value ) ){
-            options[ res[1] ] = res[4];
-        }
-        exp = null;
-        if( options.id+0 > 0 ){
-        	if( type == 'slot' )
-        		layoutBoxes[ options.id ] = new ka.layoutBox( pDom, options, pClassObj ); //options.name, this.win, options.css, options['default'], this, options );
-        	else
-        		layoutBoxes[ options.id ] = new ka.contentBox( pDom, options, pClassObj );
-        }
-    }
+    var layoutBoxes = {};
     
-    if( pDom.getFirst() ){
-    	pDom.getChildren().each(function(child){
-    		layoutBoxes.combine( ka.renderLayoutElements( child, pClassObj ) );
-        });
-    }
+    pDom.getWindow().$$('.kryn_layout_content, .kryn_layout_slot').each(function(item){
+       
+        var options = {}; 
+        if( item.get('params') )
+            var options = JSON.decode(item.get('params'));
+
+    	if( item.hasClass('kryn_layout_slot') )
+    		layoutBoxes[ options.id ] = new ka.layoutBox( item, options, pClassObj ); //options.name, this.win, options.css, options['default'], this, options );
+    	else
+    		layoutBoxes[ options.id ] = new ka.contentBox( item, options, pClassObj );
+
+    });
     
     return layoutBoxes;
 }
 
 
-
-
-
-
-
-initSmallTiny = function(pId, pContentCssFile){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,style,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
-         theme_advanced_buttons1 : 'bold,italic,underline,|,link,image',
-         theme_advanced_buttons2: 'justifyleft,justifycenter,justifyright,|,outdent,indent',
-         theme_advanced_buttons3: 'formatselect',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_statusbar_location : 'bottom',
-        theme_advanced_resizing : true,
-        theme_advanced_resize_horizontal : false,
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang
-    });
-}
-
-initResizeTiny = function(pId, pContentCssFile){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
-        theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,fullscreen,|,undo,redo,|,cut,copy,paste,pastetext,pasteword',
-        theme_advanced_buttons2: 'justifyleft,justifycenter,justifyright,justifyfull,table,|,bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-        theme_advanced_buttons3: '',
-        theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_statusbar_location : 'bottom',
-        theme_advanced_resizing : true,
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang
-    });
-}
-
-initTinyWithoutResize = function(pId, pContentCssFile, pOnInit, pBaseUrl, pOwnOptions ){
+initWysiwyg = function( pElement, pOptions ){
     
     var options = {
-        document_base_url : (pBaseUrl)?pBaseUrl:_path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,autoresize',
-         theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,undo,redo,|,cut,copy,paste,pastetext,pasteword,|,justifyleft,justifycenter,justifyright,justifyfull,table',
-         theme_advanced_buttons2: 'bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-         theme_advanced_buttons3: '',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location: "external",
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang,
-        setup: pOnInit
-    }
-        
-        
-    var notoverwritable = ['name', 'id', 'css', 'default', 'document_base_url', 'relative_urls', 'theme mode elements', 'theme_advanced_toolbar_location',
-        'remove_linebreaks', 'convert_urls', 'theme_advanced_resizing', 'language', 'setup'];
+        extraClass: 'SilkTheme',
+	    //flyingToolbar: true,
+	    dimensions: {
+	       x: '100%'
+	    },
+		actions: 'bold italic underline strikethrough | formatBlock justifyleft justifycenter justifyright justifyfull | insertunorderedlist insertorderedlist indent outdent | undo redo | tableadd | createlink unlink | image | toggleview'
+    };
     
-    if( pOwnOptions ){
-        $H( pOwnOptions ).each(function(option,key){
-           if( notoverwritable.contains(key) ) return;
-           if( option == 'false' ) option = false;
-           if( option == 'true' ) option = true;
-           options[ key ] = option;
-        });
-        
-    }
+    if( pOptions )
+        options = Object.append(options, pOptions);
     
-    return tinymce.EditorManager.init( options );
-}
-
-initTiny = function(pId, pContentCssFile, pOnInit){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,autoresize',
-         theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,fullscreen,|,undo,redo,|,cut,copy,paste,pastetext,pasteword,|,justifyleft,justifycenter,justifyright,justifyfull,table',
-         theme_advanced_buttons2: 'bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-         theme_advanced_buttons3: '',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_statusbar_location : 'bottom',
-        theme_advanced_resizing : true,
-        theme_advanced_resize_horizontal : false,
-        theme_advanced_toolbar_location: "external",
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: (parent) ? parent._session.lang : window._session.lang,
-        setup: pOnInit
-    });
+    return new MooEditable( document.id(pElement), options );
 }
 /*
-initTiny = function(pId, pContentCssFile, pOnInit){
-    return tinymce.EditorManager.init({
-        document_base_url : _path,
-        relative_urls : false,
-        theme : 'advanced',
-        mode : 'exact',
-        elements: pId,
-        //plugins: '-kryn,emotions,xhtmlxtras,contextmenu,inlinepopups,style, media, searchreplace, print, contextmenu, paste,fullscreen,noneditable,visualchars,template',
-        plugins : 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,autoresize',
-         theme_advanced_buttons1 : 'code,|,bold,italic,underline,strikethrough,|,link,unlink,anchor,|,image,insertfile,insertimage,|,fullscreen,|,undo,redo,|,cut,copy,paste,pastetext,pasteword',
-         theme_advanced_buttons2: 'justifyleft,justifycenter,justifyright,justifyfull,table,|,bullist,numlist,|,formatselect,forecolorpicker,backcolorpicker,charmap,|,pastetext,pasteword,search,replace,|,indent,outdent',
-         theme_advanced_buttons3: '',
-         theme_advanced_blockformats : "default,h1,h2,h3,h4,h5",
-//         theme_advanced_buttons2 : 'cut,copy,paste,pastetext,pasteword,|,bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,undo,redo,link,unlink,emotions,image,forecolor',
-//         theme_advanced_buttons3 : 'styleselect,formatselect,fontselect,fontsizeselect,|,search,replace,|,outdent,indent,blockquote',
-        theme_advanced_toolbar_location : 'top',
-        //theme_advanced_statusbar_location : 'bottom',
-        //theme_advanced_resizing : true,
-        //theme_advanced_resize_horizontal : false,
-        theme_advanced_toolbar_location: "external",
-
-        remove_linebreaks : false,
-        convert_urls : false,
-        content_css: pContentCssFile,
-        indentation: '10px',
-        theme_advanced_resizing : true,
-        skin: 'o2k7',
-        skin_variant: 'silver',
-        language: 'de',
-        setup: pOnInit
-    });
-}
-
-*/
+initSmallTiny
+initTiny
+initResizeTiny
+initTinyWithoutResize*/

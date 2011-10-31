@@ -72,7 +72,7 @@ var admin_system_module_view = new Class({
     renderContent: function( pItem ){
         this.item = pItem;
 
-        var lang = ka.settings.get('user').get('adminLanguage');
+        var lang = ka.settings['user']['adminLanguage'];
 
         var title = pItem.module.title[lang] ? pItem.module.title[lang] : pItem.module.title['en'];
         var desc = pItem.module.desc[lang] ? pItem.module.desc[lang] : pItem.module.desc['en'];
@@ -407,7 +407,7 @@ var admin_system_module_view = new Class({
         	this.win.setTitle(_('Update extension'));
         }
 
-        var lang = window._session.lang; //ka.settings.get('user').get('adminLanguage');
+        var lang = window._session.lang;
         var title = this.item.module.title[lang] ? this.item.module.title[lang] : this.item.module.title['en'];
 
         var div = new Element('div', {
@@ -847,7 +847,7 @@ var admin_system_module_view = new Class({
             }).inject( this.win.content );
         }
 
-        var lang = window._session.lang; //ka.settings.get('user').get('adminLanguage');
+        var lang = window._session.lang;
         var title = this.item.module.title[lang] ? this.item.module.title[lang] : this.item.module.title['en'];
 
         var div = new Element('div', {
@@ -969,7 +969,7 @@ var admin_system_module_view = new Class({
         
         var _this = this;
         
-        var lang = ka.settings.get('user').get('adminLanguage');
+        var lang = ka.settings['user']['adminLanguage'];
         var title = this.item.module.title[lang] ? this.item.module.title[lang] : this.item.module.title['en'];
         new Element('h3', {
             html: title,

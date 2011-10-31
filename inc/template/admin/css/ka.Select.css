@@ -2,6 +2,8 @@
     margin: 0px 4px;
     border: 1px solid #ccc;
     -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
     cursor: pointer;
     position: relative;
     padding-right: 15px;
@@ -19,16 +21,17 @@
     background-image:     -ms-linear-gradient(top, #fafafa, #f1f1f1); 
     background-image:      -o-linear-gradient(top, #fafafa, #f1f1f1); 
     background-image:         linear-gradient(top, #fafafa, #f1f1f1);
+    text-align: left;
 }
 
 .ka-Select-box:hover {
-    background-color: #eaeaea;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f6f6f6, to(#ebebeb)); 
-    background-image: -webkit-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:    -moz-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:     -ms-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:      -o-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:         linear-gradient(top, #f6f6f6, #ebebeb);
+    background-color: #e4e4e4;
+    background-image: -webkit-gradient(linear, left top, left bottom, #f2f2f2, to(#dddddd)); 
+    background-image: -webkit-linear-gradient(top, #f2f2f2, #dddddd); 
+    background-image:    -moz-linear-gradient(top, #f2f2f2, #dddddd); 
+    background-image:     -ms-linear-gradient(top, #f2f2f2, #dddddd); 
+    background-image:      -o-linear-gradient(top, #f2f2f2, #dddddd); 
+    background-image:         linear-gradient(top, #f2f2f2, #dddddd);
 }
 
 .ka-Select-box:active {
@@ -65,7 +68,11 @@
     max-width: 400px;
     overflow: auto;
     background-color: #eee;
+    
     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    
     box-shadow: 0px 0px 3px #777;
 }
 
@@ -77,7 +84,8 @@
 .ka-Select-chooser a,
 .ka-Select-chooser a:link {
     display: block;
-    padding: 5px 10px;
+    padding: 3px 10px;
+    font-size: 10px;
     padding-left: 23px;
     text-decoration: none;
 }
@@ -86,10 +94,21 @@
     background-color: #fff;
 }
 
+a.ka-Select-separator,
+a.ka-Select-separator:link {
+    padding: 2px 5px;
+    font-weight: bold;
+    cursor: default;
+}
+
+.ka-Select-chooser a.ka-Select-separator:hover {
+    background-color: transparent;
+}
+
 
 .ka-Select-chooser a.active,
 .ka-Select-chooser a.active:link {
     background-image: url(../images/icons/tick.png);
     background-repeat: no-repeat;
-    background-position: 3px 2px;
+    background-position: 3px 1px;
 }

@@ -119,3 +119,23 @@ body .ka-layoutContent-main img
 
 }
 
+.ka-normalize img,
+.ka-normalize div,
+.ka-normalize a,
+.ka-normalize a:link,
+.ka-normalize a:hover {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    color: #333;
+    text-decoration: none;
+    line-height: 16px;
+    font-size: 11px;
+    text-align: left;
+    left: 0px;
+    top: 0px;
+    width: auto;
+    height: auto;
+    background-color: transparent;
+    background-image: none;
+}

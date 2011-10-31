@@ -79,38 +79,7 @@ ka.windowEdit = new Class({
             this._loadItem( res );
         }.bind(this)}).post(req);
     },
-
-    addField: function( pField, pFieldId, pContainer ){
     
-        if( !pField ) return;
-    
-        if( pField.type == 'wysiwyg' && !this.windowAdd ){
-            pField.withOutTinyInit = true;
-        }
-        
-        pField.label = _(pField.label);
-        pField.desc = _(pField.desc);
-        
-        if( this.languageSelect && pField.multiLanguage )
-        	pField.lang = this.languageSelect.getValue();
-        
-        var field = new ka.field( pField, pContainer, {
-            win: this.win
-        });
-
-        if( pField.type == 'wysiwyg' && this.windowAdd ){
-            //var contentCss = _path+"inc/template/css/kryn_tinyMceContentElement.css";
-            //initResizeTiny( field.lastId, contentCss );
-            ka._wysiwygId2Win.include( field.lastId, this.win );
-            initResizeTiny( field.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
-        }
-
-        this.fields[pFieldId] = field;
-        this._fields[ pFieldId ] = pField;
-        return field;
-    },
-
-
     _loadItem: function( pItem ){
         this.item = pItem;
         
@@ -119,6 +88,7 @@ ka.windowEdit = new Class({
         var first = false;
         
         Object.each(this.fields, function(field, fieldId){
+
             if( first == false && typeOf(pItem.values[fieldId]) == 'string' ){
                 this.win.setTitle(pItem.values[fieldId]);
                 first = true;
@@ -130,13 +100,13 @@ ka.windowEdit = new Class({
             	){
             	   field.setValue( this.win.params.relation_params[fieldId] );
             	   
-            	} else if( this._fields[fieldId].type == 'window_list' ){
+            	} else if( field.field.type == 'window_list' ){
                     field.setValue({table: this.values.table, params: pItem.values});
                     
                 } else if( $type(pItem.values[fieldId]) == false )
                     field.setValue( '' );
 
-                else if( !this._fields[fieldId].startempty ){
+                else if( !field.field.startempty ){
                     field.setValue( pItem.values[fieldId] );
                 }
 
@@ -347,7 +317,6 @@ ka.windowEdit = new Class({
         this.loader.show();
 
         this.fields = {};
-        this._fields = {};
         
         this.renderMultilanguage();
         
@@ -373,41 +342,25 @@ ka.windowEdit = new Class({
             })
             .inject( this.container );
             
-            var target = this.form;
-            
             if( this.values.layout ){
             	this.form.set('html', this.values.layout);
             }
             
-            Object.each(this.values.fields, function(field, fieldId){
-
-                var target = this.form;
-                
-                if( this.values.layout ){
-                    
-                    var id = '*[id=default]';
-                    if( field.target )
-                        id = '*[id='+field.target+']';
-
-                    target = this.form.getElement( id );
-                	
-                	if( !target ){
-                    	target = this.form;
-                    }
-                }
-            	
-                this.addField( field, fieldId, target );
-            }.bind(this));
+        	var parser = new ka.parse( this.form, this.values.fields, {}, {win: this.win} );
+            this.fields = parser.getFields();
             
         } else if( this.values.tabFields ){
             
+
             this.topTabGroup = this.win.addSmallTabGroup();
             
             this._panes = {};
             this._buttons = {};
             this.firstTab = '';
+            this.fields = {};
             
-            Object.each(this.values.tabFields, function(fields,title){
+            Object.each(this.values.tabFields, function( fields, title ){
+
                 if( this.firstTab == '' ) this.firstTab = title;
                 
                 this._panes[ title ] = new Element('div', {
@@ -418,7 +371,11 @@ ka.windowEdit = new Class({
                 if( this.values.tabLayouts && this.values.tabLayouts[title] )
                 	this._panes[title].set('html', this.values.tabLayouts[title]);
                 
-                this._renderFields( fields, this._panes[ title ] );
+                //this._renderFields( fields, this._panes[ title ] );
+
+            	var parser = new ka.parse( this._panes[ title ], fields, {}, {win: this.win} );
+                var pfields = parser.getFields();
+                Object.append( this.fields, pfields );
                 
                 this._buttons[ title ] = this.topTabGroup.addButton(_(title), this.changeTab.bind(this,title));
             }.bind(this));
@@ -506,62 +463,15 @@ ka.windowEdit = new Class({
     },
 
     changeLanguage: function(){
-    	var newFields = {};
         Object.each(this.fields, function(item, fieldId){
 
         	if( item.field.type == 'select' && item.field.multiLanguage ){
         		item.field.lang = this.languageSelect.getValue();
-        		var value = item.getValue();
-        		var field = new ka.field( item.field );
-        		field.inject( item.main, 'after' );
-        		item.destroy();
-        		field.setValue( value );
-        		newFields[fieldId] = field;
+                item.renderItems();
         	}
-        }.bind(this));
-        
-        Object.each(newFields, function(item,fieldId){
-        	this.fields[ fieldId ] = item;
         }.bind(this));
     },
     
-    _renderFields: function( pFields, pContainer, pParentField ){
-        
-        Object.each(pFields, function(field,id){
-
-            var targetId = '*[id=default]';
-            if( field.target )
-                targetId = '*[id='+field.target+']';
-
-        	var target = pContainer.getElement( targetId );
-
-            if( !target )
-            	target = pContainer;
-
-            var fieldOnj = this.addField( field, id, target );
-
-            if( pParentField && field.needValue ){
-            	
-            	fieldOnj.hide();
-            	pParentField.addEvent('change', function( pValue ){
-            		if( pValue == field.needValue ){
-            			fieldOnj.show();
-            		} else {
-            			fieldOnj.hide();
-            		}
-            	});
-            	pParentField.fireEvent('change', pParentField.getValue());
-            }
-            
-            if( field.depends ){
-                var depends = new Element('div', {
-                	style: 'margin-left: 26px; padding: 3px; border-left: 1px dotted gray'
-                }).inject( target );
-                this._renderFields( field.depends, depends, fieldOnj );
-            }
-        }.bind(this));
-    },
-
     changeTab: function( pTab ){
     	this.currentTab = pTab;
         Object.each(this._buttons, function(button,id){

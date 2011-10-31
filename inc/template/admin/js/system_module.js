@@ -5,7 +5,9 @@ var admin_system_module = new Class({
 
 
         this.tabGroup = this.win.addTabGroup();
-        this.tabButtons = $H();
+        
+        this.tabButtons = {};
+        
         this.tabButtons['install'] = this.tabGroup.addButton(_('New extension'), _path+'inc/template/admin/images/icons/plugin_add.png', this.changeType.bind(this,'install'));
         this.tabButtons['installed'] = this.tabGroup.addButton(_('Installed'), _path+'inc/template/admin/images/icons/plugin.png', this.changeType.bind(this,'installed'));
         this.tabButtons['local'] = this.tabGroup.addButton(_('Development'), _path+'inc/template/admin/images/icons/plugin_go.png', this.changeType.bind(this,'local'));
@@ -36,7 +38,7 @@ var admin_system_module = new Class({
             [_('Action'), 170]
         ]);
 
-        this.categories = $H({});
+        this.categories = {};
         [
             {v: _('Information/Editorial office'), i: 1},
             {v: _('Multimedia'), i: 2},
@@ -70,7 +72,7 @@ var admin_system_module = new Class({
 
     changeType: function( pType ){
         this.lastType = pType;
-        this.tabButtons.each(function(button, id){ 
+        Object.each(this.tabButtons, function(button, id){ 
             button.setPressed( false );
             this.panes[id].setStyle('display', 'none');
         }.bind(this));
@@ -99,12 +101,12 @@ var admin_system_module = new Class({
 
         var p = this.panes['installed'];
         
-        var lang = ka.settings.get('user').get('adminLanguage');
+        var lang = ka.settings['user']['adminLanguage'];
 
         this.llir = new Request.JSON({url: _path+'admin/system/module/loadInstalled', noCache: 1, onComplete: function(res){
 
             var values = [];
-            $H(res).each(function(item, key){
+            Object.each(res, function(item, key){
                 var title = "config parse error: "+key;
                 if( item.noConfig ){
                     title = "config not found: "+key;
@@ -291,8 +293,8 @@ var admin_system_module = new Class({
         ], {absolute: false}).inject( tableLocalDiv );
 
 
-        var lang = ka.settings.get('user').get('adminLanguage');
-        $H(pMods).each(function(mod,key){
+        var lang = ka.settings['user']['adminLanguage'];
+        Object(pMods, function(mod,key){
 
                 var item = mod;
                 var table = 'my';
@@ -695,7 +697,7 @@ var admin_system_module = new Class({
 
         this.addCategoryLine( _('Theme / Layouts'), 13 );
 
-        this.categories.each(function(cat,id){
+        Object.each(this.categories, function(cat,id){
             if( id != 13 ){
                 this.addCategoryLine( cat, id );
             }

@@ -38,7 +38,7 @@ h2.ka-field-headline {
     width: 175px;
 }
 
-.ka-field-main-small .ka-field-field select {
+.ka-field-main-small .ka-field-field select.ka-field {
     width: 179px;
 }
 
@@ -67,8 +67,8 @@ tr.ka-field-main td div.desc {
     position: relative;
 }
 
-.ka-field-field select,
-.ka-field-field textarea,
+.ka-field-field select.ka-field,
+.ka-field-field textarea.ka-field,
 .ka-field-field input.text {
     width: 296px;
 }
@@ -92,13 +92,13 @@ input.text {
     width: 150px;	
 }
 
-.ka-field-field select {
+.ka-field-field select.ka-field {
     width: 304px;
 }
 
 .ka-field-field img.emptyIcon {
     position: absolute;
-    top: 1px;
+    top: 6px;
     left: -20px;
     margin-left: 2px;
 }

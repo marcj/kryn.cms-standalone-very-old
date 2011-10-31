@@ -90,7 +90,8 @@ ka.layoutBox = new Class({
     },
 
     initSort: function(){
-        this.win.kwin.initContentLayoutSort(); 
+        if(  this.win.kwin && this.win.kwin.initContentLayoutSort )
+            this.win.kwin.initContentLayoutSort(); 
     },
 
     copyAll: function(){

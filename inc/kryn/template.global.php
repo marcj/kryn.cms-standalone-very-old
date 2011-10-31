@@ -41,17 +41,8 @@ function tAssign( $pName, $pVal ){
  * @return string Parsed template file 
  */
 function tFetch( $pFile ){
+    if( $pFile == "" ) return;
     global $tpl;
-    return preg_replace_callback(
-        //'/\[([^\"\\\'\{\#\§\$\&\n\ ].*[^\"\\\'\{\#\§\$\&\n\ ])\]/',
-        '/([^\\\\]?)\[\[([^\]]*)\]\]/',
-        create_function(
-            '$pP',
-            '
-            return $pP[1]._l( $pP[2] );
-            '
-        ),
-        $tpl->fetch( $pFile )
-    );    
+    return kryn::translate( $tpl->fetch($pFile) );   
 }
 ?>

@@ -611,26 +611,50 @@ class adminPages {
         kryn::addJs( $path.'admin/js/ka.js' );
         kryn::addJs( $path.'js=global.js' );
         kryn::addCss( $path.'admin/css/ka.layoutBox.css' );
+        kryn::addCss( $path.'admin/css/inpage.css' );
         kryn::addCss( $path.'admin/css/ka.field.css' );
         kryn::addCss( $path.'admin/css/ka.Button.css' );
+        kryn::addCss( $path.'admin/css/ka.Select.css' );
         kryn::addCss( $path.'admin/css/ka.pluginChooser.css' );
         kryn::addCss( $path.'admin/css/inpage.css' );
 
         kryn::addCss( $path.'admin/css/ka.layoutBox.css' );
         kryn::addCss( $path.'admin/css/ka.layoutContent.css' );
 
-        kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.'inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>');
+        //kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.'inc/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>');
+        
+        $js = array(
+            'MooEditable.js',
+            'MooEditable.UI.MenuList.js',
+            'MooEditable.Extras.js',
+            'MooEditable.Image.js',
+            'MooEditable.Table.js'
+        );
 
+        $css = array(
+            'MooEditable.css',
+            'MooEditable.Extras.css',
+            'MooEditable.SilkTheme.css',
+            'MooEditable.Image.css',
+            'MooEditable.Table.css'
+        );
+
+        /*foreach( $js as $t ){
+            kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.
+                'inc/mooeditable/Source/MooEditable/'.$t.'"></script>');
+        }*/
+
+        foreach( $css as $t ){
+            kryn::addHeader( '<link rel="stylesheet" type="text/css" href="'.'http://'.getArgv('domain').$domainPath.
+                'inc/mooeditable/Assets/MooEditable/'.$t.'" />');
+        }
+        
 
         $rsn = getArgv('rsn')+0;
         $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
         //$domain = dbTableFetch('system_domains', 1, "domain = '".getArgv('domain',1)."'");
         $domain = dbTableFetch('system_domains', 1, "rsn = '".$page['domain_rsn']."'"); //.getArgv('domain',1)."'");
-        /*$domain = array(
-            'domain' => getArgv('domain'),
-            'path' => $domainPath,
-            'master' => 1
-        );*/
+
         $domainName = $domain['domain'];
 
         $http = 'http://';
@@ -684,11 +708,6 @@ class adminPages {
         if( $pVersion > 0 ){
             $conts = dbTableFetch( 'system_contents', DB_FETCH_ALL, "page_rsn = $pPageRsn AND version_rsn = $pVersion
             AND (cdate > 0 AND cdate IS NOT NULL)  ORDER BY sort");
-        }
-
-        if( count($conts) == 0 ){
-            //may a old kryn version
-            $conts = dbTableFetch( 'system_contents', DB_FETCH_ALL, "page_rsn = $pPageRsn AND version_rsn = 1 ORDER BY sort");
         }
 
         if( count($conts) > 0 ){
@@ -1244,27 +1263,20 @@ class adminPages {
                 'page_rsn' => $rsn, 'owner_rsn' => $user->user_rsn, 'created' => $time, 'modified' => $time,
                 'active' => $active
             ));
-
-            //dbExec( 'UPDATE %pfx%system_contents SET version_rsn = version_rsn+1 WHERE page_rsn = '.$rsn);
-            //dbDelete( 'system_contents', "page_rsn = $rsn AND version_rsn > 10");
-
             
             if( count($contents) > 0 ){
                 foreach( $contents as $boxId => &$box ){
+
                     $sort = 1;
+                        
                     foreach( $box as &$content ){
                         $contentGroups = '';
                         if( is_array($content['access_from_groups']))
                             $contentGroups = esc(implode(",",$content['access_from_groups']));
-                        
-                            
-                        //TODO verify the content type whether the user can save/change it
-                        //if contents already exists and cant changed, make sure, that we have here the RSN of this contents, to get the content from the
-                        //version before.
                     
                         if( kryn::checkPageAcl($rsn, 'content-'.$content['type']) ){
                         	
-                            dbInsert('system_contents', array(
+                            $contentRsn = dbInsert('system_contents', array(
                                 'page_rsn' => $rsn,
                                 'box_id' => $boxId,
                                 'title' => $content['title'],
@@ -1281,11 +1293,11 @@ class adminPages {
                                 'access_to' => $content['access_to'], 
                                 'access_from_groups' => $contentGroups
                             ));
-                        
+
                             $sort++;
                         } else {
                             
-                            $oldContent = dbTableFetch('system_contents', 'rsn = '.($content['rsn']+0), 1);
+                            $oldContent = dbTableFetch('system_contents', 'rsn = '.($content['rsn']+0).' AND page_rsn = '.$rsn.' AND box_id = '.$boxId, 1);
                             if( $oldContent['rsn']+0 > 0 && $oldContent['type'] == $content['type'] ){
                                 
                                 $oldContent['version_rsn'] = $version_rsn;

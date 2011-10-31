@@ -19,7 +19,9 @@ ka.Select = new Class({
         
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        }).inject( this.box );
+        })
+        .addEvent('mousedown', function(e){ e.preventDefault(); })
+        .inject( this.box );
         
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow'
@@ -31,7 +33,7 @@ ka.Select = new Class({
         }).inject( this.arrowBox );
         
         this.chooser = new Element('div', {
-            'class': 'ka-Select-chooser'
+            'class': 'ka-Select-chooser ka-normalize'
         });
         
         this.chooser.addEvent('click', function(e){
@@ -127,14 +129,10 @@ ka.Select = new Class({
     },
     
     toggle: function( e ){
-    
+   
         if( this.chooser.getParent() )
             this.close();
         else {
-            if( e && e.stop ){
-                window.fireEvent('click');
-                e.stop();
-            }
             this.open();
         }
     },
@@ -148,43 +146,6 @@ ka.Select = new Class({
         
         return;
     
-    },
-    
-    updatePos: function(){
-
-        this.chooser.position({
-            relativeTo: this.box,
-            position: 'bottomRight',
-            edge: 'upperRight'
-        });
-        
-        var pos = this.chooser.getPosition();
-        var size = this.chooser.getSize();
-        
-        var bsize = $('desktop').getSize();
-        
-        var height;
-
-        if( size.y+pos.y > bsize.y ){
-            height = bsize.y-pos.y-10;
-        }
-    
-        if( height ) {
-        
-            if( height < 100 ){
-            
-                this.chooser.position({
-                    relativeTo: this.box,
-                    position: 'upperRight',
-                    edge: 'bottomRight'
-                });
-                
-            } else {
-                this.chooser.setStyle('height', height);
-            }
-            
-        }
-
     },
 
     toElement: function(){

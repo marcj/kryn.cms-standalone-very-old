@@ -429,6 +429,11 @@ function step5(){
 
     require( 'inc/modules/admin/adminPages.class.php' );
     
+    foreach( kryn::$configs as $config ){
+        if( $config && $config['db'] )
+            database::updateSequences( $config['db'] );
+    }
+    
     admin::clearCache();
 
     @mkdir( 'inc/compile' );

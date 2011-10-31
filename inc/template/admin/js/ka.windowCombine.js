@@ -467,7 +467,7 @@ ka.windowCombine = new Class({
         
         this.lastRequest = new Request.JSON({url: _path+'admin/'+this.win.module+'/'+this.win.code+'?cmd=getItems', noCache: true, onComplete:function( res ){
             
-            if( !res.items && this.from == 0 ){
+            if( !res.items && (this.from == 0 || !this.from) ){
                 this.itemLoaderNoItems();
             }
             
@@ -595,6 +595,7 @@ ka.windowCombine = new Class({
     
     itemLoaderNoItems: function(){
         this.itemLoader.set('html', _('There are no entries.'));
+        logger('hopp');
     },
     
     prevItemLoaderStart: function(){
@@ -1063,9 +1064,9 @@ ka.windowCombine = new Class({
                 title = item.values.name;
                 
             if( this.currentEdit.values.editTitleField )
-                title = item.values[ editTitleField ];
+                title = item.values[ this.currentEdit.values.editTitleField ];
             else if( this.currentEdit.values.titleField ){
-                title = item.values[ titleField ];
+                title = item.values[ this.currentEdit.values.titleField ];
             } else if( !title ){
                 Object.each( item.values, function(item){
                     if( !title && item != '' && typeOf(item) == 'string' ){

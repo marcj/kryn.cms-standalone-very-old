@@ -316,7 +316,8 @@ class krynAuth {
         if( $pUserRsn == 0 ){
             $this->user = array(
                 'rsn' => 0,
-                'username' => 'Guest'
+                'username' => 'Guest',
+                'groups' => array(0)
             );
         } else {
             $this->user =& $this->getUser( $pUserRsn );

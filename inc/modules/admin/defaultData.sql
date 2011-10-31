@@ -519,4 +519,4 @@ INSERT INTO %pfx%system_pagesversions (rsn, page_rsn, owner_rsn, created, modifi
 INSERT INTO %pfx%system_pagesversions (rsn, page_rsn, owner_rsn, created, modified, active) VALUES(65, 16, 1, 1284493690, 1284493690, 1);
 
 
-UPDATE %pfx%system_domains SET publicproperties = '{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"5","search_page":"12","footer_navi":"13"}}}' WHERE rsn = 1;
+UPDATE %pfx%system_domains SET themeproperties = '{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"5","search_page":"12","footer_navi":"13"}}}' WHERE rsn = 1;

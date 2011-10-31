@@ -1,4 +1,12 @@
 
-inc/cache
+inc/config.php
 
-inc/tcache
+inc/tcache/
+
+inc/compile/
+
+inc/cache/
+
+inc/modules/admin/crawler.php
+
+inc/mooeditable

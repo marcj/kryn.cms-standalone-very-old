@@ -14,10 +14,14 @@ var admin_pages = new Class({
         this.win.kwin = this;
         this.win.forceOverlay =  true;
 
-        $H(ka.settings.get('langs')).each(function(lang,key){
+        Object.each(ka.settings['langs'], function(lang,key){
             if( this.language ) return;
             this.language = key;
         }.bind(this));
+        
+        if( Cookie.read('kryn_pages_language') ){
+            this.language = Cookie.read('kryn_pages_language');
+        }
         
         if( this.win.params && this.win.params.lang ){
             this.language = this.win.params.lang;
@@ -67,8 +71,6 @@ var admin_pages = new Class({
 
         this.inDomainModus = false;
         
-        this._hideElementPropertyToolbar();
-        this.hidePluginChooserPane();
         this.alreadyOnLoadPageLoaded = true;
         
         if( this.iframe ) this.iframe.destroy();
@@ -529,18 +531,13 @@ var admin_pages = new Class({
         this.treeSizer = new Element('div', {
             style: 'position: absolute; right: -7px; top: 0px; width: 5px; height: 100%; cursor: e-resize; border-left: 1px solid silver; border-right: 1px solid silver;'
         }).inject( this.tree );
-
-        //init toolbar
-        this._createElementSettingsToolbar();
         
         
-        
-        
-        this.pluginChooserPane = new Element('div', {
+        /*this.pluginChooserPane = new Element('div', {
             'class': 'ka-pages-pluginchooserpane',
             style: 'position: absolute; left: 0px; bottom: 0px; height: 0px; width: 0px; background-color: #eee; overflow: auto;'
         }).inject( this.tree );
-        this.pluginChooserPane.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
+        this.pluginChooserPane.set('tween', {transition: Fx.Transitions.Cubic.easeOut});*/
 
 
 //        this.treeContainer.setStyle('bottom', 0);
@@ -851,6 +848,9 @@ var admin_pages = new Class({
 
     changeLanguage: function(){
         this.language = this.languageSelect.getValue();
+        
+        Cookie.write('kryn_pages_language', this.language);
+        
         this.treeContainer.empty();
         this.loadTree();
         this.viewType( 'empty' );
@@ -1143,7 +1143,7 @@ var admin_pages = new Class({
         }
         
         //contents
-    	var options = [];
+    	/*var options = [];
     	
     	var _langs = $H({
              text: _('Text'),
@@ -1175,6 +1175,7 @@ var admin_pages = new Class({
         
     	var old = this.elementPropertyFields.eTypeSelect.destroy();
         this.elementPropertyFields.eTypeSelect = newF;
+        */
     },
     
     toAlternativPane: function(){
@@ -2169,15 +2170,16 @@ var admin_pages = new Class({
             }*/
         }
         this.trys = 0;
-        
+
         w.ka = ka;
         w.win = this.win;
         w.currentPage = this.page;
         w.kpage = this;
 
+        w.document.body.removeEvents('click');
+        w.document.body.addEvent('click', function(e){
+            if( !e ) return;
 
-        w.removeEvents('click');
-        w.addEvent('click', function(){
         	if( this.ignoreNextDeselectAll ){
         		this.ignoreNextDeselectAll = false;
         		return;
@@ -2251,7 +2253,8 @@ var admin_pages = new Class({
     },
 
     _createDraggerBar: function(){
-
+    
+        return;
         this.win.onResizeComplete = this._updateDraggerBarPosition.bind(this);
         this.contentItems = new Element('div', {
             'class': 'ka-admin-pages-possibleContentItems',
@@ -2351,7 +2354,7 @@ var admin_pages = new Class({
 
 
     /* plugin chooser pane */
-    
+    /*
     showPluginChooserPane: function(){
         
         var toolbarSize = this.elementPropertyToolbar.getSize();
@@ -2376,7 +2379,7 @@ var admin_pages = new Class({
         else
             this.pluginChooserPane.tween('height', 1);
     },
-
+    */
 
 
 
@@ -2437,16 +2440,18 @@ var admin_pages = new Class({
         this.layoutBoxes = new Hash();
 
         
-        this.layoutBoxes = ka.renderLayoutElements( $(this.iframe.contentWindow.document.body), this );
+        this.layoutBoxes = ka.renderLayoutElements( this.iframe.contentWindow, this );
         //this._renderContentLayoutSearchAndFindBoxes( $(this.iframe.contentWindow.document.body) );
 
         if( this.contentManageMode == 'list' ){
+
             var div = new Element('div', {'class': 'ka-admin-pages-manageModeList'})
-            this.layoutBoxes.each(function(layoutBox){
+            Object.each(this.layoutBoxes, function(layoutBox){
                 layoutBox.inject( div );
             }.bind(this));
             this.iframe.contentWindow.document.body.empty();
             div.inject( this.iframe.contentWindow.document.body );
+
             this.iframe.contentWindow.document.body.setStyle('display', 'block');
             this.iframe.contentWindow.document.body.setStyle('text-align', 'left');
             this.iframe.contentWindow.document.html.setStyle('margin-right', 0);
@@ -2461,7 +2466,7 @@ var admin_pages = new Class({
         if( $type( this.page.contents ) == 'string' )
             contents = new Hash(JSON.decode(this.page.contents));
 
-        this.layoutBoxes.each(function(editLayout,boxId){
+        Object.each(this.layoutBoxes, function(editLayout,boxId){
             editLayout.setContents( contents[boxId] );
         });
 
@@ -2482,7 +2487,8 @@ var admin_pages = new Class({
                 });
             }
         });*/
-
+        
+        return;
         if( this.sortables )
             this.sortables.detach();
 
@@ -2526,7 +2532,7 @@ var admin_pages = new Class({
         });
 
         var _this = this;
-        this.layoutBoxes.each(function(layoutBox){
+        Object.each(this.layoutBoxes, function(layoutBox){
             _this.sortables.removeItems( layoutBox.title );
             if( layoutBox.contents.each ){
                 layoutBox.contents.each(function(layoutContent){
@@ -2549,7 +2555,7 @@ var admin_pages = new Class({
             if( !this.iframe ) {
                 this._loadContent();
             } else {
-                this.layoutBoxes.each(function(editLayout,boxId){
+                Object.each(this.layoutBoxes, function(editLayout,boxId){
                     var contents = [];
                     editLayout.clear();
                     if( res && res[boxId] )
@@ -2598,7 +2604,7 @@ var admin_pages = new Class({
         }
     },*/
 
-    setElementPropertyToolbar: function( pElement ){
+    /*setElementPropertyToolbar: function( pElement ){
         this._showElementPropertyToolbar();
     },
 
@@ -2642,21 +2648,17 @@ var admin_pages = new Class({
           }
           this.elementPropertyHeight = height;
           return height;
-    },
+    },*/
     
 
     _deselectAllElements: function( pContent ){
         
-    	this.hidePluginChooserPane();
         var selected = 0;
     	
-    	this.layoutBoxes.each(function(box,id){
+    	Object.each(this.layoutBoxes, function(box,id){
             selected = selected + box.deselectAll( pContent );
         });
-    	
-    	if( !pContent ){
-    		this._hideElementPropertyToolbar();
-    	}
+        
     },
 
     /*
@@ -3105,7 +3107,7 @@ var admin_pages = new Class({
 
     retrieveContents: function( pAndClose ){
         var contents = new Hash();
-        this.layoutBoxes.each(function( pBox, pBoxId ){
+        Object.each(this.layoutBoxes, function( pBox, pBoxId ){
             contents.include( pBoxId, pBox.getValue( pAndClose ) );
         });
         return contents;
@@ -3219,7 +3221,7 @@ var admin_pages = new Class({
             button.setPressed( false );
         });
         
-        this._hideElementPropertyToolbar();
+        
         if( pType != 'empty' ){
             this.viewButtons[pType].setPressed(true);
             this.showPane( pType );
@@ -3324,7 +3326,8 @@ var admin_pages = new Class({
     
     
     /* new element toolbar */
-    
+    /* obsolete */
+    /*
     _createElementSettingsToolbar : function() {
 
     	//create titlebars and content container
@@ -3440,9 +3443,6 @@ var admin_pages = new Class({
             if( count != 0 )
                 group.inject( this.elementPropertyFields.eTemplate );
         }.bind(this));
-
-
-
         
         this.elementPropertyFields.eLayoutSelect = new ka.field({
             label: _('Layout'),
@@ -3546,6 +3546,6 @@ var admin_pages = new Class({
     	
     	return Math.round(totalBoxHeight - 2 - ( this.elementPropertyToolbarTitle.getSize().y*2));
     }
-    
+    */
 
 });

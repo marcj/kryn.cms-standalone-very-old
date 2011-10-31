@@ -1,6 +1,6 @@
 <?php
 
-class publicationNewsList extends windowList {
+class publicationNewsList extends adminWindowList {
 
     public $table = 'publication_news';
     public $itemsPerPage = 5;

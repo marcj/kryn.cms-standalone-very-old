@@ -364,19 +364,25 @@ class adminModule {
         $mod = $pModuleName;
 
         if( $pModuleName == 'kryn' ){
-            $config = kryn::fileRead( 'inc/kryn/config.json' );
+            
+            $config = 'inc/kryn/config.json';
             self::readDirectory( 'inc/kryn/' );
             self::readDirectory( 'inc/template/kryn' );
         } else {
             self::readDirectory( 'inc/modules/'.$mod );
             self::readDirectory( 'inc/template/'.$mod );
-            $config = kryn::fileRead( 'inc/modules/'.$mod.'/config.json' );
+            $config = 'inc/modules/'.$mod.'/config.json';
         }
+        
+        self::extractFile( $config );
 
-        $config = json_decode( $config, true );
+        /*$config = json_decode( $config, true );
+        
         if( $config['admin'] ){
             self::extractAdmin( $config['admin'] );
-        }
+        }*/
+
+        /*
         if( $config['plugins'] ){
             foreach( $config['plugins'] as $plugin ){
                 $GLOBALS['moduleTempLangs'][$plugin[0]] = $plugin[0];
@@ -412,7 +418,7 @@ class adminModule {
                     }
                 }
             }
-        }
+        }*/
 
         $classes = glob('inc/modules/'.$mod.'/*.class.php');
         if( count($classes) > 0 ){

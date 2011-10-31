@@ -27,6 +27,16 @@ class publicationNewsAdd extends windowAdd {
                 'label' => 'Tags',
                 'type' => 'text'
             ),
+            'introimage' => array(
+                'label' => 'Intro image',
+                'type' => 'fileChooser'
+            ),
+            'introimage2' => array(
+                'label' => 'Intro image 2',
+                'type' => 'fileChooser'
+            ),
+        ),
+        'Access' => array(
             'releaseat' => array(
                 'label' => 'Release at',
                 'desc' => 'If you want to release the news now, let it empty',
@@ -38,23 +48,13 @@ class publicationNewsAdd extends windowAdd {
                 'empty' => false
             ),
             'deactivate' => array(
-                'label' => 'Deactivate',
+                'label' => 'Hide',
                 'type' => 'checkbox'
             ),
             'deactivatecomments' => array(
                 'label' => 'Deactivate comments (override plugin properties)',
                 'type' => 'checkbox'
             )
-        ),
-        'List images' => array(
-            'introimage' => array(
-                'label' => 'Intro image',
-                'type' => 'fileChooser'
-            ),
-            'introimage2' => array(
-                'label' => 'Intro image 2',
-                'type' => 'fileChooser'
-            ),
         ),
         'Intro' => array(
             'intro' => array(

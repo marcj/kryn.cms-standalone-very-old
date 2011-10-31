@@ -16,8 +16,8 @@ class publicationNews
         // News item to show
         $rsn = getArgv('e2')+0;
         
-        if( $rsn > 0 )
-        {
+        if( $rsn > 0 ){
+        
             // Create category where clause
             $whereCategories = "";
             if(count($categoryRsn))
@@ -236,7 +236,7 @@ class publicationNews
         // Create count query
         $sqlCount = "
             SELECT
-                count(*) as newsCount
+                count(*) as newscount
             FROM
                 %pfx%publication_news n
             WHERE
@@ -246,7 +246,7 @@ class publicationNews
                 AND (n.releaseAt = 0 OR n.releaseAt <= $now)
         ";
         $countRow = dbExfetch($sqlCount, 1);
-        $count = $countRow['newsCount'];
+        $count = $countRow['newscount'];
         tAssign('count', $count);
         
         // Set pages

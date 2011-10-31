@@ -40,12 +40,14 @@ a.ka-Button:hover span {
 }
 
 a.ka-Button-active span,
+a.ka-Button-active:hover span,
 a.ka-Button-active:link span {
     background-position: right -53px;
 }
 
 a.ka-Button-active,
-a.ka-Button-active:link {
+a.ka-Button-active:link,
+a.ka-Button-active:hover {
     background-position: left -53px;
     color: white;
 }

@@ -9,9 +9,11 @@ ka.field = new Class({
     field: {},
     
     initialize: function( pField, pContainer, pRefs ){
+        
         this.field = Object.clone(pField);
         
         this.setOptions(pField);
+
         if( typeOf(pRefs) == 'object' ){
             Object.each(pRefs, function(item,key){
                 this.field[key] = item;
@@ -150,6 +152,14 @@ ka.field = new Class({
             } else {
                 this.input.set('disabled',true);
             }
+        }
+    },
+    
+    toElement: function(){
+        if( this.field.tableitem ){
+            return this.tr;
+        } else {
+            return this.main;
         }
     },
 
@@ -335,7 +345,10 @@ ka.field = new Class({
             if( !pLabel ){
                 
                 new Request.JSON({url: _path+'admin/'+_this.field.store, onComplete:function(res){
-                    title.set('text', res.label )
+                    if( res )
+                        title.set('text', res.label );
+                    else
+                        title.set('text', _('##Failed##') );
                 }}).get({cmd: 'item', id: pValue});
             }
             
@@ -635,6 +648,8 @@ ka.field = new Class({
         
         this._setValue = function( pValue ){
         
+            if( pValue == '' || !pValue ) return;
+
             if( typeOf(pValue) == 'string' ) pValue = JSON.decode( pValue );
         
             if( _this.field.store ){
@@ -939,6 +954,7 @@ ka.field = new Class({
         this.input = new Element('select', {
             size: (this.field.size)?this.field.size:5,
             style: 'width: 100%',
+            'class': 'ka-field',
             styles: {
                 'height': (this.field.height)?this.field.height:null
             }
@@ -1144,49 +1160,54 @@ ka.field = new Class({
 
         if( multiple ){
     
-            if( $type(this.field.tableItems) == 'array' ){
-                this.field.tableItems.each(function(item){
-                    if(!item) return;
-                    
-                    if( _this.field.lang && item.lang != _this.field.lang && item.lang ) return;
-                    
-                    var text = '';
-                    if( _this.field.table_view ){
-                        $H(_this.field.table_view).each(function(val, mykey){
-                            var _val = '';
-                            switch( val ){
-                            case 'time':
-                                _val = new Date(item[mykey]*1000).format('db');
-                                break;
-                            default:
-                                _val = item[mykey];
-                            }
-                            text = text + ', ' + _val;
-                        });
-                        text = text.substr(2, text.length);
-                    } else if( item && item[label] ){
-                        text = item[label];
-                    }
-    
-                    var t = new Element('option', {
-                        text: text,
-                        value: item[key]
-                    })
-                    if(t && _this.input )
-                        t.inject( _this.input );
-                });
-            } else if ( $type(this.field.tableItems) == 'object' ){
-    
-                $H(this.field.tableItems).each(function(item, key){
-                    var t = new Element('option', {
-                        text: item,
-                        value: key
-                    })
-                    if(t && _this.input )
-                        t.inject( _this.input );
-                });
-            }
+            this.renderItems = function(){
+            
+                _this.input.empty();
+            
+                if( $type(this.field.tableItems) == 'array' ){
+                    this.field.tableItems.each(function(item){
+                        if(!item) return;
+                        
+                        if( _this.field.lang && item.lang != _this.field.lang && item.lang ) return;
+                        
+                        var text = '';
+                        if( _this.field.table_view ){
+                            $H(_this.field.table_view).each(function(val, mykey){
+                                var _val = '';
+                                switch( val ){
+                                case 'time':
+                                    _val = new Date(item[mykey]*1000).format('db');
+                                    break;
+                                default:
+                                    _val = item[mykey];
+                                }
+                                text = text + ', ' + _val;
+                            });
+                            text = text.substr(2, text.length);
+                        } else if( item && item[label] ){
+                            text = item[label];
+                        }
+        
+                        var t = new Element('option', {
+                            text: text,
+                            value: item[key]
+                        })
+                        if(t && _this.input )
+                            t.inject( _this.input );
+                    });
+                } else if ( $type(this.field.tableItems) == 'object' ){
+        
+                    $H(this.field.tableItems).each(function(item, key){
+                        var t = new Element('option', {
+                            text: item,
+                            value: key
+                        })
+                        if(t && _this.input )
+                            t.inject( _this.input );
+                    });
+                }
 
+            }.bind(this);
 
             this.main.setStyle('width', 355);
             //if( this.field.small )
@@ -1241,6 +1262,7 @@ ka.field = new Class({
             
             this.inputVals = new Element('select', {
                 size: this.field.size,
+                'class': 'ka-field',
                 style: 'width: '+selWidth+'px'
             })
             .addEvent('dblclick', function(){
@@ -1261,26 +1283,37 @@ ka.field = new Class({
             }.bind(this));
 
             this.select.inject( this.fieldPanel );
+
+            this.renderItems = function(){
                         
-            if( typeOf(this.field.tableItems) == 'array' ){
-                if(key) {
-                    Array.each(this.field.tableItems, function(item){
-                        this.select.add( item[key], item[label] );
-                    }.bind(this));
-                } else {
-                    Array.each(this.field.tableItems, function(item, key){
-                        this.select.add( item[key], item[label]);
-                    }.bind(this));
-                }
-                
-
-            } else if ( typeOf(this.field.tableItems) == 'object' ){
+                this.select.empty();
+                        
+                if( typeOf(this.field.tableItems) == 'array' ){
+                    if( key ) {
+                        
+                        Array.each(this.field.tableItems, function(item){
+                            
+                            if( this.field.multiLanguage && this.field.lang && item.lang != this.field.lang && item.lang ) return;
+                        
+                            this.select.add( item[key], item[label] );
+                        }.bind(this));
+                    }
     
-                Object.each(this.field.tableItems, function(item, key){
-                    this.select.add( key, item );
-                }.bind(this));
-
-            }
+                } else if ( typeOf(this.field.tableItems) == 'object' ){
+        
+                    Object.each(this.field.tableItems, function(item, key){
+                            
+                        if( this.field.multiLanguage && this.field.lang && item.lang != this.field.lang && item.lang ) return;
+                            
+                        this.select.add( key, item );
+                    }.bind(this));
+    
+                }
+            
+            }.bind(this);
+            
+            this.renderItems();
+            
         }
         
         if( sortable ){
@@ -1415,11 +1448,16 @@ ka.field = new Class({
             id: this.lastId,
             name: this.lastId,
             value: this.field.value,
+            'class': 'ka-field',
             styles: {
                 'height': (this.field.height)?this.field.height:80,
                 'width': (this.field.width)?this.field.width:''
             }
         }).inject( this.fieldPanel );
+        
+        var mooeditable = initWysiwyg( this.input );
+        
+        return;
 
         //(function(){
        //     tinyMCE.execCommand('mceAddControl', false, this.lastId );
@@ -1529,10 +1567,11 @@ ka.field = new Class({
         }.bind(this));
 
         this.getValue = function(){
-            return this.value==false?0:1;
+            return this.value==false ? 0:1;
         }.bind(this);
 
         this._setValue = function( p ){
+            if( !p ) p = false;
             if( p == 0 ) p = false;
             if( p == 1 ) p = true;
             this.value = p;
@@ -1627,6 +1666,7 @@ ka.field = new Class({
     renderTextarea: function(){
         var _this = this;
         this.input = new Element('textarea', {
+            'class': 'ka-field',
             styles: {
                 'height': (this.field.height)?this.field.height:80,
                 'width': (this.field.width)?this.field.width:''
@@ -1821,8 +1861,11 @@ ka.field = new Class({
     
     
     initLayoutElement: function(){
+             
+        _win = this.field.win;
         
-        _win = this.field.win;    
+        this.main.setStyle('width', ''); 
+        
         this.obj = new ka.field_layoutElement(this);
         
         this._setValue = this.obj.setValue.bind(this.obj);

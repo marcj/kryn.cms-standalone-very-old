@@ -1046,7 +1046,6 @@ var users_users_acl = new Class({
             
                 this.pageTrees[domain['rsn']] = new ka.pagesTree( this.aclPageTreeContainer, domain['rsn'], {
                     onClick: function( pPage ){
-                                        
                         Object.each(this.pageTrees, function(_domain){
                             _domain.unselect();
                         });
@@ -1065,9 +1064,12 @@ var users_users_acl = new Class({
                         _this._updatePageTreeInfos( _this.pageTrees[domain['rsn']] );
                     },
                     noDrag: true,
-                    viewAllPages: true,
+                    viewAllPages: true
+                },
+                {
                     win: this.win
-                });
+                }
+                );
             }.bind(this));
         
         }.bind(this)}).post({lang: this.languageChooser.value});
@@ -1185,7 +1187,6 @@ var users_users_acl = new Class({
             this._updatePageTreeInfos( this.pageTrees[pDomainRsn] );
         } else {
             Object.each(this.pageTrees, function(domainTree, domainRsn){
-                domainTree.updateDomainBar();
                 this._updatePageTreeInfos( domainTree );
             }.bind(this));
         }

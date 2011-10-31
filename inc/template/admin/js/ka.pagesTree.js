@@ -1014,6 +1014,7 @@ ka.pagesTree = new Class({
 
         var left = pEvent.page.x - (this.container.getPosition(document.body).x);
         var mtop = pEvent.page.y - (this.container.getPosition(document.body).y);
+
         var left = pEvent.page.x;
         var mtop = pEvent.page.y;
         if( mtop < 0 )
