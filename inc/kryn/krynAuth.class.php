@@ -652,11 +652,18 @@ class krynAuth {
 
         $login = esc($pLogin);
         $password = md5( $pPassword );
+        
+        $userColumn = (strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false) ? 'email' : 'username';
 
-        $row = dbExfetch(
-        'SELECT rsn FROM %pfx%system_user WHERE rsn > 0 AND '.
-        "username = '$login' AND passwd = '$password' AND (auth_class IS NULL OR auth_class = 'kryn')",
-        1);
+        $row = dbExfetch("
+            SELECT rsn
+            FROM %pfx%system_user
+            WHERE 
+                    rsn > 0
+                AND $userColumn = '$login'
+                AND passwd = '$password'
+                AND (auth_class IS NULL OR auth_class = 'kryn')",
+            1);
         
         if( $row['rsn'] > 0 ){
             $this->credentials_row = $row;
