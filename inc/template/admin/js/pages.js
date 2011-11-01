@@ -2454,12 +2454,6 @@ var admin_pages = new Class({
 
             this.iframe.contentWindow.document.body.setStyle('display', 'block');
             this.iframe.contentWindow.document.body.setStyle('text-align', 'left');
-            this.iframe.contentWindow.document.html.setStyle('margin-right', 0);
-        } else {
-            if( this.iframe.contentWindow.document.html && this.iframe.contentWindow.document.html.setStyle )
-                this.iframe.contentWindow.document.html.setStyle('margin-right', 35);
-            if( this.iframe.contentWindow.html )
-                this.iframe.contentWindow.html.setStyle('margin-right', 35);
         }
     
         var contents = this.page.contents;
