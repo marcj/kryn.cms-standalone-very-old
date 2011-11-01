@@ -859,16 +859,6 @@ ka.layoutContent = new Class({
         dialog.bottom.destroy();
         dialog.content.destroy();
         
-        //main.bottom
-        
-        return;
-        this.layoutBox.pageInst.pluginChooserPane.empty();
-        this.pluginChooser = new ka.pluginChooser( this.content.content, this.layoutBox.pageInst.pluginChooserPane );
-        this.pluginChooser.addEvent('ok', function(){
-            this.deselect();
-        }.bind(this));
-        this.layoutBox.pageInst.showPluginChooserPane();
-        
     },
 
     type2Template: function(){
@@ -1012,7 +1002,7 @@ ka.layoutContent = new Class({
             
             this.lastContent = Object.clone(this.content);
             
-        }.bind(this)}).get({title: this.content.title, type: this.content.type});
+        }.bind(this)}).get({title: this.content.title, type: this.content.type, template: this.content.template});
         
     },
     

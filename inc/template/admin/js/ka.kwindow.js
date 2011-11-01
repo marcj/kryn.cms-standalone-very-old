@@ -124,8 +124,10 @@ ka.kwindow = new Class({
     removeDependMode: function(){
 
     	this.inDependMode = false;
+    	
         if( this.overlayForced )
             this.overlayForced.destroy();
+
         if( this.inlineModeWrapper )
             this.inlineModeWrapper.destroy();
             
@@ -363,6 +365,7 @@ ka.kwindow = new Class({
     },
 
     toFront: function(){
+    
         if( this.active ){
             this.title.setStyle('opacity', 1);
             if( this.border.getStyle('display') != 'block' ){
@@ -374,8 +377,8 @@ ka.kwindow = new Class({
                 this.border.tween('opacity', 1);
             }
             
-
-            this.border.inject( this.border.getParent() );
+            if( this.border.getParent().getLast() != this.border )
+                this.border.inject( this.border.getParent() );
 
             ka.wm.setFrontWindow( this.id );
             if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
