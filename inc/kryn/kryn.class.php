@@ -3068,7 +3068,7 @@ class kryn {
         
         $i = 0;
         
-        $oldContent = $tpl->get_template_vars('content');
+        $oldContent = $tpl->getTemplateVars('content');
 
         if( $count > 0 ){
             foreach( $contents as &$content ){
