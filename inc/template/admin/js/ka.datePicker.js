@@ -140,7 +140,7 @@ ka.datePicker = new Class({
     },
 
     setTime: function( pTime ){
-        if( pTime != false ){
+        if( pTime != false && pTime ){
             this.choosenDate = new Date();
             this.choosenDate.setTime(pTime*1000);
         } else
