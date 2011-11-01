@@ -57,6 +57,11 @@ ka.layoutContent = new Class({
         this.renderToolbar();
 
         this.renderBox();
+        
+        window.document.body.addEvent('deselect-content-elements', this.deselect.bind(this));
+        
+        if( this.win )
+            this.win.border.addEvent('deselect-content-elements', this.deselect.bind(this));
     },
     
     renderToolbar: function(){
@@ -336,9 +341,15 @@ ka.layoutContent = new Class({
         this.window = this.main.getWindow();
         
         this.main.addEvent('click', function(e){
+            
+        	window.document.body.fireEvent('deselect-content-elements');
+            
+            if( this.win )
+                this.win.border.fireEvent('deselect-content-elements');
+            
             this.select();
-        	e.stop();
             e.stopPropagation();
+
         }.bind(this));
 
         this.main.store( 'layoutContent', this );
@@ -348,7 +359,7 @@ ka.layoutContent = new Class({
             'class': 'ka-layoutContent-div'
         }).inject( this.main );
         
-        this.body = this.div;
+        this.body = new Element('div').inject( this.div );
 
         this.dataToView();
         
@@ -625,7 +636,7 @@ ka.layoutContent = new Class({
 
     	this.oldType = this.content.type;
         this.content.type = this.sType.getValue();
-        this.setDivContent();
+        this.setDivContent( true );
 
     },
     
@@ -759,6 +770,10 @@ ka.layoutContent = new Class({
 
     type2Navi: function(){    	
         var _this = this;
+        
+        this.body.empty();
+        
+        
         try {
             if( $type(_this.content.content) == 'string' )
                 _this.content.content = JSON.decode(_this.content.content);
@@ -769,52 +784,53 @@ ka.layoutContent = new Class({
         }
 
         var templateNavi = new ka.field(
-            {label: _('Navigation template'), type: 'select', small: true}
-        ).inject( this.layoutBox.pageInst.elementPropertyFields.ePanel );
+            {label: _('Navigation template'), type: 'select', small: 1}
+        ).inject( this.body );
+        
+        templateNavi.select.addEvent('click', function(e){
+            e.stopPropagation();
+        });
         this.navigationTemplate = templateNavi;
 
         templateNavi.addEvent('change', function( pValue ){
             _this.content.content.template = templateNavi.input.value;
         });
 
-        $H(ka.settings.navigations).each(function(la, key){
-            var group = new Element('optgroup', {
-                label: key
-            });
-            var count = 0;
-            $H(la).each(function(layoutFile,layoutTitle){
+        Object.each(ka.settings.navigations, function(la, key){
+            
+            templateNavi.select.addSplit( key );
+            
+
+            Object.each(la, function(layoutFile,layoutTitle){
                 if( limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains( layoutFile ) ) return;
-                new Element('option', {
-                    html: layoutTitle,
-                    value: layoutFile
-                }).inject( group );
-                count++;
-            })
-            if( count != 0 )
-                group.inject( templateNavi.input );
+                
+                templateNavi.select.add( layoutFile, layoutTitle );
+                
+            });
+    
         }.bind(this));
 
         templateNavi.setValue( this.content.content.template );
 
-
         var field = new ka.field(
-            {label: _('Entry point'), type: 'pageChooser', empty: false, small: true, onlyIntern: true}
-        ).inject( this.layoutBox.pageInst.elementPropertyFields.ePanel );
+            {label: _('Entry point'), type: 'page', empty: false, small: 1, onlyIntern: true}
+        ).inject( this.body );
 
         if( this.content.content.entryPoint )
             field.setValue( this.content.content.entryPoint );
 
         field.addEvent('change', function( pValue ){
-            _this.content.content.entryPoint = pValue;
-            _this.setDivContent();
-        });
+            this.content.content.entryPoint = pValue;
+        }.bind(this));
+        
+        new Element('div', {style: 'clear: both'}).inject( this.body );
     },
 
     type2Pointer: function(){
 
         var field = new ka.field(
             {label: _('Choose deposit'), type: 'pageChooser', empty: false, small: true}
-        ).inject( this.layoutBox.pageInst.elementPropertyFields.ePanel );
+        ).inject( this.body );
 
         field.setValue(this.content.content);
         
@@ -891,9 +907,7 @@ ka.layoutContent = new Class({
         return;
     },
 
-    type2Text: function( pForce ){
-
-        if( this.lastTextarea && !pForce ) return;
+    type2Text: function(){
 
         this.body.empty();
 
@@ -940,7 +954,7 @@ ka.layoutContent = new Class({
         }
     },
 
-    setDivContent: function(){
+    setDivContent: function( pRenderBody ){
         
         if( this.body && this.lastContent &&
             this.lastContent.template == this.content.template &&
@@ -951,47 +965,35 @@ ka.layoutContent = new Class({
         if( this.lastCR )
             this.lastCR.cancel();
         
-        if( this.content.template == '-' ){
-        
-            if( this.body && this.body != this.div ){
-                this.body.set('class', this.div.get('class'));
-                this.body.inject( this.div, 'after' );
-                this.div.destroy();
-                if( this.lastContent && this.lastContent.type != this.content.type )
-                    this._setDivContent();
-            } else {
-                this.div.empty();
-                this.body = this.div;
-                this.title = null;
-                this._setDivContent(true);
-            }
-        
+        if( this.content.template == '-' || this.content.template == '' ){
+
+            this.body.dispose();
+            this.div.empty();
+            this.body.inject( this.div );
+
+            if( pRenderBody )
+                this._setDivContent();
+
+            this.lastContent = Object.clone(this.content);
+
             return;
         }
         
         this.lastCR = new Request.JSON({url: _path+'admin/backend/getContentTemplate', noCache: 1, onComplete: function( pTpl ){
-
-            var oldBody = false;            
-            if( this.body.hasClass('ka-layoutelement-content-content') ){
-                this.body.dispose();
-                var oldBody = this.body;
-            }
             
+            this.body.dispose();
             this.div.set('html', pTpl);
 
-            this.body = this.div.getElement('.ka-layoutelement-content-content');
+            this.nbody = this.div.getElement('.ka-layoutelement-content-content');
             this.title = this.div.getElement('.ka-layoutelement-content-title');
             
-            if( oldBody && this.body ) {
-                oldBody.replaces( this.body );
-                this.body = oldBody;
-                if( this.lastContent && this.lastContent.type != this.content.type )
-                    this._setDivContent();
-            } else {
-                if( !this.body )
-                    this.body = this.div;
-                this._setDivContent(true);
-            }
+            if( this.nbody )
+                this.body.replaces( this.nbody );
+            else
+                this.body.inject( this.div );
+                
+            if( !this.body.hasClass('ka-layoutelement-content-content') )
+                this.body.addClass('ka-layoutelement-content-content');
 
             if( this.title ){
                 this.title.addEvent('click', function(){
@@ -1000,13 +1002,16 @@ ka.layoutContent = new Class({
                 }.bind(this));
             }
             
+            if( pRenderBody )
+                this._setDivContent();
+
             this.lastContent = Object.clone(this.content);
             
         }.bind(this)}).get({title: this.content.title, type: this.content.type, template: this.content.template});
         
     },
     
-    _setDivContent: function( pRerender ){
+    _setDivContent: function(){
         //here we need a valid this.body ref
         
         if( !this.content ) return;
@@ -1042,13 +1047,13 @@ ka.layoutContent = new Class({
 
         switch( this.content.type ){
         case 'text':
-            this.type2Text( pRerender );
+            this.type2Text();
             break;
         case 'plugin':
             this.setDivPlugin();
             break;
         case 'navigation':
-            this.type2Navigation();
+            this.type2Navi();
             break;
         case 'template':
             //this.setDivTemplate();
@@ -1292,8 +1297,7 @@ ka.layoutContent = new Class({
         if( (this.content.type == 'text' || this.content.type == 'picture') && this.hideTinyMceToolbar ){
             this.hideTinyMceToolbar();
         }
-        
-        this.setDivContent();
+
     },
 
     prepareData: function(){

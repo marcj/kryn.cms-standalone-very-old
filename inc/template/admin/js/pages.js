@@ -2177,13 +2177,21 @@ var admin_pages = new Class({
         w.kpage = this;
 
         w.document.body.removeEvents('click');
+        
         w.document.body.addEvent('click', function(e){
             if( !e ) return;
+
+        	w.document.body.fireEvent('deselect-content-elements');
+
+        }.bind(this));
+        
+        w.document.body.addEvent('deselect-content-elements', function(){
 
         	if( this.ignoreNextDeselectAll ){
         		this.ignoreNextDeselectAll = false;
         		return;
         	}
+
             this._deselectAllElements();
         }.bind(this));
 

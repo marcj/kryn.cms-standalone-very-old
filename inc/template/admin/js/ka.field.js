@@ -43,7 +43,7 @@ ka.field = new Class({
             
             if( this.field.panel_width )
                 this.main.setStyle('width', this.field.panel_width);    
-            else
+            else if( !this.field.small )
                 this.main.setStyle('width', 330);
             
             if( pField.type == 'headline' ){
@@ -1065,6 +1065,7 @@ ka.field = new Class({
                 var _this = this;
                 ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
                     _this.setValue( pValue, true );
+                    logger('setvalue');
                     this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler
                 },
                 value: this._value,

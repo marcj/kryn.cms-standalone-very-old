@@ -21,6 +21,10 @@ ka.field_layoutElement = new Class({
 		});
 
 		this.win.border.addEvent('click', function(){
+            this.win.border.fireEvent('deselect-content-elements');
+        }.bind(this));
+        
+        this.win.border.addEvent('deselect-content-elements', function(){
             this._deselectAllElements();
         }.bind(this));
 
