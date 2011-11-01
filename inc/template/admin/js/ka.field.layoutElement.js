@@ -126,7 +126,6 @@ ka.field_layoutElement = new Class({
 		
 	},
 
-	
 	_deselectAllElements: function( pContent ){
 		
 		var selected = 0;
@@ -135,7 +134,7 @@ ka.field_layoutElement = new Class({
         if( !this.layoutElement.layoutBoxes ) return;
         
     	Object.each(this.layoutElement.layoutBoxes, function(box,id){
-            selected = selected + box.deselectAll( pContent );
+            box.deselectAll( pContent );
         });
 
 	},

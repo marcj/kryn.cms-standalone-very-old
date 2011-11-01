@@ -10,10 +10,7 @@ ka.layoutElement = new Class({
         this.container = pContainer;
         this.layout = this.container;
         this.win = pWin;
-        
-        logger( pInitialTemplate );
-        logger( this.layout );
-        
+
         if( pInitialTemplate )
             this.loadTemplate( pInitialTemplate );
         else
@@ -32,15 +29,14 @@ ka.layoutElement = new Class({
     setValue: function( pVal ){
         
         this.setThisValue = pVal;
-        //logger("setValue");
-        //logger(pVal);
-        
+
         if( this.loadingDone )
             this._setValue();
         
     },
     
     _setValue: function(){
+
         if( this.setThisValue ){
             
             Object.each(this.layoutBoxes, function(layoutBox, boxId){
@@ -49,6 +45,7 @@ ka.layoutElement = new Class({
             }.bind(this));
             
         }
+
     },
     
     loadTemplate: function( pTemplate ){
@@ -108,7 +105,7 @@ ka.layoutElement = new Class({
     renderLayoutElements: function( pDom ){
 
         var layoutBoxes = {};
-        pDom.getWindow().$$('.kryn_layout_content, .kryn_layout_slot').each(function(item){
+        pDom.getElements('.kryn_layout_content, .kryn_layout_slot').each(function(item){
            
             var options = {}; 
             if( item.get('params') )

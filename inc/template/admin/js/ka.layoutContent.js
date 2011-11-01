@@ -5,13 +5,13 @@ ka.layoutContent = new Class({
 	noAccess: false,
     isRemoved: false,
     content: {},
+    
+    selected: false,
 	
     initialize: function( pContent, pContainer, pLayoutBox ){
         
-        this.content = pContent;
+        this.content = Object.clone(pContent);
         this.container = pContainer;
-        
-        logger( this.content );
 
         if( this.content.type == 'picture' ){
             var options = this.content.content.split('::');
@@ -266,6 +266,7 @@ ka.layoutContent = new Class({
     },
     
     showToolbar: function(){
+
         var target = this.w.document.body;
         if( this.container.getParent('.kwindow-border') ){
             target = this.container.getParent('.kwindow-border');
@@ -333,30 +334,15 @@ ka.layoutContent = new Class({
         }).inject( toElement, pos );
         
         this.window = this.main.getWindow();
-
-        /*this.main.addEvent('mouseover', function(){
-            this.options.tween('opacity', 1);
-        }.bind(this));
-        */
         
         this.main.addEvent('click', function(e){
-            /*_this.hideBubbleBox();*/
             this.select();
         	e.stop();
             e.stopPropagation();
         }.bind(this));
 
-        this.main.addEvent('mouseout', function(){
-            //this.options.tween('opacity', 0);
-        }.bind(this));
-
         this.main.store( 'layoutContent', this );
         this.main.layoutContent = this;
-
-        /*this.title = new Element('div', {
-            'class': 'ka-layoutContent-title'
-        })
-        .inject( this.toolbarTitleContainer );*/
         
         this.div = new Element('div', {
             'class': 'ka-layoutContent-div'
@@ -364,20 +350,13 @@ ka.layoutContent = new Class({
         
         this.body = this.div;
 
-//        new Element('div', {style: 'clear: both; height: 1px;'}).inject( this.title );
-
         this.dataToView();
+        
         if( this.content['new'] ||this.content.toEdit ){
             this.select();
         }
         
         this.hideToolbar();
-
-        /*
-        if( this.content['new'] ||this.content.toEdit ){
-            this.toggleEdit();
-        }
-        */
 
     },
     
@@ -502,11 +481,15 @@ ka.layoutContent = new Class({
     */
 
     remove: function(e){
+
     	this.deselect();
+
     	this.isRemoved = true;
         this.fireEvent('remove');
+
         this.main.destroy();
         this.content = null;
+
         if( e ){
             e.stop();
             e.stopPropagation();
@@ -579,10 +562,9 @@ ka.layoutContent = new Class({
     	
     	if( this.noAccess ) return;
         
-        
         if( !this.content ) this.content = {};
         
-        if( !pForce && !this.selected ) return;
+        if( !pForce && !this.isSelected() ) return;
 
         if( this.content.type == 'layoutelement' ){
         	this.saveLayoutElement();
@@ -603,7 +585,6 @@ ka.layoutContent = new Class({
         case 'plugin':
             if( this.pluginChooser ){
                 this.content.content = this.pluginChooser.getValue();
-                logger(this.content.content);
             }
             break;
 
@@ -611,8 +592,9 @@ ka.layoutContent = new Class({
         case 'text':
         case 'html':
         case 'php':
-            if( this.textarea )
+            if( this.textarea ){
                 this.content.content = this.textarea.value;
+            }
             break;
         case 'pointer':
             break;
@@ -623,15 +605,6 @@ ka.layoutContent = new Class({
             this.content.content = this.templateFileField.getValue();
             break;
         }
-    },
-
-    toViewMode: function(){
-
-        //set form-data to this.content
-        this.toData();
-
-        //display data
-        this.setDivContent();
     },
 
     getTemplateTitle: function( pFile ){
@@ -652,32 +625,6 @@ ka.layoutContent = new Class({
 
     	this.oldType = this.content.type;
         this.content.type = this.sType.getValue();
-        this.setDivContent();
-
-        return;
-        
-        switch( this.content.type ){
-        case 'html':
-        case 'php':
-            if( this.oldType == 'html' || this.oldType == 'php' ) return;
-            this.type2HTML();
-            break;
-        case 'navigation':
-            this.type2Navi();
-            break;
-        case 'pointer':
-            this.type2Pointer();
-            break;
-        case 'template':
-            //this.type2Template();
-            break;
-        case 'layoutelement':
-        	this.toLayoutElement();
-        	break;
-        }
-    	
-    	this.oldType = this.content.type;
-
         this.setDivContent();
 
     },
@@ -1004,8 +951,6 @@ ka.layoutContent = new Class({
     },
 
     setDivContent: function(){
-    
-        //load template and set this.body
         
         if( this.body && this.lastContent &&
             this.lastContent.template == this.content.template &&
@@ -1034,7 +979,6 @@ ka.layoutContent = new Class({
             return;
         }
         
-        
         this.lastCR = new Request.JSON({url: _path+'admin/backend/getContentTemplate', noCache: 1, onComplete: function( pTpl ){
 
             var oldBody = false;            
@@ -1048,8 +992,6 @@ ka.layoutContent = new Class({
             this.body = this.div.getElement('.ka-layoutelement-content-content');
             this.title = this.div.getElement('.ka-layoutelement-content-title');
             
-            //this.main.removeClass('ka-layoutContent-main-selected');
-            
             if( oldBody && this.body ) {
                 oldBody.replaces( this.body );
                 this.body = oldBody;
@@ -1060,7 +1002,7 @@ ka.layoutContent = new Class({
                     this.body = this.div;
                 this._setDivContent(true);
             }
-            
+
             if( this.title ){
                 this.title.addEvent('click', function(){
                     this.iTitle.focus();
@@ -1070,7 +1012,7 @@ ka.layoutContent = new Class({
             
             this.lastContent = Object.clone(this.content);
             
-        }.bind(this)}).get(this.content);
+        }.bind(this)}).get({title: this.content.title, type: this.content.type});
         
     },
     
@@ -1081,12 +1023,6 @@ ka.layoutContent = new Class({
 
         if( this.content.type != 'text' &&  this.content.type != 'picture' ){
             this.lastId = false;
-        }
-        
-        if( this.selected )
-            this.main.addClass('ka-layoutContent-main-selected');
-        else {
-            this.main.removeClass('ka-layoutContent-main-selected');
         }
         
         this.toolbar.removeClass('ka-layoutContent-toolbar-withwysiwyg');
@@ -1330,19 +1266,12 @@ ka.layoutContent = new Class({
 
     select: function(){
     	if( this.noAccess ) return;
-        if( this.selected ) return;
-        
-        /* old
-        if( this.content.noActions ){
-        	this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.hide();
-        } else {
-        	this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.show();
-        }*/
+        if( this.isSelected() ) return;
         
         this.layoutBox.deselectAll( this );
         
-        this.selected = true;
         this.showToolbar();
+        
         this.main.addClass('ka-layoutContent-main-selected');
     },
     
@@ -1352,26 +1281,22 @@ ka.layoutContent = new Class({
         	this.layoutElement.deselectAll();
     	
     },
+    
+    isSelected: function(){
+    
+        return this.main.hasClass('ka-layoutContent-main-selected');
+    
+    },
 
     deselect: function(){
-    	//if( this.ignoreNextDeselect ){
-    	//	this.ignoreNextDeselect = false;
-    	//	return;
-    	//}
-    	
+    
     	if( this.noAccess ) return;
-        if( !this.selected ) return;
-        
-        /* old
-        this.layoutBox.pageInst.elementPropertyFields.eTypeSelect.removeEvents('change');
-        this.layoutBox.pageInst._hideElementPropertyToolbar();
-        */
-        
-        this.selected = false;
+        if( !this.isSelected() ) return;
+
         this.toData( true );
 
         this.hideToolbar();
-        
+
         this.main.removeClass('ka-layoutContent-main-selected');
             
         if( (this.content.type == 'text' || this.content.type == 'picture') && this.hideTinyMceToolbar ){
