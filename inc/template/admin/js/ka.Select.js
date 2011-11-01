@@ -13,7 +13,7 @@ ka.Select = new Class({
     initialize: function(){
     
         this.box = new Element('div', {
-            'class': 'ka-Select-box'
+            'class': 'ka-normalize ka-Select-box'
         })
         .addEvent('click', this.toggle.bindWithEvent(this));
         

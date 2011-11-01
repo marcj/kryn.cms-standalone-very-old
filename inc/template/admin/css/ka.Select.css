@@ -78,6 +78,8 @@
 
 .ka-Select-chooser div.group {
     color: #333;
+    text-align: left;
+    font-size: 11px;
     padding: 5px 10px;
 }
 

@@ -68,7 +68,7 @@ ka.layoutContent = new Class({
         }
     
         this.toolbar = new Element('div', {
-            'class': 'ka-layoutContent-toolbar SilkTheme'
+            'class': ' ka-normalize ka-layoutContent-toolbar SilkTheme'
         })
         .addEvent('mousedown', function(e){
             if( e.target && ( e.target.get('tag') != 'input' && e.target.get('tag') != 'select') )
