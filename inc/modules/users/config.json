@@ -311,13 +311,10 @@
           "type": "page"
         },
         "category_rsn": {
-          "label": "Category",
-          "desc": "Which categories can login ?",
-          "type": "select",
-          "multi": true,
-          "sql": "SELECT * FROM %pfx%system_groups",
-          "table_label": "name",
-          "table_id": "rsn"
+          "label": "Groups",
+          "desc": "Which groups can login?",
+          "type": "textlist",
+          "store": "admin/backend/stores/groups"
         }
       }
     ],
