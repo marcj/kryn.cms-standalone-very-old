@@ -121,8 +121,7 @@ body .ka-layoutContent-main img
 
 .ka-normalize img,
 .ka-normalize a,
-.ka-normalize a:link,
-.ka-normalize a:hover {
+.ka-normalize a:link {
     border: 0px;
     padding: 0px;
     margin: 0px;
