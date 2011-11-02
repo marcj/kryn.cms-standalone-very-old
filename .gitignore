@@ -10,3 +10,5 @@ inc/cache/
 inc/modules/admin/crawler.php
 
 inc/mooeditable
+
+.DS_Store
