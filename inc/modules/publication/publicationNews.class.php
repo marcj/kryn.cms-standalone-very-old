@@ -135,7 +135,7 @@ class publicationNews
                     tAssign('currentCommentPage', $page);
                     
                     // Fetch comments
-                    $comments = dbTableFetch('publication_comments', -1, "parent_rsn = $rsn OFFSET $start LIMIT $itemsPerPage");
+                    $comments = dbTableFetch('publication_comments', -1, "parent_rsn = $rsn LIMIT $itemsPerPage OFFSET $start");
                     if($comments !== false)
                         tAssign('comments', $comments);
                 }
@@ -227,9 +227,9 @@ class publicationNews
                 $whereCategories
                 AND n.deactivate = 0
                 AND c.rsn = n.category_rsn
-                AND (n.releaseAt = 0 OR n.releaseAt <= $now)
+                AND (n.releaseat = 0 OR n.releaseat <= $now)
             ORDER BY $orderBy
-            OFFSET $start LIMIT $itemsPerPage
+            LIMIT $itemsPerPage OFFSET $start
         ";
         $list = dbExfetch($sql, -1);
         
@@ -243,7 +243,7 @@ class publicationNews
                 1=1
                 $whereCategories
                 AND deactivate = 0
-                AND (n.releaseAt = 0 OR n.releaseAt <= $now)
+                AND (n.releaseat = 0 OR n.releaseat <= $now)
         ";
         $countRow = dbExfetch($sqlCount, 1);
         $count = $countRow['newscount'];

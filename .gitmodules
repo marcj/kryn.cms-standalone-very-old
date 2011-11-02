@@ -1,3 +1,3 @@
 [submodule "inc/mooeditable"]
 	path = inc/mooeditable
-	url = git@github.com:MArcJ/mooeditable.git
+	url = git://github.com/MArcJ/mooeditable.git
