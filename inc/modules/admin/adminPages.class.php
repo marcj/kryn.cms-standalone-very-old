@@ -385,7 +385,7 @@ class adminPages {
         
     
         if( kryn::checkPageAcl($rsn, 'themeProperties', 'd') ){
-            $dbUpdate[] = 'publicproperties';
+            $dbUpdate[] = 'themeproperties';
         }
         if( kryn::checkPageAcl($rsn, 'limitLayouts', 'd') ){
             $dbUpdate[] = 'layouts';

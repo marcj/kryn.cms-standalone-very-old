@@ -1350,7 +1350,7 @@ var admin_pages = new Class({
 
 			this.domainExtensionsCreate( );
 
-            this.domainFieldsPublicProperties.setValue( JSON.decode(res.publicproperties) );
+            this.domainFieldsPublicProperties.setValue( JSON.decode(res.themeproperties) );
             
             this.toAlternativPane();
 
@@ -1436,7 +1436,7 @@ var admin_pages = new Class({
 
         req.resourcecompression = this.domainFields['resourcecompression'].getValue();
         req.layouts = JSON.encode( this.domainFields['layouts'].getValue() );
-        req.publicproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
+        req.themeproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
 
         req.session = this.domainSessionFields.getValue();
         
