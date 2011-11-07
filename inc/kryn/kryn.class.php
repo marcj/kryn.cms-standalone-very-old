@@ -1454,10 +1454,11 @@ class kryn {
     public static function validLanguage( $pLang ){
         if( strlen($pLang) != 2 ) return false;
 
-        $languages = kryn::getPhpCache('systemLanguages');
+        $languages = kryn::getCache('systemLanguages');
+        
         if( !$languages ) {
             $languages = dbTableFetch('system_langs', -1, 'visible = 1');
-            kryn::setPhpCache('systemLanguages', $languages);
+            kryn::setCache('systemLanguages', $languages);
         }
 
         foreach($languages as $l){
