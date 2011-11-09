@@ -237,10 +237,10 @@ class kryn {
      * Contains all current contents
      * Example:
      * $contents = array (
-     * 	 'slotId1' => array(
+     *      'slotId1' => array(
      *       array(type => 'text', 'content' => 'Hello World')
      *    ),
-     * 	 'slotId2' => array(
+     *      'slotId2' => array(
      *       array(type => 'text', 'content' => 'Hello World in other slot')
      *    )
      * 
@@ -391,84 +391,84 @@ class kryn {
      * @internal
      */
     public static $pageAcls = array(
-		'domainAll' => array(
+        'domainAll' => array(
             'tree' => array(
                 'showDomain',
                 'deleteDomain'
             ),
-    		'domain' => array(
-					'domainName',
-					'domainTitle',
-					'domainStartpage',
-					'domainPath',
-					'domainFavicon',
-					'domainLanguage',
-					'domainLanguageMaster',
-					'domainEmail',
-    		),
-    		'theme' => array(
-    			'themeProperties',
-    			'limitLayouts',
-    		),
-    		'domainProperties' => array(),
-    		'settings' => array(
-    			'aliasRedirect',
-    			'aliasRedirect',
-    			'phpLocale',
-    			'robotRules',
-    			'404',
-    			'domainOther'
-    		)
-		),
-		'pageAll' => array(
-			'tree' => array(
-				'showPage',
-				'addPages',
-				'movePages',
-				'deletePages',
-			),
-			'general' => array(
-				'type',
-				'title',
-				'page_title',
-				'url',
-				'meta',
-			),
-			'access' => array(
-				'visible',
-				'access_denied',
-				'force_https',
-				'releaseDates',
-				'limitation',
-			),
-			'contents' => array(
-				'canPublish',
-				'canChangeLayout',
-				'content-text',
-				'content-layoutelement',
-				'content-picture',
-				'content-plugin',
-				'content-pointer',
-				'content-navigation',
-				'content-template',
-				'content-html',
-				'content-php',
-			),
-			'resources' => array(
-				'css',
-				'js',
-			),
-			'properties' => array(),
-			'search' => array(
-				'setBlacklist',
-				'exludeSearch',
-				'searchKeys',
-			),
-			'versions' => array(
-				'setLive',
-				'loadVersion',
-			)
-		)
+            'domain' => array(
+                    'domainName',
+                    'domainTitle',
+                    'domainStartpage',
+                    'domainPath',
+                    'domainFavicon',
+                    'domainLanguage',
+                    'domainLanguageMaster',
+                    'domainEmail',
+            ),
+            'theme' => array(
+                'themeProperties',
+                'limitLayouts',
+            ),
+            'domainProperties' => array(),
+            'settings' => array(
+                'aliasRedirect',
+                'aliasRedirect',
+                'phpLocale',
+                'robotRules',
+                '404',
+                'domainOther'
+            )
+        ),
+        'pageAll' => array(
+            'tree' => array(
+                'showPage',
+                'addPages',
+                'movePages',
+                'deletePages',
+            ),
+            'general' => array(
+                'type',
+                'title',
+                'page_title',
+                'url',
+                'meta',
+            ),
+            'access' => array(
+                'visible',
+                'access_denied',
+                'force_https',
+                'releaseDates',
+                'limitation',
+            ),
+            'contents' => array(
+                'canPublish',
+                'canChangeLayout',
+                'content-text',
+                'content-layoutelement',
+                'content-picture',
+                'content-plugin',
+                'content-pointer',
+                'content-navigation',
+                'content-template',
+                'content-html',
+                'content-php',
+            ),
+            'resources' => array(
+                'css',
+                'js',
+            ),
+            'properties' => array(),
+            'search' => array(
+                'setBlacklist',
+                'exludeSearch',
+                'searchKeys',
+            ),
+            'versions' => array(
+                'setLive',
+                'loadVersion',
+            )
+        )
     );
     
     /**
@@ -527,7 +527,7 @@ class kryn {
         kryn::$jsFiles = array();
     }
     
- 	/**
+     /**
      * 
      * Resets all css files.
      */
@@ -557,7 +557,7 @@ class kryn {
      * 'xhtml 1.1 dtd', 'html5'
      * 
      * If you want to add a own doctype, you have to extend the static var:
-     *     krynHtml::$docTypeMap['<id>'] = <fullDocType>';
+     *     krynHtml::$docTypeMap['<id>'] = '<fullDocType>';
      *
      * The default is 'xhtml 1.0 transitional'
      *
@@ -783,8 +783,8 @@ class kryn {
     /**
      * 
      * Function to compate two versions with a operator.
-   	 * Max Version: 999.999.999
-   	 * Min Version: 0.0.1
+        * Max Version: 999.999.999
+        * Min Version: 0.0.1
      * @param string $pModuleVersion extension key or a version
      * @param string $pOp <,<=,>,>=,=
      * @param string $pVersion
@@ -900,7 +900,7 @@ class kryn {
             
             if( kryn::$domain['master'] != 1 )
                 $pUrl = kryn::$domain['lang'].'/'.$pUrl;
-        	
+            
             $domain = kryn::$domain['domain'];
             $path = kryn::$domain['path'];
             
@@ -1101,8 +1101,8 @@ class kryn {
             $cfg['template_cache'] = 'inc/tcache/';
 
         if( !is_dir($cfg['template_cache']) ){
-        	if( !@mkdir($cfg['template_cache']) )
-        	   die('Can not access to or create folder for template caching: '.$cfg['template_cache']);
+            if( !@mkdir($cfg['template_cache']) )
+               die('Can not access to or create folder for template caching: '.$cfg['template_cache']);
         }
         
         kryn::$cfg = $cfg;
@@ -1245,59 +1245,59 @@ class kryn {
         $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
         
         if( $url == '' || $pDomainRsn != false ){
-        	require_once('inc/modules/admin/adminPages.class.php');
-        	
+            require_once('inc/modules/admin/adminPages.class.php');
+            
             $r2d = kryn::getPhpCache('r2d');
-	        if( !is_array($r2d) ) {
-	            $r2d = adminPages::updatePage2DomainCache();
-	        }
-	       
-	        //find domain of this page
-	        foreach( $r2d as $domain => $pages ){
-	        	if( strpos(','.$pages, ','.$pRsn.',') !== FALSE ){
-	        		$target_domain = $domain;
-	        	}
-	        }
-	        
-	        if( !$taget_domain ){
-	        	//backwards compatibility
+            if( !is_array($r2d) ) {
+                $r2d = adminPages::updatePage2DomainCache();
+            }
+           
+            //find domain of this page
+            foreach( $r2d as $domain => $pages ){
+                if( strpos(','.$pages, ','.$pRsn.',') !== FALSE ){
+                    $target_domain = $domain;
+                }
+            }
+            
+            if( !$taget_domain ){
+                //backwards compatibility
                 $r2d = adminPages::updatePage2DomainCache();
            
-	            //find domain of this page
-	            foreach( $r2d as $domain => $pages ){
-	                if( strpos(','.$pages, ','.$pRsn.',') !== FALSE ){
-	                    $target_domain = $domain;
-	                }
-	            }
-	        }
-	        
-	        //'casue its a different domain, we need to tell load this domain
-	        $domains =& kryn::getPhpCache('domains');
-	        if( !$domains['r2d'] )
-	           $domains = adminPages::updateDomainCache();
-	        
-	        $domainBackup = kryn::$domain;
+                //find domain of this page
+                foreach( $r2d as $domain => $pages ){
+                    if( strpos(','.$pages, ','.$pRsn.',') !== FALSE ){
+                        $target_domain = $domain;
+                    }
+                }
+            }
+            
+            //'casue its a different domain, we need to tell load this domain
+            $domains =& kryn::getPhpCache('domains');
+            if( !$domains['r2d'] )
+               $domains = adminPages::updateDomainCache();
+            
+            $domainBackup = kryn::$domain;
             kryn::$domain = $domains['r2d']['rsn='.$target_domain];
 
-	        $cachedUrls =& kryn::readCache( 'urls' );
-	        $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
-	        
-	        if( $pWithoutHttp ){
-	        	
-	         if( kryn::$domain['master'] != 1 ){
-	                $url = kryn::$domain['domain'].kryn::$domain['path'].kryn::$domain['lang'].'/'.$url;
-	            } else {
-	            	$url = kryn::$domain['domain'].kryn::$domain['path'].$url;
-	            }
-	        	
-	        } else {
-	        
-		        if( kryn::$domain['master'] != 1 ){
-	                $url = 'http://'.kryn::$domain['domain'].kryn::$domain['path'].kryn::$domain['lang'].'/'.$url;
-	            } else {
-	            	$url = 'http://'.kryn::$domain['domain'].kryn::$domain['path'].$url;
-	            }
-	        }
+            $cachedUrls =& kryn::readCache( 'urls' );
+            $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
+            
+            if( $pWithoutHttp ){
+                
+             if( kryn::$domain['master'] != 1 ){
+                    $url = kryn::$domain['domain'].kryn::$domain['path'].kryn::$domain['lang'].'/'.$url;
+                } else {
+                    $url = kryn::$domain['domain'].kryn::$domain['path'].$url;
+                }
+                
+            } else {
+            
+                if( kryn::$domain['master'] != 1 ){
+                    $url = 'http://'.kryn::$domain['domain'].kryn::$domain['path'].kryn::$domain['lang'].'/'.$url;
+                } else {
+                    $url = 'http://'.kryn::$domain['domain'].kryn::$domain['path'].$url;
+                }
+            }
             
             kryn::$domain = $domainBackup;
                 
@@ -1722,7 +1722,7 @@ class kryn {
                 $toUrl .= '?'.implode("&", $get);
                 
             if( count($_POST) == 0 )//only when the browser don't send data
-            	kryn::redirect( $toUrl );
+                kryn::redirect( $toUrl );
         }
         
     }
@@ -1732,7 +1732,7 @@ class kryn {
     /**
      * 
      * Checks the specified page.
-	 * Internal function.
+     * Internal function.
      * @param array $page
      * @param bool $pWithRedirect
      * @return array|bool False if no access
@@ -1765,11 +1765,11 @@ class kryn {
             }
             
             if( $cgroups ){
-	            foreach( $cgroups as $group ){
-	                if( strpos($groups, ",".$group['group_rsn'].",") !== false ){
-	                    $access = true;
-	                }
-	            }
+                foreach( $cgroups as $group ){
+                    if( strpos($groups, ",".$group['group_rsn'].",") !== false ){
+                        $access = true;
+                    }
+                }
             }
             
             if(!$access) {
@@ -1794,7 +1794,7 @@ class kryn {
         }
         
         if( !$page && $pWithRedirect && $oriPage['access_need_via'] == 1 ){
-        	header('WWW-Authenticate: Basic realm="'._l('Access denied. Maybe you are not logged in or have no access.').'"');
+            header('WWW-Authenticate: Basic realm="'._l('Access denied. Maybe you are not logged in or have no access.').'"');
             header('HTTP/1.0 401 Unauthorized');
                 
             exit;
@@ -1810,13 +1810,13 @@ class kryn {
      * @internal
      */
     public static function getPageAcls(){
-    	global $client;
-    	if( kryn::$cachedPageAcls ) return kryn::$cachedPageAcls;
-    	
+        global $client;
+        if( kryn::$cachedPageAcls ) return kryn::$cachedPageAcls;
+        
         $userRsn = $client->user_rsn;
         $inGroups = $client->user['inGroups'];
         
-    	kryn::$cachedPageAcls = dbExfetch("
+        kryn::$cachedPageAcls = dbExfetch("
                 SELECT code, access FROM %pfx%system_acl
                 WHERE
                 type = 2 AND
@@ -1828,7 +1828,7 @@ class kryn {
                 ORDER BY code DESC
         ", DB_FETCH_ALL);
 
-    	return kryn::$cachedPageAcls;
+        return kryn::$cachedPageAcls;
     }
     
     
@@ -1843,26 +1843,26 @@ class kryn {
      */
     public static function checkPageAccessHasCode( $pCodes, $pAction ){
         $access = in_array( $pAction, $pCodes );
-    	
-    	if( !$access ){
-    	
-    		$acl_tab = false;
-    		
-    		
-    		foreach( kryn::$pageAcls as $keyAll => $subAll ){
-    		    
-    		    foreach( $subAll as $tabKey => $tabSubs ){
-    		        if( in_array( $pAction, $tabSubs ) && $tabKey != 'tree' ){
-    		             $acl_tab = $tabKey;
-    		        }
-    		    }
-    		}
-    		
-    		if( $acl_tab ){
-    		    $access = in_array( $acl_tab, $pCodes );
-    		}
-    	}
-    	return $access;
+        
+        if( !$access ){
+        
+            $acl_tab = false;
+            
+            
+            foreach( kryn::$pageAcls as $keyAll => $subAll ){
+                
+                foreach( $subAll as $tabKey => $tabSubs ){
+                    if( in_array( $pAction, $tabSubs ) && $tabKey != 'tree' ){
+                         $acl_tab = $tabKey;
+                    }
+                }
+            }
+            
+            if( $acl_tab ){
+                $access = in_array( $acl_tab, $pCodes );
+            }
+        }
+        return $access;
     }
     
     /** 
@@ -1898,59 +1898,59 @@ class kryn {
      * @internal
      */
     public static function checkPageAcl( $pRsn, $pAction, $pType = 'p' ){
-    	$acls = kryn::getPageAcls();
+        $acls = kryn::getPageAcls();
 
-    	if( count($acls) == 0 ) return true;
-    	
-		$access = false;
-		
-		$current_rsn = $pRsn;
-		$current_type = $pType;
-		    
-		$not_found = true;
-		$parent_acl = false;
-		
-		$codes = array();
-		
-		while( $not_found ){
-		
-			$acl = kryn::_getAcl( $current_rsn, $current_type );
-			if( $acl && $acl['code'] ){
-				
-				$code = str_replace(']', '', $acl['code']);
-				$t = explode('[', $code);
-				$codes = explode(",", $t[1]);
-				
-				if( self::checkPageAccessHasCode( $codes, $pAction ) ){
-					if ( 
-							($parent_acl == false) ||
-							($parent_acl == true && strpos($acl['code'], '%') !== false)
-					    ){
-						$access = ($acl['access'] == 1) ? true : false;
-						$not_found = false;
-					}
-				}
-			}
-			
-			if( $not_found == true && $current_type == 'd' ){
-				//no parent acl on domain-level
-				$not_found = false;
-			}
-			
-			if( $not_found == true && $current_type == 'p' ){
-				//search and set parent
-				$parent = kryn::getPageAclParent( $current_rsn );
-				if( $parent['domain'] ){
-					//parent is domain
-					$current_rsn = $parent['domain_rsn'];
-					$current_type = 'd';
-				} else {
-					$current_rsn = $parent['rsn'];
-				}
-				$parent_acl = true;
-			}
-		}
-		return $access;
+        if( count($acls) == 0 ) return true;
+        
+        $access = false;
+        
+        $current_rsn = $pRsn;
+        $current_type = $pType;
+            
+        $not_found = true;
+        $parent_acl = false;
+        
+        $codes = array();
+        
+        while( $not_found ){
+        
+            $acl = kryn::_getAcl( $current_rsn, $current_type );
+            if( $acl && $acl['code'] ){
+                
+                $code = str_replace(']', '', $acl['code']);
+                $t = explode('[', $code);
+                $codes = explode(",", $t[1]);
+                
+                if( self::checkPageAccessHasCode( $codes, $pAction ) ){
+                    if ( 
+                            ($parent_acl == false) ||
+                            ($parent_acl == true && strpos($acl['code'], '%') !== false)
+                        ){
+                        $access = ($acl['access'] == 1) ? true : false;
+                        $not_found = false;
+                    }
+                }
+            }
+            
+            if( $not_found == true && $current_type == 'd' ){
+                //no parent acl on domain-level
+                $not_found = false;
+            }
+            
+            if( $not_found == true && $current_type == 'p' ){
+                //search and set parent
+                $parent = kryn::getPageAclParent( $current_rsn );
+                if( $parent['domain'] ){
+                    //parent is domain
+                    $current_rsn = $parent['domain_rsn'];
+                    $current_type = 'd';
+                } else {
+                    $current_rsn = $parent['rsn'];
+                }
+                $parent_acl = true;
+            }
+        }
+        return $access;
     }
     
     /**
@@ -1961,23 +1961,23 @@ class kryn {
      * @internal
      */
     public static function getPageAclParent( $pRsn ){
-   		$domain_rsn = kryn::getDomainOfPage( $pRsn );
-	
-   		$menus = kryn::getPhpCache( 'menus_'.$domain_rsn );
-		$page_tree = $menus[$pRsn]; //$H(ka.settings['menus_'+domain_rsn]).get( pRsn );
-		$result = array('prsn' => 0, 'domain_rsn' => $domain_rsn, 'domain' => true);
-		
-		if( !$page_tree ) return $result;
-		
-		$page = $page_tree[ count($page_tree)-1 ];
-		
-		if( count($page_tree) >= 1 && $page ){
-			$result = $page;
-			$result['domain_rsn'] = $domain_rsn;
-		}
-		
-		return $result;
-    	
+           $domain_rsn = kryn::getDomainOfPage( $pRsn );
+    
+           $menus = kryn::getPhpCache( 'menus_'.$domain_rsn );
+        $page_tree = $menus[$pRsn]; //$H(ka.settings['menus_'+domain_rsn]).get( pRsn );
+        $result = array('prsn' => 0, 'domain_rsn' => $domain_rsn, 'domain' => true);
+        
+        if( !$page_tree ) return $result;
+        
+        $page = $page_tree[ count($page_tree)-1 ];
+        
+        if( count($page_tree) >= 1 && $page ){
+            $result = $page;
+            $result['domain_rsn'] = $domain_rsn;
+        }
+        
+        return $result;
+        
     }
     
     
@@ -1988,21 +1988,21 @@ class kryn {
      * return integer
      */
     public static function getDomainOfPage( $pRsn ){
-    	$rsn = false;
+        $rsn = false;
         $r2d =& kryn::getCache('r2d');
         if( !is_array($r2d) ) {
             require_once('inc/modules/admin/adminPages.class.php');
             $r2d = adminPages::updatePage2DomainCache();
         }
-    	
-    	$pRsn = ','.$pRsn.',';
-    	foreach( $r2d as $domain_rsn => $pages ){
-    		$pages = ','.$pages.',';
-			if( strpos($pages, $pRsn) !== false ){
-				$rsn = $domain_rsn;
-			}
-    	}
-		return $rsn;
+        
+        $pRsn = ','.$pRsn.',';
+        foreach( $r2d as $domain_rsn => $pages ){
+            $pages = ','.$pages.',';
+            if( strpos($pages, $pRsn) !== false ){
+                $rsn = $domain_rsn;
+            }
+        }
+        return $rsn;
     }
     
     
@@ -2015,24 +2015,24 @@ class kryn {
      * @internal
      */
     public static function _getAcl( $pRsn, $pType ){
-    	$acl = false;
-    	
-	    $acls = kryn::getPageAcls();
-	    foreach( $acls as $item ){
-	    	
-	    	$type = substr($item['code'], 0, 1);
-	    	if( $pType == $type ){
-	    		
-				$code = str_replace('%', '', $item['code']);
-				$code = substr($code, 1);
-				$t = explode('[', $code);
-				$rsn = $t[0];
-				if( $rsn == $pRsn ){
-					$acl = $item;
-				}
-	    	} 
-	    }
-	    return $acl;
+        $acl = false;
+        
+        $acls = kryn::getPageAcls();
+        foreach( $acls as $item ){
+            
+            $type = substr($item['code'], 0, 1);
+            if( $pType == $type ){
+                
+                $code = str_replace('%', '', $item['code']);
+                $code = substr($code, 1);
+                $t = explode('[', $code);
+                $rsn = $t[0];
+                if( $rsn == $pRsn ){
+                    $acl = $item;
+                }
+            } 
+        }
+        return $acl;
     }
     
     
@@ -2231,8 +2231,8 @@ class kryn {
      * @static
      */
     public static function &getPageContents( $pRsn, $pBoxId = false, $pWithoutCache = false ){
-    	global $time, $client, $kcache;
-    	
+        global $time, $client, $kcache;
+        
         $pRsn = $pRsn+0;
         
         $time = time();
@@ -2296,7 +2296,7 @@ class kryn {
                 AND hide != 1
                 ORDER BY sort" );
             while( $page = dbFetch($res) ){
-    	        $result[$page['box_id']][] = $page;
+                $result[$page['box_id']][] = $page;
             }   
         }
         kryn::setCache('page_contents_'.$pRsn, $result);
@@ -2454,7 +2454,7 @@ class kryn {
 
 
         if( kryn::$page['layout'] == "" ){
-        	$content = _l("Error: No layout choosen for this page.");
+            $content = _l("Error: No layout choosen for this page.");
         } else {
             $content = kryn::renderPageContents(); //tFetch( kryn::$page['layout'] );
         }
@@ -2496,7 +2496,7 @@ class kryn {
         }
         
         if( !getArgv('enableSearchIndexMode') )
-        		krynSearch::$returnCodes = true;
+                krynSearch::$returnCodes = true;
         
         $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
         
@@ -2731,7 +2731,7 @@ class kryn {
      */
     public static function setCache( $pCode, $pValue, $pTimeout ){
         if( kryn::$cache )
-        	return kryn::$cache->set( $pCode, $pValue, $pTimeout );
+            return kryn::$cache->set( $pCode, $pValue, $pTimeout );
         return false;
     }
     
@@ -2787,7 +2787,7 @@ class kryn {
      * @static
      */
     public static function setFastCache( $pCode, $pValue ){
-    	kryn::$cacheFast->set( $pCode, $pValue );
+        kryn::$cacheFast->set( $pCode, $pValue );
     }
     
     /**
@@ -2861,74 +2861,74 @@ class kryn {
         // render Thump
         //
         if( $pFix ){
-       		$thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
+               $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
             imagealphablending( $thumpImage, false );
-	
-		    if( $oriWidth > $oriHeight ){
-		
-		        //resize mit hoehe = $tempheight, width = auto;
-		        
-		        $ratio = $thumpHeight / ( $oriHeight / 100 );
-		        $_width = ceil($oriWidth * $ratio / 100);
-		
-		        $top = 0;
-		        if( $_width < $thumpWidth) { 
-		            $ratio = $_width / ($thumpWidth/100);
-		            $nHeight = $thumpHeight * $ratio / 100;
-		            $top =  ($thumpHeight - $nHeight)/2;
-		            $_width = $thumpWidth;
-		        }
-		
-		        $tempImg = imagecreatetruecolor( $_width, $thumpHeight );
+    
+            if( $oriWidth > $oriHeight ){
+        
+                //resize mit hoehe = $tempheight, width = auto;
+                
+                $ratio = $thumpHeight / ( $oriHeight / 100 );
+                $_width = ceil($oriWidth * $ratio / 100);
+        
+                $top = 0;
+                if( $_width < $thumpWidth) { 
+                    $ratio = $_width / ($thumpWidth/100);
+                    $nHeight = $thumpHeight * $ratio / 100;
+                    $top =  ($thumpHeight - $nHeight)/2;
+                    $_width = $thumpWidth;
+                }
+        
+                $tempImg = imagecreatetruecolor( $_width, $thumpHeight );
                 imagealphablending( $tempImg, false );
-		        imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
-		        $_left = ($_width/2) - ($thumpWidth/2);
-		
-		        imagecopyresampled( $thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
-		
-		    } else {
-		        $ratio = $thumpWidth / ( $oriWidth / 100 );
-		        $_height = ceil($oriHeight * $ratio / 100);
-		        $tempImg = imagecreatetruecolor( $thumpWidth, $_height );
+                imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
+                $_left = ($_width/2) - ($thumpWidth/2);
+        
+                imagecopyresampled( $thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
+        
+            } else {
+                $ratio = $thumpWidth / ( $oriWidth / 100 );
+                $_height = ceil($oriHeight * $ratio / 100);
+                $tempImg = imagecreatetruecolor( $thumpWidth, $_height );
                 imagealphablending( $tempImg, false );
-		        imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight );
-		        $_top = ($_height/2) - ($thumpHeight/2);
-		        imagecopyresampled( $thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
-		    }
-		    
-	        if( $type == 3 ){
-	            
+                imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight );
+                $_top = ($_height/2) - ($thumpHeight/2);
+                imagecopyresampled( $thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
+            }
+            
+            if( $type == 3 ){
+                
                 imagealphablending( $thumpImage, false );
                 imagesavealpha( $thumpImage, true );
             }
-		    
-        	$imagesave( $thumpImage, $pTarget );
+            
+            $imagesave( $thumpImage, $pTarget );
         
        } else {
-	        
-	        //render image(big)
-	        if( $oriHeight > $oriWidth ){
-	            $ratio = $newHeight / ( $oriHeight / 100 );
-	            $_width = ceil($oriWidth * $ratio / 100);
-	            $newImage = imagecreatetruecolor( $_width, $newHeight );
-                imagealphablending( $newImage, false );
-	            
-	            imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $_width, $newHeight, $oriWidth, $oriHeight);
-	        } else {
-	            $ratio = $newWidth / ( $oriWidth / 100 );
-	            $_height = ceil($oriHeight * $ratio / 100);
-	            $newImage = imagecreatetruecolor( $newWidth, $_height );
+            
+            //render image(big)
+            if( $oriHeight > $oriWidth ){
+                $ratio = $newHeight / ( $oriHeight / 100 );
+                $_width = ceil($oriWidth * $ratio / 100);
+                $newImage = imagecreatetruecolor( $_width, $newHeight );
                 imagealphablending( $newImage, false );
                 
-	            imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $newWidth, $_height, $oriWidth, $oriHeight);
-	        }
-	        if( $type == 3 ){
-	            
+                imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $_width, $newHeight, $oriWidth, $oriHeight);
+            } else {
+                $ratio = $newWidth / ( $oriWidth / 100 );
+                $_height = ceil($oriHeight * $ratio / 100);
+                $newImage = imagecreatetruecolor( $newWidth, $_height );
+                imagealphablending( $newImage, false );
+                
+                imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $newWidth, $_height, $oriWidth, $oriHeight);
+            }
+            if( $type == 3 ){
+                
                 imagealphablending( $newImage, false );
                 imagesavealpha( $newImage, true );
             }
-	        
-	        $imagesave( $newImage, $pTarget );
+            
+            $imagesave( $newImage, $pTarget );
 
         }
         
