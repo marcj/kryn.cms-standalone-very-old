@@ -2733,7 +2733,20 @@ class kryn {
         	return kryn::$cache->set( $pCode, $pValue );
         return false;
     }
-
+    
+    /**
+     * Marks a code as invalidate until $pTime
+     *
+     * @param string $pCode
+     * @param integer $pTime Timestamp. Default is time()
+    */
+    
+    public static function invalidateCache( $pCode, $pTime = false ){
+        if( kryn::$cache )
+            return kryn::$cache->invalidate( $pCode, $pTime );
+        return false;
+    }
+    
     /**
      * 
      * Returns the content of the specified cache-key

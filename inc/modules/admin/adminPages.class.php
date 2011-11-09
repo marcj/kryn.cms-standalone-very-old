@@ -1345,6 +1345,7 @@ class adminPages {
 
         self::updateUrlCache( $domain_rsn );
         self::updateMenuCache( $domain_rsn );
+
         $res = self::getPage( $rsn );
         $res['version_rsn'] = $version_rsn;
         json( $res );
@@ -1372,15 +1373,15 @@ class adminPages {
         $res = array();
         while( $page = dbFetch( $resu, 1 ) ){
             
-            if( $pge['type'] == 0 )
+            if( $page['type'] == 0 )
                 $res[ $page['rsn'] ] = self::getParentMenus( $page );
             else
                 $res[ $page['rsn'] ] = self::getParentMenus( $page, true );
 
         }
+
         kryn::setCache( "menus_$pDomainRsn", $res );
-        
-        kryn::deleteCache('navigations');
+        kryn::invalidateCache('navigation_'.$pDomainRsn);
         
         return $res;
     }

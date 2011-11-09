@@ -51,7 +51,8 @@ class krynCache {
     }
     
     public function initRedis(){
-                if( !class_exists('Redis') ) return false;
+        
+        if( !class_exists('Redis') ) return false;
 
         $this->redis = new Redis;
 
@@ -90,30 +91,76 @@ class krynCache {
      * @return string
      * @static
      */
-    public function &get( $pCode ){
+    public function &get( $pCode, $pProcessCacheInformation = true ){
         global $kcache;
 
         switch( $this->type ){
             case 'memcached':
-            
+
                 if( $this->memcache ){
-                    return $this->memcache->get( $pCode );
+                    $res = $this->memcache->get( $pCode );
                 } else if( $this->memcached ){
-                    return $this->memcached->get( $pCode );
+                    $res = $this->memcached->get( $pCode );
                 }
-            
+
             case 'redis':
                 
-                return $this->redis->get( $pCode );
-                
+                $res = $this->redis->get( $pCode );
+
             case 'files':
-            
+
                 $cacheCode = 'krynPhpCache_'.$pCode;
-                if( $kcache[$cacheCode] ) return $kcache[$cacheCode];
                 include( $this->config['files_path'].$pCode.'.php' );
-                return $kcache[$cacheCode];
+                $res =& $kcache[$cacheCode];
+
         }
+    
+        if( !$pProcessCacheInformation ) return $res;
+    
+        if( !$res['value'] || !$res['time'] ) return false;
+        if( $res['timeout'] < time() ) return false;
         
+        //valid cache
+        //search if a parent has been flagged as invalid
+        if( strpos( $pCode, '_' ) !== false ){
+
+            $parents = explode( '_', $pCode );
+            $code = '';
+            if( is_array($parents) ){
+                foreach( $parents as $parent ){
+                    $code .= $parent;
+                    $invalidateTime = $this->getInvalidate($code);
+                    if( $invalidateTime && $invalidateTime > $res['time'] ){
+                        return false;
+                    }
+                    $code .= '_';
+                }
+            }
+        }
+        return $res['value'];
+    }
+    
+    /**
+     * Returns the invalidation time
+     *
+     * @param string $pCode
+    */
+    public function getInvalidate( $pCode ){
+        $res = $this->get( $pCode.'_i', false );
+        return $res;
+    }
+
+    
+    /**
+     * Marks a code as invalidate until $pTime
+     *
+     * @param string $pCode
+     * @param integer $pTime Timestamp. Default is time()
+    */
+    public function invalidate( $pCode, $pTime = false ){
+    
+        $this->set( $pCode.'_i', $pTime?$pTime:time(), time()+(3600*24*20), false );
+    
     }
     
     /**
@@ -121,11 +168,19 @@ class krynCache {
      * Sets a content to the specified cache-key.
      * Kryn uses MemCache or PHP-Caching
      * @param string $pCode
-     * @param string $pValue
-     * @static
+     * @param mixed $pValue
+     * @param integer $pTimeout Timestamp. Default is one hour + time()
      */
-    public function set( $pCode, $pValue, $pTimeout = false ){
+    public function set( $pCode, $pValue, $pTimeout = false, $pWithCacheInformations = true ){
         global $kcache;
+        
+        if( $pWithCacheInformations ){
+            $pValue = array(
+                'timeout' => $pTimeout?$pTimeout:time()+3600,
+                'time' => time(),
+                'value' => $pValue
+            );
+        }
 
         switch( $this->type ){
             case 'memcached':
@@ -146,7 +201,7 @@ class krynCache {
             case 'files':
 
                 $cacheCode = 'krynPhpCache_'.$pCode;
-                $kcache[$cacheCode] = $pValue;
+
                 $varname = '$kcache[\''.$cacheCode.'\'] ';
                 $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
                 kryn::fileWrite($this->config['files_path'].$pCode.'.php', $phpCode);
@@ -155,8 +210,8 @@ class krynCache {
     }
     
     /**
-     *
      * Clears the content for specified cache-key.
+     *
      * @param string $pCode
      */
     public function clear( $pCode ){
@@ -184,8 +239,8 @@ class krynCache {
     }
     
     /**
-     *
      * Clears the content for specified cache-key.
+     *
      * @param string $pCode
      */
     public function delete( $pCode ){

@@ -74,7 +74,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     }
     
     if( !class_exists('database') )
-    	die('Error before class initialisations: '.$pCode.': '.$pMsg.' '.$pFile.':'.$pLine);
+    	die('Error before class initializations: '.$pCode.': '.$pMsg.' '.$pFile.':'.$pLine);
     
     if(! database::isActive() ) return;
     
