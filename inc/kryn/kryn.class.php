@@ -2725,12 +2725,13 @@ class kryn {
      * 
      * @param string $pCode
      * @param string $pValue
+     * @param integer $pTimeout Unix Timestamp. Default is one hour + time()
      * @deprecated Use kryn::setCache() instead.
      * @static
      */
-    public static function setCache( $pCode, $pValue ){
+    public static function setCache( $pCode, $pValue, $pTimeout ){
         if( kryn::$cache )
-        	return kryn::$cache->set( $pCode, $pValue );
+        	return kryn::$cache->set( $pCode, $pValue, $pTimeout );
         return false;
     }
     
@@ -2765,10 +2766,20 @@ class kryn {
     /**
      * 
      * Sets a content to the specified cache-key.
+     *
      * This function saves the value in a generated php file.
      * The idea behind this: If the server has active apc or
      * other optcode caching, then this method is way
      * faster then tcp caching-server.
+     *
+     * Please be sure, that you really want to use that: This
+     * is not compatible with load balanced kryn installations
+     * and should only be used, if you are really sure, that 
+     * the other machine in a load balanced scenario does not
+     * need informations about this cache.
+     * 
+     * A good purpose for this is for example caching converted
+     * json files (like the installed extension configs).
      *
      * @param string $pCode
      * @param string $pValue
