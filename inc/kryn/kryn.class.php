@@ -273,6 +273,13 @@ class kryn {
      * @var array
      * $static
      */
+    public static $config;
+    
+    /**
+     *
+     * Ref to kryn::$config for compatibility
+     *
+     */
     public static $cfg;
     
     
@@ -1105,7 +1112,8 @@ class kryn {
                die('Can not access to or create folder for template caching: '.$cfg['template_cache']);
         }
         
-        kryn::$cfg = $cfg;
+        kryn::$config =& $cfg;
+        kryn::$cfg =& $cfg;
     }
     
     public static function initAuth(){

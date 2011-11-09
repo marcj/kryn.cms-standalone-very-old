@@ -119,21 +119,6 @@ if($_REQUEST['js'] == 'global.js'){
 
 kryn::initConfig();
 
-# Init db/stdn config
-$kdb = new database(
-             $cfg['db_type'],
-             $cfg['db_server'],
-             $cfg['db_user'],
-             $cfg['db_passwd'],
-             $cfg['db_name'],
-             ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
-             ($cfg['db_forceutf8']=='1')?true:false
-);
-
-if( !$kdb->isActive() ){
-    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
-}
-
 kryn::loadModules();
 kryn::searchDomain();
 

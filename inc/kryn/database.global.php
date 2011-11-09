@@ -29,6 +29,8 @@
 function esc( $p, $pEscape = false ){
 	global $kdb, $cfg;
 	
+	dbConnect();
+
 	if( is_array($p) ) {
 	   foreach( $p as $k => $v){
 	       $p2[$k] = esc($v);
@@ -58,6 +60,23 @@ function esc( $p, $pEscape = false ){
 	}
 }
 
+function dbConnect(){
+    global $kdb, $cfg;
+    
+    if( $kdb ) return;
+    
+    $kdb = new database(
+                 $cfg['db_type'],
+                 $cfg['db_server'],
+                 $cfg['db_user'],
+                 $cfg['db_passwd'],
+                 $cfg['db_name'],
+                 ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
+                 ($cfg['db_forceutf8']=='1')?true:false
+    );
+
+}
+
 
 /**
  * Execute a query and return the items
@@ -67,9 +86,9 @@ function esc( $p, $pEscape = false ){
  */
 function dbExfetch( $pSql, $pRowCount = 1 ){
     global $kdb, $cfg;
-    if( !$kdb ){
-        error_log("kdb is empty. sql: $pSql ,info: ".print_r($_REQUEST,true) );
-    }
+    
+    dbConnect();
+    
     $pSql = str_replace( '%pfx%', $cfg['db_prefix'], $pSql );
     return $kdb->exfetch( $pSql, $pRowCount );
 }
@@ -83,6 +102,9 @@ function dbExfetch( $pSql, $pRowCount = 1 ){
  */
 function dbExec( $pSql ){
     global $kdb;
+    
+    dbConnect();
+    
     $pSql = str_replace( '%pfx%', pfx, $pSql );
     return $kdb->exec( $pSql );
 }
@@ -193,10 +215,9 @@ function dbToKeyIndex( &$pItems, $pIndex ){
 }
 
 function dbError(){
-    global $kdb;
-    if(! $kdb->error )
-        return false;
-    return $kdb->errorMessage;
+
+    return database::lastError();
+
 }
 
 

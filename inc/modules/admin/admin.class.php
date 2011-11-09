@@ -362,7 +362,7 @@ class admin {
         $res['exectime'] = microtime(true)-$startExec;
         
         if( !$execRes ){
-            $res['error'] = $kdb->lastError();
+            $res['error'] = database::lastError();
         } else {
             $startFetch = microtime(true);
             $res['items'] = dbFetch( $execRes, -1);

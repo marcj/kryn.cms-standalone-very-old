@@ -72,7 +72,7 @@ class adminDb {
 
         $db = &$pDb;
         
-        if( $kdb->type == 'postgresql' ){
+        if( kryn::$config['db_type'] == 'postgresql' ){
             self::checkPostgres();
         }
 

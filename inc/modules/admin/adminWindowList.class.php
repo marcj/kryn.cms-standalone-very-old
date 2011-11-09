@@ -406,7 +406,7 @@ class adminWindowList {
                     
                     $joins .= "LEFT OUTER JOIN ".$exTable." ON ".$exTable.".".$column['table_key']." = $table.$key\n";
                 }
-                if( $kdb->type != 'postgresql' && $column['type'] == 'select' && $column['relation'] == 'n-n' ){
+                if( kryn::$config['db_type'] != 'postgresql' && $column['type'] == 'select' && $column['relation'] == 'n-n' ){
                         $extraFields[] = ' group_concat( %pfx%'.$column['n-n']['right'].'.'.$column['n-n']['right_label'].', \', \') AS '.$key.'__label';
                         $joins .= " 
                             LEFT OUTER JOIN %pfx%".$column['n-n']['middle']." ON(
@@ -569,7 +569,7 @@ class adminWindowList {
         while( $item = dbFetch( $res )){
         
             foreach( $this->columns as $key => $column ){
-                if( $kdb->type == 'postgresql' ){
+                if( kryn::$config['db_type'] == 'postgresql' ){
                     if( $column['type'] == 'select' && $column['relation'] == 'n-n' ){
                         $tempRow = dbExfetch("
                             SELECT group_concat(%pfx%".$column['n-n']['right'].".".$column['n-n']['right_label'].") AS ".$key."__label

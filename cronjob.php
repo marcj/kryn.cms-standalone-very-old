@@ -69,7 +69,7 @@ $kdb = new database(
 
 if( !database::isActive() ){
     exec("logger die. not active");
-    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.$kdb->lastError().'</div>');
+    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.database::lastError().'</div>');
 }
 
 
