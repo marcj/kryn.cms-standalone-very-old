@@ -498,7 +498,7 @@ class kryn {
     public static function addMenu( $pName, $pUrl = "" ){
 
         kryn::$menus[ kryn::$page['rsn'] ][] = array("title" => $pName, "realUrl" => $pUrl);
-        tAssign("menus", kryn::$menus);
+        tAssignRef("menus", kryn::$menus);
     }
 
     /**
@@ -1085,8 +1085,8 @@ class kryn {
         if( !$cfg['cache_type'] )
             $cfg['cache_type'] = 'files';
         
-        tAssign('path', $cfg['path']);
-        tAssign("cfg", $cfg);
+        tAssignRef('path', $cfg['path']);
+        tAssignRef("cfg", $cfg);
         
         if( !$cfg['cronjob_key'] ){
             $cfg['cronjob_key'] = dechex(time()/mt_rand(100, 500));
@@ -1449,7 +1449,7 @@ class kryn {
             }
         }*/
         
-        tAssign( 'request', $_REQUEST);
+        tAssignRef( 'request', $_REQUEST);
     }
 
     /**
@@ -1590,7 +1590,7 @@ class kryn {
 
         $languages =& kryn::getCache('systemLanguages');
         $language = $languages[0];
-        tAssign("languages", $languages);
+        tAssignRef("languages", $languages);
 
         $http = 'http://';
         if( $_SERVER['HTTPS'] == '1'  || strtolower($_SERVER['HTTPS']) == 'on' ){
@@ -1683,11 +1683,11 @@ class kryn {
         } 
         
         if( $domain['path'] != '' ){
-            tAssign( 'path', $domain['path']);
+            tAssignRef( 'path', $domain['path']);
             $cfg['path'] = $domain['path'];
             $cfg['templatepath'] = $domain['path'].'inc/template';
-            tAssign( 'cfg', $cfg );
-            tAssign( '_path', $domain['path']);
+            tAssignRef( 'cfg', $cfg );
+            tAssignRef( '_path', $domain['path']);
         }
         
         $domain['_languagePrefix'] = $possibleLanguage;
@@ -1697,7 +1697,7 @@ class kryn {
             kryn::$baseUrl = $http.$domainName.$port.$cfg['path'].$possibleLanguage.'/';
         }
 
-        tAssign("language", $language);
+        tAssignRef("language", $language);
         
         if( getArgv(1) == 'robots.txt' && $domain['robots'] != "" ){
             header('Content-Type: text/plain');
@@ -1709,13 +1709,13 @@ class kryn {
             kryn::addHeader('<link rel="shortcut icon" href="'.kryn::$baseUrl.$domain['favicon'].'" />');
         }
 
-        tAssign('baseUrl', kryn::$baseUrl);
+        tAssignRef('baseUrl', kryn::$baseUrl);
         kryn::$lang = kryn::getAllLanguage( $language );
         kryn::$language =& $language;
         kryn::$domain = $domain;
-        tAssign( 'domain', $domain );
-        tAssign( '_domain', $domain ); //compatibility
-        tAssign("lang", $lang);
+        tAssignRef( 'domain', $domain );
+        tAssignRef( '_domain', $domain ); //compatibility
+        tAssignRef("lang", $lang);
         
         
         $tUrl = explode("?", $_REQUEST["_kurl"]);
@@ -2133,7 +2133,7 @@ class kryn {
             }
         }
         $url = $possibleUrl;
-        tAssign('request', $_REQUEST);
+        tAssignRef('request', $_REQUEST);
         
         //if the url is a file request we throw a 404 because files have to check via checkFile.php
         if( strpos($oriUrl, ".") !== FALSE ){
@@ -2190,7 +2190,7 @@ class kryn {
             require_once( "inc/modules/admin/adminPages.class.php" );
             adminPages::updateMenuCache( kryn::$domain['rsn'] );
         }
-        tAssign( 'menus', kryn::$menus );
+        tAssignRef( 'menus', kryn::$menus );
     }
     
     
@@ -2349,7 +2349,7 @@ class kryn {
             return false;
         }
         
-        tAssign( 'realUrls', $kcache['realUrl'] );
+        tAssignRef( 'realUrls', $kcache['realUrl'] );
 
         if( kryn::$domain['startpage_rsn'] == $page['rsn'] && kryn::$isStartpage ){
             $page['realUrl'] = '';
@@ -2402,8 +2402,8 @@ class kryn {
                 }
             }
 
-            tAssign( 'themeProperties', kryn::$themeProperties );
-            tAssign( 'publicProperties', kryn::$themeProperties );
+            tAssignRef( 'themeProperties', kryn::$themeProperties );
+            tAssignRef( 'publicProperties', kryn::$themeProperties );
         }
 
         //prepage for ajax
@@ -2425,8 +2425,8 @@ class kryn {
             //todo check ACL
         }
         
-        kryn::$page = $page;
-        tAssign( 'page', $page );
+        kryn::$page =& $page;
+        tAssignRef( 'page', kryn::$page );
         
         kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
 
@@ -3085,7 +3085,7 @@ class kryn {
                 $contents[$key] = $content;
             }
         }
-    
+
         $count = count($contents);
         tAssign('layoutContentsMax', $count);
         tAssign('layoutContentsIsFirst', true);
@@ -3118,7 +3118,7 @@ class kryn {
                 tAssign('layoutContentsIndex', $i);
                 $slot['index'] = $i;
                  
-                tAssign('slot', $slot);
+                tAssignRef('slot', $slot);
                 kryn::$slot = $slot;
                 
                 $html .= kryn::renderContent( $content, $slot );
@@ -3127,7 +3127,7 @@ class kryn {
         }
         
         if( $pSlotProperties['assign'] != "" ){
-            tAssign($pSlotProperties['assign'], $html);
+            tAssignRef($pSlotProperties['assign'], $html);
             return;
         }
         
@@ -3150,7 +3150,7 @@ class kryn {
         
         $_content = &$content['content'];
         
-        tAssign( 'content', $content );
+        tAssignRef( 'content', $content );
         tAssign( 'css', ($content['css']) ? $content['css'] : false );
         
         switch( strtolower($content['type']) ){
@@ -3276,16 +3276,14 @@ class kryn {
             ){
             $unsearchable = true;
         }
-        
-        tAssign( 'content', $content );
-        
+
         if( $content['template'] == '' || $content['template'] == '-' ){
             if( $unsearchable )
                 return '<!--unsearchable-begin-->'.$_content.'<!--unsearchable-end-->';
             else
                 return $_content;
         } else {
-            tAssign( 'content', $content );
+            tAssignRef( 'content', $content );
             $template = $content['template'];
             if( $unsearchable )
                 return '<!--unsearchable-begin-->'.tFetch( $template ).'<!--unsearchable-end-->';

@@ -146,7 +146,7 @@ class krynNavigation {
         }
          
         if( $navi !== false ){
-            tAssign("navi", $navi);
+            tAssignRef("navi", $navi);
             
             return tFetch($pTemplate);
         }
@@ -154,7 +154,7 @@ class krynNavigation {
         switch( $pOptions['id'] ){
             case 'history':
                 $tpl = (!$pTemplate) ? 'main' : $pTemplate;
-                tAssign( 'menus', kryn::$menus );
+                tAssignRef( 'menus', kryn::$menus );
                 if( file_exists( "inc/template/$tpl" ))
                     return tFetch( $tpl );
                 return tFetch("kryn/history/$tpl.tpl");
