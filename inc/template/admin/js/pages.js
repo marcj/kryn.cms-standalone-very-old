@@ -2806,35 +2806,70 @@ var admin_pages = new Class({
     _loadVersionOverview: function( pValues ){
         var p = this.panes['versioning'];
         p.empty();
-
-        var liveTable = new Element('table', {
-            width: '100%',
-            'class': 'ka-admin-pages-versioning-table',
-            cellpadding: 0,
-            cellspacing: 0
-        }).inject( p );
         
-        var liveTableHead = new Element('thead').inject( liveTable );
-        var liveTableBody = new Element('tbody').inject( liveTable );
-        var liveTableHeadTr = new Element('tr').inject( liveTableHead );
-
-        new Element('th', {text: ' '}).inject( liveTableHeadTr );
-        new Element('th', {html: _('Live')}).inject( liveTableHeadTr );
-        new Element('th', {html: _('Owner')}).inject( liveTableHeadTr );
-        new Element('th', {html: _('Created')}).inject( liveTableHeadTr );
-        new Element('th', {html: _('Actions')}).inject( liveTableHeadTr );
-
         this.versionsSetLiveBtns = [];
         this.versionsLoadBtns = [];
         
+        this.versionTable = new ka.Table([
+            [_('#'), 50],
+            [_('Live'), 40],
+            [_('Owner')],
+            [_('Created'), 120],
+            [_('Actions'), 200]
+        ]).inject( p );
+        
         if( pValues.versions.count == 0 ){
+
             new Element('div', {
                 'text': _('No version exists.')
             }).inject( p );
-            liveTable.destroy();
+
         } else {
             pValues.versions.each(function(item){
-                this.createVersionLine( item ).inject( liveTableBody );
+                
+                var actions = new Element('span');
+            
+                if( ka.checkPageAccess( this.page.rsn, 'loadVersion' ) ){
+                    var ld = new ka.Button(_('Load'))
+                    .addEvent('click', function(){
+                    
+                        this.viewType( 'contents', true );
+                        this.loadVersion( item.rsn );
+                    
+                    }.bind(this)).inject( actions );
+        
+                    this.versionsLoadBtns.include(ld);
+                }
+                
+                if( ka.checkPageAccess( this.page.rsn, 'setLive' ) ){
+                    var sl = new ka.Button(_('Set Live'))
+                    .addEvent('click', function(){
+                    
+                        this.win._confirm(_('Publish this version ?'), function(e){
+                            if(!e) return;
+                            new Request.JSON({url: _path+'admin/pages/setLive/', noCache: 1, onComplete: function(){
+                                this.loadVersionOverview();
+                                this.loadVersions();
+                                var d = this.domainTrees[this.page.domain_rsn];
+                                if( d )
+                                    d.reload()
+                            }.bind(this)}).post({version: item.rsn});
+                        }.bind(this)); 
+                    
+                    }.bind(this))
+                    .inject( actions );
+                    
+                    this.versionsSetLiveBtns.include( sl );
+                }
+            
+                this.versionTable.addRow([
+                    item.rsn,
+                    new Element('img', {src:_path+'inc/template/admin/images/icons/'+((pValues.active==1)?'accept':'delete')+'.png'}),
+                    item.username,
+                    (new Date(item.created*1000).format('%d.%m.%Y %H:%M')),
+                    actions
+                ]);
+
             }.bind(this));
         }
     },

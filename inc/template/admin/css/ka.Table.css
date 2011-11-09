@@ -50,3 +50,8 @@
     background-color: #aaa;	
 }
 
+
+.ka-Table-body a.ka-Button,
+.ka-Table-body a.ka-Button:link {
+    top: 0px;
+}
