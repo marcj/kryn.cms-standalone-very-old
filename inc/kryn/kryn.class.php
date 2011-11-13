@@ -645,8 +645,13 @@ class kryn {
 
         $md5 = '';
         foreach( kryn::$extensions as &$extension ){
-            $md5 .= '.'.filemtime('inc/modules/'.$extension.'/config.json');
+            if( $extension == 'kryn' )        
+                $md5 .= '.'.filemtime('inc/kryn/config.json');
+            else
+                $md5 .= '.'.filemtime('inc/modules/'.$extension.'/config.json');
         }
+
+        $md5 = md5($md5);
 
         kryn::$tables =& kryn::getCache('systemTables');
 
