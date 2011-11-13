@@ -42,11 +42,11 @@ class admin {
     }
 
     public function content(){
-        global $tpl, $navigation, $modules, $cfg, $client;
+        global $tpl, $navigation, $modules, $cfg, $client, $adminClient;
 
-
-        if( getArgv('getLanguage') != '' )
+        if( getArgv('getLanguage') != '' ){
             self::printLanguage();
+        }
 
         if( getArgv('getPossibleLangs') == '1' )
             self::printPossibleLangs();
@@ -617,9 +617,12 @@ class admin {
     }
 
     public static function printLanguage(){
-        global $client;
+        global $adminClient;
         
         $lang = getArgv('getLanguage',2);
+        
+        $adminClient->setLang( $lang );
+        $adminClient->syncStore();
 
         $json = kryn::fileRead('inc/cache/lang_'.$lang.'.json');
         
@@ -628,7 +631,6 @@ class admin {
             $json = json_encode($json);
             kryn::fileWrite('inc/cache/lang_'.$lang.'.json', $json);
         }
-        $client->setLang( $lang );
         
         
         kryn::$lang = kryn::getAllLanguage( $lang );
@@ -717,11 +719,8 @@ class admin {
         $res = array();
         
         $res['modules'] = array();
-        foreach( kryn::$configs as $key => $mod ){
-            $res['modules'][] = $key;
-            if( $mod )
-                $res['configs'][$key] = $mod;
-        }
+        $res['modules'] = kryn::$extensions;
+        $res['configs'] = kryn::$configs;
 
         $res['layouts'] = array();
         $res['contents'] = array();

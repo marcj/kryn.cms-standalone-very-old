@@ -7,8 +7,13 @@
     position: relative;
 }
 
-.publicationNewsListDefaultItemBottomDate {
-	  color: gray;	
+.publicationNewsListDefaultItem h2 {
+    margin-bottom: 3px;
+}
+
+.publicationNewsListDefaultItemDate {
+    margin-bottom: 15px;
+	color: gray;	
 }
 
 .publicationNewsListDefaultItemBottom {

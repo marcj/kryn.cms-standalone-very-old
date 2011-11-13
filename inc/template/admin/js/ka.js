@@ -1834,6 +1834,7 @@ ka.getFieldCaching = function (){
             items: {
                 'memcached': _('Memcached'),
                 'redis': _('Redis'),
+                'apc': _('APC'),
                 'files': _('Files')
             },
             'depends': {

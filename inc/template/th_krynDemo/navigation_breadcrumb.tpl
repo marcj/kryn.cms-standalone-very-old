@@ -1,5 +1,4 @@
-<a href="/">{$domain.domain}</a>
-{foreach from=$menus[$page.rsn] item=menu}
-    » 
-    <a href="{$menu|@realUrl}">{$menu.title}</a>
+<a href="{$domain.path}">{$domain.domain}</a>
+{foreach from=$breadcrumbs item=crumb}
+    » <a href="{$crumb|@realUrl}">{$crumb.title}</a>
 {/foreach}

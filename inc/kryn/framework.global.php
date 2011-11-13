@@ -48,11 +48,17 @@ function getArgv( $pVal, $pEscape = false ){
  * @param mixed
  */
 function json( $pValue ){
+    global $client, $adminClient;
+
     ob_end_clean();
     ob_clean();
     //header('Content-Type: application/json');
     //header('HTTP/1.1 200 OK');
     header('Content-Type: text/javascript; charset=utf-8');
+    
+    if( $adminClient ) $adminClient->syncStore();
+    if( $client ) $client->syncStore();
+    
     die( json_encode( $pValue ) );
 }
 

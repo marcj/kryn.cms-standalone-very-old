@@ -12,3 +12,9 @@ inc/modules/admin/crawler.php
 inc/mooeditable
 
 .DS_Store
+
+nbproject/project.xml
+
+nbproject/project.properties
+
+nbproject/private/private.properties

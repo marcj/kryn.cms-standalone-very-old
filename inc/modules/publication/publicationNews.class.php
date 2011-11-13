@@ -7,13 +7,13 @@ class publicationNews
     {
         global $user, $client;
         
-        // Get important variables from config
-        $replaceTitle = $pConf['replaceTitle']+0 == 1; // Ensure it's set
+
+        $replaceTitle = $pConf['replaceTitle']+0 == 1;
         $categoryRsn = $pConf['category_rsn'];
         $allowComments = $pConf['allowComments']+0;
         $template = $pConf['template'];
         
-        // News item to show
+
         $rsn = getArgv('e2')+0;
         
         if( $rsn > 0 ){
@@ -39,7 +39,8 @@ class publicationNews
                 $sql = "
                     SELECT
                         n.*,
-                        c.title as categoryTitle
+                        c.title as category_title,
+                        c.url as category_url
                     FROM
                         %pfx%publication_news n,
                         %pfx%publication_news_category c
@@ -142,8 +143,7 @@ class publicationNews
                 
                 // Retrieve content of news
                 $json = json_decode($news['content'], true);
-                if($json && $json['contents'] && file_exists('inc/template/'.$json['template']))
-                {
+                if($json && $json['contents'] && file_exists('inc/template/'.$json['template'])){
                     $oldContents = kryn::$contents;
                     kryn::$contents = $json['contents'];
                     $news['content'] = tFetch($json['template']);
@@ -152,8 +152,7 @@ class publicationNews
                 
                 // Retrieve intro of news
                 $json = json_decode($news['intro'], true);
-                if($json && $json['contents'] && file_exists('inc/template/'.$json['template']))
-                {
+                if($json && $json['contents'] && file_exists('inc/template/'.$json['template'])){
                     $oldContents = kryn::$contents;
                     kryn::$contents = $json['contents'];
                     $news['intro'] = tFetch($json['template']);
@@ -179,8 +178,8 @@ class publicationNews
         dbUpdate('publication_news', array('rsn' => $pNewsRsn), array('commentscount' => $comments['comcount']) );
     } 
     
-    public static function itemList( $pConf )
-    {
+    public static function itemList( $pConf ){
+
         // Get important variables from config
         $categoryRsn = $pConf['category_rsn'];
         $itemsPerPage = $pConf['itemsPerPage']+0;
@@ -191,11 +190,32 @@ class publicationNews
         
         // Create category where clause
         $whereCategories = "";
-        if(count($categoryRsn))
+        if( count($categoryRsn) )
             $whereCategories = "AND category_rsn IN (".implode(",", $categoryRsn).")";
-        if(getArgv('publication_filter')+0)
-            $whereCategories = "AND category_rsn = ".(getArgv('publication_filter')+0);
-        
+            
+        if( getArgv('e1') == 'category' ){
+
+            $whereCategories = "AND c.url = '".getArgv('e2',1)."'";
+            
+            $category = dbExfetch("SELECT title FROM %pfx%publication_news_category WHERE url = '".getArgv('e2',1)."'");
+            tAssign('category_title', $category['title']);
+            
+            if( !$category ){
+                //compatibility
+                $categories = dbTableFetch('publication_news_category');
+                foreach( $categories as $category ){
+                    dbUpdate('publication_news_category', array('rsn'=>$category['rsn']), array(
+                        'url' => kryn::toModRewrite( $category['title'] )
+                    ));
+                }
+                                
+                $category = dbExfetch("SELECT title FROM %pfx%publication_news_category WHERE url = '".getArgv('e2',1)."'");
+                tAssign('category_title', $category['title']);
+            }
+            
+            
+        }
+
         // Get current page
         $page = getArgv('e1')+0;
         if(!$page)
@@ -207,60 +227,99 @@ class publicationNews
             
         // Set start of lookup
         $start = $itemsPerPage * $page - $itemsPerPage;
-        
+
         // Create order by
         $orderBy = "releaseDate DESC";
         if($order)
             $orderBy = "$order $orderDirection";
         
-        // Create query
-        $now = time();
-        $sql = "
-            SELECT
-                n.*,
-                c.title as categoryTitle
-            FROM
-                %pfx%publication_news n,
-                %pfx%publication_news_category c
-            WHERE
-                1=1
-                $whereCategories
-                AND n.deactivate = 0
-                AND c.rsn = n.category_rsn
-                AND (n.releaseat = 0 OR n.releaseat <= $now)
-            ORDER BY $orderBy
-            LIMIT $itemsPerPage OFFSET $start
-        ";
-        $list = dbExfetch($sql, -1);
-        
-        // Create count query
-        $sqlCount = "
-            SELECT
-                count(*) as newscount
-            FROM
-                %pfx%publication_news n
-            WHERE
-                1=1
-                $whereCategories
-                AND deactivate = 0
-                AND (n.releaseat = 0 OR n.releaseat <= $now)
-        ";
-        $countRow = dbExfetch($sqlCount, 1);
-        $count = $countRow['newscount'];
-        tAssign('count', $count);
-        
-        // Set pages
-        $pages = 1;
-        if($count && $itemsPerPage)
-            $pages = ceil($count / $itemsPerPage);
+        $cacheKey = 'publicationNewsList_'.kryn::$page['rsn'].'-'.md5($template.'.'.$whereCategories.'.'.$start.'.'.$itemsPerPage.'.'.$orderBy);
+
+
+
+
+        if( kryn::$domainProperties['publication']['cache'] !== 0 ){
             
-        if(!$maxPages)
-            $pConf['maxPages'] = $pages;
-            
-        // Assign pages to template
-        tAssign('pages', $pages);
-        tAssign('currentNewsPage', $page);
+            $cached =& kryn::getCache($cacheKey.'-full');
+            if( $cached ){
+                
+                kryn::addCss($cached['css']);
+                kryn::addJs($cached['js']);
+                return $cached['html'];
+                return;
+            }
+        }
         
+        
+        $list =& kryn::getCache( $cacheKey );
+
+        if( !$list ){
+            // Create query
+            $now = time();
+            $sql = "
+                SELECT
+                    n.*,
+                    c.title as category_title,
+                    c.url as category_url
+                FROM
+                    %pfx%publication_news n,
+                    %pfx%publication_news_category c
+                WHERE
+                    1=1
+                    $whereCategories
+                    AND n.deactivate = 0
+                    AND c.rsn = n.category_rsn
+                    AND (n.releaseat = 0 OR n.releaseat <= $now)
+                ORDER BY $orderBy
+                LIMIT $itemsPerPage OFFSET $start
+            ";
+            $list = dbExfetch($sql, -1);
+
+            // Create count query
+            $sqlCount = "
+                SELECT
+                    count(*) as newscount
+                FROM
+                    %pfx%publication_news n
+                WHERE
+                    1=1
+                    $whereCategories
+                    AND deactivate = 0
+                    AND (n.releaseat = 0 OR n.releaseat <= $now)
+            ";
+            $countRow = dbExfetch($sqlCount, 1);
+            $count = $countRow['newscount'];
+            tAssign('count', $count);
+            
+            // Set pages
+            $pages = 1;
+            if($count && $itemsPerPage)
+                $pages = ceil($count / $itemsPerPage);
+                
+            if(!$maxPages)
+                $pConf['maxPages'] = $pages;
+                
+            // Assign pages to template
+            tAssign('pages', $pages);
+            tAssign('currentNewsPage', $page);
+            
+            kryn::setCache( $cacheKey, $list );
+
+        }
+        
+        if( count($list) >0 && !$list[0]['category_title'] ){            
+            //compatibility
+            $categories = dbTableFetch('publication_news_category');
+            foreach( $categories as $category ){
+                dbUpdate('publication_news_category', array('rsn'=>$category['rsn']), array(
+                    'url' => kryn::toModRewrite( $category['title'] )
+                ));
+            }
+            kryn::deleteCache( $cacheKey );
+            return self::itemList( $pConf );
+        }
+
+                
         // Process news items
         foreach($list as &$news)
         {
@@ -284,15 +343,29 @@ class publicationNews
                 kryn::$contents = $oldContents;
             }
         }
+
+        tAssignRef('items', $list);
+        tAssignRef('pConf', $pConf);
+
+        if( $template != 'default' ){
+            kryn::addCss("publication/news/css/list/$template.css");
+            kryn::addJs("publication/news/js/list/$template.js");
+        }
         
-        // Assign list to template
-        tAssign('items', $list);
+        $res = tFetch("publication/news/list/$template.tpl");
         
-        // Assign config and load template
-        tAssign('pConf', $pConf);
-        kryn::addCss("publication/news/css/list/$template.css");
-        kryn::addJs("publication/news/js/list/$template.js");
-        return tFetch("publication/news/list/$template.tpl");
+        
+        if( kryn::$domainProperties['publication']['cache'] !== 0 ){
+            
+            kryn::setCache($cacheKey.'-full', array(
+                'css' => kryn::$cssFiles,
+                'js' => kryn::$jsFiles,
+                'html' => $res
+            ), 60);
+            
+        }
+        
+        return $res;
     }
     
     public static function rssList( $pConf )
@@ -316,7 +389,8 @@ class publicationNews
         $sql = "
             SELECT
                 n.*, 
-                c.title as categoryTitle 
+                c.title as category_title,
+                c.url as category_url
             FROM
                 %pfx%publication_news n, 
                 %pfx%publication_news_category c 

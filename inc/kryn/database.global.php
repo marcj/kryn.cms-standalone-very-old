@@ -26,9 +26,9 @@
  * @param string $p
  * @return string Escaped string 
  */
-function esc( $p, $pEscape = false ){
+function esc( $p, $pEscape = 1 ){
 	global $kdb, $cfg;
-	
+
 	dbConnect();
 
 	if( is_array($p) ) {
@@ -40,8 +40,6 @@ function esc( $p, $pEscape = false ){
 	
     if( $pEscape == 2 ){
         return preg_replace("/\W/", "", $p);
-    } else if( $pEscape == 1 || $pEscape == true){
-        return esc( $p );
     }
     
 	if( $cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' ){

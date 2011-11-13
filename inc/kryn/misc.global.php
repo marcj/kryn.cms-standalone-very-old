@@ -31,7 +31,7 @@ function resizeImageCached( $pPath, $pResolution, $pFix = false ){
     $cachepath = $cfg['template_cache'].'/'.kryn::toModRewrite($path).kryn::toModRewrite($pResolution).$mdate.basename($pPath);
     
     if( !file_exists($cachepath) ){
-        kryn::resizeImage( $path, $cachepath, $pResolution, $pFix );
+        resizeImage( $path, $cachepath, $pResolution, $pFix );
     }
     
     return $cachepath;
@@ -460,4 +460,124 @@ function clearfolder( $pFolder ){
     }
 
 }
+
+
+/* 
+ * Resize a image to a fix resolution or to max dimension.
+ *
+ * @param pResolution Defined the resolution of the target image. e.g 1024x700, 1500x100, 500x500 
+ * @param $pFix If you want to resize the image to fix resolution (thumpnails) 
+ * @static
+*/
+function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
+
+    list( $oriWidth, $oriHeight, $type ) = getimagesize( $pPath );
+    switch( $type ){
+        case 1:
+            $imagecreate = 'imagecreatefromgif';
+            $imagesave = 'imagegif';
+            break;
+        case 2:
+            $imagecreate = 'imagecreatefromjpeg';
+            $imagesave = 'imagejpeg';
+            break;
+        case 3:
+            $imagecreate = 'imagecreatefrompng';
+            $imagesave = 'imagepng';
+            break;
+    }
+    
+    if(! $imagecreate )
+        return;
+       
+    $img = $imagecreate( $pPath );
+    
+    //$cacheThumpFile = self::$cacheDir.'thump.'.$pFile;
+    //$cacheFile = self::$cacheDir . filemtime( $file ) . '.' . $pFile;
+    
+    //list( $thumpWidth, $thumpHeight ) = explode( 'x', $pConf['thumpSize'] );
+    
+    list( $newWidth, $newHeight ) = explode( 'x', $pResolution );
+    $thumpWidth = $newWidth;
+    $thumpHeight = $newHeight;
+    
+   
+    //
+    // render Thump
+    //
+    if( $pFix ){
+           $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
+        imagealphablending( $thumpImage, false );
+
+        if( $oriWidth > $oriHeight ){
+    
+            //resize mit hoehe = $tempheight, width = auto;
+            
+            $ratio = $thumpHeight / ( $oriHeight / 100 );
+            $_width = ceil($oriWidth * $ratio / 100);
+    
+            $top = 0;
+            if( $_width < $thumpWidth) { 
+                $ratio = $_width / ($thumpWidth/100);
+                $nHeight = $thumpHeight * $ratio / 100;
+                $top =  ($thumpHeight - $nHeight)/2;
+                $_width = $thumpWidth;
+            }
+    
+            $tempImg = imagecreatetruecolor( $_width, $thumpHeight );
+            imagealphablending( $tempImg, false );
+            imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
+            $_left = ($_width/2) - ($thumpWidth/2);
+    
+            imagecopyresampled( $thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
+    
+        } else {
+            $ratio = $thumpWidth / ( $oriWidth / 100 );
+            $_height = ceil($oriHeight * $ratio / 100);
+            $tempImg = imagecreatetruecolor( $thumpWidth, $_height );
+            imagealphablending( $tempImg, false );
+            imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight );
+            $_top = ($_height/2) - ($thumpHeight/2);
+            imagecopyresampled( $thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
+        }
+        
+        if( $type == 3 ){
+            
+            imagealphablending( $thumpImage, false );
+            imagesavealpha( $thumpImage, true );
+        }
+        
+        $imagesave( $thumpImage, $pTarget );
+    
+   } else {
+        
+        //render image(big)
+        if( $oriHeight > $oriWidth ){
+            $ratio = $newHeight / ( $oriHeight / 100 );
+            $_width = ceil($oriWidth * $ratio / 100);
+            $newImage = imagecreatetruecolor( $_width, $newHeight );
+            imagealphablending( $newImage, false );
+            
+            imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $_width, $newHeight, $oriWidth, $oriHeight);
+        } else {
+            $ratio = $newWidth / ( $oriWidth / 100 );
+            $_height = ceil($oriHeight * $ratio / 100);
+            $newImage = imagecreatetruecolor( $newWidth, $_height );
+            imagealphablending( $newImage, false );
+            
+            imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $newWidth, $_height, $oriWidth, $oriHeight);
+        }
+        if( $type == 3 ){
+            
+            imagealphablending( $newImage, false );
+            imagesavealpha( $newImage, true );
+        }
+        
+        $imagesave( $newImage, $pTarget );
+
+    }
+    
+}
+
+
 ?>

@@ -20,13 +20,15 @@
 class kryn {
 
     /**
-    * Contains all history-items, which will be shown as history-navigation.
-    * This is filled automaticaly. If you want to add own Page-Hierarchy-Item use Kryn::addMenu( $pName, $pUrl );
+    * Contains all parent pages, which can be shown as a breadcrumb navigation.
+    *
+    * This is filled automaticaly. If you want to add own items, use kryn::addMenu( $pName, $pUrl );
+    *
     * @type: array
     * @internal
-     * $static
+    * $static
     */
-    public static $menus;
+    public static $breadcrumbs;
     
     /**
      * 
@@ -56,7 +58,7 @@ class kryn {
      * @internal
      * $static
      */
-    public static $cssFiles = array('css/kryn_defaults.css');
+    public static $cssFiles = array('css/kryn_defaults.css' => 1);
     
     /**
      * 
@@ -261,11 +263,38 @@ class kryn {
     /**
      * 
      * Contains all config.json as object from all activated extension.
+     * Only available in the administration area.
      * @var array
      * $static
      */
     public static $configs;
     
+    /**
+     *
+     * Contains all installed database tables from config.json#db
+     * Example: array('publication' => array('publication_news' => array([fields], 'publication_news_category' => array()))
+     *
+     * @static
+     */
+    public static $tables;
+    
+    /**
+     *
+     * Contains all installed extensions
+     * Example: array('kryn', 'admin', 'users', 'sitemap', 'publication');
+     *
+     * @static
+     */
+    public static $extensions;
+    
+    
+    /**
+     *
+     * Contains all installed themes
+     *
+     * @static
+     */
+    public static $themes;
     
     /**
      * 
@@ -357,12 +386,12 @@ class kryn {
     private static $cachedPageAcls = array();
     
     /**
-     * Cached object of the current domains's realUrls
+     * Cached object of the current domains's urls to rsn, rsn to url, alias to rsn
      * 
      * @static
      * @var array
      */
-    public static $realUrls;
+    public static $urls;
     
     
     /**
@@ -489,16 +518,16 @@ class kryn {
     
     /**
      * 
-     * If you want to add own Page-Hierarchy-Item use Kryn::addMenu( $pName, $pUrl );
-     * This array is use for {navigation id="history|hierarchy"}
+     * Adds a new crumb to the breadcrumb array.
+     *
      * @param string $pName
      * @param string $pUrl
      * @static
      */
-    public static function addMenu( $pName, $pUrl = "" ){
+    public static function addBreadcrumb( $pName, $pUrl = "" ){
 
-        kryn::$menus[ kryn::$page['rsn'] ][] = array("title" => $pName, "realUrl" => $pUrl);
-        tAssignRef("menus", kryn::$menus);
+        kryn::$breadcrumbs[] = array("title" => $pName, "realUrl" => $pUrl);
+        tAssignRef("breadmcrumbs", kryn::$breadcrumbs);
     }
 
     /**
@@ -509,9 +538,11 @@ class kryn {
      * @static
      */
     public static function addCss( $pCss ){
-
-        if( is_array(kryn::$cssFiles) && array_search( $pCss, kryn::$cssFiles ) === false )
-            kryn::$cssFiles[] = $pCss;
+        if( is_array($pCss) )
+            foreach( $pCss as $k => $v )
+                kryn::$cssFiles[(is_string($k)?$k:$v)] = 1;
+        else if( is_string($pCss) )
+            kryn::$cssFiles[$pCss] = 1;
     }
 
     /**
@@ -522,8 +553,11 @@ class kryn {
      */
     public static function addJs( $pJs ){
 
-        if( is_array(kryn::$jsFiles) && array_search( $pJs, kryn::$jsFiles ) === false )
-            kryn::$jsFiles[] = $pJs;
+        if( is_array($pJs) )
+            foreach( $pJs as $k => $v )
+                kryn::$jsFiles[(is_string($k)?$k:$v)] = 1;
+        else if( is_string($pJs ) )
+            kryn::$jsFiles[$pJs] = 1;
     }
     
     /**
@@ -586,58 +620,6 @@ class kryn {
 
     /**
      * 
-     * Returns generated HTML of $pPageRsn.
-     * $pIncludedRes: If true, Kryn includes also the proper css/js files: inc/template/css/_pages/<pPageRsn>.css and
-     * inc/template/js/_pages/<pPageRsn>.js
-     * @param integer $pPageRsn
-     * @param bool $pIncludeRes Defines whether the proper css and javascript files should also be included
-     * @return string
-     * @static
-     */
-    public static function getPageContent( $pPageRsn, $pIncludeRes = false ){
-        global $tpl;
-        kryn::$forceKrynContent = true;
-        $time = time();
-        
-        if( $pPageRsn+0 == 0 ) return;
-
-        $pointer_page = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE
-            access_denied = '0'
-            AND ( access_from = 0 OR ( access_from > 0 AND access_from <= $time ) )
-            AND ( access_to = 0 OR ( access_to > 0 AND access_to >= $time ) )
-            AND rsn = $pPageRsn" );
-        
-        
-        $pointer_page = kryn::checkPageAccess( $pointer_page );
-
-        if( !$pointer_page || !$pointer_page['rsn'] > 0 )
-            return '';
-
-        $pointer_page['properties'] = @json_decode($pointer_page['properties'],true);
-        
-        kryn::$pageProperties = $pointer_page['properties'];
-            
-        $oldPage = kryn::$current_page;
-        
-        if( $pIncludeRes ){
-            if( file_exists( 'inc/template/js/_pages/'.$pPageRsn.'.js' ))
-                kryn::addJs( 'js/_pages/'.$pPageRsn.'.js' );
-            kryn::addCss( 'css/_pages/'.$pPageRsn.'.css' );
-        }
-
-        kryn::$current_page = $pointer_page;
-        if( $pointer_page['type'] == 3 )
-            $_content = tFetch( 'kryn/blankLayout.tpl' );
-        else
-            $_content = tFetch( $pointer_page['layout'] );
-
-        kryn::$current_page = $oldPage;
-        kryn::$forceKrynContent = false;
-        return $_content;
-    }
-
-    /**
-     * 
      * Loads all activated extension configs and tables
      * @internal
      */
@@ -646,32 +628,134 @@ class kryn {
 
         $tables = array();
         
-        $system = array('kryn', 'users', 'admin');
-        
-        foreach( $system as $mymod ){
-            kryn::$configs[ $mymod ] = kryn::getModuleConfig( $mymod );
+        kryn::$extensions =& kryn::getCache('activeModules');
+
+        if( !kryn::$extensions || is_array(kryn::$extensions[0]) ){
+            kryn::$extensions = array();
+            $dbMods = dbExFetch('SELECT name FROM %pfx%system_modules WHERE activated = 1 AND name != \'admin\' AND name != \'users\'', -1);
+            foreach( $dbMods as &$mod ){
+                kryn::$extensions[] = $mod['name'];
+            }
+            kryn::setCache('activeModules', kryn::$extensions);
         }
         
-        $kdbmods =& kryn::getCache('active_modules');
-        if( !$kdbmods ){
-            $kdbmods = dbTableFetch('system_modules', -1, "activated = 1 AND name != 'admin' AND name != 'users'");
-            kryn::setCache( 'active_modules', $kdbmods );
-        }
-        
-        foreach( $kdbmods as $mymod ){
-            kryn::$configs[ $mymod['name'] ] = kryn::getModuleConfig( $mymod['name'] );
+        kryn::$extensions[] = 'kryn';
+        kryn::$extensions[] = 'admin';
+        kryn::$extensions[] = 'users';
+
+        $md5 = '';
+        foreach( kryn::$extensions as &$extension ){
+            $md5 .= '.'.filemtime('inc/modules/'.$extension.'/config.json');
         }
 
-        foreach( kryn::$configs as &$config ){
-            if( is_array($config['extendConfig']) ){
-                foreach( $config['extendConfig'] as $extendModule => &$extendConfig ){
-                    if( kryn::$configs[$extendModule] ){
-                        kryn::$configs[$extendModule] = 
-                            array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
+        kryn::$tables =& kryn::getCache('systemTables');
+
+        if( !kryn::$tables || $md5 != kryn::$tables['__md5'] ){
+            
+            kryn::$tables['__md5'] = $md5;
+
+            foreach( kryn::$extensions as &$extension ){
+                if( $extension == 'kryn' ) continue;
+
+                $config = kryn::getModuleConfig( $extension );
+                if( $config['db'] ){
+                    foreach( $config['db'] as $key => &$table ){
+                        kryn::$tables[$key] = $table;
+                    }
+                }
+            }
+        
+            kryn::setCache('systemTables', kryn::$tables);
+        }
+        
+        kryn::$themes =& kryn::getCache('systemThemes');
+        if( !kryn::$themes ){
+            foreach( kryn::$extensions as &$extension ){
+            
+                $config = kryn::getModuleConfig( $extension );
+                if( $config['themes'] )
+                    kryn::$themes[ $extension ] = $config['themes'];
+            }
+            kryn::setCache( 'systemThemes', kryn::$themes );
+        }
+    }
+    
+    /**
+     *
+     * Loads all config.json from all activated extensions to kryn::$configs.
+     * @internal
+     * @static
+     */
+    public static function loadConfigs(){
+    
+        if( getArgv(1) == 'admin' ){
+    
+            kryn::$configs = array();
+
+            foreach( kryn::$extensions as &$extension ){
+                kryn::$configs[ $extension ] = kryn::getModuleConfig( $extension );
+            }
+
+            foreach( kryn::$configs as &$config ){
+                if( is_array($config['extendConfig']) ){
+                    foreach( $config['extendConfig'] as $extendModule => &$extendConfig ){
+                        if( kryn::$configs[$extendModule] ){
+                            kryn::$configs[$extendModule] = 
+                                array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
+                        }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * 
+     * Returns the config hash of the specified extension.
+     * @param string $pModule
+     * @return array All config values from the config.json
+     * @static
+     */
+    public static function getModuleConfig( $pModule, $pLang = false ){
+        global $adminClient;
+    
+        $pModule = str_replace( ".","", $pModule );
+    
+
+        if( $pModule == 'kryn' )
+            $config = "inc/kryn/config.json";
+        else
+            $config = "inc/modules/$pModule/config.json";
+
+        if( !file_exists($config) ){
+            return false;
+        }
+
+        $ltime = filemtime($config);
+        $lang = $pLang?$pLang:kryn::$domain['lang'];
+        
+        if( !$pLang && $adminClient ){
+            $lang = $adminClient->getLang();
+        }
+        
+        $cacheCode = "moduleConfig-$pModule"."-$lang"."-$ltime";
+        
+        $configObj = kryn::getFastCache( $cacheCode );
+
+        if( !$configObj ){
+            //delete all config caches from this module
+            $delfiles = glob("inc/cache/moduleConfig-$pModule"."-$lang"."-*.php");
+            
+            if( count($delfiles) > 0 )
+                foreach( $delfiles as $delfile )
+                    @unlink( $delfile );
+
+            $json = kryn::translate( kryn::fileRead( $config ) );
+            $configObj = json_decode( $json, 1 );
+            kryn::setFastCache( $cacheCode, $configObj );
+        }
+        
+        return $configObj;
     }
     
     /**
@@ -685,7 +769,7 @@ class kryn {
         include_once("inc/modules/users/users.class.php");
         $modules['users'] = new users();
 
-        foreach( kryn::$configs as $mod => $config ){
+        foreach( kryn::$extensions as $mod ){
             $classFile = 'inc/modules/'.$mod.'/'.$mod.'.class.php';
             if( $mod != 'admin' && $mod != 'users' ){
                 if( file_exists($classFile) ){
@@ -1020,6 +1104,7 @@ class kryn {
             return true;
 
         $url = kryn::getRequestPageUrl();
+
         if( getArgv(1) == 'admin' && !kryn::checkUrlAccess( $url )){
             
             if( getArgv('getLanguage') != '' )
@@ -1061,7 +1146,7 @@ class kryn {
     public static function initConfig(){
         global $cfg;
         
-        $cfg['templatepath'] = $cfg['path']."inc/template";
+        $cfg['templatepath'] = $cfg['path'].'inc/template';
 
         if( !$cfg['sessiontime'] && !$cfg['session_timeout'] )
             $cfg['session_timeout'] = 3600;
@@ -1098,11 +1183,15 @@ class kryn {
             if( !$cfg['cache_params'] || $cfg['cache_params']['files_path'] == '' ){
                 $cfg['cache_params']['files_path'] = 'inc/cache/';
             }
+            
         }
 
         kryn::$cache = new krynCache( $cfg['cache_type'], $cfg['cache_params'] );
-
-        kryn::$cacheFast = new krynCache( 'files', array('files_path' => 'inc/cache/') );
+        
+        if( function_exists('apc_store'))
+            kryn::$cacheFast = new krynCache( 'apc' );
+        else
+            kryn::$cacheFast = new krynCache( 'files', array('files_path' => 'inc/cache/') );
         
         if( !$cfg['template_cache'] )
             $cfg['template_cache'] = 'inc/tcache/';
@@ -1118,24 +1207,31 @@ class kryn {
     
     public static function initAuth(){
         global $cfg, $user, $client, $adminClient;
-                                 
-        if( !$cfg['auth_class'] || $cfg['auth_class'] == 'kryn' ){
         
-            $adminClient = new krynAuth( $cfg );
+        
+        if( ($_COOKIE[$cfg['session_tokenid']] || $_GET[$cfg['session_tokenid']] || $_POST[$cfg['session_tokenid']] )
+            || getArgv(1) == 'admin' ){
+
+            if( !$cfg['auth_class'] || $cfg['auth_class'] == 'kryn' ){
             
-        } else {
-            $ex = explode( '/', $cfg['auth_class'] );
-            $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
-            if( file_exists($class) ){
-                require_once( $class );
-                $authClass = $ex[1];
-                $adminClient = new $authClass( $cfg );
+                $adminClient = new krynAuth( $cfg, false );
+                
+            } else {
+
+                $ex = explode( '/', $cfg['auth_class'] );
+                $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+
+                if( file_exists($class) ){
+                    require_once( $class );
+                    $authClass = $ex[1];
+                    $adminClient = new $authClass( $cfg );
+                }
 
             }
-        }
 
-        $adminClient->start();
-        $client = $adminClient;
+            $adminClient->start();
+            $client = $adminClient;
+        }
     
         if( getArgv(1) != 'admin' ){
 
@@ -1168,31 +1264,43 @@ class kryn {
     }
     
     /**
+     *
+     * Return all parents as array
+     *
+     * @param int page id
+     * @return array
+     *
+     */
+    public static function getPageParents( $pPageRsn ){
+
+        $page =& kryn::getPage( $pPageRsn );
+        $domain_rsn = $Page['domain_rsn'];
+        if( $page['prsn'] == 0 ) return array();
+
+        $res = array();
+
+        while( true ){
+            $page =& kryn::getPage( $page['prsn'] );
+            $res[] = $page;
+            if( $page['prsn'] == 0 ) break;
+        }
+        rsort($res);
+
+        return $res;
+    }
+    
+    /**
      * 
-     * Returns the full human-readable path to given pageRsn delimited with » or return the full path as array.
+     * Returns the full human-readable path to given pageRsn delimited with »
      * @param int $pPageRsn
      * @param bool $pAsArray
      */
-    public static function getPagePath( $pPageRsn, $pAsArray = false ){
+    public static function getPagePath( $pPageRsn ){
         global $kcache;
         
-        
-        $domainRsn = self::getDomainOfPage( $pPageRsn );
-        $domain = self::getDomain( $domainRsn );
-        $page = self::getPage($pPageRsn, true);
-        
-        
-        
-        if( !$kcache['paths'] ){
-            $kcache['paths'] = kryn::getCache('menus_'.$domainRsn);
-        }
-        
-        if( !$kcache['paths'][$pPageRsn] ){
-            //maybe the cache is old or back-compatibility
-            require_once("inc/modules/admin/adminPages.class.php");
-            $kcache['paths'] = adminPages::updateMenuCache($domainRsn);
-        }
-        
+        $parents = kryn::getPageParents( $pPagersn );
+        $page =& kryn::getPage( $pPageRsn );       
+        $domain =& kryn::getDomain( $page['domain_rsn'] ); 
         
         if( $pAsArray == true )
             return $kcache['paths'][$pPageRsn];
@@ -1201,12 +1309,14 @@ class kryn {
         if( $domain['master'] != 1 )
             $path = '['.$domain['lang'].'] ';
         $path .= $domain['domain'];
-        foreach( $kcache['paths'][$pPageRsn] as $p ){
-            $path .= ' » '.$p['title'];
+    
+        $count = count($parents);
+        foreach( $parents as &$parent ){
+            $path .= ' » '.$parents[$i]['title'];
         }
-        
+
         $path .= ' » '.$page['title'];
-            
+
         return $path;
             
     }
@@ -1220,10 +1330,8 @@ class kryn {
     */    
     public static function pageHasChilds( $pRsn ){
         $pRsn += 0;
-
-        $domain = self::getDomainOfPage( $pRsn );
     
-        $page =& self::getPage( $pRsn, $domain );
+        $page =& self::getPage( $pRsn );
         
         return $page['hasChilds'] ? true : false;
     }
@@ -1237,58 +1345,35 @@ class kryn {
      * @return string
      * @static
      */
-    public static function &pageUrl( $pRsn = 0, $pDomainRsn = false, $pWithoutHttp = false ){
+    public static function pageUrl( $pRsn = 0, $pWithoutHttp = false ){
+
+        $domain_rsn = kryn::$domain['rsn'];
 
         if(! $pRsn > 0 )
             $pRsn = kryn::$page['rsn'];
-        
-        if( $pDomainRsn )
-            kryn::$domain['rsn'] = $pDomainRsn;
+        else
+            $domain_rsn = kryn::getDomainOfPage( $pRsn );
             
         if( kryn::$domain['startpage_rsn'] == $pRsn )
             return './'; 
-            
-        $cachedUrls =& kryn::readCache( 'urls' );
+        
+        if( $domain_rsn == kryn::$domain['rsn'] ){
+            $cachedUrls =& kryn::$urls;
+            $domain_rsn = kryn::$domain['rsn'];
+        } else {
+            $cachedUrls =& kryn::getCache( 'urls-'.$domain_rsn );
+        }
+
+        if( !$cachedUrls ){
+            require_once( 'inc/modules/admin/adminPages.class.php' );
+            $cachedUrls = adminPages::updateUrlCache( $domain_rsn );
+        }
         
         $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
         
-        if( $url == '' || $pDomainRsn != false ){
+        if( $url == '' ){
+    
             require_once('inc/modules/admin/adminPages.class.php');
-            
-            $r2d = kryn::getPhpCache('r2d');
-            if( !is_array($r2d) ) {
-                $r2d = adminPages::updatePage2DomainCache();
-            }
-           
-            //find domain of this page
-            foreach( $r2d as $domain => $pages ){
-                if( strpos(','.$pages, ','.$pRsn.',') !== FALSE ){
-                    $target_domain = $domain;
-                }
-            }
-            
-            if( !$taget_domain ){
-                //backwards compatibility
-                $r2d = adminPages::updatePage2DomainCache();
-           
-                //find domain of this page
-                foreach( $r2d as $domain => $pages ){
-                    if( strpos(','.$pages, ','.$pRsn.',') !== FALSE ){
-                        $target_domain = $domain;
-                    }
-                }
-            }
-            
-            //'casue its a different domain, we need to tell load this domain
-            $domains =& kryn::getPhpCache('domains');
-            if( !$domains['r2d'] )
-               $domains = adminPages::updateDomainCache();
-            
-            $domainBackup = kryn::$domain;
-            kryn::$domain = $domains['r2d']['rsn='.$target_domain];
-
-            $cachedUrls =& kryn::readCache( 'urls' );
-            $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
             
             if( $pWithoutHttp ){
                 
@@ -1334,8 +1419,8 @@ class kryn {
      * @param integer $pRsn
      * @static
      */
-    public static function redirectToPage( $pRsn ){
-        self::redirect( self::pageUrl( $pRsn ));
+    public static function redirectToPage( $pRsn, $pParams = '' ){
+        self::redirect( self::pageUrl( $pRsn ). ($pParams?'?'.$pParams:''));
     }
 
     /**
@@ -1545,13 +1630,37 @@ class kryn {
      * @static
      */
     public static function getDomain( $pDomainRsn ){
-     
-        $domains = kryn::getPhPCache('domains');
 
-        if( !$domains['r2d'] )
-           $domains = adminPages::updateDomainCache();
+        $pDomainRsn += 0;     
+        $cacheKey = 'domain-'.$pDomainRsn;
+        
+        if( $pDomainRsn == 0 ) return;
 
-        return $domains['r2d']['rsn='.$pDomainRsn];
+        if( $cache = kryn::getCache($cacheKey) ){
+            return $cache;
+        } else {
+            $domain = dbTableFetch('system_domains', 'rsn = '.$pDomainRsn, 1);
+            
+            if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
+                $domain['themeproperties'] = @json_decode($domain['publicproperties'], true);
+            }
+            
+            if( $domain['themeproperties'] && !is_array($domain['themeproperties']) ){
+                $domain['themeproperties'] = @json_decode($domain['themeproperties'], true);
+            }
+            
+            if( $domain['session'] && !is_array($domain['session']) ){
+                $domain['session'] = @json_decode($domain['session'], true);
+            }
+            
+            if( $domain['extproperties'] && !is_array($domain['extproperties']) ){
+                $domain['extproperties'] = @json_decode($domain['extproperties'], true);
+            }
+            
+            kryn::setCache( $cacheKey, $domain );
+        }
+
+        return $domain;
     }
 
     /**
@@ -1572,17 +1681,14 @@ class kryn {
             return $first;
         }
 
-        /*if( self::validLanguage($_COOKIE['lang'])){
-            return $_COOKIE['lang'];
-        }*/
-
         return "";
     }
 
     
     /**
      * 
-     * Loads the current domain based in the requested URL 
+     * Loads the current domain based in the requested URL
+     *
      * @internal
      */
     public static function searchDomain(){
@@ -1615,123 +1721,106 @@ class kryn {
         }
         
         if( getArgv(1) != 'admin' ){
+
             $possibleLanguage = self::getPossibleLanguage();
+            $domains =& kryn::getCache('domains');
 
-            $domains =& kryn::getFastCache('domains');
-
-            if( !$domains ){
+            if( !$domains || $domains['r2d'] ){
                 require_once('inc/modules/admin/adminPages.class.php');
-                adminPages::updateDomainCache();
-                $domains =& kryn::getFastCache('domains');
+                $domains = adminPages::updateDomainCache();
             }
 
-            if( $redirect = $domains['n2r'][$domainName] ){
-                header( "HTTP/1.1 301 Moved Permanently" ); 
+            if( $domains['_redirects'][$domainName] ){
+                header( "HTTP/1.1 301 Moved Permanently" );
+                $redirect = kryn::getDomain($domains['_redirects'][$domainName]);
                 header('Location: '.$http.$redirect['domain'].$redirect['path']);
                 exit;
             }
 
-            if( $possibleLanguage == ''){ //keine sprache gefunden, nehme die domain ohne lokalosierungsprefix
-                //$domain = dbTableFetch('system_domains', 1, "domain = '$domainName' and master = 1");
-                $domain = $domains['n2d'][$domainName];
+            if( $possibleLanguage == ''){
+            
+                $domain = kryn::getDomain( $domains[$domainName] );
                 $possibleLanguage = $domain['lang'];
+                
             } else {
-                //$domain = dbTableFetch('system_domains', 1, "domain = '$domainName' and lang = '$possibleLanguage' and master != 1");
-                $domain = $domains['n2d'][$domainName.'_'.$possibleLanguage];
+            
+                $domain = kryn::getDomain( $domains[$domainName.'_'.$possibleLanguage] );
                 kryn::$baseUrl = $http.$domainName.$port.$cfg['path'].$possibleLanguage.'/';
                                 
-                if( !$domain ){                
-                    $domain = $domains['n2d'][$domainName];
+                if( !$domain ){       
+                    $domain = kryn::getDomain( $domains[$domainName] );
                     $possibleLanguage = $domain['lang'];
                 }
+                
             }
             
+
             if(! $domain['rsn'] > 0 ){
                 klog("system", "Domain <i>$domainName</i> not found. Language: $possibleLanguage");
-                die("Domain <i>$domainName</i> not found.".$_REQUEST['_kurl']);
+                die("Domain <i>$domainName</i> not found.");
             }
             $language = $possibleLanguage;
             kryn::$domain = $domain;
-        }
         
-        if( $domain['phplocale'] ){
-            setlocale( LC_ALL, $domain['phplocale'] );
-        }
+            if( $domain['phplocale'] ){
+                setlocale( LC_ALL, $domain['phplocale'] );
+            }
+            
+            kryn::$domainProperties =& kryn::$domain['extproperties'];
+            kryn::$themeProperties  =& kryn::$domain['themeproperties'];
+            kryn::$publicProperties =& kryn::$domain['themeproperties'];
         
-        if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
-            kryn::$themeProperties = @json_decode($domain['publicproperties'], true);
-        }
-        
-        if( $domain['themeproperties'] && !is_array($domain['themeproperties']) ){
-            kryn::$themeProperties = @json_decode($domain['themeproperties'], true);
-        }
-        
-        if( $domain['session'] && !is_array($domain['session']) ){
-            $domain['session'] = @json_decode($domain['session'], true);
-        }
+            if( $domain['path'] != '' ){
+                tAssignRef( 'path', $domain['path']);
+                $cfg['path'] = $domain['path'];
+                $cfg['templatepath'] = $domain['path'].'inc/template';
+                tAssignRef( 'cfg', $cfg );
+                tAssignRef( '_path', $domain['path']);
+            }
+            
+            $domain['_languagePrefix'] = $possibleLanguage;
     
-        if( $domain['extproperties'] && !is_array($domain['extproperties']) ){
-            $domain['extensionProperties'] = @json_decode($domain['extproperties'], true);
-        }
-
-        $domain['extproperties'] = &$domain['extensionProperties'];
-        kryn::$domainProperties = &$domain['extensionProperties'];
+            kryn::$baseUrl = $http.$domainName.$port.$cfg['path'];
+            if( $domain['master'] != 1 && getArgv(1) != 'admin'){
+                kryn::$baseUrl = $http.$domainName.$port.$cfg['path'].$possibleLanguage.'/';
+            }
+    
+            tAssignRef("language", $language);
             
-        #setCookie("lang", $language, time()+3600*24*300, "/"); # 300 Days
-        if( getArgv(1) == 'admin' ){
-            $domain['path'] = str_replace( 'index.php', '', $_SERVER['SCRIPT_NAME'] );
-        } 
-        
-        if( $domain['path'] != '' ){
-            tAssignRef( 'path', $domain['path']);
-            $cfg['path'] = $domain['path'];
-            $cfg['templatepath'] = $domain['path'].'inc/template';
-            tAssignRef( 'cfg', $cfg );
-            tAssignRef( '_path', $domain['path']);
-        }
-        
-        $domain['_languagePrefix'] = $possibleLanguage;
-
-        kryn::$baseUrl = $http.$domainName.$port.$cfg['path'];
-        if( $domain['master'] != 1 && getArgv(1) != 'admin'){
-            kryn::$baseUrl = $http.$domainName.$port.$cfg['path'].$possibleLanguage.'/';
-        }
-
-        tAssignRef("language", $language);
-        
-        if( getArgv(1) == 'robots.txt' && $domain['robots'] != "" ){
-            header('Content-Type: text/plain');
-            print $domain['robots'];
-            exit();
-        }
-        
-        if( $domain['favicon'] != "" ){
-            kryn::addHeader('<link rel="shortcut icon" href="'.kryn::$baseUrl.$domain['favicon'].'" />');
-        }
-
-        tAssignRef('baseUrl', kryn::$baseUrl);
-        kryn::$lang = kryn::getAllLanguage( $language );
-        kryn::$language =& $language;
-        kryn::$domain = $domain;
-        tAssignRef( 'domain', $domain );
-        tAssignRef( '_domain', $domain ); //compatibility
-        tAssignRef("lang", $lang);
-        
-        
-        $tUrl = explode("?", $_REQUEST["_kurl"]);
-        if( getArgv(1) != 'admin' && substr($tUrl[0], -1) == '/' ){
-            $get = array();
-            foreach( $_GET as $k => $v )
-                if( $k != '_kurl')
-                    $get[] = $k."=".$v;
+            if( getArgv(1) == 'robots.txt' && $domain['robots'] != "" ){
+                header('Content-Type: text/plain');
+                print $domain['robots'];
+                exit();
+            }
             
-            $toUrl = substr($tUrl[0], 0, -1);
-            if( count($get) > 0 )
-                $toUrl .= '?'.implode("&", $get);
+            if( $domain['favicon'] != "" ){
+                kryn::addHeader('<link rel="shortcut icon" href="'.kryn::$baseUrl.$domain['favicon'].'" />');
+            }
+    
+            tAssignRef('baseUrl', kryn::$baseUrl);
+            kryn::$lang = kryn::getAllLanguage( $language );
+            kryn::$language =& $language;
+            kryn::$domain = $domain;
+            tAssignRef( 'domain', $domain );
+            tAssignRef( '_domain', $domain ); //compatibility
+            tAssignRef("lang", $lang);
+            
+            
+            $tUrl = explode("?", $_REQUEST["_kurl"]);
+            if( substr($tUrl[0], -1) == '/' ){
+                $get = array();
+                foreach( $_GET as $k => $v )
+                    if( $k != '_kurl')
+                        $get[] = $k."=".$v;
                 
-            if( count($_POST) == 0 )//only when the browser don't send data
-                kryn::redirect( $toUrl );
-        }
+                $toUrl = substr($tUrl[0], 0, -1);
+                if( count($get) > 0 )
+                    $toUrl .= '?'.implode("&", $get);
+                    
+                if( count($_POST) == 0 )//only when the browser don't send data
+                    kryn::redirect( $toUrl );
+            }
+        } 
         
     }
     
@@ -1969,10 +2058,11 @@ class kryn {
      * @internal
      */
     public static function getPageAclParent( $pRsn ){
-           $domain_rsn = kryn::getDomainOfPage( $pRsn );
+
+        $domain_rsn = kryn::getDomainOfPage( $pRsn );
     
-           $menus = kryn::getPhpCache( 'menus_'.$domain_rsn );
-        $page_tree = $menus[$pRsn]; //$H(ka.settings['menus_'+domain_rsn]).get( pRsn );
+        $menus = kryn::getCache( 'menus-'.$domain_rsn );
+        $page_tree = $menus[$pRsn];
         $result = array('prsn' => 0, 'domain_rsn' => $domain_rsn, 'domain' => true);
         
         if( !$page_tree ) return $result;
@@ -1983,7 +2073,7 @@ class kryn {
             $result = $page;
             $result['domain_rsn'] = $domain_rsn;
         }
-        
+
         return $result;
         
     }
@@ -1997,14 +2087,15 @@ class kryn {
      */
     public static function getDomainOfPage( $pRsn ){
         $rsn = false;
-        $r2d =& kryn::getCache('r2d');
-        if( !is_array($r2d) ) {
-            require_once('inc/modules/admin/adminPages.class.php');
-            $r2d = adminPages::updatePage2DomainCache();
-        }
         
+        $page2Domain =& kryn::getCache('page2Domains');
+        if( !is_array($page2Domain) ) {
+            require_once('inc/modules/admin/adminPages.class.php');
+            $page2Domain = adminPages::updatePage2DomainCache();
+        }
+
         $pRsn = ','.$pRsn.',';
-        foreach( $r2d as $domain_rsn => $pages ){
+        foreach( $page2Domain as $domain_rsn => &$pages ){
             $pages = ','.$pages.',';
             if( strpos($pages, $pRsn) !== false ){
                 $rsn = $domain_rsn;
@@ -2060,13 +2151,12 @@ class kryn {
         tAssign( 'url', $url );
         
         $domain = kryn::$domain['rsn'];
-        $kcache['realUrl'] = kryn::readCache( 'urls' );
+        kryn::$urls =& kryn::readCache( 'urls' );
 
-        if( !is_array($kcache['realUrl']) ){
+        if( !is_array(kryn::$urls) ){
             require_once( 'inc/modules/admin/adminPages.class.php' );
-            $kcache['realUrl'] = adminPages::updateUrlCache( $domain );
-            $kcache['paths'] = adminPages::updateMenuCache( $domain );
-            //adminPages::updatePageCaches( $domain );
+            adminPages::updateUrlCache( $domain );
+            kryn::$urls =& kryn::readCache( 'urls' );
         }
         
         //extract extra url attributes
@@ -2076,12 +2166,12 @@ class kryn {
         
         do {
             
-            $rsn = $kcache['realUrl']['url'][ 'url='.$possibleUrl ];
+            $rsn = kryn::$urls['url'][ 'url='.$possibleUrl ];
             
             if( $rsn > 0 || $possibleUrl == '' ){
                 $found = true;
             } else if ( !$found ){
-                $rsn = $kcache['realUrl']['alias'][ $possibleUrl ];
+                $rsn = kryn::$urls['alias'][ $possibleUrl ];
                 if( $rsn > 0 ){
                     $found = true;
                     //we found a alias
@@ -2095,13 +2185,13 @@ class kryn {
                 $end = true;
             } else {
                 //maybe we found a alias in the parens with have a alias with "withsub"
-                $aliasRsn = $kcache['realUrl']['alias'][ $next.'/%' ];
+                $aliasRsn = kryn::$urls['alias'][ $next.'/%' ];
                 
                 if( $aliasRsn ){
                 
                     //links5003/test => links5003_5/test
                     
-                    $aliasPageUrl = $kcache['realUrl']['rsn'][ 'rsn='.$aliasRsn ];
+                    $aliasPageUrl = kryn::$urls['rsn'][ 'rsn='.$aliasRsn ];
                     
                     $urlAddition = str_replace( $next, $aliasPageUrl, $url);
 
@@ -2180,38 +2270,43 @@ class kryn {
 
     
     /**
-     * 
-     * Publish the kryn::$menus to template.
+     * Initialize the breadcrumb list. 
+     *
+     * Loads current parents and publish the kryn::$breadcrumbs to template.
+     * After this, we can add new menu items to the b
      * @internal
      */
-    public static function loadMenus(){
-        kryn::$menus =& kryn::getCache( 'menus_'.kryn::$domain['rsn'] );
-        if( count(kryn::$menus) == 0 ){
-            require_once( "inc/modules/admin/adminPages.class.php" );
-            adminPages::updateMenuCache( kryn::$domain['rsn'] );
-        }
-        tAssignRef( 'menus', kryn::$menus );
+    public static function loadBreadcrumb(){
+        kryn::$breadcrumbs = kryn::getPageParents();
+        tAssignRef( 'breadcrumbs', kryn::$breadcrumbs );
     }
     
     
-    public static function &getPage( $pPageRsn = false , $pReloadCache = false ){
-        
-        $pPageRsn += 0;
+    public static function &getPage( $pPageRsn = false ){
+        global $kcache;
         
         if( !$pPageRsn ){
             $pPageRsn = kryn::searchPage();
         }
-        
-        $page = kryn::getCache('page_'.$pPageRsn);
-        
-        if( !$page || $pReloadCache == true ){
 
+        $page = kryn::getCache('page-'.$pPageRsn);
+
+        if( !$page ){
+            
             $page = dbTableFetch('system_pages', 1, "rsn = $pPageRsn");
             $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pPageRsn AND active = 1");
 
             $page['extensionProperties'] = json_decode($page['properties'],true);
             $page['properties'] = $page['extensionProperties'];
-            $page['realUrl'] = $kcache['realUrl']['rsn'][ 'rsn='.$page['rsn'] ];
+
+            if( $page['domain_rsn'] != kryn::$domain['rsn'] ){
+                $realUrls =& kryn::getCache('urls-'.$page['domain_rsn']);
+            } else {
+                $realUrls =& kryn::$urls;
+            }
+
+            $page['realUrl'] = $realUrls['rsn'][ 'rsn='.$page['rsn'] ];
+
             $page['active_version_rsn'] = $curVersion['rsn'];
 
             $row = dbExfetch('SELECT rsn FROM %pfx%system_pages WHERE prsn = '.$pPageRsn.' LIMIT 1', 1);
@@ -2220,8 +2315,8 @@ class kryn {
             else
                 $page['hasChilds'] = false;
             
-            kryn::setCache('page_'.$pPageRsn, $page);
-            $page = kryn::getCache('page_'.$pPageRsn);
+            kryn::setCache('page-'.$pPageRsn, $page);
+            $page = kryn::getCache('page-'.$pPageRsn);
         }
             
         
@@ -2229,89 +2324,7 @@ class kryn {
         
     }
 
-    
-    /**
-     * 
-     * Returns all contents of the slot of the specified page.
-     * @param integer $pRsn
-     * @param integer $pBoxId
-     * @return array
-     * @static
-     */
-    public static function &getPageContents( $pRsn, $pBoxId = false, $pWithoutCache = false ){
-        global $time, $client, $kcache;
-        
-        $pRsn = $pRsn+0;
-        
-        $time = time();
-        $page = kryn::getPage( $pRsn );
-        
-        if( $page['access_from']+0 > 0 && $page['access_from'] <= $time )
-            return array();
-            
-        if( $page['access_to']+0 > 0 && $page['access_to'] >= $time )
-            return array();
-            
-        if( $page['access_denied'] == 1 )
-            return array();
-
-        $result =& kryn::getCache('page_contents_'.$pRsn);
-        if( $result && !$pWithoutCache ) return $result;
-
-        $versionRsn = $page['active_version_rsn'];
-        
-        //todo read acl from table
-        $aclCanViewOtherVersions = true;
-
-        if( kryn::$page['rsn'] == $pRsn && getArgv('kVersionId')+0 > 0 && $aclCanViewOtherVersions ){
-            $versionRsn = getArgv('kVersionId')+0;
-        }
-        
-        $box = '';
-        if( $pBoxId ){
-            $box = "AND box_id = $pBoxId";
-        }
-        
-        if( $versionRsn > 0 ){
-
-            $res = dbExec( "
-            SELECT c.*
-            FROM
-                %pfx%system_contents c,
-                %pfx%system_pagesversions v
-            WHERE 
-                v.rsn = $versionRsn 
-                AND v.page_rsn = $pRsn
-                AND c.version_rsn = v.rsn
-                $box
-                AND c.hide != 1
-                AND ( c.cdate > 0 AND c.cdate IS NOT NULL )
-            ORDER BY c.sort" );
-            
-            while( $page = dbFetch($res) ){
-                if(kryn::checkPageAccess($page, false) !== false)
-                   $result[$page['box_id']][] = $page;
-            }
-                
-        } else {
-        
-            //compatibility o old kryns <=0.7
-            $result = array();
-            $res = dbExec( "SELECT * FROM %pfx%system_contents
-                WHERE page_rsn = $pRsn 
-                $box 
-                AND version_rsn = 1 
-                AND hide != 1
-                ORDER BY sort" );
-            while( $page = dbFetch($res) ){
-                $result[$page['box_id']][] = $page;
-            }   
-        }
-        kryn::setCache('page_contents_'.$pRsn, $result);
-        return kryn::getCache('page_contents_'.$pRsn);
-    }
-
-    public static function notFound(){
+    public static function notFound( $pError = '404'){
         
         if( kryn::$domain['page404interface'] != '' ){
             if( strpos( kryn::$domain['page404interface'], "inc/template" ) !== FALSE ){
@@ -2320,9 +2333,10 @@ class kryn {
                 include('inc/template'.kryn::$domain['page404interface']);
             }
         } else if( kryn::$domain['page404_rsn'] > 0 ){
-            kryn::redirectToPage( kryn::$domain['page404_rsn'] );
+            kryn::redirectToPage( kryn::$domain['page404_rsn'], 'error='.$pError );
         } else {
             header("HTTP/1.0 404 Not Found");
+            tAssign('error', $pError);
             print tFetch( 'kryn/404-page.tpl' );
         }
         die();
@@ -2337,10 +2351,10 @@ class kryn {
      */
     public static function display( $pReturn = false ){
         //mi add
-        global $_start, $modules, $_AGET;
-
-        kryn::$pageUrl = '/'.kryn::getRequestPageUrl(true); //kryn::$baseUrl.$possibleUrl;
+        global $_start, $modules, $_AGET, $kcache;
         
+        kryn::$pageUrl = '/'.kryn::getRequestPageUrl(true); //kryn::$baseUrl.$possibleUrl;
+
         # search page for requested URL
         $page = kryn::getPage();
         
@@ -2349,26 +2363,36 @@ class kryn {
             return false;
         }
         
-        tAssignRef( 'realUrls', $kcache['realUrl'] );
+        
+        
+        kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
+
+        $pageCacheKey = 'systemWholePage-'.kryn::$domain['rsn'].'_'.kryn::$page['rsn'].'-'.md5(kryn::$canonical);
+
+        if( kryn::$domainProperties['kryn']['cachePagesForAnons'] !== 0 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
+
+            $cache =& kryn::getCache( $pageCacheKey );
+            if( $cache ){
+                print $cache;
+                exit;    
+            }
+            
+        }
+
+        
+        tAssignRef( 'realUrls', kryn::$urls );
 
         if( kryn::$domain['startpage_rsn'] == $page['rsn'] && kryn::$isStartpage ){
             $page['realUrl'] = '';
         }
     
         if( kryn::$domain['startpage_rsn'] == $page['rsn'] && !kryn::$isStartpage ){
-            krynSearch::toBlacklist();
-        
             kryn::redirect( kryn::$baseUrl );
-        }
-        
-        if( $page['unsearchable'] == 1 ){
-            krynSearch::toBlacklist();
         }
         
         if( $page['type'] == 1 ){//is link
             $to = $page['link'];
          
-            krynSearch::toBlacklist();
             if( $page['link']+0 > 0 ){
                 kryn::redirectToPage( $page['link'] );
             } else {
@@ -2385,16 +2409,14 @@ class kryn {
             }
     
 
-            foreach( kryn::$configs as $extKey => &$mod ){
-                if( $mod['themes'] ){
-                    foreach( $mod['themes'] as $tKey => &$theme ) {
-                        if( $theme['layouts'] ) {
-                            foreach( $theme['layouts'] as $lKey => &$layout ){
-                                if( $layout == $page['layout'] ){
-                                    if( is_array(kryn::$themeProperties) ){
-                                        kryn::$themeProperties = kryn::$themeProperties[$extKey][$tKey];
-                                        kryn::$publicProperties =& kryn::$themeProperties;
-                                    }
+            foreach( kryn::$themes as $extKey => &$themes ){
+                foreach( $themes as $tKey => &$theme ) {
+                    if( $theme['layouts'] ) {
+                        foreach( $theme['layouts'] as $lKey => &$layout ){
+                            if( $layout == $page['layout'] ){
+                                if( is_array(kryn::$themeProperties) ){
+                                    kryn::$themeProperties = kryn::$themeProperties[$extKey][$tKey];
+                                    kryn::$publicProperties =& kryn::$themeProperties;
                                 }
                             }
                         }
@@ -2405,7 +2427,6 @@ class kryn {
             tAssignRef( 'themeProperties', kryn::$themeProperties );
             tAssignRef( 'publicProperties', kryn::$themeProperties );
         }
-
         //prepage for ajax
         if( getArgv('kGetPage', 1) != '' ){
             if( getArgv('kGetPage')+0 > 0 )
@@ -2414,7 +2435,8 @@ class kryn {
                 $url = getArgv('kGetPage', 1);
                 if( substr($url, -1 ) == '/' )
                     $url = substr($url, 0, -1);
-                $rsn = $kcache['realUrl']['url'][ 'url='.$url ];
+                $rsn = kryn::$urls['url'][ 'url='.$url ];
+
                 $page = dbTableFetch( "system_pages", 1, "rsn = ".($rsn));
                 
                 $page = self::checkPageAccess( $page );
@@ -2425,20 +2447,12 @@ class kryn {
             //todo check ACL
         }
         
-        kryn::$page =& $page;
+        kryn::$page = $page;
         tAssignRef( 'page', kryn::$page );
         
-        kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
-
-        if( kryn::$page['cache'] == "1" && $pReturn == false ){ //only in frontend and not in searchindex mode 
-            print kryn::fileRead( "inc/cache/_pages/".kryn::$page['rsn'].".html" );
-            exit;
-        }
-
-        kryn::loadMenus();
-        kryn::$menus[ kryn::$page['rsn'] ][] = kryn::$page;
+        kryn::loadBreadcrumb();
+        kryn::$breadcrumbs[] = kryn::$page;
         kryn::initModules();
-
 
         if( kryn::$keditAccess ){
             kryn::addJs( 'admin/js/ka.kedit.js' );
@@ -2462,18 +2476,17 @@ class kryn {
 
 
         if( kryn::$page['layout'] == "" ){
-            $content = _l("Error: No layout choosen for this page.");
+            kryn::$pageHtml = _l("Error: No layout chosen for this page.");
         } else {
-            $content = kryn::renderPageContents(); //tFetch( kryn::$page['layout'] );
+            kryn::$pageHtml =& krynHtml::renderPageContents();
         }
 
-        $content = str_replace('\[[', '[[', $content);
-        kryn::replacePageIds( $content );
+        kryn::$pageHtml = str_replace('\[[', '[[', kryn::$pageHtml);
+        kryn::replacePageIds( kryn::$pageHtml );
 
         
         //htmlspecialchars(urldecode(kryn::$url));
-        $content = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', $content);
-        kryn::$pageHtml =& $content;
+        kryn::$pageHtml = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', kryn::$pageHtml);
         
         foreach( $modules as $key => &$mod ){
             $modules[ $key ] = NULL;
@@ -2503,31 +2516,31 @@ class kryn {
             }
         }
         
-        if( !getArgv('enableSearchIndexMode') )
-                krynSearch::$returnCodes = true;
-        
         $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
         
         if( $resCode == 2 ){
-            kryn::redirect(krynSearch::$redirectTo);
+            kryn::notFound( 'invalid-arguments' );
         }
         
-        kryn::$pageHtml = self::removeSearchBlocks( kryn::$pageHtml );
+        self::removeSearchBlocks( kryn::$pageHtml );
+        /**/
         
-        kryn::$pageHtml = krynHtml::buildPage( kryn::$pageHtml ); 
-
-        //replace all href="#anchor" with valid ones //workaround for <base>
+        if( kryn::$domainProperties['kryn']['cachePagesForAnons'] !== 0 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
         
-        if( $pReturn )
-            return kryn::$pageHtml;
+            $page = krynHtml::getPage( kryn::$pageHtml );
+            kryn::setCache( $pageCacheKey, $page, 10 );
+            print $page;
 
-        print kryn::$pageHtml;
+        } else {
+            krynHtml::printPage( kryn::$pageHtml );        
+        }
+        
         exit;
     }
     
-    public static function removeSearchBlocks( $pHtml ){
-        $res = str_replace('<!--unsearchable-begin-->', '', $pHtml);
-        return str_replace('<!--unsearchable-end-->', '', $res);
+    public static function removeSearchBlocks( &$pHtml ){
+        $pHtml = str_replace('<!--unsearchable-begin-->', '', $pHtml);
+        $pHtml = str_replace('<!--unsearchable-end-->', '', $pHtml);
     }
 
     /**
@@ -2592,48 +2605,6 @@ class kryn {
             $n = @fread($handle, $fs);
         @fclose($handle);
         return $n;
-    } 
-
-    /**
-     * 
-     * Returns the config hash of the specified extension.
-     * @param string $pModule
-     * @return array All config values from the config.json
-     * @static
-     */
-    public static function getModuleConfig( $pModule, $pLang = false ){
-        $pModule = str_replace( ".","", $pModule );
-
-        if( $pModule == 'kryn' )
-            $config = "inc/kryn/config.json";
-        else
-            $config = "inc/modules/$pModule/config.json";
-
-        if( !file_exists($config) ){
-            return false;
-        }
-
-        $ltime = filemtime($config);
-        $lang = $pLang?$pLang:kryn::$domain['lang'];
-        
-        $cacheCode = "moduleConfig_$pModule"."_$lang"."_$ltime";
-        
-        $configObj = kryn::getFastCache( $cacheCode );
-        if( !$configObj ){
-            
-            //delete all config caches from this module
-            $delfiles = glob("inc/cache/moduleConfig_$pModule"."_$lang"."_*.php");
-            
-            if( count($delfiles) > 0 )
-                foreach( $delfiles as $delfile )
-                    @unlink( $delfile );
-
-            $json = kryn::translate( kryn::fileRead( $config ) );
-            $configObj = json_decode( $json, 1 );
-            kryn::setFastCache( $cacheCode, $configObj );
-        }
-        
-        return $configObj;
     }
 
     /**
@@ -2733,8 +2704,7 @@ class kryn {
      * 
      * @param string $pCode
      * @param string $pValue
-     * @param integer $pTimeout Unix Timestamp. Default is one hour + time()
-     * @deprecated Use kryn::setCache() instead.
+     * @param integer $pTimeout In seconds. Default is one hour
      * @static
      */
     public static function setCache( $pCode, $pValue, $pTimeout ){
@@ -2775,7 +2745,9 @@ class kryn {
      * 
      * Sets a content to the specified cache-key.
      *
-     * This function saves the value in a generated php file.
+     * This function saves the value in a generated php file
+     * as php code or via apc_store.
+     *
      * The idea behind this: If the server has active apc or
      * other optcode caching, then this method is way
      * faster then tcp caching-server.
@@ -2783,11 +2755,11 @@ class kryn {
      * Please be sure, that you really want to use that: This
      * is not compatible with load balanced kryn installations
      * and should only be used, if you are really sure, that 
-     * the other machine in a load balanced scenario does not
+     * a other machine in a load balanced scenario does not
      * need informations about this cache.
      * 
      * A good purpose for this is for example caching converted
-     * json files (like the installed extension configs).
+     * local json files (like the installed extension configs).
      *
      * @param string $pCode
      * @param string $pValue
@@ -2822,126 +2794,8 @@ class kryn {
     public static function &readCache( $pCode ){
         $rsn = kryn::$domain['rsn'];
         $pCode = str_replace('..', '', $pCode);
-        return kryn::getCache( $pCode.'_'.$rsn );
-    }
-
-    /* 
-     * Resize a image to a fix resolution or to max dimension.
-     *
-     * @param pResolution Defined the resolution of the target image. e.g 1024x700, 1500x100, 500x500 
-     * @param $pFix If you want to resize the image to fix resolution (thumpnails) 
-     * @static
-    */
-    public static function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
-    
-        list( $oriWidth, $oriHeight, $type ) = getimagesize( $pPath );
-        switch( $type ){
-            case 1:
-                $imagecreate = 'imagecreatefromgif';
-                $imagesave = 'imagegif';
-                break;
-            case 2:
-                $imagecreate = 'imagecreatefromjpeg';
-                $imagesave = 'imagejpeg';
-                break;
-            case 3:
-                $imagecreate = 'imagecreatefrompng';
-                $imagesave = 'imagepng';
-                break;
-        }
-        
-        if(! $imagecreate )
-            return;
-           
-        $img = $imagecreate( $pPath );
-        
-        //$cacheThumpFile = self::$cacheDir.'thump.'.$pFile;
-        //$cacheFile = self::$cacheDir . filemtime( $file ) . '.' . $pFile;
-        
-        //list( $thumpWidth, $thumpHeight ) = explode( 'x', $pConf['thumpSize'] );
-        
-        list( $newWidth, $newHeight ) = explode( 'x', $pResolution );
-        $thumpWidth = $newWidth;
-        $thumpHeight = $newHeight;
-        
-       
-        //
-        // render Thump
-        //
-        if( $pFix ){
-               $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
-            imagealphablending( $thumpImage, false );
-    
-            if( $oriWidth > $oriHeight ){
-        
-                //resize mit hoehe = $tempheight, width = auto;
-                
-                $ratio = $thumpHeight / ( $oriHeight / 100 );
-                $_width = ceil($oriWidth * $ratio / 100);
-        
-                $top = 0;
-                if( $_width < $thumpWidth) { 
-                    $ratio = $_width / ($thumpWidth/100);
-                    $nHeight = $thumpHeight * $ratio / 100;
-                    $top =  ($thumpHeight - $nHeight)/2;
-                    $_width = $thumpWidth;
-                }
-        
-                $tempImg = imagecreatetruecolor( $_width, $thumpHeight );
-                imagealphablending( $tempImg, false );
-                imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
-                $_left = ($_width/2) - ($thumpWidth/2);
-        
-                imagecopyresampled( $thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
-        
-            } else {
-                $ratio = $thumpWidth / ( $oriWidth / 100 );
-                $_height = ceil($oriHeight * $ratio / 100);
-                $tempImg = imagecreatetruecolor( $thumpWidth, $_height );
-                imagealphablending( $tempImg, false );
-                imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight );
-                $_top = ($_height/2) - ($thumpHeight/2);
-                imagecopyresampled( $thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
-            }
-            
-            if( $type == 3 ){
-                
-                imagealphablending( $thumpImage, false );
-                imagesavealpha( $thumpImage, true );
-            }
-            
-            $imagesave( $thumpImage, $pTarget );
-        
-       } else {
-            
-            //render image(big)
-            if( $oriHeight > $oriWidth ){
-                $ratio = $newHeight / ( $oriHeight / 100 );
-                $_width = ceil($oriWidth * $ratio / 100);
-                $newImage = imagecreatetruecolor( $_width, $newHeight );
-                imagealphablending( $newImage, false );
-                
-                imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $_width, $newHeight, $oriWidth, $oriHeight);
-            } else {
-                $ratio = $newWidth / ( $oriWidth / 100 );
-                $_height = ceil($oriHeight * $ratio / 100);
-                $newImage = imagecreatetruecolor( $newWidth, $_height );
-                imagealphablending( $newImage, false );
-                
-                imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $newWidth, $_height, $oriWidth, $oriHeight);
-            }
-            if( $type == 3 ){
-                
-                imagealphablending( $newImage, false );
-                imagesavealpha( $newImage, true );
-            }
-            
-            $imagesave( $newImage, $pTarget );
-
-        }
-        
-    } 
-    
+        return kryn::getCache( $pCode.'-'.$rsn );
+    }    
     
     /**
      * 
@@ -2966,330 +2820,6 @@ class kryn {
             }
         }
         return $files;
-    }
-    
-    /**
-     * 
-     * Build the HTML for given page. If pPageRsn is a deposit, it returns with kryn/blankLayout.tpl as layout, otherwise
-     * it returns the layouts with all it contents.
-     * @param int $pPageRsn
-     * @param int $pSlotId
-     * @param array $pProperties
-     * @internal
-     */
-    public static function renderPageContents( $pPageRsn = false, $pSlotId = false, $pProperties = false ){
-        
-        if( kryn::$contents ){
-            $oldContents = kryn::$contents;
-        }
-        
-        kryn::$forceKrynContent = true;
-        
-        $start = microtime(true);
-        if( $pPageRsn == kryn::$page['rsn'] ){
-            //endless loop
-            die(_l('You produced a endless loop. Please check your latest changed pages.'));
-        }
-        
-        if( !$pPageRsn ){
-        
-            $pPageRsn = kryn::$page['rsn'];
-        } else if( $pPageRsn != kryn::$page['rsn'] ){
-        
-            $oldPage = kryn::$page;
-            kryn::$page = kryn::getPage( $pPageRsn, true );
-            $newStage = true;
-        }
-        
-        kryn::addCss('css/_pages/'.$pPageRsn.'.css');
-        kryn::addJs('js/_pages/'.$pPageRsn.'.js');
-        
-        kryn::$contents = kryn::getPageContents( $pPageRsn );
-        
-        if( kryn::$page['type'] == 3 ){ //deposit
-            kryn::$page['layout'] = 'kryn/blankLayout.tpl';
-        }
-        
-        if( $pSlotId ){
-            $html = kryn::renderContents(kryn::$contents[$pSlotId], $pProperties);
-        } else {
-            $html = tFetch( kryn::$page['layout'] );
-        }
-        
-        if( $oldContents ){
-            kryn::$contents = $oldContents;
-        }
-        if( $oldPage ){
-            kryn::$page = $oldPage;
-        }
-        kryn::$forceKrynContent = false;
-        
-        return $html;
-    }
-    
-    /**
-     * 
-     * Build HTML for given contents.
-     * @param array $pContents
-     * @param array $pSlotProperties
-     * @internal
-     */
-    public static function renderContents( &$pContents, $pSlotProperties ){
-        global $tpl, $client, $adminClient;
-        
-        $access = true;
-        $contents = array();
-
-        foreach( $pContents as $key => &$content ){
-            
-            
-            $access = true;
-
-            if( 
-                ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
-                ($content['access_to']+0 > 0 && $content['access_to'] < time() )
-            ){
-                $access = false;
-            }
-            
-            if( $content['hide'] === 0 ){
-                $access = false;
-            }
-            
-            if( $access && $content['access_from_groups'] ){
-    
-                $access = false;
-                $groups = ','.$content['access_from_groups'].',';
-            
-                foreach( $client->user['groups'] as $group ){
-                    if( strpos( $groups, ','.$group.',' ) !== false ){
-                        $access = true;
-                        break;
-                    }
-                }
-                
-                if( !$access ){
-                    foreach( $adminClient->user['groups'] as $group ){
-                        if( strpos( $groups, ','.$group.',' ) !== false ){
-                            $access = true;
-                            break;
-                        }
-                    }
-                    if( $access ){
-                        //have acces through the admin login
-                    }
-                }
-            }
-                
-            if( $access ){
-                $contents[$key] = $content;
-            }
-        }
-
-        $count = count($contents);
-        tAssign('layoutContentsMax', $count);
-        tAssign('layoutContentsIsFirst', true);
-        tAssign('layoutContentsIsLast', false);
-        tAssign('layoutContentsId', $params['id']);
-        tAssign('layoutContentsName', $params['name']);
-        
-        
-        $slot = $pSlotProperties;
-        $slot['maxItems'] = $count;
-        $slot['isFirst'] = true;
-        $slot['isLast'] = false;
-        
-        $i = 0;
-        
-        $oldContent = $tpl->getTemplateVars('content');
-
-        if( $count > 0 ){
-            foreach( $contents as &$content ){
-                if( $i == $count ) {
-                    tAssign('layoutContentsIsLast', true);
-                    $slot['isLast'] = true;
-                }
-                if( $i > 0 ){
-                    tAssign('layoutContentsIsFirst', false);
-                    $slot['isFirst'] = false;
-                }
-                
-                $i++;
-                tAssign('layoutContentsIndex', $i);
-                $slot['index'] = $i;
-                 
-                tAssignRef('slot', $slot);
-                kryn::$slot = $slot;
-                
-                $html .= kryn::renderContent( $content, $slot );
-
-            }
-        }
-        
-        if( $pSlotProperties['assign'] != "" ){
-            tAssignRef($pSlotProperties['assign'], $html);
-            return;
-        }
-        
-        return $html;
-        
-        
-    }
-    
-    /**
-     * 
-     * Build HTML for given content.
-     * @param array $pContent
-     * @param array $pProperties
-     * @internal
-     */
-    public static function renderContent( $pContent, $pProperties ){
-        global $modules, $tpl, $client, $adminClient;
-        
-        $content =& $pContent;
-        
-        $_content = &$content['content'];
-        
-        tAssignRef( 'content', $content );
-        tAssign( 'css', ($content['css']) ? $content['css'] : false );
-        
-        switch( strtolower($content['type']) ){
-            case 'text':
-                //replace all [[ with a workaround, so that multilanguage will not fetch.
-                $_content = str_replace('[[', '[<!-- -->[', $_content);
-                
-                break;
-            case 'html':
-                $_content = str_replace('[[', '\[[', $_content);
-                
-                break;
-            case 'navigation':
-                $temp = json_decode( $content['content'], 1 );
-                $temp['id'] = $temp['entryPoint'];
-                $_content = krynNavigation::plugin( $temp );
-                
-                break;
-            case 'picture':
-
-                $temp = explode( '::', $_content );
-                
-                if( $temp[0] != '' && $temp[0] != 'none' ){
-                    $opts = json_decode( $temp[0], true );
-                    $align = ( $opts['align'] ) ? $opts['align'] : 'left';
-                    $alt = ( $opts['alt'] ) ? $opts['alt'] : '';
-                    $title = ( $opts['title'] ) ? $opts['title'] : '';
-                    
-                    $imagelink = $temp[1];
-                    
-                    if( $opts['width'] && $opts['height']){
-                        $imagelink = resizeImageCached( $imagelink, $opts['width'].'x'.$opts['height'] );
-                    } elseif ( $pProperties['picturedimension'] && $opts['forcedimension'] != "1" ){
-                        $imagelink = resizeImageCached( $imagelink, $pProperties['picturedimension'] );
-                    }
-                    
-                    $link = '';
-                    if( $opts['link']+0 > 0 ){
-                        $link = kryn::pageUrl( $opts['link'] );
-                    } else if( $opts['link'] != '' ){
-                        $link = $opts['link'];
-                    }
-
-                    if( $link == '' ){
-                        $_content = '<div style="text-align: '.$align.';"><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></div>';
-                    } else {
-                        $_content = '<div style="text-align: '.$align.';"><a href="'.$link.'" ><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></a></div>';
-                    }
-
-                } else {
-                    $_content = '<img src="' . $temp[1] . '" />';
-                }
-                
-                break;
-            case 'template':
-                
-                if( substr($_content, 0,1) == '/' )
-                    $_content = substr($_content, 1);
-
-                $file = str_replace('..', '', $_content);
-                if( file_exists( "inc/template/".$file ) ){
-                    $_content = tFetch( $file );
-                }
-                break;
-            case 'pointer':
-                
-                if( $_content+0 > 0 && $_content+0 != kryn::$page['rsn'] )
-                    $_content = kryn::renderPageContents( $_content+0, 1, $pProperties );
-                
-                break;
-            case 'layoutelement':
-                
-                $oldContents = kryn::$contents;
-                
-                $layoutcontent = json_decode($_content, true);
-                kryn::$contents = $layoutcontent['contents'];
-                $_content = tFetch( $layoutcontent['layout'] );
-                
-                kryn::$contents = $oldContents;
-                
-                break;
-            case 'plugin':
-                
-                $t = explode( '::', $_content );
-                $config = $_content;
-                
-                $_content = 'Plugin not found.';                    
-                
-                if( $modules[ $t[0] ] ){
-                
-                    $config = substr(  $config, strlen($t[0])+2+strlen($t[1])+2 );
-                    $config = json_decode( $config, true );
-                    
-                    if( method_exists( $modules[ $t[0] ], $t[1]) )
-                        $_content = $modules[ $t[0] ]->$t[1]( $config );
-                        
-                    // if in seachindex mode and plugin is configured unsearchable the kill plugin output
-                    if(isset(kryn::$configs[$t[0]]['plugins'][$t[1]][3]) && kryn::$configs[$t[0]]['plugins'][$t[1]][3] == true)
-                        $_content = kryn::$unsearchableBegin.$_content.kryn::$unsearchableEnd;                          
-                    
-                }
-                
-                break;
-            case 'php':
-                $temp = ob_get_contents();
-                ob_end_clean();
-                ob_start();
-                eval( $_content );
-                $_content = ob_get_contents();
-                ob_end_clean();
-                ob_start();
-                print $temp;
-                break;
-        }
-    
-        
-        $unsearchable = false;
-        if( (!is_array($content['access_from_groups']) && $content['access_from_groups'] != '') ||
-            (is_array($content['access_from_groups']) && count($content['access_from_groups']) > 0) ||
-            ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
-            ($content['access_to']+0 > 0 && $content['access_to'] < time() ) ||
-            $content['unsearchable'] == 1
-            ){
-            $unsearchable = true;
-        }
-
-        if( $content['template'] == '' || $content['template'] == '-' ){
-            if( $unsearchable )
-                return '<!--unsearchable-begin-->'.$_content.'<!--unsearchable-end-->';
-            else
-                return $_content;
-        } else {
-            tAssignRef( 'content', $content );
-            $template = $content['template'];
-            if( $unsearchable )
-                return '<!--unsearchable-begin-->'.tFetch( $template ).'<!--unsearchable-end-->';
-            else
-                return tFetch( $template );
-        }
     }
 
 }

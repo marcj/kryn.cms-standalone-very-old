@@ -70,7 +70,7 @@ class adminLayout {
         tAssign('page', $page);
         $domain = dbTableFetch('system_domains', 1, "rsn = ".$page['domain_rsn']);
         kryn::$domain = $domain;
-        kryn::loadMenus();
+        kryn::loadBreadcrumb();
         
         if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
             kryn::$themeProperties = @json_decode($domain['publicproperties'], true);
@@ -111,7 +111,7 @@ class adminLayout {
         }
             
         $css = array();
-        foreach( kryn::$cssFiles as &$file ){
+        foreach( kryn::$cssFiles as $file => $v ){
             if( $mtime = @filemtime("inc/template/$file") )
                 $css[] = $file . '?modified='.$mtime;
         }

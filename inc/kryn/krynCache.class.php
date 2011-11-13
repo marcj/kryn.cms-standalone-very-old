@@ -41,6 +41,10 @@ class krynCache {
         }
         
         if( $this->type == 'files' ){
+
+            if( $this->config['files_path'] == '' )
+                $this->config['files_path'] = 'inc/cache/';
+        
             if( !is_dir($this->config['files_path']) ){
                 if( !mkdir($this->config['files_path']) ){
                     die('Can not create cache folder: '.$this->config['files_path']);
@@ -94,6 +98,9 @@ class krynCache {
     public function &get( $pCode, $pProcessCacheInformation = true ){
         global $kcache;
 
+        if( $kcache['krynPhpCache_'.$pCode] )
+            return $kcache['krynPhpCache_'.$pCode];
+
         switch( $this->type ){
             case 'memcached':
 
@@ -102,24 +109,35 @@ class krynCache {
                 } else if( $this->memcached ){
                     $res = $this->memcached->get( $pCode );
                 }
+                break;
 
             case 'redis':
                 
                 $res = $this->redis->get( $pCode );
+                break;
 
             case 'files':
-
+            
                 $cacheCode = 'krynPhpCache_'.$pCode;
-                include( $this->config['files_path'].$pCode.'.php' );
-                $res =& $kcache[$cacheCode];
+                $path = $this->config['files_path'].$pCode.'.php';
+                
+                if( !file_exists( $path ) ) return false;
+                include( $path );
 
+                $res =& $kcache[$cacheCode];
+                break;
+
+            case 'apc':
+            
+                $res = apc_fetch( $pCode );
         }
     
         if( !$pProcessCacheInformation ) return $res;
     
+                
         if( !$res['value'] || !$res['time'] ) return false;
         if( $res['timeout'] < time() ) return false;
-        
+
         //valid cache
         //search if a parent has been flagged as invalid
         if( strpos( $pCode, '_' ) !== false ){
@@ -137,7 +155,10 @@ class krynCache {
                 }
             }
         }
-        return $res['value'];
+        
+        $kcache['krynPhpCache_'.$pCode] = $res['value'];
+        
+        return $kcache['krynPhpCache_'.$pCode];
     }
     
     /**
@@ -169,14 +190,21 @@ class krynCache {
      * Kryn uses MemCache or PHP-Caching
      * @param string $pCode
      * @param mixed $pValue
-     * @param integer $pTimeout Timestamp. Default is one hour + time()
+     * @param integer $pTimeout In seconds. Default is one hour
      */
     public function set( $pCode, $pValue, $pTimeout = false, $pWithCacheInformations = true ){
         global $kcache;
         
+        $kcache['krynPhpCache_'.$pCode] = $pValue;
+        
+        if( !$pTimeout )
+            $pTimeout = time()+3600;
+        else
+            $pTimeout += time();
+        
         if( $pWithCacheInformations ){
             $pValue = array(
-                'timeout' => $pTimeout?$pTimeout:time()+3600,
+                'timeout' => $pTimeout,
                 'time' => time(),
                 'value' => $pValue
             );
@@ -192,20 +220,21 @@ class krynCache {
                 }
             
             case 'redis':
-
-                if( $pTimeout )
-                    return $this->redis->setex( $pCode, $pTimeout, $pValue );
-                else
-                    return $this->redis->set( $pCode, $pValue );
+            
+                return $this->redis->setex( $pCode, $pTimeout, $pValue );
 
             case 'files':
 
                 $cacheCode = 'krynPhpCache_'.$pCode;
-
                 $varname = '$kcache[\''.$cacheCode.'\'] ';
+
                 $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
                 kryn::fileWrite($this->config['files_path'].$pCode.'.php', $phpCode);
                 return file_exists( $this->config['files_path'].$pCode.'.php' );
+                
+            case 'apc':
+            
+                return apc_store( $pCode, $pValue, time()-$pTimeout );
         }
     }
     
@@ -235,6 +264,11 @@ class krynCache {
                 $cacheCode = 'krynPhpCache_'.$pCode;
                 unset($kcache[$cacheCode]);
                 @unlink($this->config['files_path'].$pCode.'.php');
+                break;
+                
+            case 'apc':
+            
+                return apc_delete( $pCode );
         }
     }
     

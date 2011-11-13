@@ -67,14 +67,9 @@ class database {
         
         public static function getTable( $pTable ){
     
-            if( kryn::$configs ){
-                foreach( kryn::$configs as &$config ){
-                    if( $config['db'] && $config['db'][$pTable] )
-                        return pfx.$pTable;
-                }
-            }
-            
+            if( kryn::$tables[ $pTable ] ) return pfx.$pTable;
             return $pTable;
+
         }
         
         public static function getRelation( $pTableOne, $pTableTwo ){
@@ -414,20 +409,15 @@ class database {
 
         public static function getOptions( $pTable ){
             
-            $columnDefs =& kryn::getCache( 'kryn_database_table_'.$pTable );
+            $columnDefs =& kryn::getCache( 'krynDatabaseTable-'.$pTable );
             
             if( !$columnDefs ){
         
                 $columns = false;
                 $ncolumns = array();
                 
-                if( kryn::$configs ){
-                    foreach( kryn::$configs as &$config ){
-                        if( $config['db'] && $config['db'][$pTable] ){
-                            $columns = $config['db'][$pTable];
-                            break;
-                        }
-                    }
+                if( kryn::$tables[ $pTable ] ){
+                    $columns =& kryn::$tables[ $pTable ];
                 }
 
                 if( $columns ){
@@ -443,7 +433,8 @@ class database {
                     }
                     kryn::setCache( 'kryn_database_table_'.$pTable, $ncolumns);
 
-                    return $columns;
+                    return $ncolumns;
+
                 } else {
                     $columns = self::getColumns( $pTable );
                     if( is_array($columns) && count($columns) > 0 ){

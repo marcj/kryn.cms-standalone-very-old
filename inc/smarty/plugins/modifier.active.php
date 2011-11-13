@@ -7,10 +7,9 @@ function smarty_modifier_active($string){
         $rsn = $string['rsn'];
 
     if( $rsn == kryn::$page['rsn'] ) return true;
-
-    $kcache['realUrl'] = kryn::readCache( 'urls' );
-    $url = $kcache['realUrl']['rsn'][ 'rsn=' . kryn::$page['rsn'] ] . '/';
-    $purl = $kcache['realUrl']['rsn'][ 'rsn=' . $rsn ] . '/';
+    
+    $url = kryn::pageUrl( kryn::$page['rsn'] );
+    $purl = kryn::pageUrl( $rsn );
 
     $pos = strpos( $url, $purl );
     if( $url == '/' || $pos != 0  || $pos === false){

@@ -57,17 +57,20 @@ class krynAuth {
     public $cache;
     
 
+    public $refreshing = true;
 
     /**
     * Constructor
     */
-    function __construct( $pConfig ){
+    function __construct( $pConfig, $pWithRefreshing = true ){
         
         $this->config = $pConfig;
 
         if( $pConfig['session_tokenid'] ){
             $this->tokenid = $pConfig['session_tokenid'];
         }
+        
+        $this->refreshing = $pWithRefreshing;
 
         if( $pConfig['session_storage'] != 'database' ){
             $this->cache = new krynCache( $pConfig['session_storage'], $pConfig['session_storage_config'] );
@@ -101,7 +104,10 @@ class krynAuth {
             }
             
             $this->loadUser( $this->session['user_rsn'] );
-            $this->updateSession();
+
+            if( $this->refreshing )
+                $this->updateSession();
+
         }
         $this->processClient();
         
@@ -340,7 +346,7 @@ class krynAuth {
 
     	$pUserId += 0;
 
-    	$cacheCode = 'system_users_'.$pUserId;
+    	$cacheCode = 'system-users-'.$pUserId;
     	$result =& kryn::getCache( $cacheCode );
     	
     	if( $result == false || $pForceReload ){
@@ -417,6 +423,7 @@ class krynAuth {
     * to the backend.
     */
     public function syncStore(){
+    
         if( $this->needSync != true ) return;
 
         $session['user_rsn'] = $this->user['rsn'];
@@ -440,6 +447,7 @@ class krynAuth {
         } else {
             $expired = $this->config['session_timeout'];
             $this->cache->set( $this->tokenid.'_'.$this->token, $this->session, $expired );
+            
         }
         
     }
@@ -587,7 +595,7 @@ class krynAuth {
 
         if( !$row ) return false;
         if( $row['time']+$this->config['session_timeout'] < time() ){
-            dbDelete('system_sessions', 'id = \''.esc($this->token).'\'');
+            dbExec('DELETE FROM %pfx%system_sessions WHERE id = \''.esc($this->token).'\'');
             return false;
         }
 
@@ -608,7 +616,6 @@ class krynAuth {
     * Loads the session based on the given token from the client
     */
     public function loadSessionCache(){
-
 
         $session = $this->cache->get( $this->tokenid.'_'.$this->token );
 

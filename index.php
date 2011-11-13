@@ -84,7 +84,6 @@ include('inc/kryn/krynSearch.class.php');
 
 # Init classes and globals
 $tpl = new Smarty();
-$tpl->caching = false;
 $tpl->template_dir = 'inc/template/';
 $tpl->compile_dir = $cfg['tpl_cpl'];
 
@@ -118,23 +117,27 @@ if($_REQUEST['js'] == 'global.js'){
 }
 
 kryn::initConfig();
+kryn::loadModules();        
 
-kryn::loadModules();
 kryn::searchDomain();
 
 kryn::initAuth();
 
-tAssign("request", $_REQUEST);
-tAssign("user", $user->user);
+tAssignRef("request", $_REQUEST);
+tAssignRef("user", $user->user);
 
 if( getArgv(1) == 'admin' ){
-	include("inc/kryn/adminForm.class.php");
+    
+    kryn::loadConfigs();
+
+    require("inc/kryn/adminForm.class.php");
     require("inc/modules/admin/admin.class.php");
     $modules['admin'] = new admin();
 }
 
 kryn::checkAccess();
 krynSearch::initSearch();
+
 
 register_shutdown_function('kryn_shutdown');
 

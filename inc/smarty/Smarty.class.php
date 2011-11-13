@@ -282,6 +282,7 @@ class Smarty extends Smarty_Internal_Data {
      */
     public function fetch($template, $cache_id = null, $compile_id = null, $parent = null, $display = false)
     {
+
         if (!empty($cache_id) && is_object($cache_id)) {
             $parent = $cache_id;
             $cache_id = null;
@@ -296,6 +297,7 @@ class Smarty extends Smarty_Internal_Data {
         if (isset($this->error_reporting)) {
         	$_smarty_old_error_level = error_reporting($this->error_reporting);
     	}
+    	
     	// check URL debugging control
         if (!$this->debugging && $this->debugging_ctrl == 'URL') {
             if (isset($_SERVER['QUERY_STRING'])) {
@@ -337,6 +339,7 @@ class Smarty extends Smarty_Internal_Data {
         } else {
             $_output = $_template->getRenderedTemplate();
         }
+        
         $_template->rendered_content = null;
         if (isset($this->error_reporting)) {
         	error_reporting($_smarty_old_error_level);

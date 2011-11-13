@@ -12,6 +12,14 @@
   "category": "1",
   "community": "1",
   "writableFiles": "inc\/template\/publication\/*",
+  "domainProperties": {
+    "cache": {
+        "label": "[[Cache html]]",
+        "desc": "[[Some templates does not support this. If you have troubles, just deactivate this.]]",
+        "type": "checkbox",
+        "default": "1"
+    }
+  },
   "admin": {
     "news": {
       "title": "[[News]]",
@@ -437,6 +445,12 @@
       "lang": [
         "varchar",
         "2",
+        "-",
+        false
+      ],
+      "url": [
+        "varchar",
+        "255",
         "-",
         false
       ]

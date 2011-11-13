@@ -11,6 +11,7 @@ tr.ka-field-main td {
 .ka-field-tdtitle {
     padding-top: 4px;
     padding-left: 2px;
+    padding-right: 5px;
     color: #333;
 }
 
@@ -27,6 +28,12 @@ h2.ka-field-headline {
 
 .ka-field-main-small .ka-field-title div.desc {
     width: 200px;
+}
+
+.ka-field-tdtitle div.desc {
+    color: #999;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .ka-field-main-small .ka-field-title div.title {

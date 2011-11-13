@@ -285,6 +285,7 @@
     font-size: 11px;
     background-color: #ddd;
     padding: 0px 3px;
+    -moz-border-radius: 4px;
 }
 
 .ka-kwindow-content-withBottomBar {

@@ -858,7 +858,7 @@ ka.layoutContent = new Class({
         this.pluginChooser = new ka.pluginChooser( this.content.content, dialog );
         
         this.pluginChooser.addEvent('ok', function(){
-            this.toData();
+            this.content.content = this.pluginChooser.getValue();
             this.setDivPlugin();
             this.deselect();
             dialog.close();

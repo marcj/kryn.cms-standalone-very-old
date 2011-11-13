@@ -10,6 +10,7 @@
     "de": "Kryn.cms"
   },
   "system": true,
+  
   "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
   "widgets": {
     "unpublishedContents": {
@@ -1105,20 +1106,6 @@
         "text",
         "",
         "-",
-        false
-      ]
-    },
-    "system_search_blacklist": {
-      "url": [
-        "varchar",
-        "255",
-        "DB_PRIMARY",
-        false
-      ],
-      "domain_rsn": [
-        "int",
-        "",
-        "DB_PRIMARY",
         false
       ]
     },

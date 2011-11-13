@@ -104,7 +104,7 @@ class adminSearchIndexer {
             $res['pages'][] = $row;
             
         
-            $urls = kryn::getCache('urls_'.$row['domain_rsn']);
+            $urls = kryn::getCache('urls-'.$row['domain_rsn']);
             if(!$urls) {
                 $urls = adminPages::updateUrlCache( $row['domain_rsn'] );
             }

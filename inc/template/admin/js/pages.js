@@ -608,9 +608,9 @@ var admin_pages = new Class({
         //this.viewTypeGrpDomain = this.win.addButtonGroup();
         this.viewTypeGrpDomain = this.win.addTabGroup();
         this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton( _('Domain'), p+'icons/world.png', this.viewType.bind(this,'domain'));
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/group.png', this.viewType.bind(this,'domainSessions') );
         this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton( _('Theme'), p+'icons/layout.png', this.viewType.bind(this,'domainTheme'));
         this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton( _('Properties'), p+'icons/layout.png', this.viewType.bind(this,'domainProperties'));
-        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/group.png', this.viewType.bind(this,'domainSessions') );
         this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton( _('Settings'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'domainSettings') );
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
@@ -1501,10 +1501,6 @@ var admin_pages = new Class({
         ).inject( p );
         
 
-        this.domainFields['favicon'] = new ka.field(
-            {label: _('Favicon'), type: 'file', desc: _('Choose a favicon. Filetype .ico')}
-        ).inject( p );
-
         
 
         var tableItems = [];
@@ -1526,11 +1522,6 @@ var admin_pages = new Class({
             style: 'padding-left: 30px; color: gray;'
         }).inject( p );
         
-
-        this.domainFields['email'] = new ka.field(
-            {label: _('Email sender'), desc: _('Extensions can use this email in outgoing emails as sender.')}
-        ).inject( p );
-
         this.panes['domain'] = p;
         
 
@@ -1701,37 +1692,61 @@ var admin_pages = new Class({
             'class': 'admin-pages-pane'
         }).inject( this.main );
 
+		var table = new Element('table', {width: '100%'}).inject( p );
+		var tbody = new Element('tbody').inject( table );
+
+        this.domainFields['favicon'] = new ka.field({
+            label: _('Favicon'), type: 'file', desc: _('Choose a favicon. Filetype .ico'),
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
         
 
-        this.domainFields['alias'] = new ka.field(
-            {label: _('Alias'), type: 'text', desc: _("Define one or more alias for the domain above. Comma seperated alias domain list to this domain.")}
-        ).inject( p );
+        this.domainFields['email'] = new ka.field({
+            label: _('Email sender'), desc: _('Extensions can use this email in outgoing emails as sender.'),
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
 
-        this.domainFields['redirect'] = new ka.field(
-            {label: _('Redirect'), type: 'text', desc: _("This domains redirect to the domain defined above. Comma seperated redirect domain list to this domain")}
-        ).inject( p );
+
+        this.domainFields['alias'] = new ka.field({
+            label: _('Alias'), type: 'text',
+            desc: _("Define one or more alias for the domain above. Comma separated alias domain list to this domain."),
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
+
+        this.domainFields['redirect'] = new ka.field({
+            label: _('Redirect'), type: 'text',
+            desc: _("This domains redirect to the domain defined above. Comma separated redirect domain list to this domain"),
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
         
 
-        this.domainFields['phplocale'] = new ka.field(
-            {label: 'PHP-Locale', type: 'text', desc: _('Locale LC_ALL in PHP')}
-        ).inject( p );
+        this.domainFields['phplocale'] = new ka.field({
+            label: 'PHP-Locale', type: 'text', desc: _('Locale LC_ALL in PHP'),
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
         
 
-        this.domainFields['robots'] = new ka.field(
-            {label: 'Robot rules', type: 'textarea', desc: _('Define here the rules for searchengines. (robots.txt)')}
-        ).inject( p );
+        this.domainFields['robots'] = new ka.field({
+            label: 'Robot rules', type: 'textarea', desc: _('Define here the rules for search engines. (robots.txt)'),
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
 
-        this.domainFields['resourcecompression'] = new ka.field(
-            {label: _('Css and JS compression'), desc: _('Merge all css files in one, same with javascript files. This improve the page render time'), type: 'checkbox'}
-        ).inject( p );        
+        this.domainFields['resourcecompression'] = new ka.field({
+            label: _('Css and JS compression'),
+            desc: _('Merge all css files in one, same with javascript files. This improve the page render time'),
+            type: 'checkbox',
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );        
 
-        this.domainFields['page404_rsn'] = new ka.field(
-            {label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}
-        ).inject( p );
+        this.domainFields['page404_rsn'] = new ka.field({
+            label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage',
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
 
-        this.domainFields['page404interface'] = new ka.field(
-            {label: _('404-Interface'), desc: _('PHP file'), type: 'fileChooser', empty: false, cookie: 'file'}
-        ).inject( p );
+        this.domainFields['page404interface'] = new ka.field({
+            label: _('404-Interface'), desc: _('PHP file'), type: 'fileChooser', empty: false, cookie: 'file',
+            tableitem: 1, tableitem_title_width: 250
+        }, tbody );
         
         
         this.panes['domainSettings'] = p;
@@ -1753,9 +1768,9 @@ var admin_pages = new Class({
 
         field.domainFieldsPublicProperties = {};
 
-        $H(ka.settings.publicProperties).each(function(publicProperties, extKey){
+        Object.each(ka.settings.publicProperties, function(publicProperties, extKey){
             field.domainFieldsPublicProperties[ extKey ] = {};
-            $H(publicProperties).each(function(la, tKey){
+            Object.each(publicProperties, function(la, tKey){
 
                 field.domainFieldsPublicProperties[ extKey ][ tKey ] = {};
                 
@@ -1767,24 +1782,28 @@ var admin_pages = new Class({
                     html: _(tKey)
                 }).inject( laDiv );
 
-                var laDivFields = new Element('div', {
-                    'style': 'padding: 3px; background-color: #e7e7e7;'
-                }).inject( laDiv );
+        		var table = new Element('table', {width: '100%', style: 'background-color: #e8e8e8'}).inject( laDiv );
+        		var tbody = new Element('tbody').inject( table );
+        		
+                Object.each(la, function(fieldOpts,fKey){
 
-                $H(la).each(function(opts,fKey){
-                    var fieldOpts = {
-                        label: _(opts[0]), type: opts[1], small: 1
-                    };
+                    
 
-                    if( opts[1] == 'page' ){
-                        fieldOpts.onlyIntern = 1;
+        			if( typeOf( fieldOpts ) == 'array' ){
+            			
+                        if( fieldOpts[1] == 'page' ){
+                            fieldOpts.onlyIntern = 1;
+                        }
+                        fieldOpts['label'] = fieldOpts[0];
+                        fieldOpts['type'] = fieldOpts[1];
+                        
                     }
-                    field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] = new ka.field(fieldOpts).inject( laDivFields );
-                }.bind(this))
 
-                new Element('div', {
-                    'style': 'clear: left'
-                }).inject( laDivFields );
+        			fieldOpts.tableitem = 1;
+        			fieldOpts.tableitem_title_width = 250;
+        			
+                    field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] = new ka.field(fieldOpts, tbody );
+                }.bind(this))
                 
             }.bind(this));
         }.bind(this));
@@ -2446,7 +2465,6 @@ var admin_pages = new Class({
         w.$$('a').onclick = null;
 
         this.layoutBoxes = new Hash();
-
         
         this.layoutBoxes = ka.renderLayoutElements( this.iframe.contentWindow, this );
         //this._renderContentLayoutSearchAndFindBoxes( $(this.iframe.contentWindow.document.body) );
@@ -2467,6 +2485,10 @@ var admin_pages = new Class({
         var contents = this.page.contents;
         if( $type( this.page.contents ) == 'string' )
             contents = new Hash(JSON.decode(this.page.contents));
+
+        logger(this.page);
+        logger(this.layoutBoxes);
+        logger(contents);
 
         Object.each(this.layoutBoxes, function(editLayout,boxId){
             editLayout.setContents( contents[boxId] );
@@ -2736,13 +2758,16 @@ var admin_pages = new Class({
         			title = config.title[window._session.lang];
         		
         		new Element('h3', {text: title}).inject(p);
-        		var pe = new Element('div', {style: 'padding: 5px;'}).inject(p);
+        		
+        		var table = new Element('table', {width: '100%'}).inject( p );
+        		var tbody = new Element('tbody').inject( table );
+        		
         		$H(config.pageProperties).each(function(property, key){
-        			property.small = 1;
-        			extFields[key] = new ka.field(property).inject(pe);
+        			property.tableitem = 1;
+        			property.tableitem_title_width = 250;
+        			extFields[key] = new ka.field(property).inject( tbody );
         			
         		}.bind(this));
-        		new Element('div', {style: 'clear: both'}).inject(pe);
         		
         		this._pagePropertiesFields[ext] = extFields;
         	}
@@ -2777,14 +2802,17 @@ var admin_pages = new Class({
         		if( config.title[window._session.lang] )
         			title = config.title[window._session.lang];
         		
+        		
         		new Element('h3', {text: title}).inject(p);
-        		var pe = new Element('div', {style: 'padding: 5px;'}).inject(p);
+        		var table = new Element('table', {width: '100%'}).inject( p );
+        		var tbody = new Element('tbody').inject( table );
+
         		$H(config.domainProperties).each(function(property, key){
-        			property.small = 1;
-        			extFields[key] = new ka.field(property).inject(pe);
+        			property.tableitem = 1;
+        			property.tableitem_title_width = 250;
+        			extFields[key] = new ka.field(property, tbody);
         			
         		}.bind(this));
-        		new Element('div', {style: 'clear: both'}).inject(pe);
         		
         		this._domainPropertiesFields[ext] = extFields;
         	}

@@ -17,6 +17,11 @@ class publicationNewsEdit extends windowEdit {
         return kryn::toModRewrite($pItem['title']).'/'.$pItem['rsn'];
     }
 
+    public function saveItem(){
+        parent::saveItem();
+        kryn::invalidateCache('publicationNewsList');
+    }
+
     public $tabFields = array(
         'General' => array(
             'title' => array(

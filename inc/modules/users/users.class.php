@@ -14,10 +14,6 @@
 class users extends baseModule{
     public $extensionsfields;
     public $groups;
-
-    function __construct(){
-        require_once("inc/modules/users/update.php");
-    }
     
     function pluginLogin( $pConf ){
         global $client;

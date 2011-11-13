@@ -48,19 +48,26 @@ class krynHtml {
 
     }
 
-
-    public static function buildPage( $pContent ){
-        global $cfg;
-
-
+    public static function getPage( &$pContent = '' ){
+        global $_start;
+        
         $res = self::$docTypeMap[ strtolower(self::$docType) ];
-
         $res .= "\n<head>".kryn::$htmlHeadTop;
         $res .= self::buildHead(true);
 
         $res .= kryn::$htmlHeadEnd.'</head><body>'.kryn::$htmlBodyTop.$pContent."\n\n".kryn::$htmlBodyEnd.'</body></html>';
-
+        
         return $res;
+    }
+
+    public static function printPage( &$pContent = '' ){
+        global $_start;
+        
+        print self::$docTypeMap[ strtolower(self::$docType) ];
+        print "\n<head>".kryn::$htmlHeadTop;
+        print self::buildHead(true);
+
+        print kryn::$htmlHeadEnd.'</head><body>'.kryn::$htmlBodyTop.$pContent."\n\n".kryn::$htmlBodyEnd.'</body></html>';
     }
 
     public static function buildHead( $pContinue = false ){
@@ -120,7 +127,7 @@ class krynHtml {
          * 
          */
         
-        foreach( kryn::$cssFiles as $css ){
+        foreach( kryn::$cssFiles as $css => $v ){
             $myCssFiles[] = $css;
         }
 
@@ -181,7 +188,7 @@ class krynHtml {
          * 
          */
 
-        foreach( kryn::$jsFiles as $js ){
+        foreach( kryn::$jsFiles as $js => $v){
             $myJsFiles[] = $js;
         }
 
@@ -248,6 +255,418 @@ class krynHtml {
 
         return $html;
     }
+
+    
+    
+    /**
+     * 
+     * Returns all contents of the slot of the specified page.
+     * @param integer $pRsn
+     * @param integer $pBoxId
+     * @return array
+     * @static
+     */
+    public static function &getPageContents( $pRsn, $pBoxId = false, $pWithoutCache = false ){
+        global $time, $client, $kcache;
+
+        $pRsn = $pRsn+0;
+        
+        $time = time();
+        $page = kryn::getPage( $pRsn );
+        
+        if( $page['access_from']+0 > 0 && $page['access_from'] <= $time )
+            return array();
+            
+        if( $page['access_to']+0 > 0 && $page['access_to'] >= $time )
+            return array();
+            
+        if( $page['access_denied'] == 1 )
+            return array();
+
+        $result =& kryn::getCache('pageContents-'.$pRsn);
+        if( $result && !$pWithoutCache ) return $result;
+
+        $versionRsn = $page['active_version_rsn'];
+        
+        //todo read acl from table
+        $aclCanViewOtherVersions = true;
+
+        if( kryn::$page['rsn'] == $pRsn && getArgv('kVersionId')+0 > 0 && $aclCanViewOtherVersions ){
+            $versionRsn = getArgv('kVersionId')+0;
+        }
+        
+        $box = '';
+        if( $pBoxId ){
+            $box = "AND box_id = $pBoxId";
+        }
+        
+        if( $versionRsn > 0 ){
+
+            $res = dbExec( "
+            SELECT c.*
+            FROM
+                %pfx%system_contents c,
+                %pfx%system_pagesversions v
+            WHERE 
+                v.rsn = $versionRsn 
+                AND v.page_rsn = $pRsn
+                AND c.version_rsn = v.rsn
+                $box
+                AND c.hide != 1
+                AND ( c.cdate > 0 AND c.cdate IS NOT NULL )
+            ORDER BY c.sort" );
+            
+            while( $page = dbFetch($res) ){
+                if(kryn::checkPageAccess($page, false) !== false)
+                   $result[$page['box_id']][] = $page;
+            }
+                
+        } else {
+        
+            //compatibility o old kryns <=0.7
+            $result = array();
+            $res = dbExec( "SELECT * FROM %pfx%system_contents
+                WHERE page_rsn = $pRsn 
+                $box 
+                AND version_rsn = 1 
+                AND hide != 1
+                ORDER BY sort" );
+            while( $page = dbFetch($res) ){
+                $result[$page['box_id']][] = $page;
+            }   
+        }
+
+        kryn::setCache('pageContents-'.$pRsn, $result);
+
+        return kryn::getCache('pageContents-'.$pRsn);
+    }
+
+    
+    
+    /**
+     * 
+     * Build the HTML for given page. If pPageRsn is a deposit, it returns with kryn/blankLayout.tpl as layout, otherwise
+     * it returns the layouts with all it contents.
+     * @param int $pPageRsn
+     * @param int $pSlotId
+     * @param array $pProperties
+     * @internal
+     */
+    public static function renderPageContents( $pPageRsn = false, $pSlotId = false, $pProperties = false ){
+
+        if( kryn::$contents ){
+            $oldContents = kryn::$contents;
+        }
+        kryn::$forceKrynContent = true;
+
+        $start = microtime(true);
+        if( $pPageRsn == kryn::$page['rsn'] ){
+            //endless loop
+            die(_l('You produced a endless loop. Please check your latest changed pages.'));
+        }
+        
+        if( !$pPageRsn ){
+        
+            $pPageRsn = kryn::$page['rsn'];
+
+        } else if( $pPageRsn != kryn::$page['rsn'] ){
+        
+            $oldPage = kryn::$page;
+            kryn::$page = kryn::getPage( $pPageRsn, true );
+            $newStage = true;
+        }
+        
+        kryn::addCss('css/_pages/'.$pPageRsn.'.css');
+        kryn::addJs('js/_pages/'.$pPageRsn.'.js');
+        
+        kryn::$contents =& self::getPageContents( $pPageRsn );
+        
+        if( kryn::$page['type'] == 3 ){ //deposit
+            kryn::$page['layout'] = 'kryn/blankLayout.tpl';
+        }
+        
+        if( $pSlotId ){
+            $html = self::renderContents(kryn::$contents[$pSlotId], $pProperties);
+        } else {
+            $html = tFetch( kryn::$page['layout'] );
+        }
+        
+        if( $oldContents ){
+            kryn::$contents = $oldContents;
+        }
+        if( $oldPage ){
+            kryn::$page = $oldPage;
+        }
+        kryn::$forceKrynContent = false;
+        
+        return $html;
+    }
+    
+    /**
+     * 
+     * Build HTML for given contents.
+     * @param array $pContents
+     * @param array $pSlotProperties
+     * @internal
+     */
+    public static function renderContents( &$pContents, $pSlotProperties ){
+        global $tpl, $client, $adminClient;
+
+        $access = true;
+        $contents = array();
+
+        foreach( $pContents as $key => &$content ){
+            
+            
+            $access = true;
+
+            if( 
+                ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
+                ($content['access_to']+0 > 0 && $content['access_to'] < time() )
+            ){
+                $access = false;
+            }
+            
+            if( $content['hide'] === 0 ){
+                $access = false;
+            }
+            
+            if( $access && $content['access_from_groups'] ){
+    
+                $access = false;
+                $groups = ','.$content['access_from_groups'].',';
+            
+                foreach( $client->user['groups'] as $group ){
+                    if( strpos( $groups, ','.$group.',' ) !== false ){
+                        $access = true;
+                        break;
+                    }
+                }
+                
+                if( !$access ){
+                    foreach( $adminClient->user['groups'] as $group ){
+                        if( strpos( $groups, ','.$group.',' ) !== false ){
+                            $access = true;
+                            break;
+                        }
+                    }
+                    if( $access ){
+                        //have acces through the admin login
+                    }
+                }
+            }
+                
+            if( $access ){
+                $contents[$key] = $content;
+            }
+        }
+
+        $count = count($contents);
+        tAssign('layoutContentsMax', $count);
+        tAssign('layoutContentsIsFirst', true);
+        tAssign('layoutContentsIsLast', false);
+        tAssign('layoutContentsId', $params['id']);
+        tAssign('layoutContentsName', $params['name']);
+        
+        
+        $slot = $pSlotProperties;
+        $slot['maxItems'] = $count;
+        $slot['isFirst'] = true;
+        $slot['isLast'] = false;
+        
+        $i = 0;
+        
+        
+        //$oldContent = $tpl->getTemplateVars('content');
+
+        if( $count > 0 ){
+            foreach( $contents as &$content ){
+                if( $i == $count ) {
+                    tAssign('layoutContentsIsLast', true);
+                    $slot['isLast'] = true;
+                }
+                if( $i > 0 ){
+                    tAssign('layoutContentsIsFirst', false);
+                    $slot['isFirst'] = false;
+                }
+                
+                $i++;
+                tAssign('layoutContentsIndex', $i);
+                $slot['index'] = $i;
+                 
+                tAssignRef('slot', $slot);
+                kryn::$slot = $slot;
+                $html .= self::renderContent( $content, $slot );
+
+            }
+        }
+        
+        if( $pSlotProperties['assign'] != "" ){
+            tAssignRef($pSlotProperties['assign'], $html);
+            return;
+        }
+        
+        return $html;
+        
+    }
+    
+    /**
+     * 
+     * Build HTML for given content.
+     * @param array $pContent
+     * @param array $pProperties
+     * @internal
+     */
+    public static function renderContent( $pContent, $pProperties ){
+        global $modules, $tpl, $client, $adminClient;
+        
+        $content =& $pContent;
+        
+        $_content = &$content['content'];
+        
+        tAssignRef( 'content', $content );
+        tAssign( 'css', ($content['css']) ? $content['css'] : false );
+        
+        switch( strtolower($content['type']) ){
+            case 'text':
+                //replace all [[ with a workaround, so that multilanguage will not fetch.
+                $_content = str_replace('[[', '[<!-- -->[', $_content);
+                
+        
+                break;
+            case 'html':
+                $_content = str_replace('[[', '\[[', $_content);
+                
+                break;
+            case 'navigation':
+                $temp = json_decode( $content['content'], 1 );
+                $temp['id'] = $temp['entryPoint'];
+                $_content = krynNavigation::plugin( $temp );
+                
+                break;
+            case 'picture':
+
+                $temp = explode( '::', $_content );
+                
+                if( $temp[0] != '' && $temp[0] != 'none' ){
+                    $opts = json_decode( $temp[0], true );
+                    $align = ( $opts['align'] ) ? $opts['align'] : 'left';
+                    $alt = ( $opts['alt'] ) ? $opts['alt'] : '';
+                    $title = ( $opts['title'] ) ? $opts['title'] : '';
+                    
+                    $imagelink = $temp[1];
+                    
+                    if( $opts['width'] && $opts['height']){
+                        $imagelink = resizeImageCached( $imagelink, $opts['width'].'x'.$opts['height'] );
+                    } elseif ( $pProperties['picturedimension'] && $opts['forcedimension'] != "1" ){
+                        $imagelink = resizeImageCached( $imagelink, $pProperties['picturedimension'] );
+                    }
+                    
+                    $link = '';
+                    if( $opts['link']+0 > 0 ){
+                        $link = kryn::pageUrl( $opts['link'] );
+                    } else if( $opts['link'] != '' ){
+                        $link = $opts['link'];
+                    }
+
+                    if( $link == '' ){
+                        $_content = '<div style="text-align: '.$align.';"><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></div>';
+                    } else {
+                        $_content = '<div style="text-align: '.$align.';"><a href="'.$link.'" ><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></a></div>';
+                    }
+
+                } else {
+                    $_content = '<img src="' . $temp[1] . '" />';
+                }
+                
+                break;
+            case 'template':
+                
+                if( substr($_content, 0,1) == '/' )
+                    $_content = substr($_content, 1);
+
+                $file = str_replace('..', '', $_content);
+                if( file_exists( "inc/template/".$file ) ){
+                    $_content = tFetch( $file );
+                }
+                break;
+            case 'pointer':
+                
+                if( $_content+0 > 0 && $_content+0 != kryn::$page['rsn'] )
+                    $_content = self::renderPageContents( $_content+0, 1, $pProperties );
+                
+                break;
+            case 'layoutelement':
+                
+                $oldContents = kryn::$contents;
+                
+                $layoutcontent = json_decode($_content, true);
+                kryn::$contents = $layoutcontent['contents'];
+                $_content = tFetch( $layoutcontent['layout'] );
+                
+                kryn::$contents = $oldContents;
+                
+                break;
+            case 'plugin':
+                
+                $t = explode( '::', $_content );
+                $config = $_content;
+                
+                $_content = 'Plugin not found.';                    
+                
+                if( $modules[ $t[0] ] ){
+                
+                    $config = substr(  $config, strlen($t[0])+2+strlen($t[1])+2 );
+                    $config = json_decode( $config, true );
+                    
+                    if( method_exists( $modules[ $t[0] ], $t[1]) )
+                        $_content = $modules[ $t[0] ]->$t[1]( $config );
+                        
+                    // if in seachindex mode and plugin is configured unsearchable the kill plugin output
+                    if(isset(kryn::$configs[$t[0]]['plugins'][$t[1]][3]) && kryn::$configs[$t[0]]['plugins'][$t[1]][3] == true)
+                        $_content = kryn::$unsearchableBegin.$_content.kryn::$unsearchableEnd;                          
+                    
+                }
+                
+                break;
+            case 'php':
+                $temp = ob_get_contents();
+                ob_end_clean();
+                ob_start();
+                eval( $_content );
+                $_content = ob_get_contents();
+                ob_end_clean();
+                ob_start();
+                print $temp;
+                break;
+        }
+        
+        $unsearchable = false;
+        if( (!is_array($content['access_from_groups']) && $content['access_from_groups'] != '') ||
+            (is_array($content['access_from_groups']) && count($content['access_from_groups']) > 0) ||
+            ($content['access_from']+0 > 0 && $content['access_from'] > time() ) ||
+            ($content['access_to']+0 > 0 && $content['access_to'] < time() ) ||
+            $content['unsearchable'] == 1
+            ){
+            $unsearchable = true;
+        }
+
+        if( $content['template'] == '' || $content['template'] == '-' ){
+            if( $unsearchable )
+                return '<!--unsearchable-begin-->'.$_content.'<!--unsearchable-end-->';
+            else
+                return $_content;
+        } else {
+        
+            tAssign( 'content', $content );
+            $template = $content['template'];
+            if( $unsearchable )
+                return '<!--unsearchable-begin-->'.tFetch( $template ).'<!--unsearchable-end-->';
+            else
+                return tFetch( $template );
+        }
+    }
+
 
 }
 
