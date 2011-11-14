@@ -141,9 +141,6 @@ ka.pagesTree = new Class({
             this.lastFirstLevelRq.cancel();
 
 
-        logger(this.lastSelectedPage);
-        logger(this.lastSelectedItem);
-
         var viewAllPages = 0;
         if( this.options.viewAllPages )
             viewAllPages = 1;
@@ -225,8 +222,6 @@ ka.pagesTree = new Class({
                     
                 this.lastSelectedItem = a;
                 this.lastSelectedPage = item;
-                logger('select domain');
-                logger(item);
             }
 
         } else {
@@ -239,8 +234,6 @@ ka.pagesTree = new Class({
             if( this.options.noActive != true )
                 a.addClass('ka-pageTree-item-selected');
 
-                logger('select page');
-                logger(item);
             this.lastSelectedItem = a;
             this.lastSelectedPage = item;
         }
@@ -303,10 +296,6 @@ ka.pagesTree = new Class({
             if( this.options.noActive != true ){
                 a.addClass('ka-pageTree-item-selected');
             }
-            
-            logger( a );
-            logger(this.lastSelectedPage)
-            logger( pItem );
 
             this.lastSelectedItem = a;
             this.lastSelectedPage = pItem;
