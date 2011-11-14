@@ -913,20 +913,6 @@ class adminPages {
         foreach( $parents as &$parent ){
             kryn::deleteCache('page-'.$parent['rsn']);
         }
-        
-        
-        /*
-        //todo need a sign from the user to do this
-        $newRealUrl = kryn::pageUrl($whoId, $who['domain_rsn']);
-        dbDelete('system_urlalias', 'domain_rsn = '.$who['domain_rsn']." AND url = '".$newRealUrl."'");
-        
-        if( $oldRealUrl != $newRealUrl ){
-            $existRow = dbExfetch("SELECT rsn FROM %pfx%system_urlalias WHERE to_page_rsn=".$whoId." AND url = '".$oldRealUrl."'", 1);
-         
-            if( $existRow['rsn']+0 == 0 )
-                dbInsert('system_urlalias', array( 'domain_rsn' => $who['domain_rsn'], 'url' => $oldRealUrl, 'to_page_rsn' => $whoId));
-        }*/
-        
 
         self::cleanSort( $target['domain_rsn'], 0 );
         self::updateUrlCache( $target['domain_rsn'] );
@@ -1091,11 +1077,22 @@ class adminPages {
                 'prsn' => $prsn, 'domain_rsn' => $domain_rsn, 'type' => $type));
             $c++;
         }
+
         if( $c > 1 )
             self::cleanSort( $domain_rsn, $prsn );
 
         self::updateUrlCache( $domain_rsn );
         self::updateMenuCache( $domain_rsn );
+        
+        kryn::deleteCache('page-'.$rsn);
+        $parents = kryn::getPageParents( $rsn );
+        foreach( $parents as &$parent ){
+            kryn::deleteCache('page-'.$parent['rsn']);
+        }
+        
+        kryn::invalidateCache('navigation-'.$domain_rsn);
+        kryn::invalidateCache('systemNavigations-'.$domain_rsn);
+        kryn::invalidateCache('systemWholePage-'.$domain_rsn);
         
         json( true );
     }

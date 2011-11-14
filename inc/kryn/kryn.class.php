@@ -350,7 +350,7 @@ class kryn {
      * @static
      * @internal
      */
-    public static $deactivateContentCheck = false;
+    public static $disableContentCheck = false;
     
     /**
      * Contains the krynCache object
@@ -2521,10 +2521,12 @@ class kryn {
             }
         }
         
-        $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
-        
-        if( $resCode == 2 ){
-            kryn::notFound( 'invalid-arguments' );
+        if( kryn::$disableContentCheck == false ){
+            $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
+            
+            if( $resCode == 2 ){
+                kryn::notFound( 'invalid-arguments' );
+            }
         }
         
         self::removeSearchBlocks( kryn::$pageHtml );
@@ -2552,9 +2554,9 @@ class kryn {
      * 
      * Deactivates the 404 content check
      */
-    public static function deactivateContentCheck(){
+    public static function disableContentCheck(){
   
-        self::$deactivateContentCheck = true;
+        self::$disableContentCheck = true;
         
     }
 

@@ -21,6 +21,7 @@ class users extends baseModule{
         tAssign('pConf', $pConf);
 
         if( getArgv('users-loggedOut') || getArgv('users-logout') ){
+            kryn::disableContentCheck();
             $client->logout();
             if( $pConf['logoutTarget'] ){
                 kryn::redirectToPage( $pConf['logoutTarget'] );
@@ -28,6 +29,7 @@ class users extends baseModule{
         }
         
         if( getArgv('users-login') ){
+            kryn::disableContentCheck();
             $login = getArgv('users-username')?getArgv('users-username'):getArgv('users-email');
             
             $client->login( $login, getArgv('users-passwd') );

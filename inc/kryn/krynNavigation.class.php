@@ -75,7 +75,7 @@ class krynNavigation {
             }
             
             if( !$pWithoutCache ){
-                kryn::setCache( 'navigation-'.$code, $pages );
+                kryn::setCache( 'navigation-'.$code, $pages, 60 );
             }
 
         } else {
@@ -145,9 +145,11 @@ class krynNavigation {
 
         if( $pOptions['level'] > 1 ){
 
-            $currentLevel = count( kryn::$breadcrumbs[kryn::$page['rsn']] )+1;
 
-            $page = self::arrayLevel( kryn::$breadcrumbs[kryn::$page['rsn']], $pOptions['level'] );
+            $currentLevel = count( kryn::$breadcrumbs )+1;
+
+            $page = self::arrayLevel( kryn::$breadcrumbs, $pOptions['level'] );
+            
             
             if( $page['rsn'] > 0 )
                 $navi =& kryn::getPage( $page['rsn'] );
