@@ -55,13 +55,12 @@ ka.field_multiUpload = new Class ({
     },
     
     _initSWFUpload: function(){  
-    	logger(this.options.uploadpath);
+
     	ka.uploads[this.win.id] = new SWFUpload({
     		
-            upload_url: _path+this.options.uploadpath+"/krynsessionid:"+window._sid+"/",
-           
+            upload_url: _path+this.options.uploadpath+"/?"+window._session.tokenid+"="+window._session.sessionid,
+
             file_post_name: "file",
-            post_params: { "_sessionid": _sid},
             flash_url : _path+"inc/template/admin/swfupload.swf",
             file_upload_limit : "500",
             file_queue_limit : "20",

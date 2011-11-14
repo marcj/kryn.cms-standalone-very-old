@@ -12,10 +12,6 @@ body {
 
 }
 
-a * {
-    pointer-events: none;
-}
-
 img {
     border: 0px;
 }
@@ -42,6 +38,16 @@ html {
     bottom: 0px;
 }
 
+
+#desktop {
+    position: absolute;
+    right: 2px;
+    left: 34px;
+    bottom: 2px;
+    top: 75px;
+}
+
+
 /* main layout */
 div.header {
     position: absolute;
@@ -52,6 +58,8 @@ div.header {
     top: 16px;
     background-repeat: repeat-x;
     background-image: url(../images/menubar-bg.png);
+    
+    z-index: 110000;
 }
 
 div.header-left {
@@ -170,6 +178,8 @@ div.bar-dock-logo-menu {
     -webkit-border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    
+    z-index: 103000;
 }
 
 div.bar-dock-logo-menu a,
@@ -259,6 +269,9 @@ div.headRight > a.last:link {
     -webkit-border-bottom-right-radius: 9px;
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
+    
+    
+    z-index: 102000;
 }
 
 .ka-module-menu div.kwindow-win-buttonGroup {
@@ -590,6 +603,9 @@ div.windowList {
     padding: 0px 11px 0 11px;
     padding-left: 3px;
     padding-right: 150px;
+    
+    
+    z-index: 111000;
 }
 
 .iconbar {
@@ -962,6 +978,8 @@ a.ka-create-search-index-icon.red {
     -moz-box-shadow: 0 0 2em #656465;
     -webkit-box-shadow: 0 0 2em #656465;
     box-shadow: 0 0 2em #656465;
+    
+    z-index: 101000;
 }
 
 .ka-searchcontext-content {

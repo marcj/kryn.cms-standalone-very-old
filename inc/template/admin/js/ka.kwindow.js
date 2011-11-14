@@ -377,8 +377,8 @@ ka.kwindow = new Class({
                 this.border.tween('opacity', 1);
             }
             
-            if( this.border.getParent().getLast() != this.border )
-                this.border.inject( this.border.getParent() );
+            ka.wm.zIndex++;
+            this.border.setStyle('z-index', ka.wm.zIndex);
 
             ka.wm.setFrontWindow( this.id );
             if( ka.wm.toFront( this.id ) == false ){//abhängigkeit zu anderem fenster vorhanden
@@ -945,6 +945,7 @@ ka.kwindow = new Class({
             'class': 'kwindow-win-bottom'
         }).inject( this.win );
 
+
         this.borderDragger = this.border.makeDraggable({
             handle: [this.title, this.titleGroups],
             //presentDefault: true,
@@ -992,15 +993,12 @@ ka.kwindow = new Class({
                 }
             }.bind(this)
         });
-
         this.title.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
         this.titleGroups.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
-
 
         this.content = new Element('div', {
             'class': 'kwindow-win-content'
         }).inject( this.win );
-
 
         this.inFront = true;
 

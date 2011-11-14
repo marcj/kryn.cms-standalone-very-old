@@ -365,6 +365,7 @@ ka.ai.loginSuccess = function(pId, pAlready){
 
     ka.ai.loginForm.setStyle('display', 'none');
     window._sid = pId.sessionid;
+    window._session.sessionid = pId.sessionid;
     
     $('user.username').set('text', ka.ai.loginName.value);
     $('user.username').onclick = function(){

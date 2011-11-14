@@ -36,7 +36,6 @@ $languages = array();
 $kcache = array();
 $_AGET = array();
 
-
 # install
 if( !file_exists('inc/config.php') ){
     header("Location: install.php");
@@ -137,7 +136,6 @@ if( getArgv(1) == 'admin' ){
 
 kryn::checkAccess();
 krynSearch::initSearch();
-
 
 register_shutdown_function('kryn_shutdown');
 

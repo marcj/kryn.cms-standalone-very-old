@@ -40,6 +40,7 @@
             window._session.user_rsn = {$user.rsn+0};
             window._session.username = '{$user.username}';
             window._session.sessionid = '{$client->token}';
+            window._session.tokenid = '{$client->tokenid}';
             window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
             window._session.lastlogin = '{$user.lastlogin}';
             window._session.forceLang = '{$request.setLang}';
@@ -54,10 +55,6 @@
     </head>
     <body>
         <div class="border" id="border">
-        
-            <div class="middle" id="middle">
-                <div class="content ka-desktop" id="desktop"></div>
-            </div>
             
             <div class="header" id="header">
                 <div class="header-left"></div>
@@ -84,6 +81,10 @@
             <div class="windowList" id="windowList"></div>
             <div class="iconbar" id="iconbar">
             	<div class="iconbar-item" id="serverTime"></div>
+            </div>
+        
+            <div class="middle" id="middle">
+                <div class="content ka-desktop" id="desktop"></div>
             </div>
         </div>
     </body>

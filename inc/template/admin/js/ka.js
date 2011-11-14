@@ -1582,7 +1582,7 @@ ka.openDialog = function( item ){
         target = item.target.getWindow().document.body;
 
     ka.autoPositionLastOverlay = new Element('div', {
-        style: 'position: absolute; left:0px; top: 0px; right:0px; bottom:0px;background-color: white;',
+        style: 'position: absolute; left:0px; top: 0px; right:0px; bottom:0px;background-color: white; z-index: 201000;',
         styles: {
             opacity: 0.001
         }
@@ -1592,6 +1592,7 @@ ka.openDialog = function( item ){
         e.stop();
     })
     .inject( target );
+    item.element.setStyle('z-index', 201001);
     
     var size = item.target.getWindow().getScrollSize();
 

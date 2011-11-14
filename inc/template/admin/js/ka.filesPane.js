@@ -150,10 +150,10 @@ ka.filesPane = new Class({
     },
     
     initSWFUpload: function(){
+    
         ka.uploads[this.win.id] = new SWFUpload({
-            upload_url: _path+"admin/files/upload/krynsessionid:"+window._sid+"/",
+            upload_url: _path+"admin/files/upload/?"+window._session.tokenid+"="+window._session.sessionid,
             file_post_name: "file",
-            post_params: { "_sessionid": _sid },
             flash_url : _path+"inc/template/admin/swfupload.swf",
             file_upload_limit : "500",
             file_queue_limit : "0",

@@ -13,6 +13,7 @@ ka.wm = {
     depend: new Hash({}),
     lastWindow: 0,
     events: {},
+    zIndex: 1000,
 
     openWindow: function( pModule, pWindowCode, pLink, pDependOn, pParams, pInline ){
         /*

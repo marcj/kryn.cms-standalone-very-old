@@ -56,10 +56,10 @@ var admin_files = new Class({
     },
     
     initSWFUpload: function(){
+    
         ka.uploads[this.win.id] = new SWFUpload({
-            upload_url: _path+"admin/files/upload/krynsessionid:"+window._sid+"/",
+            upload_url: _path+"admin/files/upload/?"+window._session.tokenid+"="+window._session.sessionid,
             file_post_name: "file",
-            post_params: { "_sessionid": _sid },
             flash_url : _path+"inc/template/admin/swfupload.swf",
             file_upload_limit : "500",
             file_queue_limit : "0",
@@ -78,7 +78,6 @@ var admin_files = new Class({
             button_width: 26,
             button_height: 20,
             button_text : '<span class="button"></span>',
-            button_text_style : '.button { position: absolute; }',
             button_text_top_padding: 0,
             button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
             button_cursor: SWFUpload.CURSOR.HAND
@@ -90,10 +89,6 @@ var admin_files = new Class({
         	this._modules.include(ext+'/');
         }.bind(this));
         this.loadPath('/');
-        /*new Request.JSON({url: _path+'admin/files/loadModules/', noCache: 1, onComplete: function(res){
-            _this._modules = res;
-            _this.loadPath('/');
-        }}).get();*/
     },
 
     newUploadBtn: function(){
@@ -483,7 +478,8 @@ var admin_files = new Class({
             //_this._updateStatusbar();
             //hide( 'fileActions.edit' );
             _this.loader.hide();
-        }}).post({ path: pPath });
+        
+        }.bind(this)}).post({ path: pPath });
     },
 
     reRender: function(){
