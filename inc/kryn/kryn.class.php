@@ -2374,7 +2374,7 @@ class kryn {
 
         $pageCacheKey = 'systemWholePage-'.kryn::$domain['rsn'].'_'.kryn::$page['rsn'].'-'.md5(kryn::$canonical);
 
-        if( kryn::$domainProperties['kryn']['cachePagesForAnons'] !== 0 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
+        if( kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
 
             $cache =& kryn::getCache( $pageCacheKey );
             if( $cache ){
@@ -2530,7 +2530,7 @@ class kryn {
         self::removeSearchBlocks( kryn::$pageHtml );
         /**/
         
-        if( kryn::$domainProperties['kryn']['cachePagesForAnons'] !== 0 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
+        if( kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
         
             $page = krynHtml::getPage( kryn::$pageHtml );
             kryn::setCache( $pageCacheKey, $page, 10 );

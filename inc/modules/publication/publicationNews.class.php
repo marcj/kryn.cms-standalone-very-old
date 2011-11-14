@@ -235,10 +235,7 @@ class publicationNews
         
         $cacheKey = 'publicationNewsList_'.kryn::$page['rsn'].'-'.md5($template.'.'.$whereCategories.'.'.$start.'.'.$itemsPerPage.'.'.$orderBy);
 
-
-
-
-        if( kryn::$domainProperties['publication']['cache'] !== 0 ){
+        if( kryn::$domainProperties['publication']['cache'] == 1 ){
             
             $cached =& kryn::getCache($cacheKey.'-full');
             if( $cached ){

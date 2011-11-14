@@ -17,7 +17,7 @@
         "label": "[[Cache html]]",
         "desc": "[[Some templates does not support this. If you have troubles, just deactivate this.]]",
         "type": "checkbox",
-        "default": "1"
+        "default": "0"
     }
   },
   "admin": {

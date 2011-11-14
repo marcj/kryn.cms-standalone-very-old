@@ -32,7 +32,7 @@
         "label": "[[Cache the whole html of a page for anonymous users]]",
         "desc": "[[Some layouts/templates does not support this. If you have troubles, just deactivate this.]]",
         "type": "checkbox",
-        "default": "1"
+        "default": "0"
     } 
   },
   
