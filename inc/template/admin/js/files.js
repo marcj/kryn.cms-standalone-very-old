@@ -306,7 +306,7 @@ var admin_files = new Class({
         
         var speed = ' -- KB/s, '+_('%s minutes left').replace('%s', '--:--');
         var again = false;
-        
+
         if( this.fileUploadSpeedLastCheck == 0 ){
             this.fileUploadSpeedLastCheck = (new Date()).getTime()-1000;
         }
@@ -407,6 +407,8 @@ var admin_files = new Class({
         }
         
         this.uploadTrs[ pFile.id ].error = true;
+
+        this.uploadAllProgress();
                 
     },
     
