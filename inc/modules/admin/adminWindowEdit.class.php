@@ -299,13 +299,14 @@ class adminWindowEdit {
      */
     public function getItem(){
 
-        $tableInfo = $this->db[$this->table];
+        $tableInfo = database::getOptions( $this->table );
         $where = '';
         $primaries = array();
         $code = $this->table;
         
         foreach( $this->primary as $primary ){
-            if( $tableInfo[$primary][0] == 'int' ) 
+
+            if( $tableInfo[$primary]['escape'] == 'int' ) 
                 $val = getArgv($primary)+0;
             else
                 $val = "'".getArgv($primary,1)."'";
@@ -313,7 +314,7 @@ class adminWindowEdit {
             $primaries[$primary] = getArgv($primary);
             $where .= " AND $primary = $val";
             
-            $code .= '_'.$primary.'='.$val;
+            $code .= '_'.$primary.'='.getArgv($primary);
         }
         $code = esc($code);
         

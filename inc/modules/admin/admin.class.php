@@ -1166,7 +1166,7 @@ class admin {
         
         $content = json_encode( $pRow );
                 
-        $currentVersion = dbTableFetch('system_frameworkversion', "code = '$code' ORDER BY version DESC", 1);
+        $currentVersion = dbTableFetch('system_frameworkversion', "code = '".esc($code)."' ORDER BY version DESC", 1);
         
         $version = $currentVersion['version']+1;
         $new = array(

@@ -18,8 +18,11 @@ class publicationNewsEdit extends windowEdit {
     }
 
     public function saveItem(){
-        parent::saveItem();
+        
+        $res = parent::saveItem();
         kryn::invalidateCache('publicationNewsList');
+        
+        return $res;
     }
 
     public $tabFields = array(

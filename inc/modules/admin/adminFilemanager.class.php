@@ -529,14 +529,16 @@ $pAccess from all
 
     public static function uploadFile(){
 
-        $name = $_FILES['file']['name'];
+        $name = kryn::toModRewrite($_FILES['file']['name']);
+
         $path = getArgv('path');
+
         if( substr( $path, -1 ) != '/' )
             $path = $path . '/';
 
-
         $newPath = 'inc/template' . $path . '/' . $name;
         $newPath = str_replace( "..", "", $newPath );
+
         if( getArgv('overwrite') != "1" ){
             $exist = file_exists( $newPath );
             $_id = 0;
