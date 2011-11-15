@@ -368,6 +368,8 @@ var admin_files = new Class({
     
     uploadComplete: function( pFile ){
     
+        if( !this.uploadTrs[ pFile.id ] ) return;
+        
         this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: green">'+_('Complete')+'</span>');
         this.uploadTrs[ pFile.id ].progress.setValue( 100 );
 
@@ -385,7 +387,8 @@ var admin_files = new Class({
     
     uploadError: function( pFile ){
     
-    
+        if( !this.uploadTrs[ pFile.id ] ) return;
+        
         this.uploadTrs[ pFile.id ].deleteTd.destroy();
                 
         if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size ){
@@ -430,6 +433,11 @@ var admin_files = new Class({
     },
     
     cancelUploads: function(){
+        
+        Object.each(this.uploadTrs, function(tr, id){
+            if( !tr.complete )
+                ka.uploads[this.win.id].cancelUpload( id );
+        }.bind(this))
         
         if( this.fileUploadDialog )
             this.fileUploadDialog.close();
