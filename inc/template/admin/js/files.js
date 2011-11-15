@@ -12,6 +12,9 @@ var admin_files = new Class({
     firstLoaded: 0,
     selectedFiles: [],
     
+    uploadTrs: {},
+    uploadFilesCount: 0,
+    
     initialize: function( pWindow ){
         var _this = this;
         this.win = pWindow;
@@ -47,12 +50,198 @@ var admin_files = new Class({
         this.uploadBtn.set('html', '<span id="'+this.buttonId+'"></span>');
         this.initSWFUpload();
     },
+    
+    _checkFiles: function( pHowMany ){
+    
+        for( var i=0; i<pHowMany; i++){
 
-    _uploadStart: function( pFile ){
-        ka.uploads[this.win.id].removeFileParam( pFile.id, 'path' );
-        ka.uploads[this.win.id].addFileParam( pFile.id, 'path', this.current );
-        ka.uploads[this.win.id].startUpload( pFile.id );
-        ka.fupload.addToUploadMonitor( pFile, ka.uploads[this.win.id] );
+            var file = ka.uploads[this.win.id].getFile(i);
+
+            if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < file.size ){
+                
+                ka._helpsystem.newBubble(
+                _('Can not upload file'),
+                _('The file size of %s exceeds the limit allows by upload_max_filesize on your server. Please contact the administrator.').replace('%s', file.name),
+                -1 );
+                
+                ka.uploads[this.win.id].cancelUpload( file.id );
+                
+            } else {
+                this.newFileUpload( file );
+            }
+            
+        }
+    },
+    
+    bytesToSize: function( bytes ){
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        if (bytes == 0) return 'n/a';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        if (i == 0) { return (bytes / Math.pow(1024, i)) + ' ' + sizes[i]; }
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    },
+    
+    newFileUpload: function( pFile ){
+    
+        if( !this.fileUploadDialog ){
+            this.fileUploadDialog = this.win.newDialog();
+            
+            this.fileUploadDialog.setStyles({
+                height: '60%',
+                width: '80%'
+            });
+            this.fileUploadDialog.center();
+            
+            this.fileUploadCancelBtn = new ka.Button(_('Cancel'))
+            .addEvent('click', this.cancelUploads.bind(this))
+            .inject(this.fileUploadDialog.bottom);
+            
+            var table = new Element('table', {style: 'width: 100%;', 'class': 'admin-file-uploadtable'}).inject( this.fileUploadDialog.content );
+            this.fileUploadTBody = new Element('tbody').inject( table );
+            
+            
+            this.fileUploadDialogProgress = new ka.Progress();
+            document.id(this.fileUploadDialogProgress).inject( this.fileUploadDialog.bottom );
+            document.id(this.fileUploadDialogProgress).setStyle( 'width', 132 );
+            document.id(this.fileUploadDialogProgress).setStyle( 'position', 'absolute' );
+            document.id(this.fileUploadDialogProgress).setStyle( 'top', 4 );
+            document.id(this.fileUploadDialogProgress).setStyle( 'left', 9 );
+        
+            this.fileUploadDialogAllText = new Element('div', {
+                style: 'position: absolute; left: 155px; top: 6px; color: gray;'
+            }).inject( this.fileUploadDialog.bottom );
+
+        }
+        
+        this.uploadFilesCount++;
+        
+        var tr = new Element('tr').inject( this.fileUploadTBody );
+        
+        var td = new Element('td', {
+            width: 20,
+            text: '#'+this.uploadFilesCount
+        }).inject( tr );
+        
+        var td = new Element('td', {
+            text: pFile.name
+        }).inject( tr );
+        
+        var td = new Element('td', {
+            width: 60,
+            style: 'text-align: center;',
+            text: this.bytesToSize(pFile.size)
+        }).inject( tr );
+        
+        tr.status = new Element('td', {
+            text: _('Pending ...'),
+            width: 150,
+            style: 'text-align: center;'
+        }).inject( tr );
+        
+        var td = new Element('td', {
+            width: 150
+        }).inject( tr );
+
+        tr.progress = new ka.Progress();
+        document.id(tr.progress).inject( td );
+        document.id(tr.progress).setStyle( 'width', 132);
+        
+        this.uploadTrs[ pFile.id ] = tr;
+        this.uploadTrs[ pFile.id ].file = pFile;
+        
+        if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size ){
+        
+            ka.uploads[this.win.id].cancelUpload( pFile.id );
+            
+        } else {
+        
+            ka.uploads[this.win.id].startUpload( pFile.id );
+        }
+        
+    
+    },
+    
+    uploadAllProgress: function(){
+    
+        var count = 0;
+        var loaded = 0;
+        var all = 0;
+        var done = 0;
+
+        Object.each( this.uploadTrs, function(tr,id){
+            count++;
+            loaded += tr.loaded;
+            all += tr.file.size;
+            if( tr.complete == true ) {
+                done++;
+            }
+        });
+    
+        //todo
+        var speed = '#todo MB/s';
+    
+        this.fileUploadDialogAllText.set('text', _('%s done').replace('%s', done+'/'+count)+'. '+speed );
+        
+        var percent = Math.ceil((loaded / all) * 100);
+        if( done == count ){
+            percent = 100;
+        }
+        this.fileUploadDialogProgress.setValue( percent );
+    },
+    
+    uploadProgress: function( pFile, pBytesCompleted, pBytesTotal ){
+        
+        var percent = Math.ceil((pBytesCompleted / pBytesTotal) * 100);
+        this.uploadTrs[ pFile.id ].progress.setValue( percent );
+        this.uploadTrs[ pFile.id ].loaded = pBytesCompleted;
+        
+        this.uploadAllProgress();
+    },
+    
+    uploadStart: function( pFile ){
+
+        this.uploadTrs[ pFile.id ].status.set('html', _('Uploading ...'));
+
+    },
+    
+    uploadComplete: function( pFile ){
+    
+        this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: green">'+_('Complete')+'</span>');
+        this.uploadTrs[ pFile.id ].progress.setValue( 100 );
+
+        this.uploadTrs[ pFile.id ].complete = true;
+        
+        this.uploadAllProgress();
+        
+        if( this && this.reload )
+            this.reload();
+        
+    },
+    
+    uploadError: function( pFile ){
+                
+        if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size ){
+            this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">'+_('File size limit exceeded')+'</span>');
+            this.uploadTrs[ pFile.id ].status.set('title', _('The file size exceeds the limit allows by upload_max_filesize on your server. Please contact the administrator.'));
+        } else {
+    
+            this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">'+_('Unknown error')+'</span>');
+        }
+        
+        this.uploadTrs[ pFile.id ].complete = true;
+                
+    },
+    
+    cancelUploads: function(){
+        
+        this.uploadFilesCount = 0;
+        
+        this.fileUploadDialog.close();
+        delete this.fileUploadDialog;
+        
+        delete this.uploadTrs;
+        
+        this.uploadTrs = {};
     },
     
     initSWFUpload: function(){
@@ -64,15 +253,13 @@ var admin_files = new Class({
             file_upload_limit : "500",
             file_queue_limit : "0",
 
-            file_queued_handler: this._uploadStart.bind(this),
 
-            upload_progress_handler: ka.fupload._progress,
-            upload_error_handler: ka.fupload.error,
-            upload_success_handler: function( pFile ){
-                ka.fupload.success( pFile );
-                if( this && this.reload )
-                    this.reload();
-            }.bind(this),
+            //file_dialog_complete_handler: this._checkFiles.bind(this),
+            file_queued_handler: this.newFileUpload.bind(this),
+            upload_progress_handler: this.uploadProgress.bind(this),
+            upload_start_handler: this.uploadStart.bind(this),
+            upload_success_handler: this.uploadComplete.bind(this),
+            upload_error_handler: this.uploadError.bind(this),
 
             button_placeholder_id : this.buttonId,
             button_width: 26,
@@ -783,7 +970,6 @@ var admin_files = new Class({
 	        wuff();
         }
 
-        logger(pFile.path);
         if( pFile.path == 'trash/' ){
             return;
         }

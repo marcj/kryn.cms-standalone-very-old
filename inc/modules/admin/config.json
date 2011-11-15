@@ -1278,7 +1278,7 @@
     "admin\/js\/ka.customField.js",
     "admin\/js\/swfupload.js",
     "admin\/js\/swfupload.queue.js",
-    "admin\/js\/fuploader.js",
+    "admin\/js\/fupload.js",
     "admin\/js\/ka.crawler.js",
     "admin\/mootools-extras\/Array.sortOn.js"
   ],

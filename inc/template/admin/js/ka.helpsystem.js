@@ -16,7 +16,6 @@ ka.helpsystem = new Class({
     
         var size = $('desktop').getSize();
         var maxHeight = size.y - 10;
-        logger( size.y );
         var curHeight = 0;
         
         for( var i = this.boxes.length-1; i> 0; i--){
@@ -26,9 +25,7 @@ ka.helpsystem = new Class({
         
         //this.boxes.each(function(box, index){
         
-            logger(index+': '+curHeight +' => '+maxHeight );
             curHeight += box.getSize().y;
-            logger(index+': '+curHeight +' => '+maxHeight );
             
             if( curHeight > maxHeight )
                 box.destroy();
@@ -60,7 +57,7 @@ ka.helpsystem = new Class({
         }
         
         var delay = 4000; //4sec
-        if( pDelay > 0 ) delay = pDelay;
+        if( pDelay ) delay = pDelay;
         
         var die = (function(){
             box.set('tween', {onComplete: function(){
@@ -69,7 +66,8 @@ ka.helpsystem = new Class({
             box.tween('opacity', 0);
         })
         
-        die.delay( delay );
+        if( delay > 0 )
+            die.delay( delay );
         
         new Element('a', {
             text: 'x',

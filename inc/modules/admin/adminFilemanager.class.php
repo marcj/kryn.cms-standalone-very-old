@@ -528,15 +528,40 @@ $pAccess from all
     }
 
     public static function uploadFile(){
+    
 
-        $name = kryn::toModRewrite($_FILES['file']['name']);
-
+        $name = $_FILES['file']['name'];
         $path = getArgv('path');
+        
+        if( $_FILES["file"]['error'] ){
+            
+            switch( $_FILES['file']['error'] ){
+                case 1: $error = _l('The uploaded file exceeds the upload_max_filesize directive in php.ini.'); break;
+                case 2: $error = _l('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.'); break;
+                case 3: $error = _l('The uploaded file was only partially uploaded.'); break;
+                case 7: $error = _l('Failed to write file to disk.'); break;
+                case 6: $error = _l('Missing a temporary folder.'); break;
+                case 4: $error = _l('No file was uploaded.'); break;
+                case 8: $error = _l('A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.'); break;
+            }
+        
+            klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: %s'), $name, $path, $error));
+            return;
+        }
+        
+        
+        $name = @str_replace('ä', "ae", strtolower($name));
+        $name = @str_replace('ö', "oe", $name);
+        $name = @str_replace('ü', "ue", $name);
+        $name = @str_replace('ß', "ss", $name);
+        $name = @preg_replace('/[^a-zA-Z0-9\.]/', "-", $name);
+        $name = @preg_replace('/--+/', '-', $name);
+
 
         if( substr( $path, -1 ) != '/' )
             $path = $path . '/';
 
-        $newPath = 'inc/template' . $path . '/' . $name;
+        $newPath = 'inc/template' . $path . $name;
         $newPath = str_replace( "..", "", $newPath );
 
         if( getArgv('overwrite') != "1" ){
@@ -557,10 +582,19 @@ $pAccess from all
         
         
         $toDir = dirname($newPath);
-        $access = krynAcl::checkAccess( 3, '/'.$newFilePath, 'write', true );
-        if( !$access ) json('no-access');
         
-        move_uploaded_file($_FILES["file"]["tmp_name"], $newPath );
+        if( !is_writable($toDir) ){
+            klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: to target folder is not writable by webserver.'), $name, $path));
+        }
+        
+        $access = krynAcl::checkAccess( 3, '/'.$newFilePath, 'write', true );
+        
+        if( !$access ){
+            json(array('error'=>'access_denied'));
+        }
+        
+        move_uploaded_file( $_FILES["file"]["tmp_name"], $newPath );
+        
         $res = substr( $newPath, 12 );
         if( getArgv('output') == 'html' )
             die($res);

@@ -8,9 +8,25 @@
     text-align: center;
     line-height: 14px;
     color: #222;
+    position: relative;
 }
 
 .ka-progress-unlimited {
     background-image: url(../images/unlimited-loading.gif?nc=1);
     background-color: #f3f3f3;   
+}
+
+.ka-progress-bar {
+    -moz-border-radius: 3px;
+    background-color: #c3e4f2;
+    height: 14px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0%;
+}
+
+
+.ka-progress-text {
+    position: relative;
 }

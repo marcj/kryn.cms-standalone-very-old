@@ -260,8 +260,14 @@
 }
 
 .ka-kwindow-prompt-text {
-    padding-bottom: 5px;
-    padding-top: 4px;
+    position: absolute;
+    top: 0px;
+    padding-top: 5px;
+    overflow: auto;
+    left: 0px;
+    right: 0px;
+    bottom: 38px;
+    min-height: 50px;
 }
 
 .ka-kwindow-prompt-bottom {

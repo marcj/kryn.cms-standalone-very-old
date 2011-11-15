@@ -153,12 +153,14 @@ ka.fupload.success = function( file ){
     }
 
     var item = ka.fupload._items[ file.id ];
-    item.set( 'tween', {onComplete: function(){
-        item.destroy();
-    }});
-    item.set('tween', {onComplete: function(){
-        item.destroy(); 
-    }});
-    item.tween( 'opacity', 0);
+        if( item ){
+        item.set( 'tween', {onComplete: function(){
+            item.destroy();
+        }});
+        item.set('tween', {onComplete: function(){
+            item.destroy(); 
+        }});
+        item.tween( 'opacity', 0);
+    }
     //ka.fm.reload();
 }

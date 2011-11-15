@@ -291,3 +291,9 @@
     text-align: center;
     padding: 0px 2px 0px 2px;
 }
+
+
+.admin-file-uploadtable td {
+    border-bottom: 1px dashed silver;
+    padding: 6px;
+}
