@@ -25,6 +25,8 @@
       "title": "[[News]]",
       "type": "combine",
       "class": "publicationNewsList",
+      "minWidth": 1000,
+      "minHeight": 400,
       "childs": {
         "add": {
           "title": "[[News add]]",

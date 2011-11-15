@@ -571,7 +571,7 @@ ka.kwindow = new Class({
             this.bottom.setStyle('background-image', 'none');
         }
         
-        //check dimensions if to big
+        //check dimensions if to big/small
         this.checkDimensions();
     },
     
@@ -586,7 +586,15 @@ ka.kwindow = new Class({
         var newY = false;
         var newHeight = false;
         
-
+        logger(this.values);
+        if( this.values.minWidth && borderSize.x < this.values.minWidth ){
+            this.border.setStyle('width', this.values.minWidth);
+        }
+        if( this.values.minWidth && borderSize.y < this.values.minHeight ){
+            this.border.setStyle('height', this.values.minHeight);
+        }
+        
+        
         var newX = false;
         var newWidth = false;
         
