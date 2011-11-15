@@ -554,7 +554,7 @@ $pAccess from all
         $name = @str_replace('ö', "oe", $name);
         $name = @str_replace('ü', "ue", $name);
         $name = @str_replace('ß', "ss", $name);
-        $name = @preg_replace('/[^a-zA-Z0-9\.]/', "-", $name);
+        $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
         $name = @preg_replace('/--+/', '-', $name);
 
 
