@@ -112,8 +112,13 @@ var admin_files_properties = new Class({
 		
 		if( this.file.type == 'dir' )
 			this.tabButtons['versions'].hide();
+
+        if( this.file.isDir && this.file.path == '/' ){
+		  this.win.setTitle('/');
+        } else {
+		  this.win.setTitle(this.file.name);
+		}
 		
-		this.win.setTitle(_('Properties of %s').replace('%s', this.file.name));
 		this.panes['general'].setStyle('padding', 6);
 		this.panes['general'].empty();
 		

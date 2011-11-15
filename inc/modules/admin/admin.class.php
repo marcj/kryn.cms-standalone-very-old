@@ -763,7 +763,8 @@ class admin {
         }
         
         $v = ini_get('upload_max_filesize');
-        $b = self::return_bytes( $v );
+        $v2 = ini_get('post_max_size');
+        $b = self::return_bytes( ($v<$v2)?$v:$v2 );
         $res['upload_max_filesize'] = $b;
         
         $res['groups'] = dbTableFetch( 'system_groups', DB_FETCH_ALL);

@@ -14,6 +14,12 @@ var admin_files = new Class({
     
     uploadTrs: {},
     uploadFilesCount: 0,
+    uploadFileNames: {},
+    fileUploadSpeedLastCheck: 0,
+    fileUploadedSpeedLastLoadedBytes: 0,
+    fileUploadedLoadedBytes: 0,
+    fileUploadSpeedLastByteSpeed: 0,
+    fileUploadSpeedInterval: false,
     
     initialize: function( pWindow ){
         var _this = this;
@@ -30,6 +36,10 @@ var admin_files = new Class({
         });
         this.title = this.win.getTitle();
         this.initHotkeys();
+        
+        this.win.addEvent('close', function(){
+            this.cancelUploads();
+        }.bind(this));
     },
 
     initHotkeys: function(){
@@ -74,7 +84,7 @@ var admin_files = new Class({
     },
     
     bytesToSize: function( bytes ){
-        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
         if (bytes == 0) return 'n/a';
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
         if (i == 0) { return (bytes / Math.pow(1024, i)) + ' ' + sizes[i]; }
@@ -84,7 +94,7 @@ var admin_files = new Class({
     newFileUpload: function( pFile ){
     
         if( !this.fileUploadDialog ){
-            this.fileUploadDialog = this.win.newDialog();
+            this.fileUploadDialog = this.win.newDialog( '', true );
             
             this.fileUploadDialog.setStyles({
                 height: '60%',
@@ -107,9 +117,12 @@ var admin_files = new Class({
             document.id(this.fileUploadDialogProgress).setStyle( 'top', 4 );
             document.id(this.fileUploadDialogProgress).setStyle( 'left', 9 );
         
-            this.fileUploadDialogAllText = new Element('div', {
+            this.fileUploadDialogAll = new Element('div', {
                 style: 'position: absolute; left: 155px; top: 6px; color: gray;'
             }).inject( this.fileUploadDialog.bottom );
+            
+            this.fileUploadDialogAllText = new Element('span').inject( this.fileUploadDialogAll );
+            this.fileUploadDialogAllSpeed = new Element('span').inject( this.fileUploadDialogAll );
 
         }
         
@@ -122,13 +135,13 @@ var admin_files = new Class({
             text: '#'+this.uploadFilesCount
         }).inject( tr );
         
-        var td = new Element('td', {
+        tr.name = new Element('td', {
             text: pFile.name
         }).inject( tr );
         
         var td = new Element('td', {
             width: 60,
-            style: 'text-align: center;',
+            style: 'text-align: center; color: gray;',
             text: this.bytesToSize(pFile.size)
         }).inject( tr );
         
@@ -146,6 +159,21 @@ var admin_files = new Class({
         document.id(tr.progress).inject( td );
         document.id(tr.progress).setStyle( 'width', 132);
         
+        tr.deleteTd = new Element('td', {
+            width: 20
+        }).inject( tr );
+        
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/delete.png',
+            style: 'cursor: pointer;',
+            title: _('Cancel upload')
+        })
+        .addEvent('click', function(){
+            tr.canceled = true;
+            ka.uploads[this.win.id].cancelUpload( pFile.id );
+        }.bind(this))
+        .inject( tr.deleteTd );
+        
         this.uploadTrs[ pFile.id ] = tr;
         this.uploadTrs[ pFile.id ].file = pFile;
         
@@ -154,12 +182,87 @@ var admin_files = new Class({
             ka.uploads[this.win.id].cancelUpload( pFile.id );
             
         } else {
-        
-            ka.uploads[this.win.id].startUpload( pFile.id );
+            this.fileUploadCheck( ka.uploads[this.win.id].getFile( pFile.id ) );
         }
         
+        this.uploadAllProgress();
     
     },
+    
+    fileUploadCheck: function( pFile, pOverwrite ){
+
+        var name = pFile.name;
+            
+        this.uploadTrs[ pFile.id ].status.set('html', ('Pending ...'));
+
+        if( this.uploadTrs[ pFile.id ].rename ){
+            this.uploadTrs[ pFile.id ].rename.destroy();
+            delete this.uploadTrs[ pFile.id ].rename;
+        }
+        
+        if( pFile.post && pFile.post.name && name != pFile.post.name ){
+            
+            name = pFile.post.name;
+            
+            this.uploadTrs[ pFile.id ].rename = new Element('div', {
+                style: 'color: gray; padding-top: 4px;',
+                text: '-> '+name
+            }).inject( this.uploadTrs[ pFile.id ].name );
+        }
+
+        var overwrite = (pOverwrite || pFile.post.overwrite == 1)?1:0;
+
+        new Request.JSON({url: _path+'admin/files/prepareUpload', noCache: 1, onComplete: function( res ){
+
+            if( res.renamed ){
+                if( this.uploadTrs[ pFile.id ].rename ){
+                    this.uploadTrs[ pFile.id ].rename.destroy();
+                }
+                this.uploadTrs[ pFile.id ].rename = new Element('div', {
+                    style: 'color: gray; padding-top: 4px;',
+                    text: '-> '+res.name
+                }).inject( this.uploadTrs[ pFile.id ].name );
+                ka.uploads[this.win.id].addFileParam( pFile.id, 'name', res.name );
+            }
+
+            if( res.exist ){
+                this.uploadTrs[ pFile.id ].status.set('html', '<div style="color: red">'+_('Filename already exists')+'</div>');
+                
+                new ka.Button(_('Rename'))
+                .addEvent('click', function(){
+                
+                    this.win._prompt(_('New filename'), name, function(res){
+                        
+                        if( res ){
+                            ka.uploads[this.win.id].addFileParam( pFile.id, 'name', res );
+                            this.fileUploadCheck( ka.uploads[this.win.id].getFile( pFile.id ) );
+                        }
+                    
+                    }.bind(this));
+                
+                }.bind(this))
+                .inject( this.uploadTrs[ pFile.id ].status );
+                
+                
+                new ka.Button(_('Overwrite'))
+                .addEvent('click', function(){
+                    
+                    ka.uploads[this.win.id].addFileParam( pFile.id, 'overwrite', '1' );
+                    this.fileUploadCheck( ka.uploads[this.win.id].getFile( pFile.id ) );
+                
+                }.bind(this))
+                .inject( this.uploadTrs[ pFile.id ].status );
+
+            } else {
+                
+                ka.uploads[this.win.id].startUpload( pFile.id );
+            
+            }
+        
+        }.bind(this)}).get({path: this.current, name: name, overwrite: overwrite });
+    
+    },
+    
     
     uploadAllProgress: function(){
     
@@ -169,18 +272,26 @@ var admin_files = new Class({
         var done = 0;
 
         Object.each( this.uploadTrs, function(tr,id){
-            count++;
-            loaded += tr.loaded;
-            all += tr.file.size;
-            if( tr.complete == true ) {
+            
+            if( !tr.canceled )
+                count++;
+            
+            if( tr.loaded && !tr.canceled )
+                loaded += tr.loaded;
+            
+            if( !tr.error && !tr.canceled )
+                all += tr.file.size;
+            
+            if( tr.complete == true )
                 done++;
-            }
+            
         });
-    
-        //todo
-        var speed = '#todo MB/s';
-    
-        this.fileUploadDialogAllText.set('text', _('%s done').replace('%s', done+'/'+count)+'. '+speed );
+            
+        this.fileUploadDialogAllText.set('text', _('%s done').replace('%s', done+'/'+count)+'.');
+        
+        this.fileUploadedTotalBytes = all;
+        this.fileUploadedLoadedBytes = loaded;
+        this.fileUploadCalcSpeed();
         
         var percent = Math.ceil((loaded / all) * 100);
         if( done == count ){
@@ -189,8 +300,59 @@ var admin_files = new Class({
         this.fileUploadDialogProgress.setValue( percent );
     },
     
-    uploadProgress: function( pFile, pBytesCompleted, pBytesTotal ){
+    fileUploadCalcSpeed: function( pForce ){
+    
+        if( this.fileUploadSpeedInterval && !pForce ) return;
         
+        var speed = ' -- KB/s, '+_('%s minutes left').replace('%s', '--:--');
+        var again = false;
+        
+        if( this.fileUploadSpeedLastCheck == 0 ){
+            this.fileUploadSpeedLastCheck = (new Date()).getTime()-1000;
+        }
+
+        var timeDiff = (new Date()).getTime() - this.fileUploadSpeedLastCheck;
+        var bytesDiff = this.fileUploadedLoadedBytes - this.fileUploadedSpeedLastLoadedBytes;
+
+        var d = timeDiff/1000;
+
+        var byteSpeed = bytesDiff / d;
+        
+        if( byteSpeed > 0 )
+            this.fileUploadSpeedLastByteSpeed = byteSpeed;
+        
+        var residualBytes = this.fileUploadedTotalBytes - this.fileUploadedLoadedBytes;
+        var time = '<span style="color: green;">'+_('Done')+'</span>';
+        if( residualBytes > 0 ){
+            
+            var timeLeftSeconds = residualBytes/byteSpeed;
+            var timeLeft = (timeLeftSeconds/60).toFixed(2);
+        
+            time = _('%s minutes left').replace('%s', timeLeft);
+        } else {
+            //done
+            clearInterval(this.fileUploadSpeedInterval);
+        }
+        
+        if( this.fileUploadSpeedLastByteSpeed == 0 ){
+            speed = ' -- KB/s';
+        } else {
+            speed = ' '+this.bytesToSize(this.fileUploadSpeedLastByteSpeed)+' KB/s, '+time;
+        }
+        
+        this.fileUploadDialogAllSpeed.set('html', speed);
+    
+        this.fileUploadSpeedLastCheck = (new Date()).getTime();
+        
+        this.fileUploadedSpeedLastLoadedBytes = this.fileUploadedLoadedBytes;
+        
+        if( !this.fileUploadSpeedInterval ){
+            this.fileUploadSpeedInterval = this.fileUploadCalcSpeed.periodical(500, this, true);
+        }
+    },
+    
+    uploadProgress: function( pFile, pBytesCompleted, pBytesTotal ){
+
         var percent = Math.ceil((pBytesCompleted / pBytesTotal) * 100);
         this.uploadTrs[ pFile.id ].progress.setValue( percent );
         this.uploadTrs[ pFile.id ].loaded = pBytesCompleted;
@@ -210,6 +372,9 @@ var admin_files = new Class({
         this.uploadTrs[ pFile.id ].progress.setValue( 100 );
 
         this.uploadTrs[ pFile.id ].complete = true;
+        this.uploadTrs[ pFile.id ].loaded = pFile.size;
+        
+        this.uploadTrs[ pFile.id ].deleteTd.destroy();
         
         this.uploadAllProgress();
         
@@ -219,33 +384,65 @@ var admin_files = new Class({
     },
     
     uploadError: function( pFile ){
+    
+    
+        this.uploadTrs[ pFile.id ].deleteTd.destroy();
                 
         if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size ){
             this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">'+_('File size limit exceeded')+'</span>');
-            this.uploadTrs[ pFile.id ].status.set('title', _('The file size exceeds the limit allows by upload_max_filesize on your server. Please contact the administrator.'));
+            new Element('img', {
+                style: 'position: relative; top: 2px; left: 2px;',
+                src: _path+'inc/template/admin/images/icons/error.png',
+                title: _('The file size exceeds the limit allows by upload_max_filesize or post_max_size on your server. Please contact the administrator.')
+            }).inject( this.uploadTrs[ pFile.id ].status );
         } else {
-    
-            this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">'+_('Unknown error')+'</span>');
+            if( this.uploadTrs[ pFile.id ].canceled ){
+                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">'+_('Canceled')+'</span>');
+            } else {
+                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">'+_('Unknown error')+'</span>');
+            }
         }
         
-        this.uploadTrs[ pFile.id ].complete = true;
+        this.uploadTrs[ pFile.id ].error = true;
                 
+    },
+    
+    clearUploadVars: function(){
+        
+        this.uploadFilesCount = 0;
+        delete this.uploadTrs;
+        
+        this.uploadTrs = {};
+        this.uploadFileNames = {};
+        
+        
+        this.fileUploadedTotalBytes = 0;
+        this.fileUploadedLoadedBytes = 0;
+        this.fileUploadSpeedLastCheck = 0;
+        this.fileUploadedSpeedLastLoadedBytes = 0;
+        
+        this.fileUploadedLoadedBytes = 0;
+        this.fileUploadSpeedLastByteSpeed = 0;
+
+        delete this.fileUploadSpeedInterval;
+        
+        delete this.fileUploadDialog;
     },
     
     cancelUploads: function(){
         
-        this.uploadFilesCount = 0;
+        if( this.fileUploadDialog )
+            this.fileUploadDialog.close();
         
-        this.fileUploadDialog.close();
-        delete this.fileUploadDialog;
+        if( this.fileUploadSpeedInterval )
+            clearInterval(this.fileUploadSpeedInterval);
         
-        delete this.uploadTrs;
+        this.clearUploadVars();
         
-        this.uploadTrs = {};
     },
     
     initSWFUpload: function(){
-    
+
         ka.uploads[this.win.id] = new SWFUpload({
             upload_url: _path+"admin/files/upload/?"+window._session.tokenid+"="+window._session.sessionid,
             file_post_name: "file",
@@ -253,8 +450,6 @@ var admin_files = new Class({
             file_upload_limit : "500",
             file_queue_limit : "0",
 
-
-            //file_dialog_complete_handler: this._checkFiles.bind(this),
             file_queued_handler: this.newFileUpload.bind(this),
             upload_progress_handler: this.uploadProgress.bind(this),
             upload_start_handler: this.uploadStart.bind(this),
@@ -272,7 +467,7 @@ var admin_files = new Class({
     },
     
     loadModules: function(){
-        $H(ka.settings.configs).each(function(config, ext){
+        Object.each(ka.settings.configs, function(config, ext){
         	this._modules.include(ext+'/');
         }.bind(this));
         this.loadPath('/');
@@ -307,8 +502,7 @@ var admin_files = new Class({
         this.boxAction = boxAction;
         boxAction.addButton( _('New file'), _path+'inc/template/admin/images/admin-files-newFile.png', this.newFile.bind(this) );
         boxAction.addButton( _('New directory'), _path+'inc/template/admin/images/admin-files-newDir.png', this.newFolder.bind(this) );
-        //var uploadBtn = boxAction.addButton( 'Datei hochladen', _path+'inc/template/admin/images/admin-files-uploadFile.png', this.startUpload.bind(this) );
-        //
+
         this.newUploadBtn();
         
         //view types
@@ -1150,122 +1344,6 @@ var admin_files = new Class({
         if( this.currentFolderFile.writeaccess != true ){
         	deactivate(paste);
         }
-        
-        /*if( pFile.type == 'dir' )
-            newversion.destroy();
-        
-        var allowEdit = true;
-        var allowRename = true;
-        var isTrashSelected = false;
-        
-        logger(this.selectedFiles);
-        this.selectedFiles.each(function(myfile){
-            //if some file is a krynfile or a modulefile
-        	if( !myfile.path ) return;
-            //if(myfile && myfile.get && myfile.get('tag') == 'div' ) {
-                if( _this._krynFolders.indexOf( myfile.path ) >= 0 || _this._modules.indexOf(myfile.path) >= 0 ){
-                    allowEdit = false;
-                }
-                if( myfile.path.substr(0,6) == 'trash/' )
-                    allowRename = false;
-            //}
-            if( myfile.path ){
-                if( myfile.path == 'trash/' ){
-                    isTrashSelected = true;
-                }
-                if( myfile.path.substr(0,6) == 'trash/' )
-                    allowRename = false;
-            }
-        });
-        
-        
-        if( !allowRename ){
-        	duplicate.destroy();
-        	newversion.destroy();
-        }
-        
-        if( pFile.path == 'trash' )
-            isTrashSelected = true;
-    
-        if( copy ){
-            copy.addEvent('click', this.copy.bind(this) );
-        }
-        if( cut ){
-            cut.addEvent('click', this.cut.bind(this) );
-        }
-    
-        if( allowEdit ){
-            remove.addEvent('click', this.remove.bind(this, pFile) );
-        } else {            
-            cut.set('class', cut.get('class')+' notactive');
-            cut.removeEvents('click');
-            remove.set('class', remove.get('class')+' notactive');
-            remove.removeEvents('click');
-            rename.set('class', rename.get('class')+' notactive');
-            rename.removeEvents('click');
-        }
-        if( allowRename )
-            rename.addEvent('click', this.rename.bind(this, pFile) );
-        else {
-            rename.set('class', rename.get('class')+' notactive');
-            rename.removeEvents('click');
-        }
-        
-
-        if( duplicate  )
-        	duplicate.addEvent('click', this.duplicate.bind(this, pFile));
-        
-        if( newversion )
-        	newversion.addEvent('click', this.newversion.bind(this, pFile));
-        
-        if( '/'+pFile.path != this.current || pFile.writeaccess != true ) {
-            //paste.setStyle('opacity', 0.5);
-            paste.set('class', paste.get('class')+' notactive');
-            paste.removeEvents('click');
-        } else {
-            if( ka.getClipboard().type != 'filemanager' &&  ka.getClipboard().type != 'filemanagerCut' ){
-                paste.set('class', paste.get('class')+' notactive');
-                paste.removeEvents('click');
-            } else {
-                paste.addEvent('click', this.paste.bind(this) );
-                //paste.addEvent('click', this.paste.bind(this, pFile) );
-            }
-        }
-        
-        if( pFile.writeaccess != true ){
-        	if( newversion )
-        		newversion.destroy();
-
-            cut.addClass('notactive');
-            cut.removeEvents('click');
-            remove.addClass('notactive')
-            remove.removeEvents('click');
-            rename.addClass('notactive')
-            rename.removeEvents('click');
-        }
-        
-        
-        if( pFile.path.substr(0, 6) == 'trash/' ){
-            copy.destroy();
-            cut.destroy();
-        }
-        
-        if( pFile.path == 'trash/' ){
-            this.context.destroy();
-            return;
-        }
-        
-        if( isTrashSelected ){
-            copy.destroy();
-            paste.destroy();
-            cut.destroy();
-            openExternal.destroy();
-            rename.destroy();
-            remove.destroy();
-            settings.destroy();
-        }
-        
-        */
         
         var pos = this.win.border.getPosition( document.body );
         this.context.setStyles({

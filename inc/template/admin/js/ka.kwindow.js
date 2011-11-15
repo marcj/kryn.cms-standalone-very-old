@@ -250,7 +250,7 @@ ka.kwindow = new Class({
     },
 
 
-    newDialog: function( pText ){
+    newDialog: function( pText, pAbsoluteContent ){
 
         var main = new Element('div', {
             'class': 'ka-kwindow-prompt'
@@ -263,6 +263,10 @@ ka.kwindow = new Class({
             html: pText,
             'class': 'ka-kwindow-prompt-text'
         }).inject( main );
+        
+        if( pAbsoluteContent ){
+            main.content.addClass('ka-kwindow-prompt-text-abs');
+        }
 
         main.overlay = this.createOverlay();
         

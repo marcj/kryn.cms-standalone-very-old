@@ -33,15 +33,15 @@ class adminFilemanager {
         case 'getFile':
             return self::getFile( getArgv('path') );
         case 'getFileInfo':
-            json( self::getFileInfo( getArgv('path'), getArgv('withSize') != ''? true:false, true ) );
+            return self::getFileInfo( getArgv('path'), getArgv('withSize') != ''? true:false, true );
         case 'getVersions':
-            json( self::getVersions( "inc/template/".getArgv('path')) );
+            return self::getVersions( "inc/template/".getArgv('path'));
         case 'addVersion':
-            json( self::addVersion( "inc/template/".getArgv('path')) );
+            return self::addVersion( "inc/template/".getArgv('path'));
         case 'setAccess':
-            json( self::setAccess( "inc/template/".getArgv('path'), getArgv('access') ) );
+            return self::setAccess( "inc/template/".getArgv('path'), getArgv('access') );
         case 'recoverVersion':
-            json( self::recoverVersion( getArgv("rsn") ) );
+            return self::recoverVersion( getArgv("rsn") );
          case 'newFile':
             return self::newFile();
         case 'newFolder':
@@ -54,30 +54,36 @@ class adminFilemanager {
             return self::duplicateFile(getArgv('path'), getArgv('newname'));
         case 'cutFile':
             return self::cutFile();
+            
+        case 'prepareUpload':
+            return self::prepareUpload();
         case 'upload':
             return self::uploadFile();
+            
+
         case 'deleteFile':
             return self::delFile();
         case 'setFilesystem':
-            json( self::setFilesystem( "inc/template/".getArgv('path'), getArgv('chmod'), getArgv('user'), getArgv('owner'), (getArgv('sub')==1)?true:false ) );
+            return self::setFilesystem( "inc/template/".getArgv('path'), getArgv('chmod'), getArgv('user'),
+                getArgv('owner'), (getArgv('sub')==1)?true:false );
         case 'getOwnerNames':
-           json( self::getOwnerNames( getArgv('ownerid'), getArgv('groupid')) );
+            return self::getOwnerNames( getArgv('ownerid'), getArgv('groupid'));
         case 'getOwnerIds':
-           json( self::getOwnerIds( getArgv('owner'), getArgv('group')) );
+            return self::getOwnerIds( getArgv('owner'), getArgv('group'));
         case 'rotate':
-            return json( self::rotateFile( getArgv('file'), getArgv('position') ) );
+            return self::rotateFile( getArgv('file'), getArgv('position') );
         case 'recover':
-            return json(self::recover(getArgv('rsn')));
+            return self::recover(getArgv('rsn'));
         case 'resize':
-            return json(self::resize(getArgv('file'), getArgv('width')+0, getArgv('height')+0));
+            return self::resize(getArgv('file'), getArgv('width')+0, getArgv('height')+0);
         case 'paste':
             return self::paste();
         case 'search':
-            return json( self::search( getArgv('q'), getArgv('path') ) );
+            return self::search( getArgv('q'), getArgv('path') );
         case 'setInternalAcl':
-            return json( self::setInternalAcl( getArgv('path'), getArgv('rules') ) );
+            return self::setInternalAcl( getArgv('path'), getArgv('rules') );
         case 'diffFiles':
-            self::diffFiles(getArgv('from'), getArgv('to'));
+            return self::diffFiles(getArgv('from'), getArgv('to'));
         }
     }
     
@@ -99,7 +105,7 @@ class adminFilemanager {
         //$htmlOutput = nl2br($htmlOutput);
         //$htmlOutput = str_replace(" ", "&nbsp;", $htmlOutput);
         
-        json($diff);
+        return $diff;
     }
     
     private static function readFile($pPath)
@@ -527,10 +533,56 @@ $pAccess from all
         json($mfiles);
     }
 
-    public static function uploadFile(){
+    public static function prepareUpload(){
+        global $adminClient;
+    
+    
+        $name = getArgv('name');
+        $oriName = $name;
+        $path = getArgv('path');
+        $res = array();
+        
+        $name = @str_replace('ä', "ae", strtolower($name));
+        $name = @str_replace('ö', "oe", $name);
+        $name = @str_replace('ü', "ue", $name);
+        $name = @str_replace('ß', "ss", $name);
+        $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
+        $name = @preg_replace('/--+/', '-', $name);
+        
+        $name = str_replace( "..", "", $name );
+        
+        $path = getArgv('path');
+        if( substr( $path, -1 ) != '/' )
+            $path = $path . '/';
+            
+        $newPath = 'inc/template' . $path . $name;
+        $newPath = str_replace( "..", "", $newPath );
     
 
+        if( $name != $oriName ){
+            $res['renamed'] = true;
+            $res['name'] = $name;
+        }
+
+        $exist = file_exists( $newPath );
+        if( $exist && getArgv('overwrite') != 1 ){
+            $res['exist'] = true;
+        } else {
+            kryn::fileWrite( $newPath, 'kryn_fileupload_blocked'."\n".$adminClient->token);
+        }
+
+        return $res;
+    }
+    
+    
+    public static function uploadFile(){
+        global $adminClient;
+        
         $name = $_FILES['file']['name'];
+        if( getArgv('name') ){
+            $name = getArgv('name');
+        }
+
         $path = getArgv('path');
         
         if( $_FILES["file"]['error'] ){
@@ -566,40 +618,32 @@ $pAccess from all
 
         if( getArgv('overwrite') != "1" ){
             $exist = file_exists( $newPath );
-            $_id = 0;
-            while( $exist ){
-                $extPos = strrpos($name,'.');
-                $ext = substr($name, (strlen($name)-$extPos)*-1 );
-                $tName = substr($name, 0, $extPos );
-                $_id++;
-                $newName = $tName.'-'.$_id.$ext;
-                $newPath = 'inc/template' . $path . $newName;
-                $exist = file_exists( $newPath );
+            $fh = fopen( $newPath );
+            $firstLine = fread( $fh );
+            $secondLine = fread( $fh );
+            fclose($fh);
+            if( $firstLine == 'kryn_fileupload_blocked' ){
+                if( $secondLine != $adminClient->token )
+                    return false;
             }
-        } else {
-
         }
-        
-        
+
         $toDir = dirname($newPath);
-        
+
         if( !is_writable($toDir) ){
             klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: to target folder is not writable by webserver.'), $name, $path));
+            return array('error'=>'no_write_access_by_webserver');
         }
-        
-        $access = krynAcl::checkAccess( 3, '/'.$newFilePath, 'write', true );
-        
+
+        $access = krynAcl::checkAccess( 3, $path . $name, 'write', true );
+
         if( !$access ){
-            json(array('error'=>'access_denied'));
+            return array('error'=>'access_denied');
         }
-        
+
         move_uploaded_file( $_FILES["file"]["tmp_name"], $newPath );
-        
-        $res = substr( $newPath, 12 );
-        if( getArgv('output') == 'html' )
-            die($res);
-        else
-            json($res);
+
+        return true;
     }
     
     public static function duplicateFile( $pOriFile, $pToFileName ){
