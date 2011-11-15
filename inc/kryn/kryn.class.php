@@ -1219,7 +1219,7 @@ class kryn {
 
             if( !$cfg['auth_class'] || $cfg['auth_class'] == 'kryn' ){
             
-                $adminClient = new krynAuth( $cfg, false );
+                $adminClient = new krynAuth( $cfg );
                 
             } else {
 

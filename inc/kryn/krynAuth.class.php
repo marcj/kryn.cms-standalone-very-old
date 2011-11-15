@@ -425,6 +425,7 @@ class krynAuth {
     public function syncStore(){
     
         if( $this->needSync != true ) return;
+        
 
         $session['user_rsn'] = $this->user['rsn'];
         
@@ -466,6 +467,7 @@ class krynAuth {
     *    language, time, refreshed, ip, user_rsn, page, useragent
     */
     public function set( $pCode, $pValue ){
+
         if( $this->session[$pCode] == $pValue ) return;
 
         $this->needSync = true;
