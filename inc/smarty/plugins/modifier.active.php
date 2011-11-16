@@ -8,8 +8,8 @@ function smarty_modifier_active($string){
 
     if( $rsn == kryn::$page['rsn'] ) return true;
     
-    $url = kryn::pageUrl( kryn::$page['rsn'] );
-    $purl = kryn::pageUrl( $rsn );
+    $url = kryn::pageUrl( kryn::$page['rsn'], false, true );
+    $purl = kryn::pageUrl( $rsn, false, true );
 
     $pos = strpos( $url, $purl );
     if( $url == '/' || $pos != 0  || $pos === false){

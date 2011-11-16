@@ -1405,7 +1405,7 @@ class kryn {
      * @return string
      * @static
      */
-    public static function pageUrl( $pRsn = 0, $pWithoutHttp = false ){
+    public static function pageUrl( $pRsn = 0, $pWithoutHttp = false, $pWithoutStartpageCheck = false ){
 
         $domain_rsn = kryn::$domain['rsn'];
 
@@ -1415,7 +1415,7 @@ class kryn {
         else
             $domain_rsn = kryn::getDomainOfPage( $pRsn );
             
-        if( kryn::$domain['startpage_rsn'] == $pRsn )
+        if( $pWithoutStartpageCheck == false && kryn::$domain['startpage_rsn'] == $pRsn )
             return '.'; 
         
         if( $domain_rsn == kryn::$domain['rsn'] ){

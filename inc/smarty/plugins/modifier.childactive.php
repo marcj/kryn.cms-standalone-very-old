@@ -8,9 +8,8 @@ function smarty_modifier_childactive($string){
 
     if( $rsn == kryn::$page['rsn'] ) return false;
 
-    $kcache['realUrl'] = kryn::readCache( 'urls' );
-    $url = $kcache['realUrl']['rsn'][ 'rsn=' . kryn::$page['rsn'] ] . '/';
-    $purl = $kcache['realUrl']['rsn'][ 'rsn=' . $rsn ] . '/';
+    $url = kryn::pageUrl( kryn::$page['rsn'], false, true );
+    $purl = kryn::pageUrl( $rsn, false, true );
     
     $pos = strpos( $url, $purl );
     if( $url == '/' || $purl == '/' || $pos === false){

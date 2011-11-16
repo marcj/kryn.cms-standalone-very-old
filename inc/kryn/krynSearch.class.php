@@ -88,8 +88,7 @@ class krynSearch extends baseModule{
         self::$pageUrl = $a;
 
         if( $cache && $b == $a && self::$forceSearchIndex === false ){
-    
-            return 3; //'Url with this content is already indexed!', 3);
+            return 3;//'Url with this content is already indexed!', 3);
         }
         
         //check if we have additional arguments which doesnt change the content
@@ -107,7 +106,6 @@ class krynSearch extends baseModule{
             return 7; //'No content found. Site was not indexed!', 7);
         }
         
-        
         //we now ready to index this content
         $values = array(
             'url' => self::$pageUrl,
@@ -119,11 +117,12 @@ class krynSearch extends baseModule{
             'page_content' => $indexedContent
         );
         
-        $where = array('url' => $b, 'domain_rsn' => kryn::$domain['rsn']);
+        $where = array('url' => $a, 'domain_rsn' => kryn::$domain['rsn']);
 
         if( !$cache['rsn'] ){
             
-            $row = dbExfetch("SELECT url FROM %pfx%system_search WHERE url='".esc($b)."' AND domain_rsn = ".kryn::$domain['rsn'], 1);
+            $row = dbExfetch("SELECT url FROM %pfx%system_search WHERE url='".esc($a)."' AND domain_rsn = ".kryn::$domain['rsn'], 1);
+            
             if( $row['url'] ){
                 dbUpdate('system_search', $where, $values);
             } else {
