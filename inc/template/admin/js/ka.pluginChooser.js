@@ -171,6 +171,7 @@ ka.pluginChooser =  new Class({
             this.fieldObj = new ka.parse( this.propertyTBody, properties, {allTableItems:true} );
         }
 
+        this.setValue( this.choosen.options );
     },
     
     setValue: function( pValues ){
