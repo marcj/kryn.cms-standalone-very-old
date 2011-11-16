@@ -638,7 +638,7 @@ class kryn {
             }
             kryn::setCache('activeModules', kryn::$extensions);
         }
-        
+
         kryn::$extensions[] = 'kryn';
         kryn::$extensions[] = 'admin';
         kryn::$extensions[] = 'users';
@@ -655,14 +655,29 @@ class kryn {
 
         kryn::$tables =& kryn::getCache('systemTables-v2');
 
-        if( !kryn::$tables || $md5 != kryn::$tables['__md5'] ){
+        if( true || !kryn::$tables || $md5 != kryn::$tables['__md5'] ){
             
+            kryn::$tables = array();
             kryn::$tables['__md5'] = $md5;
 
             foreach( kryn::$extensions as &$extension ){
-                if( $extension == 'kryn' ) continue;
+                kryn::$configs[$extension] = kryn::getModuleConfig( $extension );
 
-                $config = kryn::getModuleConfig( $extension );
+            }
+            foreach( kryn::$configs as $key => &$config ){
+                            
+                if( is_array($config['extendConfig']) ){
+                    foreach( $config['extendConfig'] as $extendModule => &$extendConfig ){
+                        if( kryn::$configs[$extendModule] ){
+                            kryn::$configs[$extendModule] = 
+                                array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
+                        }
+                    }
+                }
+            }
+
+            foreach( kryn::$configs as $key => &$config ){
+
                 if( $config['db'] ){
                     foreach( $config['db'] as $key => &$table ){
                         if( kryn::$tables[$key] )
@@ -671,13 +686,18 @@ class kryn {
                            kryn::$tables[$key] = $table;
                     }
                 }
+
             }
         
             kryn::setCache('systemTables-v2', kryn::$tables);
         }
         
         kryn::$themes =& kryn::getCache('systemThemes');
-        if( !kryn::$themes ){
+        if( !kryn::$themes || $md5 != kryn::$themes['__md5']){
+            
+            kryn::$themes = array();
+            kryn::$themes['__md5'] = $md5;
+        
             foreach( kryn::$extensions as &$extension ){
             
                 $config = kryn::getModuleConfig( $extension );
