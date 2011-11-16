@@ -24,6 +24,11 @@ ka.Button = new Class({
             this.main.addEvent('click', pOnClick );
     },
 
+    setText: function( pText ){
+        this.main.set('text', pText);
+        new Element('span').inject( this.main );
+    },
+
     toElement: function(){
         return this.main;
     },

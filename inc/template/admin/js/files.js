@@ -302,6 +302,7 @@ var admin_files = new Class({
         var loaded = 0;
         var all = 0;
         var done = 0;
+        var failed = 0;
 
         Object.each( this.uploadTrs, function(tr,id){
             
@@ -316,6 +317,10 @@ var admin_files = new Class({
             
             if( tr.complete == true )
                 done++;
+                
+            if( tr.error == true ){
+                failed++;
+            }
             
         });
             
@@ -330,6 +335,20 @@ var admin_files = new Class({
             percent = 100;
         }
         this.fileUploadDialogProgress.setValue( percent );
+        
+        if( failed == 0 && all == loaded ){
+            if( !this.fileUploadCloseInfo ){
+                this.fileUploadCloseInfo = new Element('span', {
+                    text: _('This dialog closes in few seconds'),
+                    style: 'padding-right: 15px; color: gray;'
+                }).inject( document.id(this.fileUploadCancelBtn), 'before' );
+                (function(){
+                    this.cancelUploads();
+                }.bind(this)).delay(4000);
+            }
+        } else if( all == loaded ){
+            this.fileUploadCancelBtn.setText(_('Close'));
+        }
 
     },
     
