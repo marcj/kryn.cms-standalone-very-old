@@ -2770,7 +2770,7 @@ class kryn {
      * @param integer $pTimeout In seconds. Default is one hour
      * @static
      */
-    public static function setCache( $pCode, $pValue, $pTimeout ){
+    public static function setCache( $pCode, $pValue, $pTimeout = false ){
         if( kryn::$cache )
             return kryn::$cache->set( $pCode, $pValue, $pTimeout );
         return false;
