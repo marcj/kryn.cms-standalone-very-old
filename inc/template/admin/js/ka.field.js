@@ -1723,9 +1723,7 @@ ka.field = new Class({
             src: _path+'inc/template/admin/images/icons/exclamation.png',
             'class': 'emptyIcon'
         }).inject( this.input.getParent()  );
-        //this.emptyIcon.setStyles({
-        //    left: this.input.getPosition(this.input.getParent()).x + this.input.getSize().x
-        //});
+
         this.input.set('class', this.input.get('class')+' empty' );
     },
 

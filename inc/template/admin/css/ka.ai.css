@@ -4,15 +4,19 @@ html, body {
     margin: 0px;
     padding: 0px;
     overflow: hidden;
+
+}
+
+div, span {
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   user-select: none;
 }
 
 body {
     height: 100%;
     -webkit-tap-highlight-color: transparent;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
-
+    
 }
 
 img {
@@ -23,10 +27,13 @@ input, select, textarea {
     outline: 0;	
 }
 
-.selectable {
-    -moz-user-select: all;
-    -webkit-user-select: auto;
-    user-select: all;
+
+.selectable,
+div.selectable, span.selectable,
+div.selectable div, div.selectable span,
+span.selectable span, span.selectable div {
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 select {
