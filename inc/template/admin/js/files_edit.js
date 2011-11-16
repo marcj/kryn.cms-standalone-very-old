@@ -91,11 +91,11 @@ var admin_files_edit = new Class({
 
 
             this.imageDiv = new Element('div', {
-            	style: 'position: absolute; bottom: 50px; top: 0px; left: 0px; right: 150px; overflow: auto; background-color: white'
+            	style: 'position: absolute; bottom: 60px; top: 0px; left: 0px; right: 150px; overflow: auto; background-color: white'
             }).inject( this.win.content );
 
             this.bottom = new Element('div', {
-                style: 'position: absolute; bottom: 0px; left: 0px; right: 150px; height: 48px; border-top: 1px solid silver; background-color: #f4f4f4;'
+                style: 'position: absolute; bottom: 0px; left: 0px; right: 150px; height: 58px; border-top: 1px solid silver; background-color: #f4f4f4;'
             }).inject( this.win.content );
 
             this.sidebar = new Element('div', {
@@ -203,16 +203,16 @@ var admin_files_edit = new Class({
             window[fId] = function(){
                 this.imgLoaded();
             }.bind(this);
-
-            this.oriImagePath = this.win.params.file.path;
             
             var path = this.win.params.file.path;
             if( path.substr(0,1) == '/' )
                 path = path.substr(1, path.length);
 
+            this.oriImagePath = path;
+
             this.img = new Element('img', {
                 src: _path+path+'?nc='+(new Date().getTime()),
-                onLoad: fId+"();"
+                onLoad: fId+'()'
             })
             .inject( td );
 
@@ -280,7 +280,7 @@ var admin_files_edit = new Class({
             if( res ){
                 res.each(function(item){
                     this._images[item] = new Element('img', {
-                        'class': 'admin-files-sidebar-image',
+                        'class': 'admin-files-sidebar-image'+((item == '/'+this.oriImagePath)?' admin-files-sidebar-image-active':''),
                         src: _path+'admin/backend/imageThump/?file='+escape(item.replace(/\//g, "\\"))+'&noC='+(new Date().getTime())
                     })
                     .addEvent('click', function(){
@@ -303,7 +303,7 @@ var admin_files_edit = new Class({
             item.set('class', 'admin-files-sidebar-image');
         });
 
-        image.set('class', 'admin-files-sidebar-image admin-files-sidebar-image-active');
+        image.addClass('admin-files-sidebar-image-active');
         //this.imageScroller.toElement( image );
         var pos = image.getPosition( this.sidebar );
         this.imageScroller.start( 0, pos.y+this.sidebar.getScroll().y );
@@ -323,19 +323,16 @@ var admin_files_edit = new Class({
     },
     
     loadImage: function( pImage ){
-
-        var fId = 'adminFilesImgOnLoad'+new Date().getTime()+((Math.random()+"").replace(/\./g, ''));
-        window[fId] = function(){
-            this.td.empty();
-            this.img.inject( this.td );
-            this.imgLoaded();
-        }.bind(this);
         
         if( pImage.substr(0,1) == '/' )
             pImage = pImage.substr(1, pImage.length);
         
         this.img = new Asset.image(_path+pImage+'?nc='+(new Date().getTime()), {
-            onLoad: fId+'()'
+            onLoad: function(){
+                this.td.empty();
+                this.img.inject( this.td );
+                this.imgLoaded();
+            }.bind(this)
         });
         
         var qPos = pImage.indexOf('?');
@@ -354,13 +351,10 @@ var admin_files_edit = new Class({
 
         if( !this.imgSize ) return;
 
-        if( this.imgSize.x > this.imgSize.y ){
-            var newX = this.imgSize.x * faktor;
-            this.img.width = newX;
-        } else {
-            var newY = this.imgSize.y * faktor;
-            this.img.height = newY;
-        }
+        var newX = this.imgSize.x * faktor;
+        this.img.width = newX;
+        var newY = this.imgSize.y * faktor;
+        this.img.height = newY;
 
         this.resizeHeight.value = this.img.height;
         this.resizeWidth.value = this.img.width;
@@ -411,7 +405,6 @@ var admin_files_edit = new Class({
 
     imgLoaded: function(){
         this.imgSize = {x: this.img.width, y: this.img.height };
-
 
         this.imgInfo.set('text', _('Resolution: %s').replace('%s', this.img.width+'x'+this.img.height));
         this.loader.hide();

@@ -1,6 +1,9 @@
 ka.filesPane = new Class({
+
     __images: ['jpg','jpeg','gif','png','bmp'],
     __ext: ['css', 'tpl', 'js', 'html'],
+
+
     initialize: function( pContainer, pOptions, pWin ){
         this.container = pContainer;
         this.options = pOptions;

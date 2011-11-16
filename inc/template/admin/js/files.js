@@ -60,29 +60,7 @@ var admin_files = new Class({
         this.uploadBtn.set('html', '<span id="'+this.buttonId+'"></span>');
         this.initSWFUpload();
     },
-    
-    _checkFiles: function( pHowMany ){
-    
-        for( var i=0; i<pHowMany; i++){
-
-            var file = ka.uploads[this.win.id].getFile(i);
-
-            if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < file.size ){
-                
-                ka._helpsystem.newBubble(
-                _('Can not upload file'),
-                _('The file size of %s exceeds the limit allows by upload_max_filesize on your server. Please contact the administrator.').replace('%s', file.name),
-                -1 );
-                
-                ka.uploads[this.win.id].cancelUpload( file.id );
-                
-            } else {
-                this.newFileUpload( file );
-            }
-            
-        }
-    },
-    
+        
     bytesToSize: function( bytes ){
         var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
         if (bytes == 0) return 'n/a';

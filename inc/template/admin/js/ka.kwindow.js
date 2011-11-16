@@ -586,7 +586,6 @@ ka.kwindow = new Class({
         var newY = false;
         var newHeight = false;
         
-        logger(this.values);
         if( this.values.minWidth && borderSize.x < this.values.minWidth ){
             this.border.setStyle('width', this.values.minWidth);
         }
