@@ -25,7 +25,7 @@ input, select, textarea {
 
 .selectable {
     -moz-user-select: all;
-    -webkit-user-select: all;
+    -webkit-user-select: auto;
     user-select: all;
 }
 

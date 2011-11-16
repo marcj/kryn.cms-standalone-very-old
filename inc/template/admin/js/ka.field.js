@@ -1456,6 +1456,8 @@ ka.field = new Class({
             }
         }).inject( this.fieldPanel );
         
+        this.fieldPanel.addClass('selectable');
+        
         var mooeditable = initWysiwyg( this.input );
         
         return;
@@ -1866,6 +1868,7 @@ ka.field = new Class({
         _win = this.field.win;
         
         this.main.setStyle('width', ''); 
+        this.main.addClass('selectable');
         
         this.obj = new ka.field_layoutElement(this);
         
