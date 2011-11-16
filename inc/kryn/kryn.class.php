@@ -1272,10 +1272,11 @@ class kryn {
         if( getArgv(1) != 'admin' ){
 
             $sessionDefinition = kryn::$domain['session'];
+            
             $sessionDefinition['session_tokenid'] =
                 ($sessionDefinition['session_tokenid'])?$sessionDefinition['session_tokenid']:'krynsessionid';
             
-            if( !$sessionDefinition || $sessionDefinition['auth_class'] == 'kryn' ){
+            if( $sessionDefinition['auth_class'] == 'kryn' || !$sessionDefinition['auth_class'] ){
                 $client = new krynAuth( $sessionDefinition );
             } else {
                 $ex = explode( '/', $sessionDefinition['auth_class'] );
