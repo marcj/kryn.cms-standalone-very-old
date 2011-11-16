@@ -56,10 +56,17 @@ ka.pluginChooser =  new Class({
             'class': 'ka-pluginchooser-bottom'
         }).inject( this.main );
         
+        new ka.Button(_('Cancel'))
+        .addEvent('click', function(){
+            this.fireEvent('cancel');
+        }.bind(this)).inject( this.bottom );
+        
         new ka.Button(_('OK'))
         .addEvent('click', function(){
             this.fireEvent('ok');
         }.bind(this)).inject( this.bottom );
+        
+        
 
         //module
         var table = new Element('table', {

@@ -864,6 +864,10 @@ ka.layoutContent = new Class({
             dialog.close();
         }.bind(this));
         
+        this.pluginChooser.addEvent('cancel', function(){
+            dialog.close();
+        }.bind(this));
+        
         this.pluginChooser.addEvent('loadOptions', function(){
             dialog.position();
         }.bind(this));
