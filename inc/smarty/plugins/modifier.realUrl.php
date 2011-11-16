@@ -7,8 +7,6 @@ function smarty_modifier_realUrl($params){
         $rsn = $t;
     } else {
         $rsn = $params['rsn'];
-        if( $params['realUrl'] )
-            return $params['realUrl'];
     }
 
     if( is_array($params) && $params['type'] == 1  && $params['link']+0 > 0 )

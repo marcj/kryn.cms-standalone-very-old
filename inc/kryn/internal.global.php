@@ -25,8 +25,14 @@ $errorHandlerInside = false;
 
 
 function kryn_shutdown(){
-    global $user;
-    $user->syncStore();
+    global $client;
+
+    $client->syncStore();
+
+    if( $adminClient != $client && $adminClient ){
+        $adminClient->syncStore();
+    }
+
 }
 
 

@@ -664,7 +664,7 @@ class kryn {
                 kryn::$configs[$extension] = kryn::getModuleConfig( $extension );
 
             }
-            foreach( kryn::$configs as $key => &$config ){
+            foreach( kryn::$configs as $extension => $config ){
                             
                 if( is_array($config['extendConfig']) ){
                     foreach( $config['extendConfig'] as $extendModule => &$extendConfig ){
@@ -676,7 +676,7 @@ class kryn {
                 }
             }
 
-            foreach( kryn::$configs as $key => &$config ){
+            foreach( kryn::$configs as $extension => $config ){
 
                 if( $config['db'] ){
                     foreach( $config['db'] as $key => &$table ){
@@ -1277,6 +1277,8 @@ class kryn {
             
             if( !$sessionDefinition || $sessionDefinition['auth_class'] == 'kryn' ){
                 $client = new krynAuth( $sessionDefinition );
+                print 'joar';
+                exit;
             } else {
                 $ex = explode( '/', $sessionDefinition['auth_class'] );
                 $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
@@ -1409,13 +1411,14 @@ class kryn {
 
         $domain_rsn = kryn::$domain['rsn'];
 
+        
         if(! $pRsn > 0 )
             $pRsn = kryn::$page['rsn'];
         else
             $domain_rsn = kryn::getDomainOfPage( $pRsn );
             
         if( kryn::$domain['startpage_rsn'] == $pRsn )
-            return './'; 
+            return '.'; 
         
         if( $domain_rsn == kryn::$domain['rsn'] ){
             $cachedUrls =& kryn::$urls;
@@ -1458,7 +1461,7 @@ class kryn {
                 $url = substr($url, 0, -1);
                 
             if( $url == '/' )
-                $url = '/./';
+                $url = '.';
                 
             return $url;
             
@@ -1468,7 +1471,7 @@ class kryn {
             $url = substr($url, 0, -1);
         
         if( $url == '/' )
-            $url = '/./';
+            $url = '.';
             
         return $url;
     }
@@ -2297,32 +2300,14 @@ class kryn {
         $pageRsn = 0;
         
         if( $url == '' ){
-            $page = dbExfetch(
-               "SELECT p.*
-                FROM %pfx%system_pages p, %pfx%system_domains d
-                WHERE 
-                    p.domain_rsn = $domain
-                    AND access_denied = '0'
-                    AND p.rsn = d.startpage_rsn" );
+            $pageRsn = kryn::$domain['startpage_rsn'];
             
-            kryn::$isStartpage = true;
-            
-            if(! $page['rsn'] > 0 )
+            if( !$pageRsn > 0 )
                 die('There is no startpage for domain '.kryn::$domain['domain']);
-                
-            $pageRsn = $page['rsn'];
-            
+
+            kryn::$isStartpage = true;
         } else {
-            
             $pageRsn = $rsn;
-            /*
-            if( $rsn > 0 ) {
-                $sql = "SELECT p.*
-                    FROM %pfx%system_pages p
-                    WHERE rsn = $rsn AND access_denied = '0'"; 
-                $page = dbExfetch( $sql );
-                
-            }*/
         }
         
         return $pageRsn;

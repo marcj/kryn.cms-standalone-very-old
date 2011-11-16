@@ -22,8 +22,10 @@ define( 'DB_INDEX', 2 );
 
 class adminDb {
 
-    function install( $pModuleConfig, $pDelete4Install = false ){
-        return self::_install( $pModuleConfig['db'], $pDelete4Install );
+    function install( $pModuleConfig ){
+        if( is_array($pModuleConfig['db']) )
+            return self::_install( $pModuleConfig['db'] );
+        return false;
     }
 
     function remove( $pModuleConfig ){
@@ -67,7 +69,7 @@ class adminDb {
         
     }
 
-    function _install( $pDb, $pDelete4Install = false ){
+    function _install( $pDb ){
         global $cfg, $kdb;
 
         $db = &$pDb;
@@ -79,32 +81,22 @@ class adminDb {
         if(! count($db) > 0 )
             return 'No Tables.';
 
-        if( $pDelete4Install == true ){
-            foreach( $db as $tableName => $tableFields ){
-                $tableName = pfx . $tableName;
-                dbExec("DROP TABLE IF EXISTS $tableName");
-            }
-        } else {
-        	$ttables = database::getAllTables();
-            if( count($ttables) > 0 ){
-                foreach( $ttables as $table ){
-                    $tables[ $table ] = true;
-                }
+    	$ttables = database::getAllTables();
+        if( count($ttables) > 0 ){
+            foreach( $ttables as $table ){
+                $tables[ $table ] = true;
             }
         }
 
         foreach( $db as $tableName => $tableFields ){
             $tableName = strtolower(pfx . $tableName);
-            
+
             if( $tables[$tableName] ){
-                self::updateIndexes( $tableName, $tableFields, false ); //delete all
                 self::_updateTable( $tableName, $tableFields );
                 $res .= "Update table <i>$tableName</i>\n";
-                $res .= self::updateIndexes( $tableName, $tableFields );
             } else {
                 self::_installTable( $tableName, $tableFields );
                 $res .= "Create table <i>$tableName</i>\n";
-                $res .= self::updateIndexes( $tableName, $tableFields );
             }
             kryn::deleteCache('kryn_database_'.$tableName);
         }
@@ -118,6 +110,8 @@ class adminDb {
     function _updateTable( $pTable, $pFields ){
         global $cfg;
         
+        self::updateIndexes( $pTable, $pFields, false ); //delete all and dont create new
+                
         $column = array();
         $columns = database::getColumns($pTable);
             
@@ -142,11 +136,7 @@ class adminDb {
 
                 if( $pTable == 'kryn_publication_news_category' ){
                 }
-                if( $isType != $nType ||
-                    ($isType == 'varchar' && $varcharLength != $fOptions[1] ) ){
-                    //different field type => alter this field
-
-                    self::updateIndexes( $pTable, $fName, false ); //delete index if exists
+                if( $isType != $nType || ($isType == 'varchar' && $varcharLength != $fOptions[1] ) ){
 
                     $sql = self::addColumn( $pTable, $fName, $fOptions, 2 );
                     
@@ -168,6 +158,7 @@ class adminDb {
             }
         }
         
+        self::updateIndexes( $pTable, $pFields, false ); //delete all and create new
     }
 
     public static function _installTable( $pTable, $pFields ){
@@ -195,6 +186,8 @@ class adminDb {
         	$sql .= 'ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
 
         dbExec( $sql );
+        
+        self::updateIndexes( $pTable, $pFields, false ); //delete all and create new
     }
 
     public static function deleteIndex( $pName, $pTable ){
@@ -216,7 +209,6 @@ class adminDb {
     	
     	//dont throw error's to log
     	database::$hideSql = true;
-    	
         foreach( $pFields as $fName => $fOptions ){
         	
         	$indexName = 'kryn_idx_'.$pTable.'_'.$fName;

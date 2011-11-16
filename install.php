@@ -388,13 +388,46 @@ function step5(){
     
     foreach( $modules as $module ){
         if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
-            $config = adminModule::loadInfo( $module );
-            kryn::$configs[$module] = $config;
-            print "Install <b>$module</b>:<br />
-            <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
-            print adminDb::install( $config, true );
-            print "</div>";
+            kryn::$configs[$module] = adminModule::loadInfo( $module );
         }
+    }
+    
+
+    foreach( kryn::$configs as $extension => $config ){
+                            
+        if( is_array($config['extendConfig']) ){
+            foreach( $config['extendConfig'] as $extendModule => &$extendConfig ){
+                if( kryn::$configs[$extendModule] ){
+                    kryn::$configs[$extendModule] = 
+                        array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
+                }
+            }
+        }
+    }
+
+    foreach( kryn::$configs as $extension => $config ){
+
+        if( $config['db'] ){
+            foreach( $config['db'] as $key => &$table ){
+                if( kryn::$tables[$key] )
+                   kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
+                else
+                   kryn::$tables[$key] = $table;
+            }
+        }
+
+    }
+    
+    //delete first all tables
+    foreach( kryn::$tables as $table => $columns ){
+        dbExec('DROP TABLE IF EXISTS '.pfx.$table);
+    }
+            
+    foreach( kryn::$configs as $module => $config ){
+        print "Install <b>$module</b>:<br />
+        <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
+        print adminDb::install( $config );
+        print "</div>";
     }
 
     dbDelete( 'system_domains' );
