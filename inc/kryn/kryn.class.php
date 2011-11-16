@@ -1502,10 +1502,11 @@ class kryn {
     }
 
     /**
-     * 
      * Returns the requested URL without parameter
+     *
      * @static
      * @return string
+     * @param pWithAdditionalParameter If you want to get KGETs too
      * @internal
      */
     public static function getRequestPageUrl( $pWithAdditionalParameter = false ){
@@ -2368,7 +2369,10 @@ class kryn {
     }
 
     public static function notFound( $pError = '404'){
-        
+
+
+        klog('404', sprintf($pError.': '._l('Page not found %s'), kryn::$domain['domain'].'/'.kryn::getRequestPageUrl(true)));
+                
         if( kryn::$domain['page404interface'] != '' ){
             if( strpos( kryn::$domain['page404interface'], "inc/template" ) !== FALSE ){
                 include(kryn::$domain['page404interface']);
@@ -2382,7 +2386,7 @@ class kryn {
             tAssign('error', $pError);
             print tFetch( 'kryn/404-page.tpl' );
         }
-        die();
+        exit;
     }
     
     

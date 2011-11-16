@@ -89,7 +89,6 @@ class krynAuth {
     public function start(){
 
         $this->token = $this->getToken();
-        error_log('new Auth: '.$this->tokenid.' => '.$this->token);
         $this->session = $this->loadSession();
 
 

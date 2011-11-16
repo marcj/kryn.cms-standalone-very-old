@@ -107,7 +107,15 @@ function dbExec( $pSql ){
     dbConnect();
     
     $pSql = str_replace( '%pfx%', pfx, $pSql );
-    return $kdb->exec( $pSql );
+    
+    
+    $res = $kdb->exec( $pSql );
+    
+    if( dbError() && !database::$hideSql ){
+        klog('database', dbError());
+    }
+    
+    return $res;
 }
 
 

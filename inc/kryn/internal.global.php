@@ -58,14 +58,9 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     
     $errorHandlerInside = true;
     
-    if( ($pCode+0) > 0 ){
+    if( !is_string($pCode) ){
   
-
     	if( $pCode != 8 && $pCode != 2 ){
-	    	//only if administrator want to see
-	    	if( $cfg['display_errors']+0 == 1 && !kryn::$admin ){
-	    		print $user->user['username']." - $pCode: $pMsg in $pFile on $pLine<br />\n";
-	    	}
 	    	if( array_key_exists('log_errors', $cfg) && array_key_exists('log_errors_file', $cfg) &&
 	    	    $cfg['log_errors']+0 == 1 && $cfg['log_errors_file'] != "" ){
 	    	    	
@@ -81,8 +76,6 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     
     if( !class_exists('database') )
     	die('Error before class initializations: '.$pCode.': '.$pMsg.' '.$pFile.':'.$pLine);
-    
-    if(! database::isActive() ) return;
     
     $sid = esc($client->token);
     $ip = $_SERVER['REMOTE_ADDR'];
@@ -108,7 +101,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
             'code' => $pCode,
             'message' => $msg
         ));
-        database::$hideSql = true;
+        database::$hideSql = false;
         
         if( $qry === false )
             die( str_replace('%s', $msg, _l('Failed to insert log entry: %s')) );

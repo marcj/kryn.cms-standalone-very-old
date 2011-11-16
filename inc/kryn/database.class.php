@@ -551,8 +551,7 @@ class database {
             if( $pQuery == "" )
                 return false;
 
-    	    if( !database::$hideSql )
-            	$this->lastError = null;
+            $this->lastError = null;
 
             $queries = explode(';', $pQuery);
             foreach( $queries as $query ){
@@ -614,13 +613,9 @@ class database {
     	        }
     	        
     	       	if( !$res ){
-    	       		
-    	        	if( !database::$hideSql )
-    	       			klog('database',  "Query failed: $pQuery<br>");
     	       			
     	       		$err = $this->pdo->errorInfo();
     	       		$this->lastError = $err[2];
-    	       		klog('database', "err: ".$err[2]);
     	       		return false;
     	       	}
 	  

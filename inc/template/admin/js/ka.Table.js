@@ -14,6 +14,8 @@ ka.Table = new Class({
                 style: 'position: absolute; left: 0px; right: 0px; bottom: 0px; top: 0px;'
             });
         }
+        
+        this.main.addClass('selectable');
 
         if( pColumns && $type(pColumns) == 'array' )
             this.setColumns( pColumns );
