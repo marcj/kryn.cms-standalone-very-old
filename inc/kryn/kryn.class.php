@@ -2858,9 +2858,8 @@ class kryn {
             return false;
         }
         while( $file = readdir($h) ){
-            if( $file != '.' && $file != '..' && $file != '.svn' ){
+            if( substr($file,0,1) != '.' ){
                 if(! $pWithExt ){
-                    //delete extension
                     $file = substr( $file, 0, (strpos($file, '.') > 0) ? strrpos( $file, '.' ) : strlen($file) );
                 }
                 $files[] = $file;

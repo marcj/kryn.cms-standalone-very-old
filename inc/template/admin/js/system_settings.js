@@ -68,7 +68,7 @@ var admin_system_settings = new Class({
         }).inject( p );
 
         this.fields['communityEmail'] = new ka.field({
-            label: _('Community connect'), desc: _('If you want to develop your own extensions, layoutpacks or other stuff, you have to connect with the community server. Enter your community email to connect with.')
+            label: _('Community connect'), desc: _('If you want to publish your own extensions, layout packs or other stuff, you have to connect with the community server. Enter your community email to connect with.')
         }).inject( p );
 
         /*this.fields['languages'] = new ka.field({

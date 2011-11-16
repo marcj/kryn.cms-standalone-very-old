@@ -245,13 +245,6 @@ var admin_system_module = new Class({
             })
         }.bind(this));
 
-        if( !ka.settings.system.communityEmail || ka.settings.system.communityEmail == '' ){
-            new Element('div', {
-                style: 'color: gray; text-align: center; padding: 15px;',
-                html: _("You aren't connected to kryn community. Please enter your kryn.org account via the settings window to share your created extensions.")
-            }).inject( p );
-        }
-
         table = new Element('table', { width: "100%"}).inject( p );
 
         if( $type(pMods) == 'array' ){
@@ -263,8 +256,8 @@ var admin_system_module = new Class({
 
         var values = {my: [], local: []};
         var tables = {};
-
-        if( ka.settings.system.communityEmail != '' ){
+        
+        if( ka.settings.system.communityId ){
             //if connected
             tableMyDiv = new Element('div', {style: 'position: relative'}).inject( p );
             tables['my'] = new ka.Table([
@@ -281,7 +274,6 @@ var admin_system_module = new Class({
             }).inject( p );
         }
 
-
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject( p );
         tables['local'] = new ka.Table([
             [_('Title')],
@@ -294,11 +286,11 @@ var admin_system_module = new Class({
 
 
         var lang = ka.settings['user']['adminLanguage'];
-        Object(pMods, function(mod,key){
+        Object.each(pMods, function(mod,key){
 
                 var item = mod;
                 var table = 'my';
-                if( mod.owner == '' || !mod.owner )
+                if( mod.owner == '' || !mod.owner || mod.owner != ka.settings.system.communityId )
                     table = 'local';
 
                 var title = "config parse error: "+key;

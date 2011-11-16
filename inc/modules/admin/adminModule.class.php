@@ -809,17 +809,15 @@ class adminModule {
     }
 
     static public function loadLocal(){
-        global $cfg;
 
-        $modules = kryn::readFolder( 'inc/modules' );
+        $modules = kryn::readFolder( 'inc/modules/' );
         $modules[] = 'kryn';
         $res = array();
+
         foreach( $modules as $module ){
             $config = self::loadInfo( $module );
-            if( ($config['owner']+0 > 0 && $config['owner'] == $cfg['communityId'] ) || $config['owner'] == "" || !$config['owner'] ){
-                $res[ $module ] = $config;
-                $res[ $module ][ 'activated'] = (kryn::$configs[$module])?1:0;
-            }
+            $res[ $module ] = $config;
+            $res[ $module ][ 'activated'] = (kryn::$configs[$module])?1:0;
         }
 
         json( $res );
@@ -1235,7 +1233,7 @@ class adminModule {
     public static function deactivate($pName){
         dbUpdate('system_modules', array('name' => $pName), array('activated'=>0));
         kryn::clearLanguageCache();
-        kryn::$cache->clear('active_modules');
+        kryn::deleteCache('activeModules');
         json(1);
     }
     
@@ -1247,12 +1245,14 @@ class adminModule {
     
     public static function activate($pName){
         $row = dbTableFetch('system_modules', 1, "name = '".esc($pName)."'");
+
         if( $row['name'] == '' )
             dbInsert('system_modules', array('name' => $pName, 'activated'=>1));
         else
             dbUpdate('system_modules', array('name' => $pName), array('activated'=>1));
+
         kryn::clearLanguageCache();
-        kryn::$cache->clear('active_modules');
+        kryn::deleteCache('activeModules');
         json(1);
     }
     /*

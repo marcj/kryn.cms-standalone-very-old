@@ -45,14 +45,16 @@ class adminSettings {
 
         if( getArgv('communityEmail') == '' ){
             $_REQUEST['communityId'] = '';
+            $_POST['communityId'] = '';
+            $blacklist = array('languages');
+        } else {
+            $blacklist = array('communityEmail', 'communityId', 'languages');
         }
         
         if( !getArgv('sessiontime') )
             $_REQUEST['sessiontime'] = 3600;
         
         include('inc/config.php');
-        
-        $blacklist = array('communityEmail', 'communityId', 'languages');
         
         foreach( $_POST as $key => $value ){
             if( !in_array($key,$blacklist) ){
