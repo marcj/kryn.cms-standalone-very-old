@@ -1244,7 +1244,6 @@ class kryn {
     public static function initAuth(){
         global $cfg, $user, $client, $adminClient;
         
-        
         if( ($_COOKIE[$cfg['session_tokenid']] || $_GET[$cfg['session_tokenid']] || $_POST[$cfg['session_tokenid']] )
             || getArgv(1) == 'admin' ){
 
@@ -2528,7 +2527,6 @@ class kryn {
 
         kryn::$pageHtml = str_replace('\[[', '[[', kryn::$pageHtml);
         kryn::replacePageIds( kryn::$pageHtml );
-
         
         //htmlspecialchars(urldecode(kryn::$url));
         kryn::$pageHtml = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', kryn::$pageHtml);

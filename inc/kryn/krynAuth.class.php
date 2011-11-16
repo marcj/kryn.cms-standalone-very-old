@@ -69,21 +69,29 @@ class krynAuth {
         if( $pConfig['session_tokenid'] ){
             $this->tokenid = $pConfig['session_tokenid'];
         }
-        
+
         $this->refreshing = $pWithRefreshing;
+        
+        if( !$this->config['session_storage'] )
+            $this->config['session_storage'] = 'database';
+            
+        if( !$this->config['session_timeout'] )
+            $this->config['session_timeout'] = 3600*12;
 
         if( $pConfig['session_storage'] != 'database' ){
             $this->cache = new krynCache( $pConfig['session_storage'], $pConfig['session_storage_config'] );
         }
 
         tAssign("client", $this);
-        
+
     }
     
     public function start(){
 
         $this->token = $this->getToken();
+        error_log('new Auth: '.$this->tokenid.' => '.$this->token);
         $this->session = $this->loadSession();
+
 
         $this->startSession = $this->session;
 
@@ -496,7 +504,7 @@ class krynAuth {
                 return $session;
             }
         }
-        
+
         //after 25 tries, we stop and log it.
         klog('session', _l("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the memached server s full or you forgot to setup a cronjob for the garbage collector."));
         return false;
@@ -580,7 +588,7 @@ class krynAuth {
     public function loadSession(){
 
         if( !$this->token ) return false;
-        
+
         if( $this->config['session_storage'] == 'database' )
             return $this->loadSessionDatabase();
         else
