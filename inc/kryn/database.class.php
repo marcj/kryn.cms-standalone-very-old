@@ -355,25 +355,26 @@ class database {
                     }
                 } else {
                     $res = array();
+                    $i = 0;
                     switch( $this->type ){
                         case 'sqlite':
-                            while( $row = sqlite_fetch_array( $pStatement, SQLITE_ASSOC ) )
+                            while( ($pRows > $i++ || $pRows == -1) && $row = sqlite_fetch_array( $pStatement, SQLITE_ASSOC ) )
                                 $res[] = $row;
                             break;
                         case 'mysql':
-                            while( $row = mysql_fetch_assoc( $pStatement ) )
+                            while( ($pRows > $i++ || $pRows == -1) && $row = mysql_fetch_assoc( $pStatement ) )
                                 $res[] = $row;
                             break;
                         case 'mssql':
-                            while( $row = mssql_fetch_assoc( $pStatement ) )
+                            while( ($pRows > $i++ || $pRows == -1) && $row = mssql_fetch_assoc( $pStatement ) )
                                 $res[] = $row;
                             break;
                         case 'mysqli':
-                            while( $row = mysqli_fetch_assoc( $pStatement ) )
+                            while( ($pRows > $i++ || $pRows == -1) && $row = mysqli_fetch_assoc( $pStatement ) )
                                 $res[] = $row;
                             break;
                         case 'postgresql':
-                            while( $row = pg_fetch_assoc( $pStatement ) )
+                            while( ($pRows > $i++ || $pRows == -1) && $row = pg_fetch_assoc( $pStatement ) )
                                 $res[] = $row;
                             break;
                     }

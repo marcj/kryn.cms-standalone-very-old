@@ -78,6 +78,9 @@ function dbConnect(){
 
 /**
  * Execute a query and return the items
+ * If you want to have a exact count of lines use SQL's LIMIT with $pRowCount as -1,
+ * except you really know what you'r doing.
+ *
  * @param string $pSql The SQL
  * @param integer $pRowCount How much rows you want. Use -1 for all, with 1 you'll get direct the array without a list.
  * @return array
