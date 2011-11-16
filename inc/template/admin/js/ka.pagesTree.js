@@ -32,6 +32,10 @@ ka.pagesTree = new Class({
         this.container = pContainer;
         
         this.setOptions(pOptions);
+        
+        if( Cookie.read('krynPageTree_'+pDomain) ){
+            this.opens = JSON.decode( Cookie.read('krynPageTree_'+pDomain) );
+        }
 
         if( pRefs ){
             this.options.pageObj = pRefs.pageObj;
@@ -419,7 +423,9 @@ ka.pagesTree = new Class({
                 this.lastSelectedPage = pItem;
                 this.need2SelectAPage = false;
             }
-        } else if( this.opens[openId] ){
+        }
+        
+        if( this.opens[openId] ){
             this.openChilds( a );
         }
 
@@ -470,6 +476,12 @@ ka.pagesTree = new Class({
     
     },
     
+    saveOpens: function(){
+    
+        Cookie.write('krynPageTree_'+this.domain_rsn, JSON.encode(this.opens));
+    
+    },
+    
     toggleChilds: function( pA ){
 
         if( pA.childContainer.getStyle('display') != 'block' ){
@@ -486,6 +498,8 @@ ka.pagesTree = new Class({
         pA.childContainer.setStyle( 'display', '' );
         pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_plus.png');
         this.opens[ id ] = false;
+        
+        this.saveOpens();
     },
     
     openChilds: function( pA ){
@@ -497,10 +511,11 @@ ka.pagesTree = new Class({
         if( pA.childsLoaded == true ){
             pA.childContainer.setStyle( 'display', 'block' );
             this.opens[ id ] = true;
+            this.saveOpens();
         } else {
             this.loadChilds( pA, true );
         }
-
+    
     },
     
     reloadChilds: function( pA ){
@@ -538,6 +553,7 @@ ka.pagesTree = new Class({
                     pA.toggler.set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
                     pA.childContainer.setStyle( 'display', 'block' );                
                     this.opens[ id ] = true;
+                    this.saveOpens();
                 }
                 
                 pA.childsLoaded = true;
