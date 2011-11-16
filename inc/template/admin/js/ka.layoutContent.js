@@ -272,6 +272,8 @@ ka.layoutContent = new Class({
     
     showToolbar: function(){
 
+        if( this.toolbar.getParent() ) return;
+
         var target = this.w.document.body;
         if( this.container.getParent('.kwindow-border') ){
             target = this.container.getParent('.kwindow-border');
@@ -1001,8 +1003,9 @@ ka.layoutContent = new Class({
 
             if( this.title ){
                 this.title.addEvent('click', function(){
-                    this.iTitle.focus();
+                    this.showToolbar();
                     this.iTitle.highlight();
+                    this.iTitle.focus();
                 }.bind(this));
             }
             

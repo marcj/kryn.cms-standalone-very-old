@@ -2484,10 +2484,6 @@ var admin_pages = new Class({
         if( $type( this.page.contents ) == 'string' )
             contents = new Hash(JSON.decode(this.page.contents));
 
-        logger(this.page);
-        logger(this.layoutBoxes);
-        logger(contents);
-
         Object.each(this.layoutBoxes, function(editLayout,boxId){
             editLayout.setContents( contents[boxId] );
         });
