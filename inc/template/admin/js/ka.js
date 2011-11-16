@@ -1100,7 +1100,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
     if( pCode == 'system' ){
     	
         mlink = new Element('a', {
-            title: _(pLink.title),
+            title: pLink.title,
             text: ' ',
             'class': 'bar-dock-logo first'
         });
@@ -1127,7 +1127,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
         	
             if( item.isLink === false ) return;
             var sublink = new Element('a', {
-                html: _(item.title)
+                html: item.title
             })
             .inject( menu );
             
@@ -1143,7 +1143,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
                 	
                     if( item.isLink === false ) return;
                     var subsublink = new Element('a', {
-                        html: _(subitem.title),
+                        html: subitem.title,
                         'class': 'ka-module-item-sub'
                     })
                     .inject( menu );
@@ -1155,67 +1155,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
                         })
                     }
                 });
-            }
-            /*if( item.hasSubmenu ){
-            	
-            	var submenu = new Element('div', {
-                    'class': 'bar-dock-logo-menu-style bar-dock-logo-menu-submenu ka-subnavi',
-                    styles: {
-                        display: 'none'
-                    }
-                }).inject( sublink );
-            	
-            	new Element('img', {
-            		'class': 'ka-subnavi-top-left',
-            		src: _path+'inc/template/admin/images/ka-submenu-top-left.png'
-            	}).inject( submenu );
-            	
-            	new Element('img', {
-            		'class': 'ka-subnavi-bottom-left',
-            		src: _path+'inc/template/admin/images/ka-submenu-bottom-left.png'
-            	}).inject( submenu );
-            	
-            	sublink.addEvent('mouseover', function(){
-            		sublink.store('canHide', false);
-    				submenu.setStyle('display', 'block');
-    				var size = submenu.getSize();
-    				submenu.setStyle( 'right', (size.x*-1)-5 );
-            	});
-            	
-            	submenu.addEvent('mouseover', function(){
-            		sublink.fireEvent('mouseover');
-            	});
-            	submenu.addEvent('mouseout', function(){
-            		sublink.fireEvent('mouseout');
-            	});
-
-            	sublink.addEvent('mouseout', function(){
-            		sublink.store('canHide', true);
-            		(function(){
-            			
-            			if( sublink.retrieve('canHide') )
-            				submenu.setStyle('display', 'none');
-            			
-            		}).delay(250);
-            	});
-
-                $H(item.childs).each(function(subitem, subcode){
-                	
-                    if( item.isLink === false ) return;
-                    var subsublink = new Element('a', {
-                        html: _(subitem.title)
-                    })
-                    .inject( submenu );
-                    
-                    if( subitem.type ){
-                    	subsublink.addClass('ka-module-items-activated');
-                    	subsublink.addEvent('click', function(){
-                            ka.wm.openWindow( pExtCode, pCode+'/'+code+'/'+subcode, pLink );
-                        })
-                    }
-                });
-            }*/
-            
+            }            
         });
 
         mlink
@@ -1234,7 +1174,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
 
     } else {
         mlink = new Element('a', {
-            html: _(pLink.title)
+            html: pLink.title
         });
         if( pLink.icon != '' ){
             new Element('img', {
@@ -1252,7 +1192,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
     	module: pExtCode,
     	code: pCode,
     	path: pExtCode+'/'+pCode,
-    	title: _(pLink.title)
+    	title: pLink.title
     };
     
     mlink.inject( $('mainLinks') );
@@ -1273,7 +1213,7 @@ ka.addModuleLink = function( pLinks, pModule ){
     $H(pLinks).each(function(pLink, code){
         if( pLink == null ) return;
         var mlink = new Element('a', {
-            html: _(pLink.title),
+            html: pLink.title,
             'class': 'ka-subnavi-main',
             styles: {
                 'background-image': (pLink.icon != '') ? 'url('+_path+'inc/template/'+pLink.icon+')' :''
@@ -1290,7 +1230,7 @@ ka.addModuleLink = function( pLinks, pModule ){
             	module: pModule,
             	code: code,
             	path: pModule+'/'+code,
-            	title: _(pLink.title)
+            	title: pLink.title
             };
         
         ka.linkClick( mlink );
@@ -1329,7 +1269,7 @@ ka.addModuleLink = function( pLinks, pModule ){
                 
                 var smlink = new Element('a', {
                     'class': 'ka-subnavi',
-                    html: _(title)
+                    html: title
                 })
                 .addEvent( 'mouseover', function(){
                     mlink.store( 'allowToDisappear', false );
@@ -1352,7 +1292,7 @@ ka.addModuleLink = function( pLinks, pModule ){
                     	module: pModule,
                     	code: code+'/'+key,
                     	path: pModule+'/'+code+'/'+key,
-                    	title: _(title)
+                    	title: title
                     };
 
                 ka.linkClick( smlink );

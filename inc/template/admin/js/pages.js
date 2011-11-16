@@ -1372,8 +1372,6 @@ var admin_pages = new Class({
     		$H(item.properties).each(function(item,key){
     		
     			item.small = 1;
-    			item.label = _(item.label);
-    			item.desc = _(item.desc);
     			
     			new ka.field(item).inject( this.domainExtensionsPane );
     		
@@ -1546,7 +1544,7 @@ var admin_pages = new Class({
             }).inject( this.domainFields['layouts'].input );
             $H(la).each(function(layoutFile,layoutTitle){
                 new Element('option', {
-                    html: _(layoutTitle),
+                    html: layoutTitle,
                     value: layoutFile
                 }).inject( group );
             })
@@ -1779,7 +1777,7 @@ var admin_pages = new Class({
                 }).inject( fieldContent );
 
                 new Element('h3', {
-                    html: _(tKey)
+                    html: tKey
                 }).inject( laDiv );
 
         		var table = new Element('table', {width: '100%', style: 'background-color: #e8e8e8'}).inject( laDiv );

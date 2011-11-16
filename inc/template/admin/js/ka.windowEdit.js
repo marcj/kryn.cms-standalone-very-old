@@ -164,7 +164,7 @@ ka.windowEdit = new Class({
       
         Object.each(this.values.previewPlugins, function(item,pluginId){
         
-            var title = _(ka.settings.configs[this.win.module].plugins[pluginId][0]);
+            var title = ka.settings.configs[this.win.module].plugins[pluginId][0];
             
             
             new Element('div', {

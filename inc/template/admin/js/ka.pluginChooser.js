@@ -135,7 +135,7 @@ ka.pluginChooser =  new Class({
 
         Object.each(ka.settings.configs[mod].plugins, function(plugin, pluginId){
         
-            var properties = this.selectPlugin.add( pluginId, _(plugin[0]) );
+            var properties = this.selectPlugin.add( pluginId, plugin[0] );
         
         }.bind(this));
         
