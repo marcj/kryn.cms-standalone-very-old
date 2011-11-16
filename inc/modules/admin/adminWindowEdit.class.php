@@ -118,6 +118,8 @@ class adminWindowEdit {
         
         $module = $this->module;
         
+        $this->previewPluginPages = array();
+        
         foreach( $this->previewPlugins as $plugin => $urlGetter ){
             
             $moduleToUse = $module;
@@ -139,7 +141,6 @@ class adminWindowEdit {
                 }
             }
         }
-    
     }
     
     public function unlock( $pType, $pId ){

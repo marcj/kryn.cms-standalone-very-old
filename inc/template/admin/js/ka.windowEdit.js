@@ -162,6 +162,10 @@ ka.windowEdit = new Class({
         
         document.body.addEvent('click', this.closePreviewBox.bind(this));
       
+        if( !this.values.previewPluginPages ){
+            return;
+        }
+        
         Object.each(this.values.previewPlugins, function(item,pluginId){
         
             var title = ka.settings.configs[this.win.module].plugins[pluginId][0];
@@ -197,12 +201,6 @@ ka.windowEdit = new Class({
                 }.bind(this));
             
             }.bind(this));
-           
-            /*.addEvent('click', function(){
-                this.setPreviewValue( pluginId, true);
-            }.bind(this))
-            */
-            
             
         }.bind(this));
         
