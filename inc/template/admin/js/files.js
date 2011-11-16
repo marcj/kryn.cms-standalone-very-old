@@ -155,6 +155,8 @@ var admin_files = new Class({
         this.uploadTrs[ pFile.id ] = tr;
         this.uploadTrs[ pFile.id ].file = pFile;
         
+        ka.uploads[this.win.id].addFileParam( pFile.id, 'path', this.current );
+        
         if( ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size ){
         
             ka.uploads[this.win.id].cancelUpload( pFile.id );

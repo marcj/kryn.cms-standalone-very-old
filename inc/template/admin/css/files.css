@@ -192,9 +192,10 @@
     cursor: default;
 }
 
-.admin-files-fileContainer .admin-files-render-miniatur:hover div,
+.admin-files-render-miniatur:hover .admin-files-render-miniatur-name,
 .admin-files-fileContainer .item:hover span {
     background-color: #eee;
+    color: #333;
 }
 
 .admin-files-fileContainer .item span {
@@ -209,6 +210,8 @@
     white-space: pre;
 }
 
+.admin-files-render-miniaturActive:hover .admin-files-render-miniatur-name,
+.admin-files-render-miniaturActive .admin-files-render-miniatur-name,
 .admin-files-fileContainer .itemActive:hover span,
 .admin-files-fileContainer .itemActive span {
     background-color: gray;
@@ -267,15 +270,10 @@
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
-
+=
 .admin-files-render-miniaturActive {
     border: 1px solid gray;
     background-color: #ddd;
-}
-
-.admin-files-render-miniaturActive .admin-files-render-miniatur-name {
-    background-color: #666;
-    color: white;
 }
 
 .admin-files-render-miniatur-name {

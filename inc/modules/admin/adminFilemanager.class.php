@@ -629,12 +629,12 @@ $pAccess from all
         }
 
         $toDir = dirname($newPath);
-
+        
         if( !is_writable($toDir) ){
             klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: to target folder is not writable by webserver.'), $name, $path));
             return array('error'=>'no_write_access_by_webserver');
         }
-
+        
         $access = krynAcl::checkAccess( 3, $path . $name, 'write', true );
 
         if( !$access ){

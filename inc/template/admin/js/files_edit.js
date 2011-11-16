@@ -146,7 +146,7 @@ var admin_files_edit = new Class({
 
 
             new Element('img', {
-                src: _path+'admin/images/icons/arrow_turn_left.png',
+                src: _path+'inc/template/admin/images/icons/arrow_turn_left.png',
                 title: _('Rotate 90° left'),
                 style: 'cursor: pointer;'
             })
@@ -161,7 +161,7 @@ var admin_files_edit = new Class({
             this.saveBtn.setStyle('opacity', 0.4);*/
 
             new Element('img', {
-                src: _path+'admin/images/icons/arrow_turn_right.png',
+                src: _path+'inc/template/admin/images/icons/arrow_turn_right.png',
                 style: 'margin-left: 12px; cursor: pointer;',
                 title: _('Rotate 90° right')
             })
@@ -211,7 +211,7 @@ var admin_files_edit = new Class({
             this.oriImagePath = path;
 
             this.img = new Element('img', {
-                src: _path+path+'?nc='+(new Date().getTime()),
+                src: _path+'inc/template/'+path+'?nc='+(new Date().getTime()),
                 onLoad: fId+'()'
             })
             .inject( td );
@@ -264,7 +264,7 @@ var admin_files_edit = new Class({
     _loadImageSidebar: function(){
         
         new Element('img', {
-            src: _path+'admin/images/loading.gif',
+            src: _path+'inc/template/admin/images/loading.gif',
         }).inject( this.sidebar );
 
         var dir = this.win.params.file.path;
@@ -313,7 +313,7 @@ var admin_files_edit = new Class({
                 this.img.destroy();
                 this.td.empty();
                 new Element('img', {
-                    src: _path+'admin/images/loading.gif',
+                    src: _path+'inc/template/admin/images/loading.gif',
                 }).inject( this.td );
             }
             
@@ -327,7 +327,7 @@ var admin_files_edit = new Class({
         if( pImage.substr(0,1) == '/' )
             pImage = pImage.substr(1, pImage.length);
         
-        this.img = new Asset.image(_path+pImage+'?nc='+(new Date().getTime()), {
+        this.img = new Asset.image(_path+'inc/template/'+pImage+'?nc='+(new Date().getTime()), {
             onLoad: function(){
                 this.td.empty();
                 this.img.inject( this.td );
