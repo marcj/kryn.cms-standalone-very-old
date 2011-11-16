@@ -655,7 +655,7 @@ class kryn {
 
         kryn::$tables =& kryn::getCache('systemTables-v2');
 
-        if( true || !kryn::$tables || $md5 != kryn::$tables['__md5'] ){
+        if( !kryn::$tables || $md5 != kryn::$tables['__md5'] ){
             
             kryn::$tables = array();
             kryn::$tables['__md5'] = $md5;

@@ -120,16 +120,6 @@ class krynNavigation {
         $pTemplate = $pOptions['template'];
         $pWithFolders = ($pOptions['folders']==1)?true:false;
         
-        if( kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
-            
-            $cacheKey = 'systemNavigations-';
-            
-            if( $pOptions['id'] ){
-                
-            }
-            
-        }
-        
         $navi = false;
         if( $pOptions['id']+0 > 0 ){;
             $navi =& kryn::getPage( $pOptions['id']+0 );
