@@ -169,7 +169,7 @@ var admin_files = new Class({
     
     },
     
-    fileUploadCheck: function( pFile, pOverwrite ){
+    fileUploadCheck: function( pFile ){
 
         var name = pFile.name;
             
@@ -190,7 +190,7 @@ var admin_files = new Class({
             }).inject( this.uploadTrs[ pFile.id ].name );
         }
 
-        var overwrite = (pOverwrite || pFile.post.overwrite == 1)?1:0;
+        var overwrite = (pFile.post.overwrite == 1)?1:0;
 
         new Request.JSON({url: _path+'admin/files/prepareUpload', noCache: 1, onComplete: function( res ){
 
@@ -208,12 +208,15 @@ var admin_files = new Class({
             if( res.exist ){
                 this.uploadTrs[ pFile.id ].status.set('html', '<div style="color: red">'+_('Filename already exists')+'</div>');
                 
+                this.uploadTrs[ pFile.id ].needAction = true;
+                
                 new ka.Button(_('Rename'))
                 .addEvent('click', function(){
                 
                     this.win._prompt(_('New filename'), name, function(res){
                         
                         if( res ){
+                            this.uploadTrs[ pFile.id ].needAction = false;
                             ka.uploads[this.win.id].addFileParam( pFile.id, 'name', res );
                             this.fileUploadCheck( ka.uploads[this.win.id].getFile( pFile.id ) );
                         }
@@ -227,14 +230,17 @@ var admin_files = new Class({
                 new ka.Button(_('Overwrite'))
                 .addEvent('click', function(){
                     
+                    this.uploadTrs[ pFile.id ].needAction = false;
                     ka.uploads[this.win.id].addFileParam( pFile.id, 'overwrite', '1' );
                     this.fileUploadCheck( ka.uploads[this.win.id].getFile( pFile.id ) );
-                
+
                 }.bind(this))
                 .inject( this.uploadTrs[ pFile.id ].status );
+                
+                this.uploadCheckOverwriteAll();
 
             } else {
-                
+
                 ka.uploads[this.win.id].startUpload( pFile.id );
             
             }
@@ -243,6 +249,54 @@ var admin_files = new Class({
     
     },
     
+    uploadCheckOverwriteAll: function(){
+    
+        var needButton = false;
+        var countWhichNeedsAction = 0;
+        Object.each(this.uploadTrs, function(tr, id){
+            if( tr.file && tr.needAction == true ){
+                countWhichNeedsAction++;
+            }
+        }.bind(this));
+        
+        logger(countWhichNeedsAction);
+        
+        if( countWhichNeedsAction > 1 ){
+            if( !this.uploadOverwriteAllButton ){
+                this.uploadOverwriteAllButton = new ka.Button(_('Overwrite all')).
+                addEvent('click', function(){
+                
+                    Object.each(this.uploadTrs, function(tr, id){
+                        
+                        tr.needAction = false;
+                        ka.uploads[this.win.id].addFileParam( tr.file.id, 'overwrite', '1' );
+                        this.fileUploadCheck( ka.uploads[this.win.id].getFile( tr.file.id ) );
+                        
+                    }.bind(this));
+                    
+                    document.id(this.uploadOverwriteAllButton).destroy();
+                    delete this.uploadOverwriteAllButton;
+                    
+                }.bind(this))
+                .inject( this.fileUploadDialog.bottom, 'top' );
+            }
+        }
+    
+    },
+    
+    uploadNext: function(){
+    
+        var found = false;
+        Object.each(this.uploadTrs, function(file, id){
+            if( !found && file && !file.needAction && !file.complete && !file.error ){
+                found = file;
+            }
+        }.bind(this));
+
+        if( found )
+            ka.uploads[this.win.id].startUpload( found.file.id );
+    
+    },
     
     uploadAllProgress: function(){
     
@@ -278,6 +332,7 @@ var admin_files = new Class({
             percent = 100;
         }
         this.fileUploadDialogProgress.setValue( percent );
+
     },
     
     fileUploadCalcSpeed: function( pForce ){
@@ -362,6 +417,8 @@ var admin_files = new Class({
         
         if( this && this.reload )
             this.reload();
+
+        this.uploadNext();
         
     },
     
@@ -389,6 +446,8 @@ var admin_files = new Class({
         this.uploadTrs[ pFile.id ].error = true;
 
         this.uploadAllProgress();
+
+        this.uploadNext();
                 
     },
     
@@ -412,6 +471,10 @@ var admin_files = new Class({
         delete this.fileUploadSpeedInterval;
         
         delete this.fileUploadDialog;
+        
+        if( this.uploadOverwriteAllButton )
+            this.uploadOverwriteAllButton.destroy();
+        delete this.uploadOverwriteAllButton;
     },
     
     cancelUploads: function(){
@@ -591,23 +654,6 @@ var admin_files = new Class({
         }
     },
     
-    startUpload: function(){
-        if( this.uploadPane ) return;
-        
-        this.uploadPane = new Element('div', {
-            'class': 'admin-files-uploadPane'
-        }).inject( this.win.border );
-        this.win.content.setStyle('opacity', 0.4);
-        
-        //this.uploadPane.set('html', '<applet codebase="'+_path+'inc/template/admin/kupload/" archive="kupload.jar" code="kupload.class" name="uploader" width="200" height="25"></applet>');
-        this.uploadButton = new Element('a', {
-            html: _('Go')
-        })
-        .addEvent('click', function(){
-            document.applets.uploader.quickUpload();
-        })
-        .inject( this.uploadPane );
-    },
     
     newFile: function(){
         this.win._prompt(_('File name'), '', function(name){
