@@ -1277,8 +1277,6 @@ class kryn {
             
             if( !$sessionDefinition || $sessionDefinition['auth_class'] == 'kryn' ){
                 $client = new krynAuth( $sessionDefinition );
-                print 'joar';
-                exit;
             } else {
                 $ex = explode( '/', $sessionDefinition['auth_class'] );
                 $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
