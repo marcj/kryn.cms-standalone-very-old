@@ -1049,6 +1049,10 @@ ka.layoutContent = new Class({
             this.toolbarWysiwygContainer.empty();
         }
 
+        if( this.oldType != this.content.type ){
+            this.content.content = '';
+        }
+
         switch( this.content.type ){
         case 'text':
             this.type2Text();
@@ -1085,6 +1089,9 @@ ka.layoutContent = new Class({
         this.lastContent = Object.clone(this.content);
 
         this.positionToolbar();
+        
+        this.positionToolbar.delay(100, this);
+        this.positionToolbar.delay(500, this);
 
     },
 
