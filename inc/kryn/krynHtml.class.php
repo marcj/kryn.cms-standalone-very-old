@@ -88,9 +88,7 @@ class krynHtml {
 
         $e = explode('::', $domain['title_format']);
         if( $e[0] && $e[1] && $e[0] != 'admin' && $e[0] != 'kryn' && method_exists($e[0],$e[1]) ){
-            $fn = $e[1];
-            $cl = $e[0];
-            $title = $cl::$fn();
+            $title = call_user_func(array($e[0], $e[1]));
         } else {
         
             $title = str_replace(
