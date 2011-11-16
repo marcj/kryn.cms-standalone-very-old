@@ -258,9 +258,7 @@ var admin_files = new Class({
                 countWhichNeedsAction++;
             }
         }.bind(this));
-        
-        logger(countWhichNeedsAction);
-        
+
         if( countWhichNeedsAction > 1 ){
             if( !this.uploadOverwriteAllButton ){
                 this.uploadOverwriteAllButton = new ka.Button(_('Overwrite all')).
