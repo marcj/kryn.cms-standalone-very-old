@@ -2539,7 +2539,7 @@ class kryn {
         if( kryn::$page['layout'] == "" ){
             kryn::$pageHtml = _l("Error: No layout chosen for this page.");
         } else {
-            kryn::$pageHtml =& krynHtml::renderPageContents();
+            kryn::$pageHtml = krynHtml::renderPageContents();
         }
 
         kryn::$pageHtml = str_replace('\[[', '[[', kryn::$pageHtml);
