@@ -130,7 +130,7 @@ ka.loadSettings = function(){
         
         ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
         
-        if( ka.settings.user )
+        if( ka.settings.user && ka.settings.user.userBg )
             document.id(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')');
         
         if( ka.settings.system && ka.settings.system.systemtitle ){
@@ -1216,7 +1216,7 @@ ka.addModuleLink = function( pLinks, pModule ){
             html: pLink.title,
             'class': 'ka-subnavi-main',
             styles: {
-                'background-image': (pLink.icon != '') ? 'url('+_path+'inc/template/'+pLink.icon+')' :''
+                'background-image': (pLink.icon) ? 'url('+_path+'inc/template/'+pLink.icon+')' :'none;'
             }
         }).inject( moduleContainer );
         pLink.module = pModule;
