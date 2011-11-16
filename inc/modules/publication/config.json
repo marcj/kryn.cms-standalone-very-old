@@ -9,6 +9,7 @@
     "en": "News and Blogs",
     "de": "News und Blogs"
   },
+  
   "category": "1",
   "community": "1",
   "writableFiles": "inc\/template\/publication\/*",

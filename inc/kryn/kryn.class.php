@@ -653,7 +653,7 @@ class kryn {
 
         $md5 = md5($md5);
 
-        kryn::$tables =& kryn::getCache('systemTables');
+        kryn::$tables =& kryn::getCache('systemTables-v2');
 
         if( !kryn::$tables || $md5 != kryn::$tables['__md5'] ){
             
@@ -665,12 +665,15 @@ class kryn {
                 $config = kryn::getModuleConfig( $extension );
                 if( $config['db'] ){
                     foreach( $config['db'] as $key => &$table ){
-                        kryn::$tables[$key] = $table;
+                        if( kryn::$tables[$key] )
+                           kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
+                        else
+                           kryn::$tables[$key] = $table;
                     }
                 }
             }
         
-            kryn::setCache('systemTables', kryn::$tables);
+            kryn::setCache('systemTables-v2', kryn::$tables);
         }
         
         kryn::$themes =& kryn::getCache('systemThemes');
@@ -708,6 +711,14 @@ class kryn {
                             kryn::$configs[$extendModule] = 
                                 array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
                         }
+                    }
+                }
+                if( $config['db'] ){
+                    foreach( $config['db'] as $key => &$table ){
+                        if( kryn::$tables[$key] )
+                           kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
+                        else
+                           kryn::$tables[$key] = $table;
                     }
                 }
             }
