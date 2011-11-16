@@ -86,14 +86,27 @@ class krynHtml {
         if( !empty(kryn::$pageTitle) )
             $title = kryn::$pageTitle.' '.$title;
 
-        $html = '<title>' .
-            str_replace(
+        $e = explode('::', $domain['title_format']);
+        if( $e[0] && $e[1] && $e[0] != 'admin' && $e[0] != 'kryn' && method_exists($e[0],$e[1]) ){
+            $fn = $e[1];
+            $cl = $e[0];
+            $title = $cl::$fn();
+        } else {
+        
+            $title = str_replace(
                 array('%title', '%domain'),
                 array(
                     $title,
                     $_SERVER['SERVER_NAME']),
-                $domain['title_format'])
-                .'</title>'."\n";
+                    $domain['title_format']
+            );
+        
+            if( strpos( $title, '%path') !== false ){
+                $title = str_replace('%path', kryn::getBreadcrumpPath(), $title );
+            }
+        }
+    
+        $html = '<title>' .$title.'</title>'."\n";
 
 
         $html .= "<base href=\"".kryn::$baseUrl."\" $tagEnd\n";

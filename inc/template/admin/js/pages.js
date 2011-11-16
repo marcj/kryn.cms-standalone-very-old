@@ -1491,7 +1491,8 @@ var admin_pages = new Class({
         ).inject( p );
 
         this.domainFields['title_format'] = new ka.field(
-            {label: _('Title'), type: 'text', desc: _('Use %title as placeholder for the pagetitle'), empty: false}
+            {label: _('Title'), type: 'text', desc: _("Use %title as page title or %path as breadcrumb path.")+'<br />'+
+            _("To generate own titles you can set for example %s").replace('%s', 'myExtensionClass::myTitleFunction'), empty: false}
         ).inject( p );
 
         this.domainFields['path'] = new ka.field(

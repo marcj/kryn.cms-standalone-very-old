@@ -1305,6 +1305,7 @@ class kryn {
      *
      * @param int page id
      * @return array
+     * @static
      *
      */
     public static function getPageParents( $pPageRsn ){
@@ -1326,14 +1327,17 @@ class kryn {
     }
     
     /**
-     * 
-     * Returns the full human-readable path to given pageRsn delimited with »
+     * Returns the full human readable path to given pageRsn delimited
+     * with $pDelimiter
+     *
      * @param int $pPageRsn
+     * @param string $pDelimiter Default ' » '
      * @param bool $pAsArray
+     * @static
      */
-    public static function getPagePath( $pPageRsn ){
+    public static function getPagePath( $pPageRsn, $pDelimiter = ' » ' ){
         global $kcache;
-        
+     
         $parents = kryn::getPageParents( $pPagersn );
         $page =& kryn::getPage( $pPageRsn );       
         $domain =& kryn::getDomain( $page['domain_rsn'] ); 
@@ -1348,13 +1352,33 @@ class kryn {
     
         $count = count($parents);
         foreach( $parents as &$parent ){
-            $path .= ' » '.$parents[$i]['title'];
+            $path .= $pDelimiter.$parents[$i]['title'];
         }
-
-        $path .= ' » '.$page['title'];
-
+    
+        $path .= $pDelimiter.$page['title'];
+    
         return $path;
-            
+
+    }
+    
+    /**
+     * Returns the full human readable path from the current $breadcrumb items
+     * delimited with $pDelimiter
+     *
+     * @param string $pDelimiter Default ' » '
+     * @param bool $pAsArray
+     * @static
+     */
+    public static function getBreadcrumpPath( $pDelimiter = ' » ' ){
+        global $kcache;
+    
+        $path = ''; 
+        foreach( kryn::$breadcrumbs as $item ){
+           $path .= ($path==''?'':$pDelimiter).$item['title'];
+        }
+    
+        return $path;
+
     }
 
 
@@ -2399,8 +2423,6 @@ class kryn {
             return false;
         }
         
-        
-        
         kryn::$canonical = kryn::$baseUrl.kryn::getRequestPageUrl(true);
 
         $pageCacheKey = 'systemWholePage-'.kryn::$domain['rsn'].'_'.kryn::$page['rsn'].'-'.md5(kryn::$canonical);
@@ -2414,7 +2436,6 @@ class kryn {
             }
             
         }
-
         
         tAssignRef( 'realUrls', kryn::$urls );
 
@@ -2463,6 +2484,7 @@ class kryn {
             tAssignRef( 'themeProperties', kryn::$themeProperties );
             tAssignRef( 'publicProperties', kryn::$themeProperties );
         }
+
         //prepage for ajax
         if( getArgv('kGetPage', 1) != '' ){
             if( getArgv('kGetPage')+0 > 0 )
@@ -2487,7 +2509,10 @@ class kryn {
         tAssignRef( 'page', kryn::$page );
         
         kryn::loadBreadcrumb();
-        kryn::$breadcrumbs[] = kryn::$page;
+        kryn::$breadcrumbs[] = array(
+            'rsn' => kryn::$page['rsn'],
+            'title' => (kryn::$page['page_title']!=''?kryn::$page['page_title']:kryn::$page['title'])
+        );
         kryn::initModules();
 
         if( kryn::$keditAccess ){
