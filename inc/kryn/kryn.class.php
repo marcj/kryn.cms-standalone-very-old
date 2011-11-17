@@ -1658,7 +1658,7 @@ class kryn {
         if(! $pLang ) $pLang = $language;
         if(! $pLang || is_array($pLang) ) $pLang = 'en';
 
-        $code = 'cacheLang_'.$pLang;
+        $code = 'cacheLang-'.$pLang;
         $lang =& kryn::getCache($code);
         
         if( (!$lang || count($lang) == 0 ) ){
@@ -1666,7 +1666,7 @@ class kryn {
             $mods = kryn::$configs;
             $mods['kryn'] = 'kryn';
             $lang = array();
-            foreach( $mods as $key => $mod ){
+            foreach( kryn::$extensions as $key ){
                 if( $key != 'kryn' )
                     $json = kryn::fileRead( 'inc/modules/'.$key.'/lang/'.$pLang.'.json' );
                 else
@@ -1678,7 +1678,6 @@ class kryn {
             }
             kryn::setCache( $code, $lang );
             return kryn::getCache( $code );
-
         }
         
         return $lang;
@@ -2405,8 +2404,14 @@ class kryn {
         # search page for requested URL
         $page = kryn::getPage();
         
+        if( !$page ){
+            return kryn::notFound('404');
+        }
+        
         $page = self::checkPageAccess( $page );
+        
         if( !$page || !$page['rsn'] > 0 ){ //no access
+            return kryn::notFound('no_access');
             return false;
         }
         

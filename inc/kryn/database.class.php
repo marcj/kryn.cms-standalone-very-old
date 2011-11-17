@@ -410,7 +410,9 @@ class database {
 
         public static function getOptions( $pTable ){
             
-            $columnDefs =& kryn::getCache( 'krynDatabaseTable-'.$pTable );
+            $cacheKey = 'krynDatabaseTable-'.$pTable;
+            
+            $columnDefs =& kryn::getCache( $cacheKey );
             
             if( !$columnDefs ){
         
@@ -432,7 +434,7 @@ class database {
                         $ncolumns[$key] = $ncolumn;
 
                     }
-                    kryn::setCache( 'kryn_database_table_'.$pTable, $ncolumns);
+                    kryn::setCache( $cacheKey, $ncolumns);
 
                     return $ncolumns;
 
@@ -461,10 +463,10 @@ class database {
                             $ncolumns[ $fieldname ] = $ncolumn;
                         }
                         
-                        kryn::setCache( 'kryn_database_table_'.$pTable, $ncolumns);
+                        kryn::setCache( $cacheKey, $ncolumns);
                         return $ncolumns;
                     } else {
-                        kryn::setCache( 'kryn_database_table_'.$pTable, 'doesnt_exist');
+                        kryn::setCache( $cacheKey, 'doesnt_exist');
                     }
                 }
                 

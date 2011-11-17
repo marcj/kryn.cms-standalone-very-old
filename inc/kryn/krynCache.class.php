@@ -1,27 +1,78 @@
 <?php
 
 /*
- * This file is part of Kryn.cms.
- *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
- *
- * To get the full copyright and license informations, please view the
- * LICENSE file, that was distributed with this source code.
- *
- */
+* This file is part of Kryn.cms.
+*
+* (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+*
+* To get the full copyright and license informations, please view the
+* LICENSE file, that was distributed with this source code.
+*
+*/
 
-
+/**
+*
+* krynCache
+*
+* A caching class, that provides several ways to cache data
+* with inheritance invalidation mechanism. 
+*
+*
+* 
+*
+*/
 
 class krynCache {
     
+    /*
+    * Contains the current type
+    */
     public $type;
-    
+
+    /**
+    * Contains the current config values
+    */    
     public $config;
     
-    function __construct( $pType, $pConfig ){
+    /**
+    * This activates the invalidate() mechanism
+    *
+    * If activated, each time get() is called, the function searched
+    * for parents based on a exploded string by '_'. If a parent is
+    * found is a invalidated cache, the call is ignored and false will be returned.
+    *
+    * Example: call get('workspace_tables_tableA')
+    *          => checks 'workspace_tables' for invalidating (getInvalidate('workspace_tables'))
+    *          => if 'workspace_tables' was flagged as invalidate (invalidate('workspace_tables')), return false
+    *          => checks 'workspace' for invalidating (getInvalidate('workspace'))
+    *          => if 'workspace' was flagged as invalidate (invalidate('workspace')), return false
+    *
+    * 
+    * So you can invalidate multiple keys with just one call.
+    *
+    */
+    public $withInvalidationChecks = true;
+    
+
+    /**
+    * krynCache class constructor.
+    * @param    string  $pType  can be memcached, redis, files, xcache or apc.
+    * @param    string  $pConfig
+    *                   memcached and redis: array(
+    *                       'servers' => array(
+    *                           array('ip' => '12.12.12.12', 'port' => 6379
+    *                           array('ip' => '12.12.12.13', 'port' => 6379
+    *                       )
+    *                   )
+    *                   files: array('files_path' => '<path to store the cached files')
+    * @param    bool    $pWithInvalidationChecks activates the invalidating mechanism
+    * @access public
+    */
+    function __construct( $pType = 'files', $pConfig = array(), $pWithInvalidationChecks = true ){
     
         $this->type = $pType;
         $this->config = $pConfig;
+        $this->withInvalidationChecks = $pWithInvalidationChecks;
 
         switch( $this->type ){
             case 'memcached':
@@ -38,6 +89,20 @@ class krynCache {
                     $this->config['files_path'] = 'inc/cache/';
                 } 
                 break;
+            case 'apc':
+                if( !function_exists('apc_store') ){
+                    klog('cache', _l('The php apc module is not loaded. Fallback to file caching.'));
+                    $this->type = 'files';
+                    $this->config['files_path'] = 'inc/cache/';
+                }
+                break;
+            case 'xcache':
+                if( !function_exists('xcache_get') ){
+                    klog('cache', _l('The php xcache module is not loaded. Fallback to file caching.'));
+                    $this->type = 'files';
+                    $this->config['files_path'] = 'inc/cache/';
+                }
+                break;
         }
         
         if( $this->type == 'files' ){
@@ -53,7 +118,11 @@ class krynCache {
         }
 
     }
-    
+
+    /**
+    *
+    * Initialize the redis objects
+    */
     public function initRedis(){
         
         if( !class_exists('Redis') ) return false;
@@ -68,7 +137,11 @@ class krynCache {
         
         return true;
     }
-    
+
+    /**
+    *
+    * Initialize the memcached objects
+    */
     public function initMemcached(){
     
         if( class_exists('Memcache') ){
@@ -95,11 +168,8 @@ class krynCache {
      * @return string
      * @static
      */
-    public function &get( $pCode, $pProcessCacheInformation = true ){
+    public function &get( $pCode, $pWithoutValidationCheck = false ){
         global $kcache;
-
-        if( $kcache['krynPhpCache_'.$pCode] )
-            return $kcache['krynPhpCache_'.$pCode];
 
         switch( $this->type ){
             case 'memcached':
@@ -117,7 +187,7 @@ class krynCache {
                 break;
 
             case 'files':
-            
+                
                 $cacheCode = 'krynPhpCache_'.$pCode;
                 $path = $this->config['files_path'].$pCode.'.php';
                 
@@ -125,40 +195,56 @@ class krynCache {
                 include( $path );
 
                 $res =& $kcache[$cacheCode];
+
                 break;
 
             case 'apc':
             
                 $res = apc_fetch( $pCode );
-        }
-    
-        if( !$pProcessCacheInformation ) return $res;
-    
+                break;
                 
-        if( !$res['value'] || !$res['time'] ) return false;
-        if( $res['timeout'] < time() ) return false;
+            case 'xcache':
+            
+                $res = xcache_get( $pCode );
+        }
+        
+        if( !$res ){
+            return false;
+        }
 
-        //valid cache
-        //search if a parent has been flagged as invalid
-        if( strpos( $pCode, '_' ) !== false ){
-
-            $parents = explode( '_', $pCode );
-            $code = '';
-            if( is_array($parents) ){
-                foreach( $parents as $parent ){
-                    $code .= $parent;
-                    $invalidateTime = $this->getInvalidate($code);
-                    if( $invalidateTime && $invalidateTime > $res['time'] ){
-                        return false;
+        if( $this->withInvalidationChecks ){
+        
+            
+            if( $pWithoutValidationCheck == true ){
+                if( !$res['value'] || !$res['time'] || $res['timeout'] < time() ){
+                    return false;
+                }
+            }
+        
+            //valid cache
+            //search if a parent has been flagged as invalid
+            if( strpos( $pCode, '_' ) !== false ){
+    
+                $parents = explode( '_', $pCode );
+                $code = '';
+                if( is_array($parents) ){
+                    foreach( $parents as $parent ){
+                        $code .= $parent;
+                        $invalidateTime = $this->getInvalidate($code);
+                        if( $invalidateTime && $invalidateTime > $res['time'] ){
+                            return false;
+                        }
+                        $code .= '_';
                     }
-                    $code .= '_';
                 }
             }
         }
+
+        if( $this->withInvalidationChecks )
+            return $res['value'];
+        else
+            return $res;
         
-        $kcache['krynPhpCache_'.$pCode] = $res['value'];
-        
-        return $kcache['krynPhpCache_'.$pCode];
     }
     
     /**
@@ -167,7 +253,7 @@ class krynCache {
      * @param string $pCode
     */
     public function getInvalidate( $pCode ){
-        $res = $this->get( $pCode.'_i', false );
+        $res = $this->get( $pCode.'_i', true );
         return $res;
     }
 
@@ -188,31 +274,31 @@ class krynCache {
      * 
      * Sets a content to the specified cache-key.
      * Kryn uses MemCache or PHP-Caching
+     *
+     * pTimeout is only in files mode available when activating the $withInvalidationChecks=true
+     *
      * @param string $pCode
      * @param mixed $pValue
      * @param integer $pTimeout In seconds. Default is one hour
      */
-    public function set( $pCode, $pValue, $pTimeout = false, $pWithCacheInformations = true ){
-        global $kcache;
-        
-        $kcache['krynPhpCache_'.$pCode] = $pValue;
+    public function set( $pCode, $pValue, $pTimeout = false ){
         
         if( !$pTimeout )
             $pTimeout = time()+3600;
         else
             $pTimeout += time();
         
-        if( $pWithCacheInformations ){
+        if( $this->withInvalidationChecks ){
             $pValue = array(
                 'timeout' => $pTimeout,
                 'time' => time(),
                 'value' => $pValue
             );
         }
-
+            
         switch( $this->type ){
             case 'memcached':
-            
+
                 if( $this->memcache ){
                     return $this->memcache->set( $pCode, $pValue, 0, $pTimeout?$pTimeout:null );
                 } else if( $this->memcached ){
@@ -229,21 +315,30 @@ class krynCache {
                 $varname = '$kcache[\''.$cacheCode.'\'] ';
 
                 $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
-                kryn::fileWrite($this->config['files_path'].$pCode.'.php', $phpCode);
+
+                if( class_exists('kryn') )
+                    kryn::fileWrite($this->config['files_path'].$pCode.'.php', $phpCode);
+                else
+                    file_put_contents( $this->config['files_path'].$pCode.'.php', $phpCode );
+
                 return file_exists( $this->config['files_path'].$pCode.'.php' );
                 
             case 'apc':
-            
+
                 return apc_store( $pCode, $pValue, time()-$pTimeout );
+                
+            case 'xcache':
+            
+                return xcache_set( $pCode, $pValue, time()-$pTimeout );
         }
     }
     
     /**
-     * Clears the content for specified cache-key.
+     * Deletes the cache for specified cache-key.
      *
      * @param string $pCode
      */
-    public function clear( $pCode ){
+    public function delete( $pCode ){
         global $kcache;
         
         switch( $this->type ){
@@ -262,23 +357,26 @@ class krynCache {
             case 'files':
             
                 $cacheCode = 'krynPhpCache_'.$pCode;
-                unset($kcache[$cacheCode]);
                 @unlink($this->config['files_path'].$pCode.'.php');
                 break;
                 
             case 'apc':
             
                 return apc_delete( $pCode );
+                
+            case 'xcache':
+            
+                return xcache_unset( $pCode );
         }
     }
     
     /**
-     * Clears the content for specified cache-key.
+     * Deletes the cache for specified cache-key.
      *
      * @param string $pCode
      */
-    public function delete( $pCode ){
-        return $this->clear( $pCode );
+    public function clear( $pCode ){
+        return $this->delete( $pCode );
     }
 }
 

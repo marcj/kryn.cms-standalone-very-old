@@ -505,7 +505,7 @@ class krynAuth {
         }
 
         //after 25 tries, we stop and log it.
-        klog('session', _l("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the memached server s full or you forgot to setup a cronjob for the garbage collector."));
+        klog('session', _l("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
         return false;
     }
     
@@ -527,8 +527,8 @@ class krynAuth {
             'user_rsn' => 0,
             'time' => time(),
             'ip' => $_SERVER['REMOTE_ADDR'],
-            'page' => esc(kryn::$baseUrl.$_REQUEST['_kurl']),
-            'useragent' => esc($_SERVER['HTTP_USER_AGENT']),
+            'page' => kryn::getRequestPageUrl(true),
+            'useragent' => $_SERVER['HTTP_USER_AGENT'],
             'refreshed' => 0
         );
         
@@ -560,8 +560,8 @@ class krynAuth {
             'user_rsn' => 0,
             'time' => time(),
             'ip' => $_SERVER['REMOTE_ADDR'],
-            'page' => esc(kryn::$baseUrl.$_REQUEST['_kurl']),
-            'useragent' => esc($_SERVER['HTTP_USER_AGENT']),
+            'page' => kryn::getRequestPageUrl(true),
+            'useragent' => $_SERVER['HTTP_USER_AGENT'],
             'refreshed' => 0
         );
         
