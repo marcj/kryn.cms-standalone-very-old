@@ -22,6 +22,7 @@ header("Content-Type: text/html; charset=utf-8");
 
 $time = time();
 $_start = microtime(true);
+define('PATH', dirname(__FILE__).'/');
 
 @set_include_path(get_include_path() . PATH_SEPARATOR . './inc/pear/');
 
@@ -49,12 +50,13 @@ $umask = (in_array('umask', $cfg))?$cfg['umask']:002;
 if( !array_key_exists('display_errors', $cfg) )
     $cfg['display_errors'] = 0;
 
-    
+
+@ini_set('error_reporting', E_ALL & ~E_NOTICE);
+
 if( $cfg['display_errors'] == 0 ){
     @ini_set('display_errors', 0 );
 } else {
     @ini_set('display_errors', 1 );
-    @ini_set('error_reporting', E_ALL & ~E_NOTICE);
 }
 
 include( 'inc/kryn/checkFile.php' );

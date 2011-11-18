@@ -171,6 +171,7 @@ class krynCache {
     public function &get( $pCode, $pWithoutValidationCheck = false ){
         global $kcache;
 
+                    
         switch( $this->type ){
             case 'memcached':
 
@@ -187,12 +188,12 @@ class krynCache {
                 break;
 
             case 'files':
-                
+
                 $cacheCode = 'krynPhpCache_'.$pCode;
                 $path = $this->config['files_path'].$pCode.'.php';
                 
-                if( !file_exists( $path ) ) return false;
-                include( $path );
+                if( !file_exists( PATH.$path ) ) return false;
+                include( PATH.$path );
 
                 $res =& $kcache[$cacheCode];
 
@@ -322,7 +323,7 @@ class krynCache {
                 else
                     file_put_contents( $this->config['files_path'].$pCode.'.php', $phpCode );
 
-                return file_exists( $this->config['files_path'].$pCode.'.php' );
+                return file_exists( PATH.$this->config['files_path'].$pCode.'.php' );
                 
             case 'apc':
 
@@ -358,7 +359,8 @@ class krynCache {
             case 'files':
             
                 $cacheCode = 'krynPhpCache_'.$pCode;
-                @unlink($this->config['files_path'].$pCode.'.php');
+                if( file_exists( PATH.$this->config['files_path'].$pCode.'.php' ))
+                    @unlink( PATH.$this->config['files_path'].$pCode.'.php' );
                 break;
                 
             case 'apc':

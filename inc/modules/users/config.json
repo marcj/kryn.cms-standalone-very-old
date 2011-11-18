@@ -211,7 +211,6 @@
     },
     "users": {
       "title": "Users",
-      "icon": "user.png",
       "type": "combine",
       "class": "usersAdminList",
       "defaultWidth": 700,

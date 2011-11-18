@@ -433,7 +433,6 @@ class krynAuth {
     
         if( $this->needSync != true ) return;
         
-
         $session['user_rsn'] = $this->user['rsn'];
         
         if( $this->config['session_storage'] == 'database' ){
@@ -614,7 +613,7 @@ class krynAuth {
     
         if( $row['extra'] ){    
             $extra = @json_decode( $row['extra'], true );
-            if( is_array() )
+            if( is_array($extra) )
                 $row = array_merge( $row, $extra );
         }
         

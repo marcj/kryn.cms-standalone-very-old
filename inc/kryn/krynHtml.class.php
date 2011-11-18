@@ -142,29 +142,29 @@ class krynHtml {
         foreach( kryn::$cssFiles as $css => $v ){
             $myCssFiles[] = $css;
         }
-
-        /* Already in kryn.class.php:2725
-        if( file_exists('inc/template/css/_pages/'.$page['rsn'].'.css') )
-            $myCssFiles[] = 'css/_pages/'.$page['rsn'].'.css';
-        */
         
         # clearstatcache();
 
         if( $domain['resourcecompression'] != '1' ){
             foreach( $myCssFiles as $css ){
-                if( $mtime = @filemtime( 'inc/template/'.$css) ){
+                if( strpos( $css, "http://" ) !== false ){
+                    $html .= '<link rel="stylesheet" type="text/css" href="'.$css.'" '.$tagEnd."\n";
+                } else if( file_exists( PATH.'inc/template/'.$css ) && $mtime = @filemtime( PATH.'inc/template/'.$css )){
                     $css .= '?c='.$mtime;
                     $html .= '<link rel="stylesheet" type="text/css" href="'.$cfg['path'].'inc/template/'.$css.'" '.$tagEnd."\n";
-                } else {
-                    $html .= '<link rel="stylesheet" type="text/css" href="'.$css.'" '.$tagEnd."\n";
                 }
             }
         } else {
             $cssCode = '';
             foreach( $myCssFiles as $css ){
-                $file = 'inc/template/'.$css;
-                if( file_exists($file) && $mtime = @filemtime($file) ){
-                    $cssCode .= $file.'_'.$mtime;
+                if( strpos( $css, "http://" ) !== false ){
+                    $html .= '<script type="text/javascript" src="'.$css.'" ></script>'."\n";
+                } else {
+                    //local
+                    $file = 'inc/template/'.$css;
+                    if( file_exists( PATH.$file ) && $mtime = @filemtime( PATH.$file )){
+                        $cssCode .= $file.'_'.$mtime;
+                    }
                 }
             }
 
@@ -172,10 +172,10 @@ class krynHtml {
 
             $cssCachedFile = $cfg['template_cache'].'cachedCss_'.$cssmd5.'.css';
             $cssContent = '';
-            if( !file_exists( $cssCachedFile ) ){
+            if( !file_exists( PATH.$cssCachedFile ) ){
                 foreach( $myCssFiles as $css ){
                     $file = 'inc/template/'.$css;
-                    if( file_exists($file) ){
+                    if( file_exists( PATH.$file ) ){
                         $cssContent .= "/* $file: */\n\n";
                         $temp = kryn::fileRead( $file )."\n\n\n"; 
                         //$cssContent .= kryn::fileRead( $file )."\n\n\n"; 
@@ -203,41 +203,38 @@ class krynHtml {
         foreach( kryn::$jsFiles as $js => $v){
             $myJsFiles[] = $js;
         }
-
-        /* Already in kryn.class.php:2728
-        if( file_exists( 'inc/template/js/_pages/'.$page['rsn'].'.js' ) )
-            $myJsFiles[] = 'js/_pages/'.$page['rsn'].'.js';
-        */
         
         if( $domain['resourcecompression'] != '1' ){
             foreach( $myJsFiles as $js ){
                 if( strpos( $js, "http://" ) !== FALSE ){
                     $html .= '<script type="text/javascript" src="'.$js.'" ></script>'."\n";
                 } else {
-                    if( $mtime = @filemtime('inc/template/'.$js) || $js == 'js=global.js'){
+                    if( $mtime = @filemtime( PATH.'inc/template/'.$js ) || $js == 'js=global.js'){
                         $html .= '<script type="text/javascript" src="'.$cfg['path'].'inc/template/'.$js.'?c='.$mtime.'" ></script>'."\n";
                     }
                 }
             }
         } else {
             foreach( $myJsFiles as $js ){
-                $file = 'inc/template/'.$js;
-                if( $mtime = @filemtime($file) ){
-                    $jsCode .= $file.'_'.$mtime;
-                }
-                if( strpos( $js, "http://" ) !== FALSE ){
+                if( strpos( $js, "http://" ) !== false ){
                     $html .= '<script type="text/javascript" src="'.$js.'" ></script>'."\n";
-                } 
+                } else {
+                    //local
+                    $file = 'inc/template/'.$js;
+                    if( file_exists( PATH.$file ) && $mtime = @filemtime( PATH.$file )){
+                        $jsCode .= $file.'_'.$mtime;
+                    }
+                }
             }
             $jsmd5 = md5($jsCode);
             $jsCachedFile = $cfg['template_cache'].'cachedJs_'.$jsmd5.'.js';
             $jsContent = '';
 
-            if( !file_exists( $jsCachedFile ) ){
+            if( !file_exists( PATH.$jsCachedFile ) ){
 
                 foreach( $myJsFiles as $js ){
                     $file = 'inc/template/'.$js;
-                    if( file_exists($file) ){
+                    if( file_exists( PATH.$file ) ){
                         $jsContent .= "/* $file: */\n\n";
                         $jsContent .= kryn::fileRead( $file )."\n\n\n"; 
                     }
@@ -426,6 +423,8 @@ class krynHtml {
 
         $access = true;
         $contents = array();
+        
+        if( !is_array($pContents) ) return;
 
         foreach( $pContents as $key => &$content ){
             
@@ -598,7 +597,7 @@ class krynHtml {
                     $_content = substr($_content, 1);
 
                 $file = str_replace('..', '', $_content);
-                if( file_exists( "inc/template/".$file ) ){
+                if( file_exists( PATH.'inc/template/'.$file ) ){
                     $_content = tFetch( $file );
                 }
                 break;
@@ -624,7 +623,7 @@ class krynHtml {
                 $t = explode( '::', $_content );
                 $config = $_content;
                 
-                $_content = 'Plugin not found.';                    
+                $_content = '<div>Plugin not found.</div>';
                 
                 if( $modules[ $t[0] ] ){
                 

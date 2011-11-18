@@ -683,13 +683,6 @@ ka.createModuleMenu = function(){
     .addEvent('click', ka.toggleModuleMenuIn)
     .inject( ka.moduleToggler );
 
-    /*
-    var btnGrp = new ka.buttonGroup( ka._moduleMenu );
-    btnGrp.addButton( 'Install extenson', _path+'inc/template/admin/images/icons/add.png', function(){
-        ka.wm.open('admin/system/module/add');
-    });
-    */
-
     new Element('div', {
         html: _('Extensions'),
         style: 'padding-left: 15px; color: white; font-weight: bold; padding-top: 4px;'
@@ -738,24 +731,6 @@ ka.createModuleMenu = function(){
     	ka.moduleItemsScrollSlider.set(newPos);
     	
     });
-    
-    /*
-    var menuBottom = new Element('div', {
-        style: 'position: absolute; bottom: 12px; left: 8px; '
-    }).inject( ka._moduleMenu );
-
-    new Element('a', {
-        'class': 'ka-Button ka-button',
-        href: 'javascript:;',
-        html: _('Add extension')
-    }).inject( menuBottom );
-    */
-    /*
-    var btnGrp =new ka.buttonGroup( ka._moduleMenu );
-    btnGrp.addButton( ':w', _path+'inc/template/admin/images/add.png', function(){
-        ka.wm.open( 'admin/system/module/' );
-    });*/
-    //btnGrp.addButton( 'Erweiterung deinstallieren', _path+'inc/template/admin/images/remove.png', function(){});
     ka.toggleModuleMenuOut( true );
 }
 
@@ -1176,6 +1151,7 @@ ka.addAdminLink = function( pLink, pCode, pExtCode ){
         mlink = new Element('a', {
             html: pLink.title
         });
+        
         if( pLink.icon != '' ){
             new Element('img', {
                 src: _path+'inc/template/'+pLink.icon
@@ -1212,6 +1188,7 @@ ka.addModuleLink = function( pLinks, pModule ){
 
     $H(pLinks).each(function(pLink, code){
         if( pLink == null ) return;
+        
         var mlink = new Element('a', {
             html: pLink.title,
             'class': 'ka-subnavi-main',

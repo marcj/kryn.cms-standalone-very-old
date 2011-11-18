@@ -411,8 +411,7 @@ class database {
 
         public static function getOptions( $pTable ){
             
-            $cacheKey = 'krynDatabaseTable-'.$pTable;
-            
+            $cacheKey = 'krynDatabaseTable-'.str_replace('_', '..', $pTable);
             $columnDefs =& kryn::getCache( $cacheKey );
             
             if( !$columnDefs ){

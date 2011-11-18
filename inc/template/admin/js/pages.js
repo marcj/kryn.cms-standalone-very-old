@@ -3041,20 +3041,17 @@ var admin_pages = new Class({
     
     
     loadSearchIndexOverview : function() {
-    	if( this.seachIndexOverviewRequest )
+        if( this.seachIndexOverviewRequest )
             this.seachIndexOverviewRequest.cancel();
     	
     	this.sioTable.loading(true);
-    	 this.seachIndexOverviewRequest = new Request.JSON({url: _path+'admin/backend/searchIndexer/getSearchIndexOverview', noCache: 1, 
+    	this.seachIndexOverviewRequest = new Request.JSON({url: _path+'admin/backend/searchIndexer/getSearchIndexOverview', noCache: 1, 
         	 onComplete:function( res ){        	
     		 this.sioTable.loading(false);
     		 res.each(function(pVal, pKey) {
-    			var vUrl = this.getBaseUrl(this.page)+pVal[0].substr(1)+'/';    
-    			if(pVal[0] != '/'+this.page.url)
-    				res[pKey][4] = '<a href="'+pVal[0]+'" class="addToBlacklistBtn"><img src="'+_path+'inc/template/admin/images/icons/lightning_delete" title="'+_('Add this page to the blacklist')+'" /></a>'; 
-    			else
-    				res[pKey][4] = '';
+    			var vUrl = this.getBaseUrl(this.page)+pVal[0].substr(1)+'/';
     			
+    			res[pKey][4] = '';
     			res[pKey][4] += '&nbsp;<a href="'+vUrl+'" target="_blank"><img src="'+_path+'inc/template/admin/images/icons/eye.png" title="'+_('View this page')+'" /></a>'; 
     		 }.bind(this));
     		 this.sioTable.setValues(res);
@@ -3068,7 +3065,7 @@ var admin_pages = new Class({
     			 }.bind(this));
     		 }
 
-         }.bind(this)}).post({page_rsn: this.page.rsn});
+        }.bind(this)}).post({page_rsn: this.page.rsn});
     },
        
     clearMeta: function(){

@@ -18,13 +18,13 @@ class adminLayout {
         }
     }
 
-    function save($pFile){
+    public static function save($pFile){
         $file = str_replace("..", "",$pFile);
         kryn::fileWrite("inc/template/$file", getArgv('content'));
         return true;
     }
 
-    function loadFile( $pFile ){
+    public static function loadFile( $pFile ){
 
         $res = array();
         foreach( kryn::$configs as $config ){
@@ -46,7 +46,7 @@ class adminLayout {
     }
 
 
-    function load( $pType ){
+    public static function load( $pType ){
 
         $res = array();
         foreach( kryn::$configs as $config ){
@@ -61,7 +61,7 @@ class adminLayout {
         return $res;
     }
     
-    function get( $pFile, $pPlain = false ){
+    public static function get( $pFile, $pPlain = false ){
 
         $rsn = getArgv('rsn')+0;
         $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
@@ -112,7 +112,7 @@ class adminLayout {
             
         $css = array();
         foreach( kryn::$cssFiles as $file => $v ){
-            if( $mtime = @filemtime("inc/template/$file") )
+            if( file_exists( PATH.'inc/template/'.$file) && $mtime = @filemtime( PATH.'inc/template/'.$file ) )
                 $css[] = $file . '?modified='.$mtime;
         }
         $res['css'] = $css;

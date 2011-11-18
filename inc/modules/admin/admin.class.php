@@ -740,8 +740,7 @@ class admin {
         global $modules, $client, $cfg;
 
         $res = array();
-        
-        $res['modules'] = array();
+
         $res['modules'] = kryn::$extensions;
         $res['configs'] = kryn::$configs;
 

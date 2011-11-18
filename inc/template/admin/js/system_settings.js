@@ -86,25 +86,43 @@ var admin_system_settings = new Class({
         
         var p = this.panes['system'];
         
-        this.fields['cronjob_key'] = new ka.field({
-            label: _('Cronjob key'), type: 'label'
-        }).inject( p );
+        var fields = {
+            'cronjob_key': {
+                label: _('Cronjob key'),
+                type: 'label'
+            },
+            'display_errors': {
+                label: _('Display errors'),
+                desc: _('Prints errors to the frontend clients. You should deactivate this in productive systems'),
+                type: 'checkbox'
+            },
+            'log_errors': {
+                label: _('Save debug informations into a file'),
+                desc: _('Stores the debug logs (klog()) into a file. Deactivates the log viewer.'),
+                type: 'checkbox',
+                depends: {
+                    'log_errors_file': {
+                        needValue: 1,
+                        label: _('Log file'),
+                        desc: _('Example: inc/kryn.log')
+                    }
+                }
+            },
+            'timezone': {
+                label: _('Server timezone'),
+                type: 'select',
+                tableItems: this.timezones,
+                table_key: 'l',
+                table_label: 'l'
+            }
+        };
         
-        this.fields['display_errors'] = new ka.field({
-            label: _('Display errors'), desc: _('Prints errors to the frontend clients. You should deactivate this in productive systems'), type: 'checkbox'
-        }).inject( p );
+        var systemFields = new ka.parse( p, fields );
+        Object.each( systemFields.getFields(), function(item,id){
+            this.fields[ id ] = item;
+        }.bind(this));
         
-        this.fields['log_errors'] = new ka.field({
-            label: _('Log errors'), desc: _('Log all errors into specified (below) file'), type: 'checkbox'
-        }).inject( p );
         
-        this.fields['log_errors_file'] = new ka.field({
-            label: _('Log errors target'), desc: _('If Log errors is activated, all errors will be written in this file. Example: inc/kryn.log')
-        }).inject( p );
-      
-        this.fields['timezone'] = new ka.field({
-            label: _('Server timezone'), type: 'select', tableItems: this.timezones, table_key: 'l', table_label: 'l'
-        }).inject( p );
         
         var p = this.panes['auth'];
         

@@ -628,27 +628,28 @@ class kryn {
 
         $tables = array();
         
-        kryn::$extensions =& kryn::getCache('activeModules');
+        $extensions =& kryn::getCache('activeModules');
 
-        if( !kryn::$extensions || is_array(kryn::$extensions[0]) ){
-            kryn::$extensions = array();
+        if( !$extensions || is_array($extensions[0]) ){
+            $extensions = array();
             $dbMods = dbExFetch('SELECT name FROM %pfx%system_modules WHERE activated = 1 AND name != \'admin\' AND name != \'users\'', -1);
             foreach( $dbMods as &$mod ){
-                kryn::$extensions[] = $mod['name'];
+                $extensions[] = $mod['name'];
             }
-            kryn::setCache('activeModules', kryn::$extensions);
+            kryn::setCache('activeModules', $extensions);
         }
 
-        kryn::$extensions[] = 'kryn';
-        kryn::$extensions[] = 'admin';
-        kryn::$extensions[] = 'users';
+        $extensions[] = 'kryn';
+        $extensions[] = 'admin';
+        $extensions[] = 'users';
 
         $md5 = '';
-        foreach( kryn::$extensions as &$extension ){
-            if( $extension == 'kryn' )        
-                $md5 .= '.'.filemtime('inc/kryn/config.json');
-            else
-                $md5 .= '.'.filemtime('inc/modules/'.$extension.'/config.json');
+        foreach( $extensions as $extension ){
+            $path = ( $extension == 'kryn' )? 'inc/kryn/config.json':'inc/modules/'.$extension.'/config.json';
+            if( file_exists( $path ) ){
+                $md5 .= '.'.filemtime( $path );
+                kryn::$extensions[] = $extension;
+            }
         }
 
         $md5 = md5($md5);
@@ -692,6 +693,8 @@ class kryn {
             kryn::setCache('systemTables-v2', kryn::$tables);
         }
         
+        unset(kryn::$tables['__md5']);
+        
         kryn::$themes =& kryn::getCache('systemThemes');
         if( !kryn::$themes || $md5 != kryn::$themes['__md5']){
             
@@ -706,6 +709,8 @@ class kryn {
             }
             kryn::setCache( 'systemThemes', kryn::$themes );
         }
+
+        unset(kryn::$themes['__md5']);
     }
     
     /**
@@ -1244,6 +1249,7 @@ class kryn {
     public static function initAuth(){
         global $cfg, $user, $client, $adminClient;
         
+
         if( ($_COOKIE[$cfg['session_tokenid']] || $_GET[$cfg['session_tokenid']] || $_POST[$cfg['session_tokenid']] )
             || getArgv(1) == 'admin' ){
 
@@ -1295,8 +1301,6 @@ class kryn {
         if( $client->user['rsn'] != 0 ){
             $user->user_logged_in = true;
         }
-        
-        
     }
     
     /**
@@ -1308,7 +1312,9 @@ class kryn {
      * @static
      *
      */
-    public static function getPageParents( $pPageRsn ){
+    public static function getPageParents( $pPageRsn = false ){
+
+        if( !$pPageRsn ) $pPageRsn = kryn::$page['rsn'];
 
         $page =& kryn::getPage( $pPageRsn );
         $domain_rsn = $Page['domain_rsn'];
@@ -2456,9 +2462,9 @@ class kryn {
                 header('Location: '.str_replace('http://', 'https://',kryn::$baseUrl).$page['realUrl']);
                 exit;
             }
-    
 
             foreach( kryn::$themes as $extKey => &$themes ){
+                
                 foreach( $themes as $tKey => &$theme ) {
                     if( $theme['layouts'] ) {
                         foreach( $theme['layouts'] as $lKey => &$layout ){
@@ -2684,8 +2690,8 @@ class kryn {
      */ 
     public static function fileWrite( $pPath, $pContent ){
         
-        $h = fopen( $pPath, "w+");
-        if( $h  ){
+        $h = fopen( ($pPath[0]=='/')? $pPath : PATH.$pPath, 'w');
+        if( $h ){
             fwrite($h, $pContent);
             fclose($h);
         }

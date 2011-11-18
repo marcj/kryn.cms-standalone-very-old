@@ -616,15 +616,30 @@ $pAccess from all
         $newPath = 'inc/template' . $path . $name;
         $newPath = str_replace( "..", "", $newPath );
 
-        if( getArgv('overwrite') != "1" ){
-            $exist = file_exists( $newPath );
-            $fh = fopen( $newPath );
-            $firstLine = fread( $fh );
-            $secondLine = fread( $fh );
-            fclose($fh);
-            if( $firstLine == 'kryn_fileupload_blocked' ){
-                if( $secondLine != $adminClient->token )
-                    return false;
+        if( file_exists( $newPath ) ){
+
+            if( getArgv('overwrite') != "1" ){
+
+                $fh = fopen( $newPath, 'r' );
+                $firstLine = trim(fgets( $fh ));
+                $secondLine = trim(fgets( $fh ));
+                fclose($fh);
+
+                if( $firstLine == 'kryn_fileupload_blocked' && $secondLine == $adminClient->token ){
+                } else {
+ 
+                    $exist = true;
+                    $_id = 0;
+                    while( $exist ){
+                        $extPos = strrpos($name,'.');
+                        $ext = substr($name, (strlen($name)-$extPos)*-1 );
+                        $tName = substr($name, 0, $extPos );
+                        $_id++;
+                        $newName = $tName.'-'.$_id.$ext;
+                        $newPath = 'inc/template' . $path . $newName;
+                        $exist = file_exists( $newPath );
+                    }
+                }
             }
         }
 

@@ -52,62 +52,55 @@ if (get_magic_quotes_gpc()) {
 
 
 function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
-    global $errorHandlerInside, $user, $cfg, $client;
+    global $errorHandlerInside, $client, $cfg;
 
     if( $errorHandlerInside ) return;
+    if( $pCode == 8 ) return;
     
     $errorHandlerInside = true;
+    $username = $client->user['username']?$client->user['username']:'Unknown';
     
-    if( !is_string($pCode) ){
-  
-    	if( $pCode != 8 && $pCode != 2 ){
-	    	if( array_key_exists('log_errors', $cfg) && array_key_exists('log_errors_file', $cfg) &&
-	    	    $cfg['log_errors']+0 == 1 && $cfg['log_errors_file'] != "" ){
-	    	    	
-	        	@error_log($user->user['username']." - $pCode: $pMsg in $pFile on $pLine\n", 3, $cfg['log_errors_file']);
-	    	}
-    	}
-        
-        //When we are not in kryn-installer go out
-        $errorHandlerInside = false;
-        if( !array_key_exists('krynInstaller', $GLOBALS) )
-        	return; 
-    }
+    $msg = '['.date('d.m.y H:i:s').'] '.$username." - $pCode: $pMsg".(($pFile)?" in $pFile on $pLine\n":'')."\n";
+    $msg = htmlspecialchars($msg);
     
-    if( !class_exists('database') )
-    	die('Error before class initializations: '.$pCode.': '.$pMsg.' '.$pFile.':'.$pLine);
+    error_log( $msg );
     
-    $sid = esc($client->token);
-    $ip = $_SERVER['REMOTE_ADDR'];
-    $username = $user->user['username'];
-    $pCode = preg_replace('/\W/', '-', $pCode);
-    $msg = htmlspecialchars($pMsg);
-    
-    if( $pFile )
-        $msg = "$msg in $pFile on $pLine";
-        
     if( array_key_exists('krynInstaller', $GLOBALS) && $GLOBALS['krynInstaller'] == true ){
-        $f = @fopen('install.log');
+        $f = @fopen('install.log', 'a');
         if( $f ){
             @fwrite( $f, $msg );
             @fclose($f);
         }
+        return;
+    }
+    
+    if( $cfg['log_errors'] == '1' ){
+
+	   @error_log($msg, 3, $cfg['log_errors_file']);
+
     } else {
+    
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $username = $user->user['username'];
+        $pCode = preg_replace('/\W/', '-', $pCode);
+        $msg = htmlspecialchars($pMsg);
+    
+        if( !class_exists('database') )
+        	die('Error in boot: '.$pCode.': '.$pMsg.' '.$pFile.':'.$pLine);
+    	
         database::$hideSql = true;
         $qry = dbInsert('system_log', array(
             'date' => time(),
             'ip' => $ip,
             'username' => $username,
             'code' => $pCode,
-            'message' => $msg
+            'message' => htmlspecialchars($pMsg)
         ));
         database::$hideSql = false;
-        
+
         if( $qry === false )
             die( str_replace('%s', $msg, _l('Failed to insert log entry: %s')) );
     }
-    
-    $errorHandlerInside = false;
 
 }
 

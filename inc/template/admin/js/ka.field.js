@@ -417,7 +417,7 @@ ka.field = new Class({
                 var pos = box.getPosition();
                 var size = box.getSize();
                 
-                var bsize = window.getSize( $('desktop') );
+                var bsize = window.getSize();
                 
                 var height;
         
