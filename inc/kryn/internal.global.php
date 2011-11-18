@@ -63,8 +63,6 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     $msg = '['.date('d.m.y H:i:s').'] '.$username." - $pCode: $pMsg".(($pFile)?" in $pFile on $pLine\n":'')."\n";
     $msg = htmlspecialchars($msg);
     
-    error_log( $msg );
-    
     if( array_key_exists('krynInstaller', $GLOBALS) && $GLOBALS['krynInstaller'] == true ){
         $f = @fopen('install.log', 'a');
         if( $f ){

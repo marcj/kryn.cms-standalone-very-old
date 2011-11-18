@@ -13,7 +13,7 @@
 
 class usersAcl {
     
-    function init(){
+    public static function init(){
         switch( getArgv(5) ){
             case 'search':
                 return self::search();

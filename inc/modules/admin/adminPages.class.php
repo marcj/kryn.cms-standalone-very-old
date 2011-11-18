@@ -1327,7 +1327,7 @@ class adminPages {
        			if( kryn::checkPageAcl($rsn, 'css') ){
 		            if( getArgv('resourcesCss') != '' )
 		                kryn::fileWrite( "inc/template/css/_pages/$rsn.css", getArgv('resourcesCss') );
-		            else
+		            else if( file_exists("inc/template/css/_pages/$rsn.css") )
 		                @unlink("inc/template/css/_pages/$rsn.css");
        			}
 	                
