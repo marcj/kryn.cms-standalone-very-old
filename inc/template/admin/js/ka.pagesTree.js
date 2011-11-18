@@ -887,11 +887,6 @@ ka.pagesTree = new Class({
     
     
     
-    
-    
-    
-    
-    
 
     isReady: function(){
         return this.firstLoadDone;

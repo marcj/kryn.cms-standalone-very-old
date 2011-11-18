@@ -170,6 +170,13 @@ class admin {
                         case 'plugins':
                             require("inc/modules/admin/adminPlugins.class.php");
                             return adminPlugins::init();
+                        case 'window':
+                            if( getArgv(4) == 'sessionbasedFileUpload' ){
+                                require( 'inc/modules/admin/adminWindow.class.php' );
+                                $_REQUEST['cmd'] = 'sessionbasedFileUpload';
+                                $content = adminWindow::handle();
+                            }
+                            break;
                         case 'searchIndexer' :                         
                             adminSearchIndexer::init();
                             break;

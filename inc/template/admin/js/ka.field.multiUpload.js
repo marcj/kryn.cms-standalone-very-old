@@ -12,7 +12,6 @@ ka.field_multiUpload = new Class ({
 	
 		this.parentField = pParentField;
 		this.parentField.getValue = this.getValue.bind(this);
-		logger(this.parentField );
 	
 		
 		this.uploadedFileNum = 0;
@@ -58,7 +57,7 @@ ka.field_multiUpload = new Class ({
 
     	ka.uploads[this.win.id] = new SWFUpload({
     		
-            upload_url: _path+this.options.uploadpath+"/?"+window._session.tokenid+"="+window._session.sessionid,
+            upload_url: _path+this.options.uploadpath+"?"+window._session.tokenid+"="+window._session.sessionid,
 
             file_post_name: "file",
             flash_url : _path+"inc/template/admin/swfupload.swf",
@@ -70,6 +69,7 @@ ka.field_multiUpload = new Class ({
             upload_progress_handler: ka.fupload._progress,
             upload_error_handler: ka.fupload.error,
             upload_success_handler: this._uploadSuccess.bind(this),
+            upload_complete_handler: this._uploadComplete.bind(this),
 
             button_placeholder_id : this.uploadBtnId,
             button_width: 26,
@@ -92,10 +92,15 @@ ka.field_multiUpload = new Class ({
     },
     
     _uploadSuccess: function( pFile, pSecParam ){
-        ka.fupload.success( pFile );     
+        ka.fupload.success( pFile );
         
-        this.fireEvent('success', [pFile, pSecParam]);        
-        this._addUploadedFileToPanel(pFile, pSecParam); 
+        this.fireEvent('success', [pFile, pSecParam]);
+        this._addUploadedFileToPanel(pFile, pSecParam);
+    },
+    
+    _uploadComplete: function( pFile ){
+        //upload next file
+        ka.uploads[this.win.id].startUpload();
     },
     
     

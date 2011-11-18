@@ -643,7 +643,7 @@ $pAccess from all
 
         move_uploaded_file( $_FILES["file"]["tmp_name"], $newPath );
 
-        return true;
+        return substr( $newPath, 12 );
     }
     
     public static function duplicateFile( $pOriFile, $pToFileName ){
