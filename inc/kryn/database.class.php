@@ -37,6 +37,7 @@ class database {
         
         public $usePdo = false;
         public $databaseName = '';
+
         public $user = '';
         
         public function __construct( $pDatabaseType = false, $pHost = false, $pUser = false,
@@ -585,10 +586,18 @@ class database {
                     }
                 } catch( Exception $e ){
                     $this->lastError = $e;
+                    
+                    if( !database::$hideSql )
+                        klog('database', $this->lastError);
+
                     return false;
                 }
-                if( !$res ){
+                if( !$res && $this->_last_error() ){
                     $this->lastError = $this->_last_error();
+
+                    if( !database::$hideSql )
+                        klog('database', $this->lastError);
+
                     return false;
                 }
                 return $res;
@@ -600,8 +609,10 @@ class database {
     	        	if( method_exists($res, 'execute') )
     	               $state = $res->execute();
             	} catch (PDOException $err) {
+            	
     	        	if( !database::$hideSql )
     	        		klog('database', "pdo exec exception: " . $err->getMessage() );
+    	   
     	        	$this->lastError = $err->getMessage();
     	        	return false;
     	        }
@@ -609,8 +620,10 @@ class database {
     	        if( !$state && !database::$hideSql && $res ){
     	        	$err = $res->errorInfo();
     	        	$this->lastError = $err[2];
-    	        	if( $err[2] )
+
+    	        	if( $err[2] && !database::$hideSql  )
     	        		klog('database', "pdo exec error: " . $err[2].", SQL: $pQuery" );
+
     	        	return false;
     	        }
     	        
@@ -618,6 +631,10 @@ class database {
     	       			
     	       		$err = $this->pdo->errorInfo();
     	       		$this->lastError = $err[2];
+                    
+                    if( !database::$hideSql )
+                        klog('database', $this->lastError);
+                        
     	       		return false;
     	       	}
 	  
