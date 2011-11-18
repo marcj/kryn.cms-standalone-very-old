@@ -219,6 +219,7 @@ class krynCache {
                 if( !$res['value'] || !$res['time'] || $res['timeout'] < time() ){
                     return false;
                 }
+                return $res['value'];
             }
         
             //valid cache
