@@ -1346,7 +1346,7 @@ class kryn {
      
         $parents = kryn::getPageParents( $pPagersn );
         $page =& kryn::getPage( $pPageRsn );       
-        $domain =& kryn::getDomain( $page['domain_rsn'] ); 
+        $domain = kryn::getDomain( $page['domain_rsn'] ); 
         
         if( $pAsArray == true )
             return $kcache['paths'][$pPageRsn];

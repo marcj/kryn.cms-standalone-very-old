@@ -85,7 +85,7 @@ class adminWindowEdit {
      * Initialize $fields. Called when opened the window.
      * @return windowEdit 
      */
-    public function init( $pAndLoadPreviewPages ){
+    public function init( $pAndLoadPreviewPages = false ){
         $this->_fields = array();
         if( $this->fields ){
             $this->prepareFieldItem( $this->fields );
