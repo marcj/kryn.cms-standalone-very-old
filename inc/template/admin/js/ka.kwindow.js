@@ -837,11 +837,10 @@ ka.kwindow = new Class({
         var javascript = this.code.replace(/\//g,'_');
         
         var mdate = this.values.cssmdate;
-        
 
-        if( this.module == 'admin' ){
+        if( this.module == 'admin' && mdate ){
             new Asset.css( _path+'inc/template/admin/css/'+javascript+'.css?mdate='+mdate );
-        } else {
+        } else if( mdate ){
             new Asset.css( _path+'inc/template/'+this.module+'/admin/css/'+javascript+'.css?mdate='+mdate );
         }
         

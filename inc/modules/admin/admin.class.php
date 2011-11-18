@@ -268,15 +268,13 @@ class admin {
         $_info['_path'] = $path;
         $_info['_module'] = $module;
         $_info['_code'] = $code;
-        
-        $cssPath = str_replace( '/', '_', $code ); //this.code.replace(/\//g,'_');;
-        if( $pModule == 'admin' ){
-            $cssPath = 'inc/template/admin/css/'.$cssPath.'.css';
-        } else {
-            $cssPath = 'inc/template/'.$module.'/admin/css/'.$cssPath.'.css';
+
+        if( $code ){
+            $css = PATH.'inc/template/'.$module.'/'.(($module!='admin')?'admin/':'').'css/'.str_replace('/', '_', $code).'.css';
+            if( file_exists($css) && $mtime = filemtime($css) ){
+                $_info['cssmdate'] = $mtime;
+            }
         }
-        if( file_exists( $cssPath ) )
-            $_info['cssmdate'] = filemtime( $cssPath );
             
         
         return $_info;
