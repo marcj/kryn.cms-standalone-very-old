@@ -1,17 +1,18 @@
 var admin_files = new Class({
+    
     historyIndex: 0,
-    history: $H({}),
-    _modules: [],
+    history: {},
+    
     current: '',
-    items: $H({}),
-    _selectedItems: new Hash({}),
+    
     _modules: [],
+    
+    
     __images: ['jpg','jpeg','gif','png','bmp'],
     __ext: ['css', 'tpl', 'js', 'html'],
     _krynFolders: ['kryn/', 'css/', 'images/', 'js/', 'admin/'],
     firstLoaded: 0,
-    selectedFiles: [],
-    
+
     uploadTrs: {},
     uploadFilesCount: 0,
     uploadFileNames: {},
@@ -22,8 +23,9 @@ var admin_files = new Class({
     fileUploadSpeedInterval: false,
     
     initialize: function( pWindow ){
-        var _this = this;
         this.win = pWindow;
+
+        this.win.fileObj = this;
 
         this.options = {};
         this.options.onlyUserDefined = (Cookie.read('adminFiles_OnlyUserFiles')==0)?false:true;
@@ -31,9 +33,10 @@ var admin_files = new Class({
         this._createLayout();
         this.loadModules();
         this.win.border.addEvent('click', function(){
-            if( _this.context )
-                _this.context.destroy(); 
-        });
+            if( this.context )
+                this.context.destroy(); 
+        }.bind(this));
+
         this.title = this.win.getTitle();
         this.initHotkeys();
         
@@ -52,7 +55,12 @@ var admin_files = new Class({
     },
 
     setTitle: function(){
-        this.win.setTitle( this.current );
+    
+        var folder = this.current;
+        if( folder.substr(0,1) != '/' )
+            folder = '/'+folder;
+    
+        this.win.setTitle( folder );
     },
     
     recoverSWFUpload: function(){
@@ -212,15 +220,15 @@ var admin_files = new Class({
                 
                 new ka.Button(_('Rename'))
                 .addEvent('click', function(){
-                
+
                     this.win._prompt(_('New filename'), name, function(res){
-                        
+
                         if( res ){
                             this.uploadTrs[ pFile.id ].needAction = false;
                             ka.uploads[this.win.id].addFileParam( pFile.id, 'name', res );
                             this.fileUploadCheck( ka.uploads[this.win.id].getFile( pFile.id ) );
                         }
-                    
+
                     }.bind(this));
                 
                 }.bind(this))
@@ -554,18 +562,23 @@ var admin_files = new Class({
     },
     
     _createLayout: function(){
-        var _this = this;
+
         var boxNavi = this.win.addButtonGroup();
+
         var toLeft = new Element('img', {
             src: _path+'inc/template/admin/images/admin-files-toLeft.png'
         });
         boxNavi.addButton( _('Back'), _path+'inc/template/admin/images/admin-files-toLeft.png', function(){
-            _this.goHistory('left');
-        });
+            this.goHistory('left');
+        }.bind(this));
+
         boxNavi.addButton( _('Forward'), _path+'inc/template/admin/images/admin-files-toRight.png', function(){
-            _this.goHistory('right');
-        });
-        boxNavi.addButton( _('Up'), _path+'inc/template/admin/images/admin-files-toUp.png', this.up.bind(this) );
+            this.goHistory('right');
+        }.bind(this));
+
+        this.upBtn = boxNavi.addButton( _('Up'), _path+'inc/template/admin/images/admin-files-toUp.png', this.up.bind(this) );
+        this.upBtn.fileObj = this;
+        
         boxNavi.addButton( _('Refresh'), _path+'inc/template/admin/images/admin-files-refresh.png', this.reload.bind(this) );
         
         var boxAction = this.win.addButtonGroup();
@@ -574,13 +587,18 @@ var admin_files = new Class({
         boxAction.addButton( _('New directory'), _path+'inc/template/admin/images/admin-files-newDir.png', this.newFolder.bind(this) );
 
         this.newUploadBtn();
+
+        this.upBtn.addClass('admin-files-droppables');
         
         //view types
         var boxTypes = this.win.addButtonGroup();
         this.typeButtons = new Hash();
         this.typeButtons['icon'] = boxTypes.addButton( _('Icon view'), _path+'inc/template/admin/images/admin-files-list-icons.png', this.setListType.bind(this, 'icon'));
         this.typeButtons['miniatur'] = boxTypes.addButton( _('Image view'), _path+'inc/template/admin/images/admin-files-list-miniatur.png', this.setListType.bind(this, 'miniatur'));
-//        this.typeButtons['image']  = boxTypes.addButton( 'Bilderansicht', _path+'inc/template/admin/images/admin-files-list-images.png', this.setListType.bind(this, 'image'));
+
+//      this.typeButtons['image']  = boxTypes.addButton( 'Bilderansicht',
+//          _path+'inc/template/admin/images/admin-files-list-images.png', this.setListType.bind(this, 'image'));
+
         this.typeButtons['detail'] = boxTypes.addButton( _('Detail view'), _path+'inc/template/admin/images/admin-files-list-detail.png', this.setListType.bind(this, 'detail'));
 
         this.typeButtons.each(function(btn){
@@ -607,12 +625,13 @@ var admin_files = new Class({
         })
         .addEvent('keyup', function(e){
             if(e.key == 'enter' )
-                _this.loadPath(this.value);
-        }).inject( addressPos );
+                this.loadPath(this.value);
+        }.bind(this)).inject( addressPos );
         
         var searchPos = new Element('div', {
             'class': 'admin-files-actionBar-searchPos'
         }).inject( this.win.titleGroups );
+
         this.searchInput = new Element('input', {
             'class': 'admin-files-actionBar-search'
         })
@@ -625,16 +644,36 @@ var admin_files = new Class({
         .inject( searchPos );
         
         this.fileContainer = new Element('div', {
-            'class': 'admin-files-fileContainer'
+            'class': 'admin-files-droppables admin-files-fileContainer'
         })
-        .addEvent('mousedown', function(e){
-            _this.onContext( e, _this, _this.currentFolderFile );
-        })
-        .addEvent('click', function(e){
-            _this.deselectAll();
-            _this.closeSearch();
-        })
+        .addEvent('mousedown', function( pEvent ){
+            this.checkMouseDown( pEvent );
+        }.bind(this))
+        .addEvent('mouseup', function( pEvent ){
+            this.drag = false;
+            
+            if( this.lastDragTimer )
+                clearTimeout( this.lastDragTimer );
+                
+            this.checkMouseClick( pEvent );
+            this.closeSearch();
+
+        }.bind(this))
+        .addEvent('dblclick', function( pEvent ){
+            this.checkMouseDblClick( pEvent );
+            this.closeSearch();
+        }.bind(this))
+        .addEvent('mousemove', function(pEvent){
+            this.checkMouseMove(pEvent);
+        }.bind(this))
+        .addEvent('dragover', this.checkFileDragOver.bind(this))
+        .addEvent('dragleave', this.checkFileDragLeave.bind(this))
+        .addEvent('drop', this.checkFileDrop.bind(this))
         .inject( this.win.content );
+        
+        
+        this.fileContainer.fileObj = this;
+        
 
         this.loader = new ka.loader().inject( this.win.content );
         this.loader.setStyle('left', 141);
@@ -700,10 +739,14 @@ var admin_files = new Class({
     },
     
     remove: function(){
-        if(! this.selectedFiles.length > 0 ) return;
+    
+        var selectedFiles = this.getSelectedFiles();
+
+        if(! Object.getLength(selectedFiles) > 0 ) return;
+        
         this.win._confirm(_('Really remove selected file/s?'), function(res){
             if(!res) return;
-            this.selectedFiles.each(function(item){
+            Object.each(selectedFiles, function(item){
                 
 
                 if( item.path.substr(0, 6) == 'trash/' ) {
@@ -713,13 +756,14 @@ var admin_files = new Class({
                 new Request.JSON({url: _path+'admin/files/deleteFile/', onComplete: function(res){
                     this.reload();
                 }.bind(this)}).post({path: this.current, name: item.name});
+
             }.bind(this));
 
         }.bind(this));
     },
     
-    paste: function( pOverwrite ){
-    	
+    paste: function(){
+    
         if(! ka.getClipboard().type == 'filemanager' && !ka.getClipboard().type == 'filemanagerCut') return;
         
         var files = [];
@@ -733,46 +777,74 @@ var admin_files = new Class({
         }
         
         if( clipboard ){
-            clipboard.value.each(function(file){
+            Object.each(clipboard.value,function(file){
                 files.include(file.path);
             });
         }
-        
+
+        if( move == 1 )
+            this.moveFiles( files, this.current );
+        else
+            this.copyFiles( files, this.current );
+    },
+
+    moveFiles: function( pFilePaths, pTargetDirectory, pOverwrite, pCallback ){
+    
         new Request.JSON({url: _path+'admin/files/paste', noCache: 1, onComplete: function(res){
             if(res.exist){
                 this.win._confirm(_('One or more files already exist. Overwrite ?'), function(p){
+                    
                     if(!p)return;
-                    this.paste(true);
+                    this.moveFiles( pFilePaths, pTargetDirectory, true );
+                    
+                }.bind(this));
+            } else {
+                this.reload();
+                if( pCallback )
+                    pCallback();
+            }
+        }.bind(this)}).post({from: pFilePaths, to: pTargetDirectory, overwrite: pOverwrite, move: 1});
+
+    },
+    
+    copyFiles: function( pFilePaths, pTargetDirectory, pOverwrite ){
+    
+        new Request.JSON({url: _path+'admin/files/paste', noCache: 1, onComplete: function(res){
+            if( res.exist ){
+                this.win._confirm(_('One or more files already exist. Overwrite ?'), function(p){
+                    if( !p )return;
+                    this.copyFiles( pFilePaths, pTargetDirectory, true );
                 }.bind(this));
             } else {
                 this.reload();
             }
-        }.bind(this)}).post({from: files, to: this.current, overwrite: pOverwrite, move: move});
+        }.bind(this)}).post({from: pFilePaths, to: pTargetDirectory, overwrite: pOverwrite});
+
     },
     
-    loadPath: function( pPath ){
-        
+    loadPath: function( pPath, pCallback ){
+
         if( pPath.substr(0,6) == 'trash/' && pPath.length >= 7 ){
             this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
             return;
         }
-    
-    
+
         if( this.history[ this.historyIndex ] != pPath ){
             this.historyIndex++;
             this.history[ this.historyIndex ] = pPath;
-            this.load( pPath );
+            this.load( pPath, pCallback );
         }
     },
     
+    getUpPath: function(){
+        var pos = this.current.substr( 0, this.current.length-1).lastIndexOf( '/' );
+        return this.current.substr( 0, pos+1 );  
+    },
+    
     up: function(){
-        if( this.current.substr( this.current.length-1, 1) == '/' && this.current.length > 1 ){ //current ist ein ordner /
-            var pos = this.current.substr( 0, this.current.length-1).lastIndexOf( '/' );
-            this.loadPath( this.current.substr( 0, pos+1 ) );
-        }/* else {
-            var pos = this.current.lastIndexOf( '/' );
-            this.loadPath( this.current.substr( 0, pos+1 ) );
-        }*/
+        if( this.current.substr( this.current.length-1, 1) == '/' && this.current.length > 1 ){ 
+            this.loadPath( this.getUpPath() );
+        }
     },
     
     goHistory: function( pWay ){
@@ -795,7 +867,6 @@ var admin_files = new Class({
     },
     
     renderInfos: function( pFiles ){
-        var _this = this;
         
         if( !this.renderFiles )
         	this.renderFiles = pFiles;
@@ -810,30 +881,32 @@ var admin_files = new Class({
 	        	text: _('Kryn')
 	        }).inject( this.infos );
 	        pFiles.each(function(file){
-	            if( _this._krynFolders.indexOf(file.path) >= 0){
-	                _this.newInfoItem(file);
+	            if( this._krynFolders.indexOf(file.path) >= 0){
+	                this.newInfoItem(file);
 	            }
-	        });
+	        }.bind(this));
 	        
 	        new Element('div', {
 	        	text: _('Extensions')
 	        }).inject( this.infos );
+
 	        pFiles.each(function(file){
-	            if( _this._modules.indexOf(file.path) >= 0){
-	                _this.newInfoItem(file);
+	            if( this._modules.indexOf(file.path) >= 0){
+	                this.newInfoItem(file);
 	            }
-        });
+            }.bind(this));
         
         }
         
         new Element('div', {
         	text: _('User defined')
         }).inject( this.infos );
+
         pFiles.each(function(file){
-            if( _this._modules.indexOf(file.path) == -1 && _this._krynFolders.indexOf(file.path) == -1){
-                _this.newInfoItem(file);
+            if( this._modules.indexOf(file.path) == -1 && this._krynFolders.indexOf(file.path) == -1){
+                this.newInfoItem(file);
             }
-        });
+        }.bind(this));
     },
     
     newInfoItem: function( pFile ){
@@ -846,10 +919,7 @@ var admin_files = new Class({
         .inject( this.infos );  
     },
     
-    load: function( pPath ){
-        /*show( '_loading' );
-        ka.fm._hideContext(); */
-        var _this = this;
+    load: function( pPath, pCallback ){
         
         if( this.curRequest )
             this.curRequest.cancel();
@@ -857,61 +927,62 @@ var admin_files = new Class({
         this.loader.show();
             
         this.curRequest = new Request.JSON({url: _path+'admin/files/loadFolder/', noCache: 1, onComplete: function(res){
+    
             if(! res ){
-                _this.loader.hide();
+                this.loader.hide();
                 alert( _('%s: file not found').replace('%s', pPath ) );
                 return;
             }
             if( res.type == 'file' ){
-                _this.history[ _this.historyIndex ] = null;
-                _this.historyIndex--;
-                //_this._loadFile( pPath );
-                ka.wm.openWindow( _this.win.module, _this.win.code+'/edit', null, null, {file: res});
-                _this.loader.hide();
+                this.history[ this.historyIndex ] = null;
+                this.historyIndex--;
+                ka.wm.openWindow( this.win.module, this.win.code+'/edit', null, null, {file: res});
+                this.loader.hide();
                 return;
             }
             
             if( res.type == 'dir' && res.folderFile.path == 'trash/' ){
-                _this.boxAction.hide();
+                this.boxAction.hide();
             } else {
-                _this.boxAction.show();
+                this.boxAction.show();
             }
-            _this.current = pPath;
+            
+            this.current = pPath;
+
             if( res.type == 'dir' ){
-                _this.setTitle();
-                _this.currentFolderFile = res.folderFile;
+            
+                this.setTitle();
+                this.currentFolderFile = res.folderFile;
+                this.fileContainer.store('file', res.folderFile);
                 
-                if( _this.currentFolderFile.writeaccess == true ){
-                	_this.boxAction.show();
-                } else {
-                	//_this.boxAction.hide();
+                if( this.currentFolderFile.writeaccess == true ){
+                	this.boxAction.show();
                 }
                 
-                /*hide( '_files' );
-                hide( '_editFile' );
-                hide( '_showImage' );
-                show( '_files' );*/
+                if( this.current.substr( this.current.length-1, 1) != '/' )
+                    this.current += '/';
+                if( this.current.substr( 0, 1) != '/' )
+                    this.current = '/'+this.current;
                 
-                if( _this.current.substr( _this.current.length-1, 1) != '/' )
-                    _this.current += '/';
-                if( _this.current.substr( 0, 1) != '/' )
-                    _this.current = '/'+_this.current;
-                
-                _this.address.value = _this.current;
+                this.address.value = this.current;
                 if(! res.items.each )
                     res.items = new Hash(res.items);
 
-                _this.render( res.items );
-//                _this._insertItems( res.items );
+                this.render( res.items );
 
-                if( _this.firstLoaded == 0 ){
-                    _this.renderInfos( res.items );
-                    _this.firstLoaded = 1;
+                if( this.firstLoaded == 0 ){
+                    this.renderInfos( res.items );
+                    this.firstLoaded = 1;
                 }
             }
-            //_this._updateStatusbar();
-            //hide( 'fileActions.edit' );
-            _this.loader.hide();
+
+            this.loader.hide();
+            
+            this.upBtn.store('file', {isDir: true, path: this.getUpPath()});
+            
+            if( pCallback ){
+                pCallback();
+            }
         
         }.bind(this)}).post({ path: pPath });
     },
@@ -934,15 +1005,17 @@ var admin_files = new Class({
                 nfiles.include( f );
             }
         }.bind(this));
+
         this.files.each(function(f){
             if( f.type != 'dir' ){
                 nfiles.include( f );
             }
         });
         this.files2View = nfiles;
+        var items = [];
 
         if( this.listType == 'icon' ){
-            return this.renderIcons( this.files2View );
+            items = this.renderIcons( this.files2View );
         }
 
         if( this.listType == 'miniatur' ){
@@ -956,7 +1029,343 @@ var admin_files = new Class({
         if( this.listType == 'detail' ){
             this.renderDetail();
         }
+        
+    },
+    
+    checkFileDragOver: function( pEvent ){
+        
+        logger('test');
+        pEvent.stopPropagation();  
+        pEvent.preventDefault(); 
+        
+        this.fileContainer.addClass('admin-files-fileContainer-selected');
+        
+    
+    },
+    
+    checkFileDragLeave: function(){
+    
+        
+        this.fileContainer.removeClass('admin-files-fileContainer-selected');
+    
+    },
+    
+    checkFileDrop: function(){
+    
+        
+    
+    },
+    
+    checkMouseDown: function( pEvent ){
+    
+        var item = pEvent.target;
+        
+        (function(){
+            selection = window.getSelection() ;
+            selection.removeAllRanges();
+        }).delay(40);
+        
+        if( !item.hasClass('admin-files-item') ){
+            item = item.getParent('.admin-files-item');
+        }
+        
+        if( !item ) return;
+        
+        var file = item.retrieve('file');
 
+        if( file.path != 'trash/' )
+            this.startDrag( pEvent, item );
+    
+    },
+    
+    checkMouseDblClick: function( pEvent ){
+    
+        var item = pEvent.target;
+        
+        if( !item.hasClass('admin-files-item') ){
+            item = item.getParent('.admin-files-item');
+        }
+        
+        if( !item ) return;
+        
+        var file = item.retrieve('file');
+        
+        this.loadPath( file.path );
+        
+
+    },
+    
+    checkMouseMove: function( pEvent ){
+    
+        if( !ka.inFileDragMode ) return;
+        
+        if( !this.win.isInFront() ){
+            this.win.toFront();
+        }
+    
+    },
+    
+    checkMouseClick: function( pEvent ){
+
+        if( !pEvent ) return;
+
+        if( (!pEvent.control && !pEvent.meta ) && !pEvent.rightClick )
+            this.deselectAll();
+        
+        if( !pEvent.target ) return;
+        
+        var item = pEvent.target;
+        
+        if( !item.hasClass('admin-files-item') ){
+            item = item.getParent('.admin-files-item');
+        }
+        
+        if( !item ){
+            
+            this.deselectAll();
+            
+            if( pEvent.rightClick )
+                this.openContext( this.currentFolderFile, pEvent );
+            
+            return;
+        }
+            
+        var file = item.retrieve('file');
+
+        if( !item.hasClass('admin-files-item-selected') ){
+
+            if( file.path != 'trash/' )
+                item.addClass('admin-files-item-selected');
+
+        } else if( pEvent.control || pEvent.meta ) {
+            item.removeClass('admin-files-item-selected');
+        }
+        
+        if( pEvent.rightClick ){
+            this.openContext( file, pEvent );
+        }
+
+    },
+    
+    getSelectedFiles: function(){
+        var res = {};
+
+        this.fileContainer.getElements('.admin-files-item-selected').each(function(item){
+            var file = item.retrieve('file');
+            res[ file.path ] = file;
+        });
+    
+        return res;
+    },
+    
+    getSelectedItems: function(){
+        var res = {};
+
+        this.fileContainer.getElements('.admin-files-item-selected').each(function(item){
+            var file = item.retrieve('file');
+            res[ file.path ] = item;
+        });
+    
+        return res;
+    },
+    
+    startDrag: function( pEvent, pItem ){
+
+        this.drag = true;
+
+        this.lastDragTimer = (function(){
+            if( this.drag == true )
+                this._startDrag( pEvent, pItem );
+
+        }).delay(300, this);
+        
+    },
+    
+    _startDrag: function( pEvent, pItem ){
+    
+        selection = window.getSelection() ;
+        selection.removeAllRanges();
+        
+        if( !pItem.hasClass('admin-files-item-selected') ){
+            pItem.addClass('admin-files-item-selected');
+        }
+        
+        var desktop = document.id('desktop');
+    
+        var selectedItems = this.getSelectedItems();
+        
+        
+        var selectedItems = this.getSelectedItems();
+        var container;
+        
+        var draggedItems = [];
+        var moveFiles = [];
+
+        draggedItems.include( pItem );
+        
+        if( Object.getLength(selectedItems) == 1 ){
+            
+            var item;
+            Object.each(selectedItems, function(selectedItem){
+                item = selectedItem;
+            });
+
+            moveFiles.include( item.retrieve('file').path );
+            
+            container = item.clone();
+            var pos = item.getPosition(desktop);
+            
+            container.setStyles({
+                opacity: 0.7,
+                left: pEvent.page.x-34,
+                'top': pEvent.page.y-75,
+                zIndex: 15000,
+                position: 'absolute'
+            }).inject( desktop );
+            
+        } else if( Object.getLength(selectedItems) > 1 ){
+        
+            container = new Element('div').setStyles({
+                opacity: 0.7,
+                zIndex: 15000,
+                width: 50,
+                height: 55,
+                left: pEvent.page.x-20,
+                'top': pEvent.page.y-70,
+                cursor: 'default',
+                position: 'absolute'
+            }).inject( desktop );
+            
+            Object.each(selectedItems, function(item){
+                
+                draggedItems.include( item );
+                moveFiles.include( item.retrieve('file').path );
+
+                var clone = item.clone().setStyles({
+                    position: 'absolute',
+                    width: 50,
+                    height: 50,
+                    cursor: 'default',
+                    margin: 0
+                }).empty().inject( container );
+                
+                var i = Math.random();
+                var r = (60*i)-30;
+                
+                if( this.lastRotateValue && this.lastRotateValue < 0 && r < 0)
+                    r = r*-1;
+
+                this.lastRotateValue = r;
+                                
+                clone.setStyle('-webkit-transform', 'rotate('+r+'deg)');
+                clone.setStyle('-moz-transform', 'rotate('+r+'deg)');
+        
+            }.bind(this));
+            
+            new Element('div', {
+                style: 'position: absolute; bottom: 0px; left: 0px; width: 100%; text-align: center;',
+                text: _('%d files').replace('%d', Object.getLength(selectedItems))
+            }).inject( container );
+        
+            
+        } else if( Object.getLength(selectedItems) == 0 ){
+            return;
+        }
+        
+        this.newDragMove( pEvent, container, draggedItems, moveFiles );
+    },
+    
+    newDragMove: function( pEvent, pContainer, pDraggedItems, pFilePaths ){
+        
+        this.dragMove = new Drag.Move(pContainer, {
+
+            droppables: '.admin-files-droppables',
+
+            onDrop: function(element, droppable){
+                ka.inFileDragMode = false;
+                element.destroy();
+                if( !droppable ) return;
+            
+                if( droppable.fileObj && droppable.fileObj.activeAutoDirOpenerTimeout )
+                    clearTimeout(droppable.fileObj.activeAutoDirOpenerTimeout);
+                    
+                if( this.activeAutoDirOpenerTimeout ){
+                    clearTimeout( this.activeAutoDirOpenerTimeout );
+                }
+            
+                if( !pDraggedItems.contains( droppable ) ){
+                    droppable.removeClass('admin-files-item-selected');
+                    this.fileContainer.removeClass('admin-files-fileContainer-selected');  
+                    
+                    var file = droppable.retrieve('file');
+                    if( !file ) return;
+                    droppable.fileObj.moveFiles( pFilePaths, file.path, false, function(){
+                    
+                        if( droppable.fileObj != this )
+                            this.reload();
+                    
+                    }.bind(this));
+
+                }
+            }.bind(this),
+            
+            onEnter: function(element, droppable){
+
+                if( droppable != pContainer ){
+                
+                    var file = droppable.retrieve('file');
+                    
+                    if( droppable.hasClass('admin-files-fileContainer') )
+                        droppable.addClass('admin-files-fileContainer-selected');
+                        
+                    else if( file && file.isDir == true ){
+
+                        droppable.addClass('admin-files-item-selected');
+                        droppable.fileObj.startAutoDirOpener( file, this.updateDragMoveDroppables.bind(this) );
+
+                        this.fileContainer.removeClass('admin-files-fileContainer-selected');   
+                    } else {
+                        this.fileContainer.removeClass('admin-files-fileContainer-selected');   
+                    }
+
+                }
+            }.bind(this),
+            
+            onLeave: function(element, droppable){
+            
+                if( droppable.fileObj && droppable.fileObj.activeAutoDirOpenerTimeout )
+                    clearTimeout(droppable.fileObj.activeAutoDirOpenerTimeout);
+            
+                droppable.removeClass('admin-files-fileContainer-selected');
+                if( !pDraggedItems.contains( droppable ) )
+                    droppable.removeClass('admin-files-item-selected');
+            },
+
+            onCancel: function(dragging){
+                dragging.destroy();
+                ka.inFileDragMode = false;
+            }
+
+        });
+
+        this.dragMove.start( pEvent );
+
+        ka.inFileDragMode = true;
+    },
+    
+    updateDragMoveDroppables: function(){
+        if( this.dragMove )
+            this.dragMove.droppables = $$('.admin-files-droppables');
+    },
+    
+    startAutoDirOpener: function( pFile, pCallback ){
+        
+        this.activeAutoDirOpenerTimeout = (function(){
+        
+            this.loadPath( pFile.path, pCallback );
+        
+        }).delay(1000, this);
+    
     },
 
     renderImage: function(){
@@ -998,14 +1407,6 @@ var admin_files = new Class({
             });
 
             var size = file.size;
-            /*
-            if( size > 1024*100 )
-                size = (size/(1024*100)).toFixed(2)+' MB';
-            else if( size > 1024 )
-                size = (size/1024).toFixed(2)+' KB';
-            else
-                size = (size+0)+' B';
-            */
             
             if( file.type == 'dir' )
                 size = _('Directory');
@@ -1021,22 +1422,16 @@ var admin_files = new Class({
 
         this.detailTable.setValues( rows );
 
-        this.detailTable.tableBody.getElements('tr').each(function(tr){
-            tr.store('viewType','detail');
-            tr.getElements('td').each(function(td){
-                var file = this.files2View[td.retrieve('rowIndex')-1];
-                if( file ){
-	                td.addEvent('dblclick', this.loadPath.bind(this, file.path ) );
-	                td.addEvent('click', this.onClick.bindWithEvent(tr, [this, file]));
-	                td.addEvent('mousedown', this.onContext.bindWithEvent(this, [tr, file]));
-                }
-            }.bind(this));
+        this.detailTable.tableBody.getElements('tr').each(function(tr, id){
+
+            tr.store('file', this.files2View[id]);
         }.bind(this));
     },
 
     renderMiniatur: function(){
 
         var pAdmin = _path+'inc/template/admin/';
+
         this.files2View.each(function(file){
             
             var bg = pAdmin+'images/ext/dir.png';
@@ -1054,43 +1449,43 @@ var admin_files = new Class({
             }
 
             var base = new Element('div', {
-                'class': 'admin-files-render-miniatur',
+                'class': (file.path=='trash/'?'':'admin-files-droppables ')+'admin-files-item admin-files-item-miniatur',
                 styles: {
                     'background-image': 'url('+bg+')'
                 }
             }).inject( this.fileContainer );
-            base.store('viewType', 'admin-files-render-miniatur');
+            base.fileObj = this;
 
             new Element('div', {
-                'class': 'admin-files-render-miniatur-name',
+                'class': 'admin-files-item-miniatur-name',
                 text: this.escTitle(file.name)
             }).inject( base );
-
-            base.addEvent('click', this.onClick.bindWithEvent(base, [this, file]));
-            base.addEvent('dblclick', this.loadPath.bind(this, file.path ) );
-            base.addEvent('mousedown', this.onContext.bindWithEvent(this, [base, file]));
-
+            
+            base.store('file', file);
         }.bind(this));
     },
     
     renderIcons: function( pItems ){
         var html = "";
-        var _this = this;
+
         var knownExts = ["tpl", "html", "jpg"];
         var krynFiles = [];
         var moduleFiles = [];
+
         var files = [];
         
         if( pItems ){
             pItems.each(function(item){
                 var titem = null;
                 if( item.type == 'dir' ){
-                    titem = _this.__buildItem( item );
+                    titem = this.__buildItem( item );
                 }
-                if( _this.current == '/' && titem ){
-                    if( _this._krynFolders.indexOf( item.path ) >= 0 ){
+                if( !titem ) return;
+                
+                if( this.current == '/' && titem ){
+                    if( this._krynFolders.indexOf( item.path ) >= 0 ){
                         krynFiles.include( titem );
-                    } else if( _this._modules.indexOf(item.path) >= 0  ) {
+                    } else if( this._modules.indexOf(item.path) >= 0  ) {
                         moduleFiles.include( titem );
                     } else {
                         files.include( titem );
@@ -1098,15 +1493,15 @@ var admin_files = new Class({
                 } else {
                     files.include( titem );
                 }
-            });
+            }.bind(this));
             pItems.each(function(item){
                 if( item.type != 'dir' ){
-                    if( _this.current == '/' )
-                        files.include( _this.__buildItem( item ) );
+                    if( this.current == '/' )
+                        files.include( this.__buildItem( item ) );
                     else
-                        files.include( _this.__buildItem( item ) );
+                        files.include( this.__buildItem( item ) );
                 }
-            });
+            }.bind(this));
         }
 
         if( this.current == '/' ){
@@ -1116,7 +1511,7 @@ var admin_files = new Class({
                     'class': 'admin-files-seperator',
                     text: 'Kryn'
                 }).inject( this.fileContainer );
-                krynFiles.each(function(item){ item.inject( _this.fileContainer ); });
+                krynFiles.each(function(item){ item.inject( this.fileContainer ); }.bind(this));
             }
             
             if( moduleFiles.length > 0 ){
@@ -1124,24 +1519,24 @@ var admin_files = new Class({
                     'class': 'admin-files-seperator',
                     html: _('Extensions')
                 }).inject( this.fileContainer );
-                moduleFiles.each(function(item){ item.inject( _this.fileContainer ); });
+                moduleFiles.each(function(item){ item.inject( this.fileContainer ); }.bind(this));
             }
             
             new Element('div', {
                 'class': 'admin-files-seperator',
                 html: _('User defined')
             }).inject( this.fileContainer );
-            files.each(function(item){ if(item) item.inject( _this.fileContainer ); });
+
+            files.each(function(item){ if(item) item.inject( this.fileContainer ); }.bind(this));
 
         } else {
-            files.each(function(item){ if(item) item.inject( _this.fileContainer ); });
+            files.each(function(item){ if(item) item.inject( this.fileContainer ); }.bind(this));
         }
-        //this.updateItemEvents();
+
+        return files;
     },
     
     __buildItem: function( item ){
-        
-        var viewType = 'item';
         
         var bg = '';
         if( item.type != 'dir' && item.ext && this.__images.contains(item.ext.toLowerCase()) ){ //is image
@@ -1157,16 +1552,13 @@ var admin_files = new Class({
         }
         
         var base = new Element('div', {
-            'class': viewType+' '+bg,
+            'class': (item.path=='trash/'?'':'admin-files-droppables ')+'admin-files-droppables admin-files-item '+bg,
             'html': '<span>'+this.escTitle(item.name)+'</span>',
             title: item.name
         });
-        base.store('viewType', viewType);
-        
-        base.addEvent('click', this.onClick.bindWithEvent(base, [this, item]));
-        base.addEvent('dblclick', this.loadPath.bind(this, item.path ) );
-        base.addEvent('mousedown', this.onContext.bindWithEvent(this, [base, item]));
-        
+        base.fileObj = this;
+
+        base.store('file', item);
         return base;
     },
     
@@ -1185,7 +1577,7 @@ var admin_files = new Class({
     
     recover: function( pFile ){
     
-        this.win._confirm(_('This file will moved to: %s')
+        this.win._confirm(_('This file will be moved to: %s')
         		.replace('%s', '<br/><br/>'+pFile['original_path'].replace('inc/template','')+'<br/><br/>')+_('Are you really sure?'), function(res){
             if( res ){
             
@@ -1198,34 +1590,19 @@ var admin_files = new Class({
     
     },
     
-    onContext: function(e, pItem, pFile){
-        var _this = this;
+    openContext: function( pFile, pEvent ){
 
         if( this.context )
             this.context.destroy();
-            
-        if(! e.rightClick ) return;
-        
-
-        if( this.currentFolderFile.path != pFile.path ){
-	        var pDisableDeactivation = false
-	        if( pItem.retrieve && pItem.retrieve('active') == true ){
-	            e.control = true;
-	            pDisableDeactivation = true;
-	        }
-	        var wuff = this.onClick.bind(pItem, [e, this, pFile, pDisableDeactivation]);
-	        wuff();
-        }
 
         if( pFile.path == 'trash/' ){
             return;
         }
-        
+
         this.context = new Element('div', {
             'class': 'admin-files-context'
         }).inject( this.win.border );
-        
-        
+
         
         if( pFile.path.substr(0, 6) == 'trash/' ){
         	//pressed on a item in the trash folder
@@ -1234,8 +1611,8 @@ var admin_files = new Class({
                 html: _('Recover')
             })
             .addEvent('click', function(){
-                _this.recover( pFile );
-            })
+                this.recover( pFile );
+            }.bind(this))
             .inject( this.context )
             
             var remove = new Element('a', {
@@ -1253,8 +1630,8 @@ var admin_files = new Class({
 	                html: _('Open')
 	            })
 	            .addEvent('click', function(){
-	                _this.loadPath( pFile.path );
-	            })
+	                this.loadPath( pFile.path );
+	            }.bind(this))
 	            .inject( this.context )
 	        }
             
@@ -1269,7 +1646,6 @@ var admin_files = new Class({
             })
             .inject( this.context )
             
-
         
 	        if( this.currentFolderFile.path == pFile.path ){
 	        	//clicked on the background
@@ -1331,27 +1707,6 @@ var admin_files = new Class({
 	        .inject( this.context );
 	        
         }
-
-        /*if( '/'+pFile.path != this.current ){
-            var pDisableDeactivation = false
-            if( pItem.retrieve && pItem.retrieve('active') == true ){
-                e.control = true;
-                pDisableDeactivation = true;
-            }
-            var wuff = this.onClick.bind(pItem, [e, this, pFile, pDisableDeactivation]);
-            wuff();
-        } else {
-            this.deselectAll();
-            cut.destroy();
-            remove.destroy();
-            rename.destroy();
-            copy.destroy();
-            duplicate.destroy();
-            newversion.destroy();
-            if( open )
-                open.destroy();
-            this.selectedFiles.include( pFile);
-        }*/
         
         var deactivate = function ( item ){
         	if( !item ) return;
@@ -1359,12 +1714,14 @@ var admin_files = new Class({
         	item.removeEvents('click');
         }
         
-        if( this.selectedFiles.length > 1 || pFile.type == 'dir' ){
+        var selectedFiles = this.getSelectedFiles();
+        
+        if( Object.getLength(selectedFiles) > 1 || pFile.type == 'dir' ){
         	if( duplicate ) duplicate.destroy();
         	if( newversion ) newversion.destroy();
         }
         
-        if( this.selectedFiles.length > 1 ){
+        if( Object.getLength(selectedFiles) > 1 ){
         	deactivate(open);
         	deactivate(openExternal);
         	deactivate(settings);
@@ -1375,7 +1732,7 @@ var admin_files = new Class({
     		deactivate(paste);
         }
 
-        this.selectedFiles.each(function(myfile){
+        Object.each(selectedFiles, function( myfile ){
         	
         	if( myfile.writeaccess != true || this._krynFolders.indexOf( myfile.path ) >= 0 || this._modules.indexOf(myfile.path) >= 0){
         		//no writeaccess
@@ -1385,13 +1742,6 @@ var admin_files = new Class({
         		deactivate(newversion);
         	}
         	
-        	if( myfile.path.substr( 0, 6 ) == 'trash/' ){
-        		deactivate(cut);
-        		deactivate(rename);
-        		deactivate(copy);
-        	}
-        		
-        	
         }.bind(this));
         
         if( this.currentFolderFile.writeaccess != true ){
@@ -1399,11 +1749,12 @@ var admin_files = new Class({
         }
         
         var pos = this.win.border.getPosition( document.body );
+
         this.context.setStyles({
-            left: (parseInt(e.client.x)+4-pos.x)+'px',
-            top: (parseInt(e.client.y)+4-pos.y)+'px'
+            left: (parseInt(pEvent.client.x)+4-pos.x)+'px',
+            top: (parseInt(pEvent.client.y)+4-pos.y)+'px'
         });
-        e.stop();
+
     },
     
     duplicate: function( pFile ){
@@ -1433,69 +1784,38 @@ var admin_files = new Class({
     
     copy: function(){
         var title = '';
-        if( this.selectedFiles.length > 1 ){
-            title = _('%d files copied').replace('%d', this.selectedFiles.length);
+        
+        var selectedFiles = this.getSelectedFiles();
+        
+        if( Object.getLength(selectedFiles) > 1 ){
+            title = _('%d files copied').replace('%d', Object.getLength(selectedFiles) );
         } else {
-            this.selectedFiles.each(function(item){
-                title = _('%s files copied').replace('%s', item.name );
+            Object.each(selectedFiles, function(item){
+                title = _('%s files copied').replace('%s', item.name.substr(0,25)+((item.name.length>25)?'...':'') );
             });
         }
-        ka.setClipboard( title, 'filemanager', this.selectedFiles );
+        ka.setClipboard( title, 'filemanager', selectedFiles );
     },
 
     cut: function(){
-        if( this.selectedFiles.length > 1 ){
-            title = _('%d files cut').replace('%d', this.selectedFiles.length);
+    
+        var selectedFiles = this.getSelectedFiles();
+
+        if( Object.getLength(selectedFiles) > 1 ){
+            title = _('%d files cut').replace('%d', Object.getLength(selectedFiles));
         } else {
-            this.selectedFiles.each(function(item){
-                title = _('%s files cut').replace('%s', item.name );
+            Object.each(selectedFiles, function(item){
+                title = _('%s file cut').replace('%s', item.name.substr(0,25)+((item.name.length>25)?'...':'') );
             });
         }
-        ka.setClipboard( title, 'filemanagerCut', this.selectedFiles );
+        ka.setClipboard( title, 'filemanagerCut', selectedFiles );
+
     },
-    
+
     deselectAll: function(){
-        if( this.selectedFiles ){
-            this.selectedFiles.each(function(file){
-                var item = file.item;
-                if(! item ) return;
-                item.set('class', item.get('class').replace(item.retrieve('viewType')+'Active', '') );
-                item.store('active',false);
-            });
-        }
-        this.selectedFiles = [];
-        /*
-        this.fileContainer.getElements('div').each(function(item){
-            item.set('class', item.get('class').replace(item.retrieve('viewType')+'Active', '') );
-            item.store('active',false);
-        });  */
-    },
     
-    onClick: function(e, pClass, pFile, pDisableDeactivation){
+        this.fileContainer.getElements('.admin-files-item-selected').removeClass('admin-files-item-selected');
 
-        if(! e.control ){
-            pClass.deselectAll();
-        }
-        
-        if( this.retrieve && this.retrieve('active') != true ){
-            this.store('oriClass', this.get('class') );
-            this.set('class', this.get('class') + ' '+this.retrieve('viewType')+'Active' );
-            this.store('active', true);
-            pFile.item = this;
-            pClass.selectedFiles.include( pFile );
-        } else if(! pDisableDeactivation && this.retrieve ){
-            this.set('class', this.retrieve('oriClass') );
-            pClass.selectedFiles.erase( pFile );
-            this.store('active', false);
-        }
-
-        if( pClass.selectedFiles.length > 1 ){
-            pClass.win.setStatusText( pClass.selectedFiles.length+_(' selected files') );
-        } else if( pClass.selectedFiles.length == 1 ){
-            pClass.win.setStatusText( pClass.selectedFiles[0].path.substr(1,1000) );
-        }
-
-        e.stop();
     },
     
     startSearch: function(){
@@ -1596,34 +1916,5 @@ var admin_files = new Class({
             this.searchPane.destroy();
             this.searchPane = null;
         }
-    },
-    
-    _updateStatusbar: function(){
-        var items = this._selectedItems.getLength();
-        var _this = this;
-        var t = "";
-        if( items > 0 ){
-           t = items+" markierte Datei"+((items>1)?'en':'');
-            //Größe etc
-        }
-        $( '_statusbar.marked' ).set( 'html', t );
-        // update also context and actionsboxes
-        this.enableContextItem( 'ka.fm.cm.open' );
-        this.enableContextItem( 'ka.fm.cm.cut' );
-        this.enableContextItem( 'ka.fm.cm.rename' );
-        this.enableContextItem( 'ka.fm.cm.del' );
-        //show( 'fileActions.edit' );
-
-        if( items != 1 ){
-            this.disableContextItem( 'ka.fm.cm.open' );
-        }
-        this._selectedItems.each(function(item){
-            var path = ka.fm.current + item.id;
-            if( _this.notEditable.indexOf( path ) != -1 ){
-                _this.disableContextItem( 'ka.fm.cm.cut' );
-                _this.disableContextItem( 'ka.fm.cm.rename' );
-                _this.disableContextItem( 'ka.fm.cm.del' );
-            }
-        });
     }
 });

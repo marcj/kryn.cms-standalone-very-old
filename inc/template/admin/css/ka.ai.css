@@ -864,6 +864,7 @@ a.ka-create-search-index-icon.red {
 	border: 2px solid silver;
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-topright: 5px;
+    z-index: 120000;
 }
 
 .ka-linkcontext-main a,

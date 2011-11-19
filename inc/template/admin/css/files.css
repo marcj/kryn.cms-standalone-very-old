@@ -71,6 +71,13 @@
     left: 141px;
     bottom: 0px;
     overflow: auto;
+    cursor: default;
+    padding: 2px;
+}
+
+.admin-files-fileContainer-selected {
+    border: 2px solid #ff8;
+    padding: 0px;
 }
 
 .admin-files-infos {
@@ -179,7 +186,7 @@
 }
 
 /* files items */
-.admin-files-fileContainer .item {
+.admin-files-item {
     float: left;
     width: 75px;
     height: 50px;
@@ -192,13 +199,13 @@
     cursor: default;
 }
 
-.admin-files-render-miniatur:hover .admin-files-render-miniatur-name,
-.admin-files-fileContainer .item:hover span {
+.admin-files-item:hover span,
+.admin-files-item-miniatur:hover .admin-files-item-miniatur-name {
     background-color: #eee;
     color: #333;
 }
 
-.admin-files-fileContainer .item span {
+.admin-files-item span {
     position: relative;
     bottom: -45px;
     color: #444;
@@ -210,52 +217,16 @@
     white-space: pre;
 }
 
-.admin-files-render-miniaturActive:hover .admin-files-render-miniatur-name,
-.admin-files-render-miniaturActive .admin-files-render-miniatur-name,
-.admin-files-fileContainer .itemActive:hover span,
-.admin-files-fileContainer .itemActive span {
+.admin-files-item-selected span,
+.admin-files-item-selected:hover span,
+.admin-files-item-selected .admin-files-item-miniatur-name {
     background-color: gray;
     color: white;
 }
 
-.admin-files-fileContainer tr.detailActive td {
-    background-color: #aaa;
-}
-
-.admin-files-fileContainer tr td {
-    cursor: default;
-}
-
-.admin-files-fileContainer .dir {
-    background-image: url(../images/ext/dir.png);
-}
-.admin-files-fileContainer .file {
-    background-image: url(../images/ext/tpl.png);
-}
-.admin-files-fileContainer .image {
-    background-image: url(../images/ext/image.png);
-}
-.admin-files-fileContainer .css {
-    background-image: url(../images/ext/css.png);
-}
-
-.admin-files-fileContainer .js {
-    background-image: url(../images/ext/js.png);
-}
-.admin-files-fileContainer .html,
-.admin-files-fileContainer .htm,
-.admin-files-fileContainer .tpl {
-    background-image: url(../images/ext/html.png);
-}
-
-.admin-files-fileContainer .dir_bin {
-    background-image: url(../images/ext/dir_bin.png);
-}
-
-
 
 /* listType: miniatur */
-.admin-files-render-miniatur {
+.admin-files-item-miniatur {
     width: 120px;
     border: 1px solid silver;
     height: 70px;
@@ -270,13 +241,48 @@
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
-=
-.admin-files-render-miniaturActive {
+
+.admin-files-fileContainer tr.detailActive td {
+    background-color: #aaa;
+}
+
+.admin-files-fileContainer tr td {
+    cursor: default;
+}
+
+.admin-files-item.dir {
+    background-image: url(../images/ext/dir.png);
+}
+.admin-files-item.file {
+    background-image: url(../images/ext/tpl.png);
+}
+.admin-files-item.image {
+    background-image: url(../images/ext/image.png);
+}
+.admin-files-item.css {
+    background-image: url(../images/ext/css.png);
+}
+
+.admin-files-item.js {
+    background-image: url(../images/ext/js.png);
+}
+.admin-files-item.html,
+.admin-files-item.htm,
+.admin-files-item.tpl {
+    background-image: url(../images/ext/html.png);
+}
+
+.admin-files-item.dir_bin {
+    background-image: url(../images/ext/dir_bin.png);
+}
+
+
+.admin-files-item-miniatur.admin-files-item-selected {
     border: 1px solid gray;
     background-color: #ddd;
 }
 
-.admin-files-render-miniatur-name {
+.admin-files-item-miniatur-name {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;

@@ -367,6 +367,14 @@ ka.kwindow = new Class({
         ka.wm.updateWindowBar();
     
     },
+    
+    isInFront: function(){
+    
+        if( ka.wm.zIndex == this.border.getStyle('z-index') )
+            return true;
+        
+        return false;
+    },
 
     toFront: function(){
     

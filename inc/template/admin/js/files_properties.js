@@ -153,7 +153,7 @@ var admin_files_properties = new Class({
 		
 		this.mkTr();
 		this.mkTd(_('Path'));
-		this.mkTd(this.file.path);
+		this.mkTd(this.file.path=='/'?'/':'/'+this.file.path);
 
 		this.mkTr();
 		this.mkTd(_('Location'));
