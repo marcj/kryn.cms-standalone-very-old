@@ -106,6 +106,10 @@
     border-radius: 4px;
 }
 
+.admin-files-infos a.admin-files-item-selected {
+    background-color: #ddd;
+}
+
 .admin-files-infos a:hover {
     background-color: #656465;
     color: white;
@@ -276,6 +280,9 @@
     background-image: url(../images/ext/dir_bin.png);
 }
 
+.admin-files-infos a.admin-files-item-dir_bin {
+    background-image: url(../images/ext/dir_bin-mini.png);
+}
 
 .admin-files-item-miniatur.admin-files-item-selected {
     border: 1px solid gray;
