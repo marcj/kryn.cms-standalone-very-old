@@ -182,10 +182,11 @@ var admin_files = new Class({
         
         if( pFile.html5 ){
 
-            if( !pFile.post) pFile.post = {};
+            if( !pFile.post ) pFile.post = {};
 
-            if( !pFile.post.path )
+            if( !pFile.post.path ){
                 pFile.post.path = this.current;
+            }
 
         } else {
             ka.uploads[this.win.id].addFileParam( pFile.id, 'path', this.current );
@@ -302,7 +303,7 @@ var admin_files = new Class({
             
             }
         
-        }.bind(this)}).get({path: this.current, name: name, overwrite: overwrite });
+        }.bind(this)}).get({path: pFile.post.path, name: name, overwrite: overwrite });
     
     },
     
@@ -737,11 +738,10 @@ var admin_files = new Class({
         }.bind(this))
         .inject( this.win.content );
 
-        this.fileContainer.addEventListener('dragover', this.checkFileDragOver.bind(this));
-        this.fileContainer.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
-        this.fileContainer.addEventListener('drop', this.checkFileDrop.bind(this));
-        
-        
+        this.win.content.addEventListener('dragover', this.checkFileDragOver.bind(this));
+        this.win.content.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
+        this.win.content.addEventListener('drop', this.checkFileDrop.bind(this));
+
         this.fileContainer.fileObj = this;
         
 
@@ -938,20 +938,20 @@ var admin_files = new Class({
     
     renderInfos: function( pFiles ){
         
-        if( !this.renderFiles )
+        if( pFiles )
             this.renderFiles = pFiles;
         else
             pFiles = this.renderFiles;
         
         this.infos.empty();
-        
+
         if( !this.options.onlyUserDefined ){
         
             new Element('div', {
                 text: _('Kryn')
             }).inject( this.infos );
     
-            pFiles.each(function(file){
+            Object.each(pFiles, function(file){
                 if( this._krynFolders.indexOf(file.path) >= 0){
                     this.newInfoItem(file);
                 }
@@ -961,7 +961,7 @@ var admin_files = new Class({
                 text: _('Extensions')
             }).inject( this.infos );
 
-            pFiles.each(function(file){
+            Object.each(pFiles, function(file){
                 if( this._modules.indexOf(file.path) >= 0){
                     this.newInfoItem(file);
                 }
@@ -973,7 +973,7 @@ var admin_files = new Class({
             text: _('User defined')
         }).inject( this.infos );
 
-        pFiles.each(function(file){
+        Object.each(pFiles, function(file){
             if( this._modules.indexOf(file.path) == -1 && this._krynFolders.indexOf(file.path) == -1){
                 this.newInfoItem(file);
             }
@@ -1042,14 +1042,11 @@ var admin_files = new Class({
                     this.current = '/'+this.current;
                 
                 this.address.value = this.current;
-                if(! res.items.each )
-                    res.items = new Hash(res.items);
 
                 this.render( res.items );
 
-                if( this.firstLoaded == 0 ){
+                if( this.current == '/' ){
                     this.renderInfos( res.items );
-                    this.firstLoaded = 1;
                 }
             }
 
@@ -1069,12 +1066,13 @@ var admin_files = new Class({
     },
 
     render: function( pItems ){
+
         this.files = pItems;
         this.fileContainer.empty();
         
         var nfiles = [];
         //first folders, then files
-        this.files.each(function(f){
+        Object.each(this.files, function(f){
             if( f.type == 'dir' ){
                 if( this.options.onlyUserDefined == true && (this._krynFolders.indexOf( f.path ) >= 0 ||  this._modules.indexOf(f.path) >= 0 ) ) {
                     return;
@@ -1083,7 +1081,7 @@ var admin_files = new Class({
             }
         }.bind(this));
 
-        this.files.each(function(f){
+        Object.each(this.files, function(f){
             if( f.type != 'dir' ){
                 nfiles.include( f );
             }
@@ -1110,6 +1108,7 @@ var admin_files = new Class({
     },
     
     checkFileDragOver: function( pEvent ){
+        var file;
 
         pEvent.stopPropagation();
         pEvent.preventDefault();
@@ -1123,8 +1122,15 @@ var admin_files = new Class({
         if( !item.hasClass('admin-files-item') ){
             item = item.getParent('.admin-files-item');
         }
+
+        if( !item && pEvent.target.hasClass('admin-files-droppables') ){
+            item = pEvent.target;
+        }
+
+        if( item )
+            file = item.retrieve('file');
         
-        if( item ){
+        if( file && file.isDir == true && file.path != 'trash/' && file.path != '/' ){
             item.addClass('admin-files-item-selected');
         } else {
             this.fileContainer.addClass('admin-files-fileContainer-selected');
@@ -1133,7 +1139,7 @@ var admin_files = new Class({
     },
     
     checkFileDragLeave: function( pEvent ){
-    
+
         pEvent.stopPropagation();  
         pEvent.preventDefault();
     
@@ -1141,6 +1147,9 @@ var admin_files = new Class({
         
         if( !item.hasClass('admin-files-item') ){
             item = item.getParent('.admin-files-item');
+        }
+        if( !item && pEvent.target.hasClass('admin-files-droppables') ){
+            item = pEvent.target;
         }
         
         if( item ){
@@ -1152,6 +1161,7 @@ var admin_files = new Class({
     },
     
     checkFileDrop: function( pEvent ){
+        var file;
 
         pEvent.stopPropagation();  
         pEvent.preventDefault();
@@ -1159,29 +1169,45 @@ var admin_files = new Class({
         if( !window.FormData ){
             return;
         }
-        
+
         this.fileContainer.removeClass('admin-files-fileContainer-selected');
         
         var files = pEvent.dataTransfer.files;
-        logger( files );
         
         var item = pEvent.target;
         
         if( !item.hasClass('admin-files-item') ){
             item = item.getParent('.admin-files-item');
         }
+
+        if( !item && pEvent.target.hasClass('admin-files-droppables') ){
+            item = pEvent.target;
+        }
         
         if( !this.html5FileUploads )
             this.html5FileUploads = {};
-        
-        Array.each(files, function(file){
 
-            file.html5 = true;
-            file.id = 'HTML5_'+Object.getLength(this.html5FileUploads);
+        if( item ){
+            file = item.retrieve('file');
+            item.removeClass('admin-files-item-selected');
+        }
             
-            this.html5FileUploads[ file.id ] = file;
+        if( file && (file.isDir != true || file.path == 'trash/') ){
+            return;
+        }
 
-            this.newFileUpload( this.html5FileUploads[ file.id ] );
+        Array.each(files, function( chosenFile ){
+
+            if( file ){
+                chosenFile.post = {path: file.path};
+            }
+            
+            chosenFile.html5 = true;
+            chosenFile.id = 'HTML5_'+Object.getLength(this.html5FileUploads);
+            
+            this.html5FileUploads[ chosenFile.id ] = chosenFile;
+
+            this.newFileUpload( this.html5FileUploads[ chosenFile.id ] );
 
         }.bind(this));
     },

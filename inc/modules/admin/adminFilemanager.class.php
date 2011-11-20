@@ -611,7 +611,10 @@ $pAccess from all
 
 
         if( substr( $path, -1 ) != '/' )
-            $path = $path . '/';
+            $path .= '/';
+            
+         if( substr( $path, 0, 1 ) != '/' )
+            $path = '/'.$path;
 
         $newPath = 'inc/template' . $path . $name;
         $newPath = str_replace( "..", "", $newPath );
@@ -644,7 +647,7 @@ $pAccess from all
         }
 
         $toDir = dirname($newPath);
-        
+
         if( !is_writable($toDir) ){
             klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: to target folder is not writable by webserver.'), $name, $path));
             return array('error'=>'no_write_access_by_webserver');
