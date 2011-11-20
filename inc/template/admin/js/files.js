@@ -1315,15 +1315,15 @@ var admin_files = new Class({
         var offset = this.win.content.getPosition( document.body );
         
         if( this.selectorDiv ){
-                this.selectorDiv.destroy();
-                delete this.selectorDiv;       
+            this.selectorDiv.destroy();
+            delete this.selectorDiv;       
         }
     
         this.selectorDiv = new Element('div', {
             'class': 'admin-files-selector',
             styles: {
-                'top': pEvent.page.y-offset.y,
-                'left': pEvent.page.x-offset.x,
+                'top': pEvent.page.y-offset.y+1,
+                'left': pEvent.page.x-offset.x+1,
                 width: 2,
                 height: 2
             }
@@ -1344,6 +1344,7 @@ var admin_files = new Class({
         var diffY, diffX, curPos, file;
         
         var items = this.fileContainer.getElements('.admin-files-item');
+
         Array.each(items, function(item){
             item.pos = item.getPosition( this.win.content );
             item.size = item.getSize();
@@ -1437,11 +1438,14 @@ var admin_files = new Class({
     
             if( file && file.path != 'trash/' )
                 this.startDrag( pEvent, item );
-        } else {   
+                
+        } else if( !pEvent.rightClick ){
+
             if( pEvent.target.hasClass('admin-files-fileContainer') ){
                 this.deselectAll();
                 this.startSelector(pEvent);
             }
+
         }
     },
 
@@ -1496,7 +1500,7 @@ var admin_files = new Class({
         }
         
         if( !item ){
-            
+
             this.deselectAll();
 
             if( pEvent.rightClick )
