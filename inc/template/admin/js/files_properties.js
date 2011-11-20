@@ -794,16 +794,19 @@ var files_properties_rule = new Class({
 	},
 
 	newRule: function(){
-		ka.wm.open('users/browser', {onChoose: this.didChooseATarget.bind(this)}, this.win.id);
+		ka.wm.open('users/browser', {
+		  onChoose: this.didChooseATarget.bind(this),
+		  onCancel: this.didNotChooseATarget.bind(this)
+		}, this.win.id);
 		
+	},
+	
+	didNotChooseATarget: function(){
+        this.remove();
 	},
 	
 	didChooseATarget: function( pType, pValue ){
 
-		if( !pType ){
-			this.remove();
-			return;
-		}
 		this.target_rsn = pValue;
 		this.target_type = pType;
 		

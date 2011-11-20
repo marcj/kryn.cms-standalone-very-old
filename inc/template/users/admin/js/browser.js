@@ -46,8 +46,8 @@ var users_browser = new Class({
 	},
 	
 	cancel: function(){
-		if( this.options.onChoose )
-        	this.options.onChoose.attempt( false );
+		if( this.options.onCancel )
+        	this.options.onCancel();
 	},
 	
 	cancelAndClose: function(){
@@ -58,8 +58,6 @@ var users_browser = new Class({
 	},
 	
 	choose: function(){
-
-        this.win.removeEvent('close', this.cancel.bind(this));
         
 		var target_rsn = this.tableUsers.selected();
 		var target_type = 2; //user
@@ -75,7 +73,7 @@ var users_browser = new Class({
 		}
 		
 		if( this.options.onChoose )
-			this.options.onChoose.attempt( [target_type, target_rsn] );
+			this.options.onChoose( target_type, target_rsn );
 		
 		this.win.close();
 		

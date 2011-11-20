@@ -20,7 +20,7 @@ ka.kwindow = new Class({
         this.loadContent();
 
         this.addHotkey('esc', false, false, function(){
-            this.close();
+            this.close(true);
         }.bind(this));
     },
 
@@ -639,13 +639,14 @@ ka.kwindow = new Class({
         }
     },
 
-    close: function(){
+    close: function( pInternal ){
     
         if( this.isActive() == false ) return;
 
         ka.wm.close( this );
-
-        this.fireEvent('close');
+        
+        if( pInternal )
+            this.fireEvent('close');
         
         //save dimension
         if( this.border ){
@@ -686,12 +687,12 @@ ka.kwindow = new Class({
 
                 if(res.error == 'access_denied' ){
                     alert( _('Access denied') );
-                    _this.close();
+                    _this.close(true);
                     return;
                 }
                 if( !res ){
                     alert( _('Admin-Path not found')+ ': '+_this.module+' => '+_this.code );
-                    _this.close();
+                    _this.close(true);
                     return;
                 }
                 this._loadContent( res, res._path );
@@ -704,7 +705,7 @@ ka.kwindow = new Class({
         if( this.values.multi === false ){
             var win = ka.wm.checkOpen( this.module, this.code, this.id );
             if( win ){
-                this.close();
+                this.close(true);
                 if( win.softOpen ) win.softOpen( this.params );
                 win.toFront();
                 return;
@@ -855,7 +856,7 @@ ka.kwindow = new Class({
         
         window['contentCantLoaded_'+id] = function( pFile ){
             _this._alert('custom javascript file not found: '+pFile, function(){
-                _this.close();
+                _this.close(true);
             });
         }
         window['contentLoaded_'+id] = function(){
@@ -1127,7 +1128,7 @@ ka.kwindow = new Class({
             'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
         })
         .addEvent('click',function(){
-            _this.close();
+            _this.close(true);
         })
         .inject( this.titleBar );
 

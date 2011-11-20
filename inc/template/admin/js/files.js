@@ -46,6 +46,10 @@ var admin_files = new Class({
         this.initHotkeys();
         
         this.win.addEvent('close', function(){
+        
+            if( this.previewDiv )
+                this.previewDiv.destroy();
+
             this.cancelUploads();
         }.bind(this));
     },
@@ -840,6 +844,12 @@ var admin_files = new Class({
     
     
     newFile: function(){
+    
+        if( this.currentFolderFile.writeaccess == false ){
+            this.win._alert(_('Access denied'));
+            return;
+        }
+    
         this.win._prompt(_('File name'), '', function(name){
             if( !name) return;
             new Request.JSON({url: _path+'admin/files/newFile/', onComplete: function(res){
@@ -849,6 +859,12 @@ var admin_files = new Class({
     },
     
     newFolder: function(){
+    
+        if( this.currentFolderFile.writeaccess == false ){
+            this.win._alert(_('Access denied'));
+            return;
+        }
+    
         this.win._prompt(_('Folder name'), '', function(name){
             if( !name) return;
             new Request.JSON({url: _path+'admin/files/newFolder/', onComplete: function(res){
@@ -1852,6 +1868,8 @@ var admin_files = new Class({
                 var file = droppable.retrieve('file');
                 if( !file || file.path == pFromDir || file.path == 'trash/' || file.isDir != true ) return;
                     
+                if( file.writeaccess == false ) return;
+                    
                 if( !pDraggedItems.contains( droppable ) ){
                     droppable.removeClass('admin-files-item-selected');
                     this.fileContainer.removeClass('admin-files-fileContainer-selected');  
@@ -1874,6 +1892,8 @@ var admin_files = new Class({
                         droppable = droppable.getParent();
 
                     var file = droppable.retrieve('file');
+                    
+                    if( file.writeaccess == false ) return;
                                         
                     if( file && file.path != 'trash/' && file.isDir == true && !droppable.hasClass('admin-files-fileContainer') ){
                         droppable.addClass('admin-files-item-selected');
