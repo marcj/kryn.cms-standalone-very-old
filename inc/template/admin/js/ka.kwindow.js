@@ -420,7 +420,7 @@ ka.kwindow = new Class({
                 if( pAlt && !e.alt ) return;
                 if( e.key == pKey ){
                     e.preventDefault();
-                    try{ pCallback(); }catch(e){ logger(e) };
+                    try{ pCallback(e); }catch(e){ logger(e) };
                 }
                 
             }

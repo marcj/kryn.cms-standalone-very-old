@@ -506,7 +506,7 @@ function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
     // render Thump
     //
     if( $pFix ){
-           $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
+        $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
         imagealphablending( $thumpImage, false );
 
         if( $oriWidth > $oriHeight ){

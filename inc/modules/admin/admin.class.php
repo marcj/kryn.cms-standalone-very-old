@@ -159,8 +159,8 @@ class admin {
                         case 'saveUserSettings': $content = self::saveUserSettings(); break;
                         case 'getDefaultImages': self::getDefaultImages(); break;
 
-                        case 'imageThump':
-                            return adminFilemanager::imageThump( getArgv('file') );
+                        case 'imageThumb':
+                            return adminFilemanager::imageThumb( getArgv('file') );
 
                         case 'stream': $content = self::stream(); break;
                         case 'navigationPreview':

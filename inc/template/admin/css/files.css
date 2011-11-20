@@ -80,6 +80,36 @@
     padding: 0px;
 }
 
+.admin-files-fileContainer-details.admin-files-fileContainer-selected {
+    border: 0px;
+    padding: 2px;
+}
+
+.admin-files-fileContainer-details.admin-files-fileContainer-selected .ka-Table-body-container {
+    border: 2px solid #ff8;
+}
+
+.admin-files-preview {
+    z-index: 120000;
+    position: absolute;
+    width: 600px;
+    text-align: center;
+    background-color: #333;
+    border: 1px solid #111;
+    box-shadow: 0px 0px 5px silver;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+    height: 400px;
+}
+
+
+.admin-files-preview img {
+    margin-top: 10px;
+    max-height: 380px;
+    max-width: 596px;    
+}
+
 .admin-files-infos {
     position: absolute;
     top: 0px;
@@ -94,11 +124,12 @@
 .admin-files-infos a {
     display: block;
     margin-left: 7px;
+    margin-right: 2px;
     padding: 3px 6px 3px 22px;
     color: #333;
     cursor: default;
     background-image: url(../images/ext/dir-mini.png);
-    background-position: 3px 4px;
+    background-position: 1px 2px;
     background-repeat: no-repeat;
     cursor: pointer;
     -moz-border-radius: 4px;
@@ -192,28 +223,33 @@
 /* files items */
 .admin-files-item {
     float: left;
-    width: 75px;
-    height: 50px;
-    background-image: url(../images/ext/tpl.png);
-    background-position: center center;
-    background-repeat: no-repeat;
+    width: 87px;
+    height: 65px;
     margin: 0px 10px 24px 10px;
     position: relative;
     text-align: center;
     cursor: default;
 }
 
-.admin-files-item:hover span,
+.admin-files-item img {
+    width: 45px;
+    height: 45px;
+}
+
+.admin-files-item div {
+    margin-top: 10px;
+}
+
+.admin-files-item:hover div,
 .admin-files-item-miniatur:hover .admin-files-item-miniatur-name {
     background-color: #eee;
     color: #333;
 }
 
-.admin-files-item span {
+.admin-files-item div {
     position: relative;
-    bottom: -45px;
     color: #444;
-    padding: 0px 4px 0px 4px;
+    padding: 0px 4px 1px 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -221,8 +257,30 @@
     white-space: pre;
 }
 
-.admin-files-item-selected span,
-.admin-files-item-selected:hover span,
+.admin-files-item-image img {
+    border: 1px solid #ddd;
+    padding: 1px;
+    width: 43px;
+    height: 43px;
+}
+
+.admin-files-item-size-70 .admin-files-item {
+    width: 130px;
+    height: 100px;
+}
+
+.admin-files-item-size-70 .admin-files-item img {
+    width: 70px;
+    height: 70px
+}
+.admin-files-item-size-70 .admin-files-item-image img {
+    width: 68px;
+    height: 68px;
+}
+
+.admin-files-item-selected div,
+.admin-files-item-selected:hover div,
+.admin-files-item-selected:hover .admin-files-item-miniatur-name,
 .admin-files-item-selected .admin-files-item-miniatur-name {
     background-color: gray;
     color: white;
@@ -246,7 +304,8 @@
     border-radius: 5px;
 }
 
-.admin-files-fileContainer tr.detailActive td {
+.ka-Table-body tr.admin-files-item-selected:hover td,
+.ka-Table-body tr.admin-files-item-selected td {
     background-color: #aaa;
 }
 
