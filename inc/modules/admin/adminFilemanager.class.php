@@ -786,8 +786,9 @@ $pAccess from all
     }
 
     public static function renameFile(){
-        $path = getArgv( 'path' ) . getArgv( 'name' );
-        $newpath = getArgv( 'path' ) . getArgv( 'newname' );
+    
+        $path = getArgv( 'path' ) . str_replace('/', '', getArgv( 'name' ));
+        $newpath = getArgv( 'path' ) . str_replace('/', '', getArgv( 'newname') );
         $path = str_replace( "..", "", $path );
         $newpath = str_replace( "..", "", $newpath );
         
@@ -910,7 +911,7 @@ $pAccess from all
         $from = getArgv('from');
         $move = (getArgv('move') == 1)?true:false;
 
-        $to = str_replace(".", "", getArgv('to'));
+        $to = str_replace('..', '', getArgv('to'));
         
         if( substr($to, -1, 1) != '/' ) //need last /
             $to .= '/';
@@ -1065,7 +1066,6 @@ $pAccess from all
             //if( $res['path'] == '.' )
             //   $res['path'] = '/';
         }
-
 
         $checkpath = str_replace('inc/template', '', $path);
         

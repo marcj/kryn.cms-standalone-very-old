@@ -788,7 +788,7 @@ var admin_files = new Class({
 
         this.fileContainer.fileObj = this;
     
-        this.previewInput = new Element('input', {
+        this.inputTrigger = new Element('input', {
             'class': 'admin-files-preview-input'
         }).inject( document.hidden );
 
@@ -1443,7 +1443,7 @@ var admin_files = new Class({
             selection.removeAllRanges();
         }).delay(40);
         
-        this.previewInput.focus();
+        this.inputTrigger.focus();
         
         if( !item.hasClass('admin-files-item') ){
             item = item.getParent('.admin-files-item');
@@ -1593,7 +1593,7 @@ var admin_files = new Class({
             var file = item.retrieve('file');
             res[ file.path ] = file;
         });
-    
+
         return res;
     },
     
@@ -1660,17 +1660,17 @@ var admin_files = new Class({
             return;
         }
         
-        if( !this.previewInput.setup ){
+        if( !this.inputTrigger.setup ){
     
-            this.previewInput.setup = true;
-            this.previewInput.addEvent('blur', function(){
+            this.inputTrigger.setup = true;
+            this.inputTrigger.addEvent('blur', function(){
                 if( this.previewDiv ){
                     this.previewDiv.destroy();
                     delete this.previewDiv;
                 }
             }.bind(this));
             
-            this.previewInput.addEvent('keydown', function(e){
+            this.inputTrigger.addEvent('keydown', function(e){
                 if( (e.key == 'space' || e.key == 'esc') && this.previewDiv ){
                     this.previewDiv.destroy();
                     delete this.previewDiv;
@@ -1684,7 +1684,7 @@ var admin_files = new Class({
             
             var item, file, image;
             
-            this.previewInput.focus();
+            this.inputTrigger.focus();
             
             pEvent.preventDefault();
         
@@ -1695,11 +1695,11 @@ var admin_files = new Class({
             this.previewDiv.makeDraggable();
             
             this.previewDiv.addEvent('mouseup', function(){
-                this.previewInput.focus();
+                this.inputTrigger.focus();
             }.bind(this));
             
             this.previewDiv.addEvent('mousedown', function(){
-                this.previewInput.focus();
+                this.inputTrigger.focus();
             }.bind(this));
             
             new Element('img', {
