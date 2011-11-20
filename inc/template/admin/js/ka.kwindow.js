@@ -419,7 +419,6 @@ ka.kwindow = new Class({
                 if( pControl && !e.control ) return;
                 if( pAlt && !e.alt ) return;
                 if( e.key == pKey ){
-                    e.preventDefault();
                     try{ pCallback(e); }catch(e){ logger(e) };
                 }
                 

@@ -1575,10 +1575,10 @@ var admin_files = new Class({
     
     preview: function( pEvent ){
     
-        if( pEvent.target && pEvent.target.get('tag') == 'input' ){
+        if( pEvent.target && pEvent.target.get('tag') == 'input' && !pEvent.target.hasClass('admin-files-preview-input') ){
             return;
         }
-    
+
         var selectedItems = this.getSelectedItems();
         
         if( this.previewDiv ){
@@ -1589,7 +1589,9 @@ var admin_files = new Class({
         
         if( !this.previewInput ){
         
-            this.previewInput = new Element('input').inject( document.hidden );
+            this.previewInput = new Element('input', {
+                'class': 'admin-files-preview-input'
+            }).inject( document.hidden );
             this.previewInput.addEvent('blur', function(){
                 if( this.previewDiv ){
                     this.previewDiv.destroy();
