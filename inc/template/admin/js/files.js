@@ -46,7 +46,7 @@ var admin_files = new Class({
         this.initHotkeys();
         
         this.win.addEvent('close', function(){
-        
+
             if( this.previewDiv )
                 this.previewDiv.destroy();
 
@@ -1671,7 +1671,7 @@ var admin_files = new Class({
             }.bind(this));
             
             this.previewInput.addEvent('keydown', function(e){
-                if(  e.key == 'space' && this.previewDiv ){
+                if( (e.key == 'space' || e.key == 'esc') && this.previewDiv ){
                     this.previewDiv.destroy();
                     delete this.previewDiv;
                     e.stop();
