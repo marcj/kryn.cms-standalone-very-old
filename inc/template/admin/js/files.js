@@ -1444,7 +1444,7 @@ var admin_files = new Class({
             }
         }
     },
-    
+
     checkMouseDblClick: function( pEvent ){
     
         var item = pEvent.target;
@@ -1574,6 +1574,10 @@ var admin_files = new Class({
     },
     
     preview: function( pEvent ){
+    
+        if( pEvent.target && pEvent.target.get('tag') == 'input' ){
+            return;
+        }
     
         var selectedItems = this.getSelectedItems();
         
