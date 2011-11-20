@@ -1217,7 +1217,9 @@ ka.kwindow = new Class({
                 this.fireEvent('resize');
 
             }.bind(this),
-            onCancel: function(){ ka.wm.removeOverlays() }
+            onCancel: function(){ 
+                ka.wm.showContents();
+            }
         });
         
         return;

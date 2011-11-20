@@ -471,10 +471,11 @@ $pAccess from all
         json( $items );
     }
 
-    public static function imageThump( $pPath ){
+    public static function imageThumb( $pPath ){
         $path = str_replace("..", "", $pPath );
         $path = preg_replace('/\\\\+/', "/", $path);
         $path = utf8_encode( $path );
+
         if( substr( $path, 0, 1 ) != '/' )
             $path = '/'.$path;
         $cfile = $path;
@@ -509,13 +510,53 @@ $pAccess from all
             
         $img = $imagecreate( $file );
         header("Content-Type: ".$mime.";");
+        
+        $newWidth = 70;
+        $newHeight  = 70;
+        $thumpWidth = $newWidth;
+        $thumpHeight = $newHeight;
+    
+        $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
+        imagealphablending( $thumpImage, false );
+
+        if( $oriWidth > $oriHeight ){
+    
+            //resize mit hoehe = $tempheight, width = auto;
+            
+            $ratio = $thumpHeight / ( $oriHeight / 100 );
+            $_width = ceil($oriWidth * $ratio / 100);
+    
+            $top = 0;
+            if( $_width < $thumpWidth) { 
+                $ratio = $_width / ($thumpWidth/100);
+                $nHeight = $thumpHeight * $ratio / 100;
+                $top =  ($thumpHeight - $nHeight)/2;
+                $_width = $thumpWidth;
+            }
+    
+            $tempImg = imagecreatetruecolor( $_width, $thumpHeight );
+            imagealphablending( $tempImg, false );
+            imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
+            $_left = ($_width/2) - ($thumpWidth/2);
+    
+            imagecopyresampled( $thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
+    
+        } else {
+            $ratio = $thumpWidth / ( $oriWidth / 100 );
+            $_height = ceil($oriHeight * $ratio / 100);
+            $tempImg = imagecreatetruecolor( $thumpWidth, $_height );
+            imagealphablending( $tempImg, false );
+            imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight );
+            $_top = ($_height/2) - ($thumpHeight/2);
+            imagecopyresampled( $thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight );
+        }
 
         //$thumpHeight = 70;
         //$thumpWidth = 120;
         //$tempImg = imagecreatetruecolor( $thumpWidth, $thumpHeight );
         //imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $thumpHeight, $oriWidth, $oriHeight);
-        $imagesave($img);
-        die(); 
+        $imagesave($thumpImage);
+        exit;
     }
     
     public static function loadModules(){
@@ -1155,7 +1196,7 @@ $pAccess from all
         
         if( $pPath == '/' ){
             if( !file_exists("inc/template/trash") )
-                mkdir("inc/template/trash");
+                @mkdir("inc/template/trash");
         }
         
         $access = krynAcl::checkAccess( 3, $pPath, 'read', true );
@@ -1164,10 +1205,12 @@ $pAccess from all
         $pPath = 'inc/template/'.substr( $pPath, 0, strlen($pPath) );
         $pPath = str_replace( "..", "", $pPath );
 
-        if(! file_exists($pPath) )
+        if( !file_exists($pPath) )
             json( false );
             
         $res['type'] = (is_dir($pPath)) ? 'dir':'file';
+        
+        $dir = str_replace('inc/template/', '', $pPath);
 
         if( $res['type'] == 'dir' ){
             $h = opendir( $pPath );            
@@ -1176,9 +1219,6 @@ $pAccess from all
                 $rPath .= '/';
 
             $res['folderFile'] = self::getFileInfo($rPath);
-            //$res['folderFile']['path'] = $rPath;
-            //$res['folderFile']['type'] = 'dir';
-            //$res['folderFile']['name'] = '';
 
             $myfiles = array();
             while( $file = readdir($h) ){
@@ -1192,15 +1232,12 @@ $pAccess from all
                 $path = $pPath.'/'.$file;
                 $item = array();
                 
-                $checkpath = str_replace('inc/template', '', $path);
-                $checkpath = str_replace('//', '/', $checkpath);
-                
-                //print "access: $checkpath ".($access+0);
-                
                 $item = self::getFileInfo( $path );
                     
-                if( $item )
-                    $items[$file] = $item; 
+                if( $item ){
+                    $item['dir'] = $dir;
+                    $items[$file] = $item;
+                }
             }
             $res['items'] = $items;
         } else {

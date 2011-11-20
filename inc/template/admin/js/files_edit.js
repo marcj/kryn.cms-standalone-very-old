@@ -235,7 +235,7 @@ var admin_files_edit = new Class({
             this.loadImage( this.oriImagePath+'?mtime='+pMtime );
             
             if( this._images[ '/'+this.oriImagePath ] )
-                this._images[ '/'+this.oriImagePath ].src = _path+'admin/backend/imageThump/?file='+escape(this.oriImagePath.replace(/\//g, "\\"))+'&noC='+pMtime;
+                this._images[ '/'+this.oriImagePath ].src = _path+'admin/backend/imageThumb/?file='+escape(this.oriImagePath.replace(/\//g, "\\"))+'&noC='+pMtime;
             
             loader.hide();
         }.bind(this)}).post({position: pPos, file: this.oriImagePath });    
@@ -253,7 +253,7 @@ var admin_files_edit = new Class({
             this.loadImage( this.oriImagePath+'?mtime='+pMtime );
             
             if( this._images[ '/'+this.oriImagePath ] )
-                this._images[ '/'+this.oriImagePath ].src = _path+'admin/backend/imageThump/?file='+escape(this.oriImagePath.replace(/\//g, "\\"))+'&noC='+pMtime;
+                this._images[ '/'+this.oriImagePath ].src = _path+'admin/backend/imageThumb/?file='+escape(this.oriImagePath.replace(/\//g, "\\"))+'&noC='+pMtime;
             
             loader.hide();
         }.bind(this)}).post({width: pWidth, height: pHeight, file: this.oriImagePath }); 
@@ -281,7 +281,7 @@ var admin_files_edit = new Class({
                 res.each(function(item){
                     this._images[item] = new Element('img', {
                         'class': 'admin-files-sidebar-image'+((item == '/'+this.oriImagePath)?' admin-files-sidebar-image-active':''),
-                        src: _path+'admin/backend/imageThump/?file='+escape(item.replace(/\//g, "\\"))+'&noC='+(new Date().getTime())
+                        src: _path+'admin/backend/imageThumb/?file='+escape(item.replace(/\//g, "\\"))+'&noC='+(new Date().getTime())
                     })
                     .addEvent('click', function(){
                         this._goToImage( item, true );

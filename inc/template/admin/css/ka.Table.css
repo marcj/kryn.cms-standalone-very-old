@@ -25,6 +25,15 @@
     right: 16px;
 }
 
+.ka-Table-body-container {
+    position: absolute;
+    left: 0px;
+    top: 21px;
+    right: 0px;
+    bottom: 0px;
+    overflow-y: scroll;
+}
+
 .ka-Table-body tr td {
     padding: 3px;
 }

@@ -120,7 +120,7 @@ ka.Table = new Class({
             }).inject( this.main );
         } else {
             this.body = new Element('div', {
-                style: 'position: absolute; left: 0px; top: 21px; right: 0px; bottom: 0px; overflow-y: scroll;'
+                'class': 'ka-Table-body-container'
             }).inject( this.main );
         }
 

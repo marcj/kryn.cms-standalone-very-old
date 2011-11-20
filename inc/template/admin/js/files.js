@@ -32,6 +32,8 @@ var admin_files = new Class({
         this.options = {};
         this.options.onlyUserDefined = (Cookie.read('adminFiles_OnlyUserFiles')==0)?false:true;
 
+        this.win.content.setStyle('overflow', 'hidden');
+
         this._createLayout();
         this.loadModules();
         
@@ -1308,6 +1310,106 @@ var admin_files = new Class({
     
     },
     
+    startSelector: function( pEvent ){
+    
+        var offset = this.win.content.getPosition( document.body );
+        
+        if( this.selectorDiv ){
+                this.selectorDiv.destroy();
+                delete this.selectorDiv;       
+        }
+    
+        this.selectorDiv = new Element('div', {
+            'class': 'admin-files-selector',
+            styles: {
+                'top': pEvent.page.y-offset.y,
+                'left': pEvent.page.x-offset.x,
+                width: 2,
+                height: 2
+            }
+        })
+        .setStyle('opacity', 0.5)
+        .inject( this.win.content );
+        
+        this.selectorStartMousePos = {
+            x: pEvent.page.x,
+            y: pEvent.page.y
+        };
+        
+        this.selectorStartPos = {
+            x: pEvent.page.x-offset.x,
+            y: pEvent.page.y-offset.y
+        };
+        
+        var diffY, diffX, curPos, file;
+        
+        var items = this.fileContainer.getElements('.admin-files-item');
+        Array.each(items, function(item){
+            item.pos = item.getPosition( this.win.content );
+            item.size = item.getSize();
+        }.bind(this));
+        
+        this.selectorDrag = new Drag(this.selectorDiv, {
+            style: false,
+            onDrag: function( pElement, pEvent ){
+            
+                diffY = pEvent.page.y-this.selectorStartMousePos.y;
+                diffX = pEvent.page.x-this.selectorStartMousePos.x;
+                
+                if( diffX < 0 ){
+                    diffX *= -1;
+                    this.selectorDiv.setStyle('left', this.selectorStartPos.x-diffX);
+                }
+                if( diffY < 0 ){
+                    diffY *= -1;
+                    this.selectorDiv.setStyle('top', this.selectorStartPos.y-diffY);
+                }
+                
+                this.selectorDiv.setStyle('width', diffX);
+                this.selectorDiv.setStyle('height', diffY);
+                
+                curPos = {
+                    left: this.selectorDiv.getStyle('left').toInt(),
+                    top: this.selectorDiv.getStyle('top').toInt(),
+                    width: this.selectorDiv.getStyle('width').toInt(),
+                    height: this.selectorDiv.getStyle('height').toInt()
+                }
+                
+                Array.each(items, function(item){
+
+                    if( (item.pos.x+item.size.x) > curPos.left &&
+                        item.pos.x < (curPos.left+curPos.width) &&
+                        item.pos.y < (curPos.top+curPos.height) &&
+                        (item.pos.y+item.size.y) > curPos.top 
+                     ){
+                        file = item.retrieve('file');
+                        if( file && file.path != 'trash/' ){
+                            item.addClass('admin-files-item-selected');
+                        }
+                    } else {
+                        item.removeClass('admin-files-item-selected');
+                    }
+                    
+                });
+            
+            }.bind(this),
+            
+            onComplete: function(){
+                this.selectorDiv.destroy();
+                delete this.selectorDiv;
+            }.bind(this),
+            
+            onCancel: function(){
+                this.selectorDiv.destroy();
+                delete this.selectorDiv;
+            }.bind(this),
+        
+        });
+        
+        this.selectorDrag.start( pEvent );
+    
+    },
+    
     checkMouseDown: function( pEvent ){
     
         var item = pEvent.target;
@@ -1327,15 +1429,20 @@ var admin_files = new Class({
         if( !item ){
             item = pEvent.target.getParent('tr');
         }
-        
-        if( !item ) return;
-        
-        pEvent.preventDefault();
-        var file = item.retrieve('file');
 
-        if( file && file.path != 'trash/' )
-            this.startDrag( pEvent, item );
+        pEvent.preventDefault();
+        
+        if( item ){
+            var file = item.retrieve('file');
     
+            if( file && file.path != 'trash/' )
+                this.startDrag( pEvent, item );
+        } else {   
+            if( pEvent.target.hasClass('admin-files-fileContainer') ){
+                this.deselectAll();
+                this.startSelector(pEvent);
+            }
+        }
     },
     
     checkMouseDblClick: function( pEvent ){
@@ -1373,7 +1480,7 @@ var admin_files = new Class({
 
         if( !pEvent ) return;
 
-        if( (!pEvent.control && !pEvent.meta ) && !pEvent.rightClick )
+        if( (!pEvent.control && !pEvent.meta && !pEvent.shift ) && !pEvent.rightClick )
             this.deselectAll();
         
         if( !pEvent.target ) return;
@@ -1396,6 +1503,35 @@ var admin_files = new Class({
                 this.openContext( this.currentFolderFile, pEvent );
             
             return;
+        }
+        
+        if( pEvent.shift ){
+
+            var allSelected = this.fileContainer.getElements('.admin-files-item-selected');
+            var all = this.fileContainer.getElements('.admin-files-item');
+
+            var firstPos = all.indexOf(allSelected[0]);
+            //var lastPos = all.indexOf(allSelected[ allSelected.length-1 ]);
+            
+            var thisPos = all.indexOf( item );
+            var tfile, i;
+            
+            
+            if( thisPos > firstPos ){
+                for( i = firstPos; i<thisPos; i++){
+                    file = all[i].retrieve('file');
+                    if( file.path != 'trash/' )
+                        all[i].addClass('admin-files-item-selected');
+                }
+            } else {
+                for( i = thisPos; i<firstPos; i++){
+                    file = all[i].retrieve('file');
+                    if( file.path != 'trash/' )
+                        all[i].addClass('admin-files-item-selected');
+                    all[i].addClass('admin-files-item-selected');
+                }
+            }
+            
         }
 
         var file = item.retrieve('file');
@@ -1613,6 +1749,7 @@ var admin_files = new Class({
                     width: 50,
                     height: 50,
                     cursor: 'default',
+                    'background-color': 'transparent',
                     margin: 0
                 }).inject( container );
                 
@@ -1684,7 +1821,7 @@ var admin_files = new Class({
                 }
             
                 var file = droppable.retrieve('file');
-                if( !file || file.path == pFromDir ) return;
+                if( !file || file.path == pFromDir || file.path == 'trash/' || file.isDir != true ) return;
                     
                 if( !pDraggedItems.contains( droppable ) ){
                     droppable.removeClass('admin-files-item-selected');
