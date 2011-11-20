@@ -783,7 +783,10 @@ var admin_files = new Class({
         this.win.content.addEventListener('drop', this.checkFileDrop.bind(this));
 
         this.fileContainer.fileObj = this;
-        
+    
+        this.previewInput = new Element('input', {
+            'class': 'admin-files-preview-input'
+        }).inject( document.hidden );
 
         this.loader = new ka.loader().inject( this.win.content );
         this.loader.setStyle('left', 141);
@@ -1413,7 +1416,8 @@ var admin_files = new Class({
     
     checkMouseDown: function( pEvent ){
     
-        var item = pEvent.target;
+        var item = pEvent.target,
+            file;
         
         selection = window.getSelection() ;
         selection.removeAllRanges();
@@ -1422,6 +1426,8 @@ var admin_files = new Class({
             selection = window.getSelection() ;
             selection.removeAllRanges();
         }).delay(40);
+        
+        this.previewInput.focus();
         
         if( !item.hasClass('admin-files-item') ){
             item = item.getParent('.admin-files-item');
@@ -1434,19 +1440,29 @@ var admin_files = new Class({
         pEvent.preventDefault();
         
         if( item ){
-            var file = item.retrieve('file');
-    
-            if( file && file.path != 'trash/' )
+            file = item.retrieve('file');
+            this.lastClickedItem = item;
+        } else {
+            delete this.lastClickedItem;
+        }
+        
+        if( item ){
+            
+            if( file && file.path != 'trash/' ){
                 this.startDrag( pEvent, item );
-                
+            }
+
         } else if( !pEvent.rightClick ){
 
+            this.lastClickedItem = item;
             if( pEvent.target.hasClass('admin-files-fileContainer') ){
                 this.deselectAll();
                 this.startSelector(pEvent);
             }
-
         }
+        
+        this.updatePreview();
+
     },
 
     checkMouseDblClick: function( pEvent ){
@@ -1466,7 +1482,6 @@ var admin_files = new Class({
         
         if( file )
             this.loadPath( file.path );
-        
 
     },
     
@@ -1577,6 +1592,44 @@ var admin_files = new Class({
         return res;
     },
     
+    updatePreview: function(){
+    
+        if( !this.lastClickedItem ) {
+            this.lastClickedItem = this.fileContainer;
+        }
+        if( !this.previewDiv ) return;
+
+        var file = this.lastClickedItem.retrieve('file'),
+            image;
+        
+        if( this.__images.contains(file.ext.toLowerCase()) ){
+            image = _path+'inc/template/'+file.path;
+            Asset.image(image, {
+                onLoad: function(){
+                    
+                    if( this.lastPreviewPath != image ) return;
+                    
+                    this.previewDiv.empty();
+                    var img = new Element('img', {
+                        src: image,
+                        style: 'position: relative;'
+                    }).inject( this.previewDiv );
+                    
+                    (function(){ img.position({relativeTo: this.previewDiv});}).delay(10, this);
+                    (function(){ img.position({relativeTo: this.previewDiv});}).delay(50, this);
+                    (function(){ img.position({relativeTo: this.previewDiv});}).delay(250, this);
+                
+                }.bind(this)
+            });
+        } else {
+            this.previewDiv.empty();
+            this.lastClickedItem.getElement('img').clone().inject( this.previewDiv );
+        }
+        
+        this.lastPreviewPath = image;
+    
+    },
+    
     preview: function( pEvent ){
     
         if( pEvent.target && pEvent.target.get('tag') == 'input' && !pEvent.target.hasClass('admin-files-preview-input') ){
@@ -1591,11 +1644,9 @@ var admin_files = new Class({
             return;
         }
         
-        if( !this.previewInput ){
-        
-            this.previewInput = new Element('input', {
-                'class': 'admin-files-preview-input'
-            }).inject( document.hidden );
+        if( !this.previewInput.setup ){
+    
+            this.previewInput.setup = true;
             this.previewInput.addEvent('blur', function(){
                 if( this.previewDiv ){
                     this.previewDiv.destroy();
@@ -1613,17 +1664,11 @@ var admin_files = new Class({
         
         }
 
-        if( Object.getLength(selectedItems) == 1 ){
+        if( Object.getLength(selectedItems) > 0 ){
             
             var item, file, image;
             
-            Object.each( selectedItems, function(citem){
-                item = citem;
-            });
-            
             this.previewInput.focus();
-            
-            file = item.retrieve('file');
             
             pEvent.preventDefault();
         
@@ -1647,34 +1692,8 @@ var admin_files = new Class({
             }).inject( this.previewDiv );
 
             this.previewDiv.position();
-            
-            var image;
-            
-            if( this.__images.contains(file.ext.toLowerCase()) ){
-                image = _path+'inc/template/'+file.path;
-                Asset.image(image, {
-                    onLoad: function(){
-                        
-                        if( this.lastPreviewPath != image ) return;
-                        
-                        this.previewDiv.empty();
-                        var img = new Element('img', {
-                            src: image,
-                            style: 'position: relative;'
-                        }).inject( this.previewDiv );
-                        
-                        (function(){ img.position();}).delay(10);
-                        (function(){ img.position();}).delay(50);
-                        (function(){ img.position();}).delay(250);
-                    
-                    }.bind(this)
-                });
-            } else {
-                this.previewDiv.empty();
-                item.getElement('img').clone().inject( this.previewDiv );
-            }
-            
-            this.lastPreviewPath = image;
+
+            this.updatePreview();
 
         }
         
