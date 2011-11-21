@@ -307,16 +307,14 @@
       "type": "custom",
       "defaultWidth": 1000,
       "defaultHeight": 510,
-      "minWidth": 710,
+      "minHeight": 510,
+      "minWidth": 810,
       "icon": "admin\/images\/admin-pages-icon.png",
-      "includeChilds": true,
       "childs": {
         "addDialog": {
           "title": "Add pages",
           "isLink": false,
           "acl": false,
-          "defaultWidth": 720,
-          "defaultHeight": 500,
           "type": "custom"
         },
         "addDomains": {

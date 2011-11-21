@@ -60,8 +60,9 @@ var admin_pages_addDialog = new Class({
 
     _renderLayout: function(){
         
-        this.win.border.setStyle('height', 400);
-        this.win.border.setStyle('width', 500);
+        this.win.border.setStyle('height', 450);
+        this.win.border.setStyle('width', 750);
+        this.win.updateInlinePosition();
     
         var c = new Element('div', {
             style: 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 31px; overflow: auto;'

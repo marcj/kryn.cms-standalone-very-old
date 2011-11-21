@@ -51,6 +51,7 @@ ka.kwindow = new Class({
     },
 
     iframeOnLoad: function(){
+
         if( this.inline ){
             var opener = ka.wm.getOpener(this.id);
             //opener.inlineContainer.empty();
@@ -84,10 +85,7 @@ ka.kwindow = new Class({
                 height: inlineSize.y-25,
                 width: inlineSize.x
             });
-            
-            opener.checkDimensions();
-//            opener.inlineContainer.setStyle('height', inlineSize.y-25);
-//            opener.inlineContainer.setStyle('width', inlineSize.x);
+
         }
     },
 
@@ -103,21 +101,19 @@ ka.kwindow = new Class({
                 inlineModeParent = this.content.getParent();
             }
 
-            this.inlineModeWrapper = this.dependModeOverlay.clone().setStyle('opacity', 1)
-                .setStyle('overflow', 'hidden')
-                .setStyle('background-color', 'transparent').inject( inlineModeParent );
-            
-            var table = new Element('table', {
-                cellpadding: 0, cellspacing: 0,
-                style: 'height: 100%; width: 100%'
-            }).inject( this.inlineModeWrapper );
-            var tr = new Element('tr').inject(table);
-            var td = new Element('td', { align: 'center', valign: 'center'}).inject(tr);
+            this.inlineModeWrapper = this.dependModeOverlay.clone().setStyles({
+                'opacity': 1,
+                'overflow': 'hidden',
+                'background-color': 'transparent',
+                'height': '100%',
+                'width': '100%'
+            }).inject( inlineModeParent );
 
             this.inlineContainer = new Element('div', {
                 'class': 'kwindow-win-inline',
                 html: '<center><img src="'+_path+'inc/template/admin/images/loading.gif" /></center>'
-            }).inject( td );
+            }).inject( inlineModeParent );
+
         }
     },
 
@@ -496,6 +492,9 @@ ka.kwindow = new Class({
     maximize: function( pDontRenew ){
         var _this = this;
         
+        logger( 'maximize' );
+        logger('joar');
+        
         if( this.isActive() == false ) return;
 
         if( this.maximized ){
@@ -509,8 +508,7 @@ ka.kwindow = new Class({
         } else {
         	this.borderDragger.detach();
             
-            //if( !pDontRenew )
-                this.oldDimension = this.border.getCoordinates(this.border.getParent());
+            this.oldDimension = this.border.getCoordinates(this.border.getParent());
             this.border.setStyles({
                 width: '100%',
                 height: '100%',
@@ -543,6 +541,9 @@ ka.kwindow = new Class({
     },
 
     loadDimensions: function(){
+    
+        if( this.inline ) return;
+ 
         this.border.setStyle('top', 20 );
         this.border.setStyle('left', 40 );
         this.border.setStyle('width', 500 );
@@ -556,10 +557,12 @@ ka.kwindow = new Class({
         var pos = windows[this.module+'::'+this.code];
         
         if( pos && pos.width > 50){
+
             this.border.setStyles( pos );
             if( pos.maximized ){
                 this.maximize( true );
-            } 
+            }
+
         } else if( this.values ) {
             if( this.values.defaultWidth > 0 ){
                 this.border.setStyle('width', this.values.defaultWidth );
@@ -584,6 +587,7 @@ ka.kwindow = new Class({
     
     checkDimensions: function(){
     	
+    	if( this.inline ) return;
     	if( this.maximized ) return;
     	
     	var desktopSize = $('desktop').getSize();
@@ -629,14 +633,12 @@ ka.kwindow = new Class({
 
         if( newHeight ) this.border.setStyle('height', newHeight);
         if( newWidth ) this.border.setStyle('width', newWidth);
-    	
-        if( this.inlineContainer ){
-        	var inSize = this.inlineContainer.getSize();
-            if( inSize.y > (this.border.getStyle('height').toInt()-70))
-            	this.inlineContainer.setStyle('height', (this.border.getStyle('height').toInt()-70));
-            if( inSize.x > (this.border.getStyle('width').toInt()-70))
-            	this.inlineContainer.setStyle('width', (this.border.getStyle('width').toInt()-70));
+        
+        if( this.border.getSize().y < 150 ){
+            this.border.setStyle('height', 150);
         }
+
+
     },
 
     close: function( pInternal ){
@@ -677,7 +679,6 @@ ka.kwindow = new Class({
             this._loadContent( pVals );
         } else {
             var _this = this;
-//            this._ = new Request.JSON({url: _path+'admin/backend/window/getInfo', onComplete: function(res){
 
             var module = this.module+'/';
             if( this.module == 'admin' )
@@ -711,7 +712,7 @@ ka.kwindow = new Class({
                 return;
             }
         }
-        
+
         var title = ka.settings.configs[ this.module ]['title']['en'];
         
         if( ka.settings.configs[ this.module ]['title'][window._session.lang] )
@@ -740,8 +741,9 @@ ka.kwindow = new Class({
             
         }.bind(this));
         
-
-        this.createResizer();
+        if( !this.inline ){
+            this.createResizer();
+        }
 
         this.titleText.set('text', _(pVals.title) );
         
@@ -749,7 +751,6 @@ ka.kwindow = new Class({
         
         if( pVals.type == 'iframe' ){
             this.iframe = new IFrame('iframe_kwindow_'+this.id, {
-//            this.iframe = new Element('iframe', {
                 'class': 'kwindow-iframe',
                 frameborder: 0
             })
@@ -775,10 +776,16 @@ ka.kwindow = new Class({
 
         if( this.inline ){
             this.getOpener().inlineContainer.empty();
-            this.content.inject( this.getOpener().inlineContainer );
+            this.border.addClass('kwindow-border-inline');
+            this.border.inject( this.getOpener().inlineContainer );
+            this.updateInlinePosition();
+            
+            this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
+            
         } else {
             this.border.inject( $('desktop') );
         }
+
         ka.wm.updateWindowBar();
         
         if( this.values.noMaximize === true ){
@@ -792,8 +799,13 @@ ka.kwindow = new Class({
             }).inject( this.border );
             this.printer.addEvent('click', this.print.bind(this) );
         }
-
+        
         this.loadDimensions();
+    },
+    
+    updateInlinePosition: function(){
+        if( this.inline )
+            this.border.position({ relativeTo: this.getOpener().inlineContainer });
     },
 
     print: function(){
@@ -873,11 +885,9 @@ ka.kwindow = new Class({
             'class': 'kwindow-border  mooeditable-dialog-container'
         })
         .addEvent('mousedown', function(e){
-            if( _this.mouseOnShadow != true)
-                if( ! _this.toFront() ){
-                //    e.stop();
-                }
-        })
+            if( this.mouseOnShadow != true)
+                _this.toFront();
+        }.bind(this))
         .inject( document.hidden )
         .store('win', this);
 
@@ -886,7 +896,7 @@ ka.kwindow = new Class({
         	
         	this.border.addClass('kwindow-border-shadow');
         	
-        } else {
+        } else if( !this.inline ){
 	        new Element('div', {
 	            'class': 'kwindow-shadow-bottom'
 	        }).inject( this.border );
@@ -921,16 +931,6 @@ ka.kwindow = new Class({
             }
         }.bind(this));
 
-        /*this.trans = new Element('div', {
-            'class': 'kwindow-win-trans',
-            styles: {
-                opacity: 0.92
-            }
-        }).inject( this.border );*/
-
-        /*this.win = new Element( 'div', {
-            'class': 'kwindow-win'
-        }).inject( this.border );*/
         this.win = this.border;
 
         this.title = new Element('div', {
@@ -962,7 +962,7 @@ ka.kwindow = new Class({
         this.bottom = new Element('div', {
             'class': 'kwindow-win-bottom'
         }).inject( this.win );
-
+    
 
         this.borderDragger = this.border.makeDraggable({
             handle: [this.title, this.titleGroups],
@@ -1013,6 +1013,13 @@ ka.kwindow = new Class({
         });
         this.title.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
         this.titleGroups.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
+        
+        if( this.inline ){
+            this.title.setStyle('display', 'none');
+            this.titleGroups.setStyle('display', 'none');
+            this.titleBar.setStyle('display', 'none');
+            this.linker.setStyle('display', 'none');
+        }
 
         this.content = new Element('div', {
             'class': 'kwindow-win-content'
@@ -1066,31 +1073,6 @@ ka.kwindow = new Class({
     	this.extendHead();
         return new ka.buttonGroup( this.titleGroups );
     },
-    
-    /*
-    addButton2Group: function( pGroup, pTitle, pButtonSrc, pOnClick ){
-        var myclass = '';
-        if( pGroup.getElements('a').length == 0 ){
-            myclass = ' kwindow-win-buttonWrapperFirst'
-        }
-        
-        var wrapper = new Element('a', {
-            'class': 'kwindow-win-buttonWrapper '+myclass,
-            title: pTitle,
-            styles: {
-                'background-image': 'url('+pButtonSrc+')'
-            }
-        })
-        .inject( pGroup );
-        if( pOnClick )
-            wrapper.addEvent('click', pOnClick );
-        
-        pGroup.getElements('a').each(function(button){
-            button.set('class', button.get('class').replace(/ kwindow-win-buttonWrapperLast/, ''));
-        });
-        wrapper.set('class', wrapper.get('class')+' kwindow-win-buttonWrapperLast');
-        pGroup.setStyle('width', pGroup.getElements('a').length*29 );
-    },*/
 
     createTitleBar: function(){
         var _this = this;
