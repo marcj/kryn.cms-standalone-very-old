@@ -520,9 +520,11 @@ class database {
         
 
     
-        public static function updateSequences( $pDb = false ){
+        public function updateSequences( $pDb = false ){
+            global $cfg;
             
             if( !$pDb ) return;
+            if( $this->type != 'postgresql' ) return;
             
             foreach( $pDb as $table => $tableFields ){
                 

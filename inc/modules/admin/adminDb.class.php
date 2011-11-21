@@ -102,7 +102,7 @@ class adminDb {
         }
         $res .= "\nDatabase installed.\n";
         
-        database::updateSequences( $db );
+        $kdb->updateSequences( $db );
         return $res;
     }
     

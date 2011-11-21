@@ -464,7 +464,7 @@ function step5(){
     
     foreach( kryn::$configs as $config ){
         if( $config && $config['db'] )
-            database::updateSequences( $config['db'] );
+            $kdb->updateSequences( $config['db'] );
     }
     
     admin::clearCache();
