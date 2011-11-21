@@ -101,14 +101,6 @@ ka.kwindow = new Class({
                 inlineModeParent = this.content.getParent();
             }
 
-            this.inlineModeWrapper = this.dependModeOverlay.clone().setStyles({
-                'opacity': 1,
-                'overflow': 'hidden',
-                'background-color': 'transparent',
-                'height': '100%',
-                'width': '100%'
-            }).inject( inlineModeParent );
-
             this.inlineContainer = new Element('div', {
                 'class': 'kwindow-win-inline',
                 html: '<center><img src="'+_path+'inc/template/admin/images/loading.gif" /></center>'
@@ -124,8 +116,8 @@ ka.kwindow = new Class({
         if( this.overlayForced )
             this.overlayForced.destroy();
 
-        if( this.inlineModeWrapper )
-            this.inlineModeWrapper.destroy();
+        if( this.inlineContainer )
+            this.inlineContainer.destroy();
             
         if( this.dependModeOverlay )
             this.dependModeOverlay.destroy();
