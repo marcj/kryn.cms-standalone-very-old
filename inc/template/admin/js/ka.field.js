@@ -1763,8 +1763,8 @@ ka.field = new Class({
 
     setValue: function( pValue, pIntern ){
         
-        if( pValue == null && this.field.default ){
-            pValue = this.field.default;
+        if( pValue == null && this.field['default'] ){
+            pValue = this.field['default'];
         }
 
         if( this._setValue ){
