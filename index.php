@@ -67,8 +67,6 @@ include('inc/kryn/template.global.php');
 include('inc/kryn/internal.global.php');
 include('inc/kryn/framework.global.php');
 
-@set_error_handler('errorHandler');
-
 
 # Load important classes
 include('inc/smarty/Smarty.class.php');
