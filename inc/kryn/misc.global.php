@@ -99,11 +99,14 @@ function readFolder( $pPath ){
 function find( $pPath, $pRecursive = true ){
     
     $res = array();
-    foreach( glob($pPath) as $f ){
-        if( is_dir($f) && $pRecursive ){
-            $res = array_merge($res,find($f.'/*'));
+    $items = glob($pPath);
+    if( is_array($items) ){
+        foreach( $items as $f ){
+            if( is_dir($f) && $pRecursive ){
+                $res = array_merge($res,find($f.'/*'));
+            }
+            $res[] = $f;
         }
-        $res[] = $f;
     }
 
     return $res;
