@@ -796,7 +796,7 @@ ka.kwindow = new Class({
     },
     
     updateInlinePosition: function(){
-        if( this.inline )
+        if( this.inline && this.getOpener() && this.getOpener().inlineContainer)
             this.border.position({ relativeTo: this.getOpener().inlineContainer });
     },
 
@@ -864,8 +864,13 @@ ka.kwindow = new Class({
             });
         }
         window['contentLoaded_'+id] = function(){
-            _this.custom = new window[ _this.module+'_'+javascript ]( _this );
-        }
+            this.custom = new window[ this.module+'_'+javascript ]( this );
+            if( this.custom ){
+                this.addEvent('close', function(){
+                    delete this.custom;
+                }.bind(this));
+            }
+        }.bind(this);
         
         new Asset.javascript( _path+'admin/backend/loadCustomJs/module:'+this.module+'/code:'+javascript+'/onLoad:'+id);
     },
