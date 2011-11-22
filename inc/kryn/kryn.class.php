@@ -1296,6 +1296,8 @@ class kryn {
             $client->start();
         }
         
+        tAssignRef('client', $client);
+        
         //compatibility with older extension
         $user = $client;
         if( $client->user['rsn'] != 0 ){
