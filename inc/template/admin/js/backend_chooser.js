@@ -209,7 +209,8 @@ var admin_backend_chooser = new Class({
                 border: this.win.border,
                 addEvent: this.win.addEvent.bind(this.win),
                 addHotkey: this.win.addHotkey.bind(this.win),
-                isInFront: this.win.isInFront.bind(this.win)
+                isInFront: this.win.isInFront.bind(this.win),
+                newDialog: this.win.newDialog.bind(this.win)
         }
 
         this.filesPane = new ka.files( winApi, filesContent, {
