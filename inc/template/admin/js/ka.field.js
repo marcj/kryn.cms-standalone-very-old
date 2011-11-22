@@ -1776,7 +1776,7 @@ ka.field = new Class({
         else
             this.fireEvent('check-depends');
     },
-    
+
     _setValue: function( pValue, pIntern ){
         //Override this function to define a own setter
     },

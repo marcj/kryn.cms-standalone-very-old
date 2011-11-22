@@ -289,6 +289,7 @@ function checkDb(){
     if( $path == '\\' ) $path = '/';
     if( substr($path, 0, -1) != '/' )
         $path .= '/';
+    $path = str_replace('//', '/', $path);
 
     $timezone = @date_default_timezone_get();
     if( !$timezone )

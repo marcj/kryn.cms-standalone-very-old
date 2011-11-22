@@ -82,8 +82,6 @@ class krynAuth {
             $this->cache = new krynCache( $pConfig['session_storage'], $pConfig['session_storage_config'] );
         }
 
-        tAssign("client", $this);
-
     }
     
     public function start(){

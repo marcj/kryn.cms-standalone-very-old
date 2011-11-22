@@ -226,12 +226,8 @@ var admin_system_module = new Class({
             'class': 'ka-kwindow-content-withBottomBar'
         }).inject( this.panes['local'] );
         var p = this.localePane;
-        
-        if( !ka.settings.system.communityEmail || ka.settings.system.communityEmail == '' ){
-            new Element('h3', {
-                html: _('Local extensions')
-            }).inject( p );
-        } else {
+
+        if( ka.settings.system.communityId+0 > 0 ){
             new Element('h3', {
                 html: _('My extensions')+' ('+ka.settings.system.communityEmail+')'
             }).inject( p );
@@ -257,7 +253,7 @@ var admin_system_module = new Class({
         var values = {my: [], local: []};
         var tables = {};
         
-        if( ka.settings.system.communityId ){
+        if( ka.settings.system.communityId+0 > 0 ){
             //if connected
             tableMyDiv = new Element('div', {style: 'position: relative'}).inject( p );
             tables['my'] = new ka.Table([
@@ -268,12 +264,11 @@ var admin_system_module = new Class({
                 [_('Status'), 100],
                 [_('Action'), 250]
             ], {absolute: false}).inject( tableMyDiv );
-            
-            new Element('h3', {
-                html: _('Local extensions')
-            }).inject( p );
         }
-
+            
+        new Element('h3', {
+            html: _('Local extensions')
+        }).inject( p );
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject( p );
         tables['local'] = new ka.Table([
             [_('Title')],
@@ -363,7 +358,7 @@ var admin_system_module = new Class({
                 values[table].include( value );
         }.bind(this));
 
-        if( ka.settings.system.communityEmail != '' ){
+        if( ka.settings.system.communityId+0 > 0 ){
             if( values['my'].length > 0 ){
                 tables['my'].setValues( values['my'] );
             } else {
