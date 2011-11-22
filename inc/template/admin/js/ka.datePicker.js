@@ -177,7 +177,7 @@ ka.datePicker = new Class({
 
     updatePos: function(){
     	
-	   if( this.chooser ){
+	   if( this.chooser && this.chooser.getParent() ){
 	           
             this.chooser.position({
                 relativeTo: this.input,

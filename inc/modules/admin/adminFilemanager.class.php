@@ -1039,9 +1039,6 @@ $pAccess from all
         
         $path = str_replace('..', '', $pPath); 
         $path = str_replace('//', '/', $path);
-        $path = str_replace('//', '/', $path);
-        $path = str_replace('//', '/', $path);
-        
         
         if( strpos($path, 'inc/template') === false )
         	$path = str_replace( '//', '/', 'inc/template/'.$path);
@@ -1072,6 +1069,13 @@ $pAccess from all
         
         if( $res['type'] == 'dir' )
             $checkpath .= '/'; //substr($checkpath, 0, -1);
+        else {
+            if( strpos($res['path'], '/') == false )
+                $res['folder'] = '/';
+            else
+                $res['folder'] = dirname($res['path']).'/';
+            
+        }
         
         if( substr($checkpath, 0, 1) != '/' ) $checkpath = '/'.$checkpath;
         $access = krynAcl::checkAccess( 3, $checkpath, 'read', true );
@@ -1242,10 +1246,7 @@ $pAccess from all
             $res['items'] = $items;
         } else {
             //file
-            $res['name'] = basename($rPath);
-            $res['path'] = $rPath;
-            $pos = strrpos($rPath, '.');
-            $res['ext'] = substr( $rPath, $pos+1, strlen($rPath) );
+            $res = self::getFileInfo($rPath);
         }
         json( $res );
     }

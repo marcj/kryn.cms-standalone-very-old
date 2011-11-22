@@ -1028,8 +1028,6 @@ a.ka-create-search-index-icon.red {
     height: 8px;	   
 }
 
-
-
 .ka-pages-pluginchooserpane {
     position: absolute;
     left: 0px;
@@ -1048,4 +1046,22 @@ a.ka-create-search-index-icon.red {
     padding-left: 15px;
     margin-left: 8px;
     border-left: 1px solid #ddd;
+}
+
+/**
+* 
+* Styles for ka.Buttons, ka.Tabs etc
+* for a white background
+*
+*/
+.ka-header-light .kwindow-win-buttonGroup {
+    border-bottom: 1px solid #999; /*#888;*/
+    border-right: 1px solid #999; /*#777;*/
+    border-left: 1px solid #999; /*#777;*/
+    border-top: 1px solid #777; /*#555;*/
+}
+
+.ka-header-light .kwindow-win-buttonWrapper {
+    border-top: 1px solid #E5E5E5; /*#D5D5D5;*/
+    border-bottom: 1px solid #CCC; /*#BBB;*/
 }

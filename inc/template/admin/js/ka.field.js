@@ -1064,10 +1064,8 @@ ka.field = new Class({
             .addEvent('click', function(){
                 var _this = this;
                 ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
-                    _this.setValue( pValue, true );
-                    logger('setvalue');
-                    this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler
-                },
+                    this.setValue( pValue, true );
+                }.bind(this),
                 value: this._value,
                 cookie: this.field.cookie,
                 domain: this.field.domain,
@@ -1082,7 +1080,7 @@ ka.field = new Class({
 
         this._setValue = function( pVal, pIntern ){
 
-            if( typeOf(pVal) == 'null' ) pVal = '';
+            if( typeOf(pVal) == 'null' || pVal === false ) pVal = '';
 
             this._value = pVal;
 

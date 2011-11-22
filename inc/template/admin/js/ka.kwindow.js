@@ -1034,21 +1034,25 @@ ka.kwindow = new Class({
         this.bottom.set('html', pVal);
     },
 
-    addTabGroup: function(){
-        this.extendHead();
-        return new ka.tabGroup( this.titleGroups );
-    },
-
     extendHead: function(){
         this.title.setStyle('height', 39+14 );
         this.content.setStyle('top', 39+16 );
+    },
+    
+    addTabGroup: function(){
+        this.extendHead();
+        return new ka.tabGroup( this.titleGroups );
     },
     
     addSmallTabGroup: function(){
         this.extendHead();
         return new ka.smallTabGroup( this.titleGroups );
     },
-
+    
+    addButtonGroup: function(){
+    	this.extendHead();
+        return new ka.buttonGroup( this.titleGroups );
+    },
 
     addBottomBar: function(){
         this.bottomBar = new Element('div', {
@@ -1064,11 +1068,6 @@ ka.kwindow = new Class({
 
         this.content.setStyle('bottom', 49);
         return this.bottomBar;
-    },
-    
-    addButtonGroup: function(){
-    	this.extendHead();
-        return new ka.buttonGroup( this.titleGroups );
     },
 
     createTitleBar: function(){

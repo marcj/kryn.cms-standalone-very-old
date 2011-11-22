@@ -28,14 +28,10 @@ var admin_backend_chooser = new Class({
     },
 
     choose: function(){
-        if(! this.value ){
-            this.win._alert( _('Please choose first.') );
-            return;
-        } else {
-            this.saveCookie();
-            if( this.win.params.onChoose )
-                this.win.params.onChoose.bind(this, this.value )();
-        }
+        this.saveCookie();
+        if( this.win.params.onChoose )
+            this.win.params.onChoose( this.value );
+        this.win.close();
     },
 
     _createLayout: function(){
@@ -182,36 +178,67 @@ var admin_backend_chooser = new Class({
         this.panes['files'] = new Element('div', {
             style: 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;'
         }).inject( this.win.content );
+        
+        var filesHeader = new Element('div', {
+            'class': 'ka-header-light',
+            style: 'position: absolute; left: 0px; top: 4px; right: 0px; height: 27px; border-bottom: 1px solid silver;'
+        }).inject( this.panes['files'] );
 
-        this.filesPane = new ka.filesPane( this.panes['files'], {
-            value: this.value,
-            onChoose: function( pFile ){
-                if( this.options.onlyDir ){
-                    if( !pFile.isDir ){
-                        this.filesPane.deselect();
-                        return;
-                    }
+        var filesContent = new Element('div', {
+            style: 'position: absolute; left: 0px; top: 32px; right: 0px; bottom: 0px; background-color: white;'
+        }).inject( this.panes['files'] );
+
+        var winApi = {
+            
+                addTabGroup: function(){
+                    return new ka.tabGroup( filesHeader );
+                },
+                
+                addSmallTabGroup: function(){
+                    return new ka.smallTabGroup( filesHeader );
+                },
+                
+                addButtonGroup: function(){
+                    return new ka.buttonGroup( filesHeader );
+                },
+                
+                titleGroups: filesHeader,
+                getTitle: function(){},
+                setTitle: function(){},
+        
+                border: this.win.border,
+                addEvent: this.win.addEvent.bind(this.win),
+                addHotkey: this.win.addHotkey.bind(this.win),
+                isInFront: this.win.isInFront.bind(this.win)
+        }
+
+        this.filesPane = new ka.files( winApi, filesContent, {
+            selection: true,
+            selectionOnlyFolders: this.options.onlyDir,
+            selectionMultiple: this.options.multi,
+            selectionValue: this.value,
+            onDblClick: function(){
+                this.choose();
+            }.bind(this),
+            onDeselectAll: function(){
+                this.value = false;
+            }.bind(this),
+            onSelect: function( pFile ){
+                if( typeOf(pFile) == 'array' ){
+                    this.value = [];
+                    pFile.each(function(file){
+                        this.value.include(file.path);
+                    });
+                } else {
+                    this.value = pFile.path;
                 }
-                if( this.options.pages )
+                if( this.options.pages ){
                     this.domainTrees.each(function(domain){
                         domain.unselect();
                     });
-                this.value = pFile.path;
-            }.bind(this),
-            path: '/',
-            dblClick: function( pFile ){
-                if( this.options.onlyDir ){
-                    if( !pFile.isDir ){
-                        this.filesPane.deselect();
-                        return;
-                    }
                 }
-                this.choose();
-            }.bind(this),
-            cookie: this.cookie,
-            multi: this.options.multi,
-            display: this.win.params.display
-        }, this.win);
+            }.bind(this)
+        });
 
     },
 
