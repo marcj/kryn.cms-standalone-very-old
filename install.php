@@ -286,9 +286,9 @@ function checkDb(){
     }
 
     $path = dirname($_SERVER['REQUEST_URI']);
+    if( $path == '\\' ) $path = '/';
     if( substr($path, 0, -1) != '/' )
         $path .= '/';
-    $path = str_replace("//", "/", $path);
 
     $timezone = @date_default_timezone_get();
     if( !$timezone )
@@ -436,6 +436,7 @@ function step5(){
     if( substr($path, 0, -1) != '/' )
         $path .= '/';
     $path = str_replace("//", "/", $path);
+    $path = str_replace('\\', '', $path);
 
     dbInsert( 'system_domains', array(
         'domain' => $_SERVER['SERVER_NAME'], 'title_format' => '%title | Pagetitle', 'master' => 1, 'lang' => 'en',
