@@ -72,6 +72,10 @@ function dbConnect(){
                  ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
                  ($cfg['db_forceutf8']=='1')?true:false
     );
+    
+    if( !$kdb->isActive() ){
+        kryn::internalError('Can not connect to the database. Error: '.$kdb->lastError());
+    }
 
 }
 

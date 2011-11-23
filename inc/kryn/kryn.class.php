@@ -819,57 +819,6 @@ class kryn {
                 }
             }
         }
-
-        self::autoCoreUpdater();
-    }
-    
-    /**
-     * 
-     * AutoCoreUpdater to update core in older systems
-     * @internal
-     * @static
-     */
-    public static function autoCoreUpdater(){
-        
-        return;
-        // ALL under 0.7.0 RELEASES
-        if( $GLOBALS['krynInstaller'] != true ){
-            if( kryn::$canCompare == true ){
-                
-                if( kryn::compareVersion('users', '<', '0.7.0') ){
-                    require_once("inc/modules/admin/adminModule.class.php");
-                    require_once("inc/modules/admin/adminDb.class.php");
-                    adminModule::installModule('users', true);
-                    $die = true;
-                }
-                    
-                if( kryn::compareVersion('admin', '<', '0.7.0') ){
-                    require_once("inc/modules/admin/adminModule.class.php");
-                    require_once("inc/modules/admin/adminDb.class.php");
-                    adminModule::installModule('admin', true);
-                    $die = true;
-                }
-                
-            } else {
-                
-                //we have to check manually if admin or kryn is not 0.7.0
-                if( kryn::$configs['users']['version'] != '0.7.0' ){
-                    require_once("inc/modules/admin/adminModule.class.php");
-                    require_once("inc/modules/admin/adminDb.class.php");
-                    adminModule::installModule('users', true);
-                    $die = true;
-                }
-                
-                if( kryn::$configs['admin']['version'] != '0.7.0' ){
-                    require_once("inc/modules/admin/adminModule.class.php");
-                    require_once("inc/modules/admin/adminDb.class.php");
-                    adminModule::installModule('admin', true);
-                    $die = true;
-                }
-            }
-            if( $die == true )
-                die("System cores updated - Please reloead.");
-        }
     }
 
     /**
@@ -1239,7 +1188,7 @@ class kryn {
 
         if( !is_dir($cfg['template_cache']) ){
             if( !@mkdir($cfg['template_cache']) )
-               die('Can not access to or create folder for template caching: '.$cfg['template_cache']);
+               kryn::internalError('Can not create folder for template caching: '.$cfg['template_cache']);
         }
         
         kryn::$config =& $cfg;
@@ -1490,16 +1439,6 @@ class kryn {
      */
     public static function redirectToPage( $pRsn, $pParams = '' ){
         self::redirect( self::pageUrl( $pRsn ). ($pParams?'?'.$pParams:''));
-    }
-
-    /**
-     * 
-     * Die if the domain cannot found.
-     * @param string $pDomain
-     * @internal
-     */
-    public static function domainNotFound( $pDomain ){
-        die( "Domain <i>$pDomain</i> not found." );
     }
     
     /**
@@ -1826,7 +1765,7 @@ class kryn {
 
             if(! $domain['rsn'] > 0 ){
                 klog("system", "Domain <i>$domainName</i> not found. Language: $possibleLanguage");
-                die("Domain <i>$domainName</i> not found.");
+                kryn::internalError( "Domain <i>$domainName</i> not found." );
             }
             $language = $possibleLanguage;
             kryn::$domain = $domain;
@@ -2308,8 +2247,9 @@ class kryn {
         if( $url == '' ){
             $pageRsn = kryn::$domain['startpage_rsn'];
             
-            if( !$pageRsn > 0 )
-                die('There is no startpage for domain '.kryn::$domain['domain']);
+            if( !$pageRsn > 0 ){
+                kryn::internalError('There is no startpage for domain '.kryn::$domain['domain']);
+            }
 
             kryn::$isStartpage = true;
         } else {
@@ -2374,9 +2314,14 @@ class kryn {
         return $page;
         
     }
-
+    
+    /**
+    *
+    * Prints the kryn/404-page.tpl template to the client and exit, if defined redirect the the 404-page
+    * defined in the domain settings or opens the 404-interface file which is also defined
+    * in the domain settings.
+    */
     public static function notFound( $pError = '404'){
-
 
         klog('404', sprintf($pError.': '._l('Page not found %s'), kryn::$domain['domain'].'/'.kryn::getRequestPageUrl(true)));
                 
@@ -2393,6 +2338,16 @@ class kryn {
             tAssign('error', $pError);
             print tFetch( 'kryn/404-page.tpl' );
         }
+        exit;
+    }
+    
+    /**
+    *
+    * Printts the kryn/internal-error.tpl template to the client and exist.
+    */
+    public static function internalError( $pMsg ){
+        tAssign( 'msg', $pMsg );
+        print tFetch( 'kryn/internal-error.tpl' );
         exit;
     }
     
@@ -2533,7 +2488,7 @@ class kryn {
         }
 
         if( !file_exists( "inc/template/".kryn::$page['layout']) )
-            die("Cannot found layout: ".kryn::$page['layout']." in page <b>". kryn::$page['rsn']."</b><br />May you remove/deactivate a theme extension." );
+            kryn::internalError("Cannot found layout: ".kryn::$page['layout']." in page <b>". kryn::$page['rsn']."</b><br />Maybe you removed a theme extension." );
 
 
         if( kryn::$page['layout'] == "" ){

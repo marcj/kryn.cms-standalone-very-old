@@ -64,11 +64,7 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
     $msg = htmlspecialchars($msg);
     
     if( array_key_exists('krynInstaller', $GLOBALS) && $GLOBALS['krynInstaller'] == true ){
-        $f = @fopen('install.log', 'a');
-        if( $f ){
-            @fwrite( $f, $msg );
-            @fclose($f);
-        }
+	    @error_log($msg, 3, 'install.log');
         return;
     }
     
@@ -95,9 +91,6 @@ function errorHandler( $pCode, $pMsg, $pFile = false, $pLine = false ){
             'message' => htmlspecialchars($pMsg)
         ));
         database::$hideSql = false;
-
-        if( $qry === false )
-            die( str_replace('%s', $msg, _l('Failed to insert log entry: %s')) );
     }
 
 }

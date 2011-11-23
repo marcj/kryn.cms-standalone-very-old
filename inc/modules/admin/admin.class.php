@@ -13,10 +13,6 @@
 
 class admin {
     
-    function __construct(){
-        //require_once("inc/modules/admin/update.php");
-    }
-    
     public function activateLL(){
         global $modules;
         if(! $this ){
