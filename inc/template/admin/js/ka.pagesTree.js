@@ -84,9 +84,9 @@ ka.pagesTree = new Class({
             pContainer.getParent('.kwindow-border').retrieve('win').addEvent('close', this.clean.bind(this));
         }
         
-        window.addEvent('click', this.destroyContext.bind(this));
+        window.addEvent('mouseup', this.destroyContext.bind(this));
         
-        this.main.addEvent('click', this.onClick.bind(this));
+        this.main.addEvent('mouseup', this.onClick.bind(this));
         this.main.addEvent('mousedown', this.onMousedown.bind(this));
     },
     
@@ -195,7 +195,6 @@ ka.pagesTree = new Class({
 
     onMousedown: function( e ){
         e.preventDefault();
-
     },
 
     onClick: function( e ){
@@ -213,6 +212,12 @@ ka.pagesTree = new Class({
         if( !a ) return;
         
         var item = a.retrieve('item');
+        
+        if( e.rightClick ){
+            this.openContext( e, a, item );
+            return;
+        }
+        
         if( item.domain ){
 
             if( this.options.no_domain_select != true ){
@@ -284,10 +289,6 @@ ka.pagesTree = new Class({
             'class': 'ka-pageTree-item-title',
             text: (pItem.title)?pItem.title:pItem.domain
         }).inject( a );
-        
-        a.addEvent('mouseup', function(e){
-            this.openContext(e, a, pItem );
-        }.bind(this));
         
         if( this.lastSelectedPage &&
             ( 
@@ -1003,16 +1004,18 @@ ka.pagesTree = new Class({
         if( this.oldContext ){
             this.lastContextA.removeClass('ka-pageTree-item-hover');
             this.oldContext.destroy();
-            this.oldContext = null;
+            delete this.oldContext;
         }
     },
 
     openContext: function( pEvent, pA, pPage ){
+
         if( this.options.withContext != true ) return;
 
         if(! pEvent.rightClick ) return;
-        pEvent.stop();
-        window.fireEvent('click');
+
+        window.fireEvent('mouseup');
+        pEvent.stopPropagation();
 
         pA.addClass('ka-pageTree-item-hover');
         this.lastContextA = pA;
@@ -1226,7 +1229,6 @@ ka.pagesTree = new Class({
                 }.bind(this)).inject( this.oldContext );
             }
         }
-        
         var csize = this.oldContext.getSize();
         
         if( mtop+csize.y > wsize.y ){
