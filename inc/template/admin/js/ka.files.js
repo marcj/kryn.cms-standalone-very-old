@@ -681,17 +681,17 @@ ka.files = new Class({
             this.initSWFUpload();
         } else {
             
-            this.uploadFileChoser = new Element('input', {
+            this.uploadFileChooser = new Element('input', {
                 type: 'file',
                 multiple: true
             }).inject( this.container );
             
             this.uploadBtn.addEventListener("click", function (e) {
-                this.uploadFileChoser.click();
+                this.uploadFileChooser.click();
                 e.preventDefault();
             }.bind(this), false);
             
-            this.uploadFileChoser.addEventListener("change", function (e) {
+            this.uploadFileChooser.addEventListener("change", function (e) {
                 this.checkFileDrop();
             }.bind(this), false);
             
@@ -1278,7 +1278,7 @@ ka.files = new Class({
 
         this.fileContainer.removeClass('admin-files-fileContainer-selected');
         
-        var files = (pEvent)?pEvent.dataTransfer.files:this.uploadFileChoser.files;
+        var files = (pEvent)?pEvent.dataTransfer.files:this.uploadFileChooser.files;
         
         if( pEvent ){
             var item = pEvent.target;
@@ -1363,9 +1363,28 @@ ka.files = new Class({
     
     },
     
-    startSelector: function( pEvent ){
+    checkAutoScroll: function( pEvent ){
     
-        var offset = this.container.getPosition( document.body );
+        if( this.fileContainer.getSize().y != this.fileContainer.getScrollSize().y ){    
+            var curPos = pEvent.page.y-this.fileContainer.getPosition(document.body).y;
+            
+            if( curPos < 20 ){
+                this.fileContainer.scrollTo(this.fileContainer.getScroll().x,this.fileContainer.getScroll().y-10);
+            } else {
+                var sizeY = this.fileContainer.getSize().y;
+                if( curPos > 0 && sizeY-curPos < 20 ){
+                    this.fileContainer.scrollTo(this.fileContainer.getScroll().x,this.fileContainer.getScroll().y+10);
+                }
+            }
+        }
+    
+    },
+    
+    startSelector: function( pEvent ){
+
+        var offset = this.fileContainer.getPosition( document.body );
+        var scroll = this.fileContainer.getScroll();
+        this.selectorMaxSizePos = this.fileContainer.getScrollSize();
         
         if( this.selectorDiv ){
             this.selectorDiv.destroy();
@@ -1375,14 +1394,14 @@ ka.files = new Class({
         this.selectorDiv = new Element('div', {
             'class': 'admin-files-selector',
             styles: {
-                'top': pEvent.page.y-offset.y+1,
+                'top': pEvent.page.y-offset.y+scroll.y+1,
                 'left': pEvent.page.x-offset.x+1,
-                width: 2,
-                height: 2
+                width: 1,
+                height: 1
             }
         })
         .setStyle('opacity', 0.5)
-        .inject( this.container );
+        .inject( this.fileContainer );
         
         this.selectorStartMousePos = {
             x: pEvent.page.x,
@@ -1390,8 +1409,8 @@ ka.files = new Class({
         };
         
         this.selectorStartPos = {
-            x: pEvent.page.x-offset.x,
-            y: pEvent.page.y-offset.y
+            x: pEvent.page.x-offset.x+1,
+            y: pEvent.page.y-offset.y+scroll.y+1
         };
         
         var diffY, diffX, curPos, file;
@@ -1399,42 +1418,59 @@ ka.files = new Class({
         var items = this.fileContainer.getElements('.admin-files-item');
 
         Array.each(items, function(item){
-            item.pos = item.getPosition( this.container );
+            item.pos = item.getPosition( this.fileContainer );
+            item.pos.y += scroll.y;
             item.size = item.getSize();
         }.bind(this));
+        
+        this.nextMouseClickIsInvalid = true;
         
         this.selectorDrag = new Drag(this.selectorDiv, {
             style: false,
             onDrag: function( pElement, pEvent ){
+        
+                scroll = this.fileContainer.getScroll();
             
-                diffY = pEvent.page.y-this.selectorStartMousePos.y;
+                diffY = (pEvent.page.y-offset.y+scroll.y+1)-this.selectorStartPos.y;
                 diffX = pEvent.page.x-this.selectorStartMousePos.x;
+                
+                this.checkAutoScroll( pEvent );
                 
                 if( diffX < 0 ){
                     diffX *= -1;
                     this.selectorDiv.setStyle('left', this.selectorStartPos.x-diffX);
                 }
+                if( pEvent.page.x > this.selectorStartMousePos.x ){
+                    this.selectorDiv.setStyle('left', this.selectorStartPos.x);
+                }
                 if( diffY < 0 ){
                     diffY *= -1;
                     this.selectorDiv.setStyle('top', this.selectorStartPos.y-diffY);
                 }
-                
-                this.selectorDiv.setStyle('width', diffX);
-                this.selectorDiv.setStyle('height', diffY);
+                if( pEvent.page.y > this.selectorStartMousePos.y ){
+                    this.selectorDiv.setStyle('top', this.selectorStartPos.y);
+                }
                 
                 curPos = {
                     left: this.selectorDiv.getStyle('left').toInt(),
-                    top: this.selectorDiv.getStyle('top').toInt(),
-                    width: this.selectorDiv.getStyle('width').toInt(),
-                    height: this.selectorDiv.getStyle('height').toInt()
-                }
+                    top: this.selectorDiv.getStyle('top').toInt()
+                };
+                
+                if( diffX+curPos.left+2 < this.selectorMaxSizePos.x )
+                    this.selectorDiv.setStyle('width', diffX);
+
+                if( diffY+curPos.top+2 < this.selectorMaxSizePos.y )
+                    this.selectorDiv.setStyle('height', diffY);
+                
+                curPos['width'] = this.selectorDiv.getStyle('width').toInt();
+                curPos['height'] = this.selectorDiv.getStyle('height').toInt();
                 
                 Array.each(items, function(item){
 
                     if( (item.pos.x+item.size.x) > curPos.left &&
                         item.pos.x < (curPos.left+curPos.width) &&
                         item.pos.y < (curPos.top+curPos.height) &&
-                        (item.pos.y+item.size.y) > curPos.top 
+                        (item.pos.y+item.size.y) > curPos.top
                      ){
                         file = item.retrieve('file');
                         if( file && file.path != 'trash/' ){
@@ -1452,12 +1488,22 @@ ka.files = new Class({
             }.bind(this),
             
             onComplete: function(){
-                this.selectorDiv.destroy();
+        
+                this.nextMouseClickIsInvalid = false;
+
+                if( this.selectorDiv )
+                    this.selectorDiv.destroy();
+
                 delete this.selectorDiv;
             }.bind(this),
             
             onCancel: function(){
-                this.selectorDiv.destroy();
+                
+                this.nextMouseClickIsInvalid = false;
+            
+                if( this.selectorDiv )
+                    this.selectorDiv.destroy();
+
                 delete this.selectorDiv;
             }.bind(this),
         
@@ -1507,8 +1553,14 @@ ka.files = new Class({
 
         } else if( !pEvent.rightClick ){
 
-            this.lastClickedItem = item;
+            this.lastClickedItem = pEvent.target;
             if( pEvent.target.hasClass('admin-files-fileContainer') ){
+
+                if( pEvent.target.getSize().y < pEvent.target.getScrollSize().y
+                    && (pEvent.target.getPosition(document.body).x+pEvent.target.getSize().x)-pEvent.page.x < 20 ){
+                    //if we click on the scrollbar, ignore it
+                    return;
+                }
                 this.deselectAll();
                 this.startSelector(pEvent);
             }
@@ -1555,6 +1607,11 @@ ka.files = new Class({
     },
     
     checkMouseClick: function( pEvent ){
+
+        if( this.nextMouseClickIsInvalid == true ){
+            this.nextMouseClickIsInvalid = false;
+            return;
+        }
 
         if( !pEvent ) return;
 
