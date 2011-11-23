@@ -254,23 +254,21 @@ var admin_system_module_edit = new Class({
         var buttonBar = new ka.buttonBar(this.panes['docu']);
         buttonBar.addButton(_('Save'), this.saveDocu.bind(this));
 
-        this.text = new ka.field(
-            {label: _('Documentation')+' ('+this.languageSelect.value+')', type: 'wysiwyg', win:this.win}
-        ).inject( p );
+        this.text = new ka.field({
+            label: _('Documentation')+' ('+this.languageSelect.value+')', type: 'wysiwyg'},
+            p,
+            {win:this.win}
+        );
         this.text.setValue( _('Loading ...') );
 
         this.text.input.setStyle('height', '100%');
         this.text.input.setStyle('width', '100%');
 
         this.lr = new Request.JSON({url: _path+'admin/system/module/getDocu', noCache: 1, onComplete: function(res){
-            this.loader.hide();
-            this.text.input.value = res;
-            this.text.initTiny();
+            this.text.setValue( res );
         }.bind(this)}).post({lang: this.languageSelect.value, name: this.mod});
 
         this.loader.hide();
-
-        //initTiny( text.lastId );
     },
 
     saveForms: function(){
