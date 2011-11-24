@@ -790,13 +790,13 @@ ka.layoutContent = new Class({
             {label: _('Navigation template'), type: 'select', small: 1}
         ).inject( this.body );
         
-        templateNavi.select.addEvent('click', function(e){
+        document.id(templateNavi.select).addEvent('click', function(e){
             e.stopPropagation();
         });
         this.navigationTemplate = templateNavi;
 
         templateNavi.addEvent('change', function( pValue ){
-            _this.content.content.template = templateNavi.input.value;
+            _this.content.content.template = templateNavi.getValue();
         });
 
         Object.each(ka.settings.navigations, function(la, key){

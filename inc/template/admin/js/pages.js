@@ -2515,6 +2515,7 @@ var admin_pages = new Class({
         this.initContentLayoutSort();
 
         this.layoutBoxesInitialized = true;
+        this.rpage = this.retrieveData();
 
     },
 
