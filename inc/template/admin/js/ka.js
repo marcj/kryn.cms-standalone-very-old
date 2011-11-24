@@ -47,17 +47,16 @@ ka.init = function(){
     
     window.onbeforeunload = function(evt){
     	
-        /*
-         * deactivate 
-        var message = _('Are you sure you want to leaving the administration? Unsaved content and uncomplete uploads will be discarded.');
-        if (typeof evt == 'undefined') {
-            evt = window.event;
+    	if( ka.wm.getWindowsCount() > 0 ){
+            var message = _('There are open windows. Are you sure you want to leaving the administration?');
+            if (typeof evt == 'undefined') {
+                evt = window.event;
+            }
+            if (evt) {
+                evt.returnValue = message;
+            }
+            return message;
         }
-        if (evt) {
-            evt.returnValue = message;
-        }
-        return message;
-        */
     };
 
     $(document.body).addEvent('contextmenu', function(e) { 
@@ -79,6 +78,16 @@ ka.init = function(){
 window.addEvent('stream', function(res){
     $('serverTime').set('html', res.time);
     ka._iconSessionCounter.set('text', res.sessions_count);
+});
+
+window.addEvent('stream', function(res){
+    if( res.corruptJson ){
+        Array.each(res.corruptJson, function(item){
+            ka._helpsystem.newBubble(_('Extension config Syntax Error'),
+            _('There is an error in your inc/modules/%s/config.json').replace('%s', item)
+            , 4000 );
+        });
+    }
 });
 
 

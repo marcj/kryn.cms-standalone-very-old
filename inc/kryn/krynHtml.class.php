@@ -534,7 +534,7 @@ class krynHtml {
         $content =& $pContent;
         
         $_content = &$content['content'];
-        
+
         tAssignRef( 'content', $content );
         tAssign( 'css', ($content['css']) ? $content['css'] : false );
         
@@ -619,7 +619,8 @@ class krynHtml {
                 
                 break;
             case 'plugin':
-                
+
+
                 $t = explode( '::', $_content );
                 $config = $_content;
                 

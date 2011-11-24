@@ -209,6 +209,17 @@ ka.wm = {
         ka.wm.updateWindowBar();
     },
 
+
+    getWindowsCount: function(){
+        var count = 0;
+        Object.each(ka.wm.windows, function(win, winId){
+            if(! win ) return;
+            if( win.inline ) return;
+            count++;
+        });
+        return count;
+    },
+    
     updateWindowBar: function(){
         $('windowList').empty();
         

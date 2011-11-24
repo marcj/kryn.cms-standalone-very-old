@@ -853,6 +853,11 @@ class admin {
         $res['hasCrawlPermission'] = adminSearchIndexer::hasPermission();
         
         foreach( kryn::$configs as $key => $conf ){
+        
+            if( $conf['_corruptConfig'] ){
+                
+                $res['corruptJson'][] = $key;
+            }
         	$stream = $conf['stream'];
         	
         	if( $stream && method_exists($modules[$key], $stream) ){

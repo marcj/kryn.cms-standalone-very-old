@@ -793,6 +793,9 @@ class kryn {
 
             $json = kryn::translate( kryn::fileRead( $config ) );
             $configObj = json_decode( $json, 1 );
+            if( !is_array($configObj) ){
+                $configObj = array('_corruptConfig' => true);
+            }
             kryn::setFastCache( $cacheCode, $configObj );
         }
         
