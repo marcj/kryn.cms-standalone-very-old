@@ -2486,6 +2486,7 @@ var admin_pages = new Class({
         w.$$('a').onclick = null;
 
         this.layoutBoxes = new Hash();
+        this.iframe.contentWindow.pageObj = this;
         
         this.layoutBoxes = ka.renderLayoutElements( this.iframe.contentWindow, this );
         //this._renderContentLayoutSearchAndFindBoxes( $(this.iframe.contentWindow.document.body) );

@@ -931,6 +931,10 @@ ka.layoutContent = new Class({
             this.mooeditable.textarea = this.textarea;
             this.mooeditable.attach();
         } else {
+            if( this.body.getWindow().pageObj ){
+                var dialogContainer = this.body.getWindow().pageObj.win.border;
+                this.layoutBox.alloptions['dialogContainer'] = dialogContainer;
+            }
             this.mooeditable = initWysiwyg( this.textarea, this.layoutBox.alloptions );
         }
 
