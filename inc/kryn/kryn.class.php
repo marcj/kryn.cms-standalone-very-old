@@ -1266,7 +1266,7 @@ class kryn {
      * @static
      *
      */
-    public static function getPageParents( $pPageRsn = false ){
+    public static function getPageParents( $pPageRsn = false, $pOnlyPages = true ){
 
         if( !$pPageRsn ) $pPageRsn = kryn::$page['rsn'];
 
@@ -1278,7 +1278,9 @@ class kryn {
 
         while( true ){
             $page =& kryn::getPage( $page['prsn'] );
-            $res[] = $page;
+            if( !$pOnlyPages || ($pOnlyPages && $page['type'] == 0) ){
+                $res[] = $page;
+            }
             if( $page['prsn'] == 0 ) break;
         }
         rsort($res);
@@ -1392,29 +1394,19 @@ class kryn {
         
         $url = $cachedUrls['rsn'][ 'rsn='.$pRsn];
         
-        if( $url == '' ){
-    
-            require_once('inc/modules/admin/adminPages.class.php');
-            
-            if( $pWithoutHttp ){
+        if( $domain_rsn != kryn::$domain['rsn'] ){
+        
+            $domain = kryn::getDomain( $domain_rsn );
                 
-             if( kryn::$domain['master'] != 1 ){
-                    $url = kryn::$domain['domain'].kryn::$domain['path'].kryn::$domain['lang'].'/'.$url;
-                } else {
-                    $url = kryn::$domain['domain'].kryn::$domain['path'].$url;
-                }
-                
+            if( $domain['master'] != 1 ){
+                $url = $domain['domain'].$domain['path'].$domain['lang'].'/'.$url;
             } else {
-            
-                if( kryn::$domain['master'] != 1 ){
-                    $url = 'http://'.kryn::$domain['domain'].kryn::$domain['path'].kryn::$domain['lang'].'/'.$url;
-                } else {
-                    $url = 'http://'.kryn::$domain['domain'].kryn::$domain['path'].$url;
-                }
+                $url = $domain['domain'].$domain['path'].$url;
             }
             
-            kryn::$domain = $domainBackup;
-                
+            if( !$pWithoutHttp )
+                $url = 'http'.(kryn::$ssl?'s':'').'://'.$url;
+
             if( substr($url, -1) == '/' )
                 $url = substr($url, 0, -1);
                 

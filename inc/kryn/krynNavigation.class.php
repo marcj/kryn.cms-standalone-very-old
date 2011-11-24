@@ -29,17 +29,21 @@ class krynNavigation {
 
         if(! is_numeric($pRsn) )
             return array();
+            
+        if( !$pDomain ){
+            $pDomain = kryn::$domain['rsn'];
+        }
         
         if( $pWithoutCache == false ){
             
-            $code = (($pDomain) ? $pDomain : kryn::$domain['rsn']);
+            $code = $pDomain;
             $code .= '_'.$pRsn;
             
             $navigation =& kryn::getCache( 'navigation-'.$code );
         }
 
         if( $pWithoutCache == true || !is_array($navigation) ){
-
+        
             $links = dbExfetch("
             SELECT 
                 rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
@@ -47,7 +51,7 @@ class krynNavigation {
             FROM
                 %pfx%system_pages
             WHERE
-                prsn = $pRsn
+                prsn = $pRsn AND domain_rsn = $pDomain
                 AND ( type = 0 OR type = 1 OR type = 2)
                 
                 AND ( 
@@ -62,8 +66,6 @@ class krynNavigation {
     
             $pages = array();
             foreach( $links as &$page ){
-
-                if( $pRsn == 0 && $pDomain && ($page['prsn'] != 0 || $page['domain_rsn'] != kryn::$domain['rsn'] ) ) continue;
             	    
                 if( $page['properties'] ){
                     $page['properties'] = json_decode( $page['properties'], true );
@@ -124,7 +126,7 @@ class krynNavigation {
         if( $pOptions['id']+0 > 0 ){;
             $navi =& kryn::getPage( $pOptions['id']+0 );
             
-            if( kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
+            if( !$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
                 $cacheKey = 'systemNavigations-'.$navi['domain_rsn'].'_'.$navi['rsn'].'-'.md5(kryn::$canonical);
                 $cache =& kryn::getCache( $cacheKey );
                 if( $cache ) return $cache;
@@ -135,18 +137,16 @@ class krynNavigation {
 
         if( $pOptions['level'] > 1 ){
 
-
             $currentLevel = count( kryn::$breadcrumbs )+1;
 
             $page = self::arrayLevel( kryn::$breadcrumbs, $pOptions['level'] );
-            
             
             if( $page['rsn'] > 0 )
                 $navi =& kryn::getPage( $page['rsn'] );
             elseif( $pOptions['level'] == $currentLevel+1 )
                 $navi = kryn::$page;
             
-            if( kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
+            if( !$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
                 $cacheKey = 'systemNavigations-'.$navi['domain_rsn'].'_'.$navi['rsn'].'-'.md5(kryn::$canonical);
                 $cache =& kryn::getCache( $cacheKey );
                 if( $cache ) return $cache;
@@ -156,13 +156,12 @@ class krynNavigation {
         }
 
         if( $pOptions['level'] == 1 ){
-        
-            if( kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
+            
+            if( !$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0 ){
                 $cacheKey = 'systemNavigations-'.kryn::$page['domain_rsn'].'_0-'.md5(kryn::$canonical);
                 $cache =& kryn::getCache( $cacheKey );
                 if( $cache ) return $cache;
             }
-        
             $navi['links'] = self::getLinks( 0, $pWithFolders, kryn::$domain['rsn'] );
         }
 

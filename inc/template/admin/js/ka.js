@@ -90,6 +90,27 @@ window.addEvent('stream', function(res){
     }
 });
 
+ka.tryLock = function( pWin, pKey, pForce ){
+    if( !pForce ){
+        
+        new Request.JSON({url: _path+'admin/backend/tryLock', noCache: 1, onComplete: function( res ){
+        
+            if( !res.locked ){
+                ka.lockNotPossible( pWin, res );
+            }
+        
+        }}).get({key: pKey, force: pForce?1:0});
+    
+    } else {
+        ka.lockContent( pKey );
+    }
+}
+
+ka.alreadyLocked = function( pWin, pResult ){
+
+    pWin._alert(_('Currently, a other user has this content open.'));
+
+}
 
 ka.toggleMainbar = function(){
     if( $('border').getStyle('top').toInt() != 0 ){

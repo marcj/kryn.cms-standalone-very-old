@@ -532,8 +532,6 @@ class krynHtml {
         global $modules, $tpl, $client, $adminClient;
         
         $content =& $pContent;
-        
-        $_content = &$content['content'];
 
         tAssignRef( 'content', $content );
         tAssign( 'css', ($content['css']) ? $content['css'] : false );
@@ -541,23 +539,25 @@ class krynHtml {
         switch( strtolower($content['type']) ){
             case 'text':
                 //replace all [[ with a workaround, so that multilanguage will not fetch.
-                $_content = str_replace('[[', '[<!-- -->[', $_content);
+                $content['content'] = str_replace('[[', '[<!-- -->[', $content['content']);
                 
         
                 break;
             case 'html':
-                $_content = str_replace('[[', '\[[', $_content);
+                $content['content'] = str_replace('[[', '\[[', $content['content']);
                 
                 break;
             case 'navigation':
+
                 $temp = json_decode( $content['content'], 1 );
                 $temp['id'] = $temp['entryPoint'];
-                $_content = krynNavigation::plugin( $temp );
+
+                $content['content'] = krynNavigation::plugin( $temp );
                 
                 break;
             case 'picture':
 
-                $temp = explode( '::', $_content );
+                $temp = explode( '::', $content['content'] );
                 
                 if( $temp[0] != '' && $temp[0] != 'none' ){
                     $opts = json_decode( $temp[0], true );
@@ -581,39 +581,39 @@ class krynHtml {
                     }
 
                     if( $link == '' ){
-                        $_content = '<div style="text-align: '.$align.';"><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></div>';
+                        $content['content'] = '<div style="text-align: '.$align.';"><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></div>';
                     } else {
-                        $_content = '<div style="text-align: '.$align.';"><a href="'.$link.'" ><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></a></div>';
+                        $content['content'] = '<div style="text-align: '.$align.';"><a href="'.$link.'" ><img src="' . $imagelink . '" alt="'.$alt.'" title="'.$title.'" /></a></div>';
                     }
 
                 } else {
-                    $_content = '<img src="' . $temp[1] . '" />';
+                    $content['content'] = '<img src="' . $temp[1] . '" />';
                 }
                 
                 break;
             case 'template':
                 
-                if( substr($_content, 0,1) == '/' )
-                    $_content = substr($_content, 1);
+                if( substr($content['content'], 0,1) == '/' )
+                    $content['content'] = substr($content['content'], 1);
 
-                $file = str_replace('..', '', $_content);
+                $file = str_replace('..', '', $content['content']);
                 if( file_exists( PATH.'inc/template/'.$file ) ){
-                    $_content = tFetch( $file );
+                    $content['content'] = tFetch( $file );
                 }
                 break;
             case 'pointer':
                 
-                if( $_content+0 > 0 && $_content+0 != kryn::$page['rsn'] )
-                    $_content = self::renderPageContents( $_content+0, 1, $pProperties );
+                if( $content['content']+0 > 0 && $content['content']+0 != kryn::$page['rsn'] )
+                    $content['content'] = self::renderPageContents( $content['content']+0, 1, $pProperties );
                 
                 break;
             case 'layoutelement':
                 
                 $oldContents = kryn::$contents;
                 
-                $layoutcontent = json_decode($_content, true);
+                $layoutcontent = json_decode($content['content'], true);
                 kryn::$contents = $layoutcontent['contents'];
-                $_content = tFetch( $layoutcontent['layout'] );
+                $content['content'] = tFetch( $layoutcontent['layout'] );
                 
                 kryn::$contents = $oldContents;
                 
@@ -621,10 +621,10 @@ class krynHtml {
             case 'plugin':
 
 
-                $t = explode( '::', $_content );
-                $config = $_content;
+                $t = explode( '::', $content['content'] );
+                $config = $content['content'];
                 
-                $_content = '<div>Plugin not found.</div>';
+                $content['content'] = '<div>Plugin not found.</div>';
                 
                 if( $modules[ $t[0] ] ){
                 
@@ -632,11 +632,11 @@ class krynHtml {
                     $config = json_decode( $config, true );
                     
                     if( method_exists( $modules[ $t[0] ], $t[1]) )
-                        $_content = $modules[ $t[0] ]->$t[1]( $config );
+                        $content['content'] = $modules[ $t[0] ]->$t[1]( $config );
                         
                     // if in seachindex mode and plugin is configured unsearchable the kill plugin output
                     if(isset(kryn::$configs[$t[0]]['plugins'][$t[1]][3]) && kryn::$configs[$t[0]]['plugins'][$t[1]][3] == true)
-                        $_content = kryn::$unsearchableBegin.$_content.kryn::$unsearchableEnd;                          
+                        $content['content'] = kryn::$unsearchableBegin.$content['content'].kryn::$unsearchableEnd;                          
                     
                 }
                 
@@ -645,8 +645,8 @@ class krynHtml {
                 $temp = ob_get_contents();
                 ob_end_clean();
                 ob_start();
-                eval( $_content );
-                $_content = ob_get_contents();
+                eval( $content['content'] );
+                $content['content'] = ob_get_contents();
                 ob_end_clean();
                 ob_start();
                 print $temp;
@@ -665,9 +665,9 @@ class krynHtml {
 
         if( $content['template'] == '' || $content['template'] == '-' ){
             if( $unsearchable )
-                return '<!--unsearchable-begin-->'.$_content.'<!--unsearchable-end-->';
+                return '<!--unsearchable-begin-->'.$content['content'].'<!--unsearchable-end-->';
             else
-                return $_content;
+                return $content['content'];
         } else {
         
             tAssign( 'content', $content );

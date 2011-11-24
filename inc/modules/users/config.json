@@ -943,7 +943,7 @@
         "DB_INDEX",
         false
       ],
-      "user_rsn": [
+      "session_id": [
         "int",
         "",
         "DB_INDEX",

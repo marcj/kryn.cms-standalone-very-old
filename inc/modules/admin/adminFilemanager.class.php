@@ -1035,7 +1035,7 @@ $pAccess from all
     
     }
     
-    public static function getFileInfo( $pPath, $pWithSize, $pWithAccess ){
+    public static function getFileInfo( $pPath, $pWithSize = false, $pWithAccess = true ){
         
         $path = str_replace('..', '', $pPath); 
         $path = str_replace('//', '/', $path);

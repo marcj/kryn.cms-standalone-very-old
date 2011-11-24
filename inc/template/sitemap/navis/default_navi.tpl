@@ -1,8 +1,7 @@
 {foreach from=$navi.links item=link}
   {assign var="go" value=1}
   {assign var="title" value=$link.title}
-  
-  
+
   {if $link.properties}
     {if $link.properties.sitemap && $link.properties.sitemap.hideInSitemap eq 1}
         {assign var="go" value=0}
