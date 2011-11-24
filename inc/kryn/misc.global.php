@@ -21,7 +21,7 @@
  */
 
 
-function resizeImageCached( $pPath, $pResolution, $pFix = false ){
+function resizeImageCached( $pPath, $pResolution, $pThumb = false, $pFixSide = false ){
     global $cfg;
     
     $path = str_replace('..', '', 'inc/template/'.$pPath);
@@ -31,7 +31,7 @@ function resizeImageCached( $pPath, $pResolution, $pFix = false ){
     $cachepath = $cfg['template_cache'].'/'.kryn::toModRewrite($path).kryn::toModRewrite($pResolution).$mdate.basename($pPath);
     
     if( !file_exists($cachepath) ){
-        resizeImage( $path, $cachepath, $pResolution, $pFix );
+        resizeImage( $path, $cachepath, $pResolution, $pThumb, $pFixSide );
     }
     
     return $cachepath;
@@ -469,10 +469,10 @@ function clearfolder( $pFolder ){
  * Resize a image to a fix resolution or to max dimension.
  *
  * @param pResolution Defined the resolution of the target image. e.g 1024x700, 1500x100, 500x500 
- * @param $pFix If you want to resize the image to fix resolution (thumpnails) 
+ * @param $pThumb If you want to resize the image to fix resolution (thumbnails) 
  * @static
 */
-function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
+function resizeImage( $pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide = '' ){
 
     list( $oriWidth, $oriHeight, $type ) = getimagesize( $pPath );
     switch( $type ){
@@ -495,11 +495,6 @@ function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
        
     $img = $imagecreate( $pPath );
     
-    //$cacheThumpFile = self::$cacheDir.'thump.'.$pFile;
-    //$cacheFile = self::$cacheDir . filemtime( $file ) . '.' . $pFile;
-    
-    //list( $thumpWidth, $thumpHeight ) = explode( 'x', $pConf['thumpSize'] );
-    
     list( $newWidth, $newHeight ) = explode( 'x', $pResolution );
     $thumpWidth = $newWidth;
     $thumpHeight = $newHeight;
@@ -508,13 +503,11 @@ function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
     //
     // render Thump
     //
-    if( $pFix ){
+    if( $pThumb ){
         $thumpImage = imagecreatetruecolor( $thumpWidth, $thumpHeight );
         imagealphablending( $thumpImage, false );
 
         if( $oriWidth > $oriHeight ){
-    
-            //resize mit hoehe = $tempheight, width = auto;
             
             $ratio = $thumpHeight / ( $oriHeight / 100 );
             $_width = ceil($oriWidth * $ratio / 100);
@@ -554,15 +547,17 @@ function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
     
    } else {
         
-        //render image(big)
-        if( $oriHeight > $oriWidth ){
+        
+        if( $pFixSide == 'y' || (!$pFixSide && $oriHeight > $oriWidth) ){
             $ratio = $newHeight / ( $oriHeight / 100 );
             $_width = ceil($oriWidth * $ratio / 100);
             $newImage = imagecreatetruecolor( $_width, $newHeight );
             imagealphablending( $newImage, false );
             
             imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $_width, $newHeight, $oriWidth, $oriHeight);
-        } else {
+        }
+        
+        if( $pFixSide == 'x' || (!$pFixSide && $oriHeight < $oriWidth) ){
             $ratio = $newWidth / ( $oriWidth / 100 );
             $_height = ceil($oriHeight * $ratio / 100);
             $newImage = imagecreatetruecolor( $newWidth, $_height );
@@ -570,8 +565,8 @@ function resizeImage( $pPath, $pTarget, $pResolution, $pFix = false ){
             
             imagecopyresampled( $newImage, $img, 0, 0, 0, 0, $newWidth, $_height, $oriWidth, $oriHeight);
         }
+
         if( $type == 3 ){
-            
             imagealphablending( $newImage, false );
             imagesavealpha( $newImage, true );
         }

@@ -483,10 +483,7 @@ ka.kwindow = new Class({
 
     maximize: function( pDontRenew ){
         var _this = this;
-        
-        logger( 'maximize' );
-        logger('joar');
-        
+
         if( this.isActive() == false ) return;
 
         if( this.maximized ){
