@@ -582,7 +582,6 @@ ka.layoutContent = new Class({
         if( this.content.type == 'layoutelement' ){
         	this.saveLayoutElement();
         }
-
         
     	if( this.iTitle.retrieve('empty') !== true ){
             this.content.title = this.iTitle.value;
@@ -601,8 +600,10 @@ ka.layoutContent = new Class({
             }
             break;
 
-        case 'picture':
         case 'text':
+            if( this.mooeditable )
+                this.mooeditable.saveContent();
+        case 'picture':
         case 'html':
         case 'php':
             if( this.textarea ){

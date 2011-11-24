@@ -113,13 +113,7 @@ class usersAdminEdit extends windowEdit {
             ),
             'activate' => array(
                 'label' => 'Active account',
-                'type' => 'select',
-                'tableItems' => array(
-                    array('name' => 'Yes', 'value' => 1),
-                    array('name' => 'No', 'value' => 0)
-                ),
-                'table_label' => 'name',
-                'table_key' => 'value',
+                'type' => 'checkbox'
             ),
             'userBg' => array(
                'label' => 'Desktop background image',

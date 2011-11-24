@@ -105,6 +105,10 @@ class usersAdminAdd extends windowAdd {
                 'type' => 'text',
                 'empty' => false
             ),
+            'activate' => array(
+                'label' => 'Active account',
+                'type' => 'checkbox'
+            ),
             'userBg' => array(
                'label' => 'Desktop background image',
                 'type' => 'fileChooser',

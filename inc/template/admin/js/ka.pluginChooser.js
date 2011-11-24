@@ -125,6 +125,7 @@ ka.pluginChooser =  new Class({
     moduleChanged: function(){
 
         var mod = this.selectModules.getValue();
+        this.pluginDescription.set('html', _('Please choose a extension and a plugin.'));
     
         this.selectPlugin.empty();
         this.optionsPane.empty();
@@ -135,8 +136,6 @@ ka.pluginChooser =  new Class({
         
         if( mod != '-' )
             this.choosen.module = mod;
-    
-        logger(this.choosen.plugin);
     
         this.selectPlugin.add('-', _('-- Please choose --'));
 
@@ -165,13 +164,27 @@ ka.pluginChooser =  new Class({
         
         this.propertyTable = new Element('table').inject( this.optionsPane );
         this.propertyTBody = new Element('tbody').inject( this.propertyTable );
+        
+        if( this.lastGetRequest ) this.lastGetRequest.cancel();
+        
+        this.pluginDescription.set('html', _('Please choose a extension and a plugin.'));
+        
+        this.lastGetRequest = new Request.JSON({url: _path+'admin/backend/plugins/get/', onComplete: function(res){
 
-        if( ka.settings.configs[mod] && ka.settings.configs[mod].plugins && ka.settings.configs[mod].plugins[plugin] ){
-            var properties = ka.settings.configs[mod].plugins[plugin][1];
-            this.fieldObj = new ka.parse( this.propertyTBody, properties, {allTableItems:true} );
-        }
+            if( res ){
+                this.fieldObj = new ka.parse( this.propertyTBody, res[1], {allTableItems:true} );
+                this.setValue( this.choosen.options );
+                
+                if( res[2] ){
+                    this.pluginDescription.set('text', res[2]);
+                }
+            } else {
+                new Element('tr', {
+                    html: '<td>There was an error while fetching the plugin definition.</td>'
+                }).inject( this.propertyTBody )
+            }
 
-        this.setValue( this.choosen.options );
+        }.bind(this)}).post({ module: mod, plugin: plugin });
     },
     
     setValue: function( pValues ){

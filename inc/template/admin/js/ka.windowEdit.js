@@ -7,7 +7,6 @@ ka.windowEdit = new Class({
     initialize: function( pWin, pContainer ){
         this.win = pWin;
         
-        
         if( !pContainer ){
             this.container = this.win.content;
             this.container.setStyle('overflow', 'visible');
@@ -15,6 +14,8 @@ ka.windowEdit = new Class({
             this.inline = true;
             this.container = pContainer;
         }
+        
+        this.win.addEvent('close', this.checkClose.bind(this));
         
         this.load();
     },
@@ -103,10 +104,10 @@ ka.windowEdit = new Class({
             	} else if( field.field.type == 'window_list' ){
                     field.setValue({table: this.values.table, params: pItem.values});
                     
-                } else if( $type(pItem.values[fieldId]) == false )
+                } else if( typeOf(pItem.values[fieldId]) == 'null' ){
                     field.setValue( '' );
 
-                else if( !field.field.startempty ){
+                } else if( !field.field.startempty ){
                     field.setValue( pItem.values[fieldId] );
                 }
 
@@ -126,7 +127,7 @@ ka.windowEdit = new Class({
         }.bind(this));
         
         
-        if( this.values.multiLanguage ){
+        if( this.values.multiLanguage && this.languageSelect.getValue() != this.item.values.lang ){
         	this.languageSelect.setValue( this.item.values.lang );
         	this.changeLanguage();
         }
@@ -135,6 +136,8 @@ ka.windowEdit = new Class({
     
         this.loader.hide();
         this.fireEvent('load', pItem);
+        
+        this.ritem = this.retrieveData();
     },
     
     renderPreviews: function(){
@@ -514,9 +517,7 @@ ka.windowEdit = new Class({
             }).inject( this.container );
     
             this.exit = new ka.Button(_('Close'))
-            .addEvent( 'click', function(){
-                _this.win.close();
-            })
+            .addEvent( 'click', this.checkClose.bind(this))
             .inject( this.actions );
     
             this.saveNoClose = new ka.Button(_('Save'))
@@ -535,23 +536,19 @@ ka.windowEdit = new Class({
         
         }
     },
-
-    _save: function( pClose, pPublish ){
+    
+    retrieveData: function( pWithoutEmptyCheck ){
+        
         var go = true;
-        var _this = this;
         var req = {};
-        
-        if( this.item )
-            req = this.item.values;
-        
         
         Object.each(this.fields, function(item, fieldId){
             
             if( ['window_list'].contains(item.type) ) return;
         
-            if( !item.isHidden() && !item.isOk() ){
+            if( !pWithoutEmptyCheck && !item.isHidden() && !item.isOk() ){
             	
-            	if( this.currentTab && this.values.tabFields){
+            	if( this.currentTab && this.values.tabFields ){
             		var currenTab2highlight = false;
             		Object.each(this.values.tabFields, function(fields,key){
             			Object.each(fields, function(field, fieldKey){
@@ -561,7 +558,7 @@ ka.windowEdit = new Class({
             			})
             		});
             		
-            		if( currenTab2highlight && this.currentTab != currenTab2highlight ){
+            		if( !pWithoutTabHiglighting && currenTab2highlight && this.currentTab != currenTab2highlight ){
             			var button = this._buttons[ currenTab2highlight ];
             			this._buttons[ currenTab2highlight ].startTip(_('Please fill!'));
             			button.toolTip.loader.set('src', _path+'inc/template/admin/images/icons/error.png');
@@ -569,9 +566,9 @@ ka.windowEdit = new Class({
             			button.toolTip.loader.setStyle('top', '-2px');
             		}
             	}
-            	
+
                 item.highlight();
-                
+
                 go = false;
             }
             var value = item.getValue();
@@ -582,12 +579,78 @@ ka.windowEdit = new Class({
                 req[ fieldId ] = JSON.encode(value);
             else
                 req[ fieldId ] = value;
+
         }.bind(this));
         
         if( this.values.multiLanguage ){
         	req['lang'] = this.languageSelect.value;
         }
         
+        if( go == false ){
+            return false;
+        }
+        return req;
+    
+    },
+    
+    hasUnsavedChanges: function(){
+    
+        if( !this.ritem ) return false;
+    
+        var currentData = this.retrieveData( true );
+        if( !currentData ) return true;
+        
+        var hasUnsaved = false;
+        
+        var blacklist = [];
+        
+        Object.each(currentData, function(value,id){
+            if( blacklist.contains(id) ) return;
+    
+            if( typeOf(this.ritem[id]) == 'null' ) 
+                this.ritem[id] = '';
+            if( typeOf(value) == 'null' ) 
+                value = '';
+
+            if( value+"" != this.ritem[id] ){
+                //logger(id+ ': '+value+' != '+this.ritem[id]);
+                hasUnsaved = true;
+            }
+        }.bind(this));
+        
+        return hasUnsaved;
+    },
+    
+    checkClose: function(){
+    
+        var hasUnsaved = this.hasUnsavedChanges();
+        
+        if( hasUnsaved ){
+            this.win.interruptClose = true;
+            this.win._confirm(_('There are unsaved data. Want to continue?'), function( pAccepted ){
+                if( pAccepted ){
+                    this.win.close();
+                }
+            }.bind(this));
+        }
+    
+    },
+
+    _save: function( pClose, pPublish ){
+        var go = true;
+        var _this = this;
+        var req;
+
+        var data = this.retrieveData();
+        
+        if( !data ) return;
+        
+        this.ritem = data;
+        
+        if( this.item ){
+            req = Object.merge(this.item, data);
+        }
+
         req.publish = (pPublish==true)?1:0;
         
         if( go ){

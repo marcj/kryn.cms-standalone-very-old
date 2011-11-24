@@ -130,7 +130,7 @@ ka.layoutBox = new Class({
         this.contents = [];
         if( pContents && $type(pContents) == 'array' ){
             pContents.each(function( content ){
-            	content.noActions = null;
+            	delete content.noActions;
                 this.contents.include( new ka.layoutContent( content, this.contentContainer, this ));
             }.bind(this));
         }
@@ -168,7 +168,8 @@ ka.layoutBox = new Class({
             if( layoutContent.isRemoved ) return;
             
             var content = layoutContent.getValue( pAndClose );
-            content.noActions = null;
+            delete content.noActions;
+
             res.include( content );
         }.bind(this));
 

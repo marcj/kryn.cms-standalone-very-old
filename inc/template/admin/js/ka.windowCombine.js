@@ -15,6 +15,15 @@ ka.windowCombine = new Class({
         }).inject( this.win.content );
         
         
+        this.inputTrigger = new Element('input').inject( document.hidden );
+
+        this.inputTrigger.addEvent('focus', function(){
+            this.ready2ChangeThroughKeyboard = true;
+        }.bind(this));
+        this.inputTrigger.addEvent('blur', function(){
+            this.ready2ChangeThroughKeyboard = false;
+        }.bind(this));
+        
         this.mainLeft = new Element('div', {
             style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; width: 265px; border-right: 1px solid silver;'
         }).inject( this.main );
@@ -92,6 +101,7 @@ ka.windowCombine = new Class({
     leftItemsDown: function( pE ){
     
         if( !this.win.inFront ) return;
+        if( this.ready2ChangeThroughKeyboard == false ) return;
             
         pE = new Event(pE);
         
@@ -944,29 +954,24 @@ ka.windowCombine = new Class({
     loadItem: function( pItem ){
         var _this = this;
         
-        this.addBtn.setPressed(false);
-        
         if( this.currentAdd ){
+        
+            //TODO check unsaved
+            var hasUnsaved = this.currentAdd.hasUnsavedChanges();
+            logger( hasUnsaved );
+        
             this.currentAdd.destroy();
             this.currentAdd = null;
         }
-                
-        this.mainLeftItems.getChildren().each(function(item,i){
-            
-            item.removeClass('active');
-            if( item.retrieve('item') == pItem ){
-                item.addClass('active');
-                found = true;
-            }
-        });
-        
-        this.currentItem = pItem;
         
         if( !this.currentEdit ){
         
             var cloned = {};
             Object.append(cloned, this.win);
 
+            this.setActiveItem( pItem );
+            this.addBtn.setPressed(false);
+            
             this.currentEdit = new ka.windowEdit(Object.append( cloned, {
                 code: this.win.code+'/edit',
                 params: pItem,
@@ -974,19 +979,45 @@ ka.windowCombine = new Class({
             
             this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
-            
-            /*this.currentEdit.addEvent('render', function(){
-            
-                _this.topTabGroup = this.topTabGroup;
-                _this.renderTopTabGroup();
-            
-            });*/
-        } else {
 
-            this.currentEdit.win.params = pItem;
-            this.currentEdit.loadItem();
+        } else {
+        
+            var hasUnsaved = this.currentEdit.hasUnsavedChanges();
+        
+            if( hasUnsaved ){
+                this.win.interruptClose = true;
+                this.win._confirm(_('There are unsaved data. Want to continue?'), function( pAccepted ){
+                    if( pAccepted ){
+                        this.currentEdit.win.params = pItem;
+                        this.currentEdit.loadItem();
+                        this.addBtn.setPressed(false);
+                        this.setActiveItem( pItem );
+                    }
+                }.bind(this));
+                return;
+            } else {
+                this.currentEdit.win.params = pItem;
+                this.currentEdit.loadItem();
+                this.addBtn.setPressed(false);
+                this.setActiveItem( pItem );
+            }
         
         }
+
+        this.inputTrigger.focus();
+    
+    },
+    
+    setActiveItem: function( pItem ){
+        
+        this.mainLeftItems.getChildren().each(function(item,i){
+            item.removeClass('active');
+            if( item.retrieve('item') == pItem ){
+                item.addClass('active');
+            }
+        });
+        
+        this.currentItem = pItem;
     
     },
     

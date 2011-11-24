@@ -19,38 +19,51 @@ ka.layoutElement = new Class({
     },
     
     getValue: function(){
+        
+        if( this.loadingLayout ){
+            return this.getThisValue;
+        }
+    
         var res = {};
+
         Object.each(this.layoutBoxes, function(layoutBox, boxId){
-            res[ boxId ] = layoutBox.getValue();
+            if( layoutBox.getValue() ){
+                res[ boxId ] = layoutBox.getValue();
+            }
         }.bind(this));
+        
+        if( Object.getLength(res) == 0 )
+            return;
+
         return res;
     },
     
     setValue: function( pVal ){
         
         this.setThisValue = pVal;
+        this.getThisValue = pVal;
 
         if( this.loadingDone )
             this._setValue();
-        
     },
     
     _setValue: function(){
-
+    
         if( this.setThisValue ){
-            
             Object.each(this.layoutBoxes, function(layoutBox, boxId){
                 layoutBox.clear();
                 layoutBox.setContents( this.setThisValue[boxId] );
             }.bind(this));
-            
         }
-
     },
     
     loadTemplate: function( pTemplate ){
         
         if( this.template == pTemplate ) return;
+        
+        this.getThisValue = this.getValue();
+        
+        this.loadingLayout = true;
         
         this.template = pTemplate;
         
@@ -91,6 +104,7 @@ ka.layoutElement = new Class({
         this.layout.set('html', pTemplate.layout);
         
         this.fetchSlots();
+        this.loadingLayout = false;
     },
     
     fetchSlots: function(){

@@ -636,11 +636,14 @@ ka.kwindow = new Class({
     close: function( pInternal ){
     
         if( this.isActive() == false ) return;
-
-        ka.wm.close( this );
         
-        if( pInternal )
+        if( pInternal ){
+            this.interruptClose = false;
             this.fireEvent('close');
+            if( this.interruptClose == true ) return;
+        }
+        
+        ka.wm.close( this );
         
         //save dimension
         if( this.border ){

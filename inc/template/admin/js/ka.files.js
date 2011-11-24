@@ -814,6 +814,12 @@ ka.files = new Class({
         this.inputTrigger = new Element('input', {
             'class': 'admin-files-preview-input'
         }).inject( document.hidden );
+        
+        this.inputTrigger.addEvent('blur', function(){
+            (function(){   
+                this.destroyContext.bind(this);
+            }.bind(this)).delay(100);
+        }.bind(this));
 
         this.loader = new ka.loader().inject( this.container );
         this.loader.setStyle('left', 141);
@@ -2330,6 +2336,12 @@ ka.files = new Class({
     
     },
     
+    destroyContext: function(){
+        if( this.context )
+            this.context.destroy();
+        delete this.context;
+    },
+    
     openContext: function( pFile, pEvent ){
 
         if( this.context )
@@ -2343,6 +2355,7 @@ ka.files = new Class({
             'class': 'admin-files-context'
         }).inject( this.win.border );
 
+        this.inputTrigger.focus();
         
         if( pFile.path.substr(0, 6) == 'trash/' ){
             //pressed on a item in the trash folder

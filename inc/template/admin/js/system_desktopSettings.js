@@ -45,7 +45,7 @@ var admin_system_desktopSettings = new Class({
         new Request.JSON({url: _path+'admin/backend/getDefaultImages', noCache: 1, onComplete: function( pFiles ){
             pFiles.each(function(file){
                 file = '/admin/images/userBgs/defaultImages/'+file;
-                bg = _path + 'admin/backend/imageThump/?file='+escape(file.replace(/\//g, "\\\\"));
+                bg = _path + 'admin/backend/imageThumb/?file='+escape(file.replace(/\//g, "\\\\"));
 
                 var img = new Element('img', {
                     src: bg
@@ -58,7 +58,6 @@ var admin_system_desktopSettings = new Class({
                     _this.choose( file, true );
                 });
 
-                logger( file +' => '+ka.settings.user.userBg);
                 if( file == ka.settings.user.userBg ){
                     this.defaultImages.getElements('img').set('class', '');
                     img.set('class', 'active');
@@ -74,8 +73,8 @@ var admin_system_desktopSettings = new Class({
             pFile = '/'+pFile; //this.fieldBg.input.value.substr( 1, this.fieldBg.input.value.length );
             this.fieldBg.setValue( pFile );
         }
-        ka.settings.user.set('userBg', pFile); 
-        $(document.body).setStyle('background-image', 'url('+_path+'inc/template'+ka.settings.user.userBg+')'); //admin/images/userBgs/'+pId.user_rsn+'.jpg)');
+        ka.settings.user['userBg'] = pFile;
+        $(document.body).setStyle('background-image', 'url('+_path+'inc/template/'+ka.settings.user.userBg+')');
         if( pWithSet )
             this.fieldBg.setValue( ka.settings.user.userBg );
         ka.saveUserSettings();

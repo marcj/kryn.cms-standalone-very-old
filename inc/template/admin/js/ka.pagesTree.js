@@ -203,6 +203,8 @@ ka.pagesTree = new Class({
         if( !target ) return;
         var a = null;
         
+        if( target.hasClass('ka-pageTree-item-toggler') ) return;
+        
         if( target.hasClass('ka-pageTree-item') )
             a = target;
         
@@ -985,9 +987,19 @@ ka.pagesTree = new Class({
     select: function( pRsn ){
         
         this.unselect();
-        this.need2SelectAPage = true;
+        
+        if( this.items[ pRsn ] ){
+            //has been already loaded
+            this.items[ pRsn ].addClass('ka-pageTree-item-selected');
 
-        startupWithPageInfo( pRsn, function(res){
+            this.lastSelectedItem = this.items[ pRsn ];
+            this.lastSelectedPage = this.items[ pRsn ].retrieve('item');
+            return;
+        }
+
+        this.need2SelectAPage = true;
+        
+        this.startupWithPageInfo( pRsn, function(res){
 
             this.options.selectPage = pRsn;
             this.renderFirstLevel();
@@ -996,7 +1008,7 @@ ka.pagesTree = new Class({
                 if( this.items[item] )
                     this.openChilds( this.items[item] );
             }.bind(this));
-        });
+        }.bind(this));
     
     },
     
@@ -1106,7 +1118,7 @@ ka.pagesTree = new Class({
             .inject( this.oldContext );
     
         }
-        
+
         if( canHide ){
             new Element('a', {
                 html: _('Hide/Unhide')
@@ -1211,7 +1223,7 @@ ka.pagesTree = new Class({
                     this.paste('up', pPage);
                 }.bind(this)).inject( this.oldContext );
             }
-    
+
             if( canPasteInto ){
                 new Element('a', {
                     'class': 'indented',

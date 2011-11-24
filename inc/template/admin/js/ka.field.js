@@ -349,6 +349,7 @@ ka.field = new Class({
                         title.set('text', res.label );
                     else
                         title.set('text', _('##Failed##') );
+
                 }}).get({cmd: 'item', id: pValue});
             }
             
@@ -1163,10 +1164,11 @@ ka.field = new Class({
             
                 _this.input.empty();
             
-                if( $type(this.field.tableItems) == 'array' ){
+                if( typeOf(this.field.tableItems) == 'array' ){
+                
                     this.field.tableItems.each(function(item){
                         if(!item) return;
-                        
+    
                         if( _this.field.lang && item.lang != _this.field.lang && item.lang ) return;
                         
                         var text = '';
@@ -1193,10 +1195,11 @@ ka.field = new Class({
                         })
                         if(t && _this.input )
                             t.inject( _this.input );
+
                     });
-                } else if ( $type(this.field.tableItems) == 'object' ){
+                } else if ( typeOf(this.field.tableItems) == 'object' ){
         
-                    $H(this.field.tableItems).each(function(item, key){
+                    Object.each(this.field.tableItems, function(item, key){
                         var t = new Element('option', {
                             text: item,
                             value: key
@@ -1246,7 +1249,8 @@ ka.field = new Class({
             var toLeft = new ka.Button('«')
             .addEvent('click', function(){
                 if( this.inputVals.getSelected() ){
-                    this.input.getElement('option[value='+this.inputVals.value+']').set('disabled', false);
+                    if( this.input.getElement('option[value='+this.inputVals.value+']') )
+                        this.input.getElement('option[value='+this.inputVals.value+']').set('disabled', false);
                     this.inputVals.getSelected().destroy();
                 }
             }.bind(this))
@@ -1272,6 +1276,8 @@ ka.field = new Class({
 
             if( this.field.tinyselect )
                 this.inputVals.setStyle('width', 75);
+    
+            this.renderItems();
             
         } else {
             ///not mutiple
@@ -1284,8 +1290,10 @@ ka.field = new Class({
             this.select.inject( this.fieldPanel );
 
             this.renderItems = function(){
-                        
+                    
+                var value = this.select.getValue();
                 this.select.empty();
+                
                         
                 if( typeOf(this.field.tableItems) == 'array' ){
                     if( key ) {
@@ -1308,9 +1316,12 @@ ka.field = new Class({
                     }.bind(this));
     
                 }
+                
+                if( value )
+                    this.select.setValue( value );
             
             }.bind(this);
-            
+
             this.renderItems();
             
         }

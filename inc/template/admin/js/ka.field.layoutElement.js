@@ -40,10 +40,13 @@ ka.field_layoutElement = new Class({
 	},
 	
 	getValue: function(){
-		var res = {
-			contents: this.layoutElement.getValue(),
-			template: this.select.value	
-		};
+		
+		var res = {template: this.select.value};
+		var contents = this.layoutElement.getValue();
+		if( contents ){
+            res['contents'] = contents;
+		}
+		
 		this.lastLayoutElementContents = res.contents;
 		return res;
 	},
@@ -54,7 +57,8 @@ ka.field_layoutElement = new Class({
 		
 		if( $type(pValue) == 'string' ){
             var need = '{"contents":{';
-            if( pValue.substr(0, need.length) == need ){
+            var need2 = '{"template":"';
+            if( pValue.substr(0, need.length) == need || pValue.substr(0, need2.length) == need2){
 				value = JSON.decode( pValue );
             } else {
                 value = {contents: {1: [{type:'text', 'content': pValue}]}};

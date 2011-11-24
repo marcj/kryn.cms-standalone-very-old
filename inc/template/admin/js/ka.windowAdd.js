@@ -35,5 +35,7 @@ ka.windowAdd = new Class({
         var first = this.win.content.getElement('input[type=text]');
         if( first )
             first.focus();
+
+        this.ritem = this.retrieveData( true );
     }
 });

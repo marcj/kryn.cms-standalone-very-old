@@ -6,6 +6,9 @@ var admin_pages = new Class({
 	
 	domainTrees: {},
 	
+	rpage: {}, 
+	rdomain: {},
+	
     initialize: function( pWin ){
         
         Date.defineFormat('version', '%d.%m.%Y, %H:%M:%S');
@@ -42,7 +45,7 @@ var admin_pages = new Class({
             this.loadPage( this.win.params.rsn, true );
         } else if( this.win.params && this.win.params.domain ){
             this.loadTree({selectDomain:this.win.params.rsn});
-            this.showDomain( this.win.params.rsn, true );
+            this.loadDomain( this.win.params.rsn, true );
         } else {
             this.loadTree();
         }
@@ -123,6 +126,8 @@ var admin_pages = new Class({
             this._loadPage();
             this.loader.setStyle('display', 'none');
 
+            this.rpage = this.retrieveData();
+
         }.bind(this)}).post({ rsn: pRsn });
     },
 
@@ -188,13 +193,13 @@ var admin_pages = new Class({
     			field.setValue();
     		})
     	});
-    	this.page.properties = JSON.decode(this.page.properties);
-        if( this.page.properties ){
+    	this.page.propertiesObj = JSON.decode(this.page.properties);
+        if( this.page.propertiesObj ){
         	
         	//set page values
-        	$H(this.page.properties).each(function(properties, extKey){
+        	Object.each(this.page.propertiesObj, function(properties, extKey){
         		
-        		$H(properties).each(function(property, propertyKey){
+        		Object.each(properties, function(property, propertyKey){
         			
         			if( this._pagePropertiesFields[extKey] && this._pagePropertiesFields[extKey][propertyKey] ){
         				this._pagePropertiesFields[extKey][propertyKey].setValue(property);
@@ -238,6 +243,7 @@ var admin_pages = new Class({
 
         var metas = JSON.decode(this.page.meta);
         this.clearMeta();
+
         this._metas = [];
         var keywords = '';
         var description= '';
@@ -1209,10 +1215,13 @@ var admin_pages = new Class({
     	}
     },
 
-    showDomain: function( pDomain ){
+    loadDomain: function( pDomain ){
     
         if( typeOf(pDomain) == 'object' )
             pDomain = pDomain.rsn;
+            
+        
+        this.inDomainModus = true;
 
         if( this.oldLoadDomainRequest ) this.oldLoadDomainRequest.cancel();
 
@@ -1291,7 +1300,6 @@ var admin_pages = new Class({
 
             this.currentDomain = res;
             
-            this.inDomainModus = true;
             this.viewType( 'domain' );
             
             this.changeType();
@@ -1353,6 +1361,8 @@ var admin_pages = new Class({
             this.domainFieldsPublicProperties.setValue( JSON.decode(res.themeproperties) );
             
             this.toAlternativPane();
+            
+            this.rdomain = this.retrieveDomainData();
 
         }.bind(this)}).post({rsn: pDomain});
 
@@ -1410,11 +1420,36 @@ var admin_pages = new Class({
     },
 
     saveDomain: function(){
+        
         this.saveDomainBtn.startTip( _('Save ...') );
+        
         if( this.lastSaveRequest ) this.lastSaveRequest.cancel();
 
         this.overlayStart();
+        
+        var req = this.retrieveDomainData();
+        if( !req ) return;
+        
+        this.rdomain = req;
 
+        this.lastSaveRequest = new Request.JSON({url: _path+'admin/pages/domain/save', noCache: 1, onComplete: function(res){
+            this.overlay.destroy();
+            this.saveDomainBtn.stopTip( _('Saved') );
+            if( this.currentDomain.lang != req.lang ){
+                this.changeLanguage();
+            } else {
+                this.domainTrees[this.currentDomain.rsn].reload();
+            }
+            this.currentDomain = req;
+            ka.settings.domains.each(function(d, index) {
+                if(d.rsn == req.rsn)
+                    ka.settings.domains[index] = req;
+            });
+        }.bind(this)}).post(req);
+    },
+
+    retrieveDomainData: function(){
+    
         var req = {};
         req.rsn = this.currentDomain.rsn;
         req.domain = this.domainFields['domain'].getValue();
@@ -1443,35 +1478,22 @@ var admin_pages = new Class({
         if( obj ){
             if( !obj.isOk() ){
                 this.saveDomainBtn.stopTip( _('Failed - Check values') );
-                return;
+                return false;
             }            
             req.session['auth_params'] = obj.getValue();
         }
 
         //properties
         var properties = {};
-        $H(this._domainPropertiesFields).each(function(fields, extKey){
+        Object.each(this._domainPropertiesFields, function(fields, extKey){
         	properties[extKey] = {};
-    		$H(fields).each(function(field, fieldKey){
+    		Object.each(fields, function(field, fieldKey){
     			properties[extKey][fieldKey] = field.getValue();
     		})
     	});
         req.extproperties = JSON.encode(properties);
-
-        this.lastSaveRequest = new Request.JSON({url: _path+'admin/pages/domain/save', noCache: 1, onComplete: function(res){
-            this.overlay.destroy();
-            this.saveDomainBtn.stopTip( _('Saved') );
-            if( this.currentDomain.lang != req.lang ){
-                this.changeLanguage();
-            } else {
-                this.domainTrees[this.currentDomain.rsn].reload();
-            }
-            this.currentDomain = req;
-            ka.settings.domains.each(function(d, index) {
-                if(d.rsn == req.rsn)
-                    ka.settings.domains[index] = req;
-            });
-        }.bind(this)}).post(req);
+    
+        return req;
     },
 
 
@@ -3181,6 +3203,9 @@ var admin_pages = new Class({
     save: function( pAndClose, pAndPublish ){
         
         var req = this.retrieveData( pAndClose );
+        if( !req ) return;
+
+        this.rpage = req;
         
         if( pAndPublish == true ){
             req.andPublish = 1;
@@ -3325,6 +3350,106 @@ var admin_pages = new Class({
             }.bind(this)
         }, true);
     },
+    
+    hasUnsavedPageChanges: function(){
+    
+        if( !this.page ) return false;
+    
+        var currentData = this.retrieveData();
+        if( !currentData ) return true;
+        
+        var hasUnsaved = false;
+        
+        var blacklist = ['dontSaveContents'];
+        
+        Object.each(currentData, function(value,id){
+            if( blacklist.contains(id) ) return;
+    
+            if( typeOf(this.rpage[id]) == 'null' ) 
+                this.rpage[id] = '';
+
+            if( value+"" != this.rpage[id] ){
+                //logger(id+ ': '+value+' != '+this.rpage[id]);
+                hasUnsaved = true;
+            }
+        }.bind(this));
+        
+        return hasUnsaved;
+    
+    },
+
+    hasUnsavedDomainChanges: function(){
+    
+        if( !this.rdomain ) return false;
+    
+        var currentData = this.retrieveDomainData();
+        if( !currentData ) return true;
+        
+        var hasUnsaved = false;
+        
+        var blacklist = [];
+        
+        Object.each(currentData, function(value,id){
+            if( blacklist.contains(id) ) return;
+    
+            if( typeOf(this.rdomain[id]) == 'null' ) 
+                this.rdomain[id] = '';
+
+            if( value+"" != this.rdomain[id] ){
+                //logger(id+ ': '+value+' != '+this.rdomain[id]);
+                hasUnsaved = true;
+            }
+        }.bind(this));
+        
+        return hasUnsaved;
+    },
+    
+    
+
+    prepareToLoadItem: function( pItem, pIsDomain ){
+
+        var hasUnsaved = false;
+        
+        if( this.inDomainModus ){
+            hasUnsaved = this.hasUnsavedDomainChanges();
+        } else {
+            hasUnsaved = this.hasUnsavedPageChanges();
+        }
+        
+        Object.each(this.domainTrees, function(domain){
+            domain.unselect();
+        });
+            
+        if( hasUnsaved ){
+
+            this.win._confirm(_('There are unsaved data. Want to continue?'), function( pAccepted ){
+                
+                if( pAccepted ){
+                    if( pIsDomain ){
+                        this.loadDomain( pItem.rsn );
+                    } else {
+                        this.loadPage( pItem.rsn );
+                    }
+                } else {
+                    //select old
+                    Object.each(this.domainTrees, function(tree, domain_rsn){
+                        if( this.inDomainModus ){
+                            if( domain_rsn == this.currentDomain.rsn )
+                                tree.select(0);
+                        } else {
+                            tree.select( this.page.rsn );
+                        }
+                    }.bind(this));
+                }
+            }.bind(this));
+        } else {
+            if( pIsDomain )
+                this.loadDomain( pItem.rsn )
+            else
+                this.loadPage( pItem.rsn );
+        }
+    
+    },
 
     loadTree: function( pOpts ){
         var _this = this;
@@ -3344,19 +3469,16 @@ var admin_pages = new Class({
 
         	if( domain.lang != this.language ) return;
         	
-            _this.domainTrees[domain.rsn] = new ka.pagesTree( _this.treeContainer, domain.rsn, {
+            this.domainTrees[domain.rsn] = new ka.pagesTree( _this.treeContainer, domain.rsn, {
+            
                 onClick: function( pPage ){
-                    Object.each(_this.domainTrees, function(_domain){
-                        _domain.unselect();
-                    });
-                    _this.loadPage( pPage.rsn );
-                },
+                    this.prepareToLoadItem( pPage );
+                }.bind(this),
+                
                 onDomainClick: function( pDomain ){
-                    Object.each(_this.domainTrees, function(_domain){
-                        _domain.unselect();
-                    });
-                    _this.showDomain( pDomain );
-                },
+                    this.prepareToLoadItem( pDomain, true );
+                }.bind(this),
+                
                 onMoveComplete: function(){
                     if(this.page && this.page.domain_rsn == domain.rsn ){
                     	this.loadAliases();
@@ -3374,235 +3496,11 @@ var admin_pages = new Class({
             });
             
             if( pOpts.selectDomain == domain.rsn ){
-                this.showDomain( domain );
+                this.loadDomain( domain );
             }
             
         }.bind(this));
         
-    },
-    
-    
-    /* new element toolbar */
-    /* obsolete */
-    /*
-    _createElementSettingsToolbar : function() {
-
-    	//create titlebars and content container
-        this.elementPropertyToolbar = new Element('div', {
-            'class': 'ka-pages-tree-elementPropertyToolbar',
-            style: 'height: 1px'
-        }).inject( this.tree );
-        
-        
-        this.elementPropertyToolbarInner = new Element('div').inject(this.elementPropertyToolbar);
-        
-        this.elementPropertyToolbar.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
-
-        this.elementPropertyToolbarTitle = new Element('div', {
-            'class': 'ka-pages-tree-elementPropertyToolbarTitle',
-            html: '<img src="'+_path+'inc/template/admin/images/icons/tree_minus.png" /> '+_('Element properties')
-        }).inject( this.elementPropertyToolbarInner );
-
-        this.elementPropertyToolbarContent = new Element('div', {
-            'class': 'ka-pages-tree-elementPropertyToolbarContent'
-        }).inject( this.elementPropertyToolbarInner );
-
-        
-        this.elementAccessToolbarTitle = new Element('div', {
-            'class': 'ka-pages-tree-elementPropertyToolbarTitle',
-            html: '<img src="'+_path+'inc/template/admin/images/icons/tree_plus.png" /> '+_('Element access')
-        }).inject( this.elementPropertyToolbarInner );
-        
-        this.elementAccessToolbarContent = new Element('div', {
-            'class': 'ka-pages-tree-elementPropertyToolbarContent'
-        }).inject( this.elementPropertyToolbarInner );
-        
-        
-        
-        
-        //general propertie fields##########################################################
-        this.elementPropertyFields = {};    	
-
-        //this.width = this.main.getSize().x;
-
-        //var p = new Element('div');
-
-        this.elementPropertyFields.eTitle = new ka.field({
-            label: _('Title'), small: 1
-        }).inject( this.elementPropertyToolbarContent );
-        
-        
-        this.elementPropertyFields.eTypeSelect = new ka.field({
-            label: _('Type'),
-            type: 'select',
-            help: 'admin/element-type',
-            small: 1,
-            tableItems: [
-                {i: 'text', label: _('Text')},
-                {i: 'layoutelement', label: _('Layout Element')},
-                {i: 'picture', label: _('Picture')},
-                {i: 'plugin', label: _('Plugin')},
-                {i: 'pointer', label: _('Pointer')},
-                {i: 'navigation', label: _('Navigation')},
-                {i: 'template', label: _('Template')},
-                {i: 'html', label: _('HTML')},
-                {i: 'php', label: _('PHP')}
-            ],
-            table_key: 'i',
-            table_label: 'label'
-        }).inject( this.elementPropertyToolbarContent );
-        
-        
-
-        //template select
-       // this.optionsTemplate.empty();
-        var templateP = new Element('div', {
-            'class': 'ka-field-main ka-field-main-small'
-        }).inject( this.elementPropertyToolbarContent );
-
-        new Element('div', {
-            'class': 'ka-field-title',
-            html: '<div class="title">'+_('Template')+'</div>'
-        }).inject( templateP );
-
-        var newP = new Element('div', {
-            'class': 'ka-field-field'
-        }).inject( templateP );
-
-
-        
-        
-        this.elementPropertyFields.eTemplate = new Element('select', {
-        //}).inject( w2 );
-        }).inject( newP );
-
-        var limitLayouts = [];
-
-
-        this.elementPropertyFields.eTemplateNoLayout = new Element('option', {
-            html: _('-- no layout --'),
-            value: ''
-        }).inject(this.elementPropertyFields.eTemplate);
-
-        $H(ka.settings.contents).each(function(la, key){
-            var group = new Element('optgroup', {
-                label: key
-            });
-            var count = 0;
-            $H(la).each(function(layoutFile,layoutTitle){
-                if( limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains( layoutFile ) ) return;
-                new Element('option', {
-                    html: layoutTitle,
-                    value: layoutFile
-                }).inject( group );
-                count++;
-            })
-            if( count != 0 )
-                group.inject( this.elementPropertyFields.eTemplate );
-        }.bind(this));
-        
-        this.elementPropertyFields.eLayoutSelect = new ka.field({
-            label: _('Layout'),
-            type: 'select',
-            small: 1,
-            tableItems: []
-        }).inject( this.elementPropertyToolbarContent );
-        
-        $H(ka.settings.configs).each(function(config, key){
-			
-			if( config['themes'] ){
-				Object.each(config['themes'], function(options, themeTitle){
-					
-					if( options['layoutElement'] ){
-						
-						this.elementPropertyFields.eLayoutSelect.select.addSplit( _(themeTitle) );
-			    		
-						$H(options['layoutElement']).each(function(templatefile, label){
-						    this.elementPropertyFields.eLayoutSelect.select.addSplit( templatefile, _(label) );
-						}.bind(this));
-				
-					}
-
-				}.bind(this));
-			}
-		}.bind(this));
-        this.elementPropertyFields.eLayoutSelect.hide();
-        
-       
-        this.elementPropertyFields.ePanel = new Element('div', {'class': 'ka-pages-layoutContent-ePanel'}).inject( this.elementPropertyToolbarContent );
-
-      
-        
-        //accessfields
-        this.elementAccessFields = {};
-        
-        this.elementAccessFields['unsearchable'] = new ka.field(
-                {label: _('Unsearchable'), type: 'checkbox', small: 1}
-            ).inject( this.elementAccessToolbarContent );
-        
-        
-        this.elementAccessFields['access_from'] = new ka.field(
-                {label: _('Release at'), type: 'datetime', small: 1}
-            ).inject( this.elementAccessToolbarContent );
-
-        this.elementAccessFields['access_to'] = new ka.field(
-                {label: _('Hide at'), type: 'datetime', small: 1}
-            ).inject( this.elementAccessToolbarContent );
-
-        this.elementAccessFields['access_from_groups'] = new ka.field(
-                {label: _('Limit access to groups'), desc: ('For no restrictions leave it empty'), small: 1,
-                type: 'select', size: 5, multiple: true, tinyselect: true,
-                tableItems: ka.settings.groups, table_label: 'name', table_key: 'rsn', help: 'admin/element-access-grouplimitation'
-                }
-            ).inject( this.elementAccessToolbarContent );
-      
-      this._initElementSettingsToolbarAccordion(this._calcAccordionHeight());
-    },
-    
-    //init the accordion 
-    _initElementSettingsToolbarAccordion : function(pAccordionContentHeight) {
-    	
-    	//kill last acc object if it exists
-    	if(this.elementPropertyToolbarAccordion)
-    		delete this.elementPropertyToolbarAccordion;
-    	
-    	var _this = this;
-    	
-        this.elementPropertyToolbarAccordion = new Accordion(
-        	this.win.border.getElements('.ka-pages-tree-elementPropertyToolbarTitle'),
-        	this.win.border.getElements('.ka-pages-tree-elementPropertyToolbarContent'), {
-            duration: 400,
-            display: 0,
-            fixedHeight: pAccordionContentHeight,
-            transition: Fx.Transitions.Cubic.easeOut,
-            onActive: function(toggler, element){                          
-                toggler.addClass('accordion-current');
-                _this.win.border.getElements('.ka-pages-tree-elementPropertyToolbarTitle img').each(function(img){
-                	img.set('src', _path+'inc/template/admin/images/icons/tree_plus.png');
-                });
-                toggler.getElement('img').set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
-                
-                element.setStyles({ overflowX: 'hidden', overflowY: 'auto' });
-            },
-            onBackground: function(toggler, element){
-                toggler.removeClass('accordion-current');            
-            }
-        }, this.elementPropertyToolbar );
-        
-        this.lastAccordionHeight = pAccordionContentHeight;
-        
-        this.elementPropertyToolbarAccordion.display(0);
-    	
-    },
-    
-    _calcAccordionHeight : function() {
-    	//if(!this.elementPropertyHeight)
-      		totalBoxHeight = this._calcElementPropertyToolbarHeight();
-      	//else
-      	//	totalBoxHeight = this.elementPropertyHeight;
-    	
-    	return Math.round(totalBoxHeight - 2 - ( this.elementPropertyToolbarTitle.getSize().y*2));
     }
-    */
 
 });

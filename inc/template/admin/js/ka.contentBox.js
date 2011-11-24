@@ -97,8 +97,11 @@ ka.contentBox = new Class({
     	var res = [];
     	var content = this.layoutContent.getValue( pAndClose );
     	
-        content.noActions = null;
-    
+        delete content.noActions;
+        if( !content.content ){
+            return;
+        }
+        
         res.include( content );
         
         return res;

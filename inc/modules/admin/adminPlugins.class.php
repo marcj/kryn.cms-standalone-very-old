@@ -16,7 +16,7 @@ class adminPlugins {
     function init(){
         switch( getArgv(4) ){
         case 'get':
-            return self::get( getArgv('module'), getArgv('resultType') );
+            return self::get( getArgv('module'), getArgv('plugin') );
         case 'icon':
             modules::pluginIcon( getArgv('plugin') );
         case 'preview':
@@ -69,29 +69,17 @@ class adminPlugins {
         json($res);
     }
 
-    public static function get( $pModule, $pResultType = 'json' ){
+    public static function get( $pModule, $pPlugin ){
         global $modules;
 
 
         $config = kryn::$configs[ $pModule ];
-        $plugins = $config['plugins'];
+        $plugin = $config['plugins'][$pPlugin];
 
         $moduleObj = $modules[$pModule];
+        self::preparePlugin( $plugin[1], $moduleObj );
         
-        foreach( $plugins as &$plugin ){
-        	self::preparePlugin( $plugin[1], $moduleObj );
-        }
-        
-        switch( $pResultType ){
-        case 'json':
-            json( $plugins );
-        case 'radio':
-            tAssign( 'plugins', $plugins );
-            tAssign( 'moduleName', $pModule );
-            $res = tFetch( 'admin/plugins.result.radio.tpl' );
-            json( $res );
-        }
-        json( 'self::get::invalid-param' );
+        json( $plugin );
     }
     
     
