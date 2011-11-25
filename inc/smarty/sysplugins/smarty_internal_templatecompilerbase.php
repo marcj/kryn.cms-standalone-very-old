@@ -25,6 +25,7 @@ class Smarty_Internal_TemplateCompilerBase {
     public $template = null;
     // optional log of tag/attributes
     public $used_tags = array();
+    public $levelingStates = array();
 
     /**
      * Initialize compiler
@@ -81,17 +82,55 @@ class Smarty_Internal_TemplateCompilerBase {
             // call compiler
             $_compiled_code = $this->doCompile($_content);
         } while ($this->abort_and_recompile);
+
+        $leveling = '';
+        if( count($this->levelingStates) > 0 ){
+            $leveling = '<?php
+                global $_smarty_levels_contents; 
+                
+                function smarty_leveling_replace( $string ){
+                    global $_smarty_levels_contents;
+                    ksort($_smarty_levels_contents);
+                    foreach( $_smarty_levels_contents as $id => $content){
+                        $string = str_replace(\'{\'.$id.\'}\', $content, $string);
+                    }
+                    return $string;
+                };
+                ob_start(); ?>';
+            ksort( $this->levelingStates );
+            foreach( $this->levelingStates as $levelId => $functions ){
+                if( $levelId < 0 )
+                    foreach( $functions as $function )
+                        $leveling .= '<?php call_user_func(\''.$function.'\', $_smarty_tpl); ?>';
+            }
+        }
+        
         // restore original filepath which could have been modified by template inheritance
         $this->template->template_filepath = $saved_filepath;
         // return compiled code to template object
         if ($template->suppressFileDependency) {
             $template->compiled_template = $_compiled_code;
         } else {
-            $template->compiled_template = $template_header . $template->createPropertyHeader() . $_compiled_code;
+            $template->compiled_template = $template_header . $template->createPropertyHeader() . $leveling. $_compiled_code;
         }
+        
         // run postfilter if required
         if (isset($this->smarty->autoload_filters['post']) || isset($this->smarty->registered_filters['post'])) {
             $template->compiled_template = Smarty_Internal_Filter_Handler::runFilter('post', $template->compiled_template, $template);
+        }
+        
+        if( count($this->levelingStates) > 0 ){
+            $found = false;
+            foreach( $this->levelingStates as $level => $functions ){
+                if( $level > 0 ){
+                    $found = true;
+                    foreach( $functions as $function ){
+                        $template->compiled_template .= '<?php call_user_func(\''.$function.'\', $_smarty_tpl); ?>'."\n";
+                    }
+                }
+            }
+            if( $found )
+                $template->compiled_template .= '<?php echo smarty_leveling_replace(ob_get_clean()); ?>';
         }
     }
 
