@@ -24,13 +24,13 @@
   "domainProperties": {
     "cacheNavigations": {
         "label": "[[Cache navigation html]]",
-        "desc": "[[Some templates does not support this. If you have troubles, just deactivate this.]]",
+        "desc": "[[Some templates does not support this, which is a performance increase. If you have troubles, just deactivate it.]]",
         "type": "checkbox",
         "default": "1"
     },
     "cachePagesForAnons": {
-        "label": "[[Cache the whole html of a page for anonymous users]]",
-        "desc": "[[Some layouts/templates does not support this. If you have troubles, just deactivate this.]]",
+        "label": "[[Warp drive!]]",
+        "desc": "[[Cache the whole html of a page for anonymous users, which is a huge performance increase. Some layouts/templates does not support this. If you have troubles, just deactivate it.]]",
         "type": "checkbox",
         "default": "0"
     } 
