@@ -6,8 +6,7 @@ ka.Progress = new Class({
     initialize: function( pTitle, pUnlimited ){
     
         this.main = new Element('div', {
-            'class': 'ka-progress',
-            html: pTitle
+            'class': 'ka-progress'
         });
         
         if( pUnlimited )
@@ -38,6 +37,16 @@ ka.Progress = new Class({
         if( this.autoTitle ){
             this.setText( pValue+'%' );
         }
+    },
+    
+    stop: function(){
+        this.main.removeClass('ka-progress-unlimited');
+        this.main.addClass('ka-progress-unlimited-stopped');
+    },
+    
+    start: function(){
+        this.main.addClass('ka-progress-unlimited');
+        this.main.removeClass('ka-progress-unlimited-stopped');
     },
     
     getValue: function(){

@@ -482,7 +482,7 @@ function step5(){
     @mkdir( 'inc/upload/modules' );
 
     
-    if( !rename( 'install.php', 'install.php.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
+    if( !rename( 'install.php', 'install.doNotRenameOrRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
         print '<div style="margin: 25px; border: 2px solid red; padding: 10px; padding-left: 25px;">
         	Can not rename install.php - please remove or rename the file for security reasons!
         	</div>';

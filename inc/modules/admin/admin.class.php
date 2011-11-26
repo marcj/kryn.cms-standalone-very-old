@@ -114,19 +114,16 @@ class admin {
                 case 'pages':
                     json( adminPages::init() );
                     break;
-                case 'help':
-                    switch( getArgv(3) ){
-                        case 'load':
-                            return self::loadHelp();
-                            
-                        case 'loadTree':
-                            return json( self::loadHelpTree(getArgv('lang')) );
-                        default:
-                            json('empty-param-3');
-                    }
-                    break;
                 case 'backend':
                     switch( getArgv(3) ){
+                        case 'help':
+                            switch( getArgv(4) ){
+                                case 'load':
+                                    return self::loadHelp();
+                                case 'loadTree':
+                                    return json( self::loadHelpTree(getArgv('lang')) );
+                            }
+                            break;
                         case 'nothing':
                             die("");
                         case 'clearCache':
@@ -522,6 +519,7 @@ class admin {
 
     public static function loadHelp(){
         $id = getArgv('id');
+        
         $temp = explode("/", $id);
         $module = $temp[0];
         $helpId = $temp[1];

@@ -1478,13 +1478,9 @@ ka.files = new Class({
                         item.pos.y < (curPos.top+curPos.height) &&
                         (item.pos.y+item.size.y) > curPos.top
                      ){
-                        file = item.retrieve('file');
-                        if( file && file.path != 'trash/' ){
-                            if( !this.options.selection || this.options.selectionMultiple || this.getSelectedCount() == 0 ){
-                                item.addClass('admin-files-item-selected');
-                                this.fireSelect();
-                            }
-                        }
+                        
+                        this.selectItem( item );
+                        
                     } else {
                         item.removeClass('admin-files-item-selected');
                     }
@@ -1661,25 +1657,13 @@ ka.files = new Class({
             if( thisPos > firstPos ){
                 for( i = firstPos; i<thisPos; i++){
                     if( all[i] ){
-                        file = all[i].retrieve('file');
-                        if( file.path != 'trash/' ){
-                            if( !this.options.selection || this.options.selectionMultiple || this.getSelectedCount() == 0 ){
-                                all[i].addClass('admin-files-item-selected');
-                                this.fireSelect();
-                            }
-                        }
+                        this.selectItem( all[i] );
                     }
                 }
             } else {
                 for( i = thisPos; i<firstPos; i++){
                     if( all[i] ){
-                        file = all[i].retrieve('file');
-                        if( file.path != 'trash/' ){
-                            if( !this.options.selection || this.options.selectionMultiple || this.getSelectedCount() == 0 ){
-                                all[i].addClass('admin-files-item-selected');
-                                this.fireSelect();
-                            }
-                        }
+                        this.selectItem( all[i] );
                     }
                 }
             }
@@ -1689,14 +1673,8 @@ ka.files = new Class({
         var file = item.retrieve('file');
 
         if( !item.hasClass('admin-files-item-selected') ){
-
-            if( file && file.path != 'trash/' ){
-                if( !this.options.selection || this.options.selectionMultiple || this.getSelectedCount() == 0 ){
-                    item.addClass('admin-files-item-selected');
-                    this.fireSelect();
-                }
-            }
-
+            
+            this.selectItem( item );
         } else if( pEvent.control || pEvent.meta ) {
             item.removeClass('admin-files-item-selected');
         }
@@ -1705,6 +1683,24 @@ ka.files = new Class({
             this.openContext( file, pEvent );
         }
 
+    },
+    
+    selectItem: function( pItem ){
+    
+        var file = pItem.retrieve('file');
+        if( file && file.path != 'trash/' ){
+
+            if( this.options.selection ){
+                if( this.options.selectionOnlyFiles && file.isDir == true ) return;
+                if( this.options.selectionOnlyFolders && file.isDir != true ) return;
+
+                if( !this.options.selectionMultiple && this.getSelectedCount() == 1 ) return;
+            }
+            
+            pItem.addClass('admin-files-item-selected');
+            this.fireSelect();
+        }
+    
     },
     
     getSelectedCount: function(){
@@ -1890,10 +1886,7 @@ ka.files = new Class({
         selection.removeAllRanges();
         
         if( !pItem.hasClass('admin-files-item-selected') ){
-            if( !this.options.selection || this.options.selectionMultiple || this.getSelectedCount() == 0 ){
-                pItem.addClass('admin-files-item-selected');
-                this.fireSelect();
-            }
+            this.selectItem( pItem );
         }
         
         var desktop = document.id('desktop');

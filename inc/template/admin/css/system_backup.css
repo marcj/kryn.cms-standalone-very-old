@@ -49,3 +49,34 @@
     background-image:         linear-gradient(top, #3e9bcb, #2f799e);
     color: white;
 }
+
+.ka-backup-ziplist {
+    padding: 15px;
+    margin: 0px;
+    border-bottom: 1px solid silver;
+    background-color: #e5e5e5;
+}
+
+.ka-backup-ziplist-item {
+    padding: 2px;
+    border-bottom: 1px dashed #ccc;
+    margin-left: 15px;
+    margin-right: 5px;
+    line-height: 16px;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+
+.ka-backup-ziplist-item:hover {
+    background-color: #dadada;
+}
+
+.ka-backup-item-red {
+    color: red;
+    line-height: 20px;
+}
+
+.ka-backup-item-active .ka-backup-item-red {
+    color: white;
+}

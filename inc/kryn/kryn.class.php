@@ -604,6 +604,7 @@ class kryn {
      *
      * Can also be called through the smarty function {setDocType value='html 4.01 strict'}
      *
+     * @static
      * @param string $pDocType
      */
     public static function setDocType( $pDocType ){
@@ -612,10 +613,39 @@ class kryn {
     
     /**
     * Returns the current defined doctype
+    * @static
     * @return string Doctype
     */
     public static function getDocType( ){
         return krynHtml::$docType;
+    }
+
+
+    /**
+     * Get some information about the system kryn was installed and kryn itself
+     * @static
+     */
+    public static function getDebugInformation(){
+    
+        $infos = array();
+        
+        foreach( kryn::$extensions as $extension ){
+            $config = kryn::getModuleConfig( $extension );
+            $infos['extensions'][ $extension ] = array(
+                'version' => $config['version']
+            );
+        }
+        
+        $infos['phpversion'] = phpversion();
+        
+        $infos['database_type'] = kryn::$config['db_type'];
+        
+        $infos['config'] = kryn::$config;
+        
+        unset($infos['config']['db_passwd']);
+        unset($infos['config']['db_server']);
+        
+        return $infos;
     }
 
     /**

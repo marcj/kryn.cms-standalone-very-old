@@ -26,5 +26,19 @@
     "id": "element-access-grouplimitation",
     "faq": 0,
     "help": "You can limit the access for every content element to special groups. This content element will only be shown if the logged in user belongs to one of the selected groups. \n\nPlease note! \nIf you activate the group access limitation for an element it will not be indexed by the internal searchengine."
+  },
+  {
+    "title": "Backup, no asynchronous support",
+    "tags": "backup, popen, function disabled, installation",
+    "id": "backup_no_popen_support",
+    "faq": 0,
+    "help": "Your server has disabled the php function popen() through the php.ini. To generated backups through the administration (beside the cronjob.php) you should remove the popen function from the `disable_functions` string in your php configuration file. "
+  },
+  {
+    "title": "Backup, started in the adminstration",
+    "tags": "backup",
+    "id": "backup_started_in_administration",
+    "faq": 0,
+    "help": "This mechanism starts only, if your server has blocked the php function popen().\n\nThis means, that a backup has been started through the administration instead of a own php process. If your php has a low max_execution_time and you have a huge amount of data, then it will probably fail. You should consider to activate the php function popen() in your php.ini. If you don't know, what this means, then you should probably contact  your administration or the support of your webhoster. "
   }
 ]

@@ -30,7 +30,7 @@ var admin_help = new Class({
         this.left.empty();
         this.leftLoader = new ka.loader().inject( this.left );
         
-        new Request.JSON({url: _path+'admin/help/loadTree', noCache: 1, onComplete: function(res){
+        new Request.JSON({url: _path+'admin/backend/help/loadTree', noCache: 1, onComplete: function(res){
             
             this.renderTree( res );
             this.leftLoader.hide();
@@ -100,7 +100,7 @@ var admin_help = new Class({
     loadHelp: function( pId ){
         this.content.set('html', _('Loading ...'));
 
-        new Request.JSON({url: _path+'admin/help/load', noCache: 1, onComplete: function(res){
+        new Request.JSON({url: _path+'admin/backend/help/load', noCache: 1, onComplete: function(res){
             this.content.set('html', '');
                     
             this.win.setTitle( _('Help')+' - '+res.title);

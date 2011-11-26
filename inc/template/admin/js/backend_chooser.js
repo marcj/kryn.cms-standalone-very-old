@@ -229,7 +229,7 @@ var admin_backend_chooser = new Class({
                     this.value = [];
                     pFile.each(function(file){
                         this.value.include(file.path);
-                    });
+                    }.bind(this));
                 } else {
                     this.value = pFile.path;
                 }

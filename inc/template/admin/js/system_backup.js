@@ -2,6 +2,8 @@ var admin_system_backup = new Class({
     
     items: {},
     
+    noAsyncSupport: false,
+    
     initialize: function( pWin ){
     
         this.eachItems = {
@@ -140,23 +142,23 @@ var admin_system_backup = new Class({
                         type: 'checkbox'
                     },
                     pages_domains: {
-                        label: _('Domains'),
+                        label: _('Whole website'),
                         needValue: 'choose',
-                        desc: _('Please select the domain/s.'),
+                        desc: _('Please select one or more domains. All nodes below this domains will then be included.'),
                         type: 'textlist',
                         store: 'backend/stores/domains'
                     },
                     pages_nodes: {
                         label: _('Nodes'),
                         needValue: 'choose',
-                        desc: _('Please select a page node.'),
+                        desc: _('Please select one or more nodes.'),
                         type: 'array',
                         startWith: 1, 
                         columns: [
                             {label: ''}
                         ],
                         fields: {
-                            domain: {
+                            rsn: {
                                 type: 'page'
                             }
                         }
@@ -180,7 +182,7 @@ var admin_system_backup = new Class({
                         desc: _('This includes additionally all versions. Please note: Can blow up the backup file.'),
                         type: 'checkbox'
                     },
-                    files_choose :{
+                    files_choose: {
                         needValue: 'choose',
                         label: _('Folders'),
                         type: 'array',
@@ -190,28 +192,34 @@ var admin_system_backup = new Class({
                         ],
                         fields: {
                             folder: {
-                                type: 'folder'
+                                type: 'folder',
+                                multi: 0
                             }
                         }
                     }
                 }
             },
             
+            system: {
+                label: _('Make a installation package'),
+                desc: _('This includes then additionally all system files and the installer.'),
+                type: 'checkbox'
+            },
+            
             extensions: {
                 label: _('Extensions'),
-                desc: _('Contains the whole package and also your translated languages and adjusted templates.'),
+                desc: _('Contains the whole package of an extension and also your translated languages and adjusted templates of each.'),
                 type: 'select',
                 items: {
                     nothing: _('Nothing'),
-                    all: _('All extensions'),
-                    choose: _('Choose extension')
+                    all: _('All additional extensions'),
+                    choose: _('Choose extensions')
                 },
                 depends: {
                     extensions_choose: {
                         needValue: 'choose',
                         type: 'textlist',
                         store: 'admin/backend/stores/extensions'
-                        
                     },
                 }
             },
@@ -222,7 +230,7 @@ var admin_system_backup = new Class({
                 type: 'select',
                 items: {
                     nothing: _('Nothing'),
-                    all: _('All extension contents'),
+                    all: _('All additional extension'),
                     choose: _('Choose extension')
                 },
                 depends: {
@@ -269,13 +277,13 @@ var admin_system_backup = new Class({
         this.addGrp = this.win.addButtonGroup();
         this.addGrp.setStyle('margin-left', 130);
         this.addSaveBtn = this.addGrp.addButton(_('Save'), _path+'inc/template/admin/images/button-save.png', this.save.bind(this));
-        this.addDeleteBtn = this.addGrp.addButton(_('Delete'), _path+'inc/template/admin/images/icons/delete.png', this.remove.bind(this));
 
         this.addGenerateBtn = this.addGrp.addButton(    
-            _('Generate now'),
+            _('Save and generate'),
             _path+'inc/template/admin/images/button-save-and-publish.png', 
             this.generate.bind(this)
         );
+        this.addDeleteBtn = this.addGrp.addButton(_('Delete'), _path+'inc/template/admin/images/icons/delete.png', this.remove.bind(this));
 
 
         this.addGrp.hide();
@@ -285,10 +293,38 @@ var admin_system_backup = new Class({
     
         this.left.empty();
         this.items = {};
+    
+        if( pItems['__noPopenAvailable'] )
+            this.addPopenNotice();
         
         Object.each( pItems, function(item, id ){
-            this.addItem( id, item );
+            if( id != '__noPopenAvailable' )
+                this.addItem( id, item );
         }.bind(this));
+    
+    },
+    
+    addPopenNotice: function(){
+    
+        if( this.noAsyncSupport == true ) return;
+    
+        this.noAsyncSupport = true;
+    
+        this.left.setStyle('border-bottom', '1px solid silver' );
+        
+        this.notice = new Element('div', {
+            style: 'position: absolute; bottom: 0px; left:0px; width: 190px; padding: 5px;'+
+                    'height: 40px;background-color: #eee; line-height: 20px;',
+            html: _('Your server does not support asynchronous php executions. <ka:help id="admin/backup_no_popen_support">More</ka:help>')
+        }).inject( this.win.content, 'top' );
+        
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/error.png',
+            style: 'margin-right: 3px;',
+            align: 'top'
+        }).inject( this.notice, 'top' );
+        
+        this.left.tween('bottom', 51);
     
     },
     
@@ -296,7 +332,10 @@ var admin_system_backup = new Class({
         
         this.deselect();
         this.lastSelect = this.items[ pId ];
-        
+
+        if( this.lastZipList )
+            this.lastZipList.destroy();
+
         this.btnNewBackup.setPressed(false);
         this.btnImport.setPressed(false);
         this.addDeleteBtn.show();
@@ -312,6 +351,38 @@ var admin_system_backup = new Class({
         
         this.items[ pId ].addClass('ka-backup-item-active');
         
+        if( values.generated > 0 ){
+            
+            this.lastZipList = new Element('ol', {
+                'class': 'ka-backup-ziplist'
+            }).inject( this.main, 'top' );
+        
+            new Element('h3', {
+                text: _('Generated backup files'),
+                style: 'margin-bottom: 5px;'
+            }).inject( this.lastZipList );
+            
+            
+            Array.each(values.done, function(zip){
+            
+                var li = new Element('li', {
+                    'class': 'ka-backup-ziplist-item',
+                    html: '<a title="'+_('Download')+'" target="_blank" href="'+_path+'admin/system/backup/download/?file='+zip.name+'&id='+pId+'">'+
+                    zip.name+'</a><br /> <span style="color: gray">'+_('took %f seconds').replace('%f', zip.took_time.toFixed(2))+'</span>'
+                }).inject( this.lastZipList );
+                
+                var div = new Element('div', {
+                    style: 'position: absolute; bottom: 5px; right: 4px; text-align: right;'
+                }).inject( li );
+                
+                //TODO
+                new ka.Button(_('Delete')).inject( div );
+                new ka.Button(_('Import')).inject( div );
+            
+            }.bind(this));
+        
+        }
+        
     },
     
     addItem: function( pId, pItem ){
@@ -325,7 +396,7 @@ var admin_system_backup = new Class({
         div.store('id', pId);
         this.items[ pId ] = div;
         
-        new Element('h2', {
+        var h2 = new Element('h2', {
             text: '#'+pId
         }).inject( div );
         
@@ -361,16 +432,41 @@ var admin_system_backup = new Class({
         new Element('div', {
             html: _('Generated %d backups.').replace('%d', '<b>'+(pItem.generated?pItem.generated:0)+'</b>')
         }).inject( div );
-        
+    
+
         if( pItem.working ){
             this.attachProgressBar( div );
+        
+            if( pItem.startThroughAdministration ){
+        
+                var info = new Element('div', {
+                    'class': 'ka-backup-item-red',
+                    text: _('Started through administration!')
+                }).inject( h2, 'after' );
+                
+                new Element('img', {
+                    src: _path+'inc/template/admin/images/icons/error.png',
+                    style: 'margin-right: 3px;',
+                    align: 'top'
+                }).inject( info, 'top' );
+    
+                new Element('div', {
+                    style: 'padding-bottom: 5px;',
+                    html: _('Do not close the administration until the backup is done. <ka:help id="admin/backup_started_in_administration">More</ka:help>')
+                }).inject( info, 'after' );
+            }
+        }
+        
+        
+        if( this.startNextBackupId == pId ){
+            this.startBackup( pId );
         }
         
     },
     
     attachProgressBar: function( pDiv ){
     
-        var progress = new ka.Progress( false, 'Loading ...' );
+        var progress = new ka.Progress( 'Loading ...', true );
         document.id(progress).inject( pDiv );
         document.id(progress).setStyle( 'margin-top', 5 );
         
@@ -383,27 +479,45 @@ var admin_system_backup = new Class({
             start: _('Started'),
             not_found: _('Backup deleted.'),
             done: '<b style="color: green">'+_('Done')+'</b>',
-            domain: 'Domain: %s'
+            domain: 'Domain: %s',
+            gatherDone: _('Creating zip file.')
         };
         
+
         update = function(){
             new Request.JSON({url: _path+'admin/system/backup/state', onComplete: function(res){
+
                 if( !this.closed ){
+                    
+                    if( !res ){
+                        progress.setText(_('Failed'));
+                        progress.stop();
+                        return;
+                    }
+                    
                     var expl = res.split(':');
                     var trans_id = res;
                     var param = false;
+                    
                     if( res.indexOf(':') !== false ){
                         trans_id = res.split(':')[0];
                         param = res.split(':')[1];
                     }
-                    var label = translate[trans_id];
+
+                    var label = translate[trans_id] || trans_id;
                     if( param && label )
                         label = label.replace('%s', param);
 
-                    progress.setText( res+': '+label );
-                    if( res != 'done' && res != 'error' && res != 'not_found' )
+                    progress.setText( label );
+                    if( res != 'done' && res != 'error' && res != 'not_found' ){
                         update.delay(1000, this);
+                    } else {
+                        progress.stop();
+                        if( res == 'done' )
+                            this.loadItems();
+                    }
                 }
+
             }.bind(this)}).get({id: id});
         }.bind(this);
 
@@ -419,13 +533,21 @@ var admin_system_backup = new Class({
 
         this.addSaveBtn.startTip(_('Save ...'));
         var id = '';
-        if( this.lastSelect )
+
+        if( this.lastSelect ){
             id = '?id='+this.lastSelect.retrieve('id');
+        }
 
         var req = this.fields.getValue();
         new Request.JSON({url: _path+'admin/system/backup/save'+id, onComplete: function(){
+
             this.loadItems();
             this.addSaveBtn.stopTip(_('Done'));
+
+            this.main.empty();
+            this.addGrp.hide();
+            this.btnNewBackup.setPressed(false);
+    
         }.bind(this)}).post(req);
 
     },
@@ -434,6 +556,13 @@ var admin_system_backup = new Class({
         
         if( !this.lastSelect ) return;
         
+        this.win._confirm(_('Do you really want to remove this backup? All generated backups will be deleted.'), function(res){
+            if( res ) this._remove();
+        }.bind(this));
+    },
+    
+    _remove: function(){
+
         var id = '?id='+this.lastSelect.retrieve('id');
 
         var req = this.fields.getValue();
@@ -442,21 +571,55 @@ var admin_system_backup = new Class({
         new Request.JSON({url: _path+'admin/system/backup/remove'+id, onComplete: function(){
             delete this.lastSelect;
             this.addGrp.hide();
+            delete this.lastSelect;
             this.loadItems();
         }.bind(this)}).post(req);
+
     
     },
     
+    
+    startBackup: function( pId ){
         
-    generate: function(){
+        var failed = function(){
+            ka._helpsystem.newBubble(_('Error during creating backup'),
+            _('There was a error during the creating of the backup. Please check the log window to get more informations. Maybe you should consider to increase the max_execution_time of your server.'),
+            60000 );
+        };
+        
+        new Request.JSON({url: _path+'admin/system/backup/start',
+        onComplete: function( res ){
+            if( res != true ) failed();
+        }
+        }).get({id: pId});
+        delete this.startNextBackupId;
+
+    },
+        
+    generate: function( ){
+    
         this.addGenerateBtn.startTip(_('Starting ...'));
-        var req = this.fields.getValue();
-        new Request.JSON({url: _path+'admin/system/backup/save?start=1', onComplete: function(){
-            this.loadItems();
+        var id, req = this.fields.getValue();
+
+        if( this.lastSelect ){
+            id = '&id='+this.lastSelect.retrieve('id');
+        }
+        new Request.JSON({url: _path+'admin/system/backup/save?andStart=1'+id, onComplete: function( res ){
+
             this.addGenerateBtn.stopTip(_('Started'));
+
             this.main.empty();
             this.addGrp.hide();
+            this.btnNewBackup.setPressed(false);
+            
+            if( res && res.startThroughAdministration ){
+                this.startNextBackupId = res.startThroughAdministration;
+            }
+            
+            this.loadItems();
+
         }.bind(this)}).post(req);
+
     },
     
     setAddButtons: function(){
@@ -468,10 +631,23 @@ var admin_system_backup = new Class({
         if( this.lastSelect )
             this.addDeleteBtn.show();
 
-        if( (!this.fields || this.fields.getValue('method') == 'download') && !this.lastSelect ){        
-            this.addGenerateBtn.show();
+        if( this.lastSelect ){
+        
+            var item = this.lastSelect.retrieve('item');
+
+            if( item.method == 'download' ){
+                this.addGenerateBtn.show();
+            } else {
+                this.addSaveBtn.show();
+            }
+            
+        
         } else {
-            this.addSaveBtn.show();
+            if( (!this.fields || this.fields.getValue('method') == 'download') && !this.lastSelect ){        
+                this.addGenerateBtn.show();
+            } else {
+                this.addSaveBtn.show();
+            }
         }
     },
     
@@ -495,6 +671,8 @@ var admin_system_backup = new Class({
         this.btnImport.setPressed(false);
 
         this.fields = new ka.parse( this.main, this.fieldDefs );
+        
+        delete this.lastSelect;
         this.setAddButtons();
     },
     

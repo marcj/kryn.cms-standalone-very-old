@@ -40,7 +40,7 @@ window._kml2html = function( pRes ){
     
     var kml = ['ka:help'];
     if( pRes ) {
-        pRes = pRes.replace(/<ka:help\s+id="(.*)">(.*)<\/ka:help>/g, '<a href="javascript:;" ka.wm.open(\'admin/help\', {id: \'$1\'})">$2</a>');
+        pRes = pRes.replace(/<ka:help\s+id="(.*)">(.*)<\/ka:help>/g, '<a href="javascript:;" onclick="ka.wm.open(\'admin/help\', {id: \'$1\'}); return false;">$2</a>');
     }
     return pRes;
 } 

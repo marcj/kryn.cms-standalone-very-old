@@ -24,3 +24,7 @@ inc/kryn.log
 install.log
 
 inc/template/Test
+
+inc/upload/
+
+inc/config_backups.php

@@ -657,20 +657,6 @@ class adminModule {
             copyr( $template, $temp.$template );
         }
 
-        /* layouts have to stored in the module template older
-         * if( $config['layouts'] ){
-            mkdirr($temp.'inc/templates/css/');
-            mkdirr($temp.'inc/templates/kryn/layouts/');
-            foreach( $config['layouts'] as $theme ){
-                foreach( $theme as $layoutFile ){
-                    @copy( 'inc/template/kryn/layouts/'.$layoutFile.".tpl", $temp.'inc/template/kryn/layouts/'.$layoutFile.".tpl" );
-                    @copy( 'inc/template/css/layout_'.$layoutFile.".css", $temp.'inc/template/css/layout_'.$layoutFile.".css" );
-                    $themeConf .= "$layoutFile\n";
-                }
-            }
-         }
-         */
-
         if( $config['extraFiles'] ){
             foreach( $config['extraFiles'] as $item ){
                 mkdirr( dirname($temp.$item) );

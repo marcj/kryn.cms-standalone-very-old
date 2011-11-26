@@ -180,10 +180,10 @@
           "title": "Backup",
           "type": "custom",
           "multi": false,
-          "defaultWidth": 600,
-          "defaultHeight": 400,
-          "minWidth": 500,
-          "minHeight": 400	
+          "defaultWidth": 650,
+          "defaultHeight": 450,
+          "minWidth": 650,
+          "minHeight": 450	
         },
         "module": {
           "title": "Extensionmanager",

@@ -15,7 +15,8 @@ class adminStoreDomains extends adminStore {
             return array();
 
         return array(
-            $pId => '['.$domain['lang']. '] ' .$domain['domain']
+            'id' => $pId,
+            'label' => '['.$domain['lang']. '] ' .$domain['domain']
         );
     }
     
@@ -32,9 +33,7 @@ class adminStoreDomains extends adminStore {
                 $domains[$domain['rsn']] =  '['.$domain['lang']. '] ' .$domain['domain'];
             }
         }
-            
-            
-            
+
         return $domains;
     }
 

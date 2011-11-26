@@ -16,6 +16,11 @@
     background-color: #f3f3f3;   
 }
 
+.ka-progress-unlimited-stopped {
+    background-image: url(../images/unlimited-loading.png?nc=3);
+    background-color: #f3f3f3;   
+}
+
 .ka-progress-bar {
     -moz-border-radius: 3px;
     background-color: #c3e4f2;

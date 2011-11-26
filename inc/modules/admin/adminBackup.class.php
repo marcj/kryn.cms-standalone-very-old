@@ -4,6 +4,11 @@
 class adminBackup {
 
     public static function init(){
+        global $config_backups;
+    
+        if( file_exists('inc/config_backups.php') )
+            include('inc/config_backups.php');
+    
         switch( getArgv(4) ){
             case 'list':
                 return self::getItems();
@@ -16,61 +21,115 @@ class adminBackup {
                     return self::addItem();
             case 'state':
                 return self::state( getArgv('id') );
+            case 'start':
+                return self::doBackup( getArgv('id') );
             case 'generate':
                 return self::createBackup();
+            case 'download':
+                return self::sendBackup( getArgv('id'), getArgv('file') );
             default:
                 return array('error'=>'param_failed');
         }
     }
     
-    public static function state( $pBackupId ){
-        global $cfg;
+    public static function sendBackup( $pId, $pFile ){
+        global $config_backups;
 
-        if( !$cfg['backups'][$pBackupId] ) return 'not_found';        
+        $path = '';
+        foreach( $config_backups[$pId]['done'] as $done ){
+            if( $done['name'] == $pFile ){
+                $path = $done['path'];
+                break;
+            }
+        }
+        
+        if( $path && file_exists($path) ){
+
+            $fsize = filesize( $path );
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header("Content-Type: application/zip");
+            header('Content-Disposition: attachment; filename="'.basename($path).'"');
+            header("Content-Transfer-Encoding: binary"); 
+            header("Content-Length: ".$fsize);
+            flush();
+            readFile( $path );
+            exit;
+        }
+        
+        return false;
+    
+    }
+    
+    public static function state( $pBackupId ){
+        global $config_backups;
+        
+        if( !$config_backups[$pBackupId] ) return 'not_found';        
         
         $path = self::getTempFolder().'kryn_backup_'.$pBackupId;
-        $state = kryn::fileRead( $path.'/step' );
+        $state = kryn::fileRead( $path.'_step' );
 
         return $state;        
     }
 
     public static function removeItem( $pId ){
-        global $cfg;
+        global $config_backups;
         
-        unset($cfg['backups'][$pId]);
+        $path = $config_backups[$pId]['_path'];
+        delDir( $path.'_zips' );
+        unlink( $path.'_step' );
+        delDir( $path.'/' );
         
-        kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
+        unset($config_backups[$pId]);
+        
+        kryn::fileWrite('inc/config_backups.php', "<?php \n\$config_backups = ".var_export($config_backups,true)."\n?>");
         
         return true;
     }
     
     
     public static function saveItem( $pId ){
-        global $cfg;
+        global $config_backups;
+
+        if( !$config_backups )
+            $config_backups = array();
         
-        if( !$cfg['backups'] )
-            $cfg['backups'] = array();
-        
-        $cfg['backups'][$pId] = $_POST;
-        
-        kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
+        if( is_array($config_backups[$pId]) )
+            $config_backups[$pId] = array_merge($config_backups[$pId], $_POST);
+        else
+            $config_backups[$pId] = $_POST;
+            
+        if( getArgv('andStart') && !function_exists('popen') ){
+            $config_backups[$pId]['startThroughAdministration'] = true;
+            $config_backups[$pId]['working'] = true;
+            self::startBackup( $pId, true );
+        }
+
+        kryn::fileWrite('inc/config_backups.php', "<?php \n\$config_backups = ".var_export($config_backups,true)."\n?>");
+
+        if( getArgv('andStart') ){
+            if( function_exists('popen') )
+                self::startBackup( $pId );
+            else
+                return array('startThroughAdministration' => $pId);
+        }
         
         return true;
     }
     
     public static function addItem(){
-        global $cfg;
+        global $config_backups;
         
-        if( !$cfg['backups'] )
-            $cfg['backups'] = array();
+        if( !$config_backups )
+            $config_backups = array();
         
         $path = '';
         do {
             $id = dechex(time()/mt_rand(100, 500));
             $path = self::getTempFolder().'kryn_backup_'.$id;
-        } while( $cfg['backups'][$id] && file_exists($path) );
+        } while( $config_backups[$id] && file_exists($path) );
 
-        
         mkdir($path);
         
         if( !file_exists( $path ) ){
@@ -79,34 +138,48 @@ class adminBackup {
         }
         
         $_POST['_path'] = $path;
-        $cfg['backups'][$id] = $_POST;
+        $config_backups[$id] = $_POST;
+        
+        if( getArgv('andStart') && !function_exists('popen') ){
+            $config_backups[$id]['startThroughAdministration'] = true;
+            $config_backups[$id]['working'] = true;
+            self::startBackup( $id, true );
+        }
 
         @mkdir($path);
 
-        kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
+        kryn::fileWrite('inc/config_backups.php', "<?php \n\$config_backups = ".var_export($config_backups,true)."\n?>");
 
-        if( getArgv('start') )
-            self::startBackup( $id );
+        if( getArgv('andStart') ){
+            if( function_exists('popen') )
+                self::startBackup( $id );
+            else
+                return array('startThroughAdministration' => $id);
+        }
             
         return true;
     }
     
     public static function getItems(){
-        global $cfg;
+        global $config_backups;
         
-        if( !$cfg['backups'] )
-            $cfg['backups'] = array();
+        if( !$config_backups )
+            $config_backups = array();
+            
+        if( !function_exists('popen') ){
+            $config_backups['__noPopenAvailable'] = true; 
+        }
 
-        foreach( $cfg['backups'] as $key => &$backup ){
+        foreach( $config_backups as $key => &$backup ){
             $path = self::getTempFolder().'kryn_backup_'.$key;
             if( file_exists($path) ){
-                $state = kryn::fileRead( $path.'/step' );
+                $state = kryn::fileRead( $path.'_step' );
                 if( $state && $state != '' && $state != 'done' )
                     $backup['working'] = true;
             }
         }
     
-        return $cfg['backups'];
+        return $config_backups;
     }
     
     public static function getTempFolder(){
@@ -132,19 +205,22 @@ class adminBackup {
         return sys_get_temp_dir();
     }
 
-    public static function startBackup( $pBackupCode ){
-        global $cfg;
+    public static function startBackup( $pBackupCode, $pNoAsync ){
+        global $config_backups, $cfg;
 
-        $definitions = $cfg['backups'][$pBackupCode];
+        $definitions = $config_backups[$pBackupCode];
         if( $definitions ){
             $path = self::getTempFolder().'kryn_backup_'.$pBackupCode;
         } else {
             return false;
         }
 
-        kryn::fileWrite( $path.'/step', 'preparing' );
+        @mkdir($path);
+        kryn::fileWrite( $path.'_step', 'preparing' );
         chmod($path, 0777);
-        chmod($path.'/step', 0666);
+        chmod($path.'_step', 0666);
+
+        if( $pNoAsync ) return true;
 
         if( function_exists('popen') ){
             $cmd = 'cronjob.php '.$cfg['cronjob_key'].' backup '.$pBackupCode;
@@ -154,28 +230,36 @@ class adminBackup {
 
             sleep(1);
 
-            $state = kryn::fileRead( $path.'/step' );
-            if( $state == 'preparing' ){
+            $state = kryn::fileRead( $path.'_step' );
+            if( $state != 'preparing' ){
                 klog('backup', _l('Can not start the backup process through popen() caused by a undefined error.'));
-                kryn::fileWrite( $path.'/step', 'error' );
+                kryn::fileWrite( $path.'_step', 'error' );
+                return false;
             }
+            
+            return true;
 
         } else {
-            kryn::fileWrite( $path.'/step', 'error' );
+            kryn::fileWrite( $path.'_step', 'error' );
             klog('backup', _l('Can not start the backup process through popen() caused by php functions restriction.'));
+            return false;
         }
 
     }
 
     public static function doBackup( $pBackupCode ){
-        global $cfg;
+        global $cfg, $config_backups;
 
-        $definitions = $cfg['backups'][ $pBackupCode ];
+        $definitions = $config_backups[ $pBackupCode ];
         
         $path = $definitions['_path'];
-        klog('backup', 'start');
+        klog('backup', 'Start backup '.$pBackupCode.' ('.$path.')');
+        $start = microtime(true);
 
-        kryn::fileWrite( $path.'/step', 'start' );
+        kryn::fileWrite( $path.'_step', 'start' );
+        
+        
+        kryn::fileWrite( $path.'/buildOn.json', json_encode(kryn::getDebugInformation()) );
         
         @delDir($path.'/domains');
         @delDir($path.'/nodes');
@@ -183,12 +267,18 @@ class adminBackup {
         @mkdir($path.'/domains');
         @mkdir($path.'/nodes');
 
+        include_once( 'File/Archive.php' );
+        File_Archive::setOption('zipCompressionLevel', 9);
+        
+        
+        
+        
         //pages/sites
         if( $definitions['pages'] == 'all' ){
 
             $domains = dbTableFetch('system_domains', -1);
             foreach( $domains as $domain ){
-                kryn::fileWrite( $path.'/step', 'domain:'.$domain['domain'] );
+                kryn::fileWrite( $path.'_step', 'domain:'.$domain['domain'] );
                 self::exportWebsite( $path, $domain['rsn'] );
             }
 
@@ -197,23 +287,188 @@ class adminBackup {
             foreach( $definitions['pages_domains'] as $domainRsn ){
                 
                 $domain = dbTableFetch('system_domains', 'rsn = '.$domainRsn, 1);
-                kryn::fileWrite( $path.'/step', 'domain:'.$domain['domain'] );
+                kryn::fileWrite( $path.'_step', 'domain:'.$domain['domain'] );
 
                 self::exportWebsite( $path, $domainRsn );
             }
 
-            foreach( $definitions['pages_nodes'] as $nodeRsn ){
-                $node = dbTableFetch('system_pages', ' rsn = '.$nodeRsn, 1);
-                kryn::fileWrite( $path.'/step', 'node:'.$node['title'] );
-                self::exportNode( $path, $nodeRsn );
+            foreach( $definitions['pages_nodes'] as $node ){
+                $node = dbTableFetch('system_pages', ' rsn = '.$node['rsn'], 1);
+                if( $node ){
+                    kryn::fileWrite( $path.'_step', 'node:'.$node['title'] );
+                    self::exportNode( $path, $node['rsn'] );
+                }
             }
 
         }
+        
+        
+        
+        
+        //files
+        $fileReads = array();
+        if( $definitions['files'] == 'all' ){
+        
+            $blacklist = array(
+                'inc/template/admin/', 'inc/template/js/', 'inc/template/css/', 'inc/template/kryn/', 'inc/template/users/'
+            );
+            foreach( kryn::$extensions as $extension )
+                $blacklist[] = 'inc/template/'.$extension.'/';
+            
+            kryn::fileWrite( $path.'_step', 'gatherFiles' );
+            
+            $files = find('inc/template/*', false);
+            foreach( $files as $file ){
+                if( !in_array( $file.'/', $blacklist ) ){
+                    if( is_dir( $file ) ){
+                        $subfiles = find( $file.'/*' );
+                        foreach( $subfiles as $subfile ){
+                            $fileReads[] = File_Archive::read($subfile, str_replace('inc/template/', 'files/', $subfile));
+                        }
+                    } else {
+                        $fileReads[] = File_Archive::read($file, str_replace('inc/template/', 'files/', $file));
+                    }
+                }
+            }
+        
+        } else if( $definitions['files'] == 'choose' ){
+            
+            kryn::fileWrite( $path.'_step', 'gatherFiles' );
 
-        sleep(15);
-        klog('backup', 'done');
+            foreach( $definitions['files_choose'] as $item ){
 
-        kryn::fileWrite( $path.'/step', 'done' );
+                $myPath = $item['folder'];
+
+                if( $myPath == '/' )
+                    $myPath = '';
+                else if( is_dir( 'inc/template/'.$myPath ) && substr( $myPath, -1) != '/' )
+                    $myPath .= '/';
+            
+                if( !is_dir('inc/template/'.$myPath) ){
+                    $fileReads[] = File_Archive::read( $myPath, 'files/'.$myPath );
+                } else {
+                    $files = find('inc/template/'.$myPath.'*');
+                    foreach( $files as $file ){
+                        $fileReads[] = File_Archive::read($file, str_replace('inc/template/', 'files/', $file));
+                    }
+                }
+            }
+        }
+    
+        if( count($fileReads) > 0 ){
+            $filesSource = File_Archive::readMulti($fileReads);
+            $filesZip = $path.'/files.zip';
+            
+            kryn::fileWrite( $path.'_step', 'zippingFiles' );
+            File_Archive::extract(
+                $filesSource,
+                $filesZip
+            );
+        }
+        
+        
+        
+        
+        //extensions
+        require_once('inc/modules/admin/adminModule.class.php');
+        if( $definitions['extensions'] == 'all' ){
+            @mkdir($path.'/extensions/');
+
+            $blacklist = array('admin', 'kryn', 'users');
+            foreach( kryn::$extensions as $extension ){
+                if( in_array( $extension, $blacklist ) ) continue;
+    
+                $file = adminModule::createArchive( $extension );
+                rename( $file, $path.'/extensions/'.basename($file) );
+
+            }
+        } else if( $definitions['extensions'] == 'choose' ){
+            @mkdir($path.'/extensions/');
+
+            foreach( $definitions['extensions_choose'] as $extension ){
+                $file = adminModule::createArchive( $extension );
+                rename( $file, $path.'/extensions/'.basename($file) );
+            }
+        }
+        
+        
+        
+        
+        //extensions tables
+        if( $definitions['extensions_data'] == 'all' ){
+            @mkdir($path.'/extensions_data/');
+            $blacklist = array('admin', 'kryn', 'users');
+            
+            foreach( kryn::$extensions as $extension ){
+                if( in_array( $extension, $blacklist ) ) continue;
+
+                if( class_exists($extension) && method_exists($extension, 'exportBackupData') ){
+
+                    $file = $path.'/extensions_data/'.$extension.'.data';
+                    kryn::fileWrite( $file, call_user_func(array($extension, 'exportBackupData')) );
+
+                } else {
+                    @mkdir( $path.'/extensions_data/'.$extension.'/' );
+                    $config = kryn::getModuleConfig( $extension );
+
+                    if( $config['db'] ){
+                        foreach( $config['db'] as $table => $columns ){
+                            $file = $path.'/extensions_data/'.$extension.'/'.$table.'.json';
+                            $contents = dbTableFetch( $table );
+                            if( $contents ){
+                                kryn::fileWrite( $file, json_encode($contents) );
+                            }
+                        }
+                    }
+                }
+                
+            }
+        
+        } else if( $definitions['extensions_data'] == 'choose' ){
+            @mkdir($path.'/extensions_data/');
+        
+        }
+        
+        
+        
+        
+        kryn::fileWrite( $path.'_step', 'gatherDone' );
+        
+        $subfolder = 'Kryn_Backup_'.$pBackupCode.'_'.date('Ymd_h-i-s');
+        $zipFile = $subfolder.'.zip';
+        
+        $files = find($path.'/*');
+
+        foreach( $files as $file ){
+            $reads[] = File_Archive::read($file, str_replace($path, $subfolder.'/', $file));
+        }
+        
+        $source = File_Archive::readMulti($reads);
+
+        @mkdir( $path.'_zips' );
+        $zipPath = $path.'_zips/'.$zipFile;
+        File_Archive::extract(
+            $source,
+            $zipPath
+        );
+        
+        $timeDiff = microtime(true)-$start;
+        $config_backups[$pBackupCode]['done'][] = array(
+            'took_time' => $timeDiff,
+            'name' => $zipFile,
+            'path' => $zipPath
+        );
+        $config_backups[$pBackupCode]['working'] = false;
+        $config_backups[$pBackupCode]['generated']++;
+
+        kryn::fileWrite('inc/config_backups.php', "<?php \n\$config_backups = ".var_export($config_backups,true)."\n?>");
+        
+        //delete all files
+        delDir($path);
+
+        kryn::fileWrite( $path.'_step', 'done' );
+        
+        return true;
     }
     
     public static function getNextFileId( $pPath, $pExt = '.json' ){
@@ -234,17 +489,14 @@ class adminBackup {
     
     public static function exportWebsite( $pPath, $pDomainRsn ){
 
-        
-
         $pDomainRsn += 0;
-        $nodes = self::exportTree( 0, $pDomainRsn );
         $domain = dbTableFetch('system_domains', 'rsn = '.$pDomainRsn, 1);
               
         unset($domain['rsn']);
                 
         $export = array(
             'domain' => $domain,
-            'nodes' => &$nodes
+            'nodes' => self::exportTree( 0, $pDomainRsn )
         );
         
         $id = self::getNextFileId( $pPath.'/domains' );
@@ -255,11 +507,12 @@ class adminBackup {
 
     public static function exportNode( $pPath, $pNodeRsn ){
         
-        $pNodeRsn += 0;
-        $nodes = self::exportTree( $pNodeRsn );
+        $pNodeRsn = $pNodeRsn+0;
+        $node = dbTableFetch('system_pages', ' rsn = '.$node['rsn'], 1);
+        $node['childs'] = self::exportTree( $pNodeRsn );
         
         $id = self::getNextFileId( $pPath.'/nodes' );
-        kryn::fileWrite( $pPath.'/nodes/'.$id.'.json', json_encode($nodes) );
+        kryn::fileWrite( $pPath.'/nodes/'.$id.'.json', json_encode($node) );
 
     }
     
@@ -286,7 +539,6 @@ class adminBackup {
             }
             
             //TODO $pAndAllVersions
-            
             
             $row['childs'] = self::exportTree($row['rsn'], $pDomainRsn, $pAndAllVersions);
             

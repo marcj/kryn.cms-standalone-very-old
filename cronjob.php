@@ -45,32 +45,20 @@ define('pfx', $cfg['db_prefix']);
 $umask = (in_array('umask', $cfg))?$cfg['umask']:002;
 @umask($umask);
 
-include('inc/kryn/cache.class.php');
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
 include('inc/kryn/template.global.php');
 include('inc/kryn/internal.global.php');
 include('inc/kryn/framework.global.php');
-include('inc/kryn/baseModule.class.php');
-include('inc/kryn/database.class.php');
+
 include('inc/kryn/kryn.class.php');
+include('inc/kryn/krynCache.class.php');
+include('inc/kryn/krynAcl.class.php');
+include('inc/kryn/krynNavigation.class.php');
+include('inc/kryn/krynHtml.class.php');
+include('inc/kryn/krynAuth.class.php');
+include('inc/kryn/krynSearch.class.php');
 date_default_timezone_set( $cfg['timezone'] );
-
-
-$kdb = new database(
-             $cfg['db_type'],
-             $cfg['db_server'],
-             $cfg['db_user'],
-             $cfg['db_passwd'],
-             $cfg['db_name'],
-             ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
-             ($cfg['db_forceutf8']=='1')?true:false
-);
-
-if( !database::isActive() ){
-    exec("logger die. not active");
-    die('Can not connect to database. Please check your ./inc/config.php. <div style="color: red;">'.database::lastError().'</div>');
-}
 
 
 if( $argv[2] == 'backup' ){
