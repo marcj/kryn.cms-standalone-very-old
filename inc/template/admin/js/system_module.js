@@ -447,15 +447,16 @@ var admin_system_module = new Class({
         }).inject( this.searchPane );
         
         var _this = this;
+        var chooserWin;
+        
         new ka.Button(_('Choose')).setStyles({
             position: 'relative',
             top: -1
         }).addEvent('click', function(){
-        	 ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
-                 //addFile( pValue );
+        	 chooserWin = ka.wm.openWindow( 'admin', 'backend/chooser', null, -1, {onChoose: function( pValue ){
         		 _this.directInput.value = pValue;
-                 this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler
-             },
+                 chooserWin.close();
+             }.bind(this),
              opts: {files: 1, upload: 1}
              });
         }).inject(this.searchPane);
