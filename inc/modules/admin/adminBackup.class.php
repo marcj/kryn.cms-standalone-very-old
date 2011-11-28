@@ -67,10 +67,12 @@ class adminBackup {
         $infos['sizeOfAllFiles'] = 0;
 
         $source = File_Archive::read( $zip.'/'.$folder.'/files.zip/', '', 1 );
-        while( $source->next() ) {
-            $stat = $source->getStat();
-            $infos['countOfAllFiles']++;
-            $infos['sizeOfAllFiles'] += intval($stat['size']);
+        if( $source ){
+            while( $source->next() ) {
+                $stat = $source->getStat();
+                $infos['countOfAllFiles']++;
+                $infos['sizeOfAllFiles'] += intval($stat['size']);
+            }
         }
         
         json( $infos );
@@ -249,7 +251,7 @@ class adminBackup {
         return sys_get_temp_dir();
     }
 
-    public static function startBackup( $pBackupCode, $pNoAsync ){
+    public static function startBackup( $pBackupCode, $pNoAsync = false ){
         global $config_backups, $cfg;
 
         $definitions = $config_backups[$pBackupCode];
@@ -275,7 +277,7 @@ class adminBackup {
             sleep(1);
 
             $state = kryn::fileRead( $path.'_step' );
-            if( $state != 'preparing' ){
+            if( $state == 'preparing' ){
                 klog('backup', _l('Can not start the backup process through popen() caused by a undefined error.'));
                 kryn::fileWrite( $path.'_step', 'error' );
                 return false;
@@ -294,9 +296,14 @@ class adminBackup {
     public static function doBackup( $pBackupCode ){
         global $cfg, $config_backups;
 
+        if( file_exists('inc/config_backups.php') )
+            require_once('inc/config_backups.php');
+            
         $definitions = $config_backups[ $pBackupCode ];
         
         $path = $definitions['_path'];
+
+        print 'start: '.$pBackupCode.': '.$path."\n";
         klog('backup', 'Start backup '.$pBackupCode.' ('.$path.')');
         $start = microtime(true);
 
@@ -532,19 +539,23 @@ class adminBackup {
         $subfolder = 'Kryn_Backup_'.$pBackupCode.'_'.date('Ymd_h-i-s');
         $zipFile = $subfolder.'.zip';
         
-        $files = find($path.'/*');
+        /*$files = find($path.'/*');
 
         foreach( $files as $file ){
             $reads[] = File_Archive::read($file, str_replace($path, $subfolder, $file));
         }
 
         $source = File_Archive::readMulti($reads);
+        */
 
         @mkdir( $path.'_zips' );
         $zipPath = $path.'_zips/'.$zipFile;
         File_Archive::extract(
-            $source,
-            $zipPath
+            File_Archive::read($path),
+            File_Archive::toArchive(
+                $zipPath,
+                File_Archive::toFiles()
+            )
         );
 
         $zipSize = filesize( $zipPath );

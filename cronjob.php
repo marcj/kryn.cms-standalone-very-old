@@ -30,6 +30,7 @@ $searchIndexMode = false;
 $languages = array();
 $kcache = array();
 $_AGET = array();
+define('PATH', dirname(__FILE__).'/');
 
 
 # install
@@ -52,12 +53,12 @@ include('inc/kryn/internal.global.php');
 include('inc/kryn/framework.global.php');
 
 include('inc/kryn/kryn.class.php');
+include('inc/kryn/database.class.php');
 include('inc/kryn/krynCache.class.php');
 include('inc/kryn/krynAcl.class.php');
 include('inc/kryn/krynNavigation.class.php');
 include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');
-include('inc/kryn/krynSearch.class.php');
 date_default_timezone_set( $cfg['timezone'] );
 
 
