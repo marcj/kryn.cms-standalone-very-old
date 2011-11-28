@@ -55,7 +55,7 @@ function copyr($source, $dest){
         return copy($source, $dest);
     }
     if (!is_dir($dest)) {
-        mkdir($dest);
+        mkdir($dest, 0777, true);
     }
     if (is_link($source)) {
         $link_dest = readlink($source);

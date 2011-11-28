@@ -111,6 +111,15 @@ ka.alreadyLocked = function( pWin, pResult ){
     pWin._alert(_('Currently, a other user has this content open.'));
 
 }
+ 
+ka.bytesToSize = function( bytes ){
+    var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    if (bytes == 0) return 'n/a';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    if (i == 0) { return (bytes / Math.pow(1024, i)) + ' ' + sizes[i]; }
+    return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+};
+
 
 ka.toggleMainbar = function(){
     if( $('border').getStyle('top').toInt() != 0 ){
@@ -1643,33 +1652,15 @@ ka.parse = new Class({
             
             try {
                 var obj = new ka.field( field, target, this.refs );
+
+                if( pDependField ){
+                    obj.parent = pDependField;
+                    pDependField.depends.include( obj );
+                }
+                
             } catch ( e ) {
                 logger('Error in parsing field: ka.parse + '+id+': '+e);
                 return;
-            }
-            
-            if( pDependField && field.needValue ){
-
-                pDependField.addEvent('check-depends', function(){
-                
-                    if( typeOf(field.needValue) == 'array' ){
-                        if( field.needValue.contains(pDependField.getValue()) )
-                            obj.show();
-                        else
-                            obj.hide();
-                    } else if( typeOf(field.needValue) == 'function' ){
-                        if( field.needValue.attempt( pDependField.getValue() ) )
-                            obj.show();
-                        else
-                            obj.hide();
-                    } else {
-                        if( field.needValue == pDependField.getValue() )
-                            obj.show();
-                        else
-                            obj.hide();
-                    }
-                }.bind(this));
-
             }
             
             if( field.depends ){
@@ -1695,6 +1686,43 @@ ka.parse = new Class({
                 }
 
                 this.parseLevel( field.depends, childContainer, obj );
+
+                obj.addEvent('check-depends', function(){
+                
+                    Array.each( this.depends, function(sub){
+                    
+                        if( typeOf(sub.field.needValue) == 'array' ){
+                            if( sub.field.needValue.contains(this.getValue()) )
+                                sub.show();
+                            else
+                                sub.hide();
+                        } else if( typeOf(sub.field.needValue) == 'function' ){
+                            if( sub.field.needValue.attempt( this.getValue() ) )
+                                sub.show();
+                            else
+                                sub.hide();
+                        } else {
+                            if( sub.field.needValue == this.getValue() )
+                                sub.show();
+                            else
+                                sub.hide();
+                        }
+                    }.bind(this));
+                    
+                    var hasVisibleChilds = false;
+
+                    Array.each( this.depends, function(sub){
+                        if( !sub.isHidden() )
+                            hasVisibleChilds = true;
+                    });
+
+                    if( hasVisibleChilds ){
+                        this.childContainer.setStyle('display', 'block');
+                    } else {
+                        this.childContainer.setStyle('display', 'none');
+                    }
+
+                }.bind(obj));
 
                 obj.fireEvent('check-depends');
             }

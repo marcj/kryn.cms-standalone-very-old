@@ -1,21 +1,26 @@
 a.ka-Button, a.ka-Button:link {
     padding: 5px 5px 6px 10px;
-    cursor: default;
+    cursor: pointer;
     position: relative;
-    /*
-    background-color: #f5f5f5;
-    */
     top: 2px;
+    left: -1px;
     color: #222;
     line-height: 22px;
     font-weight: normal;
+    
     -moz-border-radius: 4px;
+    border-radius: 4px;
     -webkit-border-radius: 4px;
-    margin: 0px 3px;
+    
+    margin-right: 3px;
+    margin-left: 4px;
+    
     text-decoration: none;
     outline: 0;
+    
     background-image: url(../images/button-bg.png);
     background-repeat: no-repeat;
+    outline: 0;
 }
 
 a.ka-Button:hover {
@@ -35,46 +40,37 @@ a.ka-Button span, a.ka-Button:link span {
 }
 
 
+a.ka-Button:hover {
+    background-position: left -27px;
+}
 a.ka-Button:hover span {
     background-position: right -27px;
 }
 
-a.ka-Button-active span,
-a.ka-Button-active:hover span,
-a.ka-Button-active:link span {
+a.ka-Button:active span {
     background-position: right -53px;
 }
-
-a.ka-Button-active,
-a.ka-Button-active:link,
-a.ka-Button-active:hover {
+a.ka-Button:active {
     background-position: left -53px;
     color: white;
 }
 
-a.ka-Button-active, a.ka-Button-active:link, a.ka-Button-active:hover {
-    background-color: #ccc;
+a.ka-Button-deactivate,
+a.ka-Button-deactivate:link,
+a.ka-Button-deactivate:active,
+a.ka-Button-deactivate:hover {
+    background-position: left top;
+    cursor: default;
+    color: gray;
 }
 
-/* controls */
-a.ka-button, 
-a.ka-button:link {
-    text-decoration: none;
-    outline: 0;
-    /*padding: 3px 5px 3px 5px;
-    border: 1px solid #888;
-    background-color: #ddd;*/
-    -moz-border-radius: 4px;
-    cursor: pointer;
-    font-weight: normal;
-    /*background-image: url(../images/ka-button-bg.png);*/
-}
 
-/*
-a.ka-button:hover {
-    color: #333;
-    background-image: none;
-}*/
+a.ka-Button-deactivate span,
+a.ka-Button-deactivate:link span,
+a.ka-Button-deactivate:active span,
+a.ka-Button-deactivate:hover span {
+    background-position: right top;
+}
 
 div.button-list {
     text-align: right;

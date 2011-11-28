@@ -105,14 +105,6 @@ ka.files = new Class({
         this.uploadBtn.set('html', '<span id="'+this.buttonId+'"></span>');
         this.initSWFUpload();
     },
-        
-    bytesToSize: function( bytes ){
-        var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-        if (bytes == 0) return 'n/a';
-        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        if (i == 0) { return (bytes / Math.pow(1024, i)) + ' ' + sizes[i]; }
-        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-    },
     
     minimizeUpload: function(){
     
@@ -179,7 +171,7 @@ ka.files = new Class({
         var td = new Element('td', {
             width: 60,
             style: 'text-align: center; color: gray;',
-            text: this.bytesToSize(pFile.size)
+            text: ka.bytesToSize(pFile.size)
         }).inject( tr );
 
         tr.status = new Element('td', {
@@ -500,7 +492,7 @@ ka.files = new Class({
         if( this.fileUploadSpeedLastByteSpeed == 0 ){
             speed = ' -- KB/s';
         } else {
-            speed = ' '+this.bytesToSize(this.fileUploadSpeedLastByteSpeed)+' KB/s, '+time;
+            speed = ' '+ka.bytesToSize(this.fileUploadSpeedLastByteSpeed)+' KB/s, '+time;
         }
         
         this.fileUploadDialogAllSpeed.set('html', speed);

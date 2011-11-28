@@ -39,6 +39,10 @@ ka.Progress = new Class({
         }
     },
     
+    inject: function( pTo, pWhere ){
+        this.main.inject( pTo, pWhere );
+    },
+    
     stop: function(){
         this.main.removeClass('ka-progress-unlimited');
         this.main.addClass('ka-progress-unlimited-stopped');
@@ -55,6 +59,14 @@ ka.Progress = new Class({
     
     setText: function( pTitle ){
         this.text.set('html', pTitle);
+    },
+    
+    hide: function(){
+        this.main.setStyle('display', 'none');
+    },
+    
+    show: function(){
+        this.main.setStyle('display', 'block');
     },
     
     toElement: function(){

@@ -7,6 +7,8 @@ ka.field = new Class({
     },
     
     field: {},
+    depends: [],
+    childContainer: false,
     
     initialize: function( pField, pContainer, pRefs ){
         
@@ -27,6 +29,7 @@ ka.field = new Class({
             this.tr = new Element('tr', {
                 'class': 'ka-field-main'
             }).inject( pContainer||document.hidden );
+            this.tr.store('ka.field', this);
 
             this.title = new Element('td', {
                 'class': 'ka-field-tdtitle',
@@ -40,6 +43,7 @@ ka.field = new Class({
             this.main = new Element( 'div', {
                 'class': 'ka-field-main'
             }).inject( pContainer||document.hidden );
+            this.main.store('ka.field', this);
             
             if( this.field.panel_width )
                 this.main.setStyle('width', this.field.panel_width);    
@@ -1842,6 +1846,9 @@ ka.field = new Class({
     },
 
     hide: function(){
+
+        if( this.childContainer ) this.childContainer.hide();
+
         if( this.tr )
             this.tr.setStyle( 'display', 'none' );
         else
@@ -1867,6 +1874,8 @@ ka.field = new Class({
             this.tr.setStyle( 'display', 'table-row' );
         else
             this.main.setStyle( 'display', 'block' );
+        
+        this.fireEvent('check-depends');
     },    
     
     

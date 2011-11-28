@@ -1,25 +1,18 @@
 ka.Button = new Class({
 	
     initialize: function( pTitle, pOnClick, pTooltip ){
-        this.main= new Element('a',{
-            'class': 'ka-Button ka-button',
+        this.main = new Element('a',{
+            'class': 'ka-Button',
             href: 'javascript: ;',
-            text: ($type(pTitle)=='string')?pTitle:'',
+            text: (typeOf(pTitle)=='string')?pTitle:'',
             title: (pTooltip)?pTooltip:null
-        }).addEvent('mousedown', function(e){
-            this.set('class', 'ka-Button ka-button ka-Button-active' );
-            e.stop();
-        }).addEvent('mouseup', function(){
-            this.set('class', 'ka-Button ka-button' );
-        }).addEvent('mouseout', function(){
-            this.fireEvent('mouseup');
         });
         
-        
-        if( $type(pTitle) == 'element' && pTitle.inject )
+        if( typeOf(pTitle) == 'element' && pTitle.inject )
         	pTitle.inject( this.main );
         
         new Element('span').inject( this.main );
+
         if( pOnClick )
             this.main.addEvent('click', pOnClick );
     },
@@ -94,5 +87,13 @@ ka.Button = new Class({
 
     hide: function(){
         this.main.setStyle('display', 'none');
+    },
+    
+    activate: function(){
+        this.main.removeClass('ka-Button-deactivate');
+    },
+    
+    deactivate: function(){
+        this.main.addClass('ka-Button-deactivate');
     }
 });

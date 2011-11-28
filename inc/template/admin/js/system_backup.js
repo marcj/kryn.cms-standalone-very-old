@@ -25,7 +25,6 @@ var admin_system_backup = new Class({
         }.bind(this));
         
         this.renderLayout();
-        
         //TODO check if ka.settings.cronjob_key is setup. if not, create alert with link to system->settings
         
         
@@ -121,7 +120,7 @@ var admin_system_backup = new Class({
                                 width: 50
                             }
                         }
-                    },
+                    }
                 }
             
             },
@@ -199,13 +198,15 @@ var admin_system_backup = new Class({
                     }
                 }
             },
-            
+
+            /* part of kryn.cms 1.1
             system: {
                 label: _('Make a installation package'),
-                desc: _('This includes then additionally all system files and the installer.'),
+                desc: _('This includes then additionally all system files, the contents of the system database and the installer. Does not contain your system configuration. (inc/config.php)'),
                 type: 'checkbox'
             },
-            
+            */
+
             extensions: {
                 label: _('Extensions'),
                 desc: _('Contains the whole package of an extension and also your translated languages and adjusted templates of each.'),
@@ -220,7 +221,7 @@ var admin_system_backup = new Class({
                         needValue: 'choose',
                         type: 'textlist',
                         store: 'admin/backend/stores/extensions'
-                    },
+                    }
                 }
             },
             
@@ -244,8 +245,7 @@ var admin_system_backup = new Class({
                         needValue: 'choose',
                         type: 'textlist',
                         store: 'admin/backend/stores/extensions'
-                        
-                    },
+                    }
                 }
             }
         }
@@ -342,12 +342,19 @@ var admin_system_backup = new Class({
 
         this.addGrp.show();
         this.main.empty();
+        
+        this.mainTable = new Element('table').inject( this.main );
+        this.mainTableBody = new Element('tbody').inject( this.mainTable );
 
-        this.fields = new ka.parse( this.main, this.fieldDefs );
+        this.fields = new ka.parse( this.mainTableBody, this.fieldDefs, {allTableItems:1} );
         var values = this.items[ pId ].retrieve('item');
 
         this.fields.setValue( values );
         this.setAddButtons();
+        
+        this.win.clearTitle();
+        this.win.addTitle('#'+pId);
+        this.win.params = {backup_id: pId};
         
         this.items[ pId ].addClass('ka-backup-item-active');
         
@@ -368,7 +375,7 @@ var admin_system_backup = new Class({
                 var li = new Element('li', {
                     'class': 'ka-backup-ziplist-item',
                     html: '<a title="'+_('Download')+'" target="_blank" href="'+_path+'admin/system/backup/download/?file='+zip.name+'&id='+pId+'">'+
-                    zip.name+'</a><br /> <span style="color: gray">'+_('took %f seconds').replace('%f', zip.took_time.toFixed(2))+'</span>'
+                    zip.name+'</a><br /> <span style="color: gray">'+_('took %f seconds').replace('%f', zip.took_time.toFixed(2))+', '+ka.bytesToSize(zip.size)+'</span>'
                 }).inject( this.lastZipList );
                 
                 var div = new Element('div', {
@@ -377,7 +384,9 @@ var admin_system_backup = new Class({
                 
                 //TODO
                 new ka.Button(_('Delete')).inject( div );
-                new ka.Button(_('Import')).inject( div );
+                new ka.Button(_('Import'))
+                .addEvent('click', this.import.bind(this, zip.path))
+                .inject( div );
             
             }.bind(this));
         
@@ -651,26 +660,137 @@ var admin_system_backup = new Class({
         }
     },
     
-    import: function(){
+    import: function( pFilePath ){
     
+        this.win.clearTitle();
+        this.win.addTitle(_('Import'));
+
         this.deselect();
         this.btnNewBackup.setPressed(false);
         this.btnImport.setPressed(true);
         this.addGrp.hide();
         this.main.empty();
         
+        this.importFile = new ka.field({
+            type: 'file', label: _('Backup file'), desc: _('Choose the backup file and press Extract.')
+        }, this.main);
+        
+        this.innerDiv = new Element('div', {style: 'padding: 15px; line-height: 30px;'}).inject( this.main );
+        
+        this.importExtractBtn = new ka.Button(_('Extract')).inject( this.innerDiv );
+      
+        this.importProgressDiv = new Element('div', {
+            style: 'display: none; padding: 10px; border: 1px solid #ddd; text-align: right; background-color: #f3f3f3; margin-top: 8px;'
+        }).inject( this.innerDiv );
+        this.importStatus = new ka.Progress(_('Please wait ...'), true);
+        this.importStatus.inject( this.importProgressDiv );
+        
+        document.id(this.importStatus).setStyle('margin-top', 7);
+        this.importCancelExtractBtn = new ka.Button(_('Cancel')).inject( this.importProgressDiv );
+        
+        if( typeOf(pFilePath) == 'string' ){
+            this.importFile.setValue( pFilePath );
+            this.checkImport();
+        }
+        
+    },
+    
+    checkImport: function(){
+    
+        var file = this.importFile.getValue();
+
+        this.importExtractBtn.deactivate();
+        this.importProgressDiv.setStyle('display', 'block');
+        this.importStatus.setText( _('Extracting backup informations ...') );
+        
+        this.importExtractInformationsRq = new Request.JSON({url: _path+'admin/system/backup/extractInfos', noCache: 1,
+            onComplete: this.renderBackupInfos.bind(this)    
+        }).get({file: file});
+        
+    },
+    
+    renderBackupInfos: function( pInfos ){
+    
+        this.importProgressDiv.setStyle('display', 'none');
+
+        if( !pInfos ) {
+            this.win._alert(_('There was an error during the extracting of the backup file.'));
+            return;
+        }
+        
+        this.importExtractBtn.activate();
+        
+        this.importExtractInfos = new Element('div', {
+            style: 'padding: 15px; border-top: 1px solid silver;'
+        }).inject( this.main );
+    
+        new ka.Button(_('Import following data')).inject( this.importExtractInfos );
+        new Element('div', {'style': 'margin-bottom: 15px;'}).inject( this.importExtractInfos );
+        
+        var checkboxes = {};
+        
+        //domains
+        if( pInfos.domains ){
+            checkboxes['domains'] = {};
+            new Element('h3', {text: _('Domains')}).inject( this.importExtractInfos );
+            var ol = new Element('ol').inject( this.importExtractInfos );
+            
+            Array.each(pInfos.domains, function(domain,id){
+                var li = new Element('li').inject( ol );
+                checkboxes['domains'][id] = new Element('input', {
+                    type: 'checkbox',
+                    style: 'margin-right: 3px;',
+                    checked: true
+                }).inject( li );
+                new Element('span', {
+                    text: '['+domain.lang+'] "'+domain.domain+'" '+_('with %d nodes').replace('%d', domain.page_count),
+                }).inject( li );
+            });
+        }
+        
+        //nodes
+        if( pInfos.nodes ){
+            checkboxes['nodes'] = {};
+            new Element('h3', {text: _('Nodes')}).inject( this.importExtractInfos );
+            var ol = new Element('ol').inject( this.importExtractInfos );
+            
+            Array.each(pInfos.nodes, function(node,id){
+                var li = new Element('li').inject( ol );
+                checkboxes['nodes'][id] = new Element('input', {
+                    type: 'checkbox',
+                    style: 'margin-right: 3px;',
+                    checked: true
+                }).inject( li );
+                new Element('span', {
+                    text: '"'+node.title+'" '+_('with %d childs').replace('%d', node.page_count),
+                }).inject( li );
+                new Element('div', {
+                    text: _('Please choose the entry point for this node.'),
+                    style: 'color: gray;'
+                }).inject( li );
+                
+                new ka.field({
+                    type: 'page'
+                }, li, {win:this.win})
+
+            }.bind(this));
+        }
+    
     },
 
     add: function(){
         this.main.empty();
         this.deselect();
+        
+        this.mainTable = new Element('table').inject( this.main );
+        this.mainTableBody = new Element('tbody').inject( this.mainTable );
 
         this.addGrp.show();
 
         this.btnNewBackup.setPressed(true);
         this.btnImport.setPressed(false);
 
-        this.fields = new ka.parse( this.main, this.fieldDefs );
+        this.fields = new ka.parse( this.mainTableBody, this.fieldDefs, {allTableItems:1} );
         
         delete this.lastSelect;
         this.setAddButtons();
