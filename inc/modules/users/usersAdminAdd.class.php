@@ -96,7 +96,7 @@ class usersAdminAdd extends windowAdd {
                 'label' => 'Password',
                 'type' => 'password',
                 'empty' => false,
-                'customSave' => 'savePassdw'
+                'customSave' => 'savePasswd'
             ),
             'email' => array(
                 'label' => 'Email',
