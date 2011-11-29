@@ -44,7 +44,7 @@ if( !file_exists('inc/config.php') ){
 };
 include('inc/config.php');
 
-$umask = (in_array('umask', $cfg))?$cfg['umask']:002;
+$umask = (array_key_exists('umask', $cfg))?$cfg['umask']:002;
 @umask($umask);
 
 if( !array_key_exists('display_errors', $cfg) )
