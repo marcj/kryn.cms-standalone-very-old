@@ -632,7 +632,8 @@ ka.windowEdit = new Class({
                     this.win.close();
                 }
             }.bind(this));
-        }
+        } else
+            this.win.close();
     
     },
 
