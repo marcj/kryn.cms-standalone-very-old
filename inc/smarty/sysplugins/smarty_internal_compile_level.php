@@ -27,7 +27,7 @@ class Smarty_Internal_Compile_Level extends Smarty_Internal_CompileBase {
         
         $level = str_replace('"', '',$_attr['id']);
         $level = intval($level);
-        $id = 'level_block_'.str_replace('-', 'a',$level).'_'.str_replace(',','',microtime(true)).mt_rand().mt_rand();
+        $id = 'level_block_'.str_replace('-', 'a',$level).'_'.str_replace('.', '', str_replace(',','',microtime(true))).mt_rand().mt_rand();
         
 
         $code = ''; 
