@@ -665,27 +665,74 @@ class krynAuth {
     protected function checkCredentialsDatabase( $pLogin, $pPassword ){
 
         $login = esc($pLogin);
-        $password = md5( $pPassword );
         
         $userColumn = 'username';
         if($this->config['auth_params']['email_login'] && strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false)
             $userColumn = 'email';
 
+        $saltField = ', passwd_salt';
+        $columns = database::getOptions( 'system_user' );
+        if( !$columns['passwd_salt'] )
+            $saltField = '';
+
         $row = dbExfetch("
-            SELECT rsn
+            SELECT rsn, passwd $saltField
             FROM %pfx%system_user
             WHERE 
                     rsn > 0
                 AND $userColumn = '$login'
-                AND passwd = '$password'
                 AND (auth_class IS NULL OR auth_class = 'kryn')",
             1);
-        
+            
         if( $row['rsn'] > 0 ){
+            
+            if( $row['passwd_salt'] ){
+                $hash = self::getHashedPassword( $pPassword, $row['passwd_salt'] );
+            } else {
+                if( kryn::$config['passwd_hash_compatibility'] != 1 ) return false;
+                //compatibility
+                $hash = md5($pPassword);
+            }
+            
+            if( $hash != $row['passwd'] ) return false;
+            
             $this->credentials_row = $row;
             return true;
         }
         return false;
+    }
+    
+    /**
+     *
+     * Generates a salt for a hashed password
+     */
+    public static function getSalt( $pLength = 12 ){
+    
+        $salt = 'a';
+
+        for( $i=0; $i<$pLength; $i++ ){
+            $salt[$i] = chr( mt_rand(33, 122) );
+        }
+        
+        return $salt;
+    }
+    
+    /**
+     *
+     * Returns a hashed password with salt through some rounds.
+     */
+    public static function getHashedPassword( $pPassword, $pSalt ){
+    
+        $hash = md5( ($pPassword.$pSalt).$pSalt );
+
+        for( $i = 0; $i < 5000; $i++ ){
+            for( $j = 0; $j < 32; $j++ ){
+                $hash[$j] = chr(ord($hash[$j])+ord(kryn::$config['passwd_hash_key'][$j]));
+                $hash = md5($hash);
+            }
+        }
+    
+        return $hash;
     }
 }
 

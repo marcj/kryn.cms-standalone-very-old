@@ -685,6 +685,12 @@
         "-",
         false
       ],
+      "passwd_salt": [
+        "varchar",
+        "16",
+        "-",
+        false
+      ],
       "activationkey": [
         "varchar",
         "32",

@@ -70,12 +70,6 @@ var admin_system_settings = new Class({
         this.fields['communityEmail'] = new ka.field({
             label: _('Community connect'), desc: _('If you want to publish your own extensions, layout packs or other stuff, you have to connect with the community server. Enter your community email to connect with.')
         }).inject( p );
-
-        /*this.fields['languages'] = new ka.field({
-            label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
-            type: 'select', size: 10,
-            multiple: true, tableItems: this.langs, table_key: 'rsn', table_label: 'title'
-        }).inject℗;*/
         
         this.fields['languages'] = new ka.field({
             label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
@@ -139,7 +133,12 @@ var admin_system_settings = new Class({
                 type: 'text',
                 'default': '3600'
             },
-            
+            'passwd_hash_compatibility': {
+                'type': 'checkbox',
+                'label': _('Activate the compatibility in the authentication with older Kryn.cms'),
+                'default': 1,
+                'desc': _('If you did upgrade from a older version than 1.0 than you should probably let this checkbox active.')
+            },
             'info': {
             	'type': 'html',
             	'label': _('Frontend authentication'),

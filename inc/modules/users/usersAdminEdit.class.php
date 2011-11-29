@@ -104,7 +104,7 @@ class usersAdminEdit extends windowEdit {
                 'desc' => 'Leave empty to change nothing',
                 'startempty' => true,
                 'onlyIfFilled' => true,
-                'modifier' => 'toPasswd'
+                'customSave' => 'savePasswd'
             ),
             'email' => array(
                 'label' => 'Email',
@@ -255,11 +255,15 @@ class usersAdminEdit extends windowEdit {
         $val = self::getSetting('autocrawler_minddelay');
         if( !$val ) return 200;
         return $val;
-    }
-    
+    }    
 
-    public function toPasswd( $pPw ){
-        return md5($pPw);
+    public function savePasswd( &$pRow ){
+        
+        $salt = krynAuth::getSalt();
+        $passwd = krynAuth::getHashedPassword( getArgv('passwd'), $salt );
+        $pRow['passwd'] = $passwd;
+        $pRow['passwd_salt'] = $salt;
+
     }
     
     function __destruct(){

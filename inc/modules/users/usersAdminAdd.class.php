@@ -96,9 +96,7 @@ class usersAdminAdd extends windowAdd {
                 'label' => 'Password',
                 'type' => 'password',
                 'empty' => false,
-                'add' => array(
-                    'modifier' => 'toPasswd'
-                )
+                'customSave' => 'savePassdw'
             ),
             'email' => array(
                 'label' => 'Email',
@@ -148,8 +146,13 @@ class usersAdminAdd extends windowAdd {
         dbUpdate( 'system_user', array('rsn' => $this->last), array('settings' => $settings) );
     }
     
-    public function toPasswd( $pPw ){
-        return md5($pPw);
+    public function savePasswd( &$pRow ){
+        
+        $salt = krynAuth::getSalt();
+        $passwd = krynAuth::getHashedPassword( getArgv('passwd'), $salt );
+        $pRow['passwd'] = $passwd;
+        $pRow['passwd_salt'] = $salt;
+
     }
 
 }

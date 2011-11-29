@@ -81,6 +81,7 @@ include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');
 include('inc/kryn/krynSearch.class.php');
 
+
 # Init classes and globals
 $tpl = new Smarty();
 $tpl->template_dir = 'inc/template/';

@@ -407,7 +407,12 @@ class database {
                     }
             }
             return $res;
-        }		
+        }
+        
+        public static function clearOptionsCache( $pTable ){
+            $cacheKey = 'krynDatabaseTable-'.str_replace('_', '..', $pTable);
+            kryn::deleteCache( $cacheKey );
+        }
 
         public static function getOptions( $pTable ){
             

@@ -1200,6 +1200,12 @@ class kryn {
             $cfg['cronjob_key'] = dechex(time()/mt_rand(100, 500));
             kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
         }
+        
+        if( !$cfg['passwd_hash_key'] ){
+            $cfg['passwd_hash_compatibility'] = 1;
+            $cfg['passwd_hash_key'] = krynAuth::getSalt(32);
+            kryn::fileWrite('inc/config.php', "<?php \n\$cfg = ".var_export($cfg,true)."\n?>");
+        }
 
         if( $cfg['cache_type'] == 'files' ){
         

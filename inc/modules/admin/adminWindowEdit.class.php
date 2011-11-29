@@ -411,13 +411,17 @@ class adminWindowEdit {
             if( $field['type'] == 'subview' ) continue;
 
             $val = getArgv($key);
+
+            if( $field['update']['onlyIfFilled'] || $field['onlyIfFilled'] ){
+                if( empty($val) ) continue;
+            }
             
             if( $field['customSave'] != '' ){
                 $func = $field['customSave'];
-                if( function_exists( $func ) )
-                    $func();
                 if( method_exists( $this, $func ) )
-                    $this->$func();
+                    $this->$func( $row );
+                else if( function_exists( $func ) )
+                    $func( $row );
                 continue;
             }
             
@@ -426,10 +430,6 @@ class adminWindowEdit {
 
             if( $field['type'] == 'select' && $field['relation'] == 'n-n' )
                 continue;
-
-            if( $field['update']['onlyIfFilled'] || $field['onlyIfFilled'] ){
-                if( empty($val) ) continue;
-            }
 
             $mod = ($field['update']['modifier'])?$field['update']['modifier']:$field['modifier'];
             if( $mod ){

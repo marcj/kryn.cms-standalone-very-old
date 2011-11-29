@@ -98,7 +98,7 @@ class adminDb {
                 self::_installTable( $tableName, $tableFields );
                 $res .= "Create table <i>$tableName</i>\n";
             }
-            kryn::deleteCache('kryn_database_'.$tableName);
+            database::clearOptionsCache( $tableName );
         }
         $res .= "\nDatabase installed.\n";
         

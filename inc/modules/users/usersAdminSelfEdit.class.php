@@ -36,7 +36,7 @@ class usersAdminSelfEdit extends windowEdit {
 	            'type' => 'password',
 	            'startempty' => true,
 	            'onlyIfFilled' => true,
-	            'modifier' => 'toPasswd'
+	            'customSave' => 'savePasswd'
 	        ),
             'groups' => array(
                 'label' => 'Groups',
@@ -176,8 +176,13 @@ class usersAdminSelfEdit extends windowEdit {
         return $val;
     }
 
-    public function toPasswd( $pPw ){
-        return md5($pPw);
+    public function savePasswd( &$pRow ){
+        
+        $salt = krynAuth::getSalt();
+        $passwd = krynAuth::getHashedPassword( getArgv('passwd'), $salt );
+        $pRow['passwd'] = $passwd;
+        $pRow['passwd_salt'] = $salt;
+
     }
     
     function __destruct(){

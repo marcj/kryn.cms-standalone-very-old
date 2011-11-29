@@ -16,7 +16,8 @@ class adminWindowAdd extends adminWindowEdit {
     function saveItem(){
         $tableInfo = $this->db[$this->table];
 
-        $sql = 'INSERT INTO %pfx%'.$this->table.' ';
+        $row = array();
+
         foreach( $this->_fields as $key => $field ){
             
             if( $field['fake'] == true ) continue;
@@ -28,7 +29,12 @@ class adminWindowAdd extends adminWindowEdit {
                 $val = $this->$mod($val);
             }
 
-            if( !empty($field['customSave']) ){
+            if( $field['customSave'] != '' ){
+                $func = $field['customSave'];
+                if( method_exists( $this, $func ) )
+                    $this->$func( $row );
+                else if( function_exists( $func ) )
+                    $func( $row );
                 continue;
             }
             
