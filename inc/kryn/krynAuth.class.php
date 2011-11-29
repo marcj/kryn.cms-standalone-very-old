@@ -728,8 +728,8 @@ class krynAuth {
         for( $i = 0; $i < 5000; $i++ ){
             for( $j = 0; $j < 32; $j++ ){
                 $hash[$j] = chr(ord($hash[$j])+ord(kryn::$config['passwd_hash_key'][$j]));
-                $hash = md5($hash);
             }
+            $hash = md5($hash);
         }
     
         return $hash;
