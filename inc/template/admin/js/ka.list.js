@@ -575,7 +575,7 @@ ka.list = new Class({
     loadPage: function( pPage ){
         var _this = this;
 
-        if( this._lastItems && pPage != 1 && !pForce ){
+        if( this._lastItems && pPage != 1 ){
             if( pPage > this._lastItems.maxPages )
                 return;
         }
