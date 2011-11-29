@@ -639,7 +639,7 @@ ka.windowEdit = new Class({
     _save: function( pClose, pPublish ){
         var go = true;
         var _this = this;
-        var req;
+        var req = {};
 
         var data = this.retrieveData();
         
@@ -649,6 +649,8 @@ ka.windowEdit = new Class({
         
         if( this.item ){
             req = Object.merge(this.item, data);
+        } else {
+            req = data;
         }
 
         req.publish = (pPublish==true)?1:0;
