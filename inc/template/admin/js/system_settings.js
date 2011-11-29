@@ -271,8 +271,6 @@ var admin_system_settings = new Class({
         this.fields['db_forceutf8'] = new ka.field({
             label: _('Force UTF8'), desc: _('If your mysql does not use utf8 as default, enable force utf8'), type: 'checkbox'
         }).inject( p );
-        
-        
 
         var p = this.panes['caching'];
         
@@ -309,17 +307,16 @@ var admin_system_settings = new Class({
 
         this.loader.show();
 
-
         this.lr = new Request.JSON({url: _path+'admin/system/settings/loadSettings', noCache: 1, onComplete: function(res){
 
         	this.systemValues = res.system;
             Object.each(this.fields, function(field,key){
             	if( !field ) return;
 
-                if( res.system[key] ){
-                    field.setValue( res.system[key], true );
-                } else if( key.indexOf('[') != -1 ){
+                if( key.indexOf('[') != -1 ){
                     field.setArrayValue( res.system, key, true );
+                } else {
+                    field.setValue( res.system[key], true );
                 }
 
             });

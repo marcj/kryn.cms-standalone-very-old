@@ -297,28 +297,33 @@ function checkDb(){
 
 
     if( $res['res'] == true ){
-        $config = '<?php $cfg = array(
-    "db_server"		=> "'.$_REQUEST['server'].'",
-    "db_user"		=> "'.$_REQUEST['username'].'",
-    "db_passwd"		=> \''.$_REQUEST['passwd'].'\',
-    "db_name"		=> "'.$_REQUEST['db'].'",
-    "db_prefix"		=> "'.$_REQUEST['prefix'].'",
-    "db_type"		=> "'.$_REQUEST['type'].'",
-    "db_pdo"		=> "'.$_REQUEST['pdo'].'",
-    "db_forceutf8"		=> "'.$_REQUEST['forceutf8'].'",
-    "tpl_cpl"		=> "inc/compile",
-    "caching_type"		=> "files",
-    "files_path"	=> "inc/cache/",
-    "template_cache" => "inc/tcache/",
-    "display_errors" => "0",
-    "log_errors" => "0",
-    "systemtitle" => "Fresh install",
-    "rewrite"   => false,
-    "locale" => "de_DE.UTF-8",
-    "path"			=> "'.$path.'", 
-    "timezone" => "'.$timezone.'"
+        $cfg = array(
+        
+            'db_server' => $_REQUEST['server'],
+            'db_user'   => $_REQUEST['username'],
+            'db_passwd' => $_REQUEST['passwd'],
+            'db_name'   => $_REQUEST['db'],
+            'db_prefix' => $_REQUEST['prefix'],
+            'db_type'   => $_REQUEST['type'],
+            'db_pdo'    => $_REQUEST['pdo'],
+            'db_type'   => $_REQUEST['server'],
+            'db_forceutf8'   => $_REQUEST['forceutf8'],
+            'db_type'        => $_REQUEST['server'],
+            "tpl_cpl"	     => "inc/compile",
+            "caching_type"   => "files",
+            "files_path"     => "inc/cache/",
+            "template_cache" => "inc/tcache/",
+            "display_errors" => "0",
+            "log_errors"     => "0",
+            "systemtitle"    => "Fresh install",
+            "rewrite"        => false,
+            "locale"         => "de_DE.UTF-8",
+            "path"			 => $path,
+            "passwd_hash_compatibility" => "0",
+            "timezone"       => $timezone
+        );
+        $config = '<?php $cfg = '. var_dump($cfg,true) .'; ?>';
 
-); ?>';
         $f = @fopen( 'inc/config.php', 'w+' );
         if( !$f ){
             $res['error'] = 'Can not open file inc/config.php - please change the permissions.';

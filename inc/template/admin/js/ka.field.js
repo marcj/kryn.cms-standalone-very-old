@@ -1587,11 +1587,11 @@ ka.field = new Class({
         }.bind(this);
 
         this._setValue = function( p ){
-            if( !p ) p = false;
-            if( p == 0 ) p = false;
+            if( typeOf( p ) == 'null' ) p = this.field['default'] || false;
+            if( p == 0 || p == "0" ) p = false;
             if( p == 1 ) p = true;
             this.value = p;
-            if( this.value ){
+            if( this.value == 1 ){
                 div.addClass('ka-field-checkbox-on');
                 div.removeClass('ka-field-checkbox-off');
             } else {
