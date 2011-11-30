@@ -23,4 +23,6 @@ inc/template/Test
 
 data/packages/
 
+data/fileversions/
+
 inc/config_backups.php
