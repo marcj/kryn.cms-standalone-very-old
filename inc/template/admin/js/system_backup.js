@@ -776,6 +776,37 @@ var admin_system_backup = new Class({
             }.bind(this));
         }
     
+    
+        //files
+        
+        if( pInfos.countOfAllFiles > 0 ){
+            checkboxes['files'] = {};
+            new Element('h3', {text: _('Files')}).inject( this.importExtractInfos );
+            var ol = new Element('ol').inject( this.importExtractInfos );
+            
+            Object.each(pInfos.files, function(files,id){
+            
+                var li = new Element('li').inject( ol );
+                checkboxes['files'][id] = new Element('input', {
+                    type: 'checkbox',
+                    style: 'margin-right: 3px;',
+                    checked: true
+                }).inject( li );
+                new Element('span', {
+                    html: _('Folder %s with %d files (%f)')
+                        .replace('%s', '<span style="color: #555;">'+id+'/</span>')
+                        .replace('%d', pInfos.countOfFiles[id])
+                        .replace('%f', ka.bytesToSize(pInfos.sizeOfFiles[id])),
+                }).inject( li );
+                
+                var fol = new Element('ol', {style: 'color: #666; line-height: 15px;'}).inject( li );
+                Array.each( files, function(file){
+                    new Element('li',{text:file}).inject( fol );
+                });
+
+            }.bind(this));
+        } 
+    
     },
 
     add: function(){

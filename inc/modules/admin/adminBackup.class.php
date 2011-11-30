@@ -69,7 +69,16 @@ class adminBackup {
         $source = File_Archive::read( $zip.'/'.$folder.'/files.zip/', '', 1 );
         if( $source ){
             while( $source->next() ) {
+                $folder = $source->getFilename();
+                $folder = substr($folder, 6);
+                $pos = strpos( $folder, '/' );
                 $stat = $source->getStat();
+                if( $pos ){
+                    $folder = substr($folder, 0, $pos);
+                    $infos['files'][$folder][] = substr($source->getFilename(), 6);
+                    $infos['countOfFiles'][$folder]++;
+                    $infos['sizeOfFiles'][$folder] += intval($stat['size']);
+                }
                 $infos['countOfAllFiles']++;
                 $infos['sizeOfAllFiles'] += intval($stat['size']);
             }
@@ -551,7 +560,7 @@ class adminBackup {
         @mkdir( $path.'_zips' );
         $zipPath = $path.'_zips/'.$zipFile;
         File_Archive::extract(
-            File_Archive::read($path),
+            File_Archive::read($path, $subfolder.'/'),
             File_Archive::toArchive(
                 $zipPath,
                 File_Archive::toFiles()
