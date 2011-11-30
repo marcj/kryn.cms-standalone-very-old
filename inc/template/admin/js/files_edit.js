@@ -18,7 +18,8 @@ var admin_files_edit = new Class({
     
     loadFile: function(){
         new Request.JSON({url: _path+'admin/files/getFile', noCache: 1, onComplete: function(res){
-            this.textarea.value = res;
+            if( typeOf(res) != 'null' )
+                this.textarea.value = res;
             this.renderCodePress();
         }.bind(this)}).get({ path: this.win.params.file.path });
     },
@@ -49,8 +50,8 @@ var admin_files_edit = new Class({
                 } 
                 this.editor = CodeMirror.fromTextArea(this.textarea, {
                   parserfile: js,
-                  path: _path+"inc/codemirror/js/",
-                  stylesheet: _path+"inc/codemirror/css/"+css+"colors.css"
+                  path: _path+"inc/lib/codemirror/js/",
+                  stylesheet: _path+"inc/lib/codemirror/css/"+css+"colors.css"
                 });
             }
         }

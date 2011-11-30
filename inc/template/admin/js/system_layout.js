@@ -138,9 +138,9 @@ var admin_system_layout = new Class({
 
         this.editor = CodeMirror.fromTextArea(this.textarea, {
           parserfile: "parsexml.js",
-          path: _path+"inc/codemirror/js/",
+          path: _path+"inc/lib/codemirror/js/",
           onChange: this.extractCssFiles.bind(this),
-          stylesheet: _path+"inc/codemirror/css/xmlcolors.css"
+          stylesheet: _path+"inc/lib/codemirror/css/xmlcolors.css"
         });
 
         bottomBar = new Element('div', {

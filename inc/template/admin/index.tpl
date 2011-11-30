@@ -11,27 +11,27 @@
         <script type="text/javascript" src="{$cfg.templatepath}/admin/mootools-extras/powertools-1.0.5.js" ></script>
         
         
-		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.js"></script>
-		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.UI.MenuList.js"></script>
-		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.Extras.js"></script>
-		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
-		<script type="text/javascript" src="{$cfg.path}inc/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.UI.MenuList.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.Extras.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
+		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
         
         <script type="text/javascript" src="{$cfg.path}admin/js=global.js/?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getPossibleLangs:1/?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
         
-        <script type="text/javascript" src="{$cfg.path}inc/codemirror/js/codemirror.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/js/codemirror.js"></script>
 
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc={$time}" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Button.js" ></script>
         
-		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.css">
-		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
-		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">
-		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.Image.css">
-		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/mooeditable/Assets/MooEditable/MooEditable.Table.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Image.css">
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Table.css">
         
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.ai.css" />
 

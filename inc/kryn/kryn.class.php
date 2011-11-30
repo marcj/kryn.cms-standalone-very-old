@@ -675,7 +675,7 @@ class kryn {
 
         $md5 = '';
         foreach( $extensions as $extension ){
-            $path = ( $extension == 'kryn' )? 'inc/kryn/config.json':'inc/modules/'.$extension.'/config.json';
+            $path = ( $extension == 'kryn' )? 'inc/kryn/config.json':PATH_MODULE.''.$extension.'/config.json';
             if( file_exists( $path ) ){
                 $md5 .= '.'.filemtime( $path );
                 kryn::$extensions[] = $extension;
@@ -796,7 +796,7 @@ class kryn {
         if( $pModule == 'kryn' )
             $config = "inc/kryn/config.json";
         else
-            $config = "inc/modules/$pModule/config.json";
+            $config = PATH_MODULE."$pModule/config.json";
 
         if( !file_exists($config) ){
             return false;
@@ -815,7 +815,7 @@ class kryn {
 
         if( !$configObj ){
             //delete all config caches from this module
-            $delfiles = glob("inc/cache/moduleConfig-$pModule"."-$lang"."-*.php");
+            $delfiles = glob("cache/object/moduleConfig-$pModule"."-$lang"."-*.php");
             
             if( count($delfiles) > 0 )
                 foreach( $delfiles as $delfile )
@@ -840,11 +840,11 @@ class kryn {
     public static function initModules(){
         global $modules;
         
-        include_once("inc/modules/users/users.class.php");
+        include_once(PATH_MODULE."users/users.class.php");
         $modules['users'] = new users();
 
         foreach( kryn::$extensions as $mod ){
-            $classFile = 'inc/modules/'.$mod.'/'.$mod.'.class.php';
+            $classFile = PATH_MODULE.''.$mod.'/'.$mod.'.class.php';
             if( $mod != 'admin' && $mod != 'users' ){
                 if( file_exists($classFile) ){
                     include_once( $classFile );
@@ -1210,7 +1210,7 @@ class kryn {
         if( $cfg['cache_type'] == 'files' ){
         
             if( !$cfg['cache_params'] || $cfg['cache_params']['files_path'] == '' ){
-                $cfg['cache_params']['files_path'] = 'inc/cache/';
+                $cfg['cache_params']['files_path'] = 'cache/object/';
             }
             
         }
@@ -1220,14 +1220,14 @@ class kryn {
         if( function_exists('apc_store'))
             kryn::$cacheFast = new krynCache( 'apc' );
         else
-            kryn::$cacheFast = new krynCache( 'files', array('files_path' => 'inc/cache/') );
+            kryn::$cacheFast = new krynCache( 'files', array('files_path' => 'cache/object/') );
         
-        if( !$cfg['template_cache'] )
-            $cfg['template_cache'] = 'inc/tcache/';
+        if( !$cfg['media_cache'] )
+            $cfg['media_cache'] = 'cache/media/';
 
-        if( !is_dir($cfg['template_cache']) ){
-            if( !@mkdir($cfg['template_cache']) )
-               kryn::internalError('Can not create folder for template caching: '.$cfg['template_cache']);
+        if( !is_dir($cfg['media_cache']) ){
+            if( !@mkdir($cfg['media_cache']) )
+               kryn::internalError('Can not create folder for template caching: '.$cfg['media_cache']);
         }
         
         kryn::$config =& $cfg;
@@ -1248,7 +1248,7 @@ class kryn {
             } else {
 
                 $ex = explode( '/', $cfg['auth_class'] );
-                $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+                $class = PATH_MODULE."".$ex[0]."/".$ex[1].".class.php";
 
                 if( file_exists($class) ){
                     require_once( $class );
@@ -1273,7 +1273,7 @@ class kryn {
                 $client = new krynAuth( $sessionDefinition );
             } else {
                 $ex = explode( '/', $sessionDefinition['auth_class'] );
-                $class = "inc/modules/".$ex[0]."/".$ex[1].".class.php";
+                $class = PATH_MODULE."".$ex[0]."/".$ex[1].".class.php";
                 if( file_exists($class) ){
                     require_once( $class );
                     $authClass = $ex[1];
@@ -1424,7 +1424,7 @@ class kryn {
         }
 
         if( !$cachedUrls ){
-            require_once( 'inc/modules/admin/adminPages.class.php' );
+            require_once( PATH_MODULE.'admin/adminPages.class.php' );
             $cachedUrls = adminPages::updateUrlCache( $domain_rsn );
         }
         
@@ -1619,7 +1619,7 @@ class kryn {
         }
         $code = 'cacheLang_'.$pLang;
         kryn::setPhpCache($code, false);
-        @unlink('inc/cache/lang_'.$pLang.'.json');
+        @unlink('cache/object/lang_'.$pLang.'.json');
     }
 
     /**
@@ -1646,7 +1646,7 @@ class kryn {
             $lang = array();
             foreach( kryn::$extensions as $key ){
                 if( $key != 'kryn' )
-                    $json = kryn::fileRead( 'inc/modules/'.$key.'/lang/'.$pLang.'.json' );
+                    $json = kryn::fileRead( PATH_MODULE.''.$key.'/lang/'.$pLang.'.json' );
                 else
                     $json = kryn::fileRead( 'inc/kryn/lang/'.$pLang.'.json' );
                 $ar = json_decode($json,true);
@@ -1763,9 +1763,9 @@ class kryn {
 
             $possibleLanguage = self::getPossibleLanguage();
             $domains =& kryn::getCache('domains');
-
+        
             if( !$domains || $domains['r2d'] ){
-                require_once('inc/modules/admin/adminPages.class.php');
+                require_once(PATH_MODULE.'admin/adminPages.class.php');
                 $domains = adminPages::updateDomainCache();
             }
 
@@ -1792,7 +1792,6 @@ class kryn {
                 }
                 
             }
-            
 
             if(! $domain['rsn'] > 0 ){
                 klog("system", "Domain <i>$domainName</i> not found. Language: $possibleLanguage");
@@ -2129,7 +2128,7 @@ class kryn {
         
         $page2Domain =& kryn::getCache('page2Domains');
         if( !is_array($page2Domain) ) {
-            require_once('inc/modules/admin/adminPages.class.php');
+            require_once(PATH_MODULE.'admin/adminPages.class.php');
             $page2Domain = adminPages::updatePage2DomainCache();
         }
 
@@ -2193,7 +2192,7 @@ class kryn {
         kryn::$urls =& kryn::readCache( 'urls' );
 
         if( !is_array(kryn::$urls) ){
-            require_once( 'inc/modules/admin/adminPages.class.php' );
+            require_once( PATH_MODULE.'admin/adminPages.class.php' );
             adminPages::updateUrlCache( $domain );
             kryn::$urls =& kryn::readCache( 'urls' );
         }
@@ -2683,57 +2682,6 @@ class kryn {
             fwrite($h, $pContent);
             fclose($h);
         }
-    }
-
-    
-    /**
-     * 
-     * Removes the content of the specified cache-key
-     * @param string $pCode
-     * @static
-     * @deprecated Use removeCache instead.
-     */
-    public static function removePhpCache( $pCode ){
-        return self::removeCache( $pCode );
-        $pCode = str_replace('..', '', $pCode);
-        @unlink('inc/cache/'.$pCode.'.php');
-    }
-
-    /**
-     * 
-     * Sets a content to the specified cache-key
-     * @param string $pCode
-     * @param string $pValue
-     * @static
-     * @deprecated Use setCache instead.
-     */
-    public static function setPhpCache( $pCode, $pValue ){
-        return self::setCache( $pCode, $pValue );
-        $pCode = str_replace('..', '', $pCode);
-        $varname = '$kcache[\'krynPhpCache_'.$pCode.'\'] ';
-        $phpCode = "<"."?php \n$varname = ".var_export($pValue,true).";\n ?".">";
-        kryn::fileWrite('inc/cache/'.$pCode.'.php', $phpCode);
-    }
-
-    
-    /**
-     * 
-     * Gets the content of the specified cache-key
-     * @param string $pCode
-     * @return string
-     * @static
-     * @deprecated Use getCache instead.
-     */
-    public static function &getPhpCache( $pCode ){
-        return self::getCache( $pCode );
-        global $kcache;
-        $pCode = str_replace('..', '', $pCode);
-        $varname = 'krynPhpCache_'.$pCode;
-        if( file_exists( 'inc/cache/'.$pCode.'.php' )){
-            include_once( 'inc/cache/'.$pCode.'.php' );
-            return $kcache[$varname];
-        }
-        return false;
     }
 
     /**

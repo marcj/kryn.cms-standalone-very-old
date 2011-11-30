@@ -28,7 +28,7 @@ function resizeImageCached( $pPath, $pResolution, $pThumb = false, $pFixSide = f
     
     $mdate = filemtime( $path );
     
-    $cachepath = $cfg['template_cache'].'/'.kryn::toModRewrite($path).kryn::toModRewrite($pResolution).$mdate.basename($pPath);
+    $cachepath = $cfg['media_cache'].'/'.kryn::toModRewrite($path).kryn::toModRewrite($pResolution).$mdate.basename($pPath);
     
     if( !file_exists($cachepath) ){
         resizeImage( $path, $cachepath, $pResolution, $pThumb, $pFixSide );
@@ -228,7 +228,7 @@ function delDir($dirName) {
  */
 
 if( !function_exists('json_encode') ){
-    require( 'inc/pear/JSON/JSON.php' );
+    require( 'inc/lib/pear/JSON/JSON.php' );
     $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
     function json_encode( $p = false ){
         global $json;

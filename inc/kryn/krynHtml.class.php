@@ -170,7 +170,7 @@ class krynHtml {
 
             $cssmd5 = md5($cssCode);
 
-            $cssCachedFile = $cfg['template_cache'].'cachedCss_'.$cssmd5.'.css';
+            $cssCachedFile = $cfg['media_cache'].'cachedCss_'.$cssmd5.'.css';
             $cssContent = '';
             if( !file_exists( PATH.$cssCachedFile ) ){
                 foreach( $myCssFiles as $css ){
@@ -227,7 +227,7 @@ class krynHtml {
                 }
             }
             $jsmd5 = md5($jsCode);
-            $jsCachedFile = $cfg['template_cache'].'cachedJs_'.$jsmd5.'.js';
+            $jsCachedFile = $cfg['media_cache'].'cachedJs_'.$jsmd5.'.js';
             $jsContent = '';
 
             if( !file_exists( PATH.$jsCachedFile ) ){

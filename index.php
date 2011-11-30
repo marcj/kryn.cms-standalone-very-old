@@ -23,8 +23,10 @@ header("Content-Type: text/html; charset=utf-8");
 $time = time();
 $_start = microtime(true);
 define('PATH', dirname(__FILE__).'/');
+define('PATH_MODULE', dirname(__FILE__).'/inc/module/');
+define('PATH_TEMPLATE', dirname(__FILE__).'/inc/template/');
 
-@set_include_path(get_include_path() . PATH_SEPARATOR . './inc/pear/');
+@set_include_path('./inc/lib/pear/' . PATH_SEPARATOR . get_include_path());
 
 /**
  * Define globals
@@ -69,7 +71,7 @@ include('inc/kryn/framework.global.php');
 
 
 # Load important classes
-include('inc/smarty/Smarty.class.php');
+include('inc/lib/smarty/Smarty.class.php');
 include('inc/kryn/database.class.php');
 include('inc/kryn/baseModule.class.php');
 
@@ -85,7 +87,7 @@ include('inc/kryn/krynSearch.class.php');
 # Init classes and globals
 $tpl = new Smarty();
 $tpl->template_dir = 'inc/template/';
-$tpl->compile_dir = $cfg['tpl_cpl'];
+$tpl->compile_dir = 'cache/smarty_compile/';
 
 tAssign( 'time', $time);
 
@@ -130,8 +132,8 @@ if( getArgv(1) == 'admin' ){
     
     kryn::loadConfigs();
 
-    require("inc/kryn/adminForm.class.php");
-    require("inc/modules/admin/admin.class.php");
+    require('inc/kryn/adminForm.class.php');
+    require(PATH_MODULE.'admin/admin.class.php');
     $modules['admin'] = new admin();
 }
 

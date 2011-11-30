@@ -1,13 +1,9 @@
 
 inc/config.php
 
-inc/tcache/
+cache/
 
-inc/compile/
-
-inc/cache/
-
-inc/modules/admin/crawler.php
+inc/module/admin/crawler.php
 
 inc/mooeditable
 
@@ -25,6 +21,6 @@ install.log
 
 inc/template/Test
 
-inc/upload/
+data/packages/
 
 inc/config_backups.php

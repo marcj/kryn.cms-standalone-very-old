@@ -84,7 +84,7 @@ window.addEvent('stream', function(res){
     if( res.corruptJson ){
         Array.each(res.corruptJson, function(item){
             ka._helpsystem.newBubble(_('Extension config Syntax Error'),
-            _('There is an error in your inc/modules/%s/config.json').replace('%s', item)
+            _('There is an error in your inc/module/%s/config.json').replace('%s', item)
             , 4000 );
         });
     }
@@ -1841,7 +1841,7 @@ ka.getFieldCaching = function (){
                     needValue: 'files',
                     type: 'text',
                     label: 'Caching directory',
-                    'default': 'inc/cache/'
+                    'default': 'cache/object/'
                 }
             }
         }

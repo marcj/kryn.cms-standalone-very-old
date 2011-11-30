@@ -18,7 +18,7 @@
  * 
  */
 
-@set_include_path(get_include_path() . PATH_SEPARATOR . './inc/pear/');
+@set_include_path(get_include_path() . PATH_SEPARATOR . './inc/lib/pear/');
 
 /**
  * Define globals
@@ -63,7 +63,7 @@ date_default_timezone_set( $cfg['timezone'] );
 
 
 if( $argv[2] == 'backup' ){
-    include('inc/modules/admin/adminBackup.class.php');
+    include(PATH_MODULE.'admin/adminBackup.class.php');
     adminBackup::doBackup( $argv[3] );
 }
 

@@ -220,7 +220,7 @@ if( $_REQUEST['step'] == 'checkDb' )
 
 require_once( 'inc/kryn/baseModule.class.php' );
 require( 'inc/kryn/kryn.class.php' );
-require( 'inc/modules/admin/adminModule.class.php' );
+require( PATH_MODULE.'admin/adminModule.class.php' );
 
 $step = 1;
 if( !empty($_REQUEST['step']) )
@@ -309,10 +309,8 @@ function checkDb(){
             'db_type'   => $_REQUEST['server'],
             'db_forceutf8'   => $_REQUEST['forceutf8'],
             'db_type'        => $_REQUEST['server'],
-            "tpl_cpl"	     => "inc/compile",
             "caching_type"   => "files",
-            "files_path"     => "inc/cache/",
-            "template_cache" => "inc/tcache/",
+            "media_cache"    => "cache/media/",
             "display_errors" => "0",
             "log_errors"     => "0",
             "systemtitle"    => "Fresh install",
@@ -363,7 +361,7 @@ function step5(){
 <?php
     global $kdb, $cfg;
 
-    $dir = opendir( "inc/modules/" );
+    $dir = opendir( PATH_MODULE."" );
     if(! $dir ) return;
     while (($file = readdir($dir)) !== false){
         if( $file != '..' && $file != '.' && $file != '.svn' && $file != 'admin' ){
@@ -373,7 +371,7 @@ function step5(){
     $modules[] = "admin"; //because the install() of admin should be called as latest
     
     require( 'inc/config.php' );
-    require( 'inc/modules/admin/adminDb.class.php' );
+    require( PATH_MODULE.'admin/adminDb.class.php' );
     require( 'inc/kryn/database.class.php' );
     require_once( 'inc/kryn/baseModule.class.php' );
     
@@ -455,8 +453,8 @@ function step5(){
     foreach( $modules as $module ){
         if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
             if( $module != "kryn" ){
-                if( file_exists("inc/modules/$module/$module.class.php") ){
-                    require_once( "inc/modules/$module/$module.class.php" );
+                if( file_exists(PATH_MODULE."$module/$module.class.php") ){
+                    require_once( PATH_MODULE."$module/$module.class.php" );
                     $m = new $module();
                     $m->install();
                 }
@@ -467,7 +465,7 @@ function step5(){
         }
     }
 
-    require( 'inc/modules/admin/adminPages.class.php' );
+    require( PATH_MODULE.'admin/adminPages.class.php' );
     
     foreach( kryn::$configs as $config ){
         if( $config && $config['db'] )
@@ -476,15 +474,17 @@ function step5(){
     
     admin::clearCache();
 
-    @mkdir( 'inc/compile' );
     @mkdir( 'inc/template/trash' );
     @mkdir( 'inc/template/css' );
     @mkdir( 'inc/template/js' );
-    @mkdir( 'inc/cache' );
-    @mkdir( 'inc/tcache' );
-    @copy( 'inc/template/trash/.htaccess', 'inc/cache/.htaccess');
-    @mkdir( 'inc/upload' );
-    @mkdir( 'inc/upload/modules' );
+    @mkdir( 'cache/' );
+    @mkdir( 'cache/media' );
+    @mkdir( 'cache/object' );
+    @mkdir( 'cache/smarty_compile' );
+    
+    @mkdir( 'data' );
+    @mkdir( 'data/upload' );
+    @mkdir( 'data/upload/modules' );
 
     
     if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
@@ -521,7 +521,7 @@ Dactivate the checkbox if you don't want to install some extensione.<br />
     $systemModules = array('kryn','admin','users');
     buildModInfo( $systemModules );
 
-    $dir = opendir( "inc/modules/" );
+    $dir = opendir( PATH_MODULE."" );
     $modules = array();
     if(! $dir ) return;
     while (($file = readdir($dir)) !== false){
@@ -570,11 +570,11 @@ function step2(){
 <h2>Checking file permissions</h2>
 <br />
 The minimun requirements to work with Kryn.cms without installing extension or updates is with writeaccess to following folders:<br />
-&bull; inc/cache/<br />
-&bull; inc/tcache/<br />
+&bull; cache/<br />
+&bull; data/<br />
 <br />
 When you want to install extensions, then you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
-&bull; inc/modules/<br />
+&bull; inc/module/<br />
 &bull; inc/template/<br />
 <br />
 Sometimes, extensions comes with files which aren't in these two folders. If this the case, you need to make sure, that

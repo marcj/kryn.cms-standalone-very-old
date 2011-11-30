@@ -124,7 +124,7 @@ class adminForm {
         $aName = explode( '_', __CLASS__ );
         $formModule = $aName[0];
         $formName = str_replace( $formModule.'_', '', __CLASS__ );
-        $file = 'inc/modules/'.$formModule.'/lang/'.$formName.'.'.$language.'.php';
+        $file = PATH_MODULE.''.$formModule.'/lang/'.$formName.'.'.$language.'.php';
         if( file_exists( $file) ){
             require_once( $file );
             $lang = array_merge( $oriLang, $lang );

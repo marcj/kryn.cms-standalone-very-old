@@ -79,28 +79,28 @@ class krynCache {
                 if( !$this->initMemcached() ){
                     klog('cache', _l('Can not load the memcache(d) class. Fallback to file caching.'));
                     $this->type = 'files';
-                    $this->config['files_path'] = 'inc/cache/';
+                    $this->config['files_path'] = 'cache/object/';
                 }
                 break;
             case 'redis':
                 if( !$this->initRedis() ){
                     klog('cache', _l('Can not load the Redis class. Fallback to file caching.'));
                     $this->type = 'files';
-                    $this->config['files_path'] = 'inc/cache/';
+                    $this->config['files_path'] = 'cache/object/';
                 } 
                 break;
             case 'apc':
                 if( !function_exists('apc_store') ){
                     klog('cache', _l('The php apc module is not loaded. Fallback to file caching.'));
                     $this->type = 'files';
-                    $this->config['files_path'] = 'inc/cache/';
+                    $this->config['files_path'] = 'cache/object/';
                 }
                 break;
             case 'xcache':
                 if( !function_exists('xcache_get') ){
                     klog('cache', _l('The php xcache module is not loaded. Fallback to file caching.'));
                     $this->type = 'files';
-                    $this->config['files_path'] = 'inc/cache/';
+                    $this->config['files_path'] = 'cache/object/';
                 }
                 break;
         }
@@ -108,7 +108,7 @@ class krynCache {
         if( $this->type == 'files' ){
 
             if( $this->config['files_path'] == '' )
-                $this->config['files_path'] = 'inc/cache/';
+                $this->config['files_path'] = 'cache/object/';
         
             if( !is_dir($this->config['files_path']) ){
                 if( !mkdir($this->config['files_path']) ){

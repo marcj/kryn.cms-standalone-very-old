@@ -908,8 +908,8 @@ var admin_system_module_view = new Class({
 	        pValues.modifiedFiles.each(function(item, key){
 	            var li = new Element('li', {
 	                html: item+' <a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \''+item+'\'}})">'+_('Old')+'</a> | '+
-	                    '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \'inc/upload/modules/'+this.win.params.name+'/'+item+'\'}})">'+_('New')+'</a> | '+
-	                    '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/diff/\', {filefrom: {path: \''+item+'\'}, fileto: {path: \'inc/upload/modules/'+this.win.params.name+'/'+item+'\'}})">'+_('Diff')+'</a>'
+	                    '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \'data/packages/modules/'+this.win.params.name+'/'+item+'\'}})">'+_('New')+'</a> | '+
+	                    '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/diff/\', {filefrom: {path: \''+item+'\'}, fileto: {path: \'data/packages/modules/'+this.win.params.name+'/'+item+'\'}})">'+_('Diff')+'</a>'
 	            }).inject( ol );
 	            _this.checkboxes.include(item, 
 	                new Element('input', {
