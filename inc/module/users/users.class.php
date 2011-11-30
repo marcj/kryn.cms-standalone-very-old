@@ -155,8 +155,12 @@ class users extends baseModule{
             'adminLanguage' => 'en'
         ));
 
+        
+        $salt = krynAuth::getSalt();
+        $passwd = krynAuth::getHashedPassword( 'admin', $salt );
+    
         dbInsert('system_user', array( 'username' => 'admin', 'first_name' => 'Admini', 'last_name' => 'trator',
-            'passwd' => '21232f297a57a5a743894a0e4a801fc3', 'email' => 'admin@localhost', 'created' => time(),
+            'passwd' => $passwd, 'passwd_salt' => $salt, 'email' => 'admin@localhost', 'created' => time(),
             'activate' => 1, 'settings' => $settings, 'widgets' => '[{"title":"Current users","type":"autotable","position":"right","columns":[["Date",80],["IP",90],["User"]],"category":"overview","refresh":60000,"code":"currentAdminLogins","extension":"users","desktop":1,"width":402,"height":152,"left":975,"top":91}]'
         ));
         dbUpdate( 'system_user', 'rsn = 1', array('rsn'=>0) );

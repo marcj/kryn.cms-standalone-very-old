@@ -12,6 +12,9 @@
 header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
+define('PATH', dirname(__FILE__).'/');
+define('PATH_MODULE', dirname(__FILE__).'/inc/module/');
+define('PATH_TEMPLATE', dirname(__FILE__).'/inc/template/');
 
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
@@ -272,6 +275,7 @@ function checkDb(){
 	
 	require_once( 'inc/kryn/baseModule.class.php' );
 	require_once( 'inc/kryn/kryn.class.php' );
+	require_once( 'inc/kryn/krynAuth.class.php' );
     require( 'inc/kryn/database.class.php' );
 	$res = array('res' => true);
 	
@@ -306,10 +310,8 @@ function checkDb(){
             'db_prefix' => $_REQUEST['prefix'],
             'db_type'   => $_REQUEST['type'],
             'db_pdo'    => $_REQUEST['pdo'],
-            'db_type'   => $_REQUEST['server'],
             'db_forceutf8'   => $_REQUEST['forceutf8'],
-            'db_type'        => $_REQUEST['server'],
-            "caching_type"   => "files",
+            "cache_type"   => "files",
             "media_cache"    => "cache/media/",
             "display_errors" => "0",
             "log_errors"     => "0",
@@ -318,9 +320,10 @@ function checkDb(){
             "locale"         => "de_DE.UTF-8",
             "path"			 => $path,
             "passwd_hash_compatibility" => "0",
+            "passwd_hash_key"           => krynAuth::getSalt(32),
             "timezone"       => $timezone
         );
-        $config = '<?php $cfg = '. var_dump($cfg,true) .'; ?>';
+        $config = '<?php $cfg = '. var_export($cfg,true) .'; ?>';
 
         $f = @fopen( 'inc/config.php', 'w+' );
         if( !$f ){
@@ -374,9 +377,15 @@ function step5(){
     require( PATH_MODULE.'admin/adminDb.class.php' );
     require( 'inc/kryn/database.class.php' );
     require_once( 'inc/kryn/baseModule.class.php' );
+	require_once( 'inc/kryn/kryn.class.php' );
+	kryn::$config = $cfg;
+	require_once( 'inc/kryn/krynAuth.class.php' );
+
     
-    if( !file_exists('inc/cache') )
-        mkdir( 'inc/cache' );
+    @mkdir( 'cache/' );
+    @mkdir( 'cache/media' );
+    @mkdir( 'cache/object' );
+    @mkdir( 'cache/smarty_compile' );
     
     define('pfx', $cfg['db_prefix']);
     $kdb = new database(
@@ -477,10 +486,6 @@ function step5(){
     @mkdir( 'inc/template/trash' );
     @mkdir( 'inc/template/css' );
     @mkdir( 'inc/template/js' );
-    @mkdir( 'cache/' );
-    @mkdir( 'cache/media' );
-    @mkdir( 'cache/object' );
-    @mkdir( 'cache/smarty_compile' );
     
     @mkdir( 'data' );
     @mkdir( 'data/upload' );
