@@ -259,22 +259,18 @@ ka.list = new Class({
                 field.small = true;
                 
                 
-                var fieldObj = new ka.field(field)
-                .addEvent('change', this.doSearch.bind(this))
-                .inject( this.searchPane );
+                var fieldObj = new ka.field(field,this.searchPane,{win:this.win})
+                .addEvent('change', this.doSearch.bind(this));
                 
                 this.searchFields.set(mkey, fieldObj );
                 
                 if( field.type == 'select' ){
-                	new Element('option',{
-                		value: '',
-                		text: _('-- Please choose --')
-                	}).inject(fieldObj.input, 'top');
-                	fieldObj.setValue("");
+                    fieldObj.select.add('', _('-- Please choose --'), 'top');
+                	fieldObj.setValue('');
                 }
                 
                 if( this.win.params && this.win.params.filter ){
-                	$H(this.win.params.filter).each(function(item,key){
+                	Object.each(this.win.params.filter, function(item,key){
                 		if( item == mkey ){
                 			fieldObj.setValue( this.win.params.item.values[key] );
                         	doSearchNow = true;

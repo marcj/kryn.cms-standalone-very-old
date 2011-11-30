@@ -720,7 +720,7 @@ ka.kwindow = new Class({
             }).inject( this.titleText, 'before' );
         }
         
-        pPath.each(function(label){
+        Array.each(pPath, function(label){
             
             new Element('span', {
                 text: _(label)

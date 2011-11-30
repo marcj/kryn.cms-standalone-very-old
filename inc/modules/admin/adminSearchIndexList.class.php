@@ -17,14 +17,6 @@ class adminSearchIndexList extends windowList {
     public $remove = false;
     
     
-    public $custom = array(
-        'name' => 'Blacklist overview',
-        'module' => 'admin',
-        'code' => 'system/searchBlacklist'
-        
-    );
-    
-    
     public $modifier = 'addDomainLanguage';
 
     public $primary = array('url', 'domain_rsn');

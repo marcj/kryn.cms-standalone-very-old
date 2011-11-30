@@ -683,9 +683,9 @@ class krynAuth {
                 AND $userColumn = '$login'
                 AND (auth_class IS NULL OR auth_class = 'kryn')",
             1);
-            
+
         if( $row['rsn'] > 0 ){
-            
+
             if( $row['passwd_salt'] ){
                 $hash = self::getHashedPassword( $pPassword, $row['passwd_salt'] );
             } else {

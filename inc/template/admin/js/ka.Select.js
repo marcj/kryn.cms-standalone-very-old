@@ -61,7 +61,7 @@ ka.Select = new Class({
         }).inject( this.chooser );
     },
     
-    add: function( pId, pLabel ){
+    add: function( pId, pLabel, pPos ){
     
         this.items[ pId ] = pLabel;
         
@@ -74,8 +74,14 @@ ka.Select = new Class({
             this.setValue( pId, true );
             
         }.bind(this))
-        .inject( this.chooser );
         
+        if( !pPos )
+            this.a[pId].inject( this.chooser );
+        else if( pPos == 'top' )
+            this.a[pId].inject( this.chooser, 'top' );
+        else if( this.a[pPos] )
+            this.a[pId].inject( this.a[pPos], 'after' );
+            
         
         if( this.value == null ) {
             this.setValue( pId );
