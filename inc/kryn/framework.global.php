@@ -62,20 +62,54 @@ function json( $pValue ){
     die( json_encode( $pValue ) );
 }
 
+/**
+ *
+ * Return a translated message $pMsg with plural and context ability
+ *
+ * @param string $pMsg     message id (msgid)
+ * @param string $pPlural  message id plural (msgid_plural)
+ * @param int    $pCount   the counf for plural
+ * @param string $pContext the message id of the context (msgctxt)
+ */
+function t( $pMsg, $pPlural = '', $pCount = false, $pContext = '' ){
+    
+    $id = ($pContext=='')?$pMsg:$pContext."\004".$pMsg;
+    
+    if( kryn::$lang[$id] ){
+        if( is_array( kryn::$lang[$id] ) ){
+            $plural = intval(@call_user_func( 'gettext_plural_fn_'.kryn::$lang['__lang'], $pCount ));
 
+            return (kryn::$lang[$id][ $plural ])?kryn::$lang[$id][ $plural ]:(($pCount==1)?$pMsg:$pPlural);
+        } else {
+            return kryn::$lang[$id];
+        }
+    } else {
+        return ($pCount===null||$pCount===false||$pCount===1)?$pMsg:$pPlural;
+    }
+
+}
+
+/**
+ * Return a translated message $pMsg within a context $pContext
+ *
+ * @param string $pContext the message id of the context
+ * @param string $pMsg     message id
+ */
+function tc( $pContext, $pMsg ){
+    return t( $pMsg, null, null, $pContext );
+}
 
 /**
  * Translate the specified string to the current language if available.
  * If not available it returns the given string.
- * @param string $pString
- * @return string Translated string 
+ *
+ * @param  string $pString
+ * @return string Translated string
+ *
+ * @deprecated Use t() instead. 
  */
-function _l( $pString ){
-    if( !is_array(kryn::$lang) ) return $pString;
-    if( array_key_exists( $pString, kryn::$lang ) && kryn::$lang[$pString] != '' ){
-        return kryn::$lang[ $pString ];
-    }
-    return $pString;
+function _l( $pMsg ){
+    return t( $pMsg );
 }
 
 ?>

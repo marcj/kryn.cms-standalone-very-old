@@ -81,6 +81,7 @@ include('inc/kryn/krynAcl.class.php');
 include('inc/kryn/krynNavigation.class.php');
 include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');
+include('inc/kryn/krynLanguage.class.php');
 include('inc/kryn/krynSearch.class.php');
 
 
@@ -139,6 +140,7 @@ if( getArgv(1) == 'admin' ){
 
 kryn::checkAccess();
 krynSearch::initSearch();
+
 
 register_shutdown_function('kryn_shutdown');
 

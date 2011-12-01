@@ -46,7 +46,6 @@
     background-color: #e8e8e8;
 }
 
-.ka-Table-body tr:hover td,
 .ka-Table-body tr.one:hover td,
 .ka-Table-body tr.two:hover td {
     background-color: #ccc;

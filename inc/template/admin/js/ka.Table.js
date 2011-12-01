@@ -43,6 +43,10 @@ ka.Table = new Class({
         this.main.setStyle('display', 'block');
     },
     
+    toElement: function(){
+        return this.main;
+    },
+    
     loading: function( pActivate ){
     
         if( !pActivate && this.loadingOverlay ){
@@ -163,6 +167,7 @@ ka.Table = new Class({
                 width: (column[1])?column[1]:null
             }).inject( tr );
             
+            //TODO, make default 'text'
             if( this.safe ){
             	if( column[2] == 'html' )
 	            	td.set('html', html);

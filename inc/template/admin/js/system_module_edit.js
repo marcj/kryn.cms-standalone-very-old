@@ -1295,6 +1295,7 @@ var admin_system_module_edit = new Class({
     renderLanguage: function(){
         
         this.bottomBar = new ka.buttonBar( this.panes['language'] );
+        this.bottomBar.addButton('Extract', this.extractLanguage.bind(this));
         this.bottomBar.addButton('Save Languages', this.saveLangs.bind(this));
 
         this.languageTablePane = new Element('div', {
@@ -1304,54 +1305,165 @@ var admin_system_module_edit = new Class({
     },
 
     saveLangs: function(){
+        
+        var translations = {};
+        
+        Object.each(this.langInputs, function(translation, key){
+            if( typeOf(translation) == 'object' ){
+                translations[key] = {};
+                Object.each(translation, function(subinput, id){
+                    if( typeOf(subinput) == 'element' )
+                        translations[key][id] = subinput.value;
+                    else
+                        translations[key][id] = subinput;
+                });
+            } else if( translation && typeOf(translation.value) == 'string' ){
+                translations[ key ] = translation.value;   
+            }
+        });
+
         this.loader.show();
-        var mylangs = "";
-        var langs = new Hash();
-        this.langTable.tableBody.getElements('input').each(function(input){
-            langs.set(input.retrieve('key'), input.value);
-        }.bind(this));
-        mylangs = JSON.encode(langs);
-        this.lr = new Request.JSON({url: _path+'admin/system/module/saveLanguage', noCache: 1, onComplete: function(){
+        translations = JSON.encode(translations);
+        this.lr = new Request.JSON({url: _path+'admin/system/module/saveLanguage', noCache: 1, onComplete: function(res){
+            if( !res ){
+                this.win._alert(_('Permission denied to the language file. Please check your permissions.'));
+            }
             this.loader.hide();
-        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.value, langs: mylangs});
+        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.value, langs: translations});
     },
 
-    extractLangs: function(){
+    extractLanguage: function(){
+        this.win._confirm(_('Really extract language of extension files? Unsaved data will be lost.'), function(res){
+            if( res ) this._extractLanguage();
+        }.bind(this));
+    },
+    
+    _extractLanguage: function(){
         this.loader.show();
         this.lr = new Request.JSON({url: _path+'admin/system/module/extractLanguage', noCache: 1, onComplete: function(res){
             this.extractedLanguages = res;
-            this.loadLanguage();
+            this.loadLanguage( true );
         }.bind(this)}).post({name: this.mod});
     },
 
-    loadLanguage: function(){
+    loadLanguage: function( pRenderExtractedLangs ){
         this.lr = new Request.JSON({url: _path+'admin/system/module/getLanguage', noCache: 1, onComplete: function(res){
             this.loader.hide();
-            this._renderLangs( res );
+            this._renderLangs( res, pRenderExtractedLangs );
         }.bind(this)}).post({name: this.mod, lang: this.languageSelect.value});
     },
 
-    _renderLangs: function( pLangs ){
-        pLangs = $H(pLangs);
+    _renderLangs: function( pLangs, pRenderExtractedLangs ){
+        var input, context, value, lkey, inputLi, inputOl, keyOl, keyLi, i;
+        
         var p = this.languageTablePane;
         p.empty();
-
+        
+        if( !pRenderExtractedLangs && pLangs.translations.length == 0 ){
+            
+            new Element('div', {
+                'text': _('There is no translated content for selected language. You should press Extract to find some.'),
+                style: 'text-align: center; color: gray; padding: 15px;'
+            }).inject( p );
+            return;
+        }
+        
         this.langTable = new ka.Table([
-            [_('Key'), 350],
+            [_('Key'), 250],
+            [_('Context'), 150],
             [_('Translation')]
         ]).inject( p );
         rows = [];
-        $H(this.extractedLanguages).each(function(lang,key){
-            var input = new Element('input', {
-                'class': 'text',
-                'style': 'width: 98%',
-                value: pLangs[key]
-            }).store('key', key);
-            rows.include([
-                key,
-                input
-            ]);
-        });
+
+        this.langInputs = {};
+        
+        var langs = pLangs.translations;
+        if( pRenderExtractedLangs )
+            langs = this.extractedLanguages;
+        
+        Object.each(langs, function(translation,key){
+            
+            context = '';
+            lkey = key;
+            value = translation;
+
+            if( key.indexOf("\004") > 0 ){
+                context = key.split("\004")[0];
+                lkey = key.split("\004")[1];
+            }
+            
+            if( pRenderExtractedLangs ){
+                value = pLangs.translations[ key ];
+            }
+                
+            if( typeOf(translation) == 'array' ){
+                // plural
+                
+                
+                this.langInputs[key] = {};
+
+                inputOl = new Element('ol', {style: 'padding-left: 15px'});
+                keyOl = new Element('ol', {style: 'padding-left: 15px'});
+
+                if( !pRenderExtractedLangs ){
+                    //we had a .po file already
+                    new Element('li', {
+                        text: lkey
+                    }).inject( keyOl );
+                    
+                    new Element('li', {
+                        text: pLangs.plurals[key]
+                    }).inject( keyOl );
+                    
+                    this.langInputs[key]['plural'] = pLangs.plurals[key];
+                    
+                } else {
+                    //was extracted
+                
+                    Array.each( translation, function(l,k){
+                    
+                        new Element('li', {
+                            text: l
+                        }).inject( keyOl );
+                        this.langInputs[key]['plural'] = l;
+            
+                    }.bind(this));
+                
+                }
+
+                for(i=0; i<pLangs.pluralCount; i++){
+                
+                    value = (pLangs.translations[key]&&pLangs.translations[key][i])?pLangs.translations[key][i]:'';
+                    
+                    inputLi = new Element('li').inject( inputOl );
+                    this.langInputs[key][i] = new Element('input', {
+                        'class': 'text',
+                        'style': 'width: 95%',
+                        value: value
+                    }).inject( inputLi );
+                }
+
+                rows.include([
+                    keyOl,
+                    context,
+                    inputOl
+                ]);
+
+            } else {
+
+                this.langInputs[key] = new Element('input', {
+                    'class': 'text',
+                    'style': 'width: 95%',
+                    value: value
+                });
+    
+                rows.include([
+                    lkey,
+                    context,
+                    this.langInputs[key]
+                ]);
+            }
+        }.bind(this));
         this.langTable.setValues(rows);
     },
 
@@ -1368,7 +1480,7 @@ var admin_system_module_edit = new Class({
 
         this.lastType= pType;
         switch( pType ){
-            case 'language': return this.extractLangs();
+            case 'language': return this.loadLanguage();
             case 'layouts': return this.loadLayouts();
             case 'general': return this.loadGeneral();
             case 'links': return this.loadLinks();

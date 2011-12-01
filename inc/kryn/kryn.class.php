@@ -1618,8 +1618,7 @@ class kryn {
             return false;
         }
         $code = 'cacheLang_'.$pLang;
-        kryn::setPhpCache($code, false);
-        @unlink('cache/object/lang_'.$pLang.'.json');
+        kryn::setFastCache($code, false);
     }
 
     /**
@@ -1636,27 +1635,47 @@ class kryn {
         if(! $pLang ) $pLang = $language;
         if(! $pLang || is_array($pLang) ) $pLang = 'en';
 
-        $code = 'cacheLang-'.$pLang;
-        $lang =& kryn::getCache($code);
-        
-        if( (!$lang || count($lang) == 0 ) ){
-        
-            $mods = kryn::$configs;
-            $mods['kryn'] = 'kryn';
-            $lang = array();
-            foreach( kryn::$extensions as $key ){
-                if( $key != 'kryn' )
-                    $json = kryn::fileRead( PATH_MODULE.''.$key.'/lang/'.$pLang.'.json' );
-                else
-                    $json = kryn::fileRead( 'inc/kryn/lang/'.$pLang.'.json' );
-                $ar = json_decode($json,true);
+        $code = 'cacheLang_'.$pLang;
+        $lang =& kryn::getFastCache($code);
 
-                if( is_array($ar) )
-                    $lang = array_merge( $lang, $ar );
-            }
-            kryn::setCache( $code, $lang );
-            return kryn::getCache( $code );
+        $md5 = '';
+        foreach( kryn::$extensions as $key ){
+            if( $key == 'kryn' )
+                $md5 .= @filemtime('inc/kryn/lang/'.$pLang.'.po');
+            else
+                $md5 .= @filemtime('inc/module/'.$key.'/lang/'.$pLang.'.po'); 
         }
+
+        $md5 = md5($md5);
+
+        if( (!$lang || count($lang) == 0 ) || $lang['__md5'] != $md5 ){
+
+            $lang = array('__md5' => $md5, '__plural' => krynLanguage::getPluralForm($pLang), '__lang' => $pLang );
+
+            foreach( kryn::$extensions as $key ){
+                
+                $po = krynLanguage::getLanguage( $key, $pLang );
+                $lang = array_merge($lang, $po['translations']);
+
+            }
+            kryn::setFastCache( $code, $lang );
+        }
+        
+        if( !file_exists('cache/object/gettext_plural_fn_'.$pLang.'.php') ){
+            //write gettext_plural_fn_<langKey> so that we dont need to use eval()
+            $pos = strpos( $lang['__plural'], 'plural=');
+            $pluralForm = substr( $lang['__plural'], $pos+7);
+            $pluralForm = str_replace('n', '$n', $pluralForm);
+
+            $code  = "<?php \n";
+            $code .= "function gettext_plural_fn_$pLang(\$n){\n";
+            $code .= "    return ".$pluralForm.";\n";
+            $code .= "}\n";
+            $code .= "\n?>";
+            kryn::fileWrite('cache/object/gettext_plural_fn_'.$pLang.'.php', $code);
+        }
+
+        include_once('cache/object/gettext_plural_fn_'.$pLang.'.php');
         
         return $lang;
     }

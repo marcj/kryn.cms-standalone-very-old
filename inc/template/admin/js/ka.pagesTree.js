@@ -34,7 +34,11 @@ ka.pagesTree = new Class({
         this.setOptions(pOptions);
         
         if( Cookie.read('krynPageTree_'+pDomain) ){
-            this.opens = JSON.decode( Cookie.read('krynPageTree_'+pDomain) );
+            var opens = Cookie.read('krynPageTree_'+pDomain);
+            opens = opens.split('.');
+            Array.each(opens, function(open){
+                this.opens[ open ] = true;
+            }.bind(this));
         }
 
         if( pRefs ){
@@ -480,8 +484,13 @@ ka.pagesTree = new Class({
     },
     
     saveOpens: function(){
-    
-        Cookie.write('krynPageTree_'+this.domain_rsn, JSON.encode(this.opens));
+        
+        var opens = '';
+        Object.each( this.opens, function(bool,key){
+            if( bool == true )
+                opens += key+'.';
+        });
+        Cookie.write('krynPageTree_'+this.domain_rsn, opens);
     
     },
     

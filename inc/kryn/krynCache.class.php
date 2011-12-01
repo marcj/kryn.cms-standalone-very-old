@@ -284,6 +284,8 @@ class krynCache {
      * @param integer $pTimeout In seconds. Default is one hour
      */
     public function set( $pCode, $pValue, $pTimeout = false ){
+    
+        if( !$pCode ) return;
         
         if( !$pTimeout )
             $pTimeout = time()+3600;

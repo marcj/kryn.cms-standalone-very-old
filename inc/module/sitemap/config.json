@@ -14,10 +14,10 @@
   "writableFiles": "inc\/template\/sitemap\/*",
   "plugins": {
     "defaultSitemap": [
-      "Display Sitemap (Level 1)",
+      "[[Display Sitemap (Level 1)]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withExtension": false,
           "directory": "inc\/template\/sitemap\/frontend\/"
@@ -27,13 +27,13 @@
   },
   "pageProperties": {
     "hideInSitemap": {
-      "label": "Hide in sidemap",
-      "desc": "Activate the checkbox to hide this page from the sitemaps",
+      "label": "[[Hide in sidemap]]",
+      "desc": "[[Activate the checkbox to hide this page from the sitemaps]]",
       "type": "checkbox"
     },
     "alternativeTitle": {
-      "label": "Alternative title",
-      "desc": "If you want to change the title in the sitemaps",
+      "label": "[[Alternative title]]",
+      "desc": "[[If you want to change the title in the sitemaps]]",
       "type": "text"
     }
   },

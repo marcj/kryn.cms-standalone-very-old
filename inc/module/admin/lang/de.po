@@ -1,0 +1,1714 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Kryn.cms - admin\n"
+"PO-Revision-Date: 2011-12-01 03:48+0100\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+msgid "Pages"
+msgstr "Seiten"
+
+msgid "Help"
+msgstr "Hilfe"
+
+msgid "Unpulished contents"
+msgstr "Unveröffentlichte Inhalte"
+
+msgid "Current Sessions"
+msgstr "Aktuelle Session"
+
+msgid "FATAL ERROR: Can not create folder inc/upload."
+msgstr "FATAL ERROR: Kann Ordner inc/upload nicht erstellen."
+
+msgid "FATAL ERROR: Can not create folder inc/upload/modules."
+msgstr "FATAL ERROR: Kann Ordner inc/upload/modules nicht erstellen."
+
+msgid "Search"
+msgstr "Suche"
+
+msgid "Clear cache"
+msgstr "Leere Cache"
+
+msgid "Searchengine options"
+msgstr "Suchmaschine optionen"
+
+msgid "Welcome"
+msgstr "Willkommen"
+
+msgid "Edit my user settings"
+msgstr "Bearbeite meine Benutzereinstellungen"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Choose"
+msgstr "Wähle"
+
+msgid "Please choose first."
+msgstr "Bitte wählen Sie zuerst aus."
+
+msgid "Upload"
+msgstr "Hochladen"
+
+msgid "Please choose one or more files"
+msgstr "Bitte wähle eine oder mehrere Dateien"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Upload file"
+msgstr "Datei hochladen"
+
+msgid "Back"
+msgstr "Zurück"
+
+msgid "Forward"
+msgstr "Vorwärts"
+
+msgid "Up"
+msgstr "Hoch"
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "New file"
+msgstr "Neue Datei"
+
+msgid "New directory"
+msgstr "Neuen Ordner"
+
+msgid "Icon view"
+msgstr "Miniaturansicht"
+
+msgid "Image view"
+msgstr "Bilderansicht"
+
+msgid "Detail view"
+msgstr "Detailansicht"
+
+msgid "Hide system files"
+msgstr "Verstecke Systemdateien"
+
+msgid "Go"
+msgstr "Los"
+
+msgid "File name"
+msgstr "Dateiname"
+
+msgid "Folder name"
+msgstr "Ordnername"
+
+msgid "Rename"
+msgstr "Umbenennen"
+
+msgid "Really remove selected file/s?"
+msgstr "Wirklich selektierte Datei/en löschen?"
+
+msgid "One or more files already exist. Overwrite ?"
+msgstr "Eine oder mehrer Deteien existieren bereits. Überschreiben ?"
+
+msgid "You cannot open a file in the trash folder. To view this file, press right click and choose recover."
+msgstr "Dateien im Mülleimer können nicht geöffnet werden. Um diese Datei zu bearbeiten, klicken Sie bitte rechtsklick und wählen 'Wiederherstellen'"
+
+msgid "Extensions"
+msgstr "Erweiterungen"
+
+msgid "User defined"
+msgstr "Benutzerdefiniert"
+
+msgid "%s: file not found"
+msgstr "%s: Datei nicht gefunden"
+
+msgid "Size"
+msgstr "Größe"
+
+msgid "Last modified"
+msgstr "Letzt Modifikation"
+
+msgid "Directory"
+msgstr "Ordner"
+
+msgid "This file will moved to: %s"
+msgstr "Die Datei wird verschoben nach: %s"
+
+msgid "Are you really sure?"
+msgstr "Ganz sicher?"
+
+msgid "Recover"
+msgstr "Wiederherstellen"
+
+msgid "Remove"
+msgstr "Entfernen"
+
+msgid "Open"
+msgstr "Öffne"
+
+msgid "Open external"
+msgstr "Öffne extern"
+
+msgid "Paste (strg+v)"
+msgstr "Einfügen (strg+v)"
+
+msgid "Cut (strg+x)"
+msgstr "Ausschneiden (strg+x)"
+
+msgid "Copy (strg+c)"
+msgstr "Kopieren (strg+c)"
+
+msgid "Duplicate"
+msgstr "Duplizieren"
+
+msgid "New version"
+msgstr "Neue Version"
+
+msgid "Properties"
+msgstr "Eigenschaften"
+
+msgid "duplication"
+msgstr "duplizieren"
+
+msgid "New name"
+msgstr "Neuer Name"
+
+msgid "New version created"
+msgstr "Neue Version erstellt"
+
+msgid "%d files copied"
+msgstr "%d Dateien kopiert"
+
+msgid "%s files copied"
+msgstr "%s Dateien kopiert"
+
+msgid "%d files cut"
+msgstr "%d Dateien ausgeschnitten"
+
+msgid "%s files cut"
+msgstr "%s Dateien ausgeschnitten"
+
+msgid " selected files"
+msgstr "ausgewählte Dateien"
+
+msgid "Searching ..."
+msgstr "Suche ..."
+
+msgid "Results"
+msgstr "Ergebnisse"
+
+msgid "No files found."
+msgstr "Keine Dateien gefunden."
+
+msgid "diff"
+msgstr "Unterschied"
+
+msgid "Loading ..."
+msgstr "Lade ..."
+
+msgid "edit"
+msgstr "bearbeiten"
+
+msgid "Save ..."
+msgstr "Speichern ..."
+
+msgid "Saved"
+msgstr "Gespeichert"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Image %s"
+msgstr "Bild %s"
+
+msgid "Loading image"
+msgstr "Lade Bild"
+
+msgid "Rotate 90° left"
+msgstr "Drehe um 90° nach links"
+
+msgid "Rotate 90° right"
+msgstr "Drehe um 90° nach rechts"
+
+msgid "Resize to this dimension"
+msgstr "Übernehme diese Größe"
+
+msgid "Resolution: %s"
+msgstr "Auflösung: %s"
+
+msgid "General"
+msgstr "Allgemein"
+
+msgid "Access"
+msgstr "Zugriff"
+
+msgid "Filesystem"
+msgstr "Dateisystem"
+
+msgid "Versions"
+msgstr "Versionen"
+
+msgid "File does not exist."
+msgstr "Datei nicht gefunden."
+
+msgid "Properties of %s"
+msgstr "Eigenschaft von %s"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Folder"
+msgstr "Ordner"
+
+msgid "Path"
+msgstr "Pfad"
+
+msgid "Location"
+msgstr "Ort"
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Modified"
+msgstr "Geändert"
+
+msgid "You have no access to this file."
+msgstr "Du hast kein Zugriff auf diese Datei."
+
+msgid "Public access"
+msgstr "Öffentlicher Zugriff"
+
+msgid "Following rules will be write in a regular .htaccess file. Please make sure, that your webserver allows such htaccess rules."
+msgstr "Die folgenden Regeln werden in eine .htaccess Datei gespeichert. Bitte stelle sicher, dass der Webserver solche Dateien akzeptiert."
+
+msgid "Access of this folder"
+msgstr "Zugriff auf diesen Ordner"
+
+msgid "Access of this file"
+msgstr "Zugriff auf diese Datei"
+
+msgid "-- not defined --"
+msgstr "-- nicht definiert --"
+
+msgid "Allow"
+msgstr "Erlauben"
+
+msgid "Deny"
+msgstr "Verweigern"
+
+msgid "Saves after change"
+msgstr "Speichert nach dem ändern"
+
+msgid "Containing rules"
+msgstr "Enthält Regeln"
+
+msgid "Access denied"
+msgstr "Zugriff verweigert"
+
+msgid "Access granted"
+msgstr "Zugriff gewährt"
+
+msgid "Intern access"
+msgstr "Interner Zugriff"
+
+msgid "These rules are inherited by %s"
+msgstr "Diese Regeln sind vererbt von %s"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Sub"
+msgstr "Unter"
+
+msgid "With subfiles"
+msgstr "Mit Unterdateien"
+
+msgid "Write"
+msgstr "Schreiben"
+
+msgid "Read"
+msgstr "Lesen"
+
+msgid "Add new rule"
+msgstr "Neue Regel hinzufuegen"
+
+msgid "Apply"
+msgstr "Uebernehmen"
+
+msgid "Saved."
+msgstr "Gespeichert."
+
+msgid "Local filesystem permissions"
+msgstr "Lokale Dateisystem-Benutzerrechte"
+
+msgid "Execute"
+msgstr "Ausführen"
+
+msgid "Owner"
+msgstr "Besitzer"
+
+msgid "Group"
+msgstr "Gruppe"
+
+msgid "Other"
+msgstr "Andere"
+
+msgid "You can enter the numeric id or the name to change the owner/group id."
+msgstr "Du kannst eine Id oder einen Name eingeben, um den Besitzer bzw. die Gruppe zu ändern."
+
+msgid "Owner id"
+msgstr "Besitzer-Id"
+
+msgid "Group id"
+msgstr "Gruppen-Id"
+
+msgid "Apply with all subfiles"
+msgstr "Uebernehmen mit allen Unterdateien"
+
+msgid "Find ID"
+msgstr "Finde ID"
+
+msgid "Set permissions ..."
+msgstr "Setze Benutzerrechte ..."
+
+msgid "done."
+msgstr "Fertig."
+
+msgid "Can not fetch user id."
+msgstr "Kann Benutzer-Id nicht holen."
+
+msgid "Can not fetch group nid."
+msgstr "Kann Gruppen-Id nicht holen."
+
+msgid "Can not fetch owner names."
+msgstr "Kann Besitzer-Name nicht holen."
+
+msgid "File access saved"
+msgstr "Dateirechte gespeichert"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Creator"
+msgstr "Ersteller"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "The choosen version will be recovered to original path. The current file gets a new version."
+msgstr "Die ausgewaehlte Version wird wiederhergestellt zum Originalpfad. Die aktuelle Version bekommt eine neue Version."
+
+msgid "File recovered"
+msgstr "Datei wiederhergestellt"
+
+msgid "Contains"
+msgstr "Beinhaltet"
+
+msgid "%1 files, %2 directories"
+msgstr "%1 Dateien, %2 Ordner"
+
+msgid "Please choose"
+msgstr "Bitte waehle"
+
+msgid "Disallow"
+msgstr "Verbieten"
+
+msgid "Remove rule"
+msgstr "Entferne Regel"
+
+msgid "User"
+msgstr "Benutzer"
+
+msgid "Tags: "
+msgstr "Stichwörter:"
+
+msgid "No results"
+msgstr "Keine Ergebnisse"
+
+msgid "Username"
+msgstr "Benutzername"
+
+msgid "Password"
+msgstr "Passwort"
+
+msgid "Check Login. Please wait ..."
+msgstr "Prüfe Login. Bitte warten ..."
+
+msgid "Please wait"
+msgstr "Bitte warten"
+
+msgid "Login failed"
+msgstr "Login fehlgeschlagen"
+
+msgid "Loading administration."
+msgstr "Lade Administration."
+
+msgid "Loading done"
+msgstr "Laden abgeschloßen"
+
+msgid "Welcome back, %s"
+msgstr "Willkommen zurück, %s"
+
+msgid "Your last login was %s"
+msgstr "Letzer Login war  %s"
+
+msgid "Add %s"
+msgstr "Fuege %s hinzu"
+
+msgid "Paste"
+msgstr "Einfügen"
+
+msgid "Copy all"
+msgstr "Kopiere alles"
+
+msgid "Crawling interrupted"
+msgstr "Suche unterbrochen"
+
+msgid "Check searchindex"
+msgstr "Pruefe Suchindex"
+
+msgid "Crawl unindexed"
+msgstr "Suche Unindizierte"
+
+msgid "Searching for new pages"
+msgstr "Suche neue Seiten"
+
+msgid "Keep index up to date"
+msgstr "Halte Index aktuell"
+
+msgid "Crawling done"
+msgstr "Suche fertig"
+
+msgid "Empty"
+msgstr "Leer"
+
+msgid "Now"
+msgstr "Jetzt"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Really remove?"
+msgstr "Wirklich entfernen ?"
+
+msgid "View help to this field"
+msgstr "Zeige Hilfe zu diesem Feld"
+
+msgid "No results."
+msgstr "Keine Funde."
+
+msgid "Add"
+msgstr "Hinzufügen"
+
+msgid "This list is based on files on this directory:"
+msgstr "Diese Liste basiert auf folgenden Ordner:"
+
+msgid "Based on:"
+msgstr "Basiert auf:"
+
+msgid "Element properties"
+msgstr "Element Eigenschaften"
+
+msgid "Element access"
+msgstr "Element Zugriff"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Picture"
+msgstr "Bild"
+
+msgid "Pointer"
+msgstr "Verknüpfung"
+
+msgid "Template"
+msgstr "Vorlage"
+
+msgid "-- no layout --"
+msgstr "-- Kein Layout --"
+
+msgid "Unsearchable"
+msgstr "Undurchsuchbar"
+
+msgid "Release at"
+msgstr "Anzeigen ab"
+
+msgid "Hide at"
+msgstr "Verstecken ab"
+
+msgid "Limit access to groups"
+msgstr "Grenze Zugriff auf Gruppen ein"
+
+msgid "Upload new file( s )"
+msgstr "Lade neue Dateien hoch"
+
+msgid "Delete ..."
+msgstr "Löschen ..."
+
+msgid "No title"
+msgstr "Kein Titel"
+
+msgid "Number"
+msgstr "Nummer"
+
+msgid "File chooser"
+msgstr "Datei-Wähler"
+
+msgid "Page chooser"
+msgstr "Seiten-Wähler"
+
+msgid "File select box"
+msgstr "Datei selectbox"
+
+msgid "Files list chooser"
+msgstr "Dateiliste"
+
+msgid "Delete property"
+msgstr "Lösche Eigenschaft"
+
+msgid "Table:"
+msgstr "Tabelle"
+
+msgid "Table key:"
+msgstr "Tabellen-Key"
+
+msgid "Table label:"
+msgstr "Tabellen-Label"
+
+msgid "Visitors"
+msgstr "Besucher"
+
+msgid "Are you sure you want to leaving the administration? Unsaved content and uncomplete uploads will be discarded."
+msgstr "Sie sind im Begriff die Administration zu verlassen. Unspeicherte Inhalte gehen verloren."
+
+msgid "Clearing cache ..."
+msgstr "Leere Cache ..."
+
+msgid "Cache cleared"
+msgstr "Cache geleert"
+
+msgid "Indexed pages"
+msgstr "Indexierte Seiten"
+
+msgid "Clear index"
+msgstr "Leere Index"
+
+msgid "Clearing index ..."
+msgstr "Leere Index ..."
+
+msgid "Done"
+msgstr "Fertig"
+
+msgid "New updates !"
+msgstr "Neue Updates!"
+
+msgid "admin/images/extensions-text.png"
+msgstr "admin/images/extensions-text-de.png"
+
+msgid "Add extension"
+msgstr "Extension hinzufügen"
+
+msgid "Your browser window is too small."
+msgstr "Dein Browserfenster ist zu klein."
+
+msgid "Cache storage"
+msgstr "Cache speicherort"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Admin-Path not found"
+msgstr "Admin-Pfad nicht gefunden"
+
+msgid "Create a shortcut to the desktop"
+msgstr "Erstelle eine Verknüpfung auf dem Desktop"
+
+msgid "[No title]"
+msgstr "[Kein Titel]"
+
+msgid "Template file"
+msgstr "Template Datei"
+
+msgid "Hide/Unhide"
+msgstr "Zeige/Verstecke"
+
+msgid "Copy"
+msgstr "Kopieren"
+
+msgid "Move up"
+msgstr "Verschiebe hoch"
+
+msgid "Move down"
+msgstr "Verschiebe runter"
+
+msgid "Drag and drop"
+msgstr "Drag'n'Drop"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "No layout"
+msgstr "Kein Layout"
+
+msgid "Entry point"
+msgstr "Einstiegspunkt"
+
+msgid "Choose deposit"
+msgstr "Wähle Ablage"
+
+msgid "File: %s"
+msgstr "Datei: %s"
+
+msgid "Open target"
+msgstr "Öffne Ziel"
+
+msgid "-- Please choose --"
+msgstr "-- Bitte wähle --"
+
+msgid "Remove selected"
+msgstr "Lösche markierte"
+
+msgid "Export"
+msgstr "Exportieren"
+
+msgid "Import"
+msgstr "Importieren"
+
+msgid "Really remove selected?"
+msgstr "Wirklich markierte löschen?"
+
+msgid "Really delete?"
+msgstr "Wirklich löschen?"
+
+msgid "Add page"
+msgstr "Seite hinzufuegen"
+
+msgid "Open/Close subitems"
+msgstr "Oeffne/Schliesse Unterelement"
+
+msgid "Above"
+msgstr "Drüber"
+
+msgid "Into"
+msgstr "Hinein"
+
+msgid "Below"
+msgstr "Darunter"
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "page copied"
+msgstr "Seite kopiert"
+
+msgid "Copy with subpages"
+msgstr "Kopieren mit Unterseiten"
+
+msgid "page with subpages copied"
+msgstr "Seiten mit Unterseiten kopiert"
+
+msgid "Before"
+msgstr "Davor"
+
+msgid "After"
+msgstr "Danach"
+
+msgid "Extension:"
+msgstr "Erweiterung:"
+
+msgid "Please choose a extension and a plugin."
+msgstr "Bitte wähle eine Extension und ein Plugin."
+
+msgid "Remove this widget"
+msgstr "Lösche dieses Widget"
+
+msgid "Display this widget at desktop"
+msgstr "Zeige dieses Widget auf dem Desktop"
+
+msgid "Select all"
+msgstr "Selektiere alle"
+
+msgid "me"
+msgstr "ich"
+
+msgid "all"
+msgstr "alle"
+
+msgid "Use * as wildcard"
+msgstr "Benutze * als Platzhalter"
+
+msgid "Scroll to the bottom to load more entries."
+msgstr "Scrolle nach unten, um weitere zu laden."
+
+msgid "No entries left."
+msgstr "Keine weiteren Eintraege."
+
+msgid "Loading entries ..."
+msgstr "Lade Eintraege ..."
+
+msgid "There are no entries."
+msgstr "Keine Eintraege."
+
+msgid "Scroll to the top to load previous entries."
+msgstr "Scroll nach oben, um vorherige zu laden."
+
+msgid "-- No value --"
+msgstr "-- Kein Wert --"
+
+msgid "No value"
+msgstr "Kein Wert"
+
+msgid "-- LIVE --"
+msgstr "-- Veroeffentlicht --"
+
+msgid "-- Please Select --"
+msgstr "-- Bitte waehle --"
+
+msgid "-- Please select --"
+msgstr "-- Bitte waehle --"
+
+msgid "Save and publish"
+msgstr "Speichern und veröffentlichen"
+
+msgid "Please fill!"
+msgstr "Bitte ausfuellen!"
+
+msgid "Statistic"
+msgstr "Statistik"
+
+msgid "Can not find position %1 in the widgetsLayout from extension %2"
+msgstr "Kann position %1 nicht im widgetsLayout von der Extension %2 finden"
+
+msgid " -- No layout --"
+msgstr "-- Kein Layout --"
+
+msgid "There are URL aliases for this page"
+msgstr "Keine URL Aliase fuer diese Seite"
+
+msgid "Delete this alias"
+msgstr "Entferne diesen Alias"
+
+msgid "Really delete this alias?"
+msgstr "Wirklich diesen Alias entfernen?"
+
+msgid "No versions"
+msgstr "Keine Versionen"
+
+msgid "New domain"
+msgstr "Neue Domain"
+
+msgid "Theme"
+msgstr "Thema"
+
+msgid "Sessions"
+msgstr "Sitzungen"
+
+msgid "Contents"
+msgstr "Inhalte"
+
+msgid "Resources"
+msgstr "Ressourcen"
+
+msgid "Save and close"
+msgstr "Speichern und schließen"
+
+msgid "Crawl this page now"
+msgstr "Durchsuche diese Seite jetzt"
+
+msgid "Indexing ..."
+msgstr "Indiziere ..."
+
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+msgid "Really delete this domain?"
+msgstr "Wirklich diese Domain löschen?"
+
+msgid "Current language master is: "
+msgstr "Aktueller Sprachmaster ist:"
+
+msgid "Failed - Check values"
+msgstr "Fehlgeschlagen - Ueberpruefe Werte"
+
+msgid "Please make sure, that this domains points to this Kryn.cms installation. Otherwise you are not able to manage the content under the content tab."
+msgstr "Bitte sorge dafuer, dass diese Domain auf diese Kryn.cms-Installation zeigt. Ansonsten wirst du den Inhalt deiner Seiten nicht aendern koennen."
+
+msgid "Startpage"
+msgstr "Startseite"
+
+msgid "Use %title as placeholder for the pagetitle"
+msgstr "Benutz %title als Platzhalter für den Seitentitel"
+
+msgid "Choose a favicon. Filetype .ico"
+msgstr "Wähle ein Favicon. Dateityp .ico"
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "Language master"
+msgstr "Sprach-Master"
+
+msgid "Email sender"
+msgstr "E-Mail versender"
+
+msgid "Extensions can use this email in outgoing emails as sender."
+msgstr "Erweiterungen können diese E-Mail-Adresse als versender für E-Mails angeben."
+
+msgid "Theme properties"
+msgstr "Thema Eigenschaften"
+
+msgid "Limit selectable layouts"
+msgstr "Begrenze Layout-Auswahl"
+
+msgid "If you want to limit layouts to choose"
+msgstr "Wenn Layouts für diese Domain eingeschränkt werden sollen"
+
+msgid "Session storage"
+msgstr "Session Speicherort"
+
+msgid "SQL Database"
+msgstr "SQL Datenbank"
+
+msgid "Session timeout"
+msgstr "Sitzungs-Zeitüberschreitung"
+
+msgid "Frontend authentification"
+msgstr "Frontend Authentifizierung"
+
+msgid "Please note that the user "admin" authenticate always against the Kryn.cms user."
+msgstr "Bitte beachte, dass sicher der User "admin" immer gegen Kryn.cms user authentifiziert."
+
+msgid "Automatic session garbage collector"
+msgstr "Automatischer Muellabfuhr fuer Sessions."
+
+msgid "Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations."
+msgstr "Verringert die Geschwindigkeit, wenn sich viele Benutzer auf dem System bewegen. Benoetigt aktivierten Cronbjob. Klicke auf das Hilfe-Icon, um mehr Informationen zu erhalten."
+
+msgid "Redirect"
+msgstr "Weiterleitung"
+
+msgid "Define here the rules for searchengines. (robots.txt)"
+msgstr "Regeln in Format von der Robots.txt für Suchmaschinen"
+
+msgid "Css and JS compression"
+msgstr "Css und JS kompression"
+
+msgid "Merge all css files in one, same with javascript files. This improve the page render time"
+msgstr "Fügt alle CSS-Dateien in eine, das selbe mit Javascript-Dateien. Dies lässt die Seite schneller laden."
+
+msgid "404-Page"
+msgstr "404-Seite"
+
+msgid "PHP file"
+msgstr "PHP datei"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Deposit"
+msgstr "Ablage"
+
+msgid "Title (navigation)"
+msgstr "Titel (Navigation)"
+
+msgid "Alternative page title"
+msgstr "Alternativer Seitentitel"
+
+msgid "Extern links with "http://""
+msgstr "Externe Links mit "Http://""
+
+msgid "Open in"
+msgstr "Öffnen mit"
+
+msgid "Same window"
+msgstr "Gleichem Fenster"
+
+msgid "New window"
+msgstr "Neuem Fenster"
+
+msgid "Keywords"
+msgstr "Stichwörter"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Visible (navigation)"
+msgstr "Sichtbar (Navigation)"
+
+msgid "Force HTTPS"
+msgstr "Erzwinge HTTPS"
+
+msgid "Show in navigation by no access"
+msgstr "Zeige in Navigation bei bei keinem Zugriff"
+
+msgid "Shows this page in the navigations also with no access"
+msgstr "Zeige diese Seite in der Navigation auch wenn der Benutzer auf diese Seite kein Zugriff hat"
+
+msgid "Redirect to page by no access"
+msgstr "Leite auf diese Seite weiter bei keinem Zugriff"
+
+msgid "Choose a page, if you want to redirect the user to a page by no access."
+msgstr "Wähle eine Seite, wenn der Besucher auf ein Seite weitergeleitet bei keinem Zugriff werden soll"
+
+msgid "Verify access with this service"
+msgstr "Prüfe Zugriff über folgenden Dienst"
+
+msgid "Only if group limition is active"
+msgstr "Nur wenn Gruppenlimitierungen aktiviert ist"
+
+msgid "Show layout"
+msgstr "Zeige Layout"
+
+msgid "No layouts found. Install layout extensions or create one."
+msgstr "Keine Layouts gefunden. Installieren oder erstellen Sie eine Layout-Erweiterung."
+
+msgid "Please choose a layout for this page."
+msgstr "Bitte wähle ein Layout für diese Seite."
+
+msgid "Hide element bar"
+msgstr "Verstecke Element-Box"
+
+msgid "Live"
+msgstr "Veröffentlicht"
+
+msgid "No version exists."
+msgstr "Keine Versionen"
+
+msgid "Load"
+msgstr "Lade"
+
+msgid "Set Live"
+msgstr "Veröffentliche"
+
+msgid "Publish this version ?"
+msgstr "Veröffentliche diese Version"
+
+msgid "Add this page to the search index blacklist"
+msgstr "Füge diese Seite zur Suchindex-Blacklist"
+
+msgid "Exclude this page from search index"
+msgstr "Schließe diese Seite vom Suchindex aus."
+
+msgid "Search words"
+msgstr "Suchwärter"
+
+msgid "Search indexes for this site"
+msgstr "Suchindex für diese Seite"
+
+msgid "Date of index"
+msgstr "Datum von Indizierung"
+
+msgid "Content hash"
+msgstr "Inhalt Hash"
+
+msgid "Action"
+msgstr "Aktion"
+
+msgid "The URL "
+msgstr "Die URL"
+
+msgid " has been added successfully to your search index blacklist."
+msgstr "wurder erfolgreich zur Suchindex-Blacklist hinzugefügt."
+
+msgid "URL successfully added!"
+msgstr "URL erfolgreich hinzugefügt!"
+
+msgid "Add this page to the blacklist"
+msgstr "Füge diese Seite dem Suchindex-Blacklist hinzu"
+
+msgid "View this page"
+msgstr "Zeige diese Seite"
+
+msgid "You have changed the URL. Should the system creates a new alias for the old one?"
+msgstr "Du hast die URL geaendert. Soll das System einen neuen Alias fuer die alte URL anlegen?"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Yes with subpages"
+msgstr "Ja mit Unterseiten"
+
+msgid "Step 1: Define new items"
+msgstr "Schritt 1: Definierte die Eintraege"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "Visible"
+msgstr "Sichtbar"
+
+msgid "Titles"
+msgstr "Titels"
+
+msgid "Enter here the titles of the new items. Each item in one field."
+msgstr "Jedes Feld steht für eine neue Seite."
+
+msgid "More items"
+msgstr "Mehr Seiten"
+
+msgid "Step 2: Define the position"
+msgstr "Schritt 2: Definiere die Position"
+
+msgid "To define the position, click on a target and choose a direction. You will see a information about the position in the left bottom area of this window."
+msgstr "Um die Position zu definieren, klicke auf eine Seite und wähle im anschließenden Popup die Position. Zusätzliche Information kann in der linken unteren Ecke dieses Fenster eingesehen werden."
+
+msgid "Add pages to %s"
+msgstr "Seite hinzufuege zu %s"
+
+msgid "No position choosen."
+msgstr "Keine Position gewählt."
+
+msgid "Please choose a position."
+msgstr "Bitte wähle eine Position"
+
+msgid "License"
+msgstr "Lizenz"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Hour"
+msgstr "Stunden"
+
+msgid "3 Hours"
+msgstr "3 Stunden"
+
+msgid "6 Hours"
+msgstr "6 Stunden"
+
+msgid "12 Hours"
+msgstr "12 Stunden"
+
+msgid "Day"
+msgstr "Tag"
+
+msgid "Week"
+msgstr "Woche"
+
+msgid "Month"
+msgstr "Monat"
+
+msgid "Quarter"
+msgstr "Quartal"
+
+msgid "Specifiy"
+msgstr "Benutzerdefiniert"
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "Download now"
+msgstr "Jetzt herunterladen"
+
+msgid "Generate later"
+msgstr "Erstelle spaeter"
+
+msgid "Local"
+msgstr "Lokal"
+
+msgid "Relative paths starts at the root of the kryn installation."
+msgstr "Relativer Pfad startet in dem Installationsverzeichnis von Kryn.cms."
+
+msgid "Starts at"
+msgstr "Startet am"
+
+msgid "Immediately"
+msgstr "Sofort"
+
+msgid "Each ..."
+msgstr "Jede ..."
+
+msgid "Specify in minutes"
+msgstr "Benutzerdefiniert in Minuten"
+
+msgid "Ends at"
+msgstr "Beenden am"
+
+msgid "Infinite"
+msgstr "Unendlich"
+
+msgid "Rounds"
+msgstr "Runden"
+
+msgid "Once"
+msgstr "Ein mal"
+
+msgid "Websites"
+msgstr "Webseiten"
+
+msgid "Nothing"
+msgstr "Nichts"
+
+msgid "All websites"
+msgstr "Alle Webseiten"
+
+msgid "Choose nodes"
+msgstr "Waehle eine Seite"
+
+msgid "With all versions"
+msgstr "Mit allen Versionen"
+
+msgid "This includes additionally all versions. Please note: Can blow up the backup file."
+msgstr "Das beinhaltet zusaetzliche alle Versionen. Bitte beachte, dass das die Backupdatei extrem vergroessern kann."
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "The native language is english. Do not translate the english language, unless you want to adjust some phrases."
+msgstr "Die native Sprache ist Englisch. Bitte übersetzte nicht ins Englische, sondern immer vom Englischen in die anderen Sprachen."
+
+msgid "Container"
+msgstr "Inhaltsboxen"
+
+msgid "Navigations"
+msgstr "Navigationen"
+
+msgid "Install a theme"
+msgstr "Installiere ein Thema"
+
+msgid "Develop a theme"
+msgstr "Entwickle ein Thema"
+
+msgid "Please enter the extension code for your theme extension: "
+msgstr "Bitte gebe den Extensioncode für das neue Theme-Paket ein:"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "[edit]"
+msgstr "[bearbeiten]"
+
+msgid "New extension"
+msgstr "Neue Erweiterungen"
+
+msgid "Development"
+msgstr "Entwicklung"
+
+msgid "Activated"
+msgstr "Aktiviert"
+
+msgid "Information/Editorial office"
+msgstr "Redaktion"
+
+msgid "Interface"
+msgstr "Schnittstelle"
+
+msgid "Advertisement"
+msgstr "Werbung"
+
+msgid "Security"
+msgstr "Sicherheit"
+
+msgid "Download & Documents"
+msgstr "Downloads und Dokumente"
+
+msgid "Language package"
+msgstr "Sprachpaket"
+
+msgid "Data acquisition"
+msgstr "Datenerfassung"
+
+msgid "Collaboration"
+msgstr "Zusammenarbeit"
+
+msgid "Deactivate"
+msgstr "Deaktivieren"
+
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+msgid "Activate"
+msgstr "Aktivieren"
+
+msgid "Deinstall"
+msgstr "Deinstallieren"
+
+msgid "New version available"
+msgstr "Neue Version verfügbar"
+
+msgid "Local extensions"
+msgstr "Lokale Erweiterungen"
+
+msgid "My extensions"
+msgstr "Meine Erweiterungen"
+
+msgid "Create extension"
+msgstr "Erstelle Extension"
+
+msgid "Extension code: "
+msgstr "Erweiterungscode"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Share"
+msgstr "Teilen"
+
+msgid "Install"
+msgstr "Installieren"
+
+msgid "Search result: "
+msgstr "Suchergebnisse:"
+
+msgid "Go to overview"
+msgstr "Gehe zur Übersicht"
+
+msgid "No search results. :-("
+msgstr "Keine Ergebnisse gefunden"
+
+msgid "Extensions in %s"
+msgstr "Erweiterungen in %s"
+
+msgid "by %s"
+msgstr "von %s"
+
+msgid "To website"
+msgstr "Zur Webseite"
+
+msgid "Categories"
+msgstr "Kategorien"
+
+msgid "Theme / Layouts"
+msgstr "Style / Layouts"
+
+msgid "Best themes"
+msgstr "Beste Themen"
+
+msgid "Checking extensioncode: "
+msgstr "Prüfe Extensioncode:"
+
+msgid "Please wait ..."
+msgstr "Bitte warten ..."
+
+msgid "Extensioncode already in use. Please choose another:"
+msgstr "Extensioncode bereits in Nutzung. Bitte wähle einen anderen."
+
+msgid "Valid extensioncode."
+msgstr "Gültiger Extensioncode"
+
+msgid "Extensions folders created."
+msgstr "Erweiterungsordner angelegt."
+
+msgid "Open extension editor"
+msgstr "Öffne Erweiterungs-Editor"
+
+msgid "Database"
+msgstr "Datenbank"
+
+msgid "Forms"
+msgstr "Formulare"
+
+msgid "Docu"
+msgstr "Doku"
+
+msgid "Themes"
+msgstr "Styles"
+
+msgid "Really change language? Unsaved information will be lost."
+msgstr "Wirklich Sprache ändern ? Ungespeicherter Inhalt wird gelöscht."
+
+msgid "Add form"
+msgstr "Formular hinzufügen"
+
+msgid "Delete form"
+msgstr "Formular löschen"
+
+msgid "Edit class"
+msgstr "Klasse bearbeiten"
+
+msgid "Add plugin"
+msgstr "Plugin hinzufügen"
+
+msgid "Title (english)"
+msgstr "Titel (englisch)"
+
+msgid "Delete plugin"
+msgstr "Lösche Plugin"
+
+msgid "Documentation"
+msgstr "Dokumentation"
+
+msgid "Add table"
+msgstr "Tabelle hinzufügen"
+
+msgid "Length"
+msgstr "Länge"
+
+msgid "Add column"
+msgstr "Feld hinzufügen"
+
+msgid "Delete table"
+msgstr "Tabelle löschen"
+
+msgid "Delete column"
+msgstr "Feld löschen"
+
+msgid "Column down"
+msgstr "Feld runter "
+
+msgid "Add help"
+msgstr "Hilfe hinzufügen"
+
+msgid "Add Link"
+msgstr "Link hinzufügen"
+
+msgid "Title: "
+msgstr "Titel:"
+
+msgid " Type: "
+msgstr "Typ:"
+
+msgid " Class: "
+msgstr "Klasse"
+
+msgid "Childs: "
+msgstr "Kinder"
+
+msgid "Delete Link"
+msgstr "Link löschen"
+
+msgid "Delete?"
+msgstr "Löschen ?"
+
+msgid "Link up"
+msgstr "Link hoch"
+
+msgid "Link down"
+msgstr "Link runter"
+
+msgid "Comma seperated values"
+msgstr "Komma separiert"
+
+msgid "No owner - local version"
+msgstr "Kein Besitzer - Lokale Version"
+
+msgid "Dependency"
+msgstr "Abhängigkeiten"
+
+msgid "Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4."
+msgstr "Kommaseparierte Liste von Extension-Codes. Beispiel: kryn=>0.5.073,admin>0.4. "
+
+msgid "Visible in community"
+msgstr "Sichtbar in Community"
+
+msgid "Is this extension searchable and accessible for others?"
+msgstr "Ist diese Erweiterung suchbar und zugänglich für Andere ?"
+
+msgid "Category"
+msgstr "Kategorie"
+
+msgid "What kind of extension is this?"
+msgstr "Was für eine Erweiterung ist dies ?"
+
+msgid "Writable files"
+msgstr "Beschreibbare Dateien"
+
+msgid "Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information"
+msgstr "Legen sie die Dateien fest, die bei einem Update nicht automatisch überschrieben werden.Eine Datei pro Zeile. Benutzen Sie * für die Wildcard. Bitte lesen Sie .docs für mehr Infos."
+
+msgid "Add theme"
+msgstr "Layout hinzufügen"
+
+msgid "Delete theme property"
+msgstr "Lösche Thema-Eigenschaft"
+
+msgid "Propertie value"
+msgstr "Eigenschaftswert"
+
+msgid "Delete Theme"
+msgstr "Style löschen"
+
+msgid "Really delete this theme ?"
+msgstr "Wollen Sie diesen Style wirklich löschen ?"
+
+msgid "Open template"
+msgstr "Vorlage öffnen"
+
+msgid "Delete template"
+msgstr "Vorlage löschen"
+
+msgid "Really delete this template ?"
+msgstr "Wollen Sie diese Vorlage wirklich löschen ?"
+
+msgid "Add public property"
+msgstr "Öffentliche Eigenschaft hinzufügen"
+
+msgid "Add property"
+msgstr "Eigenschaft hinzufügen"
+
+msgid "Layout templates"
+msgstr "Layoutvorlagen"
+
+msgid "Add layout template"
+msgstr "Layoutvorlage hinzufügen ?"
+
+msgid "Element templates"
+msgstr "Elementenvorlage"
+
+msgid "Add element template"
+msgstr "Elementenvorlage hinzufügen"
+
+msgid "Navigation templates"
+msgstr "Navigationsvorlage"
+
+msgid "Add navigation template"
+msgstr "Navigationsvorlage hinzufügen"
+
+msgid "Key"
+msgstr "Schlüssel"
+
+msgid "Translation"
+msgstr "Übersetzung"
+
+msgid "Upload this version"
+msgstr "Veröffentliche diese Version"
+
+msgid "Create package"
+msgstr "Erstelle Paket"
+
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+msgid "Really upload this version ?"
+msgstr "Wollen Sie diese Version wirklich veröffentlichen ?"
+
+msgid "Please enter your commit message. Leave blank to commit without a comment."
+msgstr "Bitte gebe eine Beschreibung zu dieser Version ein. Leer lassen, um ohne zu veröffentlichen."
+
+msgid "Please enter your password (%s)"
+msgstr "Bitte Passwort für %s eingeben"
+
+msgid "Publish to version %s"
+msgstr "Veröffentliche zu Version %s"
+
+msgid "Commit message"
+msgstr "Versions-Beschreibung"
+
+msgid "Extension successfully published."
+msgstr "Erweiterungen erfolgreich veröffentlicht"
+
+msgid "Publish error."
+msgstr "Error beim veröffentlichen"
+
+msgid "Files:"
+msgstr "Dateien:"
+
+msgid "Module not found."
+msgstr "Erweiterung nicht gefunden"
+
+msgid "Config.json not found."
+msgstr "Config.json nicht gefunden"
+
+msgid "Cannot connect to kryn server"
+msgstr "Konnte nicht zu kryn-servern verbinden"
+
+msgid "extension"
+msgstr "erweiterung"
+
+msgid "from"
+msgstr "vn"
+
+msgid "in category"
+msgstr "in Kategorie"
+
+msgid "Cannot retrieve latest version"
+msgstr "Konnte aktuellste Versionsinformationen nicht empfangen"
+
+msgid "Installed version"
+msgstr "Installierte Version"
+
+msgid "You view a locale installation package!"
+msgstr "Das ist eine lokale Installation-Datei!"
+
+msgid "Package"
+msgstr "Paket"
+
+msgid "Package version: %s"
+msgstr "Paket version: %s"
+
+msgid "No tags"
+msgstr "Keine Tags"
+
+msgid "Last publish:"
+msgstr "Letzte Veröffentlichung"
+
+msgid "Cannot connect to Server to retrieve latest version."
+msgstr "Konnte nicht zu kryn-servern verbinden, um Versionsinformationen abzufragen."
+
+msgid "Install extension"
+msgstr "Installiere Erweiterung"
+
+msgid "New themes installed"
+msgstr "Neues Thema installiert"
+
+msgid "You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do."
+msgstr "Ein neues Thema wurd installiert. Bitte lese <ka:help id="admin/use-theme-packages-de">Benutze neue Themen</ka:help> für mehr Informationen."
+
+msgid "Installation complete"
+msgstr "Installation komplett"
+
+msgid "Update extension"
+msgstr "Update Erweiterung"
+
+msgid "install extension"
+msgstr "Installiere Erweiterung"
+
+msgid "Update now"
+msgstr "Updaten"
+
+msgid "Install now"
+msgstr "Installieren"
+
+msgid "Select files to overwrite"
+msgstr "Wählen sie die Dateien, die überschrieben werden sollen"
+
+msgid "No modified files"
+msgstr "Keine bearbeiteten Dateien gefunden"
+
+msgid "Old"
+msgstr "Alt"
+
+msgid "No new files"
+msgstr "Keine neue Dateien"
+
+msgid "Really remove ?"
+msgstr "Wirklich deinstallieren?"
+
+msgid "Deinstall extension"
+msgstr "Deinstalliere Extension"
+
+msgid "Following files has been changed after installating. Selected files will be remove."
+msgstr "Folgende Dateien wurden nach der Installation verändert. Markierte Dateien werden entfernt."
+
+msgid "Deinstall now"
+msgstr "Deinstallieren"
+
+msgid "System title"
+msgstr "Systemtitel"
+
+msgid "If you want to develop your own extensions, layoutpacks or other stuff, you have to connect with the community server. Enter your community email to connect with."
+msgstr "Wenn Sie Ihre eigenen Erweiterungen, Layoutpakete oder Ähnliches enwickeln wollen, müssen Sie sich mit dem Community-Server verbinden. Geben Sie Ihre e-Mail Adresse ein, um verbunden zu werden."
+
+msgid "Languages"
+msgstr "Sprachen"
+
+msgid "Limit the language selection. (systemwide)"
+msgstr "Begrenze die Auswahl der Sprachen."
+
+msgid "Display errors"
+msgstr "Zeige Fehler"
+
+msgid "Prints errors to the frontend clients. You should deactivate this in productive systems"
+msgstr "Zeigt Fehler im Frontend. Das sollte bei einem produktiven Einsatz bzgl. der Sicherheit deaktiviert werden."
+
+msgid "Log errors"
+msgstr "Speichere Fehler"
+
+msgid "Log all errors into specified (below) file"
+msgstr "Speichere alle Fehler in angegebene Datei"
+
+msgid "Log errors target"
+msgstr "Logge alle Fehler in diese Datei"
+
+msgid "If Log errors is activated, all errors will be written in this file. Example: inc/kryn.log"
+msgstr "Wenn alle Fehler gespeichert werden sollen, werden alle Fehler un die angegeben Datei gespeichert."
+
+msgid "Server timezone"
+msgstr "Server Zeitzone"
+
+msgid "Database type"
+msgstr "Datenbank Typ"
+
+msgid "Database server"
+msgstr "Datenbank Server"
+
+msgid "Example: localhost"
+msgstr "Beispiel: localhost"
+
+msgid "Database login"
+msgstr "Datenbank Login"
+
+msgid "Database password"
+msgstr "Datenbank Passwort"
+
+msgid "Database name"
+msgstr "Datenbank Name"
+
+msgid "Database prefix"
+msgstr "Datenbank Prefix"
+
+msgid "Force UTF8"
+msgstr "Erzwinge UTF-8"
+
+msgid "If your mysql does not use utf8 as default, enable force utf8"
+msgstr "Aktiviere 'Erzwinge UTF-8', wenn MySQL nicht standardmäßig UTF-8 benutzt"
+
+msgid "Saving ..."
+msgstr "Speichere ..."
+
+msgid "Wating ..."
+msgstr "Warte ..."
+
+msgid "Please enter your password"
+msgstr "Bitte geben Dein Passwort ein"
+
+msgid "Cannot connect to community server."
+msgstr "Keine Verbindung zum Community-Server möglich."
+
+msgid "Current database is:"
+msgstr "Aktuelle Datenbank ist:"
+
+msgid "Type here your SQL .."
+msgstr "Gebe hier SQL ein ..."
+
+msgid "Result:"
+msgstr "Ergebnis:"
+
+msgid "%sms execution time"
+msgstr "%sms Exec-Zeit"
+
+msgid "%sms fetching time"
+msgstr "%sms Fetch-Zeit"
+
+msgid "%sms request time"
+msgstr "%ms HTTP-Anfrage-Zeit"
+
+msgid "An error has occurred"
+msgstr "Ein Fehler ist aufgetreten"
+
+msgid "Successfull executed. 0 items returned."
+msgstr "Erfolgreich ausgeführt. 0 Zeilen zurückgeliefert"
+
+msgid "Area"
+msgstr "Bereich"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Lost pages (404)"
+msgstr "Verlorene Seiten (404)"
+
+msgid "Authentication"
+msgstr "Authentifizierung"
+
+msgid "System error and notices"
+msgstr "Systemfehler und Notizen"
+
+msgid "Message"
+msgstr "Mitteilung"
+
+msgid "January"
+msgstr "Januar"
+
+msgid "Titel"
+msgstr "Titel"
+
+msgid "Domain ( Language )"
+msgstr "Domain ( Sprache )"
+

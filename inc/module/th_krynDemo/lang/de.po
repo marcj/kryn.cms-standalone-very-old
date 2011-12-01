@@ -1,0 +1,22 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Kryn.cms - th_krynDemo\n"
+"PO-Revision-Date: 2011-12-01 03:51+0100\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+msgid "Keyword ..."
+msgstr "Kennwort"
+
+msgid "Search"
+msgstr "Suche"
+
+msgid "Main content"
+msgstr "Hauptinhalt"
+
+msgid "Sidebar"
+msgstr "Seitenleiste"
+
