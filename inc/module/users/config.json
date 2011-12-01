@@ -15,7 +15,7 @@
   "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
   "widgets": {
     "widgetSessions": {
-      "title": "Current sessions",
+      "title": "[[Current sessions]]",
       "type": "autotable",
       "position": "full",
       "columns": [
@@ -41,7 +41,7 @@
       "sql": "SELECT time, u.username, s.ip, page FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.rsn = s.user_rsn"
     },
     "lastFailedLogins": {
-      "title": "Last failed logins",
+      "title": "[[Last failed logins]]",
       "type": "autotable",
       "position": "left",
       "columns": [
@@ -65,7 +65,7 @@
       "manipulate_row": "manipulateLastFailedLoginsRow"
     },
     "currentAdminLogins": {
-      "title": "Current users",
+      "title": "[[Current users]]",
       "type": "autotable",
       "position": "right",
       "columns": [
@@ -92,11 +92,11 @@
   
     "auth_imap": {
         "server": {
-            "label": "Server",
+            "label": "[[Server]]",
             "type": "text"
         },
         "port": {
-            "label": "Port",
+            "label": "[[Port]]",
             "type": "number",
             "width": 50
         },
@@ -105,7 +105,7 @@
             "type": "checkbox"
         },
         "novalidate-cert": {
-            "label": "No cert validation",
+            "label": "[[No cert validation]]",
             "type": "checkbox"
         },
         "tls": {
@@ -113,13 +113,13 @@
             "type": "checkbox"
         },
         "default_group": {
-            "label": "Login mapping",
-            "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
+            "label": "[[Login mapping]]",
+            "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
             "type": "array",
             "startWith": 1,
             "columns": [
-                {"label": "Login"},
-                {"label": "Group", "width": "65%"}
+                {"label": "[[Login]]"},
+                {"label": "[[Group]]", "width": "65%"}
             ],
             "fields": {
                 "login": {
@@ -156,8 +156,8 @@
             "type": "checkbox"
         },
         "default_group": {
-            "label": "Group mapping",
-            "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
+            "label": "[[Group mapping]]",
+            "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
             "type": "array",
             "columns": [
                 {"label": "Login"},
@@ -203,20 +203,20 @@
   },
   "admin": {
     "browser": {
-      "title": "User and group browse dialog",
+      "title": "[[User and group browse dialog]]",
       "type": "custom",
       "isLink": false,
       "defaultWidth": 650,
       "defaultHeight": 400
     },
     "users": {
-      "title": "Users",
+      "title": "[[Users]]",
       "type": "combine",
       "class": "usersAdminList",
       "defaultWidth": 700,
       "childs": {
         "edit": {
-          "title": "Users edit",
+          "title": "[[Users edit]]",
           "type": "edit",
           "class": "usersAdminEdit",
           "isLink": false,
@@ -224,7 +224,7 @@
           "defaultHeight": 410
         },
         "editMe": {
-          "title": "User self edit",
+          "title": "[[User self edit]]",
           "type": "edit",
           "class": "usersAdminSelfEdit",
           "isLink": false,
@@ -232,17 +232,17 @@
           "defaultHeight": 520,
           "childs": {
             "groups": {
-              "title": "Can edit groups",
+              "title": "[[Can edit groups]]",
               "type": "acl"
             },
             "username": {
-              "title": "Can change username",
+              "title": "[[Can change username]]",
               "type": "acl"
             }
           }
         },
         "add": {
-          "title": "Users add",
+          "title": "[[Users add]]",
           "type": "add",
           "class": "usersAdminAdd",
           "isLink": false,
@@ -250,12 +250,12 @@
           "defaultHeight": 410
         },
         "groups": {
-          "title": "Groups",
+          "title": "[[Groups]]",
           "type": "list",
           "class": "usersAdminGroupList",
           "childs": {
             "edit": {
-              "title": "Group edit",
+              "title": "[[Group edit]]",
               "type": "edit",
               "class": "usersAdminGroupEdit",
               "isLink": false,
@@ -263,7 +263,7 @@
               "fixedHeight": 200
             },
             "add": {
-              "title": "Group add",
+              "title": "[[Group add]]",
               "type": "add",
               "class": "usersAdminGroupAdd",
               "isLink": false,
@@ -273,7 +273,7 @@
           }
         },
         "acl": {
-          "title": "Access management",
+          "title": "[[Access management]]",
           "type": "custom",
           "defaultWidth": 870,
           "minWidth": 870,
@@ -287,76 +287,76 @@
   },
   "plugins": {
     "pluginLogin": [
-      "Login",
+      "[[Login]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/users\/login\/"
         },
         "templateLoggedIn": {
-          "label": "Template logged in",
+          "label": "[[Template logged in]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/users\/loggedIn\/"
         },
         "target": {
-          "label": "Target page [after login]",
+          "label": "[[Target page [after login]]]",
           "type": "page"
         },
         "logoutTarget": {
-          "label": "Target page [after logout]",
+          "label": "[[Target page [after logout]]]",
           "type": "page"
         },
         "category_rsn": {
-          "label": "Groups",
-          "desc": "Which groups can login?",
+          "label": "[[Groups]]",
+          "desc": "[[Which groups can login?]]",
           "type": "textlist",
           "store": "admin/backend/stores/groups"
         }
       }
     ],
     "pluginRegistration": [
-      "Registration",
+      "[[Registration]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/users\/registration\/"
         },
         "category_rsn": {
-          "label": "Group",
-          "desc": "Which group should the new users be added to?",
+          "label": "[[Group]]",
+          "desc": "[[Which group should the new users be added to?]]",
           "type": "select",
           "sql": "SELECT * FROM %pfx%system_groups",
           "table_label": "name",
           "table_id": "rsn"
         },
         "targetpage": {
-          "label": "Thanks page",
+          "label": "[[Thanks page]]",
           "type": "page"
         },
         "activation": {
-          "label": "Activation",
-          "desc": "How should the account be activated?",
+          "label": "[[Activation]]",
+          "desc": "[[How should the account be activated?]]",
           "type": "select",
           "tableItems": [
             {
-              "name": "Immediately",
+              "name": "[[Immediately]]",
               "key": "now"
             },
             {
-              "name": "By administrator",
+              "name": "[[By administrator]]",
               "key": "admin"
             },
             {
-              "name": "Activation email",
+              "name": "[[Activation email]]",
               "key": "email"
             },
             {
-              "name": "Activation email and administrator",
+              "name": "[[Activation email and administrator]]",
               "key": "emailadmin"
             }
           ],
@@ -365,20 +365,20 @@
           "depends": {
             "email_actpage": {
               "needValue": "email",
-              "label": "Activation page",
+              "label": "[[Activation page]]",
               "type": "page"
             },
             "email_subject": {
               "needValue": "email",
-              "label": "Email subject"
+              "label": "[[Email subject]]"
             },
             "email_from": {
               "needValue": "email",
-              "label": "Email from"
+              "label": "[[Email from]]"
             },
             "email_template": {
               "needValue": "email",
-              "label": "Email template",
+              "label": "[[Email template]]",
               "type": "files",
               "withoutExtension": true,
               "directory": "inc\/template\/users\/activateemail\/"
@@ -386,20 +386,20 @@
             
             "emailadmin_actpage": {
               "needValue": "emailadmin",
-              "label": "Activation page",
+              "label": "[[Activation page]]",
               "type": "page" 
             },
             "emailadmin_subject": {
               "needValue": "emailadmin",
-              "label": "Email subject"
+              "label": "[[Email subject]]"
             },
             "emailadmin_from": {
               "needValue": "emailadmin",
-              "label": "Email from"
+              "label": "[[Email from]]"
             },
             "emailadmin_template": {
               "needValue": "emailadmin",
-              "label": "Email template",
+              "label": "[[Email template]]",
               "type": "files",
               "withoutExtension": true,
               "directory": "inc\/template\/users\/activateemail\/"
@@ -407,8 +407,8 @@
           }
         },
         "required": {
-          "label": "Required fields",
-          "desc": "Select the fields you want to set as required for registration. Email address and password are required by default.",
+          "label": "[[Required fields]]",
+          "desc": "[[Select the fields you want to set as required for registration. Email address and password are required by default.]]",
           "type": "select",
           "tableItems": [
             { "name": "Username",   "key": "username" },
@@ -427,8 +427,8 @@
           "multiple": true
         },
         "hidden": {
-          "label": "Hidden fields",
-          "desc": "Select the fields you want to hide from registration. Email address and password can not be hidden.",
+          "label": "[[Hidden fields]]",
+          "desc": "[[Select the fields you want to hide from registration. Email address and password can not be hidden.]]",
           "type": "select",
           "tableItems": [
             { "name": "Username",   "key": "username" },
@@ -447,25 +447,25 @@
           "multiple": true
         },
         "notificationemail": {
-          "label": "Email notification",
-          "desc": "Send an email to target address if an account was created",
+          "label": "[[Email notification]]",
+          "desc": "[[Send an email to target address if an account was created]]",
           "type": "checkbox",
           "depends": {
             "notifyemail_target": {
               "needValue": "1",
-              "label": "Notify email target address"
+              "label": "[[Notify email target address]]"
             },
             "notifyemail_subject": {
               "needValue": "1",
-              "label": "Notify email subject"
+              "label": "[[Notify email subject]]"
             },
             "notifyemail_from": {
               "needValue": "1",
-              "label": "Notify email from address"
+              "label": "[[Notify email from address]]"
             },
             "notifyemail_template": {
               "needValue": "1",
-              "label": "Notify email template",
+              "label": "[[Notify email template]]",
               "type": "files",
               "withoutExtension": true,
               "directory": "inc\/template\/users\/notifyemail\/"
@@ -475,10 +475,10 @@
       }
     ],
     "pluginActivation": [
-      "Account activation",
+      "[[Account activation]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/users\/activation\/"
@@ -486,46 +486,46 @@
       }
     ],
     "pluginMessageSystemInbox": [
-      "Message System inbox",
+      "[[Message System inbox]]",
       {
         "template": {
-          "label": "Template",
+          "label": "[[Template]]",
           "type": "files",
           "withoutExtension": true,
           "directory": "inc\/template\/users\/messageSystem\/inbox"
         },
         "newMessagePage": {
-          "label": "Page with New-Message-Plugin",
+          "label": "[[Page with New-Message-Plugin]]",
           "type": "page"
         },
         "displayMessagesPerPage": {
-          "label": "Display messages per page",
+          "label": "[[Display messages per page]]",
           "type": "integer",
           "default": "5"
         },
         "inplaceRespond": {
-          "label": "Enable inplace respond",
+          "label": "[[Enable inplace respond]]",
           "type": "checkbox",
           "depends": {
             "attachReMessage": {
               "needValue": "1",
-              "label": "Attach response message",
+              "label": "[[Attach response message]]",
               "type": "checkbox"
             },
             "sendReminder": {
               "needValue": "1",
-              "label": "Send a reminder email to recipient",
+              "label": "[[Send a reminder email to recipient]]",
               "type": "checkbox",
               "depends": {
                 "sendReminderTemplate": {
                   "needValue": "1",
-                  "label": "Email template",
+                  "label": "[[Email template]]",
                   "type": "files",
                   "directory": "inc\/template\/users\/messageSystem\/newMessageEmails"
                 },
                 "sendReminderSubject": {
                   "needValue": "1",
-                  "label": "Reminder email subject",
+                  "label": "[[Reminder email subject]]",
                   "type": "string"
                 }
               }

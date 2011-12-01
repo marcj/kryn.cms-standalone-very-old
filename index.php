@@ -120,9 +120,10 @@ if($_REQUEST['js'] == 'global.js'){
 }
 
 kryn::initConfig();
-kryn::loadModules();        
-
+kryn::loadActiveModules();
 kryn::searchDomain();
+kryn::loadLanguage();
+kryn::loadModuleConfigs();
 
 kryn::initAuth();
 

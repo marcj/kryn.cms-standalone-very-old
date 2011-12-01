@@ -648,15 +648,7 @@ class kryn {
         return $infos;
     }
 
-    /**
-     * 
-     * Loads all activated extension configs and tables
-     * @internal
-     */
-    public static function loadModules(){
-        global $modules, $kdb, $cfg;
-
-        $tables = array();
+    public static function loadActiveModules(){
         
         $extensions =& kryn::getCache('activeModules');
 
@@ -672,13 +664,24 @@ class kryn {
         $extensions[] = 'kryn';
         $extensions[] = 'admin';
         $extensions[] = 'users';
+        kryn::$extensions = $extensions;
+    }
+
+    /**
+     * 
+     * Loads all activated extension configs and tables
+     * @internal
+     */
+    public static function loadModuleConfigs(){
+        global $modules, $kdb, $cfg;
+
+        $tables = array();
 
         $md5 = '';
-        foreach( $extensions as $extension ){
+        foreach( kryn::$extensions as $extension ){
             $path = ( $extension == 'kryn' )? 'inc/kryn/config.json':PATH_MODULE.''.$extension.'/config.json';
             if( file_exists( $path ) ){
                 $md5 .= '.'.filemtime( $path );
-                kryn::$extensions[] = $extension;
             }
         }
 
@@ -779,6 +782,26 @@ class kryn {
             }
         }
     }
+    
+    /**
+     *
+     * Returns the current language for the client
+     * based on the domain or _GET['lang'] or at least cookie 'kryn_lang'
+     */
+    public static function getLanguage(){
+        global $adminClient;
+    
+        if( kryn::$domain && kryn::$domain['lang'] ){
+            return kryn::$domain['lang'];
+        } else if( getArgv('lang', 2) ){
+            return getArgv('lang', 2);
+        } else if( $_COOKIE['kryn_lang'] ) {
+            return preg_replace("/\W/", "", $_COOKIE['kryn_lang']);
+        } else if( $adminClient ){
+            return $adminClient->getLang();
+        } return 'en';
+    
+    }
 
     /**
      * 
@@ -791,7 +814,6 @@ class kryn {
         global $adminClient;
     
         $pModule = str_replace( ".","", $pModule );
-    
 
         if( $pModule == 'kryn' )
             $config = "inc/kryn/config.json";
@@ -802,27 +824,19 @@ class kryn {
             return false;
         }
 
-        $ltime = filemtime($config);
-        $lang = $pLang?$pLang:kryn::$domain['lang'];
+        $mtime = filemtime($config);
+        $lang = $pLang ? $pLang : kryn::getLanguage();
         
-        if( !$pLang && $adminClient ){
-            $lang = $adminClient->getLang();
-        }
-        
-        $cacheCode = "moduleConfig-$pModule"."-$lang"."-$ltime";
-        
+        $cacheCode = "moduleConfig-$pModule"."-$lang";
+
         $configObj = kryn::getFastCache( $cacheCode );
 
-        if( !$configObj ){
-            //delete all config caches from this module
-            $delfiles = glob("cache/object/moduleConfig-$pModule"."-$lang"."-*.php");
-            
-            if( count($delfiles) > 0 )
-                foreach( $delfiles as $delfile )
-                    @unlink( $delfile );
+        if( !$configObj || $configObj['mtime'] != $mtime ){
 
             $json = kryn::translate( kryn::fileRead( $config ) );
             $configObj = json_decode( $json, 1 );
+            $configObj['mtime'] = $mtime;
+
             if( !is_array($configObj) ){
                 $configObj = array('_corruptConfig' => true);
             }
@@ -1590,11 +1604,11 @@ class kryn {
         $languages = kryn::getCache('systemLanguages');
         
         if( !$languages ) {
-            $languages = dbTableFetch('system_langs', -1, 'visible = 1');
+            $languages = dbExfetch('SELECT code FROM %pfx%system_langs WHERE visible = 1', -1);
             kryn::setCache('systemLanguages', $languages);
         }
 
-        foreach($languages as $l){
+        foreach( $languages as $l ){
             if( $l['code'] == $pLang ){
                 return true;
             }
@@ -1623,20 +1637,18 @@ class kryn {
 
     /**
      * 
-     * Returns all translation of the specified language
+     * Load all translations of the specified language
+     *
      * @param string $pLang de, en, ...
-     * @return string
      * @static
      * @internal
      */
-    public static function &getAllLanguage($pLang=false){
-        global $language;
+    public static function loadLanguage( $pLang = false ){
 
-        if(! $pLang ) $pLang = $language;
-        if(! $pLang || is_array($pLang) ) $pLang = 'en';
+        if(! $pLang ) $pLang = kryn::getLanguage();
 
         $code = 'cacheLang_'.$pLang;
-        $lang =& kryn::getFastCache($code);
+        kryn::$lang =& kryn::getFastCache($code);
 
         $md5 = '';
         foreach( kryn::$extensions as $key ){
@@ -1648,17 +1660,17 @@ class kryn {
 
         $md5 = md5($md5);
 
-        if( (!$lang || count($lang) == 0 ) || $lang['__md5'] != $md5 ){
+        if( (!kryn::$lang || count(kryn::$lang) == 0 ) || kryn::$lang['__md5'] != $md5 ){
 
-            $lang = array('__md5' => $md5, '__plural' => krynLanguage::getPluralForm($pLang), '__lang' => $pLang );
+            kryn::$lang = array('__md5' => $md5, '__plural' => krynLanguage::getPluralForm($pLang), '__lang' => $pLang );
 
             foreach( kryn::$extensions as $key ){
                 
                 $po = krynLanguage::getLanguage( $key, $pLang );
-                $lang = array_merge($lang, $po['translations']);
+                kryn::$lang = array_merge(kryn::$lang, $po['translations']);
 
             }
-            kryn::setFastCache( $code, $lang );
+            kryn::setFastCache( $code, kryn::$lang );
         }
         
         if( !file_exists('cache/object/gettext_plural_fn_'.$pLang.'.php') ){
@@ -1676,8 +1688,6 @@ class kryn {
         }
 
         include_once('cache/object/gettext_plural_fn_'.$pLang.'.php');
-        
-        return $lang;
     }
     
     /**
@@ -1855,10 +1865,9 @@ class kryn {
             }
     
             tAssignRef('baseUrl', kryn::$baseUrl);
-            kryn::$lang = kryn::getAllLanguage( $language );
             kryn::$language =& $language;
             kryn::$domain = $domain;
-            tAssignRef( 'domain', $domain );
+            tAssignRef( 'domain', kryn::$domain );
             tAssignRef( '_domain', $domain ); //compatibility
             tAssignRef("lang", $lang);
             

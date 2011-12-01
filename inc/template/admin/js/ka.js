@@ -147,7 +147,7 @@ ka.clearCache = function( ){
     
     new Request.JSON({url: _path+'admin/backend/clearCache', noCache: 1, onComplete: function(res){
         ka.cacheToolTip.stop( _('Cache cleared') );
-    }}).post();
+    }}).get();
 
 
 }
@@ -166,7 +166,7 @@ ka.loadSettings = function(){
         if( res.error == 'access_denied' ) return;
         
         ka.settings = res;
-        
+
         ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
         
         if( ka.settings.user && ka.settings.user.userBg )

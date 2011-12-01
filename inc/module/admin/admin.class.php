@@ -624,17 +624,9 @@ class admin {
         
         $adminClient->setLang( $lang );
         $adminClient->syncStore();
-
-        $json = kryn::fileRead('cache/object/lang_'.$lang.'.json');
         
-        if( $json == '' || $json == '[]' ){
-            $json = kryn::getAllLanguage($lang);   
-            $json = json_encode($json);
-            kryn::fileWrite('cache/object/lang_'.$lang.'.json', $json);
-        }
-        
-        
-        kryn::$lang = kryn::getAllLanguage( $lang );
+        kryn::loadLanguage($lang);   
+        $json = json_encode(kryn::$lang);
         
         if( getArgv('js') == 1 ){
             header('Content-Type: text/javascript');

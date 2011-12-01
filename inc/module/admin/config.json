@@ -14,7 +14,7 @@
   "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
   "widgets": {
     "unpublishedContents": {
-      "title": "Unpublished contents",
+      "title": "[[Unpublished contents]]",
       "type": "autotable",
       "position": "full",
       "columns": [
@@ -43,7 +43,7 @@
       "sql": "SELECT MAX(v.rsn) as versionrsn, u.username, p.rsn, MAX(v.modified) as modified, p.domain_rsn FROM %pfx%system_user u, %pfx%system_pages p, %pfx%system_pagesversions v WHERE draft_exist = 1 AND v.page_rsn = p.rsn AND u.rsn = v.owner_rsn AND ( p.type = 0 OR p.type = 3) GROUP BY p.rsn, u.username, p.domain_rsn ORDER BY MAX(v.modified) DESC"
     },
     "lastPageChanges": {
-      "title": "Last page changes",
+      "title": "[[Last page changes]]",
       "type": "autotable",
       "position": "full",
       "columns": [
@@ -73,7 +73,7 @@
       "sql": "SELECT v.rsn, u.username, v.page_rsn, v.modified, p.domain_rsn FROM  %pfx%system_pagesversions v, %pfx%system_user u, %pfx%system_pages p WHERE v.page_rsn = p.rsn AND u.rsn = v.owner_rsn ORDER BY v.created DESC LIMIT 25"
     },
     "searchStats": {
-      "title": "Top search words with results",
+      "title": "[[Top search words with results]]",
       "type": "autotable",
       "position": "left",
       "columns": [
@@ -91,7 +91,7 @@
       "sql": "SELECT word, searchcount FROM %pfx%system_search_stats WHERE found = 1 ORDER BY searchcount DESC, word"
     },
     "searchStatsNoResult": {
-      "title": "Top search words without results",
+      "title": "[[Top search words without results]]",
       "type": "autotable",
       "position": "right",
       "columns": [
@@ -111,7 +111,7 @@
   },
   "admin": {
     "system": {
-      "title": "System (Butterfly)",
+      "title": "[[System (Butterfly)]]",
       "type": "custom",
       "fixedWidth": 250,
       "fixedHeight": 275,
@@ -120,7 +120,7 @@
       "childs": {
         "desktopSettings": {
           "isLink": false,
-          "title": "Desktop settings",
+          "title": "[[Desktop settings]]",
           "fixedWidth": 580,
           "fixedHeight": 400,
           "multi": false,
@@ -128,7 +128,7 @@
           "type": "custom"
         },
         "searchIndexerList": {
-          "title": "Search index",
+          "title": "[[Search index]]",
           "isLink": false,
           "defaultWidth": 700,
           "type": "list",
@@ -142,7 +142,7 @@
           }
         },
         "layout": {
-          "title": "Templates",
+          "title": "[[Templates]]",
           "type": "custom",
           "multi": false,
           "defaultWidth": 900,
@@ -150,25 +150,25 @@
           "icon": "admin\/images\/admin-layout-icon.png"
         },
         "languages": {
-          "title": "Languages",
+          "title": "[[Languages]]",
           "type": "custom",
           "multi": false,
           "defaultWidth": 380,
           "defaultHeight": 430
         },
         "tools": {
-          "title": "Tools",
+          "title": "[[Tools]]",
           "hasSubmenu": 1,
           "childs": {
             "database": {
-              "title": "Database",
+              "title": "[[Database]]",
               "type": "custom",
               "defaultWidth": 380,
               "multi": false,
               "defaultHeight": 430
             },
             "logs": {
-              "title": "Logs",
+              "title": "[[Logs]]",
               "type": "custom",
               "multi": false,
               "defaultWidth": 800,
@@ -177,7 +177,7 @@
           }
         },
         "backup": {
-          "title": "Backup",
+          "title": "[[Backup]]",
           "type": "custom",
           "multi": false,
           "defaultWidth": 650,
@@ -186,7 +186,7 @@
           "minHeight": 450	
         },
         "module": {
-          "title": "Extensionmanager",
+          "title": "[[Extensions]]",
           "type": "custom",
           "defaultWidth": 750,
           "minWidth": 750,
@@ -194,43 +194,43 @@
           "multi": false,
           "childs": {
             "update": {
-              "title": "Update extension",
+              "title": "[[Update extension]]",
               "type": "list",
               "class": "moduleAdminList",
               "multi": false
             },
             "new": {
-              "title": "Install extension",
+              "title": "[[Install extension]]",
               "type": "list",
               "class": "moduleAdminInstallList",
               "multi": false,
               "defaultWidth": 400
             },
             "dbInit": {
-              "title": "Database Update\/Init",
+              "title": "[[Database Update\/Init]]",
               "type": "custom",
               "defaultWidth": 300
             },
             "publish": {
-              "title": "Publish",
+              "title": "[[Publish]]",
               "type": "custom",
               "defaultWidth": 300
             },
             "edit": {
-              "title": "Edit extension",
+              "title": "[[Edit extension]]",
               "type": "custom",
               "defaultWidth": 650,
               "minWidth": 650,
               "defaultHeight": 500
             },
             "add": {
-              "title": "Create extension",
+              "title": "[[Create extension]]",
               "type": "custom",
               "defaultWidth": 300,
               "defaultHeight": 300
             },
             "view": {
-              "title": "Extension",
+              "title": "[[Extension]]",
               "type": "custom",
               "defaultWidth": 400,
               "defaultHeight": 400,
@@ -239,7 +239,7 @@
           }
         },
         "settings": {
-          "title": "Settings",
+          "title": "[[Settings]]",
           "type": "custom",
           "multi": false,
           "defaultWidth": 400,
@@ -248,19 +248,19 @@
       }
     },
     "backend": {
-      "title": "Backend access",
+      "title": "[[Backend access]]",
       "isLink": false,
       "acl": false,
       "childs": {
         "tinyDialog": {
-          "title": "Dialog",
+          "title": "[[Dialog]]",
           "isLink": false,
           "defaultWidth": 500,
           "defaultHeight": 470,
           "type": "custom"
         },        
         "chooser": {
-          "title": "Chooser",
+          "title": "[[Chooser]]",
           "isLink": false,
           "acl": false,
           "defaultWidth": 560,
@@ -269,7 +269,7 @@
           "type": "custom"
         },
         "stores": {
-          "title": "Stores",
+          "title": "[[Stores]]",
           "isLink": false,
           "childs": {
               "groups": {
@@ -297,13 +297,13 @@
       }
     },
     "overview": {
-      "title": "Dashboard",
+      "title": "[[Dashboard]]",
       "type": "custom",
       "defaultWidth": 950,
       "icon": "admin\/images\/extras-icon.png"
     },
     "pages": {
-      "title": "Pages",
+      "title": "[[Pages]]",
       "type": "custom",
       "defaultWidth": 1000,
       "defaultHeight": 510,
@@ -312,13 +312,13 @@
       "icon": "admin\/images\/admin-pages-icon.png",
       "childs": {
         "addDialog": {
-          "title": "Add pages",
+          "title": "[[Add pages]]",
           "isLink": false,
           "acl": false,
           "type": "custom"
         },
         "addDomains": {
-          "title": "Add domains",
+          "title": "[[Add domains]]",
           "isLink": false,
           "defaultWidth": 710,
           "defaultHeight": 500,
@@ -335,32 +335,32 @@
       }
     },
     "files": {
-      "title": "Files",
+      "title": "[[Files]]",
       "type": "custom",
       "defaultWidth": 800,
       "defaultHeight": 400,
       "icon": "admin\/images\/admin-files-icon.png",
       "childs": {
         "edit": {
-          "title": "File edit",
+          "title": "[[File edit]]",
           "isLink": false,
           "defaultWidth": 680,
           "defaultHeight": 420,
           "type": "custom"
         },
         "diff": {
-          "title": "File diff",
+          "title": "[[File diff]]",
           "isLink": false,
           "defaultWidth": 680,
           "defaultHeight": 420,
           "type": "custom"
         },
         "systemfiles": {
-          "title": "System files",
+          "title": "[[System files]]",
           "isLink": false
         },
         "properties": {
-          "title": "Properties",
+          "title": "[[Properties]]",
           "isLink": false,
           "defaultWidth": 350,
           "minWidth": 350,
@@ -372,7 +372,7 @@
       }
     },
     "help": {
-      "title": "Help",
+      "title": "[[Help]]",
       "type": "custom",
       "defaultWidth": 600,
       "defaultHeight": 400,
