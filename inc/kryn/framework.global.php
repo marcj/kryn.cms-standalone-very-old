@@ -69,7 +69,7 @@ function json( $pValue ){
  *
  * @param string $pMsg     message id (msgid)
  * @param string $pPlural  message id plural (msgid_plural)
- * @param int    $pCount   the counf for plural
+ * @param int    $pCount   the count for plural
  * @param string $pContext the message id of the context (msgctxt)
  */
 function t( $pMsg, $pPlural = '', $pCount = false, $pContext = '' ){

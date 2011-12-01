@@ -62,7 +62,7 @@ class krynLanguage {
         $file = 'inc/module/'.$pModuleName.'/lang/'.$pLang.'.po';
         if( $pModuleName == 'kryn' )
             $file = 'inc/kryn/lang/'.$pLang.'.po';
-            
+
             
         $res = array('header' => array(), 'translations' => array());
         if( !file_exists($file) ) return $res;
@@ -73,7 +73,7 @@ class krynLanguage {
             
             
             if( preg_match('/^msgctxt "(.*)"/', $buffer, $match) ){
-                $lastWasPlura = false;
+                $lastWasPlural = false;
                 $nextIsThisContext = $match[1];
             }
             
@@ -142,6 +142,8 @@ class krynLanguage {
         if( $pModuleName == 'kryn' )
             $file = 'inc/kryn/lang/'.$pLang.'.po';
         
+        mkdir( dirname($file) );
+        
         $translations = json_decode( $pLangs, true );
         
         $current = self::parsePo( $pModuleName, $pLang );
@@ -150,7 +152,6 @@ class krynLanguage {
         
         if( $fh == false ) return false;
         
-        //todo
         $pluralForms = 'nplurals=2; plural=(n!=1);';
         if( self::getPluralForm($pLang) )
             $pluralForms = self::getPluralForm($pLang);
@@ -215,14 +216,6 @@ msgstr ""
         }
         fclose($fh);
         
-        return true;
-
-        if( $pModuleName == 'kryn' ){
-            kryn::fileWrite( 'inc/kryn/lang/'.$pLang.'.json', json_format($pLangs) );
-        } else {
-            @mkdir( PATH_MODULE.''.$pModuleName.'/lang/' );
-            kryn::fileWrite( PATH_MODULE.''.$pModuleName.'/lang/'.$pLang.'.json', json_format($pLangs) );
-        }
         kryn::clearLanguageCache( $pLang );
         return true;
 
