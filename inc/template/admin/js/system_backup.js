@@ -475,7 +475,7 @@ var admin_system_backup = new Class({
     
     attachProgressBar: function( pDiv ){
     
-        var progress = new ka.Progress( 'Loading ...', true );
+        var progress = new ka.Progress( _('Loading ...'), true );
         document.id(progress).inject( pDiv );
         document.id(progress).setStyle( 'margin-top', 5 );
         

@@ -403,7 +403,7 @@ class adminBackup {
                     $myPath .= '/';
             
                 if( !is_dir('inc/template/'.$myPath) ){
-                    $fileReads[] = File_Archive::read( $myPath, 'files/'.$myPath );
+                    $fileReads[] = File_Archive::read( 'inc/template/'.$myPath, 'files/'.'inc/template/'.$myPath );
                 } else {
                     $files = find('inc/template/'.$myPath.'*');
                     foreach( $files as $file ){
