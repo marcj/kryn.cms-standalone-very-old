@@ -141,7 +141,6 @@ if( getArgv(1) == 'admin' ){
 kryn::checkAccess();
 krynSearch::initSearch();
 
-
 register_shutdown_function('kryn_shutdown');
 
 kryn::$admin = false;

@@ -43,7 +43,6 @@
             window._session.tokenid = '{$client->tokenid}';
             window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
             window._session.lastlogin = '{$user.lastlogin}';
-            window._session.forceLang = '{$request.setLang}';
         </script>
         
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />

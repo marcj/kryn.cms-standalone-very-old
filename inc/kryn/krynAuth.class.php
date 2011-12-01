@@ -394,7 +394,6 @@ class krynAuth {
         $this->setUser(0);
     }
     
-    
     /**
     * Removes all expired sessions.
     * If the user configured no 'session_autoremove', then this method
@@ -402,7 +401,6 @@ class krynAuth {
     * the performance.
     */
     public function removeExpiredSessions(){
-        
         $lastTime = time()-$this->config['session_timeout'];
         dbDelete('system_sessions', 'time < '.$lastTime);
 
