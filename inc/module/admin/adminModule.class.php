@@ -80,7 +80,7 @@ class adminModule {
 
             //edit module
             case 'extractLanguage':
-                json( self::extractLanguage( getArgv('name',2) ) );
+                json( krynLanguage::extractLanguage( getArgv('name',2) ) );
             case 'getLanguage':
                 json( krynLanguage::getLanguage( getArgv('name',2), getArgv('lang',2) ) );
             case 'saveLanguage':
