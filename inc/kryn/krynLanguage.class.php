@@ -16,7 +16,7 @@ class krynLanguage {
         preg_match('/^nplurals=([0-9]+);/', $pluralForm, $match);
         
         $res['pluralCount'] = intval($match[1]);
-        $res['pluralCount'] = $pluralForm;
+        $res['pluralForm'] = $pluralForm;
         return $res;
         
         /*
