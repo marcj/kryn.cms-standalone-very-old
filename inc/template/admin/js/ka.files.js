@@ -96,7 +96,7 @@ ka.files = new Class({
         var folder = this.current;
         if( folder.substr(0,1) != '/' )
             folder = '/'+folder;
-    
+
         this.win.setTitle( folder );
     },
     
@@ -153,7 +153,6 @@ ka.files = new Class({
         
         this.fileUploadMinimizeBtn.show();
         this.fileUploadCancelBtn.setText( _('Cancel') );
-        
 
         this.uploadFilesCount++;
 

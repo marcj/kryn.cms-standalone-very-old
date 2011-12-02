@@ -58,6 +58,14 @@ class krynModule {
     
     }
 
+    public function install(){
+        /* caledl when installing your extensions through the extension manager */
+    }
+
+    public function deinstall(){
+        /* called when removing your extensions through the extension manager */
+    }
+
 }
 
 class modul extends baseModule {

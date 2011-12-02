@@ -1342,9 +1342,9 @@ class kryn {
      * Returns the full human readable path to given pageRsn delimited
      * with $pDelimiter
      *
-     * @param int $pPageRsn
+     * @param int    $pPageRsn
      * @param string $pDelimiter Default ' » '
-     * @param bool $pAsArray
+     * @param bool   $pAsArray
      * @static
      */
     public static function getPagePath( $pPageRsn, $pDelimiter = ' » ' ){
@@ -1707,7 +1707,7 @@ class kryn {
         if( $cache = kryn::getCache($cacheKey) ){
             return $cache;
         } else {
-            $domain = dbTableFetch('system_domains', 'rsn = '.$pDomainRsn, 1);
+            $domain = dbExfetch('SELECT * FROM %pfx%system_domains WHERE rsn = '.$pDomainRsn, 1);
             
             if( $domain['publicproperties'] && !is_array($domain['publicproperties']) ){
                 $domain['themeproperties'] = @json_decode($domain['publicproperties'], true);
@@ -1806,10 +1806,10 @@ class kryn {
             }
 
             if( $possibleLanguage == ''){
-            
+
                 $domain = kryn::getDomain( $domains[$domainName] );
                 $possibleLanguage = $domain['lang'];
-                
+
             } else {
             
                 $domain = kryn::getDomain( $domains[$domainName.'_'.$possibleLanguage] );
@@ -1896,15 +1896,16 @@ class kryn {
      * 
      * Checks the specified page.
      * Internal function.
-     * @param array $page
-     * @param bool $pWithRedirect
-     * @return array|bool False if no access
+     * @param   array      $page
+     * @param   bool       $pWithRedirect
+     * @return  array|bool False if no access
      * @internal
      */
     public static function checkPageAccess( $page, $pWithRedirect = true ){
         global $client, $adminClient;
         
         $oriPage = $page;
+
         if( $page['access_from'] > 0 && ($page['access_from'] > time() ))
             $page = false;
 
@@ -2755,7 +2756,6 @@ class kryn {
      * Returns the content of the specified cache-key
      *
      * @param string $pCode
-     * @deprecated Use kryn::getCache() instead.
      * @return string
      * @static
      */
@@ -2787,7 +2787,6 @@ class kryn {
      *
      * @param string $pCode
      * @param string $pValue
-     * @deprecated Use kryn::setCache() instead.
      * @static
      */
     public static function setFastCache( $pCode, $pValue ){
@@ -2800,7 +2799,6 @@ class kryn {
      * See kryn::setFastCache for more informations.
      *
      * @param string $pCode
-     * @deprecated Use kryn::getCache() instead.
      * @return string
      * @static
      */

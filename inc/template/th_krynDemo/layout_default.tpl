@@ -8,9 +8,9 @@
         
         <div class="header-logo">
             <a href="{$path}">
-                <img src="{resizeImage file=$publicProperties.logo dimension="90x90"}" align="left" />
-                <span class="header-logo-title">{$publicProperties.title}</span><br />
-                <span class="header-logo-slogan">{$publicProperties.slogan}</span>
+                <img src="{resizeImage file=$themeProperties.logo dimension="90x90"}" align="left" />
+                <span class="header-logo-title">{$themeProperties.title}</span><br />
+                <span class="header-logo-slogan">{$themeProperties.slogan}</span>
             </a>
         </div>
         
@@ -19,7 +19,7 @@
         </div>
         
         <div class="header-search">
-            <form action="{$publicProperties.search_page|realUrl}" method="get">
+            <form action="{$themeProperties.search_page|realUrl}" method="get">
                 <input type="text" name="q" value="[[Keyword ...]]" onfocus="if(this.value == '[[Keyword ...]]')this.value=''" onblur="if(this.value=='')this.value='[[Keyword ...]]'"/>
                 <input type="submit" class="submit" value="[[Search]]" />
                 <input type="hidden" name="searchDo" value="1" />
@@ -68,14 +68,14 @@
                 <table width="100%">
                     <tr>
                         <td valign="top">
-                            {if $publicProperties.footer_deposit eq ""}
+                            {if $themeProperties.footer_deposit eq ""}
                                 [[Please set "Footer deposit" under Domain » Theme » Kryn Demo]]
                             {else}
-                                {page id=$publicProperties.footer_deposit}
+                                {page id=$themeProperties.footer_deposit}
                             {/if}
                         </td>
                         <td align="right" valign="top">
-                            {navigation id=$publicProperties.footer_navi template="th_krynDemo/navigation_footer.tpl"}
+                            {navigation id=$themeProperties.footer_navi template="th_krynDemo/navigation_footer.tpl"}
                         </td>
                     </tr>
                 </table>
