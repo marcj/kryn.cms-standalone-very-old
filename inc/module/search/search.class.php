@@ -1,6 +1,6 @@
 <?php
 
-class search extends baseModule {
+class search extends krynModule {
     public function doSearch( $pConf ){
         global $cfg;
         

@@ -534,7 +534,7 @@ class kryn {
      * 
      * Adds a new css file to the <header>. Use relative paths from inc/template without a / as start
      * Absolute paths with http:// also possible.
-     * @param string $pCss
+     * @param string|array $pCss
      * @static
      */
     public static function addCss( $pCss ){
@@ -548,7 +548,7 @@ class kryn {
     /**
      * 
      * Adds a new javascript file to the <header>. Use relative paths from inc/template without a / as start
-     * @param string $pJs
+     * @param string|array $pJs
      * @static
      */
     public static function addJs( $pJs ){

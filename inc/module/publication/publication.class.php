@@ -1,6 +1,6 @@
 <?php
 
-class publication extends baseModule 
+class publication extends krynModule 
 {
     public static function newsDetailFixed( $pConf ){
         $_REQUEST['e2'] = $pConf['news_rsn'];

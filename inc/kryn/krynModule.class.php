@@ -14,59 +14,57 @@
 
 /**
  * 
- * Motherclass for all extension class.
+ * Motherclass for all extension classes.
  * 
  * 
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-class baseModule {
-
-
-    public function getTitle(){
-        return _l( $this->name );
-    }
+class krynModule {
     
     
     /**
      * 
      * Framework controller
-     * 
+     * How its work:
+     * <domain>/admin/myExtension/my/entry/point/function
+     * calls => $this->my_entry_point_function() if exists
+     *
+     * Just overwrite this method to build your own url controller
+     *
      */
     public function admin(){
         $found = true;
         if( getArgv(3) == ''){
             $found = false;
         }
-        $function = '';
+        $method = '';
         $c = 3;
         while( $found ){
-            $function .= getArgv($c).'_';
+            $method .= getArgv($c).'_';
             $c++;
             if( getArgv($c) == '' )
                 $found = false;
         }
         
-        $function = substr( $function, 0, strlen($function)-1 );
-        if( method_exists( $this, $function ) ){
-            return $this->$function();
-        } else {
-            json('method-not-found');
+        $method = substr( $method, 0, strlen($method)-1 );
+        if( method_exists( $this, $method ) ){
+            $refl = new ReflectionMethod($this, $method);
+            if( $refl->isPublic() )
+                return $this->$method();
         }
-    
-    }
-    
-    public function install(){
         
-    }
+        json( array('error' => 'method_not_found') );
     
-    public function deinstall(){
-        
     }
 
 }
 
 class modul extends baseModule {
+
+}
+
+class baseModule extends krynModule {
 
 }
 

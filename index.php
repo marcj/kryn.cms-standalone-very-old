@@ -73,7 +73,7 @@ include('inc/kryn/framework.global.php');
 # Load important classes
 include('inc/lib/smarty/Smarty.class.php');
 include('inc/kryn/database.class.php');
-include('inc/kryn/baseModule.class.php');
+include('inc/kryn/krynModule.class.php');
 
 include('inc/kryn/kryn.class.php');
 include('inc/kryn/krynCache.class.php');

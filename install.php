@@ -221,7 +221,7 @@ if( $_REQUEST['step'] == 'checkDb' )
     <h2 class="main">Kryn.cms installation</h2>
 <?php
 
-require_once( 'inc/kryn/baseModule.class.php' );
+require_once( 'inc/kryn/krynModule.class.php' );
 require( 'inc/kryn/kryn.class.php' );
 require( PATH_MODULE.'admin/adminModule.class.php' );
 
@@ -273,7 +273,7 @@ function checkDb(){
 	    "db_type"		=> $_REQUEST['type']
 	);
 	
-	require_once( 'inc/kryn/baseModule.class.php' );
+	require_once( 'inc/kryn/krynModule.class.php' );
 	require_once( 'inc/kryn/kryn.class.php' );
 	require_once( 'inc/kryn/krynAuth.class.php' );
     require( 'inc/kryn/database.class.php' );
@@ -376,7 +376,7 @@ function step5(){
     require( 'inc/config.php' );
     require( PATH_MODULE.'admin/adminDb.class.php' );
     require( 'inc/kryn/database.class.php' );
-    require_once( 'inc/kryn/baseModule.class.php' );
+    require_once( 'inc/kryn/krynModule.class.php' );
 	require_once( 'inc/kryn/kryn.class.php' );
 	kryn::$config = $cfg;
 	require_once( 'inc/kryn/krynAuth.class.php' );
@@ -521,7 +521,7 @@ Dactivate the checkbox if you don't want to install some extensione.<br />
 
 <table style="width: 98%" class="modulelist" cellpadding="4">
 <?php
-    require_once( "inc/kryn/baseModule.class.php" );
+    require_once( "inc/kryn/krynModule.class.php" );
 
     $systemModules = array('kryn','admin','users');
     buildModInfo( $systemModules );

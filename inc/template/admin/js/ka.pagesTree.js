@@ -126,6 +126,9 @@ ka.pagesTree = new Class({
         var size = this.container.getSize();
         var nLeft = this.container.scrollLeft;
         var nWidth = size.x;
+        if( this.container.getSize().x != this.container.getScrollSize().x ){
+            nWidth -= 15;
+        }
         var nTop = 0;
     
         var panePos = this.panePagesTable.getPosition(this.container).y;
@@ -147,11 +150,8 @@ ka.pagesTree = new Class({
 
         if( this.lastFirstLevelRq )
             this.lastFirstLevelRq.cancel();
-
-
-        var viewAllPages = 0;
-        if( this.options.viewAllPages )
-            viewAllPages = 1;
+        
+        var viewAllPages = this.options.viewAllPages?1:0;    
 
         this.lastFirstLevelRq = new Request.JSON({url: _path+'admin/pages/getTreeDomain', noCache: 1, onComplete:
         this.renderFirstLevel.bind(this)}).get({
@@ -255,17 +255,68 @@ ka.pagesTree = new Class({
     
     },
     
+    /*
+    reloadItem: function( pRsn ){
+        //reloads the item and childs without scrollbar jumpings
+        
+        var viewAllPages = this.options.viewAllPages?1:0;
+        
+        var a = this.items[pRsn];
+        
+        if( this.lastLoadRq )
+            this.lastLoadRq.cancel();
+            
+        if( pRsn == 0 ){
+            //domain        
+            this.lastLoadRq = new Request.JSON({url: _path+'admin/pages/getTreeDomain', noCache: 1, onComplete:function(pRes){
+                //todo
+                
+                
+            }.bind(this)}).get({
+                domain_rsn: this.domain_rsn, viewAllPages: viewAllPages
+            });
+        } else {
+            this.lastLoadRq = new Request.JSON({url: _path+'admin/pages/getTree', noCache: 1, onComplete: function( pItems ){
+    
+                if( pItems.length == 0 ){
+                    a.childContainer.empty();
+                    pA.toggler.setStyle('visibility', 'hidden');
+                    return;
+                }
+                
+                a.childContainerOld = a.childContainer;
+                a.childContainer = a.childContainer.clone();
+
+                this.inItemsGeneration = true;
+                Array.each(pItems, function(childitem){
+                    this.addItem( childitem, a );
+                }.bind(this));
+                a.childContainer.replaces( a.childContainerOld );
+                this.inItemsGeneration = false;
+                
+                this.loadChildsRequests[ item.rsn ] = false;
+                this.checkDoneState();
+                
+                this.fireEvent('childsLoaded', [item,a]);
+
+            }.bind(this)}).get({ page_rsn: item.rsn, viewAllPages: viewAllPages });
+            
+        }
+    
+    },*/
+    
     reloadParentOfActive: function(){
     
         if( !this.lastSelectedItem ) return;
         
-        if( this.lastSelectedPage.domain ){
+        if( this.lastSelectedPage.domain || this.lastSelectedPage.prsn == 0 ){
             this.reload();
             return;
         }
         
         var parent = this.lastSelectedItem.getParent().getPrevious();
         if( parent && parent.hasClass('ka-pageTree-item') ){
+            this.lastScrollPos = this.container.getScroll();
             this.loadChilds( parent );
         }
     },
@@ -447,11 +498,17 @@ ka.pagesTree = new Class({
         }
 
         if( pItem.childs ){
-            this.inItemsGeneration = true;
+            var canChangeItemsGeneration = this.inItemsGeneration==true?false:true;
+            
+            if( canChangeItemsGeneration )
+                this.inItemsGeneration = true;
+
             Array.each(pItem.childs, function(item){
                 this.addItem( item, a );
             }.bind(this));
-            this.inItemsGeneration = false;
+            
+            if( canChangeItemsGeneration )
+                this.inItemsGeneration = false;
         }
         
         this.checkDoneState();
@@ -472,11 +529,17 @@ ka.pagesTree = new Class({
         }
         
         if( loadingDone == true ){
+        
             this.loadChildsRequests = {};
             if( this.firstLoadDone == false ){
                 this.firstLoadDone = true;
+
                 this.fireEvent('ready');
             }
+
+            if( this.lastScrollPos )
+                this.container.scrollTo( this.lastScrollPos.x, this.lastScrollPos.y );
+            this.setDomainPosition();
         }
 
         this.loadingDone = loadingDone;
@@ -540,7 +603,7 @@ ka.pagesTree = new Class({
 
         if( item.domain ){
             
-            this.loadFirstLevel( true );
+            this.loadFirstLevel();
 
         } else {
                 
@@ -550,9 +613,7 @@ ka.pagesTree = new Class({
         
             var id =( item.domain )?'p'+item.rsn:item.rsn;
             
-            var viewAllPages = 0;
-            if( this.options.viewAllPages )
-                viewAllPages = 1;
+            var viewAllPages = this.options.viewAllPages?1:0;
             
             this.loadChildsRequests[ item.rsn ] = true;
             new Request.JSON({url: _path+'admin/pages/getTree', noCache: 1, onComplete: function( pItems ){
@@ -855,6 +916,7 @@ ka.pagesTree = new Class({
     },
 
     reload: function(){
+        this.lastScrollPos = this.container.getScroll();
         this.loadFirstLevel();
     },
     

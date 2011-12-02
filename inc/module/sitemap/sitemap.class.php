@@ -1,6 +1,6 @@
 <?php
 
-class sitemap extends baseModule {
+class sitemap extends krynModule {
     
 
     public function defaultSitemap( $pConf ){

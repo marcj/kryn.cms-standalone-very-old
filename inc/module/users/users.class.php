@@ -11,7 +11,7 @@
  */
 
 
-class users extends baseModule{
+class users extends krynModule{
     public $extensionsfields;
     public $groups;
     

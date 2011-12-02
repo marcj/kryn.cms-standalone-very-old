@@ -652,7 +652,8 @@ ka.field = new Class({
         });
         
         this._setValue = function( pValue ){
-        
+            
+            div.getElements('.ka-field-textlist-item').destroy();
             if( pValue == '' || !pValue ) return;
 
             if( typeOf(pValue) == 'string' ) pValue = JSON.decode( pValue );
