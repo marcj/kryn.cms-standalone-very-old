@@ -34,7 +34,6 @@ define('PATH_TEMPLATE', dirname(__FILE__).'/inc/template/');
  */
 $cfg = array();
 $modules = array();
-$searchIndexMode = false;
 $languages = array();
 $kcache = array();
 $_AGET = array();

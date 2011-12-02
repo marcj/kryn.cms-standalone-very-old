@@ -350,7 +350,7 @@ class kryn {
      * @static
      * @internal
      */
-    public static $disableContentCheck = false;
+    public static $disableSearchEngine = false;
     
     /**
      * Contains the krynCache object
@@ -2562,7 +2562,7 @@ class kryn {
         //htmlspecialchars(urldecode(kryn::$url));
         kryn::$pageHtml = preg_replace('/href="#(.*)"/', 'href="'.kryn::$url.'#$1"', kryn::$pageHtml);
         
-        foreach( $modules as $key => &$mod ){
+        foreach( $modules as $key => $mod ){
             $modules[ $key ] = NULL;
         }
                
@@ -2590,7 +2590,7 @@ class kryn {
             }
         }
         
-        if( kryn::$disableContentCheck == false ){
+        if( kryn::$disableSearchEngine == false ){
             $resCode = krynSearch::createPageIndex(kryn::$pageHtml);
             
             if( $resCode == 2 ){
@@ -2599,8 +2599,8 @@ class kryn {
         }
         
         self::removeSearchBlocks( kryn::$pageHtml );
-        /**/
-        
+
+
         if( kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && $client->user['rsn'] == 0 && count($_POST) == 0 ){
         
             $page = krynHtml::getPage( kryn::$pageHtml );
@@ -2613,7 +2613,22 @@ class kryn {
         
         exit;
     }
-    
+
+    /**
+     * Returns the wrapped content with the unsearchable block tags.
+     * @static
+     * @param string $pContent
+     * @return string Wrapped content
+     */
+    public static function unsearchable( $pContent ){
+        return '<!--unsearchable-begin-->'.$pContent.'<!--unsearchable-end-->';
+    }
+
+    /**
+     * Removes all unsearchable block tags.
+     * @static
+     * @param string $pHtml
+     */
     public static function removeSearchBlocks( &$pHtml ){
         $pHtml = str_replace('<!--unsearchable-begin-->', '', $pHtml);
         $pHtml = str_replace('<!--unsearchable-end-->', '', $pHtml);
@@ -2623,9 +2638,9 @@ class kryn {
      * 
      * Deactivates the 404 content check
      */
-    public static function disableContentCheck(){
+    public static function disableSearchEngine(){
   
-        self::$disableContentCheck = true;
+        self::$disableSearchEngine = true;
         
     }
 

@@ -13,6 +13,6 @@
     {/if}
 
     <a class="button" href="javascript: document.getElementById('users-login').submit();">[[Login]]</a>
-    <div style="overflow: hidde; height: 1px; visibility: hidden;"><input type="submit" /></div>
+    <div style="height: 1px; visibility: hidden;"><input type="submit" /></div>
 </form>
 <script type="text/javascript">document.getElementById('users-login').focus()</script>

@@ -17,9 +17,7 @@ function smarty_block_unsearchable($params, $content, &$smarty) {
     if($params && $params['crawlLinks'] == true)
         $crawlLinks = true;
     
-    global $searchIndexMode;
-    
-    if($crawlLinks && $searchIndexMode)
+    if( $crawlLinks )
         krynSearch::getLinksInContent($content);
     
     return '<!--unsearchable-begin-->'.$content.'<!--unsearchable-end-->';

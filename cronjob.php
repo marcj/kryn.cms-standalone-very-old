@@ -26,7 +26,6 @@
  */
 $cfg = array();
 $modules = array();
-$searchIndexMode = false;
 $languages = array();
 $kcache = array();
 $_AGET = array();

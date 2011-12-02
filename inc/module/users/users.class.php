@@ -11,9 +11,7 @@
  */
 
 
-class users extends krynModule{
-    public $extensionsfields;
-    public $groups;
+class users extends krynModule {
     
     function pluginLogin( $pConf ){
         global $client;
@@ -21,7 +19,7 @@ class users extends krynModule{
         tAssign('pConf', $pConf);
 
         if( getArgv('users-loggedOut') || getArgv('users-logout') ){
-            kryn::disableContentCheck();
+            kryn::disableSearchEngine();
             $client->logout();
             if( $pConf['logoutTarget'] ){
                 kryn::redirectToPage( $pConf['logoutTarget'] );
@@ -29,7 +27,7 @@ class users extends krynModule{
         }
         
         if( getArgv('users-login') ){
-            kryn::disableContentCheck();
+            kryn::disableSearchEngine();
             $login = getArgv('users-username')?getArgv('users-username'):getArgv('users-email');
             
             $client->login( $login, getArgv('users-passwd') );
@@ -48,9 +46,9 @@ class users extends krynModule{
             $pConf['templateLoggedIn'] = 'users/loggedIn/'.$pConf['templateLoggedIn'].'.tpl';
 
         if( $client->user_rsn > 0 ){
-            return tFetch($pConf['templateLoggedIn']);
+            return kryn::unsearchable(tFetch($pConf['templateLoggedIn']));
         } else {
-            return tFetch($pConf['template']);
+            return kryn::unsearchable(tFetch($pConf['template']));
         }
 
     }
@@ -109,7 +107,13 @@ class users extends krynModule{
         
         return $res;
     }
-    
+
+    /**
+     * Returns the username or a list of users/gorups for the user/group dialog in the administration
+     * admin/users/browser
+     *
+     * @return string
+     */
     function browser(){
         
         $where = '';
@@ -139,11 +143,9 @@ class users extends krynModule{
         else
             return dbExfetch($sql, -1);
     }
-
-    function getGroups(){
-        return dbExfetch("SELECT * FROM %pfx%system_groups", DB_FETCH_ALL);
-    }
-
+    /**
+     * Setup the initial user guest and administration and setup some permissions during the installation
+     */
     function install(){
         
         dbDelete('system_user');
@@ -179,16 +181,6 @@ class users extends krynModule{
         dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>1,'code'=>'admin/%','access'=>1,'prio'=>11000));
         dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>0,'code'=>'admin/%','access'=>0,'prio'=>1001));
         dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>0,'code'=>'%',      'access'=>1,'prio'=>1000));
-    }
-    
-    function getLinks(){
-        global $lang;
-        #$links[] = array('Mitglieder', 'mitglieder');
-        $links[] = array($lang['user_changepassword'], $lang['user_changepassword_tag']);
-        $links[] = array('Registrieren', 'register');
-        $links[] = array("users_query", 'users-query', SYSTEM_LINK);
-        return $links;
-        #return array(); # we doesnt have any links for public
     }
     
     
@@ -376,7 +368,7 @@ class users extends krynModule{
         	tAssign('newMessagePage', $pConf['newMessagePage']);
         }        
   
-    	return tFetch( 'users/messageSystem/inbox/'.$pConf['template'].'.tpl' );
+    	return kryn::unsearchable(tFetch( 'users/messageSystem/inbox/'.$pConf['template'].'.tpl' ));
     }
     
     function pluginMessageSystemOutbox($pConf) {
@@ -446,7 +438,7 @@ class users extends krynModule{
         	tAssign('newMessagePage', $pConf['newMessagePage']);
         }        
   		tAssign('showMessageState', $pConf['showReciInfo']);
-    	return tFetch( 'users/messageSystem/outbox/'.$pConf['template'].'.tpl' );
+    	return kryn::unsearchable(tFetch( 'users/messageSystem/outbox/'.$pConf['template'].'.tpl' ));
     }
     
     function pluginMessageSystemNew($pConf) {    
@@ -528,52 +520,52 @@ class users extends krynModule{
         
         }
         
-    //check if attachment message is enabled
-    if(($pConf['attachReMessage'] == 1 || getArgv('type') == 'fwd') && getArgv('oldMessageRsn', 1) > 0  ) { 
-        // load old Message
-        $arOldFetch = dbExfetch("SELECT UM.*, SU.username AS user_name_from
-        					FROM `%pfx%user_messages` UM 
-        					JOIN `%pfx%system_user` SU 
-        					WHERE 
-        						UM.user_rsn_from = SU.rsn
-        						AND UM.user_rsn_to = ".$user->user_rsn."
-        						AND UM.rsn = ".getArgv('oldMessageRsn', 1)." 
-        						AND UM.message_state !='2'
-        					ORDER BY UM.send_tstamp DESC", 1);
-        if($arOldFetch) {        	
-			$arOldFetch = $this->cleanMsgs($arOldFetch);
-        	
-        	
-        	$msgAdding = "\n\n\n------------------------\n\nFrom: ";
-	        $msgAdding .= $arOldFetch['user_name_from']."\nDate: ".date('Y.m.d H:i', $arOldFetch['send_tstamp']);
-	        $msgAdding .= "\nSubject: ".$arOldFetch['message_subject']."\n\n".$arOldFetch['message_text'];
-	        $_REQUEST['message_text'] .= $msgAdding;
-	
-	        // adding subject	       
-	        $_REQUEST['message_subject'] = "Re: ".$arOldFetch['message_subject'];	        
-	        $_REQUEST['to_user_id'] = $arOldFetch['user_rsn_from'];
-	        //if forward 
-	        if(getArgv('type') == 'fwd') {
-	        	$_REQUEST['message_subject'] = "Fwd: ".$arOldFetch['message_subject'];	        
-	       		$_REQUEST['to_user_id'] = '';
-	        }
+        //check if attachment message is enabled
+        if(($pConf['attachReMessage'] == 1 || getArgv('type') == 'fwd') && getArgv('oldMessageRsn', 1) > 0  ) {
+            // load old Message
+            $arOldFetch = dbExfetch("SELECT UM.*, SU.username AS user_name_from
+                                FROM `%pfx%user_messages` UM
+                                JOIN `%pfx%system_user` SU
+                                WHERE
+                                    UM.user_rsn_from = SU.rsn
+                                    AND UM.user_rsn_to = ".$user->user_rsn."
+                                    AND UM.rsn = ".getArgv('oldMessageRsn', 1)."
+                                    AND UM.message_state !='2'
+                                ORDER BY UM.send_tstamp DESC", 1);
+            if($arOldFetch) {
+                $arOldFetch = $this->cleanMsgs($arOldFetch);
+
+
+                $msgAdding = "\n\n\n------------------------\n\nFrom: ";
+                $msgAdding .= $arOldFetch['user_name_from']."\nDate: ".date('Y.m.d H:i', $arOldFetch['send_tstamp']);
+                $msgAdding .= "\nSubject: ".$arOldFetch['message_subject']."\n\n".$arOldFetch['message_text'];
+                $_REQUEST['message_text'] .= $msgAdding;
+
+                // adding subject
+                $_REQUEST['message_subject'] = "Re: ".$arOldFetch['message_subject'];
+                $_REQUEST['to_user_id'] = $arOldFetch['user_rsn_from'];
+                //if forward
+                if(getArgv('type') == 'fwd') {
+                    $_REQUEST['message_subject'] = "Fwd: ".$arOldFetch['message_subject'];
+                    $_REQUEST['to_user_id'] = '';
+                }
+            }
         }
-      }  
-            
-        
-      if(getArgv('to') > 0 || getArgv('e1') > 0) {
-      	$toRsn = getArgv('to', 1);
-      	
-      	if($toRsn < 1 && getArgv('e1') > 0)
-      		$toRsn = getArgv('e1', 1);
-      		
-      	$userName = dbExFetch("SELECT username FROM `%pfx%system_user` WHERE rsn = ".$toRsn);
-      	if(isset($userName['username']))
-      		$_REQUEST['to_user_id'] = $userName['username'];
-      }
-      
-      
-    	return tFetch( 'users/messageSystem/newMessage/'.$pConf['template'].'.tpl' );
+
+
+        if(getArgv('to') > 0 || getArgv('e1') > 0) {
+            $toRsn = getArgv('to', 1);
+
+            if($toRsn < 1 && getArgv('e1') > 0)
+                $toRsn = getArgv('e1', 1);
+
+            $userName = dbExFetch("SELECT username FROM `%pfx%system_user` WHERE rsn = ".$toRsn);
+            if(isset($userName['username']))
+                $_REQUEST['to_user_id'] = $userName['username'];
+        }
+
+
+        return kryn::unsearchable(tFetch( 'users/messageSystem/newMessage/'.$pConf['template'].'.tpl' ));
     }
     
     
@@ -607,7 +599,7 @@ class users extends krynModule{
        	if($pConf['InboxMessagePage']) {
        			tAssign('InboxMessagePage', $pConf['InboxMessagePage']);
       	 }  	
-   		return tFetch( 'users/messageSystem/countNew/'.$pConf['template'].'.tpl' );
+   		return kryn::unsearchable(tFetch( 'users/messageSystem/countNew/'.$pConf['template'].'.tpl' ));
     
     }
     
@@ -745,23 +737,21 @@ class users extends krynModule{
         kryn::addJs("kryn/mootools-core.js");
         kryn::addJs("users/js/registration/$template.js");
         kryn::addCss("users/css/registration/$template.css");
-        return tFetch("users/registration/$template.tpl");
+        return kryn::unsearchable(tFetch("users/registration/$template.tpl"));
     }
     
-    private static function getRegExpEmail()
-    {
+    private static function getRegExpEmail(){
         // Regex written by James Watts and Francisco Jose Martin Moreno
         // http://fightingforalostcause.net/misc/2006/compare-email-regex.php
         return '([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*(?:[\w\!\#$\%\'\*\+\-\/\=\?\^\`{\|\}\~]|&amp;)+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)';
     }
     
-    private static function emailAlreadyExists($email)
-    {
+    private static function emailAlreadyExists($email) {
+        $email = esc($email);
         return dbExfetch("SELECT rsn FROM %pfx%system_user WHERE email='$email'", 1) != null;
     }
     
-    private static function generateActKey()
-    {
+    private static function generateActKey(){
         $charSets = array();
         $charSets[] = array('count' => 4, 'chars' => "abcdefghijklmnopqrstuvwxyz");
         $charSets[] = array('count' => 4, 'chars' => "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -842,7 +832,7 @@ class users extends krynModule{
         
         kryn::addJs("users/js/activation/$template.js");
         kryn::addCss("users/css/activation/$template.css");
-        return tFetch("users/activation/$template.tpl");
+        return kryn::unsearchable(tFetch("users/activation/$template.tpl"));
     }
 }
 ?>
