@@ -193,7 +193,6 @@ ka.loadLanguage = function (pLang) {
     new Request.JSON({url: _path + 'admin/getLanguage:' + pLang + '/', async: false, noCache: 1, onComplete: function (res) {
         ka.lang = res;
         Locale.define('en-US', 'Date', res.mootools);
-        //ka.loadSettings();
     }}).get();
 }
 

@@ -14,7 +14,7 @@
 
 class adminWindow {
 
-    public static function handle($pDefinition) {
+    public static function handle() {
 
         switch (getArgv('cmd')) {
             case 'custom':

@@ -13,13 +13,9 @@ class krynSearch extends baseModule {
 
     public static $returnCodes = false;
 
-    static $jsonOut = false;
-
     static $jsonFoundPages = array();
 
     static $pageUrl;
-
-    static $curDomain;
 
     public static $minWaitTimeTillNextCrawl = 260; //for 'keep index up 2 date' adminSearchIndexer::getIndex();
 
@@ -29,16 +25,6 @@ class krynSearch extends baseModule {
     public static $autoCrawlPermissionLifetime = 60; //sec
 
     public static function initSearch() {
-
-        global $kdb;
-
-        if (getArgv(1) == 'admin')
-            return;
-
-
-        if (isset($_REQUEST['jsonOut']))
-            self::$jsonOut = true;
-
 
         //indexing forced no matter if already indexed
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
@@ -51,8 +37,6 @@ class krynSearch extends baseModule {
                 self::$forceSearchIndex = $_REQUEST['forceSearchIndex'];
 
         }
-
-        self::$curDomain = kryn::$domain['rsn'];
 
     }
 

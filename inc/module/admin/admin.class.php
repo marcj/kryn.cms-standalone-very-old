@@ -38,7 +38,7 @@ class admin {
     }
 
     public function content() {
-        global $tpl, $navigation, $modules, $cfg, $client, $adminClient;
+        global $tpl, $navigation, $modules, $cfg, $adminClient, $adminClient;
 
         if (getArgv('getLanguage') != '') {
             self::printLanguage();
@@ -610,14 +610,14 @@ class admin {
     }
 
     public static function showLogin() {
-        global $client;
+        global $adminClient;
 
-        $language = $client->user['settings']['adminLanguage'] ? $client->user['settings']['adminLanguage'] : 'en';
+        $language = $adminClient->user['settings']['adminLanguage'] ? $adminClient->user['settings']['adminLanguage'] : 'en';
 
         if (getArgv('setLang') != '')
             $language = getArgv('setLang', 2);
 
-        if ($client->user_rsn > 0) {
+        if ($adminClient->user_rsn > 0) {
             $access = kryn::checkUrlAccess('admin/backend');
             tAssign('hasBackendAccess', $access + 0);
         }
@@ -677,32 +677,32 @@ class admin {
     }
 
     public static function saveDesktop($pIcons) {
-        global $client;
-        if ($client->user_rsn > 0)
-            dbUpdate('system_user', array('rsn' => $client->user_rsn), array('desktop' => $pIcons));
+        global $adminClient;
+        if ($adminClient->user_rsn > 0)
+            dbUpdate('system_user', array('rsn' => $adminClient->user_rsn), array('desktop' => $pIcons));
         json(true);
     }
 
     public static function saveWidgets($pWidgets) {
-        global $client;
-        if ($client->user_rsn > 0)
-            dbUpdate('system_user', array('rsn' => $client->user_rsn), array('widgets' => $pWidgets));
+        global $adminClient;
+        if ($adminClient->user_rsn > 0)
+            dbUpdate('system_user', array('rsn' => $adminClient->user_rsn), array('widgets' => $pWidgets));
         json(true);
     }
 
     public static function getWidgets() {
-        global $client;
-        if ($client->user_rsn > 0) {
-            $row = dbTableFetch('system_user', 1, "rsn = " . $client->user_rsn);
+        global $adminClient;
+        if ($adminClient->user_rsn > 0) {
+            $row = dbTableFetch('system_user', 1, "rsn = " . $adminClient->user_rsn);
             json($row['widgets']);
         }
         json(false);
     }
 
     public static function getDesktop() {
-        global $client;
-        if ($client->user_rsn > 0) {
-            $row = dbTableFetch('system_user', 1, "rsn = " . $client->user_rsn);
+        global $adminClient;
+        if ($adminClient->user_rsn > 0) {
+            $row = dbTableFetch('system_user', 1, "rsn = " . $adminClient->user_rsn);
             json($row['desktop']);
         }
         json(false);
@@ -716,16 +716,16 @@ class admin {
     }
 
     public static function saveUserSettings() {
-        global $client;
+        global $adminClient;
 
         $settings = json_decode(getArgv('settings'), true);
 
         if ($settings['adminLanguage'] == '')
-            $settings['adminLanguage'] = $client->user['settings']['adminLanguage'];
+            $settings['adminLanguage'] = $adminClient->user['settings']['adminLanguage'];
 
         $settings = serialize($settings);
-        dbUpdate('system_user', array('rsn' => $client->user_rsn), array('settings' => $settings));
-        $client->getUser($client->user_rsn, true); //reload from cache
+        dbUpdate('system_user', array('rsn' => $adminClient->user_rsn), array('settings' => $settings));
+        $adminClient->getUser($adminClient->user_rsn, true); //reload from cache
 
         json(1);
     }
@@ -747,7 +747,13 @@ class admin {
     }
 
     public static function getSettings() {
-        global $modules, $client, $cfg;
+        global $modules, $adminClient, $cfg;
+
+        $lang = getArgv('lang', 2);
+        if ($lang) {
+            $adminClient->setLang($lang);
+            $adminClient->syncStore();
+        }
 
         $res = array();
 
@@ -784,19 +790,16 @@ class admin {
         $res['upload_max_filesize'] = $b;
 
         $res['groups'] = dbTableFetch('system_groups', DB_FETCH_ALL);
-        $res['user'] = $client->user['settings'];
+        $res['user'] = $adminClient->user['settings'];
+        if (!$res['user'])
+            $res['user'] = array();
 
         $res['system'] = $cfg;
         $res['system']['db_name'] = '';
         $res['system']['db_user'] = '';
         $res['system']['db_passwd'] = '';
 
-        $inGroups = $client->user['inGroups'];
-
-
-        $code = esc($pUrl);
-        if (substr($code, -1) != '/')
-            $code .= '/';
+        $inGroups = $adminClient->user['inGroups'];
 
         $res['ingroups'] = $inGroups;
         $res['r2d'] =& kryn::getCache("r2d");
@@ -813,7 +816,7 @@ class admin {
             }
         }
 
-        $userRsn = $client->user_rsn;
+        $userRsn = $adminClient->user_rsn;
 
         $res['acl_pages'] = dbExfetch("
                 SELECT code, access FROM %pfx%system_acl
@@ -858,7 +861,7 @@ class admin {
     }
 
     public static function stream() {
-        global $modules, $client;
+        global $modules, $adminClient;
 
         $res['time'] = date('H:i');
         $res['last'] = time();
@@ -1204,7 +1207,7 @@ class admin {
     }
 
     public static function addVersionRow($pTable, $pPrimary, $pRow) {
-        global $client;
+        global $adminClient;
 
         $code = $pTable;
         foreach ($pPrimary as $fieldName => $fieldValue) {
@@ -1222,7 +1225,7 @@ class admin {
             'content' => $content,
             'version' => $version,
             'cdate' => time(),
-            'user_rsn' => $client->user_rsn
+            'user_rsn' => $adminClient->user_rsn
         );
 
         dbInsert('system_frameworkversion', $new);

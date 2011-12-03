@@ -584,7 +584,7 @@ class kryn {
         $infos = array();
 
         foreach (kryn::$extensions as $extension) {
-            $config = kryn::getModuleConfig($extension);
+            $config = kryn::getModuleConfig($extension, 'en');
             $infos['extensions'][$extension] = array(
                 'version' => $config['version']
             );
@@ -627,9 +627,6 @@ class kryn {
      * @internal
      */
     public static function loadModuleConfigs() {
-        global $modules, $kdb, $cfg;
-
-        $tables = array();
 
         $md5 = '';
         foreach (kryn::$extensions as $extension) {
@@ -649,7 +646,7 @@ class kryn {
             kryn::$tables['__md5'] = $md5;
 
             foreach (kryn::$extensions as &$extension) {
-                kryn::$configs[$extension] = kryn::getModuleConfig($extension);
+                kryn::$configs[$extension] = kryn::getModuleConfig($extension, false, true);
             }
 
             foreach (kryn::$configs as $extension => $config) {
@@ -690,7 +687,7 @@ class kryn {
 
             foreach (kryn::$extensions as &$extension) {
 
-                $config = kryn::getModuleConfig($extension);
+                $config = kryn::getModuleConfig($extension, false, true);
                 if ($config['themes'])
                     kryn::$themes[$extension] = $config['themes'];
             }
@@ -714,6 +711,8 @@ class kryn {
             foreach (kryn::$extensions as &$extension) {
                 kryn::$configs[$extension] = kryn::getModuleConfig($extension);
             }
+            //print_r(kryn::$configs['admin']);
+            //die();
 
             foreach (kryn::$configs as &$config) {
                 if (is_array($config['extendConfig'])) {
@@ -738,17 +737,15 @@ class kryn {
 
     /**
      * Returns the current language for the client
-     * based on the domain or _GET['lang'] or at least cookie 'kryn_lang'
+     * based on the domain or current session language (in administration)
      */
     public static function getLanguage() {
         global $adminClient;
 
         if (kryn::$domain && kryn::$domain['lang']) {
             return kryn::$domain['lang'];
-        } else if (getArgv('lang', 2)) {
+        } else if ( getArgv(1) == 'admin' && getArgv('lang', 2)) {
             return getArgv('lang', 2);
-        } else if ($_COOKIE['kryn_lang']) {
-            return preg_replace("/\W/", "", $_COOKIE['kryn_lang']);
         } else if ($adminClient) {
             return $adminClient->getLang();
         }
@@ -764,7 +761,7 @@ class kryn {
      * @return array All config values from the config.json
      * @static
      */
-    public static function getModuleConfig($pModule, $pLang = false) {
+    public static function getModuleConfig($pModule, $pLang = false, $pNoCache = false ) {
         global $adminClient;
 
         $pModule = str_replace('.', '', $pModule);
@@ -781,20 +778,27 @@ class kryn {
         $mtime = filemtime($config);
         $lang = $pLang ? $pLang : kryn::getLanguage();
 
-        $cacheCode = 'moduleConfig-' . $pModule . '.' . $lang;
+        if (!$pNoCache) {
 
-        $configObj = kryn::getFastCache($cacheCode);
+            $cacheCode = 'moduleConfig-' . $pModule . '.' . $lang;
+            $configObj = kryn::getFastCache($cacheCode);
+
+        }
 
         if (!$configObj || $configObj['mtime'] != $mtime) {
 
             $json = kryn::translate(kryn::fileRead($config));
+
             $configObj = json_decode($json, 1);
-            $configObj['mtime'] = $mtime;
 
             if (!is_array($configObj)) {
                 $configObj = array('_corruptConfig' => true);
+            } else {
+                $configObj['mtime'] = $mtime;
             }
-            kryn::setFastCache($cacheCode, $configObj);
+            if (!$pNoCache) {
+                kryn::setFastCache($cacheCode, $configObj);
+            }
         }
 
         return $configObj;
@@ -1023,8 +1027,7 @@ class kryn {
      */
     public static function checkUrlAccess($pUrl, $pClient = false) {
 
-        if (!$pClient
-        )
+        if (!$pClient)
             global $client;
         else
             $client = $pClient;
@@ -1080,10 +1083,8 @@ class kryn {
                 }
                 $count++;
             }
-            //kein access
             return false;
         } else {
-            //unbekannte konstellationen dürfen nix
             return false;
         }
     }
@@ -1094,7 +1095,6 @@ class kryn {
      * @static
      */
     public static function checkAccess() {
-        global $client;
 
         $bypass = array('loadJs', 'loadCss');
         if (in_array(getArgv(2), $bypass))
@@ -1109,7 +1109,6 @@ class kryn {
             if (getArgv('getPossibleLangs') == '1')
                 admin::printPossibleLangs();
 
-            //klog("authentication", "checkAccess: ".$_REQUEST['_kurl']." ACCESS DENIED");
             if (!getArgv(2)) {
                 admin::showLogin();
                 exit;
@@ -1232,6 +1231,9 @@ class kryn {
                 }
 
             }
+            $adminClient->autoLoginLogout = true;
+            $adminClient->loginKey = 'admin-users-login';
+            $adminClient->logoutKey = 'admin-users-logout';
 
             $adminClient->start();
             $client = $adminClient;
@@ -1282,7 +1284,6 @@ class kryn {
         if (!$pPageRsn) $pPageRsn = kryn::$page['rsn'];
 
         $page =& kryn::getPage($pPageRsn);
-        $domain_rsn = $Page['domain_rsn'];
         if ($page['prsn'] == 0) return array();
 
         $res = array();
@@ -1305,28 +1306,23 @@ class kryn {
      *
      * @param int    $pPageRsn
      * @param string $pDelimiter Default ' » '
-     * @param bool   $pAsArray
      *
      * @static
      */
-    public static function getPagePath($pPageRsn, $pDelimiter = ' » ') {
-        global $kcache;
+    public static function getPagePath($pPageRsn, $pDelimiter = ' » ' ) {
 
-        $parents = kryn::getPageParents($pPagersn);
+        $parents = kryn::getPageParents($pPageRsn);
         $page =& kryn::getPage($pPageRsn);
         $domain = kryn::getDomain($page['domain_rsn']);
-
-        if ($pAsArray == true)
-            return $kcache['paths'][$pPageRsn];
 
         $path = '';
         if ($domain['master'] != 1)
             $path = '[' . $domain['lang'] . '] ';
         $path .= $domain['domain'];
 
-        $count = count($parents);
+        error_log(print_r($parents,true));
         foreach ($parents as &$parent) {
-            $path .= $pDelimiter . $parents[$i]['title'];
+            $path .= $pDelimiter . $parent['title'];
         }
 
         $path .= $pDelimiter . $page['title'];
@@ -1473,6 +1469,7 @@ class kryn {
         $kurl = $_REQUEST['_kurl'];
 
         $t = explode('/', $kurl);
+        $url = '';
         foreach ($t as $s) {
             if (!strpos($s, '=') > 0 && !strpos($s, ':') && $s != '')
                 $url .= $s . '/';
@@ -1642,8 +1639,8 @@ class kryn {
 
         if (!file_exists('cache/object/gettext_plural_fn_' . $pLang . '.php')) {
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
-            $pos = strpos($lang['__plural'], 'plural=');
-            $pluralForm = substr($lang['__plural'], $pos + 7);
+            $pos = strpos(kryn::$lang['__plural'], 'plural=');
+            $pluralForm = substr(kryn::$lang['__plural'], $pos + 7);
             $pluralForm = str_replace('n', '$n', $pluralForm);
 
             $code = "<?php \n";
@@ -1888,7 +1885,7 @@ class kryn {
             } else {
                 $htuser = $client->login($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
 
-                if ($htuser > 0 && $htuser['passwd'] == $p) {
+                if ($htuser['rsn'] > 0) {
                     $cgroups =& $htuser['groups'];
                 }
             }
@@ -1924,7 +1921,7 @@ class kryn {
 
         if (!$page && $pWithRedirect && $oriPage['access_need_via'] == 1) {
             header('WWW-Authenticate: Basic realm="' .
-                   _l('Access denied. Maybe you are not logged in or have no access.') . '"');
+                   t('Access denied. Maybe you are not logged in or have no access.') . '"');
             header('HTTP/1.0 401 Unauthorized');
 
             exit;

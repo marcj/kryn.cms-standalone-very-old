@@ -56,7 +56,32 @@ class krynAuth {
      */
     public $cache;
 
+    /**
+     * Defines whether processHandler() is called initially
+     * @var bool
+     */
+    public $autoLoginLogout = false;
 
+    /**
+     * The HTTP GET/POST key which triggers the login.
+     * admin?users-login=1
+     * @var string
+     */
+    public $loginKey = 'users-login';
+
+    /**
+     * The HTTP GET/POST key which triggers the logout.
+     * admin?users-logout=1
+     * @var string
+     */
+    public $logoutKey = 'users-logout';
+
+
+    /**
+     * Increases for each valid request the 'refreshed' value in session values
+     *
+     * @var bool
+     */
     public $refreshing = true;
 
     /**
@@ -114,7 +139,9 @@ class krynAuth {
                 $this->updateSession();
 
         }
-        $this->processClient();
+
+        if( $this->autoLoginLogout )
+            $this->handleClientLoginLogout();
 
         if ($this->config['session_autoremove'] == 1)
             $this->removeExpiredSessions();
@@ -131,11 +158,11 @@ class krynAuth {
     }
 
     /**
-     * Handles the input of the client. Therefore the login/logout arguments.
+     * Handles the input (login/logout) of the client.
      */
-    public function processClient() {
+    public function handleClientLoginLogout() {
 
-        if (getArgv('user') == 'login') {
+        if (getArgv($this->loginKey) == '1') {
 
             $login = getArgv('username');
 
@@ -178,9 +205,12 @@ class krynAuth {
             }
         }
 
-        if (getArgv('user') == 'logout') {
+        if (getArgv($this->logoutKey) == '1') {
             $this->logout();
             $this->syncStore();
+            if (getArgv(1) == 'admin') {
+                json(true);
+            }
         }
     }
 
@@ -336,7 +366,7 @@ class krynAuth {
 
         $this->user_rsn = $this->user['rsn'];
 
-        tAssign("user", $this->user);
+        tAssign('user', $this->user);
     }
 
     /**
@@ -392,7 +422,8 @@ class krynAuth {
      * Change the user_rsn in the session object. Means: is logged out then
      */
     public function logout() {
-        $this->setUser(0);
+        $this->setUser(0, true);
+        $this->syncStore(true);
     }
 
     /**
@@ -426,10 +457,9 @@ class krynAuth {
      * When the scripts ends, we need to sync the stored data ($this->session, which has been changed with set())
      * to the backend.
      */
-    public function syncStore() {
+    public function syncStore( $pForce = false ) {
 
-        if ($this->needSync != true) return;
-
+        if (!$pForce && $this->needSync != true) return;
         $session['user_rsn'] = $this->user['rsn'];
 
         if ($this->config['session_storage'] == 'database') {
@@ -445,7 +475,6 @@ class krynAuth {
                 unset($sessionExtra[$temp]);
 
             $session['extra'] = json_encode($sessionExtra);
-
             dbUpdate('system_sessions', "id = '" . esc($this->token) . "'", $session);
 
         } else {

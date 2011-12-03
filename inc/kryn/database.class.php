@@ -41,7 +41,7 @@ class database {
     public $user = '';
 
     public function __construct($pDatabaseType = false, $pHost = false, $pUser = false,
-                                $pPassword = false, $pDatabaseName = false, $pUsePdo = true, $pForceUtf8 = false) {
+                                $pPassword = false, $pDatabaseName = false, $pUsePdo = true) {
 
         if ($pDatabaseType)
             $this->type = $pDatabaseType;
@@ -53,7 +53,7 @@ class database {
         $this->user = $pUser;
 
         if ($pDatabaseType && $pHost) {
-            $this->login($pHost, $pUser, $pPassword, $pDatabaseName, $pForceUtf8);
+            $this->login($pHost, $pUser, $pPassword, $pDatabaseName);
         }
     }
 
@@ -207,8 +207,7 @@ class database {
                             if (!@mysql_select_db($kdb, $this->connection)) {
                                 die("Can not select db: " . $kdb);
                             }
-                            if ($pForceUtf8)
-                                mysql_query("SET NAMES 'utf8'", $this->connection);
+                            mysql_query("SET NAMES 'utf8'", $this->connection);
                         } else {
                             $this->lastError = mysql_error();
                             return false;
@@ -219,21 +218,21 @@ class database {
                             if (!@mysqli_select_db($this->connection, $kdb)) {
                                 die("Can not select db: " . $kdb);
                             }
-                            if ($pForceUtf8)
-                                mysqli_query("SET NAMES 'utf8'", $this->connection);
+                            mysqli_query("SET NAMES 'utf8'", $this->connection);
                         } else {
                             $this->lastError = mysqli_error($this->connection);
                             return false;
                         }
                         break;
                     case 'mssql':
-                        $this->connection = mssql_connect($host, $user, $pw);
+                        @ini_set('mssql.charset', 'utf8');
+                        $this->connection = mssql_pconnect($host, $user, $pw);
                         if (!@mssql_select_db($kdb, $this->connection)) {
                             die("Can not select db: " . $kdb);
                         }
                         break;
                     case 'oracle':
-                        if (!$this->connection = oci_pconnect($user, $pw, $host . "/" . $kdb)) {
+                        if (!$this->connection = oci_pconnect($user, $pw, $host . "/" . $kdb, 'UTF8')) {
                             $this->lastError = oci_error();
                             return false;
                         }
@@ -247,9 +246,8 @@ class database {
                         } else {
                             $connect_string = "host=$host port=$port dbname=$kdb";
                         }
-                        if ($pForceUtf8) {
-                            $connect_string . +" options='--client_encoding=UTF8'";
-                        }
+                        $connect_string . +" options='--client_encoding=UTF8'";
+
 
                         if (!$this->connection = pg_pconnect($connect_string)) {
                             $this->lastError = pg_last_error();
@@ -264,6 +262,9 @@ class database {
             return $this->connection;
 
         } else {
+
+            //pdo is deactivated, too unstable right now
+            die('PDO is deactiavted, please change the inc/config.php db_pdo => 0');
 
             switch ($this->type) {
                 case 'mysql':
@@ -320,9 +321,6 @@ class database {
 
     public static function lastError() {
         global $kdb;
-        if ($this)
-            return $this->lastError;
-        else
             return $kdb->lastError;
     }
 
@@ -334,6 +332,7 @@ class database {
 
     public function fetch($pStatement, $pRows = 1) {
         if ($pStatement === false) return;
+
         if (!$this->usePdo) {
 
             if ($pRows == 1) {
@@ -382,7 +381,6 @@ class database {
             }
         } else {
 
-            if (gettype($result_id) == 'boolean') return false;
             if (!$pStatement) return false;
 
             if ($pRows == 1)
@@ -659,16 +657,19 @@ class database {
     public function _last_error() {
         switch ($this->type) {
             case 'sqlite':
-                $res = sqlite_last_error();
+                $res = sqlite_last_error($this->connection);
                 break;
             case 'mysql':
-                $res = mysql_error();
+                $res = mysql_error($this->connection);
                 break;
             case 'mysqli':
-                $res = mysqli_error();
+                $res = mysqli_error($this->connection);
                 break;
             case 'postgresql':
-                $res = pg_last_error();
+                $res = pg_last_error($this->connection);
+                break;
+            case 'mssql':
+                 $res = mssql_get_last_message();
                 break;
         }
         return $res;

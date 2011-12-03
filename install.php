@@ -350,6 +350,67 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <?php $f = fopen("LICENSE", "r"); if($f) while (!feof($f)) print fgets($f, 4096) ?>
 </div>
 <br /><br />
+<b style="color: gray">Kryn.core comes with amazing additional third party software.</b><br />
+      Please respect all of their licenses too:<br />
+<br />
+<table style="width: 100%" cellpadding="3">
+    <tr>
+    <th width="160">Name</th>
+    <th width="250">Link</th>
+    <th>License</th>
+</tr>
+<tr>
+    <td  width="160">Mootools</td>
+    <td  width="250"><a href="http://mootools.net/">mootools.net</a></td>
+    <td>&raquo; <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a></td>
+</tr>
+<tr>
+    <td  width="160">Mooeditable fork</td>
+    <td  width="250"><a href="https://github.com/MArcJ/mooeditable">https://github.com/MArcJ/mooeditable</a></td>
+    <td>&raquo; <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a></td>
+</tr>
+<tr>
+    <td>Smarty</td>
+    <td><a href="http://www.smarty.net/">www.smarty.net</a></td>
+    <td>&raquo; <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a></td>
+</tr>
+<tr>
+    <td>Codemirror</td>
+    <td><a href="http://codemirror.net/">codemirror.net</a></td>
+    <td>&raquo; <a href="http://codemirror.net/LICENSE">zlib-style license</a></td>
+</tr>
+
+<tr>
+    <td>Silk icon set 1.3</td>
+    <td><a href="http://www.famfamfam.com/lab/icons/silk//">www.famfamfam.com/lab/icons/silk/</a></td>
+    <td>&raquo; <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License.</a></td>
+</tr>
+
+
+<tr>
+    <td>PEAR JSON</td>
+    <td><a href="http://pear.php.net/package/Services_JSON">PEAR/Services_JSON</a></td>
+    <td>&raquo; <a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a></td>
+</tr>
+
+<tr>
+    <td>PEAR Archive</td>
+    <td><a href="http://pear.php.net/package/File_Archive/">PEAR/File_Archive</a></td>
+    <td>&raquo; <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a></td>
+</tr>
+
+<tr>
+    <td>PEAR MIME</td>
+    <td><a href="http://pear.php.net/package/MIME_Type">PEAR/MIME_Type</a></td>
+    <td>&raquo; <a href="http://www.php.net/license/3_0.txt">PHP License 3.0</a></td>
+</tr>
+
+<tr>
+    <td>PEAR Structures_Graph</td>
+    <td><a href="http://pear.php.net/package/MIME_Type">PEAR/Structures_Graph</a></td>
+    <td>&raquo; <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a></td>
+</tr>
+</table>
 <a href="?step=2" class="button" >Accept</a>
 
 <?php
@@ -673,7 +734,7 @@ function step3(){
     
     ?>
 
-Please enter your MySQL database information.<br />
+Please enter your database data.<br />
 <script type="text/javascript">
     checkDBEntries = function(){
         var ok = true;
@@ -689,8 +750,8 @@ Please enter your MySQL database information.<br />
             req.prefix = $('db.prefix').value;
             req.username = $('db.username').value;
             req.passwd = $('db.passwd').value;
-            req.pdo = ($('db.pdo').checked) ? 1 : 0;
-            req.forceutf8 = ($('db.forceutf8').checked) ? 1 : 0;
+            //req.pdo = ($('db.pdo').checked) ? 1 : 0;
+            //req.forceutf8 = ($('db.forceutf8').checked) ? 1 : 0;
 
             new Request.JSON({url: 'install.php?step=checkDb', onComplete: function(stat){
                 if( stat != null && stat.res == true )
@@ -719,6 +780,7 @@ Please enter your MySQL database information.<br />
         	<option value="sqlite">SQLite</option>
         </select></td>
     </tr>
+    <!--
     <tr>
         <td>Use PDO
         <div style="color: silver">
@@ -730,6 +792,7 @@ Please enter your MySQL database information.<br />
         <td>Force UTF-8</td>
         <td><input type="checkbox" name="forceutf8" checked="checked" id="db.forceutf8" value="1" /></td>
     </tr>
+    -->
     <tr>
         <td>
         	Host

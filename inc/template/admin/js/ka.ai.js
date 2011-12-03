@@ -308,7 +308,7 @@ ka.ai.reloadLogin = function () {
 
 ka.ai.doLogin = function () {
     ka.ai.loginMessage.set('html', _('Check Login. Please wait ...'));
-    new Request.JSON({url: _path + 'admin/user:login/json:1', noCache: 1, onComplete: function (res) {
+    new Request.JSON({url: _path + 'admin/?admin-users-login=1&json:1', noCache: 1, onComplete: function (res) {
         if (res.user_rsn > 0) {
             ka.ai.loginSuccess(res);
         } else {
@@ -340,7 +340,7 @@ ka.ai.logout = function (pScreenlocker) {
     if (!pScreenlocker) {
         logger('destroy all windows');
         ka.wm.closeAll();
-        new Request({url: _path + 'admin/user:logout'}).post();
+        new Request({url: _path + 'admin/?admin-users-logout=1'}).post();
     }
 
     if (ka.ai.loader) {
