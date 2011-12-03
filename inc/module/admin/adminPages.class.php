@@ -157,6 +157,8 @@ class adminPages {
             self::updateMenuCache( $page['domain_rsn'] );
         }
 
+        kryn::deleteCache('kryn_pluginrelations');
+
         return true;
 
     }
@@ -920,8 +922,9 @@ class adminPages {
         kryn::invalidateCache('navigation-'.$target['domain_rsn']);
         kryn::invalidateCache('systemNavigations-'.$target['domain_rsn']);
         kryn::invalidateCache('systemWholePage-'.$target['domain_rsn']);
-        
-        
+
+        kryn::deleteCache('kryn_pluginrelations');
+
         if( $target['domain_rsn'] != $who['domain_rsn'] ){
             self::cleanSort( $who['domain_rsn'], 0 );
             self::updateUrlCache( $who['domain_rsn'] );
@@ -1029,13 +1032,13 @@ class adminPages {
     }
 
     public static function add(){
-        
+
         $found = (getArgv('field_1')!='')?true:false;
         $c = 1;
         $rsn = getArgv('rsn')+0;
         $pos = getArgv('pos');
         $type = getArgv('type')+0;
-        
+
         $layout = getArgv('layout',1);
         $visible = getArgv('visible');
 
@@ -1044,7 +1047,7 @@ class adminPages {
 
         $domain_rsn = ($rsn>0)?$page['domain_rsn']:getArgv('domain_rsn');
         $prsn = ($rsn>0)?$page['prsn']:0;
-        
+
         if( $prsn == 0 ){
             if( !kryn::checkPageAcl($domain_rsn, 'addPages', 'd') ){
                 json(array('error' => 'access_denied'));;
@@ -1072,7 +1075,7 @@ class adminPages {
 
             dbInsert('system_pages', array('title' => $val, 'sort' => $sort, 'sort_mode' => $sort_mode,
                 'access_denied' => 0, 'cdate' => time(), 'mdate' => time(), 'cache' => 0,
-                'access_from' => 0, 'access_to' => 0, 
+                'access_from' => 0, 'access_to' => 0,
                 'url' => kryn::toModRewrite( $val ), 'layout' => $layout, 'visible' => $visible,
                 'prsn' => $prsn, 'domain_rsn' => $domain_rsn, 'type' => $type));
             $c++;
@@ -1083,17 +1086,18 @@ class adminPages {
 
         self::updateUrlCache( $domain_rsn );
         self::updateMenuCache( $domain_rsn );
-        
+
         kryn::deleteCache('page-'.$rsn);
         $parents = kryn::getPageParents( $rsn );
         foreach( $parents as &$parent ){
             kryn::deleteCache('page-'.$parent['rsn']);
         }
-        
+
         kryn::invalidateCache('navigation-'.$domain_rsn);
         kryn::invalidateCache('systemNavigations-'.$domain_rsn);
         kryn::invalidateCache('systemWholePage-'.$domain_rsn);
-        
+
+        kryn::deleteCache('kryn_pluginrelations');
         json( true );
     }
 
@@ -1343,6 +1347,8 @@ class adminPages {
 
         self::updateUrlCache( $domain_rsn );
         self::updateMenuCache( $domain_rsn );
+
+        kryn::deleteCache('kryn_pluginrelations');
 
         $res = self::getPage( $rsn );
         $res['version_rsn'] = $version_rsn;

@@ -240,13 +240,13 @@ msgstr ""
         
         self::extractFile( $config );
 
-        $classes = glob(PATH_MODULE.''.$mod.'/*.class.php');
+        $classes = glob(PATH_MODULE.$mod.'/*.class.php');
         if( count($classes) > 0 ){
             require_once(PATH_MODULE.'admin/adminWindowEdit.class.php');
             require_once(PATH_MODULE.'admin/adminWindowAdd.class.php');
             require_once(PATH_MODULE.'admin/adminWindowList.class.php');
             foreach( $classes as $class ){
-                //todo extract $fields usw 
+
                 $classPlain = kryn::fileRead( $class );
                 if( preg_match('/ extends window(Add|List|Edit)/', $classPlain )){
                     require_once( $class );
@@ -261,7 +261,7 @@ msgstr ""
                     }
                     if( $tempObj->tabFields ){
                         foreach( $tempObj->tabFields as $key => $fields ){
-                             $GLOBALS['moduleTempLangs'][$key] = $key;
+                            $GLOBALS['moduleTempLangs'][$key] = $key;
                             self::extractFrameworkFields( $fields );
                         }
                     }

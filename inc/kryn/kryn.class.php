@@ -696,8 +696,8 @@ class kryn {
 
             foreach( kryn::$extensions as &$extension ){
                 kryn::$configs[$extension] = kryn::getModuleConfig( $extension );
-
             }
+
             foreach( kryn::$configs as $extension => $config ){
                             
                 if( is_array($config['extendConfig']) ){
@@ -813,7 +813,7 @@ class kryn {
     public static function getModuleConfig( $pModule, $pLang = false ){
         global $adminClient;
     
-        $pModule = str_replace( ".","", $pModule );
+        $pModule = str_replace( '.','', $pModule );
 
         if( $pModule == 'kryn' )
             $config = "inc/kryn/config.json";
@@ -827,7 +827,7 @@ class kryn {
         $mtime = filemtime($config);
         $lang = $pLang ? $pLang : kryn::getLanguage();
         
-        $cacheCode = "moduleConfig-$pModule"."-$lang";
+        $cacheCode = 'moduleConfig-'.$pModule.'.'.$lang;
 
         $configObj = kryn::getFastCache( $cacheCode );
 

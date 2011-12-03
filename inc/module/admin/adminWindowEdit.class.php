@@ -26,6 +26,7 @@ class adminWindowEdit {
     /**
      * 
      * Defines the table which should be accessed
+     *
      * @var string
      */
     public $table = '';
@@ -49,7 +50,14 @@ class adminWindowEdit {
     
     
     /**
-     *
+     * Defines the preview plugins
+     * Example content: array(
+     *     '<pluginKey>' => '<urlGetterMethod'
+     * )
+     * Example urlGetterMethod:
+     * public function getUrl( $pItem, $pPluginValues, $pPageRsn ){
+     *     return kryn::toModRewrite( $pItem['title'] ) . '/' . $pItem['rsn'];
+     * }
      *
      */
     public $previewPlugins = false;
@@ -57,13 +65,29 @@ class adminWindowEdit {
     /**
      * 
      * Defines the fields. (ka.fields)
+     * Example: array(
+     *      'kaField1' => array( ka.field params goes here ),
+     *      'kaField2' => array( ka.field params goes here )
+     * )
      * @var array
      */
     public $fields = array();
     
-     /**
-     * 
+    /**
+     *
      * Defines each tab and inside it the fields. (ka.fields)
+     *
+     * Example content: array(
+     *  'TabTitle1' => array(
+     *      'kaField1' => array( ka.field params goes here )
+     *  ),
+     *  'TabTitle2' => array(
+     *      'kaField2' => array( ka.field params goes here ),
+     *      'kaField3' => array( ka.field params goes here )
+     *  )
+     *
+     * (
+     *
      * @var array
      */
     public $tabFields = array();
@@ -77,12 +101,13 @@ class adminWindowEdit {
     
     
     /**
-     * Defines which field the windows should use for the title.
+     * Defines which field the window should use for his title.
+     * @var string
      */
     public $titleField = false;
     
     /**
-     * Initialize $fields. Called when opened the window.
+     * Initialize $fields and $tabFields. Called when opened the window.
      * @return windowEdit 
      */
     public function init( $pAndLoadPreviewPages = false ){
@@ -94,7 +119,7 @@ class adminWindowEdit {
             foreach( $this->tabFields as &$field )
                 $this->prepareFieldItem( $field );
         }
-        
+
         if( $pAndLoadPreviewPages )
             $this->loadPreviewPages();
         
@@ -103,7 +128,6 @@ class adminWindowEdit {
     
     /**
      * Loads all pages which have included the plugin in $previewPlugins
-     *
      */
     public function loadPreviewPages(){
     
@@ -214,6 +238,7 @@ class adminWindowEdit {
 
     /**
      * Prepare fields. Loading tableItems by select and file fields.
+     * Note for selects: please use 'stores' instead of 'sql' etc
      * @param array $pFields
      * @param bool $pKey
      */
@@ -275,22 +300,6 @@ class adminWindowEdit {
             }
         }
         return true;
-    }
-
-    /**
-     * Building the WHERE area.
-     * @return string
-     */
-    public function buildWhere(){
-        //old
-        foreach( $this->primary as $primary ){
-            if( $tableInfo[$primary][0] == 'int' )
-                $val = getArgv($primary)+0;
-            else
-                $val = "'".getArgv($primary, 1)."'";
-            $where = " AND $primary = $val";
-        }
-        return $where;
     }
 
     

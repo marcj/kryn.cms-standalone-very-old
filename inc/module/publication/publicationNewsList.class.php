@@ -29,7 +29,7 @@ class publicationNewsList extends adminWindowList {
             'type' => 'text'
         ),
         'category_rsn' => array(
-            'label' => 'Categorie',
+            'label' => 'Category',
             'type' => 'select',
             'table' => 'publication_news_category',
             'table_label' => 'title',
