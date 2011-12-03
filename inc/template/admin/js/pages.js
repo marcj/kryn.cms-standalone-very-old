@@ -73,6 +73,8 @@ var admin_pages = new Class({
     loadPage: function( pRsn, pSelect ){
 
         this.inDomainModus = false;
+
+        this.lastLoadedContentRsn = false;
         
         this.alreadyOnLoadPageLoaded = true;
         
