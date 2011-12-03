@@ -266,10 +266,6 @@ var admin_system_settings = new Class({
             label: _('Database prefix'), empty: false
         }).inject(p);
 
-        this.fields['db_forceutf8'] = new ka.field({
-            label: _('Force UTF8'), desc: _('If your mysql does not use utf8 as default, enable force utf8'), type: 'checkbox'
-        }).inject(p);
-
         var p = this.panes['caching'];
 
 
