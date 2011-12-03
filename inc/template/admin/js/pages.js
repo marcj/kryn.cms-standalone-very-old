@@ -169,12 +169,12 @@ var admin_pages = new Class({
             value: ''
         }).inject( this.layout );
 
-        $H(ka.settings.layouts).each(function(la, key){
+        Object.each(ka.settings.layouts, function(la, key){
             var group = new Element('optgroup', {
                 label: key
             }).inject( this.layout );
             var count = 0;
-            $H(la).each(function(layoutFile,layoutTitle){
+            Object.each(la, function(layoutFile,layoutTitle){
                 if( limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains( layoutFile ) ) return;
                 new Element('option', {
                     html: (layoutTitle),
@@ -2163,6 +2163,8 @@ var admin_pages = new Class({
 
     _loadContent: function(){
 
+        this.lastLoadedContentRsn = this.page.rsn;
+
         var layout = this.layout.getValue();
         if( !this.iframe || !this.iframe.contentWindow || !this.iframe.contentWindow.Asset ||
                 !this.oldPage || (this.page.layout != layout) || (this.page.domain_rsn != this.oldPage.domain_rsn) ){
@@ -3314,7 +3316,9 @@ var admin_pages = new Class({
         }
         if( !pOnlyTabs ){
             if( pType == 'contents' ){
-                this._loadContent();
+                if( this.lastLoadedContentRsn != this.page.rsn ){
+                    this._loadContent();
+                }
             }
             if( pType == 'versioning' ){
                 this.loadVersionOverview();
