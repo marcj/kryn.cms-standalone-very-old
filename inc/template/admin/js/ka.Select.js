@@ -18,9 +18,10 @@ ka.Select = new Class({
 
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        }).addEvent('mousedown', function (e) {
-            e.preventDefault();
-        }).inject(this.box);
+        }).addEvent('mousedown',
+            function (e) {
+                e.preventDefault();
+            }).inject(this.box);
 
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow'
@@ -72,10 +73,13 @@ ka.Select = new Class({
 
         }.bind(this))
 
-        if (!pPos)
-            this.a[pId].inject(this.chooser); else if (pPos == 'top')
-            this.a[pId].inject(this.chooser, 'top'); else if (this.a[pPos])
+        if (!pPos) {
+            this.a[pId].inject(this.chooser);
+        } else if (pPos == 'top') {
+            this.a[pId].inject(this.chooser, 'top');
+        } else if (this.a[pPos]) {
             this.a[pId].inject(this.a[pPos], 'after');
+        }
 
 
         if (this.value == null) {
@@ -119,8 +123,9 @@ ka.Select = new Class({
             this.arrowBox.setStyle('right', 2);
         }.bind(this)).delay(10);
 
-        if (pEvent)
+        if (pEvent) {
             this.fireEvent('change', pValue);
+        }
 
         return true;
     },
@@ -131,8 +136,9 @@ ka.Select = new Class({
 
     toggle: function (e) {
 
-        if (this.chooser.getParent())
-            this.close(); else {
+        if (this.chooser.getParent()) {
+            this.close();
+        } else {
             this.open();
         }
     },

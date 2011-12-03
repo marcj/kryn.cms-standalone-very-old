@@ -37,16 +37,19 @@ ka.buttonGroup = new Class({
 
             if (button.retrieve('visible') == false) return;
 
-            if (button.getElement('select'))
+            if (button.getElement('select')) {
                 extraWidth += button.getElement('select').getSize().x - 28;
+            }
 
             var myclass = 'kwindow-win-buttonWrapper';
 
-            if (button.get('class').indexOf('buttonHover') >= 0)
+            if (button.get('class').indexOf('buttonHover') >= 0) {
                 myclass += ' buttonHover';
+            }
 
-            if (c == 1)
+            if (c == 1) {
                 myclass += ' kwindow-win-buttonWrapperFirst';
+            }
 
             button.set('class', myclass);
             button.store('oriClass', myclass);
@@ -76,8 +79,9 @@ ka.buttonGroup = new Class({
         var width = this.boxWrapper.offsetWidth + 0;
         this.box.setStyle('display', 'block');
 
-        if (width > 0)
+        if (width > 0) {
             this.boxWrapper.setStyle('width', width - 3);
+        }
 
     },
 
@@ -91,14 +95,16 @@ ka.buttonGroup = new Class({
             }
         }).inject(this.boxWrapper);
 
-        if ($type(pTitle) == 'string')
-            wrapper.set('title', pTitle); else if (pTitle && pTitle.inject) {
+        if ($type(pTitle) == 'string') {
+            wrapper.set('title', pTitle);
+        } else if (pTitle && pTitle.inject) {
             pTitle.inject(wrapper);
             wrapper.setStyle('padding', '3px 0px');
         }
 
-        if (pOnClick)
+        if (pOnClick) {
             wrapper.addEvent('click', pOnClick);
+        }
 
         var _this = this;
         wrapper.hide = function () {
@@ -108,15 +114,17 @@ ka.buttonGroup = new Class({
         }
 
         wrapper.startTip = function (pText) {
-            if (!this.toolTip)
+            if (!this.toolTip) {
                 this.toolTip = new ka.tooltip(wrapper, pText);
+            }
             this.toolTip.setText(pText);
             this.toolTip.show();
         }
 
         wrapper.stopTip = function (pText) {
-            if (this.toolTip)
+            if (this.toolTip) {
                 this.toolTip.stop(pText);
+            }
         }
 
         wrapper.show = function () {
@@ -128,9 +136,11 @@ ka.buttonGroup = new Class({
         wrapper.store('oriClass', wrapper.get('class'));
 
         wrapper.setPressed = function (pPressed) {
-            if (pPressed)
-                wrapper.set('class', wrapper.retrieve('oriClass') + ' buttonHover'); else
+            if (pPressed) {
+                wrapper.set('class', wrapper.retrieve('oriClass') + ' buttonHover');
+            } else {
                 wrapper.set('class', wrapper.retrieve('oriClass'));
+            }
         }
 
         wrapper.store('visible', true);

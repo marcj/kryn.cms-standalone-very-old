@@ -284,12 +284,14 @@ var admin_system_backup = new Class({
         this.left.empty();
         this.items = {};
 
-        if (pItems['__noPopenAvailable'])
+        if (pItems['__noPopenAvailable']) {
             this.addPopenNotice();
+        }
 
         Object.each(pItems, function (item, id) {
-            if (id != '__noPopenAvailable')
+            if (id != '__noPopenAvailable') {
                 this.addItem(id, item);
+            }
         }.bind(this));
 
     },
@@ -322,8 +324,9 @@ var admin_system_backup = new Class({
         this.deselect();
         this.lastSelect = this.items[ pId ];
 
-        if (this.lastZipList)
+        if (this.lastZipList) {
             this.lastZipList.destroy();
+        }
 
         this.btnNewBackup.setPressed(false);
         this.btnImport.setPressed(false);
@@ -498,16 +501,18 @@ var admin_system_backup = new Class({
                     }
 
                     var label = translate[trans_id] || trans_id;
-                    if (param && label)
+                    if (param && label) {
                         label = label.replace('%s', param);
+                    }
 
                     progress.setText(label);
                     if (res != 'done' && res != 'error' && res != 'not_found') {
                         update.delay(1000, this);
                     } else {
                         progress.stop();
-                        if (res == 'done')
+                        if (res == 'done') {
                             this.loadItems();
+                        }
                     }
                 }
 
@@ -619,8 +624,9 @@ var admin_system_backup = new Class({
         this.addGenerateBtn.hide();
         this.addDeleteBtn.hide();
 
-        if (this.lastSelect)
+        if (this.lastSelect) {
             this.addDeleteBtn.show();
+        }
 
         if (this.lastSelect) {
 
@@ -807,8 +813,9 @@ var admin_system_backup = new Class({
     },
 
     deselect: function () {
-        if (this.lastSelect)
+        if (this.lastSelect) {
             this.lastSelect.removeClass('ka-backup-item-active');
+        }
         delete this.lastSelect;
     }
 

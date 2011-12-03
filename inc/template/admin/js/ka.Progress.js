@@ -9,8 +9,9 @@ ka.Progress = new Class({
             'class': 'ka-progress'
         });
 
-        if (pUnlimited)
-            this.main.addClass('ka-progress-unlimited'); else {
+        if (pUnlimited) {
+            this.main.addClass('ka-progress-unlimited');
+        } else {
             this.progress = new Element('div', {
                 'class': 'ka-progress-bar'
             }).inject(this.main);

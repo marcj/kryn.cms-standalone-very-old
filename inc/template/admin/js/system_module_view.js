@@ -10,11 +10,13 @@ var admin_system_module_view = new Class({
         this.win.content.empty();
 
         var id = (this.win.params.values) ? this.win.params.values.id : false;
-        if (!id)
+        if (!id) {
             id = this.win.params.name;
+        }
 
-        if ($type(this.win.params.type) == 'undefined')
+        if ($type(this.win.params.type) == 'undefined') {
             this.win.params.type = 0;
+        }
 
 
         this.loading = new ka.loader().inject(this.win.content);
@@ -46,9 +48,11 @@ var admin_system_module_view = new Class({
             this.renderContent(res);
             if (this.twiceLoading != true) {
                 if (this.win.params.updateNow == 1) {
-                    if (res.serverCompare == '>')
-                        this.confirmDowngrade(); else
+                    if (res.serverCompare == '>') {
+                        this.confirmDowngrade();
+                    } else {
                         this.update();
+                    }
                 }
                 if (this.win.params.removeNow == 1) {
                     this.renderRemove();
@@ -60,9 +64,11 @@ var admin_system_module_view = new Class({
 
     confirmDowngrade: function () {
         this.win._confirm(_('Really downgrade extension?'), function (p) {
-            if (!p)
-                this.loadInfos(); else
+            if (!p) {
+                this.loadInfos();
+            } else {
                 this.update(false);
+            }
         }.bind(this));
     },
 
@@ -76,8 +82,9 @@ var admin_system_module_view = new Class({
         var desc = pItem.module.desc[lang] ? pItem.module.desc[lang] : pItem.module.desc['en'];
 
         this.win.setTitle(title + ' - ' + _('extension'));
-        if (pItem.module.tags)
+        if (pItem.module.tags) {
             var tags = pItem.module.tags[lang] ? pItem.module.tags[lang] : pItem.module.tags['en'];
+        }
 
         new Element('h3', {
             html: title,
@@ -134,11 +141,14 @@ var admin_system_module_view = new Class({
             var tr = new Element('tr').inject(tablebody);
             var td = new Element('td', {height: 25, html: _('Installed version')}).inject(tr);
             var td = new Element('td', {text: pItem.installedModule.version + ' '}).inject(tr);
-            if (pItem.installedModule && pItem.installedModule.version != pItem.serverVersion)
-                td.setStyle('color', 'red'); else
+            if (pItem.installedModule && pItem.installedModule.version != pItem.serverVersion) {
+                td.setStyle('color', 'red');
+            } else {
                 td.setStyle('color', 'green');
-            if (pItem.serverCompare == '>')
+            }
+            if (pItem.serverCompare == '>') {
                 new Element('img', { title: _('Local version newer than server version!'), src: '/inc/admin/images/icons/error.png' }).inject(td);
+            }
         }
 
 
@@ -165,9 +175,10 @@ var admin_system_module_view = new Class({
         var td = new Element('td', {colspan: 2, style: 'padding-left: 5px;'}).inject(tr);
 
         if (pItem.name != 'admin' && pItem.name != 'kryn' && pItem.name != 'users') {
-            new ka.Button(_('To website')).addEvent('click', function () {
-                window.open('http://www.kryn.org/extensions/' + pItem.name, '_blank');
-            }).inject(td);
+            new ka.Button(_('To website')).addEvent('click',
+                function () {
+                    window.open('http://www.kryn.org/extensions/' + pItem.name, '_blank');
+                }).inject(td);
         }
 
         if (!pItem.installed) {
@@ -242,9 +253,10 @@ var admin_system_module_view = new Class({
             });
             td.set('html', html);
             if (pItem.installed) {
-                new ka.Button(_('Database update')).addEvent('click', function () {
-                    ka.wm.open('admin/system/module/dbInit', {name: pItem.name});
-                }).inject(td);
+                new ka.Button(_('Database update')).addEvent('click',
+                    function () {
+                        ka.wm.open('admin/system/module/dbInit', {name: pItem.name});
+                    }).inject(td);
             }
 
         } else {
@@ -318,7 +330,9 @@ var admin_system_module_view = new Class({
         new Request.JSON({url: _path + 'admin/system/module/installModule/', noCache: 1, onComplete: function (res) {
 
             if (this.currentValues && this.currentValues.module.category == 13 && this.installMode)//layout
-                ka._helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000 //30sec);
+            {
+                ka._helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000
+            } //30sec);
 
             new Request.JSON({url: _path + 'admin/system/module/dbInit/', noCache: 1, onComplete: function (res) {
                 this.loading.hide();

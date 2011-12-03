@@ -71,14 +71,17 @@ ka.kwindow = new Class({
             //            this.iframe.contentWindow.document.body.style.height = inlineSize.y+'px';
             //            this.iframe.contentWindow.document.body.style.width = inlineSize.x+'px';
 
-            if (inlineSize.x > borderSize.x)
+            if (inlineSize.x > borderSize.x) {
                 opener.border.setStyle('width', inlineSize.x);
+            }
 
-            if (inlineSize.y + 35 > borderSize.y)
+            if (inlineSize.y + 35 > borderSize.y) {
                 opener.border.setStyle('height', inlineSize.y + 35);
+            }
 
-            if (inlineSize.y < 450)
+            if (inlineSize.y < 450) {
                 inlineSize.y = 450;
+            }
 
 
             opener.inlineContainer.setStyles({
@@ -113,14 +116,17 @@ ka.kwindow = new Class({
 
         this.inDependMode = false;
 
-        if (this.overlayForced)
+        if (this.overlayForced) {
             this.overlayForced.destroy();
+        }
 
-        if (this.inlineContainer)
+        if (this.inlineContainer) {
             this.inlineContainer.destroy();
+        }
 
-        if (this.dependModeOverlay)
+        if (this.dependModeOverlay) {
             this.dependModeOverlay.destroy();
+        }
 
     },
 
@@ -158,8 +164,9 @@ ka.kwindow = new Class({
 
         var res = false;
         if (!pOpts) pOpts = {};
-        if (pOpts['confirm'] == 1)
+        if (pOpts['confirm'] == 1) {
             res = true;
+        }
 
         var main = this.newDialog(pDesc);
 
@@ -179,35 +186,43 @@ ka.kwindow = new Class({
 
             new ka.Button(_('Cancel')).addEvent('click', function () {
                 main.close();
-                if (pCallback)
+                if (pCallback) {
                     pCallback(false);
+                }
             }.bind(this)).inject(main.bottom);
 
-            ok = new ka.Button('OK').addEvent('keyup', function (e) {
-                e.stopPropagation();
-                e.stop();
-            }).addEvent('click', function (e) {
-                if (e)
+            ok = new ka.Button('OK').addEvent('keyup',
+                function (e) {
+                    e.stopPropagation();
                     e.stop();
-                if (input && input.value != '')
+                }).addEvent('click', function (e) {
+                if (e) {
+                    e.stop();
+                }
+                if (input && input.value != '') {
                     res = input.value;
+                }
                 main.close();
-                if (pCallback)
+                if (pCallback) {
                     pCallback.delay(50, null, res);
+                }
             }.bind(this)).inject(main.bottom);
         }
 
         if (pOpts && pOpts['alert'] == 1) {
 
-            ok = new ka.Button('OK').addEvent('keyup', function (e) {
-                e.stopPropagation();
-                e.stop();
-            }).addEvent('click', function (e) {
-                if (e)
+            ok = new ka.Button('OK').addEvent('keyup',
+                function (e) {
+                    e.stopPropagation();
                     e.stop();
+                }).addEvent('click', function (e) {
+                if (e) {
+                    e.stop();
+                }
                 main.close();
-                if (pCallback)
+                if (pCallback) {
                     pCallback.delay(50);
+                }
             }.bind(this)).inject(main.bottom);
         }
 
@@ -221,8 +236,9 @@ ka.kwindow = new Class({
             });
         }
 
-        if (ok && !input)
+        if (ok && !input) {
             ok.focus();
+        }
 
         main.center();
 
@@ -307,14 +323,16 @@ ka.kwindow = new Class({
     },
 
     getTitle: function () {
-        if (this.titleAdditional)
+        if (this.titleAdditional) {
             return this.parseTitle(this.titleAdditional.get('html'));
+        }
         return '';
     },
 
     getFullTitle: function () {
-        if (this.titlePath)
+        if (this.titlePath) {
             return this.parseTitle(this.titlePath.get('html'));
+        }
         return '';
     },
 
@@ -349,8 +367,9 @@ ka.kwindow = new Class({
 
     isInFront: function () {
 
-        if (ka.wm.zIndex == this.border.getStyle('z-index'))
+        if (ka.wm.zIndex == this.border.getStyle('z-index')) {
             return true;
+        }
 
         return false;
     },
@@ -517,8 +536,9 @@ ka.kwindow = new Class({
     saveDimension: function () {
         var pos = this.border.getCoordinates(this.border.getParent());
         var windows = (ka.settings['user'] && ka.settings['user']['windows']) ? ka.settings['user']['windows'] : {};
-        if (!windows.set)
+        if (!windows.set) {
             windows = new Hash();
+        }
 
         if (this.maximized && this.oldDimension) {
             pos = this.oldDimension;
@@ -542,8 +562,9 @@ ka.kwindow = new Class({
 
         var windows = ka.settings['user']['windows'];
 
-        if (!windows)
+        if (!windows) {
             windows = {};
+        }
 
         var pos = windows[this.module + '::' + this.code];
 
@@ -564,10 +585,12 @@ ka.kwindow = new Class({
         }
 
         if (this.values.fixedWidth > 0 || this.values.fixedHeight > 0) {
-            if (this.values.fixedWidth > 0)
+            if (this.values.fixedWidth > 0) {
                 this.border.setStyle('width', this.values.fixedWidth);
-            if (this.values.fixedHeight > 0)
+            }
+            if (this.values.fixedHeight > 0) {
                 this.border.setStyle('height', this.values.fixedHeight);
+            }
             this.resizeBottomRight.destroy();
             this.bottom.setStyle('background-image', 'none');
         }
@@ -654,8 +677,9 @@ ka.kwindow = new Class({
             }
 
             this.border.getElements('a.kwindow-win-buttonWrapper').each(function (button) {
-                if (button.toolTip && button.toolTip.main)
+                if (button.toolTip && button.toolTip.main) {
                     button.toolTip.main.destroy();
+                }
             });
 
             this.border.destroy();
@@ -663,8 +687,9 @@ ka.kwindow = new Class({
 
         this.inFront = false;
 
-        if (this.onClose)
+        if (this.onClose) {
             this.onClose();
+        }
     },
 
     loadContent: function (pVals) {
@@ -675,8 +700,9 @@ ka.kwindow = new Class({
             var _this = this;
 
             var module = this.module + '/';
-            if (this.module == 'admin')
+            if (this.module == 'admin') {
                 module = '';
+            }
 
             this._ = new Request.JSON({url: _path + 'admin/' + module + this.code + '?cmd=getInfo', onComplete: function (res) {
 
@@ -709,8 +735,9 @@ ka.kwindow = new Class({
 
         var title = ka.settings.configs[ this.module ]['title']['en'];
 
-        if (ka.settings.configs[ this.module ]['title'][window._session.lang])
+        if (ka.settings.configs[ this.module ]['title'][window._session.lang]) {
             title = ka.settings.configs[ this.module ]['title'][window._session.lang];
+        }
 
         if (title != 'Kryn.cms') {
             new Element('span', {
@@ -747,12 +774,13 @@ ka.kwindow = new Class({
             this.iframe = new IFrame('iframe_kwindow_' + this.id, {
                 'class': 'kwindow-iframe',
                 frameborder: 0
-            }).addEvent('load', function () {
-                _this.iframe.contentWindow.win = _this;
-                _this.iframe.contentWindow.ka = ka;
-                _this.iframe.contentWindow.wm = ka.wm;
-                this.contentWindow.fireEvent('kload');
-            }).inject(this.content);
+            }).addEvent('load',
+                function () {
+                    _this.iframe.contentWindow.win = _this;
+                    _this.iframe.contentWindow.ka = ka;
+                    _this.iframe.contentWindow.wm = ka.wm;
+                    this.contentWindow.fireEvent('kload');
+                }).inject(this.content);
             this.iframe.set('src', _path + pVals.src);
         } else if (pVals.type == 'custom') {
             this.renderCustom();
@@ -796,8 +824,9 @@ ka.kwindow = new Class({
     },
 
     updateInlinePosition: function () {
-        if (this.inline && this.getOpener() && this.getOpener().inlineContainer)
+        if (this.inline && this.getOpener() && this.getOpener().inlineContainer) {
             this.border.position({ relativeTo: this.getOpener().inlineContainer });
+        }
     },
 
     print: function () {
@@ -840,8 +869,9 @@ ka.kwindow = new Class({
         var id = 'text';
         var _this = this;
 
-        if (this.code.substr(this.code.length - 1, 1) == '/')
+        if (this.code.substr(this.code.length - 1, 1) == '/') {
             this.code = this.code.substr(0, this.code.length - 1);
+        }
 
         var javascript = this.code.replace(/\//g, '_');
 
@@ -878,8 +908,9 @@ ka.kwindow = new Class({
         this.border = new Element('div', {
             'class': 'kwindow-border  mooeditable-dialog-container'
         }).addEvent('mousedown', function (e) {
-            if (this.mouseOnShadow != true)
+            if (this.mouseOnShadow != true) {
                 _this.toFront();
+            }
         }.bind(this)).inject(document.hidden).store('win', this);
 
 
@@ -926,10 +957,12 @@ ka.kwindow = new Class({
 
         this.title = new Element('div', {
             'class': 'kwindow-win-title'
-        }).addEvent('dblclick', function () {
-            if (_this.values.noMaximize !== true)
-                _this.maximize();
-        }).inject(this.win);
+        }).addEvent('dblclick',
+            function () {
+                if (_this.values.noMaximize !== true) {
+                    _this.maximize();
+                }
+            }).inject(this.win);
 
 
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
@@ -940,9 +973,10 @@ ka.kwindow = new Class({
 
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
-        }).addEvent('mousedown', function (e) {
-            //e.stopPropagation();
-        }).inject(this.win);
+        }).addEvent('mousedown',
+            function (e) {
+                //e.stopPropagation();
+            }).inject(this.win);
 
         this.createTitleBar();
 
@@ -1075,22 +1109,25 @@ ka.kwindow = new Class({
         this.minimizer = new Element('img', {
             'class': 'kwindow-win-titleBarIcon',
             src: _path + 'inc/template/admin/images/win-top-bar-minimize.png'
-        }).addEvent('click', function () {
-            _this.minimize();
-        }).inject(this.titleBar)
+        }).addEvent('click',
+            function () {
+                _this.minimize();
+            }).inject(this.titleBar)
 
         this.maximizer = new Element('img', {
             'class': 'kwindow-win-titleBarIcon',
             src: _path + 'inc/template/admin/images/win-top-bar-maximize.png'
-        }).addEvent('click', function () {
-            _this.maximize();
-        }).inject(this.titleBar);
+        }).addEvent('click',
+            function () {
+                _this.maximize();
+            }).inject(this.titleBar);
 
         this.closer = new Element('div', {
             'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
-        }).addEvent('click', function () {
-            _this.close(true);
-        }).inject(this.titleBar);
+        }).addEvent('click',
+            function () {
+                _this.close(true);
+            }).inject(this.titleBar);
 
         this.titleBar.getElements('img').addEvents({
             'mouseover': function () {

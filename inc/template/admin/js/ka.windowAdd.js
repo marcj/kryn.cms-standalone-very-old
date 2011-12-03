@@ -8,8 +8,9 @@ ka.windowAdd = new Class({
         //ist in render() am ende also lösche unnötigen balast
         this.loader.hide();
 
-        if (this.saveNoClose)
+        if (this.saveNoClose) {
             this.saveNoClose.hide();
+        }
 
         if (this.actions) {
             this.saveNoClose = new ka.Button(_('Add')).addEvent('click', function () {
@@ -19,20 +20,24 @@ ka.windowAdd = new Class({
 
         if (this.win.params && this.win.params.relation_params) {
             Object.each(this.win.params.relation_params, function (value, id) {
-                if (this.fields[ id ])
+                if (this.fields[ id ]) {
                     this.fields[ id ].setValue(value);
+                }
             }.bind(this));
         }
 
-        if (this.actionsNaviDel)
+        if (this.actionsNaviDel) {
             this.actionsNaviDel.hide();
+        }
 
-        if (this.previewBtn)
+        if (this.previewBtn) {
             this.previewBtn.hide();
+        }
 
         var first = this.win.content.getElement('input[type=text]');
-        if (first)
+        if (first) {
             first.focus();
+        }
 
         this.ritem = this.retrieveData(true);
     }

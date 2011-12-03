@@ -19,8 +19,9 @@ ka.init = function () {
     ka._desktop = new ka.desktop($('desktop'));
     ka._helpsystem = new ka.helpsystem($('desktop'));
 
-    if (ka._iconSessionCounterDiv)
+    if (ka._iconSessionCounterDiv) {
         ka._iconSessionCounterDiv.destroy();
+    }
 
     ka._iconSessionCounterDiv = new Element('div', {
         'class': 'iconbar-item',
@@ -65,8 +66,9 @@ ka.init = function () {
         e.returnValue = false;
         if (e.stopPropagation) e.stopPropagation();
         if (e.preventDefault) e.preventDefault();
-        if (e.target)
+        if (e.target) {
             $(e.target).fireEvent('mousedown', e);
+        }
         return false;
     });
     $(document.body).addEvent('click', function () {
@@ -141,8 +143,9 @@ ka.toggleMainbar = function () {
 
 ka.clearCache = function () {
 
-    if (!ka.cacheToolTip)
+    if (!ka.cacheToolTip) {
         ka.cacheToolTip = new ka.tooltip($('ka-btn-clear-cache'), _('Clearing cache ...'), 'top');
+    }
     ka.cacheToolTip.show();
 
     new Request.JSON({url: _path + 'admin/backend/clearCache', noCache: 1, onComplete: function (res) {
@@ -155,8 +158,9 @@ ka.clearCache = function () {
 ka.getDomain = function (pRsn) {
     var result = [];
     ka.settings.domains.each(function (domain) {
-        if (domain.rsn == pRsn)
+        if (domain.rsn == pRsn) {
             result = domain;
+        }
     })
     return result;
 }
@@ -169,8 +173,9 @@ ka.loadSettings = function () {
 
         ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
 
-        if (ka.settings.user && ka.settings.user.userBg)
+        if (ka.settings.user && ka.settings.user.userBg) {
             document.id(document.body).setStyle('background-image', 'url(' + _path + 'inc/template/' + ka.settings.user.userBg + ')');
+        }
 
         if (ka.settings.system && ka.settings.system.systemtitle) {
             document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
@@ -194,8 +199,9 @@ ka.loadLanguage = function (pLang) {
 
 
 ka.saveUserSettings = function () {
-    if (ka.lastSaveUserSettings)
+    if (ka.lastSaveUserSettings) {
         ka.lastSaveUserSettings.cancel();
+    }
 
     ka.settings.user = new Hash(ka.settings.user);
 
@@ -380,12 +386,13 @@ ka.checkAccess = function (pType, pCode, pAction, pRootHasAccess) {
             var code = acl.code.replace(']', ''); //str_replace(']', '', $acl['code']);
             var t = code.split('['); //explode('[', $code);
             var codes = false;
-            if (t[1])
+            if (t[1]) {
                 codes = t[1].split(',');
+            }
 
             if (codes == false || codes.contains(pAction)) {
                 if ((parent_acl == false) || //i'am not a parent
-                    (parent_acl == true && acl.code.indexOf('%') > 0) //i'am a parent) {
+                    (parent_acl == true && acl.code.indexOf('%') > 0)) {
                     access = (acl['access'] == 1) ? true : false;
                     not_found = false; //done
                 }
@@ -394,8 +401,9 @@ ka.checkAccess = function (pType, pCode, pAction, pRootHasAccess) {
 
         if (current_code == '/') {
             //we are at the top. no parents left
-            if (pRootHasAccess == true)
+            if (pRootHasAccess == true) {
                 access = true;
+            }
             not_found = false; //go out
         }
 
@@ -422,8 +430,9 @@ ka.getAcl = function (pType, current_code) {
         var code = item.code.replace('%', '');
         var t = code.split('[');
         code = t[0];
-        if (current_code == code)
+        if (current_code == code) {
             acl = item;
+        }
 
     });
     return acl;
@@ -519,8 +528,9 @@ ka.stopSearchCrawlerProgress = function () {
 }
 
 ka.openSearchContextClose = function () {
-    if (ka.openSearchContextLast)
+    if (ka.openSearchContextLast) {
         ka.openSearchContextLast.destroy();
+    }
 
 }
 
@@ -553,18 +563,20 @@ ka.openSearchContext = function () {
         'class': 'ka-searchcontext-bottom'
     }).inject(this.openSearchContextLast);
 
-    new ka.Button(_('Indexed pages')).addEvent('click', function () {
-        ka.wm.open('admin/system/searchIndexerList');
-    }).inject(this.openSearchContextBottom);
+    new ka.Button(_('Indexed pages')).addEvent('click',
+        function () {
+            ka.wm.open('admin/system/searchIndexerList');
+        }).inject(this.openSearchContextBottom);
 
 
-    ka.openSearchContextClearIndex = new ka.Button(_('Clear index')).addEvent('click', function () {
-        ka.openSearchContextClearIndex.startTip(_('Clearing index ...'));
+    ka.openSearchContextClearIndex = new ka.Button(_('Clear index')).addEvent('click',
+        function () {
+            ka.openSearchContextClearIndex.startTip(_('Clearing index ...'));
 
-        new Request.JSON({url: _path + 'admin/backend/searchIndexer/clearIndex', noCache: 1, onComplete: function (pRes) {
-            ka.openSearchContextClearIndex.stopTip(_('Done'));
-        }.bind(this)}).post();
-    }).inject(this.openSearchContextBottom);
+            new Request.JSON({url: _path + 'admin/backend/searchIndexer/clearIndex', noCache: 1, onComplete: function (pRes) {
+                ka.openSearchContextClearIndex.stopTip(_('Done'));
+            }.bind(this)}).post();
+        }).inject(this.openSearchContextBottom);
 
     new Element('a', {
         style: 'position: absolute; right: 5px; top: 3px; text-decoration: none; font-size: 13px;',
@@ -610,8 +622,9 @@ ka.openSearchContextLoad = function () {
 
 
 ka.displayNewUpdates = function (pModules) {
-    if (this.newUpdatesMenu)
+    if (this.newUpdatesMenu) {
         this.newUpdatesMenu.destroy();
+    }
 
     var html = _('New updates !');
     /*
@@ -629,9 +642,10 @@ ka.displayNewUpdates = function (pModules) {
      .addEvent('mouseout', function(){
      this.tween('height', 24 );
      })
-     */.addEvent('click', function () {
-        ka.wm.open('admin/system/module', {updates: 1});
-    }).inject($('border'));
+     */.addEvent('click',
+        function () {
+            ka.wm.open('admin/system/module', {updates: 1});
+        }).inject($('border'));
     this.newUpdatesMenu.tween('top', 50);
 }
 
@@ -647,9 +661,11 @@ ka.buildUploadMenu = function () {
         styles: {
             height: 22
         }
-    }).addEvent('mouseover', function () {
-        this.tween('height', this.scrollHeight);
-    }).addEvent('mouseout', function () {
+    }).addEvent('mouseover',
+        function () {
+            this.tween('height', this.scrollHeight);
+        }).addEvent('mouseout',
+        function () {
             this.tween('height', 22);
         }).inject($('header'), 'before');
 
@@ -674,8 +690,9 @@ ka.clearClipboard = function () {
 }
 
 ka.createModuleMenu = function () {
-    if (ka._moduleMenu)
+    if (ka._moduleMenu) {
         ka._moduleMenu.destroy();
+    }
 
     ka._moduleMenu = new Element('div', {
         'class': 'ka-module-menu',
@@ -685,9 +702,10 @@ ka.createModuleMenu = function () {
 
     ka.moduleToggler = new Element('div', {
         'class': 'ka-module-toggler'
-    }).addEvent('click', function () {
-        ka.toggleModuleMenuIn();
-    }).inject(ka._moduleMenu);
+    }).addEvent('click',
+        function () {
+            ka.toggleModuleMenuIn();
+        }).inject(ka._moduleMenu);
 
     new Element('img', {
         src: _path + 'inc/template/' + _('admin/images/extensions-text.png')
@@ -732,11 +750,13 @@ ka.createModuleMenu = function () {
             //down
             newPos++;
         }
-        if (newPos > ka.moduleItemsScrollSlider.max)
+        if (newPos > ka.moduleItemsScrollSlider.max) {
             newPos = ka.moduleItemsScrollSlider.max;
+        }
 
-        if (newPos < ka.moduleItemsScrollSlider.min)
+        if (newPos < ka.moduleItemsScrollSlider.min) {
             newPos = ka.moduleItemsScrollSlider.min;
+        }
 
         ka.moduleItemsScrollSlider.set(newPos);
 
@@ -788,14 +808,17 @@ ka.updateModuleItemsScrollerSize = function () {
 ka.toggleModuleMenuIn = function (pOnlyStay) {
 
 
-    if (ka.lastModuleMenuOutTimer)
+    if (ka.lastModuleMenuOutTimer) {
         clearTimeout(ka.lastModuleMenuOutTimer);
+    }
 
-    if (ka.ModuleMenuOutOpen == true)
+    if (ka.ModuleMenuOutOpen == true) {
         return;
+    }
 
-    if (pOnlyStay == true)
+    if (pOnlyStay == true) {
         return;
+    }
 
     ka.ModuleMenuOutOpen = false;
     ka._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function () {
@@ -813,8 +836,9 @@ ka.toggleModuleMenuOut = function (pForce) {
     //if( !ka.ModuleMenuOutOpen && pForce != true )
     //	return;
 
-    if (ka.lastModuleMenuOutTimer)
+    if (ka.lastModuleMenuOutTimer) {
         clearTimeout(ka.lastModuleMenuOutTimer);
+    }
 
     ka.ModuleMenuOutOpen = false;
 
@@ -942,8 +966,9 @@ ka.renderAdminLink = function () {
     //var searchBoxWidth = 263;
     var searchBoxWidth = 221;
 
-    if (ka.additionalMainMenu)
+    if (ka.additionalMainMenu) {
         searchBoxWidth += ka.additionalMainMenu.getSize().x;
+    }
 
     var curWidth = menubarSize.x + iconbarSize.x + searchBoxWidth;
 
@@ -951,8 +976,9 @@ ka.renderAdminLink = function () {
     if (!ka.needMainMenuWidth) {
         //first run, read all children widths
 
-        if (!ka.mainMenuItems)
+        if (!ka.mainMenuItems) {
             ka.mainMenuItems = menubar.getChildren('a');
+        }
 
         ka.mainMenuItems.each(function (menuitem, index) {
             if (index == 0) return;
@@ -974,8 +1000,9 @@ ka.renderAdminLink = function () {
     //availWidth is now the availWidth we have for the menuitems
     var availWidth = menubarSize.x - diff - addMenuWidth;
 
-    if (!ka.needMainMenuWidth)
+    if (!ka.needMainMenuWidth) {
         ka.needMainMenuWidth = availWidth;
+    }
 
     ka.removedMainMenuItems = [];
 
@@ -1048,10 +1075,12 @@ ka.makeMenu = function (pToggler, pMenu, pCalPosition, pOffset) {
         if (pCalPosition) {
             var pos = pToggler.getPosition($('border'));
             if (pOffset) {
-                if (pOffset.x)
+                if (pOffset.x) {
                     pos.x += pOffset.x;
-                if (pOffset.y)
+                }
+                if (pOffset.y) {
                     pos.y += pOffset.y;
+                }
             }
             pMenu.setStyles({
                 'left': pos.x,
@@ -1097,9 +1126,11 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
             styles: {
                 display: 'none'
             }
-        }).addEvent('mouseover', function () {
-            mlink.store('allowToDisappear', false);
-        }).addEvent('mouseout', function () {
+        }).addEvent('mouseover',
+            function () {
+                mlink.store('allowToDisappear', false);
+            }).addEvent('mouseout',
+            function () {
                 mlink.fireEvent('mouseout');
             }).inject($('header'), 'before');
 
@@ -1136,10 +1167,11 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
             }
         });
 
-        mlink.addEvent('mouseover', function () {
-            mlink.store('allowToDisappear', false);
-            menu.setStyle('display', 'block');
-        }).addEvent('mouseout', function () {
+        mlink.addEvent('mouseover',
+            function () {
+                mlink.store('allowToDisappear', false);
+                menu.setStyle('display', 'block');
+            }).addEvent('mouseout', function () {
                 mlink.store('allowToDisappear', true);
                 (function () {
                     if (mlink.retrieve('allowToDisappear') == true) {
@@ -1247,9 +1279,11 @@ ka.addModuleLink = function (pLinks, pModule) {
                 var smlink = new Element('a', {
                     'class': 'ka-subnavi',
                     html: title
-                }).addEvent('mouseover', function () {
-                    mlink.store('allowToDisappear', false);
-                }).addEvent('mouseout', function () {
+                }).addEvent('mouseover',
+                    function () {
+                        mlink.store('allowToDisappear', false);
+                    }).addEvent('mouseout',
+                    function () {
                         //pLink.store( 'allowToDisappear', false );
                         mlink.fireEvent('mouseout');
                     }).inject(subnavi);
@@ -1388,8 +1422,9 @@ ka._openLinkContext = function (pLink) {
      */
 
     var parent = pLink.object.getParent('.ka-module-menu');
-    if (!parent)
+    if (!parent) {
         parent = document.body;
+    }
     var div = new Element('div', {
         'class': 'ka-linkcontext-main ka-linkcontext-sub'
     }).inject(parent);
@@ -1425,22 +1460,25 @@ ka._openLinkContext = function (pLink) {
     var opener = new Element('a', {
         text: _('Open new %s').replace('%s', "'" + pLink.title + "'"),
         'class': 'ka-linkcontext-opener'
-    }).addEvent('click', function () {
-        ka.wm.openWindow(pLink.module, pLink.code);
-        ka._lastLinkContextDiv.destroy();
-    }).inject(div);
+    }).addEvent('click',
+        function () {
+            ka.wm.openWindow(pLink.module, pLink.code);
+            ka._lastLinkContextDiv.destroy();
+        }).inject(div);
 
-    if (windows.length == 0)
+    if (windows.length == 0) {
         opener.addClass('ka-linkcontext-last');
+    }
 
     var lastItem = false;
     windows.each(function (window) {
         lastItem = new Element('a', {
             text: '#' + window.id + ' ' + window.getTitle()
-        }).addEvent('click', function () {
-            window.toFront();
-            ka._lastLinkContextDiv.destroy();
-        }).inject(div);
+        }).addEvent('click',
+            function () {
+                window.toFront();
+                ka._lastLinkContextDiv.destroy();
+            }).inject(div);
     });
 
     if (pLink.level == 'sub') {
@@ -1456,8 +1494,9 @@ ka._openLinkContext = function (pLink) {
         } else {
             corner.setStyle('top', '-7px');
         }
-        if (lastItem)
+        if (lastItem) {
             lastItem.addClass('ka-linkcontext-last');
+        }
     }
 
 }
@@ -1466,8 +1505,9 @@ ka.autoPositionLastOverlay = false;
 ka.autoPositionLastItem = false;
 
 ka.closeDialog = function () {
-    if (ka.autoPositionLastOverlay)
+    if (ka.autoPositionLastOverlay) {
         ka.autoPositionLastOverlay.destroy();
+    }
     delete ka.autoPositionLastOverlay;
 
     if (ka.autoPositionLastItem) {
@@ -1482,24 +1522,27 @@ ka.openDialog = function (item) {
     if (!item.element || !item.element.getParent) {
         return;
     }
-    if (ka.autoPositionLastItem == item.element)
+    if (ka.autoPositionLastItem == item.element) {
         return;
+    }
 
     ka.closeDialog();
 
     var target = document.body;
-    if (item.target && item.target.getWindow())
+    if (item.target && item.target.getWindow()) {
         target = item.target.getWindow().document.body;
+    }
 
     ka.autoPositionLastOverlay = new Element('div', {
         style: 'position: absolute; left:0px; top: 0px; right:0px; bottom:0px;background-color: white; z-index: 201000;',
         styles: {
             opacity: 0.001
         }
-    }).addEvent('click', function (e) {
-        ka.closeDialog();
-        e.stop();
-    }).inject(target);
+    }).addEvent('click',
+        function (e) {
+            ka.closeDialog();
+            e.stop();
+        }).inject(target);
     item.element.setStyle('z-index', 201001);
 
     var size = item.target.getWindow().getScrollSize();
@@ -1589,18 +1632,21 @@ ka.parse = new Class({
     parseLevel: function (pLevel, pContainer, pDependField) {
         Object.each(pLevel, function (field, id) {
 
-            if (this.options.allTableItems)
+            if (this.options.allTableItems) {
                 field.tableitem = 1;
+            }
 
             var targetId = '*[id=default]';
 
-            if (field.target)
+            if (field.target) {
                 targetId = '*[id=' + field.target + ']';
+            }
 
             var target = this.mainContainer.getElement(targetId);
 
-            if (!target)
+            if (!target) {
                 target = pContainer;
+            }
 
             try {
                 var obj = new ka.field(field, target, this.refs);
@@ -1644,25 +1690,32 @@ ka.parse = new Class({
                     Array.each(this.depends, function (sub) {
 
                         if (typeOf(sub.field.needValue) == 'array') {
-                            if (sub.field.needValue.contains(this.getValue()))
-                                sub.show(); else
+                            if (sub.field.needValue.contains(this.getValue())) {
+                                sub.show();
+                            } else {
                                 sub.hide();
+                            }
                         } else if (typeOf(sub.field.needValue) == 'function') {
-                            if (sub.field.needValue.attempt(this.getValue()))
-                                sub.show(); else
+                            if (sub.field.needValue.attempt(this.getValue())) {
+                                sub.show();
+                            } else {
                                 sub.hide();
+                            }
                         } else {
-                            if (sub.field.needValue == this.getValue())
-                                sub.show(); else
+                            if (sub.field.needValue == this.getValue()) {
+                                sub.show();
+                            } else {
                                 sub.hide();
+                            }
                         }
                     }.bind(this));
 
                     var hasVisibleChilds = false;
 
                     Array.each(this.depends, function (sub) {
-                        if (!sub.isHidden())
+                        if (!sub.isHidden()) {
                             hasVisibleChilds = true;
+                        }
                     });
 
                     if (hasVisibleChilds) {
@@ -1723,7 +1776,6 @@ ka.parse = new Class({
         } else {
             Object.each(this.fields, function (obj, id) {
                 if (id.indexOf('[') != -1) {
-                    //todo bug is here, doesnt work
                     var items = id.split('[');
                     var key = '';
                     var last = {};
@@ -1805,13 +1857,16 @@ ka.renderLayoutElements = function (pDom, pClassObj) {
     pDom.getWindow().$$('.kryn_layout_content, .kryn_layout_slot').each(function (item) {
 
         var options = {};
-        if (item.get('params'))
+        if (item.get('params')) {
             var options = JSON.decode(item.get('params'));
+        }
 
-        if (item.hasClass('kryn_layout_slot'))
-            layoutBoxes[ options.id ] = new ka.layoutBox(item, options, pClassObj); //options.name, this.win, options.css, options['default'], this, options );
-        else
+        if (item.hasClass('kryn_layout_slot')) {
+            layoutBoxes[ options.id ] = new ka.layoutBox(item, options, pClassObj);
+        } //options.name, this.win, options.css, options['default'], this, options );
+        else {
             layoutBoxes[ options.id ] = new ka.contentBox(item, options, pClassObj);
+        }
 
     });
 
@@ -1830,8 +1885,9 @@ initWysiwyg = function (pElement, pOptions) {
         actions: 'bold italic underline strikethrough | formatBlock justifyleft justifycenter justifyright justifyfull | insertunorderedlist insertorderedlist indent outdent | undo redo | tableadd | createlink unlink | image | toggleview'
     };
 
-    if (pOptions)
+    if (pOptions) {
         options = Object.append(options, pOptions);
+    }
 
     return new MooEditable(document.id(pElement), options);
 }

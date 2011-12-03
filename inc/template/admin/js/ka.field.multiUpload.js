@@ -38,9 +38,9 @@ ka.field_multiUpload = new Class({
 
         this.uploadBtnId = 'uploadBtn_' + Math.ceil(Math.random() * 100) + '_' + Math.ceil(Math.random() * 100);
         this.uploadBtn = new Element('div', {
-                'title': this.options.buttontitle,
-                'class': 'kwindow-win-buttonWrapper multiUpload-uploadBtnDiv',
-                'style': 'background : transparent url(' + _path + 'inc/template/admin/images/admin-files-uploadFile.png) center center no-repeat;cursor:pointer;' }).inject(this.parentField.main);
+            'title': this.options.buttontitle,
+            'class': 'kwindow-win-buttonWrapper multiUpload-uploadBtnDiv',
+            'style': 'background : transparent url(' + _path + 'inc/template/admin/images/admin-files-uploadFile.png) center center no-repeat;cursor:pointer;' }).inject(this.parentField.main);
 
         new Element('span', { 'id': this.uploadBtnId }).inject(this.uploadBtn);
         new Element('br', { 'style': 'clear:both;'}).inject(this.parentField.main);
@@ -145,8 +145,9 @@ ka.field_multiUpload = new Class({
         //check if the multiupload hast child input elments
         if (this.options.childs) {
             $H(this.options.childs).each(function (pChildVal, pChildKey) {
-                if (this.options.small)
+                if (this.options.small) {
                     pChildVal.small = true;
+                }
                 this.uploadedFiles['UFN' + this.uploadedFileNum].childFields[pChildKey] = new ka.field(pChildVal, pChildKey + '-' + this.uploadedFileNum).inject(fileContainer);
             }.bind(this));
         }
@@ -160,8 +161,9 @@ ka.field_multiUpload = new Class({
     removeUploadedFile: function (pStoreKey) {
 
         //tooltip
-        if (!this.uploadedFiles[pStoreKey].fileContainer.toolTip)
+        if (!this.uploadedFiles[pStoreKey].fileContainer.toolTip) {
             this.uploadedFiles[pStoreKey].fileContainer.toolTip = new ka.tooltip(this.uploadedFiles[pStoreKey].fileContainer, _('Delete ...'));
+        }
         this.uploadedFiles[pStoreKey].fileContainer.toolTip.setText(_('Delete ...'));
         this.uploadedFiles[pStoreKey].fileContainer.toolTip.show();
 
@@ -207,8 +209,9 @@ ka.field_multiUpload = new Class({
         var res = {};
         var counter = 0;
         $H(this.uploadedFiles).each(function (pFile) {
-            if (!res[counter])
+            if (!res[counter]) {
                 res[counter] = {};
+            }
 
             res[counter].name = pFile.name;
 

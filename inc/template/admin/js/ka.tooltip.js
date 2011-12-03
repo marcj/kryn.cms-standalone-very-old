@@ -6,8 +6,9 @@ ka.tooltip = new Class({
         this.target = pTarget;
         this.text = pText;
 
-        if (pDirection)
+        if (pDirection) {
             this.direction = pDirection;
+        }
 
         this.container = pContainer;
         this.start();
@@ -25,8 +26,9 @@ ka.tooltip = new Class({
             }
         }
 
-        if (this.container)
+        if (this.container) {
             tparent = this.container;
+        }
 
         this.container = tparent;
 
@@ -95,8 +97,9 @@ ka.tooltip = new Class({
     show: function () {
         if (this.destroyTimer) {
             $clear(this.destroyTimer);
-            if (this.main)
+            if (this.main) {
                 this.main.set('tween', {onComplete: $empty});
+            }
         }
         if (!this.main) this.start();
         this.main.tween('opacity', 1);

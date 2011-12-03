@@ -11,16 +11,19 @@ var admin_pages_addDialog = new Class({
     choosePlace: function (pTitle, pPos) {
         if (this.lastContext) this.lastContext.destroy();
 
-        if (this.lastChoosenTitle)
+        if (this.lastChoosenTitle) {
             this.lastChoosenTitle.removeClass('ka-pageTree-item-selected');
+        }
 
-        if (this.lastLine)
+        if (this.lastLine) {
             this.lastLine.destroy();
+        }
 
         var page = pTitle.retrieve('item');
         this.lastChoosenTitle = pTitle;
-        if (pPos == 'into')
-            this.lastChoosenTitle.addClass('ka-pageTree-item-selected'); else {
+        if (pPos == 'into') {
+            this.lastChoosenTitle.addClass('ka-pageTree-item-selected');
+        } else {
             this.lastLine = new Element('div', {
                 style: 'border-top: 1px solid gray; height: 1px;',
                 styles: {
@@ -33,8 +36,9 @@ var admin_pages_addDialog = new Class({
             } else {
                 var target = pTitle;
 
-                if (pTitle.getNext() && pTitle.getNext().hasClass('ka-pageTree-item-childs'))
+                if (pTitle.getNext() && pTitle.getNext().hasClass('ka-pageTree-item-childs')) {
                     target = pTitle.getNext();
+                }
 
                 this.lastLine.inject(target, 'after');
             }
@@ -47,13 +51,17 @@ var admin_pages_addDialog = new Class({
 
     renderChoosenPlace: function () {
         var pos = _('Below');
-        if (this.choosenPos == 'up')
+        if (this.choosenPos == 'up') {
             pos = _('Above');
-        if (this.choosenPos == 'into')
+        }
+        if (this.choosenPos == 'into') {
             pos = _('Into');
+        }
         var title = this.choosenPage.title;
         if (this.choosenPage.type == -1) // Domain
+        {
             title = this.choosenPage.domain;
+        }
         this.choosenPlaceDiv.set('html', _('Position') + ': <b>' + pos + ' <u>' + title + '</u></b>');
     },
 
@@ -105,8 +113,9 @@ var admin_pages_addDialog = new Class({
 
             }.bind(this));
 
-            if (count == 0)
+            if (count == 0) {
                 group.destroy();
+            }
 
         }.bind(this));
 
@@ -191,8 +200,9 @@ var admin_pages_addDialog = new Class({
                 this.win.setTitle(_('Add pages to %s').replace('%s', domainItem.domain));
                 var selected = this.pageTree.getSelected();
 
-                if (selected)
+                if (selected) {
                     this.choosePlace(selected, 'into');
+                }
 
             }.bind(this),
             selectDomain: selectDomain,
@@ -208,9 +218,10 @@ var admin_pages_addDialog = new Class({
 
                 this.lastContext = new Element('div', {
                     'class': 'pagesTree-context-move'
-                }).addEvent('mouseover', function (e) {
-                    e.stop();
-                }).inject(this.win.content);
+                }).addEvent('mouseover',
+                    function (e) {
+                        e.stop();
+                    }).inject(this.win.content);
 
                 var parent = pPage.parent;
                 if (parent) parent = parent.retrieve('item');
@@ -251,8 +262,9 @@ var admin_pages_addDialog = new Class({
                 var pos = pTitle.getPosition(this.win.content);
 
                 var mleft = pos.x;
-                if (pTitle.getStyle('padding-left'))
+                if (pTitle.getStyle('padding-left')) {
                     mleft = pos.x + pTitle.getStyle('padding-left').toInt();
+                }
 
                 this.lastContext.setStyles({
                     left: mleft,
@@ -303,8 +315,9 @@ var admin_pages_addDialog = new Class({
         req.visible = this.visible.getValue();
 
         new Request.JSON({url: _path + 'admin/pages/add', noCache: 1, async: false, onComplete: function () {
-            if (this.win.params.onComplete)
+            if (this.win.params.onComplete) {
                 this.win.params.onComplete(req.domain_rsn);
+            }
             this.win.close();
         }.bind(this)}).post(req);
 

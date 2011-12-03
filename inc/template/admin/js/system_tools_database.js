@@ -22,12 +22,14 @@ var admin_system_tools_database = new Class({
             style: 'width: 100%; height: 110px; color: gray;',
             'class': 'html',
             value: _('Type here your SQL ..')
-        }).addEvent('focus', function () {
-            if (this.value == _('Type here your SQL ..')) {
-                this.setStyle('color', '#444444');
-                this.value = '';
-            }
-        }).addEvent('blur', function () {
+        }).addEvent('focus',
+            function () {
+                if (this.value == _('Type here your SQL ..')) {
+                    this.setStyle('color', '#444444');
+                    this.value = '';
+                }
+            }).addEvent('blur',
+            function () {
                 if (this.value == '') {
                     this.setStyle('color', 'gray');
                     this.value = _('Type here your SQL ..');

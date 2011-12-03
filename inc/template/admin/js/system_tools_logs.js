@@ -5,8 +5,9 @@ var admin_system_tools_logs = new Class({
 
         this.win.addEvent('close', function () {
 
-            if (this.lastLiveLogTimer)
+            if (this.lastLiveLogTimer) {
                 clearTimeout(this.lastLiveLogTimer);
+            }
 
         }.bind(this));
 
@@ -138,11 +139,13 @@ var admin_system_tools_logs = new Class({
         this.logsCtrlPrevious.setStyle('opacity', 1);
         this.logsCtrlNext.setStyle('opacity', 1);
 
-        if (this.logsCurrentPage == 1)
+        if (this.logsCurrentPage == 1) {
             this.logsCtrlPrevious.setStyle('opacity', 0.3);
+        }
 
-        if (this.logsCurrentPage == this.logsMaxPages)
+        if (this.logsCurrentPage == this.logsMaxPages) {
             this.logsCtrlNext.setStyle('opacity', 0.3);
+        }
 
         this.logsCtrlText.set('text', this.logsCurrentPage);
 
@@ -168,8 +171,9 @@ var admin_system_tools_logs = new Class({
 
             this.logsTable.setValues(res.items);
 
-            if (pAgain == true && this.liveLog.checked)
+            if (pAgain == true && this.liveLog.checked) {
                 this.lastLiveLogTimer = this.reloadLogsItems.delay(1000, this, true);
+            }
 
         }.bind(this)}).post({page: pPage, area: this.logsAreaSelect.getValue()});
 

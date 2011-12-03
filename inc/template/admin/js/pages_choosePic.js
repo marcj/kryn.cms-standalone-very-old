@@ -13,8 +13,9 @@ var admin_pages_choosePic = new Class({
             type: 'button',
             value: 'Ok'
         }).addEvent('click', function () {
-            if (this.fb.pictures.path != '')
+            if (this.fb.pictures.path != '') {
                 this.choose(this.fb.pictures.path);
+            }
         }.bind(this));
     },
 

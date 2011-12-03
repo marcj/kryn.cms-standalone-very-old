@@ -26,8 +26,9 @@ ka.datePicker = new Class({
         var kwindow = this.input.getParent('.kwindow-border');
         if (kwindow) {
             kwindow.retrieve('win').addEvent('close', function () {
-                if (this.chooser)
+                if (this.chooser) {
                     this.chooser.destroy();
+                }
             }.bind(this));
         }
 
@@ -81,19 +82,22 @@ ka.datePicker = new Class({
             this._renderItem(tempDate.clone().increment('day', i), true);
         }
 
-        if (pRenderInput)
+        if (pRenderInput) {
             this.renderInput();
+        }
 
     },
 
     _renderItem: function (pDate, pGray) {
         var myclass = 'ka-datePicker-item';
 
-        if (pDate.format('db') == this.choosenDate.format('db'))
+        if (pDate.format('db') == this.choosenDate.format('db')) {
             myclass = ' ka-datePicker-item-selected';
+        }
 
-        if (pGray)
+        if (pGray) {
             myclass += ' ka-datePicker-item-gray';
+        }
 
         var td = new Element('td', {
             'class': myclass
@@ -115,9 +119,11 @@ ka.datePicker = new Class({
     },
 
     renderInput: function () {
-        if (this.noDate)
-            this.input.value = ''; else
+        if (this.noDate) {
+            this.input.value = '';
+        } else {
             this.input.set('value', this.choosenDate.format(this.options.format));
+        }
     },
 
     setDate: function (pDate) {
@@ -140,21 +146,26 @@ ka.datePicker = new Class({
         if (pTime != false && pTime) {
             this.choosenDate = new Date();
             this.choosenDate.setTime(pTime * 1000);
-        } else
+        } else {
             this.choosenDate = null;
+        }
         this.choose(this.choosenDate);
     },
 
     setTimes: function (e) {
-        if (this.timeHours.value > 24)
+        if (this.timeHours.value > 24) {
             this.timeHours.value = 24;
-        if (this.timeHours.value < 0)
+        }
+        if (this.timeHours.value < 0) {
             this.timeHours.value = 0;
+        }
 
-        if (this.timeMinutes.value > 59)
+        if (this.timeMinutes.value > 59) {
             this.timeMinutes.value = 59;
-        if (this.timeMinutes.value < 0)
+        }
+        if (this.timeMinutes.value < 0) {
             this.timeMinutes.value = 0;
+        }
 
         if (e.key.toInt() == 'NaN') e.stop(); //TODO
 
@@ -203,8 +214,9 @@ ka.datePicker = new Class({
 
     show: function (e) {
 
-        if (this.noDate)
+        if (this.noDate) {
             this.choosenDate = new Date();
+        }
 
         this.renderMonth();
 

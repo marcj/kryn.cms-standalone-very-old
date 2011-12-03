@@ -49,9 +49,10 @@ ka.fb = new Class({
 
     _newTabBar: function (pId, pLabel) {
         var _this = this;
-        this.buttons[ pId ] = new Element('div', { 'class': 'button', 'lang': pId, 'html': pLabel }).addEvent('click', function () {
-            _this.selectTab(this.lang);
-        }).inject(this.tabBar);
+        this.buttons[ pId ] = new Element('div', { 'class': 'button', 'lang': pId, 'html': pLabel }).addEvent('click',
+            function () {
+                _this.selectTab(this.lang);
+            }).inject(this.tabBar);
         this.panes[ pId ] = new Element('div', { 'class': 'pane ' + pId }).inject(this.tabPane);
         return this.panes[ pId ];
     },
@@ -62,8 +63,9 @@ ka.fb = new Class({
             button.setProperty('class', 'button');
         });
         this.tabPane.getElements('div').each(function (pane) {
-            if (pane.className.indexOf('pane') != -1)
+            if (pane.className.indexOf('pane') != -1) {
                 pane.setStyle('display', 'none');
+            }
         });
         this.buttons[ pId ].setProperty('class', 'button activeButton');
         this.panes[ pId ].setStyle('display', 'block');
@@ -71,8 +73,9 @@ ka.fb = new Class({
 
     getValue: function () {
         this.tabPaneObj = this.tabPaneObjs[this.currentTab];
-        if (this.tabPaneObj && this.tabPaneObj.getValue)
+        if (this.tabPaneObj && this.tabPaneObj.getValue) {
             return this.tabPaneObj.getValue();
+        }
         return false;
     }
 });
@@ -141,15 +144,16 @@ ka.fb_upload = new Class({
         this.uploadSubmit = new Element('a', {
             'class': 'button',
             text: 'Upload'
-        }).addEvent('click', function () {
-            if (_this.uploadInput.value == '') {
-                _this.form.highlight();
-                return false;
-            } else {
-                _this._status.set('html', 'Upload - bitte warten ... ');
-                _this.form.submit();
-            }
-        }).inject(this.pane);
+        }).addEvent('click',
+            function () {
+                if (_this.uploadInput.value == '') {
+                    _this.form.highlight();
+                    return false;
+                } else {
+                    _this._status.set('html', 'Upload - bitte warten ... ');
+                    _this.form.submit();
+                }
+            }).inject(this.pane);
 
     },
 
@@ -189,9 +193,10 @@ ka.fb_pictures = new Class({
             styles: {
                 cursor: 'pointer'
             }
-        }).addEvent('click', function () {
-            _this.pathUp()
-        }).inject(actionPane);
+        }).addEvent('click',
+            function () {
+                _this.pathUp()
+            }).inject(actionPane);
         this.lblPath = new Element('div').inject(actionPane);
         return actionPane;
     },
@@ -262,11 +267,13 @@ ka.fb_pictures = new Class({
                 e.stop();
                 $$('.fbPicsItem').setProperty('class', 'fbPicsItem');
                 this.setProperty('class', 'fbPicsItem fbPicsItemSelected');
-                if (validPic)
+                if (validPic) {
                     _this.value = _this.currentPath + pItem.name;
+                }
             }).addEvent('dblclick', function (e) {
-                if (validPic)
+                if (validPic) {
                     _this.options.handle(src);
+                }
             });
 
         if (pItem.isDir) {

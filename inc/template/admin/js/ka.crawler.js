@@ -18,8 +18,9 @@ ka.crawler = new Class({
 
     stop: function () {
 
-        if (this.lastRq)
+        if (this.lastRq) {
             this.lastRq.cancel();
+        }
         this.stopped = true;
     },
 
@@ -125,8 +126,9 @@ ka.crawler = new Class({
         }
 
         var startTimeout = 100;
-        if (ka.settings.user.autocrawler_minddelay)
+        if (ka.settings.user.autocrawler_minddelay) {
             startTimeout = ka.settings.user.autocrawler_minddelay;
+        }
 
         if (this.lastDiff > 100) {
             startTimeout += this.lastDiff;

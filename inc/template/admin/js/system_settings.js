@@ -226,8 +226,9 @@ var admin_system_settings = new Class({
             }.bind(this));
             var pane = this.auth_params_panes[ this.fields['auth_class'].getValue() ];
 
-            if (pane)
+            if (pane) {
                 pane.setStyle('display', 'block');
+            }
         }.bind(this));
 
         this.fields['auth_class'].fireEvent('check-depends');
@@ -299,8 +300,9 @@ var admin_system_settings = new Class({
     },
 
     load: function () {
-        if (this.lr)
+        if (this.lr) {
             this.lr.cancel();
+        }
 
         this.loader.show();
 
@@ -346,8 +348,9 @@ var admin_system_settings = new Class({
             if (!field.isOk()) {
                 dontGo = true;
                 var parent = field.main.getParent();
-                if (!parent.get('lang'))
+                if (!parent.get('lang')) {
                     parent = field.main.getParent().getParent();
+                }
 
                 this.changeType(parent.get('lang'));
             }
@@ -367,8 +370,9 @@ var admin_system_settings = new Class({
 
         this.loader.show();
 
-        if (this.ls)
+        if (this.ls) {
             this.ls.cancel();
+        }
 
         this.ls = new Request.JSON({url: _path + 'admin/system/settings/saveSettings', noCache: 1, onComplete: function (r) {
             if (r.needPw) {
@@ -383,10 +387,12 @@ var admin_system_settings = new Class({
     },
 
     saveCommunity: function (pPasswd) {
-        if (!pPasswd)
+        if (!pPasswd) {
             this.loader.hide();
-        if (this.lsc)
+        }
+        if (this.lsc) {
             this.lsc.cancel();
+        }
         this.lsc = new Request.JSON({url: _path + 'admin/system/settings/saveCommunity', noCache: 1, onComplete: function (r) {
             this.loader.hide();
             if (r == 2) {

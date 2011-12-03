@@ -11,8 +11,9 @@ ka.layoutBox = new Class({
         this.alloptions = pOptions;
         this.defaultTemplate = pOptions['default'];
 
-        if (pElement)
+        if (pElement) {
             pElement.empty();
+        }
 
         this.main = new Element('div', {
             'class': 'ka-layoutBox-main'
@@ -85,8 +86,9 @@ ka.layoutBox = new Class({
     },
 
     initSort: function () {
-        if (this.win.kwin && this.win.kwin.initContentLayoutSort)
+        if (this.win.kwin && this.win.kwin.initContentLayoutSort) {
             this.win.kwin.initContentLayoutSort();
+        }
     },
 
     copyAll: function () {
@@ -149,8 +151,9 @@ ka.layoutBox = new Class({
             if (content.isRemoved) return;
             content.deselectChilds();
             if (content.selected) selected++;
-            if (content != pWithoutContent)
+            if (content != pWithoutContent) {
                 content.deselect();
+            }
         });
         return selected;
     },

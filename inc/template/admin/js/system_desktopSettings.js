@@ -70,8 +70,9 @@ var admin_system_desktopSettings = new Class({
         }
         ka.settings.user['userBg'] = pFile;
         $(document.body).setStyle('background-image', 'url(' + _path + 'inc/template/' + ka.settings.user.userBg + ')');
-        if (pWithSet)
+        if (pWithSet) {
             this.fieldBg.setValue(ka.settings.user.userBg);
+        }
         ka.saveUserSettings();
     },
 

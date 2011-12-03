@@ -30,9 +30,10 @@ var admin_system_languages = new Class({
 
         this.languageSelect = new Element('select', {
             'style': 'margin-left: 7px;'
-        }).addEvent('mousedown', function (e) {
-            e.stopPropagation();
-        }).addEvent('change', function () {
+        }).addEvent('mousedown',
+            function (e) {
+                e.stopPropagation();
+            }).addEvent('change', function () {
             this.loadLanguage();
         }.bind(this)).inject(this.win.titleGroups);
 
@@ -72,8 +73,9 @@ var admin_system_languages = new Class({
                 if (rtl) {
                     value = [value, 1];
                 }
-                if (value != '')
+                if (value != '') {
                     mods[ modDiv.lang ][ tr.getElements('td')[0].get('text') ] = value;
+                }
             });
         });
 
@@ -119,19 +121,21 @@ var admin_system_languages = new Class({
                 src: _path + 'inc/template/admin/images/icons/tree_plus.png',
                 style: 'position: relative; top: 1px; margin-right: 3px;',
                 lang: 0
-            }).addEvent('click', function (e) {
-                if (this.lang == 0) {
-                    this.src = _path + 'inc/template/admin/images/icons/tree_minus.png';
-                    this.lang = 1;
-                } else {
-                    this.src = _path + 'inc/template/admin/images/icons/tree_plus.png';
-                    this.lang = 0;
-                }
-                langDiv.setStyle('display', (this.lang == 0) ? 'none' : 'block');
-                if (e)
-                    e.stop();
+            }).addEvent('click',
+                function (e) {
+                    if (this.lang == 0) {
+                        this.src = _path + 'inc/template/admin/images/icons/tree_minus.png';
+                        this.lang = 1;
+                    } else {
+                        this.src = _path + 'inc/template/admin/images/icons/tree_plus.png';
+                        this.lang = 0;
+                    }
+                    langDiv.setStyle('display', (this.lang == 0) ? 'none' : 'block');
+                    if (e) {
+                        e.stop();
+                    }
 
-            }).inject(h3, 'top');
+                }).inject(h3, 'top');
 
             h3.addEvent('click', function (e) {
                 img.fireEvent('click');

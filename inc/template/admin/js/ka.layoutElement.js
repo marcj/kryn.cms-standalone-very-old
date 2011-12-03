@@ -11,9 +11,11 @@ ka.layoutElement = new Class({
         this.layout = this.container;
         this.win = pWin;
 
-        if (pInitialTemplate)
-            this.loadTemplate(pInitialTemplate); else
+        if (pInitialTemplate) {
+            this.loadTemplate(pInitialTemplate);
+        } else {
             this.fetchSlots();
+        }
 
     },
 
@@ -31,8 +33,9 @@ ka.layoutElement = new Class({
             }
         }.bind(this));
 
-        if (Object.getLength(res) == 0)
+        if (Object.getLength(res) == 0) {
             return;
+        }
 
         return res;
     },
@@ -42,8 +45,9 @@ ka.layoutElement = new Class({
         this.setThisValue = pVal;
         this.getThisValue = pVal;
 
-        if (this.loadingDone)
+        if (this.loadingDone) {
             this._setValue();
+        }
     },
 
     _setValue: function () {
@@ -121,13 +125,16 @@ ka.layoutElement = new Class({
         pDom.getElements('.kryn_layout_content, .kryn_layout_slot').each(function (item) {
 
             var options = {};
-            if (item.get('params'))
+            if (item.get('params')) {
                 var options = JSON.decode(item.get('params'));
+            }
 
-            if (item.hasClass('kryn_layout_slot'))
-                layoutBoxes[ options.id ] = new ka.layoutBox(item, options, this); //options.name, this.win, options.css, options['default'], this, options );
-            else
+            if (item.hasClass('kryn_layout_slot')) {
+                layoutBoxes[ options.id ] = new ka.layoutBox(item, options, this);
+            } //options.name, this.win, options.css, options['default'], this, options );
+            else {
                 layoutBoxes[ options.id ] = new ka.contentBox(item, options, this);
+            }
 
         }.bind(this));
 

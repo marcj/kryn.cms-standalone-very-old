@@ -18,19 +18,23 @@ ka.layoutContent = new Class({
             this.content.content = '<img src="' + options[1] + '" ';
             var properties = typeOf(options[0]) == 'string' ? JSON.decode(options[0]) : {};
 
-            if (properties.alt)
+            if (properties.alt) {
                 this.content.content += ' alt="' + properties.alt + '" ';
-            if (properties.title)
+            }
+            if (properties.title) {
                 this.content.content += ' title="' + properties.title + '" ';
+            }
 
             this.content.content += ' />';
 
 
-            if (properties.link)
+            if (properties.link) {
                 this.content.content = '<a href="' + properties.link + '">' + this.content.content + '</a>';
+            }
 
-            if (properties.align)
+            if (properties.align) {
                 this.content.content = '<div style="text-align: ' + properties.align + '">' + this.content.content + '</div>';
+            }
 
             this.content.type = 'text';
         }
@@ -60,8 +64,9 @@ ka.layoutContent = new Class({
 
         window.document.body.addEvent('deselect-content-elements', this.deselect.bind(this));
 
-        if (this.win)
+        if (this.win) {
             this.win.border.addEvent('deselect-content-elements', this.deselect.bind(this));
+        }
     },
 
     renderToolbar: function () {
@@ -74,10 +79,12 @@ ka.layoutContent = new Class({
 
         this.toolbar = new Element('div', {
             'class': ' ka-normalize ka-layoutContent-toolbar SilkTheme'
-        }).addEvent('mousedown', function (e) {
-            if (e.target && ( e.target.get('tag') != 'input' && e.target.get('tag') != 'select'))
-                e.preventDefault();
-        }).addEvent('click',
+        }).addEvent('mousedown',
+            function (e) {
+                if (e.target && ( e.target.get('tag') != 'input' && e.target.get('tag') != 'select')) {
+                    e.preventDefault();
+                }
+            }).addEvent('click',
             function (e) {
                 e.stopPropagation();
             }).inject(target)
@@ -111,7 +118,8 @@ ka.layoutContent = new Class({
                 this.iTitle.store('empty', false);
             }
             this.iTitleSetBlankText();
-        }.bind(this)).addEvent('focus', function () {
+        }.bind(this)).addEvent('focus',
+            function () {
                 if (this.retrieve('empty') == true) {
                     this.value = '';
                     this.setStyle('color', '');
@@ -167,8 +175,9 @@ ka.layoutContent = new Class({
 
         this.content.title = this.iTitle.value;
 
-        if (this.templateRefreshTimeout)
+        if (this.templateRefreshTimeout) {
             clearTimeout(this.templateRefreshTimeout);
+        }
 
         this.templateRefreshTimeout = this.setDivContent.delay(200, this);
 
@@ -216,8 +225,9 @@ ka.layoutContent = new Class({
         this.accessFields = new ka.parse(dialog, fields);
 
         var groups = this.content.access_from_groups;
-        if (typeOf(groups) == 'string')
+        if (typeOf(groups) == 'string') {
             groups = groups.split(',');
+        }
 
         this.accessFields.setValue({
             unsearchable: this.content.unsearchable,
@@ -331,8 +341,9 @@ ka.layoutContent = new Class({
 
             window.document.body.fireEvent('deselect-content-elements');
 
-            if (this.win)
+            if (this.win) {
                 this.win.border.fireEvent('deselect-content-elements');
+            }
 
             this.select();
             e.stopPropagation();
@@ -441,9 +452,10 @@ ka.layoutContent = new Class({
                 'class': 'ka-layoutContent-mover',
                 style: 'cursor: move',
                 title: _('Drag and drop')
-            }).addEvent('click', function (e) {
-                if (e) e.stop();
-            }).inject(this.optionsImg);
+            }).addEvent('click',
+                function (e) {
+                    if (e) e.stop();
+                }).inject(this.optionsImg);
 
 
             if (!this.noAccess) {
@@ -482,16 +494,18 @@ ka.layoutContent = new Class({
     toUp: function (e) {
         if (e) e.stop();
         var previous = this.main.getPrevious();
-        if (previous)
+        if (previous) {
             this.main.inject(previous, 'before');
+        }
         this.positionToolbar();
     },
 
     toDown: function (e) {
         if (e) e.stop();
         var next = this.main.getNext();
-        if (next)
+        if (next) {
             this.main.inject(next, 'after');
+        }
         this.positionToolbar();
     },
 
@@ -572,8 +586,9 @@ ka.layoutContent = new Class({
                 break;
 
             case 'text':
-                if (this.mooeditable)
+                if (this.mooeditable) {
                     this.mooeditable.saveContent();
+                }
             case 'picture':
             case 'html':
             case 'php':
@@ -597,8 +612,9 @@ ka.layoutContent = new Class({
         var res = 'not-found';
         $H(ka.settings.contents).each(function (la, key) {
             $H(la).each(function (layoutFile, layoutTitle) {
-                if (pFile == layoutFile)
+                if (pFile == layoutFile) {
                     res = layoutTitle;
+                }
             });
         });
         return res;
@@ -685,8 +701,9 @@ ka.layoutContent = new Class({
         }
 
         var contents = false;
-        if (content)
+        if (content) {
             contents = content.contents;
+        }
 
         this.body.set('html', _('Loading ...'));
 
@@ -728,8 +745,9 @@ ka.layoutContent = new Class({
             this.dummy.set('text', this.textarea.value);
             var height = this.dummy.getSize().y;
 
-            if (height > 25)
+            if (height > 25) {
                 this.textarea.setStyle('height', height + 35);
+            }
 
         }.bind(this);
 
@@ -748,10 +766,12 @@ ka.layoutContent = new Class({
 
 
         try {
-            if ($type(_this.content.content) == 'string')
+            if ($type(_this.content.content) == 'string') {
                 _this.content.content = JSON.decode(_this.content.content);
-            if ($type(_this.content.content) != 'object')
+            }
+            if ($type(_this.content.content) != 'object') {
                 _this.content.content = {};
+            }
         } catch (e) {
             _this.content.content = {};
         }
@@ -785,8 +805,9 @@ ka.layoutContent = new Class({
 
         var field = new ka.field({label: _('Entry point'), type: 'page', empty: false, small: 1, onlyIntern: true}).inject(this.body);
 
-        if (this.content.content.entryPoint)
+        if (this.content.content.entryPoint) {
             field.setValue(this.content.content.entryPoint);
+        }
 
         field.addEvent('change', function (pValue) {
             this.content.content.entryPoint = pValue;
@@ -855,8 +876,9 @@ ka.layoutContent = new Class({
         var small = 0;
         var width = this.body.getSize().x;
 
-        if (width < 200)
+        if (width < 200) {
             small = 1;
+        }
 
         this.templateFileField = new ka.field({
             label: _('Template file'), type: 'file', small: small
@@ -906,8 +928,9 @@ ka.layoutContent = new Class({
     openInBigEditor: function () {
         var tiny = this.w.tinyMCE.get(this.lastId);
 
-        if (tiny)
+        if (tiny) {
             this.content.content = tiny.getContent();
+        }
 
         ka.wm.openWindow('admin', 'pages/bigEditor', null, this.w.win.id, {content: this.content.content, onSave: function (pContent) {
             this.content.content = pContent;
@@ -932,8 +955,9 @@ ka.layoutContent = new Class({
 
         if (this.body && this.lastContent && this.lastContent.template == this.content.template && this.lastContent.type == this.content.type && this.lastContent.title == this.content.title) return this._setDivContent();
 
-        if (this.lastCR)
+        if (this.lastCR) {
             this.lastCR.cancel();
+        }
 
         if (this.content.template == '-' || this.content.template == '') {
 
@@ -941,8 +965,9 @@ ka.layoutContent = new Class({
             this.div.empty();
             this.body.inject(this.div);
 
-            if (pRenderBody)
+            if (pRenderBody) {
                 this._setDivContent();
+            }
 
             this.lastContent = Object.clone(this.content);
 
@@ -957,12 +982,15 @@ ka.layoutContent = new Class({
             this.nbody = this.div.getElement('.ka-layoutelement-content-content');
             this.title = this.div.getElement('.ka-layoutelement-content-title');
 
-            if (this.nbody)
-                this.body.replaces(this.nbody); else
+            if (this.nbody) {
+                this.body.replaces(this.nbody);
+            } else {
                 this.body.inject(this.div);
+            }
 
-            if (!this.body.hasClass('ka-layoutelement-content-content'))
+            if (!this.body.hasClass('ka-layoutelement-content-content')) {
                 this.body.addClass('ka-layoutelement-content-content');
+            }
 
             if (this.title) {
                 this.title.addEvent('click', function () {
@@ -972,8 +1000,9 @@ ka.layoutContent = new Class({
                 }.bind(this));
             }
 
-            if (pRenderBody)
+            if (pRenderBody) {
                 this._setDivContent();
+            }
 
             this.lastContent = Object.clone(this.content);
 
@@ -1000,11 +1029,13 @@ ka.layoutContent = new Class({
             this.toolbar.addClass('ka-layoutContent-toolbar-withwysiwyg');
         }
 
-        if (this.title)
+        if (this.title) {
             this.title.set('html', this.content.title);
+        }
 
-        if (this.content.type != 'text' && this.content.type != 'picture')
+        if (this.content.type != 'text' && this.content.type != 'picture') {
             this.lastTextarea = false;
+        }
 
         if ((this.content.type != 'text' && this.content.type != 'picture' ) && this.mooeditable) {
             this.mooeditable.detach();
@@ -1077,8 +1108,9 @@ ka.layoutContent = new Class({
     },
 
     setDivPic: function () {
-        if (!this.picDivContentImg)
+        if (!this.picDivContentImg) {
             this.body.empty();
+        }
 
         this.type2PicSrc = '';
 
@@ -1086,8 +1118,9 @@ ka.layoutContent = new Class({
             var t = this.content.content.split('::');
             this.type2PicSrc = t[1];
             var temp = t[0];
-            if (temp != 'none')
+            if (temp != 'none') {
                 this.opts = JSON.decode(temp);
+            }
         }
 
         if (this.type2PicSrc == '' && $type(this.type2PicSrc) != 'string') return;
@@ -1113,8 +1146,9 @@ ka.layoutContent = new Class({
             this.picDivContentDiv.setStyle('text-align', this.opts.align);
         }
 
-        if ($type(this.type2PicSrc) == 'string')
+        if ($type(this.type2PicSrc) == 'string') {
             this.picDivContentImg.set('src', this.type2PicSrc);
+        }
 
         if (this.opts) {
             if (this.opts.width && this.opts.height) {
@@ -1128,8 +1162,9 @@ ka.layoutContent = new Class({
     setDivPlugin: function (pContainer) {
         var mybody = (pContainer) ? pContainer : this.body;
 
-        if (this.bodyPluginRequest)
+        if (this.bodyPluginRequest) {
             this.bodyPluginRequest.cancel();
+        }
 
         var t = this.content.content.split('::');
         var info = this.content.content;
@@ -1147,12 +1182,14 @@ ka.layoutContent = new Class({
 
         if (ka.settings.configs[extension]) {
             title = ka.settings.configs[extension].title['en'];
-            if (ka.settings.configs[extension].title[window._session.lang])
+            if (ka.settings.configs[extension].title[window._session.lang]) {
                 title = ka.settings.configs[extension].title[window._session.lang];
+            }
         }
 
-        if (ka.settings.configs[extension])
+        if (ka.settings.configs[extension]) {
             pluginTitle = _(ka.settings.configs[extension].plugins[plugin][0]);
+        }
 
         mybody.empty();
         new Element('div', {
@@ -1166,7 +1203,8 @@ ka.layoutContent = new Class({
 
         new ka.Button(_('Edit properties')).addEvent('click', function () {
             this.type2Plugin();
-        }.bind(this)).addEvent('click', function (e) {
+        }.bind(this)).addEvent('click',
+            function (e) {
                 e.stopPropagation();
             }).inject(mybody);
 
@@ -1185,12 +1223,14 @@ ka.layoutContent = new Class({
 
     setDivNavigation: function (pContainer) {
         var mybody = (pContainer) ? pContainer : this.body;
-        if (this.bodyNavigationRequest)
+        if (this.bodyNavigationRequest) {
             this.bodyNavigationRequest.cancel();
+        }
 
         try {
-            if ($type(this.content.content) != 'object')
+            if ($type(this.content.content) != 'object') {
                 this.content.content = JSON.decode(this.content.content);
+            }
         } catch (e) {
         }
         if ($type(this.content.content) != 'object') return;
@@ -1212,8 +1252,9 @@ ka.layoutContent = new Class({
 
     setDivPointer: function (pContainer) {
         var mybody = (pContainer) ? pContainer : this.body;
-        if (this.bodyPointerRequest)
+        if (this.bodyPointerRequest) {
             this.bodyPointerRequest.cancel();
+        }
 
         this.bodyPointerRequest = new Request.JSON({url: _path + 'admin/backend/pointerPreview/', noCache: 1, onComplete: function (html) {
             this.body.empty();
@@ -1242,8 +1283,9 @@ ka.layoutContent = new Class({
 
     deselectChilds: function () {
 
-        if (this.layoutElement)
+        if (this.layoutElement) {
             this.layoutElement.deselectAll();
+        }
 
     },
 
@@ -1274,8 +1316,9 @@ ka.layoutContent = new Class({
 
         switch (this.content.type) {
             case 'navigation':
-                if ($type(this.content.content) == 'object')
+                if ($type(this.content.content) == 'object') {
                     this.content.content = JSON.encode(this.content.content);
+                }
                 break;
         }
     },

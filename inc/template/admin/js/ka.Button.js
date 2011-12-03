@@ -8,13 +8,15 @@ ka.Button = new Class({
             title: (pTooltip) ? pTooltip : null
         });
 
-        if (typeOf(pTitle) == 'element' && pTitle.inject)
+        if (typeOf(pTitle) == 'element' && pTitle.inject) {
             pTitle.inject(this.main);
+        }
 
         new Element('span').inject(this.main);
 
-        if (pOnClick)
+        if (pOnClick) {
             this.main.addEvent('click', pOnClick);
+        }
     },
 
     setText: function (pText) {
@@ -70,8 +72,9 @@ ka.Button = new Class({
     },
 
     startTip: function (pText) {
-        if (!this.toolTip)
+        if (!this.toolTip) {
             this.toolTip = new ka.tooltip(this.main, pText);
+        }
 
         this.toolTip.setText(pText);
         this.toolTip.show();

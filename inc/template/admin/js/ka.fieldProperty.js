@@ -87,9 +87,11 @@ ka.fieldProperty = new Class({
     mkInput: function (pKey, pTitle, pType) {
 
         var input;
-        if (!this.propertyTrClass || (this.propertyTrClass && this.propertyTrClass == 'two'))
-            this.propertyTrClass = 'one'; else
+        if (!this.propertyTrClass || (this.propertyTrClass && this.propertyTrClass == 'two')) {
+            this.propertyTrClass = 'one';
+        } else {
             this.propertyTrClass = 'two';
+        }
 
         var tr = new Element('tr', {'class': this.propertyTrClass}).inject(this.additionalOpts);
 

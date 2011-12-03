@@ -17,8 +17,9 @@ ka.Table = new Class({
 
         this.main.addClass('selectable');
 
-        if (pColumns && $type(pColumns) == 'array')
+        if (pColumns && $type(pColumns) == 'array') {
             this.setColumns(pColumns);
+        }
 
     },
 
@@ -51,18 +52,21 @@ ka.Table = new Class({
 
         if (!pActivate && this.loadingOverlay) {
 
-            if (this.tableBody)
+            if (this.tableBody) {
                 this.tableBody.setStyle('opacity', 1);
+            }
 
             this.loadingOverlay.destroy();
 
         } else if (pActivate) {
 
-            if (this.tableBody)
+            if (this.tableBody) {
                 this.tableBody.setStyle('opacity', 0.5);
+            }
 
-            if (this.loadingOverlay)
+            if (this.loadingOverlay) {
                 this.loadingOverlay.destroy();
+            }
 
             this.loadingOverlay = new Element('div', {
                 style: 'position: absolute; left: 0px; top: 21px; right: 0px; bottom: 0px; text-align: center;'
@@ -87,8 +91,9 @@ ka.Table = new Class({
     setColumns: function (pColumns) {
         this.columns = pColumns;
 
-        if (!pColumns && $type(pColumns) != 'array')
+        if (!pColumns && $type(pColumns) != 'array') {
             return;
+        }
 
         if (this.head) this.head.destroy();
 
@@ -137,12 +142,15 @@ ka.Table = new Class({
 
     addRow: function (pValues, pIndex) {
 
-        if (!pIndex)
+        if (!pIndex) {
             pIndex = this.tableBody.getElements('tr').length + 1;
+        }
 
-        if (!this.classTr || this.classTr == 'two')
-            this.classTr = 'one'; else
+        if (!this.classTr || this.classTr == 'two') {
+            this.classTr = 'one';
+        } else {
             this.classTr = 'two';
+        }
 
         var row = pValues;
 
@@ -155,11 +163,13 @@ ka.Table = new Class({
         this.columns.each(function (column, index) {
 
             var html = "";
-            if (($type(row[count]) == 'string' || $type(row[count]) == 'number') && !row[count].inject)
+            if (($type(row[count]) == 'string' || $type(row[count]) == 'number') && !row[count].inject) {
                 html = row[count];
+            }
 
-            if (index > 0)
+            if (index > 0) {
                 width = index;
+            }
 
 
             var td = new Element('td', {
@@ -168,17 +178,20 @@ ka.Table = new Class({
 
             //TODO, make default 'text'
             if (this.safe) {
-                if (column[2] == 'html')
-                    td.set('html', html); else
+                if (column[2] == 'html') {
+                    td.set('html', html);
+                } else {
                     td.set('text', html);
+                }
             } else {
                 td.set('html', html);
             }
 
             td.store('rowIndex', pIndex);
 
-            if (row[count] && row[count].inject)
+            if (row[count] && row[count].inject) {
                 row[count].inject(td);
+            }
 
             count++;
 

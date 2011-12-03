@@ -64,9 +64,11 @@ var admin_system_module = new Class({
         this.win = pWin;
         this._createInstallLayout();
 
-        if (this.win.params && this.win.params.updates == 1)
-            this.changeType('installed'); else
+        if (this.win.params && this.win.params.updates == 1) {
+            this.changeType('installed');
+        } else {
             this.changeType('install');
+        }
     },
 
     changeType: function (pType) {
@@ -93,8 +95,9 @@ var admin_system_module = new Class({
 
     loadInstalled: function () {
         this.loader.show();
-        if (this.llir)
+        if (this.llir) {
             this.llir.cancel();
+        }
 
         var p = this.panes['installed'];
 
@@ -108,8 +111,9 @@ var admin_system_module = new Class({
                 if (item.noConfig) {
                     title = "config not found: " + key;
                 }
-                if (item.title)
+                if (item.title) {
                     title = item['title'][lang] ? item['title'][lang] : item['title']['en'];
+                }
 
                 var icon = (item.activated == 1) ? 'accept' : 'delete';
 
@@ -166,8 +170,9 @@ var admin_system_module = new Class({
 
 
     loadLocal: function () {
-        if (this.lc)
+        if (this.lc) {
             this.lc.cancel();
+        }
         this.loader.show();
 
         this.lc = new Request.JSON({url: _path + 'admin/system/module/loadLocal', noCache: 1, onComplete: function (res) {
@@ -244,15 +249,17 @@ var admin_system_module = new Class({
 
             var item = mod;
             var table = 'my';
-            if (mod.owner == '' || !mod.owner || mod.owner != ka.settings.system.communityId)
+            if (mod.owner == '' || !mod.owner || mod.owner != ka.settings.system.communityId) {
                 table = 'local';
+            }
 
             var title = "config parse error: " + key;
             if (item.noConfig) {
                 title = "config not found: " + key;
             }
-            if (item.title)
+            if (item.title) {
                 title = item['title'][lang] ? item['title'][lang] : item['title']['en'];
+            }
 
             var icon = (item.activated == 1) ? 'accept' : 'delete';
             var _title = '';
@@ -287,13 +294,15 @@ var admin_system_module = new Class({
                 ka.wm.open('admin/system/module/edit', {name: key});
             }.bind(this)).inject(actions)
 
-            new ka.Button(_('DB-Update')).addEvent('click', function () {
-                ka.wm.open('admin/system/module/dbInit', {name: key});
-            }).inject(actions)
+            new ka.Button(_('DB-Update')).addEvent('click',
+                function () {
+                    ka.wm.open('admin/system/module/dbInit', {name: key});
+                }).inject(actions)
 
-            new ka.Button(_('Share')).addEvent('click', function () {
-                ka.wm.open('admin/system/module/publish', {name: key});
-            }).inject(actions)
+            new ka.Button(_('Share')).addEvent('click',
+                function () {
+                    ka.wm.open('admin/system/module/publish', {name: key});
+                }).inject(actions)
 
             var value = [title + ' <span style="color: gray;">(' + key + ')</span>', '<img title="' + _title + '" src="' + _path + 'inc/template/admin/images/icons/' + icon + '.png" />', item.version, (!item.owner || item.owner == "") ? _('Local') : item.serverVersion, bActions, actions];
 
@@ -407,8 +416,9 @@ var admin_system_module = new Class({
 
     viewPath: function (pPath) {
         this.mainPane.empty();
-        if ($type(pPath) == false)
+        if ($type(pPath) == false) {
             pPath = '';
+        }
 
         this.currentPath = pPath;
 
@@ -525,9 +535,10 @@ var admin_system_module = new Class({
         var line = new Element('div', {
         }).inject(box);
 
-        new ka.Button(_('Details')).addEvent('click', function () {
-            ka.wm.open('admin/system/module/view', {name: pItem.code, type: 1});
-        }).inject(line);
+        new ka.Button(_('Details')).addEvent('click',
+            function () {
+                ka.wm.open('admin/system/module/view', {name: pItem.code, type: 1});
+            }).inject(line);
 
 
         new ka.Button(_('To website')).set('href', 'http://www.kryn.org/extensions/' + pItem.name).set('target', '_blank').inject(line);
@@ -553,14 +564,17 @@ var admin_system_module = new Class({
                 html: '<center><img src="' + _path + 'inc/template/admin/images/loading.gif" /></center>'
             }).inject(box);
 
-            if (this.oldGetbox)
+            if (this.oldGetbox) {
                 this.oldGetbox.cancel();
+            }
 
             this.oldGetbox = new Request.JSON({url: _path + 'admin/system/module/managerGetBox/', noCache: 1, onComplete: function (res) {
                 if (res) {
-                    if (opts.render)
-                        opts.render(res, content, title); else
+                    if (opts.render) {
+                        opts.render(res, content, title);
+                    } else {
                         content.set('html', res.html);
+                    }
                 }
             }.bind(this)}).post({code: opts.code});
 
@@ -624,9 +638,10 @@ var admin_system_module = new Class({
                 src: item.preview
             }).inject(imgDiv);
 
-            new ka.Button(_('Install')).addEvent('click', function () {
-                ka.wm.open('admin/system/module/view', {name: item.code, type: 1});
-            }).inject(div);
+            new ka.Button(_('Install')).addEvent('click',
+                function () {
+                    ka.wm.open('admin/system/module/view', {name: item.code, type: 1});
+                }).inject(div);
 
         }.bind(this));
     },
@@ -649,9 +664,11 @@ var admin_system_module = new Class({
          });
          }*/
 
-        if (this.categoryLines <= 9)
-            a.inject(this.categoryPaneLeft); else
+        if (this.categoryLines <= 9) {
+            a.inject(this.categoryPaneLeft);
+        } else {
             a.inject(this.categoryPaneRight);
+        }
     }
 
 });

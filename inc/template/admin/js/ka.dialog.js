@@ -17,8 +17,9 @@ ka.dialog = new Class({
         this.dialog = new Element('div', {
             'class': 'dialog'
         });
-        if (pStyles)
+        if (pStyles) {
             this.dialog.setStyles(pStyles);
+        }
         this.dialog.setStyle('z-index', ka._dialog.zIndex);
         ka._dialog.zIndex++;
         this.title = new Element('h1', { html: pTitle }).inject(this.dialog);

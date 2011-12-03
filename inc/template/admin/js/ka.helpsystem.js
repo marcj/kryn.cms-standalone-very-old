@@ -27,8 +27,9 @@ ka.helpsystem = new Class({
 
             curHeight += box.getSize().y;
 
-            if (curHeight > maxHeight)
+            if (curHeight > maxHeight) {
                 box.destroy();
+            }
 
             //});
         }
@@ -66,8 +67,9 @@ ka.helpsystem = new Class({
             box.tween('opacity', 0);
         })
 
-        if (delay > 0)
+        if (delay > 0) {
             die.delay(delay);
+        }
 
         new Element('a', {
             text: 'x',

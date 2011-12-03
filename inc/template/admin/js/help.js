@@ -6,8 +6,9 @@ var admin_help = new Class({
         this._createLayout();
         this.loadTree();
 
-        if (this.win.params && this.win.params.id)
+        if (this.win.params && this.win.params.id) {
             this.loadHelp(this.win.params.id);
+        }
     },
 
     _createLayout: function () {
@@ -55,19 +56,21 @@ var admin_help = new Class({
                 src: _path + 'inc/template/admin/images/icons/tree_plus.png',
                 style: 'position: relative; top: 1px; margin-right: 3px;',
                 lang: 0
-            }).addEvent('click', function (e) {
-                if (this.lang == 0) {
-                    this.src = _path + 'inc/template/admin/images/icons/tree_minus.png';
-                    this.lang = 1;
-                } else {
-                    this.src = _path + 'inc/template/admin/images/icons/tree_plus.png';
-                    this.lang = 0;
-                }
-                container.setStyle('display', (this.lang == 0) ? 'none' : 'block');
-                if (e)
-                    e.stop();
+            }).addEvent('click',
+                function (e) {
+                    if (this.lang == 0) {
+                        this.src = _path + 'inc/template/admin/images/icons/tree_minus.png';
+                        this.lang = 1;
+                    } else {
+                        this.src = _path + 'inc/template/admin/images/icons/tree_plus.png';
+                        this.lang = 0;
+                    }
+                    container.setStyle('display', (this.lang == 0) ? 'none' : 'block');
+                    if (e) {
+                        e.stop();
+                    }
 
-            }).fireEvent('click').inject(h3, 'top');
+                }).fireEvent('click').inject(h3, 'top');
 
             faqs.each(function (faq) {
 

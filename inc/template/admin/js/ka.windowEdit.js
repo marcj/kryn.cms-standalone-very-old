@@ -26,17 +26,21 @@ ka.windowEdit = new Class({
             this.topTabGroup.destroy();
         }
 
-        if (this.actionsNavi)
+        if (this.actionsNavi) {
             this.actionsNavi.destroy();
+        }
 
-        if (this.actionsNaviDel)
+        if (this.actionsNaviDel) {
             this.actionsNaviDel.destroy();
+        }
 
-        if (this.versioningSelect)
+        if (this.versioningSelect) {
             this.versioningSelect.destroy();
+        }
 
-        if (this.languageSelect)
+        if (this.languageSelect) {
             this.languageSelect.destroy();
+        }
 
         this.versioningSelect = null;
         this.languageSelect = null;
@@ -55,8 +59,9 @@ ka.windowEdit = new Class({
     generateItemParams: function (pVersion) {
         var req = {};
 
-        if (pVersion)
+        if (pVersion) {
             req.version = pVersion;
+        }
 
         if (this.win.params) {
             this.values.primary.each(function (prim) {
@@ -70,8 +75,9 @@ ka.windowEdit = new Class({
         var _this = this;
         var req = this.generateItemParams(pVersion);
 
-        if (this.lastRq)
+        if (this.lastRq) {
             this.lastRq.cancel();
+        }
 
         this.loader.show();
         this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItem',
@@ -179,8 +185,9 @@ ka.windowEdit = new Class({
             }).inject(this.previewBox);
 
             var index = pluginId;
-            if (pluginId.indexOf('/') === -1)
+            if (pluginId.indexOf('/') === -1) {
                 index = this.win.module + '/' + pluginId;
+            }
 
             Object.each(this.values.previewPluginPages[index], function (pages, domain_rsn) {
 
@@ -236,8 +243,9 @@ ka.windowEdit = new Class({
 
     togglePreviewBox: function (e) {
 
-        if (this.previewBoxOpened == true)
-            this.closePreviewBox(); else {
+        if (this.previewBoxOpened == true) {
+            this.closePreviewBox();
+        } else {
             if (e && e.stop) {
                 document.body.fireEvent('click');
                 e.stop();
@@ -261,8 +269,9 @@ ka.windowEdit = new Class({
 
         var bsize = window.getSize($('desktop'));
 
-        if (size.y + pos.y > bsize.y)
+        if (size.y + pos.y > bsize.y) {
             this.previewBox.setStyle('height', bsize.y - pos.y - 10);
+        }
 
         this.previewBoxOpened = true;
     },
@@ -362,8 +371,9 @@ ka.windowEdit = new Class({
                     style: 'display: none;'
                 }).inject(this.container);
 
-                if (this.values.tabLayouts && this.values.tabLayouts[title])
+                if (this.values.tabLayouts && this.values.tabLayouts[title]) {
                     this._panes[title].set('html', this.values.tabLayouts[title]);
+                }
 
                 //this._renderFields( fields, this._panes[ title ] );
 
@@ -441,8 +451,9 @@ ka.windowEdit = new Class({
 
             }.bind(this));
 
-            if (this.win.params)
+            if (this.win.params) {
                 this.languageSelect.setValue(this.win.params.lang);
+            }
 
         }
 
@@ -450,8 +461,9 @@ ka.windowEdit = new Class({
 
     changeVersion: function () {
         var value = this.versioningSelect.getValue();
-        if (value == '-')
+        if (value == '-') {
             value = null;
+        }
 
         this.loadItem(value);
     },
@@ -508,14 +520,16 @@ ka.windowEdit = new Class({
 
             this.exit = new ka.Button(_('Close')).addEvent('click', this.checkClose.bind(this)).inject(this.actions);
 
-            this.saveNoClose = new ka.Button(_('Save')).addEvent('click', function () {
-                _this._save();
-            }).inject(this.actions);
+            this.saveNoClose = new ka.Button(_('Save')).addEvent('click',
+                function () {
+                    _this._save();
+                }).inject(this.actions);
 
             if (this.values.versioning == true) {
-                this.save = new ka.Button(_('Save and publish')).addEvent('click', function () {
-                    _this._save(false, true);
-                }).inject(this.actions);
+                this.save = new ka.Button(_('Save and publish')).addEvent('click',
+                    function () {
+                        _this._save(false, true);
+                    }).inject(this.actions);
             }
 
         }
@@ -557,10 +571,13 @@ ka.windowEdit = new Class({
             }
             var value = item.getValue();
 
-            if (item.field.relation == 'n-n')
-                req[ fieldId ] = JSON.encode(value); else if ($type(value) == 'object')
-                req[ fieldId ] = JSON.encode(value); else
+            if (item.field.relation == 'n-n') {
+                req[ fieldId ] = JSON.encode(value);
+            } else if ($type(value) == 'object') {
+                req[ fieldId ] = JSON.encode(value);
+            } else {
                 req[ fieldId ] = value;
+            }
 
         }.bind(this));
 
@@ -589,10 +606,12 @@ ka.windowEdit = new Class({
         Object.each(currentData, function (value, id) {
             if (blacklist.contains(id)) return;
 
-            if (typeOf(this.ritem[id]) == 'null')
+            if (typeOf(this.ritem[id]) == 'null') {
                 this.ritem[id] = '';
-            if (typeOf(value) == 'null')
+            }
+            if (typeOf(value) == 'null') {
                 value = '';
+            }
 
             if (value + "" != this.ritem[id]) {
                 //logger(id+ ': '+value+' != '+this.ritem[id]);
@@ -614,8 +633,9 @@ ka.windowEdit = new Class({
                     this.win.close();
                 }
             }.bind(this));
-        } else
+        } else {
             this.win.close();
+        }
 
     },
 
@@ -710,8 +730,9 @@ ka.windowEdit = new Class({
 
                 if ((!pClose || this.inline ) && this.values.versioning == true) this.loadVersions();
 
-                if (pClose)
+                if (pClose) {
                     this.win.close();
+                }
 
             }.bind(this)}).post(req);
         }

@@ -30,8 +30,9 @@ ka.desktop = new Class({
                 });
             }
 
-            if (e.rightClick)
+            if (e.rightClick) {
                 this.onContext(e, true);
+            }
 
         }.bind(this));
     },
@@ -173,10 +174,12 @@ ka.desktop = new Class({
     },
 
     load: function () {
-        if (this.lastLoad)
+        if (this.lastLoad) {
             this.lastLoad.cancel();
-        if (this.lastWLoad)
+        }
+        if (this.lastWLoad) {
             this.lastLoad.cancel();
+        }
 
         this.container.empty();
 
@@ -201,8 +204,9 @@ ka.desktop = new Class({
     },
 
     saveWidgets: function () {
-        if (this.lastWSave)
+        if (this.lastWSave) {
             this.lastWSave.cancel()
+        }
 
         var widgets = [];
         this.widgets.each(function (item) {
@@ -215,12 +219,14 @@ ka.desktop = new Class({
     },
 
     save: function () {
-        if (this.lastSave)
+        if (this.lastSave) {
             this.lastSave.cancel();
+        }
 
         this._icons.each(function (item, id) {
-            if (!item.icon || !item.icon.getStyle)
+            if (!item.icon || !item.icon.getStyle) {
                 this._icons[id] = null;
+            }
         }.bind(this));
 
         this._icons.clean();
@@ -305,12 +311,15 @@ ka.desktop = new Class({
             });
         }
 
-        if (!e.rightClick && this.get('class').search('-active') > 0)
-            this.set('class', 'ka-desktop-icon'); else
+        if (!e.rightClick && this.get('class').search('-active') > 0) {
+            this.set('class', 'ka-desktop-icon');
+        } else {
             this.set('class', 'ka-desktop-icon ka-desktop-icon-active');
+        }
 
-        if (e.rightClick)
+        if (e.rightClick) {
             pThis.onContext(e);
+        }
 
         e.stop();
         return false;

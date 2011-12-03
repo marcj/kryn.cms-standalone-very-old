@@ -4,8 +4,9 @@ ka.overview.widgets = {};
 ka.overview.loadWidgets = function (pWidgets) {
     ka.overview.widgets = new Hash(pWidgets);
     ['left', 'right'].each(function (Position) {
-        if (!ka.overview.widgets.get(Position))
+        if (!ka.overview.widgets.get(Position)) {
             ka.overview.widgets.set(Position, [])
+        }
         ka.overview._load(Position, ka.overview.widgets[Position]);
     });
 }
@@ -51,8 +52,9 @@ ka.overview.addWidget = function (pPos) {
 
 ka.overview._load = function (pPos, pWidgets) {
     $('overview.' + pPos).getElements('div[class=box]').each(function (item) {
-        if (item.get('alt') != 'fake')
+        if (item.get('alt') != 'fake') {
             item.destroy();
+        }
     });
     if (pWidgets.length > 0) {
         pWidgets.each(function (widget) {
@@ -87,9 +89,10 @@ ka.overview.renderWidget = function (pWidget) {
     var title = new Element('div', {
         'class': 'title',
         text: ''
-    }).addEvent('mouseup', function () {
-        ka.overview.saveAll();
-    }).inject(div);
+    }).addEvent('mouseup',
+        function () {
+            ka.overview.saveAll();
+        }).inject(div);
 
     div.makeDraggable({
         handle: title,
@@ -144,40 +147,44 @@ ka.overview.renderWidget = function (pWidget) {
     new Element('img', {
         src: _path + 'inc/template/admin/images/icons/delete.png',
         align: 'right'
-    }).addEvent('click', function () {
-        div.destroy();
-        ka.overview.saveAll();
-        ka.overview.getWidgets();
-    }).inject(actions);
+    }).addEvent('click',
+        function () {
+            div.destroy();
+            ka.overview.saveAll();
+            ka.overview.getWidgets();
+        }).inject(actions);
 
     new Element('img', {
         src: _path + 'inc/template/admin/images/icons/arrow_up.png',
         align: 'right'
-    }).addEvent('click', function () {
-        var up = div.getPrevious();
-        if (up.get('class') == 'box' && up.get('alt') != 'fake') {
-            div.inject(up, 'before');
-            ka.overview.saveAll();
-        }
-    }).inject(actions);
+    }).addEvent('click',
+        function () {
+            var up = div.getPrevious();
+            if (up.get('class') == 'box' && up.get('alt') != 'fake') {
+                div.inject(up, 'before');
+                ka.overview.saveAll();
+            }
+        }).inject(actions);
 
     new Element('img', {
         src: _path + 'inc/template/admin/images/icons/arrow_down.png',
         align: 'right'
-    }).addEvent('click', function () {
-        var down = div.getNext();
-        if (down.get('class') == 'box' && down.get('alt') != 'fake') {
-            div.inject(down, 'after');
-            ka.overview.saveAll();
-        }
-    }).inject(actions);
+    }).addEvent('click',
+        function () {
+            var down = div.getNext();
+            if (down.get('class') == 'box' && down.get('alt') != 'fake') {
+                div.inject(down, 'after');
+                ka.overview.saveAll();
+            }
+        }).inject(actions);
 
     new Element('img', {
         src: _path + 'inc/template/admin/images/icons/arrow_refresh.png',
         align: 'right'
-    }).addEvent('click', function () {
-        ka.overview.__load(pWidget, div);
-    }).inject(actions);
+    }).addEvent('click',
+        function () {
+            ka.overview.__load(pWidget, div);
+        }).inject(actions);
 
     var content = new Element('div', {
         'class': 'content',
@@ -229,8 +236,9 @@ ka.overview.saveAll = function () {
 
 ka.overview.getValues = function (pWidget) {
     var widget = pWidget.retrieve('values');
-    if (!widget.noFixHeight)
+    if (!widget.noFixHeight) {
         widget.height = pWidget.getElement('div[class=content]').getSize().y - 9;
+    }
     return widget;
 }
 

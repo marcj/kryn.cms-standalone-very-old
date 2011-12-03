@@ -1,11 +1,13 @@
 ka.Base = new Class({
 
     mkTable: function (pTarget) {
-        if (pTarget)
+        if (pTarget) {
             this.oldTableTarget = pTarget;
+        }
 
-        if (!pTarget && this.oldTableTarget)
+        if (!pTarget && this.oldTableTarget) {
             pTarget = this.oldTableTarget;
+        }
 
         var table = new Element('table', {width: '100%'}).inject(pTarget);
         new Element('tbody').inject(table);

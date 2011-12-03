@@ -9,16 +9,19 @@ var admin_files_edit = new Class({
             this.win.params.file.ext = '';
         }
 
-        if (this.win.params.file.name)
-            this.win.setTitle(this.win.params.file.name + ' ' + _('edit')); else
+        if (this.win.params.file.name) {
+            this.win.setTitle(this.win.params.file.name + ' ' + _('edit'));
+        } else {
             this.win.setTitle(this.win.params.file.path + ' ' + _('edit'));
+        }
         this._createLayout();
     },
 
     loadFile: function () {
         new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res) {
-            if (typeOf(res) != 'null')
+            if (typeOf(res) != 'null') {
                 this.textarea.value = res;
+            }
             this.renderCodePress();
         }.bind(this)}).get({ path: this.win.params.file.path });
     },
@@ -110,10 +113,11 @@ var admin_files_edit = new Class({
             var scroller = new Element('div', {
                 'class': 'kwindow-win-buttonGroup',
                 style: 'width: 150px; height: 20px; position: absolute; right: 10px; top: 23px;'
-            }).addEvent('mousedown', function (e) {
-                e.stop();
-                e.stopPropagation();
-            }).inject(this.sidebarActions);
+            }).addEvent('mousedown',
+                function (e) {
+                    e.stop();
+                    e.stopPropagation();
+                }).inject(this.sidebarActions);
 
             this.scrollerInfo = new Element('div', {
                 text: '100%',
@@ -195,8 +199,9 @@ var admin_files_edit = new Class({
             }.bind(this);
 
             var path = this.win.params.file.path;
-            if (path.substr(0, 1) == '/')
+            if (path.substr(0, 1) == '/') {
                 path = path.substr(1, path.length);
+            }
 
             this.oriImagePath = path;
 
@@ -217,14 +222,16 @@ var admin_files_edit = new Class({
         var loader = new ka.loader(true, true).inject(this.img.getParent());
         loader.show();
 
-        if (this.lastRotateRq)
+        if (this.lastRotateRq) {
             this.lastRotateRq.cancel();
+        }
 
         this.lastRotateRq = new Request.JSON({url: _path + 'admin/files/rotate', noCache: 1, onComplete: function (pMtime) {
             this.loadImage(this.oriImagePath + '?mtime=' + pMtime);
 
-            if (this._images[ '/' + this.oriImagePath ])
+            if (this._images[ '/' + this.oriImagePath ]) {
                 this._images[ '/' + this.oriImagePath ].src = _path + 'admin/backend/imageThumb/?file=' + escape(this.oriImagePath.replace(/\//g, "\\")) + '&noC=' + pMtime;
+            }
 
             loader.hide();
         }.bind(this)}).post({position: pPos, file: this.oriImagePath });
@@ -235,14 +242,16 @@ var admin_files_edit = new Class({
         var loader = new ka.loader(true, true).inject(this.img.getParent());
         loader.show();
 
-        if (this.lastRotateRq)
+        if (this.lastRotateRq) {
             this.lastRotateRq.cancel();
+        }
 
         this.lastRotateRq = new Request.JSON({url: _path + 'admin/files/resize', noCache: 1, onComplete: function (pMtime) {
             this.loadImage(this.oriImagePath + '?mtime=' + pMtime);
 
-            if (this._images[ '/' + this.oriImagePath ])
+            if (this._images[ '/' + this.oriImagePath ]) {
                 this._images[ '/' + this.oriImagePath ].src = _path + 'admin/backend/imageThumb/?file=' + escape(this.oriImagePath.replace(/\//g, "\\")) + '&noC=' + pMtime;
+            }
 
             loader.hide();
         }.bind(this)}).post({width: pWidth, height: pHeight, file: this.oriImagePath });
@@ -311,8 +320,9 @@ var admin_files_edit = new Class({
 
     loadImage: function (pImage) {
 
-        if (pImage.substr(0, 1) == '/')
+        if (pImage.substr(0, 1) == '/') {
             pImage = pImage.substr(1, pImage.length);
+        }
 
         this.img = new Asset.image(_path + 'inc/template/' + pImage + '?nc=' + (new Date().getTime()), {
             onLoad: function () {
@@ -323,8 +333,9 @@ var admin_files_edit = new Class({
         });
 
         var qPos = pImage.indexOf('?');
-        if (qPos > 0)
+        if (qPos > 0) {
             pImage = pImage.substr(0, qPos);
+        }
 
         this.oriImagePath = pImage;
 
@@ -374,8 +385,9 @@ var admin_files_edit = new Class({
             proz = (100 / faktor) - 1;
         }
 
-        if (proz > 150)
+        if (proz > 150) {
             proz = 150;
+        }
 
 
         /*if( this.imgSize.x > this.imgSize.y ){

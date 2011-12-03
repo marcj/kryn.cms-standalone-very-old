@@ -273,8 +273,9 @@ var DatePicker = new Class({
     updateValues: function (dp) {
         var el = null;
         $$('td.' + dp.id + '_calDay').each(function (ele) {
-            if (ele.get('class').indexOf('dp_selected') > 0)
+            if (ele.get('class').indexOf('dp_selected') > 0) {
                 el = ele;
+            }
         });
         if (el) {
             ds = el.axis.split('|');

@@ -184,9 +184,10 @@ var admin_system_layout = new Class({
                 new Element('span', {
                     html: _('[edit]'),
                     style: 'cursor: pointer;'
-                }).addEvent('click', function () {
-                    ka.wm.open('admin/files/edit', {file: {path: '/' + path}});
-                }).inject(li);
+                }).addEvent('click',
+                    function () {
+                        ka.wm.open('admin/files/edit', {file: {path: '/' + path}});
+                    }).inject(li);
             }.bind(this));
         }
     },

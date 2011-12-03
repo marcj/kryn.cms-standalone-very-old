@@ -148,8 +148,9 @@ ka.pagesTree = new Class({
 
     loadFirstLevel: function () {
 
-        if (this.lastFirstLevelRq)
+        if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
+        }
 
         var viewAllPages = this.options.viewAllPages ? 1 : 0;
 
@@ -164,8 +165,9 @@ ka.pagesTree = new Class({
 
         this.loadingDone = false;
 
-        if (!pDomain && this.lastDomain)
+        if (!pDomain && this.lastDomain) {
             pDomain = this.lastDomain;
+        }
 
         this.lastDomain = pDomain;
 
@@ -206,11 +208,13 @@ ka.pagesTree = new Class({
 
         if (target.hasClass('ka-pageTree-item-toggler')) return;
 
-        if (target.hasClass('ka-pageTree-item'))
+        if (target.hasClass('ka-pageTree-item')) {
             a = target;
+        }
 
-        if (!a && target.getParent('.ka-pageTree-item'))
+        if (!a && target.getParent('.ka-pageTree-item')) {
             a = target.getParent('.ka-pageTree-item');
+        }
 
         if (!a) return;
 
@@ -229,8 +233,9 @@ ka.pagesTree = new Class({
                 this.fireEvent('domainClick', [item, a])
 
                 this.unselect();
-                if (this.options.noActive != true)
+                if (this.options.noActive != true) {
                     a.addClass('ka-pageTree-item-selected');
+                }
 
                 this.lastSelectedItem = a;
                 this.lastSelectedPage = item;
@@ -243,8 +248,9 @@ ka.pagesTree = new Class({
 
             this.unselect();
 
-            if (this.options.noActive != true)
+            if (this.options.noActive != true) {
                 a.addClass('ka-pageTree-item-selected');
+            }
 
             this.lastSelectedItem = a;
             this.lastSelectedPage = item;
@@ -466,8 +472,9 @@ ka.pagesTree = new Class({
 
         if ((!this.firstLoadDone || this.need2SelectAPage)) {
             if ((this.options.selectDomain && pItem.domain ) || (this.options.selectPage && !pItem.domain && pItem.rsn == this.options.selectPage)) {
-                if (this.options.noActive != true)
+                if (this.options.noActive != true) {
                     a.addClass('ka-pageTree-item-selected');
+                }
                 this.lastSelectedItem = a;
                 this.lastSelectedPage = pItem;
                 this.need2SelectAPage = false;
@@ -491,15 +498,17 @@ ka.pagesTree = new Class({
         if (pItem.childs) {
             var canChangeItemsGeneration = this.inItemsGeneration == true ? false : true;
 
-            if (canChangeItemsGeneration)
+            if (canChangeItemsGeneration) {
                 this.inItemsGeneration = true;
+            }
 
             Array.each(pItem.childs, function (item) {
                 this.addItem(item, a);
             }.bind(this));
 
-            if (canChangeItemsGeneration)
+            if (canChangeItemsGeneration) {
                 this.inItemsGeneration = false;
+            }
         }
 
         this.checkDoneState();
@@ -512,8 +521,9 @@ ka.pagesTree = new Class({
         var loadingDone = true;
         if (this.inItemsGeneration == false) {
             Object.each(this.loadChildsRequests, function (request) {
-                if (request == true)
+                if (request == true) {
                     loadingDone = false;
+                }
             }.bind(this));
         } else {
             loadingDone = false;
@@ -528,8 +538,9 @@ ka.pagesTree = new Class({
                 this.fireEvent('ready');
             }
 
-            if (this.lastScrollPos)
+            if (this.lastScrollPos) {
                 this.container.scrollTo(this.lastScrollPos.x, this.lastScrollPos.y);
+            }
             this.setDomainPosition();
         }
 
@@ -541,8 +552,9 @@ ka.pagesTree = new Class({
 
         var opens = '';
         Object.each(this.opens, function (bool, key) {
-            if (bool == true)
+            if (bool == true) {
                 opens += key + '.';
+            }
         });
         Cookie.write('krynPageTree_' + this.domain_rsn, opens);
 
@@ -645,8 +657,9 @@ ka.pagesTree = new Class({
 
     unselect: function () {
 
-        if (this.lastSelectedItem)
+        if (this.lastSelectedItem) {
             this.lastSelectedItem.removeClass('ka-pageTree-item-selected');
+        }
 
         this.lastSelectedItem = false;
         this.lastSelectedPage = false;
@@ -670,8 +683,9 @@ ka.pagesTree = new Class({
 
         var kwin = pA.getParent('.kwindow-border');
 
-        if (this.lastClone)
+        if (this.lastClone) {
             this.lastClone.destroy();
+        }
 
         this.lastClone = new Element('div', {
             'class': 'ka-pageTree-drag-box',
@@ -689,8 +703,9 @@ ka.pagesTree = new Class({
                 if (!pEvent.target) return;
                 var element = pEvent.target;
 
-                if (!element.hasClass('ka-pageTree-item'))
+                if (!element.hasClass('ka-pageTree-item')) {
                     element = element.getParent('.ka-pageTree-item');
+                }
 
                 if (element) {
 
@@ -765,8 +780,9 @@ ka.pagesTree = new Class({
                     }
                 });
             } else {
-                if (this.lastDropElement == pTarget)
+                if (this.lastDropElement == pTarget) {
                     return;
+                }
             }
         }
 
@@ -864,9 +880,11 @@ ka.pagesTree = new Class({
 
 
     reloadParent: function (pA) {
-        if (pA.parent)
-            pA.pageTreeObj.reloadChilds(pA.parent); else
+        if (pA.parent) {
+            pA.pageTreeObj.reloadChilds(pA.parent);
+        } else {
             pA.pageTreeObj.reload();
+        }
     },
 
     movePage: function (pWhereRsn, pToRsn, pCode, pToDomain) {
@@ -881,9 +899,11 @@ ka.pagesTree = new Class({
         new Request.JSON({url: _path + 'admin/pages/move', onComplete: function (res) {
 
             //target item this.dragNDropElement
-            if (this.dragNDropElement.parent)
-                this.dragNDropElement.pageTreeObj.reloadChilds(this.dragNDropElement.parent); else
+            if (this.dragNDropElement.parent) {
+                this.dragNDropElement.pageTreeObj.reloadChilds(this.dragNDropElement.parent);
+            } else {
                 this.dragNDropElement.pageTreeObj.reload();
+            }
 
             //origin item this.currentPageToDrag
             if (this.currentPageToDrag.parent && (!this.dragNDropElement.parent || this.dragNDropElement.parent != this.currentPageToDrag.parent)) {
@@ -913,8 +933,9 @@ ka.pagesTree = new Class({
     },
 
     hasChilds: function (pPage) {
-        if (this._pagesParent.get(pPage.rsn))
+        if (this._pagesParent.get(pPage.rsn)) {
             return true;
+        }
         return false;
     },
 
@@ -950,12 +971,14 @@ ka.pagesTree = new Class({
         _this.createMoveContextMenuOver = true;
 
         var mtop = pos.y - 15;
-        if (mtop < 0)
+        if (mtop < 0) {
             mtop = 1;
+        }
 
         var mleft = 6;
-        if (this.currentDropper.getStyle('padding-left'))
+        if (this.currentDropper.getStyle('padding-left')) {
             mleft = this.currentDropper.getStyle('padding-left').toInt();
+        }
 
         var context = new Element('div', {
             'class': 'pagesTree-context-move'
@@ -963,12 +986,14 @@ ka.pagesTree = new Class({
             left: mleft,
             top: mtop,
             opacity: 0
-        }).addEvent('mouseout', function () {
+        }).addEvent('mouseout',
+            function () {
                 _this.createMoveContextMenuOver = false;
                 var __this = this;
                 (function () {
-                    if (!_this.createMoveContextMenuOver)
+                    if (!_this.createMoveContextMenuOver) {
                         __this.destroy();
+                    }
                 }).delay(500);
             }).inject(this.container);
 
@@ -976,10 +1001,12 @@ ka.pagesTree = new Class({
             new Element('a', {
                 html: item.label,
                 'class': item.code
-            }).addEvent('click', function () {
-                _this.movePage(pWhereRsn, pToRsn, item.code, domain_rsn);
-                context.destroy();
-            }).addEvent('mouseover', function (e) {
+            }).addEvent('click',
+                function () {
+                    _this.movePage(pWhereRsn, pToRsn, item.code, domain_rsn);
+                    context.destroy();
+                }).addEvent('mouseover',
+                function (e) {
                     _this.createMoveContextMenuOver = true;
                 }).inject(context);
         });
@@ -990,8 +1017,9 @@ ka.pagesTree = new Class({
     },
 
     getSelected: function () {
-        if (this.lastSelectedItem)
+        if (this.lastSelectedItem) {
             return this.lastSelectedItem;
+        }
         return false;
     },
 
@@ -1016,8 +1044,9 @@ ka.pagesTree = new Class({
             this.renderFirstLevel();
 
             Array.each(this.load_page_childs, function (item) {
-                if (this.items[item])
+                if (this.items[item]) {
                     this.openChilds(this.items[item]);
+                }
             }.bind(this));
         }.bind(this));
 
@@ -1054,8 +1083,9 @@ ka.pagesTree = new Class({
 
         var left = pEvent.page.x;
         var mtop = pEvent.page.y;
-        if (mtop < 0)
+        if (mtop < 0) {
             mtop = 1;
+        }
 
         this.oldContext.setStyles({
             left: left,
@@ -1066,8 +1096,9 @@ ka.pagesTree = new Class({
             new Element('a', {
                 html: _('Preview')
             }).addEvent('click', function () {
-                if (this.options.pageObj)
+                if (this.options.pageObj) {
                     this.options.pageObj.toPage(pPage);
+                }
             }.bind(this)).inject(this.oldContext);
 
             new Element('a', {
@@ -1115,9 +1146,11 @@ ka.pagesTree = new Class({
                 html: _('Delete')
             }).addEvent('click', function () {
                 if (this.options.pageObj) {
-                    if (pPage.domain)
-                        this.options.pageObj.deleteDomain(pPage); else
+                    if (pPage.domain) {
+                        this.options.pageObj.deleteDomain(pPage);
+                    } else {
                         this.options.pageObj.deletePage(pPage);
+                    }
                 }
             }.bind(this)).inject(this.oldContext);
 
@@ -1142,9 +1175,11 @@ ka.pagesTree = new Class({
             html: _('Export')
         }).addEvent('click', function () {
             var param = {};
-            if (pPage.domain)
-                param.domain = pPage.rsn; else
+            if (pPage.domain) {
+                param.domain = pPage.rsn;
+            } else {
                 param.page = pPage.rsn;
+            }
             param.type = 'export';
             ka.wm.open('admin/system/backup', param);
         }.bind(this)).inject(this.oldContext);
@@ -1153,9 +1188,11 @@ ka.pagesTree = new Class({
             html: _('Import')
         }).addEvent('click', function () {
             var param = {};
-            if (pPage.domain)
-                param.domain = pPage.rsn; else
+            if (pPage.domain) {
+                param.domain = pPage.rsn;
+            } else {
                 param.page = pPage.rsn;
+            }
             param.type = 'import';
             ka.wm.open('admin/system/backup', param);
         }.bind(this)).inject(this.oldContext);
@@ -1263,8 +1300,9 @@ ka.pagesTree = new Class({
 
     paste: function (pPos, pPage) {
         var clipboard = ka.getClipboard();
-        if (!(clipboard.type == 'pageCopyWithSubpages' || clipboard.type == 'pageCopy'))
+        if (!(clipboard.type == 'pageCopyWithSubpages' || clipboard.type == 'pageCopy')) {
             return;
+        }
 
         var req = {};
         req.page = clipboard.value.rsn;

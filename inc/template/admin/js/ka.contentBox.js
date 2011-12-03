@@ -11,8 +11,9 @@ ka.contentBox = new Class({
 
         this.defaultTemplate = pOptions['default'];
 
-        if (pElement)
+        if (pElement) {
             pElement.empty();
+        }
 
         this.main = new Element('div', {
             'class': 'ka-layoutBox-main' // ka-contentBox-main'
@@ -53,8 +54,9 @@ ka.contentBox = new Class({
         var firstContent = false;
         if (pContents && $type(pContents) == 'array') {
             pContents.each(function (content) {
-                if (firstContent == false)
+                if (firstContent == false) {
                     firstContent = content;
+                }
             }.bind(this));
 
             if (firstContent && this.layoutContent) {
@@ -63,8 +65,9 @@ ka.contentBox = new Class({
 
 
         var content = this.defaultContent;
-        if (firstContent)
+        if (firstContent) {
             content = firstContent;
+        }
 
         content.noActions = true;
 
@@ -85,8 +88,9 @@ ka.contentBox = new Class({
 
         this.layoutContent.deselectChilds();
 
-        if (this.layoutContent != pWithoutContent)
+        if (this.layoutContent != pWithoutContent) {
             this.layoutContent.deselect();
+        }
     },
 
     getContents: function (pAndClose) {

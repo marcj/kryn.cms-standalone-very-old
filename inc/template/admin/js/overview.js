@@ -12,8 +12,9 @@ admin_overview = new Class({
             if (!pConfig || !pConfig.widgets) return;
             var titleTxt = (pConfig.title[window._session.lang]) ? pConfig.title[window._session.lang] : pConfig.title['en'];
             var img = null;
-            if (pConfig.icon_mini)
+            if (pConfig.icon_mini) {
                 img = _path + pConfig.icon_mini;
+            }
             this.buttons[pKey] = this.topGroup.addButton(titleTxt, this.viewType.bind(this, pKey), img);
 
         }.bind(this);
@@ -93,8 +94,9 @@ admin_overview = new Class({
                 target = (widget.position == 'right') ? right : left;
             } else {
                 target = this.panes[pExt].getElement('[id=' + widget.position + ']');
-                if (!target)
+                if (!target) {
                     this.win._alert(_('Can not find position %1 in the widgetsLayout from extension %2').replace('%1', widget.position).replace('%2', pExt));
+                }
             }
 
             widget.extension = pExt;
@@ -174,19 +176,21 @@ admin_overview = new Class({
                     src: _path + 'inc/template/admin/images/icons/tree_plus.png',
                     style: 'position: relative; top: 1px; margin-right: 3px;',
                     lang: 0
-                }).addEvent('click', function (e) {
-                    if (this.lang == 0) {
-                        this.src = _path + 'inc/template/admin/images/icons/tree_minus.png';
-                        this.lang = 1;
-                    } else {
-                        this.src = _path + 'inc/template/admin/images/icons/tree_plus.png';
-                        this.lang = 0;
-                    }
-                    container.setStyle('display', (this.lang == 0) ? 'none' : 'block');
-                    if (e)
-                        e.stop();
+                }).addEvent('click',
+                    function (e) {
+                        if (this.lang == 0) {
+                            this.src = _path + 'inc/template/admin/images/icons/tree_minus.png';
+                            this.lang = 1;
+                        } else {
+                            this.src = _path + 'inc/template/admin/images/icons/tree_plus.png';
+                            this.lang = 0;
+                        }
+                        container.setStyle('display', (this.lang == 0) ? 'none' : 'block');
+                        if (e) {
+                            e.stop();
+                        }
 
-                }).fireEvent('click').inject(h3, 'top');
+                    }).fireEvent('click').inject(h3, 'top');
 
 
                 var left = new Element('div', {

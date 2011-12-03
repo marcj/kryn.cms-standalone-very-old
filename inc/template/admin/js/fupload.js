@@ -42,10 +42,11 @@ ka.fupload.addItem = function (file, pFlash) {
     var item = new Element('div', {
         'class': 'item',
         'title': 'Klicken um abzubrechen'
-    }).addEvent('click', function () {
-        pFlash.cancelUpload(file.id, true);
-        //        ka.fupload.success( file );
-    }).inject(ka.uploadMenuInfo, 'before');
+    }).addEvent('click',
+        function () {
+            pFlash.cancelUpload(file.id, true);
+            //        ka.fupload.success( file );
+        }).inject(ka.uploadMenuInfo, 'before');
 
     var pBar = new Element('div', {
         'class': 'pbar'
@@ -92,8 +93,9 @@ function minsec(time, tempTime) {
 
 ka.fupload._progress = function (file, byteLoaded, byteTotal) {
 
-    if (!ka.fupload._times[ file.id ])
+    if (!ka.fupload._times[ file.id ]) {
         ka.fupload._times[ file.id ] = new Date();
+    }
 
     var speed = '0';
     var currentTime = new Date();

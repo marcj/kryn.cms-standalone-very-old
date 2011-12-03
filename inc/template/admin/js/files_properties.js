@@ -4,8 +4,9 @@ var admin_files_properties = new Class({
         this.win = pWindow;
 
         this.win.addEvent('close', function () {
-            if (this.lastSizeRq)
+            if (this.lastSizeRq) {
                 this.lastSizeRq.cancel();
+            }
         }.bind(this));
 
         this.file = this.win.params;
@@ -53,9 +54,11 @@ var admin_files_properties = new Class({
     mkTd: function (pVal) {
         if (this.tr) {
             var td = new Element('td').inject(this.tr);
-            if ($type(pVal) == 'string')
-                td.set('html', pVal); else if (pVal)
+            if ($type(pVal) == 'string') {
+                td.set('html', pVal);
+            } else if (pVal) {
                 pVal.inject(td);
+            }
 
         }
         return td;
@@ -64,9 +67,11 @@ var admin_files_properties = new Class({
     mkTh: function (pVal) {
         if (this.tr) {
             var td = new Element('th').inject(this.tr);
-            if ($type(pVal) == 'string')
-                td.set('html', pVal); else if (pVal)
+            if ($type(pVal) == 'string') {
+                td.set('html', pVal);
+            } else if (pVal) {
                 pVal.inject(td);
+            }
 
         }
         return td;
@@ -107,8 +112,9 @@ var admin_files_properties = new Class({
     _load: function () {
 
 
-        if (this.file.type == 'dir')
+        if (this.file.type == 'dir') {
             this.tabButtons['versions'].hide();
+        }
 
         if (this.file.isDir && this.file.path == '/') {
             this.win.setTitle('/');
@@ -143,9 +149,11 @@ var admin_files_properties = new Class({
 
         this.mkTr();
         this.mkTd(_('Type'))
-        if (this.file.isDir)
-            this.mkTd(_('Folder')); else
+        if (this.file.isDir) {
+            this.mkTd(_('Folder'));
+        } else {
             this.mkTd(this.file.ext);
+        }
 
         this.mkTr();
         this.mkTd(_('Path'));
@@ -213,9 +221,11 @@ var admin_files_properties = new Class({
         this.generalTableBody = new Element('tbody').inject(this.generalTable);
 
         this.mkTr();
-        if (this.file.type == 'dir')
-            this.mkTd(_('Access of this folder')); else
+        if (this.file.type == 'dir') {
+            this.mkTd(_('Access of this folder'));
+        } else {
             this.mkTd(_('Access of this file'));
+        }
 
         var select = new Element('select').addEvent('change', this.saveAccess.bind(this));
         this.accessSelect = select;
@@ -522,8 +532,9 @@ var admin_files_properties = new Class({
 
         var inputs = this.getNameTable.getElements('input');
 
-        if (this.lastGetOwnerReq)
+        if (this.lastGetOwnerReq) {
             this.lastGetOwnerReq.cancel();
+        }
 
         this.lastGetOwnerReq = new Request.JSON({url: _path + 'admin/files/getOwnerIds', onComplete: function (pOwnerNames) {
 
@@ -694,17 +705,21 @@ var files_properties_rule = new Class({
 
         this.fullcode = pContent.code;
 
-        if (!this.content)
+        if (!this.content) {
             this.content = {};
+        }
 
-        if (!this.content.target_rsn)
+        if (!this.content.target_rsn) {
             this.content.target_rsn = '';
+        }
 
-        if (!this.content.target_type)
+        if (!this.content.target_type) {
             this.content.target_type = '';
+        }
 
-        if (!this.content.type)
+        if (!this.content.type) {
             this.content.type = '';
+        }
 
         this.target_rsn = this.content.target_rsn.toInt();
         this.target_type = this.content.target_type.toInt();
@@ -763,9 +778,11 @@ var files_properties_rule = new Class({
         }).addEvent('click', this.remove.bind(this)).inject(this.tdRemover);
 
 
-        if (this.target_rsn > 0)
-            this.render(); else
+        if (this.target_rsn > 0) {
+            this.render();
+        } else {
             this.newRule();
+        }
     },
 
     newRule: function () {
@@ -821,14 +838,19 @@ var files_properties_rule = new Class({
         this.access = this.iAccess.value;
         this.fullcode = this.code;
 
-        if (this.iWithsub.checked)
+        if (this.iWithsub.checked) {
             this.fullcode += '%';
+        }
 
-        if (this.iWrite.checked && this.iRead.checked)
-            this.fullcode += '[write,read]'; else if (this.iRead.checked)
-            this.fullcode += '[read]'; else if (this.iWrite.checked)
-            this.fullcode += '[write]'; else
+        if (this.iWrite.checked && this.iRead.checked) {
+            this.fullcode += '[write,read]';
+        } else if (this.iRead.checked) {
+            this.fullcode += '[read]';
+        } else if (this.iWrite.checked) {
+            this.fullcode += '[write]';
+        } else {
             this.fullcode += '[]';
+        }
 
     },
 

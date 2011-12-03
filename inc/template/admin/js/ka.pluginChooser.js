@@ -8,18 +8,21 @@ ka.pluginChooser = new Class({
 
 
         var opts = [];
-        if ($type(pTypes) == 'string')
+        if ($type(pTypes) == 'string') {
             opts = pTypes.split('::');
+        }
 
         this.choosen = {};
         this.choosen.module = opts[0];
 
-        if (!ka.settings.configs[this.choosen.module])
+        if (!ka.settings.configs[this.choosen.module]) {
             this.choosen.module = '-';
+        }
 
         this.choosen.plugin = opts[1];
-        if (this.choosen.module != '-' && !ka.settings.configs[this.choosen.module]['plugins'][this.choosen.plugin])
+        if (this.choosen.module != '-' && !ka.settings.configs[this.choosen.module]['plugins'][this.choosen.plugin]) {
             this.choosen.plugin = '-';
+        }
 
         try {
             this.choosen.options = JSON.decode(opts[2]);
@@ -133,8 +136,9 @@ ka.pluginChooser = new Class({
             return;
         }
 
-        if (mod != '-')
+        if (mod != '-') {
             this.choosen.module = mod;
+        }
 
         this.selectPlugin.add('-', _('-- Please choose --'));
 
@@ -158,8 +162,9 @@ ka.pluginChooser = new Class({
 
         this.optionsPane.empty();
 
-        if (plugin != '-')
+        if (plugin != '-') {
             this.choosen.plugin = plugin;
+        }
 
         this.propertyTable = new Element('table').inject(this.optionsPane);
         this.propertyTBody = new Element('tbody').inject(this.propertyTable);
@@ -187,14 +192,16 @@ ka.pluginChooser = new Class({
     },
 
     setValue: function (pValues) {
-        if (this.fieldObj)
+        if (this.fieldObj) {
             this.fieldObj.setValue(pValues);
+        }
     },
 
     getValue: function () {
         var res = this.choosen.module + '::' + this.choosen.plugin + '::';
-        if (this.fieldObj)
+        if (this.fieldObj) {
             res += JSON.encode(this.fieldObj.getValue());
+        }
         return res;
     },
 

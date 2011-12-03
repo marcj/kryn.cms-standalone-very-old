@@ -37,11 +37,13 @@ ka.smallTabGroup = new Class({
             var myclass = 'kwindow-win-tabWrapper kwindow-win-smallTabWrapper';
 
 
-            if (c == 1)
+            if (c == 1) {
                 myclass += ' kwindow-win-tabWrapperFirst';
+            }
 
-            if (button.get('class').indexOf('buttonHover') >= 0)
+            if (button.get('class').indexOf('buttonHover') >= 0) {
                 myclass += ' buttonHover';
+            }
 
             button.set('class', myclass);
 
@@ -69,8 +71,9 @@ ka.smallTabGroup = new Class({
             }).inject(wrapper, 'top');
         }
 
-        if (pOnClick)
+        if (pOnClick) {
             wrapper.addEvent('click', pOnClick);
+        }
 
         var _this = this;
         wrapper.hide = function () {
@@ -86,22 +89,25 @@ ka.smallTabGroup = new Class({
         }
 
         wrapper.startTip = function (pText) {
-            if (!this.toolTip)
+            if (!this.toolTip) {
                 this.toolTip = new ka.tooltip(wrapper, pText);
+            }
             this.toolTip.setText(pText);
             this.toolTip.show();
         }
 
         wrapper.stopTip = function (pText) {
-            if (this.toolTip)
+            if (this.toolTip) {
                 this.toolTip.stop(pText);
+            }
         }
 
         wrapper.setPressed = function (pPressed) {
             if (pPressed) {
                 wrapper.addClass('buttonHover');
-            } else
+            } else {
                 wrapper.removeClass('buttonHover');
+            }
         }
 
         wrapper.store('visible', true);

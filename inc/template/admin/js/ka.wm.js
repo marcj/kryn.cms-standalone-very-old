@@ -21,8 +21,9 @@ ka.wm = {
          0..x: ID of a legal window
          -1: current/active window
          */
-        if (pDependOn == -1)
+        if (pDependOn == -1) {
             pDependOn = ka.wm.lastWindow;
+        }
 
         var id = pModule + '::' + pWindowCode;
         if (pLink && pLink.onlyonce && this.checkOpen(id)) {
@@ -32,8 +33,9 @@ ka.wm = {
     },
 
     checkDimensionsAndSendResize: function () {
-        if (ka.wm.goDimensionsCheck)
+        if (ka.wm.goDimensionsCheck) {
             $clear(ka.wm.goDimensionsCheck);
+        }
 
         ka.wm.goDimensionsCheck = (function () {
             ka.wm._checkDimensions();
@@ -50,17 +52,19 @@ ka.wm = {
     },
 
     addEvent: function (pEv, pFunc) {
-        if (!ka.wm.events[pEv])
+        if (!ka.wm.events[pEv]) {
             ka.wm.events[pEv] = [];
+        }
 
         ka.wm.events[pEv].include(pFunc);
     },
 
     fireEvent: function (pEv) {
-        if (ka.wm.events[pEv])
+        if (ka.wm.events[pEv]) {
             Object.each(ka.wm.events[pEv], function (func) {
                 $try(func);
             });
+        }
     },
 
     open: function (pTarget, pParams, pDepend, pInline) {
@@ -73,8 +77,9 @@ ka.wm = {
     dependExist: function (pWindowId) {
         var dep = false;
         Object.each(ka.wm.depend, function (win, key) {
-            if (win == pWindowId)
-                dep = true; //a depend exist
+            if (win == pWindowId) {
+                dep = true;
+            } //a depend exist
         });
         return dep;
     },
@@ -91,16 +96,18 @@ ka.wm = {
     },
 
     getWindow: function (pId) {
-        if (pId == -1)
+        if (pId == -1) {
             pId == ka.wm.lastWindow;
+        }
         return ka.wm.windows[ pId ];
     },
 
     getDependOn: function (pWindowId) {
         var reswin = null;
         Object.each(ka.wm.depend, function (win, key) {
-            if (win == pWindowId)
-                reswin = ka.wm.windows[key]; //a depend exist
+            if (win == pWindowId) {
+                reswin = ka.wm.windows[key];
+            } //a depend exist
         });
         return reswin;
     },
@@ -114,8 +121,9 @@ ka.wm = {
 
     softReloadWindows: function (pModule, pCode) {
         Object.each(ka.wm.windows, function (win) {
-            if (win && win.module == pModule && win.code == pCode)
+            if (win && win.module == pModule && win.code == pCode) {
                 win.softReload();
+            }
         });
     },
 
@@ -151,8 +159,9 @@ ka.wm = {
         if (pDependOn > 0) {
             ka.wm.depend.include(instance, pDependOn);
             var w = ka.wm.windows[ pDependOn ];
-            if (w)
+            if (w) {
                 w.toDependMode(pInline);
+            }
         }
 
         var win = new ka.kwindow(pModule, pWindowCode, pLink, instance, pParams, pInline);
@@ -171,17 +180,21 @@ ka.wm = {
         pWindow.setBarButton(bar);
 
         bar.addEvent('click', function () {
-            if (pWindow.isOpen && pWindow.inFront)
-                pWindow.minimize(); else if (!pWindow.inFront || !pWindow.isOpen)
+            if (pWindow.isOpen && pWindow.inFront) {
+                pWindow.minimize();
+            } else if (!pWindow.inFront || !pWindow.isOpen) {
                 pWindow.toFront();
+            }
         });
         shortTitle = pWindow.getFullTitle();
 
-        if (shortTitle.length > 22)
+        if (shortTitle.length > 22) {
             shortTitle = shortTitle.substr(0, 19) + '...';
+        }
 
-        if (shortTitle == '')
+        if (shortTitle == '') {
             bar.setStyle('display', 'none');
+        }
 
         bar.set('text', shortTitle);
         return bar;
@@ -232,9 +245,11 @@ ka.wm = {
 
             c++;
 
-            if (win.inFront && win.isOpen)
-                item.addClass('wm-bar-item-active'); else
+            if (win.inFront && win.isOpen) {
+                item.addClass('wm-bar-item-active');
+            } else {
                 item.removeClass('wm-bar-item-active');
+            }
 
             if (ka.wm.dependExist(winId)) {
                 var dependWindow = ka.wm.getDependOn(winId);
@@ -271,22 +286,25 @@ ka.wm = {
 
     closeAll: function () {
         Object.each(ka.wm.windows, function (win) {
-            if (win)
+            if (win) {
                 win.close();
+            }
         });
     },
 
     hideContents: function () {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win)
+            if (win) {
                 win.content.setStyle('display', 'none');
+            }
         });
     },
 
     showContents: function () {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win)
+            if (win) {
                 win.content.setStyle('display', 'block');
+            }
         });
     }
 

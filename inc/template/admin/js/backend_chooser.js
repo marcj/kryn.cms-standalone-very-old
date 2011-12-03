@@ -29,8 +29,9 @@ var admin_backend_chooser = new Class({
 
     choose: function () {
         this.saveCookie();
-        if (this.win.params.onChoose)
+        if (this.win.params.onChoose) {
             this.win.params.onChoose(this.value);
+        }
         this.win.close();
     },
 
@@ -68,14 +69,18 @@ var admin_backend_chooser = new Class({
 
         var lastTab = Cookie.read(this.cookie + 'lastTab');
         if (['pages', 'files', 'upload'].contains(lastTab)) {
-            if (lastTab == 'pages' && this.options.pages)
+            if (lastTab == 'pages' && this.options.pages) {
                 this.toPane('pages')
-            if ((lastTab == 'files' || lastTab == 'upload' ) && this.options.files)
+            }
+            if ((lastTab == 'files' || lastTab == 'upload' ) && this.options.files) {
                 this.toPane(lastTab)
+            }
         } else {
-            if (this.options.pages)
-                this.toPane('pages'); else if (this.options.files)
+            if (this.options.pages) {
+                this.toPane('pages');
+            } else if (this.options.files) {
                 this.toPane('files');
+            }
         }
 
         this.win.content.setStyle('display', 'block');
@@ -138,8 +143,9 @@ var admin_backend_chooser = new Class({
                         _this.domainTrees.each(function (_domain) {
                             _domain.unselect();
                         });
-                        if (_this.options.files)
+                        if (_this.options.files) {
                             _this.filesPane.unselect();
+                        }
                         _this.value = pPage.rsn;
                     },
                     selectPage: _this.value,
@@ -157,17 +163,18 @@ var admin_backend_chooser = new Class({
         this._domains = new Hash();
         this.domainTrees = new Hash();
         _this.domainTrees.include(pDomainRsn, new ka.pagesTree(_this.panes['pages'], pDomainRsn, {
-                onClick: function (pPage) {
-                    _this.domainTrees.each(function (_domain) {
-                        _domain.unselect();
-                    });
-                    if (_this.options.files)
-                        _this.filesPane.unselect();
-                    _this.value = pPage.rsn;
-                },
-                selectPage: _this.value,
-                no_domain_select: true
-            }));
+            onClick: function (pPage) {
+                _this.domainTrees.each(function (_domain) {
+                    _domain.unselect();
+                });
+                if (_this.options.files) {
+                    _this.filesPane.unselect();
+                }
+                _this.value = pPage.rsn;
+            },
+            selectPage: _this.value,
+            no_domain_select: true
+        }));
     },
 
     createFiles: function () {

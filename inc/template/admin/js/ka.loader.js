@@ -3,9 +3,11 @@ ka.loader = new Class({
 
 
         this.src = _path + 'inc/template/admin/images/';
-        if (pTooltip == true)
-            this.src += 'ka-tooltip-loading.gif'; else
+        if (pTooltip == true) {
+            this.src += 'ka-tooltip-loading.gif';
+        } else {
             this.src += 'loading.gif';
+        }
 
         this.main = new Element('div', {
             styles: {
@@ -41,18 +43,21 @@ ka.loader = new Class({
     },
 
     destroy: function () {
-        if (this.main)
+        if (this.main) {
             this.main.destroy();
-        if (this.transBg)
+        }
+        if (this.transBg) {
             this.transBg.destroy();
+        }
     },
 
     inject: function (pTarget, pWhere) {
         this.main.inject(pTarget, pWhere);
 
 
-        if (this.transBg)
+        if (this.transBg) {
             this.transBg.inject(this.main, 'before');
+        }
 
         return this;
     },
@@ -60,8 +65,9 @@ ka.loader = new Class({
     show: function () {
         this.main.setStyle('display', 'block');
 
-        if (this.transBg)
+        if (this.transBg) {
             this.transBg.setStyle('display', 'block');
+        }
 
         return this;
     },
@@ -69,8 +75,9 @@ ka.loader = new Class({
     hide: function () {
         this.main.setStyle('display', 'none');
 
-        if (this.transBg)
+        if (this.transBg) {
             this.transBg.setStyle('display', 'none');
+        }
 
         return this;
     }

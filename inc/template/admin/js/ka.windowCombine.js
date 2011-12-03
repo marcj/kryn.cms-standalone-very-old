@@ -109,11 +109,13 @@ ka.windowCombine = new Class({
 
         if (pE.key == 'down') {
 
-            if (active)
+            if (active) {
                 newTarget = active.getNext('.ka-list-combine-item');
+            }
 
-            if (!newTarget)
+            if (!newTarget) {
                 this.mainLeftItems.scrollTo(0, this.mainLeftItems.getScrollSize().y + 50);
+            }
 
 
             /*if( !newTarget )
@@ -121,11 +123,13 @@ ka.windowCombine = new Class({
              */
         } else if (pE.key == 'up') {
 
-            if (active)
+            if (active) {
                 newTarget = active.getPrevious('.ka-list-combine-item');
+            }
 
-            if (!newTarget)
+            if (!newTarget) {
                 this.mainLeftItems.scrollTo(0, 0);
+            }
 
             /*
              if( !newTarget )
@@ -163,8 +167,9 @@ ka.windowCombine = new Class({
 
         this.renderSearchPane();
 
-        if (this.values.multiLanguage)
+        if (this.values.multiLanguage) {
             this.win.extendHead();
+        }
 
         if (this.values.add || this.values.remove || this.values.custom) {
             this.actionsNavi = this.win.addButtonGroup();
@@ -349,8 +354,9 @@ ka.windowCombine = new Class({
 
     doSearch: function () {
 
-        if (this.lastTimer)
+        if (this.lastTimer) {
             $clear(this.lastTimer);
+        }
 
         var mySearch = function () {
 
@@ -388,8 +394,9 @@ ka.windowCombine = new Class({
             this.loadPrevious(pAndScrollToSelect);
         }
 
-        if (pRecheck == true)
+        if (pRecheck == true) {
             this.checkScrollPosition.delay(50, this);
+        }
 
     },
 
@@ -441,21 +448,26 @@ ka.windowCombine = new Class({
         //logger(pFrom+' => '+pMax);
 
         if (this._lastItems) {
-            if (pFrom > this._lastItems.maxItems)
+            if (pFrom > this._lastItems.maxItems) {
                 return;
+            }
         }
 
         pMax = (pMax > 0) ? pMax : 5;
 
-        if (this.lastRequest)
+        if (this.lastRequest) {
             this.lastRequest.cancel();
+        }
 
-        if (this.from == null || pFrom >= this.from)
-            this.itemLoaderStart(); else
+        if (this.from == null || pFrom >= this.from) {
+            this.itemLoaderStart();
+        } else {
             this.prevItemLoaderStart();
+        }
 
-        if (this.loader)
+        if (this.loader) {
             this.loader.show();
+        }
 
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems', noCache: true, onComplete: function (res) {
 
@@ -477,8 +489,9 @@ ka.windowCombine = new Class({
 
             var nMax = Object.getLength(res.items);
 
-            if (!this.max || this.max < pFrom + nMax)
+            if (!this.max || this.max < pFrom + nMax) {
                 this.max = pFrom + nMax;
+            }
 
             if (res.maxItems > 0) {
                 if (this.max == res.maxItems) {
@@ -513,14 +526,17 @@ ka.windowCombine = new Class({
                 }
             } else {
                 if (this.from > 0) {
-                    if (this.mainLeftItems.getScroll().y < 5)
+                    if (this.mainLeftItems.getScroll().y < 5) {
                         this.mainLeftItems.scrollTo(0, 5);
+                    }
                 }
             }
 
-            if (this.from > 0 && this.mainLeftItems.getScroll().y == 0)
-                this.loadPrevious(true); else if (res.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0)
+            if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
+                this.loadPrevious(true);
+            } else if (res.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
                 this.loadMore(true);
+            }
 
         }.bind(this)}).post({
             module: this.win.module,
@@ -768,8 +784,9 @@ ka.windowCombine = new Class({
 
                 }
 
-                if (res.hasClass('active'))
+                if (res.hasClass('active')) {
                     this.lastItemPosition = position + 0;
+                }
 
                 _this.tempcount++;
             }.bind(this));
@@ -856,8 +873,9 @@ ka.windowCombine = new Class({
         this.currentItem = null;
 
         var active = this.mainLeftItems.getElement('.active');
-        if (active)
+        if (active) {
             active.removeClass('active');
+        }
 
         if (this.currentEdit) {
             this.currentEdit.destroy();
@@ -907,8 +925,9 @@ ka.windowCombine = new Class({
             primaries[primary] = pAnswer.last_id;
         }.bind(this));
 
-        if (!this.win.params)
+        if (!this.win.params) {
             this.win.params = {};
+        }
 
         this.win.params.selected = primaries;
 
@@ -1070,13 +1089,16 @@ ka.windowCombine = new Class({
             var item = this.currentEdit.item;
 
             var title = item.values.title;
-            if (!title)
+            if (!title) {
                 title = item.values.name;
-            if (!title)
+            }
+            if (!title) {
                 title = item.values.name;
+            }
 
-            if (this.currentEdit.values.editTitleField)
-                title = item.values[ this.currentEdit.values.editTitleField ]; else if (this.currentEdit.values.titleField) {
+            if (this.currentEdit.values.editTitleField) {
+                title = item.values[ this.currentEdit.values.editTitleField ];
+            } else if (this.currentEdit.values.titleField) {
                 title = item.values[ this.currentEdit.values.titleField ];
             } else if (!title) {
                 Object.each(item.values, function (item) {
@@ -1096,8 +1118,9 @@ ka.windowCombine = new Class({
 
     loadAround: function (pPrimaries) {
 
-        if (this.lastRequest)
+        if (this.lastRequest) {
             this.lastRequest.cancel();
+        }
 
         //this.itemLoaderStart();
 
@@ -1179,8 +1202,9 @@ ka.windowCombine = new Class({
 
             if (target != false) {
 
-                if (this.lastSavedUpdateRq)
+                if (this.lastSavedUpdateRq) {
                     this.lastSavedUpdateRq.cancel();
+                }
 
                 var req = {
                     module: this.win.module,
@@ -1192,8 +1216,9 @@ ka.windowCombine = new Class({
                     req['primary'][primary] = this.currentItem.values[primary];
                 }.bind(this));
 
-                if (this.currentEdit.values.multiLanguage)
+                if (this.currentEdit.values.multiLanguage) {
                     req['language'] = this.currentItem.values['lang'];
+                }
 
                 this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems',
                     noCache: true, onComplete: function (res) {
@@ -1260,8 +1285,9 @@ ka.windowCombine = new Class({
 
                 if (c > 2) return;
 
-                if (c == 2)
+                if (c == 2) {
                     layout += ', ';
+                }
 
                 layout += "<span id=" + id + "></span>";
                 c++;
@@ -1299,9 +1325,10 @@ ka.windowCombine = new Class({
                 this.checkboxes.include(new Element('input', {
                     value: JSON.encode(mykey),
                     type: 'checkbox'
-                }).addEvent('click', function (e) {
-                    e.stopPropagation();
-                }).inject(removeCheckBox));
+                }).addEvent('click',
+                    function (e) {
+                        e.stopPropagation();
+                    }).inject(removeCheckBox));
                 //}
             }
         }
@@ -1312,12 +1339,14 @@ ka.windowCombine = new Class({
             var oneIsFalse = false;
 
             this.currentEdit.values.primary.each(function (prim) {
-                if (this.currentItem['values'][prim] != pItem.values[prim])
+                if (this.currentItem['values'][prim] != pItem.values[prim]) {
                     oneIsFalse = true;
+                }
             }.bind(this))
 
-            if (oneIsFalse == false)
+            if (oneIsFalse == false) {
                 item.addClass('active');
+            }
         }
 
 
@@ -1326,8 +1355,9 @@ ka.windowCombine = new Class({
             var oneIsFalse = false;
 
             Object.each(this.win.params.selected, function (value, prim) {
-                if (value != pItem.values[prim])
+                if (value != pItem.values[prim]) {
                     oneIsFalse = true;
+                }
             }.bind(this))
 
             if (oneIsFalse == false) {
@@ -1406,11 +1436,14 @@ ka.windowCombine = new Class({
 
             var td = new Element('td', {
                 html: value
-            }).addEvent('click', function (e) {
-                _this.select(this);
-            }).addEvent('mousedown', function (e) {
+            }).addEvent('click',
+                function (e) {
+                    _this.select(this);
+                }).addEvent('mousedown',
+                function (e) {
                     e.stop();
-                }).addEvent('dblclick', function (e) {
+                }).addEvent('dblclick',
+                function (e) {
                     if (_this.values.editCode) {
                         ka.wm.open(_this.values.editCode, pItem);
                     } else if (pItem.edit) {
@@ -1418,8 +1451,9 @@ ka.windowCombine = new Class({
                     }
                 }).inject(tr);
 
-            if (column.type == 'html')
+            if (column.type == 'html') {
                 td.set('html', value);
+            }
 
             //open window if open definied
             //todo: may this section isn't in use ?
@@ -1447,9 +1481,10 @@ ka.windowCombine = new Class({
                     new Element('img', {
                         src: _path + 'inc/template/' + action[1],
                         title: action[0]
-                    }).addEvent('click', function () {
-                        ka.wm.open(action[2], {item: pItem, filter: action[3]});
-                    }).inject(icon);
+                    }).addEvent('click',
+                        function () {
+                            ka.wm.open(action[2], {item: pItem, filter: action[3]});
+                        }).inject(icon);
                 });
                 icon.setStyle('width', 40 + (20 * this.values.itemActions.length));
                 this.titleIconTd.setStyle('width', 40 + (20 * this.values.itemActions.length));
@@ -1458,23 +1493,25 @@ ka.windowCombine = new Class({
             if (pItem.edit) {
                 new Element('img', {
                     src: _path + 'inc/template/admin/images/icons/' + this.values.iconEdit
-                }).addEvent('click', function () {
-                    if (_this.values.editCode) {
-                        ka.wm.open(_this.values.editCode, pItem);
-                    } else if (pItem.edit) {
-                        ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
-                    }
-                }).inject(icon);
+                }).addEvent('click',
+                    function () {
+                        if (_this.values.editCode) {
+                            ka.wm.open(_this.values.editCode, pItem);
+                        } else if (pItem.edit) {
+                            ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+                        }
+                    }).inject(icon);
             }
             if (pItem['remove']) {
                 new Element('img', {
                     src: _path + 'inc/template/admin/images/icons/' + this.values.iconDelete
-                }).addEvent('click', function () {
-                    _this.win._confirm(_('Really delete?'), function (res) {
-                        if (!res) return;
-                        _this.deleteItem(pItem);
-                    });
-                }).inject(icon);
+                }).addEvent('click',
+                    function () {
+                        _this.win._confirm(_('Really delete?'), function (res) {
+                            if (!res) return;
+                            _this.deleteItem(pItem);
+                        });
+                    }).inject(icon);
             }
         }
     }

@@ -13,8 +13,9 @@ document.addEvent('touchmove', function (event) {
 if ($type(ka.langs) != 'object') ka.langs = {};
 
 var logger = function (pVal) {
-    if (typeof console != "undefined")
+    if (typeof console != "undefined") {
         console.log(pVal);
+    }
 }
 
 ka.openFrontend = function () {
@@ -63,9 +64,11 @@ window.addEvent('load', function () {
     }).inject(document.body);
 
     $('ka-search-query').addEvent('keyup', function (e) {
-        if (this.value != '')
-            ka.doMiniSearch(this.value); else
+        if (this.value != '') {
+            ka.doMiniSearch(this.value);
+        } else {
             ka.hideMiniSearch();
+        }
     });
 
 
@@ -137,10 +140,11 @@ ka._renderMiniSearchResults = function (pRes) {
                 new Element('a', {
                     html: ' ' + subsubresults[0],
                     href: 'javascript: ;'
-                }).addEvent('click', function () {
-                    ka.wm.open(subsubresults[1], subsubresults[2]);
-                    ka.hideMiniSearch();
-                }).inject(li);
+                }).addEvent('click',
+                    function () {
+                        ka.wm.open(subsubresults[1], subsubresults[2]);
+                        ka.hideMiniSearch();
+                    }).inject(li);
             });
         });
     } else {
@@ -208,9 +212,10 @@ ka.ai.renderLogin = function () {
         'class': 'ka-login-middle-form',
         action: './admin',
         method: 'post'
-    }).addEvent('submit', function (e) {
-        e.stop()
-    }).inject(middle);
+    }).addEvent('submit',
+        function (e) {
+            e.stop()
+        }).inject(middle);
     ka.ai.loginForm = form;
 
     var icon = new Element('div', {
@@ -233,33 +238,37 @@ ka.ai.renderLogin = function () {
         name: 'loginName',
         'class': 'ka-login-input-username',
         type: 'text'
-    }).addEvent('keyup', function (e) {
-        if (e.key == 'enter') {
-            ka.ai.doLogin();
-        }
-    }).inject(form);
+    }).addEvent('keyup',
+        function (e) {
+            if (e.key == 'enter') {
+                ka.ai.doLogin();
+            }
+        }).inject(form);
 
     ka.ai.loginPw = new Element('input', {
         name: 'loginPw',
         type: 'password',
         'class': 'ka-login-input-passwd'
-    }).addEvent('keyup', function (e) {
-        if (e.key == 'enter') {
-            ka.ai.doLogin();
-        }
-    }).inject(form);
+    }).addEvent('keyup',
+        function (e) {
+            if (e.key == 'enter') {
+                ka.ai.doLogin();
+            }
+        }).inject(form);
 
-    ka.ai.buttonLogin = new ka.Button(_('Login')).addEvent('click', function () {
-        //form.submit();
-        ka.ai.doLogin();
-    }).inject(form);
+    ka.ai.buttonLogin = new ka.Button(_('Login')).addEvent('click',
+        function () {
+            //form.submit();
+            ka.ai.doLogin();
+        }).inject(form);
 
     ka.ai.loginLangSelection = new Element('select', {
         'class': 'loginLangSelection'
-    }).addEvent('change', function () {
-        ka.loadLanguage(this.value);
-        ka.ai.reloadLogin();
-    }).inject(form);
+    }).addEvent('change',
+        function () {
+            ka.loadLanguage(this.value);
+            ka.ai.reloadLogin();
+        }).inject(form);
 
     ka.possibleLangs.each(function (lang) {
         new Element('option', {
@@ -302,8 +311,9 @@ ka.ai.doLogin = function () {
     new Request.JSON({url: _path + 'admin/user:login/json:1', noCache: 1, onComplete: function (res) {
         if (res.user_rsn > 0) {
             ka.ai.loginSuccess(res);
-        } else
+        } else {
             ka.ai.loginFailed();
+        }
     }}).post({ username: ka.ai.loginName.value, passwd: ka.ai.loginPw.value });
 }
 
@@ -311,16 +321,18 @@ ka.ai.logout = function (pScreenlocker) {
 
     ka.ai.inScreenlockerMode = pScreenlocker;
 
-    if (ka.ai.loaderCon)
+    if (ka.ai.loaderCon) {
         ka.ai.loaderCon.destroy();
+    }
 
     ka.ai.loginLabelPassword.value = '';
 
     ka.ai.middle.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
     ka.ai.middle.tween('margin-top', ka.ai.middle.retrieve('oldMargin'));
 
-    if (ka.ai.loaderTxt)
+    if (ka.ai.loaderTxt) {
         ka.ai.loaderTxt.destroy();
+    }
 
 
     window.fireEvent('logout');
@@ -331,8 +343,9 @@ ka.ai.logout = function (pScreenlocker) {
         new Request({url: _path + 'admin/user:logout'}).post();
     }
 
-    if (ka.ai.loader)
+    if (ka.ai.loader) {
         ka.ai.loader.destroy();
+    }
 
     ka.ai.loginForm.setStyle('display', 'block');
     ka.ai.loginMessage.set('html', '');
@@ -347,8 +360,9 @@ ka.ai.logout = function (pScreenlocker) {
 ka.ai.loginSuccess = function (pId, pAlready) {
 
 
-    if (pAlready && window._session.hasBackendAccess == '0')
+    if (pAlready && window._session.hasBackendAccess == '0') {
         return;
+    }
 
     ka.ai.loginName.value = pId.username;
 
@@ -394,11 +408,13 @@ ka.ai.loadBackend = function () {
         return;
     }
 
-    if (ka.ai.loaderCon)
+    if (ka.ai.loaderCon) {
         ka.ai.loaderCon.destroy();
+    }
 
-    if (ka.ai.loaderTxt)
+    if (ka.ai.loaderTxt) {
         ka.ai.loaderTxt.destroy();
+    }
 
     ka.ai.loaderCon = new Element('div', {
         'class': 'ka-ai-loader-con'
@@ -435,8 +451,9 @@ ka.ai.loadBackend = function () {
 }
 
 ka.ai.loaderDone = function () {
-    if ($type(ka.ai.loaderAni) == 'integer')
+    if ($type(ka.ai.loaderAni) == 'integer') {
         clearInterval(ka.ai.loaderAni);
+    }
 
     ka.ai.loaderTxt.set('html', _('Loading done'));
     ka.ai.loader.setStyle('left', 0);

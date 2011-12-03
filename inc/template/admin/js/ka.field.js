@@ -45,9 +45,11 @@ ka.field = new Class({
             }).inject(pContainer || document.hidden);
             this.main.store('ka.field', this);
 
-            if (this.field.panel_width)
-                this.main.setStyle('width', this.field.panel_width); else if (!this.field.small)
+            if (this.field.panel_width) {
+                this.main.setStyle('width', this.field.panel_width);
+            } else if (!this.field.small) {
                 this.main.setStyle('width', 330);
+            }
 
             if (pField.type == 'headline') {
                 new Element('div', {
@@ -69,11 +71,13 @@ ka.field = new Class({
 
         }
 
-        if (this.field.invisible == 1)
+        if (this.field.invisible == 1) {
             this.main.setStyle('display', 'none');
+        }
 
-        if (this.field.win)
+        if (this.field.win) {
             this.win = this.field.win;
+        }
 
         if (pField.label) {
             this.titleText = new Element('div', {
@@ -91,11 +95,14 @@ ka.field = new Class({
                 styles: {
                     opacity: 0.7
                 }
-            }).addEvent('mouseover', function () {
-                this.setStyle('opacity', 1);
-            }).addEvent('mouseout', function () {
+            }).addEvent('mouseover',
+                function () {
+                    this.setStyle('opacity', 1);
+                }).addEvent('mouseout',
+                function () {
                     this.setStyle('opacity', 0.7);
-                }).addEvent('click', function () {
+                }).addEvent('click',
+                function () {
                     ka.wm.open('admin/help', {id: pField.help});
                 }).inject(this.titleText);
         }
@@ -163,8 +170,9 @@ ka.field = new Class({
     },
 
     renderField: function () {
-        if (this.field.type)
+        if (this.field.type) {
             this.field.type = this.field.type.toLowerCase();
+        }
 
         switch (this.field.type) {
             case 'password':
@@ -262,9 +270,11 @@ ka.field = new Class({
 
         this._setValue = function (pVal) {
             this.value = pVal;
-            if (pStripHtml)
-                div.set('text', pVal); else
+            if (pStripHtml) {
+                div.set('text', pVal);
+            } else {
                 div.set('html', pVal);
+            }
         }.bind(this);
 
         this.getValue = function () {
@@ -282,8 +292,9 @@ ka.field = new Class({
             'class': 'ka-field-textlist'
         }).inject(this.fieldPanel);
 
-        if (this.field.width)
+        if (this.field.width) {
             div.setStyle('width', this.field.width);
+        }
 
         var input = new Element('input', {
             autocomplete: false,
@@ -315,8 +326,9 @@ ka.field = new Class({
 
         var addTextlistItem = function (pLabel, pValue) {
 
-            if (!pValue)
+            if (!pValue) {
                 pValue = pLabel;
+            }
 
             if (!_this.field.doubles || _this.field.doubles != true || _this.field.doubles != 1) {
                 //check for doubles
@@ -343,9 +355,11 @@ ka.field = new Class({
             if (!pLabel) {
 
                 new Request.JSON({url: _path + 'admin/' + _this.field.store, onComplete: function (res) {
-                    if (res)
-                        title.set('text', res.label); else
+                    if (res) {
+                        title.set('text', res.label);
+                    } else {
                         title.set('text', _('##Failed##'));
+                    }
 
                 }}).get({cmd: 'item', id: pValue});
             }
@@ -367,28 +381,29 @@ ka.field = new Class({
 
             new Element('a', {
                 text: 'x'
-            }).addEvent('mousedown', function (e) {
-                e.stop();
-                if (active == this.getParent()) {
-                    var next = this.getParent().getNext();
-                    if (!next.hasClass('ka-field-textlist-item') && next.get('tag') != 'input') {
-                        next = this.getParent().getPrevious();
+            }).addEvent('mousedown',
+                function (e) {
+                    e.stop();
+                    if (active == this.getParent()) {
+                        var next = this.getParent().getNext();
+                        if (!next.hasClass('ka-field-textlist-item') && next.get('tag') != 'input') {
+                            next = this.getParent().getPrevious();
+                        }
+                        if (!next.hasClass('ka-field-textlist-item') && next.get('tag') != 'input') {
+                            next = input;
+                        }
+                        if (next.get('tag') == 'input') {
+                            active = input;
+                            input.setStyle('left', '');
+                            input.setStyle('position', '');
+                            input.focus();
+                        } else {
+                            active = next;
+                            active.addClass('ka-field-textlist-item-active');
+                        }
                     }
-                    if (!next.hasClass('ka-field-textlist-item') && next.get('tag') != 'input') {
-                        next = input;
-                    }
-                    if (next.get('tag') == 'input') {
-                        active = input;
-                        input.setStyle('left', '');
-                        input.setStyle('position', '');
-                        input.focus();
-                    } else {
-                        active = next;
-                        active.addClass('ka-field-textlist-item-active');
-                    }
-                }
-                this.getParent().destroy();
-            }).inject(item);
+                    this.getParent().destroy();
+                }).inject(item);
 
         };
 
@@ -442,8 +457,9 @@ ka.field = new Class({
         }
 
         _searchValue = function (pValue) {
-            if (lastRq)
+            if (lastRq) {
                 lastRq.cancel();
+            }
 
             var lastRq = new Request.JSON({url: _path + 'admin/' + _this.field.store, noCache: 1, onComplete: function (res) {
 
@@ -468,8 +484,9 @@ ka.field = new Class({
                         });
                         a.store('value', value);
                     });
-                    if (boxBody.getElement('a') && pValue)
+                    if (boxBody.getElement('a') && pValue) {
                         boxBody.getElement('a').addClass('active');
+                    }
                 }
 
             }}).post({search: pValue});
@@ -486,8 +503,9 @@ ka.field = new Class({
                     'class': 'ka-field-textlist-searchbox'
                 }).inject(target);
 
-                if (timer)
+                if (timer) {
                     clearTimeout(timer);
+                }
 
                 updatePosition();
 
@@ -636,8 +654,9 @@ ka.field = new Class({
             input.inject(clear, 'before');
             input.setStyle('position', '');
             input.setStyle('left', '');
-            if (active)
+            if (active) {
                 active.removeClass('ka-field-textlist-item-active');
+            }
             input.focus();
             active = input;
         });
@@ -701,8 +720,9 @@ ka.field = new Class({
 
         this.fieldPanel.setStyle('margin-left', 11);
 
-        if (this.field.width)
+        if (this.field.width) {
             this.fieldPanel.setStyle('width', this.field.width);
+        }
 
         var thead = new Element('thead').inject(table);
         var tbody = new Element('tbody').inject(table);
@@ -738,8 +758,9 @@ ka.field = new Class({
                 var td = new Element('td').inject(tr);
                 nField.inject(td);
 
-                if (pValue && pValue[field_key])
+                if (pValue && pValue[field_key]) {
                     nField.setValue(pValue[field_key]);
+                }
 
                 tr.fields[field_key] = nField;
 
@@ -751,9 +772,10 @@ ka.field = new Class({
                 src: _path + 'inc/template/admin/images/icons/delete.png',
                 style: 'cursor: pointer;',
                 title: _('Remove')
-            }).addEvent('click', function () {
-                tr.destroy();
-            }).inject(td);
+            }).addEvent('click',
+                function () {
+                    tr.destroy();
+                }).inject(td);
 
 
         }.bind(this);
@@ -817,8 +839,9 @@ ka.field = new Class({
             }
         }).inject(this.fieldPanel);
 
-        if (!this.field.panel_width)
+        if (!this.field.panel_width) {
             this.main.setStyle('width', '');
+        }
 
         var titleGroups = new Element('div', {
             'class': 'kwindow-win-title kwindow-win-titleGroups',
@@ -905,8 +928,9 @@ ka.field = new Class({
 
             var value = false;
             $H(this.imageGroupImages).each(function (button, tvalue) {
-                if (button.get('class').test('buttonHover'))
+                if (button.get('class').test('buttonHover')) {
                     value = tvalue;
+                }
             });
 
             return value;
@@ -916,8 +940,9 @@ ka.field = new Class({
 
             $H(this.imageGroupImages).each(function (button, tvalue) {
                 button.removeClass('buttonHover');
-                if (pValue == tvalue)
+                if (pValue == tvalue) {
                     button.addClass('buttonHover');
+                }
             });
         }
 
@@ -1041,7 +1066,8 @@ ka.field = new Class({
             } else {
                 this.setInputActive(false);
             }
-        }.bind(this)).addEvent('keyup', function () {
+        }.bind(this)).addEvent('keyup',
+            function () {
                 this.fireEvent('blur');
             }).inject(this.fieldPanel);
 
@@ -1077,8 +1103,9 @@ ka.field = new Class({
             }
             this.input.title = this.input.value;
 
-            if (pIntern)
+            if (pIntern) {
                 this.fireEvent('change', this.getValue());
+            }
         }
 
         this.getValue = function () {
@@ -1087,8 +1114,9 @@ ka.field = new Class({
     },
 
     pageChooserGetUrl: function () {
-        if (this.lastPageChooserGetUrlRequest)
+        if (this.lastPageChooserGetUrlRequest) {
             this.lastPageChooserGetUrlRequest.cancel();
+        }
 
         this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/pages/getUrl', noCache: 1, onComplete: function (res) {
             this._automaticUrl = res;
@@ -1105,17 +1133,20 @@ ka.field = new Class({
         var sortable = this.field.sortable;
 
         var selWidth = 133;
-        if (this.field.tinyselect)
+        if (this.field.tinyselect) {
             selWidth = 75;
-        if (sortable)
+        }
+        if (sortable) {
             selWidth -= 8;
+        }
 
         if (!this.field.tableItems && this.field.table_items) {
             this.field.tableItems = this.field.table_items;
         }
 
-        if (multiple && (!this.field.size || this.field.size + 0 < 4 ))
+        if (multiple && (!this.field.size || this.field.size + 0 < 4 )) {
             this.field.size = 4;
+        }
 
         if (multiple) {
             this.input = new Element('select', {
@@ -1125,8 +1156,9 @@ ka.field = new Class({
             }.bind(this)).inject(this.fieldPanel);
         }
 
-        if (!this.field.tableItems && this.field.items)
+        if (!this.field.tableItems && this.field.items) {
             this.field.tableItems = this.field.items;
+        }
 
 
         var label = _this.field.table_label;
@@ -1172,8 +1204,9 @@ ka.field = new Class({
                             text: text,
                             value: item[key]
                         })
-                        if (t && _this.input)
+                        if (t && _this.input) {
                             t.inject(_this.input);
+                        }
 
                     });
                 } else if (typeOf(this.field.tableItems) == 'object') {
@@ -1183,8 +1216,9 @@ ka.field = new Class({
                             text: item,
                             value: key
                         })
-                        if (t && _this.input)
+                        if (t && _this.input) {
                             t.inject(_this.input);
+                        }
                     });
                 }
 
@@ -1224,8 +1258,9 @@ ka.field = new Class({
 
             var toLeft = new ka.Button('«').addEvent('click', function () {
                 if (this.inputVals.getSelected()) {
-                    if (this.input.getElement('option[value=' + this.inputVals.value + ']'))
+                    if (this.input.getElement('option[value=' + this.inputVals.value + ']')) {
                         this.input.getElement('option[value=' + this.inputVals.value + ']').set('disabled', false);
+                    }
                     this.inputVals.getSelected().destroy();
                 }
             }.bind(this)).setStyle('left', -2).inject(td2);
@@ -1245,8 +1280,9 @@ ka.field = new Class({
             }.bind(this)).inject(td3);
 
 
-            if (this.field.tinyselect)
+            if (this.field.tinyselect) {
                 this.inputVals.setStyle('width', 75);
+            }
 
             this.renderItems();
 
@@ -1288,8 +1324,9 @@ ka.field = new Class({
 
                 }
 
-                if (value)
+                if (value) {
                     this.select.setValue(value);
+                }
 
             }.bind(this);
 
@@ -1303,13 +1340,15 @@ ka.field = new Class({
                 src: _path + 'inc/template/admin/images/icons/arrow_up.png',
                 style: 'display: block; cursor: pointer;'
             }).addEvent('click', function () {
-                if (!this.inputVals.getElements('option') || this.inputVals.getElements('option').length < 2 || !this.inputVals.getSelected())
+                if (!this.inputVals.getElements('option') || this.inputVals.getElements('option').length < 2 || !this.inputVals.getSelected()) {
                     return;
+                }
 
                 var selOption = this.inputVals.getSelected();
                 //check if el is top
-                if (!selOption.getPrevious('option') || !$defined(selOption.getPrevious('option')[0]))
+                if (!selOption.getPrevious('option') || !$defined(selOption.getPrevious('option')[0])) {
                     return;
+                }
                 var selOptionClone = selOption.clone(true).inject(selOption.getPrevious('option')[0], 'before');
                 selOption.destroy();
 
@@ -1322,14 +1361,16 @@ ka.field = new Class({
                 style: 'display: block; cursor: pointer;'
             }).addEvent('click', function () {
 
-                if (!this.inputVals.getElements('option') || this.inputVals.getElements('option').length < 2 || !this.inputVals.getSelected())
+                if (!this.inputVals.getElements('option') || this.inputVals.getElements('option').length < 2 || !this.inputVals.getSelected()) {
                     return;
+                }
 
                 var selOption = this.inputVals.getSelected();
 
                 //check if el is top                
-                if (!selOption.getNext('option') || !$defined(selOption.getNext('option')[0]))
+                if (!selOption.getNext('option') || !$defined(selOption.getNext('option')[0])) {
                     return;
+                }
 
                 var selOptionClone = selOption.clone(true).inject(selOption.getNext('option')[0], 'after');
                 selOption.destroy();
@@ -1366,7 +1407,7 @@ ka.field = new Class({
 
                 pValue.each(function (_item) {
                     _this.input.getElements('option').each(function (option) {
-                        if (option.value == _item[_this.field['n-n'].middle_keyright])
+                        if (option.value == _item[_this.field['n-n'].middle_keyright]) {
                             if (multiple) {
                                 option.clone().inject(this.inputVals);
                                 option.set('disabled', true);
@@ -1374,6 +1415,7 @@ ka.field = new Class({
                             } else {
                                 option.selected = true;
                             }
+                        }
                     }.bind(this));
                 }.bind(this));
 
@@ -1403,8 +1445,9 @@ ka.field = new Class({
                 this.select.setValue(pValue);
             }
 
-            if (pIntern)
+            if (pIntern) {
                 this.fireEvent('change', this.getValue());
+            }
         };
 
         this.getValue = function () {
@@ -1468,17 +1511,21 @@ ka.field = new Class({
 
         this._setValue = function (pValue, pIntern) {
             var tiny = tinyMCE.get(this.lastId);
-            if (tiny)
-                tiny.setContent(pValue); else
+            if (tiny) {
+                tiny.setContent(pValue);
+            } else {
                 this.input.value = pValue;
+            }
 
-            if (pIntern)
+            if (pIntern) {
                 this.fireEvent('change', this.getValue());
+            }
         }
 
         this.getValue = function () {
-            if (!tinyMCE.get(this.lastId))
+            if (!tinyMCE.get(this.lastId)) {
                 return false;
+            }
             return tinyMCE.get(this.lastId).getContent();
         }
     },
@@ -1506,8 +1553,9 @@ ka.field = new Class({
         this._setValue = function (pVal, pIntern) {
             datePicker.setTime((pVal != 0) ? pVal : false);
 
-            if (pIntern)
+            if (pIntern) {
                 this.fireEvent('change', this.getValue());
+            }
         }.bind(this);
 
         if (this.field['default'] && this.field['default'] != "") {
@@ -1582,9 +1630,10 @@ ka.field = new Class({
         this.input = new Element('input', {
             'class': 'text',
             type: 'text'
-        }).addEvent('blur', function () {
-            _this.isEmpty();
-        }).inject(this.fieldPanel);
+        }).addEvent('blur',
+            function () {
+                _this.isEmpty();
+            }).inject(this.fieldPanel);
         var _this = this;
 
         if (this.field.width) {
@@ -1628,9 +1677,11 @@ ka.field = new Class({
     },
 
     checkKurl: function (pValue) {
-        if (this.field.check == 'kurl')
-            return pValue.replace(/Ä/g, 'AE').replace(/ä/g, 'ae').replace(/Ö/g, 'OE').replace(/ö/g, 'oe').replace(/Ü/g, 'UE').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/\W/g, '-').toLowerCase(); else
+        if (this.field.check == 'kurl') {
+            return pValue.replace(/Ä/g, 'AE').replace(/ä/g, 'ae').replace(/Ö/g, 'OE').replace(/ö/g, 'oe').replace(/Ü/g, 'UE').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/\W/g, '-').toLowerCase();
+        } else {
             return pValue;
+        }
     },
 
     renderTextarea: function () {
@@ -1641,9 +1692,10 @@ ka.field = new Class({
                 'height': (this.field.height) ? this.field.height : 80,
                 'width': (this.field.width) ? this.field.width : ''
             }
-        }).addEvent('blur', function () {
-            _this.isEmpty();
-        }).inject(this.fieldPanel);
+        }).addEvent('blur',
+            function () {
+                _this.isEmpty();
+            }).inject(this.fieldPanel);
 
         this._setValue = function (pVal) {
             if (typeOf(pVal) == 'null') pVal = '';
@@ -1662,9 +1714,10 @@ ka.field = new Class({
         this.input = new Element('input', {
             'class': 'text',
             type: 'password'
-        }).addEvent('blur', function () {
-            _this.isEmpty();
-        }).inject(this.fieldPanel);
+        }).addEvent('blur',
+            function () {
+                _this.isEmpty();
+            }).inject(this.fieldPanel);
 
         this._setValue = function (pVal) {
             if (typeOf(pVal) == 'null') pVal = '';
@@ -1705,15 +1758,17 @@ ka.field = new Class({
         }
         if (this.emptyIcon) this.emptyIcon.destroy();
 
-        if (this.input)
+        if (this.input) {
             this.input.set('class', this.input.retrieve('oldClass'));
+        }
 
         return false;
     },
 
     isOk: function () {
-        if (this.field.empty === false)
+        if (this.field.empty === false) {
             return !this.isEmpty();
+        }
         return true;
     },
 
@@ -1736,10 +1791,12 @@ ka.field = new Class({
             this._setValue(pValue, pIntern);
         }
 
-        if (pIntern)
-            this.fireEvent('change', this.getValue()); //fires check-depends too
-        else
+        if (pIntern) {
+            this.fireEvent('change', this.getValue());
+        } //fires check-depends too
+        else {
             this.fireEvent('check-depends');
+        }
     },
 
     _setValue: function (pValue, pIntern) {
@@ -1778,12 +1835,15 @@ ka.field = new Class({
             pTo.getDocument().adoptNode(this.tr || this.main);
         }
 
-        if (this.tr)
-            this.tr.inject(pTo, pP); else
+        if (this.tr) {
+            this.tr.inject(pTo, pP);
+        } else {
             this.main.inject(pTo, pP);
+        }
 
-        if (this.customObj)
+        if (this.customObj) {
             this.customObj.inject(this.fieldPanel);
+        }
 
         this.findWin();
 
@@ -1798,9 +1858,11 @@ ka.field = new Class({
 
         if (this.childContainer) this.childContainer.hide();
 
-        if (this.tr)
-            this.tr.setStyle('display', 'none'); else
+        if (this.tr) {
+            this.tr.setStyle('display', 'none');
+        } else {
             this.main.setStyle('display', 'none');
+        }
     },
 
 
@@ -1812,15 +1874,18 @@ ka.field = new Class({
             if (this.tr.getStyle('display') == 'none') {
                 return true;
             }
-        } else if (this.main.getStyle('display') == 'none')
+        } else if (this.main.getStyle('display') == 'none') {
             return true;
+        }
         return false;
     },
 
     show: function () {
-        if (this.tr)
-            this.tr.setStyle('display', 'table-row'); else
+        if (this.tr) {
+            this.tr.setStyle('display', 'table-row');
+        } else {
             this.main.setStyle('display', 'block');
+        }
 
         this.fireEvent('check-depends');
     },
@@ -1852,14 +1917,17 @@ ka.field = new Class({
         Array.each(keys, function (key) {
 
             if (notFound) return;
-            if (values[ key.replace(']', '')])
-                values = values[ key.replace(']', '')]; else
+            if (values[ key.replace(']', '')]) {
+                values = values[ key.replace(']', '')];
+            } else {
                 notFound = true;
+            }
 
         });
 
-        if (!notFound)
+        if (!notFound) {
             this.setValue(values);
+        }
     },
 
     initMultiUpload: function () {

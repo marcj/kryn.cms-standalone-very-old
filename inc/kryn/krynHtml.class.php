@@ -68,7 +68,7 @@ class krynHtml {
         print self::buildHead(true);
         //print 'tooks '.(microtime(true)-$_start).' seconds<br/>';
 
-        printkryn::$htmlHeadEnd . '</head><body>' . kryn::$htmlBodyTop . $pContent . "\n\n" . kryn::$htmlBodyEnd .
+        print kryn::$htmlHeadEnd . '</head><body>' . kryn::$htmlBodyTop . $pContent . "\n\n" . kryn::$htmlBodyEnd .
              '</body></html>';
     }
 

@@ -42,9 +42,10 @@ ka.fp = new Class({
                 left: cor.right
             },
             text: '+'
-        }).addEvent('click', function () {
-            _this._openChooseDialog();
-        }).inject(this.cont);
+        }).addEvent('click',
+            function () {
+                _this._openChooseDialog();
+            }).inject(this.cont);
 
         new Element('div', {
             'class': 'ka-fp-element',
@@ -53,9 +54,10 @@ ka.fp = new Class({
                 top: 21
             },
             text: '-'
-        }).addEvent('click', function () {
-            _this._deleteSelectedItem();
-        }).inject(this.cont);
+        }).addEvent('click',
+            function () {
+                _this._deleteSelectedItem();
+            }).inject(this.cont);
 
         this.selectAll();
     },
@@ -70,8 +72,9 @@ ka.fp = new Class({
 
     _OK: function () {
         var res = this.fb.getValue();
-        if (res == false)
+        if (res == false) {
             return false;
+        }
         this.dialog.close();
         new Element('option', {
             value: res,

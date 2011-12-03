@@ -45,8 +45,9 @@ var admin_pages_choosePage = new Class({
             if (this.page && this.page.rsn > 0) {
                 this.win.params.onChoose(this.page);
                 this.win.close();
-            } else
+            } else {
                 alert('Bitte erst ein Punkt auswählen');
+            }
         }.bind(this)).inject(this.bottom);
 
         this.choosenPlaceDiv = new Element('div', {

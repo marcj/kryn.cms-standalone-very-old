@@ -19,8 +19,9 @@ ka.list = new Class({
         var _this = this;
 
         window.addEvent('softReload', function (pCode) {
-            if (pCode == this.win.module + '/' + this.win.code)
+            if (pCode == this.win.module + '/' + this.win.code) {
                 this.reload();
+            }
         }.bind(this));
     },
 
@@ -58,25 +59,30 @@ ka.list = new Class({
 
         pItem = this.columns[pColumn];
 
-        if (!this.values.orderByDirection)
+        if (!this.values.orderByDirection) {
             this.values.orderByDirection = 'ASC';
+        }
 
         if (this.sortField != pColumn) {
             this.sortField = pColumn;
             this.sortDirection = (this.values.orderByDirection.toLowerCase() == 'asc') ? 'ASC' : 'DESC';
         } else {
-            if (this.sortDirection == 'ASC')
-                this.sortDirection = 'DESC' else
-                this.sortDirection = 'ASC'
+            if (this.sortDirection == 'ASC') {
+                this.sortDirection = 'DESC';
+            } else {
+                this.sortDirection = 'ASC';
+            }
         }
 
         pItem.getParent().getElements('img').each(function (item) {
             item.destroy();
         });
 
-        if (this.sortDirection == 'ASC')
-            pic = 'bullet_arrow_up.png'; else
+        if (this.sortDirection == 'ASC') {
+            pic = 'bullet_arrow_up.png';
+        } else {
             pic = 'bullet_arrow_down.png';
+        }
 
         new Element('img', {
             src: _path + 'inc/template/admin/images/icons/' + pic,
@@ -92,10 +98,12 @@ ka.list = new Class({
 
 
         this.sortField = this.values.orderBy;
-        if (this.values.orderDirection)
+        if (this.values.orderDirection) {
             this.sortDirection = this.values.orderDirection;
-        if (this.values.orderByDirection)
+        }
+        if (this.values.orderByDirection) {
             this.sortDirection = this.values.orderByDirection;
+        }
 
 
         this.renderLayout();
@@ -117,8 +125,9 @@ ka.list = new Class({
         if (this.options.noInitLoad == true) return;
 
         if (!this.loadAlreadyTriggeredBySearch) {
-            if (this.columns)
-                this.click(this.values.orderBy); else {
+            if (this.columns) {
+                this.click(this.values.orderBy);
+            } else {
                 this.loadPage(1);
             }
         }
@@ -172,12 +181,13 @@ ka.list = new Class({
             new Element('input', {
                 value: 1,
                 type: 'checkbox'
-            }).addEvent('click', function () {
-                var checked = this.checked;
-                _this.checkboxes.each(function (checkbox) {
-                    checkbox.checked = checked;
-                });
-            }).inject(th)
+            }).addEvent('click',
+                function () {
+                    var checked = this.checked;
+                    _this.checkboxes.each(function (checkbox) {
+                        checkbox.checked = checked;
+                    });
+                }).inject(th)
         }
 
         /*** title-Th ***/
@@ -186,9 +196,10 @@ ka.list = new Class({
             _this.columns[columnId] = new Element('th', {
                 valign: 'top',
                 html: _(column.label)
-            }).addEvent('click', function () {
-                _this.click(columnId);
-            }).inject(tr);
+            }).addEvent('click',
+                function () {
+                    _this.click(columnId);
+                }).inject(tr);
             if (column.width > 0) {
                 _this.columns[columnId].setStyle('width', column.width + 'px');
             }
@@ -283,8 +294,9 @@ ka.list = new Class({
     },
 
     doSearch: function () {
-        if (this.lastTimer)
+        if (this.lastTimer) {
             $clear(this.lastTimer);
+        }
 
         var mySearch = function () {
             this.loadPage(1);
@@ -334,24 +346,28 @@ ka.list = new Class({
 
         this.ctrlFirst = new Element('img', {
             src: myPath + 'control_start.png'
-        }).addEvent('click', function () {
-            _this.loadPage(1);
-        }).inject(this.navi);
+        }).addEvent('click',
+            function () {
+                _this.loadPage(1);
+            }).inject(this.navi);
 
         this.ctrlPrevious = new Element('img', {
             src: myPath + 'control_back.png'
-        }).addEvent('click', function () {
-            _this.loadPage(parseInt(_this.ctrlPage.value) - 1);
-        }).inject(this.navi);
+        }).addEvent('click',
+            function () {
+                _this.loadPage(parseInt(_this.ctrlPage.value) - 1);
+            }).inject(this.navi);
 
         this.ctrlPage = new Element('input', {
-        }).addEvent('keydown', function (e) {
-            if (e.key == 'enter')
-                _this.loadPage(parseInt(_this.ctrlPage.value));
-            if (['backspace', 'left', 'right'].indexOf(e.key) == -1 && (!parseInt(e.key) + 0 > 0)) {
-                e.stop();
-            }
-        }).inject(this.navi);
+        }).addEvent('keydown',
+            function (e) {
+                if (e.key == 'enter') {
+                    _this.loadPage(parseInt(_this.ctrlPage.value));
+                }
+                if (['backspace', 'left', 'right'].indexOf(e.key) == -1 && (!parseInt(e.key) + 0 > 0)) {
+                    e.stop();
+                }
+            }).inject(this.navi);
 
         this.ctrlMax = new Element('span', {
             text: '/ 0',
@@ -360,18 +376,21 @@ ka.list = new Class({
 
         this.ctrlNext = new Element('img', {
             src: myPath + 'control_play.png'
-        }).addEvent('click', function () {
-            _this.loadPage(parseInt(_this.ctrlPage.value) + 1);
-        }).inject(this.navi);
+        }).addEvent('click',
+            function () {
+                _this.loadPage(parseInt(_this.ctrlPage.value) + 1);
+            }).inject(this.navi);
 
         this.ctrlLast = new Element('img', {
             src: myPath + 'control_end.png'
-        }).addEvent('click', function () {
-            _this.loadPage(_this._lastItems.maxPages);
-        }).inject(this.navi);
+        }).addEvent('click',
+            function () {
+                _this.loadPage(_this._lastItems.maxPages);
+            }).inject(this.navi);
 
-        if (this.values.multiLanguage)
+        if (this.values.multiLanguage) {
             this.win.extendHead();
+        }
 
         if (this.values.add || this.values.remove || this.values.custom) {
             this.actionsNavi = this.win.addButtonGroup();
@@ -400,12 +419,14 @@ ka.list = new Class({
         try {
             if (this.values.custom) {
                 iconCustom = 'inc/template/admin/images/icons/brick_go.png';
-                if (this.values.iconCustom)
+                if (this.values.iconCustom) {
                     iconCustom = this.values.iconCustom;
+                }
 
                 winModule = _this.win.module;
-                if (this.values.custom.module)
+                if (this.values.custom.module) {
                     winModule = this.values.custom.module;
+                }
 
 
                 customWinCode = _this.win.code + '/custom';
@@ -423,8 +444,9 @@ ka.list = new Class({
         } catch (e) {
         }
 
-        if (this.values['export'] || this.values['import'])
+        if (this.values['export'] || this.values['import']) {
             this.exportNavi = this.win.addButtonGroup();
+        }
 
         if (this.exportNavi) {
             if (this.values['export']) {
@@ -453,13 +475,15 @@ ka.list = new Class({
             this.win._confirm(_('Really remove selected?'), function (res) {
                 if (!res)return;
 
-                if (this.loader)
+                if (this.loader) {
                     this.loader.show();
+                }
 
                 new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
 
-                    if (this.loader)
+                    if (this.loader) {
                         this.loader.hide();
+                    }
 
                     if (this.combine) {
                         this.reload();
@@ -546,28 +570,33 @@ ka.list = new Class({
 
 
     prepareLoadPage: function () {
-        if (this.tbody)
+        if (this.tbody) {
             this.tbody.empty();
+        }
     },
 
     loadPage: function (pPage) {
         var _this = this;
 
         if (this._lastItems && pPage != 1) {
-            if (pPage > this._lastItems.maxPages)
+            if (pPage > this._lastItems.maxPages) {
                 return;
+            }
         }
 
-        if (pPage <= 0)
+        if (pPage <= 0) {
             return;
+        }
 
-        if (this.lastRequest)
+        if (this.lastRequest) {
             this.lastRequest.cancel();
+        }
 
         this.prepareLoadPage();
 
-        if (this.loader)
+        if (this.loader) {
             this.loader.show();
+        }
 
         var params = {};
 
@@ -576,8 +605,9 @@ ka.list = new Class({
 
             Object.each(relationFields, function (field_right, field_left) {
 
-                if (this.options.relation_params[ field_left ])
+                if (this.options.relation_params[ field_left ]) {
                     params[field_right] = this.options.relation_params[ field_left ];
+                }
 
             }.bind(this));
         }
@@ -605,8 +635,9 @@ ka.list = new Class({
 
         this.checkboxes = [];
 
-        if (this.loader)
+        if (this.loader) {
             this.loader.hide();
+        }
 
         this._lastItems = pItems;
 
@@ -642,8 +673,9 @@ ka.list = new Class({
 
         if (this._lastSelect == tr) return;
 
-        if (this._lastSelect)
+        if (this._lastSelect) {
             this._lastSelect.set('class', this._lastSelect.retrieve('oldClass'));
+        }
 
         tr.store('oldClass', tr.get('class'));
         tr.set('class', 'active');
@@ -708,11 +740,14 @@ ka.list = new Class({
 
             var td = new Element('td', {
                 html: value
-            }).addEvent('click', function (e) {
-                _this.select(this);
-            }).addEvent('mousedown', function (e) {
+            }).addEvent('click',
+                function (e) {
+                    _this.select(this);
+                }).addEvent('mousedown',
+                function (e) {
                     e.stop();
-                }).addEvent('dblclick', function (e) {
+                }).addEvent('dblclick',
+                function (e) {
                     if (_this.values.editCode) {
                         ka.wm.open(_this.values.editCode, pItem);
                     } else if (pItem.edit) {
@@ -720,8 +755,9 @@ ka.list = new Class({
                     }
                 }).inject(tr);
 
-            if (column.type == 'html')
+            if (column.type == 'html') {
                 td.set('html', value);
+            }
 
             //open window if open definied
             //todo: may this section isn't in use ?
@@ -749,9 +785,10 @@ ka.list = new Class({
                     new Element('img', {
                         src: _path + 'inc/template/' + action[1],
                         title: action[0]
-                    }).addEvent('click', function () {
-                        ka.wm.open(action[2], {item: pItem, filter: action[3]});
-                    }).inject(icon);
+                    }).addEvent('click',
+                        function () {
+                            ka.wm.open(action[2], {item: pItem, filter: action[3]});
+                        }).inject(icon);
                 });
                 icon.setStyle('width', 40 + (20 * this.values.itemActions.length));
                 this.titleIconTd.setStyle('width', 40 + (20 * this.values.itemActions.length));
@@ -760,23 +797,25 @@ ka.list = new Class({
             if (pItem.edit) {
                 new Element('img', {
                     src: _path + 'inc/template/admin/images/icons/' + this.values.iconEdit
-                }).addEvent('click', function () {
-                    if (_this.values.editCode) {
-                        ka.wm.open(_this.values.editCode, pItem);
-                    } else if (pItem.edit) {
-                        ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
-                    }
-                }).inject(icon);
+                }).addEvent('click',
+                    function () {
+                        if (_this.values.editCode) {
+                            ka.wm.open(_this.values.editCode, pItem);
+                        } else if (pItem.edit) {
+                            ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+                        }
+                    }).inject(icon);
             }
             if (pItem['remove']) {
                 new Element('img', {
                     src: _path + 'inc/template/admin/images/icons/' + this.values.iconDelete
-                }).addEvent('click', function () {
-                    _this.win._confirm(_('Really delete?'), function (res) {
-                        if (!res) return;
-                        _this.deleteItem(pItem);
-                    });
-                }).inject(icon);
+                }).addEvent('click',
+                    function () {
+                        _this.win._confirm(_('Really delete?'), function (res) {
+                            if (!res) return;
+                            _this.deleteItem(pItem);
+                        });
+                    }).inject(icon);
             }
         }
     }

@@ -33,15 +33,18 @@ ka.imageGroup = new Class({
 
             var myclass = 'kwindow-win-tabWrapper';
 
-            if (button.get('class').indexOf('buttonHover') >= 0)
+            if (button.get('class').indexOf('buttonHover') >= 0) {
                 myclass += ' buttonHover';
+            }
 
-            if (c == 1)
+            if (c == 1) {
                 myclass += ' kwindow-win-tabWrapperFirst';
+            }
 
             button.set('class', myclass);
-            if (pFirst)
+            if (pFirst) {
                 button.store('oriClass', myclass);
+            }
             c++;
             lastButton = button;
         }.bind(this));
@@ -73,8 +76,9 @@ ka.imageGroup = new Class({
                 'background-image': 'url(' + pButtonSrc + ')'
             }
         }).inject(this.box);
-        if (pOnClick)
+        if (pOnClick) {
             wrapper.addEvent('click', pOnClick);
+        }
 
         var _this = this;
         wrapper.hide = function () {
@@ -102,9 +106,11 @@ ka.imageGroup = new Class({
         });
 
         wrapper.setPressed = function (pPressed) {
-            if (pPressed)
-                wrapper.set('class', wrapper.retrieve('oriClass') + ' buttonHover'); else
+            if (pPressed) {
+                wrapper.set('class', wrapper.retrieve('oriClass') + ' buttonHover');
+            } else {
                 wrapper.set('class', wrapper.retrieve('oriClass'));
+            }
         }
 
         wrapper.store('visible', true);

@@ -34,8 +34,9 @@ ka.field_layoutElement = new Class({
 
     isEmpty: function () {
         var vals = this.getValue();
-        if (Object.getLength(vals.layouts) == 0)
+        if (Object.getLength(vals.layouts) == 0) {
             return true;
+        }
         return false;
     },
 
@@ -124,13 +125,15 @@ ka.field_layoutElement = new Class({
     loadLayout: function () {
         var layout = this.select.value;
 
-        if (this.layoutElement)
+        if (this.layoutElement) {
             this.lastLayoutElementContents = this.layoutElement.getValue();
+        }
 
         this.layoutElement = new ka.layoutElement(this.layoutContent, layout, this.win);
 
-        if (this.lastLayoutElementContents)
+        if (this.lastLayoutElementContents) {
             this.layoutElement.setValue(this.lastLayoutElementContents);
+        }
 
     },
 

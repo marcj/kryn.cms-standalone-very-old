@@ -19,9 +19,11 @@ ka.filesPane = new Class({
         this.options.navigation = (this.options.navigation == false) ? false : true;
 
 
-        if (Cookie.read(this.cookie + 'OnlyUserFiles') == "false")
-            this.options.onlyUserDefined = false; else
+        if (Cookie.read(this.cookie + 'OnlyUserFiles') == "false") {
+            this.options.onlyUserDefined = false;
+        } else {
             this.options.onlyUserDefined = (!this.options.onlyUserDefined) ? true : this.options.onlyUserDefined;
+        }
 
         this.options.multi = (this.options.multi) ? true : false;
         this.options.onChoose = (this.options.onChoose) ? this.options.onChoose : $empty;
@@ -111,8 +113,9 @@ ka.filesPane = new Class({
             'class': 'text',
             style: 'margin-left: 15px; width: 225px;'
         }).addEvent('keyup', function (e) {
-            if (e.key == 'enter')
+            if (e.key == 'enter') {
                 this.loadFiles(this.pathInput.value);
+            }
         }.bind(this)).inject(this.navigationBar);
     },
 
@@ -178,9 +181,11 @@ ka.filesPane = new Class({
 
 
     toggleUserMode: function () {
-        if (this.options.onlyUserDefined)
-            this.options.onlyUserDefined = false; else
+        if (this.options.onlyUserDefined) {
+            this.options.onlyUserDefined = false;
+        } else {
             this.options.onlyUserDefined = true;
+        }
         this.userFilesBtn.setPressed(this.options.onlyUserDefined);
         this.loader.show();
         this.renderFiles();
@@ -195,8 +200,9 @@ ka.filesPane = new Class({
         this.viewButtons[pType].setPressed(true);
         this.options.display = pType;
         this.saveCookie();
-        if (!pWithoutReload)
+        if (!pWithoutReload) {
             this.renderFiles();
+        }
     },
 
     toUp: function () {
@@ -229,11 +235,13 @@ ka.filesPane = new Class({
     },
 
     loadFiles: function (pPath) {
-        if (this.lastRequest)
+        if (this.lastRequest) {
             this.lastRequest.cancel();
+        }
 
-        if (pPath.substr(0, 1) != "/")
+        if (pPath.substr(0, 1) != "/") {
             pPath = "/" + pPath;
+        }
 
         this.current = pPath;
 
@@ -247,8 +255,9 @@ ka.filesPane = new Class({
             Cookie.write(this.cookie + '_path', pPath);
             this._files = pFiles.items;
             this.renderFiles();
-            if (this.pathInput)
+            if (this.pathInput) {
                 this.pathInput.value = this.currentPath;
+            }
 
         }.bind(this)}).post({path: pPath});
     },
@@ -259,25 +268,29 @@ ka.filesPane = new Class({
 
         this.files2View = files;
 
-        if (this.options.display == 'detail')
+        if (this.options.display == 'detail') {
             this.prepare4detailView();
+        }
 
 
         //folders first
         files.each(function (file) {
-            if (file.type == 'dir')
+            if (file.type == 'dir') {
                 this.addFile(file);
+            }
         }.bind(this));
 
         //then regular files
         files.each(function (file) {
-            if (file.type != 'dir')
+            if (file.type != 'dir') {
                 this.addFile(file);
+            }
         }.bind(this));
 
 
-        if (this.options.display == 'detail')
+        if (this.options.display == 'detail') {
             this.goDetailView();
+        }
     },
 
     deselect: function () {
@@ -325,8 +338,9 @@ ka.filesPane = new Class({
 
     prepare4detailView: function () {
 
-        if (this.detailTable && this.detailTable.destroy)
+        if (this.detailTable && this.detailTable.destroy) {
             this.detailTable.destroy();
+        }
 
         this.detailItems = [];
         this.detailItems4Handler = [];
@@ -385,14 +399,18 @@ ka.filesPane = new Class({
         });
 
         var size = file.size;
-        if (size > 1024 * 100)
-            size = (size / (1024 * 100)).toFixed(2) + ' MB'; else if (size > 1024)
-            size = (size / 1024).toFixed(2) + ' KB'; else
+        if (size > 1024 * 100) {
+            size = (size / (1024 * 100)).toFixed(2) + ' MB';
+        } else if (size > 1024) {
+            size = (size / 1024).toFixed(2) + ' KB';
+        } else {
             size = (size + 0) + ' B';
+        }
 
 
-        if (file.type == 'dir')
+        if (file.type == 'dir') {
             size = _('Directory');
+        }
 
         this.detailItems4Handler.include(file);
 
@@ -429,8 +447,9 @@ ka.filesPane = new Class({
             'class': 'ka-filepane-file-miniatur-image ' + bg
         }).inject(item);
 
-        if (bgPic != '')
+        if (bgPic != '') {
             pic.setStyle('background-image', 'url(' + bgPic + ')');
+        }
 
         item.store('oriClass', 'ka-filepane-file-icon');
         item.addEvent('click', this.click.bindWithEvent(this, [pFile, item]))
@@ -483,8 +502,9 @@ ka.filesPane = new Class({
         }
 
         if (this.options.onlyUserDefined) {
-            if (krynFiles.contains(pFile.path) || mymodulespaths.contains(pFile.path))
+            if (krynFiles.contains(pFile.path) || mymodulespaths.contains(pFile.path)) {
                 return;
+            }
         }
 
         if (pFile.path == 'trash/') return;
@@ -501,9 +521,11 @@ ka.filesPane = new Class({
                 item = this.addFileIcon(pFile);
         }
         if (pFile.name == this.selectedFile) {
-            if (this.options.display == 'detail')
-                item.getElements('td')[0].fireEvent('click'); else
+            if (this.options.display == 'detail') {
+                item.getElements('td')[0].fireEvent('click');
+            } else {
                 item.fireEvent('click');
+            }
         }
     }
 });

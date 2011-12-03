@@ -28,8 +28,9 @@ var admin_system_module_publish = new Class({
     },
 
     getPackage: function () {
-        if (this.loader)
+        if (this.loader) {
             this.loader.destroy();
+        }
 
         this.loader = new ka.loader().inject(this.win.content);
         this.loader.show();
@@ -91,8 +92,9 @@ var admin_system_module_publish = new Class({
         this.loader.show();
         new Request.JSON({url: _path + 'admin/system/module/publish', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-            if (res == 0)
-                this.askPw(_('Access denied')); else if (res && res['status'] == 'ok') {
+            if (res == 0) {
+                this.askPw(_('Access denied'));
+            } else if (res && res['status'] == 'ok') {
                 this.win._alert(_('Extension successfully published.'));
             } else {
                 this.win._alert(_('Publish error.') + '<br />' + res['status']);

@@ -30,9 +30,10 @@ var admin_system_module_edit = new Class({
 
         this.languageSelect = new Element('select', {
             'style': 'margin-left: 7px;'
-        }).addEvent('mousedown', function (e) {
-            e.stopPropagation();
-        }).addEvent('change', function () {
+        }).addEvent('mousedown',
+            function (e) {
+                e.stopPropagation();
+            }).addEvent('change', function () {
             var _this = this;
             this.win._confirm(_('Really change language? Unsaved information will be lost.'), function (go) {
                 if (go) {
@@ -164,9 +165,11 @@ var admin_system_module_edit = new Class({
 
     addPlugin: function (pPlugin, pKey) {
 
-        if (!this.pluginsTrClass || (this.pluginsTrClass && this.pluginsTrClass == 'two'))
-            this.pluginsTrClass = 'one'; else
+        if (!this.pluginsTrClass || (this.pluginsTrClass && this.pluginsTrClass == 'two')) {
+            this.pluginsTrClass = 'one';
+        } else {
             this.pluginsTrClass = 'two';
+        }
 
         var tr = new Element('tr', {'class': this.pluginsTrClass}).inject(this.pluginsTableBody);
 
@@ -241,7 +244,7 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(_('Save'), this.saveDocu.bind(this));
 
         this.text = new ka.field({
-                label: _('Documentation') + ' (' + this.languageSelect.value + ')', type: 'wysiwyg'}, p, {win: this.win});
+            label: _('Documentation') + ' (' + this.languageSelect.value + ')', type: 'wysiwyg'}, p, {win: this.win});
         this.text.setValue(_('Loading ...'));
 
         this.text.input.setStyle('height', '100%');
@@ -383,10 +386,11 @@ var admin_system_module_edit = new Class({
             style: 'padding-left: 32px; text-decoration: underline'
         }).inject(headline);
 
-        if (pTable)
+        if (pTable) {
             $H(pTable).each(function (opts, key) {
                 this._dbAddColumn(key, opts, columns);
             }.bind(this));
+        }
 
         this.dbAddColumn = new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/add.png',
@@ -449,8 +453,9 @@ var admin_system_module_edit = new Class({
             value: 1
         }).inject(m);
 
-        if (pOpts[3] == true)
+        if (pOpts[3] == true) {
             ai.checked = true;
+        }
 
 
         /* actions */
@@ -467,8 +472,9 @@ var admin_system_module_edit = new Class({
             title: _('Move up'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
-            if (m.getPrevious())
+            if (m.getPrevious()) {
                 m.inject(m.getPrevious(), 'before');
+            }
         }.bind(this)).inject(m);
 
         new Element('img', {
@@ -476,8 +482,9 @@ var admin_system_module_edit = new Class({
             title: _('Column down'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
-            if (m.getNext())
+            if (m.getNext()) {
                 m.inject(m.getNext(), 'after');
+            }
         }.bind(this)).inject(m);
 
     },
@@ -716,8 +723,9 @@ var admin_system_module_edit = new Class({
             title: _('Link up'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
-            if (lvl1.getPrevious())
+            if (lvl1.getPrevious()) {
                 lvl1.inject(lvl1.getPrevious(), 'before');
+            }
         }.bind(this)).inject(lvl1);
 
         new Element('img', {
@@ -725,8 +733,9 @@ var admin_system_module_edit = new Class({
             title: _('Link down'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
-            if (lvl1.getNext())
+            if (lvl1.getNext()) {
                 lvl1.inject(lvl1.getNext(), 'after');
+            }
         }.bind(this)).inject(lvl1);
 
 
@@ -793,8 +802,9 @@ var admin_system_module_edit = new Class({
         }).inject(p);
 
         var owner = ka.settings.system.communityEmail;
-        if (pConfig.owner == "" || !pConfig.owner)
+        if (pConfig.owner == "" || !pConfig.owner) {
             owner = _('No owner - local version');
+        }
 
         var owner = new ka.field({
             label: _('Owner'), value: owner, disabled: true
@@ -803,7 +813,8 @@ var admin_system_module_edit = new Class({
         var _this = this;
         logger(pConfig);
         if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
-            new ka.Button(_('Set to my extension: ' + ka.settings.system.communityEmail)).setStyle('position', 'relative').setStyle('left', '25px').addEvent('click', function () {
+            new ka.Button(_('Set to my extension: ' + ka.settings.system.communityEmail)).setStyle('position', 'relative').setStyle('left', '25px').addEvent('click',
+                function () {
                     _this.setToMyExtension = ka.settings.system.communityId;
                     owner.setValue(ka.settings.system.communityEmail);
                 }).inject(p);
@@ -857,8 +868,9 @@ var admin_system_module_edit = new Class({
     saveGeneral: function () {
         var req = {};
 
-        if (this.setToMyExtension > 0)
+        if (this.setToMyExtension > 0) {
             req['owner'] = this.setToMyExtension;
+        }
 
         $H(this.generellFields).each(function (field, id) {
             req[id] = field.getValue();
@@ -1080,9 +1092,10 @@ var admin_system_module_edit = new Class({
                 'src': _path + 'inc/template/admin/images/icons/layout_edit.png',
                 style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
                 title: _('Open template')
-            }).addEvent('click', function () {
-                ka.wm.open('admin/files/edit', {file: {path: '/' + file.value}});
-            }).inject(li);
+            }).addEvent('click',
+                function () {
+                    ka.wm.open('admin/files/edit', {file: {path: '/' + file.value}});
+                }).inject(li);
             new Element('img', {
                 'src': _path + 'inc/template/admin/images/icons/delete.png',
                 style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
@@ -1238,9 +1251,11 @@ var admin_system_module_edit = new Class({
             if (typeOf(translation) == 'object') {
                 translations[key] = {};
                 Object.each(translation, function (subinput, id) {
-                    if (typeOf(subinput) == 'element')
-                        translations[key][id] = subinput.value; else
+                    if (typeOf(subinput) == 'element') {
+                        translations[key][id] = subinput.value;
+                    } else {
                         translations[key][id] = subinput;
+                    }
                 });
             } else if (translation && typeOf(translation.value) == 'string') {
                 translations[ key ] = translation.value;
@@ -1303,8 +1318,9 @@ var admin_system_module_edit = new Class({
         this.langInputs = {};
 
         var langs = pLangs.translations;
-        if (pRenderExtractedLangs)
+        if (pRenderExtractedLangs) {
             langs = this.extractedLanguages;
+        }
 
         Object.each(langs, function (translation, key) {
 

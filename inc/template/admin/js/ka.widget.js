@@ -27,8 +27,9 @@ ka.widget = new Class({
             style: 'height: 150px;'
         }).inject(this.container);
 
-        if (this.opts.defaultHeight)
+        if (this.opts.defaultHeight) {
             this.main.setStyle('height', this.opts.defaultHeight);
+        }
 
         this.title = new Element('div', {
             'class': 'ka-widget-title',
@@ -96,8 +97,9 @@ ka.widget = new Class({
 
             this.className = this.opts.extension + '_' + this.opts.code; //code is the hash index of "widgets"
 
-            if (this.opts['class'])
+            if (this.opts['class']) {
                 this.className = this.opts['class'];
+            }
 
             if (window[this.className]) {
                 //new blabla
@@ -154,10 +156,12 @@ ka.widget = new Class({
         var width = this.opts.defaultWidth ? this.opts.defaultWidth : 400;
         var height = this.opts.defaultHeight ? this.opts.defaultHeight : 150;
 
-        if (this.opts.width)
+        if (this.opts.width) {
             width = this.opts.width;
-        if (this.opts.height)
+        }
+        if (this.opts.height) {
             height = this.opts.height;
+        }
 
         this.main.setStyle('height', height);
         this.main.setStyle('width', width);
@@ -166,18 +170,22 @@ ka.widget = new Class({
         var left = 50; //todo calculate free space
 
 
-        if ($type(this.opts.left) == 'number')
+        if ($type(this.opts.left) == 'number') {
             left = this.opts.left;
+        }
 
-        if ($type(this.opts.top) == 'number')
+        if ($type(this.opts.top) == 'number') {
             ptop = this.opts.top;
+        }
 
         var desktopSize = $('desktop').getSize();
-        if ((left + width) > desktopSize.x)
+        if ((left + width) > desktopSize.x) {
             left = desktopSize.x - width;
+        }
 
-        if ((ptop + height) > desktopSize.y)
+        if ((ptop + height) > desktopSize.y) {
             ptop = desktopSize.y - height;
+        }
 
         left = (left < 0 ) ? 20 : left;
         ptop = (ptop < 0 ) ? 20 : ptop;
@@ -241,41 +249,49 @@ ka.widget = new Class({
         this.ctrlPrevious.setStyle('opacity', 1);
         this.ctrlNext.setStyle('opacity', 1);
 
-        if (this.currentPage == 1)
+        if (this.currentPage == 1) {
             this.ctrlPrevious.setStyle('opacity', 0.3);
+        }
 
-        if (this.currentPage == this.maxPages)
+        if (this.currentPage == this.maxPages) {
             this.ctrlNext.setStyle('opacity', 0.3);
+        }
 
     },
 
     go2Page: function (pPage) {
 
-        if (pPage > this.maxPages)
+        if (pPage > this.maxPages) {
             return;
+        }
 
-        if (pPage <= 0)
+        if (pPage <= 0) {
             return;
+        }
 
         if (this.lastrq) this.lastrq.cancel();
         this.table.loading(true);
 
 
-        if (this.opts.url)
-            url = _path + this.opts.url; else
+        if (this.opts.url) {
+            url = _path + this.opts.url;
+        } else {
             url = _path + 'admin/widgets/getPage';
+        }
 
         this.lastrq = new Request.JSON({url: url, noCache: 1, onComplete: function (pRes) {
 
             this.currentPage = pPage;
-            if (pRes.maxPages)
+            if (pRes.maxPages) {
                 this.maxPages = pRes.maxPages;
+            }
             this.renderCtrls();
 
             this.ctrlText.set('text', this.currentPage);
 
-            if (pRes.title && pRes.title != "" && pRes.title != this.title.get('html'))
+            if (pRes.title && pRes.title != "" && pRes.title != this.title.get('html')) {
                 this.title.set('html', pRes.title);
+            }
 
             this.table.loading(false);
             this.table.setValues(pRes.items);

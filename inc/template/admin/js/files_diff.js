@@ -9,15 +9,19 @@ var admin_files_diff = new Class({
         this.win.params.fileto.ready = false;
 
         // Check that extension has been set
-        if (!this.win.params.filefrom.ext)
+        if (!this.win.params.filefrom.ext) {
             this.win.params.filefrom.ext = '';
-        if (!this.win.params.fileto.ext)
+        }
+        if (!this.win.params.fileto.ext) {
             this.win.params.fileto.ext = '';
+        }
 
         // Set title
-        if (this.win.params.filefrom.name && this.win.params.fileto.name)
-            this.win.setTitle(_('diff') + ' ' + this.win.params.filefrom.name); else
+        if (this.win.params.filefrom.name && this.win.params.fileto.name) {
+            this.win.setTitle(_('diff') + ' ' + this.win.params.filefrom.name);
+        } else {
             this.win.setTitle(_('diff') + ' ' + this.win.params.filefrom.path);
+        }
 
         this._createLayout();
 
@@ -68,15 +72,18 @@ var admin_files_diff = new Class({
             chr = opCodes.substring(index, index + 1);
             index++;
 
-            if (chr.test('[0-9]'))
-                nr = nr * 10 + parseInt(chr); else {
+            if (chr.test('[0-9]')) {
+                nr = nr * 10 + parseInt(chr);
+            } else {
                 // Is op code set?
                 // If not, set it else execute diff mod
-                if (op == "")
-                    op = chr; else { // Execute diff
+                if (op == "") {
+                    op = chr;
+                } else { // Execute diff
                     // If nr is 0, make it 1
-                    if (nr == 0)
+                    if (nr == 0) {
                         nr = 1;
+                    }
 
                     // If it is an insert, retrieve add from opCodes and update index
                     if (op == "i") {
@@ -88,12 +95,14 @@ var admin_files_diff = new Class({
                     this.performDiff(op, nr, sIndex, add);
 
                     // Update source index when c or d are used
-                    if (op == "c" || op == "d")
+                    if (op == "c" || op == "d") {
                         sIndex += nr;
+                    }
 
                     // Do not set : as opcode
-                    if (chr == ":")
+                    if (chr == ":") {
                         chr = "";
+                    }
 
                     // Reset vars
                     op = chr;
@@ -106,8 +115,9 @@ var admin_files_diff = new Class({
         // Perform last opcode
         if (op != "") {
             // If nr is 0, make it 1
-            if (nr == 0)
+            if (nr == 0) {
                 nr = 1;
+            }
 
             // If it is an insert, retrieve add from opCodes and update index
             if (op == "i") {
