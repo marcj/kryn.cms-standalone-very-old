@@ -7,11 +7,11 @@ class publicationNewsAdd extends windowAdd {
     public $primary = array('rsn');
     public $multiLanguage = true;
 
-    public function saveItem(){
+    public function saveItem() {
         parent::saveItem();
         kryn::invalidateCache('publicationNewsList');
     }
-    
+
     public $tabFields = array(
         'General' => array(
             'title' => array(
@@ -23,7 +23,7 @@ class publicationNewsAdd extends windowAdd {
                 'label' => 'Category',
                 'type' => 'select',
                 'multiLanguage' => true,
-            	'empty' => false,
+                'empty' => false,
                 'table' => 'publication_news_category',
                 'table_label' => 'title',
                 'table_key' => 'rsn'

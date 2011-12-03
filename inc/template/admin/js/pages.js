@@ -1,32 +1,32 @@
 var admin_pages = new Class({
 
-	versionsSetLiveBtns: [],
-	versionsLoadBtns: [],
-	trys: 0,
-	
-	domainTrees: {},
-	
-	rpage: {}, 
-	rdomain: {},
-	
-    initialize: function( pWin ){
-        
+    versionsSetLiveBtns: [],
+    versionsLoadBtns: [],
+    trys: 0,
+
+    domainTrees: {},
+
+    rpage: {},
+    rdomain: {},
+
+    initialize: function (pWin) {
+
         Date.defineFormat('version', '%d.%m.%Y, %H:%M:%S');
 
         this.win = pWin;
         this.win.kwin = this;
-        this.win.forceOverlay =  true;
+        this.win.forceOverlay = true;
 
-        Object.each(ka.settings['langs'], function(lang,key){
-            if( this.language ) return;
+        Object.each(ka.settings['langs'], function (lang, key) {
+            if (this.language) return;
             this.language = key;
         }.bind(this));
-        
-        if( Cookie.read('kryn_pages_language') ){
+
+        if (Cookie.read('kryn_pages_language')) {
             this.language = Cookie.read('kryn_pages_language');
         }
-        
-        if( this.win.params && this.win.params.lang ){
+
+        if (this.win.params && this.win.params.lang) {
             this.language = this.win.params.lang;
         }
 
@@ -40,18 +40,18 @@ var admin_pages = new Class({
 
         this.domainTrees = {};
         this.alreadyOnLoadPageLoaded = false;
-        
-        if( this.win.params && this.win.params.rsn && !this.win.params.domain ){
-            this.loadPage( this.win.params.rsn, true );
-        } else if( this.win.params && this.win.params.domain ){
-            this.loadTree({selectDomain:this.win.params.rsn});
-            this.loadDomain( this.win.params.rsn, true );
+
+        if (this.win.params && this.win.params.rsn && !this.win.params.domain) {
+            this.loadPage(this.win.params.rsn, true);
+        } else if (this.win.params && this.win.params.domain) {
+            this.loadTree({selectDomain: this.win.params.rsn});
+            this.loadDomain(this.win.params.rsn, true);
         } else {
             this.loadTree();
         }
     },
 
-    overlayStart: function(){
+    overlayStart: function () {
         this.overlayEnd();
         this.overlay = new Element('div', {
             styles: {
@@ -59,39 +59,39 @@ var admin_pages = new Class({
                 position: 'absolute',
                 'background-color': 'silver', opacity: 0.1
             }
-        }).inject( this.win.content );
+        }).inject(this.win.content);
     },
 
-    overlayEnd: function(){
-        if( this.overlay ) this.overlay.destroy();
+    overlayEnd: function () {
+        if (this.overlay) this.overlay.destroy();
     },
 
     /*
-    * LOAD PAGE
-    */
+     * LOAD PAGE
+     */
 
-    loadPage: function( pRsn, pSelect ){
+    loadPage: function (pRsn, pSelect) {
 
         this.inDomainModus = false;
 
         this.lastLoadedContentRsn = false;
-        
+
         this.alreadyOnLoadPageLoaded = true;
-        
-        if( this.iframe ) this.iframe.destroy();
+
+        if (this.iframe) this.iframe.destroy();
         this.iframe = null;
 
         this.layoutBoxes = new Hash();
         this.layoutBoxesInitialized = false;
 
-        if( this.oldLoadPageRequest )
+        if (this.oldLoadPageRequest)
             this.oldLoadPageRequest.cancel();
 
         this.rsn = pRsn;
         this.oldPage = this.page;
         this.loader.setStyle('display', 'block');
 
-        this.oldLoadPageRequest = new Request.JSON({url: _path+'admin/pages/getPage', noCache: 1, onComplete: function(res){
+        this.oldLoadPageRequest = new Request.JSON({url: _path + 'admin/pages/getPage', noCache: 1, onComplete: function (res) {
 
             this.saveDomainGrp.hide();
             this.savePageGrp.show();
@@ -100,29 +100,29 @@ var admin_pages = new Class({
             this.viewTypeGrp.show();
             this.deleteDomainGrp.hide();
             this.deletePageGrp.show();
-            
+
             this.loadedVersion = '-';
-            
+
             this.page = res;
 
-            if( pSelect && this.page.rsn ){
-                var domain = ka.getDomain( this.page.domain_rsn );
-                
-                if( this.language != domain.lang || Object.getLength(this.domainTrees) == 0 ){
+            if (pSelect && this.page.rsn) {
+                var domain = ka.getDomain(this.page.domain_rsn);
+
+                if (this.language != domain.lang || Object.getLength(this.domainTrees) == 0) {
                     this.language = domain.lang;
                     this.loadTree({selectPage: pRsn});
                 } else {
-                
-                	var tree = this.domainTrees[ this.page.domain_rsn ];
-                	if( tree.isReady() ){
-                		tree.select( this.page.rsn );
-                	} else {
-    	            	tree.addEvent('ready', function(){
-    	            		tree.select( this.page.rsn );
-    	            		tree.removeEvents('ready');
-    	            	}.bind(this));
-                	}
-            	}
+
+                    var tree = this.domainTrees[ this.page.domain_rsn ];
+                    if (tree.isReady()) {
+                        tree.select(this.page.rsn);
+                    } else {
+                        tree.addEvent('ready', function () {
+                            tree.select(this.page.rsn);
+                            tree.removeEvents('ready');
+                        }.bind(this));
+                    }
+                }
             }
 
             this._loadPage();
@@ -133,34 +133,33 @@ var admin_pages = new Class({
         }.bind(this)}).post({ rsn: pRsn });
     },
 
-    _loadPage: function(){
+    _loadPage: function () {
         this.savedPage = this.page;
 
-        if( (this.page.type != 0 && this.page.type != 3) || (this.currentViewType == 'content' || this.currentViewType == 'versioning' || (this.currentViewType == 'searchIndex' && this.page.type != 0)) )
-            this.viewType( 'general' );
-        else if(!this.currentViewType || this.currentViewType == 'empty' || this.currentViewType == 'domain' || this.currentViewType == 'domainSettings' || this.currentViewType == 'domainTheme' )
-            this.viewType( 'general' );
-        
+        if ((this.page.type != 0 && this.page.type != 3) || (this.currentViewType == 'content' || this.currentViewType == 'versioning' || (this.currentViewType == 'searchIndex' && this.page.type != 0)))
+            this.viewType('general'); else if (!this.currentViewType || this.currentViewType == 'empty' || this.currentViewType == 'domain' || this.currentViewType == 'domainSettings' || this.currentViewType == 'domainTheme')
+            this.viewType('general');
+
 
         var myurl = '';
-        if( this.page.realUrl ){
-            myurl = this.page.realUrl.substring(0, this.page.realUrl.length-this.page.url.length );
+        if (this.page.realUrl) {
+            myurl = this.page.realUrl.substring(0, this.page.realUrl.length - this.page.url.length);
         }
-        this.generalFieldsUrlPath.set('html', '<b>http://'+ka.getDomain(this.page.domain_rsn).domain+'/'+myurl+'</b>' );
-            
-        this.win.setTitle ( this.page.title );
-        this.generalFields['type'].setValue( this.page.type  );
-        this.generalFields['title'].setValue( this.page.title  );
-        this.generalFields['page_title'].setValue( this.page.page_title  );
-        this.generalFields['url'].setValue( this.page.url );
-//xxx        this.generalFields['template'].setValue( this.page.template );
+        this.generalFieldsUrlPath.set('html', '<b>http://' + ka.getDomain(this.page.domain_rsn).domain + '/' + myurl + '</b>');
 
-        var d = ka.getDomain( this.page.domain_rsn );
+        this.win.setTitle(this.page.title);
+        this.generalFields['type'].setValue(this.page.type);
+        this.generalFields['title'].setValue(this.page.title);
+        this.generalFields['page_title'].setValue(this.page.page_title);
+        this.generalFields['url'].setValue(this.page.url);
+        //xxx        this.generalFields['template'].setValue( this.page.template );
+
+        var d = ka.getDomain(this.page.domain_rsn);
 
         this.win.params = {rsn: this.page.rsn, lang: d.lang};
 
         limitLayouts = false;
-        if( $type(d.layouts) == 'string' ){
+        if ($type(d.layouts) == 'string') {
             limitLayouts = $A(JSON.decode(d.layouts));
         }
 
@@ -169,274 +168,271 @@ var admin_pages = new Class({
         new Element('option', {
             html: _(' -- No layout --'),
             value: ''
-        }).inject( this.layout );
+        }).inject(this.layout);
 
-        Object.each(ka.settings.layouts, function(la, key){
+        Object.each(ka.settings.layouts, function (la, key) {
             var group = new Element('optgroup', {
                 label: key
-            }).inject( this.layout );
+            }).inject(this.layout);
             var count = 0;
-            Object.each(la, function(layoutFile,layoutTitle){
-                if( limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains( layoutFile ) ) return;
+            Object.each(la, function (layoutFile, layoutTitle) {
+                if (limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains(layoutFile)) return;
                 new Element('option', {
                     html: (layoutTitle),
                     value: layoutFile
-                }).inject( group );
+                }).inject(group);
                 count++;
             })
-            if( count == 0 )
+            if (count == 0)
                 group.destroy();
         }.bind(this));
 
-        
+
         //set page propertie to default
-    	$H(this._pagePropertiesFields).each(function(fields, extKey){
-    		$H(fields).each(function(field){
-    			field.setValue();
-    		})
-    	});
-    	this.page.propertiesObj = JSON.decode(this.page.properties);
-        if( this.page.propertiesObj ){
-        	
-        	//set page values
-        	Object.each(this.page.propertiesObj, function(properties, extKey){
-        		
-        		Object.each(properties, function(property, propertyKey){
-        			
-        			if( this._pagePropertiesFields[extKey] && this._pagePropertiesFields[extKey][propertyKey] ){
-        				this._pagePropertiesFields[extKey][propertyKey].setValue(property);
-        			}
-        			
-        		}.bind(this))
-        		
-        		
-        	}.bind(this))
-        	
+        $H(this._pagePropertiesFields).each(function (fields, extKey) {
+            $H(fields).each(function (field) {
+                field.setValue();
+            })
+        });
+        this.page.propertiesObj = JSON.decode(this.page.properties);
+        if (this.page.propertiesObj) {
+
+            //set page values
+            Object.each(this.page.propertiesObj, function (properties, extKey) {
+
+                Object.each(properties, function (property, propertyKey) {
+
+                    if (this._pagePropertiesFields[extKey] && this._pagePropertiesFields[extKey][propertyKey]) {
+                        this._pagePropertiesFields[extKey][propertyKey].setValue(property);
+                    }
+
+                }.bind(this))
+
+
+            }.bind(this))
+
         }
 
-        this.generalFields['layout'].setValue( this.page.layout );
-        this.generalFields['target'].setValue( this.page.target );
-        this.generalFields['link'].setValue( this.page.link );
+        this.generalFields['layout'].setValue(this.page.layout);
+        this.generalFields['target'].setValue(this.page.target);
+        this.generalFields['link'].setValue(this.page.link);
         this.generalFields['link'].field.domain = this.page.domain_rsn;
 
-        this.generalFields['visible'].setValue( this.page.visible );
-        this.generalFields['access_denied'].setValue( this.page.access_denied );
-        this.generalFields['force_https'].setValue( this.page.force_https );
-        this.generalFields['access_from'].setValue( this.page.access_from );
-        this.generalFields['access_to'].setValue( this.page.access_to );
+        this.generalFields['visible'].setValue(this.page.visible);
+        this.generalFields['access_denied'].setValue(this.page.access_denied);
+        this.generalFields['force_https'].setValue(this.page.force_https);
+        this.generalFields['access_from'].setValue(this.page.access_from);
+        this.generalFields['access_to'].setValue(this.page.access_to);
 
         var temp = '';
-        if( this.page.access_from_groups ) {
+        if (this.page.access_from_groups) {
             temp = this.page.access_from_groups.split(',');
         }
-        this.generalFields['access_from_groups'].setValue( temp );
-        this.generalFields['access_nohidenavi'].setValue( this.page.access_nohidenavi );
-        this.generalFields['access_need_via'].setValue( this.page.access_need_via );
-        
-        this.generalFields['access_redirectto'].setValue( this.page.access_redirectto );
-        this.generalFields['unsearchable'].setValue( this.page.unsearchable );
-        
-        search_words = (this.page.search_words)?this.page.search_words:'';
-        this.generalFields['search_words'].setValue( search_words );
+        this.generalFields['access_from_groups'].setValue(temp);
+        this.generalFields['access_nohidenavi'].setValue(this.page.access_nohidenavi);
+        this.generalFields['access_need_via'].setValue(this.page.access_need_via);
+
+        this.generalFields['access_redirectto'].setValue(this.page.access_redirectto);
+        this.generalFields['unsearchable'].setValue(this.page.unsearchable);
+
+        search_words = (this.page.search_words) ? this.page.search_words : '';
+        this.generalFields['search_words'].setValue(search_words);
 
 
-        this.generalFields['resourcesCss'].setValue( this.page.resourcesCss );
-        this.generalFields['resourcesJs'].setValue( this.page.resourcesJs );
+        this.generalFields['resourcesCss'].setValue(this.page.resourcesCss);
+        this.generalFields['resourcesJs'].setValue(this.page.resourcesJs);
 
         var metas = JSON.decode(this.page.meta);
         this.clearMeta();
 
         this._metas = [];
         var keywords = '';
-        var description= '';
-        if( metas ){
+        var description = '';
+        if (metas) {
             var nmetas = new Hash();
-            metas.each(function(pMeta){
-                if( pMeta )
-                    nmetas.include( pMeta.name, pMeta.value );
+            metas.each(function (pMeta) {
+                if (pMeta)
+                    nmetas.include(pMeta.name, pMeta.value);
             });
             metas = nmetas;
-            metas.each(function(value,key){
-                if( key != 'keywords' && key != 'description' )
-                this.addMeta({key:key,value:value});
+            metas.each(function (value, key) {
+                if (key != 'keywords' && key != 'description')
+                    this.addMeta({key: key, value: value});
             }.bind(this));
-            keywords = (metas.keywords)?metas.keywords:'';
-            description = (metas.description)?metas.description:'';
+            keywords = (metas.keywords) ? metas.keywords : '';
+            description = (metas.description) ? metas.description : '';
         }
         this.generalFields['metaKeywords'].setValue(keywords);
         this.generalFields['metaDesc'].setValue(description);
-        
-        
+
+
         this.versions.empty();
         this.loadVersions();
-        
 
-    	this.urlAliase.empty();
-    	
-        if( this.page.alias ){
-        	
-        	this.renderAlias();
-        	
+
+        this.urlAliase.empty();
+
+        if (this.page.alias) {
+
+            this.renderAlias();
+
         }
-        
-        if(this.page.type == 0)
-        	this.loadSearchIndexOverview();
-        
+
+        if (this.page.type == 0)
+            this.loadSearchIndexOverview();
+
         this.changeType();
-        
-    },
-    
-    renderAlias: function(){
-    	this.urlAliase.empty();
-    	if( $type(this.page.alias) != 'array' ) return;
-    	if( this.page.alias.length == 0 ) return;
-    	
-    	new Element('div', {
-    		text: _('There are URL aliases for this page'),
-    		style: 'margin: 3px 0px; color: gray;'
-    	}).inject(this.urlAliase);
-    	
-    	var table = new Element('table', {
-    		cellpadding: 4,
-    		cellspacing: 0,
-			style: 'width: 300px; border-top: 1px solid #ddd;'
-    	}).inject( this.urlAliase );
-    	var tbody = new Element('tbody').inject( table );
-    	
-    	this.page.alias.each(function(item){
-    		var tr = new Element('tr').inject( tbody );
-    		
-    		new Element('td', {
-    			html: '&raquo; '+item.url,
-    			style: 'border-bottom: 1px solid #ddd;'
-    		}).inject(tr);
-    		
-    		var td = new Element('td', {
-    			width: 20,
-    			align: 'center',
-    			valign: 'top',
-    			style: 'border-bottom: 1px solid #ddd;'
-    		}).inject(tr);
-    		
-    		new Element('img', {
-    			src: _path+'inc/template/admin/images/icons/delete.png',
-    			style: 'cursor: pointer;',
-    			title: _('Delete this alias')
-    		})
-    		.addEvent('click', function(){
-    			this.deleteAlias( item.rsn );
-    		}.bind(this))
-    		.inject( td );
-    	}.bind(this));
+
     },
 
-    deleteAlias: function( pRsn ){
-    	
-    	this.win._confirm(_('Really delete this alias?'), function(p){
-    		if( !p ) return;
+    renderAlias: function () {
+        this.urlAliase.empty();
+        if ($type(this.page.alias) != 'array') return;
+        if (this.page.alias.length == 0) return;
 
-        	new Request.JSON({url: _path+'admin/pages/deleteAlias', noCache: 1, onComplete: function(){
-        		this.loadAliases();
-        	}.bind(this)}).post({rsn: pRsn});
-        	
-    	}.bind(this));
-    	
-    	
-    },
-    
-    loadAliases: function(){
-    	
-    	new Request.JSON({url: _path+'admin/pages/getAliases', noCache: 1, onComplete: function( pAliases ){
-    		
-    		this.page.alias = pAliases;
-    		this.renderAlias();
-    		
-    	}.bind(this)}).post({page_rsn: this.page.rsn});
-    	
+        new Element('div', {
+            text: _('There are URL aliases for this page'),
+            style: 'margin: 3px 0px; color: gray;'
+        }).inject(this.urlAliase);
+
+        var table = new Element('table', {
+            cellpadding: 4,
+            cellspacing: 0,
+            style: 'width: 300px; border-top: 1px solid #ddd;'
+        }).inject(this.urlAliase);
+        var tbody = new Element('tbody').inject(table);
+
+        this.page.alias.each(function (item) {
+            var tr = new Element('tr').inject(tbody);
+
+            new Element('td', {
+                html: '&raquo; ' + item.url,
+                style: 'border-bottom: 1px solid #ddd;'
+            }).inject(tr);
+
+            var td = new Element('td', {
+                width: 20,
+                align: 'center',
+                valign: 'top',
+                style: 'border-bottom: 1px solid #ddd;'
+            }).inject(tr);
+
+            new Element('img', {
+                src: _path + 'inc/template/admin/images/icons/delete.png',
+                style: 'cursor: pointer;',
+                title: _('Delete this alias')
+            }).addEvent('click', function () {
+                this.deleteAlias(item.rsn);
+            }.bind(this)).inject(td);
+        }.bind(this));
     },
 
-    loadVersions: function(){
-    
-        if( this.oldLoadVersionsRequest )
+    deleteAlias: function (pRsn) {
+
+        this.win._confirm(_('Really delete this alias?'), function (p) {
+            if (!p) return;
+
+            new Request.JSON({url: _path + 'admin/pages/deleteAlias', noCache: 1, onComplete: function () {
+                this.loadAliases();
+            }.bind(this)}).post({rsn: pRsn});
+
+        }.bind(this));
+
+
+    },
+
+    loadAliases: function () {
+
+        new Request.JSON({url: _path + 'admin/pages/getAliases', noCache: 1, onComplete: function (pAliases) {
+
+            this.page.alias = pAliases;
+            this.renderAlias();
+
+        }.bind(this)}).post({page_rsn: this.page.rsn});
+
+    },
+
+    loadVersions: function () {
+
+        if (this.oldLoadVersionsRequest)
             this.oldLoadVersionsRequest.cancel();
 
         //this._versionsLive = {};
-        this.oldLoadVersionsRequest = new Request.JSON({url: _path+'admin/pages/getVersions', noCache: 1, onComplete: function(res){
+        this.oldLoadVersionsRequest = new Request.JSON({url: _path + 'admin/pages/getVersions', noCache: 1, onComplete: function (res) {
 
             this.versionBox.empty();
 
-            if( !res ){
-                this.versionBox.set( 'text', _('No versions') );
+            if (!res) {
+                this.versionBox.set('text', _('No versions'));
             } else {
-            	
-                this.versions = new Element('select', {
-                })
-                .addEvent('change', function(){
-                    this.loadVersion( this.versions.value );
-                }.bind(this)).inject( this.versionBox );
 
-                res.each(function(version){
-                    var text = (new Date(version.modified*1000)).format('version');
-                    text = '#'+version.rsn+' by '+version.username+' ('+text+')';
-                    
-                    if( version.active == 1 )
-                        text = '[LIVE] '+text;
-                    
+                this.versions = new Element('select', {
+                }).addEvent('change', function () {
+                    this.loadVersion(this.versions.value);
+                }.bind(this)).inject(this.versionBox);
+
+                res.each(function (version) {
+                    var text = (new Date(version.modified * 1000)).format('version');
+                    text = '#' + version.rsn + ' by ' + version.username + ' (' + text + ')';
+
+                    if (version.active == 1)
+                        text = '[LIVE] ' + text;
+
                     new Element('option', {
                         value: version.rsn,
                         text: text
-                    }).inject( this.versions );
-                    
-                    if( version.active == 1 && this.loadedVersion == '-' ){
+                    }).inject(this.versions);
+
+                    if (version.active == 1 && this.loadedVersion == '-') {
                         this.versions.value = version.rsn;
-                    } else if( version.rsn == this.loadedVersion ) 
+                    } else if (version.rsn == this.loadedVersion)
                         this.versions.value = this.loadedVersion;
-                    
-                	//this._versionsLive[ version.rsn ] = version.active;
+
+                    //this._versionsLive[ version.rsn ] = version.active;
                 }.bind(this));
-                
+
                 /*if( !pSetToNewestVersion ){
-                    this.versions.value = this.page._activeVersion;
-                }*/
+                 this.versions.value = this.page._activeVersion;
+                 }*/
             }
-                
-/*
-            if( this.page.versions ){
-                this.page.versions.each(function(version){
-                    new Element('option', {
-                        value: version.version_rsn,
-                        text: (new Date(version.mdate*1000)).format('version')
-                    }).inject( this.versions );
-                }.bind(this));
-            }
-*/
+
+            /*
+             if( this.page.versions ){
+             this.page.versions.each(function(version){
+             new Element('option', {
+             value: version.version_rsn,
+             text: (new Date(version.mdate*1000)).format('version')
+             }).inject( this.versions );
+             }.bind(this));
+             }
+             */
 
         }.bind(this)}).post({rsn: this.page.rsn });
     },
 
     /*
-    * CREATE LAYOUT 
-    */
+     * CREATE LAYOUT 
+     */
 
 
-    hideBarHover: function(){
+    hideBarHover: function () {
         this.hideBarHoverOutActive = false;
-        this.treeContainer.set('tween', {onComplete: function(){
+        this.treeContainer.set('tween', {onComplete: function () {
         }.bind(this)});
         /*this.treeContainer.setStyles({
-            'display': 'none',
-            'opacity': 0
-        });*/
+         'display': 'none',
+         'opacity': 0
+         });*/
         this.tree.setStyle('height', '100%');
         this.treeContainer.tween('opacity', 0.95);
         this.treeSizer.tween('opacity', 1);
     },
 
-    hideBarHoverOut: function(){
+    hideBarHoverOut: function () {
         this.hideBarHoverOutActive = true;
-        (function(){
-            if( this.hideBarHoverOutActive ){
-                this.treeContainer.set('tween', {onComplete: function(){
+        (function () {
+            if (this.hideBarHoverOutActive) {
+                this.treeContainer.set('tween', {onComplete: function () {
                     this.tree.setStyle('height', '25px');
                 }.bind(this)});
                 this.treeContainer.tween('opacity', 0);
@@ -445,16 +441,16 @@ var admin_pages = new Class({
         }.bind(this)).delay(200);
     },
 
-    toggleHiderMode: function(){
-        if( this.inHideMode != true ){
+    toggleHiderMode: function () {
+        if (this.inHideMode != true) {
             this.inHideMode = true;
             this.oldMainPosition = this.main.getStyle('left').toInt();
             this.main.setStyle('left', 0);
-            this.treeBar.setStyle( 'opacity', 0.7 );
+            this.treeBar.setStyle('opacity', 0.7);
             this.treeContainer.setStyle('opacity', 0);
             this.tree.setStyle('height', '25px');
             this.treeSizer.setStyle('opacity', 0);
-            this.treeHider.set('src', _path+'inc/template/admin/images/pages-tree-bar-arrow-down.jpg');
+            this.treeHider.set('src', _path + 'inc/template/admin/images/pages-tree-bar-arrow-down.jpg');
             this.treeBar.addEvent('mouseover', this.hideBarHover.bind(this));
             this.treeBar.addEvent('mouseout', this.hideBarHoverOut.bind(this));
             this.treeSizer.addEvent('mouseover', this.hideBarHover.bind(this));
@@ -463,7 +459,7 @@ var admin_pages = new Class({
             this.treeContainer.addEvent('mouseout', this.hideBarHoverOut.bind(this));
 
             //to win.content
-            this.elementPropertyToolbar.inject( this.tree, 'before' );
+            this.elementPropertyToolbar.inject(this.tree, 'before');
             this.treeContainer.setStyle('bottom', 3);
         } else {
             this.inHideMode = false;
@@ -475,25 +471,25 @@ var admin_pages = new Class({
             this.treeContainer.removeEvents('mouseout');
             this.treeContainer.removeEvents('mouseover');
 
-            this.treeBar.setStyle( 'opacity', 1 );
+            this.treeBar.setStyle('opacity', 1);
             this.main.setStyle('left', this.oldMainPosition);
             this.treeContainer.setStyle('opacity', 1);
             this.tree.setStyle('height', '100%');
             this.treeSizer.setStyle('opacity', 1);
-            this.treeHider.set('src', _path+'inc/template/admin/images/pages-tree-bar-arrow.jpg');
+            this.treeHider.set('src', _path + 'inc/template/admin/images/pages-tree-bar-arrow.jpg');
 
-            if( this.elementPropertyToolbar.getSize().y > 1 )
+            if (this.elementPropertyToolbar.getSize().y > 1)
                 this.treeContainer.tween('bottom', 221);
 
-            this.elementPropertyToolbar.inject( this.tree );
+            this.elementPropertyToolbar.inject(this.tree);
         }
     },
 
-    _createLayout: function(){
-        var p = _path+'inc/template/admin/images/';
-        
+    _createLayout: function () {
+        var p = _path + 'inc/template/admin/images/';
+
         var btnGrp = this.win.addButtonGroup();
-        btnGrp.addButton( _('New domain'), _path+'inc/template/admin/images/icons/world_add.png', this.addDomain.bind(this));
+        btnGrp.addButton(_('New domain'), _path + 'inc/template/admin/images/icons/world_add.png', this.addDomain.bind(this));
 
 
         this.main = new Element('div', {
@@ -504,81 +500,77 @@ var admin_pages = new Class({
                 'border-left': '1px solid silver',
                 overflow: 'auto'
             }
-        }).inject( this.win.content );
+        }).inject(this.win.content);
 
-        
+
         this.tree = new Element('div', {
             'class': 'ka-pages-tree',
             styles: {
                 position: 'absolute',
                 left: 0, 'top': 0, 'overflow': 'visible', width: 200, height: '100%'
             }
-        }).inject( this.win.content );
+        }).inject(this.win.content);
 
         this.treeContainer = new Element('div', {
-        	'class': 'treeContainer ka-pages-treeContainer',
+            'class': 'treeContainer ka-pages-treeContainer',
             styles: {
                 position: 'absolute',
                 'background-color': '#f3f3f3',
                 left: 0, right: 0, 'top': 16, bottom: 3,
                 overflow: 'auto'
             }
-        }).inject( this.tree );
+        }).inject(this.tree);
         this.treeContainer.set('tween', {duration: 300});
 
         /*this.treeContainerTable = new Element('table', {
-        	style: 'width: 100%',
-        	cellpadding: 0,
-        	cellspacing: 0
-        }).inject(this.treeContainer);
-        
-        this.treeContainerTbody = new Element('tbody').inject(this.treeContainerTable);
-        this.treeContainerTr = new Element('tr').inject(this.treeContainerTbody);
-        this.treeContainerTd = new Element('td').inject(this.treeContainerTr);*/
+         style: 'width: 100%',
+         cellpadding: 0,
+         cellspacing: 0
+         }).inject(this.treeContainer);
+
+         this.treeContainerTbody = new Element('tbody').inject(this.treeContainerTable);
+         this.treeContainerTr = new Element('tr').inject(this.treeContainerTbody);
+         this.treeContainerTd = new Element('td').inject(this.treeContainerTr);*/
 
         this.treeSizer = new Element('div', {
             style: 'position: absolute; right: -7px; top: 0px; width: 5px; height: 100%; cursor: e-resize; border-left: 1px solid silver; border-right: 1px solid silver;'
-        }).inject( this.tree );
-        
-        
+        }).inject(this.tree);
+
+
         /*this.pluginChooserPane = new Element('div', {
-            'class': 'ka-pages-pluginchooserpane',
-            style: 'position: absolute; left: 0px; bottom: 0px; height: 0px; width: 0px; background-color: #eee; overflow: auto;'
-        }).inject( this.tree );
-        this.pluginChooserPane.set('tween', {transition: Fx.Transitions.Cubic.easeOut});*/
+         'class': 'ka-pages-pluginchooserpane',
+         style: 'position: absolute; left: 0px; bottom: 0px; height: 0px; width: 0px; background-color: #eee; overflow: auto;'
+         }).inject( this.tree );
+         this.pluginChooserPane.set('tween', {transition: Fx.Transitions.Cubic.easeOut});*/
 
 
-//        this.treeContainer.setStyle('bottom', 0);
-
+        //        this.treeContainer.setStyle('bottom', 0);
 
 
         /*
-            * searchbar and hider
-        */
+         * searchbar and hider
+         */
 
         this.treeBar = new Element('div', {
             styles: {
                 position: 'absolute',
                 left: 0, right: 0, 'top': 0, height: 16,
                 cursor: 'pointer',
-                'background-image': 'url('+_path+'inc/template/admin/images/pages-tree-bar-bg.jpg)'
+                'background-image': 'url(' + _path + 'inc/template/admin/images/pages-tree-bar-bg.jpg)'
             }
-        })
-        .addEvent('click', this.toggleHiderMode.bind(this))
-        .inject( this.tree, 'top' );
+        }).addEvent('click', this.toggleHiderMode.bind(this)).inject(this.tree, 'top');
 
         this.treeHider = new Element('img', {
             style: 'margin-left: 5px;',
-            src: _path+'inc/template/admin/images/pages-tree-bar-arrow.jpg',
-        })
-        .inject( this.treeBar );
+            src: _path + 'inc/template/admin/images/pages-tree-bar-arrow.jpg',
+        }).inject(this.treeBar);
 
 
         var left = 220;//todo maybe set into a cookie
-        if( left > 0 ){
-            this.tree.setStyle('width', left );
-            this.main.setStyle('left', left+6 );
-            this.win.titleGroups.setStyle('padding-left', left-56);
+        if (left > 0) {
+            this.tree.setStyle('width', left);
+            this.main.setStyle('left', left + 6);
+            this.win.titleGroups.setStyle('padding-left', left - 56);
         }
 
         var _this = this;
@@ -586,28 +578,27 @@ var admin_pages = new Class({
             grid: 1,
             snap: 0,
             handle: this.treeSizer,
-            onDrag: function( el, ev ){
+            onDrag: function (el, ev) {
                 el.setStyle('height', '100%');
                 //_this.main.setStyle('left', _this.treeSizer.getPosition(_this.tree).x+9);
                 var left = _this.tree.getSize().x;
-                if( _this.inHideMode ){
-                    _this.oldMainPosition = left+6;
+                if (_this.inHideMode) {
+                    _this.oldMainPosition = left + 6;
                 } else {
-                    _this.main.setStyle('left', left+6);
+                    _this.main.setStyle('left', left + 6);
                 }
-                if( left-56 >= 160 )
-                    _this.win.titleGroups.setStyle('padding-left', left-56);
-                else
+                if (left - 56 >= 160)
+                    _this.win.titleGroups.setStyle('padding-left', left - 56); else
                     _this.win.titleGroups.setStyle('padding-left', 160);
             },
-            onStart: function(){
+            onStart: function () {
                 _this.overlayStart();
             },
-            onComplete: function(el){
+            onComplete: function (el) {
                 _this.overlayEnd();
                 _this.refreshPageTrees();
             },
-            onCancel: function(){
+            onCancel: function () {
                 _this.overlayEnd();
             }
         });
@@ -615,11 +606,11 @@ var admin_pages = new Class({
 
         //this.viewTypeGrpDomain = this.win.addButtonGroup();
         this.viewTypeGrpDomain = this.win.addTabGroup();
-        this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton( _('Domain'), p+'icons/world.png', this.viewType.bind(this,'domain'));
-        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton( _('Sessions'), p+'icons/group.png', this.viewType.bind(this,'domainSessions') );
-        this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton( _('Theme'), p+'icons/layout.png', this.viewType.bind(this,'domainTheme'));
-        this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton( _('Properties'), p+'icons/layout.png', this.viewType.bind(this,'domainProperties'));
-        this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton( _('Settings'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'domainSettings') );
+        this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton(_('Domain'), p + 'icons/world.png', this.viewType.bind(this, 'domain'));
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton(_('Sessions'), p + 'icons/group.png', this.viewType.bind(this, 'domainSessions'));
+        this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton(_('Theme'), p + 'icons/layout.png', this.viewType.bind(this, 'domainTheme'));
+        this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton(_('Properties'), p + 'icons/layout.png', this.viewType.bind(this, 'domainProperties'));
+        this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton(_('Settings'), p + 'admin-pages-viewType-general.png', this.viewType.bind(this, 'domainSettings'));
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
 
@@ -630,82 +621,79 @@ var admin_pages = new Class({
         this.viewTypeGrp = viewTypeGrp;
         this.viewTypeGrp.hide();
 
-        this.viewButtons['general'] = viewTypeGrp.addButton( _('General'), p+'admin-pages-viewType-general.png', this.viewType.bind(this,'general'));
-        this.viewButtons['rights'] = viewTypeGrp.addButton( _('Access'), p+'admin-pages-viewType-rights.png', this.viewType.bind(this,'rights'));
-        
-        this.viewButtons['contents'] = viewTypeGrp.addButton( _('Contents'), p+'admin-pages-viewType-content.png', this.viewType.bind(this,'contents'));
-        
-        this.viewButtons['resources'] = viewTypeGrp.addButton( _('Resources'), p+'admin-pages-viewType-resources.png', this.viewType.bind(this,'resources'));
-        this.viewButtons['properties'] = viewTypeGrp.addButton( _('Properties'), p+'icons/plugin_disabled.png', this.viewType.bind(this,'properties'));
+        this.viewButtons['general'] = viewTypeGrp.addButton(_('General'), p + 'admin-pages-viewType-general.png', this.viewType.bind(this, 'general'));
+        this.viewButtons['rights'] = viewTypeGrp.addButton(_('Access'), p + 'admin-pages-viewType-rights.png', this.viewType.bind(this, 'rights'));
 
-        this.viewButtons['searchIndex'] = viewTypeGrp.addButton( _('Search'), p+'admin-pages-viewType-search.png', this.viewType.bind(this,'searchIndex'));
+        this.viewButtons['contents'] = viewTypeGrp.addButton(_('Contents'), p + 'admin-pages-viewType-content.png', this.viewType.bind(this, 'contents'));
 
-        this.viewButtons['versioning'] = viewTypeGrp.addButton( _('Versions'), p+'admin-pages-viewType-versioning.png', this.viewType.bind(this,'versioning'));
+        this.viewButtons['resources'] = viewTypeGrp.addButton(_('Resources'), p + 'admin-pages-viewType-resources.png', this.viewType.bind(this, 'resources'));
+        this.viewButtons['properties'] = viewTypeGrp.addButton(_('Properties'), p + 'icons/plugin_disabled.png', this.viewType.bind(this, 'properties'));
+
+        this.viewButtons['searchIndex'] = viewTypeGrp.addButton(_('Search'), p + 'admin-pages-viewType-search.png', this.viewType.bind(this, 'searchIndex'));
+
+        this.viewButtons['versioning'] = viewTypeGrp.addButton(_('Versions'), p + 'admin-pages-viewType-versioning.png', this.viewType.bind(this, 'versioning'));
 
 
         // save group for page
         var saveGrp = this.win.addButtonGroup();
         this.savePageGrp = saveGrp;
-        this.saveButton = saveGrp.addButton( _('Save')+' (SHIFT+ALT+S)', p+'button-save.png', this.save.bind(this));
+        this.saveButton = saveGrp.addButton(_('Save') + ' (SHIFT+ALT+S)', p + 'button-save.png', this.save.bind(this));
         //this.saveButtonAndClose = saveGrp.addButton( _('Save and close'), p+'button-save-and-close.png', this.saveAndClose.bind(this));
 
-        if( this.aclCanLivePublish ){
-            this.saveButtonPublish = saveGrp.addButton( _('Save and publish'), p+'button-save-and-publish.png', this.saveAndClose.bind(this, true));
+        if (this.aclCanLivePublish) {
+            this.saveButtonPublish = saveGrp.addButton(_('Save and publish'), p + 'button-save-and-publish.png', this.saveAndClose.bind(this, true));
         }
 
-//        this.prevBtn = saveGrp.addButton( 'Vorschau', p+'icons/layout_header.png', this.saveAs.bind(this));
-        this.liveEditBtn = saveGrp.addButton( 'Zur Seite (SHIFT+ALT+V)', p+'icons/eye.png', function(){
+        //        this.prevBtn = saveGrp.addButton( 'Vorschau', p+'icons/layout_header.png', this.saveAs.bind(this));
+        this.liveEditBtn = saveGrp.addButton('Zur Seite (SHIFT+ALT+V)', p + 'icons/eye.png', function () {
             this.toPage();
         }.bind(this));
-        
-        
-       
+
 
         this.savePageGrp.hide();
 
-        this.win.addHotkey( 's', true, true, this.save.bind(this));
-        this.win.addHotkey( 'v', true, true, this.toPage.bind(this));
+        this.win.addHotkey('s', true, true, this.save.bind(this));
+        this.win.addHotkey('v', true, true, this.toPage.bind(this));
 
         this.deletePageGrp = this.win.addButtonGroup();
-        this.deletePageBtn = this.deletePageGrp.addButton( _('Delete'), p+'remove.png', this.deletePage.bind(this));
-        this.searchIndexButton =  this.deletePageGrp.addButton( _('Crawl this page now'), p+'button-index-page.png', function(){
+        this.deletePageBtn = this.deletePageGrp.addButton(_('Delete'), p + 'remove.png', this.deletePage.bind(this));
+        this.searchIndexButton = this.deletePageGrp.addButton(_('Crawl this page now'), p + 'button-index-page.png', function () {
             this.createSearchIndexForPage();
         }.bind(this));
-        
+
         this.deletePageGrp.hide();
 
         //save group for domain
         var saveGrp = this.win.addButtonGroup();
-        this.saveDomainBtn = saveGrp.addButton( _('Save'), p+'button-save.png', this.saveDomain.bind(this));
+        this.saveDomainBtn = saveGrp.addButton(_('Save'), p + 'button-save.png', this.saveDomain.bind(this));
         this.saveDomainGrp = saveGrp;
         this.saveDomainGrp.hide();
 
         this.deleteDomainGrp = this.win.addButtonGroup();
-        this.deleteDomainGrp.addButton( _('Delete'), p+'remove.png', this.deleteDomain.bind(this));
+        this.deleteDomainGrp.addButton(_('Delete'), p + 'remove.png', this.deleteDomain.bind(this));
         this.deleteDomainGrp.hide();
 
         //right place
         /*
-        this.workspaceSelect = new Element('select', {
-            style: 'position: absolute; right: 28px; top: 25px; width: 180px; height: 22px'
-        }).inject( this.win.border );
+         this.workspaceSelect = new Element('select', {
+         style: 'position: absolute; right: 28px; top: 25px; width: 180px; height: 22px'
+         }).inject( this.win.border );
 
-        ka.settings.workspaces.each(function(work){
-            new Element('option', {
-                text: work.name,
-                value: work.rsn
-            }).inject( this.workspaceSelect );
-        }.bind(this));
+         ka.settings.workspaces.each(function(work){
+         new Element('option', {
+         text: work.name,
+         value: work.rsn
+         }).inject( this.workspaceSelect );
+         }.bind(this));
 
-        this.workspaceAddBtn = new Element('img', {
-            src: p+'icons/add.png',
-            style: 'position: absolute; right: 7px; top: 28px;'
-        }).inject( this.win.border );
-        */
+         this.workspaceAddBtn = new Element('img', {
+         src: p+'icons/add.png',
+         style: 'position: absolute; right: 7px; top: 28px;'
+         }).inject( this.win.border );
+         */
 
-        this.languageSelect = new ka.Select()
-        .inject( this.win.border );
-        
+        this.languageSelect = new ka.Select().inject(this.win.border);
+
         document.id(this.languageSelect).setStyles({
             'position': 'absolute',
             'left': 5,
@@ -715,16 +703,16 @@ var admin_pages = new Class({
 
         this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-        Object.each(ka.settings.langs, function(lang,id){
-            this.languageSelect.add( id, lang.langtitle+' ('+lang.title+', '+id+')' );
+        Object.each(ka.settings.langs, function (lang, id) {
+            this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
         }.bind(this));
 
-        this.languageSelect.setValue( this.language );
-        
+        this.languageSelect.setValue(this.language);
+
         this._createDomain();
 
         this._createDomainProperties();
-        
+
         this._createGeneral();
         this._createRights();
         this._createContents();
@@ -738,130 +726,127 @@ var admin_pages = new Class({
             styles: {
                 position: 'absolute',
                 'background-color': '#eee',
-                'background-image': 'url('+_path+'inc/template/admin/images/loading.gif)',
+                'background-image': 'url(' + _path + 'inc/template/admin/images/loading.gif)',
                 'background-repeat': 'no-repeat',
                 'background-position': 'center center',
                 left: 0, width: '100%', 'top': 0, bottom: 0
             }
-        })
-        .setStyle('display', 'none')
-        .inject( this.main );
+        }).setStyle('display', 'none').inject(this.main);
 
     },
-    
-    refreshPageTrees: function(){
-    
-        Object.each(this.domainTrees, function( domainTree ){
+
+    refreshPageTrees: function () {
+
+        Object.each(this.domainTrees, function (domainTree) {
             domainTree.setDomainPosition();
         });
-    
+
     },
 
-    toPage: function( pPage ){
-        if( !pPage || !pPage.rsn ) pPage = this.page;
-        
-        if( this.lastPreviewWin ){
+    toPage: function (pPage) {
+        if (!pPage || !pPage.rsn) pPage = this.page;
+
+        if (this.lastPreviewWin) {
             this.lastPreviewWin.close();
         }
 
-        var url = this.getBaseUrl( pPage );
+        var url = this.getBaseUrl(pPage);
 
         var url = url + pPage.realUrl + '/';
-        
-        if( this.loadedVersion != '-' && this.loadedVersion && this.page && pPage.rsn == this.page.rsn ){
-            
-            url = url + '/kVersionId:'+this.loadedVersion;
+
+        if (this.loadedVersion != '-' && this.loadedVersion && this.page && pPage.rsn == this.page.rsn) {
+
+            url = url + '/kVersionId:' + this.loadedVersion;
         }
-        this.lastPreviewWin = window.open( url, "_blank" );
+        this.lastPreviewWin = window.open(url, "_blank");
     },
-    
-    
-    createSearchIndexForPage : function (pPage) {
-    	 if(! pPage || !(pPage.rsn > 0) ) 
-    		 	pPage = this.page;
-    	
-    	
-    	//try getting search index key for force
-    	pageDomainRsn = pPage.domain_rsn;
-    	dISKey = false;
-    	try {
-    		dISKey = ka.getDomain(pageDomainRsn).search_index_key;
-    	}catch(e) {}
-    	
-    	 
-    	//var indexUrl = this.getBaseUrl( pPage );
-    	 var indexUrl = _path;
-    	 
-    	 if(ka.getDomain(pageDomainRsn).master != 1)
- 			indexUrl +=  ka.getDomain(pageDomainRsn).lang+'/';
-    	 
-    	 
-    	 indexUrl += pPage.realUrl;
-    	 iReq = {
-    			 jsonOut : true,
-    			 enableSearchIndexMode : true,
-    			 forceSearchIndex: dISKey,
-    			 kryn_domain : ka.getDomain(pageDomainRsn).domain
-    	 		};
-    	 
-    	 
-         
-         this.searchIndexButton.startTip( _('Indexing ...') );
-         this.overlayStart();       
-        
-         new Request.JSON({url: indexUrl, noCache: 1,
-        	 onFailure: function(){
-	             this.overlay.destroy();     
-	             this.searchIndexButton.stopTip(); 
-        	 }.bind(this),
-        	 onComplete: function(res){
-	             this.overlay.destroy();
-	             if( !res ){
-	            	 res = {msg: _('Failed')};
-	             }
-	             this.searchIndexButton.stopTip(res.msg);
-	             this.loadSearchIndexOverview();
-         	 }.bind(this)
-         }).post(iReq);    	 	 
-    		 
+
+
+    createSearchIndexForPage: function (pPage) {
+        if (!pPage || !(pPage.rsn > 0))
+            pPage = this.page;
+
+
+        //try getting search index key for force
+        pageDomainRsn = pPage.domain_rsn;
+        dISKey = false;
+        try {
+            dISKey = ka.getDomain(pageDomainRsn).search_index_key;
+        } catch (e) {
+        }
+
+
+        //var indexUrl = this.getBaseUrl( pPage );
+        var indexUrl = _path;
+
+        if (ka.getDomain(pageDomainRsn).master != 1)
+            indexUrl += ka.getDomain(pageDomainRsn).lang + '/';
+
+
+        indexUrl += pPage.realUrl;
+        iReq = {
+            jsonOut: true,
+            enableSearchIndexMode: true,
+            forceSearchIndex: dISKey,
+            kryn_domain: ka.getDomain(pageDomainRsn).domain
+        };
+
+
+        this.searchIndexButton.startTip(_('Indexing ...'));
+        this.overlayStart();
+
+        new Request.JSON({url: indexUrl, noCache: 1,
+            onFailure: function () {
+                this.overlay.destroy();
+                this.searchIndexButton.stopTip();
+            }.bind(this),
+            onComplete: function (res) {
+                this.overlay.destroy();
+                if (!res) {
+                    res = {msg: _('Failed')};
+                }
+                this.searchIndexButton.stopTip(res.msg);
+                this.loadSearchIndexOverview();
+            }.bind(this)
+        }).post(iReq);
+
     },
-    
-    
-    toggleSearchIndexButton: function(pType) {
-    	if(pType == 0 && this.page.unsearchable != 1)
-        	this.searchIndexButton.show();
-    	else
-    		this.searchIndexButton.hide();
+
+
+    toggleSearchIndexButton: function (pType) {
+        if (pType == 0 && this.page.unsearchable != 1)
+            this.searchIndexButton.show(); else
+            this.searchIndexButton.hide();
     },
-    
 
-    getBaseUrl: function( pPage ){
-        if(! pPage || !(pPage.rsn > 0) ) pPage = this.page;
-        var d = ka.getDomain( pPage.domain_rsn );
 
-        var prefix = ( typeof(d.path)=='undefined' || d.path == '' || d.path == null ) ? '/' : d.path;
+    getBaseUrl: function (pPage) {
+        if (!pPage || !(pPage.rsn > 0)) pPage = this.page;
+        var d = ka.getDomain(pPage.domain_rsn);
 
-        if( prefix.substr( prefix.length-1, 1 ) != '/' )
+        var prefix = ( typeof(d.path) == 'undefined' || d.path == '' || d.path == null ) ? '/' : d.path;
+
+        if (prefix.substr(prefix.length - 1, 1) != '/')
             prefix = prefix + '/';
 
-        if( window.location.port != 80 )
-            prefix = ":"+window.location.port+prefix;
+        if (window.location.port != 80)
+            prefix = ":" + window.location.port + prefix;
 
-        if( d.master != 1 )
-            prefix = prefix+d.lang+'/';
+        if (d.master != 1)
+            prefix = prefix + d.lang + '/';
 
-        var url = 'http://'+d.domain +prefix;
+        var url = 'http://' + d.domain + prefix;
         return url;
     },
 
-    changeLanguage: function(){
+    changeLanguage: function () {
         this.language = this.languageSelect.getValue();
-        
+
         Cookie.write('kryn_pages_language', this.language);
-        
+
         this.treeContainer.empty();
         this.loadTree();
-        this.viewType( 'empty' );
+        this.viewType('empty');
         this.savePageGrp.hide();
         this.viewTypeGrp.hide();
         this.saveDomainGrp.hide();
@@ -870,80 +855,79 @@ var admin_pages = new Class({
         this.deletePageGrp.hide();
     },
 
-    deleteDomain: function( pDomain ){
-    
-        if( !pDomain )
+    deleteDomain: function (pDomain) {
+
+        if (!pDomain)
             pDomain = this.currentDomain;
-            
-        if( !pDomain || pDomain.rsn < 0 )
+
+        if (!pDomain || pDomain.rsn < 0)
             return;
 
-    	this.win._confirm(_('Really delete this domain?'), function(p){
-    		if( !p ) return;
-    	
-	        new Request.JSON({url: _path+'admin/pages/domain/delete', async: false, noCache: 1, onComplete: function(){
-	            ka.loadSettings();
-	            this.changeLanguage();
-	        }.bind(this)}).post({ rsn: pDomain.rsn });
-    	}.bind(this));
+        this.win._confirm(_('Really delete this domain?'), function (p) {
+            if (!p) return;
+
+            new Request.JSON({url: _path + 'admin/pages/domain/delete', async: false, noCache: 1, onComplete: function () {
+                ka.loadSettings();
+                this.changeLanguage();
+            }.bind(this)}).post({ rsn: pDomain.rsn });
+        }.bind(this));
     },
 
-    deletePage: function( pPage ){
-        if( !pPage || !(pPage.rsn>0) ) pPage = this.page;
+    deletePage: function (pPage) {
+        if (!pPage || !(pPage.rsn > 0)) pPage = this.page;
         var _this = this;
-        this.win._confirm( _('Really remove?'), function(res){
-            if(!res) return;
-            new Request.JSON({url: _path+'admin/pages/deletePage', async: false, noCache: 1, onComplete: function(){
+        this.win._confirm(_('Really remove?'), function (res) {
+            if (!res) return;
+            new Request.JSON({url: _path + 'admin/pages/deletePage', async: false, noCache: 1, onComplete: function () {
                 _this.domainTrees[ pPage.domain_rsn ].reload();
             }}).post({ rsn: pPage.rsn });
         });
     },
 
-    changeType: function(){
-    	
-    	if( this.inDomainModus ){
+    changeType: function () {
+
+        if (this.inDomainModus) {
             this.saveDomainGrp.show();
             this.savePageGrp.hide();
 
             this.viewTypeGrpDomain.show();
             this.viewTypeGrp.hide();
-            
-            if( !ka.checkDomainAccess( this.currentDomain.rsn, 'deleteDomain' ) ){
+
+            if (!ka.checkDomainAccess(this.currentDomain.rsn, 'deleteDomain')) {
                 this.deleteDomainGrp.hide();
             } else {
                 this.deleteDomainGrp.show();
             }
-            
+
             this.deletePageGrp.hide();
-            
-    	} else {
+
+        } else {
             this.saveDomainGrp.hide();
             this.savePageGrp.show();
 
             this.viewTypeGrpDomain.hide();
             this.viewTypeGrp.show();
-            
+
             this.deleteDomainGrp.hide();
             this.deletePageGrp.show();
-    	}
+        }
 
-    	
+
         var type = this.generalFields['type'].getValue();
 
-        this.generalFields.each(function(field){
-        	field.show();
-        	field.fireEvent('check-depends');
+        this.generalFields.each(function (field) {
+            field.show();
+            field.fireEvent('check-depends');
         })
-        
-        this.viewButtons.each(function(field){
-        	field.show();
-        })
-        
-    	if( this.inDomainModus )
-            return;
-        
 
-        
+        this.viewButtons.each(function (field) {
+            field.show();
+        })
+
+        if (this.inDomainModus)
+            return;
+
+
         this.generalFields['target'].hide();
         this.generalFields['visible'].hide();
         this.aliase.setStyle('display', 'none');
@@ -952,29 +936,29 @@ var admin_pages = new Class({
         //this.saveButtonAndClose.hide();
         this.saveButtonPublish.hide();
         this.toggleSearchIndexButton(type);
-        
+
         this.viewButtons['searchIndex'].hide();
-        
+
         this.generalFields['link'].hide();
 
-        if( type == 1 || type == 2 ){//link oder ordner
+        if (type == 1 || type == 2) {//link oder ordner
             this.viewButtons['contents'].hide();
-            this.viewButtons['versioning'].hide();                        
+            this.viewButtons['versioning'].hide();
             this.viewButtons['resources'].hide();
             this.generalFields['page_title'].hide();
-//xxx       this.generalFields['template'].hide();
+            //xxx       this.generalFields['template'].hide();
             //this.prevBtn.hide();
         } else { //page and ablage
             this.viewButtons['contents'].show();
             this.viewButtons['versioning'].show();
             this.viewButtons['properties'].show();
             this.generalFields['page_title'].show();
-//xxx       this.generalFields['template'].show();
+            //xxx       this.generalFields['template'].show();
             //this.prevBtn.show();
         }
 
-        if( type == 3 ){ //ablage
-//xxx            this.generalFields['template'].hide();
+        if (type == 3) { //ablage
+            //xxx            this.generalFields['template'].hide();
             this.generalFields['url'].hide();
             this.ablageModus = true;
             //this.prevBtn.hide();
@@ -983,475 +967,474 @@ var admin_pages = new Class({
             this.layoutTd.setStyle('opacity', 0);
         }
 
-        if( type == 2 ){ //folder
+        if (type == 2) { //folder
             this.generalFields['url'].hide();
         }
 
-        if( type == 1 ){ //link
+        if (type == 1) { //link
             this.generalFields['url'].field.empty = true;
             this.generalFields['target'].show();
             this.generalFields['link'].show();
             this.generalFields['visible'].show();
         }
 
-        if( type == 0 ){
+        if (type == 0) {
             this.generalFields['url'].field.check = 'kurl';
             this.aliase.setStyle('display', 'block');
             this.metas.setStyle('display', 'block');
             this.ablageModus = false;
             //this.prevBtn.show();         
-            
+
             this.liveEditBtn.show();
             this.layoutTxt.setStyle('opacity', 1);
             this.layoutTd.setStyle('opacity', 1);
-            this.viewButtons['searchIndex'].show('inline'); 
-            
+            this.viewButtons['searchIndex'].show('inline');
 
-        	this.layoutTd.setStyle('visibility', 'visible');
-            if( !ka.checkPageAccess( this.page.rsn, 'canChangeLayout' ) ){
-            	this.layoutTd.setStyle('visibility', 'hidden');
+
+            this.layoutTd.setStyle('visibility', 'visible');
+            if (!ka.checkPageAccess(this.page.rsn, 'canChangeLayout')) {
+                this.layoutTd.setStyle('visibility', 'hidden');
             }
         }
 
-        if( type == 0 || type == 3){ //page or ablage
+        if (type == 0 || type == 3) { //page or ablage
             this.viewButtons['resources'].show();
             this.generalFields['visible'].show();
-           
-            if( this.currentViewType == 'contents' )
+
+            if (this.currentViewType == 'contents')
                 this._loadContent();
-//            this.saveButtonAndClose.show();
-            
-            if( ka.checkPageAccess( this.page.rsn, 'canPublish' ) )
-            	this.saveButtonPublish.show();
+            //            this.saveButtonAndClose.show();
+
+            if (ka.checkPageAccess(this.page.rsn, 'canPublish'))
+                this.saveButtonPublish.show();
         }
-        
-        
+
+
         //permission
-        if( !ka.checkPageAccess( this.page.rsn, 'general' ) ){
-        	this.viewButtons['general'].hide();
-        	if( this.currentViewType == 'general' ){
-        		this.toAlternativPane();
-        	}
-        }
-        
-        if( !ka.checkPageAccess( this.page.rsn, 'access' ) ){
-        	this.viewButtons['rights'].hide();
-        	if( this.currentViewType == 'rights' )
-        		this.toAlternativPane();
+        if (!ka.checkPageAccess(this.page.rsn, 'general')) {
+            this.viewButtons['general'].hide();
+            if (this.currentViewType == 'general') {
+                this.toAlternativPane();
+            }
         }
 
-        if( !ka.checkPageAccess( this.page.rsn, 'contents' ) ){
-        	this.viewButtons['contents'].hide();
-        	if( this.currentViewType == 'access' )
-        		this.toAlternativPane();
+        if (!ka.checkPageAccess(this.page.rsn, 'access')) {
+            this.viewButtons['rights'].hide();
+            if (this.currentViewType == 'rights')
+                this.toAlternativPane();
         }
 
-        if( !ka.checkPageAccess( this.page.rsn, 'resources' ) ){
-        	this.viewButtons['resources'].hide();
-        	if( this.currentViewType == 'resources' )
-        		this.toAlternativPane();
+        if (!ka.checkPageAccess(this.page.rsn, 'contents')) {
+            this.viewButtons['contents'].hide();
+            if (this.currentViewType == 'access')
+                this.toAlternativPane();
         }
-        
-        if( !ka.checkPageAccess( this.page.rsn, 'properties' ) ){
-        	this.viewButtons['properties'].hide();
-        	if( this.currentViewType == 'properties' )
-        		this.toAlternativPane();
+
+        if (!ka.checkPageAccess(this.page.rsn, 'resources')) {
+            this.viewButtons['resources'].hide();
+            if (this.currentViewType == 'resources')
+                this.toAlternativPane();
         }
-        
-        if( !ka.checkPageAccess( this.page.rsn, 'search' ) ){
-        	this.viewButtons['searchIndex'].hide();
-        	if( this.currentViewType == 'searchIndex' )
-        		this.toAlternativPane();
+
+        if (!ka.checkPageAccess(this.page.rsn, 'properties')) {
+            this.viewButtons['properties'].hide();
+            if (this.currentViewType == 'properties')
+                this.toAlternativPane();
         }
-        
-        if( !ka.checkPageAccess( this.page.rsn, 'versions' ) ){
-        	this.viewButtons['versioning'].hide();
-        	if( this.currentViewType == 'versioning' )
-        		this.toAlternativPane();
+
+        if (!ka.checkPageAccess(this.page.rsn, 'search')) {
+            this.viewButtons['searchIndex'].hide();
+            if (this.currentViewType == 'searchIndex')
+                this.toAlternativPane();
         }
-        
-    	this.deletePageBtn.show();
-        if(!ka.checkPageAccess( this.page.rsn, 'deletePages' ) ){
-        	this.deletePageBtn.hide();
+
+        if (!ka.checkPageAccess(this.page.rsn, 'versions')) {
+            this.viewButtons['versioning'].hide();
+            if (this.currentViewType == 'versioning')
+                this.toAlternativPane();
         }
-        
+
         this.deletePageBtn.show();
-        if(!ka.checkPageAccess( this.page.rsn, 'deletePages' ) ){
-        	this.deletePageBtn.hide();
+        if (!ka.checkPageAccess(this.page.rsn, 'deletePages')) {
+            this.deletePageBtn.hide();
         }
-        
 
-        ['type', 'title', 'page_title', 'url', 'visible', 'access_denied', 'force_https'].each(function(acl){
-            if(!ka.checkPageAccess( this.page.rsn, acl ) ){
+        this.deletePageBtn.show();
+        if (!ka.checkPageAccess(this.page.rsn, 'deletePages')) {
+            this.deletePageBtn.hide();
+        }
+
+
+        ['type', 'title', 'page_title', 'url', 'visible', 'access_denied', 'force_https'].each(function (acl) {
+            if (!ka.checkPageAccess(this.page.rsn, acl)) {
                 this.generalFields[acl].hide();
             }
         }.bind(this));
-        
 
-        if(!ka.checkPageAccess( this.page.rsn, 'releaseDates' ) ){
+
+        if (!ka.checkPageAccess(this.page.rsn, 'releaseDates')) {
             this.generalFields['access_from'].hide();
             this.generalFields['access_to'].hide();
         }
-        
-        if(!ka.checkPageAccess( this.page.rsn, 'limitation' ) ){
+
+        if (!ka.checkPageAccess(this.page.rsn, 'limitation')) {
             this.generalFields['access_from_groups'].hide();
             this.generalFields['access_nohidenavi'].hide();
             this.generalFields['access_redirectto'].hide();
             this.generalFields['access_need_via'].hide();
         }
 
-        if(!ka.checkPageAccess( this.page.rsn, 'meta' ) ){
-        	this.metas.setStyle('display', 'none');
+        if (!ka.checkPageAccess(this.page.rsn, 'meta')) {
+            this.metas.setStyle('display', 'none');
         }
-        
+
         //search
         /*this.setToBlListBtn.setStyle('display', 'block');
-        if(!ka.checkPageAccess( this.page.rsn, 'setBlacklist' ) )
-        	this.setToBlListBtn.setStyle('display', 'none');
-        */
+         if(!ka.checkPageAccess( this.page.rsn, 'setBlacklist' ) )
+         this.setToBlListBtn.setStyle('display', 'none');
+         */
 
         this.generalFields['unsearchable'].show();
-        if(!ka.checkPageAccess( this.page.rsn, 'exludeSearch' ) )
-        	this.generalFields['unsearchable'].hide();
+        if (!ka.checkPageAccess(this.page.rsn, 'exludeSearch'))
+            this.generalFields['unsearchable'].hide();
 
         this.generalFields['search_words'].show();
-        if(!ka.checkPageAccess( this.page.rsn, 'searchKeys' ) )
-        	this.generalFields['search_words'].hide();
-        
+        if (!ka.checkPageAccess(this.page.rsn, 'searchKeys'))
+            this.generalFields['search_words'].hide();
+
         //resources
         this.generalFields['resourcesCss'].show();
-        if(!ka.checkPageAccess( this.page.rsn, 'css' ) )
+        if (!ka.checkPageAccess(this.page.rsn, 'css'))
             this.generalFields['resourcesCss'].hide();
 
         this.generalFields['resourcesJs'].show();
-        if(!ka.checkPageAccess( this.page.rsn, 'js' ) )
+        if (!ka.checkPageAccess(this.page.rsn, 'js'))
             this.generalFields['resourcesJs'].hide();
-        
-        
+
+
         //versions
         this.versionBox.setStyle('display', 'block');
-        this.versionsLoadBtns.each(function(btn){
-        	btn.show();
+        this.versionsLoadBtns.each(function (btn) {
+            btn.show();
         });
-        if(!ka.checkPageAccess( this.page.rsn, 'loadVersion' ) ){
+        if (!ka.checkPageAccess(this.page.rsn, 'loadVersion')) {
             this.versionBox.setStyle('display', 'none');
-            this.versionsLoadBtns.each(function(btn){
-            	btn.hide();
+            this.versionsLoadBtns.each(function (btn) {
+                btn.hide();
             });
         }
-        
-        
-        this.versionsSetLiveBtns.each(function(btn){
-        	btn.show();
-        });
-        if(!ka.checkPageAccess( this.page.rsn, 'setLive' ) ){
-            this.versionsSetLiveBtns.each(function(btn){
-            	btn.hide();
-            });
-        }
-        
-        //contents
-    	/*var options = [];
-    	
-    	var _langs = $H({
-             text: _('Text'),
-             layoutelement: _('Layout Element'),
-             picture: _('Picture'),
-             plugin: _('Plugin'),
-             pointer: _('Pointer'),
-             template: _('Template'),
-             navigation: _('Navigation'),
-             html: _('HTML'),
-             php: _('PHP')
-        });
 
-    	_langs.each(function(label,type){
-        	if( !ka.checkPageAccess( this.page.rsn, 'content-'+type ) )
-             	return;
-        	options.include({i: type, label: label})
-        }.bind(this));
-    	
-        var newF = new ka.field({
-            label: _('Type'),
-            type: 'select',
-            help: 'admin/element-type',
-            small: 1,
-            tableItems: options,
-            table_key: 'i',
-            table_label: 'label'
-        }).inject( this.elementPropertyFields.eTypeSelect.main, 'after' );
-        
-    	var old = this.elementPropertyFields.eTypeSelect.destroy();
-        this.elementPropertyFields.eTypeSelect = newF;
-        */
+
+        this.versionsSetLiveBtns.each(function (btn) {
+            btn.show();
+        });
+        if (!ka.checkPageAccess(this.page.rsn, 'setLive')) {
+            this.versionsSetLiveBtns.each(function (btn) {
+                btn.hide();
+            });
+        }
+
+        //contents
+        /*var options = [];
+
+         var _langs = $H({
+         text: _('Text'),
+         layoutelement: _('Layout Element'),
+         picture: _('Picture'),
+         plugin: _('Plugin'),
+         pointer: _('Pointer'),
+         template: _('Template'),
+         navigation: _('Navigation'),
+         html: _('HTML'),
+         php: _('PHP')
+         });
+
+         _langs.each(function(label,type){
+         if( !ka.checkPageAccess( this.page.rsn, 'content-'+type ) )
+         return;
+         options.include({i: type, label: label})
+         }.bind(this));
+
+         var newF = new ka.field({
+         label: _('Type'),
+         type: 'select',
+         help: 'admin/element-type',
+         small: 1,
+         tableItems: options,
+         table_key: 'i',
+         table_label: 'label'
+         }).inject( this.elementPropertyFields.eTypeSelect.main, 'after' );
+
+         var old = this.elementPropertyFields.eTypeSelect.destroy();
+         this.elementPropertyFields.eTypeSelect = newF;
+         */
     },
-    
-    toAlternativPane: function(){
-    	var found = false;
-    	if( this.inDomainModus ){
-            ['domain', 'domainTheme', 'domainProperties', 'domainSettings'].each(function(item){
-        		if( this.viewButtons[item].retrieve('visible') ){
-        			found = true;
-        			this.changeType(item);
-        		}
+
+    toAlternativPane: function () {
+        var found = false;
+        if (this.inDomainModus) {
+            ['domain', 'domainTheme', 'domainProperties', 'domainSettings'].each(function (item) {
+                if (this.viewButtons[item].retrieve('visible')) {
+                    found = true;
+                    this.changeType(item);
+                }
             }.bind(this))
-    	} else {
-    		['general', 'rights', 'contents', 'resources', 'properties', 'searchIndex', 'versioning'].each(function(item){
-        		if( this.viewButtons[item].retrieve('visible') ){
-        			found = true;
-        			this.changeType(item);
-        		}
+        } else {
+            ['general', 'rights', 'contents', 'resources', 'properties', 'searchIndex', 'versioning'].each(function (item) {
+                if (this.viewButtons[item].retrieve('visible')) {
+                    found = true;
+                    this.changeType(item);
+                }
             }.bind(this))
-    	}
-    	
-    	if(! found ){
-    		this.viewButtons.each(function(button,key){
-    			this.panes[key].setStyle('display', 'none');
-    		}.bind(this));
+        }
+
+        if (!found) {
+            this.viewButtons.each(function (button, key) {
+                this.panes[key].setStyle('display', 'none');
+            }.bind(this));
 
             this.saveDomainGrp.hide();
             this.savePageGrp.hide();
 
             this.viewTypeGrpDomain.hide();
             this.viewTypeGrp.hide();
-    	}
+        }
     },
 
-    loadDomain: function( pDomain ){
-    
-        if( typeOf(pDomain) == 'object' )
+    loadDomain: function (pDomain) {
+
+        if (typeOf(pDomain) == 'object')
             pDomain = pDomain.rsn;
-            
-        
+
+
         this.inDomainModus = true;
 
-        if( this.oldLoadDomainRequest ) this.oldLoadDomainRequest.cancel();
+        if (this.oldLoadDomainRequest) this.oldLoadDomainRequest.cancel();
 
-        this.oldLoadDomainRequest = new Request.JSON({url: _path+'admin/pages/domain/get', noCache: 1, onComplete: function( pResult ){
-            
-        	var res = pResult.domain;
-        	
-            this.domainFields.each(function(item, key){
-            	item.show();
+        this.oldLoadDomainRequest = new Request.JSON({url: _path + 'admin/pages/domain/get', noCache: 1, onComplete: function (pResult) {
+
+            var res = pResult.domain;
+
+            this.domainFields.each(function (item, key) {
+                item.show();
                 item.fireEvent('check-depends');
             });
-            
-            this.viewButtons.each(function(field){
-            	field.show();
+
+            this.viewButtons.each(function (field) {
+                field.show();
             })
-            
-            this.win.setTitle ( res.domain );
-            
+
+            this.win.setTitle(res.domain);
+
             this.deleteDomainGrp.show();
-            
-            if( !ka.checkDomainAccess( res.rsn, 'deleteDomain' ) ){
-            	this.deleteDomainGrp.hide();
+
+            if (!ka.checkDomainAccess(res.rsn, 'deleteDomain')) {
+                this.deleteDomainGrp.hide();
             }
 
-            if( !ka.checkDomainAccess( res.rsn, 'domain' ) )
-            
-            if( !ka.checkDomainAccess( res.rsn, 'theme' ) )
-            	this.viewButtons['domainTheme'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domain'))
 
-            if( !ka.checkDomainAccess( res.rsn, 'domainProperties' ) )
-            	this.viewButtons['domainProperties'].hide();
-            
-            if( !ka.checkDomainAccess( res.rsn, 'settings' ) )
-            	this.viewButtons['domainSettings'].hide();
-            
-            
-            if( !ka.checkDomainAccess( res.rsn, 'domainName' ) )
-            	this.domainFields['domain'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainTitle' ) )
-            	this.domainFields['title_format'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainStartpage' ) )
-            	this.domainFields['startpage_rsn'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainPath' ) )
-            	this.domainFields['path'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainFavicon' ) )
-            	this.domainFields['favicon'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainLanguage' ) )
-            	this.domainFields['lang'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainLanguageMaster' ) )
-            	this.domainFields['master'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'domainEmail' ) )
-            	this.domainFields['email'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'limitLayouts' ) )
-            	this.domainFields['layouts'].hide();
-            
-            
-            if( !ka.checkDomainAccess( res.rsn, 'aliasRedirect' ) ){
-            	this.domainFields['alias'].hide();
-            	this.domainFields['redirect'].hide();
+                if (!ka.checkDomainAccess(res.rsn, 'theme'))
+                    this.viewButtons['domainTheme'].hide();
+
+            if (!ka.checkDomainAccess(res.rsn, 'domainProperties'))
+                this.viewButtons['domainProperties'].hide();
+
+            if (!ka.checkDomainAccess(res.rsn, 'settings'))
+                this.viewButtons['domainSettings'].hide();
+
+
+            if (!ka.checkDomainAccess(res.rsn, 'domainName'))
+                this.domainFields['domain'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainTitle'))
+                this.domainFields['title_format'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainStartpage'))
+                this.domainFields['startpage_rsn'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainPath'))
+                this.domainFields['path'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainFavicon'))
+                this.domainFields['favicon'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainLanguage'))
+                this.domainFields['lang'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainLanguageMaster'))
+                this.domainFields['master'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'domainEmail'))
+                this.domainFields['email'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'limitLayouts'))
+                this.domainFields['layouts'].hide();
+
+
+            if (!ka.checkDomainAccess(res.rsn, 'aliasRedirect')) {
+                this.domainFields['alias'].hide();
+                this.domainFields['redirect'].hide();
             }
-            
-            if( !ka.checkDomainAccess( res.rsn, 'phpLocale' ) )
-            	this.domainFields['phplocale'].hide();
-            if( !ka.checkDomainAccess( res.rsn, 'robotRules' ) )
-            	this.domainFields['robots'].hide();
-            
-            if( !ka.checkDomainAccess( res.rsn, '404' ) ){
-            	this.domainFields['page404_rsn'].hide();
-            	this.domainFields['page404interface'].hide();
+
+            if (!ka.checkDomainAccess(res.rsn, 'phpLocale'))
+                this.domainFields['phplocale'].hide();
+            if (!ka.checkDomainAccess(res.rsn, 'robotRules'))
+                this.domainFields['robots'].hide();
+
+            if (!ka.checkDomainAccess(res.rsn, '404')) {
+                this.domainFields['page404_rsn'].hide();
+                this.domainFields['page404interface'].hide();
             }
-            	
-            
-            if( !ka.checkDomainAccess( res.rsn, 'domainOther' ) )
-            	this.domainFields['resourcecompression'].hide();
-            
+
+
+            if (!ka.checkDomainAccess(res.rsn, 'domainOther'))
+                this.domainFields['resourcecompression'].hide();
+
 
             this.currentDomain = res;
-            
-            this.viewType( 'domain' );
-            
+
+            this.viewType('domain');
+
             this.changeType();
-            
-            this.win.params = {rsn: res.rsn, lang: res.lang, domain:true};
+
+            this.win.params = {rsn: res.rsn, lang: res.lang, domain: true};
 
             this.currentDomain.session = JSON.decode(this.currentDomain.session);
-            this.domainSessionFields.setValue( this.currentDomain.session );
-            
+            this.domainSessionFields.setValue(this.currentDomain.session);
 
-            if( this.currentDomain.session && this.currentDomain.session.auth_class ){
-                if( this.auth_params_objects[this.currentDomain.session.auth_class] ){
-                    this.auth_params_objects[this.currentDomain.session.auth_class].setValue( this.currentDomain.session.auth_params );
+
+            if (this.currentDomain.session && this.currentDomain.session.auth_class) {
+                if (this.auth_params_objects[this.currentDomain.session.auth_class]) {
+                    this.auth_params_objects[this.currentDomain.session.auth_class].setValue(this.currentDomain.session.auth_params);
                 }
             }
-            
-            this.showDomainMaster( res.rsn );
-            
+
+            this.showDomainMaster(res.rsn);
+
             //set domain propertie to default
-        	$H(this._domainPropertiesFields).each(function(fields, extKey){
-        		$H(fields).each(function(field){
-        			field.setValue();
-        		})
-        	});
-        	this.currentDomain.extproperties = JSON.decode(this.currentDomain.extproperties);
-            if( this.currentDomain.extproperties ){
-            	//set page values
-            	$H(this.currentDomain.extproperties).each(function(properties, extKey){
-            		$H(properties).each(function(property, propertyKey){
-            			if( this._domainPropertiesFields[extKey] && this._domainPropertiesFields[extKey][propertyKey] ){
-            				this._domainPropertiesFields[extKey][propertyKey].setValue(property);
-            			}
-            		}.bind(this))
-            	}.bind(this))
+            $H(this._domainPropertiesFields).each(function (fields, extKey) {
+                $H(fields).each(function (field) {
+                    field.setValue();
+                })
+            });
+            this.currentDomain.extproperties = JSON.decode(this.currentDomain.extproperties);
+            if (this.currentDomain.extproperties) {
+                //set page values
+                $H(this.currentDomain.extproperties).each(function (properties, extKey) {
+                    $H(properties).each(function (property, propertyKey) {
+                        if (this._domainPropertiesFields[extKey] && this._domainPropertiesFields[extKey][propertyKey]) {
+                            this._domainPropertiesFields[extKey][propertyKey].setValue(property);
+                        }
+                    }.bind(this))
+                }.bind(this))
             }
-            
-            this.domainFields['domain'].setValue( res.domain );
-            this.domainFields['title_format'].setValue( res.title_format );
-            this.domainFields['startpage_rsn'].setValue( res.startpage_rsn );
+
+            this.domainFields['domain'].setValue(res.domain);
+            this.domainFields['title_format'].setValue(res.title_format);
+            this.domainFields['startpage_rsn'].setValue(res.startpage_rsn);
             this.domainFields['startpage_rsn'].field.domain = res.rsn;
-            this.domainFields['lang'].setValue( res.lang );
-            this.domainFields['master'].setValue( res.master );
-            this.domainFields['phplocale'].setValue( res.phplocale );
-            this.domainFields['robots'].setValue( res.robots );
-            this.domainFields['favicon'].setValue( res.favicon );
-            this.domainFields['path'].setValue( res.path );
-            this.domainFields['email'].setValue( res.email );
+            this.domainFields['lang'].setValue(res.lang);
+            this.domainFields['master'].setValue(res.master);
+            this.domainFields['phplocale'].setValue(res.phplocale);
+            this.domainFields['robots'].setValue(res.robots);
+            this.domainFields['favicon'].setValue(res.favicon);
+            this.domainFields['path'].setValue(res.path);
+            this.domainFields['email'].setValue(res.email);
 
-            this.domainFields['page404_rsn'].setValue( res.page404_rsn );
-            this.domainFields['page404interface'].setValue( res.page404interface );
-            this.domainFields['alias'].setValue( res.alias );
-            this.domainFields['redirect'].setValue( res.redirect );
+            this.domainFields['page404_rsn'].setValue(res.page404_rsn);
+            this.domainFields['page404interface'].setValue(res.page404interface);
+            this.domainFields['alias'].setValue(res.alias);
+            this.domainFields['redirect'].setValue(res.redirect);
 
-            this.domainFields['resourcecompression'].setValue( res.resourcecompression );
-            this.domainFields['layouts'].setValue( JSON.decode(res.layouts) );
+            this.domainFields['resourcecompression'].setValue(res.resourcecompression);
+            this.domainFields['layouts'].setValue(JSON.decode(res.layouts));
 
-			this.domainExtensionsCreate( );
+            this.domainExtensionsCreate();
 
-            this.domainFieldsPublicProperties.setValue( JSON.decode(res.themeproperties) );
-            
+            this.domainFieldsPublicProperties.setValue(JSON.decode(res.themeproperties));
+
             this.toAlternativPane();
-            
+
             this.rdomain = this.retrieveDomainData();
 
         }.bind(this)}).post({rsn: pDomain});
 
     },
-    
-    domainExtensionsCreate: function(){
 
-    	pModules = ka.settings.config;
-    	$H(pModules).each(function(item, key){
-    		if( !item ) return;
-    		if( !item.properties ) return;
-    		var titleTxt = (item.title[window._session.lang])?item.title[window._session.lang]:item.title['en'];
-    		var title = new Element('h3', {
-    			html: titleTxt	
-    		}).inject( this.domainExtensionsPane );
-    		
-    		$H(item.properties).each(function(item,key){
-    		
-    			item.small = 1;
-    			
-    			new ka.field(item).inject( this.domainExtensionsPane );
-    		
-    		}.bind(this));
-    	
-    	
-    	}.bind(this));
+    domainExtensionsCreate: function () {
+
+        pModules = ka.settings.config;
+        $H(pModules).each(function (item, key) {
+            if (!item) return;
+            if (!item.properties) return;
+            var titleTxt = (item.title[window._session.lang]) ? item.title[window._session.lang] : item.title['en'];
+            var title = new Element('h3', {
+                html: titleTxt
+            }).inject(this.domainExtensionsPane);
+
+            $H(item.properties).each(function (item, key) {
+
+                item.small = 1;
+
+                new ka.field(item).inject(this.domainExtensionsPane);
+
+            }.bind(this));
+
+
+        }.bind(this));
     },
 
-    showDomainMaster: function( pRsn ){
-        if( this.oldLoadDomainMasterRequest ) this.oldLoadDomainMasterRequest.cancel();
+    showDomainMaster: function (pRsn) {
+        if (this.oldLoadDomainMasterRequest) this.oldLoadDomainMasterRequest.cancel();
         this.domainMasterPane.set('html', 'lade ...');
-        this.oldLoadDomainMasterRequest = new Request.JSON({url: _path+'admin/pages/domain/getMaster', noCache: 1, onComplete: function(res){
-        	
+        this.oldLoadDomainMasterRequest = new Request.JSON({url: _path + 'admin/pages/domain/getMaster', noCache: 1, onComplete: function (res) {
+
             this.domainMasterPane.set('html', '');
-            if( res && this.currentDomain.rsn != res.rsn ){
-            	var langTitle = res.lang;
-            	if( ka.settings.langs[res.lang] )
-            		langTitle = ka.settings.langs[res.lang].langtitle
-            	
-                this.domainMasterPane.set('html', _('Current language master is: ')+langTitle+' ('+
-                        ka.settings.langs[res.lang].title+', '+res.lang+')');
+            if (res && this.currentDomain.rsn != res.rsn) {
+                var langTitle = res.lang;
+                if (ka.settings.langs[res.lang])
+                    langTitle = ka.settings.langs[res.lang].langtitle
+
+                this.domainMasterPane.set('html', _('Current language master is: ') + langTitle + ' (' + ka.settings.langs[res.lang].title + ', ' + res.lang + ')');
             }
-            
+
         }.bind(this)}).post({rsn: pRsn});
     },
 
-    addDomain: function(){
-        var domain = this.win._prompt(_('Domain:'),'', function(p){
-            if(!p) return;   
-            this.lastSaveRequest = new Request.JSON({url: _path+'admin/pages/domain/add', noCache: 1, onComplete: function(res){
-            	ka.loadSettings();
+    addDomain: function () {
+        var domain = this.win._prompt(_('Domain:'), '', function (p) {
+            if (!p) return;
+            this.lastSaveRequest = new Request.JSON({url: _path + 'admin/pages/domain/add', noCache: 1, onComplete: function (res) {
+                ka.loadSettings();
                 this.changeLanguage();
             }.bind(this)}).post({ domain: p, lang: this.language });
         }.bind(this));
     },
 
-    saveDomain: function(){
-        
-        this.saveDomainBtn.startTip( _('Save ...') );
-        
-        if( this.lastSaveRequest ) this.lastSaveRequest.cancel();
+    saveDomain: function () {
+
+        this.saveDomainBtn.startTip(_('Save ...'));
+
+        if (this.lastSaveRequest) this.lastSaveRequest.cancel();
 
         this.overlayStart();
-        
+
         var req = this.retrieveDomainData();
-        if( !req ) return;
-        
+        if (!req) return;
+
         this.rdomain = req;
 
-        this.lastSaveRequest = new Request.JSON({url: _path+'admin/pages/domain/save', noCache: 1, onComplete: function(res){
+        this.lastSaveRequest = new Request.JSON({url: _path + 'admin/pages/domain/save', noCache: 1, onComplete: function (res) {
             this.overlay.destroy();
-            this.saveDomainBtn.stopTip( _('Saved') );
-            if( this.currentDomain.lang != req.lang ){
+            this.saveDomainBtn.stopTip(_('Saved'));
+            if (this.currentDomain.lang != req.lang) {
                 this.changeLanguage();
             } else {
                 this.domainTrees[this.currentDomain.rsn].reload();
             }
             this.currentDomain = req;
-            ka.settings.domains.each(function(d, index) {
-                if(d.rsn == req.rsn)
+            ka.settings.domains.each(function (d, index) {
+                if (d.rsn == req.rsn)
                     ka.settings.domains[index] = req;
             });
         }.bind(this)}).post(req);
     },
 
-    retrieveDomainData: function(){
-    
+    retrieveDomainData: function () {
+
         var req = {};
         req.rsn = this.currentDomain.rsn;
         req.domain = this.domainFields['domain'].getValue();
@@ -1470,133 +1453,111 @@ var admin_pages = new Class({
         req.redirect = this.domainFields['redirect'].getValue();
 
         req.resourcecompression = this.domainFields['resourcecompression'].getValue();
-        req.layouts = JSON.encode( this.domainFields['layouts'].getValue() );
-        req.themeproperties = JSON.encode( this.domainFieldsPublicProperties.getValue() );
+        req.layouts = JSON.encode(this.domainFields['layouts'].getValue());
+        req.themeproperties = JSON.encode(this.domainFieldsPublicProperties.getValue());
 
         req.session = this.domainSessionFields.getValue();
-        
+
         var obj = this.auth_params_objects[ req.session.auth_class ];
-        
-        if( obj ){
-            if( !obj.isOk() ){
-                this.saveDomainBtn.stopTip( _('Failed - Check values') );
+
+        if (obj) {
+            if (!obj.isOk()) {
+                this.saveDomainBtn.stopTip(_('Failed - Check values'));
                 return false;
-            }            
+            }
             req.session['auth_params'] = obj.getValue();
         }
 
         //properties
         var properties = {};
-        Object.each(this._domainPropertiesFields, function(fields, extKey){
-        	properties[extKey] = {};
-    		Object.each(fields, function(field, fieldKey){
-    			properties[extKey][fieldKey] = field.getValue();
-    		})
-    	});
+        Object.each(this._domainPropertiesFields, function (fields, extKey) {
+            properties[extKey] = {};
+            Object.each(fields, function (field, fieldKey) {
+                properties[extKey][fieldKey] = field.getValue();
+            })
+        });
         req.extproperties = JSON.encode(properties);
-    
+
         return req;
     },
 
 
-    _createDomain: function(){
+    _createDomain: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
 
         this.domainFields = new Hash();
 
-        this.domainFields['domain'] = new ka.field(
-            {label: _('Domain'), desc: _('Please make sure, that this domains points to this Kryn.cms installation. Otherwise you are not able to manage the content under the content tab.'), type: 'text', empty: false}
-        ).inject( p );
+        this.domainFields['domain'] = new ka.field({label: _('Domain'), desc: _('Please make sure, that this domains points to this Kryn.cms installation. Otherwise you are not able to manage the content under the content tab.'), type: 'text', empty: false}).inject(p);
 
-        this.domainFields['startpage_rsn'] = new ka.field(
-            {label: _('Startpage'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}
-        ).inject( p );
+        this.domainFields['startpage_rsn'] = new ka.field({label: _('Startpage'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}).inject(p);
 
-        this.domainFields['title_format'] = new ka.field(
-            {label: _('Title'), type: 'text', desc: _("Use %title as page title or %path as breadcrumb path.")+'<br />'+
-            _("To generate own titles you can set for example %s").replace('%s', 'myExtensionClass::myTitleFunction'), empty: false}
-        ).inject( p );
+        this.domainFields['title_format'] = new ka.field({label: _('Title'), type: 'text', desc: _("Use %title as page title or %path as breadcrumb path.") + '<br />' + _("To generate own titles you can set for example %s").replace('%s', 'myExtensionClass::myTitleFunction'), empty: false}).inject(p);
 
-        this.domainFields['path'] = new ka.field(
-            {label: _('Path'), type: 'text', desc: _("Installation path of kryn. Default '/'")}
-        ).inject( p );
-        
+        this.domainFields['path'] = new ka.field({label: _('Path'), type: 'text', desc: _("Installation path of kryn. Default '/'")}).inject(p);
 
-        
 
         var tableItems = [];
-        $H(ka.settings.langs).each(function(lang,id){
-            tableItems.include({ id: id, label: lang.langtitle+' ('+lang.title+', '+id+')' });
+        $H(ka.settings.langs).each(function (lang, id) {
+            tableItems.include({ id: id, label: lang.langtitle + ' (' + lang.title + ', ' + id + ')' });
         });
-        this.domainFields['lang'] = new ka.field(
-        {label: _('Language'), type: 'select',
+        this.domainFields['lang'] = new ka.field({label: _('Language'), type: 'select',
             table_label: 'label', table_key: 'id',
             tableItems: tableItems
-        }).inject( p );
+        }).inject(p);
 
 
-        this.domainFields['master'] = new ka.field(
-            {label: _('Language master'), type: 'checkbox'}
-        ).inject( p );
+        this.domainFields['master'] = new ka.field({label: _('Language master'), type: 'checkbox'}).inject(p);
 
         this.domainMasterPane = new Element('div', {
             style: 'padding-left: 30px; color: gray;'
-        }).inject( p );
-        
+        }).inject(p);
+
         this.panes['domain'] = p;
-        
+
 
         /* Domain-Theme */
 
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
 
 
-        this.domainFieldsPublicProperties = this.createPublicPropertiesBoard( _('Theme properties') );
-        this.domainFieldsPublicProperties.inject( p );
+        this.domainFieldsPublicProperties = this.createPublicPropertiesBoard(_('Theme properties'));
+        this.domainFieldsPublicProperties.inject(p);
 
-        this.domainFields['layouts'] = new ka.field(
-            {label: _('Limit selectable layouts'), desc: _('If you want to limit layouts to choose'),
-            type: 'select', multiple: true, size: 6}
-        ).inject( p );
+        this.domainFields['layouts'] = new ka.field({label: _('Limit selectable layouts'), desc: _('If you want to limit layouts to choose'),
+            type: 'select', multiple: true, size: 6}).inject(p);
 
-        $H(ka.settings.layouts).each(function(la, key){
+        $H(ka.settings.layouts).each(function (la, key) {
             var group = new Element('optgroup', {
                 label: key
-            }).inject( this.domainFields['layouts'].input );
-            $H(la).each(function(layoutFile,layoutTitle){
+            }).inject(this.domainFields['layouts'].input);
+            $H(la).each(function (layoutFile, layoutTitle) {
                 new Element('option', {
                     html: layoutTitle,
                     value: layoutFile
-                }).inject( group );
+                }).inject(group);
             })
         }.bind(this));
 
 
         var tableItems = [];
-        $H(ka.settings.langs).each(function(lang,id){
-            if( id != this.language )
-                tableItems.include({ id: id, label: lang.langtitle+' ('+lang.title+', '+id+')' });
+        $H(ka.settings.langs).each(function (lang, id) {
+            if (id != this.language)
+                tableItems.include({ id: id, label: lang.langtitle + ' (' + lang.title + ', ' + id + ')' });
         }.bind(this));
 
         this.panes['domainTheme'] = p;
-        
 
-        
-        
-        
-        
-        
-        
+
         /* Sessions */
 
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
-        
+        }).inject(this.main);
+
         var fields = {
             'session_storage': {
                 label: _('Session storage'),
@@ -1610,11 +1571,11 @@ var admin_pages = new Class({
                 type: 'text',
                 'default': '3600'
             },
-            
+
             'info': {
-            	'type': 'html',
-            	'label': _('Backend authentication'),
-            	'desc': _('Backend authentication settings are set under:<br />Butterfly -> Settings -> Session.')
+                'type': 'html',
+                'label': _('Backend authentication'),
+                'desc': _('Backend authentication settings are set under:<br />Butterfly -> Settings -> Session.')
             },
 
             'auth_class': {
@@ -1633,23 +1594,21 @@ var admin_pages = new Class({
                 }
             }
         };
-        
+
         var origin = ka.getFieldCaching();
-        fields = Object.merge( fields, origin );
-        
+        fields = Object.merge(fields, origin);
+
         fields.cache_type.label = _('Session storage');
-        
+
         delete fields.cache_type.items.files;
         fields.session_storage = Object.merge(fields.session_storage, fields.cache_type);
-        
-        fields.session_storage['depends']['session_storage_config[servers]'] = 
-            Object.clone(origin.cache_type['depends']['cache_params[servers]']);
+
+        fields.session_storage['depends']['session_storage_config[servers]'] = Object.clone(origin.cache_type['depends']['cache_params[servers]']);
         delete fields.session_storage['depends']['cache_params[servers]'];
 
-        fields.session_storage['depends']['session_storage_config[files_path]'] = 
-            Object.clone(origin.cache_type['depends']['cache_params[files_path]']);
+        fields.session_storage['depends']['session_storage_config[files_path]'] = Object.clone(origin.cache_type['depends']['cache_params[files_path]']);
         delete fields.session_storage['depends']['cache_params[files_path]'];
-        
+
         delete fields.cache_type;
 
         fields.session_storage['depends']['session_auto_garbage_collector'] = {
@@ -1660,198 +1619,193 @@ var admin_pages = new Class({
             type: 'checkbox',
             'default': '0'
         };
-        
+
         this.auth_params = {};
         this.auth_params_panes = {};
 
-        Object.each(ka.settings.configs, function(config,id){
-            if( config.auth ){
-                Object.each( config.auth, function(auth_fields,auth_class){
-                    Object.each( auth_fields, function( field, field_id){
+        Object.each(ka.settings.configs, function (config, id) {
+            if (config.auth) {
+                Object.each(config.auth, function (auth_fields, auth_class) {
+                    Object.each(auth_fields, function (field, field_id) {
                         //field.needValue = id+'/'+auth_class;
                         //fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
-                        fields.auth_class.table_items[ id+'/'+auth_class  ] = auth_class.capitalize();
+                        fields.auth_class.table_items[ id + '/' + auth_class  ] = auth_class.capitalize();
                     }.bind(this));
                 }.bind(this));
             }
         }.bind(this));
-        
-        this.domainSessionFields = new ka.parse( p, fields );
-        
+
+        this.domainSessionFields = new ka.parse(p, fields);
+
         this.auth_params_objects = {};
-        Object.each(ka.settings.configs, function(config,id){
-            if( config.auth ){
-                Object.each(config.auth, function(auth_fields,auth_class){
-                
-                    this.auth_params_panes[id+'/'+auth_class] = new Element('div', {
+        Object.each(ka.settings.configs, function (config, id) {
+            if (config.auth) {
+                Object.each(config.auth, function (auth_fields, auth_class) {
+
+                    this.auth_params_panes[id + '/' + auth_class] = new Element('div', {
                         'style': 'display: none;'
-                    }).inject( this.domainSessionFields.fields['auth_class'].childContainer );
-                    
-                    this.auth_params_objects[ id+'/'+auth_class ] = new ka.parse( this.auth_params_panes[id+'/'+auth_class], auth_fields );
+                    }).inject(this.domainSessionFields.fields['auth_class'].childContainer);
+
+                    this.auth_params_objects[ id + '/' + auth_class ] = new ka.parse(this.auth_params_panes[id + '/' + auth_class], auth_fields);
                 }.bind(this));
             }
         }.bind(this));
-        
-        this.domainSessionFields.fields['auth_class'].addEvent('check-depends', function(){
-            Object.each(this.auth_params_panes, function(pane){
+
+        this.domainSessionFields.fields['auth_class'].addEvent('check-depends', function () {
+            Object.each(this.auth_params_panes, function (pane) {
                 pane.setStyle('display', 'none');
             }.bind(this));
             var pane = this.auth_params_panes[ this.domainSessionFields.fields['auth_class'].getValue() ];
-            
-            if( pane )
+
+            if (pane)
                 pane.setStyle('display', 'block');
         }.bind(this));
-        
+
         this.domainSessionFields.fields['auth_class'].fireEvent('check-depends');
-        
+
         this.panes['domainSessions'] = p;
-        
-        
-        
-  
+
+
         /* Domain-Settings */
 
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
 
-		var table = new Element('table', {width: '100%'}).inject( p );
-		var tbody = new Element('tbody').inject( table );
+        var table = new Element('table', {width: '100%'}).inject(p);
+        var tbody = new Element('tbody').inject(table);
 
         this.domainFields['favicon'] = new ka.field({
             label: _('Favicon'), type: 'file', desc: _('Choose a favicon. Filetype .ico'),
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
-        
+        }, tbody);
+
 
         this.domainFields['email'] = new ka.field({
             label: _('Email sender'), desc: _('Extensions can use this email in outgoing emails as sender.'),
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
+        }, tbody);
 
 
         this.domainFields['alias'] = new ka.field({
             label: _('Alias'), type: 'text',
             desc: _("Define one or more alias for the domain above. Comma separated alias domain list to this domain."),
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
+        }, tbody);
 
         this.domainFields['redirect'] = new ka.field({
             label: _('Redirect'), type: 'text',
             desc: _("This domains redirect to the domain defined above. Comma separated redirect domain list to this domain"),
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
-        
+        }, tbody);
+
 
         this.domainFields['phplocale'] = new ka.field({
             label: 'PHP-Locale', type: 'text', desc: _('Locale LC_ALL in PHP'),
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
-        
+        }, tbody);
+
 
         this.domainFields['robots'] = new ka.field({
             label: 'Robot rules', type: 'textarea', desc: _('Define here the rules for search engines. (robots.txt)'),
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
+        }, tbody);
 
         this.domainFields['resourcecompression'] = new ka.field({
             label: _('Css and JS compression'),
             desc: _('Merge all css files in one, same with javascript files. This improve the page render time'),
             type: 'checkbox',
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );        
+        }, tbody);
 
         this.domainFields['page404_rsn'] = new ka.field({
             label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage',
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
+        }, tbody);
 
         this.domainFields['page404interface'] = new ka.field({
             label: _('404-Interface'), desc: _('PHP file'), type: 'fileChooser', empty: false, cookie: 'file',
             tableitem: 1, tableitem_title_width: 250
-        }, tbody );
-        
-        
+        }, tbody);
+
+
         this.panes['domainSettings'] = p;
     },
 
-    createPublicPropertiesBoard: function( pTitle ){
+    createPublicPropertiesBoard: function (pTitle) {
         var field = new Element('div', {
             'class': 'ka-field-main'
         });
 
         new Element('div', {
             'class': 'ka-field-title',
-            html: '<div class="title">'+pTitle+'</div>'
-        }).inject( field );
+            html: '<div class="title">' + pTitle + '</div>'
+        }).inject(field);
 
         var fieldContent = new Element('div', {
             'class': 'ka-field-field'
-        }).inject( field );
+        }).inject(field);
 
         field.domainFieldsPublicProperties = {};
 
-        Object.each(ka.settings.publicProperties, function(publicProperties, extKey){
+        Object.each(ka.settings.publicProperties, function (publicProperties, extKey) {
             field.domainFieldsPublicProperties[ extKey ] = {};
-            Object.each(publicProperties, function(la, tKey){
+            Object.each(publicProperties, function (la, tKey) {
 
                 field.domainFieldsPublicProperties[ extKey ][ tKey ] = {};
-                
+
                 var laDiv = new Element('div', {
                     'style': 'padding: 2px 0px;'
-                }).inject( fieldContent );
+                }).inject(fieldContent);
 
                 new Element('h3', {
                     html: tKey
-                }).inject( laDiv );
+                }).inject(laDiv);
 
-        		var table = new Element('table', {width: '100%', style: 'background-color: #e8e8e8'}).inject( laDiv );
-        		var tbody = new Element('tbody').inject( table );
-        		
-                Object.each(la, function(fieldOpts,fKey){
+                var table = new Element('table', {width: '100%', style: 'background-color: #e8e8e8'}).inject(laDiv);
+                var tbody = new Element('tbody').inject(table);
 
-                    
+                Object.each(la, function (fieldOpts, fKey) {
 
-        			if( typeOf( fieldOpts ) == 'array' ){
-            			
-                        if( fieldOpts[1] == 'page' ){
+
+                    if (typeOf(fieldOpts) == 'array') {
+
+                        if (fieldOpts[1] == 'page') {
                             fieldOpts.onlyIntern = 1;
                         }
                         fieldOpts['label'] = fieldOpts[0];
                         fieldOpts['type'] = fieldOpts[1];
-                        
+
                     }
 
-        			fieldOpts.tableitem = 1;
-        			fieldOpts.tableitem_title_width = 250;
-        			
-                    field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] = new ka.field(fieldOpts, tbody );
+                    fieldOpts.tableitem = 1;
+                    fieldOpts.tableitem_title_width = 250;
+
+                    field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] = new ka.field(fieldOpts, tbody);
                 }.bind(this))
-                
+
             }.bind(this));
         }.bind(this));
 
-        field.setValue = function( pValues ){
-            $H( pValues ).each(function( properties, extKey ){
-                $H(properties).each(function(la, tKey){
-                    $H(la).each(function(value,fKey){
-                    	if( field.domainFieldsPublicProperties[ extKey ] &&
-                    		field.domainFieldsPublicProperties[ extKey ][ tKey ] &&
-                    		field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] ){
-                    			field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ].setValue( value );
-                    	}
+        field.setValue = function (pValues) {
+            $H(pValues).each(function (properties, extKey) {
+                $H(properties).each(function (la, tKey) {
+                    $H(la).each(function (value, fKey) {
+                        if (field.domainFieldsPublicProperties[ extKey ] && field.domainFieldsPublicProperties[ extKey ][ tKey ] && field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ]) {
+                            field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ].setValue(value);
+                        }
                     }.bind(this))
                 }.bind(this));
             }.bind(this));
         }
 
-        field.getValue = function(){
+        field.getValue = function () {
             var res = {};
-            $H(this.domainFieldsPublicProperties).each(function(properties,extKey){
+            $H(this.domainFieldsPublicProperties).each(function (properties, extKey) {
                 res[ extKey ] = {};
-                $H(properties).each(function(la, tKey){
+                $H(properties).each(function (la, tKey) {
                     res[ extKey ][ tKey ] = {};
-                    $H(la).each(function(opts,fKey){
+                    $H(la).each(function (opts, fKey) {
                         res[ extKey ][ tKey ][ fKey ] = field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ].getValue();
                     }.bind(this))
                 }.bind(this));
@@ -1863,336 +1817,288 @@ var admin_pages = new Class({
 
     },
 
-    _createGeneral: function(){
+    _createGeneral: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
         this.generalFields = new Hash();
 
-        this.generalFields['type'] = new ka.field(
-        {label: _('Type'), type: 'imagegroup',
+        this.generalFields['type'] = new ka.field({label: _('Type'), type: 'imagegroup',
             table_label: 'label', table_key: 'id',
             items: {
-                0: {label: _('Default'), src: _path+'inc/template/admin/images/icons/page_green.png'},
-                1: {label: _('Link'), src: _path+'inc/template/admin/images/icons/link.png'},
-                2: {label: _('Folder'), src: _path+'inc/template/admin/images/icons/folder.png'},
-                3: {label: _('Deposit'), src: _path+'inc/template/admin/images/icons/page_white_text.png'}
+                0: {label: _('Default'), src: _path + 'inc/template/admin/images/icons/page_green.png'},
+                1: {label: _('Link'), src: _path + 'inc/template/admin/images/icons/link.png'},
+                2: {label: _('Folder'), src: _path + 'inc/template/admin/images/icons/folder.png'},
+                3: {label: _('Deposit'), src: _path + 'inc/template/admin/images/icons/page_white_text.png'}
             }
-        }).inject( p );
-    
-        this.generalFields['type'].addEvent('change', this.changeType.bind(this) );
+        }).inject(p);
 
-        this.generalFields['title'] = new ka.field(
-            {label: _('Title (navigation)'), type: 'text', empty: false}
-        ).inject( p );
+        this.generalFields['type'].addEvent('change', this.changeType.bind(this));
 
-        this.generalFields['page_title'] = new ka.field(
-            {label: _('Alternative page title'), type: 'text'}
-        ).inject( p );
+        this.generalFields['title'] = new ka.field({label: _('Title (navigation)'), type: 'text', empty: false}).inject(p);
+
+        this.generalFields['page_title'] = new ka.field({label: _('Alternative page title'), type: 'text'}).inject(p);
 
 
-
-        this.generalFields['link'] = new ka.field(
-            {label: _('Target'), desc: _('Extern links with "http://"'), type: 'chooser', empty: false, cookie: 'pageLink'}
-        ).inject( p );
+        this.generalFields['link'] = new ka.field({label: _('Target'), desc: _('Extern links with "http://"'), type: 'chooser', empty: false, cookie: 'pageLink'}).inject(p);
 
         //targets
-        this.generalFields['target'] = new ka.field(
-        {label: _('Open in'), type: 'select',
+        this.generalFields['target'] = new ka.field({label: _('Open in'), type: 'select',
             table_label: 'label', table_key: 'id',
             tableItems: [
                 {label: _('Same window'), id: '_self'},
                 {label: _('New window'), id: '_blank'},
             ]
-        }).inject( p );
-
+        }).inject(p);
 
 
         //URL
-        this.generalFields['url'] = new ka.field(
-            {label: _('URL'), type: 'text', empty: false, check: 'kurl', help: 'admin/url'}
-        ).inject( p );
-        
+        this.generalFields['url'] = new ka.field({label: _('URL'), type: 'text', empty: false, check: 'kurl', help: 'admin/url'}).inject(p);
+
         this.urlAliase = new Element('div', {
-        	style: 'padding: 5px; padding-left: 26px;'
+            style: 'padding: 5px; padding-left: 26px;'
         }).inject(p);
 
         this.generalFieldsUrlPath = new Element('span', {
             html: 'Domain'
-        })
-        .inject( this.generalFields['url'].input, 'before' );
+        }).inject(this.generalFields['url'].input, 'before');
         this.generalFields['url'].input.setStyle('width', 140);
 
-        this.aliase = new Element('div').inject( p );
+        this.aliase = new Element('div').inject(p);
         new Element('div', {
-//            style: 'color: #999; padding-left: 25px;',
-//            html: 'Es leiten <b>5</b> Aliase auf diese Seite. [Bearbeiten]'
-        }).inject( this.aliase );
+            //            style: 'color: #999; padding-left: 25px;',
+            //            html: 'Es leiten <b>5</b> Aliase auf diese Seite. [Bearbeiten]'
+        }).inject(this.aliase);
 
 
-    /*xxx
-        //TEMPLATE
-        var tableItems = [];
-        ka.settings.templates.each(function(template){
-            tableItems.include({ id: template, label: template });
-        });
-        this.generalFields['template'] = new ka.field(
-        {label: 'Template', type: 'select',
-            table_label: 'label', table_key: 'id',
-            tableItems: tableItems
-        }).inject( p );
-        this.generalFields['template'].input.addEvent('change', this._loadContent.bind(this));
-        */
+        /*xxx
+         //TEMPLATE
+         var tableItems = [];
+         ka.settings.templates.each(function(template){
+         tableItems.include({ id: template, label: template });
+         });
+         this.generalFields['template'] = new ka.field(
+         {label: 'Template', type: 'select',
+         table_label: 'label', table_key: 'id',
+         tableItems: tableItems
+         }).inject( p );
+         this.generalFields['template'].input.addEvent('change', this._loadContent.bind(this));
+         */
 
         //METAS
-        this.metas = new Element('div').inject( p );
-        this.metaTitle = new Element('div',{
+        this.metas = new Element('div').inject(p);
+        this.metaTitle = new Element('div', {
             style: 'margin-top: 5px; border-top: 1px solid #ccc;height: 21px; padding-left: 20px; font-weight: bold;',
             html: 'Metas<br />'
         }).inject(this.metas);
 
         this.metaPane = new Element('ol', {
             style: 'margin-left: 20px; padding: 0px; padding-bottom: 4px; padding-left: 20px;'
-        }).inject( this.metas );
+        }).inject(this.metas);
 
-        var addMeta =
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/add.png',
+        var addMeta = new Element('img', {
+            src: _path + 'inc/template/admin/images/icons/add.png',
             title: _('Add'),
             style: 'cursor: pointer'
-        })
-        .addEvent('click', function(){
+        }).addEvent('click', function () {
             this.addMeta();
-        }.bind(this))
-        .setStyle('left', 1)
-        .setStyle('top', 3)
-        .setStyle('position', 'relative')
-        .inject( this.metaTitle );
+        }.bind(this)).setStyle('left', 1).setStyle('top', 3).setStyle('position', 'relative').inject(this.metaTitle);
 
-        this.generalFields['metaKeywords'] = new ka.field(
-            {label: _('Keywords'), type: 'text'}
-        ).inject( this.metas );
+        this.generalFields['metaKeywords'] = new ka.field({label: _('Keywords'), type: 'text'}).inject(this.metas);
 
-        this.generalFields['metaDesc'] = new ka.field(
-            {label: _('Description'), type: 'textarea'}
-        ).inject( this.metas );
+        this.generalFields['metaDesc'] = new ka.field({label: _('Description'), type: 'textarea'}).inject(this.metas);
 
 
         this.panes['general'] = p;
     },
 
-    _createRights: function(){
+    _createRights: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
 
-        this.generalFields['visible'] = new ka.field(
-            {label: _('Visible (navigation)'), type: 'checkbox'}
-        ).inject( p );
+        this.generalFields['visible'] = new ka.field({label: _('Visible (navigation)'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['access_denied'] = new ka.field(
-            {label: _('Access denied'), type: 'checkbox'}
-        ).inject( p );
-        
-        this.generalFields['force_https'] = new ka.field(
-            {label: _('Force HTTPS'), type: 'checkbox'}
-        ).inject( p );
+        this.generalFields['access_denied'] = new ka.field({label: _('Access denied'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['access_from'] = new ka.field(
-            {label: _('Release at'), type: 'datetime'}
-        ).inject( p );
+        this.generalFields['force_https'] = new ka.field({label: _('Force HTTPS'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['access_to'] = new ka.field(
-            {label: _('Hide at'), type: 'datetime'}
-        ).inject( p );
-        
-        this.generalFields['access_from_groups'] = new ka.field(
-            {label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
+        this.generalFields['access_from'] = new ka.field({label: _('Release at'), type: 'datetime'}).inject(p);
+
+        this.generalFields['access_to'] = new ka.field({label: _('Hide at'), type: 'datetime'}).inject(p);
+
+        this.generalFields['access_from_groups'] = new ka.field({label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
             type: 'textlist', panel_width: 320,
             store: 'admin/backend/stores/groups'
-            }
-        ).inject( p );
-        
-        
-        this.generalFields['access_nohidenavi'] = new ka.field(
-            {label: _('Show in navigation by no access'), desc: _('Shows this page in the navigations also with no access'), type: 'checkbox'}
-        ).inject( p );
-        
-        this.generalFields['access_redirectto'] = new ka.field(
-            {label: _('Redirect to page by no access'), desc: _('Choose a page, if you want to redirect the user to a page by no access.'), type: 'page'}
-        ).inject( p );
+        }).inject(p);
 
-        this.generalFields['access_need_via'] = new ka.field(
-            {label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
+
+        this.generalFields['access_nohidenavi'] = new ka.field({label: _('Show in navigation by no access'), desc: _('Shows this page in the navigations also with no access'), type: 'checkbox'}).inject(p);
+
+        this.generalFields['access_redirectto'] = new ka.field({label: _('Redirect to page by no access'), desc: _('Choose a page, if you want to redirect the user to a page by no access.'), type: 'page'}).inject(p);
+
+        this.generalFields['access_need_via'] = new ka.field({label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
             tableItems: [
                 {rsn: 0, name: 'Kryn.cms-Session'},
                 {rsn: 1, name: 'Htaccess'}
             ], table_label: 'name', table_key: 'rsn'
-            }
-        ).inject( p );
+        }).inject(p);
 
         this.panes['rights'] = p;
     },
 
 
     /*
-    *
-    *  CONTENTS 
-    *
-    */
+     *
+     *  CONTENTS 
+     *
+     */
 
-    _createContents: function(){
+    _createContents: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
 
-        var t = new Element('div',{
+        var t = new Element('div', {
             style: 'position: absolute; left: 0px; right: 0px; top: 0px; height: 26px; text-align: right; border-bottom: 2px solid silver;'
-        }).inject( p );
+        }).inject(p);
 
-        var table = new Element('table', {style: 'float: right'}).inject( t );
-        var tbody = new Element('tbody').inject( table );
-        var tr = new Element('tr').inject( tbody );
+        var table = new Element('table', {style: 'float: right'}).inject(t);
+        var tbody = new Element('tbody').inject(table);
+        var tr = new Element('tr').inject(tbody);
 
         /* test new drag'n'drop */
         this.contentItems = new Element('div', {
             'class': 'pages-possibleContentItems',
             style: 'position: absolute; left: 8px; top: 5px; height: 15px; width: 200px;',
-        }).inject( t );
+        }).inject(t);
 
         /* test end */
 
 
-        var td = new Element('td').inject( tr );
-        
-        
-        var cmmcid = new Date().getTime()+'_contentManagemModeCheckBox';
+        var td = new Element('td').inject(tr);
+
+
+        var cmmcid = new Date().getTime() + '_contentManagemModeCheckBox';
         this.contentManageModeCheckbox = new Element('input', {
-        	type: 'checkbox',
-        	id: cmmcid,
-        	checked: true
-        })
-        .addEvent('click', function(){
-        	if( this.contentManageModeCheckbox.checked ){
+            type: 'checkbox',
+            id: cmmcid,
+            checked: true
+        }).addEvent('click', function () {
+            if (this.contentManageModeCheckbox.checked) {
                 this.contentManageMode = 'layout';
-        	} else {
+            } else {
                 this.contentManageMode = 'list';
-        	}
+            }
             this._loadContentLayout();
-        }.bind(this))
-        .inject( td, 'top');
-        
-        
+        }.bind(this)).inject(td, 'top');
 
-        var td = new Element('td').inject( tr );
+
+        var td = new Element('td').inject(tr);
         new Element('label', {
-        	text: _('Show layout'),
-        	'for':  cmmcid
-        }).inject( td );
-        
-        
-        new Element('td', {style: 'padding: 0px 2px;color: gray;', html: ' | '}).inject( tr );
-        
-        //layouts
-        this.layoutTxt = new Element('td', {html: _('Layout')}).inject( tr );
+            text: _('Show layout'),
+            'for': cmmcid
+        }).inject(td);
 
-        var td = new Element('td').inject( tr );
+
+        new Element('td', {style: 'padding: 0px 2px;color: gray;', html: ' | '}).inject(tr);
+
+        //layouts
+        this.layoutTxt = new Element('td', {html: _('Layout')}).inject(tr);
+
+        var td = new Element('td').inject(tr);
         this.layoutTd = td;
         this.layout = new Element('select', {
             'class': 'admin-pages-pane-contents-actions-layoutx'
-        })
-        .addListener('change', function(){
+        }).addListener('change', function () {
             this._loadContentLayout();
-        }.bind(this))
-        .inject( td );
-        
-        this.layout.getValue = function(){
+        }.bind(this)).inject(td);
+
+        this.layout.getValue = function () {
             return this.value;
         }
-        this.layout.setValue = function(p){
+        this.layout.setValue = function (p) {
             this.value = p;
-            if( p == '' || !p ){
-            	
+            if (p == '' || !p) {
+
             }
         }
         this.generalFields['layout'] = this.layout;
 
-        if( ka.settings.layouts.length == 0 ){
-            this.win._alert(_('No layouts found. Install layout extensions or create one.'), function(){
+        if (ka.settings.layouts.length == 0) {
+            this.win._alert(_('No layouts found. Install layout extensions or create one.'), function () {
                 this.win.close();
             }.bind(this));
             return;
         }
-        
 
-        new Element('td', {style: 'padding: 0px 2px;color: gray;', html: ' | '}).inject( tr );
-        
 
-        new Element('td', {html: _('Versions')}).inject( tr );
+        new Element('td', {style: 'padding: 0px 2px;color: gray;', html: ' | '}).inject(tr);
 
-        var td = new Element('td').inject( tr );
-        this.versionBox = new Element('div').inject( td );
+
+        new Element('td', {html: _('Versions')}).inject(tr);
+
+        var td = new Element('td').inject(tr);
+        this.versionBox = new Element('div').inject(td);
 
 
         this.versions = new Element('select', {
-        })
-        .addEvent('change', function(){
-            this.loadVersion( this.versions.value );
+        }).addEvent('change', function () {
+            this.loadVersion(this.versions.value);
         }.bind(this)); //.inject( td );
 
         this.iframePanel = new Element('div', {
             style: 'position: absolute; left: 0px; right: 0px; top: 28px; bottom: 0px; background-color: white; border-top: 1px solid white;'
-        }).inject( p );
+        }).inject(p);
         this.__newIframe();
 
         this.panes['contents'] = p;
     },
 
 
-    __newIframe: function(){
-       if( this.iframe ) this.iframe.destroy();
-       //this.iframe = new Element('iframe', {
-       this.iframe = new IFrame('iframe_pages', {
+    __newIframe: function () {
+        if (this.iframe) this.iframe.destroy();
+        //this.iframe = new Element('iframe', {
+        this.iframe = new IFrame('iframe_pages', {
             'frameborder': 0,
             styles: {
                 position: 'absolute',
                 left: 0, top: 0, width: '100%', height: '100%',
                 border: 0
             }
-        }).inject( this.iframePanel ); 
+        }).inject(this.iframePanel);
     },
 
 
-    _loadContent: function(){
+    _loadContent: function () {
 
         this.lastLoadedContentRsn = this.page.rsn;
 
         var layout = this.layout.getValue();
-        if( !this.iframe || !this.iframe.contentWindow || !this.iframe.contentWindow.Asset ||
-                !this.oldPage || (this.page.layout != layout) || (this.page.domain_rsn != this.oldPage.domain_rsn) ){
+        if (!this.iframe || !this.iframe.contentWindow || !this.iframe.contentWindow.Asset || !this.oldPage || (this.page.layout != layout) || (this.page.domain_rsn != this.oldPage.domain_rsn)) {
             this.__newIframe();
 
             var w = this.iframe.contentWindow;
             var d = this.iframe.contentWindow.document;
             var _this = this;
-            
-            this.iframe.addEvent('load', function(){
+
+            this.iframe.addEvent('load', function () {
                 _this._loadContentLayout();
             }.bind(this));
             this.win.iframe = this.iframe;
-            
-            if( this.oldLoadTemplateRequest )
+
+            if (this.oldLoadTemplateRequest)
                 this.oldLoadTemplateRequest.cancel();
 
             //cut last slash
             var path = location.pathname;
-            if( path.substr( path.length-1, 1 ) == '/' )
-                path = path.substr( 0, path.length-1 );
+            if (path.substr(path.length - 1, 1) == '/')
+                path = path.substr(0, path.length - 1);
 
             //cut length of 'admin'
-            path = path.substr( 0, path.length-5 );
+            path = path.substr(0, path.length - 5);
 
-            this.iframe.set('src',_path+'admin/pages/getTemplate/rsn:'+this.page.rsn+'/json:0/domain='+location.host+'/?path='+path );
+            this.iframe.set('src', _path + 'admin/pages/getTemplate/rsn:' + this.page.rsn + '/json:0/domain=' + location.host + '/?path=' + path);
 
         } else {
             this._loadContentLayout();
@@ -2200,18 +2106,18 @@ var admin_pages = new Class({
 
     },
 
-    _loadContentLayout: function(){
-    
+    _loadContentLayout: function () {
+
         var w = this.iframe.contentWindow;
-        if( !w.Asset ){ 
+        if (!w.Asset) {
             logger('window(mootools) is not ready in _loadContentLayout()');
             /*this.trys++;
-            if( this.trys < 15 ){
-            	this._loadContentLayout.delay(150, this);
-            	return;
-        	} else {
-            	alert('Problem with mootools.');
-            }*/
+             if( this.trys < 15 ){
+             this._loadContentLayout.delay(150, this);
+             return;
+             } else {
+             alert('Problem with mootools.');
+             }*/
         }
         this.trys = 0;
 
@@ -2221,118 +2127,114 @@ var admin_pages = new Class({
         w.kpage = this;
 
         w.document.body.removeEvents('click');
-        
-        w.document.body.addEvent('click', function(e){
-            if( !e ) return;
 
-        	w.document.body.fireEvent('deselect-content-elements');
+        w.document.body.addEvent('click', function (e) {
+            if (!e) return;
+
+            w.document.body.fireEvent('deselect-content-elements');
 
         }.bind(this));
-        
-        w.document.body.addEvent('deselect-content-elements', function(){
 
-        	if( this.ignoreNextDeselectAll ){
-        		this.ignoreNextDeselectAll = false;
-        		return;
-        	}
+        w.document.body.addEvent('deselect-content-elements', function () {
+
+            if (this.ignoreNextDeselectAll) {
+                this.ignoreNextDeselectAll = false;
+                return;
+            }
 
             this._deselectAllElements();
         }.bind(this));
 
-        if( this.oldLoadContentRequest )
+        if (this.oldLoadContentRequest)
             this.oldLoadContentRequest.cancel();
 
-        if( this.lastLoadedLayoutCssFiles )
-            this.lastLoadedLayoutCssFiles.each(function(cssAsset){
+        if (this.lastLoadedLayoutCssFiles)
+            this.lastLoadedLayoutCssFiles.each(function (cssAsset) {
                 try {
-                    if( cssAsset.destroy ) 
+                    if (cssAsset.destroy)
                         cssAsset.destroy();
-                } catch(e){
+                } catch (e) {
                     cssAsset.href = '';
                 }
             });
 
         var layout = this.layout.getValue();
-        
-        if( this.noLayoutOverlay )
-        	this.noLayoutOverlay.destroy();
-        
-        if( layout == '' && this.generalFields['type'].getValue() == 0 ){
-        	//view overlay
-        	this.noLayoutOverlay = new Element('div', {
-        		'class': 'ka-pages-nolayoutoverlay'
-        	}).inject(this.iframePanel);
- 
-        	//todo, when we have versions, then use following as bg
-        	//ka-pages-nolayout-withversions-bg.png
-        	
-        	
-        	this.noLayoutOverlayText = new Element('div', {
-        		'class': 'ka-pages-nolayoutoverlay-text',
-        		html: _('Please choose a layout for this page.')
-        	}).inject(this.noLayoutOverlay);
+
+        if (this.noLayoutOverlay)
+            this.noLayoutOverlay.destroy();
+
+        if (layout == '' && this.generalFields['type'].getValue() == 0) {
+            //view overlay
+            this.noLayoutOverlay = new Element('div', {
+                'class': 'ka-pages-nolayoutoverlay'
+            }).inject(this.iframePanel);
+
+            //todo, when we have versions, then use following as bg
+            //ka-pages-nolayout-withversions-bg.png
+
+
+            this.noLayoutOverlayText = new Element('div', {
+                'class': 'ka-pages-nolayoutoverlay-text',
+                html: _('Please choose a layout for this page.')
+            }).inject(this.noLayoutOverlay);
         }
-        
-        if( this.ablageModus == true ){
+
+        if (this.ablageModus == true) {
             layout = 'kryn/blankLayout.tpl';
         }
 
-        this.oldLoadContentRequest = new Request.JSON({url: _path+'admin/pages/getLayout', noCache: 1,
-        	onComplete: this._renderContentLayout.bind(this) })
-        .post({ name: layout, rsn: this.page.rsn });
+        this.oldLoadContentRequest = new Request.JSON({url: _path + 'admin/pages/getLayout', noCache: 1,
+            onComplete: this._renderContentLayout.bind(this) }).post({ name: layout, rsn: this.page.rsn });
 
     },
 
-    _updateDraggerBarPosition: function(){
-        if( Browser.Engine.webkit ){
+    _updateDraggerBarPosition: function () {
+        if (Browser.Engine.webkit) {
             var mytop = this.iframe.contentWindow.document.body.scrollTop;
             var myleft = this.iframe.contentWindow.document.body.scrollLeft;
         } else {
             var mytop = this.iframe.contentWindow.document.html.scrollTop;
             var myleft = this.iframe.contentWindow.document.html.scrollLeft;
         }
-        if( this.contentItemsHidden != true ){
+        if (this.contentItemsHidden != true) {
             this.contentItems.morph({
                 'top': mytop,
-                'right': (myleft*-1)
+                'right': (myleft * -1)
             });
         } else {
             this.contentItems.morph({
-                'top': mytop-323,
-                'right': (myleft*-1)
+                'top': mytop - 323,
+                'right': (myleft * -1)
             });
         }
     },
 
-    _createDraggerBar: function(){
-    
+    _createDraggerBar: function () {
+
         return;
         this.win.onResizeComplete = this._updateDraggerBarPosition.bind(this);
         this.contentItems = new Element('div', {
             'class': 'ka-admin-pages-possibleContentItems',
-        })
-        .set('tween', {duration: 400, transition: Fx.Transitions.Cubic.easeOut})
-        .inject( this.iframe.contentWindow.document.body );
+        }).set('tween', {duration: 400, transition: Fx.Transitions.Cubic.easeOut}).inject(this.iframe.contentWindow.document.body);
 
         this.contentItemsToggler = new Element('div', {
             'class': 'ka-admin-pages-possibleContentItemsToggler',
             title: _('Hide element bar')
-        })
-        .inject( this.contentItems );
+        }).inject(this.contentItems);
 
         this.contentItems.set('morph', {duration: 400, transition: Fx.Transitions.Cubic.easeOut});
 
         /*this.tinyMceToolbar = new Element('div', {
-            'id': 'tinyMceToolbar',
-            'class': 'mceEditor o2k7Skin o2k7SkinSilver',
-            'style': 'position: absolute; left: 0px; top: 30px; right: 0px; height: 60px;'
-        }).inject( this.panes['contents'] );
-        */
+         'id': 'tinyMceToolbar',
+         'class': 'mceEditor o2k7Skin o2k7SkinSilver',
+         'style': 'position: absolute; left: 0px; top: 30px; right: 0px; height: 60px;'
+         }).inject( this.panes['contents'] );
+         */
 
         this.iframe.contentWindow.document.html.style.marginTop = '45px';
         this.iframe.contentWindow.document.html.style.marginRight = '35px';
 
-        this.iframe.contentWindow.document.addEvent('scroll', function(){
+        this.iframe.contentWindow.document.addEvent('scroll', function () {
             this._updateDraggerBarPosition();
         }.bind(this));
         this._updateDraggerBarPosition();
@@ -2351,138 +2253,133 @@ var admin_pages = new Class({
             php: _('PHP')
         });
 
-        this._langs.each(function(label,type){
+        this._langs.each(function (label, type) {
 
-            if( !ka.checkPageAccess( this.page.rsn, 'content-'+type ) )
-            	return;
-        	
-        	var element = {lang:type};
-            
-            this.__draggerItems[type.toLowerCase()] = this.__buildDragItem( element );
+            if (!ka.checkPageAccess(this.page.rsn, 'content-' + type))
+                return;
+
+            var element = {lang: type};
+
+            this.__draggerItems[type.toLowerCase()] = this.__buildDragItem(element);
 
         }.bind(this));
-        
-        var height = $H(this.__draggerItems).getLength()*41;
-        
-        
 
-        this.contentItemsToggler.addEvent('click', function(){
-            if( this.contentItemsHidden != true ){
+        var height = $H(this.__draggerItems).getLength() * 41;
+
+
+        this.contentItemsToggler.addEvent('click', function () {
+            if (this.contentItemsHidden != true) {
                 this.contentItemsHidden = true;
                 this.contentItemsToggler.set('class', 'ka-admin-pages-possibleContentItemsToggler ka-admin-pages-possibleContentItemsTogglerTop');
-                this.contentItems.tween('top', height*-1);
+                this.contentItems.tween('top', height * -1);
             } else {
                 this.contentItemsHidden = false;
                 this.contentItemsToggler.set('class', 'ka-admin-pages-possibleContentItemsToggler');
                 this.contentItems.tween('top', 0);
             }
         }.bind(this))
-        
+
         this.contentItems.setStyle('height', height);
     },
 
-    __buildDragItem: function( element ){
-            var type= element.lang;
-            var div = new Element('div', {
-                title: this._langs[type],
-                style: '',
-                'class': 'ka-layoutContent-main',
-                lang: type
-            })
-            .store('fromBar', true)
-            .inject( this.contentItems );
+    __buildDragItem: function (element) {
+        var type = element.lang;
+        var div = new Element('div', {
+            title: this._langs[type],
+            style: '',
+            'class': 'ka-layoutContent-main',
+            lang: type
+        }).store('fromBar', true).inject(this.contentItems);
 
-            new Element('img', {
-                src: _path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+type+'-bg.png'
-            }).inject( div );
+        new Element('img', {
+            src: _path + 'inc/template/admin/images/ka-keditor-elementtypes-item-' + type + '-bg.png'
+        }).inject(div);
 
-            return div;
+        return div;
     },
 
-    checkSortedItems: function( element, clone ){
+    checkSortedItems: function (element, clone) {
     },
-
-
 
 
     /* plugin chooser pane */
     /*
-    showPluginChooserPane: function(){
-        
-        var toolbarSize = this.elementPropertyToolbar.getSize();
-        
-        this.pluginChooserPane.setStyle('left', toolbarSize.x);
-        var width = 600;
-        
-        
-        if( toolbarSize.y < 10 ){
-            this.pluginChooserPane.tween('height', this.elementPropertyHeight);
-            this.pluginChooserPane.setStyle('width', width);
-        } else {
-            this.pluginChooserPane.setStyle('height', this.elementPropertyHeight);
-            this.pluginChooserPane.tween('width', width);
-        }
-    
-    },
-    
-    hidePluginChooserPane: function( pToolbarStillOpen ){
-        if( pToolbarStillOpen )
-            this.pluginChooserPane.tween('width', 1);
-        else
-            this.pluginChooserPane.tween('height', 1);
-    },
-    */
+     showPluginChooserPane: function(){
+
+     var toolbarSize = this.elementPropertyToolbar.getSize();
+
+     this.pluginChooserPane.setStyle('left', toolbarSize.x);
+     var width = 600;
+
+
+     if( toolbarSize.y < 10 ){
+     this.pluginChooserPane.tween('height', this.elementPropertyHeight);
+     this.pluginChooserPane.setStyle('width', width);
+     } else {
+     this.pluginChooserPane.setStyle('height', this.elementPropertyHeight);
+     this.pluginChooserPane.tween('width', width);
+     }
+
+     },
+
+     hidePluginChooserPane: function( pToolbarStillOpen ){
+     if( pToolbarStillOpen )
+     this.pluginChooserPane.tween('width', 1);
+     else
+     this.pluginChooserPane.tween('height', 1);
+     },
+     */
 
 
 
-    createNewDraggItem: function( element ){
+    createNewDraggItem: function (element) {
         var type = element.lang;
-        this.__draggerItems[type] = this.__buildDragItem( element, element ).inject( element, 'after' );
+        this.__draggerItems[type] = this.__buildDragItem(element, element).inject(element, 'after');
 
         /*
          *  new Element('div', {
-            title: _(type),
-            'class': 'ka-layoutContent-main',
-            style: '',
-            lang: type
-        })
-        .store('fromBar', true)
+         title: _(type),
+         'class': 'ka-layoutContent-main',
+         style: '',
+         lang: type
+         })
+         .store('fromBar', true)
 
-        new Element('img', {
-            src: _path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+type+'-bg.png'
-        }).inject( this.__draggerItems[type] );
-        */
+         new Element('img', {
+         src: _path+'inc/template/admin/images/ka-keditor-elementtypes-item-'+type+'-bg.png'
+         }).inject( this.__draggerItems[type] );
+         */
 
         this.initContentLayoutSort();
     },
 
-    _renderContentLayout: function( pLayout ){
+    _renderContentLayout: function (pLayout) {
         var w = this.iframe.contentWindow;
-        
-//        this.layoutAsset = new w.Asset.css( _path+'inc/template/css/layout_'+this.layout.getValue()+'.css' );
-        //xxx w.$('krynContentManager_layoutContent').set('html', pLayout.tpl );
-        
 
-        if( this.contentManageMode == 'list' ){
+        //        this.layoutAsset = new w.Asset.css( _path+'inc/template/css/layout_'+this.layout.getValue()+'.css' );
+        //xxx w.$('krynContentManager_layoutContent').set('html', pLayout.tpl );
+
+
+        if (this.contentManageMode == 'list') {
             this.iframe.contentWindow.document.body.setStyle('display', 'none');
         }
 
         $(this.iframe.contentWindow.document.body).set('html', pLayout.tpl);
 
-        if( this.contentItems )
+        if (this.contentItems)
             this.contentItems.destroy();
 
         this._createDraggerBar();
 
         this.win.contentCss = '';
-        if( pLayout.css ){
-            pLayout.css.each(function(css){
-            	var css = new Element('link', {
-            		rel: "stylesheet",
-            		type: "text/css",
-            		href: _baseUrl+'inc/template/'+css
-            	}).inject(w.document.head);
-                this.lastLoadedLayoutCssFiles.include( css ); //w.Asset.css( _path+'inc/template/'+css) );
+        if (pLayout.css) {
+            pLayout.css.each(function (css) {
+                var css = new Element('link', {
+                    rel: "stylesheet",
+                    type: "text/css",
+                    href: _baseUrl + 'inc/template/' + css
+                }).inject(w.document.head);
+                this.lastLoadedLayoutCssFiles.include(css); //w.Asset.css( _path+'inc/template/'+css) );
             }.bind(this));
         }
 
@@ -2491,29 +2388,29 @@ var admin_pages = new Class({
 
         this.layoutBoxes = new Hash();
         this.iframe.contentWindow.pageObj = this;
-        
-        this.layoutBoxes = ka.renderLayoutElements( this.iframe.contentWindow, this );
+
+        this.layoutBoxes = ka.renderLayoutElements(this.iframe.contentWindow, this);
         //this._renderContentLayoutSearchAndFindBoxes( $(this.iframe.contentWindow.document.body) );
 
-        if( this.contentManageMode == 'list' ){
+        if (this.contentManageMode == 'list') {
 
             var div = new Element('div', {'class': 'ka-admin-pages-manageModeList'})
-            Object.each(this.layoutBoxes, function(layoutBox){
-                layoutBox.inject( div );
+            Object.each(this.layoutBoxes, function (layoutBox) {
+                layoutBox.inject(div);
             }.bind(this));
             this.iframe.contentWindow.document.body.empty();
-            div.inject( this.iframe.contentWindow.document.body );
+            div.inject(this.iframe.contentWindow.document.body);
 
             this.iframe.contentWindow.document.body.setStyle('display', 'block');
             this.iframe.contentWindow.document.body.setStyle('text-align', 'left');
         }
-    
+
         var contents = this.page.contents;
-        if( $type( this.page.contents ) == 'string' )
+        if ($type(this.page.contents) == 'string')
             contents = new Hash(JSON.decode(this.page.contents));
 
-        Object.each(this.layoutBoxes, function(editLayout,boxId){
-            editLayout.setContents( contents[boxId] );
+        Object.each(this.layoutBoxes, function (editLayout, boxId) {
+            editLayout.setContents(contents[boxId]);
         });
 
         this.initContentLayoutSort();
@@ -2523,211 +2420,207 @@ var admin_pages = new Class({
 
     },
 
-    initContentLayoutSort: function(){
+    initContentLayoutSort: function () {
         /*var list = [];
-        this.layoutBoxes.each(function(layoutBox){
-            list.include( layoutBox.main );
-            
-            if( layoutBox.contents.each ){
-                layoutBox.contents.each(function(layoutContent){
-                    list.include( layoutContent.main );
-                });
-            }
-        });*/
-        
+         this.layoutBoxes.each(function(layoutBox){
+         list.include( layoutBox.main );
+
+         if( layoutBox.contents.each ){
+         layoutBox.contents.each(function(layoutContent){
+         list.include( layoutContent.main );
+         });
+         }
+         });*/
+
         return;
-        if( this.sortables )
+        if (this.sortables)
             this.sortables.detach();
 
         var _this = this;
-        this.sortables = new Sortables( [$(this.iframe.contentWindow).$$('.ka-layoutBox-container'), this.contentItems], {
+        this.sortables = new Sortables([$(this.iframe.contentWindow).$$('.ka-layoutBox-container'), this.contentItems], {
             clone: true,
             handle: '.ka-layoutContent-mover',
             revert: true,
             precalculate: true,
             stopPropagation: true,
             opacity: 0.3,
-            onStart: function(element,clone){
-                if( element.getElement('span.mceEditor') ){
+            onStart: function (element, clone) {
+                if (element.getElement('span.mceEditor')) {
                     //tinymce.EditorManager.remove( element.retrieve('tinyMceId') );
                     element.getElement('span.mceEditor').setStyle('display', 'none');
                     element.retrieve('layoutContent').toData();
                 }
-                if( element.retrieve('fromBar') == true ){
+                if (element.retrieve('fromBar') == true) {
                     element.set('class', 'ka-layoutContent-main inDragMode');
-                    _this.createNewDraggItem( element );
+                    _this.createNewDraggItem(element);
                     element.store('newElementCreated', true);
                 }
             },
-            onComplete: function(element){
-                if( element.getElement('span.mceEditor') ){
+            onComplete: function (element) {
+                if (element.getElement('span.mceEditor')) {
                     element.retrieve('layoutContent').type2Text(true);
                     //element.getElement('span.mceEditor').setStyle('display', 'block');
                     //parent.initTinyWithoutResize( element.retrieve('tinyMceId') );
                 }
-                if( element.retrieve('fromBar') == true && element.retrieve('newElementCreated') == true ){
-                    if( element.getParent().get('class') != 'ka-admin-pages-possibleContentItems' ){
+                if (element.retrieve('fromBar') == true && element.retrieve('newElementCreated') == true) {
+                    if (element.getParent().get('class') != 'ka-admin-pages-possibleContentItems') {
                         var layoutBox = element.getParent().retrieve('layoutBox');
-                        layoutBox.drop( element.lang, element );
-                    }   
+                        layoutBox.drop(element.lang, element);
+                    }
                     element.destroy();
                 }
             },
-            onSort: function(element,clone){
-//                _this.checkSortedItems(element,clone);
+            onSort: function (element, clone) {
+                //                _this.checkSortedItems(element,clone);
             }
         });
 
         var _this = this;
-        Object.each(this.layoutBoxes, function(layoutBox){
-            _this.sortables.removeItems( layoutBox.title );
-            if( layoutBox.contents.each ){
-                layoutBox.contents.each(function(layoutContent){
-                    _this.sortables.addItems( layoutContent.main );
+        Object.each(this.layoutBoxes, function (layoutBox) {
+            _this.sortables.removeItems(layoutBox.title);
+            if (layoutBox.contents.each) {
+                layoutBox.contents.each(function (layoutContent) {
+                    _this.sortables.addItems(layoutContent.main);
                 });
             }
         });
     },
 
-    loadVersion: function( pVersion, pCallback ){
+    loadVersion: function (pVersion, pCallback) {
 
-        if( this.oldVersionRequest )
+        if (this.oldVersionRequest)
             this.oldVersionRequest.cancel();
 
         this.versions.value = pVersion;
 
-        this.oldVersionRequest = new Request.JSON({url: _path+'admin/pages/getVersion', noCache: 1, async: false, onComplete: function(res){
+        this.oldVersionRequest = new Request.JSON({url: _path + 'admin/pages/getVersion', noCache: 1, async: false, onComplete: function (res) {
 
             this.page.contents = res;
-            if( !this.iframe ) {
+            if (!this.iframe) {
                 this._loadContent();
             } else {
-                Object.each(this.layoutBoxes, function(editLayout,boxId){
+                Object.each(this.layoutBoxes, function (editLayout, boxId) {
                     var contents = [];
                     editLayout.clear();
-                    if( res && res[boxId] )
+                    if (res && res[boxId])
                         contents = res[boxId];
-                        editLayout.setContents( contents );
+                    editLayout.setContents(contents);
                 });
-                this.initContentLayoutSort(); 
+                this.initContentLayoutSort();
             }
-            
+
             this.loadedVersion = pVersion;
-            
-            if( pCallback )
-                pCallback( res );
+
+            if (pCallback)
+                pCallback(res);
 
         }.bind(this)}).post({rsn: this.page.rsn, version: pVersion });
     },
 
     /*
-    _renderContentLayoutSearchAndFindBoxes: function( pElement, pCode ){
-        
-        if( !pElement.getFirst() && pElement.get('text').search(/{slot.+}/) >= 0 ){
-        	
-	        var value = pElement.get('text');
-	        value = value.substr( 6, value.length-7 );
-	        
-	        var options = {};
-	        
-	        var exp = /([a-zA-Z0-9-_]+)=([^"']([^\s]*)|["]{1}([^"]*)["]{1}|[']{1}([^']*)[']{1})/g;
-	        while( res = exp.exec( value ) ){
-	            options[ res[1] ] = res[4];
-	        }
-	        exp = null;
-	        
-	        if( options.id+0 > 0 ){
-	            //var idRegex = /{slot.+id="(\d+)".*}/;
-	            //var res = idRegex.exec( pElement.get('text') );
-	            this.layoutBoxes[ options.id ] = new ka.layoutBox( pElement, options.name, this.win, options.css, options['default'], this, options );
-	        }
-	        
-        }
-        
-        if( pElement.getFirst() ){
-            pElement.getChildren().each(function(child){
-                this._renderContentLayoutSearchAndFindBoxes( child );
-            }.bind(this));
-        }
-    },*/
+     _renderContentLayoutSearchAndFindBoxes: function( pElement, pCode ){
+
+     if( !pElement.getFirst() && pElement.get('text').search(/{slot.+}/) >= 0 ){
+
+     var value = pElement.get('text');
+     value = value.substr( 6, value.length-7 );
+
+     var options = {};
+
+     var exp = /([a-zA-Z0-9-_]+)=([^"']([^\s]*)|["]{1}([^"]*)["]{1}|[']{1}([^']*)[']{1})/g;
+     while( res = exp.exec( value ) ){
+     options[ res[1] ] = res[4];
+     }
+     exp = null;
+
+     if( options.id+0 > 0 ){
+     //var idRegex = /{slot.+id="(\d+)".*}/;
+     //var res = idRegex.exec( pElement.get('text') );
+     this.layoutBoxes[ options.id ] = new ka.layoutBox( pElement, options.name, this.win, options.css, options['default'], this, options );
+     }
+
+     }
+
+     if( pElement.getFirst() ){
+     pElement.getChildren().each(function(child){
+     this._renderContentLayoutSearchAndFindBoxes( child );
+     }.bind(this));
+     }
+     },*/
 
     /*setElementPropertyToolbar: function( pElement ){
-        this._showElementPropertyToolbar();
-    },
+     this._showElementPropertyToolbar();
+     },
 
-    _hideElementPropertyToolbar: function(){
-    	
-    	
-        //this.elementPropertyToolbarContent.empty();
-    	//this.elementPropertyToolbarAccordion.display(-1);
+     _hideElementPropertyToolbar: function(){
 
-    	this.elementPropertyToolbar.tween('height', 1);      
-        this.treeContainer.tween('bottom', 3);
-        this.hidePluginChooserPane();
-    },
 
-    _showElementPropertyToolbar: function(){
-    	height = this._calcElementPropertyToolbarHeight();
-        if( this.inHideMode != true ) 
-            this.treeContainer.tween('bottom', height+2);
-        this.elementPropertyToolbar.tween('height', height);
-        
-        
-       
-       
-        
-        accHeight = this._calcAccordionHeight();
-        //check if accordion height has changed if so -> reinit
-        if(!this.lastAccordionHeight || this.lastAccordionHeight != accHeight) 
-        	this._initElementSettingsToolbarAccordion(accHeight);
-        
-        //display first element
-        this.elementPropertyToolbarAccordion.display(0);
-        
-        
-    },
-    
-    _calcElementPropertyToolbarHeight : function () {
-    	  var height = 221;
-          tY = this.tree.getSize().y;
-          if( tY*0.4 > height ){
-              height = tY*0.4;
-          }
-          this.elementPropertyHeight = height;
-          return height;
-    },*/
-    
+     //this.elementPropertyToolbarContent.empty();
+     //this.elementPropertyToolbarAccordion.display(-1);
 
-    _deselectAllElements: function( pContent ){
-        
+     this.elementPropertyToolbar.tween('height', 1);      
+     this.treeContainer.tween('bottom', 3);
+     this.hidePluginChooserPane();
+     },
+
+     _showElementPropertyToolbar: function(){
+     height = this._calcElementPropertyToolbarHeight();
+     if( this.inHideMode != true ) 
+     this.treeContainer.tween('bottom', height+2);
+     this.elementPropertyToolbar.tween('height', height);
+
+
+
+
+
+     accHeight = this._calcAccordionHeight();
+     //check if accordion height has changed if so -> reinit
+     if(!this.lastAccordionHeight || this.lastAccordionHeight != accHeight) 
+     this._initElementSettingsToolbarAccordion(accHeight);
+
+     //display first element
+     this.elementPropertyToolbarAccordion.display(0);
+
+
+     },
+
+     _calcElementPropertyToolbarHeight : function () {
+     var height = 221;
+     tY = this.tree.getSize().y;
+     if( tY*0.4 > height ){
+     height = tY*0.4;
+     }
+     this.elementPropertyHeight = height;
+     return height;
+     },*/
+
+
+    _deselectAllElements: function (pContent) {
+
         var selected = 0;
-    	
-    	Object.each(this.layoutBoxes, function(box,id){
-            selected = selected + box.deselectAll( pContent );
+
+        Object.each(this.layoutBoxes, function (box, id) {
+            selected = selected + box.deselectAll(pContent);
         });
-        
+
     },
 
     /*
-    *
-    *  RESOURCES
-    */
+     *
+     *  RESOURCES
+     */
 
-    _createResources: function(){
+    _createResources: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
 
-        this.generalFields['resourcesCss'] = new ka.field(
-            {label: 'CSS', type: 'textarea'}
-        ).inject( p );
+        this.generalFields['resourcesCss'] = new ka.field({label: 'CSS', type: 'textarea'}).inject(p);
         this.generalFields['resourcesCss'].input.setStyles({
             height: 200, width: 600
         });
-        
-        this.generalFields['resourcesJs'] = new ka.field(
-                {label: 'Javascript', type: 'textarea'}
-            ).inject( p );
+
+        this.generalFields['resourcesJs'] = new ka.field({label: 'Javascript', type: 'textarea'}).inject(p);
         this.generalFields['resourcesJs'].input.setStyles({
             height: 200, width: 600
         });
@@ -2735,429 +2628,408 @@ var admin_pages = new Class({
         this.panes['resources'] = p;
     },
 
-    addJsRessource: function( pFile ){
+    addJsRessource: function (pFile) {
         var div = new Element('div', {
             style: 'padding: 2px;'
-        }).inject( this.resourcesJsFiles );
+        }).inject(this.resourcesJsFiles);
         new Element('span', {
             text: pFile
-        }).inject( div );
+        }).inject(div);
 
         new Element('img', {
-            src: _path+'inc/template/admin/images/icons/delete.png',
+            src: _path + 'inc/template/admin/images/icons/delete.png',
             title: 'Entfernen',
             style: 'cursor: pointer; float: right;'
-        }).inject( div );
+        }).inject(div);
     },
 
-    _createVersioning: function(){
+    _createVersioning: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane',
             style: 'padding: 4px;'
-        }).inject( this.main );
+        }).inject(this.main);
 
         this.panes['versioning'] = p;
     },
-    
-    _createProperties: function(){
+
+    _createProperties: function () {
         var p = new Element('div', {
             'class': 'admin-pages-pane',
             style: 'padding: 4px;'
-        }).inject( this.main );
-        
-        this._pagePropertiesFields = {};
-        
-        ka.settings.modules.each(function(ext){
+        }).inject(this.main);
 
-    		var config = ka.settings.configs[ext];
-    		
-        	if( config && config.pageProperties ){
-        		
-        		var extFields = {};
-        		
-        		
-        		var title = config.title['en'];
-        		if( config.title[window._session.lang] )
-        			title = config.title[window._session.lang];
-        		
-        		new Element('h3', {text: title}).inject(p);
-        		
-        		var table = new Element('table', {width: '100%'}).inject( p );
-        		var tbody = new Element('tbody').inject( table );
-        		
-        		$H(config.pageProperties).each(function(property, key){
-        			property.tableitem = 1;
-        			property.tableitem_title_width = 250;
-        			extFields[key] = new ka.field(property).inject( tbody );
-        			
-        		}.bind(this));
-        		
-        		this._pagePropertiesFields[ext] = extFields;
-        	}
+        this._pagePropertiesFields = {};
+
+        ka.settings.modules.each(function (ext) {
+
+            var config = ka.settings.configs[ext];
+
+            if (config && config.pageProperties) {
+
+                var extFields = {};
+
+
+                var title = config.title['en'];
+                if (config.title[window._session.lang])
+                    title = config.title[window._session.lang];
+
+                new Element('h3', {text: title}).inject(p);
+
+                var table = new Element('table', {width: '100%'}).inject(p);
+                var tbody = new Element('tbody').inject(table);
+
+                $H(config.pageProperties).each(function (property, key) {
+                    property.tableitem = 1;
+                    property.tableitem_title_width = 250;
+                    extFields[key] = new ka.field(property).inject(tbody);
+
+                }.bind(this));
+
+                this._pagePropertiesFields[ext] = extFields;
+            }
         }.bind(this));
 
         this.panes['properties'] = p;
     },
-    
-    _createDomainProperties: function(){
-    	
-  		/* domain extension properties */
-  
+
+    _createDomainProperties: function () {
+
+        /* domain extension properties */
+
         var p = new Element('div', {
             'class': 'admin-pages-pane'
-        }).inject( this.main );
+        }).inject(this.main);
         this.domainExtensionsPane = p;
         this.panes['domainProperties'] = p;
-    	
-        
+
+
         this._domainPropertiesFields = {};
-        
-        ka.settings.modules.each(function(ext){
 
-    		var config = ka.settings.configs[ext];
-    		
-        	if( config && config.domainProperties ){
-        		
-        		var extFields = {};
-        		
-        		
-        		var title = config.title['en'];
-        		if( config.title[window._session.lang] )
-        			title = config.title[window._session.lang];
-        		
-        		
-        		new Element('h3', {text: title}).inject(p);
-        		var table = new Element('table', {width: '100%'}).inject( p );
-        		var tbody = new Element('tbody').inject( table );
+        ka.settings.modules.each(function (ext) {
 
-        		$H(config.domainProperties).each(function(property, key){
-        			property.tableitem = 1;
-        			property.tableitem_title_width = 250;
-        			extFields[key] = new ka.field(property, tbody);
-        			
-        		}.bind(this));
-        		
-        		this._domainPropertiesFields[ext] = extFields;
-        	}
+            var config = ka.settings.configs[ext];
+
+            if (config && config.domainProperties) {
+
+                var extFields = {};
+
+
+                var title = config.title['en'];
+                if (config.title[window._session.lang])
+                    title = config.title[window._session.lang];
+
+
+                new Element('h3', {text: title}).inject(p);
+                var table = new Element('table', {width: '100%'}).inject(p);
+                var tbody = new Element('tbody').inject(table);
+
+                $H(config.domainProperties).each(function (property, key) {
+                    property.tableitem = 1;
+                    property.tableitem_title_width = 250;
+                    extFields[key] = new ka.field(property, tbody);
+
+                }.bind(this));
+
+                this._domainPropertiesFields[ext] = extFields;
+            }
         }.bind(this));
 
     },
 
-    loadVersionOverview: function(){
-        if( this.lastVersionOverviewRequest )
+    loadVersionOverview: function () {
+        if (this.lastVersionOverviewRequest)
             this.lastVersionOverviewRequest.cancel();
 
-        this.lastVersionOverviewRequest = new Request.JSON({url: _path+'admin/pages/getPageVersions/', noCache: 1, onComplete:function( pRes ){
-            this._loadVersionOverview( pRes );
+        this.lastVersionOverviewRequest = new Request.JSON({url: _path + 'admin/pages/getPageVersions/', noCache: 1, onComplete: function (pRes) {
+            this._loadVersionOverview(pRes);
         }.bind(this)}).post({rsn: this.page.rsn});
         //pageVersion: 'live' : 'version';
-         
-    }, 
 
-    _loadVersionOverview: function( pValues ){
+    },
+
+    _loadVersionOverview: function (pValues) {
         var p = this.panes['versioning'];
         p.empty();
-        
+
         this.versionsSetLiveBtns = [];
         this.versionsLoadBtns = [];
-        
+
         this.versionTable = new ka.Table([
             [_('#'), 50],
             [_('Live'), 40],
             [_('Owner')],
             [_('Created'), 120],
             [_('Actions'), 200]
-        ]).inject( p );
-        
-        if( pValues.versions.count == 0 ){
+        ]).inject(p);
+
+        if (pValues.versions.count == 0) {
 
             new Element('div', {
                 'text': _('No version exists.')
-            }).inject( p );
+            }).inject(p);
 
         } else {
-            pValues.versions.each(function(item){
-                
+            pValues.versions.each(function (item) {
+
                 var actions = new Element('span');
-            
-                if( ka.checkPageAccess( this.page.rsn, 'loadVersion' ) ){
-                    var ld = new ka.Button(_('Load'))
-                    .addEvent('click', function(){
-                    
-                        this.viewType( 'contents', true );
-                        this.loadVersion( item.rsn );
-                    
-                    }.bind(this)).inject( actions );
-        
+
+                if (ka.checkPageAccess(this.page.rsn, 'loadVersion')) {
+                    var ld = new ka.Button(_('Load')).addEvent('click', function () {
+
+                        this.viewType('contents', true);
+                        this.loadVersion(item.rsn);
+
+                    }.bind(this)).inject(actions);
+
                     this.versionsLoadBtns.include(ld);
                 }
-                
-                if( ka.checkPageAccess( this.page.rsn, 'setLive' ) ){
-                    var sl = new ka.Button(_('Set Live'))
-                    .addEvent('click', function(){
-                    
-                        this.win._confirm(_('Publish this version ?'), function(e){
-                            if(!e) return;
-                            new Request.JSON({url: _path+'admin/pages/setLive/', noCache: 1, onComplete: function(){
+
+                if (ka.checkPageAccess(this.page.rsn, 'setLive')) {
+                    var sl = new ka.Button(_('Set Live')).addEvent('click', function () {
+
+                        this.win._confirm(_('Publish this version ?'), function (e) {
+                            if (!e) return;
+                            new Request.JSON({url: _path + 'admin/pages/setLive/', noCache: 1, onComplete: function () {
                                 this.loadVersionOverview();
                                 this.loadVersions();
                                 var d = this.domainTrees[this.page.domain_rsn];
-                                if( d )
+                                if (d)
                                     d.reload()
                             }.bind(this)}).post({version: item.rsn});
-                        }.bind(this)); 
-                    
-                    }.bind(this))
-                    .inject( actions );
-                    
-                    this.versionsSetLiveBtns.include( sl );
+                        }.bind(this));
+
+                    }.bind(this)).inject(actions);
+
+                    this.versionsSetLiveBtns.include(sl);
                 }
-            
+
                 this.versionTable.addRow([
-                    item.rsn,
-                    new Element('img', {src:_path+'inc/template/admin/images/icons/'+((pValues.active==1)?'accept':'delete')+'.png'}),
-                    item.username,
-                    (new Date(item.created*1000).format('%d.%m.%Y %H:%M')),
-                    actions
+                    item.rsn, new Element('img', {src: _path + 'inc/template/admin/images/icons/' + ((pValues.active == 1) ? 'accept' : 'delete') + '.png'}), item.username, (new Date(item.created * 1000).format('%d.%m.%Y %H:%M')), actions
                 ]);
 
             }.bind(this));
         }
     },
 
-    createVersionLine: function( pValues ){
+    createVersionLine: function (pValues) {
 
         trClass = '';
-        if( pValues.rsn == this.versions.value )
+        if (pValues.rsn == this.versions.value)
             trClass = 'activeVersion';
 
-        var tr = new Element('tr', {'class': trClass}); 
+        var tr = new Element('tr', {'class': trClass});
 
         new Element('td', {
-            text: '#'+pValues.rsn,
+            text: '#' + pValues.rsn,
             width: 50
-        }).inject( tr );
+        }).inject(tr);
 
-        var icon = (pValues.active==1)?'accept':'delete';
+        var icon = (pValues.active == 1) ? 'accept' : 'delete';
 
         new Element('td', {
-            html: '<img src="'+_path+'inc/template/admin/images/icons/'+icon+'.png" />',
+            html: '<img src="' + _path + 'inc/template/admin/images/icons/' + icon + '.png" />',
             width: 50
-        }).inject( tr );
+        }).inject(tr);
 
         new Element('td', {
             text: pValues.username
-        }).inject( tr );
+        }).inject(tr);
 
         new Element('td', {
-            text: new Date(pValues.created*1000).format('%d.%m.%Y %H:%M')
-        }).inject( tr );
+            text: new Date(pValues.created * 1000).format('%d.%m.%Y %H:%M')
+        }).inject(tr);
 
 
         var actions = new Element('td', {
-        }).inject( tr );
+        }).inject(tr);
 
-        var ld = new ka.Button(_('Load'))
-        .addEvent('click', function(){
-        
-            this.viewType( 'contents', true );
-            this.loadVersion( pValues.rsn );
-        
-        }.bind(this)).inject( actions );
-        
+        var ld = new ka.Button(_('Load')).addEvent('click', function () {
+
+            this.viewType('contents', true);
+            this.loadVersion(pValues.rsn);
+
+        }.bind(this)).inject(actions);
+
         this.versionsLoadBtns.include(ld);
-        if(!ka.checkPageAccess( this.page.rsn, 'loadVersion' ) ){
-        	ld.hide();
+        if (!ka.checkPageAccess(this.page.rsn, 'loadVersion')) {
+            ld.hide();
         }
-        
-        var sl = new ka.Button(_('Set Live'))
-        .addEvent('click', function(){
-        
-            this.win._confirm(_('Publish this version ?'), function(e){
-                if(!e) return;
-                new Request.JSON({url: _path+'admin/pages/setLive/', noCache: 1, onComplete: function(){
+
+        var sl = new ka.Button(_('Set Live')).addEvent('click', function () {
+
+            this.win._confirm(_('Publish this version ?'), function (e) {
+                if (!e) return;
+                new Request.JSON({url: _path + 'admin/pages/setLive/', noCache: 1, onComplete: function () {
                     this.loadVersionOverview();
                     this.loadVersions();
                     var d = this.domainTrees[this.page.domain_rsn];
-                    if( d )
+                    if (d)
                         d.reload()
                 }.bind(this)}).post({version: pValues.rsn});
-            }.bind(this)); 
-        
-        }.bind(this))
-        .inject( actions );
-        
-        this.versionsSetLiveBtns.include( sl );
-        
+            }.bind(this));
 
-        if(!ka.checkPageAccess( this.page.rsn, 'setLive' ) ){
-        	sl.hide();
+        }.bind(this)).inject(actions);
+
+        this.versionsSetLiveBtns.include(sl);
+
+
+        if (!ka.checkPageAccess(this.page.rsn, 'setLive')) {
+            sl.hide();
         }
 
 
         return tr;
     },
-    
-   _createSearchIndexPane : function () {    	
-    	 var p = new Element('div', {
-             'class': 'admin-pages-pane',
-             'style' : 'padding: 10px;'
-         }).inject( this.main );
-    	 
-    	
-    	 /*
-    	 fieldAddToBl = new Element('div', { 'class' : 'ka-field-main'}).inject(p);
-    	 this.setToBlListBtn = fieldAddToBl;
-    	 fieldAddToBlTitle = new Element('div', { 'class' : 'ka-field-title'}).inject(fieldAddToBl);
-    	 new Element('div', { 'class' : 'title', 'text' : _('Add this page to the search index blacklist')}).inject(fieldAddToBlTitle);
-    	 
-    	 
-    	 fieldAddToBlBtn = new Element('div', { 'class' : 'ka-field-field', 'style' : 'cursor: pointer'}).inject(fieldAddToBl);    	 
-    	 new Element('img', { 'src' : _path+'inc/template/admin/images/icons/lightning_delete.png'}).inject(fieldAddToBlBtn);
-    	 fieldAddToBlBtn.addEvent('click', function() { this.addPageToBlacklist(this.page.url) }.bind(this));
-    	 */
-    	 
-    	 this.generalFields['unsearchable'] = new ka.field(
-                 {label: _('Exclude this page from search index'), type: 'checkbox'}
-             ).inject( p );
-    	    	    	
-    	 
-    	 this.generalFields['search_words'] = new ka.field(
-    	            {label: _('Search words'), type: 'textarea'}
-    	 ).inject( p );
-    	 
-    	 new Element('div', { 'class' : 'title', 'text' : _('Search indexes for this site')} ).inject(
-	    	 new Element('div', { 'class' : 'ka-field-title' }).inject(
-	    			 new Element('div', { 'class' : 'ka-field-main', 'style' : 'margin-top:10px;' }).inject(p)
-	    	 )
-    	 );
-    	
-    	 this.sioTableDiv = new Element('div', {
-             style: 'position: absolute; left: 0px; top: 208px; right: 0px; bottom: 0px; overflow: auto;'
-         }).inject( p );
-    	 
-    	 
-         
-	     this.sioTable = new ka.Table().inject(this.sioTableDiv);
-	     this.sioTable.setColumns([
-	         [_('Url'), 300],
-	         [_('Title'), 150],
-	         [_('Date of index'), 120],
-	         [_('Content hash'), 250],
-	         [_('Action'), 50]
-	     ]);
-    	 
-    	 this.panes['searchIndex'] = p;
-    },
-    
-    addPageToBlacklist : function (pUrl) {
-	    this.loader.show();
-	    
-		new Request.JSON( { url : _path+'admin/backend/window/loadClass/saveItem', noCache : 1, 
-			onComplete : function(pSRes) {	    						
-				if(pSRes) {
-					nMsg = _('The URL ')+'&quot;<b>'+pUrl+'</b>&quot;'+_(' has been added successfully to your search index blacklist.')
-					ka._helpsystem.newBubble( _('URL successfully added!'), nMsg, 10000 );
-					this.loadSearchIndexOverview();
-				}
-				this.loader.hide();
-			}.bind(this)
-		
-		
-		}).post( {'url' : pUrl, 'domain_rsn' : this.page.domain_rsn, 'code' : 'system/searchBlacklist/edit', 'module' : 'admin', 'editFaked' : 1} );
-    },
-    
-    
-    loadSearchIndexOverview : function() {
-        if( this.seachIndexOverviewRequest )
-            this.seachIndexOverviewRequest.cancel();
-    	
-    	this.sioTable.loading(true);
-    	this.seachIndexOverviewRequest = new Request.JSON({url: _path+'admin/backend/searchIndexer/getSearchIndexOverview', noCache: 1, 
-        	 onComplete:function( res ){        	
-    		 this.sioTable.loading(false);
-    		 res.each(function(pVal, pKey) {
-    			var vUrl = this.getBaseUrl(this.page)+pVal[0].substr(1)+'/';
-    			
-    			res[pKey][4] = '';
-    			res[pKey][4] += '&nbsp;<a href="'+vUrl+'" target="_blank"><img src="'+_path+'inc/template/admin/images/icons/eye.png" title="'+_('View this page')+'" /></a>'; 
-    		 }.bind(this));
-    		 this.sioTable.setValues(res);
-    		 
-    		 var addToBlacklistBtns = this.sioTableDiv.getElements('a.addToBlacklistBtn');    		
-    		 if(addToBlacklistBtns) {
-    			 addToBlacklistBtns.each(function(pItem) {
-    				 var itemUrl = pItem.get('href');
-    				 pItem.set('href', 'javascript:;');
-    				 pItem.addEvent('click', function() { this.addPageToBlacklist(itemUrl); }.bind(this)); 
-    			 }.bind(this));
-    		 }
 
-        }.bind(this)}).post({page_rsn: this.page.rsn});
+    _createSearchIndexPane: function () {
+        var p = new Element('div', {
+            'class': 'admin-pages-pane',
+            'style': 'padding: 10px;'
+        }).inject(this.main);
+
+
+        /*
+         fieldAddToBl = new Element('div', { 'class' : 'ka-field-main'}).inject(p);
+         this.setToBlListBtn = fieldAddToBl;
+         fieldAddToBlTitle = new Element('div', { 'class' : 'ka-field-title'}).inject(fieldAddToBl);
+         new Element('div', { 'class' : 'title', 'text' : _('Add this page to the search index blacklist')}).inject(fieldAddToBlTitle);
+
+
+         fieldAddToBlBtn = new Element('div', { 'class' : 'ka-field-field', 'style' : 'cursor: pointer'}).inject(fieldAddToBl);    	 
+         new Element('img', { 'src' : _path+'inc/template/admin/images/icons/lightning_delete.png'}).inject(fieldAddToBlBtn);
+         fieldAddToBlBtn.addEvent('click', function() { this.addPageToBlacklist(this.page.url) }.bind(this));
+         */
+
+        this.generalFields['unsearchable'] = new ka.field({label: _('Exclude this page from search index'), type: 'checkbox'}).inject(p);
+
+
+        this.generalFields['search_words'] = new ka.field({label: _('Search words'), type: 'textarea'}).inject(p);
+
+        new Element('div', { 'class': 'title', 'text': _('Search indexes for this site')}).inject(new Element('div', { 'class': 'ka-field-title' }).inject(new Element('div', { 'class': 'ka-field-main', 'style': 'margin-top:10px;' }).inject(p)));
+
+        this.sioTableDiv = new Element('div', {
+            style: 'position: absolute; left: 0px; top: 208px; right: 0px; bottom: 0px; overflow: auto;'
+        }).inject(p);
+
+
+        this.sioTable = new ka.Table().inject(this.sioTableDiv);
+        this.sioTable.setColumns([
+            [_('Url'), 300],
+            [_('Title'), 150],
+            [_('Date of index'), 120],
+            [_('Content hash'), 250],
+            [_('Action'), 50]
+        ]);
+
+        this.panes['searchIndex'] = p;
     },
-       
-    clearMeta: function(){
+
+    addPageToBlacklist: function (pUrl) {
+        this.loader.show();
+
+        new Request.JSON({ url: _path + 'admin/backend/window/loadClass/saveItem', noCache: 1,
+            onComplete: function (pSRes) {
+                if (pSRes) {
+                    nMsg = _('The URL ') + '&quot;<b>' + pUrl + '</b>&quot;' + _(' has been added successfully to your search index blacklist.')
+                    ka._helpsystem.newBubble(_('URL successfully added!'), nMsg, 10000);
+                    this.loadSearchIndexOverview();
+                }
+                this.loader.hide();
+            }.bind(this)
+
+
+        }).post({'url': pUrl, 'domain_rsn': this.page.domain_rsn, 'code': 'system/searchBlacklist/edit', 'module': 'admin', 'editFaked': 1});
+    },
+
+
+    loadSearchIndexOverview: function () {
+        if (this.seachIndexOverviewRequest)
+            this.seachIndexOverviewRequest.cancel();
+
+        this.sioTable.loading(true);
+        this.seachIndexOverviewRequest = new Request.JSON({url: _path + 'admin/backend/searchIndexer/getSearchIndexOverview', noCache: 1,
+            onComplete: function (res) {
+                this.sioTable.loading(false);
+                res.each(function (pVal, pKey) {
+                    var vUrl = this.getBaseUrl(this.page) + pVal[0].substr(1) + '/';
+
+                    res[pKey][4] = '';
+                    res[pKey][4] += '&nbsp;<a href="' + vUrl + '" target="_blank"><img src="' + _path + 'inc/template/admin/images/icons/eye.png" title="' + _('View this page') + '" /></a>';
+                }.bind(this));
+                this.sioTable.setValues(res);
+
+                var addToBlacklistBtns = this.sioTableDiv.getElements('a.addToBlacklistBtn');
+                if (addToBlacklistBtns) {
+                    addToBlacklistBtns.each(function (pItem) {
+                        var itemUrl = pItem.get('href');
+                        pItem.set('href', 'javascript:;');
+                        pItem.addEvent('click', function () {
+                            this.addPageToBlacklist(itemUrl);
+                        }.bind(this));
+                    }.bind(this));
+                }
+
+            }.bind(this)}).post({page_rsn: this.page.rsn});
+    },
+
+    clearMeta: function () {
         this.metaPane.empty();
     },
 
-    addMeta: function( pVals ){
-        if( !pVals ) pVals = {key:'',value:''};
-        
+    addMeta: function (pVals) {
+        if (!pVals) pVals = {key: '', value: ''};
+
         var main = new Element('li', {
             style: 'padding-top: 2px; margin-left: 0px;',
             'class': 'ka-field-field'
-        }).inject( this.metaPane );
+        }).inject(this.metaPane);
 
-        new Element('span', {html: 'Name: '}).inject( main );
+        new Element('span', {html: 'Name: '}).inject(main);
 
         var key = new Element('input', {
             value: pVals.key,
             'class': 'text', style: 'width: 70px; margin-right: 5px;'
-        })
-        .inject( main );
-        
-        new Element('span', {html: 'Wert: '}).inject( main );
+        }).inject(main);
+
+        new Element('span', {html: 'Wert: '}).inject(main);
         var valueInput = new Element('input', {
             value: pVals.value,
             'class': 'text', style: 'width: 120px;'
-        })
-        .inject( main );
+        }).inject(main);
 
         new Element('img', {
-            src: _path+'inc/template/admin/images/icons/delete.png',
+            src: _path + 'inc/template/admin/images/icons/delete.png',
             align: 'top',
             title: 'Löschen',
             style: 'cursor: pointer;'
-        })
-        .addEvent('click', function(){
+        }).addEvent('click', function () {
             key.value = '';
             main.destroy();
-        }.bind(this))
-        .inject( main );
+        }.bind(this)).inject(main);
 
         this._metas.include({ key: key, value: valueInput });
 
     },
 
-    retrieveData: function( pAndClose ){
+    retrieveData: function (pAndClose) {
         var res = new Hash();
         res.domain_rsn = this.page.domain_rsn;
-        res.include( 'rsn', this.rsn );
+        res.include('rsn', this.rsn);
 
-        
+
         //general data
-        this.generalFields.each(function(field, fieldId){
-            res.include( fieldId, field.getValue() );
+        this.generalFields.each(function (field, fieldId) {
+            res.include(fieldId, field.getValue());
         });
-        
+
         //properties
         var properties = {};
-        $H(this._pagePropertiesFields).each(function(fields, extKey){
-        	properties[extKey] = {};
-    		$H(fields).each(function(field, fieldKey){
-    			properties[extKey][fieldKey] = field.getValue();
-    		})
-    	});
+        $H(this._pagePropertiesFields).each(function (fields, extKey) {
+            properties[extKey] = {};
+            $H(fields).each(function (field, fieldKey) {
+                properties[extKey][fieldKey] = field.getValue();
+            })
+        });
         res.properties = JSON.encode(properties);
 
         //meta-extra todo
@@ -3165,22 +3037,22 @@ var admin_pages = new Class({
         var meta = [];
         meta.include({name: 'keywords', value: this.generalFields['metaKeywords'].getValue()});
         meta.include({name: 'description', value: this.generalFields['metaDesc'].getValue()});
-        this._metas.each(function(mymeta){
-            if( mymeta.key && mymeta.key.value != '' )
-                meta.include({name: mymeta.key.value, value:mymeta.value.value});
+        this._metas.each(function (mymeta) {
+            if (mymeta.key && mymeta.key.value != '')
+                meta.include({name: mymeta.key.value, value: mymeta.value.value});
         });
 
-        res.meta = JSON.encode( meta );
-        
+        res.meta = JSON.encode(meta);
+
 
         //content 
 
-        if( this.layoutBoxesInitialized == false ){
+        if (this.layoutBoxesInitialized == false) {
             res.include('dontSaveContents', 1);
         } else {
             try {
-                res.include( 'contents', JSON.encode( this.retrieveContents(pAndClose) ) );
-            } catch(e){
+                res.include('contents', JSON.encode(this.retrieveContents(pAndClose)));
+            } catch (e) {
                 logger('Error in retrieveData();');
                 logger(e);
                 res.include('dontSaveContents', 1);
@@ -3190,325 +3062,312 @@ var admin_pages = new Class({
         return res;
     },
 
-    retrieveContents: function( pAndClose ){
+    retrieveContents: function (pAndClose) {
         var contents = new Hash();
-        Object.each(this.layoutBoxes, function( pBox, pBoxId ){
-            contents.include( pBoxId, pBox.getValue( pAndClose ) );
+        Object.each(this.layoutBoxes, function (pBox, pBoxId) {
+            contents.include(pBoxId, pBox.getValue(pAndClose));
         });
         return contents;
     },
 
-    saveAs: function(){
+    saveAs: function () {
 
     },
 
-    saveAndClose: function( pAndPublish ){
+    saveAndClose: function (pAndPublish) {
         this.save(true, pAndPublish);
     },
 
-    save: function( pAndClose, pAndPublish ){
-        
-        var req = this.retrieveData( pAndClose );
-        if( !req ) return;
+    save: function (pAndClose, pAndPublish) {
+
+        var req = this.retrieveData(pAndClose);
+        if (!req) return;
 
         this.rpage = req;
-        
-        if( pAndPublish == true ){
+
+        if (pAndPublish == true) {
             req.andPublish = 1;
-        } 
-        
-        if( pAndPublish && this.page.url != req.url ){
+        }
+
+        if (pAndPublish && this.page.url != req.url) {
             var obj = this.win.newDialog(_('You have changed the URL. Should the system creates a new alias for the old one?'));
-            
-            
-            new ka.Button(_('No'))
-            .addEvent('click', function(){
-            
+
+
+            new ka.Button(_('No')).addEvent('click', function () {
+
                 obj.close();
-                this._save( req, pAndPublish );
-                
-            }.bind(this))
-            .inject( obj.bottom );
-            
-            new ka.Button(_('Yes'))
-            .addEvent('click', function(){
-            
+                this._save(req, pAndPublish);
+
+            }.bind(this)).inject(obj.bottom);
+
+            new ka.Button(_('Yes')).addEvent('click', function () {
+
                 obj.close();
                 req.newAlias = 1;
-                this._save( req, pAndPublish );
-                
-            }.bind(this))
-            .inject( obj.bottom );
-            
-            
-            new ka.Button(_('Yes with subpages'))
-            .addEvent('click', function(){
-            
+                this._save(req, pAndPublish);
+
+            }.bind(this)).inject(obj.bottom);
+
+
+            new ka.Button(_('Yes with subpages')).addEvent('click', function () {
+
                 obj.close();
                 req.newAlias = 1;
                 req.newAliasWithSub = 1;
-                this._save( req, pAndPublish );
-                
-            }.bind(this))
-            .inject( obj.bottom );
-            
+                this._save(req, pAndPublish);
+
+            }.bind(this)).inject(obj.bottom);
+
             obj.center();
-            
+
         } else {
-            this._save( req, pAndPublish );
+            this._save(req, pAndPublish);
         }
     },
-    
-    _save: function( pReq, pAndPublish ){
-            
-        if( pAndPublish )
-            this.saveButtonPublish.startTip( _('Save ...') );
-        else
-            this.saveButton.startTip( _('Save ...') );
 
-        if( this.lastSaveRequest ) this.lastSaveRequest.cancel();
+    _save: function (pReq, pAndPublish) {
+
+        if (pAndPublish)
+            this.saveButtonPublish.startTip(_('Save ...')); else
+            this.saveButton.startTip(_('Save ...'));
+
+        if (this.lastSaveRequest) this.lastSaveRequest.cancel();
 
         this.overlayStart();
         this.lastSaveWasPublished = pAndPublish;
-    
-        this.lastSaveRequest = new Request.JSON({url: _path+'admin/pages/save', noCache: 1, onComplete: function(res){
+
+        this.lastSaveRequest = new Request.JSON({url: _path + 'admin/pages/save', noCache: 1, onComplete: function (res) {
 
             this.overlay.destroy();
 
-            if( pAndPublish )
-                this.saveButtonPublish.stopTip( _('Saved') );
-            else
-                this.saveButton.stopTip( _('Saved') );
+            if (pAndPublish)
+                this.saveButtonPublish.stopTip(_('Saved')); else
+                this.saveButton.stopTip(_('Saved'));
 
             var d = this.domainTrees[this.page.domain_rsn];
-            if( d && (this.page.title != res.title || this.page.type != res.type || this.page.visible != res.visible 
-                    || this.page.access_denied != res.access_denied) || ( this.page.draft_exist == 1 && pAndPublish)
-                    || this.page.access_from_groups != res.access_from_groups
-                    || ( this.page.draft_exist == 0 && !pAndPublish))
+            if (d && (this.page.title != res.title || this.page.type != res.type || this.page.visible != res.visible || this.page.access_denied != res.access_denied) || ( this.page.draft_exist == 1 && pAndPublish) || this.page.access_from_groups != res.access_from_groups || ( this.page.draft_exist == 0 && !pAndPublish))
                 d.reloadParentOfActive();
-            if( res ){
+            if (res) {
                 this.page = res;
-                this.toggleSearchIndexButton( this.page.type);
+                this.toggleSearchIndexButton(this.page.type);
             }
-            
-            if( pReq.andPublish != 1 ){
+
+            if (pReq.andPublish != 1) {
                 this.loadedVersion = res.version_rsn;
             } else {
                 this.loadedVersion = '-';
             }
-            
+
             this.loadVersions();
             this.loadAliases();
-            
-        }.bind(this)}).post( pReq );
+
+        }.bind(this)}).post(pReq);
     },
 
-    viewType: function( pType, pOnlyTabs ){
+    viewType: function (pType, pOnlyTabs) {
         this.currentViewType = pType;
-        this.viewButtons.each(function(button){        	
-            button.setPressed( false );
+        this.viewButtons.each(function (button) {
+            button.setPressed(false);
         });
-        
-        
-        if( pType != 'empty' ){
+
+
+        if (pType != 'empty') {
             this.viewButtons[pType].setPressed(true);
-            this.showPane( pType );
+            this.showPane(pType);
         } else {
             this.hidePanes();
         }
-        if( !pOnlyTabs ){
-            if( pType == 'contents' ){
-                if( this.lastLoadedContentRsn != this.page.rsn ){
+        if (!pOnlyTabs) {
+            if (pType == 'contents') {
+                if (this.lastLoadedContentRsn != this.page.rsn) {
                     this._loadContent();
                 }
             }
-            if( pType == 'versioning' ){
+            if (pType == 'versioning') {
                 this.loadVersionOverview();
             }
         }
     },
 
-    hidePanes: function(){
-        this.panes.each(function(panes){
+    hidePanes: function () {
+        this.panes.each(function (panes) {
             panes.setStyle('display', 'none');
         });
     },
 
-    showPane: function( pPane ){
+    showPane: function (pPane) {
         this.hidePanes();
         var p = this.panes[pPane];
-        if( p.setStyle ) 
+        if (p.setStyle)
             p.setStyle('display', 'block');
     },
 
-    pageAdd: function( pDomain ){
-    	var domaintitle = '';
-    	ka.settings.domains.each(function(domain){
-    		if( domain.rsn == pDomain )
-    			domaintitle = domain.domain;
-    	});
-    	
-        ka.wm.openWindow( 'admin', 'pages/addDialog', null, this.win.id, {
-            onChoose: function( pTitles, pTarget, pPos ){
-                alert( pPage.title );
+    pageAdd: function (pDomain) {
+        var domaintitle = '';
+        ka.settings.domains.each(function (domain) {
+            if (domain.rsn == pDomain)
+                domaintitle = domain.domain;
+        });
+
+        ka.wm.openWindow('admin', 'pages/addDialog', null, this.win.id, {
+            onChoose: function (pTitles, pTarget, pPos) {
+                alert(pPage.title);
             },
             domain_rsn: pDomain,
-            onComplete: function( pDomain ){
+            onComplete: function (pDomain) {
                 this.domainTrees[pDomain].reload();
             }.bind(this)
         }, true);
     },
-    
-    hasUnsavedPageChanges: function(){
-    
-        if( !this.page ) return false;
-    
+
+    hasUnsavedPageChanges: function () {
+
+        if (!this.page) return false;
+
         var currentData = this.retrieveData();
-        if( !currentData ) return true;
-        
+        if (!currentData) return true;
+
         var hasUnsaved = false;
-        
+
         var blacklist = ['dontSaveContents'];
-        
-        Object.each(currentData, function(value,id){
-            if( blacklist.contains(id) ) return;
-    
-            if( typeOf(this.rpage[id]) == 'null' ) 
+
+        Object.each(currentData, function (value, id) {
+            if (blacklist.contains(id)) return;
+
+            if (typeOf(this.rpage[id]) == 'null')
                 this.rpage[id] = '';
 
-            if( value+"" != this.rpage[id] ){
+            if (value + "" != this.rpage[id]) {
                 //logger(id+ ': '+value+' != '+this.rpage[id]);
                 hasUnsaved = true;
             }
         }.bind(this));
-        
+
         return hasUnsaved;
-    
+
     },
 
-    hasUnsavedDomainChanges: function(){
-    
-        if( !this.rdomain ) return false;
-    
+    hasUnsavedDomainChanges: function () {
+
+        if (!this.rdomain) return false;
+
         var currentData = this.retrieveDomainData();
-        if( !currentData ) return true;
-        
+        if (!currentData) return true;
+
         var hasUnsaved = false;
-        
+
         var blacklist = [];
-        
-        Object.each(currentData, function(value,id){
-            if( blacklist.contains(id) ) return;
-    
-            if( typeOf(this.rdomain[id]) == 'null' ) 
+
+        Object.each(currentData, function (value, id) {
+            if (blacklist.contains(id)) return;
+
+            if (typeOf(this.rdomain[id]) == 'null')
                 this.rdomain[id] = '';
 
-            if( value+"" != this.rdomain[id] ){
+            if (value + "" != this.rdomain[id]) {
                 //logger(id+ ': '+value+' != '+this.rdomain[id]);
                 hasUnsaved = true;
             }
         }.bind(this));
-        
+
         return hasUnsaved;
     },
-    
-    
 
-    prepareToLoadItem: function( pItem, pIsDomain ){
+
+    prepareToLoadItem: function (pItem, pIsDomain) {
 
         var hasUnsaved = false;
-        
-        if( this.inDomainModus ){
+
+        if (this.inDomainModus) {
             hasUnsaved = this.hasUnsavedDomainChanges();
         } else {
             hasUnsaved = this.hasUnsavedPageChanges();
         }
-        
-        Object.each(this.domainTrees, function(domain){
+
+        Object.each(this.domainTrees, function (domain) {
             domain.unselect();
         });
-            
-        if( hasUnsaved ){
 
-            this.win._confirm(_('There are unsaved data. Want to continue?'), function( pAccepted ){
-                
-                if( pAccepted ){
-                    if( pIsDomain ){
-                        this.loadDomain( pItem.rsn );
+        if (hasUnsaved) {
+
+            this.win._confirm(_('There are unsaved data. Want to continue?'), function (pAccepted) {
+
+                if (pAccepted) {
+                    if (pIsDomain) {
+                        this.loadDomain(pItem.rsn);
                     } else {
-                        this.loadPage( pItem.rsn );
+                        this.loadPage(pItem.rsn);
                     }
                 } else {
                     //select old
-                    Object.each(this.domainTrees, function(tree, domain_rsn){
-                        if( this.inDomainModus ){
-                            if( domain_rsn == this.currentDomain.rsn )
+                    Object.each(this.domainTrees, function (tree, domain_rsn) {
+                        if (this.inDomainModus) {
+                            if (domain_rsn == this.currentDomain.rsn)
                                 tree.select(0);
                         } else {
-                            tree.select( this.page.rsn );
+                            tree.select(this.page.rsn);
                         }
                     }.bind(this));
                 }
             }.bind(this));
         } else {
-            if( pIsDomain )
-                this.loadDomain( pItem.rsn )
-            else
-                this.loadPage( pItem.rsn );
+            if (pIsDomain)
+                this.loadDomain(pItem.rsn) else
+                this.loadPage(pItem.rsn);
         }
-    
+
     },
 
-    loadTree: function( pOpts ){
+    loadTree: function (pOpts) {
         var _this = this;
         this.domainTrees = {};
 
         this.treeContainer.empty();
-        
-        if( !pOpts )
+
+        if (!pOpts)
             pOpts = {};
-            
+
         var openDomain = false;
-        if( ka.settings.domains.length == 1 ){
-        	openDomain = true;
+        if (ka.settings.domains.length == 1) {
+            openDomain = true;
         }
 
-        ka.settings.domains.each(function(domain){
+        ka.settings.domains.each(function (domain) {
 
-        	if( domain.lang != this.language ) return;
-        	
-            this.domainTrees[domain.rsn] = new ka.pagesTree( _this.treeContainer, domain.rsn, {
-            
-                onClick: function( pPage ){
-                    this.prepareToLoadItem( pPage );
+            if (domain.lang != this.language) return;
+
+            this.domainTrees[domain.rsn] = new ka.pagesTree(_this.treeContainer, domain.rsn, {
+
+                onClick: function (pPage) {
+                    this.prepareToLoadItem(pPage);
                 }.bind(this),
-                
-                onDomainClick: function( pDomain ){
-                    this.prepareToLoadItem( pDomain, true );
+
+                onDomainClick: function (pDomain) {
+                    this.prepareToLoadItem(pDomain, true);
                 }.bind(this),
-                
-                onMoveComplete: function(){
-                    if(this.page && this.page.domain_rsn == domain.rsn ){
-                    	this.loadAliases();
+
+                onMoveComplete: function () {
+                    if (this.page && this.page.domain_rsn == domain.rsn) {
+                        this.loadAliases();
                     }
                 }.bind(this),
                 withPageAdd: true,
                 onPageAdd: this.pageAdd.bind(this),
                 withContext: true,
                 openFirstLevel: openDomain,
-                selectDomain: (pOpts.selectDomain==domain.rsn)?true:false,
+                selectDomain: (pOpts.selectDomain == domain.rsn) ? true : false,
                 selectPage: pOpts.selectPage
             }, {
                 pageObj: this,
                 win: this.win
             });
-            
-            if( pOpts.selectDomain == domain.rsn ){
-                this.loadDomain( domain );
+
+            if (pOpts.selectDomain == domain.rsn) {
+                this.loadDomain(domain);
             }
-            
+
         }.bind(this));
-        
+
     }
 
 });

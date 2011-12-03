@@ -6,22 +6,22 @@ class publicationNewsEdit extends windowEdit {
 
     public $primary = array('rsn');
     public $multiLanguage = true;
-    
+
     public $versioning = true;
 
     public $previewPlugins = array(
         'newsDetail' => 'getUrl'
     );
-    
-    public function getUrl( $pItem, $pPluginValues, $pPageRsn ){
-        return kryn::toModRewrite($pItem['title']).'/'.$pItem['rsn'];
+
+    public function getUrl($pItem, $pPluginValues, $pPageRsn) {
+        return kryn::toModRewrite($pItem['title']) . '/' . $pItem['rsn'];
     }
 
-    public function saveItem(){
-        
+    public function saveItem() {
+
         $res = parent::saveItem();
         kryn::invalidateCache('publicationNewsList');
-        
+
         return $res;
     }
 
@@ -36,7 +36,7 @@ class publicationNewsEdit extends windowEdit {
                 'label' => 'Category',
                 'type' => 'select',
                 'multiLanguage' => true,
-            	'empty' => false,
+                'empty' => false,
                 'table' => 'publication_news_category',
                 'table_label' => 'title',
                 'table_key' => 'rsn'

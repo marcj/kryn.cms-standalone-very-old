@@ -1,39 +1,36 @@
-if( typeof ka == "undefined" ) window.ka = {};
+if (typeof ka == "undefined") window.ka = {};
 
 ka.kedit = new Class({
-    initialize: function( pDocument ){
+    initialize: function (pDocument) {
         this.body = pDocument.body;
         this.body.setStyle('margin-top', 60);
         this._createLayout();
     },
-    _createLayout: function(){
+    _createLayout: function () {
         this.panelBorder = new Element('div', {
             'class': 'ka-kedit-panelBorder'
-        }).inject( this.body ); 
+        }).inject(this.body);
 
         this.panel = new Element('div', {
             'class': 'ka-kedit-panel'
-        }).inject( this.panelBorder ); 
+        }).inject(this.panelBorder);
 
-        this.saveBtn = new ka.Button('Speichern')
-        .inject( this.panel );
-        this.saveBtn.set('class', this.saveBtn.get('class')+' ka-kedit-save')
+        this.saveBtn = new ka.Button('Speichern').inject(this.panel);
+        this.saveBtn.set('class', this.saveBtn.get('class') + ' ka-kedit-save')
         this.saveBtn.setStyle('display', 'none');
 
-        this.toEditBtn = new ka.Button('Editieren aktivieren')
-        .inject( this.panel )
-        .addEvent('click', this.toggleEdit.bind(this))
+        this.toEditBtn = new ka.Button('Editieren aktivieren').inject(this.panel).addEvent('click', this.toggleEdit.bind(this))
 
-        this.toEditBtn.set('class', this.toEditBtn.get('class')+' ka-kedit-toEdit')
+        this.toEditBtn.set('class', this.toEditBtn.get('class') + ' ka-kedit-toEdit')
         this.editMode = Cookie.read('keditMode');
-        if( this.editMode == 1 ){
+        if (this.editMode == 1) {
             this.editMode = 0;
             this.toggleEdit();
         }
     },
 
-    toggleEdit: function(){
-        if( this.editMode != 1 ){ // == 0
+    toggleEdit: function () {
+        if (this.editMode != 1) { // == 0
             this.editMode = 1;
             this.toEditBtn.set('text', 'Editieren beenden');
             this.saveBtn.setStyle('display', 'inline');
@@ -43,10 +40,10 @@ ka.kedit = new Class({
             this.saveBtn.setStyle('display', 'none');
         }
 
-        Cookie.write('keditMode', this.editMode );
+        Cookie.write('keditMode', this.editMode);
     }
 });
 
-window.addEvent('domready', function(){
-    new ka.kedit( document );
+window.addEvent('domready', function () {
+    new ka.kedit(document);
 });

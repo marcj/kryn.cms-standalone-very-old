@@ -33,13 +33,12 @@
         "desc": "[[Cache the whole html of a page for anonymous users, which is a huge performance increase. Some layouts/templates does not support this. If you have troubles, just deactivate it.]]",
         "type": "checkbox",
         "default": "0"
-    } 
+    }
   },
-  
   "themes": {
     "Kryn.cms": {
       "layouts": [
-        
+
       ],
       "navigations": {
         "Main": "kryn\/navigation_main.tpl"
@@ -48,10 +47,10 @@
         "Default": "kryn\/content_default.tpl"
       },
       "properties": [
-        
+
       ],
       "publicProperties": [
-        
+
       ],
       "layoutElement": {
         "Full text": "kryn\/layoutelement\/full.tpl",

@@ -11,58 +11,51 @@
  */
 
 
-
 /**
- * 
  * Motherclass for all extension classes.
- * 
- * 
  * @author MArc Schmidt <marc@kryn.org>
  */
 
 class krynModule {
-    
-    
+
+
     /**
-     * 
      * Framework controller
      * How its work:
      * <domain>/admin/myExtension/my/entry/point/function
      * calls => $this->my_entry_point_function() if exists
-     *
      * Just overwrite this method to build your own url controller
-     *
      */
-    public function admin(){
+    public function admin() {
         $found = true;
-        if( getArgv(3) == ''){
+        if (getArgv(3) == '') {
             $found = false;
         }
         $method = '';
         $c = 3;
-        while( $found ){
-            $method .= getArgv($c).'_';
+        while ($found) {
+            $method .= getArgv($c) . '_';
             $c++;
-            if( getArgv($c) == '' )
+            if (getArgv($c) == '')
                 $found = false;
         }
-        
-        $method = substr( $method, 0, strlen($method)-1 );
-        if( method_exists( $this, $method ) ){
+
+        $method = substr($method, 0, strlen($method) - 1);
+        if (method_exists($this, $method)) {
             $refl = new ReflectionMethod($this, $method);
-            if( $refl->isPublic() )
+            if ($refl->isPublic())
                 return $this->$method();
         }
-        
-        json( array('error' => 'method_not_found') );
-    
+
+        json(array('error' => 'method_not_found'));
+
     }
 
-    public function install(){
+    public function install() {
         /* caledl when installing your extensions through the extension manager */
     }
 
-    public function deinstall(){
+    public function deinstall() {
         /* called when removing your extensions through the extension manager */
     }
 

@@ -2,159 +2,153 @@ ka.Select = new Class({
     Implements: Events,
 
     arrow: 'inc/template/admin/images/icons/tree_minus.png',
-    
+
     opened: false,
     value: null,
-    
+
     items: {},
-    
+
     a: {},
-    
-    initialize: function(){
-    
+
+    initialize: function () {
+
         this.box = new Element('div', {
             'class': 'ka-normalize ka-Select-box'
-        })
-        .addEvent('click', this.toggle.bindWithEvent(this));
-        
+        }).addEvent('click', this.toggle.bindWithEvent(this));
+
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        })
-        .addEvent('mousedown', function(e){ e.preventDefault(); })
-        .inject( this.box );
-        
+        }).addEvent('mousedown', function (e) {
+            e.preventDefault();
+        }).inject(this.box);
+
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow'
-        })
-        .inject( this.box );
-        
+        }).inject(this.box);
+
         this.arrow = new Element('img', {
-            src: _path+this.arrow,
-        }).inject( this.arrowBox );
-        
+            src: _path + this.arrow,
+        }).inject(this.arrowBox);
+
         this.chooser = new Element('div', {
             'class': 'ka-Select-chooser ka-normalize'
         });
-        
-        this.chooser.addEvent('click', function(e){
+
+        this.chooser.addEvent('click', function (e) {
             e.stop();
         });
-        
+
     },
-    
-    inject: function( p, p2 ){
-        this.box.inject( p, p2 );
+
+    inject: function (p, p2) {
+        this.box.inject(p, p2);
         return this;
     },
-    
-    destroy: function(){
+
+    destroy: function () {
         this.chooser.destroy();
         this.box.destroy();
         this.chooser = null;
         this.box = null;
     },
-    
-    addSplit: function( pLabel ){
+
+    addSplit: function (pLabel) {
         new Element('div', {
             html: pLabel,
             'class': 'group'
-        }).inject( this.chooser );
+        }).inject(this.chooser);
     },
-    
-    add: function( pId, pLabel, pPos ){
-    
+
+    add: function (pId, pLabel, pPos) {
+
         this.items[ pId ] = pLabel;
-        
+
         this.a[pId] = new Element('a', {
             html: pLabel,
             href: 'javascript:;'
-        })
-        .addEvent('click', function(){
-            
-            this.setValue( pId, true );
-            
+        }).addEvent('click', function () {
+
+            this.setValue(pId, true);
+
         }.bind(this))
-        
-        if( !pPos )
-            this.a[pId].inject( this.chooser );
-        else if( pPos == 'top' )
-            this.a[pId].inject( this.chooser, 'top' );
-        else if( this.a[pPos] )
-            this.a[pId].inject( this.a[pPos], 'after' );
-            
-        
-        if( this.value == null ) {
-            this.setValue( pId );
+
+        if (!pPos)
+            this.a[pId].inject(this.chooser); else if (pPos == 'top')
+            this.a[pId].inject(this.chooser, 'top'); else if (this.a[pPos])
+            this.a[pId].inject(this.a[pPos], 'after');
+
+
+        if (this.value == null) {
+            this.setValue(pId);
         }
-        
+
     },
-    
-    setStyle: function( p, p2 ){
-        this.box.setStyle( p, p2 );
+
+    setStyle: function (p, p2) {
+        this.box.setStyle(p, p2);
         return this;
     },
-    
-    empty: function(){
-    
+
+    empty: function () {
+
         this.items = {};
         this.value = null;
         this.title.set('html', '');
         this.chooser.empty();
-    
+
     },
-    
-    setValue: function( pValue, pEvent ){
-        
-        if( !this.items[ pValue ] ) return false;
-        
+
+    setValue: function (pValue, pEvent) {
+
+        if (!this.items[ pValue ]) return false;
+
         this.value = pValue;
         this.title.set('html', this.items[ pValue ]);
-        this.box.set('title', (this.items[ pValue ]+"").stripTags() );
-        
-        Object.each(this.a, function(item,id){
+        this.box.set('title', (this.items[ pValue ] + "").stripTags());
+
+        Object.each(this.a, function (item, id) {
             item.removeClass('active');
-            if( id == pValue && pValue != '' ){
+            if (id == pValue && pValue != '') {
                 item.addClass('active');
             }
         });
-        
+
         //chrome rendering bug
         this.arrowBox.setStyle('right', 3);
-        (function(){
+        (function () {
             this.arrowBox.setStyle('right', 2);
         }.bind(this)).delay(10);
-        
-        if( pEvent )
+
+        if (pEvent)
             this.fireEvent('change', pValue);
-            
+
         return true;
     },
-    
-    getValue: function(){
+
+    getValue: function () {
         return this.value;
     },
-    
-    toggle: function( e ){
-   
-        if( this.chooser.getParent() )
-            this.close();
-        else {
+
+    toggle: function (e) {
+
+        if (this.chooser.getParent())
+            this.close(); else {
             this.open();
         }
     },
-    
-    open: function(){
+
+    open: function () {
 
         ka.openDialog({
             element: this.chooser,
             target: this.box
         });
-        
+
         return;
-    
+
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.box;
     }
 

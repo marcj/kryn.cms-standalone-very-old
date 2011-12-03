@@ -15,17 +15,17 @@ class adminSearchIndexList extends windowList {
     public $add = false;
     public $edit = false;
     public $remove = false;
-    
-    
+
+
     public $modifier = 'addDomainLanguage';
 
     public $primary = array('url', 'domain_rsn');
-    
+
     /*public $itemActions = array(
         array('Set this url on the blacklist', 'admin/images/icons/cross.png', 'admin/system/searchBlacklist/addPage'),
     );*/
-    
-    
+
+
     public $columns = array(
         'url' => array(
             'label' => 'URL',
@@ -35,7 +35,7 @@ class adminSearchIndexList extends windowList {
             'label' => 'Titel',
             'type' => 'text'
         ),
-       'mdate' => array(
+        'mdate' => array(
             'label' => 'Date of index',
             'width' => 110,
             'type' => 'datetime'
@@ -49,21 +49,22 @@ class adminSearchIndexList extends windowList {
             'table_key' => 'rsn'
         )
     );
-    
-    public function addDomainLanguage( $pItem ){       
-         $pItem['values']['domain_rsn__label'] = $pItem['values']['domain_rsn__label']." ( ".$pItem['values']['lang']." )";
-         
-         return $pItem;
+
+    public function addDomainLanguage($pItem) {
+        $pItem['values']['domain_rsn__label'] =
+            $pItem['values']['domain_rsn__label'] . " ( " . $pItem['values']['lang'] . " )";
+
+        return $pItem;
     }
-    
-    
-    function filterSql(){ 
+
+
+    function filterSql() {
         $res = parent::filterSql();
-        $res .= " AND ".pfx.$this->table.".mdate > 0 ";
+        $res .= " AND " . pfx . $this->table . ".mdate > 0 ";
         return $res;
     }
-    
-    
-      
+
+
 }
+
 ?>

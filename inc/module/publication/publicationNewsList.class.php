@@ -6,8 +6,8 @@ class publicationNewsList extends adminWindowList {
     public $itemsPerPage = 5;
     public $orderBy = 'category_rsn';
     public $orderByDirection = 'DESC';
-    
-    public $secondOrderBy = 'title';  /* optional */
+
+    public $secondOrderBy = 'title'; /* optional */
     public $secondOrderByDirection = 'ASC'; /* optional */
 
     public $iconAdd = 'add.png';
@@ -18,7 +18,7 @@ class publicationNewsList extends adminWindowList {
     public $add = true;
     public $edit = true;
     public $remove = true;
-    
+
     public $multiLanguage = true;
 
     public $primary = array('rsn');

@@ -1,5 +1,5 @@
 var admin_pages_dialog = new Class({
-    initialize: function(pWin){
+    initialize: function (pWin) {
         this.win = pWin;
 
     }
