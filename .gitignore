@@ -26,3 +26,5 @@ data/packages/
 data/fileversions/
 
 inc/config_backups.php
+
+.idea
