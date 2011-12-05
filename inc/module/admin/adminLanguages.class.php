@@ -4,15 +4,34 @@ class adminLanguages {
 
 
     public function init() {
-
         switch (getArgv(4)) {
-            case 'getExtensionLang':
-                json(self::getExtensionLang(getArgv('extensions')));
             case 'getAllLanguages':
-                json(self::getAllLanguages(getArgv('lang')));
+                json(self::getLanguageOverview(getArgv('lang')));
+            case 'overviewExtract':
+                json(self::getOverviewExtract(getArgv('module'), getArgv('lang')));
             case 'saveAllLanguages':
                 json(self::saveAllLanguages());
         }
+    }
+
+    public function getOverviewExtract( $pModule, $pLang ){
+
+        if( !$pModule || !$pLang) return array();
+
+        $extract = krynLanguage::extractLanguage( $pModule );
+        $translated = krynLanguage::getLanguage( $pModule, $pLang );
+
+        $p100 = count($extract);
+        $cTranslated = 0;
+
+        foreach( $extract as $id => $translation ){
+            if( $translated['translations'][$id] && $translated['translations'][$id] != '' ) $cTranslated++;
+        }
+
+        return array(
+            'count' => $p100,
+            'countTranslated' => $cTranslated
+        );
 
     }
 
@@ -35,10 +54,10 @@ class adminLanguages {
         foreach (kryn::$configs as $key => $mod) {
 
             $res[$key]['config'] = $mod;
-            $res[$key]['lang'] = adminModule::extractLanguage($key);
+            $res[$key]['lang'] = krynLanguage::extractLanguage($key);
 
             if (count($res[$key]['lang']) > 0) {
-                $translate = adminModule::getLanguage($key, $pLang);
+                $translate = krynLanguage::getLanguage($key, $pLang);
                 foreach ($res[$key]['lang'] as $key => &$lang) {
                     if ($translate[$key] != '')
                         $lang = $translate[$key];
@@ -47,13 +66,6 @@ class adminLanguages {
                 }
             }
         }
-
-        return $res;
-
-    }
-
-    public function getExtensionLang($pModule) {
-
 
         return $res;
 

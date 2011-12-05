@@ -9,23 +9,23 @@ var admin_system_layout = new Class({
 
     _createLayout: function () {
 
-        this.topNavi = this.win.addTabGroup();
+        this.topNavi = this.win.addSmallTabGroup();
 
-        this.buttons = $H({});
+        this.buttons = {};
 
-        this.buttons['layouts'] = this.topNavi.addButton(_('Layouts'), '', this.changeType.bind(this, 'layouts'));
-        this.buttons['contents'] = this.topNavi.addButton(_('Container'), '', this.changeType.bind(this, 'contents'));
-        this.buttons['navigations'] = this.topNavi.addButton(_('Navigations'), '', this.changeType.bind(this, 'navigations'));
+        this.buttons['layouts'] = this.topNavi.addButton(_('Layouts'), this.changeType.bind(this, 'layouts'));
+        this.buttons['contents'] = this.topNavi.addButton(_('Container'), this.changeType.bind(this, 'contents'));
+        this.buttons['navigations'] = this.topNavi.addButton(_('Navigations'), this.changeType.bind(this, 'navigations'));
 
         this.addNavi = this.win.addButtonGroup();
         this.addNavi.addButton(_('Install a theme'), _path + 'admin/images/icons/package_add.png', this.installTheme.bind(this));
         this.addNavi.addButton(_('Develop a theme'), _path + 'admin/images/icons/layout_add.png', this.addTheme.bind(this));
 
-        this.panes = $H();
-        this.buttons.each(function (button, id) {
-            this.panes.set(id, new Element('div', {
+        this.panes = {};
+        Object.each(this.buttons, function (button, id) {
+            this.panes[id] = new Element('div', {
                 'class': 'admin-layout-pane'
-            }).inject(this.win.content));
+            }).inject(this.win.content);
         }.bind(this));
 
         /* page contents */
@@ -61,10 +61,13 @@ var admin_system_layout = new Class({
     },
 
     changeType: function (pType) {
-        this.buttons.each(function (button, id) {
+        Object.each(this.buttons, function (button, id) {
+
             button.setPressed(false);
             this.panes[id].setStyle('display', 'none');
+
         }.bind(this));
+
         this.buttons[pType].setPressed(true);
         this.panes[pType].setStyle('display', 'block');
 
@@ -208,7 +211,7 @@ var admin_system_layout = new Class({
         this.left.empty();
 
         this._layoutFiles = new Hash({});
-        $H(pRes).each(function (theme, themeTitle) {
+        Object.each(pRes, function (theme, themeTitle) {
 
             new Element('a', {
                 html: _(themeTitle),
@@ -220,22 +223,12 @@ var admin_system_layout = new Class({
             }).inject(this.left);
 
 
-            $H(theme).each(function (layoutFile, layoutTitle) {
+            Object.each(theme, function (layoutFile, layoutTitle) {
                 this._layoutFiles.include(layoutFile, new Element('a', {
                     html: _(layoutTitle)
                 }).addEvent('click', this.loadFile.bind(this, layoutFile)).inject(div));
             }.bind(this));
 
-            /*new Element('optgroup', {
-             label: themeTitle
-             }).inject( this.select );
-             $H(theme).each(function(layoutFile, layoutTitle){
-             new Element('option', {
-             text: layoutTitle,
-             value: layoutFile
-             }).inject( this.select );
-             }.bind(this));
-             */
         }.bind(this));
     },
 

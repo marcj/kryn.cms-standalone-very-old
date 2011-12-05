@@ -297,7 +297,6 @@ msgstr ""
     }
 
     public static function extractFile($pFile) {
-        error_log($pFile);
         $content = file_get_contents($pFile);
 
         // t('a', 'as', 3, 'myContext') plural and context

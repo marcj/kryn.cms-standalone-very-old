@@ -1,5 +1,7 @@
 ka.Button = new Class({
 
+    events: {},
+
     initialize: function (pTitle, pOnClick, pTooltip) {
         this.main = new Element('a', {
             'class': 'ka-Button',
@@ -44,7 +46,21 @@ ka.Button = new Class({
     },
 
     addEvent: function (p1, p2) {
+        if( !this.events[p1] ){
+            this.events[p1] = [];
+        }
+        this.events[p1].include( p2 );
+
         this.main.addEvent(p1, p2);
+        return this;
+    },
+
+    removeEvent: function (p1, p2) {
+        if( this.events[p1] ){
+            this.events[p1].erase(p2);
+        }
+
+        this.main.removeEvent(p1, p2);
         return this;
     },
 
@@ -93,10 +109,18 @@ ka.Button = new Class({
     },
 
     activate: function () {
+        Object.each(this.events, function(events,id){
+            Array.each(events, function(event){
+
+                this.main.addEvent(id, event);
+
+            }.bind(this));
+        }.bind(this));
         this.main.removeClass('ka-Button-deactivate');
     },
 
     deactivate: function () {
+        this.main.removeEvents();
         this.main.addClass('ka-Button-deactivate');
     }
 });

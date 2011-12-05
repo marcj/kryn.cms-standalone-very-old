@@ -711,7 +711,7 @@ ka.kwindow = new Class({
                     _this.close(true);
                     return;
                 }
-                if (!res) {
+                if (!res || res.error == 'param_failed') {
                     alert(_('Admin-Path not found') + ': ' + _this.module + ' => ' + _this.code);
                     _this.close(true);
                     return;

@@ -154,7 +154,16 @@
           "type": "custom",
           "multi": false,
           "defaultWidth": 380,
-          "defaultHeight": 430
+          "defaultHeight": 430,
+          "childs": {
+            "edit": {
+              "title": "[[Edit]]",
+              "type": "custom",
+              "multi": true,
+              "minHeight": 450,
+              "minWidth": 700
+            }
+          }
         },
         "tools": {
           "title": "[[Tools]]",

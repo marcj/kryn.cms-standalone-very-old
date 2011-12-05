@@ -1,12 +1,18 @@
-
 msgid ""
 msgstr ""
 "Project-Id-Version: Kryn.cms - publication\n"
-"PO-Revision-Date: 2011-12-01 03:50+0100\n"
+"PO-Revision-Date: 2011-12-06 00:01+0100\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: de\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+
+msgid "Cache html"
+msgstr "HTML Zwischenspeichern"
+
+msgid "Some templates does not support this. If you have troubles, just deactivate this."
+msgstr ""
 
 msgid "News"
 msgstr "News"
@@ -137,6 +143,30 @@ msgstr "Gesendet"
 msgid "Invalid news item provided."
 msgstr "Ungueltiger News-Eintrag geliefert."
 
+msgid "div[class=publicationNewsListDefaultItemRealContent]"
+msgstr ""
+
+msgid "div[class=publicationNewsListDefaultItemContent]"
+msgstr ""
+
+msgid "a[class=publicationNewsListDefaultItemLink]"
+msgstr ""
+
+msgid "div[class=publicationNewsListDefaultItemMoreBg]"
+msgstr ""
+
+msgid "a"
+msgstr ""
+
+msgid "click"
+msgstr ""
+
+msgid "with tags"
+msgstr ""
+
+msgid "with no tags"
+msgstr ""
+
 msgid "read more"
 msgstr "mehr lesen"
 
@@ -149,26 +179,26 @@ msgstr "Allgemeines"
 msgid "Tags"
 msgstr "Anhänger"
 
+msgid "Intro image"
+msgstr "Einleitungssbild"
+
+msgid "Intro image 2"
+msgstr "Einleitungsbild 2"
+
+msgid "Access"
+msgstr "Zugriff"
+
 msgid "Release at"
 msgstr "Abgabe an"
 
 msgid "If you want to release the news now, let it empty"
 msgstr "Lasse dieses Feld leer, wenn die News sofort veröffentlicht werden soll"
 
-msgid "Deactivate"
-msgstr "Deaktivieren"
+msgid "Hide"
+msgstr "Verstecken"
 
 msgid "Deactivate comments (override plugin properties)"
 msgstr "Deaktiviere Kommentare"
-
-msgid "List images"
-msgstr "Liste Bilder auf"
-
-msgid "Intro image"
-msgstr "Einleitungssbild"
-
-msgid "Intro image 2"
-msgstr "Einleitungsbild 2"
 
 msgid "Intro"
 msgstr "Einleitung"
@@ -182,6 +212,12 @@ msgstr "Ordner"
 msgid "Titel"
 msgstr "Titel"
 
+msgid "Url"
+msgstr ""
+
+msgid "E-Mail"
+msgstr ""
+
 msgid "IP"
 msgstr "IP"
 
@@ -193,10 +229,4 @@ msgstr "Betreff"
 
 msgid "Message"
 msgstr "Nachricht"
-
-msgid "Access"
-msgstr "Zugriff"
-
-msgid "Hide"
-msgstr "Verstecken"
 

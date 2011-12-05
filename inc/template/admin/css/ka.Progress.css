@@ -9,6 +9,7 @@
     line-height: 14px;
     color: #222;
     position: relative;
+    margin: auto;
 }
 
 .ka-progress-unlimited {
@@ -23,7 +24,7 @@
 
 .ka-progress-bar {
     -moz-border-radius: 3px;
-    background-color: #c3e4f2;
+    background-color: #3a9ac6;
     height: 14px;
     position: absolute;
     left: 0px;

@@ -11,11 +11,11 @@ ka.Progress = new Class({
 
         if (pUnlimited) {
             this.main.addClass('ka-progress-unlimited');
-        } else {
-            this.progress = new Element('div', {
-                'class': 'ka-progress-bar'
-            }).inject(this.main);
         }
+
+        this.progress = new Element('div', {
+            'class': 'ka-progress-bar'
+        }).inject(this.main);
 
         this.text = new Element('div', {
             'class': 'ka-progress-text',
@@ -41,6 +41,17 @@ ka.Progress = new Class({
 
     inject: function (pTo, pWhere) {
         this.main.inject(pTo, pWhere);
+    },
+
+    setUnlimited: function(pActivated){
+
+        if( pActivated ){
+            this.main.addClass('ka-progress-unlimited');
+        } else {
+            this.main.removeClass('ka-progress-unlimited');
+            this.main.removeClass('ka-progress-unlimited-stopped');
+        }
+
     },
 
     stop: function () {
