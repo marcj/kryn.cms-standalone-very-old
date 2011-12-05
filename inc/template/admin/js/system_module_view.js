@@ -331,8 +331,8 @@ var admin_system_module_view = new Class({
 
             if (this.currentValues && this.currentValues.module.category == 13 && this.installMode)//layout
             {
-                ka._helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000
-            } //30sec);
+                ka._helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000);//30sec
+            }
 
             new Request.JSON({url: _path + 'admin/system/module/dbInit/', noCache: 1, onComplete: function (res) {
                 this.loading.hide();
