@@ -21,9 +21,9 @@
 function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = false) {
     global $cfg;
 
-	$pathPrefix = 'inc/template/';
-	if(strpos($pPath, '/') === 0)
-		$pathPrefix = '';
+    $pathPrefix = 'inc/template/';
+    if(strpos($pPath, '/') === 0)
+        $pathPrefix = '';
     $path = str_replace('..', '', $pathPrefix . $pPath);
 
     $mdate = filemtime($path);
