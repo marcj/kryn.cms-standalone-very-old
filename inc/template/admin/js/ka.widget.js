@@ -27,6 +27,14 @@ ka.widget = new Class({
             style: 'height: 150px;'
         }).inject(this.container);
 
+        if (this.opts.height) {
+            this.main.setStyle('height', this.opts.height);
+        }
+
+        if (this.opts.width) {
+            this.main.setStyle('width', this.opts.width);
+        }
+
         if (this.opts.defaultHeight) {
             this.main.setStyle('height', this.opts.defaultHeight);
         }

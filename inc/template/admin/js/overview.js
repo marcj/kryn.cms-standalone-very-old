@@ -20,7 +20,7 @@ admin_overview = new Class({
         }.bind(this);
 
         this.addMenu(ka.settings.configs['admin'], 'admin');
-        $H(ka.settings.configs).each(function (config, extCode) {
+        Object.each(ka.settings.configs, function (config, extCode) {
             if (extCode == 'admin') return;
 
             //checkaccess admin/users/widgets/widgetSessions/%

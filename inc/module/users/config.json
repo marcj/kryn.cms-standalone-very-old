@@ -37,6 +37,8 @@
           "Last page"
         ]
       ],
+      "height": 205,
+      "itemsPerPage": 7,
       "category": "overview",
       "sql": "SELECT time, u.username, s.ip, page FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.rsn = s.user_rsn"
     },

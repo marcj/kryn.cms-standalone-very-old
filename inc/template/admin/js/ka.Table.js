@@ -180,6 +180,16 @@ ka.Table = new Class({
             if (this.safe) {
                 if (column[2] == 'html') {
                     td.set('html', html);
+                } else if(typeOf(column[2]) == 'string' && column[2].substr(0,11) == 'javascript:'){
+                    try {
+                        var value = html;
+                        html = eval(column[2].substr(11));
+                    } catch(e) {
+                        throw _('Error in column %id (%label) of ka.Table column definition:')
+                                  .replace('%id', index)
+                                  .replace('%label', column[0])+' '+e;
+                    }
+                    td.set('html', html);
                 } else {
                     td.set('text', html);
                 }
