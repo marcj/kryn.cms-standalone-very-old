@@ -956,15 +956,15 @@ class kryn {
      *
      * @static
      * @internal
-
      */
     public static function translate($pContent) {
+        kryn::loadLanguage();
         return preg_replace_callback(
             '/([^\\\\]?)\[\[([^\]]*)\]\]/',
             create_function(
                 '$pP',
                 '
-                return $pP[1]._l( $pP[2] );
+                return $pP[1].t( $pP[2] );
                 '
             ),
             $pContent
@@ -1610,9 +1610,12 @@ class kryn {
      * @static
      * @internal
      */
-    public static function loadLanguage($pLang = false) {
+    public static function loadLanguage($pLang = false, $pForce = false) {
 
         if (!$pLang) $pLang = kryn::getLanguage();
+
+        if( kryn::$lang && kryn::$lang['__lang'] && kryn::$lang['__lang'] == $pLang && $pForce == false )
+            return;
 
         $code = 'cacheLang_' . $pLang;
         kryn::$lang =& kryn::getFastCache($code);
