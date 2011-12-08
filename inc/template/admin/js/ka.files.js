@@ -868,7 +868,7 @@ ka.files = new Class({
 
     newFile: function () {
 
-        if (this.currentFolderFile.writeaccess == false) {
+        if (this.currentFile.writeaccess == false) {
             this.win._alert(_('Access denied'));
             return;
         }
@@ -883,7 +883,7 @@ ka.files = new Class({
 
     newFolder: function () {
 
-        if (this.currentFolderFile.writeaccess == false) {
+        if (this.currentFile.writeaccess == false) {
             this.win._alert(_('Access denied'));
             return;
         }
@@ -1125,7 +1125,7 @@ ka.files = new Class({
                 return;
             }
 
-            if (res.type == 'dir' && res.folderFile.path == 'trash/') {
+            if (res.type == 'dir' && res.path == 'trash/') {
                 this.boxAction.hide();
             } else {
                 this.boxAction.show();
@@ -1138,10 +1138,12 @@ ka.files = new Class({
             if (res.type == 'dir') {
 
                 this.setTitle();
-                this.currentFolderFile = res.folderFile;
-                this.fileContainer.store('file', res.folderFile);
+                this.currentFile = res;
+                this.currentFile.ext = this.currentFile.path.substr(this.currentFile.path.lastIndexOf('.'));
 
-                if (this.currentFolderFile.writeaccess == true) {
+                this.fileContainer.store('file', res);
+
+                if (this.currentFile.writeaccess == true) {
                     this.boxAction.show();
                 }
 
@@ -1240,7 +1242,7 @@ ka.files = new Class({
 
         if (file && file.isDir == true && file.path != 'trash/' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
             item.addClass('admin-files-item-selected');
-        } else if (this.currentFolderFile.writeaccess) {
+        } else if (this.currentFile.writeaccess) {
             this.fileContainer.addClass('admin-files-fileContainer-selected');
         }
     },
@@ -1632,7 +1634,7 @@ ka.files = new Class({
             this.deselectAll();
 
             if (pEvent.rightClick) {
-                this.openContext(this.currentFolderFile, pEvent);
+                this.openContext(this.currentFile, pEvent);
             }
 
             return;
@@ -1749,8 +1751,8 @@ ka.files = new Class({
         if (!this.previewDiv) return;
 
         var file = this.lastClickedItem.retrieve('file'), image;
-
-        if (this.__images.contains(file.ext.toLowerCase())) {
+        
+        if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
             image = _path + 'inc/template/' + file.path;
             Asset.image(image, {
                 onLoad: function () {
@@ -2133,12 +2135,12 @@ ka.files = new Class({
 
 
             var bg = '';
-            if (file.type != 'dir' && this.__images.contains(file.ext.toLowerCase())) { //is image
+            if (file.type != 'dir' && this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
                 bg = 'image'
             } else if (file.type == 'dir') {
                 bg = 'dir'
-            } else if (this.__ext.contains(file.ext)) {
-                bg = file.ext;
+            } else if (this.__ext.contains(file.path.substr(file.path.lastIndexOf('.')))) {
+                bg = file.path.substr(file.path.lastIndexOf('.'));
             } else {
                 bg = 'tpl';
             }
@@ -2277,7 +2279,7 @@ ka.files = new Class({
             title: pFile.name
         });
 
-        if (this.__images.contains(pFile.ext.toLowerCase())) {
+        if (this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
 
             fileIcon = 'admin/backend/imageThumb/?' + Object.toQueryString({file: pFile.path, mtime: pFile.mtime});
             base.addClass('admin-files-item-image');
@@ -2391,7 +2393,7 @@ ka.files = new Class({
         } else {
 
 
-            if (this.currentFolderFile.path != pFile.path) {
+            if (this.currentFile.path != pFile.path) {
                 var open = new Element('a', {
                     html: _('Open')
                 }).addEvent('click', function () {
@@ -2411,7 +2413,7 @@ ka.files = new Class({
             }).inject(this.context)
 
 
-            if (this.currentFolderFile.path == pFile.path) {
+            if (this.currentFile.path == pFile.path) {
                 //clicked on the background
 
                 var paste = new Element('a', {
@@ -2493,7 +2495,7 @@ ka.files = new Class({
 
         }.bind(this));
 
-        if (this.currentFolderFile.writeaccess != true) {
+        if (this.currentFile.writeaccess != true) {
             deactivate(paste);
         }
 

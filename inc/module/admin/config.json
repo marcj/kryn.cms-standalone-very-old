@@ -10,46 +10,16 @@
     "de": "Kryn.cms"
   },
   "system": true,
-  
   "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
   "widgets": {
     "unpublishedContents": {
-      "title": "[[Unpublished contents]]",
+      "title": "[[Unpublished changes]]",
       "type": "autotable",
       "position": "full",
       "columns": [
         [
-          "ID",
-          30
-        ],
-        [
-          "User",
-          80
-        ],
-        [
-          "Page",
-          null,
-          "html"
-        ],
-        [
-          "Date",
-          90,
-          "timestamp",
-          "d M H:i:s"
-        ]
-      ],
-      "category": "overview",
-      "manipulate_row": "manipulateUnpublishedContentsRow",
-      "sql": "SELECT MAX(v.rsn) as versionrsn, u.username, p.rsn, MAX(v.modified) as modified, p.domain_rsn FROM %pfx%system_user u, %pfx%system_pages p, %pfx%system_pagesversions v WHERE draft_exist = 1 AND v.page_rsn = p.rsn AND u.rsn = v.owner_rsn AND ( p.type = 0 OR p.type = 3) GROUP BY p.rsn, u.username, p.domain_rsn ORDER BY MAX(v.modified) DESC"
-    },
-    "lastPageChanges": {
-      "title": "[[Last page changes]]",
-      "type": "autotable",
-      "position": "full",
-      "columns": [
-        [
-          "ID",
-          30
+          "Version",
+          50
         ],
         [
           "User",
@@ -69,8 +39,45 @@
       ],
       "category": "overview",
       "withoutCountInTitle": true,
+      "manipulate_row": "manipulateUnpublishedContentsRow",
+      "sql": "SELECT MAX(v.rsn) as versionrsn, u.username, p.rsn, MAX(v.modified) as modified, p.domain_rsn FROM %pfx%system_user u, %pfx%system_pages p, %pfx%system_pagesversions v WHERE draft_exist = 1 AND v.page_rsn = p.rsn AND u.rsn = v.owner_rsn AND ( p.type = 0 OR p.type = 3) GROUP BY p.rsn, u.username, p.domain_rsn ORDER BY MAX(v.modified) DESC"
+    },
+    "lastPageChanges": {
+      "title": "[[Last page changes]]",
+      "type": "autotable",
+      "position": "full",
+      "columns": [
+        [
+          "Version",
+          50
+        ],
+        [
+          "User",
+          80
+        ],
+        [
+          "Published",
+          80,
+          "javascript: '<'+'img align=\"center\" src=\"'+_path+'inc\/template\/admin\/images\/icons\/'+(value==1?'accept':'bullet_black')+'.png\" \/>'"
+        ],
+        [
+          "Page",
+          null,
+          "html"
+        ],
+        [
+          "Date",
+          90,
+          "timestamp",
+          "d M H:i:s"
+        ]
+      ],
+      "category": "overview",
+      "height": 205,
+      "itemsPerPage": 7,
+      "withoutCountInTitle": true,
       "manipulate_row": "manipulateLastChangesRow",
-      "sql": "SELECT v.rsn, u.username, v.page_rsn, v.modified, p.domain_rsn FROM  %pfx%system_pagesversions v, %pfx%system_user u, %pfx%system_pages p WHERE v.page_rsn = p.rsn AND u.rsn = v.owner_rsn ORDER BY v.created DESC LIMIT 25"
+      "sql": "SELECT v.rsn, u.username, v.active, v.page_rsn, v.modified FROM  %pfx%system_pagesversions v, %pfx%system_user u, %pfx%system_pages p WHERE v.page_rsn = p.rsn AND u.rsn = v.owner_rsn ORDER BY v.created DESC"
     },
     "searchStats": {
       "title": "[[Top search words with results]]",
@@ -192,7 +199,7 @@
           "defaultWidth": 650,
           "defaultHeight": 450,
           "minWidth": 650,
-          "minHeight": 450	
+          "minHeight": 450
         },
         "module": {
           "title": "[[Extensions]]",
@@ -267,7 +274,7 @@
           "defaultWidth": 500,
           "defaultHeight": 470,
           "type": "custom"
-        },        
+        },
         "chooser": {
           "title": "[[Chooser]]",
           "isLink": false,
@@ -281,26 +288,26 @@
           "title": "[[Stores]]",
           "isLink": false,
           "childs": {
-              "groups": {
-                 "type": "store",
-                 "table": "system_groups",
-                 "label": "name",
-                 "id": "rsn"
-              },
-              "languages": {
-                 "type": "store",
-                 "table": "system_langs",
-                 "label": "title",
-                 "id": "rsn"
-              },
-              "extensions": {
-                 "type": "store",
-                 "class": "adminStoreExtensions"
-              },
-              "domains": {
-                 "type": "store",
-                 "class": "adminStoreDomains"
-              }
+            "groups": {
+              "type": "store",
+              "table": "system_groups",
+              "label": "name",
+              "id": "rsn"
+            },
+            "languages": {
+              "type": "store",
+              "table": "system_langs",
+              "label": "title",
+              "id": "rsn"
+            },
+            "extensions": {
+              "type": "store",
+              "class": "adminStoreExtensions"
+            },
+            "domains": {
+              "type": "store",
+              "class": "adminStoreDomains"
+            }
           }
         }
       }
@@ -1233,6 +1240,58 @@
       ],
       "user_rsn": [
         "int",
+        "",
+        "-",
+        false
+      ]
+    },
+    "system_files": {
+      "rsn": [
+        "int",
+        "",
+        "DB_PRIMARY",
+        true
+      ],
+      "fs_class": [
+        "varchar",
+        "32",
+        "-",
+        false
+      ],
+      "path": [
+        "varchar",
+        "255",
+        "-",
+        false
+      ],
+      "contenthash": [
+        "varchar",
+        "32",
+        "DB_INDEX",
+        false
+      ]
+    },
+    "system_fs": {
+      "rsn": [
+        "int",
+        "",
+        "DB_PRIMARY",
+        true
+      ],
+      "name": [
+        "varchar",
+        "128",
+        "-",
+        false
+      ],
+      "fs_class": [
+        "varchar",
+        "32",
+        "-",
+        false
+      ],
+      "fs_params": [
+        "text",
         "",
         "-",
         false

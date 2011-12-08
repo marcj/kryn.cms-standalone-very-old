@@ -14,12 +14,19 @@
 
 class adminFilemanager {
 
+    public static $fs;
+
     public static function init() {
+
+        require('inc/module/admin/adminFS.class.php');
+        $params = array();
+        self::$fs = new adminFs($params);
+
         /*
-                kryn::addJs( 'admin/filemanager.js' );
-                kryn::addJs( 'admin/swfupload.js' );
-                kryn::addJs( 'admin/fuploader.js' );
-                kryn::addCss( 'admin/filemanager.css' );
+        kryn::addJs( 'admin/filemanager.js' );
+        kryn::addJs( 'admin/swfupload.js' );
+        kryn::addJs( 'admin/fuploader.js' );
+        kryn::addCss( 'admin/filemanager.css' );
         */
         switch (getArgv(3)) {
             case 'loadFolder':
@@ -1209,56 +1216,20 @@ $pAccess from all
     public static function loadFolder($pPath) {
         $rPath = $pPath;
 
+        $access = krynAcl::checkAccess(3, $pPath, 'read', true);
+        if (!$access) return false;
+
+        $files = self::$fs->ls($pPath);
+        if( !$files ) return false;
+
+        return $files;
+
         if ($pPath == '/') {
             if (!file_exists("inc/template/trash"))
                 @mkdir("inc/template/trash");
         }
 
-        $access = krynAcl::checkAccess(3, $pPath, 'read', true);
-        if (!$access) return false;
 
-        $pPath = 'inc/template/' . substr($pPath, 0, strlen($pPath));
-        $pPath = str_replace("..", "", $pPath);
-
-        if (!file_exists($pPath))
-            json(false);
-
-        $res['type'] = (is_dir($pPath)) ? 'dir' : 'file';
-
-        $dir = str_replace('inc/template/', '', $pPath);
-
-        if ($res['type'] == 'dir') {
-            $h = opendir($pPath);
-
-            if (substr($rPath, strlen($rPath) - 1, 1) != '/')
-                $rPath .= '/';
-
-            $res['folderFile'] = self::getFileInfo($rPath);
-
-            $myfiles = array();
-            while ($file = readdir($h)) {
-                if ($file == '.svn' || $file == '.' || $file == '..') continue;
-                $myfiles[] = $file;
-            }
-            natcasesort($myfiles);
-
-            $items = array();
-            foreach ($myfiles as $file) {
-                $path = $pPath . '/' . $file;
-                $item = array();
-
-                $item = self::getFileInfo($path);
-
-                if ($item) {
-                    $item['dir'] = $dir;
-                    $items[$file] = $item;
-                }
-            }
-            $res['items'] = $items;
-        } else {
-            //file
-            $res = self::getFileInfo($rPath);
-        }
         json($res);
     }
 
