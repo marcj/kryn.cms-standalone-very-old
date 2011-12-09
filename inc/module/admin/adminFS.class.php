@@ -3,20 +3,29 @@
 
 class adminFS {
 
+    public $magicFolderName = '';
+
     /**
      * @param $pPath
      */
-    public function createFile($pPath) {
-        if (!file_exists($pPath))
-            touch($pPath);
+    public function createFile($pPath, $pContent = false) {
+        if (!file_exists('inc/template'.$pPath)){
+            if (!$pContent)
+                return touch('inc/template'.$pPath);
+            else
+                return kryn::fileWrite('inc/template'.$pPath, $pContent);
+        }
+
+        return false;
     }
 
     /**
      * @param $pPath
      */
-    public function createDir($pPath) {
-        if (!file_exists($pPath))
-            mkdir($pPath, null, true);
+    public function createFolder($pPath) {
+        if (!file_exists('inc/template'.$pPath))
+            return mkdir('inc/template'.$pPath, null, true);
+        return false;
     }
 
     /**
@@ -24,13 +33,13 @@ class adminFS {
      * @param $pContent
      * @return bool
      */
-    public function writeFile($pPath, $pContent) {
+    public function setContent($pPath, $pContent) {
 
         if (!file_exists($pPath) )
             $this->createFile($pPath);
 
-        $fh = fopen($pPath, 'w');
-        $res = fwrite($fh,$pContent);
+        $fh = fopen('inc/template'.$pPath, 'w');
+        $res = fwrite($fh, $pContent);
         fclose($fh);
 
         return $res===false?false:true;
@@ -40,9 +49,18 @@ class adminFS {
     /**
      * list directory contents
      *
+     * Should return the item at $pPath with the informations:
+     *  array(
+     *  path => path to this file for usage in the administration and modules. Not the full http path. No trailing slash!
+     *  name => basename(path)
+     *  ctime => as unix timestamps
+     *  mtime => as unix timestamps
+     *  type => 'dir' or 'file'
+     *  items => if it's a directory then here should be all files inside it, with the same infos above (except items)
+     *  )
      * @param $pPath
      */
-    public function ls($pPath){
+    public function getFiles($pPath){
 
         if (substr($pPath,0,1) != '/')
             $pPath = '/'.$pPath;
@@ -55,6 +73,11 @@ class adminFS {
 
         $res['type'] = (is_dir($pPath)) ? 'dir' : 'file';
         $res['path'] = str_replace('inc/template', '', $pPath);
+
+        if ($res['type'] == 'dir' && substr($pPath,-1) != '/')
+            $pPath .= '/';
+
+
         if ($pPath == 'inc/template/')
             $res['name'] = '';
         else
@@ -62,7 +85,6 @@ class adminFS {
 
         $res['ctime'] = filectime($pPath);
         $res['mtime'] = filemtime($pPath);
-        $res['writeaccess'] = krynAcl::checkAccess(3, $res['path'], 'write', true);
 
         if ($res['type'] == 'dir') {
             $h = opendir($pPath);
@@ -78,12 +100,11 @@ class adminFS {
             foreach ($files as $file) {
                 $path = $pPath . $file;
 
-                $item['path'] = str_replace('inc/template', '', $path) . $file;
+                $item['path'] = str_replace('inc/template', '', $pPath) . $file;
                 $item['name'] = $file;
                 $item['type'] = (is_dir($path)) ? 'dir' : 'file';
                 $item['ctime'] = filectime($path);
                 $item['mtime'] = filemtime($path);
-                $item['writeaccess'] = krynAcl::checkAccess(3, $path, 'write', true);
                 $res['items'][] = $item;
             }
         }
@@ -92,14 +113,50 @@ class adminFS {
     }
 
     /**
+     * @param $pPath
+     */
+    public function getFile($pPath){
+
+        $pPath = 'inc/template'.$pPath;
+
+        if(!file_exists($pPath))
+            return false;
+
+        $type = (is_dir($pPath))?'dir':'file';
+
+        $name = basename($pPath);
+        if($pPath == 'inc/template/')
+            $name = '/';
+
+        $ctime = filectime($pPath);
+        $mtime = filemtime($pPath);
+
+        return array(
+            'path' => str_replace('inc/template', '', $pPath),
+            'name' => $name,
+            'type' => $type,
+            'ctime' => $ctime,
+            'mtime' => $mtime
+        );
+    }
+
+    /**
      * disk usage
      *
      * @param $pPath
      */
-    public function du($pPath){
+    public function getSize($pPath){
 
 
 
+    }
+
+    /**
+     * @param $pPath
+     */
+    public function fileExists($pPath){
+
+        return file_exists('inc/template'.$pPath);
     }
 
     /**
@@ -108,9 +165,7 @@ class adminFS {
      * @param $pPathTarget
      */
     public function copy($pPathSource, $pPathTarget){
-
-
-
+        return copy('inc/template'.$pPathSource, 'inc/template'.$pPathTarget);
     }
 
     /**
@@ -120,8 +175,7 @@ class adminFS {
      */
     public function move($pPathSource, $pPathTarget){
 
-
-
+        return rename('inc/template'.$pPathSource, 'inc/template'.$pPathTarget);
     }
 
     /**
@@ -130,7 +184,9 @@ class adminFS {
      * @param $pPath
      * @return bool|string
      */
-    public function readFile($pPath){
+    public function getContent($pPath){
+
+        $pPath = 'inc/template'.$pPath;
 
         if (!file_exists($pPath)) return false;
 
@@ -146,22 +202,22 @@ class adminFS {
 
     }
 
+    public function search($pPath, $pPattern, $pDepth = -1){
+
+
+
+    }
+
     /**
      *
      *
      * @param $pPath
-     * @param bool $pRecursive
      * @return bool|int
      */
-    public function rm($pPath, $pRecursive = false){
+    public function remove($pPath){
 
-        if (!file_exists($pPath)) return 2;
-
-        if (isDir($pPath)){
-            if( $pRecursive ) return delDir($pPath); else return rmdir($pPath);
-        } else {
-            return unlink($pPath);
-        }
+        //this filesystem layer moves the files to trash instead of real removing
+        rename();
 
     }
 

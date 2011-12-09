@@ -10,9 +10,9 @@ ka.files = new Class({
     _modules: [],
     isFirstLoad: true,
 
-    __images: ['jpg', 'jpeg', 'gif', 'png', 'bmp'],
-    __ext: ['css', 'tpl', 'js', 'html', 'htm'],
-    _krynFolders: ['kryn/', 'css/', 'images/', 'js/', 'admin/'],
+    __images: ['.jpg', '.jpeg', '.gif', '.png', '.bmp'],
+    __ext: ['.css', '.tpl', '.js', '.html', '.htm'],
+    _krynFolders: ['/kryn/', '/css/', '/images/', '/js/', '/admin/'],
     firstLoaded: 0,
 
     uploadTrs: {},
@@ -117,6 +117,7 @@ ka.files = new Class({
     newFileUpload: function (pFile) {
 
         if (!this.fileUploadDialog) {
+
             this.fileUploadDialog = this.win.newDialog('', true);
 
             this.fileUploadDialog.setStyles({
@@ -658,7 +659,7 @@ ka.files = new Class({
 
     loadModules: function () {
         Object.each(ka.settings.configs, function (config, ext) {
-            this._modules.include(ext + '/');
+            this._modules.include('/'+ext+'/');
         }.bind(this));
     },
 
@@ -875,9 +876,9 @@ ka.files = new Class({
 
         this.win._prompt(_('File name'), '', function (name) {
             if (!name) return;
-            new Request.JSON({url: _path + 'admin/files/newFile/', onComplete: function (res) {
+            new Request.JSON({url: _path + 'admin/files/createFile', onComplete: function (res) {
                 this.reload();
-            }.bind(this)}).post({path: this.current, name: name});
+            }.bind(this)}).post({path: this.current+'/'+name});
         }.bind(this));
     },
 
@@ -890,19 +891,30 @@ ka.files = new Class({
 
         this.win._prompt(_('Folder name'), '', function (name) {
             if (!name) return;
-            new Request.JSON({url: _path + 'admin/files/newFolder/', onComplete: function (res) {
+            new Request.JSON({url: _path + 'admin/files/createFolder/', onComplete: function (res) {
                 this.reload();
-            }.bind(this)}).post({path: this.current, name: name});
+            }.bind(this)}).post({path: this.current+'/'+name});
         }.bind(this));
     },
 
     rename: function (pFile) {
-        var name = this.win._prompt(_('Rename') + ': ', pFile.name, function (name) {
+        this.win._prompt(_('Rename') + ': ', pFile.name, function(name){
             if (!name) return;
-            new Request.JSON({url: _path + 'admin/files/renameFile/', onComplete: function (res) {
-                this.reload();
-            }.bind(this)}).post({path: this.current, name: pFile.name, newname: name});
+            this.move(this.current+pFile.name, this.current+name);
         }.bind(this));
+    },
+
+    move: function( pPath, pNewPath, pOverwrite ){
+
+        new Request.JSON({url: _path + 'admin/files/moveFile/', onComplete: function(res){
+            if(res.file_exists == 1){
+                this.win._confirm(_('The new filename already exists. Overwrite?'), function(answer){
+                    if(answer) this.move(pPath, pNewPath, true);
+                }.bind(this));
+            } else {
+                this.reload();
+            }
+        }.bind(this)}).post({path: pPath, newPath: pNewPath, overwrite: pOverwrite?1:0});
     },
 
     remove: function () {
@@ -916,7 +928,7 @@ ka.files = new Class({
             Object.each(selectedFiles, function (item) {
 
 
-                if (item.path.substr(0, 6) == 'trash/') {
+                if (item.path.substr(0, 6) == '/trash') {
                     item.name = item.path.replace(/.*\//, '');
                 }
 
@@ -993,7 +1005,7 @@ ka.files = new Class({
 
     loadPath: function (pPath, pCallback) {
 
-        if (pPath.substr(0, 6) == 'trash/' && pPath.length >= 7) {
+        if (pPath.substr(0, 6) == '/trash' && pPath.length >= 7) {
             this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
             return;
         }
@@ -1011,7 +1023,7 @@ ka.files = new Class({
     },
 
     up: function () {
-        if (this.current.substr(this.current.length - 1, 1) == '/' && this.current.length > 1) {
+        if (this.current.length > 1) {
             this.loadPath(this.getUpPath());
         }
     },
@@ -1054,7 +1066,7 @@ ka.files = new Class({
             }).inject(this.infos);
 
             Object.each(pFiles, function (file) {
-                if (this._krynFolders.indexOf(file.path) >= 0) {
+                if (this._krynFolders.indexOf(file.path+'/') >= 0) {
                     this.newInfoItem(file);
                 }
             }.bind(this));
@@ -1064,7 +1076,7 @@ ka.files = new Class({
             }).inject(this.infos);
 
             Object.each(pFiles, function (file) {
-                if (this._modules.indexOf(file.path) >= 0) {
+                if (this._modules.indexOf(file.path+'/') >= 0) {
                     this.newInfoItem(file);
                 }
             }.bind(this));
@@ -1076,7 +1088,7 @@ ka.files = new Class({
         }).inject(this.infos);
 
         Object.each(pFiles, function (file) {
-            if (this._modules.indexOf(file.path) == -1 && this._krynFolders.indexOf(file.path) == -1) {
+            if (this._modules.indexOf(file.path+'/') == -1 && this._krynFolders.indexOf(file.path+'/') == -1) {
                 this.newInfoItem(file);
             }
         }.bind(this));
@@ -1088,7 +1100,7 @@ ka.files = new Class({
 
         var item = new Element('a', {
             text: pFile.name,
-            'class': 'admin-files-droppables' + ((pFile.path == 'trash/') ? ' admin-files-item-dir_bin' : '')
+            'class': 'admin-files-droppables' + ((pFile.path == '/trash') ? ' admin-files-item-dir_bin' : '')
         }).addEvent('mousedown',
             function (e) {
                 e.stop()
@@ -1106,7 +1118,7 @@ ka.files = new Class({
 
         this.loader.show();
 
-        this.curRequest = new Request.JSON({url: _path + 'admin/files/loadFolder/', noCache: 1, onComplete: function (res) {
+        this.curRequest = new Request.JSON({url: _path + 'admin/files/getFiles/', noCache: 1, onComplete: function (res) {
 
             if (!res) {
                 this.loader.hide();
@@ -1121,11 +1133,11 @@ ka.files = new Class({
                 return;
             }
             if (res.type == 'file') {
-                this.load(res.folder);
+                this.load( res.path.substr(0,res.path.lastIndexOf('/')));
                 return;
             }
 
-            if (res.type == 'dir' && res.path == 'trash/') {
+            if (res.type == 'dir' && res.path == '/trash') {
                 this.boxAction.hide();
             } else {
                 this.boxAction.show();
@@ -1147,13 +1159,6 @@ ka.files = new Class({
                     this.boxAction.show();
                 }
 
-                if (this.current.substr(this.current.length - 1, 1) != '/') {
-                    this.current += '/';
-                }
-                if (this.current.substr(0, 1) != '/') {
-                    this.current = '/' + this.current;
-                }
-
                 this.address.value = this.current;
 
                 this.render(res.items);
@@ -1165,7 +1170,7 @@ ka.files = new Class({
 
             this.loader.hide();
 
-            this.upBtn.store('file', {isDir: true, path: this.getUpPath()});
+            this.upBtn.store('file', {type: 'dir', path: this.getUpPath()});
 
             if (pCallback) {
                 pCallback();
@@ -1187,7 +1192,7 @@ ka.files = new Class({
         //first folders, then files
         Object.each(this.files, function (f) {
             if (f.type == 'dir') {
-                if (this.options.onlyUserDefined == true && (this._krynFolders.indexOf(f.path) >= 0 || this._modules.indexOf(f.path) >= 0 )) {
+                if (this.options.onlyUserDefined == true && (this._krynFolders.indexOf(f.path+'/') >= 0 || this._modules.indexOf(f.path+'/') >= 0 )) {
                     return;
                 }
                 nfiles.include(f);
@@ -1240,7 +1245,7 @@ ka.files = new Class({
             file = item.retrieve('file');
         }
 
-        if (file && file.isDir == true && file.path != 'trash/' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
+        if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
             item.addClass('admin-files-item-selected');
         } else if (this.currentFile.writeaccess) {
             this.fileContainer.addClass('admin-files-fileContainer-selected');
@@ -1306,11 +1311,11 @@ ka.files = new Class({
             item.removeClass('admin-files-item-selected');
         }
 
-        if (file && (file.isDir != true || file.path == 'trash/')) {
+        if (file && (file.type != 'dir' || file.path == '/trash')) {
             return;
         }
 
-        if (!file && this.current == 'trash/') return;
+        if (!file && this.current == '/trash') return;
 
         Array.each(files, function (chosenFile) {
 
@@ -1546,7 +1551,7 @@ ka.files = new Class({
 
         if (item) {
 
-            if (file && file.path != 'trash/') {
+            if (file && file.path != '/trash') {
                 this.startDrag(pEvent, item);
             }
 
@@ -1584,7 +1589,7 @@ ka.files = new Class({
         var file = item.retrieve('file');
 
         if (file) {
-            if (!file.isDir && this.options.selection && !this.options.selectionOnlyFolders) {
+            if (file.type == 'file' && this.options.selection && !this.options.selectionOnlyFolders) {
                 this.fireEvent('select', [file, item]);
                 this.fireEvent('dblClick', [file, item]);
             } else {
@@ -1686,11 +1691,11 @@ ka.files = new Class({
     selectItem: function (pItem) {
 
         var file = pItem.retrieve('file');
-        if (file && file.path != 'trash/') {
+        if (file && file.path != '/trash') {
 
             if (this.options.selection) {
-                if (this.options.selectionOnlyFiles && file.isDir == true) return;
-                if (this.options.selectionOnlyFolders && file.isDir != true) return;
+                if (this.options.selectionOnlyFiles && file.type == 'dir') return;
+                if (this.options.selectionOnlyFolders && file.type == 'file') return;
 
                 if (!this.options.selectionMultiple && this.getSelectedCount() == 1) return;
             }
@@ -1987,15 +1992,11 @@ ka.files = new Class({
                 text: _('%d files').replace('%d', Object.getLength(selectedItems))
             }).inject(container);
 
-
         } else if (Object.getLength(selectedItems) == 0) {
             return;
         }
 
         var fromDir = this.current;
-        if (fromDir != '/') {
-            fromDir = fromDir.substr(1);
-        }
 
         this.newDragMove(pEvent, container, draggedItems, moveFiles, fromDir);
     },
@@ -2026,7 +2027,8 @@ ka.files = new Class({
                 }
 
                 var file = droppable.retrieve('file');
-                if (!file || file.path == pFromDir || file.path == 'trash/' || file.isDir != true) return;
+                if (!file || this.current == file.path || pFromDir == file.path || file.path == '/trash') return;
+                if (file.type == 'file' || pFilePaths.contains(file.path)) return;
 
                 if (file.writeaccess == false) return;
 
@@ -2056,15 +2058,16 @@ ka.files = new Class({
                     var file = droppable.retrieve('file');
 
                     if (file.writeaccess == false) return;
+                    if (!file || this.current == file.path || file.path == '/trash') return;
+                    if (file.type == 'file' || pFilePaths.contains(file.path)) return;
 
-                    if (file && file.path != 'trash/' && file.isDir == true && !droppable.hasClass('admin-files-fileContainer')) {
+                    if (!droppable.hasClass('admin-files-fileContainer')) {
                         droppable.addClass('admin-files-item-selected');
                         droppable.fileObj.startAutoDirOpener(file, this.updateDragMoveDroppables.bind(this));
                     }
 
-                    if (!file || file.path == pFromDir || this.current == '/' + file.path) return;
-
                     if (droppable.hasClass('admin-files-fileContainer')) {
+                        if (file.path == pFromDir) return;
                         droppable.addClass('admin-files-fileContainer-selected');
                     }
 
@@ -2145,7 +2148,7 @@ ka.files = new Class({
                 bg = 'tpl';
             }
 
-            if (file.path == 'trash/') {
+            if (file.path == '/trash') {
                 bg = 'dir_bin';
             }
 
@@ -2207,9 +2210,9 @@ ka.files = new Class({
                 if (!titem) return;
 
                 if (this.current == '/' && titem) {
-                    if (this._krynFolders.indexOf(item.path) >= 0) {
+                    if (this._krynFolders.indexOf(item.path+'/') >= 0) {
                         krynFiles.include(titem);
-                    } else if (this._modules.indexOf(item.path) >= 0) {
+                    } else if (this._modules.indexOf(item.path+'/') >= 0) {
                         moduleFiles.include(titem);
                     } else {
                         files.include(titem);
@@ -2275,13 +2278,13 @@ ka.files = new Class({
         var fileIcon;
 
         var base = new Element('div', {
-            'class': (pFile.path == 'trash/' ? '' : 'admin-files-droppables ') + 'admin-files-item',
+            'class': (pFile.path == '/trash' ? '' : 'admin-files-droppables ') + 'admin-files-item',
             title: pFile.name
         });
 
         if (this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
 
-            fileIcon = 'admin/backend/imageThumb/?' + Object.toQueryString({file: pFile.path, mtime: pFile.mtime});
+            fileIcon = 'admin/backend/imageThumb/?' + Object.toQueryString({path: pFile.path, mtime: pFile.mtime});
             base.addClass('admin-files-item-image');
 
         } else {
@@ -2289,7 +2292,7 @@ ka.files = new Class({
             fileIcon = 'inc/template/admin/images/';
 
             if (pFile.type == 'dir') {
-                if (pFile.path == 'trash/') {
+                if (pFile.path == '/trash') {
                     fileIcon += 'file-icon-bin.png';
                 } else {
                     fileIcon += 'file-icon-folder.png';
@@ -2306,7 +2309,7 @@ ka.files = new Class({
         }).inject(base);
 
         new Element('div', {
-            'text': (pFile.path == 'trash/') ? _('Trash') : this.escTitle(pFile.name, base.getSize().x),
+            'text': (pFile.path == '/trash') ? _('Trash') : this.escTitle(pFile.name, base.getSize().x),
         }).inject(base);
 
         if (this.options.selectionValue) {
@@ -2366,7 +2369,7 @@ ka.files = new Class({
             this.context.destroy();
         }
 
-        if (pFile.path == 'trash/') {
+        if (pFile.path == '/trash') {
             return;
         }
 
@@ -2376,7 +2379,7 @@ ka.files = new Class({
 
         this.inputTrigger.focus();
 
-        if (pFile.path.substr(0, 6) == 'trash/') {
+        if (pFile.path.substr(0, 6) == '/trash') {
             //pressed on a item in the trash folder
 
             var recover = new Element('a', {
@@ -2485,7 +2488,7 @@ ka.files = new Class({
 
         Object.each(selectedFiles, function (myfile) {
 
-            if (myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path) >= 0 || this._modules.indexOf(myfile.path) >= 0) {
+            if (myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path+'/') >= 0 || this._modules.indexOf(myfile.path+'/') >= 0) {
                 //no writeaccess
                 deactivate(cut);
                 deactivate(remove);
@@ -2518,10 +2521,22 @@ ka.files = new Class({
 
         this.win._prompt(_('New name') + ': ', newName, function (name) {
             if (!name) return;
-            new Request.JSON({url: _path + 'admin/files/duplicateFile/', onComplete: function (res) {
-                this.reload();
-            }.bind(this)}).post({path: pFile.path, newname: name});
+            this._duplicate(pFile, name);
         }.bind(this));
+
+    },
+
+    _duplicate: function(pFile, pName) {
+
+        new Request.JSON({url: _path + 'admin/files/duplicateFile/', onComplete: function (res) {
+            if(res.file_exists){
+                this.win._confirm(_('The new filename already exists. Overwrite?'), function(answer){
+                    if(answer) this._duplicate(pPath, pName, 1);
+                }.bind(this));
+            } else {
+                this.reload();
+            }
+        }.bind(this)}).get({path: pFile.path, newName: pName});
 
     },
 

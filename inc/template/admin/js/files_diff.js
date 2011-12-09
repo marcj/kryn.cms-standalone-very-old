@@ -31,7 +31,7 @@ var admin_files_diff = new Class({
 
     loadFileContents: function (path, isFrom) {
         new Request.JSON({
-            url: _path + 'admin/files/getFile',
+            url: _path + 'admin/files/get',
             noCache: 1,
 
             onComplete: function (res) {

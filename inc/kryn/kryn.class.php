@@ -2706,6 +2706,9 @@ class kryn {
         if ($h) {
             fwrite($h, $pContent);
             fclose($h);
+            return true;
+        } else {
+            return false;
         }
     }
 

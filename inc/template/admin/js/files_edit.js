@@ -18,9 +18,11 @@ var admin_files_edit = new Class({
     },
 
     loadFile: function () {
-        new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/files/getContent', noCache: 1, onComplete: function (res) {
             if (typeOf(res) != 'null') {
                 this.textarea.value = res;
+            } else {
+                this.textarea.value = '';
             }
             this.renderCodePress();
         }.bind(this)}).get({ path: this.win.params.file.path });
@@ -63,7 +65,7 @@ var admin_files_edit = new Class({
         var _this = this;
         this.saveBtn.startTip(_('Save ...'));
         var value = (this.editor) ? this.editor.getCode() : this.textarea.value;
-        new Request.JSON({url: _path + 'admin/files/saveFile', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/files/setContent', noCache: 1, onComplete: function (res) {
             this.saveBtn.stopTip(_('Saved'));
         }.bind(this)}).post({ path: this.win.params.file.path, content: value });
     },
@@ -288,7 +290,7 @@ var admin_files_edit = new Class({
             }
             this._goToImage(this.win.params.file.path);
 
-        }.bind(this)}).post({dir: dir});
+        }.bind(this)}).post({path: dir});
 
     },
 

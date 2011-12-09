@@ -96,7 +96,7 @@ var admin_files_properties = new Class({
 
     load: function () {
 
-        new Request.JSON({url: _path + 'admin/files/getFileInfo', onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/files/getFile', onComplete: function (res) {
             if (!res) {
                 this.win._alert(_('File does not exist.'), function () {
                     this.win.close();
@@ -149,7 +149,7 @@ var admin_files_properties = new Class({
 
         this.mkTr();
         this.mkTd(_('Type'))
-        if (this.file.isDir) {
+        if (this.file.type='dir') {
             this.mkTd(_('Folder'));
         } else {
             this.mkTd(this.file.ext);
@@ -157,11 +157,7 @@ var admin_files_properties = new Class({
 
         this.mkTr();
         this.mkTd(_('Path'));
-        this.mkTd(this.file.path == '/' ? '/' : '/' + this.file.path);
-
-        this.mkTr();
-        this.mkTd(_('Location'));
-        this.mkTd(this.file.location);
+        this.mkTd(this.file.path);
 
 
         this.mkDel();
@@ -658,7 +654,7 @@ var admin_files_properties = new Class({
 
     loadSize: function () {
 
-        this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/getFileInfo', onComplete: function (res) {
+        this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/getSize', onComplete: function (res) {
             if (res) {
                 this.sizeTd.set('text', res.sizeFormat + ' (' + res.size + ' Bytes)');
                 this.mkTr().inject(this.sizeTd.getParent(), 'after');
