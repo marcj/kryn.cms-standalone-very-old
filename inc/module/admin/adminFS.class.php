@@ -55,10 +55,12 @@ class adminFS {
      *  name => basename(path)
      *  ctime => as unix timestamps
      *  mtime => as unix timestamps
+     *  size => filesize in bytes (not for folders)
      *  type => 'dir' or 'file'
      *  items => if it's a directory then here should be all files inside it, with the same infos above (except items)
      *  )
      * @param $pPath
+     * @return array|int|bool Returns false if not exsists, return 2 if its not a directoru or returns the items as array
      */
     public function getFiles($pPath){
 
@@ -70,46 +72,27 @@ class adminFS {
 
         if (!file_exists($pPath))
             return false;
+        if (!is_dir($pPath)) return 2;
 
-        $res['type'] = (is_dir($pPath)) ? 'dir' : 'file';
-        $res['path'] = str_replace('inc/template', '', $pPath);
-
-        if ($res['type'] == 'dir' && substr($pPath,-1) != '/')
+        if (substr($pPath,-1) != '/')
             $pPath .= '/';
 
+        $h = opendir($pPath);
+        $items = array();
+        while ($file = readdir($h)) {
+            if ($file == '.' || $file == '..') continue;
+            $path = $pPath . $file;
 
-        if ($pPath == 'inc/template/')
-            $res['name'] = '';
-        else
-            $res['name'] = basename($pPath);
-
-        $res['ctime'] = filectime($pPath);
-        $res['mtime'] = filemtime($pPath);
-
-        if ($res['type'] == 'dir') {
-            $h = opendir($pPath);
-
-            $files = array();
-            while ($file = readdir($h)) {
-                if ($file == '.' || $file == '..') continue;
-                $files[] = $file;
-            }
-            natcasesort($files);
-
-            $items = array();
-            foreach ($files as $file) {
-                $path = $pPath . $file;
-
-                $item['path'] = str_replace('inc/template', '', $pPath) . $file;
-                $item['name'] = $file;
-                $item['type'] = (is_dir($path)) ? 'dir' : 'file';
-                $item['ctime'] = filectime($path);
-                $item['mtime'] = filemtime($path);
-                $res['items'][] = $item;
-            }
+            $item['path'] = str_replace('inc/template', '', $pPath) . $file;
+            $item['name'] = $file;
+            $item['type'] = (is_dir($path)) ? 'dir' : 'file';
+            $item['size'] = filesize($path);
+            $item['ctime'] = filectime($path);
+            $item['mtime'] = filemtime($path);
+            $items[$item['name']] = $item;
         }
 
-        return $res;
+        return $items;
     }
 
     /**
@@ -147,8 +130,35 @@ class adminFS {
      */
     public function getSize($pPath){
 
+        $size = 0;
+        $fileCount = 0;
+        $folderCount = 0;
 
+        $path = 'inc/template'.$pPath;
 
+        if ($h = opendir($path)) {
+            while (false !== ($file = readdir($h))) {
+                $nextPath = $path . '/' . $file;
+                if ($file != '.' && $file != '..' && !is_link($nextPath)) {
+                    if (is_dir($nextPath)) {
+                        $folderCount++;
+                        $result = self::getSize($nextPath);
+                        $size += $result['size'];
+                        $fileCount += $result['fileCount'];
+                        $folderCount += $result['folderCount'];
+                    } else if (is_file($nextPath)) {
+                        $size += filesize($nextPath);
+                        $fileCount++;
+                    }
+                }
+            }
+        }
+        closedir($h);
+        return array(
+            'size' => $size,
+            'fileCount' => $fileCount,
+            'folderCount' => $folderCount
+        );
     }
 
     /**
@@ -208,6 +218,10 @@ class adminFS {
 
     }
 
+    public function getPublicUrl($pPath){
+        return '/inc/template'.$pPath;
+    }
+
     /**
      *
      *
@@ -217,7 +231,64 @@ class adminFS {
     public function remove($pPath){
 
         //this filesystem layer moves the files to trash instead of real removing
-        rename();
+        //the class above 'adminFilemanager' handles the deletions in the trash folder
+        $path = 'inc/template'.$pPath;
+        if (!file_exists($path)) return false;
+
+        $newTrashId = dbInsert('system_files_log', array(
+            'path' => $path,
+            'modified' => filemtime($path),
+            'created' => time(),
+            'type' => (is_dir($path)) ? 1 : 0
+        ));
+
+        $target = 'inc/template/trash/'.$newTrashId;
+
+        if (is_dir($path)) {
+            copyr($path, $target);
+            delDir($path);
+        } else {
+            copy($path, $target);
+            unlink($path);
+        }
+
+    }
+
+    public function getPublicAccess($pPath){
+
+        $res = $this->getFile($pPath);
+
+        $path = 'inc/template'.$pPath;
+
+        if ($res['type'] == 'file') {
+            $htaccess = dirname($path) . '/' . '.htaccess';
+        } else {
+            $htaccess = $path . '/' . '.htaccess';
+        }
+
+        if (@file_exists($htaccess)) {
+
+            $content = kryn::fileRead($htaccess);
+            @preg_match_all('/<Files ([^>]*)>\W*(\w*) from all[^<]*<\/Files>/smi', $content, $matches, PREG_SET_ORDER);
+            if (count($matches) > 0) {
+                foreach ($matches as $match) {
+                    $match[1] = str_replace('"', '', $match[1]);
+                    if ($res['type'] == 'dir') {
+                        $res['htaccess'][] = array(
+                            'file' => $match[1],
+                            'access' => $match[2]
+                        );
+                    }
+
+                    if ($res['name'] == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
+                        $res['thishtaccess'] = array(
+                            'file' => $match[1],
+                            'access' => $match[2]
+                        );
+                    }
+                }
+            }
+        }
 
     }
 

@@ -906,7 +906,7 @@ ka.files = new Class({
 
     move: function( pPath, pNewPath, pOverwrite ){
 
-        new Request.JSON({url: _path + 'admin/files/moveFile/', onComplete: function(res){
+        new Request.JSON({url: _path + 'admin/files/moveFile', onComplete: function(res){
             if(res.file_exists == 1){
                 this.win._confirm(_('The new filename already exists. Overwrite?'), function(answer){
                     if(answer) this.move(pPath, pNewPath, true);
@@ -927,14 +927,11 @@ ka.files = new Class({
             if (!res) return;
             Object.each(selectedFiles, function (item) {
 
+                logger(item);
 
-                if (item.path.substr(0, 6) == '/trash') {
-                    item.name = item.path.replace(/.*\//, '');
-                }
-
-                new Request.JSON({url: _path + 'admin/files/deleteFile/', onComplete: function (res) {
+                new Request.JSON({url: _path + 'admin/files/deleteFile', noCache: 1, onComplete: function (res) {
                     this.reload();
-                }.bind(this)}).post({path: this.current, name: item.name});
+                }.bind(this)}).get({path: item.path});
 
             }.bind(this));
 
@@ -1018,6 +1015,7 @@ ka.files = new Class({
     },
 
     getUpPath: function () {
+        if (this.current.substr(this.current.length-1) == '/') this.current = this.current.substr(0, this.current.length-1);
         var pos = this.current.substr(0, this.current.length - 1).lastIndexOf('/');
         return this.current.substr(0, pos + 1);
     },
@@ -1118,26 +1116,27 @@ ka.files = new Class({
 
         this.loader.show();
 
-        this.curRequest = new Request.JSON({url: _path + 'admin/files/getFiles/', noCache: 1, onComplete: function (res) {
+        this.curRequest = new Request.JSON({url: _path + 'admin/files/getFiles', noCache: 1, onComplete: function (res) {
 
             if (!res) {
                 this.loader.hide();
                 alert(_('%s: file not found').replace('%s', pPath));
                 return;
             }
-            if (res.type == 'file' && this.isFirstLoad == false) {
+            if (res == 2 && this.isFirstLoad == false) {
                 this.history[ this.historyIndex ] = null;
                 this.historyIndex--;
-                ka.wm.openWindow('admin', 'files/edit', null, null, {file: res});
+                ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
                 this.loader.hide();
                 return;
             }
-            if (res.type == 'file') {
+
+            if (res == 2) {
                 this.load( res.path.substr(0,res.path.lastIndexOf('/')));
                 return;
             }
 
-            if (res.type == 'dir' && res.path == '/trash') {
+            if (pPath == '/trash' || pPath.substr(0,7) == '/trash/') {
                 this.boxAction.hide();
             } else {
                 this.boxAction.show();
@@ -1147,25 +1146,22 @@ ka.files = new Class({
 
             this.isFirstLoad = false;
 
-            if (res.type == 'dir') {
+            this.setTitle();
+            this.currentFile = {path: this.current};
+            this.currentFile.ext = this.currentFile.path.substr(this.currentFile.path.lastIndexOf('.'));
 
-                this.setTitle();
-                this.currentFile = res;
-                this.currentFile.ext = this.currentFile.path.substr(this.currentFile.path.lastIndexOf('.'));
+            this.fileContainer.store('file', res);
 
-                this.fileContainer.store('file', res);
+            if (this.currentFile.writeaccess == true) {
+                this.boxAction.show();
+            }
 
-                if (this.currentFile.writeaccess == true) {
-                    this.boxAction.show();
-                }
+            this.address.value = this.current;
 
-                this.address.value = this.current;
+            this.render(res);
 
-                this.render(res.items);
-
-                if (this.current == '/' && this.options.withSidebar) {
-                    this.renderInfos(res.items);
-                }
+            if (this.current == '/' && this.options.withSidebar) {
+                this.renderInfos(res);
             }
 
             this.loader.hide();
@@ -1176,7 +1172,7 @@ ka.files = new Class({
                 pCallback();
             }
 
-        }.bind(this)}).post({ path: pPath });
+        }.bind(this)}).get({ path: pPath });
     },
 
     reRender: function () {
@@ -1551,7 +1547,7 @@ ka.files = new Class({
 
         if (item) {
 
-            if (file && file.path != '/trash') {
+            if (file && file.path != '/trash' && file.path.substr(0,7) != '/trash/') {
                 this.startDrag(pEvent, item);
             }
 
@@ -1593,7 +1589,10 @@ ka.files = new Class({
                 this.fireEvent('select', [file, item]);
                 this.fireEvent('dblClick', [file, item]);
             } else {
-                this.loadPath(file.path);
+                if (file.type == 'file')
+                    ka.wm.openWindow('admin', 'files/edit', null, null, {file: file});
+                else
+                    this.loadPath(file.path);
             }
         }
 
@@ -2156,7 +2155,7 @@ ka.files = new Class({
                 src: _path + 'inc/template/admin/images/ext/' + bg + '-mini.png'
             });
 
-            var size = file.size;
+            var size = ka.bytesToSize(file.size);
 
             if (file.type == 'dir') {
                 size = _('Directory');
@@ -2404,15 +2403,10 @@ ka.files = new Class({
                 }.bind(this)).inject(this.context)
             }
 
-            var externalPath = _path + pFile.path;
-            if (pFile.path.substr(0, 1) == '/') {
-                externalPath = _path + pFile.path.substr(1, pFile.path.length);
-            }
-
             var openExternal = new Element('a', {
                 html: _('Open external'),
                 target: '_blank',
-                href: externalPath
+                href: _path+'admin/files/redirect?'+Object.toQueryString({path:pFile.path, noCache: (new Date()).getTime()})
             }).inject(this.context)
 
 

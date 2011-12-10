@@ -987,7 +987,7 @@ class kryn {
         global $cfg;
 
 
-        if (strpos($pUrl, 'http') === false) {
+        if (strpos($pUrl, 'http') === false && kryn::$domain) {
 
             if (kryn::$domain['master'] != 1)
                 $pUrl = kryn::$domain['lang'] . '/' . $pUrl;

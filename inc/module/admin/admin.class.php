@@ -58,6 +58,7 @@ class admin {
         require(PATH_MODULE . 'admin/adminSearchIndexer.class.php');
         require(PATH_MODULE . 'admin/adminStore.class.php');
         require(PATH_MODULE . 'admin/adminBackup.class.php');
+        require(PATH_MODULE . 'admin/adminFS.class.php');
 
         tAssign("admin", true);
 
