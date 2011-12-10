@@ -24,7 +24,16 @@
 
 .ka-progress-bar {
     -moz-border-radius: 3px;
-    background-color: #3a9ac6;
+    background: #eaebed; /* Old browsers */
+
+    background: -moz-linear-gradient(top,  #eaebed 0%, #e1e5e8 50%, #cbd1d6 51%, #e8e8ea 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eaebed), color-stop(50%,#e1e5e8), color-stop(51%,#cbd1d6), color-stop(100%,#e8e8ea)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #eaebed 0%,#e1e5e8 50%,#cbd1d6 51%,#e8e8ea 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #eaebed 0%,#e1e5e8 50%,#cbd1d6 51%,#e8e8ea 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #eaebed 0%,#e1e5e8 50%,#cbd1d6 51%,#e8e8ea 100%); /* IE10+ */
+    background: linear-gradient(top,  #eaebed 0%,#e1e5e8 50%,#cbd1d6 51%,#e8e8ea 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eaebed', endColorstr='#e8e8ea',GradientType=0 ); /* IE6-9 */
+
     height: 14px;
     position: absolute;
     left: 0px;
