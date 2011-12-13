@@ -39,8 +39,6 @@ class adminFilemanager {
             }
         }
 
-        //error_log("getFs($pPath) returns $class (".rand().")");
-
         if(self::$fsObjects[$class]) return self::$fsObjects[$class];
 
         if ($file)
@@ -565,7 +563,6 @@ $pAccess from all
         if (!krynAcl::checkAccess(3, $newPath, 'write', true)) return array('error' => 'access_denied');
 
         $content = kryn::fileRead($_FILES['file']['tmp_name']);
-        error_log($_FILES['file']['tmp_name'].': '.$content);
         self::$fs->setContent(self::normalizePath($newPath), $content);
         @unlink($_FILES["file"]["tmp_name"]);
 
@@ -755,11 +752,7 @@ $pAccess from all
 
                 $newFs = self::getFs($newPath);
 
-                error_log('file: '.$file. ' newPath: '.$newPath);
-                error_log('old: '.$oldFs->magicFolderName. ' new: '.$newFs->magicFolderName);
-
                 if ($newFs === $oldFs) {
-                    error_log('same');
                     if ($move)
                         $newFs->move(self::normalizePath($file), self::normalizePath($newPath));
                     else

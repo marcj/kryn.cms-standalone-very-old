@@ -183,8 +183,6 @@ class adminFS {
      * @param $pPathTarget
      */
     public function copy($pPathSource, $pPathTarget){
-
-        error_log("copy: $pPathSource, $pPathTarget ");
         if (!file_exists('inc/template'.$pPathSource)) return false;
         return copyr('inc/template'.$pPathSource, 'inc/template'.$pPathTarget);
     }
