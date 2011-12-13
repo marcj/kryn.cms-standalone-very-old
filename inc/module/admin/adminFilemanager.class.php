@@ -39,6 +39,8 @@ class adminFilemanager {
             }
         }
 
+        //error_log("getFs($pPath) returns $class (".rand().")");
+
         if(self::$fsObjects[$class]) return self::$fsObjects[$class];
 
         if ($file)
@@ -57,8 +59,8 @@ class adminFilemanager {
         $path = str_replace('//', '/', $path);
         if ($path != '/' && substr($path,-1) == '/') $path = substr($path,0,-1);
 
-        $access = krynAcl::checkAccess(3, $path, 'read', true);
-        if(!$access) return array('error'=>'access_denied');
+        if (!krynAcl::checkAccess(3, $path, 'read', true))
+            return array('error'=>'access_denied');
 
         self::$fs = self::getFs($path);
 
@@ -127,7 +129,7 @@ class adminFilemanager {
                 return self::diffFiles(getArgv('from'), getArgv('to'));
 
             case 'paste':
-                return self::paste();
+                return self::paste($path);
             case 'search':
                 return self::search($path, getArgv('q'));
         }
@@ -163,7 +165,12 @@ class adminFilemanager {
     }
 
     public static function getFile($pPath) {
-        json(self::$fs->getFile(self::normalizePath($pPath)));
+
+        $file = self::$fs->getFile(self::normalizePath($pPath));
+        if ($file)
+            $file['writeaccess'] = krynAcl::checkAccess(3, $pPath, 'write', true);
+
+        json($file);
     }
 
     public static function getSize($pPath) {
@@ -700,58 +707,74 @@ $pAccess from all
             }
 
         } else {
-            self::$fs->deleteFile($pPath);
+            self::$fs->deleteFile(self::normalizePath($pPath));
         }
 
         return true;
     }
 
-    public static function paste() {
+    public static function paste($pToPath) {
 
-        $from = getArgv('from');
+        if (!krynAcl::checkAccess(3, $pToPath, 'write', true)) return array('array'=>'access_denied');
+
+        $files = getArgv('files');
         $move = (getArgv('move') == 1) ? true : false;
 
-        $to = str_replace('..', '', getArgv('to'));
+        if (is_array($files)) {
 
-        if (substr($to, -1, 1) != '/') //need last /
-            $to .= '/';
+            $exist = false;
+            foreach ($files as $file) {
 
-        if (substr($to, 0, 1) != '/') //need first /
-            $to = '/' . $to;
+                $newPath = $pToPath.'/'.basename($file);
+                $fs = self::getFs($newPath);
 
-
-        $access = krynAcl::checkAccess(3, $to, 'write', true);
-        if (!$access) json('no-access');
-
-        $to = "inc/template$to";
-
-        $exist = false;
-        if (is_array($from)) {
-            foreach ($from as $file) {
-                if (file_exists($to . basename($file)))
+                if ($fs->fileExists(self::normalizePath($newPath))) {
                     $exist = true;
-            }
-        }
-
-        if (getArgv('overwrite') != "true" && $exist) {
-            return json(array('exist' => true));
-        }
-
-        if (is_array($from)) {
-            foreach ($from as $file) {
-                $file = str_replace("..", "", $file);
-
-                $access = krynAcl::checkAccess(3, '/' . $file, 'read', true);
-                if ($access) {
-                    if ($move)
-                        rename("inc/template/$file", $to . basename($file));
-                    else
-                        copyr("inc/template/$file", $to . basename($file));
+                    break;
                 }
             }
+
+            if (getArgv('overwrite') != "true" && $exist) {
+                return json(array('exist' => true));
+            }
+
+
+            foreach ($files as $file) {
+
+                $file = str_replace('..', '', $file);
+                $file = str_replace(chr(0), '', $file);
+
+                if (!krynAcl::checkAccess(3, $file, 'read', true)) continue;
+
+                if ($move)
+                    if (!krynAcl::checkAccess(3, $file, 'write', true)) continue;
+
+                $oldFs = self::getFs($file);
+                $newPath = $pToPath.'/'.basename($file);
+                if (!krynAcl::checkAccess(3, $newPath, 'write', true)) continue;
+
+                $newFs = self::getFs($newPath);
+
+                error_log('file: '.$file. ' newPath: '.$newPath);
+                error_log('old: '.$oldFs->magicFolderName. ' new: '.$newFs->magicFolderName);
+
+                if ($newFs === $oldFs) {
+                    error_log('same');
+                    if ($move)
+                        $newFs->move(self::normalizePath($file), self::normalizePath($newPath));
+                    else
+                        $newFs->copy(self::normalizePath($file), self::normalizePath($newPath));
+                } else {
+                    $content = $oldFs->getContent(self::normalizePath($file));
+                    $newFs->setContent(self::normalizePath($newPath), $content);
+                    if ($move)
+                        $oldFs->deteleFile(self::normalizePath($file));
+                }
+
+            }
         }
 
-        json(1);
+        return true;
     }
 
     public static function search($pPath, $pQuery) {
@@ -849,6 +872,7 @@ $pAccess from all
         foreach($items as &$file){
             $file['writeaccess'] = krynAcl::checkAccess(3, $file['path'], 'write', true);
         }
+
         return $items;
     }
 

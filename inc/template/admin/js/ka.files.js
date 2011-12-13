@@ -42,6 +42,9 @@ ka.files = new Class({
         selectionMultiple: false
     },
 
+    rootFile: {},
+    path2File: {},
+
     container: false,
     win: false,
 
@@ -57,12 +60,6 @@ ka.files = new Class({
 
         this._createLayout();
         this.loadModules();
-
-        if (this.options.selectionValue) {
-            this.loadPath(this.options.selectionValue);
-        } else {
-            this.loadPath(this.options.path);
-        }
 
         this.win.border.addEvent('click', function () {
             if (this.context) {
@@ -81,6 +78,28 @@ ka.files = new Class({
 
             this.cancelUploads();
         }.bind(this));
+
+
+        this.loadRoot();
+    },
+
+    loadRoot: function(){
+
+        new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res) {
+
+            if (!res){
+                this.win._alert(_('Access denied to /.'), function(res){
+                    this.win.close();
+                }.bind(this))
+            } else {
+                this.rootFile = res;
+                if (this.options.selectionValue) {
+                    this.loadPath(this.options.selectionValue);
+                } else {
+                    this.loadPath(this.options.path);
+                }
+            }
+        }.bind(this)}).get({path: '/'});
     },
 
     initHotkeys: function () {
@@ -927,8 +946,6 @@ ka.files = new Class({
             if (!res) return;
             Object.each(selectedFiles, function (item) {
 
-                logger(item);
-
                 new Request.JSON({url: _path + 'admin/files/deleteFile', noCache: 1, onComplete: function (res) {
                     this.reload();
                 }.bind(this)}).get({path: item.path});
@@ -981,7 +998,7 @@ ka.files = new Class({
                     pCallback();
                 }
             }
-        }.bind(this)}).post({from: pFilePaths, to: pTargetDirectory, overwrite: pOverwrite, move: 1});
+        }.bind(this)}).post({files: pFilePaths, path: pTargetDirectory, overwrite: pOverwrite, move: 1});
 
     },
 
@@ -996,7 +1013,7 @@ ka.files = new Class({
             } else {
                 this.reload();
             }
-        }.bind(this)}).post({from: pFilePaths, to: pTargetDirectory, overwrite: pOverwrite});
+        }.bind(this)}).post({files: pFilePaths, path: pTargetDirectory, overwrite: pOverwrite});
 
     },
 
@@ -1015,7 +1032,8 @@ ka.files = new Class({
     },
 
     getUpPath: function () {
-        if (this.current.substr(this.current.length-1) == '/') this.current = this.current.substr(0, this.current.length-1);
+        if (this.current != '/' && this.current.substr(this.current.length-1) == '/')
+            this.current = this.current.substr(0, this.current.length-1);
         var pos = this.current.substr(0, this.current.length - 1).lastIndexOf('/');
         return this.current.substr(0, pos + 1);
     },
@@ -1114,20 +1132,69 @@ ka.files = new Class({
             this.curRequest.cancel();
         }
 
+        if (pPath != '/' && pPath.substr(pPath.length-1) == '/')
+            pPath = pPath.substr(0, pPath.length-1);
+
+        if (pPath.substr(0, 1) != '/')
+            pPath = '/'+pPath;
+
         this.loader.show();
+
+        this.currentFile = this.path2File[pPath];
+        if (!this.currentFile) {
+            //we entered a own path
+            //check first what it is, and the continue;
+            this.curRequest = new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res){
+
+                this.loader.hide();
+                if ( res == 2 || (res && !res.error == 'access_denied')) {
+                    this.win._alert(_('%s: Access denied').replace('%s', pPath));
+                    return;
+                }
+
+                if (!res) {
+                    this.win._alert(_('%s: file not found').replace('%s', pPath));
+                    return;
+                }
+
+                this.currentFile = res;
+
+                if (this.currentFile.type == 'dir'){
+                    this.path2File[res.path] = this.currentFile;
+                    this.load(pPath);
+                } else if (this.currentFile.type == 'file') {
+                    ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
+                }
+
+            }.bind(this)}).get({path: pPath});
+            return;
+        } else {
+            this.currentFile.ext = this.currentFile.path.substr(this.currentFile.path.lastIndexOf('.'));
+        }
+
+        if (this.currentFile.writeaccess == true) {
+            this.boxAction.show();
+        } else {
+            this.boxAction.hide();
+        }
 
         this.curRequest = new Request.JSON({url: _path + 'admin/files/getFiles', noCache: 1, onComplete: function (res) {
 
+            this.loader.hide();
+            if (res == 3 || !res.error == 'access_denied') {
+                this.win._alert(_('%s: Access denied').replace('%s', pPath));
+                return;
+            }
+
             if (!res) {
                 this.loader.hide();
-                alert(_('%s: file not found').replace('%s', pPath));
+                this.win._alert(_('%s: file not found').replace('%s', pPath));
                 return;
             }
             if (res == 2 && this.isFirstLoad == false) {
                 this.history[ this.historyIndex ] = null;
                 this.historyIndex--;
                 ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
-                this.loader.hide();
                 return;
             }
 
@@ -1147,14 +1214,8 @@ ka.files = new Class({
             this.isFirstLoad = false;
 
             this.setTitle();
-            this.currentFile = {path: this.current};
-            this.currentFile.ext = this.currentFile.path.substr(this.currentFile.path.lastIndexOf('.'));
 
             this.fileContainer.store('file', res);
-
-            if (this.currentFile.writeaccess == true) {
-                this.boxAction.show();
-            }
 
             this.address.value = this.current;
 
@@ -1187,6 +1248,9 @@ ka.files = new Class({
         var nfiles = [];
         //first folders, then files
         Object.each(this.files, function (f) {
+
+            this.path2File[f.path] = f;
+
             if (f.type == 'dir') {
                 if (this.options.onlyUserDefined == true && (this._krynFolders.indexOf(f.path+'/') >= 0 || this._modules.indexOf(f.path+'/') >= 0 )) {
                     return;
@@ -2475,6 +2539,7 @@ ka.files = new Class({
             deactivate(settings);
             deactivate(rename);
         }
+
 
         if (ka.getClipboard().type != 'filemanager' && ka.getClipboard().type != 'filemanagerCut') {
             deactivate(paste);

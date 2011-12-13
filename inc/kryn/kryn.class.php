@@ -1531,6 +1531,7 @@ class kryn {
         $f = false;
         foreach ($_GET as $k => &$v) {
             if ($k == '_kurl') continue;
+            if (is_array($v)) continue;
             kryn::$urlWithGet .= (!$f ? '?' : '&') . urlencode($k) . '=' . urlencode($v);
             if ($f == false) $f = true;
         }

@@ -60,7 +60,8 @@ class adminFS {
      *  items => if it's a directory then here should be all files inside it, with the same infos above (except items)
      *  )
      * @param $pPath
-     * @return array|int|bool Returns false if not exsists, return 2 if its not a directoru or returns the items as array
+     * @return array|int|bool Returns false if not exists, return 2 if its not a directory, return 3 if the webserver
+     * does not have access to this path or returns the items as array
      */
     public function getFiles($pPath){
 
@@ -72,12 +73,15 @@ class adminFS {
 
         if (!file_exists($pPath))
             return false;
+
         if (!is_dir($pPath)) return 2;
 
         if (substr($pPath,-1) != '/')
             $pPath .= '/';
 
-        $h = opendir($pPath);
+        $h = @opendir($pPath);
+        if (file_exists($pPath) && !$h) return 3;
+
         $items = array();
         while ($file = readdir($h)) {
             if ($file == '.' || $file == '..') continue;
@@ -97,6 +101,8 @@ class adminFS {
 
     /**
      * @param $pPath
+     * @return int|bool|array Return false if the file doenst exist, return 2 if the webserver does not have access
+     * or return array if anything is OK.
      */
     public function getFile($pPath){
 
@@ -104,6 +110,8 @@ class adminFS {
 
         if(!file_exists($pPath))
             return false;
+
+        if (!is_readable($pPath)) return 2;
 
         $type = (is_dir($pPath))?'dir':'file';
 
@@ -175,7 +183,10 @@ class adminFS {
      * @param $pPathTarget
      */
     public function copy($pPathSource, $pPathTarget){
-        return copy('inc/template'.$pPathSource, 'inc/template'.$pPathTarget);
+
+        error_log("copy: $pPathSource, $pPathTarget ");
+        if (!file_exists('inc/template'.$pPathSource)) return false;
+        return copyr('inc/template'.$pPathSource, 'inc/template'.$pPathTarget);
     }
 
     /**
@@ -228,7 +239,7 @@ class adminFS {
      * @param $pPath
      * @return bool|int
      */
-    public function remove($pPath){
+    public function deleteFile($pPath){
 
         //this filesystem layer moves the files to trash instead of real removing
         //the class above 'adminFilemanager' handles the deletions in the trash folder
