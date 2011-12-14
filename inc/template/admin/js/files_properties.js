@@ -19,7 +19,7 @@ var admin_files_properties = new Class({
         this.tabButtons = {};
         this.tabButtons['general'] = this.tabGroup.addButton(_('General'), this.changeType.bind(this, 'general'));
         this.tabButtons['access'] = this.tabGroup.addButton(_('Access'), this.changeType.bind(this, 'access'));
-        this.tabButtons['filesystem'] = this.tabGroup.addButton(_('Filesystem'), this.changeType.bind(this, 'filesystem'));
+        //this.tabButtons['filesystem'] = this.tabGroup.addButton(_('Filesystem'), this.changeType.bind(this, 'filesystem'));
         this.tabButtons['versions'] = this.tabGroup.addButton(_('Versions'), this.changeType.bind(this, 'versions'));
 
         this.panes = {};
@@ -116,7 +116,7 @@ var admin_files_properties = new Class({
             this.tabButtons['versions'].hide();
         }
 
-        if (this.file.isDir && this.file.path == '/') {
+        if (this.file.type == 'dir' && this.file.path == '/') {
             this.win.setTitle('/');
         } else {
             this.win.setTitle(this.file.name);
@@ -136,7 +136,7 @@ var admin_files_properties = new Class({
         });
 
         var tdClass = 'default';
-        if (this.file.isDir) {
+        if (this.file.type == 'dir') {
             tdClass += ' dir';
         } else {
             tdClass += ' ' + this.file.ext;
@@ -149,7 +149,7 @@ var admin_files_properties = new Class({
 
         this.mkTr();
         this.mkTd(_('Type'))
-        if (this.file.type='dir') {
+        if (this.file.type == 'dir') {
             this.mkTd(_('Folder'));
         } else {
             this.mkTd(this.file.ext);
@@ -176,16 +176,16 @@ var admin_files_properties = new Class({
         this.mkTr();
         this.mkTd(_('Size'));
 
-        if (this.file.isDir) {
+        if (this.file.type == 'dir') {
             this.sizeTd = this.mkTd(_('Loading ...'));
             this.loadSize();
         } else {
-            this.sizeTd = this.mkTd(this.file.size);
+            this.sizeTd = this.mkTd(ka.bytesToSize(this.file.size));
         }
 
 
         this.loadAccess();
-        this.loadFilestem();
+        //this.loadFilestem();
         this.loadVersions();
     },
 
@@ -656,10 +656,10 @@ var admin_files_properties = new Class({
 
         this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/getSize', onComplete: function (res) {
             if (res) {
-                this.sizeTd.set('text', res.sizeFormat + ' (' + res.size + ' Bytes)');
+                this.sizeTd.set('text', ka.bytesToSize(res.size) + ' (' + res.size + ' Bytes)');
                 this.mkTr().inject(this.sizeTd.getParent(), 'after');
                 this.mkTd(_('Contains'));
-                this.mkTd(_('%1 files, %2 directories').replace('%1', res.files).replace('%2', res.dirs));
+                this.mkTd(_('%1 files, %2 directories').replace('%1', res.fileCount).replace('%2', res.folderCount));
             }
         }.bind(this)}).post({path: this.file.path, withSize: 1});
 

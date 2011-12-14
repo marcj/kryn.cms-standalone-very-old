@@ -123,11 +123,12 @@ class adminFS {
         $mtime = filemtime($pPath);
 
         return array(
-            'path' => str_replace('inc/template', '', $pPath),
-            'name' => $name,
-            'type' => $type,
+            'path'  => str_replace('inc/template', '', $pPath),
+            'name'  => $name,
+            'type'  => $type,
             'ctime' => $ctime,
-            'mtime' => $mtime
+            'mtime' => $mtime,
+            'size'  => filesize($pPath)
         );
     }
 
@@ -263,16 +264,21 @@ class adminFS {
 
     }
 
+    /**
+     * @param $pPath
+     * @return bool|int Returns true if access permitted, false if denied and -1 if has not been defined
+     */
     public function getPublicAccess($pPath){
-
-        $res = $this->getFile($pPath);
 
         $path = 'inc/template'.$pPath;
 
-        if ($res['type'] == 'file') {
+        if (!file_exists($path)) return false;
+
+        if (!is_dir($path)) {
             $htaccess = dirname($path) . '/' . '.htaccess';
         } else {
             $htaccess = $path . '/' . '.htaccess';
+            $name = basename($pPath);
         }
 
         if (@file_exists($htaccess)) {
@@ -281,26 +287,65 @@ class adminFS {
             @preg_match_all('/<Files ([^>]*)>\W*(\w*) from all[^<]*<\/Files>/smi', $content, $matches, PREG_SET_ORDER);
             if (count($matches) > 0) {
                 foreach ($matches as $match) {
-                    $match[1] = str_replace('"', '', $match[1]);
-                    if ($res['type'] == 'dir') {
-                        $res['htaccess'][] = array(
-                            'file' => $match[1],
-                            'access' => $match[2]
-                        );
-                    }
 
-                    if ($res['name'] == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
-                        $res['thishtaccess'] = array(
-                            'file' => $match[1],
-                            'access' => $match[2]
-                        );
+                    $match[1] = str_replace('"', '', $match[1]);
+
+                    if ($name == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
+                        return strtolower($match[2])=='allow'?true:false;
                     }
                 }
             }
         }
-
+        return -1;
     }
 
+    /**
+     * @param $pPath
+     * @param bool $pAccess true if allow, false if deny and -1 if not defined
+     * @return bool
+     */
+    public function setPublicAccess($pPath, $pAccess = false){
+
+        $path = 'inc/template'.$pPath;
+
+        if (!is_dir($path) == 'file') {
+        $htaccess = dirname($path) . '/' . '.htaccess';
+        } else {
+            $htaccess = $path . '/' . '.htaccess';
+        }
+
+        if ($pAccess != 'allow' && $pAccess != 'deny' && $pAccess != '')
+            return false;
+
+        if (!file_exists($htaccess) && !touch($htaccess)) {
+            klog('files', t('Can not set the file access, because the system can not create the .htaccess file'));
+            return false;
+        }
+
+        $content = kryn::fileRead($htaccess);
+
+        if (!is_dir($pPath)) {
+            $filename = '"' . basename($pPath) . '"';
+            $filenameesc = preg_quote($filename, '/');
+        } else {
+            $filename = "*";
+            $filenameesc = '\*';
+        }
+
+        $content = preg_replace('/<Files ' . $filenameesc . '>\W*(\w*) from all[^<]*<\/Files>/i', '', $content);
+
+        if ($pAccess != '') {
+
+            $content .= "
+        <Files $filename>
+        $pAccess from all
+        </Files>";
+        }
+
+        kryn::fileWrite($htaccess, $content);
+
+        return true;
+    }
 }
 
 ?>

@@ -233,47 +233,11 @@ class adminFilemanager {
 
     public static function setAccess($pPath, $pAccess) {
 
-        if (is_dir($pPath))
-            $dir = substr($pPath, 0, -1);
-        else
-            $dir = dirname($pPath);
+        if (strtolower($pAccess) == 'allow') $pAccess = true;
+        if (strtolower($pAccess) == 'deny') $pAccess = false;
+        if ($pAccess == '') $pAccess = -1;
 
-        if ($pAccess != 'allow' && $pAccess != 'deny' && $pAccess != '')
-            return false;
-
-        if (!file_exists($dir)) {
-            return false;
-        }
-
-        $htaccess = $dir . '/.htaccess';
-        if (!file_exists($htaccess) && !touch($htaccess)) {
-            klog('files', _('Can not set the file access, because the system can not create the .htaccess file'));
-            return false;
-        }
-
-        $content = kryn::fileRead($htaccess);
-
-        if (!is_dir($pPath)) {
-            $filename = '"' . basename($pPath) . '"';
-            $filenameesc = $filename;
-        } else {
-            $filename = "*";
-            $filenameesc = '\*';
-        }
-
-        $content = preg_replace('/<Files ' . $filenameesc . '>\W*(\w*) from all[^<]*<\/Files>/i', '', $content);
-
-        if ($pAccess != '') {
-
-            $content .= "
-<Files $filename>
-$pAccess from all
-</Files>";
-        }
-
-        kryn::fileWrite($htaccess, $content);
-
-        return true;
+        return self::$fs->setPublicAccess(self::normalizePath($pPath), $pAccess);
 
     }
 
