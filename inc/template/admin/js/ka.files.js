@@ -1025,8 +1025,6 @@ ka.files = new Class({
         }
 
         if (this.history[ this.historyIndex ] != pPath) {
-            this.historyIndex++;
-            this.history[ this.historyIndex ] = pPath;
             this.load(pPath, pCallback);
         }
     },
@@ -1208,6 +1206,10 @@ ka.files = new Class({
             } else {
                 this.boxAction.show();
             }
+
+
+            this.historyIndex++;
+            this.history[ this.historyIndex ] = pPath;
 
             this.current = pPath;
 

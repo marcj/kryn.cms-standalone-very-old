@@ -12,7 +12,18 @@ class adminFS_AWS_S3 extends adminFS {
         require_once('inc/lib/amazonSdk/sdk.class.php');
         $this->config = $pParams;
 
-        $this->aws = new AmazonS3($this->config['key'], $this->config['secret_key']);
+        error_log(print_r($this->config,true));
+
+        CFCredentials::set(array(
+            '@default' => array(
+                'key' => $this->config['key'],
+                'secret' => $this->config['secret_key'],
+                'default_cache_config' => 'cache/object/',
+                'certificate_authority' => false
+            )
+        ));
+
+        $this->aws = new AmazonS3();
     }
 
     public function createFolder($pPath){
