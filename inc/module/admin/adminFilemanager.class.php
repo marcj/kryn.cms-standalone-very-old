@@ -626,7 +626,7 @@ class adminFilemanager {
 
 
     public static function recover($pRsn) {
-        //todo
+
         $item = dbTableFetch('system_files_log', 1, "rsn = " . ($pRsn + 0));
         if ($item['rsn'] > 0) {
 

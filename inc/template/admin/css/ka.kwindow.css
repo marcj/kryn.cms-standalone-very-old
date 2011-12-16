@@ -148,8 +148,18 @@
     color: #111;
     -moz-border-radius-topleft: 7px;
     -moz-border-radius-topright: 7px;
-    background-image: url(../images/win-top-bg.png);
-    background-repeat: repeat-x;
+
+    background: #afafaf; /* Old browsers */
+    background: -moz-linear-gradient(top,  #afafaf 0%, #999999 60%, #939393 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#afafaf), color-stop(60%,#999999), color-stop(100%,#939393)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #afafaf 0%,#999999 60%,#939393 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #afafaf 0%,#999999 60%,#939393 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #afafaf 0%,#999999 60%,#939393 100%); /* IE10+ */
+    background: linear-gradient(top,  #afafaf 0%,#999999 60%,#939393 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#afafaf', endColorstr='#939393',GradientType=0 ); /* IE6-9 */
+
+
+
     position: relative;
     cursor: default;
     border-bottom: 1px solid #555;

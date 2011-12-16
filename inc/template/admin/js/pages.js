@@ -705,12 +705,12 @@ var admin_pages = new Class({
          }).inject( this.win.border );
          */
 
-        this.languageSelect = new ka.Select().inject(this.win.border);
+        this.languageSelect = new ka.Select().inject(this.win.titleGroups);
 
         document.id(this.languageSelect).setStyles({
             'position': 'absolute',
             'left': 5,
-            'top': 26,
+            'top': 0,
             'width': 140
         });
 

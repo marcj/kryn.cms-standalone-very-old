@@ -403,9 +403,9 @@ ka.windowEdit = new Class({
             }
 
             this.versioningSelect = new ka.Select();
-            this.versioningSelect.inject(this.win.border);
+            this.versioningSelect.inject(this.win.titleGroups);
             this.versioningSelect.setStyle('width', 120);
-            this.versioningSelect.setStyle('top', 26);
+            this.versioningSelect.setStyle('top', 0);
             this.versioningSelect.setStyle('right', versioningSelectRight);
             this.versioningSelect.setStyle('position', 'absolute');
 
@@ -421,9 +421,9 @@ ka.windowEdit = new Class({
             this.win.extendHead();
 
             this.languageSelect = new ka.Select();
-            this.languageSelect.inject(this.win.border);
+            this.languageSelect.inject(this.win.titleGroups);
             this.languageSelect.setStyle('width', 120);
-            this.languageSelect.setStyle('top', 26);
+            this.languageSelect.setStyle('top', 0);
             this.languageSelect.setStyle('right', 5);
             this.languageSelect.setStyle('position', 'absolute');
 
