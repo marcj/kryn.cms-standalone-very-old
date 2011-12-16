@@ -1829,7 +1829,8 @@ ka.files = new Class({
 
                     if (this.lastPreviewPath != image) return;
 
-                    var fn = 'kaFilesUpdatePreviewPosition'+(new Date().getTime()+Math.random());
+                    var fn = 'kaFilesUpdatePreviewPosition'+(new Date().getTime())+(Math.random()).toString().substr(2);
+
                     window[fn] = function () {
                         img.position({relativeTo: this.previewDiv});
                     }.bind(this);
