@@ -1823,27 +1823,23 @@ ka.files = new Class({
         var file = this.lastClickedItem.retrieve('file'), image;
         
         if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
-            image = _path + 'inc/template/' + file.path;
+            image = _path + 'admin/files/preview?' + Object.toQueryString({path: file.path, mtime:file.mtime});
             Asset.image(image, {
                 onLoad: function () {
 
                     if (this.lastPreviewPath != image) return;
 
+                    var fn = 'kaFilesUpdatePreviewPosition'+(new Date().getTime()+Math.random());
+                    window[fn] = function () {
+                        img.position({relativeTo: this.previewDiv});
+                    }.bind(this);
+
                     this.previewDiv.empty();
                     var img = new Element('img', {
+                        onLoad: fn+'()',
                         src: image,
-                        style: 'position: relative;'
+                        style: 'position: relative; align: center;'
                     }).inject(this.previewDiv);
-
-                    (function () {
-                        img.position({relativeTo: this.previewDiv});
-                    }).delay(10, this);
-                    (function () {
-                        img.position({relativeTo: this.previewDiv});
-                    }).delay(50, this);
-                    (function () {
-                        img.position({relativeTo: this.previewDiv});
-                    }).delay(250, this);
 
                 }.bind(this)
             });

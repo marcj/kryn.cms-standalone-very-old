@@ -29,8 +29,7 @@ class adminFS_AWS_S3 extends adminFS {
 
     public function createFolder($pPath){
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1).'/', array(
-            'acl' => AmazonS3::ACL_PUBLIC,
-            'contentType' => 'text/plain'
+            'acl' => AmazonS3::ACL_PUBLIC
         ));
         return $response->isOk();
     }

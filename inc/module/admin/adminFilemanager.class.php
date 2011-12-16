@@ -75,6 +75,8 @@ class adminFilemanager {
                 return self::getFile($path);
             case 'getSize':
                 return self::getSize($path);
+            case 'preview':
+                return self::preview($path);
 
             case 'redirect':
                 return self::redirectToPublicUrl($path);
@@ -130,7 +132,22 @@ class adminFilemanager {
                 return self::paste($path);
             case 'search':
                 return self::search($path, getArgv('q'));
+
         }
+    }
+
+    public static function preview($pPath){
+        $expires = 3600;
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header('Content-Type: image/png');
+
+        $content = self::$fs->getContent(self::normalizePath($pPath));
+        $im = imagecreatefromstring($content);
+        imagepng($im);
+        imagedestroy($im);
+        exit;
     }
 
     public static function redirectToPublicUrl($pPath){
@@ -422,6 +439,12 @@ class adminFilemanager {
     }
 
     public static function imageThumb($pPath) {
+
+        $expires = 3600;
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header('Content-Type: image/png');
 
         self::$fs = self::getFs($pPath);
 
