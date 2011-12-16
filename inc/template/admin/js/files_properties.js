@@ -192,7 +192,11 @@ var admin_files_properties = new Class({
     loadAccess: function () {
 
         var p = this.panes['access'];
+        p.set('html', _('Loading ...'));
 
+    },
+
+    renderAccess: function(pAccess){
         p.empty();
 
         if (this.file.writeaccess == 0) {
@@ -205,12 +209,7 @@ var admin_files_properties = new Class({
 
 
         new Element('h3', {
-            text: _('Public access')
-        }).inject(p);
-
-        new Element('div', {
-            text: _('Following rules will be write in a regular .htaccess file. Please make sure, that your webserver allows such htaccess rules.'),
-            style: 'color: gray; padding: 5px'
+            text: _('Public access'), help: 'admin/files-public-access'
         }).inject(p);
 
         this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p);
@@ -223,64 +222,25 @@ var admin_files_properties = new Class({
             this.mkTd(_('Access of this file'));
         }
 
-        var select = new Element('select').addEvent('change', this.saveAccess.bind(this));
-        this.accessSelect = select;
+        this.accessSelect = new ka.Select();
+        this.accessSelect.addEvent('change', this.saveAccess.bind(this));
 
-        new Element('option', {
-            text: _('-- not defined --'),
-            value: ''
-        }).inject(select);
-        new Element('option', {
-            text: _('Allow'),
-            value: 'allow'
-        }).inject(select);
-        new Element('option', {
-            text: _('Deny'),
-            value: 'deny'
-        }).inject(select);
+        this.accessSelect.add('', _('-- not defined --'));
+        this.accessSelect.add('allow', _('Allow'));
+        this.accessSelect.add('deny', _('Deny'));
 
-        if (this.file.thishtaccess) {
-            select.value = this.file.thishtaccess.access;
-        }
+        var td = this.mkTd(this.accessSelect);
 
-        var td = this.mkTd(select);
+        this.accessSelect.setValue(pAccess.publicAccess);
 
         new Element('div', {
             style: 'color: silver',
-            text: _('Saves after change')
+            text: _('Saves automatically')
         }).inject(td);
-
-
-        if (this.file.type == 'dir') {
-            if (this.file.htaccess && this.file.htaccess.length > 0) {
-
-                this.mkTr();
-                this.mkTd(new Element('b', {
-                    text: _('Containing rules')
-                })).set('colspan', 2).setStyle('border-bottom', '1px solid silver');
-
-                this.file.htaccess.each(function (item, index) {
-                    this.mkTr();
-                    this.mkTd(item.file).setStyle('background-color', '#f7f7f7').setStyle('padding-left', 10);
-                    if (item.access != 'allow') {
-                        this.mkTd(new Element('img', {title: _('Access denied'), src: _path + 'inc/template/admin/images/icons/exclamation.png'})).setStyle('background-color', '#f7f7f7');
-                    } else {
-                        this.mkTd(new Element('img', {title: _('Access granted'), src: _path + 'inc/template/admin/images/icons/accept.png'})).setStyle('background-color', '#f7f7f7');
-                    }
-                    ;
-                }.bind(this));
-            }
-        }
-
 
         new Element('h3', {
             text: _('Intern access')
         }).inject(p);
-
-        /*new Element('div', {
-         text: _('These rules are inherited by %s').replace('%s', 'bla'),
-         style: 'padding: 5px; color: gray;'
-         }).inject(p);*/
 
         this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'ka-Table-head ka-Table-body'}).inject(p);
         this.accessTbody = new Element('tbody').inject(this.generalTable);
@@ -477,6 +437,7 @@ var admin_files_properties = new Class({
          */
     },
 
+    /*
     applyFilesystem: function (pAll) {
 
         var button = this.applyFilesystemBtn;
@@ -568,13 +529,13 @@ var admin_files_properties = new Class({
         }.bind(this)}).post({ownerid: inputs[0].value, groupid: inputs[1].value});
 
 
-    },
+    },*/
 
     saveAccess: function () {
 
         var val = this.accessSelect.value;
 
-        this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/setAccess', onComplete: function (res) {
+        this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/setPublicAccess', onComplete: function (res) {
             ka._helpsystem.newBubble(_('File access saved'), this.file.path, 3000);
 
         }.bind(this)}).post({path: this.file.path, access: val});
@@ -638,7 +599,7 @@ var admin_files_properties = new Class({
 
     recover: function (pVersion) {
 
-        this.win._confirm(_('The choosen version will be recovered to original path. The current file gets a new version.'), function (res) {
+        this.win._confirm(_('The chosen version will be recovered to original path. The current file gets a new version.'), function (res) {
             if (!res) return;
 
 

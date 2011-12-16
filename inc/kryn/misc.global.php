@@ -456,37 +456,48 @@ function clearfolder($pFolder) {
 /* 
  * Resize a image to a fix resolution or to max dimension.
  *
- * @param pResolution Defined the resolution of the target image. e.g 1024x700, 1500x100, 500x500 
- * @param $pThumb If you want to resize the image to fix resolution (thumbnails) 
+ * @param string|resource $pSource Defines the target. As path or as image resource.
+ * @param string|bool     $pTarget Defines the target. As path if your wanna save it down or true if you wanna get it
+ *                                 as resource.
+ *
+ * @param string $pResolution Defines the resolution of the target image. e.g 1024x700, 1500x100, 500x500
+ * @param bool   $pThumb      If you want to resize the image to fix resolution (thumbnails)
+ * @param string $pFixSide
+ *
  * @static
 */
-function resizeImage($pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide = '') {
+function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSide = '') {
 
-    list($oriWidth, $oriHeight, $type) = getimagesize($pPath);
-    switch ($type) {
-        case 1:
-            $imagecreate = 'imagecreatefromgif';
-            $imagesave = 'imagegif';
-            break;
-        case 2:
-            $imagecreate = 'imagecreatefromjpeg';
-            $imagesave = 'imagejpeg';
-            break;
-        case 3:
-            $imagecreate = 'imagecreatefrompng';
-            $imagesave = 'imagepng';
-            break;
+    if (is_resource($pSource)){
+        $oriWidth = imagesx($pSource);
+        $oriHeight = imagesy($pSource);
+        $img = $pSource;
+    } else {
+        list($oriWidth, $oriHeight, $type) = getimagesize($pSource);
+        switch ($type) {
+            case 1:
+                $imagecreate = 'imagecreatefromgif';
+                $imagesave = 'imagegif';
+                break;
+            case 2:
+                $imagecreate = 'imagecreatefromjpeg';
+                $imagesave = 'imagejpeg';
+                break;
+            case 3:
+                $imagecreate = 'imagecreatefrompng';
+                $imagesave = 'imagepng';
+                break;
+            default:
+                return false;
+        }
+        $img = $imagecreate($pSource);
     }
 
-    if (!$imagecreate)
-        return;
 
-    $img = $imagecreate($pPath);
 
     list($newWidth, $newHeight) = explode('x', $pResolution);
     $thumpWidth = $newWidth;
     $thumpHeight = $newHeight;
-
 
     //
     // render Thump
@@ -531,10 +542,10 @@ function resizeImage($pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide 
             imagesavealpha($thumpImage, true);
         }
 
+        if ($pTarget === true) return $thumpImage;
         $imagesave($thumpImage, $pTarget);
 
     } else {
-
 
         if ($pFixSide == 'y' || (!$pFixSide && $oriHeight > $oriWidth)) {
             $ratio = $newHeight / ($oriHeight / 100);
@@ -559,6 +570,8 @@ function resizeImage($pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide 
             imagesavealpha($newImage, true);
         }
 
+
+        if ($pTarget === true) return $newImage;
         $imagesave($newImage, $pTarget);
 
     }

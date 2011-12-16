@@ -410,11 +410,11 @@ ka.kwindow = new Class({
         }
     },
 
-    addHotkey: function (pKey, pControl, pAlt, pCallback) {
+    addHotkey: function (pKey, pControlOrMeta, pAlt, pCallback) {
 
         document.addEvent('keydown', function (e) {
             if (this.inFront && (!this.inOverlayMode)) {
-                if (pControl && !e.control) return;
+                if (pControlOrMeta && (!e.control && !e.meta)) return;
                 if (pAlt && !e.alt) return;
                 if (e.key == pKey) {
                     try {

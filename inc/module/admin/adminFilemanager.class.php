@@ -89,10 +89,14 @@ class adminFilemanager {
             case 'recoverVersion':
                 return self::recoverVersion(getArgv('rsn'));
 
-            case 'setAccess':
-                return self::setAccess($path, getArgv('access'));
+            case 'setPublicAccess':
+                return self::setPublicAccess($path, getArgv('access'));
             case 'setInternalAcl':
                 return self::setInternalAcl($path, getArgv('rules'));
+
+            //both, public and internal
+            case 'getAccess':
+                return self::getAccess($path);
 
 
             case 'createFile':
@@ -248,13 +252,20 @@ class adminFilemanager {
         return true;
     }
 
-    public static function setAccess($pPath, $pAccess) {
+    public static function setPublicAccess($pPath, $pAccess) {
 
         if (strtolower($pAccess) == 'allow') $pAccess = true;
         if (strtolower($pAccess) == 'deny') $pAccess = false;
         if ($pAccess == '') $pAccess = -1;
 
         return self::$fs->setPublicAccess(self::normalizePath($pPath), $pAccess);
+
+    }
+
+    public static function getAccess($pPath) {
+
+        $res['public'] = self::$fs->getPublicAccess(self::normalizePath($pPath));
+
 
     }
 
@@ -460,7 +471,7 @@ class adminFilemanager {
         kryn::fileWrite($path, $fileContent);
         resizeImage($path, $path, '120x70', true);
 
-        die(readFile($path));
+        die(readFile($path) );
     }
 
     public static function prepareUpload($pPath) {
@@ -521,8 +532,7 @@ class adminFilemanager {
                     $error = t('No file was uploaded.');
                     break;
                 case 8:
-                    $error =
-                        t('A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.');
+                    $error = t('A PHP extension stopped the file upload.');
                     break;
             }
 
@@ -582,6 +592,7 @@ class adminFilemanager {
      * Removes the magicFolderName in the path, remove .. and // => /
      *
      * @param $pPath
+     * @return string
      */
     public function normalizePath($pPath){
 
@@ -745,10 +756,25 @@ class adminFilemanager {
                     else
                         $newFs->copy(self::normalizePath($file), self::normalizePath($newPath));
                 } else {
-                    $content = $oldFs->getContent(self::normalizePath($file));
-                    $newFs->setContent(self::normalizePath($newPath), $content);
-                    if ($move)
-                        $oldFs->deteleFile(self::normalizePath($file));
+
+                    $file = $oldFs->getFile(self::normalizePath($file));
+
+                    if ($file['type'] == 'file'){
+                        $content = $oldFs->getContent(self::normalizePath($file));
+
+                        $newFs->setContent(self::normalizePath($newPath), $content);
+                        if ($move)
+                            $oldFs->deteleFile(self::normalizePath($file));
+                    } else {
+                        //we need to move a folder from one file layer to another.
+                        if ($oldFs instanceof adminFS) {
+                            //just directly upload the stuff
+
+                        } else {
+                            //we need to copy all files down to our local hdd temporarily
+
+                        }
+                    }
                 }
 
             }
@@ -778,7 +804,7 @@ class adminFilemanager {
         $res['path'] = '/trash';
         $res['name'] = 'Trash';
         $res['ctime'] = filectime('inc/template/trash');
-        $res['mtime'] = filemtime('inc/tempalte/trash');
+        $res['mtime'] = filemtime('inc/template/trash');
 
 
         $files = array();

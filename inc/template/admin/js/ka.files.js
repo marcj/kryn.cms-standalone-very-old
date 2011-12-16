@@ -1217,7 +1217,7 @@ ka.files = new Class({
 
             this.setTitle();
 
-            this.fileContainer.store('file', res);
+            this.fileContainer.store('file', this.currentFile);
 
             this.address.value = this.current;
 
@@ -1821,7 +1821,7 @@ ka.files = new Class({
         if (!this.previewDiv) return;
 
         var file = this.lastClickedItem.retrieve('file'), image;
-        
+
         if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
             image = _path + 'admin/files/preview?' + Object.toQueryString({path: file.path, mtime:file.mtime});
             Asset.image(image, {
@@ -1846,7 +1846,13 @@ ka.files = new Class({
             });
         } else {
             this.previewDiv.empty();
-            this.lastClickedItem.getElement('img').clone().inject(this.previewDiv);
+            if (file.type == 'dir')
+                if (file.magic)
+                    new Element('img', {src: _path+'inc/template/admin/images/file-icon-magic.png'}).inject(this.previewDiv);
+                else
+                    new Element('img', {src: _path+'inc/template/admin/images/file-icon-folder.png'}).inject(this.previewDiv);
+            else
+                new Element('img', {src: _path+'inc/template/admin/images/file-icon-text.png'}).inject(this.previewDiv);
         }
 
         this.lastPreviewPath = image;
@@ -2357,7 +2363,10 @@ ka.files = new Class({
                 if (pFile.path == '/trash') {
                     fileIcon += 'file-icon-bin.png';
                 } else {
-                    fileIcon += 'file-icon-folder.png';
+                    if (pFile.magic)
+                        fileIcon += 'file-icon-magic.png';
+                    else
+                        fileIcon += 'file-icon-folder.png';
                 }
             } else {
                 fileIcon += 'file-icon-text.png';
@@ -2612,10 +2621,10 @@ ka.files = new Class({
         var selectedFiles = this.getSelectedFiles();
 
         if (Object.getLength(selectedFiles) > 1) {
-            title = _('%d files copied').replace('%d', Object.getLength(selectedFiles));
+            title = _('%d file copied', Object.getLength(selectedFiles)).replace('%d', Object.getLength(selectedFiles));
         } else {
             Object.each(selectedFiles, function (item) {
-                title = _('%s files copied').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
+                title = _('%s file copied').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
             });
         }
         ka.setClipboard(title, 'filemanager', selectedFiles);
