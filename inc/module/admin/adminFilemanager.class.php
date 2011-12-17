@@ -776,7 +776,6 @@ class adminFilemanager {
                 } else {
 
                     $file = $oldFs->getFile(self::normalizePath($oldFile));
-                    error_log($oldFile.' => '.print_r($file,true));
 
                     if ($file['type'] == 'file'){
                         $content = $oldFs->getContent(self::normalizePath($oldFile));

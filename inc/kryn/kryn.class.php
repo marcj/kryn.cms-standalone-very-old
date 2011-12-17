@@ -1320,7 +1320,6 @@ class kryn {
             $path = '[' . $domain['lang'] . '] ';
         $path .= $domain['domain'];
 
-        error_log(print_r($parents,true));
         foreach ($parents as &$parent) {
             $path .= $pDelimiter . $parent['title'];
         }

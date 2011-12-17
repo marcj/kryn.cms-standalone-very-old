@@ -55,7 +55,6 @@ class adminFS_AWS_S3 extends adminFS {
             'body' => $pContent,
             'contentType' => mime_content_type_for_name($pPath)
         ));
-        error_log(mime_content_type_for_name($pPath));
         return $response->isOk();
     }
 
