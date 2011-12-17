@@ -1613,7 +1613,7 @@ ka.files = new Class({
 
         if (item) {
 
-            if (file && file.path != '/trash' && file.path.substr(0,7) != '/trash/') {
+            if (file && !file.magic && file.path != '/trash' && file.path.substr(0,7) != '/trash/') {
                 this.startDrag(pEvent, item);
             }
 
@@ -2555,12 +2555,17 @@ ka.files = new Class({
 
         Object.each(selectedFiles, function (myfile) {
 
-            if (myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path+'/') >= 0 || this._modules.indexOf(myfile.path+'/') >= 0) {
+            if (myfile.magic || myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path+'/') >= 0 || this._modules.indexOf(myfile.path+'/') >= 0) {
                 //no writeaccess
                 deactivate(cut);
                 deactivate(remove);
                 deactivate(rename);
                 deactivate(newversion);
+            }
+
+            if (myfile.magic){
+                deactivate(settings);
+                deactivate(openExternal);
             }
 
         }.bind(this));

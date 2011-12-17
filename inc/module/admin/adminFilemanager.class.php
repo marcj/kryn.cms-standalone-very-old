@@ -185,9 +185,26 @@ class adminFilemanager {
 
     public static function getFile($pPath) {
 
+        if (self::normalizePath($pPath) == '/'){
+            //its the magic folder itself
+            $key = substr($pPath, 1);
+            $folder = kryn::$config['magic_folders'][$key];
+            return array(
+                'path'  => $pPath,
+                'magic' => true,
+                'name'  => $folder['name'],
+                'ctime' => 0,
+                'mtime' => 0,
+                'type' => 'dir'
+            );
+        }
         $file = self::$fs->getFile(self::normalizePath($pPath));
+
         if ($file)
             $file['writeaccess'] = krynAcl::checkAccess(3, $pPath, 'write', true);
+
+        if (self::$fs->magicFolderName)
+            $file['path'] = self::$fs->magicFolderName.''.$file['path'];
 
         json($file);
     }
@@ -254,9 +271,9 @@ class adminFilemanager {
 
     public static function setPublicAccess($pPath, $pAccess) {
 
+        if ($pAccess == '') $pAccess = -1;
         if (strtolower($pAccess) == 'allow') $pAccess = true;
         if (strtolower($pAccess) == 'deny') $pAccess = false;
-        if ($pAccess == '') $pAccess = -1;
 
         return self::$fs->setPublicAccess(self::normalizePath($pPath), $pAccess);
 
@@ -264,9 +281,15 @@ class adminFilemanager {
 
     public static function getAccess($pPath) {
 
+        $res['writeaccess'] = krynAcl::checkAccess(3, $pPath, 'write', true);
+
         $res['public'] = self::$fs->getPublicAccess(self::normalizePath($pPath));
 
+        $filepath = esc($pPath);
+        $res['internalAcls'] =
+                dbTableFetch('system_acl', "type = 3 AND (code LIKE '$filepath\\\%%' OR code LIKE '$filepath\[%')", -1);
 
+        return $res;
     }
 
     public static function recoverVersion($pRsn) {
@@ -433,7 +456,6 @@ class adminFilemanager {
             }
         }
 
-
         self::addVersion($pFile);
 
         $imagesave($rotate, $pFile);
@@ -451,27 +473,24 @@ class adminFilemanager {
 
     public static function imageThumb($pPath) {
 
+        if(!krynAcl::checkAccess(3, $pPath, 'read', true)) return array('error'=>'access_denied');
         $expires = 3600;
+
+        self::$fs = self::getFs($pPath);
+        $content = self::$fs->getContent(self::normalizePath($pPath));
+        if (!$content) return array('error'=>'file_empty');
+
         header("Pragma: public");
         header("Cache-Control: maxage=".$expires);
         header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
-        header('Content-Type: image/png');
-
-        self::$fs = self::getFs($pPath);
-
-        if(!krynAcl::checkAccess(3, $pPath, 'read', true)) return array('error'=>'access_denied');
-        $file = self::$fs->getFile(self::normalizePath($pPath));
         header("Content-Type: image/png");
 
-        $path = kryn::$config['media_cache'].'thumbnail-'.kryn::toModRewrite($pPath).'-'.$file['mtime'].'.png';
-        if (file_exists($path))
-            die(readFile($path));
+        $image = imagecreatefromstring($content);
+        $resizedImage = resizeImage($image, true, '120x70', true);
 
-        $fileContent = self::$fs->getContent(self::normalizePath($pPath));
-        kryn::fileWrite($path, $fileContent);
-        resizeImage($path, $path, '120x70', true);
-
-        die(readFile($path) );
+        imagepng($resizedImage);
+        imagedestroy($resizedImage);
+        exit;
     }
 
     public static function prepareUpload($pPath) {
@@ -733,18 +752,17 @@ class adminFilemanager {
                 return json(array('exist' => true));
             }
 
-
             foreach ($files as $file) {
 
-                $file = str_replace('..', '', $file);
-                $file = str_replace(chr(0), '', $file);
+                $oldFile = str_replace('..', '', $file);
+                $oldFile = str_replace(chr(0), '', $oldFile);
 
-                if (!krynAcl::checkAccess(3, $file, 'read', true)) continue;
+                if (!krynAcl::checkAccess(3, $oldFile, 'read', true)) continue;
 
                 if ($move)
-                    if (!krynAcl::checkAccess(3, $file, 'write', true)) continue;
+                    if (!krynAcl::checkAccess(3, $oldFile, 'write', true)) continue;
 
-                $oldFs = self::getFs($file);
+                $oldFs = self::getFs($oldFile);
                 $newPath = $pToPath.'/'.basename($file);
                 if (!krynAcl::checkAccess(3, $newPath, 'write', true)) continue;
 
@@ -752,35 +770,80 @@ class adminFilemanager {
 
                 if ($newFs === $oldFs) {
                     if ($move)
-                        $newFs->move(self::normalizePath($file), self::normalizePath($newPath));
+                        $newFs->move(self::normalizePath($oldFile), self::normalizePath($newPath));
                     else
-                        $newFs->copy(self::normalizePath($file), self::normalizePath($newPath));
+                        $newFs->copy(self::normalizePath($oldFile), self::normalizePath($newPath));
                 } else {
 
-                    $file = $oldFs->getFile(self::normalizePath($file));
+                    $file = $oldFs->getFile(self::normalizePath($oldFile));
+                    error_log($oldFile.' => '.print_r($file,true));
 
                     if ($file['type'] == 'file'){
-                        $content = $oldFs->getContent(self::normalizePath($file));
-
+                        $content = $oldFs->getContent(self::normalizePath($oldFile));
                         $newFs->setContent(self::normalizePath($newPath), $content);
-                        if ($move)
-                            $oldFs->deteleFile(self::normalizePath($file));
                     } else {
                         //we need to move a folder from one file layer to another.
-                        if ($oldFs instanceof adminFS) {
+                        if ($oldFs->magicFolderName == '') {
                             //just directly upload the stuff
-
+                            self::copyFolder('inc/template'.$oldFile, $newPath);
                         } else {
                             //we need to copy all files down to our local hdd temporarily
-
+                            $temp = kryn::createTempFolder();
+                            self::downloadFolder($oldFile, $temp);
+                            self::copyFolder($temp, $newPath);
+                            delDir($temp);
                         }
                     }
+                    if ($move)
+                        $oldFs->deleteFile(self::normalizePath($oldFile));
                 }
 
             }
         }
 
         return true;
+    }
+
+    public static function downloadFolder($pPath, $pTo){
+
+        $fs = self::getFs($pPath);
+        $files = $fs->getFiles(self::normalizePath($pPath));
+
+        if (!is_dir($pTo)) mkdirr($pTo);
+
+        if (is_array($files)){
+            foreach ($files as $file){
+                if ($file['type'] == 'file'){
+
+                    $content = $fs->getContent(self::normalizePath($pPath.'/'.$file['name']));
+                    kryn::fileWrite($pTo . '/' . $file['name'], $content);
+
+                } else {
+                    self::downloadFolder($pPath.'/'.$file['name'], $pTo.'/'.$file['name']);
+                }
+            }
+        }
+
+    }
+
+    public static function copyFolder($pFrom, $pTo){
+
+        $fs = self::getFs($pTo);
+        $fs->createFolder(self::normalizePath($pTo));
+
+        $normalizedPath = self::normalizePath($pTo);
+
+        $files = find($pFrom.'/*');
+
+        foreach ($files as $file){
+            $newName = $normalizedPath.'/'.substr($file, strlen($pFrom)+1);
+
+            if (is_dir($file))
+                $fs->createFolder(self::normalizePath($newName));
+            else
+                $fs->createFile(self::normalizePath($newName), kryn::fileRead($file));
+        }
+
     }
 
     public static function search($pPath, $pQuery) {

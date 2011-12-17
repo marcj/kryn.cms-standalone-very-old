@@ -255,12 +255,7 @@ class adminBackup {
         if ($cfg['backup_generation_path'])
             return $cfg['backup_generation_path'];
 
-        if ($_ENV['TMP']) return $_ENV['TMP'];
-        if ($_ENV['TEMP']) return $_ENV['TEMP'];
-        if ($_ENV['TMPDIR']) return $_ENV['TMPDIR'];
-        if ($_ENV['TEMPDIR']) return $_ENV['TEMPDIR'];
-
-        return sys_get_temp_dir();
+        return kryn::getTempFolder();
     }
 
     public static function startBackup($pBackupCode, $pNoAsync = false) {

@@ -160,8 +160,8 @@ class admin {
                             break;
 
                         case 'imageThumb':
-                            return adminFilemanager::imageThumb(getArgv('path'));
-
+                            $content = adminFilemanager::imageThumb(getArgv('path'));
+                            break;
                         case 'stream':
                             $content = self::stream();
                             break;

@@ -24,7 +24,7 @@ class adminFS {
      */
     public function createFolder($pPath) {
         if (!file_exists('inc/template'.$pPath))
-            return mkdir('inc/template'.$pPath, null, true);
+            return mkdirr('inc/template'.$pPath);
         return false;
     }
 
@@ -107,7 +107,6 @@ class adminFS {
     public function getFile($pPath){
 
         $pPath = 'inc/template'.$pPath;
-
         if(!file_exists($pPath))
             return false;
 
@@ -278,8 +277,8 @@ class adminFS {
             $htaccess = dirname($path) . '/' . '.htaccess';
         } else {
             $htaccess = $path . '/' . '.htaccess';
-            $name = basename($pPath);
         }
+        $name = basename($pPath);
 
         if (@file_exists($htaccess)) {
 
@@ -289,6 +288,7 @@ class adminFS {
                 foreach ($matches as $match) {
 
                     $match[1] = str_replace('"', '', $match[1]);
+                    $match[1] = str_replace('\'', '', $match[1]);
 
                     if ($name == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
                         return strtolower($match[2])=='allow'?true:false;
@@ -309,13 +309,10 @@ class adminFS {
         $path = 'inc/template'.$pPath;
 
         if (!is_dir($path) == 'file') {
-        $htaccess = dirname($path) . '/' . '.htaccess';
+            $htaccess = dirname($path) . '/' . '.htaccess';
         } else {
             $htaccess = $path . '/' . '.htaccess';
         }
-
-        if ($pAccess != 'allow' && $pAccess != 'deny' && $pAccess != '')
-            return false;
 
         if (!file_exists($htaccess) && !touch($htaccess)) {
             klog('files', t('Can not set the file access, because the system can not create the .htaccess file'));
@@ -334,12 +331,9 @@ class adminFS {
 
         $content = preg_replace('/<Files ' . $filenameesc . '>\W*(\w*) from all[^<]*<\/Files>/i', '', $content);
 
-        if ($pAccess != '') {
-
-            $content .= "
-        <Files $filename>
-        $pAccess from all
-        </Files>";
+        if ($pAccess !== -1) {
+            $access = $pAccess==true?'Allow':'Deny';
+            $content .= "\n<Files $filename>\n\t$access from all\n</Files>";
         }
 
         kryn::fileWrite($htaccess, $content);

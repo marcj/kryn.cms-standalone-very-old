@@ -2841,6 +2841,42 @@ class kryn {
         return $files;
     }
 
+    /**
+     * Returns the webservers temp folder.
+     *
+     * @static
+     * @return string
+     */
+    public static function getTempFolder(){
+
+        if ($_ENV['TMP']) return $_ENV['TMP'];
+        if ($_ENV['TEMP']) return $_ENV['TEMP'];
+        if ($_ENV['TMPDIR']) return $_ENV['TMPDIR'];
+        if ($_ENV['TEMPDIR']) return $_ENV['TEMPDIR'];
+
+        return sys_get_temp_dir();
+    }
+
+    /**
+     * Creates a temp folder and returns its path.
+     *
+     * @static
+     * @param string $pPrefix
+     * @return string
+     */
+    public static function createTempFolder($pPrefix = ''){
+
+        $string = self::getTempFolder();
+        if (substr($string, -1) != '/')
+            $string .= '/';
+
+        do {
+            $path = $string . $pPrefix . dechex(time() / mt_rand(100, 500));
+        } while (is_dir($path));
+
+        mkdir($path);
+        return $path;
+    }
 }
 
 ?>

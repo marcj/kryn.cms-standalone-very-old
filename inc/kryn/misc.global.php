@@ -377,68 +377,71 @@ function &array_merge_recursive_distinct(array &$array1, &$array2 = null) {
 
 if (!function_exists('mime_content_type')) {
 
-    function mime_content_type($filename) {
-
-        $mime_types = array(
-
-            'txt' => 'text/plain',
-            'htm' => 'text/html',
-            'html' => 'text/html',
-            'php' => 'text/html',
-            'css' => 'text/css',
-            'js' => 'application/javascript',
-            'json' => 'application/json',
-            'xml' => 'application/xml',
-            'swf' => 'application/x-shockwave-flash',
-            'flv' => 'video/x-flv',
-            'png' => 'image/png',
-            'jpe' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'jpg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'bmp' => 'image/bmp',
-            'tiff' => 'image/tiff',
-            'tif' => 'image/tiff',
-            'svg' => 'image/svg+xml',
-            'svgz' => 'image/svg+xml',
-            'zip' => 'application/zip',
-            'rar' => 'application/x-rar-compressed',
-            'cab' => 'application/vnd.ms-cab-compressed',
-            'mp3' => 'audio/mpeg',
-            'qt' => 'video/quicktime',
-            'mov' => 'video/quicktime',
-            'ppt' => 'application/vnd.ms-powerpoint',
-            'pdf' => 'application/pdf',
-            'psd' => 'image/vnd.adobe.photoshop',
-            'ai' => 'application/postscript',
-            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
-            'eps' => 'application/postscript',
-            'ps' => 'application/postscript',
-            'rtf' => 'application/rtf',
-            'exe' => 'application/x-msdownload',
-            'msi' => 'application/x-msdownload',
-            'xls' => 'application/vnd.ms-excel',
-            'doc' => 'application/msword',
-            'odt' => 'application/vnd.oasis.opendocument.text',
-            'ico' => 'image/vnd.microsoft.icon',
-        );
-
-        $ext = strtolower(array_pop(explode('.', $filename)));
-        if (array_key_exists($ext, $mime_types)) {
-            return $mime_types[$ext];
-        }
-        elseif (function_exists('finfo_open')) {
+    function mime_content_type($pPath) {
+        if (mime_content_type_for_name($pPath)) {
+            return mime_content_type_for_name($pPath);
+        } elseif (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME);
-            $mimetype = finfo_file($finfo, $filename);
+            $mimetype = finfo_file($finfo, $pPath);
             finfo_close($finfo);
             return $mimetype;
-        }
-        else {
+        } else {
             return 'application/octet-stream';
         }
     }
+
 }
 
+function mime_content_type_for_name($pPath){
+    $mime_types = array(
+
+        'txt' => 'text/plain',
+        'htm' => 'text/html',
+        'html' => 'text/html',
+        'php' => 'text/html',
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'json' => 'application/json',
+        'xml' => 'application/xml',
+        'swf' => 'application/x-shockwave-flash',
+        'flv' => 'video/x-flv',
+        'png' => 'image/png',
+        'jpe' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'bmp' => 'image/bmp',
+        'tiff' => 'image/tiff',
+        'tif' => 'image/tiff',
+        'svg' => 'image/svg+xml',
+        'svgz' => 'image/svg+xml',
+        'zip' => 'application/zip',
+        'rar' => 'application/x-rar-compressed',
+        'cab' => 'application/vnd.ms-cab-compressed',
+        'mp3' => 'audio/mpeg',
+        'qt' => 'video/quicktime',
+        'mov' => 'video/quicktime',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pdf' => 'application/pdf',
+        'psd' => 'image/vnd.adobe.photoshop',
+        'ai' => 'application/postscript',
+        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+        'eps' => 'application/postscript',
+        'ps' => 'application/postscript',
+        'rtf' => 'application/rtf',
+        'exe' => 'application/x-msdownload',
+        'msi' => 'application/x-msdownload',
+        'xls' => 'application/vnd.ms-excel',
+        'doc' => 'application/msword',
+        'odt' => 'application/vnd.oasis.opendocument.text',
+        'ico' => 'image/vnd.microsoft.icon',
+    );
+
+    $ext = strtolower(array_pop(explode('.', $pPath)));
+    if (array_key_exists($ext, $mime_types))
+        return $mime_types[$ext];
+    return false;
+}
 
 function clearfolder($pFolder) {
 

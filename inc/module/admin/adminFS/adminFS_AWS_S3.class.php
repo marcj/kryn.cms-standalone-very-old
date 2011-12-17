@@ -27,6 +27,11 @@ class adminFS_AWS_S3 extends adminFS {
         ));
     }
 
+    public function fileExists($pPath){
+        return $this->aws->if_object_exists($this->config['bucket'], substr($pPath,1)) ||
+               $this->aws->if_object_exists($this->config['bucket'], substr($pPath,1).'/');
+    }
+
     public function createFolder($pPath){
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1).'/', array(
             'acl' => AmazonS3::ACL_PUBLIC
@@ -34,19 +39,23 @@ class adminFS_AWS_S3 extends adminFS {
         return $response->isOk();
     }
 
-    public function createFile($pPath){
+    public function createFile($pPath, $pContent = null){
+
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1), array(
-            'acl' => AmazonS3::ACL_PUBLIC
+            'acl' => AmazonS3::ACL_PUBLIC,
+            'body' => $pContent,
+            'contentType' => mime_content_type_for_name($pPath)
         ));
         return $response->isOk();
     }
 
-
     public function setContent($pPath, $pContent) {
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1), array(
             'acl' => AmazonS3::ACL_PUBLIC,
-            'body' => $pContent
+            'body' => $pContent,
+            'contentType' => mime_content_type_for_name($pPath)
         ));
+        error_log(mime_content_type_for_name($pPath));
         return $response->isOk();
     }
 
@@ -150,6 +159,14 @@ class adminFS_AWS_S3 extends adminFS {
 
 
     public function getPublicUrl($pPath){
+
+        //todo, handle amazon's cloudfront
+        //todo, handle https (need an option)
+
+        //http://<bucket>.s3.amazonaws.com/<path>
+        return 'http://'.$this->config['bucket'].'.s3.amazonaws.com/'.substr($pPath,1);
+
+        //this takes a bit long.
         return $this->aws->get_object_url($this->config['bucket'], substr($pPath,1));
     }
 
@@ -159,17 +176,40 @@ class adminFS_AWS_S3 extends adminFS {
     }
 
     public function getFile($pPath){
-        return $this->getFiles($pPath, true);
+
+        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1));
+
+        if ($response){
+            return array(
+                'name'  => basename($response['Key']),
+                'type'  => 'file',
+                'path'  => '/'.$response['Key'],
+                'size'  => $response['Size'],
+                'mtime' => strtotime($response['LastModified'])
+            );
+        }
+
+        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1).'/');
+        if ($response){
+            return array(
+                'name'  => basename($response['Key']),
+                'type'  => 'dir',
+                'path'  => '/'.substr($response['Key'], 0, -1),
+                'size'  => $response['Size'],
+                'mtime' => strtotime($response['LastModified'])
+            );
+        }
+        return false;
     }
 
-    public function getFiles($pPath, $pIsFile = false){
+    public function getFiles($pPath){
 
         $items = array();
         $opts = array(
             'delimiter' => '/'
         );
 
-        if ($pPath != '/' && !$pIsFile)
+        if ($pPath != '/')
             $opts['prefix'] = substr($pPath,1).'/';
 
         $response = $this->aws->list_objects($this->config['bucket'], $opts);
@@ -185,15 +225,13 @@ class adminFS_AWS_S3 extends adminFS {
             $items[$name] = array(
                 'name'  => $name,
                 'type'  => 'file',
-                'path'  => ($pIsFile)?$pPath:$pPath.($pPath=='/'?'':'/').$name,
+                'path'  => $pPath.($pPath=='/'?'':'/').$name,
                 'size'  => (string)$file->Size,
                 'mtime' => strtotime((string)$file->LastModified)
             );
-            if ($pIsFile)
-                return $items[$name];
         }
 
-        if ($response->body->CommonPrefixes && !$pIsFile){
+        if ($response->body->CommonPrefixes){
             //we maybe got subfolder
             foreach($response->body->CommonPrefixes as $file){
                 $name = substr((string)$file->Prefix,strlen($opts['prefix']),-1);
@@ -209,6 +247,35 @@ class adminFS_AWS_S3 extends adminFS {
         }
 
         return $items;
+    }
+
+    public function getPublicAccess($pPath){
+
+        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1));
+        if (!is_array($response['ACL'])) return -1;
+
+        foreach ($response['ACL'] as $item) {
+            if ($item['id'] == 'http://acs.amazonaws.com/groups/global/AllUsers')
+                if ($item['permission'] == 'READ') return true;
+        }
+
+        return false;
+    }
+
+    public function setPublicAccess($pPath, $pAccess){
+
+        $getAcl = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1));
+        $acl = $getAcl['ACL'];
+
+        $acl[] = array(
+            'id'         => AmazonS3::USERS_ALL,
+            'permission' => $pAccess?AmazonS3::ACL_PUBLIC:AmazonS3::ACL_PRIVATE
+        );
+
+        //get here PHP Fatal error:  Uncaught exception 'RequestCore_Exception' with message 'cURL resource: Resource id #40; cURL error: Failed to connect to 72.21.214.199: Host is down (7)'
+        //need to wait till the server is up
+        $response = $this->aws->set_object_acl($this->config['bucket'], substr($pPath,1), $acl);
+        return $response->isOK();
     }
 
 

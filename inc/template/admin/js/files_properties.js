@@ -152,7 +152,7 @@ var admin_files_properties = new Class({
         if (this.file.type == 'dir') {
             this.mkTd(_('Folder'));
         } else {
-            this.mkTd(this.file.ext);
+            this.mkTd(this.file.path.substr(this.file.path.lastIndexOf('.')));
         }
 
         this.mkTr();
@@ -165,7 +165,7 @@ var admin_files_properties = new Class({
 
         this.mkTr();
         this.mkTd(_('Created'));
-        this.mkTd(new Date(this.file.ctime * 1000).format(this.formatDate));
+        this.mkTd(this.file.ctime?(new Date(this.file.ctime * 1000).format(this.formatDate)):_('Not available'));
 
         this.mkTr();
         this.mkTd(_('Modified'));
@@ -194,19 +194,22 @@ var admin_files_properties = new Class({
         var p = this.panes['access'];
         p.set('html', _('Loading ...'));
 
+        new Request.JSON({url: _path+'admin/files/getAccess', noCache: 1, onComplete: this.renderAccess.bind(this)})
+            .get({path: this.file.path});
+
     },
 
-    renderAccess: function(pAccess){
+    renderAccess: function(pResult){
+        var p = this.panes['access'];
         p.empty();
 
-        if (this.file.writeaccess == 0) {
+        if (pResult.writeaccess == 0) {
             new Element('div', {
                 text: _('You have no access to this file.'),
                 style: 'color: gray; padding: 25px; text-align: center;'
             }).inject(p)
             return;
         }
-
 
         new Element('h3', {
             text: _('Public access'), help: 'admin/files-public-access'
@@ -231,7 +234,11 @@ var admin_files_properties = new Class({
 
         var td = this.mkTd(this.accessSelect);
 
-        this.accessSelect.setValue(pAccess.publicAccess);
+
+        var val = '';
+        if (pResult.public) val = 'allow';
+        if (!pResult.public) val = 'deny';
+        this.accessSelect.setValue(val);
 
         new Element('div', {
             style: 'color: silver',
@@ -281,8 +288,8 @@ var admin_files_properties = new Class({
 
         this.applyInternalAclBtn = new ka.Button(_('Apply')).addEvent('click', this.applyInternalAcls.bind(this)).inject(p);
 
-        if (this.file.internalacls && $type(this.file.internalacls) == 'array') {
-            this.file.internalacls.each(function (rule) {
+        if (pResult.internalAcls && $type(pResult.internalAcls) == 'array') {
+            pResult.internalAcls.each(function (rule) {
 
                 new files_properties_rule(rule, this.accessTbody, this.win);
 
