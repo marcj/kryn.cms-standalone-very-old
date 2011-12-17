@@ -93,6 +93,7 @@ ka.files = new Class({
                 }.bind(this))
             } else {
                 this.rootFile = res;
+                this.path2File['/'] = res;
                 if (this.options.selectionValue) {
                     this.loadPath(this.options.selectionValue);
                 } else {
@@ -1140,6 +1141,7 @@ ka.files = new Class({
 
         this.currentFile = this.path2File[pPath];
         if (!this.currentFile) {
+
             //we entered a own path
             //check first what it is, and the continue;
             this.curRequest = new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res){
@@ -1156,18 +1158,22 @@ ka.files = new Class({
                 }
 
                 this.currentFile = res;
+                this.path2File[res.path] = this.currentFile;
 
-                if (this.currentFile.type == 'dir'){
-                    this.path2File[res.path] = this.currentFile;
-                    this.load(pPath);
-                } else if (this.currentFile.type == 'file') {
-                    ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
+                if (this.options.selection && (this.options.selectionValue == pPath || this.options.selectionValue == pPath.substr(1))) {
+                    if (this.currentFile.path != '/'){
+                        this.load(this.currentFile.path.substr(0, this.currentFile.path.lastIndexOf('/')));
+                    }
+                } else {
+                    if (this.currentFile.type == 'dir'){
+                        this.load(pPath);
+                    } else if (this.currentFile.type == 'file') {
+                        ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
+                    }
                 }
 
             }.bind(this)}).get({path: pPath});
             return;
-        } else {
-            this.currentFile.ext = this.currentFile.path.substr(this.currentFile.path.lastIndexOf('.'));
         }
 
         if (this.currentFile.writeaccess == true) {
@@ -2384,7 +2390,8 @@ ka.files = new Class({
         }).inject(base);
 
         if (this.options.selectionValue) {
-            if (typeOf(this.options.selectionValue) == 'string' && this.options.selectionValue == pFile.path) {
+            if (typeOf(this.options.selectionValue) == 'string' &&
+                (this.options.selectionValue == pFile.path || this.options.selectionValue == pFile.path.substr(1))) {
                 base.addClass('admin-files-item-selected');
             } else if (typeOf(this.options.selectionValue) == 'array' && this.options.selectionValue.contains(pFile.path)) {
                 base.addClass('admin-files-item-selected');
