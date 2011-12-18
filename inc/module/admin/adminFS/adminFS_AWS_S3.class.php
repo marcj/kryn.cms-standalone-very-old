@@ -262,18 +262,7 @@ class adminFS_AWS_S3 extends adminFS {
     }
 
     public function setPublicAccess($pPath, $pAccess){
-
-        $getAcl = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1));
-        $acl = $getAcl['ACL'];
-
-        $acl[] = array(
-            'id'         => AmazonS3::USERS_ALL,
-            'permission' => $pAccess?AmazonS3::ACL_PUBLIC:AmazonS3::ACL_PRIVATE
-        );
-
-        //get here PHP Fatal error:  Uncaught exception 'RequestCore_Exception' with message 'cURL resource: Resource id #40; cURL error: Failed to connect to 72.21.214.199: Host is down (7)'
-        //need to wait till the server is up
-        $response = $this->aws->set_object_acl($this->config['bucket'], substr($pPath,1), $acl);
+        $response = $this->aws->set_object_acl($this->config['bucket'], substr($pPath,1), $pAccess?AmazonS3::ACL_PUBLIC:AmazonS3::ACL_PRIVATE);
         return $response->isOK();
     }
 
