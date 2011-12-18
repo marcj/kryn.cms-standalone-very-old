@@ -254,7 +254,7 @@ class adminFS_AWS_S3 extends adminFS {
         if (!is_array($response['ACL'])) return -1;
 
         foreach ($response['ACL'] as $item) {
-            if ($item['id'] == 'http://acs.amazonaws.com/groups/global/AllUsers')
+            if ($item['id'] == AMAZONS3::USERS_ALL)
                 if ($item['permission'] == 'READ') return true;
         }
 
