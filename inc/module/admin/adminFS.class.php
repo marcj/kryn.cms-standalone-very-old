@@ -221,10 +221,27 @@ class adminFS {
 
     }
 
-    public function search($pPath, $pPattern, $pDepth = -1){
+    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 0){
 
+        $result = array();
+        $files = $this->getFiles($pPath);
 
+        $q = preg_quote($pPattern, '.*/');
+        $q = str_replace('\*', '.*', $q);
 
+        foreach ($files as $file){
+            if (preg_match('/^'.$q.'/', $file['name']) !== 0){
+                $result[] = $file;
+            }
+            if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth <= $pDepth)){
+                $newPath = $pPath . ($pPath=='/'?'':'/') . $file['name'];
+                $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth+1);
+                if (is_array($more))
+                    $result = array_merge($result, $more);
+            }
+        }
+
+        return $result;
     }
 
     public function getPublicUrl($pPath){

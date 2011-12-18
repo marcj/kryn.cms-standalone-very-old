@@ -785,9 +785,20 @@ ka.files = new Class({
 
         this.searchInput = new Element('input', {
             'class': 'admin-files-actionBar-search'
-        }).addEvent('keyup', function (e) {
+        })
+        .addEvent('keydown', function (e) {
+
+            if (e.key == 'esc'){
+                e.stop();
+                e.stopPropagation();
+            }
+
+        }.bind(this))
+            .addEvent('keyup', function (e) {
             this.startSearch();
-        }.bind(this)).addEvent('mousedown',
+
+        }.bind(this))
+            .addEvent('mousedown',
             function (e) {
                 e.stopPropagation();
             }).inject(searchPos);
@@ -2210,14 +2221,13 @@ ka.files = new Class({
         var rows = [];
         this.files2View.each(function (file) {
 
-
             var bg = '';
             if (file.type != 'dir' && this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
                 bg = 'image'
             } else if (file.type == 'dir') {
                 bg = 'dir'
             } else if (this.__ext.contains(file.path.substr(file.path.lastIndexOf('.')))) {
-                bg = file.path.substr(file.path.lastIndexOf('.'));
+                bg = file.path.substr(file.path.lastIndexOf('.')+1);
             } else {
                 bg = 'tpl';
             }
@@ -2723,24 +2733,58 @@ ka.files = new Class({
         this.searchPaneContent.empty();
         this.searchPaneTitle.set('html', _('Results'));
 
+        var table = new Element('table', {
+            'class': 'ka-files-search-table',
+            width: '100%',
+            cellspacing: 0
+        }).inject(this.searchPaneContent);
+        var tbody = new Element('tbody').inject(table);
+        var bg, div;
+
         if ($type(pResult) == 'array' && pResult.length > 0) {
-            pResult.each(function (item) {
+            pResult.each(function (file) {
+
+                var tr = new Element('tr').inject(tbody);
+                var td = new Element('td', {width: 20}).inject(tr);
+
+                bg = '';
+                if (file.type != 'dir' && this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
+                    bg = 'image'
+                } else if (file.type == 'dir') {
+                    bg = 'dir'
+                } else if (this.__ext.contains(file.path.substr(file.path.lastIndexOf('.')))) {
+                    bg = file.path.substr(file.path.lastIndexOf('.')+1);
+                } else {
+                    bg = 'tpl';
+                }
+
+                if (file.path == '/trash') {
+                    bg = 'dir_bin';
+                }
+
+                var image = new Element('img', {
+                    src: _path + 'inc/template/admin/images/ext/' + bg + '-mini.png'
+                }).inject( td );
+
+                var td = new Element('td').inject(tr);
+
+                div = new Element('div', {
+                    text: file.path,
+                    style: 'padding-left: 5px; color: #aaa; font-weight: normal;'
+                }).inject(td);
 
                 var a = new Element('a', {
-                    text: item.name,
+                    text: file.name,
                     href: 'javascript: ;',
                     style: 'display: block; text-decoration: none; font-weight: bold; padding: 2px; cursor: pointer;'
-                }).inject(this.searchPaneContent);
+                }).inject(div, 'top');
 
                 a.addEvent('click', function () {
-                    this.loadPath(item.path);
+                    if (file.type == 'dir')
+                        this.loadPath(file.path);
+                    else
+                        ka.wm.openWindow('admin', 'files/edit', null, null, {file: file});
                 }.bind(this));
-
-
-                new Element('div', {
-                    text: item.path.replace(/inc\/template\//g, ''),
-                    style: 'padding-left: 5px; color: #aaa; font-weight: normal;'
-                }).inject(a);
 
 
             }.bind(this));

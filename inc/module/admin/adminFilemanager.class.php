@@ -845,10 +845,16 @@ class adminFilemanager {
 
     }
 
-    public static function search($pPath, $pQuery) {
+    public static function search($pPath, $pPattern) {
+        if ($pPattern == '') return array();
+        $result = self::$fs->search(self::normalizePath($pPath), $pPattern);
 
-        return self::$fs->search($pQuery);
-
+        if (self::$fs->magicFolderName){
+            foreach ($result as &$item){
+                $item['path'] = self::$fs->magicFolderName.$item['path'];
+            }
+        }
+        return $result;
     }
 
     public static function getPublicAccess($pPath){

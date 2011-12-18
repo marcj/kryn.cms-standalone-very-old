@@ -383,3 +383,14 @@
     border-bottom: 1px dashed silver;
     padding: 6px;
 }
+
+
+table.ka-files-search-table td {
+    border-bottom: 1px solid #d3d3d3;
+    padding: 1px;
+}
+
+
+table.ka-files-search-table tr:hover td {
+    background-color: #e5e5e5;
+}
