@@ -19,35 +19,8 @@ class adminFilemanager {
 
     public function getFs($pPath){
 
-        $class = 'adminFs';
-        $file = false;
+        return krynFile::getLayer($pPath);
 
-        if ($pPath != '/') {
-
-            $sPos = strpos(substr($pPath, 1), '/');
-            if( $sPos === false )
-                $firstFolder = substr($pPath,1);
-            else
-                $firstFolder = substr($pPath, 1, $sPos);
-
-            //if firstFolder a magic folder?
-            if( $fs = kryn::$config['magic_folder'][$firstFolder] ){
-                $class = $fs['class'];
-                $file = $fs['file'];
-                $params = $fs['params'];
-                $prefix = '/'.$firstFolder;
-            }
-        }
-
-        if(self::$fsObjects[$class]) return self::$fsObjects[$class];
-
-        if ($file)
-            require_once($file);
-
-        self::$fsObjects[$class] = new $class($params);
-        self::$fsObjects[$class]->magicFolderName = $prefix;
-
-        return self::$fsObjects[$class];
     }
 
     public static function init() {
@@ -676,29 +649,12 @@ class adminFilemanager {
      */
     public function normalizePath($pPath){
 
-        $fs = self::getFs($pPath);
-        $pPath = substr($pPath, strlen($fs->magicFolderName));
-
-        $pPath = str_replace('..', '', $pPath);
-        $pPath = str_replace('//', '/', $pPath);
-
-        if (substr($pPath, 0, 1) != '/')
-            $pPath = '/'.$pPath;
-
-        return $pPath;
+        return krynFile::normalizePath($pPath);
     }
 
     public function normalizeName($pName){
 
-        $name = @str_replace('ä', "ae", strtolower($pName));
-        $name = str_replace('..', '', $name);
-        $name = @str_replace('ö', "oe", $name);
-        $name = @str_replace('ü', "ue", $name);
-        $name = @str_replace('ß', "ss", $name);
-        $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
-        $name = @preg_replace('/--+/', '-', $name);
-
-        return $name;
+        return krynFile::normalizeName($pName);
     }
 
     public static function moveFile($pPath, $pNewPath, $pOverwrite = false) {
