@@ -81,6 +81,7 @@ include('inc/kryn/krynAcl.class.php');
 include('inc/kryn/krynNavigation.class.php');
 include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');
+include('inc/kryn/krynFile.class.php');
 include('inc/kryn/krynLanguage.class.php');
 include('inc/kryn/krynSearch.class.php');
 
@@ -135,7 +136,7 @@ if (getArgv(1) != 'admin') {
 }
 
 /*
- * Load themes and db scheme from configs
+ * Load themes, db scheme and object definitions from configs
  */
 kryn::loadModuleConfigs();
 

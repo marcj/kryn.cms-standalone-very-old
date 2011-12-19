@@ -34,8 +34,18 @@
     background-image:         linear-gradient(top, #f2f2f2, #dddddd);
 }
 
-.ka-Select-box:active {
+
+
+.kwindow-win-titleGroups .ka-Select-box {
     border: 1px solid #999;
+}
+
+.ka-Select-box:active {
+    border: 1px solid #aaa;
+}
+
+.kwindow-win-titleGroups .ka-Select-box:active {
+    border: 1px solid #888;
 }
 
 .ka-Select-box-title {

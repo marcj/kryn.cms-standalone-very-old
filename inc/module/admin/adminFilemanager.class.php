@@ -14,75 +14,123 @@
 
 class adminFilemanager {
 
-    public static function init() {
-        /*
-                kryn::addJs( 'admin/filemanager.js' );
-                kryn::addJs( 'admin/swfupload.js' );
-                kryn::addJs( 'admin/fuploader.js' );
-                kryn::addCss( 'admin/filemanager.css' );
-        */
-        switch (getArgv(3)) {
-            case 'loadFolder':
-                return self::loadFolder(getArgv('path'));
-            case 'getImages':
-                return self::getImages(getArgv('dir'));
-            case 'loadModules':
-                return self::loadModules();
-            case 'getFile':
-                return self::getFile(getArgv('path'));
-            case 'getFileInfo':
-                return self::getFileInfo(getArgv('path'), getArgv('withSize') != '' ? true : false, true);
-            case 'getVersions':
-                return self::getVersions("inc/template/" . getArgv('path'));
-            case 'addVersion':
-                return self::addVersion("inc/template/" . getArgv('path'));
-            case 'setAccess':
-                return self::setAccess("inc/template/" . getArgv('path'), getArgv('access'));
-            case 'recoverVersion':
-                return self::recoverVersion(getArgv("rsn"));
-            case 'newFile':
-                return self::newFile();
-            case 'newFolder':
-                return self::newFolder();
-            case 'saveFile':
-                return self::saveFile();
-            case 'renameFile':
-                return self::renameFile();
-            case 'duplicateFile':
-                return self::duplicateFile(getArgv('path'), getArgv('newname'));
-            case 'cutFile':
-                return self::cutFile();
+    public static $fs;
+    public static $fsObjects = array();
 
-            case 'prepareUpload':
-                return self::prepareUpload();
-            case 'upload':
-                return self::uploadFile();
+    public function getFs($pPath){
+
+        return krynFile::getLayer($pPath);
+
+    }
+
+    public static function init() {
+
+
+        $path = str_replace('..', '', getArgv('path'));
+        $path = str_replace('//', '/', $path);
+        if ($path != '/' && substr($path,-1) == '/') $path = substr($path,0,-1);
+
+        if (!krynAcl::checkAccess(3, $path, 'read', true))
+            return array('error'=>'access_denied');
+
+        self::$fs = self::getFs($path);
+
+        switch (getArgv(3)) {
+
+            case 'getFiles':
+                return self::getFiles($path);
+            case 'getImages':
+                return self::getImages($path);
+            case 'getContent':
+                return self::getContent($path);
+
+            case 'getFile':
+                return self::getFile($path);
+            case 'getSize':
+                return self::getSize($path);
+            case 'preview':
+                return self::preview($path);
+
+            case 'redirect':
+                return self::redirectToPublicUrl($path);
+
+
+            case 'getVersions':
+                return self::getVersions($path);
+            case 'addVersion':
+                return self::addVersion($path);
+            case 'recoverVersion':
+                return self::recoverVersion(getArgv('rsn'));
+
+            case 'setPublicAccess':
+                return self::setPublicAccess($path, getArgv('access'));
+            case 'setInternalAcl':
+                return self::setInternalAcl($path, getArgv('rules'));
+
+            //both, public and internal
+            case 'getAccess':
+                return self::getAccess($path);
+
+
+            case 'createFile':
+                return self::createFile($path);
+            case 'createFolder':
+                return self::createFolder($path);
+
+
+            case 'setContent':
+                return self::setContent($path, getArgv('content'));
+            case 'moveFile':
+                return self::moveFile($path, getArgv('newPath'), getArgv('overwrite')==1?true:false);
+            case 'duplicateFile':
+                return self::duplicateFile($path, getArgv('newName'), getArgv('overwrite')==1?true:false);
 
 
             case 'deleteFile':
-                return self::delFile();
-            case 'setFilesystem':
-                return self::setFilesystem("inc/template/" . getArgv('path'), getArgv('chmod'), getArgv('user'),
-                    getArgv('owner'), (getArgv('sub') == 1) ? true : false);
-            case 'getOwnerNames':
-                return self::getOwnerNames(getArgv('ownerid'), getArgv('groupid'));
-            case 'getOwnerIds':
-                return self::getOwnerIds(getArgv('owner'), getArgv('group'));
-            case 'rotate':
-                return self::rotateFile(getArgv('file'), getArgv('position'));
+                return self::deleteFile($path);
             case 'recover':
                 return self::recover(getArgv('rsn'));
+
+
+            case 'prepareUpload':
+                return self::prepareUpload($path);
+            case 'upload':
+                return self::uploadFile($path);
+
+            //todo, next 3 methods
+            case 'rotate':
+                return self::rotateFile($path, getArgv('position'));
             case 'resize':
-                return self::resize(getArgv('file'), getArgv('width') + 0, getArgv('height') + 0);
-            case 'paste':
-                return self::paste();
-            case 'search':
-                return self::search(getArgv('q'), getArgv('path'));
-            case 'setInternalAcl':
-                return self::setInternalAcl(getArgv('path'), getArgv('rules'));
+                return self::resize($path, getArgv('width') + 0, getArgv('height') + 0);
             case 'diffFiles':
                 return self::diffFiles(getArgv('from'), getArgv('to'));
+
+            case 'paste':
+                return self::paste($path);
+            case 'search':
+                return self::search($path, getArgv('q'), getArgv('depth')+0);
+
         }
+    }
+
+    public static function preview($pPath){
+
+        $expires = 3600;
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header('Content-Type: image/png');
+
+        $content = self::$fs->getContent(self::normalizePath($pPath));
+        $im = imagecreatefromstring($content);
+        imagepng($im);
+        imagedestroy($im);
+        exit;
+    }
+
+    public static function redirectToPublicUrl($pPath){
+        $path = self::$fs->getPublicUrl(self::normalizePath($pPath));
+        kryn::redirect($path);
     }
 
     public static function diffFiles($pFrom, $pTo) {
@@ -105,37 +153,46 @@ class adminFilemanager {
         return $diff;
     }
 
-    private static function readFile($pPath) {
-        $path = str_replace("..", "", $pPath);
+    public static function getContent($pPath) {
+        json(self::$fs->getContent(self::normalizePath($pPath)));
+    }
 
-        // Template file
-        if (file_exists("inc/template/$path")) {
-            $access = krynAcl::checkAccess(3, '/' . $path, 'read', true);
-            if (!$access)
-                return 'no-access';
-            // On access return file contents
-            return kryn::fileRead("inc/template/$path");
+    public static function getFile($pPath) {
+
+        if (self::normalizePath($pPath) == '/'){
+            //its the magic folder itself
+            $key = substr($pPath, 1);
+            $folder = kryn::$config['magic_folders'][$key];
+            return array(
+                'path'  => $pPath,
+                'magic' => true,
+                'name'  => $folder['name'],
+                'ctime' => 0,
+                'mtime' => 0,
+                'type' => 'dir'
+            );
         }
-        // Normal file
-        else if (file_exists($path))
-            return kryn::fileRead($path);
+        $file = self::$fs->getFile(self::normalizePath($pPath));
 
-        // File does not exist
-        return '';
+        if ($file)
+            $file['writeaccess'] = krynAcl::checkAccess(3, $pPath, 'write', true);
+
+        if (self::$fs->magicFolderName)
+            $file['path'] = self::$fs->magicFolderName.''.$file['path'];
+
+        json($file);
     }
 
-    public static function renameVersion($pFrom, $pTo) {
-
-        //todo
+    public static function getSize($pPath) {
+        json(self::$fs->getSize(self::normalizePath($pPath)));
     }
 
-    public static function renameAcls($pFrom, $pTo) {
 
-        //todo
-    }
 
     public static function setInternalAcl($pFilePath, $pRules) {
         global $cfg;
+
+        if(!krynAcl::checkAccess(3, $pFilePath, 'write', true)) return array('error'=>'access_denied');
 
         $pFilePath = esc('/' . $pFilePath);
         if ($pFilePath == '//')
@@ -165,6 +222,7 @@ class adminFilemanager {
 
     }
 
+    /*
     public static function setFilesystem($pPath, $pChmod, $pOwner = false, $pGroup = false, $pWithSub = false) {
 
 
@@ -186,73 +244,31 @@ class adminFilemanager {
             }
         }
         return true;
+    }*/
+
+    public static function setPublicAccess($pPath, $pAccess) {
+
+        if(!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+
+        if ($pAccess == '') $pAccess = -1;
+        if (strtolower($pAccess) == 'allow') $pAccess = true;
+        if (strtolower($pAccess) == 'deny') $pAccess = false;
+
+        return self::$fs->setPublicAccess(self::normalizePath($pPath), $pAccess);
+
     }
 
+    public static function getAccess($pPath) {
 
-    public static function getOwnerIds($pOwner, $pGroup) {
+        $res['writeaccess'] = krynAcl::checkAccess(3, $pPath, 'write', true);
 
-        $owner = posix_getpwnam($pOwner);
-        $group = posix_getgrnam($pGroup);
-        $res['owner'] = $owner['uid'];
-        $res['group'] = $group['gid'];
+        $res['public'] = self::$fs->getPublicAccess(self::normalizePath($pPath));
+
+        $filepath = esc($pPath);
+        $res['internalAcls'] =
+                dbTableFetch('system_acl', "type = 3 AND (code LIKE '$filepath\\\%%' OR code LIKE '$filepath\[%')", -1);
 
         return $res;
-    }
-
-    public static function getOwnerNames($pOwnerId, $pGroupId) {
-
-        $owner = posix_getpwuid($pOwnerId);
-        $group = posix_getgrgid($pGroupId);
-        $res['owner'] = $owner['name'];
-        $res['group'] = $group['name'];
-
-        return $res;
-    }
-
-    public static function setAccess($pPath, $pAccess) {
-
-        if (is_dir($pPath))
-            $dir = substr($pPath, 0, -1);
-        else
-            $dir = dirname($pPath);
-
-        if ($pAccess != 'allow' && $pAccess != 'deny' && $pAccess != '')
-            return false;
-
-        if (!file_exists($dir)) {
-            return false;
-        }
-
-        $htaccess = $dir . '/.htaccess';
-        if (!file_exists($htaccess) && !touch($htaccess)) {
-            klog('files', _('Can not set the file access, because the system can not create the .htaccess file'));
-            return false;
-        }
-
-        $content = kryn::fileRead($htaccess);
-
-        if (!is_dir($pPath)) {
-            $filename = '"' . basename($pPath) . '"';
-            $filenameesc = $filename;
-        } else {
-            $filename = "*";
-            $filenameesc = '\*';
-        }
-
-        $content = preg_replace('/<Files ' . $filenameesc . '>\W*(\w*) from all[^<]*<\/Files>/i', '', $content);
-
-        if ($pAccess != '') {
-
-            $content .= "
-<Files $filename>
-$pAccess from all
-</Files>";
-        }
-
-        kryn::fileWrite($htaccess, $content);
-
-        return true;
-
     }
 
     public static function recoverVersion($pRsn) {
@@ -264,6 +280,8 @@ $pAccess from all
             klog('files', str_replace('%s', $version['versionpath'], _l('Can not recover the version for file %s')));
             return false;
         }
+
+        if(!krynAcl::checkAccess(3, $version['path'], 'write', true)) return array('error'=>'access_denied');
 
         self::addVersion($version['path']);
 
@@ -287,7 +305,7 @@ $pAccess from all
         ", -1);
 
         foreach ($versions as &$version) {
-            $version['size'] = self::sizeFormat(filesize($version['versionpath']));
+            $version['size'] = filesize($version['versionpath']);
         }
 
         return $versions;
@@ -299,17 +317,18 @@ $pAccess from all
     public static function addVersion($pPath) {
         global $user;
 
-        $pPath = str_replace("..", ".", $pPath);
-        $pPath = str_replace("//", "/", $pPath);
+        //TODO, need to create a way, where we can define another path/backend for saving versions
 
         if (!file_exists($pPath)) return false;
 
         if (!file_exists('data/fileversions/')) {
             if (!mkdir('data/fileversions/')) {
-                klog('files', _l('Can not create the file versions folder data/fileversions/, so the system can not create file versions.'));
+                klog('files', t('Can not create the file versions folder data/fileversions/, so the system can not create file versions.'));
                 return;
             }
         }
+
+        if(!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('error'=>'access_denied');
 
         $versionpath = kryn::toModRewrite($pPath);
 
@@ -334,34 +353,49 @@ $pAccess from all
 
 
     public static function resize($pFile, $pWidth, $pHeight) {
-        $pFile = 'inc/template/' . str_replace('..', '', $pFile);
 
-        list($oriWidth, $oriHeight, $type) = getimagesize($pFile);
-        switch ($type) {
-            case 1:
-                $imagecreate = 'imagecreatefromgif';
-                $imagesave = 'imagegif';
-                break;
-            case 2:
-                $imagecreate = 'imagecreatefromjpeg';
-                $imagesave = 'imagejpeg';
-                break;
-            case 3:
-                $imagecreate = 'imagecreatefrompng';
-                $imagesave = 'imagepng';
-                break;
+        if(!krynAcl::checkAccess(3, $pFile, 'write', true)) return array('error'=>'access_denied');
+
+
+        $content = self::$fs->getContent(self::normalizePath($pFile));
+
+        $image = imagecreatefromstring($content);
+        if (!$image){
+            klog('filemanager',
+                str_replace('%s', $pFile, t('Can not rotate image %s, cause the image type is not supported.')));
+            return array('error' => 'image_type_not_supported');
         }
 
+        $oriWidth = imagesx($image);
+        $oriHeight = imagesy($image);
 
         $imageNew = imagecreatetruecolor($pWidth, $pHeight);
-        $image = $imagecreate($pFile);
 
         imagecopyresampled($imageNew, $image, 0, 0, 0, 0, $pWidth, $pHeight, $oriWidth, $oriHeight);
 
         self::addVersion($pFile);
-        $imagesave($imageNew, $pFile);
 
-        return filemtime($pFile);
+
+        $type = mime_content_type_for_name($pFile);
+        $imageSave = '';
+
+        if ($type == 'image/png') $imageSave = 'imagepng';
+        if ($type == 'image/jpg') $imageSave = 'imagejpeg';
+        if ($type == 'image/jpeg') $imageSave = 'imagejpeg';
+        if ($type == 'image/gif') $imageSave = 'iamgegif';
+
+        $temp =  kryn::createTempFolder();
+        $tempFile = $temp.'/rotateFile';
+
+        if ($imageSave)
+            $imageSave($imageNew, $tempFile);
+
+        $content = kryn::fileRead($tempFile);
+        self::$fs->setContent(self::normalizePath($pFile), $content);
+
+        delDir($temp);
+
+        return true;
     }
 
 
@@ -381,30 +415,23 @@ $pAccess from all
 
 
     public static function rotateFile($pFile, $pPosition) {
-        global $user;
 
-        $pFile = 'inc/template/' . str_replace('..', '', $pFile);
+        if(!krynAcl::checkAccess(3, $pFile, 'write', true)) return array('error'=>'access_denied');
 
-        list($oriWidth, $oriHeight, $type) = getimagesize($pFile);
-        switch ($type) {
-            case 1:
-                $imagecreate = 'imagecreatefromgif';
-                $imagesave = 'imagegif';
-                break;
-            case 2:
-                $imagecreate = 'imagecreatefromjpeg';
-                $imagesave = 'imagejpeg';
-                break;
-            case 3:
-                $imagecreate = 'imagecreatefrompng';
-                $imagesave = 'imagepng';
-                break;
+        $content = self::$fs->getContent(self::normalizePath($pFile));
+
+        $source = imagecreatefromstring($content);
+        if (!$source){
+            klog('filemanager',
+                        str_replace('%s', $pFile, t('Can not rotate image %s, cause the image type is not supported.')));
+            return array('error' => 'image_type_not_supported');
         }
 
-        $source = $imagecreate($pFile);
+        $oriWidth = imagesx($source);
+        $oriHeight = imagesy($source);
 
         $degrees = 90;
-        if ($pPosition == 'left')
+        if ($pPosition == 'right')
             $degrees *= -1;
 
         if (function_exists("imagerotate")) {
@@ -419,198 +446,115 @@ $pAccess from all
             }
         }
 
-
         self::addVersion($pFile);
 
-        $imagesave($rotate, $pFile);
+        $type = mime_content_type_for_name($pFile);
+        $imageSave = '';
 
-        return filemtime($pFile);
+        if ($type == 'image/png') $imageSave = 'imagepng';
+        if ($type == 'image/jpg') $imageSave = 'imagejpeg';
+        if ($type == 'image/jpeg') $imageSave = 'imagejpeg';
+        if ($type == 'image/gif') $imageSave = 'iamgegif';
+
+        $temp =  kryn::createTempFolder();
+        $tempFile = $temp.'/rotateFile';
+
+        if ($imageSave)
+            $imageSave($rotate, $tempFile);
+
+        $content = kryn::fileRead($tempFile);
+        self::$fs->setContent(self::normalizePath($pFile), $content);
+
+        delDir($temp);
+
+        return true;
     }
 
 
-    public static function getImages($pDir) {
+    public static function getImages($pPath) {
 
-        if ($pDir == '')
-            $pDir == '/';
-
-        $pDir = str_replace('//', '', $pDir);
-        //$pDir = dirname( $pDir );
-
-        if (substr($pDir, -1) != '/')
-            $pDir .= '/';
-
-
-        //if( $pDir == './' )
-        //    $pDir = '';
-
-
-        $access = krynAcl::checkAccess(3, '/' . $pDir, 'read', true);
-        if (!$access) json('no-access');
-
-        $dh = opendir('inc/template/' . $pDir);
-        while ($file = readdir($dh)) {
-            if ($file == '.svn' || $file == '.' || $file == '..') continue;
-
-            $ext = "";
-            $pos = strrpos($file, '.');
-            if ($pos > 0)
-                $ext = strtolower(substr($file, $pos + 1, strlen($file)));
-
-            if ($ext == 'jpg' || $ext == 'png' || $ext == 'bmp' || $ext == 'gif') {
-                $items[] = $pDir . $file;
+        $result = self::$fs->search(self::normalizePath($pPath), '.*\.(jpg|jpeg|png|bmp)', 1);
+        if (self::$fs->magicFolderName){
+            foreach ($result as &$item){
+                $item['path'] = self::$fs->magicFolderName.$item['path'];
             }
         }
-
-        json($items);
+        return $result;
     }
 
-    public static function imageThumb($pPath) {
-        $path = str_replace("..", "", $pPath);
-        $path = preg_replace('/\\\\+/', "/", $path);
-        $path = utf8_encode($path);
+    public static function showImage($pPath) {
+        $pPath = str_replace('..', '', $pPath);
 
-        if (substr($path, 0, 1) != '/')
-            $path = '/' . $path;
-        $cfile = $path;
-        $file = 'inc/template' . $path;
-        $path = preg_replace('/\/\/+/', "/", $path);
+        if(!krynAcl::checkAccess(3, $pPath, 'read', true)) return array('error'=>'access_denied');
+        $expires = 3600;
 
-        $file = resizeImageCached($path, '120x70', true);
+        self::$fs = self::getFs($pPath);
+        $content = self::$fs->getContent(self::normalizePath($pPath));
+        if (!$content) return array('error'=>'file_empty');
 
-        $access = krynAcl::checkAccess(3, '/' . $cfile, 'read', true);
-        if (!$access) json('no-access');
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header("Content-Type: image/png");
 
-        list($oriWidth, $oriHeight, $type) = getimagesize($file);
-        switch ($type) {
-            case 1:
-                $imagecreate = 'imagecreatefromgif';
-                $imagesave = 'imagegif';
-                $mime = "image/gif";
-                break;
-            case 2:
-                $imagecreate = 'imagecreatefromjpeg';
-                $imagesave = 'imagejpeg';
-                $mime = "image/jpeg";
-                break;
-            case 3:
-                $imagecreate = 'imagecreatefrompng';
-                $imagesave = 'imagepng';
-                $mime = "image/png";
-                break;
-        }
-        if (!$imagecreate)
-            return;
+        $image = imagecreatefromstring($content);
 
-        $img = $imagecreate($file);
-        header("Content-Type: " . $mime . ";");
-
-        $newWidth = 70;
-        $newHeight = 70;
-        $thumpWidth = $newWidth;
-        $thumpHeight = $newHeight;
-
-        $thumpImage = imagecreatetruecolor($thumpWidth, $thumpHeight);
-        imagealphablending($thumpImage, false);
-
-        if ($oriWidth > $oriHeight) {
-
-            //resize mit hoehe = $tempheight, width = auto;
-
-            $ratio = $thumpHeight / ($oriHeight / 100);
-            $_width = ceil($oriWidth * $ratio / 100);
-
-            $top = 0;
-            if ($_width < $thumpWidth) {
-                $ratio = $_width / ($thumpWidth / 100);
-                $nHeight = $thumpHeight * $ratio / 100;
-                $top = ($thumpHeight - $nHeight) / 2;
-                $_width = $thumpWidth;
-            }
-
-            $tempImg = imagecreatetruecolor($_width, $thumpHeight);
-            imagealphablending($tempImg, false);
-            imagecopyresampled($tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
-            $_left = ($_width / 2) - ($thumpWidth / 2);
-
-            imagecopyresampled($thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight);
-
-        } else {
-            $ratio = $thumpWidth / ($oriWidth / 100);
-            $_height = ceil($oriHeight * $ratio / 100);
-            $tempImg = imagecreatetruecolor($thumpWidth, $_height);
-            imagealphablending($tempImg, false);
-            imagecopyresampled($tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight);
-            $_top = ($_height / 2) - ($thumpHeight / 2);
-            imagecopyresampled($thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight);
-        }
-
-        //$thumpHeight = 70;
-        //$thumpWidth = 120;
-        //$tempImg = imagecreatetruecolor( $thumpWidth, $thumpHeight );
-        //imagecopyresampled( $tempImg, $img, 0, 0, 0, 0, $thumpWidth, $thumpHeight, $oriWidth, $oriHeight);
-        $imagesave($thumpImage);
+        imagepng($image);
+        imagedestroy($image);
         exit;
     }
 
-    public static function loadModules() {
+    public static function imageThumb($pPath) {
+        $pPath = str_replace('..', '', $pPath);
 
-        $h = opendir('inc/template/');
-        $mfiles = array();
-        while ($file = readdir($h)) {
-            if ($file != '.' && $file != '..' && $file != '.svn' &&
-                $file != 'admin' && $file != 'css' && $file != 'images' && $file != 'js' && $file != 'kryn'
-            ) {
-                if (kryn::$configs[$file]) {
-                    $mfiles[] = '/' . $file;
-                }
-            }
-        }
-        json($mfiles);
+        if(!krynAcl::checkAccess(3, $pPath, 'read', true)) return array('error'=>'access_denied');
+        $expires = 3600;
+
+        self::$fs = self::getFs($pPath);
+        $content = self::$fs->getContent(self::normalizePath($pPath));
+        if (!$content) return array('error'=>'file_empty');
+
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header("Content-Type: image/png");
+
+        $image = imagecreatefromstring($content);
+        $resizedImage = resizeImage($image, true, '120x70', true);
+
+        imagepng($resizedImage);
+        imagedestroy($resizedImage);
+        exit;
     }
 
-    public static function prepareUpload() {
+    public static function prepareUpload($pPath) {
         global $adminClient;
 
+        $oriName = getArgv('name');
+        $name = self::normalizeName(getArgv('name'));
+        $newPath = ($pPath == '/')?'/'.$name:$pPath.'/'.$name;
 
-        $name = getArgv('name');
-        $oriName = $name;
-        $path = getArgv('path');
         $res = array();
 
-        $name = @str_replace('ä', "ae", strtolower($name));
-        $name = @str_replace('ö', "oe", $name);
-        $name = @str_replace('ü', "ue", $name);
-        $name = @str_replace('ß', "ss", $name);
-        $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
-        $name = @preg_replace('/--+/', '-', $name);
-
-        $name = str_replace("..", "", $name);
-
-        $path = getArgv('path');
-        if (substr($path, -1) != '/')
-            $path = $path . '/';
-
-        $newPath = 'inc/template' . $path . $name;
-        $newPath = str_replace("..", "", $newPath);
-
+        if(!krynAcl::checkAccess(3, $newPath, 'write', true) ) return array('error'=>'access_denied');
 
         if ($name != $oriName) {
             $res['renamed'] = true;
             $res['name'] = $name;
         }
 
-        $exist = file_exists($newPath);
+        $exist = self::$fs->fileExists(self::normalizePath($newPath));
         if ($exist && getArgv('overwrite') != 1) {
             $res['exist'] = true;
         } else {
-            kryn::fileWrite($newPath, 'kryn_fileupload_blocked' . "\n" . $adminClient->token);
+            self::$fs->createFile(self::normalizePath($newPath), 'kryn_fileupload_blocked' . "\n" . $adminClient->token);
         }
 
         return $res;
     }
 
 
-    public static function uploadFile() {
+    public static function uploadFile($pPath) {
         global $adminClient;
 
         $name = $_FILES['file']['name'];
@@ -618,213 +562,138 @@ $pAccess from all
             $name = getArgv('name');
         }
 
-        $path = getArgv('path');
-
         if ($_FILES["file"]['error']) {
 
             switch ($_FILES['file']['error']) {
                 case 1:
-                    $error = _l('The uploaded file exceeds the upload_max_filesize directive in php.ini.');
+                    $error = t('The uploaded file exceeds the upload_max_filesize directive in php.ini.');
                     break;
                 case 2:
                     $error =
-                        _l('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.');
+                        t('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.');
                     break;
                 case 3:
-                    $error = _l('The uploaded file was only partially uploaded.');
+                    $error = t('The uploaded file was only partially uploaded.');
                     break;
                 case 7:
-                    $error = _l('Failed to write file to disk.');
+                    $error = t('Failed to write file to disk.');
                     break;
                 case 6:
-                    $error = _l('Missing a temporary folder.');
+                    $error = t('Missing a temporary folder.');
                     break;
                 case 4:
-                    $error = _l('No file was uploaded.');
+                    $error = t('No file was uploaded.');
                     break;
                 case 8:
-                    $error =
-                        _l('A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.');
+                    $error = t('A PHP extension stopped the file upload.');
                     break;
             }
 
-            klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: %s'), $name, $path, $error));
+            klog('file', sprintf(t('Failed to upload the file %s to %s. Error: %s'), $name, $pPath, $error));
             return;
         }
 
+        $name = self::normalizeName($name);
 
-        $name = @str_replace('ä', "ae", strtolower($name));
-        $name = @str_replace('ö', "oe", $name);
-        $name = @str_replace('ü', "ue", $name);
-        $name = @str_replace('ß', "ss", $name);
-        $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
-        $name = @preg_replace('/--+/', '-', $name);
+        $newPath = ($pPath == '/')?'/'.$name:$pPath.'/'.$name;
 
+        if (self::$fs->fileExists(self::normalizePath($newPath))) {
 
-        if (substr($path, -1) != '/')
-            $path .= '/';
+            if (getArgv('overwrite') != '1') {
 
-        if (substr($path, 0, 1) != '/')
-            $path = '/' . $path;
+                $content = self::$fs->getContent(self::normalizePath($newPath));
 
-        $newPath = 'inc/template' . $path . $name;
-        $newPath = str_replace("..", "", $newPath);
-
-        if (file_exists($newPath)) {
-
-            if (getArgv('overwrite') != "1") {
-
-                $fh = fopen($newPath, 'r');
-                $firstLine = trim(fgets($fh));
-                $secondLine = trim(fgets($fh));
-                fclose($fh);
-
-                if ($firstLine == 'kryn_fileupload_blocked' && $secondLine == $adminClient->token) {
-                } else {
-
-                    $exist = true;
-                    $_id = 0;
-                    while ($exist) {
-                        $extPos = strrpos($name, '.');
-                        $ext = substr($name, (strlen($name) - $extPos) * -1);
-                        $tName = substr($name, 0, $extPos);
-                        $_id++;
-                        $newName = $tName . '-' . $_id . $ext;
-                        $newPath = 'inc/template' . $path . $newName;
-                        $exist = file_exists($newPath);
-                    }
+                if ($content != 'kryn_fileupload_blocked' . "\n" . $adminClient->token) {
+                    //not our file, so cancel
+                    return false;
                 }
             }
         }
 
-        $toDir = dirname($newPath);
+        if (!krynAcl::checkAccess(3, $newPath, 'write', true)) return array('error' => 'access_denied');
 
-        if (!is_writable($toDir)) {
-            klog('file', sprintf(_l('Failed to upload the file %s to %s. Error: to target folder is not writable by webserver.'), $name, $path));
-            return array('error' => 'no_write_access_by_webserver');
-        }
+        $content = kryn::fileRead($_FILES['file']['tmp_name']);
+        self::$fs->setContent(self::normalizePath($newPath), $content);
+        @unlink($_FILES["file"]["tmp_name"]);
 
-        $access = krynAcl::checkAccess(3, $path . $name, 'write', true);
-
-        if (!$access) {
-            return array('error' => 'access_denied');
-        }
-
-        move_uploaded_file($_FILES["file"]["tmp_name"], $newPath);
-
-        return substr($newPath, 12);
+        return $newPath;
     }
 
-    public static function duplicateFile($pOriFile, $pToFileName) {
+    public static function createFile($pPath) {
 
-        $pOriFile = str_replace("..", "", $pOriFile);
-        $pToFileName = str_replace("..", "", $pToFileName);
-        $pToFileName = str_replace("/", "", $pToFileName);
+        $access = krynAcl::checkAccess(3, $pPath, 'write', true);
 
-        $folder = str_replace("\\", "/", dirname($pOriFile));
+        if (!$access) return array('error'=>'access_denied');
+        if(self::$fs->fileExists(self::normalizePath($pPath)))
+            return false;
 
-        $newFilePath = $pToFileName;
-
-        if ($folder != '.')
-            $newFilePath = $folder . '/' . $newFilePath;
-
-        $newFilePath = str_replace("//", "/", $newFilePath);
-
-
-        $toDir = dirname($path);
-        $access = krynAcl::checkAccess(3, '/' . $newFilePath, 'write', true);
-        if (!$access) json('no-access');
-
-        $access = krynAcl::checkAccess(3, '/' . $pOriFile, 'read', true);
-        if (!$access) json('no-access');
-
-        copyr("inc/template/" . $pOriFile, "inc/template/" . $newFilePath);
-        json(true);
+        return self::$fs->createFile(self::normalizePath($pPath));
     }
 
-    public static function newFolder() {
-        $path = 'inc/template' . getArgv('path') . '/' . getArgv('name');
-        $path = str_replace("..", "", $path);
+    public static function createFolder($pPath) {
 
+        $access = krynAcl::checkAccess(3, $pPath, 'write', true);
 
-        $toDir = str_replace('..', '', getArgv('path'));
-        $access = krynAcl::checkAccess(3, $toDir, 'write', true);
-        if (!$access) json('no-access');
+        if (!$access) return array('error'=>'access_denied');
+        if(self::$fs->fileExists(self::normalizePath($pPath)))
+            return false;
 
-        mkdir($path);
-        json(true);
+        return self::$fs->createFolder(self::normalizePath($pPath));
     }
 
-    public static function newFile() {
-        $path = getArgv('path') . '/' . getArgv('name');
-        $path = str_replace("..", "", $path);
+    /**
+     * Removes the magicFolderName in the path, remove .. and // => /
+     *
+     * @param $pPath
+     * @return string
+     */
+    public function normalizePath($pPath){
 
-        $toDir = str_replace('..', '', getArgv('path'));
-        $access = krynAcl::checkAccess(3, $toDir, 'write', true);
-        if (!$access) json('no-access');
-
-
-        kryn::writeTempFile($path, '');
-        json(true);
+        return krynFile::normalizePath($pPath);
     }
 
-    public static function saveFile() {
-        $path = getArgv('path');
-        $path = str_replace("..", "", $path);
+    public function normalizeName($pName){
 
-        $dir = dirname($path);
+        return krynFile::normalizeName($pName);
+    }
 
-        if (substr($dir, 0, 1) != '/')
-            $dir = "/$dir";
+    public static function moveFile($pPath, $pNewPath, $pOverwrite = false) {
 
-        $dir = "inc/template/$dir";
+        if (!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('array'=>'access_denied');
+        if (!krynAcl::checkAccess(3, $pNewPath, 'write', true)) return array('array'=>'access_denied');
 
-        if (!is_dir($dir) && !is_file($dir)) {
-            @mkdirr($dir);
-        }
+        $otherFs = self::getFs($pNewPath);
 
-        $access = krynAcl::checkAccess(3, '/' . $path, 'write', true);
+        if(!$pOverwrite && $otherFs->fileExists(self::normalizePath($pNewPath)))
+            return array('file_exists'=>true);
 
-        if ($access) {
-            self::addVersion("inc/template/" . $path);
-            kryn::writeTempFile($path, $_POST['content']);
-            json(true);
+        if($otherFs == self::$fs){
+            self::$fs->move(self::normalizePath($pPath), self::normalizePath($pNewPath));
         } else {
-            json('no-access');
+            $content = self::$fs->getContent(self::normalizePath($pPath));
+            if ($otherFs->newFile(self::normalizePath($pNewPath), $content)) {
+                self::$fs->remove(self::normalizePath($pPath));
+            }
         }
 
+        //todo, self::renameVersion($pPath, $pNewPath);
+        //todo, self::renameAcls($pPath, $pNewPath);
+
+        return true;
     }
 
-    public static function renameFile() {
+    public static function duplicateFile($pPath, $pNewName, $pOverwrite = false) {
 
-        $path = getArgv('path') . str_replace('/', '', getArgv('name'));
-        $newpath = getArgv('path') . str_replace('/', '', getArgv('newname'));
-        $path = str_replace("..", "", $path);
-        $newpath = str_replace("..", "", $newpath);
+        $pNewPath = dirname($pPath).'/'.self::normalizeName($pNewName);
 
+        if (!krynAcl::checkAccess(3, $pNewPath, 'write', true)) return array('array'=>'access_denied');
 
-        $toDir = dirname($newpath);
+        if(!$pOverwrite && self::$fs->fileExists(self::normalizePath($pNewPath)))
+            return array('file_exists'=>true);
 
-        $access = krynAcl::checkAccess(3, '/' . $path, 'read', true);
-        if (!$access) json('no-access');
-
-        $access = krynAcl::checkAccess(3, '/' . $toDir, 'write', true);
-        if (!$access) json('no-access');
-
-        if (file_exists('inc/template/' . $newpath))
-            json(false);
-
-        rename('inc/template/' . $path, 'inc/template/' . $newpath);
-
-        self::renameVersion('inc/template/' . $path, 'inc/template/' . $newpath);
-        self::renameAcls($path, $newpath);
-
-        json(true);
+        return self::$fs->copy(self::normalizePath($pPath), self::normalizePath($pNewPath));
     }
 
-    public static function getFile($pPath) {
-        json(self::readFile($pPath));
-    }
 
     public static function recover($pRsn) {
 
@@ -852,17 +721,16 @@ $pAccess from all
 
     }
 
-    public static function delFile() {
+    public static function deleteFile($pPath) {
 
-        $path = 'inc/template' . getArgv('path') . getArgv('name');
-        $path = str_replace("..", "", $path);
+        if (!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+        $path = 'inc/template'.$pPath;
 
-        $trash = 'inc/template/trash/';
+        if (substr($pPath,0,7) == '/trash/') {
 
-        if (getArgv('path') == '/trash/') {
-
-            $trashItem = dbTableFetch('system_files_log', 1, "rsn = " . (getArgv('name', 1) + 0));
+            $trashItem = dbTableFetch('system_files_log', 1, "rsn = ".basename($path)+0);
             dbDelete('system_files_log', "rsn = " . $trashItem['rsn']);
+
             if (is_dir($path)) {
                 delDir($path);
             } else {
@@ -870,445 +738,233 @@ $pAccess from all
             }
 
         } else {
-
-            if (!file_exists($path)) return false;
-
-            $nPath = str_replace('inc/template', '', $path);
-
-            $access = krynAcl::checkAccess(3, $nPath, 'write', true);
-            if (!$access) json('no-access');
-
-            $newTrashId = dbInsert('system_files_log', array(
-                'path' => $path,
-                'modified' => filemtime($path),
-                'created' => time(),
-                'type' => (is_dir($path)) ? 1 : 0
-            ));
-
-            $target = $trash . $newTrashId;
-
-            if (is_dir($path)) {
-                self::copyDir($path, $target);
-                delDir($path);
-            } else {
-                copy($path, $target);
-                unlink($path);
-            }
+            self::$fs->deleteFile(self::normalizePath($pPath));
         }
 
-        json(true);
+        return true;
     }
 
-    public static function copyDir($src, $dst) {
-        $src = str_replace("..", "", $src);
-        $dir = opendir($src);
-        mkdir($dst);
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
-                if (is_dir($src . '/' . $file)) {
-                    self::copyDir($src . '/' . $file, $dst . '/' . $file);
-                }
-                else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
-                }
-            }
-        }
-        closedir($dir);
-    }
+    public static function paste($pToPath) {
 
-    public static function paste() {
+        if (!krynAcl::checkAccess(3, $pToPath, 'write', true)) return array('array'=>'access_denied');
 
-        $from = getArgv('from');
+        $files = getArgv('files');
         $move = (getArgv('move') == 1) ? true : false;
 
-        $to = str_replace('..', '', getArgv('to'));
+        if (is_array($files)) {
 
-        if (substr($to, -1, 1) != '/') //need last /
-            $to .= '/';
+            $exist = false;
+            foreach ($files as $file) {
 
-        if (substr($to, 0, 1) != '/') //need first /
-            $to = '/' . $to;
+                $newPath = $pToPath.'/'.basename($file);
+                $fs = self::getFs($newPath);
 
-
-        $access = krynAcl::checkAccess(3, $to, 'write', true);
-        if (!$access) json('no-access');
-
-        $to = "inc/template$to";
-
-        $exist = false;
-        if (is_array($from)) {
-            foreach ($from as $file) {
-                if (file_exists($to . basename($file)))
+                if ($fs->fileExists(self::normalizePath($newPath))) {
                     $exist = true;
-            }
-        }
-
-        if (getArgv('overwrite') != "true" && $exist) {
-            return json(array('exist' => true));
-        }
-
-        if (is_array($from)) {
-            foreach ($from as $file) {
-                $file = str_replace("..", "", $file);
-
-                $access = krynAcl::checkAccess(3, '/' . $file, 'read', true);
-                if ($access) {
-                    if ($move)
-                        rename("inc/template/$file", $to . basename($file));
-                    else
-                        copyr("inc/template/$file", $to . basename($file));
-                }
-            }
-        }
-
-        json(1);
-    }
-
-    /*
-   public static function copyFile(){
-        $srcPath = 'inc/template'.getArgv( 'srcPath' );
-        $dstPath = 'inc/template'.getArgv( 'dstPath' );
-        $srcPath = str_replace( "..", "", $srcPath );
-        $dstPath = str_replace( "..", "", $dstPath );
-        
-        if(is_dir( $srcPath )) {
-            self::copyDir($srcPath, $dstPath);
-        } else {
-            copy( $srcPath, $dstPath );
-        }
-
-        json(true);
-   }
-
-   public static function cutFile(){
-        $srcPath = 'inc/template'.getArgv( 'srcPath' );
-        $dstPath = 'inc/template'.getArgv( 'dstPath' );
-        $srcPath = str_replace( "..", "", $srcPath );
-        $dstPath = str_replace( "..", "", $dstPath );
-        
-        if(is_dir( $srcPath )) {
-            self::copyDir($srcPath, $dstPath);
-            delDir( $srcPath );
-        } else {
-            copy( $srcPath, $dstPath );
-            unlink( $srcPath );
-        }
-
-        json(true);
-    }
-    */
-
-    public static function search($pQuery, $pPath = '', $pMax = 20) {
-
-        $pPath = 'inc/template/' . str_replace('..', '', $pPath);
-
-        $pPath = str_replace('//', '/', $pPath) . '*';
-        $items = find($pPath);
-        $result = array();
-
-        $found = 0;
-        $maxFileSize4ContentSearch = 1024 * 1024 * 8; //
-        $pQuery = str_replace('*', '.*', $pQuery);
-        foreach ($items as &$item) {
-
-
-            $access = krynAcl::checkAccess(3, str_replace('inc/template', '', $file), 'read', true);
-            if ($access) {
-                if (substr($item, 0, 7) == '/trash/') {
-                    continue;
-                }
-
-                if ($found >= $pMax) {
                     break;
                 }
-                if (preg_match('/' . $pQuery . '.*/', basename($item))) {
-                    $result[] = self::getFileInfo($item);
-                    $found++;
-                    continue;
-                }
-
-                if (filesize($item) < $maxFileSize4ContentSearch) {
-                    $content = kryn::fileRead($item);
-                    if (preg_match('/' . $pQuery . '/', $content) || strpos($content, $pQuery) !== false) {
-                        $result[] = self::getFileInfo($item);
-                        $found++;
-                    }
-                    unset($content);
-
-                    continue;
-                }
             }
 
+            if (getArgv('overwrite') != "true" && $exist) {
+                return json(array('exist' => true));
+            }
+
+            foreach ($files as $file) {
+
+                $oldFile = str_replace('..', '', $file);
+                $oldFile = str_replace(chr(0), '', $oldFile);
+
+                if (!krynAcl::checkAccess(3, $oldFile, 'read', true)) continue;
+
+                if ($move)
+                    if (!krynAcl::checkAccess(3, $oldFile, 'write', true)) continue;
+
+                $oldFs = self::getFs($oldFile);
+                $newPath = $pToPath.'/'.basename($file);
+                if (!krynAcl::checkAccess(3, $newPath, 'write', true)) continue;
+
+                $newFs = self::getFs($newPath);
+
+                if ($newFs === $oldFs) {
+                    if ($move)
+                        $newFs->move(self::normalizePath($oldFile), self::normalizePath($newPath));
+                    else
+                        $newFs->copy(self::normalizePath($oldFile), self::normalizePath($newPath));
+                } else {
+
+                    $file = $oldFs->getFile(self::normalizePath($oldFile));
+
+                    if ($file['type'] == 'file'){
+                        $content = $oldFs->getContent(self::normalizePath($oldFile));
+                        $newFs->setContent(self::normalizePath($newPath), $content);
+                    } else {
+                        //we need to move a folder from one file layer to another.
+                        if ($oldFs->magicFolderName == '') {
+                            //just directly upload the stuff
+                            self::copyFolder('inc/template'.$oldFile, $newPath);
+                        } else {
+                            //we need to copy all files down to our local hdd temporarily
+                            $temp = kryn::createTempFolder();
+                            self::downloadFolder($oldFile, $temp);
+                            self::copyFolder($temp, $newPath);
+                            delDir($temp);
+                        }
+                    }
+                    if ($move)
+                        $oldFs->deleteFile(self::normalizePath($oldFile));
+                }
+
+            }
         }
 
-        return $result;
+        return true;
+    }
+
+    public static function downloadFolder($pPath, $pTo){
+
+        $fs = self::getFs($pPath);
+        $files = $fs->getFiles(self::normalizePath($pPath));
+
+        if (!is_dir($pTo)) mkdirr($pTo);
+
+        if (is_array($files)){
+            foreach ($files as $file){
+                if ($file['type'] == 'file'){
+
+                    $content = $fs->getContent(self::normalizePath($pPath.'/'.$file['name']));
+                    kryn::fileWrite($pTo . '/' . $file['name'], $content);
+
+                } else {
+                    self::downloadFolder($pPath.'/'.$file['name'], $pTo.'/'.$file['name']);
+                }
+            }
+        }
 
     }
 
-    public static function getFileInfo($pPath, $pWithSize = false, $pWithAccess = true) {
+    public static function copyFolder($pFrom, $pTo){
 
-        $path = str_replace('..', '', $pPath);
-        $path = str_replace('//', '/', $path);
+        $fs = self::getFs($pTo);
+        $fs->createFolder(self::normalizePath($pTo));
 
-        if (strpos($path, 'inc/template') === false)
-            $path = str_replace('//', '/', 'inc/template/' . $path);
+        $normalizedPath = self::normalizePath($pTo);
 
-        if (!file_exists($path)) {
-            return false;
-        }
+        $files = find($pFrom.'/*');
 
-        $res['location'] = getcwd() . '/' . $path;
-        $res['path'] = str_replace('//', '/', str_replace('inc/template/', '', $path));
+        foreach ($files as $file){
+            $newName = $normalizedPath.'/'.substr($file, strlen($pFrom)+1);
 
-        if (substr($res['path'], 0, 1) == '/') {
-            $res['path'] = substr($res['path'], 1);
-        }
-        $res['type'] = (is_dir($path)) ? 'dir' : 'file';
-        $res['ext'] = '';
-
-        if (substr($res['path'], -1, 1) != '/' && $res['type'] == 'dir') {
-            $res['path'] .= '/';
-        } else {
-            //$res['path'] = dirname( $res['path'] );
-            //if( $res['path'] == '.' )
-            //   $res['path'] = '/';
-        }
-
-        $checkpath = str_replace('inc/template', '', $path);
-
-
-        if ($res['type'] == 'dir')
-            $checkpath .= '/'; //substr($checkpath, 0, -1);
-        else {
-            if (strpos($res['path'], '/') == false)
-                $res['folder'] = '/';
+            if (is_dir($file))
+                $fs->createFolder(self::normalizePath($newName));
             else
-                $res['folder'] = dirname($res['path']) . '/';
-
+                $fs->createFile(self::normalizePath($newName), kryn::fileRead($file));
         }
 
-        if (substr($checkpath, 0, 1) != '/') $checkpath = '/' . $checkpath;
-        $access = krynAcl::checkAccess(3, $checkpath, 'read', true);
-        if (!$access) return false;
+    }
 
-        if ($path == 'inc/template/trash/.htaccess') return false;
+    public static function search($pPath, $pPattern) {
+        if ($pPattern == '') return array();
+        $result = self::$fs->search(self::normalizePath($pPath), $pPattern);
 
-
-        $res['writeaccess'] = krynAcl::checkAccess(3, $checkpath, 'write', true);
-
-
-        if (strpos($path, 'inc/template/trash/') !== false) {
-
-            $item = dbTableFetch('system_files_log', 1, 'rsn = ' . basename($res['path']));
-
-            $res['name'] = basename($item['path']);
-            $res['original_rsn'] = $item['rsn'];
-            $res['original_path'] = $item['path'];
-            $res['lastModified'] = $item['modified'];
-            $res['mtime'] = $item['modified'];
-            $res['type'] = ($item['type'] == 1) ? 'dir' : 'file';
-            $path = $item['path'];
-
-        } else {
-
-            $res['name'] = basename($path);
-            $res['mtime'] = filemtime($path);
-            $res['ctime'] = filectime($path);
-
-            if ($pWithAccess) {
-                if ($res['type'] == 'file') {
-                    $htaccess = dirname($path) . '/' . '.htaccess';
-                } else {
-                    $htaccess = $path . '/' . '.htaccess';
-                }
-
-                if (@file_exists($htaccess)) {
-
-                    $content = kryn::fileRead($htaccess);
-                    @preg_match_all('/<Files ([^>]*)>\W*(\w*) from all[^<]*<\/Files>/smi', $content, $matches, PREG_SET_ORDER);
-                    if (count($matches) > 0) {
-                        foreach ($matches as $match) {
-                            $match[1] = str_replace('"', '', $match[1]);
-                            if ($res['type'] == 'dir') {
-                                $res['htaccess'][] = array(
-                                    'file' => $match[1],
-                                    'access' => $match[2]
-                                );
-                            }
-
-                            if ($res['name'] == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
-                                $res['thishtaccess'] = array(
-                                    'file' => $match[1],
-                                    'access' => $match[2]
-                                );
-                            }
-                        }
-                    }
-                }
-
-                $filepath = str_replace('inc/template', '', $path);
-                $internAcls =
-                    dbTableFetch('system_acl', "type = 3 AND (code LIKE '$filepath\\\%%' OR code LIKE '$filepath\[%')", -1);
-                $res['internalacls'] = $internAcls;
+        if (self::$fs->magicFolderName){
+            foreach ($result as &$item){
+                $item['path'] = self::$fs->magicFolderName.$item['path'];
             }
         }
+        return $result;
+    }
 
-        $res['ext'] = '';
+    public static function getPublicAccess($pPath){
+        return self::$fs->getPublicAccess($pPath);
+    }
+
+    public static function getInternalAccess($pPath){
+        return dbTableFetch('system_acl', "type = 3 AND (code LIKE '$pPath\\\%%' OR code LIKE '$pPath\[%')", -1);
+    }
+
+    public static function getTrashFiles(){
 
 
-        if (!is_dir($path)) {
-            $pos = strrpos($path, '.');
-            if ($pos > 0)
-                $res['ext'] = substr($path, $pos + 1, strlen($path));
-            else
-                $res['ext'] = 'file';
+        $res['type'] = 'dir';
+        $res['path'] = '/trash';
+        $res['name'] = 'Trash';
+        $res['ctime'] = filectime('inc/template/trash');
+        $res['mtime'] = filemtime('inc/template/trash');
 
-            $res['size'] = self::sizeFormat(filesize($path));
-        } else {
-            $res['isDir'] = true;
-            if ($pWithSize) {
-                $dummy = self::getDirectorySize($path);
-                $res['size'] = $dummy['size'];
-                $res['sizeFormat'] = self::sizeFormat($dummy['size']);
-                $res['files'] = $dummy['count'];
-                $res['dirs'] = $dummy['dircount'];
-            }
+
+        $files = array();
+        $h = opendir('inc/template/trash/');
+
+        while ($file = readdir($h)) {
+            if ($file == '.svn' || $file == '.' || $file == '..') continue;
+            $files[] = $file;
         }
 
-        $perms = fileperms($path); // Owner
+        natcasesort($files);
 
-        $info = ($res['type'] == "dir") ? 'd' : '-';
+        foreach ($files as $file) {
+            if ($file == '.htaccess') continue;
+            $path = '/trash/' . $file;
 
-        $info .= (($perms & 0x0100) ? 'r' : '-');
-        $info .= (($perms & 0x0080) ? 'w' : '-');
-        $info .= (($perms & 0x0040) ?
-            (($perms & 0x0800) ? 's' : 'x') :
-            (($perms & 0x0800) ? 'S' : '-'));
+            $dbItem = dbTableFetch('system_files_log', 1, 'rsn = ' . ($file+0));
 
-        $info .= (($perms & 0x0020) ? 'r' : '-');
-        $info .= (($perms & 0x0010) ? 'w' : '-');
-        $info .= (($perms & 0x0008) ?
-            (($perms & 0x0400) ? 's' : 'x') :
-            (($perms & 0x0400) ? 'S' : '-'));
+            $item['name'] = basename($dbItem['path']).'-v'.$file;
+            $item['path'] = str_replace('inc/template', '', $path);
+            $item['original_rsn'] = $dbItem['rsn'];
+            $item['original_path'] = $dbItem['path'];
+            $item['lastModified'] = $dbItem['modified'];
+            $item['mtime'] = $dbItem['modified'];
+            $item['type'] = ($dbItem['type'] == 1) ? 'dir' : 'file';
 
+            $res['items'][] = $item;
 
-        $info .= (($perms & 0x0004) ? 'r' : '-');
-        $info .= (($perms & 0x0002) ? 'w' : '-');
-        $info .= (($perms & 0x0001) ?
-            (($perms & 0x0200) ? 't' : 'x') :
-            (($perms & 0x0200) ? 'T' : '-'));
-
-        $res['perms'] = $info;
-
-        $res['owner'] = fileowner($path);
-        $res['group'] = filegroup($path);
+        }
 
         return $res;
     }
 
-    public static function loadFolder($pPath) {
-        $rPath = $pPath;
-
-        if ($pPath == '/') {
-            if (!file_exists("inc/template/trash"))
-                @mkdir("inc/template/trash");
-        }
+    public static function getFiles($pPath) {
 
         $access = krynAcl::checkAccess(3, $pPath, 'read', true);
         if (!$access) return false;
 
-        $pPath = 'inc/template/' . substr($pPath, 0, strlen($pPath));
-        $pPath = str_replace("..", "", $pPath);
-
-        if (!file_exists($pPath))
-            json(false);
-
-        $res['type'] = (is_dir($pPath)) ? 'dir' : 'file';
-
-        $dir = str_replace('inc/template/', '', $pPath);
-
-        if ($res['type'] == 'dir') {
-            $h = opendir($pPath);
-
-            if (substr($rPath, strlen($rPath) - 1, 1) != '/')
-                $rPath .= '/';
-
-            $res['folderFile'] = self::getFileInfo($rPath);
-
-            $myfiles = array();
-            while ($file = readdir($h)) {
-                if ($file == '.svn' || $file == '.' || $file == '..') continue;
-                $myfiles[] = $file;
-            }
-            natcasesort($myfiles);
-
-            $items = array();
-            foreach ($myfiles as $file) {
-                $path = $pPath . '/' . $file;
-                $item = array();
-
-                $item = self::getFileInfo($path);
-
-                if ($item) {
-                    $item['dir'] = $dir;
-                    $items[$file] = $item;
-                }
-            }
-            $res['items'] = $items;
-        } else {
-            //file
-            $res = self::getFileInfo($rPath);
+        if ($pPath == '/trash'){
+            return self::getTrashFiles();
         }
-        json($res);
-    }
 
-    public static function getDirectorySize($pPath) {
-        $totalsize = 0;
-        $totalcount = 0;
-        $dircount = 0;
-        if ($handle = opendir($pPath)) {
-            while (false !== ($file = readdir($handle))) {
-                $nextpath = $pPath . '/' . $file;
-                if ($file != '.' && $file != '..' && !is_link($nextpath)) {
-                    if (is_dir($nextpath)) {
-                        $dircount++;
-                        $result = self::getDirectorySize($nextpath);
-                        $totalsize += $result['size'];
-                        $totalcount += $result['count'];
-                        $dircount += $result['dircount'];
-                    }
-                    else if (is_file($nextpath)) {
-                        $totalsize += filesize($nextpath);
-                        $totalcount++;
-                    }
+        $items = self::$fs->getFiles(self::normalizePath($pPath));
+        if (!is_array($items)) return $items;
+
+        if (self::$fs->magicFolderName)
+            foreach ($items as &$file)
+                $file['path'] = self::$fs->magicFolderName.$file['path'];
+
+        if($pPath == '/'){
+            if (is_array(kryn::$config['magic_folder'])) {
+                foreach (kryn::$config['magic_folder'] as $folder => &$config ){
+                    $magic = array(
+                        'path'  => '/'.$folder,
+                        'magic' => true,
+                        'name'  => $config['name'],
+                        'icon'  => $config['icon'],
+                        'ctime' => 0,
+                        'mtime' => 0,
+                        'type' => 'dir'
+                    );
+                    $items[$magic['name']] = $magic;
                 }
             }
         }
-        closedir($handle);
-        $total['size'] = $totalsize;
-        $total['count'] = $totalcount;
-        $total['dircount'] = $dircount;
-        return $total;
-    }
 
-    public static function sizeFormat($pSize) {
-        if ($pSize < 1024) {
-            return $pSize . " bytes";
-        }
-        else if ($pSize < (1024 * 1024)) {
-            $pSize = round($pSize / 1024, 1);
-            return $pSize . " KB";
-        }
-        else if ($pSize < (1024 * 1024 * 1024)) {
-            $pSize = round($pSize / (1024 * 1024), 1);
-            return $pSize . " MB";
-        }
-        else
-        {
-            $pSize = round($pSize / (1024 * 1024 * 1024), 1);
-            return $pSize . " GB";
+        //$item['writeaccess'] = krynAcl::checkAccess(3, $item['path'], 'write', true);
+
+        uksort($items, "strnatcasecmp");
+
+        foreach($items as &$file){
+            $file['writeaccess'] = krynAcl::checkAccess(3, $file['path'], 'write', true);
         }
 
+        return $items;
     }
 
 

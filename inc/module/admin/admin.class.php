@@ -58,6 +58,7 @@ class admin {
         require(PATH_MODULE . 'admin/adminSearchIndexer.class.php');
         require(PATH_MODULE . 'admin/adminStore.class.php');
         require(PATH_MODULE . 'admin/adminBackup.class.php');
+        require(PATH_MODULE . 'admin/adminFS.class.php');
 
         tAssign("admin", true);
 
@@ -159,7 +160,11 @@ class admin {
                             break;
 
                         case 'imageThumb':
-                            return adminFilemanager::imageThumb(getArgv('file'));
+                            $content = adminFilemanager::imageThumb(getArgv('path'));
+                            break;
+                        case 'showImage':
+                            $content = adminFilemanager::showImage(getArgv('path'));
+                            break;
 
                         case 'stream':
                             $content = self::stream();
@@ -447,9 +452,7 @@ class admin {
         $from = ($perPage * $page) - $perPage;
         $count = $perPage;
 
-        $title = _l($widget['title']);
-
-        $return = array('items', 'count', 'title' => $title);
+        $return = array('items', 'count');
 
         $sql = "SELECT date, ip, username, code, message FROM %pfx%system_log $where";
 
@@ -578,7 +581,7 @@ class admin {
         $res = array();
         foreach (kryn::$configs as $modCode => &$config) {
 
-            $langFile = PATH_MODULE . "$modCode/lang/help_$lang.json";
+            $langFile = PATH_MODULE . "$modCode/lang/help_$pLang.json";
             if (!file_exists($langFile))
                 $langFile = PATH_MODULE . "$modCode/lang/help_en.json";
             if (!file_exists($langFile))
@@ -666,13 +669,6 @@ class admin {
 
         //print mootools date translation
 
-        exit;
-    }
-
-    public static function loginLang() {
-        $code = getArgv('loginLang');
-        $json = json_encode($lang[$code]);
-        print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . $json;
         exit;
     }
 
@@ -1087,7 +1083,7 @@ class admin {
                 }
             }
             if ((!$links[$key]['type'] && !$links[$key]['childs']) || $links[$key]['isLink'] === false) {
-                unset($links[$extCode][$key]);
+                unset($links[$key][$key]);
             }
 
         }
@@ -1131,44 +1127,6 @@ class admin {
             preg_replace('/{krynplugin plugin="(.*)?"}/U', "<img src=\"${path}admin/menu=pluginIcon/plugin=$1/\" class='krynPluginIcon' />", $content);
         json($res);
     }
-
-    public static function get_dir_array($myDir = ".", $template) {
-        if (substr($myDir, -1) == "/")
-            $myDir = substr($myDir, 0, -1);
-
-        $dir = opendir($myDir);
-        #$result[] = array();
-
-        while ($file = readdir($dir)) {
-            $newDir = $myDir . "/" . $file;
-            if (substr($newDir, 0, strlen("inc/template/" . $template)) == "inc/template/" . $template) {
-                if ($file == "." || $file == ".." || $file == "CVS")
-                    continue;
-
-                $filename = substr($newDir, 13, strlen($newDir));
-                $t = explode("/", $newDir);
-
-                if (is_dir($newDir)) {
-                    #echo $filename."\n";
-                    $result[$filename] = $this->get_dir_array($newDir . "/", $template);
-                } else {
-                    #echo "FILE: ".$newDir."\n";
-                    $t = explode("/", $newDir);
-                    $result[$newDir] = $t[count($t) - 1];
-                }
-            }
-        }
-        return $result;
-    }
-
-    public static function linkCheckForm() {
-        $result = true;
-        if ($_REQUEST['linkname'] == "") $result = false;
-        if ($_REQUEST['linkurl'] == "") $result = false;
-        if ($_REQUEST['linkuser'] == "") $result = false;
-        return $result;
-    }
-
     public function install() {
 
         dbDelete('system_pages');
@@ -1320,8 +1278,8 @@ class admin {
 
     public function manipulateLastChangesRow($pRow) {
         //$domain = kryn::getDomain( $pRow[4] );
-        $pRow[2] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {rsn: ' . $pRow[2] . '});">' .
-                   kryn::getPagePath($pRow[2] + 0) . '</a>';
+        $pRow[3] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {rsn: ' . $pRow[3] . '});">' .
+                   kryn::getPagePath($pRow[3] + 0) . '</a>';
         return $pRow;
     }
 

@@ -194,6 +194,13 @@ class kryn {
 
 
     /**
+     * Contains all object definitions based on the extension configs.
+     *
+     * @var array
+     */
+    public static $objects = array();
+
+    /**
      * Defines whether the user has acces to the frontend-editor or not.
      * @var bool
      * @static
@@ -204,7 +211,7 @@ class kryn {
 
 
     /**
-     * Contains the current slot informations.
+     * Contains the current slot information.
      * Items: index, maxItems, isFirst, isLast
      * @var array
      */
@@ -638,8 +645,11 @@ class kryn {
 
         $md5 = md5($md5);
 
-        kryn::$tables =& kryn::getCache('systemTables-v2');
+        kryn::$tables =& kryn::getCache('systemTablesv2');
 
+        /*
+         * load tables
+         */
         if (!kryn::$tables || $md5 != kryn::$tables['__md5']) {
 
             kryn::$tables = array();
@@ -674,11 +684,14 @@ class kryn {
 
             }
 
-            kryn::setCache('systemTables-v2', kryn::$tables);
+            kryn::setCache('systemTablesv2', kryn::$tables);
         }
 
         unset(kryn::$tables['__md5']);
 
+        /*
+         * load themes
+         */
         kryn::$themes =& kryn::getCache('systemThemes');
         if (!kryn::$themes || $md5 != kryn::$themes['__md5']) {
 
@@ -687,14 +700,41 @@ class kryn {
 
             foreach (kryn::$extensions as &$extension) {
 
-                $config = kryn::getModuleConfig($extension, false, true);
+                $config = kryn::$configs[$extension] || kryn::getModuleConfig($extension, false, true);
                 if ($config['themes'])
                     kryn::$themes[$extension] = $config['themes'];
             }
             kryn::setCache('systemThemes', kryn::$themes);
         }
-
         unset(kryn::$themes['__md5']);
+
+
+        /*
+         * load object definitions
+         */
+        kryn::$objects =& kryn::getCache('systemObjects');
+
+        if (!kryn::$objects || $md5 != kryn::$objects['__md5']){
+
+            kryn::$objects = array();
+            kryn::$objects['__md5'] = $md5;
+
+            foreach (kryn::$extensions as &$extension) {
+
+                $config = kryn::$configs[$extension] || kryn::getModuleConfig($extension, false, true);
+
+                if ($config['objects'] && is_array($config['objects'])){
+
+                    foreach ($config['objects'] as $objectId => $objectDefinition){
+                        $objectDefinition['_extension'] = $extension; //caching
+                        kryn::$objects[$objectId] = $objectDefinition;
+                    }
+                }
+
+            }
+            kryn::setCache('systemObjects', kryn::$objects);
+        }
+        unset(kryn::$objects['__md5']);
     }
 
     /**
@@ -987,7 +1027,7 @@ class kryn {
         global $cfg;
 
 
-        if (strpos($pUrl, 'http') === false) {
+        if (strpos($pUrl, 'http') === false && kryn::$domain) {
 
             if (kryn::$domain['master'] != 1)
                 $pUrl = kryn::$domain['lang'] . '/' . $pUrl;
@@ -1320,7 +1360,6 @@ class kryn {
             $path = '[' . $domain['lang'] . '] ';
         $path .= $domain['domain'];
 
-        error_log(print_r($parents,true));
         foreach ($parents as &$parent) {
             $path .= $pDelimiter . $parent['title'];
         }
@@ -1531,6 +1570,7 @@ class kryn {
         $f = false;
         foreach ($_GET as $k => &$v) {
             if ($k == '_kurl') continue;
+            if (is_array($v)) continue;
             kryn::$urlWithGet .= (!$f ? '?' : '&') . urlencode($k) . '=' . urlencode($v);
             if ($f == false) $f = true;
         }
@@ -2386,8 +2426,7 @@ class kryn {
      * @internal
      */
     public static function display($pReturn = false) {
-        //mi add
-        global $_start, $modules, $_AGET, $kcache;
+        global $_start, $modules, $client;
 
         kryn::$pageUrl = '/' . kryn::getRequestPageUrl(true); //kryn::$baseUrl.$possibleUrl;
 
@@ -2706,6 +2745,9 @@ class kryn {
         if ($h) {
             fwrite($h, $pContent);
             fclose($h);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -2837,6 +2879,42 @@ class kryn {
         return $files;
     }
 
+    /**
+     * Returns the webservers temp folder.
+     *
+     * @static
+     * @return string
+     */
+    public static function getTempFolder(){
+
+        if ($_ENV['TMP']) return $_ENV['TMP'];
+        if ($_ENV['TEMP']) return $_ENV['TEMP'];
+        if ($_ENV['TMPDIR']) return $_ENV['TMPDIR'];
+        if ($_ENV['TEMPDIR']) return $_ENV['TEMPDIR'];
+
+        return sys_get_temp_dir();
+    }
+
+    /**
+     * Creates a temp folder and returns its path.
+     *
+     * @static
+     * @param string $pPrefix
+     * @return string
+     */
+    public static function createTempFolder($pPrefix = ''){
+
+        $string = self::getTempFolder();
+        if (substr($string, -1) != '/')
+            $string .= '/';
+
+        do {
+            $path = $string . $pPrefix . dechex(time() / mt_rand(100, 500));
+        } while (is_dir($path));
+
+        mkdir($path);
+        return $path;
+    }
 }
 
 ?>

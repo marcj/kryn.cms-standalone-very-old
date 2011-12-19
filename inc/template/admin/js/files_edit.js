@@ -1,26 +1,25 @@
 var admin_files_edit = new Class({
 
-    __images: ['jpg', 'bmp', 'png', 'gif'],
+    __images: ['jpg', 'bmp', 'png', 'gif', 'jpeg'],
 
     initialize: function (pWindow) {
         this.win = pWindow;
         this.win.content.setStyle('overflow', 'hidden');
-        if (!this.win.params.file.ext) {
-            this.win.params.file.ext = '';
-        }
 
         if (this.win.params.file.name) {
             this.win.setTitle(this.win.params.file.name + ' ' + _('edit'));
         } else {
-            this.win.setTitle(this.win.params.file.path + ' ' + _('edit'));
+            this.win.setTitle(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('/')) + ' ' + _('edit'));
         }
         this._createLayout();
     },
 
     loadFile: function () {
-        new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/files/getContent', noCache: 1, onComplete: function (res) {
             if (typeOf(res) != 'null') {
                 this.textarea.value = res;
+            } else {
+                this.textarea.value = '';
             }
             this.renderCodePress();
         }.bind(this)}).get({ path: this.win.params.file.path });
@@ -37,8 +36,10 @@ var admin_files_edit = new Class({
             css: 'css',
             txt: 'text'
         };
-        if (this.win.params.file.ext) {
-            var type = this.win.params.file.ext.replace(/\./, '');
+        if (this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1)) {
+
+            var type = this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1);
+
             if (exts[type]) {
                 var css = 'js';
                 var js = ["tokenizejavascript.js", "parsejavascript.js"];
@@ -63,13 +64,14 @@ var admin_files_edit = new Class({
         var _this = this;
         this.saveBtn.startTip(_('Save ...'));
         var value = (this.editor) ? this.editor.getCode() : this.textarea.value;
-        new Request.JSON({url: _path + 'admin/files/saveFile', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/files/setContent', noCache: 1, onComplete: function (res) {
             this.saveBtn.stopTip(_('Saved'));
         }.bind(this)}).post({ path: this.win.params.file.path, content: value });
     },
 
     _createLayout: function () {
-        if (!this.__images.contains(this.win.params.file.ext.toLowerCase())) {
+
+        if (!this.__images.contains(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1).toLowerCase())) {
             var boxNavi = this.win.addButtonGroup();
             this.fileSaveGrp = boxNavi;
             this.saveBtn = boxNavi.addButton(_('Save'), _path + 'inc/template/admin/images/button-save.png', this.save.bind(this));
@@ -199,14 +201,12 @@ var admin_files_edit = new Class({
             }.bind(this);
 
             var path = this.win.params.file.path;
-            if (path.substr(0, 1) == '/') {
-                path = path.substr(1, path.length);
-            }
 
             this.oriImagePath = path;
 
+            var path = _path+'admin/backend/showImage?'+Object.toQueryString({path: path, noCache: (new Date()).getTime()});
             this.img = new Element('img', {
-                src: _path + 'inc/template/' + path + '?nc=' + (new Date().getTime()),
+                src: path,
                 onLoad: fId + '()'
             }).inject(td);
 
@@ -226,15 +226,17 @@ var admin_files_edit = new Class({
             this.lastRotateRq.cancel();
         }
 
-        this.lastRotateRq = new Request.JSON({url: _path + 'admin/files/rotate', noCache: 1, onComplete: function (pMtime) {
-            this.loadImage(this.oriImagePath + '?mtime=' + pMtime);
+        this.lastRotateRq = new Request.JSON({url: _path + 'admin/files/rotate', noCache: 1, onComplete: function () {
 
-            if (this._images[ '/' + this.oriImagePath ]) {
-                this._images[ '/' + this.oriImagePath ].src = _path + 'admin/backend/imageThumb/?file=' + escape(this.oriImagePath.replace(/\//g, "\\")) + '&noC=' + pMtime;
+            if (this._images[ this.oriImagePath ]) {
+                this._images[ this.oriImagePath ].src =
+                    _path + 'admin/backend/imageThumb/?'
+                        +Object.toQueryString({path: this.oriImagePath, mtime: (new Date).getTime()});
             }
 
             loader.hide();
-        }.bind(this)}).post({position: pPos, file: this.oriImagePath });
+            this.loadImage(this.oriImagePath);
+        }.bind(this)}).post({position: pPos, path: this.oriImagePath });
     },
 
     resize: function (pWidth, pHeight) {
@@ -247,14 +249,16 @@ var admin_files_edit = new Class({
         }
 
         this.lastRotateRq = new Request.JSON({url: _path + 'admin/files/resize', noCache: 1, onComplete: function (pMtime) {
-            this.loadImage(this.oriImagePath + '?mtime=' + pMtime);
+            this.loadImage(this.oriImagePath);
 
-            if (this._images[ '/' + this.oriImagePath ]) {
-                this._images[ '/' + this.oriImagePath ].src = _path + 'admin/backend/imageThumb/?file=' + escape(this.oriImagePath.replace(/\//g, "\\")) + '&noC=' + pMtime;
+            if (this._images[ this.oriImagePath ]) {
+                this._images[ this.oriImagePath ].src =
+                    _path + 'admin/backend/imageThumb/?'
+                        +Object.toQueryString({path: this.oriImagePath, mtime: (new Date).getTime()});
             }
 
             loader.hide();
-        }.bind(this)}).post({width: pWidth, height: pHeight, file: this.oriImagePath });
+        }.bind(this)}).post({width: pWidth, height: pHeight, path: this.oriImagePath });
 
 
     },
@@ -262,45 +266,45 @@ var admin_files_edit = new Class({
     _loadImageSidebar: function () {
 
         new Element('img', {
-            src: _path + 'inc/template/admin/images/loading.gif',
+            src: _path + 'inc/template/admin/images/loading.gif'
         }).inject(this.sidebar);
 
-        var dir = this.win.params.file.path;
-        if (dir.indexOf('/') == -1) {
-            dir = '';
-        } else {
-            dir = this.win.params.file.path.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
-        }
+        var path = this.win.params.file.path.substr(0, this.win.params.file.path.lastIndexOf('/'));
+        if (!path)
+            path = '/';
 
         new Request.JSON({url: _path + 'admin/files/getImages', noCache: 1, onComplete: function (res) {
             this.sidebar.empty();
-            this._images = $H({});
+            this._images = {};
             if (res) {
                 res.each(function (item) {
-                    this._images[item] = new Element('img', {
-                        'class': 'admin-files-sidebar-image' + ((item == '/' + this.oriImagePath) ? ' admin-files-sidebar-image-active' : ''),
-                        src: _path + 'admin/backend/imageThumb/?file=' + escape(item.replace(/\//g, "\\")) + '&noC=' + (new Date().getTime())
+
+                    this._images[item.path] = new Element('img', {
+                        'class': 'admin-files-sidebar-image' + ((item.path == this.oriImagePath) ? ' admin-files-sidebar-image-active' : ''),
+                        src: _path + 'admin/backend/imageThumb/?'+Object.toQueryString({path: item.path, mtime: item.mtime})
                     }).addEvent('click', function () {
-                        this._goToImage(item, true);
+                        this._goToImage(item.path, true);
                     }.bind(this)).inject(this.sidebar);
 
                 }.bind(this));
             }
             this._goToImage(this.win.params.file.path);
 
-        }.bind(this)}).post({dir: dir});
+        }.bind(this)}).post({path: path});
 
     },
 
     _goToImage: function (pItem, pWithView) {
+
         var image = this._images[ pItem ];
         if (!image) return;
-        this._images.each(function (item) {
+
+        Object.each(this._images, function (item) {
             item.set('class', 'admin-files-sidebar-image');
         });
 
         image.addClass('admin-files-sidebar-image-active');
-        //this.imageScroller.toElement( image );
+
         var pos = image.getPosition(this.sidebar);
         this.imageScroller.start(0, pos.y + this.sidebar.getScroll().y);
 
@@ -320,11 +324,16 @@ var admin_files_edit = new Class({
 
     loadImage: function (pImage) {
 
-        if (pImage.substr(0, 1) == '/') {
-            pImage = pImage.substr(1, pImage.length);
-        }
+        this.td.empty();
 
-        this.img = new Asset.image(_path + 'inc/template/' + pImage + '?nc=' + (new Date().getTime()), {
+        var loader = new ka.loader(true, true).inject(this.td);
+        loader.show();
+
+        this.win.params = {file: {path: pImage}};
+        this.win.setTitle(_('Image %s').replace('%s', pImage.substr(pImage.lastIndexOf('/'))));
+
+        var path = _path+'admin/backend/showImage?'+Object.toQueryString({path: pImage, noCache: (new Date()).getTime()});
+        this.img = new Asset.image(path, {
             onLoad: function () {
                 this.td.empty();
                 this.img.inject(this.td);
@@ -361,43 +370,23 @@ var admin_files_edit = new Class({
     calcMax: function () {
 
         var size = this.imageDiv.getSize();
+        size.x -= 3;
+        size.y -= 3;
 
         var faktor = 1;
-        if (size.x < size.y) {
-            if (this.imgSize.x > this.imgSize.y) {
-                faktor = this.imgSize.x / size.x;
-            } else {
-                faktor = this.imgSize.y / size.y;
-            }
-        } else {
-            if (this.imgSize.x < this.imgSize.y) {
-                faktor = this.imgSize.x / size.x;
-            } else {
-                faktor = this.imgSize.y / size.y;
-            }
 
+        if (this.imgSize.x > size.x) {
+            //trim to max size.x
+            faktor = this.imgSize.x / size.x;
         }
 
-        if (faktor < 1) {
-            proz = 100;
-        } else {
-            //faktor = faktor - 1;
-            proz = (100 / faktor) - 1;
+        if (this.imgSize.y/faktor > size.y) {
+            //height is still to height
+            faktor = this.imgSize.y / size.y;
         }
 
-        if (proz > 150) {
-            proz = 150;
-        }
-
-
-        /*if( this.imgSize.x > this.imgSize.y ){
-         var newX = this.imgSize.x * (proz/100);
-         this.img.width = newX;
-         } else {
-         var newY = this.imgSize.y * (proz/100);
-         this.img.height = newY;
-         } */
-        var pos = Math.floor(proz - 1);
+        proz = (100 / faktor);
+        var pos = Math.floor(proz);
         this.slider.set(pos);
         this.onSlide(pos);
     },

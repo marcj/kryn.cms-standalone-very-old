@@ -114,7 +114,7 @@ ka.alreadyLocked = function (pWin, pResult) {
 
 ka.bytesToSize = function (bytes) {
     var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-    if (bytes == 0) return 'n/a';
+    if (!bytes) return '0 Bytes';
     var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     if (i == 0) {
         return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];

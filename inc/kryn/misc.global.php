@@ -377,68 +377,71 @@ function &array_merge_recursive_distinct(array &$array1, &$array2 = null) {
 
 if (!function_exists('mime_content_type')) {
 
-    function mime_content_type($filename) {
-
-        $mime_types = array(
-
-            'txt' => 'text/plain',
-            'htm' => 'text/html',
-            'html' => 'text/html',
-            'php' => 'text/html',
-            'css' => 'text/css',
-            'js' => 'application/javascript',
-            'json' => 'application/json',
-            'xml' => 'application/xml',
-            'swf' => 'application/x-shockwave-flash',
-            'flv' => 'video/x-flv',
-            'png' => 'image/png',
-            'jpe' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'jpg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'bmp' => 'image/bmp',
-            'tiff' => 'image/tiff',
-            'tif' => 'image/tiff',
-            'svg' => 'image/svg+xml',
-            'svgz' => 'image/svg+xml',
-            'zip' => 'application/zip',
-            'rar' => 'application/x-rar-compressed',
-            'cab' => 'application/vnd.ms-cab-compressed',
-            'mp3' => 'audio/mpeg',
-            'qt' => 'video/quicktime',
-            'mov' => 'video/quicktime',
-            'ppt' => 'application/vnd.ms-powerpoint',
-            'pdf' => 'application/pdf',
-            'psd' => 'image/vnd.adobe.photoshop',
-            'ai' => 'application/postscript',
-            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
-            'eps' => 'application/postscript',
-            'ps' => 'application/postscript',
-            'rtf' => 'application/rtf',
-            'exe' => 'application/x-msdownload',
-            'msi' => 'application/x-msdownload',
-            'xls' => 'application/vnd.ms-excel',
-            'doc' => 'application/msword',
-            'odt' => 'application/vnd.oasis.opendocument.text',
-            'ico' => 'image/vnd.microsoft.icon',
-        );
-
-        $ext = strtolower(array_pop(explode('.', $filename)));
-        if (array_key_exists($ext, $mime_types)) {
-            return $mime_types[$ext];
-        }
-        elseif (function_exists('finfo_open')) {
+    function mime_content_type($pPath) {
+        if (mime_content_type_for_name($pPath)) {
+            return mime_content_type_for_name($pPath);
+        } elseif (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME);
-            $mimetype = finfo_file($finfo, $filename);
+            $mimetype = finfo_file($finfo, $pPath);
             finfo_close($finfo);
             return $mimetype;
-        }
-        else {
+        } else {
             return 'application/octet-stream';
         }
     }
+
 }
 
+function mime_content_type_for_name($pPath){
+    $mime_types = array(
+
+        'txt' => 'text/plain',
+        'htm' => 'text/html',
+        'html' => 'text/html',
+        'php' => 'text/html',
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'json' => 'application/json',
+        'xml' => 'application/xml',
+        'swf' => 'application/x-shockwave-flash',
+        'flv' => 'video/x-flv',
+        'png' => 'image/png',
+        'jpe' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'bmp' => 'image/bmp',
+        'tiff' => 'image/tiff',
+        'tif' => 'image/tiff',
+        'svg' => 'image/svg+xml',
+        'svgz' => 'image/svg+xml',
+        'zip' => 'application/zip',
+        'rar' => 'application/x-rar-compressed',
+        'cab' => 'application/vnd.ms-cab-compressed',
+        'mp3' => 'audio/mpeg',
+        'qt' => 'video/quicktime',
+        'mov' => 'video/quicktime',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pdf' => 'application/pdf',
+        'psd' => 'image/vnd.adobe.photoshop',
+        'ai' => 'application/postscript',
+        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+        'eps' => 'application/postscript',
+        'ps' => 'application/postscript',
+        'rtf' => 'application/rtf',
+        'exe' => 'application/x-msdownload',
+        'msi' => 'application/x-msdownload',
+        'xls' => 'application/vnd.ms-excel',
+        'doc' => 'application/msword',
+        'odt' => 'application/vnd.oasis.opendocument.text',
+        'ico' => 'image/vnd.microsoft.icon',
+    );
+
+    $ext = strtolower(array_pop(explode('.', $pPath)));
+    if (array_key_exists($ext, $mime_types))
+        return $mime_types[$ext];
+    return false;
+}
 
 function clearfolder($pFolder) {
 
@@ -456,37 +459,48 @@ function clearfolder($pFolder) {
 /* 
  * Resize a image to a fix resolution or to max dimension.
  *
- * @param pResolution Defined the resolution of the target image. e.g 1024x700, 1500x100, 500x500 
- * @param $pThumb If you want to resize the image to fix resolution (thumbnails) 
+ * @param string|resource $pSource Defines the target. As path or as image resource.
+ * @param string|bool     $pTarget Defines the target. As path if your wanna save it down or true if you wanna get it
+ *                                 as resource.
+ *
+ * @param string $pResolution Defines the resolution of the target image. e.g 1024x700, 1500x100, 500x500
+ * @param bool   $pThumb      If you want to resize the image to fix resolution (thumbnails)
+ * @param string $pFixSide
+ *
  * @static
 */
-function resizeImage($pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide = '') {
+function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSide = '') {
 
-    list($oriWidth, $oriHeight, $type) = getimagesize($pPath);
-    switch ($type) {
-        case 1:
-            $imagecreate = 'imagecreatefromgif';
-            $imagesave = 'imagegif';
-            break;
-        case 2:
-            $imagecreate = 'imagecreatefromjpeg';
-            $imagesave = 'imagejpeg';
-            break;
-        case 3:
-            $imagecreate = 'imagecreatefrompng';
-            $imagesave = 'imagepng';
-            break;
+    if (is_resource($pSource)){
+        $oriWidth = imagesx($pSource);
+        $oriHeight = imagesy($pSource);
+        $img = $pSource;
+    } else {
+        list($oriWidth, $oriHeight, $type) = getimagesize($pSource);
+        switch ($type) {
+            case 1:
+                $imagecreate = 'imagecreatefromgif';
+                $imagesave = 'imagegif';
+                break;
+            case 2:
+                $imagecreate = 'imagecreatefromjpeg';
+                $imagesave = 'imagejpeg';
+                break;
+            case 3:
+                $imagecreate = 'imagecreatefrompng';
+                $imagesave = 'imagepng';
+                break;
+            default:
+                return false;
+        }
+        $img = $imagecreate($pSource);
     }
 
-    if (!$imagecreate)
-        return;
 
-    $img = $imagecreate($pPath);
 
     list($newWidth, $newHeight) = explode('x', $pResolution);
     $thumpWidth = $newWidth;
     $thumpHeight = $newHeight;
-
 
     //
     // render Thump
@@ -531,10 +545,10 @@ function resizeImage($pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide 
             imagesavealpha($thumpImage, true);
         }
 
+        if ($pTarget === true) return $thumpImage;
         $imagesave($thumpImage, $pTarget);
 
     } else {
-
 
         if ($pFixSide == 'y' || (!$pFixSide && $oriHeight > $oriWidth)) {
             $ratio = $newHeight / ($oriHeight / 100);
@@ -559,6 +573,8 @@ function resizeImage($pPath, $pTarget, $pResolution, $pThumb = false, $pFixSide 
             imagesavealpha($newImage, true);
         }
 
+
+        if ($pTarget === true) return $newImage;
         $imagesave($newImage, $pTarget);
 
     }

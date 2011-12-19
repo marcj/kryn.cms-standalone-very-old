@@ -53,6 +53,7 @@ class krynLanguage {
 
         $res = '"';
         $res .= str_replace("\n", '\n"' . "\n" . '"', $pString);
+        $res .= str_replace('"', '\"', $pString);
         $res .= '"';
         return $res;
     }
