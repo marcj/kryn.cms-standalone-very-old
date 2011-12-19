@@ -9,7 +9,7 @@ var admin_files_edit = new Class({
         if (this.win.params.file.name) {
             this.win.setTitle(this.win.params.file.name + ' ' + _('edit'));
         } else {
-            this.win.setTitle(this.win.params.file.path + ' ' + _('edit'));
+            this.win.setTitle(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('/')) + ' ' + _('edit'));
         }
         this._createLayout();
     },
@@ -295,14 +295,16 @@ var admin_files_edit = new Class({
     },
 
     _goToImage: function (pItem, pWithView) {
+
         var image = this._images[ pItem ];
         if (!image) return;
+
         Object.each(this._images, function (item) {
             item.set('class', 'admin-files-sidebar-image');
         });
 
         image.addClass('admin-files-sidebar-image-active');
-        //this.imageScroller.toElement( image );
+
         var pos = image.getPosition(this.sidebar);
         this.imageScroller.start(0, pos.y + this.sidebar.getScroll().y);
 
@@ -326,6 +328,9 @@ var admin_files_edit = new Class({
 
         var loader = new ka.loader(true, true).inject(this.td);
         loader.show();
+
+        this.win.params = {file: {path: pImage}};
+        this.win.setTitle(_('Image %s').replace('%s', pImage.substr(pImage.lastIndexOf('/'))));
 
         var path = _path+'admin/backend/showImage?'+Object.toQueryString({path: pImage, noCache: (new Date()).getTime()});
         this.img = new Asset.image(path, {
@@ -365,6 +370,8 @@ var admin_files_edit = new Class({
     calcMax: function () {
 
         var size = this.imageDiv.getSize();
+        size.x -= 3;
+        size.y -= 3;
 
         var faktor = 1;
 
@@ -379,14 +386,6 @@ var admin_files_edit = new Class({
         }
 
         proz = (100 / faktor);
-
-        /*if( this.imgSize.x > this.imgSize.y ){
-         var newX = this.imgSize.x * (proz/100);
-         this.img.width = newX;
-         } else {
-         var newY = this.imgSize.y * (proz/100);
-         this.img.height = newY;
-         } */
         var pos = Math.floor(proz);
         this.slider.set(pos);
         this.onSlide(pos);
