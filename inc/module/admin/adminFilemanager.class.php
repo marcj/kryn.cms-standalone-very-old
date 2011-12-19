@@ -54,7 +54,6 @@ class adminFilemanager {
             case 'redirect':
                 return self::redirectToPublicUrl($path);
 
-
             case 'getVersions':
                 return self::getVersions($path);
             case 'addVersion':

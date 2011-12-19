@@ -150,6 +150,82 @@ class krynFile {
     }
 
     /**
+     * Creates a file
+     *
+     * @static
+     * @param  string $pPath
+     * @return bool
+     */
+    public static function createFile($pPath, $pContent){
+
+        $fs = self::getLayer($pPath);
+        return $fs->createFile(self::normalizePath($pPath), $pContent);
+
+    }
+
+    /**
+     * Creates a folder
+     *
+     * @static
+     * @param  string $pPath
+     * @return bool
+     */
+    public static function createFolder($pPath){
+
+        $fs = self::getLayer($pPath);
+        return $fs->createFolder(self::normalizePath($pPath));
+
+    }
+
+    /**
+     * Gets the basic information of the file
+     *
+     * @static
+     * @param  string $pPath
+     * @return array
+     */
+    public static function getFile($pPath){
+
+        $fs = self::getLayer($pPath);
+        return $fs->getFile(self::normalizePath($pPath));
+
+    }
+
+    /**
+     * Gets the basic information of all files inside the folder
+     *
+     * @static
+     * @param  string $pPath
+     * @return array
+     */
+    public static function getFiles($pPath){
+
+        $fs = self::getLayer($pPath);
+        return $fs->getFile(self::normalizePath($pPath));
+
+    }
+
+    public static function copy($pFrom, $pTo){
+        //TODO, move the code from adminFilemanager::paste() to here
+
+    }
+
+    public static function move($pFrom, $pTo){
+        //TODO, move the code from adminFilemanager::paste() to here
+
+    }
+
+    public static function search($pFrom, $pTo){
+        //TODO, move the code from adminFilemanager::search() to here
+
+    }
+
+    public static function search($pFrom, $pTo){
+        //TODO, move the code from adminFilemanager::search() to here
+
+    }
+
+    /**
      *
      * Returns the public URL of the file $pPath
      * With HTTP or HTTPs, depends on kryn::$ssl.
@@ -162,13 +238,13 @@ class krynFile {
         $fs = self::getLayer($pPath);
         $url = $fs->getPublicUrl(self::normalizePath($pPath));
 
-        //TODO, check if $url contains http(s)://, and the decide if we need to add it
+        //TODO, check if $url contains http(s)://, and then decide if we need to add it
 
         return $url;
     }
 
     /**
-     * Translates the internal url to the real path.
+     * Translates the internal id to the real path.
      * Example: getPath(45) => '/myImageFolder/Picture1.png'
      *
      * @static
