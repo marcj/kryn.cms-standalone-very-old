@@ -73,7 +73,7 @@ class krynFile {
      */
     public function normalizePath($pPath){
 
-        $fs = self::getFs($pPath);
+        $fs = self::getLayer($pPath);
         $pPath = substr($pPath, strlen($fs->magicFolderName));
 
         $pPath = str_replace('..', '', $pPath);
