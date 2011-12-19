@@ -700,7 +700,7 @@ class kryn {
 
             foreach (kryn::$extensions as &$extension) {
 
-                $config = kryn::$configs[$extension] || kryn::getModuleConfig($extension, false, true);
+                $config = kryn::$configs[$extension] ? kryn::$configs[$extension]:kryn::getModuleConfig($extension, false, true);
                 if ($config['themes'])
                     kryn::$themes[$extension] = $config['themes'];
             }
@@ -721,7 +721,7 @@ class kryn {
 
             foreach (kryn::$extensions as &$extension) {
 
-                $config = kryn::$configs[$extension] || kryn::getModuleConfig($extension, false, true);
+                $config = kryn::$configs[$extension] ? kryn::$configs[$extension]:kryn::getModuleConfig($extension, false, true);
 
                 if ($config['objects'] && is_array($config['objects'])){
 

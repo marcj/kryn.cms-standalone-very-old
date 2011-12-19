@@ -220,11 +220,6 @@ class krynFile {
 
     }
 
-    public static function search($pFrom, $pTo){
-        //TODO, move the code from adminFilemanager::search() to here
-
-    }
-
     /**
      *
      * Returns the public URL of the file $pPath
