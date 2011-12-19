@@ -387,7 +387,7 @@ var admin_files_edit = new Class({
          var newY = this.imgSize.y * (proz/100);
          this.img.height = newY;
          } */
-        var pos = Math.floor(proz - 1);
+        var pos = Math.floor(proz);
         this.slider.set(pos);
         this.onSlide(pos);
     },
