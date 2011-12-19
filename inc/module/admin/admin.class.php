@@ -162,6 +162,10 @@ class admin {
                         case 'imageThumb':
                             $content = adminFilemanager::imageThumb(getArgv('path'));
                             break;
+                        case 'showImage':
+                            $content = adminFilemanager::showImage(getArgv('path'));
+                            break;
+
                         case 'stream':
                             $content = self::stream();
                             break;

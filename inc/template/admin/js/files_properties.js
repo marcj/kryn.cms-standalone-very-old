@@ -139,7 +139,7 @@ var admin_files_properties = new Class({
         if (this.file.type == 'dir') {
             tdClass += ' dir';
         } else {
-            tdClass += ' ' + this.file.ext;
+            tdClass += ' ' + this.file.path.substr(this.file.path.lastIndexOf('.')+1);
         }
         td.set('class', tdClass);
 

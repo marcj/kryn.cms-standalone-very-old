@@ -221,19 +221,18 @@ class adminFS {
 
     }
 
-    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 0){
+    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1){
 
         $result = array();
         $files = $this->getFiles($pPath);
 
-        $q = preg_quote($pPattern, '.*/');
-        $q = str_replace('\*', '.*', $q);
+        $q = str_replace('/', '\/', $pPattern);
 
         foreach ($files as $file){
-            if (preg_match('/^'.$q.'/', $file['name']) !== 0){
+            if (preg_match('/^'.$q.'/i', $file['name'], $match) !== 0){
                 $result[] = $file;
             }
-            if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth <= $pDepth)){
+            if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth < $pDepth)){
                 $newPath = $pPath . ($pPath=='/'?'':'/') . $file['name'];
                 $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth+1);
                 if (is_array($more))

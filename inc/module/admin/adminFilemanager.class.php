@@ -126,21 +126,22 @@ class adminFilemanager {
 
             //todo, next 3 methods
             case 'rotate':
-                return self::rotateFile(getArgv('file'), getArgv('position'));
+                return self::rotateFile($path, getArgv('position'));
             case 'resize':
-                return self::resize(getArgv('file'), getArgv('width') + 0, getArgv('height') + 0);
+                return self::resize($path, getArgv('width') + 0, getArgv('height') + 0);
             case 'diffFiles':
                 return self::diffFiles(getArgv('from'), getArgv('to'));
 
             case 'paste':
                 return self::paste($path);
             case 'search':
-                return self::search($path, getArgv('q'));
+                return self::search($path, getArgv('q'), getArgv('depth')+0);
 
         }
     }
 
     public static function preview($pPath){
+
         $expires = 3600;
         header("Pragma: public");
         header("Cache-Control: maxage=".$expires);
@@ -218,6 +219,8 @@ class adminFilemanager {
     public static function setInternalAcl($pFilePath, $pRules) {
         global $cfg;
 
+        if(!krynAcl::checkAccess(3, $pFilePath, 'write', true)) return array('error'=>'access_denied');
+
         $pFilePath = esc('/' . $pFilePath);
         if ($pFilePath == '//')
             $pFilePath = '/';
@@ -246,6 +249,7 @@ class adminFilemanager {
 
     }
 
+    /*
     public static function setFilesystem($pPath, $pChmod, $pOwner = false, $pGroup = false, $pWithSub = false) {
 
 
@@ -267,9 +271,11 @@ class adminFilemanager {
             }
         }
         return true;
-    }
+    }*/
 
     public static function setPublicAccess($pPath, $pAccess) {
+
+        if(!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('error'=>'access_denied');
 
         if ($pAccess == '') $pAccess = -1;
         if (strtolower($pAccess) == 'allow') $pAccess = true;
@@ -301,6 +307,8 @@ class adminFilemanager {
             klog('files', str_replace('%s', $version['versionpath'], _l('Can not recover the version for file %s')));
             return false;
         }
+
+        if(!krynAcl::checkAccess(3, $version['path'], 'write', true)) return array('error'=>'access_denied');
 
         self::addVersion($version['path']);
 
@@ -336,17 +344,18 @@ class adminFilemanager {
     public static function addVersion($pPath) {
         global $user;
 
-        $pPath = str_replace("..", ".", $pPath);
-        $pPath = str_replace("//", "/", $pPath);
+        //TODO, need to create a way, where we can define another path/backend for saving versions
 
         if (!file_exists($pPath)) return false;
 
         if (!file_exists('data/fileversions/')) {
             if (!mkdir('data/fileversions/')) {
-                klog('files', _l('Can not create the file versions folder data/fileversions/, so the system can not create file versions.'));
+                klog('files', t('Can not create the file versions folder data/fileversions/, so the system can not create file versions.'));
                 return;
             }
         }
+
+        if(!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('error'=>'access_denied');
 
         $versionpath = kryn::toModRewrite($pPath);
 
@@ -371,34 +380,49 @@ class adminFilemanager {
 
 
     public static function resize($pFile, $pWidth, $pHeight) {
-        $pFile = 'inc/template/' . str_replace('..', '', $pFile);
 
-        list($oriWidth, $oriHeight, $type) = getimagesize($pFile);
-        switch ($type) {
-            case 1:
-                $imagecreate = 'imagecreatefromgif';
-                $imagesave = 'imagegif';
-                break;
-            case 2:
-                $imagecreate = 'imagecreatefromjpeg';
-                $imagesave = 'imagejpeg';
-                break;
-            case 3:
-                $imagecreate = 'imagecreatefrompng';
-                $imagesave = 'imagepng';
-                break;
+        if(!krynAcl::checkAccess(3, $pFile, 'write', true)) return array('error'=>'access_denied');
+
+
+        $content = self::$fs->getContent(self::normalizePath($pFile));
+
+        $image = imagecreatefromstring($content);
+        if (!$image){
+            klog('filemanager',
+                str_replace('%s', $pFile, t('Can not rotate image %s, cause the image type is not supported.')));
+            return array('error' => 'image_type_not_supported');
         }
 
+        $oriWidth = imagesx($image);
+        $oriHeight = imagesy($image);
 
         $imageNew = imagecreatetruecolor($pWidth, $pHeight);
-        $image = $imagecreate($pFile);
 
         imagecopyresampled($imageNew, $image, 0, 0, 0, 0, $pWidth, $pHeight, $oriWidth, $oriHeight);
 
         self::addVersion($pFile);
-        $imagesave($imageNew, $pFile);
 
-        return filemtime($pFile);
+
+        $type = mime_content_type_for_name($pFile);
+        $imageSave = '';
+
+        if ($type == 'image/png') $imageSave = 'imagepng';
+        if ($type == 'image/jpg') $imageSave = 'imagejpeg';
+        if ($type == 'image/jpeg') $imageSave = 'imagejpeg';
+        if ($type == 'image/gif') $imageSave = 'iamgegif';
+
+        $temp =  kryn::createTempFolder();
+        $tempFile = $temp.'/rotateFile';
+
+        if ($imageSave)
+            $imageSave($imageNew, $tempFile);
+
+        $content = kryn::fileRead($tempFile);
+        self::$fs->setContent(self::normalizePath($pFile), $content);
+
+        delDir($temp);
+
+        return true;
     }
 
 
@@ -418,30 +442,23 @@ class adminFilemanager {
 
 
     public static function rotateFile($pFile, $pPosition) {
-        global $user;
 
-        $pFile = 'inc/template/' . str_replace('..', '', $pFile);
+        if(!krynAcl::checkAccess(3, $pFile, 'write', true)) return array('error'=>'access_denied');
 
-        list($oriWidth, $oriHeight, $type) = getimagesize($pFile);
-        switch ($type) {
-            case 1:
-                $imagecreate = 'imagecreatefromgif';
-                $imagesave = 'imagegif';
-                break;
-            case 2:
-                $imagecreate = 'imagecreatefromjpeg';
-                $imagesave = 'imagejpeg';
-                break;
-            case 3:
-                $imagecreate = 'imagecreatefrompng';
-                $imagesave = 'imagepng';
-                break;
+        $content = self::$fs->getContent(self::normalizePath($pFile));
+
+        $source = imagecreatefromstring($content);
+        if (!$source){
+            klog('filemanager',
+                        str_replace('%s', $pFile, t('Can not rotate image %s, cause the image type is not supported.')));
+            return array('error' => 'image_type_not_supported');
         }
 
-        $source = $imagecreate($pFile);
+        $oriWidth = imagesx($source);
+        $oriHeight = imagesy($source);
 
         $degrees = 90;
-        if ($pPosition == 'left')
+        if ($pPosition == 'right')
             $degrees *= -1;
 
         if (function_exists("imagerotate")) {
@@ -458,20 +475,64 @@ class adminFilemanager {
 
         self::addVersion($pFile);
 
-        $imagesave($rotate, $pFile);
+        $type = mime_content_type_for_name($pFile);
+        $imageSave = '';
 
-        return filemtime($pFile);
+        if ($type == 'image/png') $imageSave = 'imagepng';
+        if ($type == 'image/jpg') $imageSave = 'imagejpeg';
+        if ($type == 'image/jpeg') $imageSave = 'imagejpeg';
+        if ($type == 'image/gif') $imageSave = 'iamgegif';
+
+        $temp =  kryn::createTempFolder();
+        $tempFile = $temp.'/rotateFile';
+
+        if ($imageSave)
+            $imageSave($rotate, $tempFile);
+
+        $content = kryn::fileRead($tempFile);
+        self::$fs->setContent(self::normalizePath($pFile), $content);
+
+        delDir($temp);
+
+        return true;
     }
 
 
     public static function getImages($pPath) {
 
-        //todo, dont use it
-        //return kryn::$fs->search(self::normalizePath($pPath), '*.jpg');
+        $result = self::$fs->search(self::normalizePath($pPath), '.*\.(jpg|jpeg|png|bmp)', 1);
+        if (self::$fs->magicFolderName){
+            foreach ($result as &$item){
+                $item['path'] = self::$fs->magicFolderName.$item['path'];
+            }
+        }
+        return $result;
+    }
 
+    public static function showImage($pPath) {
+        $pPath = str_replace('..', '', $pPath);
+
+        if(!krynAcl::checkAccess(3, $pPath, 'read', true)) return array('error'=>'access_denied');
+        $expires = 3600;
+
+        self::$fs = self::getFs($pPath);
+        $content = self::$fs->getContent(self::normalizePath($pPath));
+        if (!$content) return array('error'=>'file_empty');
+
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header("Content-Type: image/png");
+
+        $image = imagecreatefromstring($content);
+
+        imagepng($image);
+        imagedestroy($image);
+        exit;
     }
 
     public static function imageThumb($pPath) {
+        $pPath = str_replace('..', '', $pPath);
 
         if(!krynAcl::checkAccess(3, $pPath, 'read', true)) return array('error'=>'access_denied');
         $expires = 3600;

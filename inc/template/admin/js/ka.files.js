@@ -1631,6 +1631,7 @@ ka.files = new Class({
         if (item) {
 
             if (file && !file.magic && file.path != '/trash' && file.path.substr(0,7) != '/trash/') {
+                if (this._modules.indexOf(file.path+'/') >= 0) return;
                 this.startDrag(pEvent, item);
             }
 
