@@ -1,24 +1,41 @@
+
+.ka-loginHead {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: -165px;
+    height: 155px;
+    background-color: white;
+}
+
 .ka-login {
     position: absolute;
     left: 0px;
     right: 0px;
-    top: 0px;
+    top: 160px;
     bottom: 0px;
-    background-image: url(../images/login-bg.jpg);
-    background-repeat: repeat-x;
-    background-color: #00273c;
+    border-top: 5px solid #f15a29;
+    background-color: #373737;
     text-align: center;
-    z-index: 20000000; /*20mil*/
+    z-index: 200101;
+    color: white;
+}
+
+.ka-login .ka-Select-box-title {
+    color: #333;
+}
+
+
+.ka-login .ka-Select-box {
+    border: 1px solid #333;
+    box-shadow: 0px 1px 0px #666;
 }
 
 .ka-login-icon {
-    font-size: 19px;
+    font-size: 22px;
     font-weight: bold;
-    position: absolute;
-    left: 25px;
-    top: 14px;
-    color: #333;
-    line-height: 36px;
+    color: #ddd;
+    text-shadow: 0px 1px 1px black;
 }
 
 .ka-login-middleBg {
@@ -27,7 +44,6 @@
     top: 0px;
     width: 437px;
     height: 185px;
-    background-image: url(../images/login-box-bg.png);
 }
 
 .ka-login-middle {
@@ -35,12 +51,10 @@
     margin: auto;
     width: 437px;
     height: 185px;
-    margin-top: 235px;
-/*    border: 13px solid white;*/
+    margin-top: 60px;
     text-align: left;
     position: relative;
-/*    background-image: url(../images/login-middle-bg.jpg);
-    background-repeat: no-repeat;*/
+    background-color: #373737;
 }
 
 .ka-ai-loader-con {
@@ -56,6 +70,18 @@
     background-color: #f8f8f8;
 }
 
+.ka-login-labels {
+    position: absolute;
+    left: -162px;
+    width: 250px;
+    top: -6px;
+    line-height: 45px;
+    text-align: right;
+    font-size: 13px;
+    color: #b5b5b5;
+    text-shadow: 0px 1px 1px #111;
+}
+
 .ka-ai-loader-txt {
     height: 4px;
     bottom: 88px;
@@ -65,34 +91,13 @@
     position: absolute;
 }
 
-.ka-login-middle-logo {
-    position: absolute;
-    right: -13px;
-    display: none;
-    top: -180px;
-}
-
 .ka-login-middle-form {
     position: absolute;
     left: 9px;
     top: 65px;
     width: 413px;
     height: 100px;
-}
-
-.ka-login-middle-form .label {
-    font-size: 11px;
-    letter-spacing: 1px;
-    font-weight: bold;
-    position: absolute;
-    top: 0px;
-    left: 15px;
-    color: #555;
-}
-
-.ka-login-middle-form .label-pw {
-    left: 220px;
-}
+}}
 
 .ka-login-middle-form .entries {
     float: left;
@@ -103,28 +108,122 @@
 .ka-login-input-passwd,
 .ka-login-input-username {
     position: absolute;
+
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
-    border: 1px solid #dadada;
+
+    box-shadow: inset 0 0 5px #181818;
+
+    border: 0px;
+    background-color: #292929;
     padding: 5px;
-    width: 170px;
+    color: white;
+    font-size: 14px;
+    padding-left: 15px;
+    padding-right: 35px;
+    font-weight: bold;
+    height: 23px;
+    border-bottom: 1px solid #444;
+    width: 228px;
+    left: 95px;
+}
+
+
+.ka-login-input-passwd:focus,
+.ka-login-input-username:focus {
+    box-shadow: inset 0 0 5px #0e2e44;
+}
+
+.ka-login-circlebtn {
+    position: absolute;
+    right: 13px;
+    top: 13px;
+
+    background: rgb(42,123,172); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(42,123,172,1) 0%, rgba(11,63,91,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(42,123,172,1)), color-stop(100%,rgba(11,63,91,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* IE10+ */
+    background: linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2a7bac', endColorstr='#0b3f5b',GradientType=0 ); /* IE6-9 */
+
+
+    width: 44px;
+    height: 44px;
+    -moz-border-radius: 44px;
+    -webkit-border-radius: 44px;
+    border-radius: 44px;
+
+    border: 5px solid #292929;
+    box-shadow: inset 0 0 7px #2b77a5;
+}
+
+
+.ka-login-circlebtn img {
+    position: absolute;
+    top: 12px;
+    left: 8px;
+}
+
+
+.ka-login-circlebtn:hover {
+    cursor: pointer;
+
+    background: rgb(36,99,147); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(36,99,147,1) 0%, rgba(8,41,65,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(36,99,147,1)), color-stop(100%,rgba(8,41,65,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* IE10+ */
+    background: linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#246393', endColorstr='#082941',GradientType=0 ); /* IE6-9 */
+
+    background: rgb(13,66,107); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(13,66,107,1) 0%, rgba(31,92,124,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(13,66,107,1)), color-stop(100%,rgba(31,92,124,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* IE10+ */
+    background: linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0d426b', endColorstr='#1f5c7c',GradientType=0 ); /* IE6-9 */
+
+}
+
+.ka-login-circlebtn:active {
+
+    box-shadow: inset 0 0 7px #23526e;
+}
+
+.ka-login-circlebtnbrd {
+
+    position: absolute;
+    right: 6px;
+    top: 5px;
+    background-color: #373737;
+
+    width: 70px;
+    height: 70px;
+    -moz-border-radius: 70px;
+    -webkit-border-radius: 70px;
+    border-radius: 70px;
+
 }
 
 .ka-login-input-passwd {
-    top: 21px;
-    left: 220px;
+    top: 46px;
 }
 
 .ka-login-input-username {
-    top: 21px;
-    left: 15px;
+    top: 1px;
 }
 
 .ka-login-middle .loginMessage {
     position: absolute;
-    bottom: 5px;
-    left: 25px;
+    bottom: 2px;
+    left: 247px;
+
     height: 25px;
     text-align: right;
     font-weight: bold;
@@ -136,7 +235,7 @@
 .ka-login-middle-form .loginLangSelection {
     position: absolute;
     right: 12px;
-    top: 62px;
+    top: 115px;
     width: 120px;
     padding: 3px 2px 2px 2px;
     -moz-border-radius: 4px;
@@ -150,7 +249,7 @@
     position: absolute;
     left: 12px;
     font-weight: bold;
-    top: 62px;
+    top: 92px;
     cursor: pointer;
     font-size: 13px;
 }

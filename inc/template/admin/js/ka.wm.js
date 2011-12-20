@@ -262,10 +262,10 @@ ka.wm = {
 
         if (c > 1) {
             $('windowList').setStyle('display', 'block');
-            $('middle').setStyle('bottom', 25);
+            $('desktop').setStyle('bottom', 27);
         } else {
             $('windowList').setStyle('display', 'none');
-            $('middle').setStyle('bottom', 0);
+            $('desktop').setStyle('bottom', 0);
         }
 
     },

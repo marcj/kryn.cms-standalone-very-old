@@ -1061,8 +1061,9 @@ ka.kwindow = new Class({
     },
 
     extendHead: function () {
-        this.title.setStyle('height', 39 + 14);
-        this.content.setStyle('top', 39 + 16);
+        this.title.setStyle('height', 39 + 13);
+        this.title.addClass('kwindow-win-title-extended');
+        this.content.setStyle('top', 39 + 14);
     },
 
     addTabGroup: function () {

@@ -26,6 +26,7 @@
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc={$time}" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Button.js" ></script>
+        <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Select.js" ></script>
         
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.css">
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
@@ -47,6 +48,7 @@
         
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Button.css" />
+        <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Select.css" />
         <link rel="SHORTCUT ICON" href="{$cfg.templatepath}/admin/images/favicon.ico" />
         
         {$adminHeader}

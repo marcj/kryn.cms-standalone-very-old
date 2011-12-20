@@ -1,7 +1,7 @@
 .kwindow-win-titleGroups {
     display: block;
-    position: absolute; 
-    top: 26px;
+    position: absolute;
+    top: 25px;
     left: 0px;
     min-height: 28px;
 }
@@ -61,18 +61,6 @@
 }
 
 
-.kwindow-win-tabWrapperLast {
-    -moz-border-radius-topright: 4px;
-    border-right: 1px solid #a9a9a9;
-/*    -moz-border-radius-bottomright: 4px;*/
-}
-
-.kwindow-win-tabWrapperFirst {
-    -moz-border-radius-topleft: 4px;
-/*    -moz-border-radius-bottomleft: 4px;*/
-}
-
-
 .kwindow-win-tabWrapper:hover {
     background-color: #b0b0b0;
     border-left: 1px solid #999;
@@ -89,4 +77,17 @@
     border-left: 1px solid #999;
     border-bottom: 1px solid #eee;
     color: #333;
+}
+
+
+
+.kwindow-win-tabWrapperLast {
+    -moz-border-radius-topright: 4px;
+    border-right: 0px;
+    /*    -moz-border-radius-bottomright: 4px;*/
+}
+
+.kwindow-win-tabWrapperFirst {
+    -moz-border-radius-topleft: 4px;
+    /*    -moz-border-radius-bottomleft: 4px;*/
 }

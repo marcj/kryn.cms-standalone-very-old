@@ -173,7 +173,7 @@ ka.windowCombine = new Class({
 
         if (this.values.add || this.values.remove || this.values.custom) {
             this.actionsNavi = this.win.addButtonGroup();
-            this.actionsNavi.setStyle('margin-right', 159 + 15);
+            this.actionsNavi.setStyle('margin-right', 159 + 17);
         }
 
         if (this.values.remove) {

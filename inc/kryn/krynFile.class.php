@@ -71,7 +71,7 @@ class krynFile {
      * @param  string $pPath
      * @return string
      */
-    public function normalizePath($pPath){
+    public static function normalizePath($pPath){
 
         $fs = self::getLayer($pPath);
         $pPath = substr($pPath, strlen($fs->magicFolderName));

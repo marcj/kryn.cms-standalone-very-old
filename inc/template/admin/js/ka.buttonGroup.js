@@ -70,10 +70,10 @@ ka.buttonGroup = new Class({
         //}
         //c--;
 
-        this.boxWrapper.setStyle('width', (c * 32) + extraWidth);
+        this.boxWrapper.setStyle('width', (c * 32) + extraWidth -1);
 
         c--;
-        this.box.setStyle('width', (c * 29) + extraWidth);
+        this.box.setStyle('width', (c * 29) + extraWidth -1);
 
         //        var width = (Browser.Engine.trident)?:this.box.
         var width = this.boxWrapper.offsetWidth + 0;
@@ -89,11 +89,14 @@ ka.buttonGroup = new Class({
 
         var wrapper = new Element('a', {
             'class': 'kwindow-win-buttonWrapper',
-            href: 'javascript:;',
-            styles: {
-                'background-image': 'url(' + pButtonSrc + ')'
-            }
+            href: 'javascript:;'
         }).inject(this.boxWrapper);
+
+        var imgWrapper = new Element('span').inject( wrapper );
+        new Element('img', {
+            src: pButtonSrc,
+            height: 14
+        }).inject( imgWrapper );
 
         if ($type(pTitle) == 'string') {
             wrapper.set('title', pTitle);

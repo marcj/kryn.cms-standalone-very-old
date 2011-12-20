@@ -192,6 +192,10 @@ ka.ai.renderLogin = function () {
         'class': 'ka-login'
     }).inject(document.body);
 
+    ka.ai.loginHead = new Element('div', {
+        'class': 'ka-loginHead'
+    }).inject(ka.ai.login);
+
     var middle = new Element('div', {
         'class': 'ka-login-middle'
     }).inject(ka.ai.login);
@@ -201,11 +205,6 @@ ka.ai.renderLogin = function () {
     ka.ai.loginMiddleBg = new Element('div', {
         'class': 'ka-login-middleBg'
     }).inject(ka.ai.middle);
-
-    new Element('img', {
-        'class': 'ka-login-middle-logo',
-        'src': _path + 'inc/template/admin/images/logo-login.png'
-    }).inject(middle);
 
     var form = new Element('form', {
         id: 'loginForm',
@@ -218,21 +217,17 @@ ka.ai.renderLogin = function () {
         }).inject(middle);
     ka.ai.loginForm = form;
 
+
+    ka.ai.loginLabels = new Element('div', {
+        'class': 'ka-login-labels',
+        html: _('Username')+':<br />'+_('Password')+':'
+    }).inject( form );
+
     var icon = new Element('div', {
         'class': 'ka-login-icon',
         html: _('Administration')
     }).inject(middle);
     ka.ai.loginIcon = icon;
-
-    ka.ai.loginLabelUsername = new Element('div', {
-        'class': 'label',
-        'html': _('Username')
-    }).inject(form);
-
-    ka.ai.loginLabelPassword = new Element('div', {
-        'class': 'label label-pw',
-        'html': _('Password')
-    }).inject(form);
 
     ka.ai.loginName = new Element('input', {
         name: 'loginName',
@@ -256,35 +251,50 @@ ka.ai.renderLogin = function () {
             }
         }).inject(form);
 
-    ka.ai.buttonLogin = new ka.Button(_('Login')).addEvent('click',
-        function () {
-            //form.submit();
-            ka.ai.doLogin();
-        }).inject(form);
+    new Element('div', {
+        'class': 'ka-login-circlebtnbrd'
+    }).inject(form);
 
-    ka.ai.loginLangSelection = new Element('select', {
-        'class': 'loginLangSelection'
-    }).addEvent('change',
-        function () {
-            ka.loadLanguage(this.value);
-            ka.ai.reloadLogin();
-        }).inject(form);
 
-    ka.possibleLangs.each(function (lang) {
-        new Element('option', {
-            html: lang.title + ' (' + lang.langtitle + ')',
-            value: lang.code
-        }).inject(ka.ai.loginLangSelection);
+    ka.ai.loginCircleBtn = new Element('div', {
+        'class': 'ka-login-circlebtn'
+    })
+    .addEvent('click', function () {
+        //form.submit();
+        ka.ai.doLogin();
+    })
+    .inject(form);
+
+    new Element('img', {
+        src: _path+'inc/template/admin/images/login-icon.png'
+    }).inject(ka.ai.loginCircleBtn);
+
+
+
+    ka.ai.loginLangSelection = new ka.Select();
+    document.id(ka.ai.loginLangSelection).inject(form);
+    document.id(ka.ai.loginLangSelection).setStyles({
+        position: 'absolute',
+        left: 90, top: 90, width: 120
     });
 
-    var ori = ka.ai.loginLangSelection.value;
+    ka.ai.loginLangSelection.addEvent('change', function () {
+        ka.loadLanguage(ka.ai.loginLangSelection.getValue());
+        ka.ai.reloadLogin();
+    }).inject(form);
 
-    ka.ai.loginLangSelection.value = window._session.lang;
+    ka.possibleLangs.each(function (lang) {
+        ka.ai.loginLangSelection.add(lang.code, lang.title + ' (' + lang.langtitle + ')');
+    });
+
+    var ori = ka.ai.loginLangSelection.getValue();
+
+    ka.ai.loginLangSelection.setValue(window._session.lang);
 
     if (!Cookie.read('kryn_language')) {
-        ka.ai.loginLangSelection.value = navigator.browserLanguage || navigator.language;
-        if (ka.ai.loginLangSelection.value != window._session.lang) {
-            ka.loadLanguage(ka.ai.loginLangSelection.value);
+        ka.ai.loginLangSelection.setValue(navigator.browserLanguage || navigator.language);
+        if (ka.ai.loginLangSelection.getValue() != window._session.lang) {
+            ka.loadLanguage(ka.ai.loginLangSelection.getValue());
             ka.ai.reloadLogin();
         }
     }
@@ -296,13 +306,11 @@ ka.ai.renderLogin = function () {
 
     ka.ai.loginName.focus();
 
-    ka.loadLanguage(ka.ai.loginLangSelection.value);
+    ka.loadLanguage(ka.ai.loginLangSelection.getValue());
 }
 
 ka.ai.reloadLogin = function () {
-    ka.ai.loginLabelUsername.set('html', _('Username'));
-    ka.ai.loginLabelPassword.set('html', _('Password'));
-    ka.ai.buttonLogin.set('html', _('Login') + '<span></span>');
+    ka.ai.loginLabels.set('html', _('Username')+':<br />'+_('Password')+':');
     ka.ai.loginIcon.set('html', _('Administration'));
 }
 
@@ -325,7 +333,7 @@ ka.ai.logout = function (pScreenlocker) {
         ka.ai.loaderCon.destroy();
     }
 
-    ka.ai.loginLabelPassword.value = '';
+    ka.ai.loginPw.value = '';
 
     ka.ai.middle.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
     ka.ai.middle.tween('margin-top', ka.ai.middle.retrieve('oldMargin'));
@@ -353,8 +361,6 @@ ka.ai.logout = function (pScreenlocker) {
     ka.ai.loginPw.value = '';
     ka.ai.loginPw.focus();
     window._session.user_rsn = 0;
-    ka.ai.buttonLogin.setStyle('opacity', 1);
-    ka.ai.buttonLogin.addEvent('click', ka.ai.doLogin);
 }
 
 ka.ai.loginSuccess = function (pId, pAlready) {
@@ -388,8 +394,6 @@ ka.ai.loginSuccess = function (pId, pAlready) {
     }
     ka.ai.loginMessage.set('html', mesg);
 
-    ka.ai.buttonLogin.setStyle('opacity', 0.5);
-    ka.ai.buttonLogin.removeEvents('click');
     ka.ai.loadBackend();
 }
 

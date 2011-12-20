@@ -581,7 +581,7 @@ var admin_pages = new Class({
         if (left > 0) {
             this.tree.setStyle('width', left);
             this.main.setStyle('left', left + 6);
-            this.win.titleGroups.setStyle('padding-left', left - 56);
+            this.win.titleGroups.setStyle('padding-left', left - 54);
         }
 
         var _this = this;
@@ -599,7 +599,7 @@ var admin_pages = new Class({
                     _this.main.setStyle('left', left + 6);
                 }
                 if (left - 56 >= 160) {
-                    _this.win.titleGroups.setStyle('padding-left', left - 56);
+                    _this.win.titleGroups.setStyle('padding-left', left - 54);
                 } else {
                     _this.win.titleGroups.setStyle('padding-left', 160);
                 }

@@ -19,6 +19,9 @@ a:hover {
     color: gray;
 }
 
+.gradient {
+    filter: none;
+}
 
 /*
     DIVs

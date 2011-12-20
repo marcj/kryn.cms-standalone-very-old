@@ -27,6 +27,10 @@ input, select, textarea {
     outline: 0;	
 }
 
+a, a:link {
+    color: #333;
+}
+
 
 .selectable,
 div.selectable, span.selectable,

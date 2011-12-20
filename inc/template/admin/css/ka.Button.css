@@ -32,7 +32,7 @@ a.ka-Button span, a.ka-Button:link span {
     position: absolute;
     right: -4px;
     top: 0px;
-    height: 25px;
+    height: 24px;
     width: 6px;
     background-image: url(../images/button-bg.png);
     background-repeat: no-repeat;

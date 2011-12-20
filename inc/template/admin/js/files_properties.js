@@ -564,7 +564,14 @@ var admin_files_properties = new Class({
         }
 
 
-        this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p);
+        this.versionsTable = new ka.Table([
+            [_('ID'), 30],
+            [_('Date'), 90],
+            [_('Size'), 70],
+            [_('Creator'), 100],
+            [_('Actions')]
+        ]).inject(p);
+        /*
         this.generalTableBody = new Element('tbody').inject(this.generalTable);
 
         this.mkTr();
@@ -574,7 +581,7 @@ var admin_files_properties = new Class({
         this.mkTh(_('Size'));
         this.mkTh(_('Creator'));
         this.mkTh(_('Actions'));
-
+*/
         this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/getVersions', onComplete: function (pVersions) {
 
             this.renderVersions(pVersions);
@@ -588,17 +595,21 @@ var admin_files_properties = new Class({
 
         pVersions.each(function (version, id) {
 
-            this.mkTr();
-            this.mkTd('#' + version.rsn).setStyle('width', 20);
-            this.mkTd(new Date(version.created * 1000).format('%d.%m.%Y, %H:%M')).setStyle('width', 120);
-            this.mkTd(version.size);
-            this.mkTd(version.username);
+
+
 
             var div = new Element('div');
 
             new ka.Button(_('Recover')).addEvent('click', this.recover.bind(this, version)).inject(div);
+            var row = [
+                '#' + version.rsn,
+                new Date(version.created * 1000).format('%d.%m.%Y, %H:%M'),
+                ka.bytesToSize(version.size),
+                version.username,
+                div
+            ];
 
-            this.mkTd(div);
+            this.versionsTable.addRow(row);
 
         }.bind(this));
 

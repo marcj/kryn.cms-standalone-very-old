@@ -112,6 +112,14 @@ class adminFilemanager {
         }
     }
 
+
+    public static function setContent($pPath, $pContent){
+
+        if (!krynAcl::checkAccess(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+
+        krynFile::setContent($pPath, $pContent);
+    }
+
     public static function preview($pPath){
 
         $expires = 3600;
@@ -168,7 +176,8 @@ class adminFilemanager {
                 'name'  => $folder['name'],
                 'ctime' => 0,
                 'mtime' => 0,
-                'type' => 'dir'
+                'type' => 'dir',
+                'writeaccess' => krynAcl::checkAccess(3, '/', 'write', true)
             );
         }
         $file = self::$fs->getFile(self::normalizePath($pPath));
@@ -284,7 +293,8 @@ class adminFilemanager {
 
         self::addVersion($version['path']);
 
-        copy($version['versionpath'], $version['path']);
+        $content = kryn::fileRead($version['versionpath']);
+        krynFile::setContent($version['path'], $content);
 
         return true;
 
@@ -304,7 +314,8 @@ class adminFilemanager {
         ", -1);
 
         foreach ($versions as &$version) {
-            $version['size'] = filesize($version['versionpath']);
+            if (file_exists($version['versionpath']))
+                $version['size'] = filesize($version['versionpath']);
         }
 
         return $versions;
@@ -318,7 +329,7 @@ class adminFilemanager {
 
         //TODO, need to create a way, where we can define another path/backend for saving versions
 
-        if (!file_exists($pPath)) return false;
+        if (!krynFile::exists($pPath)) return false;
 
         if (!file_exists('data/fileversions/')) {
             if (!mkdir('data/fileversions/')) {
@@ -331,17 +342,19 @@ class adminFilemanager {
 
         $versionpath = kryn::toModRewrite($pPath);
 
-        $rand = md5(filemtime($pPath) . mt_rand(1, 100) . mt_rand(1, 12200) . time());
+        $rand = md5(mt_rand(1, 100) . mt_rand(1, 12200) . time());
 
         $versionpath = 'data/fileversions/' . $rand . '.' . $versionpath . '.ver';
 
-        copy($pPath, $versionpath);
+        $content = krynFile::getContent($pPath);
+        $fileInfo = krynFile::getFile($pPath);
+        kryn::fileWrite($versionpath, $versionpath);
 
         $insert = array(
             'user_rsn' => $user->user_rsn,
             'path' => $pPath,
             'created' => time(),
-            'mtime' => filemtime($pPath),
+            'mtime' => $fileInfo['mtime'],
             'versionpath' => $versionpath
         );
 
@@ -708,11 +721,12 @@ class adminFilemanager {
             $access = krynAcl::checkAccess(3, '/' . $nPath, 'write', true);
             if (!$access) json('no-access');
 
-            if (file_exists($item['path'])) {
+            if (krynFile::exists($item['path'])) {
                 self::addVersion($item['path']);
             }
 
-            rename("inc/template/trash/" . $item['rsn'], $item['path']);
+            $content = kryn::fileRead("inc/template/trash/" . $item['rsn']);
+            krynFile::setContent($item['path'], $content);
 
             dbDelete('system_files_log', "rsn = " . $item['rsn']);
         }
@@ -883,14 +897,6 @@ class adminFilemanager {
 
     public static function getTrashFiles(){
 
-
-        $res['type'] = 'dir';
-        $res['path'] = '/trash';
-        $res['name'] = 'Trash';
-        $res['ctime'] = filectime('inc/template/trash');
-        $res['mtime'] = filemtime('inc/template/trash');
-
-
         $files = array();
         $h = opendir('inc/template/trash/');
 
@@ -901,6 +907,7 @@ class adminFilemanager {
 
         natcasesort($files);
 
+        $res = array();
         foreach ($files as $file) {
             if ($file == '.htaccess') continue;
             $path = '/trash/' . $file;
@@ -915,7 +922,7 @@ class adminFilemanager {
             $item['mtime'] = $dbItem['modified'];
             $item['type'] = ($dbItem['type'] == 1) ? 'dir' : 'file';
 
-            $res['items'][] = $item;
+            $res[] = $item;
 
         }
 

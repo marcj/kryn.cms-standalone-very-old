@@ -764,9 +764,8 @@ ka.files = new Class({
         this.userFilesBtn.setPressed(this.options.onlyUserDefined);
 
         //address
-        var addressPos = new Element('div', {
-            'class': 'admin-files-actionBar-addressPos'
-        }).inject(this.win.titleGroups);
+
+        var adressPos = new Element('div', {'class': 'admin-files-actionBar-addressPos'}).inject(this.win.titleGroups);
         this.address = new Element('input', {
             'class': 'admin-files-actionBar-address',
             value: '/'
@@ -777,31 +776,26 @@ ka.files = new Class({
             if (e.key == 'enter') {
                 this.loadPath(this.address.value);
             }
-        }.bind(this)).inject(addressPos);
-
-        var searchPos = new Element('div', {
-            'class': 'admin-files-actionBar-searchPos'
-        }).inject(this.win.titleGroups);
+        }.bind(this))
+        .inject(adressPos);
 
         this.searchInput = new Element('input', {
             'class': 'admin-files-actionBar-search'
         })
         .addEvent('keydown', function (e) {
-
             if (e.key == 'esc'){
                 e.stop();
                 e.stopPropagation();
             }
-
         }.bind(this))
             .addEvent('keyup', function (e) {
             this.startSearch();
 
         }.bind(this))
-            .addEvent('mousedown',
-            function (e) {
-                e.stopPropagation();
-            }).inject(searchPos);
+        .addEvent('mousedown',
+        function (e) {
+            e.stopPropagation();
+        }).inject(this.win.titleGroups);
 
         this.fileContainer = new Element('div', {
             'class': 'admin-files-droppables admin-files-fileContainer'
@@ -1187,12 +1181,6 @@ ka.files = new Class({
             return;
         }
 
-        if (this.currentFile.writeaccess == true) {
-            this.boxAction.show();
-        } else {
-            this.boxAction.hide();
-        }
-
         this.curRequest = new Request.JSON({url: _path + 'admin/files/getFiles', noCache: 1, onComplete: function (res) {
 
             this.loader.hide();
@@ -1221,7 +1209,11 @@ ka.files = new Class({
             if (pPath == '/trash' || pPath.substr(0,7) == '/trash/') {
                 this.boxAction.hide();
             } else {
-                this.boxAction.show();
+                if (this.currentFile.writeaccess == true) {
+                    this.boxAction.show();
+                } else {
+                    this.boxAction.hide();
+                }
             }
 
 
@@ -1673,9 +1665,13 @@ ka.files = new Class({
                 this.fireEvent('select', [file, item]);
                 this.fireEvent('dblClick', [file, item]);
             } else {
-                if (file.type == 'file')
+                if (file.type == 'file'){
+                    if (file.path.substr(0, 7) == '/trash/') {
+                        this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
+                        return;
+                    }
                     ka.wm.openWindow('admin', 'files/edit', null, null, {file: file});
-                else
+                } else
                     this.loadPath(file.path);
             }
         }
@@ -2367,7 +2363,7 @@ ka.files = new Class({
             title: pFile.name
         });
 
-        if (this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
+        if (pFile.path.lastIndexOf('.') && this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
 
             fileIcon = 'admin/backend/imageThumb/?' + Object.toQueryString({path: pFile.path, mtime: pFile.mtime});
             base.addClass('admin-files-item-image');
