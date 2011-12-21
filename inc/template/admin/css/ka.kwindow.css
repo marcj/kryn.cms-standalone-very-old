@@ -8,9 +8,6 @@
 }
 
 .kwindow-border {
-    -moz-border-radius: 7px;
-    -moz-border-radius-bottomleft: 0px;
-    -moz-border-radius-bottomright: 0px;
     position: absolute;
     width: 400px;
     height: 300px;
@@ -19,6 +16,12 @@
 
     border-top: 1px solid #aaa;
     background-color: #aaa;
+}
+
+.ka-with-desktop .kwindow-border {
+    -moz-border-radius: 7px;
+    -moz-border-radius-bottomleft: 0px;
+    -moz-border-radius-bottomright: 0px;
 }
 
 .kwindow-border-inline {
@@ -35,7 +38,7 @@
 }
 
 
-.kwindow-border-shadow {
+.ka-with-desktop .kwindow-border-shadow {
     -moz-box-shadow: 0 0 2em gray;
     -webkit-box-shadow: 0 0 2em gray;
     box-shadow: 0 0 2em gray;
@@ -45,7 +48,7 @@
     -moz-border-radius: 7px;
 }
 
-.kwindow-shadow-bottom {
+.ka-with-desktop .kwindow-shadow-bottom {
     position: absolute;
     bottom: -41px;
     background-image: url(../images/kwindow-shadow-bottom.png);
@@ -55,7 +58,7 @@
     right: 31px;
 }
 
-.kwindow-shadow-left {
+.ka-with-desktop .kwindow-shadow-left {
     position: absolute;
     bottom: 26px;
     left: -31px;
@@ -65,7 +68,7 @@
     top: 70px;
 }
 
-.kwindow-shadow-right {
+.ka-with-desktop .kwindow-shadow-right {
     position: absolute;
     bottom: 26px;
     right: -31px;
@@ -75,8 +78,8 @@
     top: 70px;
 }
 
-.kwindow-shadow-top-right,
-.kwindow-shadow-top-left {
+.ka-with-desktop .kwindow-shadow-top-right,
+.ka-with-desktop .kwindow-shadow-top-left {
     position: absolute;
     background-image: url(../images/kwindow-shadow-top-lr.png);
     background-repeat: no-repeat;
@@ -85,17 +88,17 @@
     height: 70px;
 }
 
-.kwindow-shadow-top-left {
+.ka-with-desktop .kwindow-shadow-top-left {
     left: -31px;
 }
 
-.kwindow-shadow-top-right {
+.ka-with-desktop .kwindow-shadow-top-right {
     right: -31px;
     background-position: -35px 0px;
 }
 
-.kwindow-shadow-bottom-left,
-.kwindow-shadow-bottom-right {
+.ka-with-desktop .kwindow-shadow-bottom-left,
+.ka-with-desktop .kwindow-shadow-bottom-right {
     position: absolute;
     bottom: -40px;
     background-image: url(../images/kwindow-shadow-bottom-lr.png);
@@ -104,16 +107,16 @@
     height: 66px;
 }
 
-.kwindow-shadow-bottom-left {
+.ka-with-desktop .kwindow-shadow-bottom-left {
     left: -39px;
 }
 
-.kwindow-shadow-bottom-right {
+.ka-with-desktop .kwindow-shadow-bottom-right {
     right: -39px;
     background-position: -119px 0px;
 }
 
-.kwindow-win-trans {
+.ka-with-desktop .kwindow-win-trans {
     position: absolute;
     left: 0px;
     right: 0px;
@@ -140,8 +143,6 @@
     background-color: #d4d0c8;
     text-align: left;
     color: #111;
-    -moz-border-radius-topleft: 7px;
-    -moz-border-radius-topright: 7px;
 
     border-bottom: 1px solid #777;
     border-left: 1px solid #999;
@@ -160,6 +161,12 @@
     position: relative;
     cursor: default;
     text-shadow: 0 1px 0 #ccc;
+}
+
+.ka-with-desktop .kwindow-win-title,
+.ka-with-desktop .kwindow-win-title-inaktive {
+    -moz-border-radius-topleft: 7px;
+    -moz-border-radius-topright: 7px;
 }
 
 .kwindow-win-title-extended {

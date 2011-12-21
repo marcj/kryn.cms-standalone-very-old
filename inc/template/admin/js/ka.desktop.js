@@ -173,6 +173,10 @@ ka.desktop = new Class({
         }
     },
 
+    clear: function(){
+      this.container.empty();
+    },
+
     load: function () {
         if (this.lastLoad) {
             this.lastLoad.cancel();
@@ -181,7 +185,7 @@ ka.desktop = new Class({
             this.lastLoad.cancel();
         }
 
-        this.container.empty();
+        this.clear();
 
         this.lastLoad = new Request.JSON({url: _path + 'admin/backend/getDesktop', noCache: 1, onComplete: function (pRes) {
             this.loadIcons(JSON.decode(pRes));

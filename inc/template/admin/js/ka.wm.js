@@ -180,8 +180,10 @@ ka.wm = {
         pWindow.setBarButton(bar);
 
         bar.addEvent('click', function () {
+
             if (pWindow.isOpen && pWindow.inFront) {
-                pWindow.minimize();
+                if (!document.body.hasClass('ka-no-desktop'))
+                    pWindow.minimize();
             } else if (!pWindow.inFront || !pWindow.isOpen) {
                 pWindow.toFront();
             }
@@ -197,6 +199,19 @@ ka.wm = {
         }
 
         bar.set('text', shortTitle);
+
+
+        if (document.body.hasClass('ka-no-desktop')){
+            new Element('div', {
+                style: 'position: absolute; right: 4px; top: 0px; font-weight: bold; color: white; font-size: 14px;',
+                text: 'x'
+            })
+            .addEvent('click', function(){
+                pWindow.close();
+            })
+            .inject(bar);
+        }
+
         return bar;
     },
 
@@ -260,9 +275,10 @@ ka.wm = {
 
         });
 
-        if (c > 1) {
+        if (c > 1 || document.body.hasClass('ka-no-desktop')) {
             $('windowList').setStyle('display', 'block');
-            $('desktop').setStyle('bottom', 27);
+            if (!document.body.hasClass('ka-no-desktop'))
+                $('desktop').setStyle('bottom', 27);
         } else {
             $('windowList').setStyle('display', 'none');
             $('desktop').setStyle('bottom', 0);

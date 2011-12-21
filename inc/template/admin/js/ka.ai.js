@@ -371,6 +371,9 @@ ka.ai.logout = function (pScreenlocker) {
         new Request({url: _path + 'admin/?admin-users-logout=1'}).post();
     }
 
+    if (ka._desktop)
+        ka._desktop.clear();
+
     if (ka.ai.loader) {
         ka.ai.loader.destroy();
     }
@@ -430,6 +433,14 @@ ka.ai.loginFailed = function () {
 
 
 ka.ai.loadBackend = function () {
+
+    if (ka.ai.loginViewSelection.getValue() == 0){
+        document.body.addClass('ka-no-desktop');
+        document.body.removeClass('ka-with-desktop');
+    } else {
+        document.body.removeClass('ka-no-desktop');
+        document.body.addClass('ka-with-desktop');
+    }
 
     [ka.ai.loginLabels, ka.ai.loginIcon, ka.ai.loginDesktopMode, ka.ai.loginMessage,
         ka.ai.loginViewSelection, ka.ai.loginLangSelection]

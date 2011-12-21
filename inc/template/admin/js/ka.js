@@ -16,13 +16,15 @@ ka.init = function () {
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
-    if (!ka._desktop)
-        ka._desktop = new ka.desktop($('desktop'));
+    if (!document.body.hasClass('ka-no-desktop')){
+        if (!ka._desktop)
+            ka._desktop = new ka.desktop($('desktop'));
 
-    ka._desktop.load();
+        ka._desktop.load();
+    }
 
     if (!ka._helpsystem)
-    ka._helpsystem = new ka.helpsystem($('desktop'));
+        ka._helpsystem = new ka.helpsystem($('desktop'));
 
     if (ka._iconSessionCounterDiv) {
         ka._iconSessionCounterDiv.destroy();

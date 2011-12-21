@@ -61,12 +61,15 @@ html {
 
 #desktop {
     position: absolute;
-    right: 2px;
+    right: 0px;
     left: 34px;
-    bottom: 2px;
+    bottom: 0px;
     top: 75px;
 }
 
+.ka-no-desktop #desktop {
+    top: 102px;
+}
 
 /* main layout */
 div.header {
@@ -187,6 +190,7 @@ div.bar-dock-logo-menu-style {
     -webkit-box-shadow: 0 0 2em #656465;
     box-shadow: 0 0 2em #656465;
     background-color: #656465;
+    z-index: 104000;
 }
 
 div.bar-dock-logo-menu { 
@@ -596,7 +600,7 @@ a.ka-subnavi-main:link {
 
 
 /* windlow list */
-div.windowList {
+.ka-with-desktop div.windowList {
     position: absolute;
     display: none;
     left: 35px;
@@ -605,10 +609,6 @@ div.windowList {
     right: 0px;
     bottom: 0px;
     height: 26px;
-
-    -moz-border-radius-topleft: 11px;
-    -moz-border-radius-topright: 11px;
-
     -moz-border-radius-topleft: 6px;
     -moz-border-radius-topright: 6px;
 
@@ -626,6 +626,26 @@ div.windowList {
     
     
     z-index: 111000;
+}
+
+.ka-no-desktop div.windowList {
+    position: absolute;
+    top: 77px;
+    left: 35px;
+    right: 35px;
+    height: 25px;
+    background-color: #5a585d;
+    background-image: url(../images/windowlist-bg.png);
+    background-repeat: repeat-x;
+
+
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
 }
 
 .iconbar {
