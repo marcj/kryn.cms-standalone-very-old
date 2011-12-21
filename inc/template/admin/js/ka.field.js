@@ -1570,48 +1570,20 @@ ka.field = new Class({
     renderCheckbox: function () {
         var _this = this;
 
-        var div = new Element('div', {
-            'class': 'ka-field-checkbox ka-field-checkbox-off'
-        }).inject(this.fieldPanel);
+        this.checkbox = new ka.Checkbox(this.fieldPanel);
 
-        new Element('div', {
-            text: 'l',
-            style: 'font-weight: bold; color: white; position: absolute; left: 13px; font-size: 15px; top: 2px;'
-        }).inject(div);
+        this.getValue = function(){
+            return this.checkbox.getValue();
+        }.bind(this);
 
-
-        new Element('div', {
-            text: 'O',
-            style: 'font-weight: bold; color: #f4f4f4; position: absolute; right: 9px; font-size: 15px; top: 2px;'
-        }).inject(div);
-
-        var knob = new Element('div', {
-            'class': 'ka-field-checkbox-knob'
-        }).inject(div);
-
-        this.value = false;
-
-        knob.addEvent('click', function () {
-            this.setValue(this.value == false ? true : false);
+        this.checkbox.addEvent('change', function(){
+            this.fireEvent('change', this.checkbox.getValue());
         }.bind(this));
 
-        this.getValue = function () {
-            return this.value == false ? 0 : 1;
+        this._setValue = function(pValue){
+            this.checkbox.setValue(pValue);
         }.bind(this);
 
-        this._setValue = function (p) {
-            if (typeOf(p) == 'null') p = this.field['default'] || false;
-            if (p == 0 || p == "0") p = false;
-            if (p == 1) p = true;
-            this.value = p;
-            if (this.value == 1) {
-                div.addClass('ka-field-checkbox-on');
-                div.removeClass('ka-field-checkbox-off');
-            } else {
-                div.addClass('ka-field-checkbox-off');
-                div.removeClass('ka-field-checkbox-on');
-            }
-        }.bind(this);
 
     },
 

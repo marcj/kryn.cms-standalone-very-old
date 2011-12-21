@@ -10,7 +10,7 @@ ka.Select = new Class({
 
     a: {},
 
-    initialize: function () {
+    initialize: function (pContainer) {
 
         this.box = new Element('div', {
             'class': 'ka-normalize ka-Select-box'
@@ -18,10 +18,9 @@ ka.Select = new Class({
 
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        }).addEvent('mousedown',
-            function (e) {
-                e.preventDefault();
-            }).inject(this.box);
+        }).addEvent('mousedown', function (e) {
+            e.preventDefault();
+        }).inject(this.box);
 
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow'
@@ -39,10 +38,14 @@ ka.Select = new Class({
             e.stop();
         });
 
+        if (pContainer)
+            this.box.inject(pContainer)
+
     },
 
     inject: function (p, p2) {
         this.box.inject(p, p2);
+
         return this;
     },
 
@@ -70,6 +73,7 @@ ka.Select = new Class({
         }).addEvent('click', function () {
 
             this.setValue(pId, true);
+            this.close();
 
         }.bind(this))
 
@@ -143,14 +147,55 @@ ka.Select = new Class({
         }
     },
 
+    close: function(){
+        this.chooser.dispose();
+        this.box.removeClass('ka-Select-box-open');
+    },
+
     open: function () {
 
+        if (this.box.getParent('.kwindow-win-titleGroups'))
+            this.chooser.addClass('ka-Select-darker');
+        else
+            this.chooser.removeClass('ka-Select-darker');
+
+        this.box.addClass('ka-Select-box-open');
         ka.openDialog({
             element: this.chooser,
-            target: this.box
+            target: this.box,
+            onClose: this.close.bind(this)
         });
 
+        this.checkChooserSize();
+
         return;
+
+    },
+
+    checkChooserSize: function(){
+        if (this.borderLine)
+            this.borderLine.destroy();
+
+        this.box.removeClass('ka-Select-withBorderLine');
+
+        var csize = this.chooser.getSize();
+        var bsize = this.box.getSize();
+
+        if (bsize.x < csize.x){
+
+            var diff = csize.x-bsize.x;
+
+            this.borderLine = new Element('div', {
+                'class': 'ka-Select-borderline',
+                styles: {
+                    width: diff
+                }
+            }).inject(this.chooser);
+
+            this.box.addClass('ka-Select-withBorderLine');
+        } else if (bsize.x - csize.x < 4 && bsize.x - csize.x >= 0){
+            this.box.addClass('ka-Select-withBorderLine');
+        }
 
     },
 

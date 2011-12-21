@@ -1,0 +1,55 @@
+
+.ka-Checkbox {
+    border: 1px solid #bbb;
+    height: 21px;
+    width: 60px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    position: relative;
+    cursor: default;
+}
+
+.ka-Checkbox-off {
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, #e88, to(#fbb));
+    background-image: -webkit-linear-gradient(top, #e88, #fbb);
+    background-image:    -moz-linear-gradient(top, #e88, #fbb);
+    background-image:     -ms-linear-gradient(top, #e88, #fbb);
+    background-image:      -o-linear-gradient(top, #e88, #fbb);
+    background-image:         linear-gradient(top, #e88, #fbb);
+}
+
+.ka-Checkbox-on {
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, #6b6, to(#8d8));
+    background-image: -webkit-linear-gradient(top, #6b6, #8d8);
+    background-image:    -moz-linear-gradient(top, #6b6, #8d8);
+    background-image:     -ms-linear-gradient(top, #6b6, #8d8);
+    background-image:      -o-linear-gradient(top, #6b6, #8d8);
+    background-image:         linear-gradient(top, #6b6, #8d8);
+}
+
+.ka-Checkbox-knob {
+    background-color: #f7f7f7;
+
+
+    background-image: -webkit-gradient(linear, left top, left bottom, #fafafa, to(#e8e8e8));
+    background-image: -webkit-linear-gradient(top, #fafafa, #e8e8e8);
+    background-image:    -moz-linear-gradient(top, #fafafa, #e8e8e8);
+    background-image:     -ms-linear-gradient(top, #fafafa, #e8e8e8);
+    background-image:      -o-linear-gradient(top, #fafafa, #e8e8e8);
+    background-image:         linear-gradient(top, #fafafa, #e8e8e8);
+
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+
+    width: 30px;
+    height: 21px;
+    position: relative;
+}
+
+.ka-Checkbox-on .ka-Checkbox-knob {
+    left: 30px;
+}

@@ -16,23 +16,31 @@ ka.init = function () {
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
-    ka._desktop = new ka.desktop($('desktop'));
+    if (!ka._desktop)
+        ka._desktop = new ka.desktop($('desktop'));
+
+    ka._desktop.load();
+
+    if (!ka._helpsystem)
     ka._helpsystem = new ka.helpsystem($('desktop'));
 
     if (ka._iconSessionCounterDiv) {
         ka._iconSessionCounterDiv.destroy();
     }
 
-    ka._iconSessionCounterDiv = new Element('div', {
-        'class': 'iconbar-item',
-        title: _('Visitors')
-    }).inject($('iconbar'));
-    ka._iconSessionCounter = new Element('span').inject(ka._iconSessionCounterDiv);
-    new Element('img', {
-        src: _path + 'inc/template/admin/images/icons/user_gray.png',
-        style: 'position: relative; top: 3px; margin-left: 3px;'
-    }).inject(ka._iconSessionCounterDiv);
+    if (!ka._iconSessionCounterDiv){
+        ka._iconSessionCounterDiv = new Element('div', {
+            'class': 'iconbar-item',
+            title: _('Visitors')
+        }).inject($('iconbar'));
 
+        ka._iconSessionCounter = new Element('span').inject(ka._iconSessionCounterDiv);
+
+        new Element('img', {
+            src: _path + 'inc/template/admin/images/icons/user_gray.png',
+            style: 'position: relative; top: 3px; margin-left: 3px;'
+        }).inject(ka._iconSessionCounterDiv);
+    }
 
     window.fireEvent('init');
 
@@ -1537,11 +1545,12 @@ ka.openDialog = function (item) {
         styles: {
             opacity: 0.001
         }
-    }).addEvent('click',
-        function (e) {
-            ka.closeDialog();
-            e.stop();
-        }).inject(target);
+    }).addEvent('click', function (e) {
+        ka.closeDialog();
+        e.stop();
+        if (item.onClose)
+            item.onClose();
+    }).inject(target);
     item.element.setStyle('z-index', 201001);
 
     var size = item.target.getWindow().getScrollSize();
@@ -1557,16 +1566,20 @@ ka.openDialog = function (item) {
     item.element.removeEvent('click', ka.closeDialog);
     item.element.addEvent('click', ka.closeDialog);
 
+    if (!item.offset) item.offset = {};
+
     if (!item.primary) {
         item.primary = {
             'position': 'bottomRight',
-            'edge': 'upperRight'
+            'edge': 'upperRight',
+            offset: item.offset
         }
     }
     if (!item.secondary) {
         item.secondary = {
             'position': 'upperRight',
-            'edge': 'bottomRight'
+            'edge': 'bottomRight',
+            offset: item.offset
         }
     }
 

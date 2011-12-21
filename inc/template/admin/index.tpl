@@ -27,6 +27,7 @@
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Button.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Select.js" ></script>
+        <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Checkbox.js" ></script>
         
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.css">
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
@@ -35,6 +36,14 @@
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Table.css">
         
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.ai.css" />
+
+        <!--[if gte IE 9]>
+        <style type="text/css">
+        .gradient {
+            filter: none;
+        }
+        </style>
+        <![endif]-->
 
         <script type="text/javascript" >
             window._session = new Hash();
@@ -49,6 +58,7 @@
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Button.css" />
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Select.css" />
+        <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.Checkbox.css" />
         <link rel="SHORTCUT ICON" href="{$cfg.templatepath}/admin/images/favicon.ico" />
         
         {$adminHeader}
