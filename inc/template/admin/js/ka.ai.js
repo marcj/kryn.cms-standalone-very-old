@@ -408,7 +408,6 @@ ka.ai.loginSuccess = function (pId, pAlready) {
 
     $('user.username').set('text', ka.ai.loginName.value);
     $('user.username').onclick = function () {
-        logger(pId);
         ka.wm.open('users/users/editMe/', {values: {rsn: pId.user_rsn}});
     }
 
@@ -518,6 +517,7 @@ ka.ai.loadDone = function () {
 
         //load settings, bg etc
         ka.loadSettings();
+
 
         ka.init();
         ka.loadMenu();

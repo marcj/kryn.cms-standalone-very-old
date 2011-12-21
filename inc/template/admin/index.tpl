@@ -4,11 +4,11 @@
     <head>
         <title>{if $cfg.systemtitle}{$cfg.systemtitle} | {/if}kryn.cms administration</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
         
         <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core.js" ></script>
         <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more.js" ></script>
-        <script type="text/javascript" src="{$cfg.templatepath}/admin/mootools-extras/powertools-1.0.5.js" ></script>
         
         
 		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.js"></script>
@@ -71,7 +71,8 @@
                 <div class="header-left"></div>
                 <div class="header-right"></div>
                 <div class="headRight">
-                    <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]"><img src="{$path}inc/template/admin/images/icons/eye_bw.png" /></a>
+                    <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]">
+                        <img src="{$path}inc/template/admin/images/icons/eye_bw.png" /></a>
                     <div class="ka-search">
                         <a class="ka-search-icon" title="[[Search]]"></a>
                         <input type="text" class="text" id="ka-search-query" />

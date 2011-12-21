@@ -421,8 +421,7 @@ ka.kwindow = new Class({
                         pCallback(e);
                     } catch (e) {
                         logger(e)
-                    }
-                    ;
+                    };
                 }
 
             }

@@ -13,6 +13,7 @@ ka._links = {};
  * Build the administration interface
  */
 ka.init = function () {
+
     ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
@@ -43,7 +44,6 @@ ka.init = function () {
             style: 'position: relative; top: 3px; margin-left: 3px;'
         }).inject(ka._iconSessionCounterDiv);
     }
-
     window.fireEvent('init');
 
     if (ka._crawler) {
@@ -81,7 +81,8 @@ ka.init = function () {
         }
         return false;
     });
-    $(document.body).addEvent('click', function () {
+
+    window.addEvent('mouseup', function () {
         ka.destroyLinkContext();
     });
 };
