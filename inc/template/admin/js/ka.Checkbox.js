@@ -42,7 +42,7 @@ ka.Checkbox = new Class({
     },
 
     setValue:function (p) {
-        if (typeOf(p) == 'null') p = this.field['default'] || false;
+        if (typeOf(p) == 'null') p = false;
         if (p == 0 || p == "0") p = false;
         if (p == 1) p = true;
         this.value = p;

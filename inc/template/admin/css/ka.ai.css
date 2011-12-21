@@ -713,6 +713,8 @@ input.round {
 
 #ka-search-query {
    width: 135px;
+   box-shadow: none;
+   height: 13px;
 }
 
 .ka-search input.text {
@@ -1063,9 +1065,5 @@ a.ka-create-search-index-icon.red {
     border-right: 1px solid #999; /*#777;*/
     border-left: 1px solid #999; /*#777;*/
     border-top: 1px solid #777; /*#555;*/
-}
-
-.ka-header-light .kwindow-win-buttonWrapper {
-    border-top: 1px solid #E5E5E5; /*#D5D5D5;*/
-    border-bottom: 1px solid #CCC; /*#BBB;*/
+    box-shadow: 0px 1px 0px #eee;
 }

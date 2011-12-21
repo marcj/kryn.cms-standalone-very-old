@@ -1581,6 +1581,7 @@ ka.field = new Class({
         }.bind(this));
 
         this._setValue = function(pValue){
+            if (typeOf(pValue) == 'null') pValue = this.field['default'] || false;
             this.checkbox.setValue(pValue);
         }.bind(this);
 
@@ -1600,7 +1601,7 @@ ka.field = new Class({
     renderText: function () {
         var _this = this;
         this.input = new Element('input', {
-            'class': 'text',
+            'class': 'text gradient',
             type: 'text'
         }).addEvent('blur',
             function () {
