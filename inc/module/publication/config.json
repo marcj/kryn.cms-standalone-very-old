@@ -25,7 +25,7 @@
       "title": "[[News]]",
       "type": "combine",
       "class": "publicationNewsList",
-      "minWidth": 1000,
+      "minWidth": 1020,
       "minHeight": 400,
       "childs": {
         "add": {

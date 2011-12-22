@@ -624,7 +624,7 @@ ka.kwindow = new Class({
         var newHeight = false;
 
         if (this.values.minWidth && borderSize.x < this.values.minWidth) {
-            linker.setStyle('width', this.values.minWidth);
+            this.border.setStyle('width', this.values.minWidth);
         }
         if (this.values.minWidth && borderSize.y < this.values.minHeight) {
             this.border.setStyle('height', this.values.minHeight);

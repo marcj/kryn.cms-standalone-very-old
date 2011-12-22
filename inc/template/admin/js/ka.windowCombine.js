@@ -602,7 +602,6 @@ ka.windowCombine = new Class({
 
     itemLoaderNoItems: function () {
         this.itemLoader.set('html', _('There are no entries.'));
-        logger('hopp');
     },
 
     prevItemLoaderStart: function () {
