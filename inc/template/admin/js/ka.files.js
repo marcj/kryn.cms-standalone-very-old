@@ -792,10 +792,14 @@ ka.files = new Class({
             this.startSearch();
 
         }.bind(this))
-        .addEvent('mousedown',
-        function (e) {
+        .addEvent('mousedown', function (e) {
             e.stopPropagation();
         }).inject(this.win.titleGroups);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icon-search-loupe.png',
+            style: 'position: absolute; right: 108px; top: 6px'
+        }).inject(this.searchInput, 'after');
 
         this.fileContainer = new Element('div', {
             'class': 'admin-files-droppables admin-files-fileContainer'
