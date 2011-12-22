@@ -86,27 +86,12 @@ class krynNavigation {
 
             if (!$pWithFolders && $page['type'] == 2) continue;
 
-            if ($page['access_nohidenavi'] != 1
-            )
-                //if( kryn::checkPageAccess( $page, false ) )
-                $result[] = $page;
-
+            if ($page['access_nohidenavi'] != 1)
+                if( kryn::checkPageAccess( $page, false ) )
+                    $result[] = $page;
         }
 
         return $result;
-    }
-
-
-    public static function activePage($pRsn) {
-        $isActive = self::_activePage(kryn::$breadcrumbs, $pRsn);
-    }
-
-    public static function _activePage($pages, $pRsn) {
-        if (!count($pages) > 0) return false;
-        if ($page['rsn'] == $pRsn)
-            return true;
-        else
-            return self::_activePage($page[0], $pRsn);
     }
 
     public static function arrayLevel($pArray, $pLevel) {
