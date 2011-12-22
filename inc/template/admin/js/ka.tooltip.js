@@ -73,6 +73,7 @@ ka.tooltip = new Class({
     },
 
     stop: function (pText) {
+        if (this.stopped) return;
         if (pText) {
             this.setText(pText);
             this.destroyTimer = (function () {
@@ -81,6 +82,7 @@ ka.tooltip = new Class({
         } else {
             this.destroy();
         }
+        this.stopped = true;
         return this;
     },
 
@@ -99,6 +101,7 @@ ka.tooltip = new Class({
     },
 
     show: function () {
+        this.stopped = false;
         if (this.destroyTimer) {
             $clear(this.destroyTimer);
             if (this.main) {

@@ -486,6 +486,7 @@ ka.windowEdit = new Class({
         }.bind(this));
         this._panes[ pTab ].setStyle('display', 'block');
         this._buttons[ pTab ].setPressed(true);
+
         this._buttons[ pTab ].stopTip();
     },
 
