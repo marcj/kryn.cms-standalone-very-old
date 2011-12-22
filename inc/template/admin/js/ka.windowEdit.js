@@ -535,7 +535,7 @@ ka.windowEdit = new Class({
         }
     },
 
-    retrieveData: function (pWithoutEmptyCheck) {
+    retrieveData: function (pWithoutEmptyCheck, pWithoutTabHiglighting) {
 
         var go = true;
         var req = {};
@@ -562,6 +562,7 @@ ka.windowEdit = new Class({
                         button.toolTip.loader.set('src', _path + 'inc/template/admin/images/icons/error.png');
                         button.toolTip.loader.setStyle('position', 'relative');
                         button.toolTip.loader.setStyle('top', '-2px');
+                        document.id(button.toolTip).setStyle('top', document.id(button.toolTip).getStyle('top').toInt()+2);
                     }
                 }
 

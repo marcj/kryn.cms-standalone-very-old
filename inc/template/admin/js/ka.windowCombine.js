@@ -895,6 +895,7 @@ ka.windowCombine = new Class({
             code: this.win.code + '/add',
             content: this.mainRight,
             inlineContainer: this.win.inlineContainer,
+            titleGroups: this.win.titleGroups,
             id: this.win.id
         }, this.mainRight);
 

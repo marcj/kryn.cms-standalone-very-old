@@ -14,6 +14,10 @@ ka.tooltip = new Class({
         this.start();
     },
 
+    toElement: function(){
+        return this.main;
+    },
+
     start: function () {
 
         var tparent = this.target.getParent('div.kwindow-border');
