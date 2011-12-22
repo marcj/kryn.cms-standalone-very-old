@@ -15,6 +15,8 @@ ka.list = new Class({
         this.sortDirection = 'ASC';
         this.currentPage = 1;
 
+        this.oriWinCode = this.win.code;
+
         this.load();
         var _this = this;
 

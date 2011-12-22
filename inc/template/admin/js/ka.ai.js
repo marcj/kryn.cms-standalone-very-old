@@ -536,7 +536,9 @@ ka.ai.loadDone = function () {
             _('Your last login was %s').replace('%s', lastlogin.format('%d. %b %I:%M')),
             3000);
 
-        ka.ai.blender.tween('opacity', 0);
+        this.start('opacity', 0).chain(function(){
+            ka.ai.blender.destroy();
+        })
 
     });
 

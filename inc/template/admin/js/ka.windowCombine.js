@@ -194,7 +194,7 @@ ka.windowCombine = new Class({
 
         this.searchIcon = new Element('div', {
             'class': 'ka-list-combine-searchicon',
-            html: '<img src="' + _path + 'inc/template/admin/images/search-icon.png" />',
+            html: '<img src="' + _path + 'inc/template/admin/images/search-icon.png" />'
         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.mainLeftTop);
 
 
@@ -878,27 +878,15 @@ ka.windowCombine = new Class({
 
         if (this.currentEdit) {
             this.currentEdit.destroy();
-            this.currentEdit = null;
+            delete this.currentEdit;
         }
         if (this.currentAdd) {
             this.currentAdd.destroy();
-            this.currentAdd = null;
+            delete this.currentAdd;
         }
 
-        this.currentAdd = new ka.windowAdd({
-            extendHead: this.win.extendHead.bind(this.win),
-            addSmallTabGroup: this.win.addSmallTabGroup.bind(this.win),
-            addButtonGroup: this.win.addButtonGroup.bind(this.win),
-            addEvent: this.win.addEvent.bind(this.win),
-            border: this.win.border,
-            module: this.win.module,
-            code: this.win.code + '/add',
-            content: this.mainRight,
-            inlineContainer: this.win.inlineContainer,
-            titleGroups: this.win.titleGroups,
-            id: this.win.id
-        }, this.mainRight);
-
+        this.win.code = this.oriWinCode+'/add';
+        this.currentAdd = new ka.windowAdd(this.win, this.mainRight);
         this.currentAdd.addEvent('save', this.addSaved.bind(this));
 
     },
@@ -951,6 +939,22 @@ ka.windowCombine = new Class({
         }
     },
 
+    getRefWin: function(){
+        var res = {};
+        Object.each([
+            'addEvent', 'removeEvent', 'extendHead', 'addSmallTabGroup', 'addButtonGroup', 'border',
+            'module', 'code', 'inlineContainer', 'titleGroups', 'id', 'close', 'setTitle', '_confirm',
+            'interruptClose'
+        ], function(id){
+            res[id] = this.win[id];
+            if ($type(this.win[id]) == 'function')
+                res[id] = this.win[id].bind(this.win);
+            else
+                res[id] = this.win[id];
+        }.bind(this));
+        return res;
+    },
+
     loadItem: function (pItem) {
         var _this = this;
 
@@ -966,16 +970,12 @@ ka.windowCombine = new Class({
 
         if (!this.currentEdit) {
 
-            var cloned = {};
-            Object.append(cloned, this.win);
-
             this.setActiveItem(pItem);
             this.addBtn.setPressed(false);
 
-            this.currentEdit = new ka.windowEdit(Object.append(cloned, {
-                code: this.win.code + '/edit',
-                params: pItem,
-            }), this.mainRight);
+            this.win.code = this.oriWinCode+'/edit';
+            this.win.params = pItem;
+            this.currentEdit = new ka.windowEdit(this.win, this.mainRight);
 
             this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));

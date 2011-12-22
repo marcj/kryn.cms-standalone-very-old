@@ -34,7 +34,7 @@ ka.windowAdd = new Class({
             this.previewBtn.hide();
         }
 
-        var first = this.win.content.getElement('input[type=text]');
+        var first = this.container.getElement('input[type=text]');
         if (first) {
             first.focus();
         }

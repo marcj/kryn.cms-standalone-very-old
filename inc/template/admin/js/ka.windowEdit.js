@@ -15,12 +15,15 @@ ka.windowEdit = new Class({
             this.container = pContainer;
         }
 
-        this.win.addEvent('close', this.checkClose.bind(this));
+        this.rCheckClose = this.checkClose.bind(this);
+        this.win.addEvent('close', this.rCheckClose);
 
         this.load();
     },
 
     destroy: function () {
+
+        this.win.removeEvent('close', this.rCheckClose);
 
         if (this.topTabGroup) {
             this.topTabGroup.destroy();
@@ -42,8 +45,8 @@ ka.windowEdit = new Class({
             this.languageSelect.destroy();
         }
 
-        this.versioningSelect = null;
-        this.languageSelect = null;
+        delete this.versioningSelect;
+        delete this.languageSelect;
 
         this.container.empty();
 
@@ -160,7 +163,7 @@ ka.windowEdit = new Class({
             e.stop();
         });
 
-        var target = this.win.content.getParent('.kwindow-border');
+        var target = this.container.getParent('.kwindow-border');
         this.previewBox.inject(target);
 
         this.previewBox.setStyle('display', 'none');
@@ -584,7 +587,7 @@ ka.windowEdit = new Class({
         }.bind(this));
 
         if (this.values.multiLanguage) {
-            req['lang'] = this.languageSelect.value;
+            req['lang'] = this.languageSelect.getValue();
         }
 
         if (go == false) {
@@ -625,8 +628,10 @@ ka.windowEdit = new Class({
     },
 
     checkClose: function () {
-
+        logger(this);
         var hasUnsaved = this.hasUnsavedChanges();
+        logger('check: '+hasUnsaved);
+
 
         if (hasUnsaved) {
             this.win.interruptClose = true;
