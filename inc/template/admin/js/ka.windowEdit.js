@@ -628,9 +628,8 @@ ka.windowEdit = new Class({
     },
 
     checkClose: function () {
-        logger(this);
+
         var hasUnsaved = this.hasUnsavedChanges();
-        logger('check: '+hasUnsaved);
 
 
         if (hasUnsaved) {
