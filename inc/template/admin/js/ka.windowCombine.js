@@ -469,7 +469,7 @@ ka.windowCombine = new Class({
             this.loader.show();
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems', noCache: true, onComplete: function (res) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (res) {
 
             if (!res.items && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
@@ -540,7 +540,7 @@ ka.windowCombine = new Class({
 
         }.bind(this)}).post({
             module: this.win.module,
-            code: this.win.code,
+            code: this.oriWinCode,
             from: pFrom,
             max: pMax,
             orderBy: this.sortField,
@@ -1067,7 +1067,7 @@ ka.windowCombine = new Class({
 
         this.win.params = {
             module: this.win.module,
-            code: this.win.code,
+            code: this.oriWinCode,
             type: type,
             selected: selected,
             list: {
@@ -1128,7 +1128,7 @@ ka.windowCombine = new Class({
         //    this.loader.show();
 
         //logger( pPrimaries );
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems', noCache: true, onComplete: function (res) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (res) {
 
             //logger( res );
             if (res > 0) {
@@ -1147,7 +1147,7 @@ ka.windowCombine = new Class({
 
         }.bind(this)}).post({
             module: this.win.module,
-            code: this.win.code,
+            code: this.oriWinCode,
             getPosition: pPrimaries,
             orderBy: this.sortField,
             filter: this.searchEnable,
@@ -1208,7 +1208,7 @@ ka.windowCombine = new Class({
 
                 var req = {
                     module: this.win.module,
-                    code: this.win.code,
+                    code: this.oriWinCode,
                     primary: {}
                 };
 
@@ -1220,7 +1220,7 @@ ka.windowCombine = new Class({
                     req['language'] = this.currentItem.values['lang'];
                 }
 
-                this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems',
+                this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems',
                     noCache: true, onComplete: function (res) {
 
                         var newItem = this.addItem(res.items[0]);
@@ -1447,7 +1447,7 @@ ka.windowCombine = new Class({
                     if (_this.values.editCode) {
                         ka.wm.open(_this.values.editCode, pItem);
                     } else if (pItem.edit) {
-                        ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+                        ka.wm.openWindow(_this.win.module, _this.oriWinCode + '/edit', null, null, pItem);
                     }
                 }).inject(tr);
 
@@ -1498,7 +1498,7 @@ ka.windowCombine = new Class({
                         if (_this.values.editCode) {
                             ka.wm.open(_this.values.editCode, pItem);
                         } else if (pItem.edit) {
-                            ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+                            ka.wm.openWindow(_this.win.module, _this.oriWinCode + '/edit', null, null, pItem);
                         }
                     }).inject(icon);
             }
