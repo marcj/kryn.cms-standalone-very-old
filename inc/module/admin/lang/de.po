@@ -669,7 +669,7 @@ msgid "-- Please choose --"
 msgstr "-- Bitte wähle --"
 
 msgid "Remove selected"
-msgstr "Lösche markierte"
+msgstr "Markierte lösche"
 
 msgid "Export"
 msgstr "Exportieren"
@@ -729,7 +729,7 @@ msgid "Display this widget at desktop"
 msgstr "Zeige dieses Widget auf dem Desktop"
 
 msgid "Select all"
-msgstr "Selektiere alle"
+msgstr "Markiere alle"
 
 msgid "me"
 msgstr "ich"

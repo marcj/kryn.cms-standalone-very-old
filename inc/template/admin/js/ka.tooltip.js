@@ -1,10 +1,18 @@
 ka.tooltip = new Class({
 
     direction: false,
+    icon: '',
+    container: false,
+    text: '',
+    target: false,
 
-    initialize: function (pTarget, pText, pDirection, pContainer) {
-        this.target = pTarget;
+    initialize: function (pTarget, pText, pDirection, pContainer, pIcon) {
+        this.target = document.id(pTarget);
         this.text = pText;
+        this.icon = pIcon;
+
+        if (!this.icon)
+            this.icon = _path + 'inc/template/admin/images/ka-tooltip-loading.gif';
 
         if (pDirection) {
             this.direction = pDirection;
@@ -41,7 +49,7 @@ ka.tooltip = new Class({
             styles: {
                 opacity: 0
             }
-        }).inject(tparent);
+        });
 
         this.bg = new Element('div', {
             'class': 'ka-tooltip-bg',
@@ -59,28 +67,29 @@ ka.tooltip = new Class({
             html: this.text
         }).inject(this.main);
 
-        this.createLoader();
+        this.createIcon();
 
         return this;
     },
 
-    createLoader: function () {
+    createIcon: function () {
         this.loader = new Element('img', {
             'class': 'ka-tooltip-loader',
             align: 'left',
-            src: _path + 'inc/template/admin/images/ka-tooltip-loading.gif'
+            src: this.icon
         }).inject(this.textDiv, 'top');
     },
 
     stop: function (pText) {
+
         if (this.stopped) return;
         if (pText) {
             this.setText(pText);
             this.destroyTimer = (function () {
-                this.destroy();
+                this.hide();
             }.bind(this)).delay(800);
         } else {
-            this.destroy();
+            this.hide();
         }
         this.stopped = true;
         return this;
@@ -89,18 +98,19 @@ ka.tooltip = new Class({
     setText: function (pText) {
         this.text = pText;
         this.textDiv.set('html', pText);
-        this.createLoader();
+        this.createIcon();
     },
 
-    destroy: function () {
-        this.main.set('tween', {onComplete: function () {
-            this.main.destroy();
-            this.main = null;
-        }.bind(this)});
-        this.main.tween('opacity', 0);
+    hide: function () {
+        new Fx.Tween(this.main).start('opacity', 0).chain(function(){
+            this.main.dispose();
+        }.bind(this));
     },
 
     show: function () {
+
+        this.main.inject(this.container);
+
         this.stopped = false;
         if (this.destroyTimer) {
             $clear(this.destroyTimer);
@@ -148,16 +158,12 @@ ka.tooltip = new Class({
         });
     },
 
-    hide: function () {
-        this.main.setStyle('opacity', 0);
-    },
-
     blink: function () {
         this.bg.tween('opacity', 0.7);
         (function () {
             this.bg.tween('opacity', 1);
         }.bind(this)).delay(400);
         this.blink.delay(1400, this);
-    },
+    }
 
 });

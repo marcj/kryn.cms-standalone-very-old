@@ -200,7 +200,7 @@ ka.windowCombine = new Class({
 
         this.sortSelect = new ka.Select();
         this.sortSelect.inject(this.sortSpan);
-        this.sortSelect.setStyle('width', 55);
+        this.sortSelect.setStyle('width', 150);
         //this.sortSelect = new Element('select').inject( this.sortSpan );
         this.values.columns.each(function (column, id) {
 
@@ -626,9 +626,13 @@ ka.windowCombine = new Class({
         //chooser
 
         this.languageSelect = new ka.Select();
-        this.languageSelect.inject(this.sortSpan);
-        this.languageSelect.setStyle('width', 55);
-
+        this.languageSelect.inject(this.win.titleGroups);
+        document.id(this.languageSelect).setStyles({
+            'width': 106,
+            left: 80,
+            'position': 'absolute',
+            'top': 0
+        });
 
         this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
@@ -885,8 +889,15 @@ ka.windowCombine = new Class({
             delete this.currentAdd;
         }
 
-        this.win.code = this.oriWinCode+'/add';
-        this.currentAdd = new ka.windowAdd(this.win, this.mainRight);
+
+        for (var i in this.win)
+            win[i] = this.win[i];
+
+        win.code = this.oriWinCode+'/add';
+        win.params = pItem;
+
+
+        this.currentAdd = new ka.windowAdd(win, this.mainRight);
         this.currentAdd.addEvent('save', this.addSaved.bind(this));
 
     },
@@ -972,10 +983,15 @@ ka.windowCombine = new Class({
 
             this.setActiveItem(pItem);
             this.addBtn.setPressed(false);
+            var win = {};
 
-            this.win.code = this.oriWinCode+'/edit';
-            this.win.params = pItem;
-            this.currentEdit = new ka.windowEdit(this.win, this.mainRight);
+            for (var i in this.win)
+                win[i] = this.win[i];
+
+            win.code = this.oriWinCode+'/edit';
+            win.params = pItem;
+
+            this.currentEdit = new ka.windowEdit(win, this.mainRight);
 
             this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
@@ -988,7 +1004,7 @@ ka.windowCombine = new Class({
                 this.win.interruptClose = true;
                 this.win._confirm(_('There are unsaved data. Want to continue?'), function (pAccepted) {
                     if (pAccepted) {
-                        this.currentEdit.win.params = pItem;
+                        this.currentEdit.winParams = pItem;
                         this.currentEdit.loadItem();
                         this.addBtn.setPressed(false);
                         this.setActiveItem(pItem);
@@ -996,7 +1012,7 @@ ka.windowCombine = new Class({
                 }.bind(this));
                 return;
             } else {
-                this.currentEdit.win.params = pItem;
+                this.currentEdit.winParams = pItem;
                 this.currentEdit.loadItem();
                 this.addBtn.setPressed(false);
                 this.setActiveItem(pItem);

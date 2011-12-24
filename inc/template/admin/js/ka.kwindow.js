@@ -9,6 +9,7 @@ ka.kwindow = new Class({
         this.code = pWindowCode;
         this.inline = pInline;
         this.link = pLink;
+
         if (!pLink) {
             this.link = {module: pModule, code: pWindowCode };
         }
@@ -536,10 +537,8 @@ ka.kwindow = new Class({
 
     saveDimension: function () {
         var pos = this.border.getCoordinates(this.border.getParent());
-        var windows = (ka.settings['user'] && ka.settings['user']['windows']) ? ka.settings['user']['windows'] : {};
-        if (!windows.set) {
-            windows = new Hash();
-        }
+
+        if (!ka.settings['user']['windows']) ka.settings['user']['windows'] = {};
 
         if (this.maximized && this.oldDimension) {
             pos = this.oldDimension;
@@ -547,8 +546,10 @@ ka.kwindow = new Class({
         }
         pos.width = pos.width - 2;
         pos.height = pos.height - 2;
-        windows.set(this.module + '::' + this.code, pos);
-        ka.settings['user']['windows'] = windows;
+
+        logger('save: '+this.module + '::' + this.code);
+        ka.settings['user']['windows'][this.module + '::' + this.code] = pos;
+
         ka.saveUserSettings();
     },
 
@@ -562,6 +563,8 @@ ka.kwindow = new Class({
             return;
         }
 
+        logger(this.module + '::' + this.code);
+
         if (this.inline) return;
 
         this.border.setStyle('top', 20);
@@ -570,10 +573,10 @@ ka.kwindow = new Class({
         this.border.setStyle('height', 320);
 
         var windows = ka.settings['user']['windows'];
+        logger(windows);
 
-        if (!windows) {
+        if (!windows)
             windows = {};
-        }
 
         var pos = windows[this.module + '::' + this.code];
 

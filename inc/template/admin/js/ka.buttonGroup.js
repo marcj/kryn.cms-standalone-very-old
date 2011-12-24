@@ -10,6 +10,10 @@ ka.buttonGroup = new Class({
         }).inject(this.box);
     },
 
+    toElement: function(){
+        return this.box;
+    },
+
     destroy: function () {
         this.box.destroy();
     },

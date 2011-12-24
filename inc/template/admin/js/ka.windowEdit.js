@@ -4,8 +4,12 @@ ka.windowEdit = new Class({
 
     inline: false,
 
+    winParams: {}, //copy of pWin.params in constructor
+
     initialize: function (pWin, pContainer) {
         this.win = pWin;
+
+        this.winParams = this.win.params; //copy
 
         if (!pContainer) {
             this.container = this.win.content;
@@ -66,11 +70,12 @@ ka.windowEdit = new Class({
             req.version = pVersion;
         }
 
-        if (this.win.params) {
+        if (this.winParams) {
             this.values.primary.each(function (prim) {
-                req[ prim ] = this.win.params.values[prim];
+                req[ prim ] = this.winParams.values[prim];
             }.bind(this));
         }
+
         return req;
     },
 
@@ -84,10 +89,9 @@ ka.windowEdit = new Class({
 
         this.loader.show();
         this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItem',
-
-            noCache: true, onComplete: function (res) {
-                this._loadItem(res);
-            }.bind(this)}).post(req);
+        noCache: true, onComplete: function (res) {
+            this._loadItem(res);
+        }.bind(this)}).post(req);
     },
 
     _loadItem: function (pItem) {
@@ -105,8 +109,8 @@ ka.windowEdit = new Class({
             }
             try {
 
-                if (this.windowAdd && this.win.params && this.win.params.relation_table && this.win.params.relation_params[fieldId]) {
-                    field.setValue(this.win.params.relation_params[fieldId]);
+                if (this.windowAdd && this.winParams && this.winParams.relation_table && this.winParams.relation_params[fieldId]) {
+                    field.setValue(this.winParams.relation_params[fieldId]);
 
                 } else if (field.field.type == 'window_list') {
                     field.setValue({table: this.values.table, params: pItem.values});
@@ -133,7 +137,6 @@ ka.windowEdit = new Class({
             }
         }.bind(this));
 
-
         if (this.values.multiLanguage && this.languageSelect.getValue() != this.item.values.lang) {
             this.languageSelect.setValue(this.item.values.lang);
             this.changeLanguage();
@@ -144,7 +147,7 @@ ka.windowEdit = new Class({
         this.loader.hide();
         this.fireEvent('load', pItem);
 
-        this.ritem = this.retrieveData();
+        this.ritem = this.retrieveData(true);
     },
 
     renderPreviews: function () {
@@ -431,31 +434,18 @@ ka.windowEdit = new Class({
             this.languageSelect.setStyle('position', 'absolute');
 
 
-            /*this.languageSelect = new Element('select', {
-             style: 'position: absolute; right: 5px; top: 27px; width: 160px;'
-             }).inject( this.win.border );*/
-
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
             this.languageSelect.add('', _('-- Please Select --'));
 
-            /*new Element('option', {
-             text: _('-- Please select --'),
-             value: ''
-             }).inject( this.languageSelect );*/
-
             Object.each(ka.settings.langs, function (lang, id) {
-                /*new Element('option', {
-                 text: lang.langtitle+' ('+lang.title+', '+id+')',
-                 value: id
-                 }).inject( this.languageSelect );*/
 
                 this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
 
             }.bind(this));
 
-            if (this.win.params) {
-                this.languageSelect.setValue(this.win.params.lang);
+            if (this.winParams) {
+                this.languageSelect.setValue(this.winParams.lang);
             }
 
         }
@@ -500,6 +490,19 @@ ka.windowEdit = new Class({
 
             this.actionsNavi = this.win.addButtonGroup();
 
+            var rightPos = 5;
+            if (this.versioningSelect)
+                rightPos += document.id(this.versioningSelect).getSize().x+10
+
+            if (this.languageSelect)
+                rightPos += document.id(this.languageSelect).getSize().x+10
+
+            document.id(this.actionsNavi).setStyles({
+                position: 'absolute',
+                right: rightPos,
+                'top': 0
+            });
+
             this.saveBtn = this.actionsNavi.addButton(_('Save'), _path + 'inc/template/admin/images/button-save.png', function () {
                 this._save();
             }.bind(this));
@@ -539,7 +542,7 @@ ka.windowEdit = new Class({
         }
     },
 
-    retrieveData: function (pWithoutEmptyCheck, pWithoutTabHiglighting) {
+    retrieveData: function (pWithoutEmptyCheck) {
 
         var go = true;
         var req = {};
@@ -560,7 +563,7 @@ ka.windowEdit = new Class({
                         })
                     });
 
-                    if (!pWithoutTabHiglighting && currenTab2highlight && this.currentTab != currenTab2highlight) {
+                    if (currenTab2highlight && this.currentTab != currenTab2highlight) {
                         var button = this._buttons[ currenTab2highlight ];
                         this._buttons[ currenTab2highlight ].startTip(_('Please fill!'));
                         button.toolTip.loader.set('src', _path + 'inc/template/admin/images/icons/error.png');
@@ -587,6 +590,23 @@ ka.windowEdit = new Class({
         }.bind(this));
 
         if (this.values.multiLanguage) {
+            if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){
+
+                var tooltip = new ka.tooltip(this.languageSelect, _('Please fill!'), null, null, _path + 'inc/template/admin/images/icons/error.png');
+
+                var checkTool = function(){
+                    if (this.languageSelect.getValue() != ''){
+                        tooltip.stop();
+                        delete tooltip;
+                        this.languageSelect.removeEvent('change', checkTool);
+                        delete checkTool;
+                    }
+                }.bind(this);
+
+                this.languageSelect.addEvent('change', checkTool);
+                tooltip.show();
+                return false;
+            }
             req['lang'] = this.languageSelect.getValue();
         }
 
@@ -679,26 +699,28 @@ ka.windowEdit = new Class({
                 }
             }
 
-            if (_this.win.module == 'users' && (_this.win.code == 'users/edit/' || _this.win.code == 'users/edit' || _this.win.code == 'users/editMe' || _this.win.code == 'users/editMe/'
-                )) {
+            if (_this.win.module == 'users' && (_this.win.code == 'users/edit/' || _this.win.code == 'users/edit' ||
+                                                _this.win.code == 'users/editMe' || _this.win.code == 'users/editMe/')
+                ) {
                 if (!ka.settings['user']) ka.settings['user'] = {};
                 ka.settings['user']['adminLanguage'] = req['adminLanguage'];
             }
 
-            if (this.win.params) {
+            if (this.winParams) {
 
                 if (!this.windowAdd) {
+                    logger(this.winParams);
                     this.values.primary.each(function (prim) {
-                        req[ prim ] = this.win.params.values[prim];
+                        req[ prim ] = this.winParams.values[prim];
                     }.bind(this));
                 }
 
-                if (this.win.params.relation_params) {
-                    Object.each(this.win.params.relation_params, function (value, id) {
+                if (this.winParams.relation_params) {
+                    Object.each(this.winParams.relation_params, function (value, id) {
                         req[ id ] = value;
                     });
-                    req['_kryn_relation_table'] = this.win.params.relation_table;
-                    req['_kryn_relation_params'] = this.win.params.relation_params;
+                    req['_kryn_relation_table'] = this.winParams.relation_table;
+                    req['_kryn_relation_params'] = this.winParams.relation_params;
                 }
             }
 

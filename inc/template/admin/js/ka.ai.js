@@ -518,7 +518,6 @@ ka.ai.loadDone = function () {
         //load settings, bg etc
         ka.loadSettings();
 
-
         ka.init();
         ka.loadMenu();
 
