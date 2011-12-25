@@ -1352,7 +1352,6 @@
   "adminCss": [
     "admin\/css\/style.css",
     "admin\/css\/ka.Table.css",
-    "admin\/css\/ka.ai.css",
     "admin\/css\/ka.field.css",
     "admin\/css\/ka.files.css",
     "admin\/css\/ka.fieldProperty.css",
