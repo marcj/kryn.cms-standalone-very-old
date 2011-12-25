@@ -72,35 +72,59 @@ html {
 }
 
 /* main layout */
+div.header-inner {
+    -webkit-border-radius: 13px;
+    -moz-border-radius: 13px;
+    border-radius: 13px;
+    height: 33px;
+    position: relative;
+}
+
 div.header {
-    position: absolute;
-    left: 47px;
-    right: 45px;
-    text-align: left;
-    height: 39px;
-    top: 16px;
-    background-repeat: repeat-x;
-    background-image: url(../images/menubar-bg.png);
-    
+
+    box-shadow: 0px 1px 2px #999;
     z-index: 110000;
+    text-shadow: 0px 1px 0px #444;
+
+    -webkit-border-radius: 13px;
+    -moz-border-radius: 13px;
+    border-radius: 13px;
+
+    position: absolute;
+    left: 36px;
+    right: 36px;
+    text-align: left;
+    height: 35px;
+    top: 16px;
+    z-index: 110000;
+
+    background: #878589; /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzg3ODU4OSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2NTY0NjUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top,  #878589 0%, #656465 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#878589), color-stop(100%,#656465)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #878589 0%,#656465 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #878589 0%,#656465 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #878589 0%,#656465 100%); /* IE10+ */
+    background: linear-gradient(top,  #878589 0%,#656465 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#878589', endColorstr='#656465',GradientType=0 ); /* IE6-8 */
+
 }
 
-div.header-left {
-    position: absolute;
-    left: -13px;
-    top: 0px;
-    height: 39px;
-    width: 13px;
-    background-image: url(../images/menubar-left.png);
-}
 
-div.header-right {
+
+div.headRight{
     position: absolute;
-    right: -13px;
+    right: 0px;
+    width: 400px;
     top: 0px;
-    height: 39px;
-    width: 13px;
-    background-image: url(../images/menubar-right.png);
+    color: #777;
+    font-size: 10px;
+    line-height: 12px;
+    text-align: right;
+    padding: 0px 0px 3px 3px;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-topleft: 5px;
 }
 
 div.headRight .lastItem {
@@ -119,16 +143,16 @@ div.headRight img.arrowUp:hover {
 div.mainlinks {
     position: absolute;
     top: 0px;
-    left: -11px;
+    left: 0px;
 }
 
 div.headRight a img,
 div.mainlinks a img {
     position: absolute;
-    top: 10px;
-    left: 8px;
-    width: 16px;
-    height: 16px;
+    top: 11px;
+    left: 10px;
+    width: 14px;
+    height: 14px;
 }
 
 div.headRight > a,
@@ -172,6 +196,8 @@ div.ka-mainlink-additionalmenubar-container {
 div.mainlinks a.bar-dock-logo img { 
     width: auto;
     height: auto;
+    top: 9px;
+    left: 8px;
 }
 
 div.mainlinks a.bar-dock-logo { 
@@ -650,15 +676,15 @@ a.ka-subnavi-main:link {
 
 .iconbar {
     position: absolute;
-    right: 297px;
+    right: 244px;
     height: 35px;
-    top: 16px;
+    top: 0px;
     color: white;
     font-family: monospace;
     line-height: 38px;
     font-size: 11px;
     text-align: right;
-    color: #ddd;
+    color: #eee;
 }
 
 .iconbar .iconbar-item {
@@ -732,39 +758,19 @@ input.round {
 }
 
 #ka-search-query {
-   width: 135px;
-   box-shadow: none;
-   height: 13px;
+    width: 119px;
+    box-shadow: none;
+    height: 9px;
+    border: 1px solid #666;
+    box-shadow: 0px 1px 0px #888;
+    padding-left: 16px;
 }
 
-.ka-search input.text {
-    padding: 2px;
-    padding-left: 20px;
-    border: 1px solid #888;
-    background-color: #ddd;
-    margin: 0px;
-    font-size: 10px;
-}
-
-a.ka-search-icon {
-    background-image:url(../images/loupe-search-icon.png);
-    width: 19px;
-    height: 19px;
-    background-position: left top;
+.ka-search-query-icon {
     position: absolute;
-    left: 0px;
-    top: 9px;
-    cursor: pointer;
+    right: 126px;
+    top: 13px;
 }
-
-a.ka-search-icon:hover {
-    background-position: left -19px;
-}
-
-a.ka-search-icon:active {
-    background-position: left -38px;
-}
-
 
 
 
@@ -821,15 +827,18 @@ a.ka-create-search-index-icon.red {
 .ka-mini-search {
     position: absolute;
     top: 43px;
-    right: 78px;
+    right: 79px;
     width: 250px;
     min-height: 25px;
-    background-color: #ddd;
+    background-color: #F8F8F8;
     padding: 4px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius-topright: 0px;
     -webkit-border-top-right-radius: 0px;
+    z-index: 1500000;
+    border: 1px solid #777;
+    border-top: 0px;
 }
 
 
@@ -844,6 +853,11 @@ a.ka-create-search-index-icon.red {
 .ka-search input.mini-search-active {
     -moz-border-radius-bottomright: 0px;
     -webkit-border-bottom-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+
+    -moz-border-radius-bottomleft: 0px;
+    -webkit-border-bottom-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
 
 
@@ -872,8 +886,6 @@ a.ka-create-search-index-icon.red {
     position: absolute;
     top: 40px;
     left: 0px;
-    /*background-image: url("../images/menubar-bg.png");
-    background-position: left bottom; */
     background-repeat: repeat-x;
     background-color: #817f84;
     background-color: #656465;

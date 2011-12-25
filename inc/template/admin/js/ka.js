@@ -41,7 +41,7 @@ ka.init = function () {
 
         new Element('img', {
             src: _path + 'inc/template/admin/images/icons/user_gray.png',
-            style: 'position: relative; top: 3px; margin-left: 3px;'
+            style: 'position: relative; top: 3px; margin-left: 3px; width: 14px;'
         }).inject(ka._iconSessionCounterDiv);
     }
     window.fireEvent('init');

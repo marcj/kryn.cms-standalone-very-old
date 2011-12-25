@@ -41,7 +41,7 @@ var admin_system_desktopSettings = new Class({
         new Request.JSON({url: _path + 'admin/backend/getDefaultImages', noCache: 1, onComplete: function (pFiles) {
             pFiles.each(function (file) {
                 file = '/admin/images/userBgs/defaultImages/' + file;
-                bg = _path + 'admin/backend/imageThumb/?file=' + escape(file.replace(/\//g, "\\\\"));
+                bg = _path + 'admin/backend/imageThumb/?'+Object.toQueryString({path: file});
 
                 var img = new Element('img', {
                     src: bg

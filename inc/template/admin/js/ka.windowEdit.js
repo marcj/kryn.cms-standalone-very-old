@@ -29,6 +29,15 @@ ka.windowEdit = new Class({
 
         this.win.removeEvent('close', this.rCheckClose);
 
+        if (this.languageTip){
+            this.languageTip.stop();
+            delete this.languageTip;
+        }
+
+        Object.each(this._buttons, function (button, id) {
+            button.stopTip();
+        });
+
         if (this.topTabGroup) {
             this.topTabGroup.destroy();
         }
@@ -592,19 +601,19 @@ ka.windowEdit = new Class({
         if (this.values.multiLanguage) {
             if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){
 
-                var tooltip = new ka.tooltip(this.languageSelect, _('Please fill!'), null, null, _path + 'inc/template/admin/images/icons/error.png');
+                this.languageTip = new ka.tooltip(this.languageSelect, _('Please fill!'), null, null, _path + 'inc/template/admin/images/icons/error.png');
 
                 var checkTool = function(){
                     if (this.languageSelect.getValue() != ''){
-                        tooltip.stop();
-                        delete tooltip;
+                        this.languageTip.stop();
+                        delete this.languageTip;
                         this.languageSelect.removeEvent('change', checkTool);
                         delete checkTool;
                     }
                 }.bind(this);
 
                 this.languageSelect.addEvent('change', checkTool);
-                tooltip.show();
+                this.languageTip.show();
                 return false;
             }
             req['lang'] = this.languageSelect.getValue();

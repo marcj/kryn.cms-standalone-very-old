@@ -547,7 +547,6 @@ ka.kwindow = new Class({
         pos.width = pos.width - 2;
         pos.height = pos.height - 2;
 
-        logger('save: '+this.module + '::' + this.code);
         ka.settings['user']['windows'][this.module + '::' + this.code] = pos;
 
         ka.saveUserSettings();
@@ -563,8 +562,6 @@ ka.kwindow = new Class({
             return;
         }
 
-        logger(this.module + '::' + this.code);
-
         if (this.inline) return;
 
         this.border.setStyle('top', 20);
@@ -573,7 +570,6 @@ ka.kwindow = new Class({
         this.border.setStyle('height', 320);
 
         var windows = ka.settings['user']['windows'];
-        logger(windows);
 
         if (!windows)
             windows = {};
@@ -687,9 +683,8 @@ ka.kwindow = new Class({
 
             if (this.module == 'users' && this.code == 'users/edit/') {
                 ka.loadSettings();
-            } else {
-                this.saveDimension();
             }
+            this.saveDimension();
 
             this.border.getElements('a.kwindow-win-buttonWrapper').each(function (button) {
                 if (button.toolTip && button.toolTip.main) {

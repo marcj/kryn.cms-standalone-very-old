@@ -66,24 +66,26 @@
     </head>
     <body>
         <div class="border" id="border">
-            
-            <div class="header" id="header">
-                <div class="header-left"></div>
-                <div class="header-right"></div>
-                <div class="headRight">
-                    <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]">
-                        <img src="{$path}inc/template/admin/images/icons/eye_bw.png" /></a>
-                    <div class="ka-search">
-                        <a class="ka-search-icon" title="[[Search]]"></a>
-                        <input type="text" class="text" id="ka-search-query" />
-                        <a href="javascript:;" onclick="ka.wm.open('admin/help');" class="ka-help-icon" title="[[Help]]"></a>
-                        <a href="javascript:;" onclick="ka.clearCache();" id="ka-btn-clear-cache" class="ka-cache-icon" title="[[Clear cache]]"></a>
-						<a href="javascript:;" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="ka-create-search-index-icon" title="[[Searchengine options]]"></a>
+            <div class="header gradient" id="header">
+                <div class="header-inner">
+                    <div class="headRight">
+                        <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]">
+                            <img src="{$path}inc/template/admin/images/icons/eye_bw.png" width="14" /></a>
+                        <div class="ka-search">
+                            <img class="ka-search-query-icon" src="{$path}inc/template/admin/images/icon-search-loupe.png" />
+                            <input type="text" class="text" id="ka-search-query" />
+                            <a href="javascript:;" onclick="ka.wm.open('admin/help');" class="ka-help-icon" title="[[Help]]"></a>
+                            <a href="javascript:;" onclick="ka.clearCache();" id="ka-btn-clear-cache" class="ka-cache-icon" title="[[Clear cache]]"></a>
+                            <a href="javascript:;" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="ka-create-search-index-icon" title="[[Searchengine options]]"></a>
+                        </div>
+                        <div class="breaker"></div>
                     </div>
-                    <div class="breaker"></div>
+                    <div style="clear: both"></div>
+                    <div class="mainlinks" id="mainLinks"></div>
+                    <div class="iconbar" id="iconbar">
+                        <div class="iconbar-item" id="serverTime"></div>
+                    </div>
                 </div>
-                <div style="clear: both"></div>
-                <div class="mainlinks" id="mainLinks"></div>
             </div>
 			
             <div class="userInfo">
@@ -91,9 +93,6 @@
                   <span style="font-size: 10px;">(<a style="text-decoration: none; color: #eee;" href="javascript: ka.ai.logout();">logout</a>)</span>
             </div>
             <div class="windowList" id="windowList"></div>
-            <div class="iconbar" id="iconbar">
-            	<div class="iconbar-item" id="serverTime"></div>
-            </div>
         
             <div class="middle" id="middle">
                 <div class="content ka-desktop" id="desktop"></div>

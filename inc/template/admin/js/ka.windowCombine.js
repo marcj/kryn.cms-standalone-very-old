@@ -889,13 +889,13 @@ ka.windowCombine = new Class({
             delete this.currentAdd;
         }
 
-
-        for (var i in this.win)
+        var win = {};
+        for (var i in this.win){
             win[i] = this.win[i];
+        }
+        win.$events = {}; //reset events
 
         win.code = this.oriWinCode+'/add';
-        win.params = pItem;
-
 
         this.currentAdd = new ka.windowAdd(win, this.mainRight);
         this.currentAdd.addEvent('save', this.addSaved.bind(this));
@@ -990,6 +990,7 @@ ka.windowCombine = new Class({
 
             win.code = this.oriWinCode+'/edit';
             win.params = pItem;
+            win.$events = {}; //reset events
 
             this.currentEdit = new ka.windowEdit(win, this.mainRight);
 

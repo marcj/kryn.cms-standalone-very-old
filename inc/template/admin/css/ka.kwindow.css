@@ -14,7 +14,7 @@
     left: 50px;
     top: 0px;
 
-    border-top: 1px solid #aaa;
+    border: 1px solid #aaa;
     background-color: #aaa;
 }
 
@@ -39,9 +39,9 @@
 
 
 .ka-with-desktop .kwindow-border-shadow {
-    -moz-box-shadow: 0 0 2em gray;
-    -webkit-box-shadow: 0 0 2em gray;
-    box-shadow: 0 0 2em gray;
+    -moz-box-shadow: 0 8px 3em #888;
+    -webkit-box-shadow: 0 8px 3em #888;
+    box-shadow: 0 8px 3em #888;
 }
 
 .ka-kwindow-overlay {
@@ -143,10 +143,8 @@
     background-color: #d4d0c8;
     text-align: left;
     color: #111;
-
+    border-top: 1px solid #DDD;
     border-bottom: 1px solid #777;
-    border-left: 1px solid #999;
-    border-right: 1px solid #999;
 
     background: #dbdbdb; /* Old browsers */
     background: -moz-linear-gradient(top,  #dbdbdb 0%, #d8d8d8 11%, #c1c1c1 100%); /* FF3.6+ */
