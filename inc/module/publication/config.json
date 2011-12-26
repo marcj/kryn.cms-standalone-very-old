@@ -29,7 +29,7 @@
       "minHeight": 400,
       "childs": {
         "add": {
-          "title": "[[News add]]",
+          "title": "[[Add]]",
           "type": "add",
           "class": "publicationNewsAdd",
           "isLink": false,
@@ -39,7 +39,7 @@
           ]
         },
         "edit": {
-          "title": "[[News edit]]",
+          "title": "[[Edit]]",
           "type": "edit",
           "class": "publicationNewsEdit",
           "isLink": false,
@@ -56,7 +56,7 @@
           "multi": true,
           "childs": {
             "add": {
-              "title": "[[Add news category]]",
+              "title": "[[Add]]",
               "type": "add",
               "class": "publicationNewsCatsAdd",
               "isLink": true,
@@ -66,7 +66,7 @@
               ]
             },
             "edit": {
-              "title": "[[Edit news category]]",
+              "title": "[[Edit]]",
               "type": "edit",
               "class": "publicationNewsCatsEdit",
               "isLink": true,
@@ -85,14 +85,14 @@
           "multi": true,
           "childs": {
             "edit" : {
-              "title": "[[Edit comment]]",
+              "title": "[[Edit]]",
               "type": "edit",
               "class": "publicationNewsCommentsEdit",
               "multi": true
             },
             
             "add" : {
-              "title": "[[Add comment]]",
+              "title": "[[Add]]",
               "type": "add",
               "class": "publicationNewsCommentsAdd",
               "multi": true

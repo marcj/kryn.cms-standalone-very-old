@@ -9,7 +9,7 @@ ka.windowEdit = new Class({
     initialize: function (pWin, pContainer) {
         this.win = pWin;
 
-        this.winParams = this.win.params; //copy
+        this.winParams = Object.clone(this.win.params); //copy
 
         if (!pContainer) {
             this.container = this.win.content;
@@ -19,15 +19,19 @@ ka.windowEdit = new Class({
             this.container = pContainer;
         }
 
-        this.rCheckClose = this.checkClose.bind(this);
-        this.win.addEvent('close', this.rCheckClose);
+        this.bCheckClose = this.checkClose.bind(this);
+        this.bCheckTabFieldWidth = this.checkTabFieldWidth.bind(this);
+
+        this.win.addEvent('close', this.bCheckClose);
+        this.win.addEvent('resize', this.bCheckTabFieldWidth);
 
         this.load();
     },
 
     destroy: function () {
 
-        this.win.removeEvent('close', this.rCheckClose);
+        this.win.removeEvent('close', this.bCheckClose);
+        this.win.removeEvent('resize', this.bCheckTabFieldWidth);
 
         if (this.languageTip){
             this.languageTip.stop();
@@ -478,6 +482,12 @@ ka.windowEdit = new Class({
                 item.renderItems();
             }
         }.bind(this));
+
+
+        if (this.languageTip && this.languageSelect.getValue() != ''){
+            this.languageTip.stop();
+            delete this.languageTip;
+        }
     },
 
     changeTab: function (pTab) {
@@ -495,60 +505,111 @@ ka.windowEdit = new Class({
     renderSaveActionBar: function () {
         var _this = this;
 
-        if (this.inline) {
 
-            this.actionsNavi = this.win.addButtonGroup();
+        this.actionsNavi = this.win.addButtonGroup();
 
-            var rightPos = 5;
-            if (this.versioningSelect)
-                rightPos += document.id(this.versioningSelect).getSize().x+10
+        this.saveBtn = this.actionsNavi.addButton(_('Save'), _path + 'inc/template/admin/images/button-save.png', function () {
+            this._save();
+        }.bind(this));
 
-            if (this.languageSelect)
-                rightPos += document.id(this.languageSelect).getSize().x+10
+        if (this.values.previewPlugins) {
+            this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path + 'inc/template/admin/images/icons/eye.png', this.preview.bindWithEvent(this));
+        }
 
-            document.id(this.actionsNavi).setStyles({
-                position: 'absolute',
-                right: rightPos,
-                'top': 0
-            });
-
-            this.saveBtn = this.actionsNavi.addButton(_('Save'), _path + 'inc/template/admin/images/button-save.png', function () {
-                this._save();
+        if (this.values.versioning == true) {
+            this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'), _path + 'inc/template/admin/images/button-save-and-publish.png', function () {
+                _this._save(false, true);
             }.bind(this));
+        }
 
+        this.checkTabFieldWidth();
+    },
 
-            if (this.values.previewPlugins) {
-                this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path + 'inc/template/admin/images/icons/eye.png', this.preview.bindWithEvent(this));
+    checkTabFieldWidth: function(){
+
+        if (!this.topTabGroup) return;
+
+        if (!this.cachedTabItems)
+            this.cachedTabItems = document.id(this.topTabGroup).getElements('a');
+
+        var actionsMaxLeftPos = 5;
+        if (this.versioningSelect)
+            actionsMaxLeftPos += document.id(this.versioningSelect).getSize().x+10
+
+        if (this.languageSelect)
+            actionsMaxLeftPos += document.id(this.languageSelect).getSize().x+10
+
+        var actionNaviWidth = this.actionsNavi ? document.id(this.actionsNavi).getSize().x : 0;
+
+        var fieldsMaxWidth = this.win.titleGroups.getSize().x - actionNaviWidth - 17 - 20 -
+                             (actionsMaxLeftPos + document.id(this.topTabGroup).getPosition(this.win.titleGroups).x);
+
+        logger('fieldsMaxWidth: '+fieldsMaxWidth);
+
+        if (this.tooMuchTabFieldsButton)
+            this.tooMuchTabFieldsButton.destroy();
+
+        this.cachedTabItems.removeClass('ka-tabGroup-item-last');
+        this.cachedTabItems.inject(document.hidden);
+        this.cachedTabItems[0].inject(document.id(this.topTabGroup));
+        var curWidth = this.cachedTabItems[0].getSize().x;
+
+        var itemCount = this.cachedTabItems.length-1;
+
+        if (!this.overhangingItemsContainer)
+            this.overhangingItemsContainer = new Element('div', {'class': 'ka-windowEdit-overhangingItemsContainer'});
+
+        var removeTooMuchTabFieldsButton = false, atLeastOneItemMoved = false;
+
+        this.cachedTabItems.each(function(button,id){
+            if (id == 0) return;
+
+            logger(id+'('+itemCount+'): '+curWidth +' < ' + fieldsMaxWidth);
+            curWidth += button.getSize().x;
+            if ((curWidth < fieldsMaxWidth && id < itemCount) || (id == itemCount && curWidth < fieldsMaxWidth+20)) {
+                button.inject(document.id(this.topTabGroup));
+            } else {
+                atLeastOneItemMoved = true;
+                button.inject(this.overhangingItemsContainer);
             }
 
-            if (this.values.versioning == true) {
-                this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'), _path + 'inc/template/admin/images/button-save-and-publish.png', function () {
-                    _this._save(false, true);
-                }.bind(this));
-            }
+        }.bind(this));
 
+        this.cachedTabItems.getLast().addClass('ka-tabGroup-item-last');
+
+        if (atLeastOneItemMoved){
+
+            this.tooMuchTabFieldsButton = new Element('a', {
+                'class': 'ka-tabGroup-item ka-tabGroup-item-last'
+            }).inject(document.id(this.topTabGroup));
+
+            new Element('img', {
+                src: _path+'inc/template/admin/images/ka.mainmenu-additional.png',
+                style: 'left: 1px; top: 6px;'
+            }).inject(this.tooMuchTabFieldsButton);
+
+            this.tooMuchTabFieldsButton.addEvent('click', function(){
+                if (!this.overhangingItemsContainer.getParent()){
+                    this.overhangingItemsContainer.inject(this.win.border);
+                    ka.openDialog({
+                        element: this.overhangingItemsContainer,
+                        target: this.tooMuchTabFieldsButton,
+                        offset: {y: 0, x: 1}
+                    });
+
+                    /*ka.openDialog({
+                        element: this.chooser,
+                        target: this.box,
+                        onClose: this.close.bind(this)
+                    });*/
+                }
+            }.bind(this));
 
         } else {
 
-            this.actions = new Element('div', {
-                'class': 'ka-windowEdit-actions'
-            }).inject(this.container);
-
-            this.exit = new ka.Button(_('Close')).addEvent('click', this.checkClose.bind(this)).inject(this.actions);
-
-            this.saveNoClose = new ka.Button(_('Save')).addEvent('click',
-                function () {
-                    _this._save();
-                }).inject(this.actions);
-
-            if (this.values.versioning == true) {
-                this.save = new ka.Button(_('Save and publish')).addEvent('click',
-                    function () {
-                        _this._save(false, true);
-                    }).inject(this.actions);
-            }
-
+            this.cachedTabItems.getLast().addClass('ka-tabGroup-item-last');
         }
+
     },
 
     retrieveData: function (pWithoutEmptyCheck) {
@@ -579,6 +640,8 @@ ka.windowEdit = new Class({
                         button.toolTip.loader.setStyle('position', 'relative');
                         button.toolTip.loader.setStyle('top', '-2px');
                         document.id(button.toolTip).setStyle('top', document.id(button.toolTip).getStyle('top').toInt()+2);
+                    } else {
+                        this._buttons[ currenTab2highlight ].stopTip();
                     }
                 }
 
@@ -601,20 +664,15 @@ ka.windowEdit = new Class({
         if (this.values.multiLanguage) {
             if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){
 
-                this.languageTip = new ka.tooltip(this.languageSelect, _('Please fill!'), null, null, _path + 'inc/template/admin/images/icons/error.png');
-
-                var checkTool = function(){
-                    if (this.languageSelect.getValue() != ''){
-                        this.languageTip.stop();
-                        delete this.languageTip;
-                        this.languageSelect.removeEvent('change', checkTool);
-                        delete checkTool;
-                    }
-                }.bind(this);
-
-                this.languageSelect.addEvent('change', checkTool);
+                if (!this.languageTip){
+                    this.languageTip = new ka.tooltip(this.languageSelect, _('Please fill!'), null, null,
+                        _path + 'inc/template/admin/images/icons/error.png');
+                }
                 this.languageTip.show();
+
                 return false;
+            } else if (!pWithoutEmptyCheck && this.languageTip){
+                this.languageTip.stop();
             }
             req['lang'] = this.languageSelect.getValue();
         }
@@ -695,17 +753,10 @@ ka.windowEdit = new Class({
 
         if (go) {
 
-            if (this.inline) {
-                if (pPublish) {
-                    this.saveAndPublishBtn.startTip(_('Save ...'));
-                } else {
-                    this.saveBtn.startTip(_('Save ...'));
-                }
+            if (pPublish) {
+                this.saveAndPublishBtn.startTip(_('Save ...'));
             } else {
-                this.loader.show();
-                if (!pClose && this.saveNoClose) {
-                    this.saveNoClose.startTip(_('Save ...'));
-                }
+                this.saveBtn.startTip(_('Save ...'));
             }
 
             if (_this.win.module == 'users' && (_this.win.code == 'users/edit/' || _this.win.code == 'users/edit' ||
@@ -737,15 +788,12 @@ ka.windowEdit = new Class({
 
                 window.fireEvent('softReload', this.win.module + '/' + this.win.code.substr(0, this.win.code.lastIndexOf('/')));
 
-                if (this.inline) {
-                    if (pPublish) {
-                        this.saveAndPublishBtn.stopTip(_('Saved'));
-                    } else {
-                        this.saveBtn.stopTip(_('Saved'));
-                    }
+                if (pPublish) {
+                    this.saveAndPublishBtn.stopTip(_('Saved'));
                 } else {
-                    this.loader.hide();
+                    this.saveBtn.stopTip(_('Saved'));
                 }
+
 
                 if (!pClose && this.saveNoClose) {
                     this.saveNoClose.stopTip(_('Done'));

@@ -618,22 +618,31 @@ var admin_pages = new Class({
 
 
         //this.viewTypeGrpDomain = this.win.addButtonGroup();
-        this.viewTypeGrpDomain = this.win.addTabGroup();
+        this.viewTypeGrpDomain = this.win.addSmallTabGroup();
+        /*
         this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton(_('Domain'), p + 'icons/world.png', this.viewType.bind(this, 'domain'));
         this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton(_('Sessions'), p + 'icons/group.png', this.viewType.bind(this, 'domainSessions'));
         this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton(_('Theme'), p + 'icons/layout.png', this.viewType.bind(this, 'domainTheme'));
         this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton(_('Properties'), p + 'icons/layout.png', this.viewType.bind(this, 'domainProperties'));
         this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton(_('Settings'), p + 'admin-pages-viewType-general.png', this.viewType.bind(this, 'domainSettings'));
+        */
+        this.viewButtons['domain'] = this.viewTypeGrpDomain.addButton(_('Domain'), this.viewType.bind(this, 'domain'));
+        this.viewButtons['domainSessions'] = this.viewTypeGrpDomain.addButton(_('Sessions'), this.viewType.bind(this, 'domainSessions'));
+        this.viewButtons['domainTheme'] = this.viewTypeGrpDomain.addButton(_('Theme'), this.viewType.bind(this, 'domainTheme'));
+        this.viewButtons['domainProperties'] = this.viewTypeGrpDomain.addButton(_('Properties'), this.viewType.bind(this, 'domainProperties'));
+        this.viewButtons['domainSettings'] = this.viewTypeGrpDomain.addButton(_('Settings'), this.viewType.bind(this, 'domainSettings'));
+
+
         this.viewButtons['domain'].setPressed(true);
         this.viewTypeGrpDomain.hide();
 
 
         /*pages edit */
         //var viewTypeGrp = this.win.addButtonGroup();
-        var viewTypeGrp = this.win.addTabGroup();
+        var viewTypeGrp = this.win.addSmallTabGroup();
         this.viewTypeGrp = viewTypeGrp;
         this.viewTypeGrp.hide();
-
+/*
         this.viewButtons['general'] = viewTypeGrp.addButton(_('General'), p + 'admin-pages-viewType-general.png', this.viewType.bind(this, 'general'));
         this.viewButtons['rights'] = viewTypeGrp.addButton(_('Access'), p + 'admin-pages-viewType-rights.png', this.viewType.bind(this, 'rights'));
 
@@ -645,6 +654,18 @@ var admin_pages = new Class({
         this.viewButtons['searchIndex'] = viewTypeGrp.addButton(_('Search'), p + 'admin-pages-viewType-search.png', this.viewType.bind(this, 'searchIndex'));
 
         this.viewButtons['versioning'] = viewTypeGrp.addButton(_('Versions'), p + 'admin-pages-viewType-versioning.png', this.viewType.bind(this, 'versioning'));
+*/
+        this.viewButtons['general'] = viewTypeGrp.addButton(_('General'), this.viewType.bind(this, 'general'));
+        this.viewButtons['rights'] = viewTypeGrp.addButton(_('Access'), this.viewType.bind(this, 'rights'));
+
+        this.viewButtons['contents'] = viewTypeGrp.addButton(_('Contents'), this.viewType.bind(this, 'contents'));
+
+        this.viewButtons['resources'] = viewTypeGrp.addButton(_('Resources'), this.viewType.bind(this, 'resources'));
+        this.viewButtons['properties'] = viewTypeGrp.addButton(_('Properties'), this.viewType.bind(this, 'properties'));
+
+        this.viewButtons['searchIndex'] = viewTypeGrp.addButton(_('Search'), this.viewType.bind(this, 'searchIndex'));
+
+        this.viewButtons['versioning'] = viewTypeGrp.addButton(_('Versions'), this.viewType.bind(this, 'versioning'));
 
 
         // save group for page

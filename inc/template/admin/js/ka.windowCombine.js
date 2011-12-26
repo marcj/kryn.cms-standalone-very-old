@@ -893,7 +893,6 @@ ka.windowCombine = new Class({
         for (var i in this.win){
             win[i] = this.win[i];
         }
-        win.$events = {}; //reset events
 
         win.code = this.oriWinCode+'/add';
 
@@ -903,11 +902,6 @@ ka.windowCombine = new Class({
     },
 
     addSaved: function (pValues, pAnswer) {
-
-
-        /*logger(pValues);
-         logger(pAnswer);
-         logger( this.currentAdd.values.primary );*/
 
         if (this.currentAdd.values.primary.length > 1) return;
 
@@ -990,7 +984,6 @@ ka.windowCombine = new Class({
 
             win.code = this.oriWinCode+'/edit';
             win.params = pItem;
-            win.$events = {}; //reset events
 
             this.currentEdit = new ka.windowEdit(win, this.mainRight);
 

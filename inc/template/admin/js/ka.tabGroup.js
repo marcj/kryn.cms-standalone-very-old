@@ -1,9 +1,15 @@
 ka.tabGroup = new Class({
+
+    'className': 'ka-tabGroup',
+
     initialize: function (pParent) {
-        this.buttons = [];
         this.box = new Element('div', {
-            'class': 'kwindow-win-tabGroup'
+            'class': this.className
         }).inject(pParent);
+    },
+
+    toElement: function(){
+        return this.box;
     },
 
     destroy: function () {
@@ -23,65 +29,54 @@ ka.tabGroup = new Class({
     },
 
     rerender: function (pFirst) {
-        var c = 1;
-        var lastButton = null;
-        this.buttons.each(function (button) {
 
-            if (button.retrieve('visible') == false) return;
+        var items = this.box.getElements('a');
 
-            var myclass = 'kwindow-win-tabWrapper';
+        items.removeClass('ka-tabGroup-item-first');
+        items.removeClass('ka-tabGroup-item-last');
+        items[0].addClass('ka-tabGroup-item-first');
+        items.getLast().addClass('ka-tabGroup-item-last');
 
-
-            if (c == 1) {
-                myclass += ' kwindow-win-tabWrapperFirst';
-            }
-
-            if (button.get('class').indexOf('buttonHover') >= 0) {
-                myclass += ' buttonHover';
-            }
-
-            button.set('class', myclass);
-
-            lastButton = button;
-            c++;
-        }.bind(this));
-
-        if (lastButton) {
-            lastButton.addClass('kwindow-win-tabWrapperLast');
-        }
-        c--;
-        /*this.box.setStyle('width', 1 );
-         this.box.setStyle('width', this.box.scrollWidth );*/
     },
 
     addButton: function (pTitle, pButtonSrc, pOnClick) {
 
-        var wrapper = new Element('a', {
-            'class': 'kwindow-win-tabWrapper',
+        var button = new Element('a', {
+            'class': 'ka-tabGroup-item',
             title: pTitle,
-            text: pTitle,
-            styles: {
-                'background-image': 'url(' + pButtonSrc + ')'
-            }
+            text: pTitle
         }).inject(this.box);
+
+        if (pButtonSrc) {
+            new Element('img', {
+                src: pButtonSrc
+            }).inject(button, 'top');
+        }
+
+        this.setMethods(button, pOnClick);
+
+        return button;
+
+    },
+
+    setMethods: function(pButton, pOnClick){
         if (pOnClick) {
-            wrapper.addEvent('click', pOnClick);
+            pButton.addEvent('click', pOnClick);
         }
 
-        var _this = this;
-        wrapper.hide = function () {
-            wrapper.store('visible', false);
-            wrapper.setStyle('display', 'none');
-            _this.rerender();
-        }
+        pButton.hide = function () {
+            pButton.store('visible', false);
+            pButton.setStyle('display', 'none');
+            this.rerender();
+        }.bind(this);
 
-        wrapper.show = function () {
-            wrapper.store('visible', true);
-            wrapper.setStyle('display', 'inline');
-            _this.rerender();
-        }
+        pButton.show = function () {
+            pButton.store('visible', true);
+            pButton.setStyle('display', 'inline');
+            this.rerender();
+        }.bind(this);
 
-        wrapper.startTip = function (pText) {
+        pButton.startTip = function (pText) {
             if (!this.toolTip) {
                 this.toolTip = new ka.tooltip(wrapper, pText);
             }
@@ -89,24 +84,21 @@ ka.tabGroup = new Class({
             this.toolTip.show();
         }
 
-        wrapper.stopTip = function (pText) {
+        pButton.stopTip = function (pText) {
             if (this.toolTip) {
                 this.toolTip.stop(pText);
             }
         }
 
-        wrapper.setPressed = function (pPressed) {
+        pButton.setPressed = function (pPressed) {
             if (pPressed) {
-                wrapper.addClass('buttonHover'); //('class', wrapper.retrieve('oriClass')+' buttonHover');
+                pButton.addClass('ka-tabGroup-item-active');
             } else {
-                wrapper.removeClass('buttonHover');
-            } //, wrapper.retrieve('oriClass'));
+                pButton.removeClass('ka-tabGroup-item-active');
+            }
         }
 
-        wrapper.store('visible', true);
-        this.buttons.include(wrapper);
-        _this.rerender(true);
-
-        return wrapper;
+        pButton.store('visible', true);
+        this.rerender(true);
     }
 });

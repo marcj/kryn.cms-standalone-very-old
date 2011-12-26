@@ -233,7 +233,26 @@ ka.wm = {
             }
         }
 
+        ka.wm.bringLastWindow2Front();
+
         ka.wm.updateWindowBar();
+    },
+
+    bringLastWindow2Front: function(){
+
+        var lastWindow;
+
+        Object.each(ka.wm.windows, function (win) {
+            if (!win) return;
+            if (!lastWindow || win.border.getStyle('z-index') > lastWindow.border.getStyle('z-index')){
+                lastWindow = win;
+            }
+        });
+
+        if (lastWindow){
+            lastWindow.toFront();
+            ka.wm.setFrontWindow(lastWindow.id);
+        }
     },
 
 

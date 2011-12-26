@@ -45,7 +45,6 @@ ka.kwindow = new Class({
     },
 
     onResizeComplete: function () {
-        this.fireEvent('resize');
     },
 
     softReload: function () {
@@ -532,7 +531,9 @@ ka.kwindow = new Class({
             this.resizeBottomRight.setStyle('display', 'none');
             this.bottom.set('class', 'kwindow-win-bottom-maximized');
         }
+
         this.onResizeComplete();
+        this.fireEvent('resize');
     },
 
     saveDimension: function () {
@@ -1074,7 +1075,7 @@ ka.kwindow = new Class({
     },
 
     extendHead: function () {
-        this.title.setStyle('height', 39 + 13);
+        this.title.setStyle('height', 39 + 12);
         this.title.addClass('kwindow-win-title-extended');
         this.content.setStyle('top', 39 + 14);
     },
