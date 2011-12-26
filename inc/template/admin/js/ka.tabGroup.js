@@ -78,7 +78,7 @@ ka.tabGroup = new Class({
 
         pButton.startTip = function (pText) {
             if (!this.toolTip) {
-                this.toolTip = new ka.tooltip(wrapper, pText);
+                this.toolTip = new ka.tooltip(pButton, pText);
             }
             this.toolTip.setText(pText);
             this.toolTip.show();
