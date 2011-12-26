@@ -544,7 +544,6 @@ ka.windowEdit = new Class({
         var fieldsMaxWidth = this.win.titleGroups.getSize().x - actionNaviWidth - 17 - 20 -
                              (actionsMaxLeftPos + document.id(this.topTabGroup).getPosition(this.win.titleGroups).x);
 
-        logger('fieldsMaxWidth: '+fieldsMaxWidth);
 
         if (this.tooMuchTabFieldsButton)
             this.tooMuchTabFieldsButton.destroy();
@@ -564,7 +563,6 @@ ka.windowEdit = new Class({
         this.cachedTabItems.each(function(button,id){
             if (id == 0) return;
 
-            logger(id+'('+itemCount+'): '+curWidth +' < ' + fieldsMaxWidth);
             curWidth += button.getSize().x;
             if ((curWidth < fieldsMaxWidth && id < itemCount) || (id == itemCount && curWidth < fieldsMaxWidth+20)) {
                 button.inject(document.id(this.topTabGroup));
@@ -706,7 +704,6 @@ ka.windowEdit = new Class({
             }
 
             if (value + "" != this.ritem[id]) {
-                //logger(id+ ': '+value+' != '+this.ritem[id]);
                 hasUnsaved = true;
             }
         }.bind(this));
@@ -769,7 +766,6 @@ ka.windowEdit = new Class({
             if (this.winParams) {
 
                 if (!this.windowAdd) {
-                    logger(this.winParams);
                     this.values.primary.each(function (prim) {
                         req[ prim ] = this.winParams.values[prim];
                     }.bind(this));

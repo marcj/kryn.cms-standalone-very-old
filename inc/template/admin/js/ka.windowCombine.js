@@ -151,9 +151,7 @@ ka.windowCombine = new Class({
             this.mainLeftItems.scrollTo(0, spos.y + pos.y);
         } else if (pos.y + size.y > ssize.y) {
             //scroll down
-            //this.mainLeftItems.scrollTo(0, (pos.y-bottomline));
             this.mainLeftItems.scrollTo(0, (pos.y + size.y) + spos.y - ssize.y);
-            //logger(ssize.y+' => ');
         }
 
         this.loadItem(newTarget.retrieve('item'));
@@ -407,7 +405,6 @@ ka.windowCombine = new Class({
     },
 
     loadPrevious: function (pAndScrollToSelect) {
-        //logger('loadPrevious');    
         if (this.from > 0) {
 
             var items = (this.values.itemsPerPage) ? this.values.itemsPerPage : 5;
@@ -418,8 +415,6 @@ ka.windowCombine = new Class({
                 maxItems += newFrom;
                 newFrom = 0;
             }
-            //logger(this.mainLeftItems.getScroll().y);
-            //logger(this.from+': '+newFrom+'->'+maxItems);
             this.loadItems(newFrom, maxItems, pAndScrollToSelect);
         }
     },
@@ -444,8 +439,6 @@ ka.windowCombine = new Class({
 
     loadItems: function (pFrom, pMax, pAndScrollToSelect) {
         var _this = this;
-
-        //logger(pFrom+' => '+pMax);
 
         if (this._lastItems) {
             if (pFrom > this._lastItems.maxItems) {
@@ -479,8 +472,6 @@ ka.windowCombine = new Class({
 
             this.renderItems(res, pFrom);
 
-            //logger(this.from+' > '+pFrom);
-
             if (this.from == null || pFrom < this.from) {
                 this.from = pFrom;
             } else if (pFrom == null) {
@@ -508,9 +499,6 @@ ka.windowCombine = new Class({
             } else {
                 this.prevItemLoaderNoItems();
             }
-
-
-            //logger('loadItems done: from='+this.from+', max='+this.max);
 
             this.itemsFrom.set('html', this.from + 1);
             this.itemsLoaded.set('html', this.max);
@@ -743,19 +731,7 @@ ka.windowCombine = new Class({
 
                 } else {
 
-                    /*var oldSameSplit = this.findSplit( splitTitle );
-                     if( oldSameSplit && lastSplitTitleForThisRound == false ){
-                     //logger(oldSameSplit);
-                     oldSameSplit.destroy();
-                     }*/
-
                     res.inject(this.prevItemLoader, 'before');
-
-                    /*if( lastSplitTitleForThisRound != splitTitle ){
-                     var split = this.addSplitTitle( splitTitle );
-                     lastSplitTitleForThisRound = splitTitle;
-                     split.inject( res, 'before' );
-                     }*/
 
                     var split = res.getNext('.ka-list-combine-splititem');
 
@@ -967,7 +943,6 @@ ka.windowCombine = new Class({
 
             //TODO check unsaved
             var hasUnsaved = this.currentAdd.hasUnsavedChanges();
-            logger(hasUnsaved);
 
             this.currentAdd.destroy();
             this.currentAdd = null;
@@ -1132,15 +1107,8 @@ ka.windowCombine = new Class({
             this.lastRequest.cancel();
         }
 
-        //this.itemLoaderStart();
-
-        //if( this.loader )
-        //    this.loader.show();
-
-        //logger( pPrimaries );
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (res) {
 
-            //logger( res );
             if (res > 0) {
                 var range = (this.values.itemsPerPage) ? this.values.itemsPerPage : 5;
 
