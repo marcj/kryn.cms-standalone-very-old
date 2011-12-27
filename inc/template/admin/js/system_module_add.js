@@ -33,10 +33,10 @@ var admin_system_module_add = new Class({
                 }).inject(this.win.content);
 
                 new Element('div', {
-                    text: PATH_MODULE.''+pName
+                    text: 'inc/module/'+pName
                 }).inject(d);
                 new Element('div', {
-                    text: PATH_MODULE.''+pName + '/config.json'
+                    text: 'inc/module/'+pName + '/config.json'
                 }).inject(d);
                 new Element('div', {
                     text: 'inc/template/' + pName
