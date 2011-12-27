@@ -573,7 +573,7 @@ var admin_pages = new Class({
 
         this.treeHider = new Element('img', {
             style: 'margin-left: 5px;',
-            src: _path + 'inc/template/admin/images/pages-tree-bar-arrow.jpg',
+            src: _path + 'inc/template/admin/images/pages-tree-bar-arrow.jpg'
         }).inject(this.treeBar);
 
 
@@ -1923,7 +1923,7 @@ var admin_pages = new Class({
             table_label: 'label', table_key: 'id',
             tableItems: [
                 {label: _('Same window'), id: '_self'},
-                {label: _('New window'), id: '_blank'},
+                {label: _('New window'), id: '_blank'}
             ]
         }).inject(p);
 
@@ -2046,7 +2046,7 @@ var admin_pages = new Class({
         /* test new drag'n'drop */
         this.contentItems = new Element('div', {
             'class': 'pages-possibleContentItems',
-            style: 'position: absolute; left: 8px; top: 5px; height: 15px; width: 200px;',
+            style: 'position: absolute; left: 8px; top: 5px; height: 15px; width: 200px;'
         }).inject(t);
 
         /* test end */
@@ -2296,7 +2296,7 @@ var admin_pages = new Class({
         return;
         this.win.onResizeComplete = this._updateDraggerBarPosition.bind(this);
         this.contentItems = new Element('div', {
-            'class': 'ka-admin-pages-possibleContentItems',
+            'class': 'ka-admin-pages-possibleContentItems'
         }).set('tween', {duration: 400, transition: Fx.Transitions.Cubic.easeOut}).inject(this.iframe.contentWindow.document.body);
 
         this.contentItemsToggler = new Element('div', {
@@ -3000,7 +3000,9 @@ var admin_pages = new Class({
 
         this.generalFields['search_words'] = new ka.field({label: _('Search words'), type: 'textarea'}).inject(p);
 
-        new Element('div', { 'class': 'title', 'text': _('Search indexes for this site')}).inject(new Element('div', { 'class': 'ka-field-title' }).inject(new Element('div', { 'class': 'ka-field-main', 'style': 'margin-top:10px;' }).inject(p)));
+        new Element('div', { 'class': 'title', 'text': _('Search indexes for this site')})
+        .inject(new Element('div', { 'class': 'ka-field-title' })
+        .inject(new Element('div', { 'class': 'ka-field-main', 'style': 'margin-top:10px;' }).inject(p)));
 
         this.sioTableDiv = new Element('div', {
             style: 'position: absolute; left: 0px; top: 208px; right: 0px; bottom: 0px; overflow: auto;'

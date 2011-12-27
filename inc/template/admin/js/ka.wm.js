@@ -251,7 +251,6 @@ ka.wm = {
 
         if (lastWindow){
             lastWindow.toFront();
-            ka.wm.setFrontWindow(lastWindow.id);
         }
     },
 

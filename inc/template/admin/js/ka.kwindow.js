@@ -2,6 +2,13 @@ ka.kwindowZIndex = 1000;
 ka.kwindow = new Class({
     Implements: Events,
 
+    id     : 0,
+    module : '',
+    code   : '',
+    inline : false,
+    link   : {},
+    params : {},
+
     initialize: function (pModule, pWindowCode, pLink, pInstanceId, pParams, pInline) {
         this.params = pParams;
         this.id = pInstanceId;
