@@ -356,7 +356,7 @@ var admin_pages = new Class({
         this.oldLoadVersionsRequest = new Request.JSON({url: _path + 'admin/pages/getVersions', noCache: 1, onComplete: function (res) {
 
             this.versionNoVersions.empty();
-            logger(res);
+
             if (!res || res.length == 0) {
                 this.versions.hide();
                 this.versionNoVersions.set('text', _('No versions'));
