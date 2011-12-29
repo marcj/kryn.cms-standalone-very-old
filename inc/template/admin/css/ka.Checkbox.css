@@ -1,7 +1,7 @@
 
 .ka-Checkbox {
     border: 1px solid #bbb;
-    height: 21px;
+    height: 20px;
     width: 60px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -47,7 +47,7 @@
     border-radius: 3px;
 
     width: 30px;
-    height: 21px;
+    height: 20px;
     position: relative;
 }
 

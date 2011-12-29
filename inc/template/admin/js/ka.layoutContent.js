@@ -58,11 +58,14 @@ ka.layoutContent = new Class({
             this.noAccess = true;
         }
 
+        this.bPositionToolbar = function(){
+            this.positionToolbar.delay(50,this);
+        }.bind(this);
         this.renderToolbar();
 
         this.renderBox();
 
-        window.document.body.addEvent('deselect-content-elements', this.deselect.bind(this));
+        window.addEvent('deselect-content-elements', this.deselect.bind(this));
 
         if (this.win) {
             this.win.border.addEvent('deselect-content-elements', this.deselect.bind(this));
@@ -267,45 +270,139 @@ ka.layoutContent = new Class({
 
     showToolbar: function () {
 
+        if (this.lastHideToolbarTimer)
+            clearTimeout(this.lastHideToolbarTimer);
+
         if (this.toolbar.getParent()) return;
 
         var target = this.w.document.body;
         if (this.container.getParent('.kwindow-border')) {
             target = this.container.getParent('.kwindow-border');
         }
+        this.toolbar.setStyle('opacity', 0);
         this.toolbar.inject(target);
+        this.toolbar.tween('opacity', 1);
         this.positionToolbar();
     },
 
     positionToolbar: function () {
 
-        if (!this.toolbar.getParent()) return;
+        if (this.lastToolbarPositionTimer)
+            clearTimeout(this.lastToolbarPositionTimer);
 
-        var pos = this.main.getPosition(this.toolbar.getParent());
+        this.lastToolbarPositionTimer = this._positionToolbar.delay(60, this);
+    },
+
+    _positionToolbar: function(){
+
+        var tparent = this.toolbar.getParent();
+        if (!tparent) return;
+
+        logger('position now!');
+        var pos = this.main.getPosition(tparent);
         var size = this.main.getSize();
 
-        var size = this.toolbar.getSize();
+        var tsize = this.toolbar.getSize();
         var wsize = this.toolbar.getParent().getSize();
-        var scroll = this.toolbar.getParent().getScroll();
+        var scroll = tparent.getScroll();
+        
+        var nodePositionEnd, nodePositionStart;
+        
+        if (this.mooeditable) {
+        
+            var currentNode = this.mooeditable.selection.getNode();
+            if (currentNode){
+
+                var r = this.mooeditable.selection.getRange();
+                var dummy = new Element('span', {style: 'visibility: hidden'});
+                r.insertNode(dummy);
+                var newPos = false;
+                var dummyPosition = dummy.getPosition(tparent);
+
+
+                var checkOverlaps = function(pPosition, pType){
+                    var res = pPosition;
+
+                    //overlaps it over the right side?
+                    if (pPosition.left+tsize.x > wsize.x+scroll.x)
+                        pPosition.left = (wsize.x+scroll.x) - tsize.x;
+
+                    if (pPosition.top < 0) pPosition.top = 0;
+                    if (pPosition.top < scroll.y) pPosition.top = scroll.y;
+
+                    if (pType == 'top' && pPosition.top+tsize.y > dummyPosition.y )
+                        return false;
+
+                    return pPosition;
+                }
+
+
+                newPos = this.toolbar.position({
+                    relativeTo: dummy,
+                    position: 'topLeft',
+                    edge: 'bottomLeft',
+                    returnPos: true
+                });
+
+                newPos.left += 50;
+                newPos.top -= 30;
+
+                if (newPos = checkOverlaps(newPos, 'top')){
+                    this.toolbar.morph(newPos);
+                    dummy.destroy();
+                    return;
+                }
+
+                newPos = this.toolbar.position({
+                    relativeTo: dummy,
+                    position: 'bottomRight',
+                    edge: 'topLeft',
+                    returnPos: true
+                });
+
+                newPos.left += 50;
+                newPos.top += 30;
+
+                if (newPos = checkOverlaps(newPos, 'bottom')){
+                    this.toolbar.morph(newPos);
+                    dummy.destroy();
+                    return;
+                }
+
+                dummy.destroy();
+                return;   
+            }
+        }
 
         var npos = {
             'left': pos.x - 3,
             'top': pos.y + 4
         };
 
-        npos['top'] -= this.toolbar.getSize().y + 7;
+        npos['top'] -= tsize.y + 7;
 
-        //if not in viewport
-        if (npos['top'] + size.y > wsize.y + scroll.y) {
-            npos['top'] = wsize.y + scroll.y - size.y;
-        }
+        //dies it lap over the top line?
         if (npos['top'] < scroll.y) {
             npos['top'] = scroll.y;
         }
-
-        if (npos['left'] + size.x > wsize.x + scroll.x) {
-            npos['left'] = wsize.x + scroll.x - size.x;
+        
+        //does it overlap the main div ?
+        if (npos['top'] + tsize.y > pos.y+size.y && npos['top'] < pos.y) {
+            npos['top'] = pos.y+size.y;
         }
+        
+        //does it lap over the bottom line?
+        if (npos['top'] + tsize.y > wsize.x+scroll.y) {
+            npos['top'] = wsize.x+scroll.y-tsize.x;
+        }
+
+        //tbd
+        if (npos['left'] + tsize.x > wsize.x + scroll.x) {
+            npos['left'] = wsize.x + scroll.x - tsize.x;
+        }
+
+        //todo, need a way to detect, if we are at top=0 and we have no possibility to scroll upper.
+        //Because then we need to position the toolbar below the box
 
         this.toolbar.setStyles(npos);
 
@@ -315,7 +412,13 @@ ka.layoutContent = new Class({
     },
 
     hideToolbar: function () {
-        this.toolbar.dispose();
+        if (this.lastHideToolbarTimer)
+            clearTimeout(this.lastHideToolbarTimer);
+
+        this.lastHideToolbarTimer = function(){
+            this.toolbar.dispose();
+        }.delay(70, this);
+
     },
 
     renderBox: function () {
@@ -339,7 +442,7 @@ ka.layoutContent = new Class({
 
         this.main.addEvent('click', function (e) {
 
-            window.document.body.fireEvent('deselect-content-elements');
+            window.fireEvent('deselect-content-elements');
 
             if (this.win) {
                 this.win.border.fireEvent('deselect-content-elements');
@@ -348,6 +451,11 @@ ka.layoutContent = new Class({
             this.select();
             e.stopPropagation();
 
+        }.bind(this));
+
+
+        this.main.addEvent('mousedown', function (e) {
+            this.select();
         }.bind(this));
 
         this.main.store('layoutContent', this);
@@ -1052,7 +1160,17 @@ ka.layoutContent = new Class({
 
         switch (this.content.type) {
             case 'text':
+
+                if (this.mooeditable && this.mooeditable.iframe){
+                    this.mooeditable.iframe.removeEvent('keyup', this.bPositionToolbar);
+                    this.mooeditable.iframe.removeEvent('mouseup', this.bPositionToolbar);
+                }
+
                 this.type2Text();
+
+                this.mooeditable.iframe.addEvent('keyup', this.bPositionToolbar);
+                this.mooeditable.iframe.addEvent('mouseup', this.bPositionToolbar);
+
                 break;
             case 'plugin':
                 this.setDivPlugin();

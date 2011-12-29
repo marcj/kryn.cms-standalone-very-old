@@ -168,33 +168,21 @@ var admin_pages = new Class({
 
         this.layout.empty();
 
-        new Element('option', {
-            html: _(' -- No layout --'),
-            value: ''
-        }).inject(this.layout);
+        this.layout.add('', _(' -- No layout --'));
 
         Object.each(ka.settings.layouts, function (la, key) {
-            var group = new Element('optgroup', {
-                label: key
-            }).inject(this.layout);
-            var count = 0;
+
             Object.each(la, function (layoutFile, layoutTitle) {
                 if (limitLayouts && limitLayouts.length > 0 && !limitLayouts.contains(layoutFile)) return;
-                new Element('option', {
-                    html: (layoutTitle),
-                    value: layoutFile
-                }).inject(group);
-                count++;
-            })
-            if (count == 0) {
-                group.destroy();
-            }
+                this.layout.add(layoutFile, key+' » '+layoutTitle);
+            }.bind(this));
+
         }.bind(this));
 
 
         //set page propertie to default
-        $H(this._pagePropertiesFields).each(function (fields, extKey) {
-            $H(fields).each(function (field) {
+        Object.each(this._pagePropertiesFields, function (fields, extKey) {
+            Object.each(fields,function (field) {
                 field.setValue();
             })
         });
@@ -274,7 +262,6 @@ var admin_pages = new Class({
 
         this.versions.empty();
         this.loadVersions();
-
 
         this.urlAliase.empty();
 
@@ -368,16 +355,12 @@ var admin_pages = new Class({
         //this._versionsLive = {};
         this.oldLoadVersionsRequest = new Request.JSON({url: _path + 'admin/pages/getVersions', noCache: 1, onComplete: function (res) {
 
-            this.versionBox.empty();
-
+            this.versionNoVersions.empty();
             if (!res) {
-                this.versionBox.set('text', _('No versions'));
+                this.versions.hide();
+                this.versionNoVersions.set('text', _('No versions'));
             } else {
-
-                this.versions = new Element('select', {
-                }).addEvent('change', function () {
-                    this.loadVersion(this.versions.value);
-                }.bind(this)).inject(this.versionBox);
+                this.versions.show();
 
                 res.each(function (version) {
                     var text = (new Date(version.modified * 1000)).format('version');
@@ -387,15 +370,12 @@ var admin_pages = new Class({
                         text = '[LIVE] ' + text;
                     }
 
-                    new Element('option', {
-                        value: version.rsn,
-                        text: text
-                    }).inject(this.versions);
+                    this.versions.add(version.rsn, text);
 
                     if (version.active == 1 && this.loadedVersion == '-') {
-                        this.versions.value = version.rsn;
+                        this.versions.setValue(version.rsn);
                     } else if (version.rsn == this.loadedVersion) {
-                        this.versions.value = this.loadedVersion;
+                        this.versions.setValue(this.loadedVersion);
                     }
 
                     //this._versionsLive[ version.rsn ] = version.active;
@@ -1001,14 +981,13 @@ var admin_pages = new Class({
             //this.prevBtn.show();
         }
 
+        this.layout.hide();
         if (type == 3) { //ablage
             //xxx            this.generalFields['template'].hide();
             this.generalFields['url'].hide();
             this.ablageModus = true;
             //this.prevBtn.hide();
             this.liveEditBtn.hide();
-            this.layoutTxt.setStyle('opacity', 0);
-            this.layoutTd.setStyle('opacity', 0);
         }
 
         if (type == 2) { //folder
@@ -1030,14 +1009,11 @@ var admin_pages = new Class({
             //this.prevBtn.show();         
 
             this.liveEditBtn.show();
-            this.layoutTxt.setStyle('opacity', 1);
-            this.layoutTd.setStyle('opacity', 1);
             this.viewButtons['searchIndex'].show('inline');
 
-
-            this.layoutTd.setStyle('visibility', 'visible');
-            if (!ka.checkPageAccess(this.page.rsn, 'canChangeLayout')) {
-                this.layoutTd.setStyle('visibility', 'hidden');
+            this.layout.hide();
+            if (ka.checkPageAccess(this.page.rsn, 'canChangeLayout')) {
+                this.layout.show();
             }
         }
 
@@ -1169,12 +1145,12 @@ var admin_pages = new Class({
 
 
         //versions
-        this.versionBox.setStyle('display', 'block');
+        this.versions.show();
         this.versionsLoadBtns.each(function (btn) {
             btn.show();
         });
         if (!ka.checkPageAccess(this.page.rsn, 'loadVersion')) {
-            this.versionBox.setStyle('display', 'none');
+            this.versions.hide();
             this.versionsLoadBtns.each(function (btn) {
                 btn.hide();
             });
@@ -2036,7 +2012,7 @@ var admin_pages = new Class({
         }).inject(this.main);
 
         var t = new Element('div', {
-            style: 'position: absolute; left: 0px; right: 0px; top: 0px; height: 26px; text-align: right; border-bottom: 2px solid silver;'
+            style: 'position: absolute; left: 0px; right: 0px; top: 0px; height: 32px; text-align: right; border-bottom: 1px solid gray;'
         }).inject(p);
 
         var table = new Element('table', {style: 'float: right'}).inject(t);
@@ -2053,8 +2029,12 @@ var admin_pages = new Class({
 
 
         var td = new Element('td').inject(tr);
+        new Element('div', {
+            text: _('Show layout'),
+            style: 'float: left; padding: 5px;'
+        }).inject(td);
 
-
+        /*
         var cmmcid = new Date().getTime() + '_contentManagemModeCheckBox';
         this.contentManageModeCheckbox = new Element('input', {
             type: 'checkbox',
@@ -2068,37 +2048,43 @@ var admin_pages = new Class({
             }
             this._loadContentLayout();
         }.bind(this)).inject(td, 'top');
+        */
 
-
-        var td = new Element('td').inject(tr);
-        new Element('label', {
-            text: _('Show layout'),
-            'for': cmmcid
-        }).inject(td);
-
-
-        new Element('td', {style: 'padding: 0px 2px;color: gray;', html: ' | '}).inject(tr);
-
-        //layouts
-        this.layoutTxt = new Element('td', {html: _('Layout')}).inject(tr);
-
-        var td = new Element('td').inject(tr);
-        this.layoutTd = td;
-        this.layout = new Element('select', {
-            'class': 'admin-pages-pane-contents-actions-layoutx'
-        }).addListener('change', function () {
-            this._loadContentLayout();
-        }.bind(this)).inject(td);
-
-        this.layout.getValue = function () {
-            return this.value;
-        }
-        this.layout.setValue = function (p) {
-            this.value = p;
-            if (p == '' || !p) {
-
+        this.showLayoutBtn = new ka.Checkbox();
+        this.showLayoutBtn.addEvent('change', function () {
+            if (this.showLayoutBtn.getValue()) {
+                this.contentManageMode = 'layout';
+            } else {
+                this.contentManageMode = 'list';
             }
-        }
+            this._loadContentLayout();
+        }.bind(this))
+        document.id(this.showLayoutBtn).inject(td);
+        document.id(this.showLayoutBtn).setStyle('float', 'left');
+        document.id(this.showLayoutBtn).setStyle('top', 1);
+        this.showLayoutBtn.setValue(1);
+
+        this.layout = new ka.Select();
+        this.layout.addEvent('change', function () {
+            this._loadContentLayout();
+        }.bind(this));
+        document.id(this.layout).inject(this.win.titleGroups);
+        document.id(this.layout).setStyles({
+            position: 'absolute',
+            right: 4,
+            width: 170
+        });
+
+        this.layout.show = function(){
+            document.id(this.layout).setStyle('display', 'block');
+        }.bind(this);
+
+        this.layout.hide = function(){
+            document.id(this.layout).setStyle('display', 'none');
+        }.bind(this);
+
+        this.layout.hide();
+
         this.generalFields['layout'] = this.layout;
 
         if (ka.settings.layouts.length == 0) {
@@ -2111,20 +2097,29 @@ var admin_pages = new Class({
 
         new Element('td', {style: 'padding: 0px 2px;color: gray;', html: ' | '}).inject(tr);
 
-
-        new Element('td', {html: _('Versions')}).inject(tr);
-
         var td = new Element('td').inject(tr);
-        this.versionBox = new Element('div').inject(td);
+        this.versionNoVersions = new Element('div', {text: _('No versions')}).inject(td);
 
 
-        this.versions = new Element('select', {
-        }).addEvent('change', function () {
+        this.versions = new ka.Select(td);
+        this.versions.addEvent('change', function(){
             this.loadVersion(this.versions.value);
-        }.bind(this)); //.inject( td );
+        }.bind(this));
+        document.id(this.versions).setStyle('width', 250);
+        document.id(this.versions).setStyle('top', 1);
+        document.id(this.versions).setStyle('right', 1);
+
+        this.versions.show = function(){
+            document.id(this.versions).setStyle('display', 'block');
+        }.bind(this);
+
+        this.versions.hide = function(){
+            document.id(this.versions).setStyle('display', 'none');
+        }.bind(this);
+
 
         this.iframePanel = new Element('div', {
-            style: 'position: absolute; left: 0px; right: 0px; top: 28px; bottom: 0px; background-color: white; border-top: 1px solid white;'
+            style: 'position: absolute; left: 0px; right: 0px; top: 33px; bottom: 0px; background-color: white; border-top: 1px solid white;'
         }).inject(p);
         this.__newIframe();
 
@@ -2206,14 +2201,17 @@ var admin_pages = new Class({
 
         w.document.body.removeEvents('click');
 
-        w.document.body.addEvent('click', function (e) {
+        w.addEvent('click', function (e) {
             if (!e) return;
-
-            w.document.body.fireEvent('deselect-content-elements');
-
+            w.fireEvent('deselect-content-elements');
+        }.bind(this));
+        
+        this.win.border.addEvent('click', function (e) {
+            if (!e) return;
+            w.fireEvent('deselect-content-elements');
         }.bind(this));
 
-        w.document.body.addEvent('deselect-content-elements', function () {
+        w.addEvent('deselect-content-elements', function () {
 
             if (this.ignoreNextDeselectAll) {
                 this.ignoreNextDeselectAll = false;
@@ -2470,7 +2468,7 @@ var admin_pages = new Class({
         w.$$('a').set('href', 'javascript: ;');
         w.$$('a').onclick = null;
 
-        this.layoutBoxes = new Hash();
+        this.layoutBoxes = {};
         this.iframe.contentWindow.pageObj = this;
 
         this.layoutBoxes = ka.renderLayoutElements(this.iframe.contentWindow, this);
@@ -2578,7 +2576,7 @@ var admin_pages = new Class({
             this.oldVersionRequest.cancel();
         }
 
-        this.versions.value = pVersion;
+        this.versions.setValue(pVersion);
 
         this.oldVersionRequest = new Request.JSON({url: _path + 'admin/pages/getVersion', noCache: 1, async: false, onComplete: function (res) {
 
@@ -2907,7 +2905,7 @@ var admin_pages = new Class({
     createVersionLine: function (pValues) {
 
         trClass = '';
-        if (pValues.rsn == this.versions.value) {
+        if (pValues.rsn == this.versions.getValue()) {
             trClass = 'activeVersion';
         }
 
