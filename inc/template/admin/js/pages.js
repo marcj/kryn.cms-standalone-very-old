@@ -356,11 +356,13 @@ var admin_pages = new Class({
         this.oldLoadVersionsRequest = new Request.JSON({url: _path + 'admin/pages/getVersions', noCache: 1, onComplete: function (res) {
 
             this.versionNoVersions.empty();
-            if (!res) {
+            logger(res);
+            if (!res || res.length == 0) {
                 this.versions.hide();
                 this.versionNoVersions.set('text', _('No versions'));
             } else {
                 this.versions.show();
+                this.versions.empty();
 
                 res.each(function (version) {
                     var text = (new Date(version.modified * 1000)).format('version');
