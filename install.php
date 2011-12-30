@@ -548,9 +548,10 @@ function step5(){
     @mkdir( 'inc/template/css' );
     @mkdir( 'inc/template/js' );
     
-    @mkdir( 'data' );
-    @mkdir( 'data/upload' );
-    @mkdir( 'data/upload/modules' );
+    @mkdir( 'data', 0777 );
+    @mkdir( 'data/upload', 0777 );
+    @mkdir( 'data/packages', 0777 );
+    @mkdir( 'data/upload/modules', 0777 );
 
     
     if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
@@ -635,7 +636,7 @@ function step2(){
 
 <h2>Checking file permissions</h2>
 <br />
-The minimun requirements to work with Kryn.cms without installing extension or updates is with writeaccess to following folders:<br />
+The minimum requirements to work with Kryn.cms without installing extension or updates is with write access to following folders:<br />
 &bull; cache/<br />
 &bull; data/<br />
 <br />
@@ -648,7 +649,8 @@ such extensions gets the right file permissions.<br />
 <br />
 <b>Important:</b> To install Kryn.cms core updates, you need to make sure, that <b>all</b> files are writable.<br />
 <br />
-To install now this Kryn.cms version, we need firstly write permission to all files.<br />You can revoke this permissions after this installation, but keep the informations above in your mind.<br />
+To install now this Kryn.cms version, we need firstly write permission to all files.<br />You can revoke this permissions
+after this installation, but keep the information above in your mind.<br />
 <br />
 <br />
 <div style="border-top: 1px solid silver;"></div>
@@ -671,6 +673,7 @@ To install now this Kryn.cms version, we need firstly write permission to all fi
     function checkFile( $pDir, $pFile ){
         global $step2;
 
+        $res = '';
         $file = $pDir.'/'.$pFile;
         if(! is_dir( $file ) ) {
             $fh = @fopen( $file, 'a+' );
@@ -689,6 +692,7 @@ To install now this Kryn.cms version, we need firstly write permission to all fi
 
     function checkDir( $pDir ){
         $pDir .= "";
+        $res = '';
         $dir = opendir( $pDir );
         if(! $dir ) return;
         while (($file = readdir($dir)) !== false){

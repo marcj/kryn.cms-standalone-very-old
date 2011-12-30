@@ -350,7 +350,6 @@ class adminModule {
         $copyBack = array();
 
         if ($h) {
-            ;
             while ($line = @fgets($h)) {
                 $temp = explode(" ", $line);
                 $md5 = substr($temp[1], 0, -1);
@@ -393,7 +392,7 @@ class adminModule {
 
 
         delDir("data/packages/modules/removeMod/$id/");
-        adminDb::remove($config);
+        adminDb::remove(kryn::$configs[$pModuleName]);
         dbDelete('system_modules', "name = '$pModuleName'");
 
         kryn::clearLanguageCache();
@@ -465,12 +464,12 @@ class adminModule {
         $temp = 'data/packages/modules/createArchive_' . $pModuleName . '/';
         if (file_exists($temp))
             delDir($temp);
-        mkdir($temp);
 
+        mkdirr($temp);
 
         if ($pModuleName != 'kryn') {
-            mkdirr($temp . PATH_MODULE . '' . $pModuleName);
-            copyr(PATH_MODULE . '' . $pModuleName, $temp . PATH_MODULE . '' . $pModuleName);
+            mkdirr($temp . 'inc/module/' . $pModuleName);
+            copyr(PATH_MODULE . '' . $pModuleName, $temp . 'inc/module/' . $pModuleName);
         }
 
         $template = 'inc/template/' . $pModuleName;
@@ -491,7 +490,7 @@ class adminModule {
 
         chdir($temp);
         $files = find('./*');
-        chdir('../../../../');
+        chdir('../../../../'); //to PATH
         $md5s = "";
 
         if ($pModuleName == 'kryn')
@@ -501,35 +500,57 @@ class adminModule {
         foreach ($files as $file) {
             if (is_dir($temp . $file) && is_dir($temp . $file . '/.svn')) {
                 delDir($temp . $file . '/.svn');
+
             } else if (!is_dir($temp . $file) && strpos($file, 'files.md5') === false) {
                 $file = substr($file, 2);
                 $md5s .= $file . ' ' . md5(kryn::fileRead($temp . $file)) . "\n";
-                $reads[] = File_Archive::read($file, $file);
+
+                if (!class_exists('ZipArchive')){
+                    $reads[] = File_Archive::read($file, $file);
+                }
             }
         }
 
         if ($pModuleName == 'kryn')
             $md5File = 'inc/kryn/files.md5';
         else
-            $md5File = PATH_MODULE . '' . $pModuleName . '/files.md5';
+            $md5File = 'inc/module/' . $pModuleName . '/files.md5';
 
         kryn::fileWrite($temp . $md5File, $md5s);
 
-        $reads[] = File_Archive::read($temp . $md5File, $md5File);
-
         $archive = "data/packages/modules/$pModuleName-" . $config['version'] . '_' . date("ymdhis") . ".zip";
 
-        File_Archive::setOption('zipCompressionLevel', 9);
-        //        File_Archive::setOption('appendRemoveDuplicates', true);
+        if (!is_writeable('data/packages/modules/')){
+            klog('core', 'data/packages/modules is not writeable. Can not create the extension archive.');
+            return;
+        }
 
-        $source = File_Archive::readMulti(
-            $reads
-        );
+        if (class_exists('ZipArchive')){
+            $zip = new ZipArchive();
+            $zip->open($archive, ZIPARCHIVE::CREATE);
 
-        File_Archive::extract(
-            $source,
-            $archive
-        );
+            foreach ($files as $file)
+                if (!is_dir($file)){
+                    $zip->addFile($file, $file);
+                }
+            $zip->addFile($temp . $md5File, $md5File);
+            $zip->close();
+        } else {
+
+            $reads[] = File_Archive::read($temp . $md5File, $md5File);
+
+            File_Archive::setOption('zipCompressionLevel', 9);
+            //        File_Archive::setOption('appendRemoveDuplicates', true);
+
+            $source = File_Archive::readMulti(
+                $reads
+            );
+
+            File_Archive::extract(
+                $source,
+                $archive
+            );
+        }
 
         return $archive;
 
@@ -861,6 +882,8 @@ class adminModule {
 
             }
         }
+
+        $newFiles = array();
 
         $res['modifiedFiles'] = $modFiles;
         $res['newFiles'] = $newFiles;

@@ -54,11 +54,11 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
 
     $errorHandlerInside = true;
     $username = $client->user['username'] ? $client->user['username'] : 'Unknown';
+    $ip = $_SERVER['REMOTE_ADDR'];
 
     $msg =
-        '[' . date('d.m.y H:i:s') . '] ' . $username . " - $pCode: $pMsg" . (($pFile) ? " in $pFile on $pLine\n" : '') .
+        '[' . date('d.m.y H:i:s') . '] (' . $ip . ') ' . $username . ", $pCode: $pMsg" . (($pFile) ? " in $pFile on $pLine\n" : '') .
         "\n";
-    $msg = htmlspecialchars($msg);
 
     if (array_key_exists('krynInstaller', $GLOBALS) && $GLOBALS['krynInstaller'] == true) {
         @error_log($msg, 3, 'install.log');
@@ -71,24 +71,32 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
 
     } else {
 
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $username = $user->user['username'];
-        $pCode = preg_replace('/\W/', '-', $pCode);
-        $msg = htmlspecialchars($pMsg);
+        if (php_sapi_name() == "cli"){
 
-        if (!class_exists('database'))
-            die('Error in boot: ' . $pCode . ': ' . $pMsg . ' ' . $pFile . ':' . $pLine);
+            print $msg;
 
-        database::$hideSql = true;
-        $qry = dbInsert('system_log', array(
-            'date' => time(),
-            'ip' => $ip,
-            'username' => $username,
-            'code' => $pCode,
-            'message' => htmlspecialchars($pMsg)
-        ));
-        database::$hideSql = false;
+        } else {
+
+            $username = $client->user['username'];
+            $pCode = preg_replace('/\W/', '-', $pCode);
+            $msg = htmlspecialchars($pMsg);
+
+            if (!class_exists('database'))
+                die('Error in boot: ' . $pCode . ': ' . $pMsg . ' ' . $pFile . ':' . $pLine);
+
+
+            database::$hideSql = true;
+            dbInsert('system_log', array(
+                'date' => time(),
+                'ip' => $ip,
+                'username' => $username,
+                'code' => $pCode,
+                'message' => htmlspecialchars($pMsg)
+            ));
+            database::$hideSql = false;
+        }
     }
+    $errorHandlerInside = false;
 
 }
 

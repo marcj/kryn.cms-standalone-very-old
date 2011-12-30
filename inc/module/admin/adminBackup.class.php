@@ -301,7 +301,7 @@ class adminBackup {
     }
 
     public static function doBackup($pBackupCode) {
-        global $cfg, $config_backups;
+        global $config_backups;
 
         if (file_exists('inc/config_backups.php'))
             require_once('inc/config_backups.php');
@@ -310,11 +310,20 @@ class adminBackup {
 
         $path = $definitions['_path'];
 
-        print 'start: ' . $pBackupCode . ': ' . $path . "\n";
-        klog('backup', 'Start backup ' . $pBackupCode . ' (' . $path . ')');
+
+        //print_r($definitions);
+        //print 'start: ' . $pBackupCode . ': ' . $path . "\n";
         $start = microtime(true);
 
+        mkdirr($path);
+
+        if (!is_dir($path)){
+            klog('core', $path.' is not writeable. Can not save backup archive.');
+            return;
+        }
         kryn::fileWrite($path . '_step', 'start');
+
+        klog('backup', 'Start backup ' . $pBackupCode . ' (' . $path . ')');
 
         //kryn::fileWrite( $path.'/buildOn.json', json_encode(kryn::getDebugInformation()) );
 
@@ -555,13 +564,31 @@ class adminBackup {
 
         @mkdir($path . '_zips');
         $zipPath = $path . '_zips/' . $zipFile;
-        File_Archive::extract(
-            File_Archive::read($path, $subfolder . '/'),
-            File_Archive::toArchive(
-                $zipPath,
-                File_Archive::toFiles()
-            )
-        );
+
+        if (!@touch($zipPath)){
+            klog('core', $path.'_zips is not writeable. Can not save backup archive.');
+            return;
+        }
+
+        if (class_exists('ZipArchive')){
+            $zip = new ZipArchive();
+            $zip->open($zipPath, ZIPARCHIVE::CREATE);
+            $files = find($path.'/*');
+            foreach ($files as $file)
+                if (!is_dir($file)){
+                    $zip->addFile($file, str_replace($path, '', $file));
+                }
+            $zip->close();
+        } else {
+            //note: if memory_limit is low, than we only can generate small zip files
+            File_Archive::extract(
+                File_Archive::read($path, $subfolder . '/'),
+                File_Archive::toArchive(
+                    $zipPath,
+                    File_Archive::toFiles()
+                )
+            );
+        }
 
         $zipSize = filesize($zipPath);
 
@@ -582,6 +609,7 @@ class adminBackup {
         //delDir($path);
 
         kryn::fileWrite($path . '_step', 'done');
+        klog('backup', 'Backup generated. '.$pBackupCode.' => '.$zipPath);
 
         return true;
     }
