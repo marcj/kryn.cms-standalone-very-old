@@ -104,7 +104,7 @@
   },
   "plugins": {
     "newsDetail": [
-      "[[News detail]]",
+      "[[Article detail]]",
       {
         "template": {
           "label": "[[Template]]",
@@ -146,7 +146,8 @@
           "table_label": "title",
           "table_id": "rsn"
         }
-      }
+      },
+    "getNewsUrl"
     ],
     "newsDetailFixed": [
       "[[News detail fixed]]",
@@ -310,7 +311,6 @@
     ]
   },
   "db_relations": {
-  
     "publication_news": {
         "table": "publication_comments",
         "relation": "1-n",
@@ -318,8 +318,35 @@
             "rsn": "parent_rsn"
         }
     }
-  
   },
+
+  "objects": {
+      "news": {
+          "title": "[[Article]]",
+          "desc": "[[Articles]]",
+          "table": "publication_news",
+          "plugins": ["newsDetail"]
+      },
+      "news_comment": {
+          "title": "[[Comments]]",
+          "table": "publication_comments"
+      },
+      "news_category": {
+          "title": "[[Article categories]]",
+          "table": "publication_news_category"
+      }
+  },
+
+  "objectRelations": {
+      "news_comment": [
+          "news", "rsn", "1-n", "news_comment", "parent_rsn"
+      ],
+      "news_category": [
+          "news", "category_rsn", "1-1", "news_category", "rsn"
+      ]
+  },
+
+
   "db": {
     "publication_news": {
       "rsn": [

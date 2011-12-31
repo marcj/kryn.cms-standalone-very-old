@@ -396,6 +396,39 @@
       "multi": false
     }
   },
+
+  "objectProperties": {
+      "file": {
+          "alt": {
+              "label": "[[Alternative title]]",
+              "type": "text"
+          },
+          "description": {
+              "label": "[[Description]]",
+              "type": "text"
+          },
+          "copyright": {
+              "label": "[[Copyright available]]",
+              "type": "checkbox",
+              "default": 1
+          }
+      }
+  },
+
+  "objects": {
+
+      "file": {
+          "title": "[[File]]",
+          "class": "kryn/objects/objectFile"
+      },
+
+      "page": {
+          "title": "[[Page]]",
+          "class": "kryn/objects/objectPage"
+      }
+
+  },
+
   "db": {
     "system_workspaces": {
       "rsn": [
