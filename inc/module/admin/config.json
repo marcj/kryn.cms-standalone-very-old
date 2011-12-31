@@ -396,39 +396,33 @@
       "multi": false
     }
   },
-
   "objectProperties": {
-      "file": {
-          "alt": {
-              "label": "[[Alternative title]]",
-              "type": "text"
-          },
-          "description": {
-              "label": "[[Description]]",
-              "type": "text"
-          },
-          "copyright": {
-              "label": "[[Copyright available]]",
-              "type": "checkbox",
-              "default": 1
-          }
-      }
-  },
-
-  "objects": {
-
-      "file": {
-          "title": "[[File]]",
-          "class": "kryn/objects/objectFile"
+    "file": {
+      "alt": {
+        "label": "[[Alternative title]]",
+        "type": "text"
       },
-
-      "page": {
-          "title": "[[Page]]",
-          "class": "kryn/objects/objectPage"
+      "description": {
+        "label": "[[Description]]",
+        "type": "text"
+      },
+      "copyright": {
+        "label": "[[Copyright available]]",
+        "type": "checkbox",
+        "default": 1
       }
-
+    }
   },
-
+  "objects": {
+    "file": {
+      "title": "[[File]]",
+      "class": "kryn\/objects\/objectFile"
+    },
+    "page": {
+      "title": "[[Page]]",
+      "class": "kryn\/objects\/objectPage"
+    }
+  },
   "db": {
     "system_workspaces": {
       "rsn": [
@@ -1325,6 +1319,64 @@
       ],
       "fs_params": [
         "text",
+        "",
+        "-",
+        false
+      ]
+    },
+    "system_object": {
+      "rsn": [
+        "int",
+        "",
+        "DB_PRIMARY",
+        true
+      ],
+      "object_key": [
+        "varchar",
+        "64",
+        "-",
+        false
+      ],
+      "object_rsn": [
+        "int",
+        "",
+        "-",
+        false
+      ],
+      "created": [
+        "int",
+        "",
+        "-",
+        false
+      ]
+    },
+    "system_object_usage": {
+      "rsn": [
+        "int",
+        "",
+        "DB_PRIMARY",
+        true
+      ],
+      "from_system_object_rsn": [
+        "int",
+        "",
+        "-",
+        false
+      ],
+      "from_system_object_field": [
+        "varchar",
+        "128",
+        "-",
+        false
+      ],
+      "to_system_object_rsn": [
+        "int",
+        "",
+        "DB_INDEX",
+        false
+      ],
+      "created": [
+        "int",
         "",
         "-",
         false
