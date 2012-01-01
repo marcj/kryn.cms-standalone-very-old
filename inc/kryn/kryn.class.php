@@ -16,24 +16,6 @@
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-$tets = t("h\"uasdasdad\\\"h\nsadf\tasdasd\nu");
-
-$tets = t('huhu2');
-
-$test = tc('context2', 'Translation
-2');
-
-$test = tc("context3", "Translation3");
-
-$test = t("%s singular", "%s plurasad a", $count);
-
-$test = t('%s singular \n"22', '%s plura; 222', $count);
-
-$test = t("%s singular", "%s plurasad a", $count, "Context");
-
-$test = t('%s singular', '%s plurasad a', $count, 'Context2');
-
-
 class kryn {
 
     /**
