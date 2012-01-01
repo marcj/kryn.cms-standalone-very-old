@@ -21,7 +21,7 @@
         <div class="header-search">
             <form action="{$themeProperties.search_page|realUrl}" method="get">
                 <input type="text" name="q" value="[[Keyword ...]]" onfocus="if(this.value == '[[Keyword ...]]')this.value=''" onblur="if(this.value=='')this.value='[[Keyword ...]]'"/>
-                <input type="submit" class="submit" value="[[Search]]" />
+                <input type="submit" class="submit" value="{tc "searchButton" "Search"}" />
                 <input type="hidden" name="searchDo" value="1" />
             </form>
         </div>

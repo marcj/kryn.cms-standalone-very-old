@@ -24,6 +24,7 @@ ka.openFrontend = function () {
     }
 }
 
+
 window._ = function (p) {
     if (!ka && parent) ka = parent.ka;
     if (ka && !ka.lang && parent && parent.ka) ka.lang = parent.ka.lang;

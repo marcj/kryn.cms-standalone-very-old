@@ -77,9 +77,16 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
 
     if (kryn::$lang[$id]) {
         if (is_array(kryn::$lang[$id])) {
-            $plural = intval(@call_user_func('gettext_plural_fn_' . kryn::$lang['__lang'], $pCount));
 
-            return (kryn::$lang[$id][$plural]) ? kryn::$lang[$id][$plural] : (($pCount == 1) ? $pMsg : $pPlural);
+            if ($pCount){
+                $plural = intval(@call_user_func('gettext_plural_fn_' . kryn::$lang['__lang'], $pCount));
+                if ($pCount && kryn::$lang[$id][$plural])
+                    return str_replace('%d', $pCount, kryn::$lang[$id][$plural]);
+                else
+                    return (($pCount === null || $pCount === false || $pCount === 1) ? $pMsg : $pPlural);
+            } else {
+                return kryn::$lang[$id][0];
+            }
         } else {
             return kryn::$lang[$id];
         }

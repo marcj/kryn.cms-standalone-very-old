@@ -34,7 +34,7 @@
           "file"
         ],
         "title": [
-          "Logo title",
+          "[[Logo title]]",
           "text"
         ],
         "slogan": [
@@ -46,11 +46,11 @@
           "page"
         ],
         "search_page": [
-          "Seach result page",
+          "[[Seach result page]]",
           "page"
         ],
         "footer_navi": [
-          "Footer navigation",
+          "[[Footer navigation]]",
           "page"
         ]
       }
