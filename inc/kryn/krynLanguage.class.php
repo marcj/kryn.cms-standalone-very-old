@@ -370,7 +370,6 @@ msgstr ""
                 $fn = '$GLOBALS[\'moduleTempLangs\']'.$val.'; return "";';
             }
 
-            error_log($fn);
             $content = preg_replace_callback(
                 $ex.'mu',
                 create_function(
@@ -379,70 +378,6 @@ msgstr ""
             );
 
         }
-
-        return;
-
-        // t("a")
-        $content = preg_replace_callback(
-            "/t\(\s*'((\\\.)|[^'])*'\)",
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[1]] = $pP[1]; return "";'
-            ), $content
-        );
-
-
-        return;
-
-        // t('a', 'as', 3, 'myContext') plural and context
-        //t\(\s*\"((\\.)|[^"])*\"
-        $content = preg_replace_callback(
-            '/t\(\s*["\'](.*[^\\\\])["\']\s*,\s*["\'](.*[^\\\\])["\']\s*,\s*(.+)\s*,\s*["\'](.*[^\\\\])["\']\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[4]."\004".$pP[1]] = array($pP[1], $pP[2]); return "";'
-            ), $content
-        );
-
-        return;
-        // t('a', 'as', 3) plural
-        $content = preg_replace_callback(
-            '/t\(\s*["\'](.*[^\\\\])["\']\s*,\s*["\'](.*[^\\\\])["\']\s*,\s*(.+)\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[1]] = array($pP[1], $pP[2]); return "";'
-            ), $content
-        );
-
-
-        // tc('a', 'b')
-        $content = preg_replace_callback(
-            '/tc\(\s*["\'](.*[^\\\\])["\']\s*,\s*["\'](.*[^\\\\])["\']\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[1]."\004".$pP[2]] = $pP[2]; return "";'
-            ), $content
-        );
-
-        //old _l('bla')
-        preg_replace_callback(
-            "/_[l]?\('([^']*)'\)/",
-            create_function(
-                '$pP',
-                '
-                $GLOBALS[\'moduleTempLangs\'][$pP[1]] = $pP[1];
-                '
-            ),
-            $content
-        );
-
-        //template [[bla]]
-        preg_replace_callback(
-            '/\[\[([^\]]*)\]\]/',
-            create_function(
-                '$pP',
-                '
-                $GLOBALS[\'moduleTempLangs\'][$pP[1]] = $pP[1];
-                '
-            ),
-            $content
-        );
     }
 
     public static function readDirectory($pPath) {
