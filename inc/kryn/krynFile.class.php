@@ -205,14 +205,69 @@ class krynFile {
 
     }
 
-    public static function copy($pFrom, $pTo){
-        //TODO, move the code from adminFilemanager::paste() to here
+    /**
+     * Copy a file
+     * @static
+     * @param $pFrom Source file path
+     * @param $pTo Destination file path
+     * @param bool $pOverwrite True if overwrite is allowed
+     * @return array|bool True on succes, else array with error
+     */
+    public static function copy($pFrom, $pTo, $pOverwrite = false){
+        if (!krynAcl::checkAccess(3, $pFrom, 'read', true)) return array('array'=>'access_denied');
+        if (!krynAcl::checkAccess(3, $pTo, 'write', true)) return array('array'=>'access_denied');
 
+        $fromFs = self::getLayer($pFrom);
+        $toFs = self::getLayer($pTo);
+
+        if(!$pOverwrite && $toFs->fileExists(self::normalizePath($pTo)))
+            return array('file_exists'=>true);
+
+        if($fromFs == $toFs){
+            $fromFs->copy(self::normalizePath($pFrom), self::normalizePath($pTo));
+        } else {
+            $content = $fromFs->getContent(self::normalizePath($pFrom));
+            $toFs->newFile(self::normalizePath($pTo), $content);
+        }
+
+        //todo, self::renameVersion($pPath, $pNewPath);
+        //todo, self::renameAcls($pPath, $pNewPath);
+
+        return true;
     }
 
-    public static function move($pFrom, $pTo){
-        //TODO, move the code from adminFilemanager::paste() to here
+    /**
+     * Move a file
+     *
+     * @static
+     * @param $pFrom Source file path
+     * @param $pTo Destination file path
+     * @param bool $pOverwrite True if overwrite is allowed
+     * @return array|bool True on succes, else array with error
+     */
+    public static function move($pFrom, $pTo, $pOverwrite = false){
+        if (!krynAcl::checkAccess(3, $pFrom, 'write', true)) return array('array'=>'access_denied');
+        if (!krynAcl::checkAccess(3, $pTo, 'write', true)) return array('array'=>'access_denied');
 
+        $fromFs = self::getLayer($pFrom);
+        $toFs = self::getLayer($pTo);
+
+        if(!$pOverwrite && $toFs->fileExists(self::normalizePath($pTo)))
+            return array('file_exists'=>true);
+
+        if($fromFs == $toFs){
+            $fromFs->move(self::normalizePath($pFrom), self::normalizePath($pTo));
+        } else {
+            $content = $fromFs->getContent(self::normalizePath($pFrom));
+            if ($toFs->newFile(self::normalizePath($pTo), $content)) {
+                $fromFs->remove(self::normalizePath($pFrom));
+            }
+        }
+
+        //todo, self::renameVersion($pPath, $pNewPath);
+        //todo, self::renameAcls($pPath, $pNewPath);
+
+        return true;
     }
 
     public static function search($pFrom, $pTo){
