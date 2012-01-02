@@ -1654,6 +1654,8 @@ class kryn {
         if( kryn::$lang && kryn::$lang['__lang'] && kryn::$lang['__lang'] == $pLang && $pForce == false )
             return;
 
+        if (!$pLang) return;
+
         $code = 'cacheLang_' . $pLang;
         kryn::$lang =& kryn::getFastCache($code);
 
@@ -1680,21 +1682,25 @@ class kryn {
             kryn::setFastCache($code, kryn::$lang);
         }
 
-        if (!file_exists('cache/object/gettext_plural_fn_' . $pLang . '.php')) {
+        if (!file_exists(kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.php') ||
+            !file_exists(kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.js')) {
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(kryn::$lang['__plural'], 'plural=');
             $pluralForm = substr(kryn::$lang['__plural'], $pos + 7);
-            $pluralForm = str_replace('n', '$n', $pluralForm);
 
-            $code = "<?php \n";
-            $code .= "function gettext_plural_fn_$pLang(\$n){\n";
+            $code = "<?php \nfunction gettext_plural_fn_$pLang(\$n){\n";
+            $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
+            $code .= "}\n?>";
+            kryn::fileWrite(kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.php', $code);
+
+
+            $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
-            $code .= "}\n";
-            $code .= "\n?>";
-            kryn::fileWrite('cache/object/gettext_plural_fn_' . $pLang . '.php', $code);
+            $code .= "}";
+            kryn::fileWrite(kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.js', $code);
         }
 
-        include_once('cache/object/gettext_plural_fn_' . $pLang . '.php');
+        include_once(kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.php');
     }
 
     /**

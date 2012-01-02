@@ -116,6 +116,10 @@ var admin_system_languages_edit = new Class({
             [_('Context'), 150],
             [_('Translation')]
         ]).inject(p);
+
+        document.id(this.langTable).addClass('ka-system-languages-edit-table');
+
+        this.langTable.safe = true;
         rows = [];
 
         this.langInputs = {};
@@ -192,7 +196,6 @@ var admin_system_languages_edit = new Class({
                 ]);
 
             } else {
-
                 this.langInputs[key] = new Element('input', {
                     'class': 'text',
                     'style': 'width: 95%',

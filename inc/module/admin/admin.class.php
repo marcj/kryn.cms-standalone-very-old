@@ -40,9 +40,12 @@ class admin {
     public function content() {
         global $tpl, $navigation, $modules, $cfg, $adminClient, $adminClient;
 
-        if (getArgv('getLanguage') != '') {
+        if (getArgv('getLanguage') != '')
             self::printLanguage();
-        }
+
+        if (getArgv('getLanguagePluralForm') != '')
+            self::getLanguagePluralForm();
+
 
         if (getArgv('getPossibleLangs') == '1')
             self::printPossibleLangs();
@@ -641,6 +644,15 @@ class admin {
         $json = json_encode($langs);
         header('Content-Type: text/javascript');
         print "if( typeof(ka)=='undefined') window.ka = {}; ka.possibleLangs = " . $json;
+        exit;
+    }
+
+    public static function getLanguagePluralForm(){
+
+        $lang = getArgv('getLanguagePluralForm', 2);
+        header('Content-Type: text/javascript');
+        print "/* Kryn plural function */\n";
+        print kryn::fileRead(kryn::$config['media_cache'].'gettext_plural_fn_'.$lang.'.js')."\n";
         exit;
     }
 

@@ -51,9 +51,8 @@ class krynLanguage {
 
     public static function toPoString($pString) {
 
-        $res = '"';
-        $res .= str_replace("\n", '\n"' . "\n" . '"', $pString);
-        $res .= str_replace('"', '\"', $pString);
+        $res  = '"';
+        $res .= preg_replace('/([^\\\\])"/', '$1\"', str_replace("\n", '\n"' . "\n" . '"', $pString));
         $res .= '"';
         return $res;
     }
@@ -73,12 +72,12 @@ class krynLanguage {
         while (($buffer = fgets($fh)) !== false) {
 
 
-            if (preg_match('/^msgctxt "(.*)"/', $buffer, $match)) {
+            if (preg_match('/^msgctxt "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 $lastWasPlural = false;
                 $nextIsThisContext = $match[1];
             }
 
-            if (preg_match('/^msgid "(.*)"/', $buffer, $match)) {
+            if (preg_match('/^msgid "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 $lastWasPlural = false;
                 if ($match[1] == '') {
                     $inHeader = true;
@@ -93,39 +92,39 @@ class krynLanguage {
                 }
             }
 
-            if (preg_match('/^msgstr "(.*)"/', $buffer, $match)) {
+            if (preg_match('/^msgstr "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == false) {
                     $lastWasPlural = false;
-                    $res['translations'][$lastId] = str_replace('\n', "\n", $match[1]);
+                    $res['translations'][self::evalString($lastId)] = self::evalString($match[1]);
                 }
             }
 
-            if (preg_match('/^msgid_plural "(.*)"/', $buffer, $match)) {
+            if (preg_match('/^msgid_plural "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == false) {
                     $lastWasPlural = true;
-                    $res['plurals'][$lastId] = str_replace('\n', "\n", $match[1]);
+                    $res['plurals'][self::evalString($lastId)] = self::evalString($match[1]);
                 }
             }
 
-            if (preg_match('/^msgstr\[([0-9]+)\] "(.*)"/', $buffer, $match)) {
+            if (preg_match('/^msgstr\[([0-9]+)\] "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == false) {
                     $lastPluralId = intval($match[1]);
-                    $res['translations'][$lastId][$lastPluralId] = str_replace('\n', "\n", $match[2]);
+                    $res['translations'][self::evalString($lastId)][$lastPluralId] = self::evalString($match[2]);
                 }
             }
 
-            if (preg_match('/^"(.*)"/', $buffer, $match)) {
+            if (preg_match('/^"(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == true) {
                     $fp = strpos($match[1], ': ');
                     $res['header'][substr($match[1], 0, $fp)] = str_replace('\n', '', substr($match[1], $fp + 2));
                 } else {
                     if (is_array($res['translations'][$lastId])) {
-                        $res['translations'][$lastId][$lastPluralId] .= str_replace('\n', "\n", $match[1]);
+                        $res['translations'][self::evalString($lastId)][$lastPluralId] .= self::evalString($match[1]);
                     } else {
                         if ($lastWasPlural)
-                            $res['plurals'][$lastId] .= str_replace('\n', "\n", $match[1]);
+                            $res['plurals'][self::evalString($lastId)] .= self::evalString($match[1]);
                         else
-                            $res['translations'][$lastId] .= str_replace('\n', "\n", $match[1]);
+                            $res['translations'][self::evalString($lastId)] .= self::evalString($match[1]);
                     }
                 }
             }
@@ -297,64 +296,87 @@ msgstr ""
         }
     }
 
+    public static function evalString($p){
+
+        $p = str_replace('\n', "\n", $p);
+        $p = str_replace('\\\\', "\\", $p);
+        $p = str_replace('\"', "\"", $p);
+
+        return $p;
+    }
+
+    /*
+     *
+     * extracts the calls of the translation methods
+     *
+     * @params string $pFile
+     */
+
     public static function extractFile($pFile) {
         $content = file_get_contents($pFile);
 
-        // t('a', 'as', 3, 'myContext') plural and context
-        $content = preg_replace_callback(
-            '/t\(\s*["\'](.*[^\\\\])["\']\s*,\s*["\'](.*[^\\\\])["\']\s*,\s*(.+)\s*,\s*["\'](.*[^\\\\])["\']\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[4]."\004".$pP[1]] = array($pP[1], $pP[2]); return "";'
-            ), $content
-        );
 
-        // t('a', 'as', 3) plural
-        $content = preg_replace_callback(
-            '/t\(\s*["\'](.*[^\\\\])["\']\s*,\s*["\'](.*[^\\\\])["\']\s*,\s*(.+)\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[1]] = array($pP[1], $pP[2]); return "";'
-            ), $content
-        );
+        $regex = array(
 
-        // t('a')
-        $content = preg_replace_callback(
-            '/t\(\s*["\'](.*[^\\\\])["\']\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[1]] = $pP[1]; return "";'
-            ), $content
-        );
+            //t('asd'), _('asd')
+            '/(_l|_|t)\(\s*"(((\\\\.)|[^"])*)"\s*\)/',
 
-        // tc('a', 'b')
-        $content = preg_replace_callback(
-            '/tc\(\s*["\'](.*[^\\\\])["\']\s*,\s*["\'](.*[^\\\\])["\']\s*\)/',
-            create_function(
-                '$pP', '$GLOBALS[\'moduleTempLangs\'][$pP[1]."\004".$pP[2]] = $pP[2]; return "";'
-            ), $content
-        );
+            //t("asd"), _("asd")
+            "/(_l|_|t)\(\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[krynLanguage::evalString($p[2])] = true',
 
-        //old _l('bla')
-        preg_replace_callback(
-            "/_[l]?\('([^']*)'\)/",
-            create_function(
-                '$pP',
-                '
-                $GLOBALS[\'moduleTempLangs\'][$pP[1]] = $pP[1];
-                '
-            ),
-            $content
-        );
+            //[[asd]]
+            "/(\[\[)([^\]]*)\]\]/",
 
-        //template [[bla]]
-        preg_replace_callback(
-            '/\[\[([^\]]*)\]\]/',
-            create_function(
-                '$pP',
-                '
-                $GLOBALS[\'moduleTempLangs\'][$pP[1]] = $pP[1];
-                '
-            ),
-            $content
+            //tc('context', 'translation')
+            "/tc\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[$p[1]."\004".$p[4]] = true',
+
+            //tc("context", "translation")
+            '/tc\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[krynLanguage::evalString($p[1]."\004".$p[4])] = true',
+
+
+            // t("singular", "plural", $count, "context"
+            '/t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^,]*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
+
+            // t('singular', 'plural', *, 'context'
+            "/t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^,]*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[$p[7]."\004".$p[1]] = array($p[1], $p[4])',
+
+
+            // t("singular", "plural", $count)
+            '/t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^\)]*\)/' => '[krynLanguage::evalString($p[1])] = array($p[1], $p[4])',
+
+            // t('singular', 'plural', $count)
+            "/t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^\)]*\)/" => '[$p[1]] = array($p[1], $p[4])',
+
+
+            //{t "singular" "plural" $count}
+            '/\{t\s*"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}"]*\s*\}/' => '[krynLanguage::evalString($p[1])] = array($p[1], $p[4])',
+
+            //{t "singular" "plural" $count "context}
+            '/\{t\s*"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}]* \s*"(((\\\\.)|[^"])*)"\}/' => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
+
+            //{tc "context" "translation"}
+            '/\{tc\s*"(((\\\\.)|[^"])*)"\s*"(((\\\\.)|[^"])*)"\s*\}/' => '[krynLanguage::evalString($p[1]."\004".$p[4])] = true',
+
         );
+        //$GLOBALS['moduleTempLangs'][$pFile] = true;
+
+        foreach ($regex as $k => $val){
+            if (is_numeric($k)){
+                $ex = $val;
+                $fn = '$GLOBALS[\'moduleTempLangs\'][$p[2]] = true; return "";';
+            } else {
+                $ex = $k;
+                $fn = '$GLOBALS[\'moduleTempLangs\']'.$val.'; return "";';
+            }
+
+            $content = preg_replace_callback(
+                $ex.'mu',
+                create_function(
+                    '$p', $fn
+                ), $content
+            );
+
+        }
     }
 
     public static function readDirectory($pPath) {

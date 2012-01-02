@@ -3,7 +3,7 @@
 /**
  * Smarty Internal Plugin Compile Level
  *
- * Compiles the {levle} tag 
+ * Compiles the {level} tag
  * @package Smarty
  * @subpackage Compiler
  * @author MArc Schmidt <marc@kryn.org>

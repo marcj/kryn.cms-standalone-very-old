@@ -24,17 +24,61 @@ ka.openFrontend = function () {
     }
 }
 
+/**
+ * @deprecated Use t() instead
+ * @param string p
+ */
 window._ = function (p) {
+    return t(p);
+    //return _kml2html(p);
+}
+
+/**
+ * Return a translated message pMsg with plural and context ability
+ *
+ * @param string pMsg     message id (msgid)
+ * @param string pPlural  message id plural (msgid_plural)
+ * @param int    pCount   the count for plural
+ * @param string pContext the message id of the context (msgctxt)
+ */
+window.t = function(pMsg, pPlural, pCount, pContext) {
+    return _kml2html(ka.translate(pMsg, pPlural, pCount, pContext));
+}
+
+ka.translate = function(pMsg, pPlural, pCount, pContext) {
     if (!ka && parent) ka = parent.ka;
     if (ka && !ka.lang && parent && parent.ka) ka.lang = parent.ka.lang;
-    if (ka.lang) {
-        if ($type(ka.lang[p]) == 'string' && ka.lang[p] != '') {
-            return _kml2html(ka.lang[p]);
-        } else if ($type(ka.lang[p]) == 'array') {
-            return _kml2html('<div dir="rtl">' + ka.lang[p][0] + '</div>');
+    var id = (!pContext) ? pMsg : pContext + "\004" + pMsg;
+
+    if (ka.lang && ka.lang[id]){
+        if (typeOf(ka.lang[id]) == 'array') {
+            if (pCount){
+                var fn = 'gettext_plural_fn_'+ka.lang['__lang'];
+                var plural = window[fn](pCount)+0;
+
+                if (pCount && ka.lang[id][plural])
+                    return ka.lang[id][plural].replace('%d', pCount);
+                else
+                    return ((pCount === null || pCount === false || pCount === 1) ? pMsg : pPlural);
+            } else {
+                return ka.lang[id][0];
+            }
+        } else {
+            return ka.lang[id];
         }
+    } else {
+        return ((!pCount || pCount === 1) && pCount !== 0) ? pMsg : pPlural;
     }
-    return _kml2html(p);
+}
+
+/**
+ * Return a translated message $pMsg within a context $pContext
+ *
+ * @param string pContext the message id of the context
+ * @param string pMsg     message id
+ */
+window.tc = function(pContext, pMsg) {
+    return t(pMsg, null, null, pContext);
 }
 
 window._kml2html = function (pRes) {
