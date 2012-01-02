@@ -155,8 +155,7 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = false, $pFields = '*') {
         $pCount = $pNewCount;
     }
 
-    if (substr($pTable,1)!='/')
-        $table = pfx.$pTable;
+    $table = dbTableName($pTable);
 
     $sql = "SELECT $pFields FROM $table";
     if ($pWhere != false)
@@ -167,6 +166,8 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = false, $pFields = '*') {
 
 /**
  * Returns the table with prefix if $pTable does not start with / (slash)
+ * This means, that if you use table names with a starting slash then the
+ * framework won't add the prefix at the beginning.
  *
  * @param $pTable
  * @return string
@@ -265,8 +266,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
 
     $options = database::getOptions($pTable);
 
-    if (substr($pTable,1)!='/')
-        $table = pfx.$pTable;
+    $table = dbTableName($pTable);
 
     $sql = "UPDATE $table SET ";
 
@@ -323,8 +323,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
  */
 function dbDelete($pTable, $pWhere = false) {
 
-    if (substr($pTable,1)!='/')
-        $table = pfx.$pTable;
+    $table = dbTableName($pTable);
 
     $sql = "DELETE FROM " . $table . "";
     if ($pWhere != false)
@@ -333,7 +332,8 @@ function dbDelete($pTable, $pWhere = false) {
 }
 
 function dbCount($pTable, $pWhere = false) {
-    $sql = "SELECT count(*) as count FROM %pfx%$pTable";
+    $table = dbTableName($pTable);
+    $sql = "SELECT count(*) as count FROM $table";
     if ($pWhere != false)
         $sql .= " WHERE $pWhere ";
     $row = dbExfetch($sql);
