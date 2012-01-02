@@ -32,6 +32,7 @@ class krynObject {
 
         if (method_exists($objectDefinition['_extension'], $objectDefinition['urlGetter'])){
             return call_user_func(array($objectDefinition['_extension'], $objectDefinition['urlGetter']), $params);
+
         } else return false;
     }
 
@@ -91,6 +92,20 @@ class krynObject {
      */
     public static function add($pObjectId, $pObject){
         //TODO
+    }
+
+    public static function removeUsages($pObjectId){
+
+    }
+
+    public static function removeUsage($pObjectId, $pUseObjectId){
+
+    }
+
+    public static function addUsage($pObjectId, $pUseObjectId){
+
+
+
     }
 
 }
