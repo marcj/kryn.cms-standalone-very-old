@@ -203,6 +203,24 @@
         }
     }
   },
+  "objects": {
+     "user": {
+         "title": "[[User]]",
+         "table": "system_user"
+     },
+     "group": {
+         "title": "[[Group]]",
+         "table": "system_groups"
+     }
+  },
+
+  "objectRelations": {
+      "user_group": [
+          "user", "rsn", "n-n", "system_groupaccess", "group", "rsn"
+      ]
+  },
+
+
   "admin": {
     "browser": {
       "title": "[[User and group browse dialog]]",

@@ -75,6 +75,7 @@ include('inc/kryn/krynModule.class.php');
 include('inc/kryn/kryn.class.php');
 include('inc/kryn/krynCache.class.php');
 include('inc/kryn/krynAcl.class.php');
+include('inc/kryn/krynObject.class.php');
 include('inc/kryn/krynNavigation.class.php');
 include('inc/kryn/krynHtml.class.php');
 include('inc/kryn/krynAuth.class.php');

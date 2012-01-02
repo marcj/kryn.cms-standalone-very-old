@@ -325,7 +325,27 @@
           "title": "[[Article]]",
           "desc": "[[Articles]]",
           "table": "publication_news",
-          "plugins": ["newsDetail"]
+          "table_primary": "rsn",
+          "plugins": ["newsDetail"],
+          "table_field_sync": true,
+          "fields": {
+              "rsn": {
+                  "type": "number",
+                  "label": "[[Id]]"
+              },
+              "title": {
+                  "type": "text",
+                  "length": 255,
+                  "label": "[[Title]]"
+              },
+              "category_rsn": {
+                  "type": "object",
+                  "label": "[[Category]]",
+                  "object": "news_category",
+                  "object_label": "title",
+                  "object_label_map": "category_title"
+              }
+          }
       },
       "news_comment": {
           "title": "[[Comments]]",
@@ -333,19 +353,11 @@
       },
       "news_category": {
           "title": "[[Article categories]]",
-          "table": "publication_news_category"
+          "table": "publication_news_category",
+          "table_primary": "rsn",
+          "object_label": "title"
       }
   },
-
-  "objectRelations": {
-      "news_comment": [
-          "news", "rsn", "1-n", "news_comment", "parent_rsn"
-      ],
-      "news_category": [
-          "news", "category_rsn", "1-1", "news_category", "rsn"
-      ]
-  },
-
 
   "db": {
     "publication_news": {

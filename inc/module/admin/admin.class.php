@@ -26,7 +26,6 @@ class admin {
             $_COOKIE['activateLLlang'] = getArgv('setActivateLLlang');
         }
 
-        //hier cookie check
         if ($_COOKIE['activateLLlang'] != '')
             $this->lang = $_COOKIE['activateLLlang'];
 

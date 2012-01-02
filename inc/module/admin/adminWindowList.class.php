@@ -244,9 +244,10 @@ class adminWindowList {
      * @return bool
      */
     function deleteItem() {
+        $options = database::getOptions($this->table);
 
         foreach ($this->primary as $primary) {
-            if ($tableInfo[$primary][0] == 'int')
+            if ($options[$primary]['escape'] == 'int')
                 $val = $_POST['item'][$primary] + 0;
             else
                 $val = "'" . esc($_POST['item'][$primary]) . "'";
@@ -255,7 +256,7 @@ class adminWindowList {
 
         $this->_removeN2N($_POST['item']);
 
-        $sql = "DELETE FROM %pfx%" . $this->table . " WHERE 1=1 $where";
+        $sql = "DELETE FROM " . dbTableName($this->table) . " WHERE 1=1 $where";
         dbExec($sql);
 
         return true;
@@ -282,8 +283,7 @@ class adminWindowList {
             $this->_removeN2N($select);
         }
 
-
-        $sql = "DELETE FROM %pfx%" . $this->table . " WHERE 1=0 $where";
+        $sql = "DELETE FROM " . dbTableName($this->table) . " WHERE 1=0 $where";
         dbExec($sql);
         return true;
     }
@@ -296,7 +296,7 @@ class adminWindowList {
     function _removeN2N($pVal) {
         foreach ($this->columns as $key => $column) {
             if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
-                $sql = "DELETE FROM %pfx%" . $column['n-n']['middle'] . " WHERE " . $column['n-n']['middle_keyleft'] .
+                $sql = "DELETE FROM " . dbTableName($column['n-n']['middle']) . " WHERE " . $column['n-n']['middle_keyleft'] .
                        " = " . $pVal[$column['n-n']['left_key']];
                 dbExec($sql);
             }
@@ -377,13 +377,13 @@ class adminWindowList {
 
         $extraFields = array();
         $joins = "";
-        $table = "%pfx%" . $this->table;
+
+        $table = dbTableName($this->table);
 
         $filter = "WHERE 1=1 " . $this->filterSql();
         $extraWhere = " " . $this->where();
 
         //relation stuff
-        $rTable = database::getTable($this->table);
         $options = database::getOptions($this->table);
 
         if (getArgv('relation_table')) {
@@ -417,7 +417,7 @@ class adminWindowList {
         foreach ($this->columns as $key => $column) {
             if ($pCountSql == false) {
                 if ($column['type'] == 'select' && $column['relation'] != 'n-n') {
-                    $exTable = "%pfx%" . $column['table'];
+                    $exTable = dbTableName($column['table']);
                     $extraFields[] = $exTable . "." . $column['table_label'] . " AS $key" . "__label";
                     //get all fields from joined table if modifier is active
                     $mod = $this->modifier;
@@ -432,18 +432,18 @@ class adminWindowList {
                     $column['relation'] == 'n-n'
                 ) {
                     $extraFields[] =
-                        ' group_concat( %pfx%' . $column['n-n']['right'] . '.' . $column['n-n']['right_label'] .
+                        ' group_concat( ' . dbTableName($column['n-n']['right']) . '.' . $column['n-n']['right_label'] .
                         ', \', \') AS ' . $key . '__label';
                     $joins .= "
-                            LEFT OUTER JOIN %pfx%" . $column['n-n']['middle'] . " ON(
-                                %pfx%" . $column['n-n']['middle'] . "." . $column['n-n']['middle_keyleft'] . "= %pfx%" .
-                              $this->table . "." . $column['n-n']['left_key'] . " )
+                            LEFT OUTER JOIN " . dbTableName($column['n-n']['middle']) . " ON(
+                                " . dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyleft'] . "= " .
+                              dbTableName($this->table) . "." . $column['n-n']['left_key'] . " )
 
-                            LEFT OUTER JOIN %pfx%" . $column['n-n']['right'] . " ON (
-                                %pfx%" . $column['n-n']['right'] . "." . $column['n-n']['right_key'] . " = %pfx%" .
-                              $column['n-n']['middle'] . "." . $column['n-n']['middle_keyright'] . " ) ";
+                            LEFT OUTER JOIN " . dbTableName($column['n-n']['right']) . " ON (
+                                " . dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_key'] . " = " .
+                              dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyright'] . " ) ";
 
-                    $end .= " GROUP BY %pfx%" . $this->table . "." . $this->primary[0] . " \n";
+                    $end .= " GROUP BY " . dbTableName($this->table) . "." . $this->primary[0] . " \n";
                 }
             }
         }
@@ -451,7 +451,6 @@ class adminWindowList {
 
         if (count($extraFields) > 0)
             $fields .= ", " . implode(",", $extraFields);
-
 
         if ($pCountSql == false) {
 
@@ -510,7 +509,7 @@ class adminWindowList {
 
         $secondOrder = '';
         if ($this->secondOrderBy && $this->secondOrderBy != $this->orderBy)
-            $secondOrder = ', %pfx%' . $this->table . '.' . $this->secondOrderBy . ' ' . $this->secondOrderByDirection;
+            $secondOrder = ', ' . dbTableName($this->table) . '.' . $this->secondOrderBy . ' ' . $this->secondOrderByDirection;
 
 
         if ($_POST['getPosition']) {
@@ -521,10 +520,11 @@ class adminWindowList {
 
             $fields = implode(',', $this->primary);
 
+            $unique = '';
             $sql = "
                 " . $this->listSql . "
                 $unique
-                ORDER BY %pfx%" . $this->table . "." . $this->orderBy . " " . $this->orderByDirection . " $secondOrder";
+                ORDER BY " . dbTableName($this->table) . "." . $this->orderBy . " " . $this->orderByDirection . " $secondOrder";
 
             $aWhere = array();
 
@@ -533,6 +533,7 @@ class adminWindowList {
 
             $selected = getArgv('getPosition');
 
+            $sqlInsert = '';
             foreach ($this->primary as $primary) {
 
                 $val = $selected[$primary];
@@ -580,11 +581,12 @@ class adminWindowList {
                 $limit = " LIMIT $end OFFSET $start";
             }
 
+            $unique = '';
             $listSql = "
             SELECT * FROM (
                 " . $this->listSql . "
                 $unique
-                ORDER BY %pfx%" . $this->table . "." . $this->orderBy . " " . $this->orderByDirection . "
+                ORDER BY " . dbTableName($this->table) . "." . $this->orderBy . " " . $this->orderByDirection . "
                 $secondOrder
             ) as t
             $limit";
@@ -593,21 +595,19 @@ class adminWindowList {
 
         $res = dbExec($listSql);
 
-        $found = false;
-
         while ($item = dbFetch($res)) {
 
             foreach ($this->columns as $key => $column) {
                 if (kryn::$config['db_type'] == 'postgresql') {
                     if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
                         $tempRow = dbExfetch("
-                            SELECT group_concat(%pfx%" . $column['n-n']['right'] . "." . $column['n-n']['right_label'] .
+                            SELECT group_concat(" .dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_label'] .
                                              ") AS " . $key . "__label
-                            FROM %pfx%" . $column['n-n']['right'] . ", %pfx%" . $column['n-n']['middle'] . "
+                            FROM " .dbTableName($column['n-n']['right']) . ", " . dbTableName($column['n-n']['middle']) . "
                             WHERE
-                            %pfx%" . $column['n-n']['right'] . "." . $column['n-n']['right_key'] . " = %pfx%" .
-                                             $column['n-n']['middle'] . "." . $column['n-n']['middle_keyright'] . " AND
-                            %pfx%" . $column['n-n']['middle'] . "." . $column['n-n']['middle_keyleft'] . " = " .
+                            ".dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_key'] . " = " .
+                                dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyright'] . " AND
+                            ".dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyleft'] . " = " .
                                              $item[$column['n-n']['left_key']], 1);
                         $item[$key . '__label'] = $tempRow[$key . '__label'];
 
@@ -635,10 +635,10 @@ class adminWindowList {
         $this->listSql = $this->sql();
         $listSql = "
             " . $this->listSql . "
-            ORDER BY %pfx%" . $this->table . "." . $this->orderBy . " " . $this->orderByDirection;
+            ORDER BY " .dbTableName($this->table) . "." . $this->orderBy . " " . $this->orderByDirection;
 
         if ($this->secondOrderBy && $this->secondOrderBy != $this->orderBy)
-            $listSql .= ', %pfx%' . $this->table . '.' . $this->secondOrderBy . ' ' . $this->secondOrderByDirection;
+            $listSql .= ', '.dbTableName($this->table) . '.' . $this->secondOrderBy . ' ' . $this->secondOrderByDirection;
 
         $sres = dbExec($listSql);
 

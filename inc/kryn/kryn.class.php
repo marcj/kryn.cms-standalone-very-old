@@ -646,11 +646,14 @@ class kryn {
         $md5 = md5($md5);
 
         kryn::$tables =& kryn::getCache('systemTablesv2');
+        kryn::$themes =& kryn::getCache('systemThemes');
+        kryn::$objects =& kryn::getCache('systemObjects');
 
-        /*
-         * load tables
-         */
-        if (!kryn::$tables || $md5 != kryn::$tables['__md5']) {
+        //check if we need to load all config objects and do the extendConfig part
+        if (!kryn::$tables || $md5 != kryn::$tables['__md5'] ||
+            !kryn::$themes || $md5 != kryn::$themes['__md5'] ||
+            !kryn::$objects || $md5 != kryn::$objects['__md5']
+            ) {
 
             kryn::$tables = array();
             kryn::$tables['__md5'] = $md5;
@@ -670,7 +673,12 @@ class kryn {
                     }
                 }
             }
+        }
 
+        /*
+        * load tables
+        */
+        if (!kryn::$tables || $md5 != kryn::$tables['__md5']){
             foreach (kryn::$configs as $extension => $config) {
 
                 if ($config['db']) {
@@ -692,7 +700,6 @@ class kryn {
         /*
          * load themes
          */
-        kryn::$themes =& kryn::getCache('systemThemes');
         if (!kryn::$themes || $md5 != kryn::$themes['__md5']) {
 
             kryn::$themes = array();
@@ -700,7 +707,7 @@ class kryn {
 
             foreach (kryn::$extensions as &$extension) {
 
-                $config = kryn::$configs[$extension] ? kryn::$configs[$extension]:kryn::getModuleConfig($extension, false, true);
+                $config = kryn::$configs[$extension];
                 if ($config['themes'])
                     kryn::$themes[$extension] = $config['themes'];
             }
@@ -708,11 +715,9 @@ class kryn {
         }
         unset(kryn::$themes['__md5']);
 
-
         /*
          * load object definitions
          */
-        kryn::$objects =& kryn::getCache('systemObjects');
 
         if (!kryn::$objects || $md5 != kryn::$objects['__md5']){
 
@@ -721,7 +726,7 @@ class kryn {
 
             foreach (kryn::$extensions as &$extension) {
 
-                $config = kryn::$configs[$extension] ? kryn::$configs[$extension]:kryn::getModuleConfig($extension, false, true);
+                $config = kryn::$configs[$extension];
 
                 if ($config['objects'] && is_array($config['objects'])){
 

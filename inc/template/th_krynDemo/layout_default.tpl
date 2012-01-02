@@ -36,6 +36,16 @@
                     <div class="content-main">
                         <div class="content-main-padding">
                             {navigation id="history" template="th_krynDemo/navigation_breadcrumb.tpl"}
+
+                                <hr />
+                                <pre>{krynObject::get('news://3?fields=rsn,title,category_rsn')|print_r}</pre>
+
+                                <hr />
+                                <pre>{krynObject::get('news://1,3?fields=rsn,title')|print_r}</pre>
+
+                                <hr />
+                                <pre>{krynObject::get('news://?fields=rsn,title')|print_r}</pre>
+
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>
                     </div>

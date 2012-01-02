@@ -141,26 +141,39 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
  * @param string  $pTable The table name based on your extension table definition.
  * @param integer $pCount How many items it will returns, with 1 you'll get direct the array without a list.
  * @param string  $pWhere
+ * @param string  $pFields Comma separated list of the columns
  *
  * @return type
  */
-function dbTableFetch($pTable, $pCount = -1, $pWhere = false) {
+function dbTableFetch($pTable, $pCount = -1, $pWhere = false, $pFields = '*') {
 
     //to change pCount <-> pWhere
-    if (gettype($pCount) == 'string') $pNewWhere = $pCount;
-    if (gettype($pWhere) == 'integer') $pNewCount = $pWhere;
+    if (is_numeric($pWhere)){
+        $pNewWhere = $pCount;
+        $pNewCount = $pWhere;
+        $pWhere = $pNewWhere;
+        $pCount = $pNewCount;
+    }
 
-    if ($pNewWhere) $pWhere = $pNewWhere;
-    if ($pNewCount) $pCount = $pNewCount;
+    if (substr($pTable,1)!='/')
+        $table = pfx.$pTable;
 
-    $table = database::getTable($pTable);
-
-    $sql = "SELECT * FROM $table";
+    $sql = "SELECT $pFields FROM $table";
     if ($pWhere != false)
         $sql .= " WHERE $pWhere";
+
     return dbExfetch($sql, $pCount);
 }
 
+/**
+ * Returns the table with prefix if $pTable does not start with / (slash)
+ *
+ * @param $pTable
+ * @return string
+ */
+function dbTableName($pTable){
+    return (substr($pTable,0,1) == '/')?$pTable:pfx.$pTable;
+}
 
 /**
  * Inserts the values based on pFields into the table pTable.
@@ -174,8 +187,10 @@ function dbInsert($pTable, $pFields) {
 
     $options = database::getOptions($pTable);
 
-    $table = database::getTable($pTable);
-    $sql .= "INSERT INTO $table (";
+    if (substr($pTable,1)!='/')
+        $table = pfx.$pTable;
+
+    $sql = "INSERT INTO $table (";
 
     $fields = array();
     foreach ($pFields as $key => $field) {
@@ -185,6 +200,8 @@ function dbInsert($pTable, $pFields) {
             $fields[] = $field;
     }
 
+    $sqlFields = '';
+    $sqlInsert = '';
 
     foreach ($fields as $key => $field) {
 
@@ -248,7 +265,9 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
 
     $options = database::getOptions($pTable);
 
-    $table = database::getTable($pTable);
+    if (substr($pTable,1)!='/')
+        $table = pfx.$pTable;
+
     $sql = "UPDATE $table SET ";
 
     if (is_array($pPrimary)) {
@@ -269,6 +288,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
         $where = $pPrimary;
     }
 
+    $sqlInsert = '';
     foreach ($pFields as $key => $field) {
 
         if (is_numeric($key)) {
@@ -302,7 +322,11 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
  * @param type $pWhere Do not forget this, otherwise the table will be truncated.
  */
 function dbDelete($pTable, $pWhere = false) {
-    $sql = "DELETE FROM " . database::getTable($pTable) . "";
+
+    if (substr($pTable,1)!='/')
+        $table = pfx.$pTable;
+
+    $sql = "DELETE FROM " . $table . "";
     if ($pWhere != false)
         $sql .= " WHERE $pWhere ";
     dbExec($sql);

@@ -3,6 +3,7 @@
 class publicationNewsList extends adminWindowList {
 
     public $table = 'publication_news';
+
     public $itemsPerPage = 5;
     public $orderBy = 'category_rsn';
     public $orderByDirection = 'DESC';
