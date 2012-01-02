@@ -334,18 +334,18 @@ msgstr ""
             '/tc\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[krynLanguage::evalString($p[1]."\004".$p[4])] = true',
 
 
-            // t("singular", "plural", $count)
-            '/t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^\)]*\)/' => '[$p[1]] = array($p[1], $p[4])',
-
-            // t('singular', 'plural', $count)
-            "/t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^\)]*\)/" => '[krynLanguage::evalString($p[1])] = array($p[1], $p[4])',
-
-
             // t("singular", "plural", $count, "context"
             '/t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^,]*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
 
             // t('singular', 'plural', *, 'context'
-            "/t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^,]*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
+            "/t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^,]*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[$p[7]."\004".$p[1]] = array($p[1], $p[4])',
+
+
+            // t("singular", "plural", $count)
+            '/t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^\)]*\)/' => '[krynLanguage::evalString($p[1])] = array($p[1], $p[4])',
+
+            // t('singular', 'plural', $count)
+            "/t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^\)]*\)/" => '[$p[1]] = array($p[1], $p[4])',
 
 
             //{t "singular" "plural" $count}
@@ -353,7 +353,6 @@ msgstr ""
 
             //{t "singular" "plural" $count "context}
             '/\{t\s*"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}]* \s*"(((\\\\.)|[^"])*)"\}/' => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
-
 
             //{tc "context" "translation"}
             '/\{tc\s*"(((\\\\.)|[^"])*)"\s*"(((\\\\.)|[^"])*)"\s*\}/' => '[krynLanguage::evalString($p[1]."\004".$p[4])] = true',

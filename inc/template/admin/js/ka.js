@@ -201,10 +201,13 @@ ka.loadLanguage = function (pLang) {
 
     Cookie.write('kryn_language', pLang);
 
-    new Request.JSON({url: _path + 'admin/getLanguage:' + pLang + '/', async: false, noCache: 1, onComplete: function (res) {
+    Asset.javascript(_path + 'admin/getLanguagePluralForm:' + pLang);
+
+    new Request.JSON({url: _path + 'admin/getLanguage:' + pLang, async: false, noCache: 1, onComplete: function (res) {
         ka.lang = res;
         Locale.define('en-US', 'Date', res.mootools);
     }}).get();
+
 }
 
 
