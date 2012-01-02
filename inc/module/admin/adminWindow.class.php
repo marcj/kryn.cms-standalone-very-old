@@ -134,7 +134,7 @@ class adminWindow {
         $sessionId = $client->token;
 
         // Path for session folder
-        $path = krynFile::normalizePath(getArgv('path') . $sessionId);
+        $path = getArgv('path') . $sessionId;
 
         // Make folder if not exists
         if (!krynFile::exists($path))
