@@ -208,8 +208,8 @@ class krynFile {
     /**
      * Copy a file
      * @static
-     * @param $pFrom Source file path
-     * @param $pTo Destination file path
+     * @param string Source file path
+     * @param string Destination file path
      * @param bool $pOverwrite True if overwrite is allowed
      * @return array|bool True on succes, else array with error
      */
@@ -240,8 +240,8 @@ class krynFile {
      * Move a file
      *
      * @static
-     * @param $pFrom Source file path
-     * @param $pTo Destination file path
+     * @param string Source file path
+     * @param string Destination file path
      * @param bool $pOverwrite True if overwrite is allowed
      * @return array|bool True on succes, else array with error
      */
