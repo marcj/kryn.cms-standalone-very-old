@@ -609,6 +609,9 @@ class adminFilemanager {
 
         $newPath = ($pPath == '/')?'/'.$name:$pPath.'/'.$name;
 
+        if(!self::$fs)
+            self::$fs = self::getFs($newPath);
+
         if (self::$fs->fileExists(self::normalizePath($newPath))) {
 
             if (getArgv('overwrite') != '1') {

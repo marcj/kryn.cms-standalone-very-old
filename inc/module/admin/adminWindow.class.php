@@ -130,22 +130,21 @@ class adminWindow {
     public static function sessionbasedFileUpload() {
         global $client;
 
-        //get session id
+        // Get session id
         $sessionId = $client->token;
 
-        //path for session folder
-        $path = 'inc/template' . getArgv('path') . $sessionId;
-        $path = str_replace("..", "", $path);
+        // Path for session folder
+        $path = krynFile::normalizePath(getArgv('path') . $sessionId);
 
-        //make folder if not exists
-        if (!is_dir($path))
-            mkdir($path);
+        // Make folder if not exists
+        if (!krynFile::exists($path))
+            krynFile::createFolder($path);
 
-        //override path
+        // Override path
         $_REQUEST['path'] = $_POST['path'] = $_GET['path'] = getArgv('path') . $sessionId;
 
-        //now upload the file
-        return adminFilemanager::uploadFile();
+        // Now upload the file
+        return adminFilemanager::uploadFile($path);
 
     }
 
