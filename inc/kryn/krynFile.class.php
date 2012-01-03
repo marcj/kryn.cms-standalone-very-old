@@ -201,7 +201,7 @@ class krynFile {
     public static function getFiles($pPath){
 
         $fs = self::getLayer($pPath);
-        return $fs->getFile(self::normalizePath($pPath));
+        return $fs->getFiles(self::normalizePath($pPath));
 
     }
 
@@ -211,23 +211,41 @@ class krynFile {
      * @param string Source file path
      * @param string Destination file path
      * @param bool $pOverwrite True if overwrite is allowed
-     * @return array|bool True on succes, else array with error
+     * @return array|bool True on success, else array with error
      */
     public static function copy($pFrom, $pTo, $pOverwrite = false){
-        if (!krynAcl::checkAccess(3, $pFrom, 'read', true)) return array('array'=>'access_denied');
-        if (!krynAcl::checkAccess(3, $pTo, 'write', true)) return array('array'=>'access_denied');
-
         $fromFs = self::getLayer($pFrom);
         $toFs = self::getLayer($pTo);
 
         if(!$pOverwrite && $toFs->fileExists(self::normalizePath($pTo)))
-            return array('file_exists'=>true);
+            return array('error' => 'file_exists');
 
         if($fromFs == $toFs){
-            $fromFs->copy(self::normalizePath($pFrom), self::normalizePath($pTo));
+            if(!$fromFs->copy(self::normalizePath($pFrom), self::normalizePath($pTo)))
+                return array('error' => 'copy_failed');
         } else {
-            $content = $fromFs->getContent(self::normalizePath($pFrom));
-            $toFs->newFile(self::normalizePath($pTo), $content);
+            // Get file info
+            $file = $fromFs->getFile(self::normalizePath($pFrom));
+            if($file['type'] == 'file')
+            {
+                $content = $fromFs->getContent(self::normalizePath($pFrom));
+                if(!$toFs->setContent(self::normalizePath($pTo), $content))
+                    return array('error' => 'setcontent_failed');
+            }
+            else
+            { // We need to move a folder from one file layer to another
+                if($fromFs->magicFolderName == '')
+                { // Directly upload the stuff
+                    self::copyFolder('inc/template'.$pFrom, $pTo);
+                }
+                else
+                { // We need to copy all files down to our local hdd temporary
+                    $temp = kryn::createTempFolder();
+                    self::downloadFolder($pFrom, $temp);
+                    self::copyFolder($temp, $pTo);
+                    delDir($temp);
+                }
+            }
         }
 
         //todo, self::renameVersion($pPath, $pNewPath);
@@ -243,31 +261,70 @@ class krynFile {
      * @param string Source file path
      * @param string Destination file path
      * @param bool $pOverwrite True if overwrite is allowed
-     * @return array|bool True on succes, else array with error
+     * @return array|bool True on success, else array with error
      */
     public static function move($pFrom, $pTo, $pOverwrite = false){
-        if (!krynAcl::checkAccess(3, $pFrom, 'write', true)) return array('array'=>'access_denied');
-        if (!krynAcl::checkAccess(3, $pTo, 'write', true)) return array('array'=>'access_denied');
 
-        $fromFs = self::getLayer($pFrom);
-        $toFs = self::getLayer($pTo);
+        // Perform copy
+        $copy = self::copy($pFrom, $pTo, $pOverwrite);
 
-        if(!$pOverwrite && $toFs->fileExists(self::normalizePath($pTo)))
-            return array('file_exists'=>true);
-
-        if($fromFs == $toFs){
-            $fromFs->move(self::normalizePath($pFrom), self::normalizePath($pTo));
-        } else {
-            $content = $fromFs->getContent(self::normalizePath($pFrom));
-            if ($toFs->newFile(self::normalizePath($pTo), $content)) {
-                $fromFs->remove(self::normalizePath($pFrom));
-            }
+        if($copy === true)
+        { // Delete original
+            $fromFs = self::getLayer($pFrom);
+            $fromFs->deleteFile(self::normalizePath($pFrom));
         }
 
         //todo, self::renameVersion($pPath, $pNewPath);
         //todo, self::renameAcls($pPath, $pNewPath);
 
         return true;
+    }
+
+    private static function downloadFolder($pPath, $pTo)
+    {
+        // Check if the directory to copy to exists
+        if(!is_dir($pTo))
+            mkdirr($pTo);
+
+        // Get the files from the directory and start download
+        $files = self::getFiles($pPath);
+        if(is_array($files))
+        {
+            foreach($files as $file)
+            {
+                if($file['type'] == 'file')
+                { // Copy the file
+                    $content = self::getContent($pPath.'/'.$file['name']);
+                    kryn::fileWrite($pTo.'/'.$file['name'], $content);
+                    self::setContent($pTo.'/'.$file['name'], $content);
+                }
+                else
+                { // Initiate download of folder
+                    self::downloadFolder($pPath.'/'.$file['name'], $pTo.'/'.$file['name']);
+                }
+            }
+        }
+    }
+
+    private static function copyFolder($pFrom, $pTo)
+    {
+        // Create folder pTo if non-existing
+        if(!self::exists($pTo))
+            self::createFolder($pTo);
+
+        $normalizedTo = self::normalizePath($pTo);
+
+        // Find all files and copy them
+        $files = find($pFrom.'/*');
+        foreach($files as $file)
+        {
+            $newName = $normalizedTo.'/'.substr($file, strlen($pFrom)+1);
+
+            if(is_dir($file))
+                self::createFolder($newName);
+            else
+                self::createFile($newName, kryn::fileRead($file));
+        }
     }
 
     public static function search($pFrom, $pTo){
