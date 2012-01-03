@@ -131,6 +131,34 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['plugins']);
 
+        var table = new Element('table', {
+            'class': 'ka-Table-head ka-Table-body', //
+            style: 'position: relative; top: 0px; background-color: #eee',
+            cellpadding: 0, cellspacing: 0
+        }).inject(this.pluginsPane);
+
+        this.pluginTBody = new Element('tbody').inject(table);
+
+        var tr = new Element('tr').inject(this.pluginTBody);
+        new Element('th', {
+            text: t('PHP Method name'),
+            style: 'width: 260px;'
+        }).inject(tr);
+
+        new Element('th', {
+            text: t('Plugin title'),
+            style: 'width: 260px;'
+        }).inject(tr);
+
+        new Element('th', {
+            text: t('Properties')
+        }).inject(tr);
+
+        new Element('th', {
+            text: t('Actions'),
+            style: 'width: 80px;'
+        }).inject(tr);
+
         var buttonBar = new ka.buttonBar(this.panes['plugins']);
         buttonBar.addButton(_('Save'), this.savePlugins.bind(this));
         buttonBar.addButton(_('Add plugin'), this.addPlugin.bind(this));
@@ -170,39 +198,80 @@ var admin_system_module_edit = new Class({
         if (this.lr) this.lr.cancel();
         this.loader.show();
 
-
         req.plugins = JSON.encode(req.plugins);
         this.lr = new Request.JSON({url: _path + 'admin/system/module/savePlugins', noCache: 1, onComplete: function (res) {
             this.loader.hide();
+            ka.loadSettings();
         }.bind(this)}).post(req);
 
     },
 
     addPlugin: function (pPlugin, pKey) {
 
-        var div = new Element('div', {
-            'class': 'plugin',
-            style: 'padding: 10px 5px; border-bottom: 1px solid silver;'
-        }).inject(this.pluginsPane);
+        var tr = new Element('tr', {
+            'class': 'plugin'
+        }).inject(this.pluginTBody);
 
-        var title = new Element('div').inject(div);
+        var leftTd = new Element('td').inject(tr);
+        var rightTd = new Element('td').inject(tr);
+        var right2Td = new Element('td').inject(tr);
+        var actionTd = new Element('td').inject(tr);
 
-        new Element('span', {
-            text: t('PHP Method name:')+' '
-        }).inject(title);
 
-        new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(title);
+        var tr2 = new Element('tr').inject(this.pluginTBody);
+        var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
 
-        new Element('span', {
-            text: ' '+t('Plugin title:')+' '
-        }).inject(title);
+        new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(leftTd);
 
-        new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin?pPlugin[0]:''}).inject(title);
+        new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin?pPlugin[0]:''}).inject(rightTd);
+
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/delete.png',
+            title: t('Delete property'),
+            style: 'cursor: pointer; position: relative; top: 3px;'
+        })
+        .addEvent('click', function(){
+            tr.destroy();
+            tr2.destroy();
+        })
+        .inject(actionTd);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/arrow_up.png',
+            title: t('Move up'),
+            style: 'cursor: pointer; position: relative; top: 3px;'
+        })
+        .addEvent('click', function(){
+            var previous = tr.getPrevious();
+            if (previous.getElement('th')) return;
+
+            tr.inject(previous.getPrevious(), 'before');
+            tr2.inject(tr,'after');
+        })
+        .inject(actionTd);
+
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/arrow_down.png',
+            title: t('Move down'),
+            style: 'cursor: pointer; position: relative; top: 3px;'
+        })
+        .addEvent('click', function(){
+            if (!tr2.getNext())
+                return false;
+            tr2.inject(tr2.getNext().getNext(), 'after');
+            tr.inject(tr2, 'before');
+        })
+        .inject(actionTd);
+
+
+
 
         var a = new Element('a', {
             text: t('Properties'),
             style: 'display: block; padding: 2px; cursor: pointer'
-        }).inject(title);
+        }).inject(right2Td);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/tree_plus.png',
@@ -210,9 +279,9 @@ var admin_system_module_edit = new Class({
         }).inject(a, 'top');
 
         var propertyPanel = new Element('div', {
-            style: 'display: none; margin: 15px; margin-top: 5px; border: 1px solid silver; padding-bottom: 4px; background-color: #ccc;',
+            style: 'display: none; margin: 15px; margin-top: 5px; border: 1px solid silver; background-color: #e7e7e7;',
             'class': 'ka-extmanager-plugins-properties-panel'
-        }).inject(div);
+        }).inject(bottomTd);
 
         a.addEvent('click', function(){
             if (propertyPanel.getStyle('display') == 'block'){
@@ -227,7 +296,7 @@ var admin_system_module_edit = new Class({
 
         var propertyTable = new ka.propertyTable(propertyPanel, this.win);
 
-        div.store('propertyTable', propertyTable);
+        tr.store('propertyTable', propertyTable);
 
         if (pPlugin)
             propertyTable.setValue(pPlugin[1]);
@@ -341,24 +410,17 @@ var admin_system_module_edit = new Class({
         this.loader.show();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveDb', noCache: 1, onComplete: function () {
             this.loader.hide();
+            ka.loadSettings();
         }.bind(this)}).post(req);
     },
 
     _renderDb: function (pConfig) {
         this.panes['db'].empty();
-        var p = new Element('div', {
+
+        this.dbPaneItems = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
             style: 'bottom: 31px;'
         }).inject(this.panes['db']);
-        this.dbPaneItems = p;
-
-        this.dbAddColumnImg = new Element('img', {
-            'src': _path + 'inc/template/admin/images/icons/add.png',
-            title: _('Add table'),
-            style: 'cursor: pointer; margin: 3px;'
-        }).addEvent('click', function () {
-            this._dbAddTable('newTable', {});
-        }.bind(this)).inject(p);
 
         if (pConfig.db) {
             Object.each(pConfig.db, function (table, key) {
@@ -367,10 +429,14 @@ var admin_system_module_edit = new Class({
         }
 
         var buttonBar = new ka.buttonBar(this.panes['db']);
-        buttonBar.addButton(_('DB-Update'), function () {
-            ka.wm.open('admin/system/module/dbInit', {name: this.mod});
+        buttonBar.addButton(t('Add table'), function () {
+            this._dbAddTable('table_name', {});
         }.bind(this));
         buttonBar.addButton(_('Save'), this.saveDb.bind(this));
+        buttonBar.addButton(t('DB-Update'), function () {
+            ka.wm.open('admin/system/module/dbInit', {name: this.mod});
+        }.bind(this));
+
     },
 
     _dbAddTable: function (pKey, pTable) {
@@ -378,21 +444,20 @@ var admin_system_module_edit = new Class({
         var m = new Element('div', {
             'class': 'dbTable',
             style: 'padding: 4px; margin-top: 20px;  border-top: 1px solid silver; '
-        }).inject(this.dbAddColumnImg, 'before');
+        }).inject(this.dbPaneItems);
 
 
         var i = new Element('input', {
             'class': 'text dbTableKey',
             value: pKey
-        }).inject( m );
-
-        new Element('img', {
-            'src': _path + 'inc/template/admin/images/icons/add.png',
-            title: _('Add column'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
-        }).addEvent('click', function () {
-            this._dbAddColumn('newColumn', {}, columns);
-        }.bind(this)).inject(m);
+        })
+        .addEvent('keyup', function(){
+            this.value = this.value.toLowerCase();
+            this.value = this.value.replace(' ', '_');
+            this.value = this.value.replace(/[^a-zA-Z0-9_-]/, '-');
+            this.value = this.value.replace(/--+/, '-');
+        })
+        .inject( m );
 
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/delete.png',
@@ -405,6 +470,13 @@ var admin_system_module_edit = new Class({
             });
         }.bind(this)).inject(m);
 
+        var addBtn = new Element('img', {
+            'src': _path + 'inc/template/admin/images/icons/add.png',
+            title: _('Add column'),
+            style: 'cursor: pointer; position: relative; top: 3px;'
+        }).inject(m);
+
+
         var div = new Element('div', {
             'style': 'margin-left: 25px;  border: 1px solid #ddd;'
         }).inject(m);
@@ -415,6 +487,11 @@ var admin_system_module_edit = new Class({
             cellpadding: 0, cellspacing: 0
         }).inject(div);
         var tbody = new Element('tbody').inject(table);
+
+        addBtn.addEvent('click', function () {
+            this._dbAddColumn('newColumn', {}, tbody);
+        }.bind(this))
+
 
         var tr = new Element('tr').inject(tbody);
 
@@ -762,6 +839,8 @@ var admin_system_module_edit = new Class({
         this.loader.show();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLinks', noCache: 1, onComplete: function () {
             this.loader.hide();
+            ka.loadSettings();
+            ka.loadMenu();
         }.bind(this)}).post(req);
 
     },
@@ -1089,6 +1168,7 @@ var admin_system_module_edit = new Class({
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function () {
             this.loader.hide();
+            ka.loadSettings();
         }.bind(this)}).post({name: this.mod, themes: JSON.encode(themes) });
     },
 

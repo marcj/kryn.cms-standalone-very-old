@@ -15,36 +15,25 @@ ka.propertyTable = new Class({
         this.container = pContainer;
         this.win = pWin;
 
-
-        var table = new Element('table', {
-            'class': 'ka-Table-head ka-Table-body',
-            style: 'position: relative; top: 0px;',
-            cellpadding: 0, cellspacing: 0
+        this.itemContainer = new Element('div', {
         }).inject(this.container);
-        this.tbody = new Element('tbody').inject(table);
 
-        var tr = new Element('tr').inject(this.tbody);
-        new Element('th', {
-            text: t('Key'),
-            style: 'width: 150px;'
-        }).inject(tr);
-
-        new Element('th', {
-            text: t('Definition')
-        }).inject(tr);
+        this.footer = new Element('div', {
+            style: 'background-color: #ddd; padding: 2px;'
+        }).inject(this.container);
 
         new ka.Button(t('Add property'))
         .addEvent('click', function(){
             this.add();
         }.bind(this))
-        .inject(this.container);
+        .inject(this.footer);
     },
 
     getValue: function(){
 
         var value = {};
 
-        this.tbody.getChildren('.ka-propertyTable-item').each(function(item){
+        this.itemContainer.getChildren('.ka-propertyTable-item').each(function(item){
 
             var key = item.getElement('.ka-propertyTable-item-key');
             if (!key) return;
@@ -118,15 +107,19 @@ ka.propertyTable = new Class({
 
     add: function(pKey, pDefinition){
 
-        var tr = new Element('tr', {
-            'class': 'ka-propertyTable-item'
-        }).inject(this.tbody);
 
-        tr.store('definition', pDefinition || {});
+        var div = new Element('div', {
+            'class': 'ka-propertyTable-item',
+            style: 'border-bottom: 1px solid silver;'
+        }).inject(this.itemContainer);
 
-        var count = this.tbody.getChildren('tr').length-1;
+        var header = new Element('div', {
+            style: 'border-bottom: 1px solid silver; padding: 3px;'
+        }).inject(div);
 
-        var td = new Element('td', {valign: 'top', style: 'border-bottom: 1px solid silver'}).inject(tr);
+        div.store('definition', pDefinition || {});
+
+        var count = this.itemContainer.getElements('.ka-propertyTable-item').length-1;
 
         var iKey = new Element('input', {
             value: pKey?pKey:'property_'+count,
@@ -137,50 +130,42 @@ ka.propertyTable = new Class({
             this.value = this.value.replace(/[^a-zA-Z0-9_-]/, '-');
             this.value = this.value.replace(/--+/, '-');
         })
-        .inject(td);
-
-        var div = new Element('div').inject(td);
-
+        .inject(header);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
             title: t('Delete property'),
-            style: 'cursor: pointer;'
+            style: 'cursor: pointer; position: relative; top: 3px;'
         })
         .addEvent('click', function(){
-            tr.destroy();
+            div.destroy();
         })
-        .inject(div);
-
+        .inject(header);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/arrow_up.png',
             title: t('Move up'),
-            style: 'cursor: pointer;'
+            style: 'cursor: pointer; position: relative; top: 3px;'
         })
         .addEvent('click', function(){
-            if (tr.getPrevious() && tr.getPrevious().getFirst('th'))
+            if (!div.getPrevious('.ka-propertyTable-item'))
                 return false;
-            tr.inject(tr.getPrevious(), 'before');
+            div.inject(div.getPrevious('.ka-propertyTable-item'), 'before');
         })
-        .inject(div);
+        .inject(header);
 
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/arrow_down.png',
             title: t('Move down'),
-            style: 'cursor: pointer;'
+            style: 'cursor: pointer; position: relative; top: 3px;'
         })
-            .addEvent('click', function(){
-            if (!tr.getNext())
+        .addEvent('click', function(){
+            if (!div.getNext())
                 return false;
-            tr.inject(tr.getNext(), 'after');
+            div.inject(div.getNext(), 'after');
         })
-            .inject(div);
-
-        var definition = new Element('td', {style: 'border-bottom: 1px solid silver;'}).inject(tr);
-
-
+        .inject(header);
 
         this.kaFields = {
             label: {
@@ -332,9 +317,17 @@ ka.propertyTable = new Class({
 
         }
 
-        var kaParse = new ka.parse(definition, this.kaFields, {allTableItems:true, tableitem_title_width: 300}, {win:this.win});
+        var main = new Element('div',{style: 'background-color: #eee'}).inject(div);
 
-        tr.store('kaParse', kaParse);
+        var table = new Element('table', {
+            width: '100%'
+        }).inject( main );
+
+        var fieldContainer = new Element('tbody').inject(table);
+
+        var kaParse = new ka.parse(fieldContainer, this.kaFields, {allTableItems:true, tableitem_title_width: 350}, {win:this.win});
+
+        div.store('kaParse', kaParse);
 
         if (pDefinition && typeOf(pDefinition) == 'object'){
             //do some migration stuff and setValue
@@ -365,21 +358,21 @@ ka.propertyTable = new Class({
 
 
         new ka.Button(t('Depends'))
-            .addEvent('click', this.openDepends.bind(this, tr))
-            .inject(definition);
+        .addEvent('click', this.openDepends.bind(this, div))
+        .inject(main);
 
-        var dependDiv = new Element('div', {style: 'padding: 5px; color: gray;'}).inject(definition);
-        tr.store('dependDiv', dependDiv);
+        var dependDiv = new Element('div', {style: 'padding: 5px; padding-left: 15px; color: gray;'}).inject(main);
+        div.store('dependDiv', dependDiv);
 
-        this.renderDependInfo(tr);
+        this.renderDependInfo(div);
 
     },
 
 
-    renderDependInfo: function(pTr){
+    renderDependInfo: function(pPropertyDiv){
 
-        var definition = pTr.retrieve('definition');
-        var dependDiv = pTr.retrieve('dependDiv');
+        var definition = pPropertyDiv.retrieve('definition');
+        var dependDiv = pPropertyDiv.retrieve('dependDiv');
 
         dependDiv.empty();
 
@@ -397,7 +390,7 @@ ka.propertyTable = new Class({
 
     },
 
-    openDepends: function(pTr){
+    openDepends: function(pPropertyDiv){
 
         this.dialog = this.win.newDialog('', true);
 
@@ -407,7 +400,7 @@ ka.propertyTable = new Class({
         });
         this.dialog.center();
 
-        var keyField = pTr.getElement('.ka-propertyTable-item-key');
+        var keyField = pPropertyDiv.getElement('.ka-propertyTable-item-key');
 
         new Element('h3', {
             'class': 'kryn-headline',
@@ -417,8 +410,8 @@ ka.propertyTable = new Class({
 
         var dependsPropertyTable = new ka.propertyTable(this.dialog.content, this.win, {withDepends: true});
 
-        var definition = pTr.retrieve('definition');
-        pTr.store('dependPropertyTable', dependsPropertyTable);
+        var definition = pPropertyDiv.retrieve('definition');
+        pPropertyDiv.store('dependPropertyTable', dependsPropertyTable);
 
         if (definition.depends){
             dependsPropertyTable.setValue(definition.depends);
@@ -428,8 +421,8 @@ ka.propertyTable = new Class({
 
         new ka.Button(t('Apply')).addEvent('click', function(){
             definition.depends = dependsPropertyTable.getValue();
-            pTr.store('definition', definition);
-            this.renderDependInfo(pTr);
+            pPropertyDiv.store('definition', definition);
+            this.renderDependInfo(pPropertyDiv);
             this.cancelDepends();
         }.bind(this)).inject(this.dialog.bottom);
 

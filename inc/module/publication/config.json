@@ -23,10 +23,10 @@
   "admin": {
     "news": {
       "title": "[[News]]",
-      "type": "combine",
+      "type": "",
       "class": "publicationNewsList",
-      "minWidth": 800,
-      "minHeight": 400,
+      "isLink": true,
+      "multi": true,
       "childs": {
         "add": {
           "title": "[[Add]]",
@@ -88,13 +88,21 @@
               "title": "[[Edit]]",
               "type": "edit",
               "class": "publicationNewsCommentsEdit",
-              "multi": true
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "add": {
               "title": "[[Add]]",
               "type": "add",
               "class": "publicationNewsCommentsAdd",
-              "multi": true
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             }
           }
         }
