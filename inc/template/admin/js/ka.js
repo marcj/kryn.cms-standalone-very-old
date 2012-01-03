@@ -1632,6 +1632,7 @@ ka.parse = new Class({
     },
 
     initialize: function (pContainer, pDefinition, pOptions, pRefs) {
+        var self = this;
 
         this.mainContainer = pContainer;
 
@@ -1643,6 +1644,43 @@ ka.parse = new Class({
         }).inject(pContainer);
 
         this.parseLevel(pDefinition, this.main);
+
+        //parse all fields which have 'againstField'
+        Object.each(this.fields, function(obj,id){
+            if(obj.field.againstField){
+                if (typeOf(obj.field.againstField) == 'array'){
+
+                    var check = function(){
+
+                        var visible = false;
+                        Array.each(obj.field.againstField, function(fieldKey){
+                            if(self.getVisibility(self.fields[fieldKey], obj))
+                                visible = true;
+                        });
+
+                        if (visible) obj.show(); else obj.hide();
+
+                        self.showChildContainer(this);
+                    };
+
+                    Array.each(obj.field.againstField, function(fieldKey){
+                        this.fields[fieldKey].addEvent('check-depends', check);
+                    }.bind(this));
+
+                    check();
+
+                    Array.each(obj.field.againstField, function(fieldKey){
+                        this.showChildContainer(this.fields[fieldKey]);
+                    }.bind(this));
+
+                } else {
+                    this.fields[obj.field.againstField].addEvent('check-depends', function(){
+                        this.setVisibility(this.fields[obj.field.againstField], obj);
+                        self.showChildContainer(this.fields[obj.field.againstField]);
+                    }.bind(this));
+                }
+            }
+        }.bind(this));
     },
 
     toElement: function () {
@@ -1650,7 +1688,33 @@ ka.parse = new Class({
     },
 
     parseLevel: function (pLevel, pContainer, pDependField) {
+        var self = this;
+
         Object.each(pLevel, function (field, id) {
+
+            Object.each(field, function(item,itemId){
+                if(typeOf(item)!='string') return;
+                var newItem = false;
+
+                try {
+                    //check if json string
+                    if (item.substr(0,1) == '"' && item.substr(item.length-1,1) == '"')
+                        newItem = JSON.decode(item);
+
+                    //check if json array
+                    if (item.substr(0,1) == '[' && item.substr(item.length-1,1) == ']')
+                        newItem = JSON.decode(item);
+
+                    //check if json object
+                    if (item.substr(0,1) == '{' && item.substr(item.length-1,1) == '}')
+                        newItem = JSON.decode(item);
+
+                } catch(e){}
+
+                if (newItem)
+                    field[itemId] = newItem;
+
+            });
 
             if (this.options.allTableItems)
                 field.tableitem = 1;
@@ -1679,7 +1743,7 @@ ka.parse = new Class({
 
                 if (pDependField) {
                     obj.parent = pDependField;
-                    pDependField.depends.include(obj);
+                    pDependField.depends[id] = obj;
                 }
 
             } catch (e) {
@@ -1713,42 +1777,20 @@ ka.parse = new Class({
 
                 obj.addEvent('check-depends', function () {
 
-                    Array.each(this.depends, function (sub) {
+                    Object.each(this.depends, function (sub, subid) {
 
-                        if (typeOf(sub.field.needValue) == 'array') {
-                            if (sub.field.needValue.contains(this.getValue())) {
-                                sub.show();
-                            } else {
-                                sub.hide();
-                            }
-                        } else if (typeOf(sub.field.needValue) == 'function') {
-                            if (sub.field.needValue.attempt(this.getValue())) {
-                                sub.show();
-                            } else {
-                                sub.hide();
-                            }
-                        } else {
-                            if (sub.field.needValue == this.getValue()) {
-                                sub.show();
-                            } else {
-                                sub.hide();
-                            }
+                        if (sub.field.againstField) return;
+
+                        if (obj.isHidden()){
+                            sub.hide();
+                            return;
                         }
+
+                        self.setVisibility(this, sub);
+
                     }.bind(this));
 
-                    var hasVisibleChilds = false;
-
-                    Array.each(this.depends, function (sub) {
-                        if (!sub.isHidden()) {
-                            hasVisibleChilds = true;
-                        }
-                    });
-
-                    if (hasVisibleChilds) {
-                        this.childContainer.setStyle('display', 'block');
-                    } else {
-                        this.childContainer.setStyle('display', 'none');
-                    }
+                    self.showChildContainer(this);
 
                 }.bind(obj));
 
@@ -1757,6 +1799,66 @@ ka.parse = new Class({
             this.fields[ id ] = obj;
 
         }.bind(this));
+    },
+
+    showChildContainer: function(pObj){
+
+        if (!pObj.childContainer) return;
+
+        var hasVisibleChilds = false;
+
+        Object.each(pObj.depends, function(sub) {
+            if (!sub.isHidden()) {
+                hasVisibleChilds = true;
+            }
+        });
+
+        if (hasVisibleChilds) {
+            pObj.childContainer.setStyle('display', 'block');
+        } else {
+            pObj.childContainer.setStyle('display', 'none');
+        }
+
+    },
+
+    setVisibility: function(pField, pChild){
+
+        var visible = this.getVisibility(pField, pChild);
+        if (visible)
+            pChild.show();
+        else
+            pChild.hide();
+    },
+
+    getVisibility: function(pField, pChild){
+
+        if (typeOf(pChild.field.needValue) == 'array') {
+            if (pChild.field.needValue.contains(pField.getValue())) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (typeOf(pChild.field.needValue) == 'function') {
+            if (pChild.field.needValue.attempt(pField.getValue())) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            var c = 'javascript:';
+            if (pChild.field.needValue.substr(0,c.length) == c){
+
+
+
+            } else {
+                if (pChild.field.needValue == pField.getValue()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     },
 
     isOk: function () {
@@ -1801,6 +1903,13 @@ ka.parse = new Class({
 
         } else {
             Object.each(this.fields, function (obj, id) {
+
+                if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+                    return;
+
+                if (obj.isHidden())
+                    return;
+
                 if (id.indexOf('[') != -1) {
                     var items = id.split('[');
                     var key = '';

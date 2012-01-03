@@ -63,12 +63,6 @@ class publication extends krynModule {
 
     }
 
-    public function getOrderDirectionOptions($pFields) {
-        $array['desc'] = _l('Descending');
-        $array['asc'] = _l('Ascending');
-        return $array;
-    }
-
 
     public static function rssList($pConf) {
         require_once(PATH_MODULE . 'publication/publicationNews.class.php');

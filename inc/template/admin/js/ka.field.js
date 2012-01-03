@@ -7,7 +7,7 @@ ka.field = new Class({
     },
 
     field: {},
-    depends: [],
+    depends: {},
     childContainer: false,
 
     initialize: function (pField, pContainer, pRefs) {
@@ -120,6 +120,7 @@ ka.field = new Class({
 
         this.addEvent('change', function () {
             this.fireEvent('check-depends');
+            this.updateOkInfo();
         }.bind(this));
 
         this.renderField();
@@ -243,6 +244,7 @@ ka.field = new Class({
             case 'custom':
                 this.renderCustom();
                 break;
+            case 'integer':
             case 'number':
                 this.renderNumber();
                 break;
@@ -702,7 +704,7 @@ ka.field = new Class({
 
             this._setValue = this.customObj.setValue.bind(this.customObj);
             this.getValue = this.customObj.getValue.bind(this.customObj);
-            this.isEmpty = this.customObj.isEmpty.bind(this.customObj);
+            this.isOk = this.customObj.isEmpty.bind(this.customObj);
             this.highlight = this.customObj.highlight.bind(this.customObj);
         } else {
             alert(_('Custom field: ' + this.field['class'] + '. Can not find this javascript class.'));
@@ -1603,11 +1605,19 @@ ka.field = new Class({
         this.input = new Element('input', {
             'class': 'text gradient',
             type: 'text'
-        }).addEvent('blur',
-            function () {
-                _this.isEmpty();
-            }).inject(this.fieldPanel);
+        }).inject(this.fieldPanel);
+
+        if (this.field.length) this.input.set('maxlength', this.field.length);
+
         var _this = this;
+
+        this.input.addEvent('change', function(){
+            this.fireEvent('change', this.input.value);
+        }.bind(this));
+
+        this.input.addEvent('keyup', function(){
+            this.fireEvent('change', this.input.value);
+        }.bind(this));
 
         if (this.field.width) {
             this.input.setStyle('width', this.field.width);
@@ -1665,10 +1675,15 @@ ka.field = new Class({
                 'height': (this.field.height) ? this.field.height : 80,
                 'width': (this.field.width) ? this.field.width : ''
             }
-        }).addEvent('blur',
-            function () {
-                _this.isEmpty();
-            }).inject(this.fieldPanel);
+        }).inject(this.fieldPanel);
+
+        this.input.addEvent('change', function(){
+            this.fireEvent('change', this.input.value);
+        }.bind(this));
+
+        this.input.addEvent('keyup', function(){
+            this.fireEvent('change', this.input.value);
+        }.bind(this));
 
         this._setValue = function (pVal) {
             if (typeOf(pVal) == 'null') pVal = '';
@@ -1687,10 +1702,17 @@ ka.field = new Class({
         this.input = new Element('input', {
             'class': 'text',
             type: 'password'
-        }).addEvent('blur',
-            function () {
-                _this.isEmpty();
-            }).inject(this.fieldPanel);
+        }).inject(this.fieldPanel);
+
+        if (this.field.length) this.input.set('maxlength', this.field.length);
+
+        this.input.addEvent('change', function(){
+            this.fireEvent('change', this.input.value);
+        }.bind(this));
+
+        this.input.addEvent('keyup', function(){
+            this.fireEvent('change', this.input.value);
+        }.bind(this));
 
         this._setValue = function (pVal) {
             if (typeOf(pVal) == 'null') pVal = '';
@@ -1704,9 +1726,12 @@ ka.field = new Class({
 
     },
 
-    empty: function () {
+    setIsOk: function (pIsOk) {
+
         if (this.emptyIcon) this.emptyIcon.destroy();
         if (!this.input) return;
+
+        if (pIsOk) return;
 
         this.emptyIcon = new Element('img', {
             src: _path + 'inc/template/admin/images/icons/exclamation.png',
@@ -1721,28 +1746,32 @@ ka.field = new Class({
         this.input.highlight();
     },
 
+    /**
+     * @deprecated
+     */
     isEmpty: function () {
-        if (this.field.empty == false) {
-            var val = this.getValue();
-            if (val == '') {
-                this.empty();
-                return true;
-            }
-        }
-        if (this.emptyIcon) this.emptyIcon.destroy();
-
-        if (this.input) {
-            this.input.set('class', this.input.retrieve('oldClass'));
-        }
-
-        return false;
+        return this.isOk();
     },
 
     isOk: function () {
-        if (this.field.empty === false) {
-            return !this.isEmpty();
+        var ok = true;
+
+        if (this.field.empty === false && this.getValue() === '')
+            ok = false;
+
+        if (this.field.required_regexp){
+            var rx = new RegExp(this.field.required_regexp);
+            if (!rx.test(this.getValue().toString())){
+                ok = false;
+            }
         }
-        return true;
+
+        return ok;
+    },
+
+    updateOkInfo: function(){
+        var status = this.isOk();
+        this.setIsOk(status);
     },
 
     getValue: function () {
@@ -1836,6 +1865,8 @@ ka.field = new Class({
         } else {
             this.main.setStyle('display', 'none');
         }
+
+        this.fireEvent('check-depends');
     },
 
 
@@ -1922,6 +1953,6 @@ ka.field = new Class({
             this.obj = new ka.field_multiUpload(this.field, _win, _this);
         }
 
-        this.isEmpty = this.obj.isEmpty.bind(this.obj);
+        this.isOk = this.obj.isEmpty.bind(this.obj);
     }
 });

@@ -148,7 +148,6 @@ ka.files = new Class({
 
             this.fileUploadCancelBtn = new ka.Button(_('Cancel')).addEvent('click', this.cancelUploads.bind(this)).inject(this.fileUploadDialog.bottom);
 
-
             this.fileUploadMinimizeBtn = new ka.Button(_('Minimize')).addEvent('click', this.minimizeUpload.bind(this)).inject(this.fileUploadDialog.bottom);
 
             var table = new Element('table', {style: 'width: 100%;', 'class': 'admin-file-uploadtable'}).inject(this.fileUploadDialog.content);
@@ -1585,7 +1584,7 @@ ka.files = new Class({
                 }
 
                 delete this.selectorDiv;
-            }.bind(this),
+            }.bind(this)
 
         });
 
@@ -2397,7 +2396,7 @@ ka.files = new Class({
         }).inject(base);
 
         new Element('div', {
-            'text': (pFile.path == '/trash') ? _('Trash') : this.escTitle(pFile.name, base.getSize().x),
+            'text': (pFile.path == '/trash') ? t('Trash') : this.escTitle(pFile.name, base.getSize().x)
         }).inject(base);
 
         if (this.options.selectionValue) {

@@ -14,10 +14,10 @@
   "writableFiles": "inc\/template\/publication\/*",
   "domainProperties": {
     "cache": {
-        "label": "[[Cache html]]",
-        "desc": "[[Some templates does not support this. If you have troubles, just deactivate this.]]",
-        "type": "checkbox",
-        "default": "0"
+      "label": "[[Cache html]]",
+      "desc": "[[Some templates does not support this. If you have troubles, just deactivate this.]]",
+      "type": "checkbox",
+      "default": "0"
     }
   },
   "admin": {
@@ -84,14 +84,13 @@
           "isLink": true,
           "multi": true,
           "childs": {
-            "edit" : {
+            "edit": {
               "title": "[[Edit]]",
               "type": "edit",
               "class": "publicationNewsCommentsEdit",
               "multi": true
             },
-            
-            "add" : {
+            "add": {
               "title": "[[Add]]",
               "type": "add",
               "class": "publicationNewsCommentsAdd",
@@ -108,9 +107,9 @@
       {
         "template": {
           "label": "[[Template]]",
-          "type": "files",
-          "withoutExtension": true,
-          "directory": "inc\/template\/publication\/news\/detail\/"
+          "withoutExtension": 1,
+          "directory": "inc\/template\/publication\/news\/detail\/",
+          "type": "files"
         },
         "replaceTitle": {
           "label": "[[Replace page title]]",
@@ -140,30 +139,29 @@
         },
         "category_rsn": {
           "label": "[[Limit categories]]",
-          "type": "select",
-          "multi": true,
           "table": "publication_news_category",
+          "table_key": "rsn",
           "table_label": "title",
-          "table_id": "rsn"
+          "multi": 1,
+          "type": "select"
         }
-      },
-    "getNewsUrl"
+      }
     ],
     "newsDetailFixed": [
       "[[News detail fixed]]",
       {
         "template": {
           "label": "[[Template]]",
-          "type": "files",
-          "withoutExtension": true,
-          "directory": "inc\/template\/publication\/news\/detail\/"
+          "withoutExtension": 1,
+          "directory": "inc\/template\/publication\/news\/detail\/",
+          "type": "files"
         },
         "news_rsn": {
           "label": "[[Article]]",
-          "type": "select",
           "table": "publication_news",
+          "table_key": "rsn",
           "table_label": "title",
-          "table_id": "rsn"
+          "type": "select"
         },
         "replaceTitle": {
           "label": "[[Replace page title]]",
@@ -198,13 +196,13 @@
       {
         "itemsPerPage": {
           "label": "[[Count per page]]",
-          "type": "integer",
+          "type": "number",
           "length": "6",
           "default": "10"
         },
         "maxPages": {
           "label": "[[Max pages]]",
-          "type": "integer",
+          "type": "number",
           "length": "6",
           "default": "10"
         },
@@ -214,33 +212,36 @@
         },
         "template": {
           "label": "[[Template]]",
-          "type": "files",
-          "withoutExtension": true,
-          "directory": "inc\/template\/publication\/news\/list\/"
+          "withoutExtension": 1,
+          "directory": "inc\/template\/publication\/news\/list\/",
+          "type": "files"
         },
         "category_rsn": {
           "label": "[[Limit categories]]",
-          "type": "select",
-          "multi": true,
           "table": "publication_news_category",
+          "table_key": "rsn",
           "table_label": "title",
-          "table_id": "rsn"
+          "multi": 1,
+          "type": "select"
         },
         "order": {
           "label": "[[Sort by]]",
-          "type": "select",
-          "default": "2",
           "items": {
             "title": "[[Title]]",
             "releaseat": "[[Release date]]",
             "releasedate": "[[News date]]",
             "category_rsn": "[[Category]]"
-          }
+          },
+          "type": "select",
+          "default": "2"
         },
         "orderDirection": {
           "label": "Sort direction",
-          "type": "select",
-          "method": "getOrderDirectionOptions"
+          "items": {
+            "desc": "[[Descending]]",
+            "asc": "[[Ascending]]"
+          },
+          "type": "select"
         },
         "enableRss": {
           "label": "[[Enables Rss view on this page]]",
@@ -262,7 +263,7 @@
       {
         "itemsPerPage": {
           "label": "[[Maximum Items for rss feed]]",
-          "type": "integer",
+          "type": "number",
           "length": "6",
           "default": "10"
         },
@@ -272,17 +273,17 @@
         },
         "rssTemplate": {
           "label": "[[Template]]",
-          "type": "files",
-          "withoutExtension": true,
-          "directory": "inc\/template\/publication\/news\/rss\/"
+          "withoutExtension": 1,
+          "directory": "inc\/template\/publication\/news\/rss\/",
+          "type": "files"
         },
         "category_rsn": {
-          "label": "[[Category/s]]",
-          "type": "select",
-          "multi": true,
+          "label": "[[Category\/s]]",
           "table": "publication_news_category",
+          "table_key": "rsn",
           "table_label": "title",
-          "table_id": "rsn"
+          "multi": 1,
+          "type": "select"
         }
       }
     ],
@@ -295,70 +296,70 @@
         },
         "template": {
           "label": "[[Template]]",
-          "type": "files",
-          "withoutExtension": true,
-          "directory": "inc\/template\/publication\/categoryList\/"
+          "withoutExtension": 1,
+          "directory": "inc\/template\/publication\/categoryList\/",
+          "type": "files"
         },
         "category_rsn": {
           "label": "[[Limit categories]]",
-          "type": "select",
-          "multi": true,
           "table": "publication_news_category",
+          "table_key": "rsn",
           "table_label": "title",
-          "table_id": "rsn"
+          "multi": 1,
+          "type": "select"
         }
       }
     ]
   },
   "db_relations": {
     "publication_news": {
-        "table": "publication_comments",
-        "relation": "1-n",
-        "fields": {
-            "rsn": "parent_rsn"
-        }
+      "table": "publication_comments",
+      "relation": "1-n",
+      "fields": {
+        "rsn": "parent_rsn"
+      }
     }
   },
-
   "objects": {
-      "news": {
-          "title": "[[Article]]",
-          "desc": "[[Articles]]",
-          "table": "publication_news",
-          "table_primary": "rsn",
-          "plugins": ["newsDetail"],
-          "table_field_sync": true,
-          "fields": {
-              "rsn": {
-                  "type": "number",
-                  "label": "[[Id]]"
-              },
-              "title": {
-                  "type": "text",
-                  "length": 255,
-                  "label": "[[Title]]"
-              },
-              "category_rsn": {
-                  "type": "object",
-                  "label": "[[Category]]",
-                  "object": "news_category",
-                  "object_label": "title",
-                  "object_label_map": "category_title"
-              }
-          }
-      },
-      "news_comment": {
-          "title": "[[Comments]]",
-          "table": "publication_comments"
-      },
-      "news_category": {
-          "title": "[[Article categories]]",
-          "table": "publication_news_category",
-          "table_primary": "rsn",
-          "object_label": "title"
+    "news": {
+      "title": "[[Article]]",
+      "desc": "[[Articles]]",
+      "table": "publication_news",
+      "table_primary": "rsn",
+      "plugins": [
+        "newsDetail"
+      ],
+      "table_field_sync": true,
+      "fields": {
+        "rsn": {
+          "type": "number",
+          "label": "[[Id]]"
+        },
+        "title": {
+          "type": "text",
+          "length": 255,
+          "label": "[[Title]]"
+        },
+        "category_rsn": {
+          "type": "object",
+          "label": "[[Category]]",
+          "object": "news_category",
+          "object_label": "title",
+          "object_label_map": "category_title"
+        }
       }
+    },
+    "news_comment": {
+      "title": "[[Comments]]",
+      "table": "publication_comments"
+    },
+    "news_category": {
+      "title": "[[Article categories]]",
+      "table": "publication_news_category",
+      "table_primary": "rsn",
+      "object_label": "title"
+    }
   },
-
   "db": {
     "publication_news": {
       "rsn": [

@@ -306,7 +306,8 @@
     height: 25px;
 }
 
-.kwindow-win-content h3 {
+.kwindow-win-content h3,
+h3.kryn-headline {
     margin: 0px;
     cursor: default;
     font-weight: normal;

@@ -10,7 +10,6 @@ class adminModule {
             $cfg['repoServer'] = 'http://download.kryn.org';
         }
 
-
         switch (getArgv(4)) {
             case 'deactivate':
                 return self::deactivate($_REQUEST['name']);
@@ -273,12 +272,29 @@ class adminModule {
 
         $config = self::loadConfig($name);
 
+        if (!getArgv('tables')) return array('error' => 'empty_param');
+
         $db = json_decode(getArgv('tables'), true);
         $config['db'] = $db;
 
         self::writeConfig($name, $config);
         json(1);
     }
+
+    public static function savePlugins() {
+
+        $name = getArgv('name', 2);
+
+        $config = self::loadConfig($name);
+
+        $plugins = json_decode(getArgv('plugins'), true);
+        $config['plugins'] = $plugins;
+
+        self::writeConfig($name, $config);
+        json(1);
+    }
+
+
 
 
     public static function saveLinks() {
