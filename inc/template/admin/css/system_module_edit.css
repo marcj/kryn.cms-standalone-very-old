@@ -6,3 +6,22 @@
     bottom: 0px;
     overflow: auto;
 }
+
+.ka-extmanager-dbTable-table-footer a,
+.ka-extmanager-dbTable-table-footer a:link {
+    text-decoration: none;
+}
+
+
+.ka-extmanager-plugins-properties-panel .ka-field-main .ka-field-field {
+    margin: 1px
+}
+
+.ka-extmanager-plugins-properties-panel .ka-Table-body tr td {
+    padding: 1px;
+}
+
+.ka-extmanager-plugins-properties-panel .ka-Table-body tr td.ka-field-tdtitle {
+    padding-top: 8px;
+    padding-left: 5px;
+}

@@ -14,7 +14,8 @@ var admin_system_module_edit = new Class({
         this.buttons['general'] = this.topNavi.addButton(_('General'), '', this.viewType.bind(this, 'general'));
         this.buttons['links'] = this.topNavi.addButton(_('Links'), '', this.viewType.bind(this, 'links'));
         this.buttons['db'] = this.topNavi.addButton(_('Database'), '', this.viewType.bind(this, 'db'));
-        this.buttons['forms'] = this.topNavi.addButton(_('Forms'), '', this.viewType.bind(this, 'forms'));
+        //this.buttons['forms'] = this.topNavi.addButton(_('Forms'), '', this.viewType.bind(this, 'forms'));
+        this.buttons['objects'] = this.topNavi.addButton(_('Objects'), '', this.viewType.bind(this, 'objects'));
         this.buttons['plugins'] = this.topNavi.addButton(_('Plugins'), '', this.viewType.bind(this, 'plugins'));
         this.buttons['docu'] = this.topNavi.addButton(_('Docu'), '', this.viewType.bind(this, 'docu'));
         this.buttons['help'] = this.topNavi.addButton(_('Help'), '', this.viewType.bind(this, 'help'));
@@ -123,7 +124,6 @@ var admin_system_module_edit = new Class({
 
     loadPlugins: function () {
 
-
         this.panes['plugins'].empty();
 
         this.pluginsPane = new Element('div', {
@@ -135,20 +135,11 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(_('Save'), this.savePlugins.bind(this));
         buttonBar.addButton(_('Add plugin'), this.addPlugin.bind(this));
 
-        this.pluginsTable = new Element('table', {'class': 'ka-Table-head'}).inject(this.pluginsPane);
-        this.pluginsTableBody = new Element('tbody', {'class': 'ka-Table-body'}).inject(this.pluginsTable);
-
-        var tr = new Element('tr').inject(this.pluginsTableBody);
-        new Element('th', {width: 15}).inject(tr);
-        new Element('th', {width: 120, text: _('Method name')}).inject(tr);
-        new Element('th', {width: 140, text: _('Title (english)')}).inject(tr);
-        new Element('th', {text: _('Properties')}).inject(tr);
-
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getPlugins', noCache: 1, onComplete: function (res) {
             this.loader.hide();
 
             if (res) {
-                $H(res).each(function (item, key) {
+                Object.each(res, function (item, key) {
                     this.addPlugin(item, key)
                 }.bind(this));
             }
@@ -165,12 +156,40 @@ var admin_system_module_edit = new Class({
 
     addPlugin: function (pPlugin, pKey) {
 
-        if (!this.pluginsTrClass || (this.pluginsTrClass && this.pluginsTrClass == 'two')) {
-            this.pluginsTrClass = 'one';
-        } else {
-            this.pluginsTrClass = 'two';
-        }
+        var div = new Element('div', {
+            'class': 'plugin',
+            style: 'padding: 10px 5px; border-bottom: 1px solid silver;'
+        }).inject(this.pluginsPane);
 
+        var title = new Element('div').inject(div);
+
+        new Element('span', {
+            text: t('PHP Method name:')+' '
+        }).inject(title);
+
+        new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(title);
+
+        new Element('span', {
+            text: ' '+t('Plugin title (%s):').replace('%s', this.languageSelect.value)+' '
+        }).inject(title);
+
+        new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin?pPlugin[0]:''}).inject(title);
+
+
+        new Element('div', {
+            text: t('Properties:')
+        }).inject(title);
+
+        var propertyPanel = new Element('div', {
+            style: 'margin: 15px; margin-top: 5px; border: 1px solid silver; padding-bottom: 4px; background-color: #ccc;',
+            'class': 'ka-extmanager-plugins-properties-panel'
+        }).inject(div);
+
+        var propertyTable = new ka.propertyTable(propertyPanel, this.win);
+
+        div.store('propertyTable', propertyTable);
+
+        return;
         var tr = new Element('tr', {'class': this.pluginsTrClass}).inject(this.pluginsTableBody);
 
         var td = new Element('td').inject(tr);
@@ -268,6 +287,13 @@ var admin_system_module_edit = new Class({
         }.bind(this)}).post({name: this.mod});
     },
 
+    /**
+     *
+     *
+     * Database form
+     *
+     *
+     */
     loadDb: function () {
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
             this.loader.hide();
@@ -280,12 +306,12 @@ var admin_system_module_edit = new Class({
         var req = {};
         req.name = this.mod;
         req.tables = {};
-        this.panes['db'].getElements('div.dbTable').each(function (table) {
+        this.panes['db'].getElements('.dbTable').each(function (table) {
 
             var columns = {};
             var tableKey = table.getElement('input.dbTableKey').value;
 
-            table.getElements('div.dbTableColumn').each(function (column) {
+            table.getElements('.dbTableColumn').each(function (column) {
                 var hcolumn = [];
                 if (!column.getElements('input')[0]) return;
                 var columnKey = column.getElements('input')[0].value;
@@ -298,6 +324,15 @@ var admin_system_module_edit = new Class({
 
                 columns[ columnKey ] = hcolumn;
             });
+
+            table.getElements('.dbTableIndex').each(function(indexInput){
+                if (!columns['___index']) columns['___index'] = [];
+                columns['___index'].include(indexInput.value);
+            })
+
+            var primaryBundle = table.getElement('.dbTablePrimary').value;
+            if (primaryBundle != '')
+                columns['___primary'] = primaryBundle;
 
             req.tables[ tableKey ] = columns;
 
@@ -343,62 +378,22 @@ var admin_system_module_edit = new Class({
 
         var m = new Element('div', {
             'class': 'dbTable',
-            style: 'padding: 4px;'
+            style: 'padding: 4px; margin-top: 20px;  border-top: 1px solid silver; '
         }).inject(this.dbAddColumnImg, 'before');
+
 
         var i = new Element('input', {
             'class': 'text dbTableKey',
             value: pKey
-        }).inject(m);
+        }).inject( m );
 
-        var columns = new Element('div', {
-            'class': 'dbTableColumns',
-            style: 'padding-left: 20px; padding-top: 5px;'
-        }).inject(m);
-
-
-        var headline = new Element('div', {
-            'class': 'dbTableColumn'
-        }).inject(columns);
-
-        new Element('span', {
-            text: _('Name')
-        }).inject(headline);
-
-        new Element('span', {
-            text: _('Type'),
-            style: 'padding-left: 128px'
-        }).inject(headline);
-
-        new Element('span', {
-            text: _('Length'),
-            style: 'padding-left: 43px'
-        }).inject(headline);
-
-        new Element('span', {
-            text: 'Options',
-            style: 'padding-left: 22px'
-        }).inject(headline);
-
-        new Element('span', {
-            text: 'AI',
-            title: 'Auto increment/Sequence',
-            style: 'padding-left: 32px; text-decoration: underline'
-        }).inject(headline);
-
-        if (pTable) {
-            $H(pTable).each(function (opts, key) {
-                this._dbAddColumn(key, opts, columns);
-            }.bind(this));
-        }
-
-        this.dbAddColumn = new Element('img', {
+        new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/add.png',
             title: _('Add column'),
             style: 'cursor: pointer; position: relative; top: 3px;'
         }).addEvent('click', function () {
             this._dbAddColumn('newColumn', {}, columns);
-        }.bind(this)).inject(i, 'after');
+        }.bind(this)).inject(m);
 
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/delete.png',
@@ -409,23 +404,152 @@ var admin_system_module_edit = new Class({
                 if (!res) return;
                 m.destroy();
             });
-        }.bind(this)).inject(this.dbAddColumn, 'after');
+        }.bind(this)).inject(m);
+
+        var div = new Element('div', {
+            'style': 'margin-left: 25px;  border: 1px solid #ddd;'
+        }).inject(m);
+
+        var table = new Element('table', {
+            'class': 'ka-Table-head ka-Table-body',
+            style: 'position: relative; top: 0px;',
+            cellpadding: 0, cellspacing: 0
+        }).inject(div);
+        var tbody = new Element('tbody').inject(table);
+
+        var tr = new Element('tr').inject(tbody);
+
+        [
+            t('Name'),
+            t('Type'),
+            tc('extensionDatabaseTable', 'Length/Set'),
+            tc('extensionDatabaseTable', 'Options'),
+            tc('extensionDatabaseTable', 'Auto-Increment'),
+            '' //actions
+        ].each(function(label){
+            new Element('th', {
+                text: label
+            }).inject(tr);
+        });
+
+        var footer = new Element('div', {
+            'class': 'ka-extmanager-dbTable-table-footer'
+        }).inject(div);
+
+        var a2 = new Element('div', {
+            text: tc('extensionDatabaseTable', 'Primary key bundle (For a primary key of 2 fields and more. Comma separated.)')+': ',
+            href: 'javascript:;',
+            style: 'border-bottom: 1px solid #ddd; padding: 4px; color: gray;'
+        })
+        .inject(footer);
+
+        new Element('input', {'class': 'text dbTablePrimary', value: pTable.___primary?pTable.___primary:'', style: 'width: 250px'}).inject(a2);
+
+        /*
+         * Index
+         */
+        var divIndex = new Element('div', {style: 'display: none; padding-left: 5px;'}).inject(footer);
+        var ul = new Element('ol').inject(divIndex);
+
+        var addIndex = function(pFields){
+            var li = Element('li').inject(ul);
+
+            new Element('input', {'class': 'text dbTableIndex', value: pFields?pFields:"", style: 'width: 250px'})
+            .inject(li);
+
+            new Element('img', {
+                src: _path+'inc/template/admin/images/icons/delete.png',
+                title: t('Remove'),
+                style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
+            })
+            .addEvent('click', function(){
+                li.destroy();
+            })
+            .inject(li);
+        }
+
+        new Element('div', {
+            style: 'color: gray; padding-top: 3px;',
+            text: t('Comma separated.')
+        }).inject(divIndex, 'top');
+
+        var divIndexAdd = new Element('a', {href: 'javascript:;', text: t('Add index')})
+        .addEvent('click', function(){addIndex();})
+        .inject(divIndex, 'top');
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/add.png',
+            style: 'position: relative; top: 3px; margin-right: 2px;'
+        }).inject(divIndexAdd, 'top');
+
+        if (pTable.___index){
+            pTable.___index.each(addIndex);
+        }
+
+        var aIndex = new Element('a', {
+            text: ' '+tc('extensionDatabaseTable', 'Index'),
+            href: 'javascript:;',
+            style: 'padding: 4px; display: block;'
+        })
+        .addEvent('click', function(){
+            if (divIndex.getStyle('display') == 'none'){
+                divIndex.setStyle('display', 'block');
+                this.getElement('img').set('src', _path+'inc/template/admin/images/icons/tree_minus.png')
+            } else {
+                divIndex.setStyle('display', 'none');
+                this.getElement('img').set('src', _path+'inc/template/admin/images/icons/tree_plus.png')
+            }
+        })
+        .inject(divIndex, 'before');
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/tree_plus.png'
+        }).inject(aIndex, 'top');
+
+
+
+
+
+        if (pTable) {
+            Object.each(pTable, function (opts, key) {
+                if (key == '___primary') return;
+                if (key == '___index') return;
+                this._dbAddColumn(key, opts, tbody);
+            }.bind(this));
+        }
 
     },
 
     _dbAddColumn: function (pKey, pOpts, pContainer) {
 
-        var m = new Element('div', {
-            'class': 'dbTableColumn'
+        var lastRow = pContainer.getLast('tr');
+
+        var m = new Element('tr', {
+            'class': 'dbTableColumn '+((!lastRow || lastRow.hasClass('two'))?'one':'two')
         }).inject(pContainer);
+
+        var tr = m;
 
         new Element('input', {
             'class': 'text',
             value: pKey
-        }).inject(m);
+        }).inject( new Element('td').inject(tr) );
 
-        var s = new Element('select').inject(m);
-        ['varchar', 'int', 'text', 'enum'].each(function (item) {
+        var s = new Element('select').inject(new Element('td').inject(tr));
+        [
+            'char', 'varchar','text', 'enum',
+            '--',
+            'date', 'time', 'timestamp',
+            '--',
+            'float4', 'double precision',
+            '--',
+            'float4 unsigned', 'double precision unsigned',
+            '--',
+            'boolean', 'smallint', 'int', 'decimal', 'bigint',
+            '--',
+            'smallint unsigned', 'integer unsigned', 'decimal unsigned', 'bigint unsigned'
+
+        ].each(function (item) {
             new Element('option', {
                 text: item,
                 value: item
@@ -437,10 +561,10 @@ var admin_system_module_edit = new Class({
             'class': 'text',
             style: 'width: 50px;',
             value: pOpts[1]
-        }).inject(m);
+        }).inject(new Element('td').inject(tr));
 
-        var s = new Element('select').inject(m);
-        $H({'-': ' -- ', 'DB_PRIMARY': 'Primary', 'DB_INDEX': 'Index', 'DB_FULLTEXT': 'Fulltext'}).each(function (item, key) {
+        var s = new Element('select').inject(new Element('td').inject(tr));
+        Object.each({'-': ' -- ', 'DB_PRIMARY': 'Primary', 'DB_INDEX': 'Index'}, function (item, key) {
             new Element('option', {
                 text: item,
                 value: key
@@ -451,13 +575,13 @@ var admin_system_module_edit = new Class({
         var ai = new Element('input', {
             type: 'checkbox',
             value: 1
-        }).inject(m);
+        }).inject(new Element('td').inject(tr));
 
         if (pOpts[3] == true) {
             ai.checked = true;
         }
 
-
+        var actions = new Element('td').inject(tr);
         /* actions */
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/delete.png',
@@ -465,7 +589,7 @@ var admin_system_module_edit = new Class({
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
             m.destroy();
-        }.bind(this)).inject(m);
+        }.bind(this)).inject(actions);
 
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/arrow_up.png',
@@ -475,7 +599,7 @@ var admin_system_module_edit = new Class({
             if (m.getPrevious()) {
                 m.inject(m.getPrevious(), 'before');
             }
-        }.bind(this)).inject(m);
+        }.bind(this)).inject(actions);
 
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/arrow_down.png',
@@ -485,8 +609,7 @@ var admin_system_module_edit = new Class({
             if (m.getNext()) {
                 m.inject(m.getNext(), 'after');
             }
-        }.bind(this)).inject(m);
-
+        }.bind(this)).inject(actions);
     },
 
 
@@ -649,7 +772,6 @@ var admin_system_module_edit = new Class({
         var res = {};
 
         var settingPane = pLayoutItem.getFirst('div.layoutSettings');
-        logger(settingPane);
         res['title'] = settingPane.getElement('input.layoutSettingsTitle').value;
         res['type'] = settingPane.getElement('select.layoutSettingsType').value;
         res['class'] = settingPane.getElement('input.layoutSettingsClass').value;
@@ -811,7 +933,6 @@ var admin_system_module_edit = new Class({
         }).inject(p);
 
         var _this = this;
-        logger(pConfig);
         if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
             new ka.Button(_('Set to my extension: ' + ka.settings.system.communityEmail)).setStyle('position', 'relative').setStyle('left', '25px').addEvent('click',
                 function () {
@@ -967,7 +1088,6 @@ var admin_system_module_edit = new Class({
 
             themes[themeTitle] = themeTemplates;
         });
-        logger(themes);
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function () {
             this.loader.hide();
@@ -1404,6 +1524,12 @@ var admin_system_module_edit = new Class({
         this.langTable.setValues(rows);
     },
 
+    loadObjects: function(){
+
+
+
+    },
+
     viewType: function (pType) {
         this.buttons.each(function (button, id) {
             button.setPressed(false);
@@ -1435,6 +1561,8 @@ var admin_system_module_edit = new Class({
                 return this.loadHelp();
             case 'plugins':
                 return this.loadPlugins();
+            case 'objects':
+                return this.loadObjects();
         }
     }
 

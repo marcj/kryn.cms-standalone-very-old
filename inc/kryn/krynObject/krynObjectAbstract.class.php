@@ -2,7 +2,11 @@
 
 abstract class krynObjectAbstract {
 
-    abstract function __construct($pDefinition);
+    public $definition;
+
+    function __construct($pDefinition){
+        $this->definition = $pDefinition;
+    }
 
     abstract public function getItem($pId, $pFields = '*');
     abstract public function getItems($pFrom = 0, $pLimit = false, $pCondition = false, $pFields = '*');

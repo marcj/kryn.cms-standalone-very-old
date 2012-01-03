@@ -1626,7 +1626,9 @@ ka.parse = new Class({
     fields: {},
 
     options: {
-        allTableItems: false
+        allTableItems: false,
+        small: false,
+        tableitem_title_width: false
     },
 
     initialize: function (pContainer, pDefinition, pOptions, pRefs) {
@@ -1650,9 +1652,15 @@ ka.parse = new Class({
     parseLevel: function (pLevel, pContainer, pDependField) {
         Object.each(pLevel, function (field, id) {
 
-            if (this.options.allTableItems) {
+            if (this.options.allTableItems)
                 field.tableitem = 1;
-            }
+
+            if (this.options.small)
+                field.small = 1;
+
+            if (this.options.tableitem_title_width)
+                field.tableitem_title_width = this.options.tableitem_title_width;
+
 
             var targetId = '*[id=default]';
 

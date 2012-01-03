@@ -426,7 +426,7 @@
   "db": {
     "system_workspaces": {
       "rsn": [
-        "int",
+        "integer unsigned",
         "",
         "DB_PRIMARY",
         true
@@ -866,7 +866,7 @@
       "content": [
         "text",
         "",
-        "DB_FULLTEXT",
+        "-",
         false
       ],
       "template": [
@@ -1313,38 +1313,12 @@
       ],
       "fs_class": [
         "varchar",
-        "32",
+        "64",
         "-",
         false
       ],
       "fs_params": [
         "text",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_object": {
-      "rsn": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "object_key": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "object_rsn": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
         "",
         "-",
         false
@@ -1357,25 +1331,43 @@
         "DB_PRIMARY",
         true
       ],
-      "from_system_object_rsn": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "from_system_object_field": [
+      "system_object_name": [
         "varchar",
         "128",
         "-",
         false
       ],
-      "to_system_object_rsn": [
+      "ystem_object_rsn": [
         "int",
         "",
-        "DB_INDEX",
+        "-",
+        false
+      ],
+      "user_system_object_name": [
+        "varchar",
+        "128",
+        "-",
+        false
+      ],
+      "user_system_object_field": [
+        "varchar",
+        "",
+        "-",
+        false
+      ],
+      "user_system_object_rsn": [
+        "int",
+        "",
+        "-",
         false
       ],
       "created": [
+        "int",
+        "",
+        "-",
+        false
+      ],
+      "modified": [
         "int",
         "",
         "-",
@@ -1429,6 +1421,7 @@
     "admin\/js\/ka.Accordion.js",
     "admin\/js\/ka.imageGroup.js",
     "admin\/js\/ka.customField.js",
+    "admin\/js\/ka.propertyTable.js",
     "admin\/js\/swfupload.js",
     "admin\/js\/fupload.js",
     "admin\/js\/ka.crawler.js",

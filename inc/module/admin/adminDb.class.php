@@ -87,6 +87,7 @@ class adminDb {
             }
         }
 
+        $res = '';
         foreach ($db as $tableName => $tableFields) {
             $tableName = strtolower(pfx . $tableName);
 
@@ -214,7 +215,7 @@ class adminDb {
             self::deleteIndex($indexName, $pTable);
             self::deleteIndex($fName, $pTable);
 
-            if ($fOptions[2] == "DB_INDEX" || $fOptions[2] == "DB_FULLTEXT") {
+            if ($fOptions[2] == "DB_INDEX" || $fOptions[2] == "DB_FULLTEXT") { //DB_FULLTEXT deprecated since 1.0
                 if ($pCreate) {
                     if ($fOptions[0] == 'text')
                         $fName .= '(255)';
@@ -247,35 +248,66 @@ class adminDb {
             $sql .= 'TYPE ';
         }
 
+        $field = strtolower($pFieldOptions[0]);
+        $unsigned = false;
 
-        switch (strtolower($pFieldOptions[0])) {
-            case 'int':
-                $sql .= 'integer ';
-                //if( $pFieldOptions[1] > 0 )
-                //    $sql .= ' (' . $pFieldOptions[1] . ') ';
-                break;
-            case 'smallint':
-                $sql .= 'smallint ';
-            case 'bigint':
-                $sql .= 'bigint ';
-            case 'real':
-                $sql .= 'real ';
-            case 'double precision':
-                $sql .= 'double precision ';
-            case 'text':
-                $sql .= 'text ';
-                break;
+        if (strpos($field, ' unsigned') !== false){
+            $unsigned = true;
+            $field = str_replace(' unsigned', '', $field);
+        }
+        switch ($field) {
+
+            case 'char':
+                $sql .= 'char( ' . $pFieldOptions[1] . ' ) '; break;
             case 'varchar':
-                $sql .= 'varchar( ' . $pFieldOptions[1] . ' ) ';
+                $sql .= 'varchar( ' . $pFieldOptions[1] . ' ) '; break;
+            case 'text':
+                $sql .= 'text '; break;
+
+            case 'enum': //deprecated since 1.0
+                $sql .= 'varchar(255) ';
                 break;
-            case 'enum':
-                if ($cfg['db_type'] == 'mysql')
-                    $sql .= 'enum( ' . $pFieldOptions[1] . ' ) ';
+
+            //dates
+            case 'date':
+                $sql .= 'date '; break;
+            case 'time':
+                $sql .= 'time '; break;
+            case 'timestamp':
+                $sql .= 'timestamp '; break;
+
+
+            //numerics
+            case 'boolean':
+                $sql .= 'boolean '; break;
+
+            case 'smallint':
+                $sql .= 'smallint '; break;
+
+            case 'int':
+            case 'integer':
+                $sql .= 'integer ';break;
+
+            case 'decimal':
+                $sql .= 'decimal( ' . $pFieldOptions[1] . ' ) '; break;
+
+            case 'bigint':
+                $sql .= 'bigint ';break;
+
+            case 'float4':
+                if ($cfg['db_type'] == 'postgresql')
+                    $sql .= 'float4 ';
                 else
-                    $sql .= 'varchar(255) '; //CHECK ('.$pFieldName.' IN (  '.$pFieldOptions[1].'  )) ';
+                    $sql .= 'float ';
                 break;
+
+            case 'double precision':
+                $sql .= 'double precision '; break;
+
         }
 
+        if ($unsigned)
+            $sql .= ' UNSIGNED ';
 
         if ($cfg['db_type'] != 'postgresql' && $pFieldOptions[2] != "DB_PRIMARY")
             $sql .= ' NULL ';
@@ -283,16 +315,18 @@ class adminDb {
         if (!$pMode && $pFieldOptions[2] == "DB_PRIMARY")
             $sql .= 'PRIMARY KEY ';
 
+        //auto increment
         if ($pFieldOptions[3] == true) {
+
             if ($cfg['db_type'] == 'mysql') {
                 $sql .= ' AUTO_INCREMENT ';
             }
 
-            //if( $cfg['db_type'] == 'sqlite' ){
-            //	$sql .= ' AUTOINCREMENT ';
-            //}
+            if( $cfg['db_type'] == 'sqlite' ){
+            	$sql .= ' AUTOINCREMENT ';
+            }
 
-            if ($cfg['db_type'] != 'mysql' && $cfg['db_type'] != 'mysqli' && $cfg['db_type'] != 'sqlite') {
+            if ($cfg['db_type'] == 'postgresql') {
                 database::$hideSql = true;
                 dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
                 dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
@@ -307,94 +341,6 @@ class adminDb {
 
         $sql .= ';';
         dbExec($sqlBegin . $sql);
-    }
-
-    //obsolete since 0.6
-    public static function addIndex($pTable, $pField, $pType = 'INDEX') {
-
-        $pType = str_replace("DB_", "", $pType);
-
-        $index['Key_name'] = '';
-        $oldType = $pType;
-
-        $equalFound = false;
-        $indexExist = false;
-
-        //postgres: http://manniwood.com/postgresql_stuff/index.html
-        //prepare postgres for new function table_indexes
-        if ($postgres) {
-            $type = dbExfetch("SELECT * FROM pg_type WHERE typname = 'kryn_fnc_table_indexes_result'", 1);
-            if ($type['typname'] != 'kryn_fnc_table_indexes_result') {
-
-                //create indexes function
-                dbExec("create type kryn_fnc_table_indexes_result as (
-						    index_name text);
-						
-						create or replace function kryn_table_indexes(schmname text, tblname text) returns setof kryn_fnc_table_indexes_result as
-						$body$
-						declare
-						    stmt text;
-						    tblcount integer;
-						    result idx_func_return_type%rowtype;
-						begin
-						    stmt := 'select count(*) '
-						          ||   'from pg_class as tbl '
-						          ||   'join pg_namespace as schm '
-						          ||     'on tbl.relnamespace = schm.oid '
-						          ||  'where schm.nspname = ''' || schmname || ''' '
-						          ||    'and tbl.relname = ''' || tblname || ''' ';
-						    execute stmt into tblcount;
-						    if ( tblcount = 0 ) then
-						        raise exception 'schema/table does not exist';
-						    end if;
-						
-						    stmt := 'select idx_info.relname as index_name '
-						          ||  'from pg_index as idx '
-						          ||  'join pg_class as tbl on tbl.oid = idx.indrelid '
-						          ||  'join pg_namespace as schm on tbl.relnamespace = schm.oid '
-						          ||  'join pg_class as idx_info on idx.indexrelid = idx_info.oid '
-						          || 'where schm.nspname = ''' || schmname || ''' '
-						          ||   'and tbl.relname = ''' || tblname || ''' ';
-						    for result in execute stmt loop
-						        return next result;
-						    end loop;
-						    return;
-						end;
-						$body$ language 'plpgsql';
-						commit;");
-
-            }
-        }
-
-
-        $indexes = dbExfetch("SHOW INDEX FROM $pTable", DB_FETCH_ALL);
-        if (count($indexes) > 0) {
-            foreach ($indexes as $myindex) {
-                if ($myindex['Key_name'] == $pField) {
-                    $indexExist = true;
-
-                    $index = $myindex;
-                    $oldType = $myindex['Index_type'];
-                    if ($myindex['Index_type'] == 'BTREE')
-                        $oldType = 'INDEX';
-
-                    if ($oldType == $pType)
-                        $equalFound = true;
-                }
-            }
-        }
-
-        if ($indexExist && !$equalFound) //key found but not with type == pType
-            dbExec("ALTER TABLE $pTable DROP $oldType $pField");
-
-        if (!$pIsIndex && $indexExist) {
-            $sql = "ALTER TABLE $pTable DROP $oldType $pField";
-        } elseif (!$indexExist) {
-            $sql = "ALTER TABLE $pTable ADD $pType ( $pField )";
-        }
-
-        if ($sql)
-            dbExec($sql);
     }
 
 }
