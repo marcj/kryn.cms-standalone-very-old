@@ -886,20 +886,20 @@ ka.loadMenu = function () {
         $('mainLinks').empty();
         ka.moduleItems.empty();
 
-        var mlinks = $H(res);
+        var mlinks = res;
 
-        $H(mlinks.get('admin')).each(function (item, pCode) {
+        Object.each(mlinks['admin'], function (item, pCode) {
             ka.addAdminLink(item, pCode, 'admin');
         });
 
-        mlinks.erase('admin');
+        delete mlinks['admin'];
 
-        if (mlinks.get('users')) {
+        if (mlinks['users']) {
             extKey = 'users';
-            var links = mlinks.get(extKey);
+            var links = mlinks[extKey];
             var toInsert = {};
 
-            $H(links).each(function (item, pCode) {
+            Object.each(links, function (item, pCode) {
                 if (item.mainLink) {
                     ka.addAdminLink(item, pCode, extKey);
                 } else {
@@ -908,16 +908,16 @@ ka.loadMenu = function () {
             });
             ka.addModuleLink(toInsert, extKey);
         }
-        mlinks.erase('users');
+        delete mlinks['users'];
 
-        $H(ka.settings.configs).each(function (config, extKey) {
+        Object.each(ka.settings.configs, function (config, extKey) {
 
-            var links = mlinks.get(extKey);
+            var links = mlinks[extKey];
             if (!links) return;
 
             var toInsert = {};
 
-            $H(links).each(function (item, pCode) {
+            Object.each(links, function (item, pCode) {
                 if (item.mainLink) {
                     ka.addAdminLink(item, pCode, extKey);
                 } else {
@@ -933,19 +933,8 @@ ka.loadMenu = function () {
         ka.updateModuleItemsScrollerSize();
         ka.renderAdminLink.delay(200);
 
-        /*
-         links.each(function(config, extKey){
-
-
-
-         });
-
-
-         mlinks.each(function(item, module){
-         if( item != null )
-         ka.addModuleLink( item, module );
-         });
-         */
+        document.id('mainLinks').getChildren('a').removeClass('first');
+        document.id('mainLinks').getFirst('a').addClass('first');
 
     }}).get();
 };

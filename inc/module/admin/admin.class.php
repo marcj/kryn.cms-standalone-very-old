@@ -493,6 +493,8 @@ class admin {
         clearfolder('cache/object/');
         clearfolder(kryn::$config['media_cache']);
 
+        kryn::deleteCache('krynPage2Domains');
+
         return true;
     }
 
@@ -863,8 +865,7 @@ class admin {
 
             if (!$res['r2d']){
                 require_once(PATH_MODULE.'admin/adminPages.class.php');
-                adminPages::updatePage2DomainCache();
-                $res['r2d'] =& kryn::getCache("krynPage2Domains");
+                $res['r2d'] = adminPages::updatePage2DomainCache();
             }
 
             if (!$res['r2d'])

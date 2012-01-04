@@ -149,12 +149,14 @@ class adminPages {
         self::cleanSort($pageTo['domain_rsn'], $pageTo['prsn']);
         self::updateUrlCache($pageTo['domain_rsn']);
         self::updateMenuCache($pageTo['domain_rsn']);
+        self::updatePage2DomainCache($pageTo['domain_rsn']);
 
         $page = dbTableFetch('system_pages', 1, 'rsn = ' . (getArgv('page') + 0));
         self::cleanSort($page['domain_rsn'], $page['prsn']);
         if ($page['domain_rsn'] != $pageTo['domain_rsn']) {
             self::updateUrlCache($page['domain_rsn']);
             self::updateMenuCache($page['domain_rsn']);
+            self::updatePage2DomainCache($page['domain_rsn']);
         }
 
         kryn::deleteCache('kryn_pluginrelations');
@@ -1125,6 +1127,8 @@ class adminPages {
         kryn::invalidateCache('systemNavigations-' . $domain_rsn);
         kryn::invalidateCache('systemWholePage-' . $domain_rsn);
 
+        self::updatePage2DomainCache($domain_rsn);
+
         kryn::deleteCache('kryn_pluginrelations');
         json(true);
     }
@@ -1460,8 +1464,12 @@ class adminPages {
 
         $r2d = array();
         $where = "";
-        if ($pDomain + 0 > 0)
+
+        if ($pDomain + 0 > 0){
             $where = 'WHERE domain_rsn = ' . ($pDomain + 0);
+            $r2d = kryn::getCache('krynPage2Domains');
+            $r2d[$pDomain] = '';
+        }
 
         $res = dbExec('SELECT rsn, domain_rsn FROM %pfx%system_pages ' . $where);
 

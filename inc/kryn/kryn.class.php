@@ -1151,8 +1151,14 @@ class kryn {
 
             if (getArgv('getLanguage') != '')
                 admin::printLanguage();
+
             if (getArgv('getPossibleLangs') == '1')
                 admin::printPossibleLangs();
+
+            if (getArgv('getLanguagePluralForm'))
+                admin::getLanguagePluralForm();
+
+
 
             if (!getArgv(2)) {
                 admin::showLogin();
