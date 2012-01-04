@@ -19,7 +19,7 @@ class search extends krynModule {
         if(strlen($pSearchWord) > 1) {            
             $sql = "
                 SELECT P.*, SE.title, SE.url, SE.page_content AS content
-                FROM %pfx%system_search SE,%pfx%system_pages P
+                FROM %pfx%system_search SE, %pfx%system_pages P
                 WHERE
                     P.rsn = SE.page_rsn AND
                     ( P.access_from = 0 OR P.access_from IS NULL OR P.access_from >= ".time()." ) AND
@@ -33,7 +33,7 @@ class search extends krynModule {
                          LOWER(P.title) LIKE '%".$pSearchWord."%' OR
                          LOWER(P.search_words) LIKE '%".$pSearchWord."%' OR
                          LOWER(SE.url) LIKE '%".$pSearchWord."%'
-                         )            
+                         )
             ";
            $prePages = dbExFetch ($sql, -1);
            foreach($prePages as $page) {

@@ -2175,7 +2175,7 @@ class kryn {
     public static function getDomainOfPage($pRsn) {
         $rsn = false;
 
-        $page2Domain =& kryn::getCache('page2Domains');
+        $page2Domain =& kryn::getCache('krynPage2Domains');
         if (!is_array($page2Domain)) {
             require_once(PATH_MODULE . 'admin/adminPages.class.php');
             $page2Domain = adminPages::updatePage2DomainCache();

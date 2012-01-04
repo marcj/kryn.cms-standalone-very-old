@@ -258,56 +258,6 @@ ka.pagesTree = new Class({
 
     },
 
-    /*
-     reloadItem: function( pRsn ){
-     //reloads the item and childs without scrollbar jumpings
-
-     var viewAllPages = this.options.viewAllPages?1:0;
-
-     var a = this.items[pRsn];
-
-     if( this.lastLoadRq )
-     this.lastLoadRq.cancel();
-
-     if( pRsn == 0 ){
-     //domain
-     this.lastLoadRq = new Request.JSON({url: _path+'admin/pages/getTreeDomain', noCache: 1, onComplete:function(pRes){
-     //todo
-
-
-     }.bind(this)}).get({
-     domain_rsn: this.domain_rsn, viewAllPages: viewAllPages
-     });
-     } else {
-     this.lastLoadRq = new Request.JSON({url: _path+'admin/pages/getTree', noCache: 1, onComplete: function( pItems ){
-
-     if( pItems.length == 0 ){
-     a.childContainer.empty();
-     pA.toggler.setStyle('visibility', 'hidden');
-     return;
-     }
-
-     a.childContainerOld = a.childContainer;
-     a.childContainer = a.childContainer.clone();
-
-     this.inItemsGeneration = true;
-     Array.each(pItems, function(childitem){
-     this.addItem( childitem, a );
-     }.bind(this));
-     a.childContainer.replaces( a.childContainerOld );
-     this.inItemsGeneration = false;
-
-     this.loadChildsRequests[ item.rsn ] = false;
-     this.checkDoneState();
-
-     this.fireEvent('childsLoaded', [item,a]);
-
-     }.bind(this)}).get({ page_rsn: item.rsn, viewAllPages: viewAllPages });
-
-     }
-
-     },*/
-
     reloadParentOfActive: function () {
 
         if (!this.lastSelectedItem) return;
@@ -912,12 +862,7 @@ ka.pagesTree = new Class({
                 this.currentPageToDrag.pageTreeObj.reload();
             }
 
-            /*
-             this.reload();
-             var otherDomainPageTreeObj = this.dragNDropElement.pageTreeObj;
-             if( otherDomainPageTreeObj != this )
-             otherDomainPageTreeObj.loadFirstLevel();
-             */
+            ka.loadSettings(['r2d']);
 
         }.bind(this)}).post(req);
     },
@@ -1314,6 +1259,7 @@ ka.pagesTree = new Class({
 
         new Request.JSON({url: _path + 'admin/pages/paste', noCache: 1, async: false, onComplete: function () {
             this.reload();
+            ka.loadSettings(['r2d']);
         }.bind(this)}).post(req);
     }
 });

@@ -1462,12 +1462,13 @@ class adminPages {
         $where = "";
         if ($pDomain + 0 > 0)
             $where = 'WHERE domain_rsn = ' . ($pDomain + 0);
+
         $res = dbExec('SELECT rsn, domain_rsn FROM %pfx%system_pages ' . $where);
 
         while ($row = dbFetch($res)) {
             $r2d[$row['domain_rsn']] .= $row['rsn'] . ',';
         }
-        kryn::setCache('page2Domains', $r2d);
+        kryn::setCache('krynPage2Domains', $r2d);
         return $r2d;
     }
 

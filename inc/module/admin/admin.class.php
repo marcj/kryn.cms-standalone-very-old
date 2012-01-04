@@ -754,7 +754,12 @@ class admin {
     }
 
     public static function getSettings() {
-        global $modules, $adminClient, $cfg;
+        global $adminClient, $cfg;
+
+        $loadKeys = false;
+        if (getArgv('keys')){
+            $loadKeys = getArgv('keys');
+        }
 
         $lang = getArgv('lang', 2);
         if ($lang) {
@@ -764,105 +769,165 @@ class admin {
 
         $res = array();
 
-        $res['modules'] = kryn::$extensions;
+        if ($loadKeys == false || in_array('modules', $loadKeys))
+            $res['modules'] = kryn::$extensions;
+
+        if ($loadKeys == false || in_array('configs', $loadKeys))
         $res['configs'] = kryn::$configs;
 
-        $res['layouts'] = array();
-        $res['contents'] = array();
-        $res['navigations'] = array();
 
-        $res['navigations'] = array();
-        foreach (kryn::$configs as $key => $config) {
-            if ($config['themes']) {
-                foreach ($config['themes'] as $themeTitle => $theme) {
-                    if ($theme['layouts']) {
-                        $res['layouts'][$themeTitle] = $theme['layouts'];
-                    }
-                    if ($theme['navigations']) {
-                        $res['navigations'][$themeTitle] = $theme['navigations'];
-                    }
-                    if ($theme['contents']) {
-                        $res['contents'][$themeTitle] = $theme['contents'];
-                    }
-                    if ($theme['publicProperties'] && count($theme['publicProperties']) > 0) {
-                        $res['publicProperties'][$key][$themeTitle] = $theme['publicProperties'];
+
+        if ($loadKeys == false || in_array('layouts', $loadKeys))
+            $res['layouts'] = array();
+
+        if ($loadKeys == false || in_array('contents', $loadKeys))
+            $res['contents'] = array();
+
+        if ($loadKeys == false || in_array('navigations', $loadKeys))
+            $res['navigations'] = array();
+
+        if ($loadKeys == false || in_array('themeProperties', $loadKeys))
+            $res['themeProperties'] = array();
+
+
+        if (
+            $loadKeys == false ||
+            (in_array('modules', $loadKeys) || in_array('contents', $loadKeys) || in_array('navigations', $loadKeys))
+        ){
+            foreach (kryn::$configs as $key => $config) {
+                if ($config['themes']) {
+                    foreach ($config['themes'] as $themeTitle => $theme) {
+
+                        if ($loadKeys == false || in_array('layouts', $loadKeys)){
+                            if ($theme['layouts']) {
+                                $res['layouts'][$themeTitle] = $theme['layouts'];
+                            }
+                        }
+
+
+                        if ($loadKeys == false || in_array('navigations', $loadKeys)){
+                            if ($theme['navigations']) {
+                                $res['navigations'][$themeTitle] = $theme['navigations'];
+                            }
+                        }
+
+                        if ($loadKeys == false || in_array('contents', $loadKeys)){
+                            if ($theme['contents']) {
+                                $res['contents'][$themeTitle] = $theme['contents'];
+                            }
+                        }
+
+                        if ($loadKeys == false || in_array('themeProperties', $loadKeys)){
+                            //publicProperties is deprecated. themeProperties is the new key. for compatibility is it here.
+                            if ($theme['publicProperties'] && count($theme['publicProperties']) > 0) {
+                                $res['themeProperties'][$key][$themeTitle] = $theme['publicProperties'];
+                            }
+
+                            if ($theme['themeProperties'] && count($theme['themeProperties']) > 0) {
+                                $res['themeProperties'][$key][$themeTitle] = $theme['themeProperties'];
+                            }
+                        }
                     }
                 }
             }
         }
 
-        $v = ini_get('upload_max_filesize');
-        $v2 = ini_get('post_max_size');
-        $b = self::return_bytes(($v < $v2) ? $v : $v2);
-        $res['upload_max_filesize'] = $b;
+        if ($loadKeys == false || in_array('upload_max_filesize', $loadKeys)){
+            $v = ini_get('upload_max_filesize');
+            $v2 = ini_get('post_max_size');
+            $b = self::return_bytes(($v < $v2) ? $v : $v2);
+            $res['upload_max_filesize'] = $b;
+        }
 
-        $res['groups'] = dbTableFetch('system_groups', DB_FETCH_ALL);
-        $res['user'] = $adminClient->user['settings'];
-        if (!$res['user'])
-            $res['user'] = array();
+        if ($loadKeys == false || in_array('groups', $loadKeys))
+            $res['groups'] = dbTableFetch('system_groups', DB_FETCH_ALL);
 
-        $res['system'] = $cfg;
-        $res['system']['db_name'] = '';
-        $res['system']['db_user'] = '';
-        $res['system']['db_passwd'] = '';
+
+        if ($loadKeys == false || in_array('user', $loadKeys)){
+            $res['user'] = $adminClient->user['settings'];
+            if (!$res['user'])
+                $res['user'] = array();
+        }
+
+
+        if ($loadKeys == false || in_array('system', $loadKeys)){
+            $res['system'] = $cfg;
+            $res['system']['db_name'] = '';
+            $res['system']['db_user'] = '';
+            $res['system']['db_passwd'] = '';
+        }
+
+
+        if ($loadKeys == false || in_array('r2d', $loadKeys)){
+            $res['r2d'] =& kryn::getCache("krynPage2Domains");
+
+            if (!$res['r2d']){
+                require_once(PATH_MODULE.'admin/adminPages.class.php');
+                adminPages::updatePage2DomainCache();
+                $res['r2d'] =& kryn::getCache("krynPage2Domains");
+            }
+
+            if (!$res['r2d'])
+                $res['r2d'] = array();
+        }
+
+        if ($loadKeys == false || in_array('domains', $loadKeys)){
+            $res['domains'] = array();
+            $qr = dbExec('SELECT * FROM %pfx%system_domains ORDER BY domain');
+            while ($row = dbFetch($qr)) {
+                if (kryn::checkPageAcl($row['rsn'], 'showDomain', 'd')) {
+                    $res['domains'][] = $row;
+                }
+            }
+        }
 
         $inGroups = $adminClient->user['inGroups'];
+        $userRsn  = $adminClient->user_rsn;
 
-        $res['ingroups'] = $inGroups;
-        $res['r2d'] =& kryn::getCache("r2d");
+        if ($loadKeys == false || in_array('acl_pages', $loadKeys)){
 
-        if (!$res['r2d']) {
-            $res['r2d'] = array();
+            $res['acl_pages'] = dbExfetch("
+                    SELECT code, access FROM %pfx%system_acl
+                    WHERE
+                    type = 2 AND
+                    (
+                        ( target_type = 1 AND target_rsn IN ($inGroups))
+                        OR
+                        ( target_type = 2 AND target_rsn IN ($userRsn))
+                    )
+                    ORDER BY code DESC
+            ", DB_FETCH_ALL);
+
+            $res['pageAcls'] = kryn::$pageAcls;
         }
 
-        $res['domains'] = array();
-        $qr = dbExec('SELECT * FROM %pfx%system_domains ORDER BY domain');
-        while ($row = dbFetch($qr)) {
-            if (kryn::checkPageAcl($row['rsn'], 'showDomain', 'd')) {
-                $res['domains'][] = $row;
-            }
-        }
+        if ($loadKeys == false || in_array('acls', $loadKeys)){
+            $resAcls = dbExec("
+                    SELECT code, access, type, target_rsn, target_type FROM %pfx%system_acl
+                    WHERE
+                    type > 2 AND
+                    (
+                        ( target_type = 1 AND target_rsn IN ($inGroups))
+                        OR
+                        ( target_type = 2 AND target_rsn IN ($userRsn))
+                    )
+                    ORDER BY code DESC
+            ");
+            $res['acls'] = array();
 
-        $userRsn = $adminClient->user_rsn;
-
-        $res['acl_pages'] = dbExfetch("
-                SELECT code, access FROM %pfx%system_acl
-                WHERE
-                type = 2 AND
-                (
-                    ( target_type = 1 AND target_rsn IN ($inGroups))
-                    OR
-                    ( target_type = 2 AND target_rsn IN ($userRsn))
-                )
-                ORDER BY code DESC
-        ", DB_FETCH_ALL);
-
-        $res['pageAcls'] = kryn::$pageAcls;
-
-
-        $resAcls = dbExec("
-                SELECT code, access, type, target_rsn, target_type FROM %pfx%system_acl
-                WHERE
-                type > 2 AND
-                (
-                    ( target_type = 1 AND target_rsn IN ($inGroups))
-                    OR
-                    ( target_type = 2 AND target_rsn IN ($userRsn))
-                )
-                ORDER BY code DESC
-        ");
-        $res['acls'] = array();
-
-        if ($resAcls) {
-            while ($row = dbFetch($resAcls)) {
-                $res['acls'][$row['type']][] = $row;
+            if ($resAcls) {
+                while ($row = dbFetch($resAcls)) {
+                    $res['acls'][$row['type']][] = $row;
+                }
             }
         }
 
 
-        $tlangs = dbTableFetch('system_langs', DB_FETCH_ALL, 'visible = 1');
-        $langs = dbToKeyIndex($tlangs, 'code');
-        $res['langs'] = $langs;
+        if ($loadKeys == false || in_array('modules', $loadKeys)){
+            $tlangs = dbTableFetch('system_langs', DB_FETCH_ALL, 'visible = 1');
+            $langs = dbToKeyIndex($tlangs, 'code');
+            $res['langs'] = $langs;
+        }
 
         return $res;
     }

@@ -1802,7 +1802,7 @@ var admin_pages = new Class({
 
         field.domainFieldsPublicProperties = {};
 
-        Object.each(ka.settings.publicProperties, function (publicProperties, extKey) {
+        Object.each(ka.settings.themeProperties, function (publicProperties, extKey) {
             field.domainFieldsPublicProperties[ extKey ] = {};
             Object.each(publicProperties, function (la, tKey) {
 
@@ -3317,7 +3317,7 @@ var admin_pages = new Class({
 
         ka.wm.openWindow('admin', 'pages/addDialog', null, this.win.id, {
             onChoose: function (pTitles, pTarget, pPos) {
-                alert(pPage.title);
+                //alert(pPage.title);
             },
             domain_rsn: pDomain,
             onComplete: function (pDomain) {

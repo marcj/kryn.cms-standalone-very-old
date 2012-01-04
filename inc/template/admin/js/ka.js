@@ -176,11 +176,15 @@ ka.getDomain = function (pRsn) {
     return result;
 }
 
-ka.loadSettings = function () {
+ka.loadSettings = function (pOnlyThisKeys) {
+    if (!ka.settings) ka.settings = {};
+
     new Request.JSON({url: _path + 'admin/backend/getSettings', noCache: 1, async: false, onComplete: function (res) {
         if (res.error == 'access_denied') return;
 
-        ka.settings = res;
+        Object.each(res, function(val,key){
+            ka.settings[key] = val;
+        })
 
         ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
 
@@ -189,10 +193,10 @@ ka.loadSettings = function () {
         }
 
         if (ka.settings.system && ka.settings.system.systemtitle) {
-            document.title = ka.settings.system.systemtitle + _(' | Kryn.cms Administstration');
+            document.title = ka.settings.system.systemtitle + t(' | Kryn.cms Administstration');
         }
 
-    }.bind(this)}).get({lang: window._session.lang});
+    }.bind(this)}).get({lang: window._session.lang, keys: pOnlyThisKeys});
 }
 
 ka.loadLanguage = function (pLang) {
@@ -349,7 +353,7 @@ ka.getDomainOfPage = function (pRsn) {
     var rsn = false;
 
     pRsn = ',' + pRsn + ',';
-    $H(ka.settings.r2d).each(function (pages, domain_rsn) {
+    $Object(ka.settings.r2d, function (pages, domain_rsn) {
         var pages = ',' + pages + ',';
         if (pages.indexOf(pRsn) != -1) {
             rsn = domain_rsn;
