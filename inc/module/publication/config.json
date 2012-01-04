@@ -23,7 +23,7 @@
   "admin": {
     "news": {
       "title": "[[News]]",
-      "type": "",
+      "type": "combine",
       "class": "publicationNewsList",
       "isLink": true,
       "multi": true,

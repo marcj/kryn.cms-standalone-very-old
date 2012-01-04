@@ -1844,7 +1844,7 @@ ka.parse = new Class({
             } else {
                 return false;
             }
-        } else {
+        } else if (typeOf(pChild.field.needValue) == 'string') {
             var c = 'javascript:';
             if (pChild.field.needValue.substr(0,c.length) == c){
 

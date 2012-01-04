@@ -58,8 +58,6 @@ var admin_system_module_edit = new Class({
         this.loader = new ka.loader().inject(this.win.content);
         this.loader.hide();
 
-        this.renderLanguage();
-
         this.viewType('general');
     },
 
@@ -124,6 +122,7 @@ var admin_system_module_edit = new Class({
 
     loadPlugins: function () {
 
+        if (this.lr) this.lr.cancel();
         this.panes['plugins'].empty();
 
         this.pluginsPane = new Element('div', {
@@ -164,17 +163,15 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(_('Add plugin'), this.addPlugin.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getPlugins', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
 
             if (res) {
                 Object.each(res, function (item, key) {
                     this.addPlugin(item, key)
                 }.bind(this));
             }
+            this.loader.hide();
 
         }.bind(this)}).post({name: this.mod});
-
-        this.loader.hide();
     },
 
     savePlugins: function () {
@@ -321,6 +318,7 @@ var admin_system_module_edit = new Class({
 
     loadDocu: function () {
 
+        if (this.lr) this.lr.cancel();
         this.panes['docu'].empty();
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
@@ -349,6 +347,7 @@ var admin_system_module_edit = new Class({
     },
 
     loadForms: function () {
+        if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getForms', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             this._renderForms(res);
@@ -363,6 +362,7 @@ var admin_system_module_edit = new Class({
      *
      */
     loadDb: function () {
+        if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             this._renderDb(res);
@@ -694,6 +694,8 @@ var admin_system_module_edit = new Class({
      */
 
     loadHelp: function () {
+        if (this.lr) this.lr.cancel();
+
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getHelp', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             this._renderHelp(res);
@@ -792,6 +794,8 @@ var admin_system_module_edit = new Class({
 
 
     loadLinks: function () {
+        if (this.lr) this.lr.cancel();
+
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             this._renderLinks(res);
@@ -870,7 +874,7 @@ var admin_system_module_edit = new Class({
 
         new Element('span', {html: _(' Type: ')}).inject(div);
         var select = new Element('select', {'class': 'text layoutSettingsType'}).inject(div);
-        var types = {'': 'No Window', 'custom': 'Custom Window', 'iframe': 'IFrame loader', 'edit': 'Framework: Edit form',
+        var types = {'': 'No Window', 'custom': 'Custom Window', 'iframe': 'IFrame loader', 'edit': 'Framework: Edit form', 'combine': 'Framework: Combine(list/edit/add)',
             'add': 'Framework: Add form', 'list': 'Framework: List form'};
         Object.each(types, function (title, type) {
             new Element('option', {
@@ -1085,6 +1089,7 @@ var admin_system_module_edit = new Class({
 
     loadGeneral: function () {
         this.loader.show();
+        if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (pConfig) {
             this._loadGeneral(pConfig);
             this.loader.hide();
@@ -1429,177 +1434,44 @@ var admin_system_module_edit = new Class({
 
     },
 
-    renderLanguage: function () {
+    loadLanguage: function () {
 
-        this.bottomBar = new ka.buttonBar(this.panes['language']);
-        this.bottomBar.addButton('Extract', this.extractLanguage.bind(this));
-        this.bottomBar.addButton('Save Languages', this.saveLangs.bind(this));
 
-        this.languageTablePane = new Element('div', {
-            style: 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 30px;'
-        }).inject(this.panes['language']);
+        this.loader.hide();
+        if (this.lr) this.lr.cancel();
+        var div = this.panes['language'];
+        div.empty();
 
-    },
+        new Element('h3', {
+            text: t('Translations')
+        }).inject(div);
 
-    saveLangs: function () {
+        var left = new Element('div', {style: 'position: absolute; left: 5px; top: 50px; right: 90px;'}).inject( div );
+        this.langProgressBars = new ka.Progress(_('Extracting ...'), true);
+        this.langProgressBars.inject( left );
 
-        var translations = {};
-
-        Object.each(this.langInputs, function (translation, key) {
-            if (typeOf(translation) == 'object') {
-                translations[key] = {};
-                Object.each(translation, function (subinput, id) {
-                    if (typeOf(subinput) == 'element') {
-                        translations[key][id] = subinput.value;
-                    } else {
-                        translations[key][id] = subinput;
-                    }
-                });
-            } else if (translation && typeOf(translation.value) == 'string') {
-                translations[ key ] = translation.value;
-            }
-        });
-
-        this.loader.show();
-        translations = JSON.encode(translations);
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLanguage', noCache: 1, onComplete: function (res) {
-            if (!res) {
-                this.win._alert(_('Permission denied to the language file. Please check your permissions.'));
-            }
-            this.loader.hide();
-        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.value, langs: translations});
-    },
-
-    extractLanguage: function () {
-        this.win._confirm(_('Really extract language of extension files? Unsaved data will be lost.'), function (res) {
-            if (res) this._extractLanguage();
+        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 50px;'}).inject( div )
+        this.langTranslateBtn = new ka.Button(_('Translate')).inject( right );
+        this.langTranslateBtn.addEvent('click', function(){
+            ka.wm.open('admin/system/languages/edit', {lang: this.languageSelect.value, module: this.mod});
         }.bind(this));
-    },
+        this.langTranslateBtn.deactivate();
 
-    _extractLanguage: function () {
-        this.loader.show();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/extractLanguage', noCache: 1, onComplete: function (res) {
-            this.extractedLanguages = res;
-            this.loadLanguage(true);
-        }.bind(this)}).post({name: this.mod});
-    },
+        this.lr = new Request.JSON({url: _path+'admin/system/languages/overviewExtract', noCache:1,
+            onComplete: function( pRes ){
 
-    loadLanguage: function (pRenderExtractedLangs) {
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getLanguage', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
-            this._renderLangs(res, pRenderExtractedLangs);
-        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.value});
-    },
+                this.langProgressBars.setUnlimited( false );
+                this.langProgressBars.setValue( (pRes.countTranslated/pRes.count)*100 );
 
-    _renderLangs: function (pLangs, pRenderExtractedLangs) {
-        var input, context, value, lkey, inputLi, inputOl, keyOl, keyLi, i;
+                this.langProgressBars.setText(
+                    t('%1 of %2 translated')
+                        .replace('%1', pRes.countTranslated)
+                        .replace('%2', pRes['count'])
+                );
 
-        var p = this.languageTablePane;
-        p.empty();
+                this.langTranslateBtn.activate();
+        }.bind(this)}).post({module: this.mod, lang: this.languageSelect.value});
 
-        if (!pRenderExtractedLangs && pLangs.translations.length == 0) {
-
-            new Element('div', {
-                'text': _('There is no translated content for selected language. You should press Extract to find some.'),
-                style: 'text-align: center; color: gray; padding: 15px;'
-            }).inject(p);
-            return;
-        }
-
-        this.langTable = new ka.Table([
-            [_('Key'), 250],
-            [_('Context'), 150],
-            [_('Translation')]
-        ]).inject(p);
-        rows = [];
-
-        this.langInputs = {};
-
-        var langs = pLangs.translations;
-        if (pRenderExtractedLangs) {
-            langs = this.extractedLanguages;
-        }
-
-        Object.each(langs, function (translation, key) {
-
-            context = '';
-            lkey = key;
-            value = translation;
-
-            if (key.indexOf("\004") > 0) {
-                context = key.split("\004")[0];
-                lkey = key.split("\004")[1];
-            }
-
-            if (pRenderExtractedLangs) {
-                value = pLangs.translations[ key ];
-            }
-
-            if (typeOf(translation) == 'array') {
-                // plural
-
-
-                this.langInputs[key] = {};
-
-                inputOl = new Element('ol', {style: 'padding-left: 15px'});
-                keyOl = new Element('ol', {style: 'padding-left: 15px'});
-
-                if (!pRenderExtractedLangs) {
-                    //we had a .po file already
-                    new Element('li', {
-                        text: lkey
-                    }).inject(keyOl);
-
-                    new Element('li', {
-                        text: pLangs.plurals[key]
-                    }).inject(keyOl);
-
-                    this.langInputs[key]['plural'] = pLangs.plurals[key];
-
-                } else {
-                    //was extracted
-
-                    Array.each(translation, function (l, k) {
-
-                        new Element('li', {
-                            text: l
-                        }).inject(keyOl);
-                        this.langInputs[key]['plural'] = l;
-
-                    }.bind(this));
-
-                }
-
-                for (i = 0; i < pLangs.pluralCount; i++) {
-
-                    value = (pLangs.translations[key] && pLangs.translations[key][i]) ? pLangs.translations[key][i] : '';
-
-                    inputLi = new Element('li').inject(inputOl);
-                    this.langInputs[key][i] = new Element('input', {
-                        'class': 'text',
-                        'style': 'width: 95%',
-                        value: value
-                    }).inject(inputLi);
-                }
-
-                rows.include([
-                    keyOl, context, inputOl
-                ]);
-
-            } else {
-
-                this.langInputs[key] = new Element('input', {
-                    'class': 'text',
-                    'style': 'width: 95%',
-                    value: value
-                });
-
-                rows.include([
-                    lkey, context, this.langInputs[key]
-                ]);
-            }
-        }.bind(this));
-        this.langTable.setValues(rows);
     },
 
     loadObjects: function(){
