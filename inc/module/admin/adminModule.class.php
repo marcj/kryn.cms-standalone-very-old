@@ -113,6 +113,10 @@ class adminModule {
             case 'getPlugins':
                 json(self::getPlugins(getArgv('name', 2)));
 
+
+            case 'getObjects':
+                json(self::getObjects(getArgv('name', 2)));
+
             case 'addCheckCode':
                 json(self::addCheckCode(getArgv('name', 2)));
         }
@@ -154,11 +158,13 @@ class adminModule {
     }
 
     public static function getPlugins($pName) {
-
         $config = self::loadConfig($pName);
-
         return $config['plugins'];
+    }
 
+    public static function getObjects($pName) {
+        $config = self::loadConfig($pName);
+        return $config['objects'];
     }
 
     public static function getCategoryItems($pId, $pLang) {

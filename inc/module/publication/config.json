@@ -330,7 +330,7 @@
   },
   "objects": {
     "news": {
-      "title": "[[Article]]",
+      "label": "[[Article]]",
       "desc": "[[Articles]]",
       "table": "publication_news",
       "table_primary": "rsn",
@@ -358,11 +358,11 @@
       }
     },
     "news_comment": {
-      "title": "[[Comments]]",
+      "label": "[[Comments]]",
       "table": "publication_comments"
     },
     "news_category": {
-      "title": "[[Article categories]]",
+      "label": "[[Article categories]]",
       "table": "publication_news_category",
       "table_primary": "rsn",
       "object_label": "title"
