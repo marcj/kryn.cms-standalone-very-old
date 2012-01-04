@@ -17,7 +17,7 @@
 		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
 		<script type="text/javascript" src="{$cfg.path}inc/lib/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
         
-        <script type="text/javascript" src="{$cfg.path}admin/js=global.js/?noCache={$time}" ></script>
+        <script type="text/javascript" src="{$cfg.path}krynJavascriptGlobalPath.js?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getPossibleLangs:1/?noCache={$time}" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getLanguagePluralForm:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>

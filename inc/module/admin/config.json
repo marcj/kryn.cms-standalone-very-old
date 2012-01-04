@@ -1331,18 +1331,6 @@
         "DB_PRIMARY",
         true
       ],
-      "system_object_name": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "ystem_object_rsn": [
-        "int",
-        "",
-        "-",
-        false
-      ],
       "user_system_object_name": [
         "varchar",
         "128",
@@ -1356,6 +1344,18 @@
         false
       ],
       "user_system_object_rsn": [
+        "int",
+        "",
+        "-",
+        false
+      ],
+      "system_object_name": [
+        "varchar",
+        "128",
+        "-",
+        false
+      ],
+      "system_object_rsn": [
         "int",
         "",
         "-",

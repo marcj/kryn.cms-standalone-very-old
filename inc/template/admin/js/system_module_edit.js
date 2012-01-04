@@ -454,7 +454,7 @@ var admin_system_module_edit = new Class({
         .addEvent('keyup', function(){
             this.value = this.value.toLowerCase();
             this.value = this.value.replace(' ', '_');
-            this.value = this.value.replace(/[^a-zA-Z0-9_-]/, '-');
+            this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
             this.value = this.value.replace(/--+/, '-');
         })
         .inject( m );
@@ -519,7 +519,13 @@ var admin_system_module_edit = new Class({
         })
         .inject(footer);
 
-        new Element('input', {'class': 'text dbTablePrimary', value: pTable.___primary?pTable.___primary:'', style: 'width: 250px'}).inject(a2);
+        new Element('input', {'class': 'text dbTablePrimary', value: pTable.___primary?pTable.___primary:'', style: 'width: 250px'})
+        .addEvent('keyup', function(){
+            this.value = this.value.toLowerCase();
+            this.value = this.value.replace(/[^a-zA-Z0-9_\s ,]/, '-');
+            this.value = this.value.replace(/--+/, '-');
+        })
+        .inject(a2);
 
         /*
          * Index
@@ -531,6 +537,11 @@ var admin_system_module_edit = new Class({
             var li = Element('li').inject(ul);
 
             new Element('input', {'class': 'text dbTableIndex', value: pFields?pFields:"", style: 'width: 250px'})
+            .addEvent('keyup', function(){
+                this.value = this.value.toLowerCase();
+                this.value = this.value.replace(/[^a-zA-Z0-9_\-,\s]/, '-');
+                this.value = this.value.replace(/--+/, '-');
+            })
             .inject(li);
 
             new Element('img', {
@@ -609,7 +620,14 @@ var admin_system_module_edit = new Class({
         new Element('input', {
             'class': 'text',
             value: pKey
-        }).inject( new Element('td').inject(tr) );
+        })
+        .addEvent('keyup', function(){
+            this.value = this.value.toLowerCase();
+            this.value = this.value.replace(' ', '_');
+            this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
+            this.value = this.value.replace(/--+/, '-');
+        })
+        .inject( new Element('td').inject(tr) );
 
         var s = new Element('select').inject(new Element('td').inject(tr));
         [

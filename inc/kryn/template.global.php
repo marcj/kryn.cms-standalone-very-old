@@ -26,6 +26,7 @@
  */
 function tAssign($pName, $pVal) {
     global $tpl;
+    tInit();
     return $tpl->assign($pName, $pVal);
 }
 
@@ -38,6 +39,7 @@ function tAssign($pName, $pVal) {
  */
 function tAssignRef($pName, &$pVal) {
     global $tpl;
+    tInit();
     return $tpl->assignByRef($pName, $pVal);
 }
 
@@ -50,9 +52,26 @@ function tAssignRef($pName, &$pVal) {
  * @return string Parsed template file
  */
 function tFetch($pFile) {
+    tInit();
     if ($pFile == "") return;
     global $tpl;
     return kryn::translate($tpl->fetch($pFile));
+}
+
+/**
+ * Initialize the Smarty object to $tpl
+ */
+function tInit(){
+    global $tpl, $cfg;
+    if (!$tpl){
+
+        if ($cfg['tpl_cpl'] && !file_exists($cfg['tpl_cpl']))
+            @mkdir($cfg['tpl_cpl']);
+
+        $tpl = new Smarty();
+        $tpl->template_dir = 'inc/template/';
+        $tpl->compile_dir = $cfg['tpl_cpl']?$cfg['tpl_cpl']:'cache/smarty_compile/';
+    }
 }
 
 ?>

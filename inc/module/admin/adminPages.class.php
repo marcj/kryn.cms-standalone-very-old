@@ -603,14 +603,16 @@ class adminPages {
         kryn::resetJs();
         kryn::resetCss();
 
+        $domain = urlencode(getArgv('domain'));
+
         $domainPath = str_replace('\\', '/', str_replace('\\\\\\\\', '\\', urldecode(getArgv('path'))));
         //        $url = 'http://'.getArgv('domain').str_replace('\\','/',str_replace('\\\\\\\\','\\',urldecode(getArgv('path'))));
-        $path = 'http://' . getArgv('domain') . $domainPath . 'inc/template/';
+        $path = 'http://' . $domain . $domainPath . 'inc/template/';
 
         kryn::addJs($path . 'kryn/mootools-core.js');
         kryn::addJs($path . 'kryn/mootools-more.js');
         kryn::addJs($path . 'admin/js/ka.js');
-        kryn::addJs($path . 'js=global.js');
+        kryn::addJs('http://' . $domain . $domainPath . 'krynJavascriptGlobalPath.js');
         kryn::addCss($path . 'admin/css/ka.layoutBox.css');
         kryn::addCss($path . 'admin/css/inpage.css');
         kryn::addCss($path . 'admin/css/ka.field.css');

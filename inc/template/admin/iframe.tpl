@@ -9,7 +9,7 @@
         <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core.js" ></script>
         <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more.js" ></script>
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/content.css" />
-        <script type="text/javascript" src="{$cfg.path}admin/js=global.js/" ></script>
+        <script type="text/javascript" src="{$cfg.path}krynJavascriptGlobalPath.js" ></script>
         <script type="text/javascript" src="{$cfg.templatepath}/admin/admin.js" ></script>
         <script type="text/javascript" src="{$cfg.templatepath}/admin/iframe.js" ></script>
         

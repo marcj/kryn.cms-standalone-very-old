@@ -23,7 +23,7 @@ class krynObjectTable {
     /**
      * Returns the value of $pPrimary
      * @param $pId
-     * @param bool $pFields
+     * @param string $pFields
      * @return type
      */
     public function getItem($pId, $pFields = '*'){
@@ -52,6 +52,13 @@ class krynObjectTable {
         return dbTableFetch($this->definition['table'], $where, 1, $pFields);
     }
 
+    /**
+     * @param int $pFrom
+     * @param bool $pLimit
+     * @param bool $pCondition
+     * @param string $pFields
+     * @return type
+     */
     public function getItems ($pFrom = 0, $pLimit = false, $pCondition = false, $pFields = '*'){
 
         $where = '';

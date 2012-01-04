@@ -88,8 +88,12 @@ class adminDb {
         }
 
         $res = '';
+
         foreach ($db as $tableName => $tableFields) {
             $tableName = strtolower(pfx . $tableName);
+
+            if ($tableFields['___primary'])
+                $tableFields['___primary'] = strtolower($tableFields['___primary']);
 
             if ($tables[$tableName]) {
                 self::_updateTable($tableName, $tableFields);
@@ -98,6 +102,24 @@ class adminDb {
                 self::_installTable($tableName, $tableFields);
                 $res .= "Create table <i>$tableName</i>\n";
             }
+
+            //check primary key bundle
+            if ($tableFields['___primary']){
+
+                $primName = preg_replace('/\W/', '-', $tableFields['___primary']);
+                dbExec('ALTER TABLE '.$tableName.' ADD CONSTRAINT '.$primName.' PRIMARY KEY ('.$tableFields['___primary'].')');
+
+            }
+
+            //check index bundles
+
+            if ($tableFields['___index']){
+                foreach ($tableFields['___index'] as $indexBundle){
+                    $indexName = preg_replace('/\W/', '-', $indexBundle);
+                    dbExec('CREATE INDEX '.strtolower($indexName).' ON '.$tableName.' ('.$indexBundle.')');
+                }
+            }
+
             database::clearOptionsCache($tableName);
         }
         $res .= "\nDatabase installed.\n";
@@ -110,14 +132,21 @@ class adminDb {
     function _updateTable($pTable, $pFields) {
         global $cfg;
 
-        self::updateIndexes($pTable, $pFields, false); //delete all and dont create new
+        self::updateIndexes($pTable, $pFields, false); //delete all and don't create new
 
         $column = array();
         $columns = database::getColumns($pTable);
 
+        $indexe = array();
+        if ($pFields['___primary'])
+            $indexe = explode(',', $pFields['___primary']);
+
         foreach ($pFields as $fName => $fOptions) {
 
-            if (!array_key_exists($fName, $columns)) { //$column['Field'] != $fName ){
+            if ($fName == '___primary') continue;
+            if ($fName == '___index') continue;
+
+            if (!array_key_exists($fName, $columns)) {
                 self::addColumn($pTable, $fName, $fOptions);
             } else {
                 //found check type
@@ -138,7 +167,7 @@ class adminDb {
                 }
                 if ($isType != $nType || ($isType == 'varchar' && $varcharLength != $fOptions[1])) {
 
-                    $sql = self::addColumn($pTable, $fName, $fOptions, 2);
+                    $sql = self::addColumn($pTable, $fName, $fOptions, 2, in_array($fName, $indexe));
 
                     if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
                         $sql = 'ALTER TABLE ' . $pTable . ' CHANGE COLUMN ' . $fName . ' ' . $sql;
@@ -167,8 +196,17 @@ class adminDb {
 
         $primaries = '';
 
+        $indexe = array();
+        if ($pFields['___primary'])
+            $indexe = explode(',', $pFields['___primary']);
+
         foreach ($pFields as $fName => $fOptions) {
-            $sql .= self::addColumn($pTable, $fName, $fOptions, 1) . ", \n";
+
+            if ($fName == '___primary') continue;
+            if ($fName == '___index') continue;
+
+            $sql .= self::addColumn($pTable, $fName, $fOptions, 1, in_array($fName, $indexe)) . ", \n";
+
             if ($fOptions[2] == "DB_PRIMARY")
                 $primaries .= '' . $fName . ',';
         }
@@ -182,7 +220,7 @@ class adminDb {
 
         $sql .= "\n )";
 
-        if ($cfg['db_type'] == 'mysql')
+        if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli')
             $sql .= 'ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
 
         dbExec($sql);
@@ -195,6 +233,7 @@ class adminDb {
 
         switch ($cfg['db_type']) {
             case 'mysql':
+            case 'mysqli':
                 dbExec('DROP INDEX ' . $pName . ' ON ' . $pTable);
                 break;
             case 'postgresql':
@@ -228,20 +267,20 @@ class adminDb {
 
     }
 
-    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false) {
+    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false, $pIsIn___Primary = false) {
 
         /*
         * $pMode
-        * 	false: full sql
+        *  false: full sql
         *  1: only the column definition
         *  2: only the column definition for ALTER COLUMN
         *
         */
         global $cfg;
 
-        $sqlBegin = "ALTER TABLE $pTable ADD ";
+        $sqlBegin = 'ALTER TABLE '.strtolower($pTable).' ADD ';
 
-        $sql = "$pFieldName ";
+        $sql = strtolower($pFieldName).' ';
 
 
         if ($cfg['db_type'] == 'postgresql' && $pMode == 2) {
@@ -309,16 +348,15 @@ class adminDb {
         if ($unsigned)
             $sql .= ' UNSIGNED ';
 
-        if ($cfg['db_type'] != 'postgresql' && $pFieldOptions[2] != "DB_PRIMARY")
-            $sql .= ' NULL ';
-
-        if (!$pMode && $pFieldOptions[2] == "DB_PRIMARY")
-            $sql .= 'PRIMARY KEY ';
+        if ($pFieldOptions[2] == "DB_PRIMARY" || $pIsIn___Primary)
+            $sql .= 'NOT NULL ';
+        else
+            $sql .= 'NULL ';
 
         //auto increment
         if ($pFieldOptions[3] == true) {
 
-            if ($cfg['db_type'] == 'mysql') {
+            if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
                 $sql .= ' AUTO_INCREMENT ';
             }
 

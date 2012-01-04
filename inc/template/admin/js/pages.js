@@ -2461,7 +2461,7 @@ var admin_pages = new Class({
                 var css = new Element('link', {
                     rel: "stylesheet",
                     type: "text/css",
-                    href: _baseUrl + 'inc/template/' + css
+                    href: _baseUrl + ((css.substr(0,1)=='/') ? css.substr(1) : 'inc/template/'+css)
                 }).inject(w.document.head);
                 this.lastLoadedLayoutCssFiles.include(css); //w.Asset.css( _path+'inc/template/'+css) );
             }.bind(this));

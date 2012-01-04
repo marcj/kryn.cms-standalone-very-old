@@ -215,9 +215,10 @@ class krynHtml {
                 if (strpos($js, "http://") !== FALSE) {
                     $html .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
                 } else {
-                    if ($mtime = @filemtime(PATH . 'inc/template/' . $js) || $js == 'js=global.js') {
-                        $html .= '<script type="text/javascript" src="' . $cfg['path'] . 'inc/template/' . $js . '?c=' .
-                                 $mtime . '" ></script>' . "\n";
+                    if ($mtime = @filemtime(PATH . 'inc/template/' . $js) || $js == '/krynJavascriptGlobalPath.js') {
+                        $html .= '<script type="text/javascript" src="' . $cfg['path']
+                            . ((substr($js,0,1)=='/') ? 'inc/template/' . $js . '?c=' : substr($js, 1))
+                            . $mtime . '" ></script>' . "\n";
                     }
                 }
             }

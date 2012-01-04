@@ -1586,7 +1586,7 @@ class kryn {
             if ($f == false) $f = true;
         }
 
-        //small securty check for third party modules
+        //small security check for third party modules
         /*
         if( getArgv(1) != 'admin' ){
             $blacklist = array(' union ', 'system_user', 'http://', 'https://');
@@ -2567,7 +2567,7 @@ class kryn {
             kryn::addJs('kryn/mootools-core.js');
             kryn::addJs('kryn/mootools-more.js');
             kryn::addJs('admin/kEditLayout.js');
-            kryn::addJs('js=global.js/');
+            kryn::addJs('/krynJavascriptGlobalPath.js');
             kryn::addCss('admin/kedit.css');
             kryn::addCss('admin/kEditLayout.css');
             //$content = kryn::fileRead( 'inc/template/kryn/layouts/' . kryn::$page['layout'] . '.tpl' );
@@ -2628,6 +2628,7 @@ class kryn {
 
         self::removeSearchBlocks(kryn::$pageHtml);
 
+        header("Content-Type: text/html; charset=utf-8");
 
         if (kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && $client->user['rsn'] == 0 &&
             count($_POST) == 0

@@ -60,7 +60,8 @@ function json($pValue) {
     if ($adminClient) $adminClient->syncStore();
     if ($client) $client->syncStore();
 
-    die(json_encode($pValue));
+    print json_encode($pValue);
+    exit(0);
 }
 
 /**
