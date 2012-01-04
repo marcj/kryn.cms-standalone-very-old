@@ -32,7 +32,6 @@ include('inc/config.php');
 if (!array_key_exists('display_errors', $cfg))
     $cfg['display_errors'] = 0;
 
-
 @ini_set('error_reporting', E_ALL & ~E_NOTICE);
 
 if ($cfg['display_errors'] == 0) {
@@ -49,7 +48,6 @@ include('inc/kryn/framework.global.php');
 
 
 # Load important classes
-include('inc/lib/smarty/Smarty.class.php');
 include('inc/kryn/database.class.php');
 include('inc/kryn/krynModule.class.php');
 

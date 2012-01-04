@@ -63,7 +63,10 @@ function tFetch($pFile) {
  */
 function tInit(){
     global $tpl, $cfg;
+
     if (!$tpl){
+
+        include('inc/lib/smarty/Smarty.class.php');
 
         if ($cfg['tpl_cpl'] && !file_exists($cfg['tpl_cpl']))
             @mkdir($cfg['tpl_cpl']);
