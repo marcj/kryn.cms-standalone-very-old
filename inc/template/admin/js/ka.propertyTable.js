@@ -2,7 +2,9 @@ ka.propertyTable = new Class({
     Implements: Options,
 
     options: {
-        withDepends: false
+        withDependFields: false,
+        addLabel: t('Add property'),
+        mode: 'kaField' //kaField = ka.field definition, object = object field definition
 
     },
 
@@ -22,7 +24,7 @@ ka.propertyTable = new Class({
             style: 'background-color: #ddd; padding: 2px;'
         }).inject(this.container);
 
-        new ka.Button(t('Add property'))
+        new ka.Button(this.options.addLabel)
         .addEvent('click', function(){
             this.add();
         }.bind(this))
@@ -303,7 +305,7 @@ ka.propertyTable = new Class({
             }
         };
 
-        if (this.options.withDepends){
+        if (this.options.withDependFields){
 
             this.kaFields['needValue'] = {
                 label: tc('kaPropertyTable', 'Need value'),
@@ -408,7 +410,7 @@ ka.propertyTable = new Class({
             text: tc('kaPropertyTable','Depends for property \'%s\'').replace('%s', keyField.value)
         }).inject(this.dialog.content)
 
-        var dependsPropertyTable = new ka.propertyTable(this.dialog.content, this.win, {withDepends: true});
+        var dependsPropertyTable = new ka.propertyTable(this.dialog.content, this.win, {withDependFields: true});
 
         var definition = pPropertyDiv.retrieve('definition');
         pPropertyDiv.store('dependPropertyTable', dependsPropertyTable);

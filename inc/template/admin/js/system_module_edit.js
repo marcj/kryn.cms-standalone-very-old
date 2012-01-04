@@ -1628,7 +1628,10 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var propertyTable = new ka.propertyTable(propertyPanel, this.win);
+        var propertyTable = new ka.propertyTable(propertyPanel, this.win, {
+            addLabel: t('Add field'),
+            mode: 'object'
+        });
 
         tr.store('propertyTable', propertyTable);
 
