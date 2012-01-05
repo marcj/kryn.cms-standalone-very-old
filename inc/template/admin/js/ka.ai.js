@@ -373,8 +373,6 @@ ka.ai.renderLogin = function () {
         'class': 'loginMessage'
     }).inject(middle);
 
-    ka.ai.loginName.focus();
-
     ka.loadLanguage(ka.ai.loginLangSelection.getValue());
 }
 
