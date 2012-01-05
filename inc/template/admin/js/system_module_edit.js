@@ -398,10 +398,6 @@ var admin_system_module_edit = new Class({
                 columns['___index'].include(indexInput.value);
             })
 
-            var primaryBundle = table.getElement('.dbTablePrimary').value;
-            if (primaryBundle != '')
-                columns['___primary'] = primaryBundle;
-
             req.tables[ tableKey ] = columns;
 
         });
@@ -511,21 +507,6 @@ var admin_system_module_edit = new Class({
         var footer = new Element('div', {
             'class': 'ka-extmanager-dbTable-table-footer'
         }).inject(div);
-
-        var a2 = new Element('div', {
-            text: tc('extensionDatabaseTable', 'Primary key bundle (For a primary key of 2 fields and more. Comma separated.)')+': ',
-            href: 'javascript:;',
-            style: 'border-bottom: 1px solid #ddd; padding: 4px; color: gray;'
-        })
-        .inject(footer);
-
-        new Element('input', {'class': 'text dbTablePrimary', value: pTable.___primary?pTable.___primary:'', style: 'width: 250px'})
-        .addEvent('keyup', function(){
-            this.value = this.value.toLowerCase();
-            this.value = this.value.replace(/[^a-zA-Z0-9_\s ,]/, '-');
-            this.value = this.value.replace(/--+/, '-');
-        })
-        .inject(a2);
 
         /*
          * Index
