@@ -337,7 +337,6 @@
       "plugins": [
         "newsDetail"
       ],
-      "table_field_sync": true,
       "fields": {
         "rsn": {
           "type": "number",

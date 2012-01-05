@@ -18,10 +18,11 @@ ka.propertyTable = new Class({
         this.win = pWin;
 
         this.itemContainer = new Element('div', {
+            style: 'background-color: #d6d6d6;'
         }).inject(this.container);
 
         this.footer = new Element('div', {
-            style: 'background-color: #ddd; padding: 2px;'
+            style: 'background-color: #d1d1d1; padding: 2px; height: 24px;'
         }).inject(this.container);
 
         new ka.Button(this.options.addLabel)
@@ -63,9 +64,6 @@ ka.propertyTable = new Class({
                     var newItem = false;
 
                     try {
-                        //check if json string
-                        if (pval.substr(0,1) == '"' && pval.substr(pval.length-1,1) == '"')
-                            newItem = JSON.decode(pval);
 
                         //check if json array
                         if (pval.substr(0,1) == '[' && pval.substr(pval.length-1,1) == ']')
@@ -169,13 +167,15 @@ ka.propertyTable = new Class({
         })
         .inject(header);
 
+        new Element('div', {
+            text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
+            style: 'color: gray'
+        }).inject(header);
+
         this.kaFields = {
             label: {
                 label: t('Label'),
-                type: 'text'
-            },
-            desc: {
-                label: t('Description (Optional)'),
+                desc: t('Surround the value with [[ and ]] to make it multilingual.'),
                 type: 'text'
             },
             'type': {
@@ -205,6 +205,7 @@ ka.propertyTable = new Class({
                     html: t('Html'),
                     imagegroup: t('Imagegroup'),
                     custom: t('Custom'),
+                    childrenswitcher: t('Children switcher'),
                     window_list: t('Framework windowList')
                 },
                 'depends': {
@@ -240,7 +241,7 @@ ka.propertyTable = new Class({
                     items: {
                         needValue: 'select',
                         label: t('static items'),
-                        desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {item1: \'Item 1\'}.')
+                        desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {item1: \'Item 1\'} or ["Foo", "Bar", "Three"].')
                     },
 
                     //select, file and folder
@@ -280,46 +281,46 @@ ka.propertyTable = new Class({
 
                 }
             },
-
-            'length': {
-                needValue: ['text', 'password', 'number'],
-                againstField: 'type',
-                type: 'text',
-                label: t('Max value length. (Optional)')
-            },
-
-            //all
-            'default': {
-                needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
-                againstField: 'type',
-                type: 'text',
-                label: t('Default value. Use JSON notation. (Optional)')
-            },
-
-            'required_regexp': {
-                needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
-                againstField: 'type',
-                type: 'text',
-                label: t('Required value as regular expression. (Optional)'),
-                desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
+            __optional__: {
+                label: t('Optional'),
+                type: 'childrenswitcher',
+                depends: {
+                    desc: {
+                        label: t('Description (Optional)'),
+                        type: 'text'
+                    },
+                    'needValue': {
+                        label: tc('kaPropertyTable', 'Visibility condition (Optional)'),
+                        desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, Array(use JSON notation), /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
+                    },
+                    againstField: {
+                        label: tc('kaPropertyTable', 'Visibility condition field (Optional)'),
+                        desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation. String or Array")
+                    },
+                    'length': {
+                        needValue: ['text', 'password', 'number'],
+                        againstField: 'type',
+                        type: 'text',
+                        label: t('Max value length. (Optional)')
+                    },
+                    'default': {
+                        needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
+                        againstField: 'type',
+                        type: 'text',
+                        label: t('Default value. Use JSON notation. (Optional)')
+                    },
+                    'required_regexp': {
+                        needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
+                        againstField: 'type',
+                        type: 'text',
+                        label: t('Required value as regular expression. (Optional)'),
+                        desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
+                    }
+                }
             }
         };
 
-        if (this.options.withDependFields){
-
-            this.kaFields['needValue'] = {
-                label: tc('kaPropertyTable', 'Need value'),
-                desc: t("Use JSON notation. String, Array or 'javascript:function(v){return v==1}';")
-            }
-
-            this.kaFields['againstField'] = {
-                label: tc('kaPropertyTable', 'Against field (Optional)'),
-                desc: t("Use JSON notation. String or Array")
-            }
-
-        }
-
-        var main = new Element('div',{style: 'background-color: #eee'}).inject(div);
+        var main = new Element('div',{style: 'background-color: #e5e5e5'}).inject(div);
 
         var table = new Element('table', {
             width: '100%'
@@ -359,7 +360,7 @@ ka.propertyTable = new Class({
         }
 
 
-        new ka.Button(t('Depends'))
+        new ka.Button(t('Children'))
         .addEvent('click', this.openDepends.bind(this, div))
         .inject(main);
 
@@ -387,7 +388,7 @@ ka.propertyTable = new Class({
 
             });
         } else {
-            dependDiv.set('text', t('No depended properties exist.'));
+            dependDiv.set('text', t('No children there.'));
         }
 
     },
@@ -407,10 +408,10 @@ ka.propertyTable = new Class({
         new Element('h3', {
             'class': 'kryn-headline',
             style: 'margin-bottom: 5px; font-weight: bold;',
-            text: tc('kaPropertyTable','Depends for property \'%s\'').replace('%s', keyField.value)
+            text: tc('kaPropertyTable','Children of property \'%s\'').replace('%s', keyField.value)
         }).inject(this.dialog.content)
 
-        var dependsPropertyTable = new ka.propertyTable(this.dialog.content, this.win, {withDependFields: true});
+        var dependsPropertyTable = new ka.propertyTable(this.dialog.content, this.win, this.options);
 
         var definition = pPropertyDiv.retrieve('definition');
         pPropertyDiv.store('dependPropertyTable', dependsPropertyTable);

@@ -3,10 +3,25 @@
     position: absolute;
     left: 0px;
     right: 0px;
-    top: -165px;
-    height: 160px;
-    background-color: white;
+    top: 0px;
+    height: 560px;
     text-align: center;
+
+    background-image: url(../images/login-spotlight.png);
+    background-repeat: repeat-x;
+    background-position: center top;
+
+}
+
+
+.ka-login-middle {
+    font-family: Verdana, sans;
+    margin: auto;
+    width: 437px;
+    height: 185px;
+    margin-top: 200px;
+    text-align: left;
+    position: relative;
 }
 
 .ka-loginHead-middler {
@@ -26,10 +41,13 @@
     position: absolute;
     left: 0px;
     right: 0px;
-    top: 160px;
+    top: 0px;
+
     bottom: 0px;
-    border-top: 5px solid #f15a29;
-    background-color: #373737;
+    /* border-top: 5px solid #f15a29; */
+
+    background-image: url(../images/login-bg.png);
+
     text-align: center;
     z-index: 200101;
     color: white;
@@ -71,16 +89,6 @@
     height: 185px;
 }
 
-.ka-login-middle {
-    font-family: Verdana, sans;
-    margin: auto;
-    width: 437px;
-    height: 185px;
-    margin-top: 60px;
-    text-align: left;
-    position: relative;
-    background-color: #373737;
-}
 
 .ka-ai-loader-con {
     height: 30px;
@@ -152,6 +160,9 @@
     border-bottom: 1px solid #444;
     width: 228px;
     left: 95px;
+
+    box-shadow: inset 0 0 5px #222;
+    border-bottom: 1px solid #2d2d2d;
 }
 
 .ka-ai-loginLoadingBar {
@@ -275,7 +286,7 @@
 .ka-login-circlebtnbrd {
 
     position: absolute;
-    right: 6px;
+    right: 5px;
     top: 5px;
     background-color: #373737;
 
@@ -284,6 +295,7 @@
     -moz-border-radius: 70px;
     -webkit-border-radius: 70px;
     border-radius: 70px;
+    background-image: url(../images/login-bg.png);
 
 }
 

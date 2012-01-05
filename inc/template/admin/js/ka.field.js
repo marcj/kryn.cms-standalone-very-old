@@ -6,6 +6,8 @@ ka.field = new Class({
 
     },
 
+    handleChildsMySelf: false, //defines whether this object handles his child visibility itself
+
     field: {},
     depends: {},
     childContainer: false,
@@ -248,6 +250,9 @@ ka.field = new Class({
             case 'number':
                 this.renderNumber();
                 break;
+            case 'childrenswitcher':
+                this.renderChildrenSwitcher();
+                break;
             case 'window_list':
                 this.renderWindowList();
                 break;
@@ -264,6 +269,52 @@ ka.field = new Class({
 
             this.input.store('oldClass', this.input.get('class'));
         }
+    },
+
+    renderChildrenSwitcher: function(){
+
+        this.title.empty();
+
+        var a = new Element('a', {
+            text: this.field.label,
+            style: 'display: block; padding: 2px; cursor: pointer; position: relative; left: -9px;'
+        }).inject(this.title);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/tree_plus.png',
+            style: 'margin-left: 2px; margin-right: 3px;'
+        }).inject(a, 'top');
+
+        this.value = 0;
+
+        this.getValue = function(){
+            return this.value;
+        }.bind(this);
+
+        this.handleChildsMySelf = true;
+
+        this.setValue = function(pValue){
+            this.value = pValue || 0;
+            if (!this.childContainer) return;
+
+            if (this.value == 0){
+                this.childContainer.setStyle('display', 'none');
+                a.getElement('img').set('src', _path+'inc/template/admin/images/icons/tree_plus.png');
+            } else {
+                this.childContainer.setStyle('display', 'block');
+                a.getElement('img').set('src', _path+'inc/template/admin/images/icons/tree_minus.png');
+            }
+        }.bind(this);
+
+        a.addEvent('click', function(){
+            this.setValue( this.value==0?1:0)
+        }.bind(this));
+
+        //with check-depends we have this.childContainer
+        this.addEvent('check-depends', function(){
+            this.setValue(this.value);
+        }.bind(this));
+
     },
 
     renderLabel: function (pStripHtml) {

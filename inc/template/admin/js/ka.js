@@ -1,7 +1,7 @@
 if (typeof ka == 'undefined') window.ka = {};
 
-ka.clipboard = $H({});
-ka.settings = $H({});
+ka.clipboard = {};
+ka.settings = {};
 
 ka.performance = true;
 ka.streamParams = {};
@@ -1752,7 +1752,7 @@ ka.parse = new Class({
 
                 if (target.get('tag') == 'tr') {
                     var tr = new Element('tr').inject(document.id(obj), 'after');
-                    target = new Element('td', {colspan: 2, style: 'border-bottom: 0px;'}).inject(tr);
+                    target = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
                 }
 
                 var childContainer = new Element('div', {
@@ -1768,24 +1768,27 @@ ka.parse = new Class({
 
                 this.parseLevel(field.depends, childContainer, obj);
 
-                obj.addEvent('check-depends', function () {
+                if (!obj.handleChildsMySelf){
 
-                    Object.each(this.depends, function (sub, subid) {
+                    obj.addEvent('check-depends', function () {
 
-                        if (sub.field.againstField) return;
+                        Object.each(this.depends, function (sub, subid) {
 
-                        if (obj.isHidden()){
-                            sub.hide();
-                            return;
-                        }
+                            if (sub.field.againstField) return;
 
-                        self.setVisibility(this, sub);
+                            if (obj.isHidden()){
+                                sub.hide();
+                                return;
+                            }
 
-                    }.bind(this));
+                            self.setVisibility(this, sub);
 
-                    self.showChildContainer(this);
+                        }.bind(this));
 
-                }.bind(obj));
+                        self.showChildContainer(this);
+
+                    }.bind(obj));
+                }
 
                 obj.fireEvent('check-depends');
             }
@@ -1795,6 +1798,8 @@ ka.parse = new Class({
     },
 
     showChildContainer: function(pObj){
+
+        if (pObj.handleChildsMySelf) return;
 
         if (!pObj.childContainer) return;
 
@@ -1841,7 +1846,10 @@ ka.parse = new Class({
             var c = 'javascript:';
             if (pChild.field.needValue.substr(0,c.length) == c){
 
-
+                var evalString = pChild.field.needValue.substr(c);
+                var value = pField.getValue();
+                var result = eval(evalString);
+                return (result)?true:false;
 
             } else {
                 if (pChild.field.needValue == pField.getValue()) {

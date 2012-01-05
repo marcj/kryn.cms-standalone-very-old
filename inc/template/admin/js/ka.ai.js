@@ -245,8 +245,7 @@ ka.ai.renderLogin = function () {
     }).inject(ka.ai.loginHead);
 
     new Element('img', {
-        src: _path+'inc/template/admin/images/logo.png',
-        width: 250
+        src: _path+'inc/template/admin/images/login-logo.png'
     }).inject(middler);
 
     var middle = new Element('div', {
@@ -278,7 +277,7 @@ ka.ai.renderLogin = function () {
 
     var icon = new Element('div', {
         'class': 'ka-login-icon',
-        html: _('Administration')
+        html: t('Enter credentials')
     }).inject(middle);
     ka.ai.loginIcon = icon;
 
@@ -327,7 +326,7 @@ ka.ai.renderLogin = function () {
     ka.ai.loginLangSelection.inject(form);
     document.id(ka.ai.loginLangSelection).setStyles({
         position: 'absolute',
-        left: 90, top: 90, width: 120
+        left: 94, top: 90, width: 120
     });
 
     ka.ai.loginLangSelection.addEvent('change', function () {

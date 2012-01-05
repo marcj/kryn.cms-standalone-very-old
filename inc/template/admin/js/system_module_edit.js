@@ -1484,7 +1484,7 @@ var admin_system_module_edit = new Class({
 
 
         if (this.lr) this.lr.cancel();
-        this.panes['plugins'].empty();
+        this.panes['objects'].empty();
 
         this.pluginsPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
@@ -1539,29 +1539,113 @@ var admin_system_module_edit = new Class({
 
     },
 
+    openObjectSettings: function(pTr){
+
+        this.dialog = this.win.newDialog('', true);
+
+        this.dialog.setStyles({
+            height: '60%',
+            width: '80%'
+        });
+        this.dialog.center();
+
+        new Element('h3', {
+            'class': 'kryn-headline',
+            style: 'margin-bottom: 5px; font-weight: bold;',
+            text: tc('kaExtensionManager','Settings for object \'%s\'').replace('%s', pTr.retrieve('key').value)
+        }).inject(this.dialog.content)
+
+        var kaFields = {
+            'desc': {
+                label: t('Description')
+            },
+            __info__: {
+                type: 'label',
+                label: t('Define a table or a own object class')
+            },
+            table: {
+                label: t('Table name'),
+                desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.')
+            },
+            'class': {
+                label: t('Class name'),
+                desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
+            },
+            plugins: {
+                label: t('Plugins'),
+                desc: t('Which plugins handles the frontend output of this object? These plugins generates then also the frontend URL. Comma separated.')
+            }
+        }
+
+        var definition = pTr.retrieve('definition');
+
+        var kaParseObj = new ka.parse(this.dialog.content, kaFields, {allTableItems: true}, {win: this.win});
+
+        new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
+
+        new ka.Button(t('Apply')).addEvent('click', function(){
+
+            var values = kaParseObj.getValue();
+            Object.each(values, function(i,k){
+                definition[k] = i;
+            });
+
+            pTr.store('definition', definition);
+
+            this.cancelObjectSettings();
+        }.bind(this)).inject(this.dialog.bottom);
+    },
+
+    cancelObjectSettings: function(){
+        if (this.dialog){
+            this.dialog.close();
+            delete this.dialog;
+        }
+
+    },
+
+    setTableDefinition: function(pTr){
+
+        var definition = pTr.retrieve('definition');
+
+        logger(definition);
+        if (!definition.table){
+            this.win._alert(t('This object does not have configured a table under his settings.'));
+            return;
+        }
+
+    },
+
     addObject: function(pDefinition, pKey){
 
 
         var tr = new Element('tr', {
-            'class': 'plugin'
+            'class': 'object'
         }).inject(this.objectTBody);
+
+        tr.store('definition', pDefinition);
 
         var leftTd = new Element('td').inject(tr);
         var rightTd = new Element('td').inject(tr);
         var right2Td = new Element('td').inject(tr);
         var actionTd = new Element('td').inject(tr);
 
-
         var tr2 = new Element('tr').inject(this.objectTBody);
         var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
 
-        new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(leftTd);
+        var iKey = new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(leftTd);
 
         new Element('input', {'class': 'text', style: 'width: 250px;', value:pDefinition?pDefinition['label']:''}).inject(rightTd);
 
+        tr.store('key', iKey);
 
-        new ka.Button(t('Properties')).inject(actionTd);
-        new ka.Button(t('Generate table')).inject(actionTd);
+        new ka.Button(t('Properties'))
+        .addEvent('click', this.openObjectSettings.bind(this,tr))
+        .inject(actionTd);
+
+        new ka.Button(t('Set table definition'))
+        .addEvent('click', this.setTableDefinition.bind(this,tr))
+        .inject(actionTd);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
