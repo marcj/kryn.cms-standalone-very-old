@@ -17,7 +17,7 @@
 .ka-login-middle {
     font-family: Verdana, sans;
     margin: auto;
-    width: 437px;
+    width: 400px;
     height: 185px;
     margin-top: 200px;
     text-align: left;
@@ -34,7 +34,7 @@
 .ka-loginHead-middler img {
     position: absolute;
     top: 25px;
-    right: -350px;
+    right: -310px;
 }
 
 .ka-login {
