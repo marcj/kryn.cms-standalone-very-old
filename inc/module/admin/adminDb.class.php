@@ -92,9 +92,6 @@ class adminDb {
         foreach ($db as $tableName => $tableFields) {
             $tableName = strtolower(pfx . $tableName);
 
-            if ($tableFields['___primary'])
-                $tableFields['___primary'] = strtolower($tableFields['___primary']);
-
             if ($tables[$tableName]) {
                 self::_updateTable($tableName, $tableFields);
                 $res .= "Update table <i>$tableName</i>\n";
@@ -103,16 +100,7 @@ class adminDb {
                 $res .= "Create table <i>$tableName</i>\n";
             }
 
-            //check primary key bundle
-            if ($tableFields['___primary']){
-
-                $primName = preg_replace('/\W/', '-', $tableFields['___primary']);
-                dbExec('ALTER TABLE '.$tableName.' ADD CONSTRAINT '.$primName.' PRIMARY KEY ('.$tableFields['___primary'].')');
-
-            }
-
             //check index bundles
-
             if ($tableFields['___index']){
                 foreach ($tableFields['___index'] as $indexBundle){
                     $indexName = preg_replace('/\W/', '-', $indexBundle);
@@ -137,13 +125,8 @@ class adminDb {
         $column = array();
         $columns = database::getColumns($pTable);
 
-        $indexe = array();
-        if ($pFields['___primary'])
-            $indexe = explode(',', $pFields['___primary']);
-
         foreach ($pFields as $fName => $fOptions) {
 
-            if ($fName == '___primary') continue;
             if ($fName == '___index') continue;
 
             if (!array_key_exists($fName, $columns)) {
@@ -196,16 +179,11 @@ class adminDb {
 
         $primaries = '';
 
-        $indexe = array();
-        if ($pFields['___primary'])
-            $indexe = explode(',', $pFields['___primary']);
-
         foreach ($pFields as $fName => $fOptions) {
 
-            if ($fName == '___primary') continue;
             if ($fName == '___index') continue;
 
-            $sql .= self::addColumn($pTable, $fName, $fOptions, 1, in_array($fName, $indexe)) . ", \n";
+            $sql .= self::addColumn($pTable, $fName, $fOptions, 1) . ", \n";
 
             if ($fOptions[2] == "DB_PRIMARY")
                 $primaries .= '' . $fName . ',';
@@ -267,7 +245,7 @@ class adminDb {
 
     }
 
-    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false, $pIsIn___Primary = false) {
+    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false) {
 
         /*
         * $pMode
@@ -348,7 +326,7 @@ class adminDb {
         if ($unsigned)
             $sql .= ' UNSIGNED ';
 
-        if ($pFieldOptions[2] == "DB_PRIMARY" || $pIsIn___Primary)
+        if ($pFieldOptions[2] == "DB_PRIMARY")
             $sql .= 'NOT NULL ';
         else
             $sql .= 'NULL ';
