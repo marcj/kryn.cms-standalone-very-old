@@ -380,7 +380,7 @@ ka.ai.renderLogin = function () {
 
 ka.ai.reloadLogin = function () {
     ka.ai.loginLabels.set('html', _('Username')+':<br />'+_('Password')+':');
-    ka.ai.loginIcon.set('html', _('Administration'));
+    ka.ai.loginIcon.set('html',  t('Enter credentials'));
 }
 
 ka.ai.doLogin = function () {
