@@ -9,8 +9,12 @@
 
 }
 .ka-login-bg-pattern,
+.ka-login-spot-green,
+.ka-login-spot-red,
+.ka-login-spot-blue,
+.ka-login-bg-butterfly1,
 .ka-login-bg-blue,
-.ka-login-bg-red,
+.ka-login-bg-butterflysmall1,
 .ka-login-bg-green {
     position: absolute;
     left: 0px;
@@ -20,26 +24,50 @@
 }
 
 .ka-login-bg-pattern {
-    background-image: url(../images/login-pattern.png);
+    background-image: url(../images/login-background.gif);
+}
+
+.ka-login-bg-butterfly1 {
+    background-image: url(../images/login-butterflybig-1.png);
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    bottom: -23%;
+    left: -15%;
+}
+
+.ka-login-bg-butterflysmall1 {
+    background-image: url(../images/login-butterflysmall-1.png);
+    background-position: center 130px;
+    background-repeat: no-repeat;
 }
 
 .ka-login-bg-blue {
-    background-image: url(../images/login-bg.png);
+    background-image: url(../images/login-bg-blue.png);
     background-repeat: no-repeat;
+    background-position: right top;
+}
+
+.ka-login-spot-blue {
+    background-image: url(../images/login-spot-blue.png);
+    background-repeat: no-repeat;
+    top: -10%;
     background-position: center top;
 }
 
-.ka-login-bg-red {
-    background-image: url(../images/login-bg-red.png);
+.ka-login-spot-red {
+    background-image: url(../images/login-spot-red.png);
     background-repeat: no-repeat;
+    top: -10%;
     background-position: center top;
 }
 
-.ka-login-bg-green {
-    background-image: url(../images/login-bg-green.png);
+.ka-login-spot-green {
+    background-image: url(../images/login-spot-green.png);
     background-repeat: no-repeat;
+    top: -10%;
     background-position: center top;
 }
+
 
 .ka-loginHead-middler {
     width: 50px;

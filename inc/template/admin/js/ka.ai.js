@@ -237,22 +237,36 @@ ka.ai.renderLogin = function () {
     }).inject(document.body);
 
     new Element('div', {
+        'class': 'ka-login-bg-pattern'
+    }).inject(ka.ai.login);
+
+    new Element('div', {
+        'class': 'ka-login-bg-butterfly1'
+    }).inject(ka.ai.login);
+
+    new Element('div', {
+        'class': 'ka-login-bg-butterflysmall1'
+    }).inject(ka.ai.login);
+
+
+    new Element('div', {
         'class': 'ka-login-bg-blue'
     }).inject(ka.ai.login);
 
+    new Element('div', {
+        'class': 'ka-login-spot-blue'
+    }).inject(ka.ai.login);
+
+
     ka.ai.loginBgRed = new Element('div', {
-        'class': 'ka-login-bg-red'
+        'class': 'ka-login-spot-red'
     }).inject(ka.ai.login);
     ka.ai.loginBgRed.setStyle('opacity', 0);
 
     ka.ai.loginBgGreen = new Element('div', {
-        'class': 'ka-login-bg-green'
+        'class': 'ka-login-spot-green'
     }).inject(ka.ai.login);
     ka.ai.loginBgGreen.setStyle('opacity', 0);
-
-    new Element('div', {
-        'class': 'ka-login-bg-pattern'
-    }).inject(ka.ai.login);
 
     var middle = new Element('div', {
         'class': 'ka-login-middle'
@@ -266,8 +280,8 @@ ka.ai.renderLogin = function () {
         src: _path+'inc/template/admin/images/login-logo.png'
     }).inject(middle);
 
-    new Asset.image(_path+'inc/template/admin/images/login-bg-green.png');
-    new Asset.image(_path+'inc/template/admin/images/login-bg-red.png');
+    new Asset.image(_path+'inc/template/admin/images/login-spot-green.png');
+    new Asset.image(_path+'inc/template/admin/images/login-spot-red.png');
 
     ka.ai.loginMiddleBg = new Element('div', {
         'class': 'ka-login-middleBg'
