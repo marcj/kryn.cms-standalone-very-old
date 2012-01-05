@@ -236,23 +236,38 @@ ka.ai.renderLogin = function () {
         'class': 'ka-login'
     }).inject(document.body);
 
-    ka.ai.loginHead = new Element('div', {
-        'class': 'ka-loginHead'
+    new Element('div', {
+        'class': 'ka-login-bg-blue'
     }).inject(ka.ai.login);
 
-    var middler = new Element('div', {
-        'class': 'ka-loginHead-middler'
-    }).inject(ka.ai.loginHead);
+    ka.ai.loginBgRed = new Element('div', {
+        'class': 'ka-login-bg-red'
+    }).inject(ka.ai.login);
+    ka.ai.loginBgRed.setStyle('opacity', 0);
 
-    new Element('img', {
-        src: _path+'inc/template/admin/images/login-logo.png'
-    }).inject(middler);
+    ka.ai.loginBgGreen = new Element('div', {
+        'class': 'ka-login-bg-green'
+    }).inject(ka.ai.login);
+    ka.ai.loginBgGreen.setStyle('opacity', 0);
+
+    new Element('div', {
+        'class': 'ka-login-bg-pattern'
+    }).inject(ka.ai.login);
 
     var middle = new Element('div', {
         'class': 'ka-login-middle'
     }).inject(ka.ai.login);
     ka.ai.middle = middle;
+
     ka.ai.middle.set('tween', {tranition: Fx.Transitions.Cubic.easeOut});
+
+    new Element('img', {
+        'class': 'ka-login-logo',
+        src: _path+'inc/template/admin/images/login-logo.png'
+    }).inject(middle);
+
+    new Asset.image(_path+'inc/template/admin/images/login-bg-green.png');
+    new Asset.image(_path+'inc/template/admin/images/login-bg-red.png');
 
     ka.ai.loginMiddleBg = new Element('div', {
         'class': 'ka-login-middleBg'
@@ -269,28 +284,25 @@ ka.ai.renderLogin = function () {
         }).inject(middle);
     ka.ai.loginForm = form;
 
-
-    ka.ai.loginLabels = new Element('div', {
-        'class': 'ka-login-labels',
-        html: _('Username')+':<br />'+_('Password')+':'
-    }).inject( form );
-
-    var icon = new Element('div', {
-        'class': 'ka-login-icon',
-        html: t('Enter credentials')
-    }).inject(middle);
-    ka.ai.loginIcon = icon;
-
     ka.ai.loginName = new Element('input', {
         name: 'loginName',
+        value: t('Username'),
         'class': 'ka-login-input-username',
         type: 'text'
-    }).addEvent('keyup',
-        function (e) {
-            if (e.key == 'enter') {
-                ka.ai.doLogin();
-            }
-        }).inject(form);
+    }).addEvent('focus',function (e) {
+        if (this.value == t('Username'))
+            this.value = '';
+    }).addEvent('blur',function (e) {
+        if (this.value == '')
+                this.value = t('Username');
+    })
+    .addEvent('keyup',function (e) {
+        if (e.key == 'enter') {
+            ka.ai.doLogin();
+        }
+    }).inject(form);
+
+    ka.ai.loginName.store('value', t('Username'));
 
     ka.ai.loginPw = new Element('input', {
         name: 'loginPw',
@@ -303,11 +315,6 @@ ka.ai.renderLogin = function () {
             }
         }).inject(form);
 
-    ka.ai.loginCircleBg = new Element('div', {
-        'class': 'ka-login-circlebtnbrd'
-    }).inject(form);
-
-
     ka.ai.loginCircleBtn = new Element('div', {
         'class': 'ka-login-circlebtn'
     })
@@ -316,18 +323,12 @@ ka.ai.renderLogin = function () {
     })
     .inject(form);
 
-    new Element('img', {
-        src: _path+'inc/template/admin/images/login-icon.png'
-    }).inject(ka.ai.loginCircleBtn);
-
     ka.ai.loginLangSelection = new ka.Select();
 
     ka.ai.loginLangSelection.chooser.addClass('ka-login-select-dark');
     ka.ai.loginLangSelection.inject(form);
-    document.id(ka.ai.loginLangSelection).setStyles({
-        position: 'absolute',
-        left: 94, top: 90, width: 120
-    });
+
+    document.id(ka.ai.loginLangSelection).addClass('ka-login-select-login');
 
     ka.ai.loginLangSelection.addEvent('change', function () {
         ka.loadLanguage(ka.ai.loginLangSelection.getValue());
@@ -351,22 +352,21 @@ ka.ai.renderLogin = function () {
     }
 
 
+    ka.ai.loginDesktopMode = new Element('div', {
+        'class': 'ka-login-desktopMode'
+    }).inject(form);
+
+    ka.ai.loginDesktopModeText = new Element('div', {
+        'class': 'ka-login-desktopMode-text',
+        text: t('Desktop mode')
+    }).inject(ka.ai.loginDesktopMode)
+
     ka.ai.loginViewSelection = new ka.Checkbox();
-    document.id(ka.ai.loginViewSelection).inject(form);
-    document.id(ka.ai.loginViewSelection).setStyles({
-        position: 'absolute',
-        left: 240, top: 90
-    });
+    document.id(ka.ai.loginViewSelection).inject(ka.ai.loginDesktopMode);
+    document.id(ka.ai.loginViewSelection).addClass('ka-login-checkbox-login');
 
     //TODO, autodetect here mobile browsers
     ka.ai.loginViewSelection.setValue(1);
-
-    ka.ai.loginDesktopMode = new Element('div', {
-        html: _('Desktop mode'),
-        styles: {
-            position: 'absolute', left: 310, top: 95, color: '#ddd', fontWeight: 'bold', textShadow: '0px 1px 1px #222'
-        }
-    }).inject(form);
 
 
     ka.ai.loginMessage = new Element('div', {
@@ -379,8 +379,10 @@ ka.ai.renderLogin = function () {
 }
 
 ka.ai.reloadLogin = function () {
-    ka.ai.loginLabels.set('html', _('Username')+':<br />'+_('Password')+':');
-    ka.ai.loginIcon.set('html',  t('Enter credentials'));
+    ka.ai.loginDesktopModeText.set('text', t('Desktop mode'));
+    if (ka.ai.loginName.value == '' || ka.ai.loginName.retrieve('value') == ka.ai.loginName.value)
+        ka.ai.loginName.value = t('Username');
+    ka.ai.loginName.store('value', t('Username'));
 }
 
 ka.ai.doLogin = function () {
@@ -424,7 +426,7 @@ ka.ai.logout = function (pScreenlocker) {
     ka.ai.loginMessage.set('html', '');
     ka.ai.login.setStyle('display', 'block');
 
-    [ka.ai.loginLabels, ka.ai.loginIcon, ka.ai.loginDesktopMode, ka.ai.loginMessage,
+    [ka.ai.loginDesktopMode, ka.ai.loginMessage,
         ka.ai.loginViewSelection, ka.ai.loginLangSelection]
         .each(function(i){document.id(i).setStyle('display', 'block')});
 
@@ -438,14 +440,17 @@ ka.ai.logout = function (pScreenlocker) {
 
 ka.ai.loginSuccess = function (pId, pAlready) {
 
+    new Fx.Tween(ka.ai.loginBgGreen, {duration: 500})
+        .start('opacity', 1)
+        .chain(function(){
+            this.start('opacity', 0)
+        });
 
     if (pAlready && window._session.hasBackendAccess == '0') {
         return;
     }
 
     ka.ai.loginName.value = pId.username;
-
-    //ka.ai.loginForm.setStyle('display', 'none');
     window._sid = pId.sessionid;
     window._session.sessionid = pId.sessionid;
 
@@ -471,6 +476,13 @@ ka.ai.loginFailed = function () {
     (function () {
         ka.ai.loginMessage.set('html', '');
     }).delay(3000);
+
+    new Fx.Tween(ka.ai.loginBgRed, {duration: 800})
+        .start('opacity', 1)
+        .chain(function(){
+            (function(){this.start('opacity', 0)}).delay(2000,this)
+        });
+
 }
 
 
@@ -484,7 +496,7 @@ ka.ai.loadBackend = function () {
         document.body.addClass('ka-with-desktop');
     }
 
-    [ka.ai.loginLabels, ka.ai.loginIcon, ka.ai.loginDesktopMode, ka.ai.loginMessage,
+    [ka.ai.loginDesktopMode, ka.ai.loginMessage,
         ka.ai.loginViewSelection, ka.ai.loginLangSelection]
         .each(function(i){document.id(i).setStyle('display', 'none')});
 
@@ -531,7 +543,7 @@ ka.ai.loaderDone = function () {
     }
 
     ka.ai.loginLoadingBarText.set('html', _('Loading done'));
-    ka.ai.loginLoadingBarInside.tween('width', 278);
+    ka.ai.loginLoadingBarInside.tween('width', 294);
     ka.ai.loadDone.delay(800);
 }
 

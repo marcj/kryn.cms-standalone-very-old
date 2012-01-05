@@ -1,27 +1,44 @@
-
-.ka-loginHead {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    height: 560px;
-    text-align: center;
-
-    background-image: url(../images/login-spotlight.png);
-    background-repeat: repeat-x;
-    background-position: center top;
-
-}
-
-
 .ka-login-middle {
     font-family: Verdana, sans;
     margin: auto;
-    width: 400px;
+    width: 325px;
     height: 185px;
     margin-top: 200px;
     text-align: left;
     position: relative;
+
+}
+.ka-login-bg-pattern,
+.ka-login-bg-blue,
+.ka-login-bg-red,
+.ka-login-bg-green {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+}
+
+.ka-login-bg-pattern {
+    background-image: url(../images/login-pattern.png);
+}
+
+.ka-login-bg-blue {
+    background-image: url(../images/login-bg.png);
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+
+.ka-login-bg-red {
+    background-image: url(../images/login-bg-red.png);
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+
+.ka-login-bg-green {
+    background-image: url(../images/login-bg-green.png);
+    background-repeat: no-repeat;
+    background-position: center top;
 }
 
 .ka-loginHead-middler {
@@ -37,6 +54,12 @@
     right: -310px;
 }
 
+.ka-login-logo {
+    position: absolute;
+    top: -170px;
+    left: -100px;
+}
+
 .ka-login {
     position: absolute;
     left: 0px;
@@ -46,7 +69,7 @@
     bottom: 0px;
     /* border-top: 5px solid #f15a29; */
 
-    background-image: url(../images/login-bg.png);
+    background-color: #151717;
 
     text-align: center;
     z-index: 200101;
@@ -75,7 +98,7 @@
 }
 
 .ka-login-icon {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     color: #ddd;
     text-shadow: 0px 1px 1px black;
@@ -103,18 +126,6 @@
     background-color: #f8f8f8;
 }
 
-.ka-login-labels {
-    position: absolute;
-    left: -165px;
-    width: 250px;
-    top: -6px;
-    line-height: 45px;
-    text-align: right;
-    font-size: 13px;
-    color: #b5b5b5;
-    text-shadow: 0px 1px 1px #111;
-}
-
 .ka-ai-loader-txt {
     height: 4px;
     bottom: 88px;
@@ -127,10 +138,105 @@
 .ka-login-middle-form {
     position: absolute;
     left: 9px;
-    top: 65px;
-    width: 413px;
+    top: 0px;
+    width: 325px;
     height: 100px;
-}}
+}
+
+.ka-login-circlebtn {
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    right: 2px;
+    top: 10px;
+    background-image: url(../images/login-button.png);
+}
+
+.ka-login-circlebtn:hover {
+    background-position: left -66px;
+    cursor: pointer;
+}
+
+.ka-login-circlebtn:active {
+    background-position: left -131px;
+    cursor: pointer;
+}
+
+.ka-login-circlebtn img {
+    position: absolute;
+    top: 12px;
+    left: 8px;
+}
+
+body .ka-login .ka-Select-box.ka-login-select-login {
+    left: 0px;
+    width: 276px;
+    top: 105px;
+    height: 25px;
+    color: #222;
+}
+
+body .ka-login .ka-Select-box.ka-login-select-login .ka-Select-box-title {
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 25px;
+}
+
+body .ka-login .ka-Select-box.ka-login-select-login .ka-Select-arrow {
+    top: 6px;
+}
+
+.ka-login-desktopMode {
+    position: absolute;
+    left: 0px;
+    top: 145px;
+    width: 294px;
+    height: 28px;
+    background-position: left -84px;
+    background-image: url(../images/login-input-images.png);
+}
+
+.ka-login-desktopMode-text {
+    position: absolute;
+    left: 8px;
+    font-weight: bold;
+    font-size: 11px;
+    top: 7px;
+}
+
+body .ka-login .ka-login-checkbox-login {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    height: 16px;
+}
+
+body .ka-login .ka-login-checkbox-login .ka-Checkbox-knob {
+    height: 16px;
+}
+
+body .ka-login .ka-login-checkbox-login .ka-Checkbox-text-off,
+body .ka-login .ka-login-checkbox-login .ka-Checkbox-text-on {
+    font-size: 12px;
+    top: 1px;
+}
+
+body .ka-login .ka-login-checkbox-login .ka-Checkbox-text-off {
+    right: 11px;
+}
+
+body .ka-login .ka-login-checkbox-login.ka-Checkbox-on {
+    background: rgb(27,80,111); /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzFiNTA2ZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMzMDc5YTYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top,  rgba(27,80,111,1) 0%, rgba(48,121,166,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(27,80,111,1)), color-stop(100%,rgba(48,121,166,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(27,80,111,1) 0%,rgba(48,121,166,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(27,80,111,1) 0%,rgba(48,121,166,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(27,80,111,1) 0%,rgba(48,121,166,1) 100%); /* IE10+ */
+    background: linear-gradient(top,  rgba(27,80,111,1) 0%,rgba(48,121,166,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1b506f', endColorstr='#3079a6',GradientType=0 ); /* IE6-8 */
+}
 
 .ka-login-middle-form .entries {
     float: left;
@@ -138,47 +244,64 @@
     padding: 0px;
 }
 
+.ka-login-input-passwd {
+    background-image: url(../images/login-input-images.png);
+    background-position: left -42px;
+    top: 46px;
+}
+
+.ka-login-input-username {
+    background-image: url(../images/login-input-images.png);
+    background-position: left top;
+    top: 0px;
+}
+
 .ka-login-input-passwd,
 .ka-login-input-username {
     position: absolute;
 
+    border: 0px;
+    padding: 5px;
+    color: white;
+    font-size: 14px;
+
+    padding-left: 15px;
+    padding-right: 35px;
+
+    font-weight: bold;
+    height: 29px;
+    width: 244px;
+    left: 0px;
+
+    background-color: transparent;
+
+    /*
+    border-bottom: 1px solid #444;
+
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
 
     box-shadow: inset 0 0 5px #181818;
 
-    border: 0px;
-    background-color: #292929;
-    padding: 5px;
-    color: white;
-    font-size: 14px;
-    padding-left: 15px;
-    padding-right: 35px;
-    font-weight: bold;
-    height: 23px;
-    border-bottom: 1px solid #444;
-    width: 228px;
-    left: 95px;
-
     box-shadow: inset 0 0 5px #222;
     border-bottom: 1px solid #2d2d2d;
+    */
+
 }
 
 .ka-ai-loginLoadingBar {
     position: absolute;
-
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
-
     box-shadow: inset 0 0 5px #181818;
-    background-color: #292929;
+    background-color: #222;
     border-bottom: 1px solid #444;
-    height: 78px;
-    top: 1px;
-    left: 95px;
-    width: 278px;
+    height: 84px;
+    top: 0.9px;
+    left: 0px;
+    width: 294px;
     overflow: hidden;
 }
 
@@ -186,7 +309,7 @@
     position: absolute;
     left: 0px;
     top: 1px;
-    height: 77px;
+    height: 82px;
 
     -webkit-border-bottom-left: 5px;
     -webkit-border-top-left: 5px;
@@ -219,92 +342,8 @@
 
 .ka-login-input-passwd:focus,
 .ka-login-input-username:focus {
-    box-shadow: inset 0 0 5px #0e2e44;
 }
 
-.ka-login-circlebtn {
-    position: absolute;
-    right: 13px;
-    top: 13px;
-
-    background: rgb(42,123,172); /* Old browsers */
-    background: -moz-linear-gradient(top,  rgba(42,123,172,1) 0%, rgba(11,63,91,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(42,123,172,1)), color-stop(100%,rgba(11,63,91,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* IE10+ */
-    background: linear-gradient(top,  rgba(42,123,172,1) 0%,rgba(11,63,91,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2a7bac', endColorstr='#0b3f5b',GradientType=0 ); /* IE6-9 */
-
-
-    width: 44px;
-    height: 44px;
-    -moz-border-radius: 44px;
-    -webkit-border-radius: 44px;
-    border-radius: 44px;
-
-    border: 5px solid #292929;
-    box-shadow: inset 0 0 7px #2b77a5;
-}
-
-
-.ka-login-circlebtn img {
-    position: absolute;
-    top: 12px;
-    left: 8px;
-}
-
-
-.ka-login-circlebtn:hover {
-    cursor: pointer;
-
-    background: rgb(36,99,147); /* Old browsers */
-    background: -moz-linear-gradient(top,  rgba(36,99,147,1) 0%, rgba(8,41,65,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(36,99,147,1)), color-stop(100%,rgba(8,41,65,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* IE10+ */
-    background: linear-gradient(top,  rgba(36,99,147,1) 0%,rgba(8,41,65,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#246393', endColorstr='#082941',GradientType=0 ); /* IE6-9 */
-
-    background: rgb(13,66,107); /* Old browsers */
-    background: -moz-linear-gradient(top,  rgba(13,66,107,1) 0%, rgba(31,92,124,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(13,66,107,1)), color-stop(100%,rgba(31,92,124,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* IE10+ */
-    background: linear-gradient(top,  rgba(13,66,107,1) 0%,rgba(31,92,124,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0d426b', endColorstr='#1f5c7c',GradientType=0 ); /* IE6-9 */
-
-}
-
-.ka-login-circlebtn:active {
-
-    box-shadow: inset 0 0 7px #23526e;
-}
-
-.ka-login-circlebtnbrd {
-
-    position: absolute;
-    right: 5px;
-    top: 5px;
-
-    width: 70px;
-    height: 70px;
-    -moz-border-radius: 70px;
-    -webkit-border-radius: 70px;
-    border-radius: 70px;
-    background-image: url(../images/login-bg.png);
-
-}
-
-.ka-login-input-passwd {
-    top: 46px;
-}
-
-.ka-login-input-username {
-    top: 1px;
-}
 
 .ka-login-middle .loginMessage {
     position: absolute;

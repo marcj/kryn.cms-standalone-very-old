@@ -17,8 +17,34 @@ ka.propertyTable = new Class({
         this.container = pContainer;
         this.win = pWin;
 
+        this.header = new Element('div', {
+            style: 'background-color: #d1d1d1; padding: 2px; height: 27px; position: relative; border-bottom: 1px solid silver;'
+        }).inject(this.container);
+
+        this.showDefinitions = new ka.Checkbox(this.header);
+        document.id(this.showDefinitions).setStyles({
+            position: 'absolute',
+            left: 5, top: 3
+        });
+
+        new Element('div', {
+            text: tc('kaPropertyTable', 'Show definitions'),
+            style: 'position: absolute; left: 72px; top: 9px; color: white; font-weight: bold; font-size: 11px;'
+        }).inject(this.header);
+
+        new Element('div', {style: 'clear: both'}).inject(this.header);
+
+        this.showDefinitions.addEvent('change', function(){
+            if (this.showDefinitions.getValue()){
+                this.itemContainer.removeClass('ka-propertyTable-hide-definition')
+            } else {
+                this.itemContainer.addClass('ka-propertyTable-hide-definition')
+            }
+        }.bind(this));
+
         this.itemContainer = new Element('div', {
-            style: 'background-color: #d6d6d6;'
+            style: 'background-color: #d6d6d6;',
+            'class': 'ka-propertyTable-hide-definition'
         }).inject(this.container);
 
         this.footer = new Element('div', {
@@ -169,7 +195,8 @@ ka.propertyTable = new Class({
 
         new Element('div', {
             text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
-            style: 'color: gray'
+            style: 'color: gray',
+            'class': 'ka-propertyTable-key-info'
         }).inject(header);
 
         this.kaFields = {
@@ -320,7 +347,7 @@ ka.propertyTable = new Class({
             }
         };
 
-        var main = new Element('div',{style: 'background-color: #e5e5e5'}).inject(div);
+        var main = new Element('div',{'class': 'ka-propertyTable-definition',style: 'background-color: #e5e5e5'}).inject(div);
 
         var table = new Element('table', {
             width: '100%'
@@ -354,7 +381,6 @@ ka.propertyTable = new Class({
                     pDefinition[valueKey] = JSON.encode(value);
 
             }.bind(this));
-
 
             kaParse.setValue(pDefinition);
         }

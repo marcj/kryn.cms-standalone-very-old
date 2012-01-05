@@ -125,6 +125,8 @@ class adminDb {
         $column = array();
         $columns = database::getColumns($pTable);
 
+        $primaries = array();
+
         foreach ($pFields as $fName => $fOptions) {
 
             if ($fName == '___index') continue;
@@ -159,8 +161,19 @@ class adminDb {
                     }
                     dbExec($sql);
                 }
+
+                if ($fOptions[2] == 'DB_PRIMARY')
+                    $primaries[] = $fName;
+
             }
         }
+
+        //check primary index
+        if (count($primaries) > 0){
+            $name = implode(',', $primaries);
+            dbExec('CREATE INDEX ' . preg_replace('/\W/', '_', $name) . ' ON ' . $pTable . ' (' . $name . ')');
+        }
+
 
         foreach ($columns as $fieldName => &$field) {
             if (!array_key_exists($fieldName, $pFields)) {
@@ -170,7 +183,7 @@ class adminDb {
             }
         }
 
-        self::updateIndexes($pTable, $pFields, false); //delete all and create new
+        self::updateIndexes($pTable, $pFields, true); //delete all and create new
     }
 
     public static function _installTable($pTable, $pFields) {

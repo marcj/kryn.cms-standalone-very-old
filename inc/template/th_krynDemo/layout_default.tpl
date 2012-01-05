@@ -35,6 +35,7 @@
                 <td valign="top">
                     <div class="content-main">
                         <div class="content-main-padding">
+
                             {navigation id="history" template="th_krynDemo/navigation_breadcrumb.tpl"}
 
                                 <hr />

@@ -1546,7 +1546,17 @@ var admin_system_module_edit = new Class({
             },
             table: {
                 label: t('Table name'),
-                desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.')
+                desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
+                depends: {
+                    table_key: {
+                        needValue: function(n){if(n!='')return true;else return false;},
+                        label: t('Table primary key')
+                    },
+                    table_label: {
+                        needValue: function(n){if(n!='')return true;else return false;},
+                        label: t('Table label key')
+                    },
+                }
             },
             'class': {
                 label: t('Class name'),
@@ -1575,6 +1585,10 @@ var admin_system_module_edit = new Class({
 
             this.cancelObjectSettings();
         }.bind(this)).inject(this.dialog.bottom);
+
+        if (definition)
+            kaParseObj.setValue(definition);
+
     },
 
     cancelObjectSettings: function(){
@@ -1589,7 +1603,6 @@ var admin_system_module_edit = new Class({
 
         var definition = pTr.retrieve('definition');
 
-        logger(definition);
         if (!definition.table){
             this.win._alert(t('This object does not have configured a table under his settings.'));
             return;

@@ -487,22 +487,10 @@
         "-",
         false
       ],
-      "template": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
       "layout": [
         "varchar",
         "64",
         "-",
-        false
-      ],
-      "lang": [
-        "varchar",
-        "64",
-        "DB_INDEX",
         false
       ],
       "sort": [
@@ -1279,16 +1267,10 @@
         "DB_PRIMARY",
         true
       ],
-      "fs_class": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
       "path": [
         "varchar",
         "255",
-        "-",
+        "DB_INDEX",
         false
       ],
       "contenthash": [

@@ -10,12 +10,12 @@ ka.Checkbox = new Class({
 
         new Element('div', {
             text: 'l',
-            style: 'font-weight: bold; color: white; position: absolute; left: 13px; font-size: 15px; top: 2px;'
+            'class': 'ka-Checkbox-text-on'
         }).inject(this.box);
 
         new Element('div', {
             text: 'O',
-            style: 'font-weight: bold; color: #f4f4f4; position: absolute; right: 9px; font-size: 15px; top: 2px;'
+            'class': 'ka-Checkbox-text-off'
         }).inject(this.box);
 
         var knob = new Element('div', {
