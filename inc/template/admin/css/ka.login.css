@@ -68,6 +68,38 @@
     background-position: center top;
 }
 
+.ka-login-barrierTape {
+    background-image: url(../images/login-barrier-tape.gif);
+    background-repeat: repeat-x;
+    top: 395px;
+    left: -100px;
+    right: -100px;
+    height: 200px;
+    position: absolute;
+    text-align: center;
+}
+
+.ka-login-barrierTapeFullBlockOverlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: white;
+}
+
+.ka-login-barrierTape div {
+    margin: auto;
+    width: 700px;
+    height: 60px;
+    font-size: 14px;
+    margin-top: 52px;
+    border: 2px solid #f8d800;
+    background-color: black;
+    color: #f8d800;
+    font-weight: bold;
+}
+
 
 .ka-loginHead-middler {
     width: 50px;
@@ -441,4 +473,18 @@ body .ka-login .ka-login-checkbox-login.ka-Checkbox-on {
     left: 0px;
     background-color: #888;
     z-index: 131313124;
+}
+
+
+
+.ka-login-barrierTape-fullblock {
+    top: 225px;
+    -ms-transform:rotate(350deg);
+    -o-transform:rotate(350deg);
+    -webkit-transform:rotate(350deg);
+    -moz-transform:rotate(350deg);
+    transform: rotate(350deg);
+    filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.984807753012208, M12=-0.173648177666931,M21=0.173648177666931, M22=0.984807753012208, sizingMethod='auto expand');
+    -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(SizingMethod='auto expand', M11=0.984807753012208, M12=-0.173648177666931,M21=0.173648177666931, M22=0.984807753012208)";
+
 }

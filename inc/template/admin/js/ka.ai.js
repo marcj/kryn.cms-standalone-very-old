@@ -283,10 +283,6 @@ ka.ai.renderLogin = function () {
     new Asset.image(_path+'inc/template/admin/images/login-spot-green.png');
     new Asset.image(_path+'inc/template/admin/images/login-spot-red.png');
 
-    ka.ai.loginMiddleBg = new Element('div', {
-        'class': 'ka-login-middleBg'
-    }).inject(ka.ai.middle);
-
     var form = new Element('form', {
         id: 'loginForm',
         'class': 'ka-login-middle-form',
@@ -378,6 +374,44 @@ ka.ai.renderLogin = function () {
     ka.ai.loginMessage = new Element('div', {
         'class': 'loginMessage'
     }).inject(middle);
+
+    var combatMsg = false;
+    var fullBlock = Browser.ie && Browser.version == '6.0';
+
+    //check browser compatibility
+    //if (!Browser.Plugins.Flash.version){
+        //todo
+    //}
+
+    if (combatMsg || fullBlock){
+        ka.ai.loginBarrierTape = new Element('div', {
+            'class': 'ka-login-barrierTape'
+        }).inject(ka.ai.login);
+
+        ka.ai.loginBarrierTapeContainer = new Element('div').inject(ka.ai.loginBarrierTape);
+        var table = new Element('table', {
+            width: '100%'
+        }).inject(ka.ai.loginBarrierTapeContainer);
+        var tbody = new Element('tbody').inject(table);
+        var tr = new Element('tr').inject(tbody);
+        ka.ai.loginBarrierTapeText = new Element('td', {
+            valign: 'middle',
+            text: combatMsg,
+            style: 'height: 55px;'
+        }).inject(tr);
+    }
+
+    //if IE6
+    if (fullBlock){
+        ka.ai.loginBarrierTape.addClass('ka-login-barrierTape-fullblock');
+        ka.ai.loginBarrierTapeText.set('text', t('Holy crap. You really use Internet Explorer 6? You can not enjoy the future with this - stay out.'));
+        new Element('div', {
+            'class': 'ka-login-barrierTapeFullBlockOverlay',
+            styles: {
+                opacity: 0.01
+            }
+        }).inject(ka.ai.login)
+    }
 
 
     if (!Cookie.read('kryn_language')) {
