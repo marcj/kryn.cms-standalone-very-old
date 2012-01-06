@@ -357,14 +357,6 @@ ka.ai.renderLogin = function () {
 
     ka.ai.loginLangSelection.setValue(window._session.lang);
 
-    if (!Cookie.read('kryn_language')) {
-        ka.ai.loginLangSelection.setValue(navigator.browserLanguage || navigator.language);
-        if (ka.ai.loginLangSelection.getValue() != window._session.lang) {
-            ka.loadLanguage(ka.ai.loginLangSelection.getValue());
-            ka.ai.reloadLogin();
-        }
-    }
-
 
     ka.ai.loginDesktopMode = new Element('div', {
         'class': 'ka-login-desktopMode'
@@ -386,6 +378,16 @@ ka.ai.renderLogin = function () {
     ka.ai.loginMessage = new Element('div', {
         'class': 'loginMessage'
     }).inject(middle);
+
+
+    if (!Cookie.read('kryn_language')) {
+        ka.ai.loginLangSelection.setValue(navigator.browserLanguage || navigator.language);
+        if (ka.ai.loginLangSelection.getValue() != window._session.lang) {
+            ka.loadLanguage(ka.ai.loginLangSelection.getValue());
+            ka.ai.reloadLogin();
+            return;
+        }
+    }
 
     ka.loadLanguage(ka.ai.loginLangSelection.getValue());
 }

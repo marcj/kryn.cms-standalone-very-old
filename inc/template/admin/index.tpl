@@ -24,8 +24,8 @@
 
         <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/js/codemirror.js"></script>
 
-        <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc={$time}" ></script>
-        <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js" ></script>
+        <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc=1.0" ></script>
+        <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js?nc=1.0" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Button.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Select.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Checkbox.js" ></script>
