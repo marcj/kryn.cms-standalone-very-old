@@ -66,7 +66,7 @@
 
     </head>
     <body>
-        <div class="border" id="border">
+        <div class="border" style="display: none" id="border">
             <div class="header gradient" id="header">
                 <div class="header-inner">
                     <div class="headRight">

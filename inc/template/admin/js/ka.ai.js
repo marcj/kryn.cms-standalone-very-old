@@ -454,6 +454,8 @@ ka.ai.logout = function (pScreenlocker) {
 
 ka.ai.loginSuccess = function (pId, pAlready) {
 
+    $('border').setStyle('display', 'block');
+
     var b = new Fx.Tween(ka.ai.loginBgBlue, {duration: 500});
     var g = new Fx.Tween(ka.ai.loginBgGreen, {duration: 500});
 
