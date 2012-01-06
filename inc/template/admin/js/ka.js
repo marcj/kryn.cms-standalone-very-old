@@ -1066,7 +1066,7 @@ ka.renderAdminLink = function () {
                 style: 'display: none'
             }).inject($('border'));
 
-            ka.makeMenu(ka.additionalMainMenu, ka.additionalMainMenuContainer, true, {y: 30, x: -1});
+            ka.makeMenu(ka.additionalMainMenu, ka.additionalMainMenuContainer, true, {y: 26, x: -1});
         }
 
         ka.removedMainMenuItems.each(function (menuitem) {
