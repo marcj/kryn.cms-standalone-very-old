@@ -459,7 +459,7 @@ ka.ai.loginSuccess = function (pId, pAlready) {
         this.start('opacity', 0)
     });
     b.start('opacity', 0).chain(function(){
-        this.start('opacity', 0)
+        this.start('opacity', 1)
     });
 
 
