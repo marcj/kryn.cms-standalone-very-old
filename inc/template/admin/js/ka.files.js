@@ -1849,17 +1849,17 @@ ka.files = new Class({
 
                     var fn = 'kaFilesUpdatePreviewPosition'+(new Date().getTime())+(Math.random()).toString().substr(2);
 
-                    window[fn] = function () {
-                        logger(this.previewDiv);
-                        logger(img);
+                    //window[fn] = function () {
+                    //    logger(this.previewDiv);
+                    //    logger(img);
                         //this.previewDiv.position({relativeTo: $('border')});
-                    }.bind(this);
+                    //}.bind(this);
 
                     if (this.previewDiv.getElement('img'))
                         this.previewDiv.getElement('img').destroy();
 
                     img = new Element('img', {
-                        onLoad: fn+'()',
+                        //onLoad: fn+'()',
                         src: image
                     }).inject(this.previewDiv);
 
