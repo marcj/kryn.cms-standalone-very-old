@@ -110,14 +110,14 @@
     -moz-border-radius: 7px;
     -webkit-border-radius: 7px;
     border-radius: 7px;
-    height: 400px;
+    padding: 15px;
 }
 
 
 .admin-files-preview img {
     margin-top: 10px;
-    max-height: 380px;
-    max-width: 596px;    
+    max-height: 100%;
+    max-width: 100%;
 }
 
 .admin-files-infos {

@@ -1623,6 +1623,8 @@ ka.files = new Class({
             delete this.lastClickedItem;
         }
 
+        this.updatePreview();
+
         if (item) {
 
             if (file && !file.magic && file.path != '/trash' && file.path.substr(0,7) != '/trash/') {
@@ -1643,8 +1645,6 @@ ka.files = new Class({
                 this.startSelector(pEvent);
             }
         }
-
-        this.updatePreview();
 
     },
 
@@ -1838,6 +1838,7 @@ ka.files = new Class({
         if (!this.previewDiv) return;
 
         var file = this.lastClickedItem.retrieve('file'), image;
+        var img;
 
         if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
             image = _path + 'admin/files/preview?' + Object.toQueryString({path: file.path, mtime:file.mtime});
@@ -1849,20 +1850,28 @@ ka.files = new Class({
                     var fn = 'kaFilesUpdatePreviewPosition'+(new Date().getTime())+(Math.random()).toString().substr(2);
 
                     window[fn] = function () {
-                        img.position({relativeTo: this.previewDiv});
+                        logger(this.previewDiv);
+                        logger(img);
+                        //this.previewDiv.position({relativeTo: $('border')});
                     }.bind(this);
 
-                    this.previewDiv.empty();
-                    var img = new Element('img', {
+                    if (this.previewDiv.getElement('img'))
+                        this.previewDiv.getElement('img').destroy();
+
+                    img = new Element('img', {
                         onLoad: fn+'()',
-                        src: image,
-                        style: 'position: relative; align: center;'
+                        src: image
                     }).inject(this.previewDiv);
+
+                    //img.position({relativeTo: this.previewDiv});
 
                 }.bind(this)
             });
         } else {
-            this.previewDiv.empty();
+
+            if (this.previewDiv.getElement('img'))
+                this.previewDiv.getElement('img').destroy();
+
             if (file.type == 'dir')
                 if (file.magic)
                     new Element('img', {src: _path+'inc/template/admin/images/file-icon-magic.png'}).inject(this.previewDiv);
@@ -1922,7 +1931,23 @@ ka.files = new Class({
                 'class': 'admin-files-preview'
             }).inject(document.id('desktop'));
 
-            this.previewDiv.makeDraggable();
+            this.previewDivResizer = new Element('div', {
+                style: 'position: absolute;right: -1px;bottom: -1px;width: 9px;'+
+                       'height: 9px; opacity: 0.7; background-image: url('+_path+'inc/template/admin/images/win-bottom-resize.png);'+
+                       'cursor: se-resize; background-position: 0px 11px;'
+            }).inject(this.previewDiv);
+
+            this.previewDivMover = new Element('div',{
+                style: 'position: absolute; left: 5px; top: 5px; right: 5px; bottom: 5px;'
+            }).inject(this.previewDiv);
+
+            this.previewDiv.makeDraggable({
+                handle: this.previewDivMover
+            });
+
+            this.previewDiv.makeResizable({
+                handle: this.previewDivResizer
+            });
 
             this.previewDiv.addEvent('mouseup', function () {
                 this.inputTrigger.focus();
