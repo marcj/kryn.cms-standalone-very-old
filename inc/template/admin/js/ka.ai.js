@@ -253,7 +253,7 @@ ka.ai.renderLogin = function () {
         'class': 'ka-login-bg-blue'
     }).inject(ka.ai.login);
 
-    new Element('div', {
+    ka.ai.loginBgBlue = new Element('div', {
         'class': 'ka-login-spot-blue'
     }).inject(ka.ai.login);
 
@@ -452,11 +452,16 @@ ka.ai.logout = function (pScreenlocker) {
 
 ka.ai.loginSuccess = function (pId, pAlready) {
 
-    new Fx.Tween(ka.ai.loginBgGreen, {duration: 500})
-        .start('opacity', 1)
-        .chain(function(){
-            this.start('opacity', 0)
-        });
+    var b = new Fx.Tween(ka.ai.loginBgBlue, {duration: 500});
+    var g = new Fx.Tween(ka.ai.loginBgGreen, {duration: 500});
+
+    g.start('opacity', 1).chain(function(){
+        this.start('opacity', 0)
+    });
+    b.start('opacity', 0).chain(function(){
+        this.start('opacity', 0)
+    });
+
 
     if (pAlready && window._session.hasBackendAccess == '0') {
         return;
@@ -489,11 +494,16 @@ ka.ai.loginFailed = function () {
         ka.ai.loginMessage.set('html', '');
     }).delay(3000);
 
-    new Fx.Tween(ka.ai.loginBgRed, {duration: 800})
-        .start('opacity', 1)
-        .chain(function(){
-            (function(){this.start('opacity', 0)}).delay(2000,this)
-        });
+
+    var b = new Fx.Tween(ka.ai.loginBgBlue, {duration: 800});
+    var r = new Fx.Tween(ka.ai.loginBgRed, {duration: 800});
+
+    r.start('opacity', 1).chain(function(){
+        (function(){this.start('opacity', 0)}).delay(2000,this)
+    });
+    b.start('opacity', 0).chain(function(){
+        (function(){this.start('opacity', 1)}).delay(2000,this)
+    });
 
 }
 
