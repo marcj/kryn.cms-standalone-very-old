@@ -62,6 +62,9 @@ ka.pagesTree = new Class({
 
         this.container.addEvent('scroll', this.setDomainPosition.bind(this));
 
+        if (this.options.win)
+            this.options.win.addEvent('resize', this.setDomainPosition.bind(this));
+
         this.panePagesTBody = new Element('tbody').inject(this.panePagesTable);
         this.panePagesTr = new Element('tr').inject(this.panePagesTBody);
         this.panePagesTd = new Element('td').inject(this.panePagesTr);
@@ -126,7 +129,9 @@ ka.pagesTree = new Class({
         var size = this.container.getSize();
         var nLeft = this.container.scrollLeft;
         var nWidth = size.x;
-        if (this.container.getSize().x != this.container.getScrollSize().x) {
+
+        if (this.container.getSize().y < this.container.getScrollSize().y) {
+            //we have a scrollbar on the right side
             nWidth -= 15;
         }
         var nTop = 0;
@@ -526,6 +531,7 @@ ka.pagesTree = new Class({
         pA.childContainer.setStyle('display', '');
         pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_plus.png');
         this.opens[ id ] = false;
+        this.setDomainPosition();
 
         this.saveOpens();
     },
@@ -543,6 +549,7 @@ ka.pagesTree = new Class({
         } else {
             this.loadChilds(pA, true);
         }
+        this.setDomainPosition();
 
     },
 
@@ -599,6 +606,7 @@ ka.pagesTree = new Class({
                 this.checkDoneState();
 
                 this.fireEvent('childsLoaded', [item, pA]);
+                this.setDomainPosition();
 
             }.bind(this)}).get({ page_rsn: item.rsn, viewAllPages: viewAllPages });
 
