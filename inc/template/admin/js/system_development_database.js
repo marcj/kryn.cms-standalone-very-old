@@ -1,4 +1,4 @@
-var admin_system_tools_database = new Class({
+var admin_system_development_database = new Class({
 
     initialize: function (pWin) {
 

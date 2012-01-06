@@ -521,10 +521,12 @@ ka.kwindow = new Class({
             this.border.setStyles(this.oldDimension);
             this.maximizer.set('src', _path + 'inc/template/admin/images/win-top-bar-maximize.png');
             this.maximized = false;
+            this.border.removeClass('kwindow-border-maximized');
             this.resizeBottomRight.setStyle('display', 'block');
             this.bottom.set('class', 'kwindow-win-bottom');
         } else {
             this.borderDragger.detach();
+            this.border.addClass('kwindow-border-maximized');
 
             this.oldDimension = this.border.getCoordinates(this.border.getParent());
             this.border.setStyles({
@@ -730,7 +732,7 @@ ka.kwindow = new Class({
                     return;
                 }
                 if (!res || res.error == 'param_failed') {
-                    alert(_('Admin-Path not found') + ': ' + _this.module + ' => ' + _this.code);
+                    alert(_('Admin entry point not found') + ': ' + _this.module + ' => ' + _this.code);
                     _this.close(true);
                     return;
                 }

@@ -5,8 +5,8 @@
 .ka-pageTree-domain {
     position: absolute;
     left: 0px;
-    right: 0px;
     top: 0px;
+    width: 100%;
     background-color: #f3f3f3;
 }
 

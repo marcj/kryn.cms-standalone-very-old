@@ -6,8 +6,8 @@
     "de": "Ein Blog und News-System mit Kommentarfunktion und dem Grundsatz an Backendfunktionalitaet"
   },
   "title": {
-    "en": "News and Blogs",
-    "de": "News und Blogs"
+    "en": "Articles and Blogs",
+    "de": "Artikel und Blogs"
   },
   "category": "1",
   "community": "1",
@@ -22,7 +22,7 @@
   },
   "admin": {
     "news": {
-      "title": "[[News]]",
+      "title": "[[Articles]]",
       "type": "combine",
       "class": "publicationNewsList",
       "isLink": true,
@@ -59,7 +59,7 @@
               "title": "[[Add]]",
               "type": "add",
               "class": "publicationNewsCatsAdd",
-              "isLink": true,
+              "isLink": false,
               "multi": true,
               "childs": [
                 
@@ -69,7 +69,7 @@
               "title": "[[Edit]]",
               "type": "edit",
               "class": "publicationNewsCatsEdit",
-              "isLink": true,
+              "isLink": false,
               "multi": true,
               "childs": [
                 
@@ -88,7 +88,7 @@
               "title": "[[Edit]]",
               "type": "edit",
               "class": "publicationNewsCommentsEdit",
-              "isLink": true,
+              "isLink": false,
               "multi": true,
               "childs": [
                 
@@ -98,7 +98,7 @@
               "title": "[[Add]]",
               "type": "add",
               "class": "publicationNewsCommentsAdd",
-              "isLink": true,
+              "isLink": false,
               "multi": true,
               "childs": [
                 

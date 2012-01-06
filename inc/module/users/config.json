@@ -273,6 +273,7 @@
           "title": "[[Groups]]",
           "type": "list",
           "class": "usersAdminGroupList",
+          "isLink": true,
           "childs": {
             "edit": {
               "title": "[[Group edit]]",
@@ -298,6 +299,7 @@
           "defaultWidth": 870,
           "minWidth": 870,
           "defaultHeight": 500,
+          "isLink": true,
           "childs": [
             
           ]

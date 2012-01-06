@@ -508,10 +508,11 @@ ka.ai.loginSuccess = function (pId, pAlready) {
     ka.ai.loginName.value = pId.username;
     window._sid = pId.sessionid;
     window._session.sessionid = pId.sessionid;
+    window._user_rsn = pId.user_rsn
 
-    $('user.username').set('text', ka.ai.loginName.value);
-    $('user.username').onclick = function () {
-        ka.wm.open('users/users/editMe/', {values: {rsn: pId.user_rsn}});
+    $('user-username').set('text', ka.ai.loginName.value);
+    $('user-username').onclick = function () {
+        ka.wm.open('users/profile', {values: {rsn: pId.user_rsn}});
     }
 
     window._session.user_rsn = pId.user_rsn;

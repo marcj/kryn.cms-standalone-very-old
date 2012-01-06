@@ -120,193 +120,272 @@
     "system": {
       "title": "[[System (Butterfly)]]",
       "type": "custom",
-      "fixedWidth": 250,
-      "fixedHeight": 275,
-      "multi": false,
-      "noMaximize": true,
+      "class": "",
+      "isLink": true,
+      "multi": true,
       "childs": {
         "desktopSettings": {
-          "isLink": false,
           "title": "[[Desktop settings]]",
-          "fixedWidth": 580,
-          "fixedHeight": 400,
-          "multi": false,
-          "noMaximize": true,
-          "type": "custom"
+          "type": "custom",
+          "class": "",
+          "isLink": false,
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "searchIndexerList": {
           "title": "[[Search index]]",
-          "isLink": false,
-          "defaultWidth": 700,
           "type": "list",
           "class": "adminSearchIndexList",
+          "isLink": false,
+          "multi": true,
           "childs": {
             "doAction": {
               "title": "add",
               "type": "custom",
-              "class": "adminSearchIndexer"
+              "class": "adminSearchIndexer",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             }
           }
         },
         "layout": {
           "title": "[[Templates]]",
           "type": "custom",
-          "multi": false,
-          "defaultWidth": 900,
-          "defaultHeight": 400,
-          "icon": "admin\/images\/admin-layout-icon.png"
+          "class": "",
+          "isLink": true,
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "languages": {
           "title": "[[Languages]]",
           "type": "custom",
-          "multi": false,
-          "defaultWidth": 380,
-          "defaultHeight": 430,
+          "class": "",
+          "isLink": true,
+          "multi": true,
           "childs": {
             "edit": {
               "title": "[[Edit]]",
               "type": "custom",
+              "class": "",
+              "isLink": false,
               "multi": true,
-              "minHeight": 450,
-              "minWidth": 700
-            }
-          }
-        },
-        "tools": {
-          "title": "[[Tools]]",
-          "hasSubmenu": 1,
-          "childs": {
-            "database": {
-              "title": "[[Database]]",
-              "type": "custom",
-              "defaultWidth": 380,
-              "multi": false,
-              "defaultHeight": 430
-            },
-            "logs": {
-              "title": "[[Logs]]",
-              "type": "custom",
-              "multi": false,
-              "defaultWidth": 800,
-              "defaultHeight": 430
+              "childs": [
+                
+              ]
             }
           }
         },
         "backup": {
           "title": "[[Backup]]",
           "type": "custom",
-          "multi": false,
-          "defaultWidth": 650,
-          "defaultHeight": 450,
-          "minWidth": 650,
-          "minHeight": 450
+          "class": "",
+          "isLink": true,
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "module": {
           "title": "[[Extensions]]",
           "type": "custom",
-          "defaultWidth": 750,
-          "minWidth": 750,
-          "defaultHeight": 500,
-          "multi": false,
+          "class": "",
+          "isLink": true,
+          "multi": true,
           "childs": {
             "update": {
               "title": "[[Update extension]]",
               "type": "list",
               "class": "moduleAdminList",
-              "multi": false
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "new": {
               "title": "[[Install extension]]",
               "type": "list",
               "class": "moduleAdminInstallList",
-              "multi": false,
-              "defaultWidth": 400
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "dbInit": {
               "title": "[[Database Update\/Init]]",
               "type": "custom",
-              "defaultWidth": 300
+              "class": "",
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "publish": {
               "title": "[[Publish]]",
               "type": "custom",
-              "defaultWidth": 300
+              "class": "",
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "edit": {
               "title": "[[Edit extension]]",
               "type": "custom",
-              "defaultWidth": 650,
-              "minWidth": 650,
-              "defaultHeight": 500
+              "class": "",
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "add": {
               "title": "[[Create extension]]",
               "type": "custom",
-              "defaultWidth": 300,
-              "defaultHeight": 300
+              "class": "",
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "view": {
               "title": "[[Extension]]",
               "type": "custom",
-              "defaultWidth": 400,
-              "defaultHeight": 400,
-              "noMaximize": true
+              "class": "",
+              "isLink": false,
+              "multi": true,
+              "childs": [
+                
+              ]
             }
           }
         },
         "settings": {
           "title": "[[Settings]]",
           "type": "custom",
-          "multi": false,
-          "defaultWidth": 400,
-          "defaultHeight": 480
+          "class": "",
+          "isLink": true,
+          "multi": true,
+          "childs": [
+            
+          ]
+        },
+        "development": {
+          "title": "[[Development]]",
+          "type": "",
+          "class": "",
+          "isLink": true,
+          "multi": true,
+          "hasSubmenu": true,
+          "childs": {
+            "database": {
+              "title": "[[Database]]",
+              "type": "custom",
+              "class": "",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
+            },
+            "logs": {
+              "title": "[[Logs]]",
+              "type": "custom",
+              "class": "",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
+            }
+          }
         }
       }
     },
     "backend": {
       "title": "[[Backend access]]",
+      "type": "",
+      "class": "",
       "isLink": false,
-      "acl": false,
+      "multi": true,
       "childs": {
         "tinyDialog": {
           "title": "[[Dialog]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "defaultWidth": 500,
-          "defaultHeight": 470,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "chooser": {
           "title": "[[Chooser]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "acl": false,
-          "defaultWidth": 560,
-          "minWidth": 560,
-          "defaultHeight": 400,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "stores": {
           "title": "[[Stores]]",
+          "type": "",
+          "class": "",
           "isLink": false,
+          "multi": true,
           "childs": {
             "groups": {
+              "title": "",
               "type": "store",
-              "table": "system_groups",
-              "label": "name",
-              "id": "rsn"
+              "class": "",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "languages": {
+              "title": "",
               "type": "store",
-              "table": "system_langs",
-              "label": "title",
-              "id": "rsn"
+              "class": "",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "extensions": {
+              "title": "",
               "type": "store",
-              "class": "adminStoreExtensions"
+              "class": "adminStoreExtensions",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             },
             "domains": {
-              "type": "store",
-              "class": "adminStoreDomains"
+              "title": "",
+              "type": "",
+              "class": "adminStoreDomains",
+              "isLink": true,
+              "multi": true,
+              "childs": [
+                
+              ]
             }
           }
         }
@@ -315,85 +394,110 @@
     "overview": {
       "title": "[[Dashboard]]",
       "type": "custom",
-      "defaultWidth": 950,
-      "icon": "admin\/images\/extras-icon.png"
+      "class": "",
+      "isLink": true,
+      "multi": true,
+      "childs": [
+        
+      ]
     },
     "pages": {
       "title": "[[Pages]]",
       "type": "custom",
-      "defaultWidth": 1000,
-      "defaultHeight": 510,
-      "minHeight": 510,
-      "minWidth": 810,
-      "icon": "admin\/images\/admin-pages-icon.png",
+      "class": "",
+      "isLink": true,
+      "multi": true,
       "childs": {
         "addDialog": {
           "title": "[[Add pages]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "acl": false,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "addDomains": {
           "title": "[[Add domains]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "defaultWidth": 710,
-          "defaultHeight": 500,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "bigEditor": {
           "title": "WYSIWYG-Editor",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "acl": false,
-          "defaultWidth": 500,
-          "defaultHeight": 300,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         }
       }
     },
     "files": {
       "title": "[[Files]]",
       "type": "custom",
-      "defaultWidth": 800,
-      "defaultHeight": 400,
-      "icon": "admin\/images\/admin-files-icon.png",
+      "class": "",
+      "isLink": true,
+      "multi": true,
       "childs": {
         "edit": {
           "title": "[[File edit]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "defaultWidth": 680,
-          "defaultHeight": 420,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "diff": {
           "title": "[[File diff]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "defaultWidth": 680,
-          "defaultHeight": 420,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "systemfiles": {
           "title": "[[System files]]",
-          "isLink": false
+          "type": "",
+          "class": "",
+          "isLink": false,
+          "multi": true,
+          "childs": [
+            
+          ]
         },
         "properties": {
           "title": "[[Properties]]",
+          "type": "custom",
+          "class": "",
           "isLink": false,
-          "defaultWidth": 350,
-          "minWidth": 350,
-          "minHeight": 450,
-          "defaultHeight": 500,
-          "noMaximize": true,
-          "type": "custom"
+          "multi": true,
+          "childs": [
+            
+          ]
         }
       }
     },
     "help": {
       "title": "[[Help]]",
       "type": "custom",
-      "defaultWidth": 600,
-      "defaultHeight": 400,
+      "class": "",
       "isLink": false,
-      "multi": false
+      "multi": true,
+      "childs": [
+        
+      ]
     }
   },
   "objectProperties": {

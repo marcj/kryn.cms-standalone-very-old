@@ -126,14 +126,7 @@ ka.pagesTree = new Class({
 
     setDomainPosition: function () {
 
-        var size = this.container.getSize();
         var nLeft = this.container.scrollLeft;
-        var nWidth = size.x;
-
-        if (this.container.getSize().y < this.container.getScrollSize().y) {
-            //we have a scrollbar on the right side
-            nWidth -= 15;
-        }
         var nTop = 0;
 
         var panePos = this.panePagesTable.getPosition(this.container).y;
@@ -144,7 +137,7 @@ ka.pagesTree = new Class({
         }
 
         this.paneDomain.morph({
-            'width': nWidth,
+            //'width': nWidth,
             'left': nLeft,
             'top': nTop
         });
@@ -206,6 +199,8 @@ ka.pagesTree = new Class({
     },
 
     onClick: function (e) {
+
+        if (this.inDragMode) return;
 
         var target = e.target;
         if (!target) return;

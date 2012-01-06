@@ -69,29 +69,24 @@
         <div class="border" style="display: none" id="border">
             <div class="header gradient" id="header">
                 <div class="header-inner">
-                    <div class="headRight">
-                        <a style="padding-right: 2px;" class="lastItem" href="javascript: ka.openFrontend();" title="[[Frontend]]">
+                    <div class="headRight" id="iconbar">
+                        <a style="padding-right: 2px; width: 15px;" href="javascript: ka.openFrontend();" title="[[Frontend]]">
                             <img src="{$path}inc/template/admin/images/icons/eye_bw.png" width="14" /></a>
+                        <a href="javascript:;" style="padding:0px 8px;" id="user-username"></a>
                         <div class="ka-search">
                             <img class="ka-search-query-icon" src="{$path}inc/template/admin/images/icon-search-loupe.png" />
                             <input type="text" class="text" id="ka-search-query" />
+                        </div>
+                        <div class="iconbar-item" style="width: 48px;">
                             <a href="javascript:;" onclick="ka.wm.open('admin/help');" class="ka-help-icon" title="[[Help]]"></a>
                             <a href="javascript:;" onclick="ka.clearCache();" id="ka-btn-clear-cache" class="ka-cache-icon" title="[[Clear cache]]"></a>
                             <a href="javascript:;" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="ka-create-search-index-icon" title="[[Searchengine options]]"></a>
                         </div>
-                        <div class="breaker"></div>
+                        <div class="iconbar-item" id="serverTime"></div>
                     </div>
                     <div style="clear: both"></div>
                     <div class="mainlinks" id="mainLinks"></div>
-                    <div class="iconbar" id="iconbar">
-                        <div class="iconbar-item" id="serverTime"></div>
-                    </div>
                 </div>
-            </div>
-			
-            <div class="userInfo">
-                [[Welcome]] <span style="font-weight: bold; text-decoration: underline; cursor: pointer;" title="[[Edit my user settings]]" id="user.username"></span>
-                  <span style="font-size: 10px;">(<a style="text-decoration: none; color: #eee;" href="javascript: ka.ai.logout();">logout</a>)</span>
             </div>
             <div class="windowList" id="windowList"></div>
         

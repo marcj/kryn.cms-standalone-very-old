@@ -94,15 +94,13 @@ class admin {
                     json($obj->handle($info));
                 }
             }
+        } else if(getArgv('cmd') == 'getInfo'){
+            json(array('error'=>'param_failed'));
         }
-
 
         if ($modules[getArgv(2)] && getArgv(2) != 'admin') {
 
-            $content = $modules[getArgv(2)]->admin();
-
-            tAssign("content", $content);
-            die(tFetch('admin/iframe.tpl'));
+            json($modules[getArgv(2)]->admin());
 
         } else {
             $content = null;

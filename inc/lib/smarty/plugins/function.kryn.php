@@ -1,6 +1,6 @@
 <?php
 function smarty_function_kryn($params, &$smarty){
-        global $modules, $user;
+        global $modules;
 
         $module = $params['module'];
         $method = $params['plugin'];
@@ -10,6 +10,7 @@ function smarty_function_kryn($params, &$smarty){
             print krynNavigation::plugin( $params );
             break;
         case 'template':
+            print_r($params);
             print tpl::plugin( $params['get'] );
             break;
         case 'page':

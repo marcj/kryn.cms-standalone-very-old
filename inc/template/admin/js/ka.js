@@ -19,31 +19,32 @@ ka.init = function () {
 
     if (!document.body.hasClass('ka-no-desktop')){
         if (!ka._desktop)
-            ka._desktop = new ka.desktop($('desktop'));
+            ka._desktop = new ka.desktop(document.id('desktop'));
 
         ka._desktop.load();
     }
 
     if (!ka._helpsystem)
-        ka._helpsystem = new ka.helpsystem($('desktop'));
+        ka._helpsystem = new ka.helpsystem(document.id('desktop'));
 
     if (ka._iconSessionCounterDiv) {
         ka._iconSessionCounterDiv.destroy();
     }
+    ka._iconSessionCounterDiv = new Element('div', {
+        'class': 'iconbar-item',
+        title: t('Visitors')
+    }).inject(document.id('iconbar'));
 
-    if (!ka._iconSessionCounterDiv){
-        ka._iconSessionCounterDiv = new Element('div', {
-            'class': 'iconbar-item',
-            title: _('Visitors')
-        }).inject($('iconbar'));
+    ka._iconSessionCounter = new Element('span').inject(ka._iconSessionCounterDiv);
 
-        ka._iconSessionCounter = new Element('span').inject(ka._iconSessionCounterDiv);
+    new Element('img', {
+        src: _path + 'inc/template/admin/images/icons/user_gray.png',
+        style: 'position: relative; top: 3px; margin-left: 3px; width: 14px;'
+    }).inject(ka._iconSessionCounterDiv);
 
-        new Element('img', {
-            src: _path + 'inc/template/admin/images/icons/user_gray.png',
-            style: 'position: relative; top: 3px; margin-left: 3px; width: 14px;'
-        }).inject(ka._iconSessionCounterDiv);
-    }
+
+    ka.buildUserMenu();
+
     window.fireEvent('init');
 
     if (ka._crawler) {
@@ -152,6 +153,38 @@ ka.toggleMainbar = function () {
     }
 }
 
+
+ka.buildUserMenu = function(){
+    if (ka.userMenu) ka.userMenu.destroy();
+
+    ka.userMenu = new Element('div', {
+        'class': 'bar-dock-menu-style',
+        style: 'right: 36px; top: 27px'
+    }).inject(document.id('border'))
+
+    new Element('a', {
+        text: t('Edit me')
+    })
+    .addEvent('click', function(){
+        ka.wm.open('users/users/editMe', {values: {rsn: window._user_rsn}});
+    })
+    .inject(ka.userMenu);
+
+    new Element('a', {
+        text: t('Logout')
+    })
+    .addEvent('click', function(){
+        ka.ai.logout();
+    })
+    .inject(ka.userMenu);
+
+    var xoffset = ka.userMenu.getSize().x;
+    xoffset -= document.id('user-username').getSize().x;
+    xoffset *= -1;
+
+    ka.makeMenu(document.id('user-username'), ka.userMenu, true, {y: 26, x: xoffset+2});
+}
+
 ka.clearCache = function () {
 
     if (!ka.cacheToolTip) {
@@ -193,7 +226,7 @@ ka.loadSettings = function (pOnlyThisKeys) {
         }
 
         if (ka.settings.system && ka.settings.system.systemtitle) {
-            document.title = ka.settings.system.systemtitle + t(' | Kryn.cms Administstration');
+            document.title = ka.settings.system.systemtitle + t(' | Kryn.cms Administration');
         }
 
     }.bind(this)}).get({lang: window._session.lang, keys: pOnlyThisKeys});
@@ -895,36 +928,18 @@ ka.loadMenu = function () {
         delete mlinks['admin'];
 
         if (mlinks['users']) {
-            extKey = 'users';
-            var links = mlinks[extKey];
-            var toInsert = {};
-
-            Object.each(links, function (item, pCode) {
-                if (item.mainLink) {
-                    ka.addAdminLink(item, pCode, extKey);
-                } else {
-                    toInsert[ pCode ] = item;
-                }
+            Object.each(mlinks['users'], function (item, pCode) {
+                ka.addAdminLink(item, pCode, 'users');
             });
-            ka.addModuleLink(toInsert, extKey);
         }
         delete mlinks['users'];
 
         Object.each(ka.settings.configs, function (config, extKey) {
+            if (!mlinks[extKey]) return;
 
-            var links = mlinks[extKey];
-            if (!links) return;
-
-            var toInsert = {};
-
-            Object.each(links, function (item, pCode) {
-                if (item.mainLink) {
-                    ka.addAdminLink(item, pCode, extKey);
-                } else {
-                    toInsert[ pCode ] = item;
-                }
+            Object.each(mlinks[extKey], function (item, pCode) {
+                ka.addAdminLink(item, pCode, extKey);
             });
-            ka.addModuleLink(toInsert, extKey);
 
         });
 
@@ -945,7 +960,7 @@ ka.removedMainMenuItems = [];
 ka.renderAdminLink = function () {
 
     var windowSize = window.getSize().x;
-    if (windowSize < 770) {
+    if (windowSize < 500) {
         if (!ka.toSmallWindowBlocker) {
             ka.toSmallWindowBlocker = new Element('div', {
                 'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
@@ -1004,7 +1019,8 @@ ka.renderAdminLink = function () {
     var diff = ((menubarSize.x + iconbarSize.x + searchBoxWidth) - headerSize.x);
 
     //availWidth is now the availWidth we have for the menuitems
-    var availWidth = menubarSize.x - diff - addMenuWidth;
+    //var availWidth = menubarSize.x - diff - addMenuWidth;
+    var availWidth = window.getSize().x - (document.id('iconbar').getSize().x + 60);
 
     if (!ka.needMainMenuWidth) {
         ka.needMainMenuWidth = availWidth;
@@ -1037,16 +1053,16 @@ ka.renderAdminLink = function () {
         if (!ka.additionalMainMenu) {
             ka.additionalMainMenu = new Element('a', {
                 'class': 'ka-mainlink-additionalmenubar',
-                style: 'width: 17px; padding: 2px 2px 0px 0px; cursor: default;'
+                style: 'width: 17px; cursor: default;'
             }).inject(menubar);
 
             new Element('img', {
                 src: _path + 'inc/template/admin/images/ka.mainmenu-additional.png',
-                style: 'width: 12px; height: 13px; left: 4px;'
+                style: 'width: 11px; height: 12px; left: 6px; top: 8px;'
             }).inject(ka.additionalMainMenu);
 
             ka.additionalMainMenuContainer = new Element('div', {
-                'class': 'ka-mainlink-additionalmenubar-container bar-dock-logo-menu-style',
+                'class': 'ka-mainlink-additionalmenubar-container bar-dock-menu-style',
                 style: 'display: none'
             }).inject($('border'));
 
@@ -1076,7 +1092,7 @@ ka.makeMenu = function (pToggler, pMenu, pCalPosition, pOffset) {
 
     var showMenu = function () {
         pMenu.setStyle('display', 'block');
-        pToggler.store('ka.makeMenu.canHide', false);
+        pMenu.store('ka.makeMenu.canHide', false);
 
         if (pCalPosition) {
             var pos = pToggler.getPosition($('border'));
@@ -1096,13 +1112,13 @@ ka.makeMenu = function (pToggler, pMenu, pCalPosition, pOffset) {
     };
 
     var _hideMenu = function () {
-        if (pToggler.retrieve('ka.makeMenu.canHide') != true) return;
+        if (pMenu.retrieve('ka.makeMenu.canHide') != true) return;
         pMenu.setStyle('display', 'none');
     };
 
     var hideMenu = function () {
-        pToggler.store('ka.makeMenu.canHide', true);
-        _hideMenu.delay(200);
+        pMenu.store('ka.makeMenu.canHide', true);
+        _hideMenu.delay(250);
     };
 
     pToggler.addEvent('mouseover', showMenu);
@@ -1114,90 +1130,141 @@ ka.makeMenu = function (pToggler, pMenu, pCalPosition, pOffset) {
 }
 
 ka.addAdminLink = function (pLink, pCode, pExtCode) {
-    var mlink = null;
+
+    var mlink = false;
+
     if (pCode == 'system') {
 
         mlink = new Element('a', {
             title: pLink.title,
             text: ' ',
-            'class': 'bar-dock-logo first'
+            'class': 'bar-dock-logo first gradient'
         });
 
         new Element('img', {
             src: _path + 'inc/template/admin/images/dock-logo-icon.png'
         }).inject(mlink);
 
-        var menu = new Element('div', {
-            'class': 'bar-dock-logo-menu bar-dock-logo-menu-style',
-            styles: {
-                display: 'none'
-            }
-        }).addEvent('mouseover',
-            function () {
-                mlink.store('allowToDisappear', false);
-            }).addEvent('mouseout',
-            function () {
-                mlink.fireEvent('mouseout');
-            }).inject($('header'), 'before');
-
-        $H(pLink.childs).each(function (item, code) {
-
-            if (item.isLink === false) return;
-            var sublink = new Element('a', {
-                html: item.title
-            }).inject(menu);
-
-            if (item.type) {
-                sublink.addClass('ka-module-items-activated');
-                sublink.addEvent('click', function () {
-                    ka.wm.openWindow(pExtCode, pCode + '/' + code, pLink);
-                })
-            }
-
-            if (item.hasSubmenu) {
-                $H(item.childs).each(function (subitem, subcode) {
-
-                    if (item.isLink === false) return;
-                    var subsublink = new Element('a', {
-                        html: subitem.title,
-                        'class': 'ka-module-item-sub'
-                    }).inject(menu);
-
-                    if (subitem.type) {
-                        subsublink.addClass('ka-module-items-activated');
-                        subsublink.addEvent('click', function () {
-                            ka.wm.openWindow(pExtCode, pCode + '/' + code + '/' + subcode, pLink);
-                        })
-                    }
-                });
-            }
-        });
-
-        mlink.addEvent('mouseover',
-            function () {
-                mlink.store('allowToDisappear', false);
-                menu.setStyle('display', 'block');
-            }).addEvent('mouseout', function () {
-                mlink.store('allowToDisappear', true);
-                (function () {
-                    if (mlink.retrieve('allowToDisappear') == true) {
-                        menu.setStyle('display', 'none');
-                    }
-                }).delay(250);
-            });
-
     } else {
+
         mlink = new Element('a', {
-            html: pLink.title
+            text: pLink.title
         });
 
-        if (pLink.icon != '') {
+        if (pLink.icon) {
+            mlink.addClass('ka-mainmenubar-item-hasIcon');
             new Element('img', {
                 src: _path + 'inc/template/' + pLink.icon
             }).inject(mlink);
         }
     }
 
+    var menu = new Element('div', {
+        'class': 'bar-dock-menu bar-dock-menu-style',
+        styles: {
+            display: 'none'
+        }
+    });
+
+    var hasActiveChilds = false;
+    Object.each(pLink.childs, function (item, code) {
+
+        if (!item.isLink) return;
+
+        hasActiveChilds = true;
+        var sublink = new Element('a', {
+            html: item.title,
+            'class': 'ka-module-items-deactivated'
+        }).inject(menu);
+
+        if (item.type) {
+            sublink.removeClass('ka-module-items-deactivated');
+            sublink.addEvent('click', function () {
+                ka.wm.openWindow(pExtCode, pCode + '/' + code, pLink);
+            })
+        }
+
+        Object.each(item.childs, function (subitem, subcode) {
+
+            if (!subitem.isLink) return;
+
+            var subsublink = new Element('a', {
+                html: subitem.title,
+                'class': 'ka-module-item-sub'
+            }).inject(menu);
+
+            if (subitem.type) {
+                subsublink.addClass('ka-module-items-activated');
+                subsublink.addEvent('click', function () {
+                    ka.wm.openWindow(pExtCode, pCode + '/' + code + '/' + subcode, pLink);
+                })
+            }
+        });
+
+    });
+
+    if (!hasActiveChilds){
+        menu.destroy();
+    } else {
+
+        mlink.addEvent('mouseover',function () {
+
+            if (ka.lastVisibleDockMenu)
+                ka.lastVisibleDockMenu.setStyle('display', 'none');
+
+            mlink.store('allowToDisappear', false);
+
+            //find position
+            var position = mlink.getPosition(document.id('border'));
+            var size = mlink.getSize();
+            menu.setStyle('left', position.x-1);
+            menu.setStyle('top', 26);
+            menu.removeClass('ka-menu-withRightTopBorderRadius');
+
+            var addMenuBar = mlink.getParent('.ka-mainlink-additionalmenubar-container');
+
+            menu.removeEvents('mouseover');
+            menu.removeEvents('mouseout');
+
+            if (addMenuBar){
+                addMenuBar.removeClass('ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius')
+
+                menu.setStyle('left', position.x+size.x);
+                menu.setStyle('top', position.y);
+                menu.addClass('ka-menu-withRightTopBorderRadius');
+                menu.setStyle('display', 'block');
+
+                if (menu.getPosition().y+menu.getSize().y > addMenuBar.getPosition().y+addMenuBar.getSize().y)
+                    addMenuBar.addClass('ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius');
+
+                menu.addEvent('mouseover', function(){
+                    addMenuBar.store('ka.makeMenu.canHide', false);
+                });
+
+                menu.addEvent('mouseout', function(){
+                    addMenuBar.fireEvent('mouseout');
+                });
+            }
+
+            menu.addEvent('mouseover', function () {
+                mlink.store('allowToDisappear', false);
+            }).addEvent('mouseout', function () {
+                mlink.fireEvent('mouseout');
+            }).inject($('header'), 'before');
+
+            menu.setStyle('display', 'block');
+            ka.lastVisibleDockMenu = menu;
+
+        }).addEvent('mouseout', function () {
+
+            mlink.store('allowToDisappear', true);
+            (function () {
+                if (mlink.retrieve('allowToDisappear') == true) {
+                    menu.setStyle('display', 'none');
+                }
+            }).delay(250);
+        });
+    }
 
     ka._links[ pExtCode + '/' + pCode ] = {
         level: 'main',
@@ -1219,6 +1286,11 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
 
 }
 
+/*
+ * @deprecated
+ * @param pLinks
+ * @param pModule
+ */
 ka.addModuleLink = function (pLinks, pModule) {
     var moduleContainer = new Element('div', {
         'class': 'ka-module-container'

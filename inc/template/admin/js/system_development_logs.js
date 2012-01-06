@@ -1,4 +1,4 @@
-var admin_system_tools_logs = new Class({
+var admin_system_development_logs = new Class({
 
     initialize: function (pWin) {
         this.win = pWin;
