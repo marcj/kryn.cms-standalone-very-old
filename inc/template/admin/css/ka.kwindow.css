@@ -147,6 +147,7 @@
     background-color: #d4d0c8;
     text-align: left;
     color: #111;
+    color: #555;
     border-top: 1px solid #DDD;
     border-bottom: 1px solid #777;
 
@@ -184,6 +185,10 @@
 
 .ka-no-desktop .ka-kwindow-titleactions {
     display: none;
+}
+
+.ka-kwindow-inFront {
+    color: #111;
 }
 
 

@@ -1219,7 +1219,6 @@ ka.files = new Class({
                 }
             }
 
-
             this.historyIndex++;
             this.history[ this.historyIndex ] = pPath;
 
@@ -1245,6 +1244,13 @@ ka.files = new Class({
 
             if (pCallback) {
                 pCallback();
+            }
+
+            if (this.dragMove){
+                this.dragMove.droppables = $$(this.dragMove.options.droppables);
+                this.dragMove.positions = this.dragMove.droppables.map(function(el){
+                    return el.getCoordinates();
+                });
             }
 
         }.bind(this)}).get({ path: pPath });
@@ -2031,6 +2037,8 @@ ka.files = new Class({
             moveFiles.include(item.retrieve('file').path);
 
             container = item.clone();
+            container.removeClass('admin-files-item-selected')
+            container.removeClass('admin-files-droppables');
             var pos = item.getPosition(desktop);
 
             container.setStyles({
@@ -2067,6 +2075,8 @@ ka.files = new Class({
                     'background-color': 'transparent',
                     margin: 0
                 }).inject(container);
+                clone.removeClass('admin-files-item-selected');
+                clone.removeClass('admin-files-droppables');
 
                 if (clone.getElement('div')) {
                     clone.getElement('div').destroy();
@@ -2116,6 +2126,7 @@ ka.files = new Class({
         this.dragMove = new Drag.Move(pContainer, {
 
             droppables: '.admin-files-droppables',
+            precalculate: true,
 
             onDrop: function (element, droppable) {
 
@@ -2137,7 +2148,7 @@ ka.files = new Class({
                 }
 
                 var file = droppable.retrieve('file');
-                if (!file || this.current == file.path || pFromDir == file.path || file.path == '/trash') return;
+                if (!file || pFromDir == file.path || file.path == '/trash') return;
                 if (file.type == 'file' || pFilePaths.contains(file.path)) return;
 
                 if (file.writeaccess == false) return;
@@ -2166,9 +2177,12 @@ ka.files = new Class({
                     }
 
                     var file = droppable.retrieve('file');
+                    if (!file){
+                        return;
+                    }
 
                     if (file.writeaccess == false) return;
-                    if (!file || this.current == file.path || file.path == '/trash') return;
+                    if (!file || file.path == '/trash') return;
                     if (file.type == 'file' || pFilePaths.contains(file.path)) return;
 
                     if (!droppable.hasClass('admin-files-fileContainer')) {

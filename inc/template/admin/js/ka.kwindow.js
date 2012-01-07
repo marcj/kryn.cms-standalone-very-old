@@ -349,7 +349,7 @@ ka.kwindow = new Class({
     },
 
     toBack: function () {
-        this.title.setStyle('opacity', 0.4);
+        this.title.removeClass('ka-kwindow-inFront');
         this.inFront = false;
     },
 
@@ -384,7 +384,7 @@ ka.kwindow = new Class({
     toFront: function () {
 
         if (this.active) {
-            this.title.setStyle('opacity', 1);
+            this.title.addClass('ka-kwindow-inFront');
             if (this.border.getStyle('display') != 'block') {
                 this.border.setStyles({
                     'display': 'block',
