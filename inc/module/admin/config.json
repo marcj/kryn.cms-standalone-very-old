@@ -393,6 +393,7 @@
     },
     "overview": {
       "title": "[[Dashboard]]",
+      "icon": "admin/images/admin-dashboard-icon.png",
       "type": "custom",
       "class": "",
       "isLink": true,
@@ -406,6 +407,7 @@
       "type": "custom",
       "class": "",
       "isLink": true,
+      "icon": "admin/images/admin-pages-icon.png",
       "multi": true,
       "childs": {
         "addDialog": {
@@ -446,6 +448,7 @@
       "class": "",
       "isLink": true,
       "multi": true,
+      "icon": "admin/images/admin-files-icon.png",
       "childs": {
         "edit": {
           "title": "[[File edit]]",

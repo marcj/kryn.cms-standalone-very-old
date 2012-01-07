@@ -1217,7 +1217,7 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
             }).inject(mlink);
 
             new Element('img', {
-                src: _path+'inc/template/admin/images/icons/tree_minus.png'
+                src: _path+'inc/template/admin/images/ka-mainmenu-item-tree_minus.png'
             })
             .addEvent('mouseover',  function () {
                 childOpener.fireEvent('mouseover');

@@ -967,6 +967,7 @@ class adminFilemanager {
         uksort($items, "strnatcasecmp");
 
         foreach($items as &$file){
+            //$file['object_id'] = Object
             $file['writeaccess'] = krynAcl::checkAccess(3, $file['path'], 'write', true);
         }
 
