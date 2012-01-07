@@ -1279,6 +1279,10 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
                 menu.addEvent('mouseout', function(){
                     addMenuBar.fireEvent('mouseout');
                 });
+
+                childOpener.addEvent('mouseover', function(){
+                    addMenuBar.store('ka.makeMenu.canHide', false);
+                });
             }
 
             menu.addEvent('mouseover', function () {
