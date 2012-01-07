@@ -203,7 +203,7 @@ ka.wm = {
 
         if (document.body.hasClass('ka-no-desktop')){
             new Element('div', {
-                style: 'position: absolute; right: 4px; top: 0px; font-weight: bold; color: white; font-size: 14px;',
+                'class': 'wm-bar-item-closer',
                 text: 'x'
             })
             .addEvent('click', function(e){

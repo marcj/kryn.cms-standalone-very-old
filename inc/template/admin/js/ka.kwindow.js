@@ -1124,44 +1124,41 @@ ka.kwindow = new Class({
             'class': 'kwindow-win-titleBar'
         }).inject(this.win);
 
-        if (!document.body.hasClass('ka-no-desktop')){
-            this.linker = new Element('img', {
-                style: 'position: absolute; left: 3px; top: 8px; cursor: pointer',
-                title: _('Create a shortcut to the desktop'),
-                src: _path + 'inc/template/admin/images/win-top-bar-link.png'
-            }).addEvent('click', this.dropLink.bind(this)).inject(this.win);
+        this.linker = new Element('img', {
+            'class': 'ka-kwindow-titleactions',
+            style: 'position: absolute; left: 3px; top: 8px; cursor: pointer',
+            title: _('Create a shortcut to the desktop'),
+            src: _path + 'inc/template/admin/images/win-top-bar-link.png'
+        }).addEvent('click', this.dropLink.bind(this)).inject(this.win);
 
-            this.minimizer = new Element('img', {
-                'class': 'kwindow-win-titleBarIcon',
-                src: _path + 'inc/template/admin/images/win-top-bar-minimize.png'
-            }).addEvent('click',function () {
-                _this.minimize();
-            }).inject(this.titleBar)
+        this.minimizer = new Element('img', {
+            'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
+            src: _path + 'inc/template/admin/images/win-top-bar-minimize.png'
+        }).addEvent('click',function () {
+            _this.minimize();
+        }).inject(this.titleBar)
 
-            this.maximizer = new Element('img', {
-                'class': 'kwindow-win-titleBarIcon',
-                src: _path + 'inc/template/admin/images/win-top-bar-maximize.png'
-            }).addEvent('click',function () {
-                _this.maximize();
-            }).inject(this.titleBar);
+        this.maximizer = new Element('img', {
+            'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
+            src: _path + 'inc/template/admin/images/win-top-bar-maximize.png'
+        }).addEvent('click',function () {
+            _this.maximize();
+        }).inject(this.titleBar);
 
-            this.closer = new Element('div', {
-                'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
-            }).addEvent('click',
-                function () {
-                    _this.close(true);
-                }).inject(this.titleBar);
+        this.closer = new Element('div', {
+            'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close ka-kwindow-titleactions'
+        }).addEvent('click', function () {
+            _this.close(true);
+        }).inject(this.titleBar);
 
-            this.titleBar.getElements('img').addEvents({
-                'mouseover': function () {
-                    this.setStyle('opacity', 0.5);
-                },
-                'mouseout': function () {
-                    this.setStyle('opacity', 1);
-                }
-            });
-
-        }
+        this.titleBar.getElements('img').addEvents({
+            'mouseover': function () {
+                this.setStyle('opacity', 0.5);
+            },
+            'mouseout': function () {
+                this.setStyle('opacity', 1);
+            }
+        });
 
     },
 

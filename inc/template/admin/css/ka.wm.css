@@ -89,3 +89,23 @@
     background: linear-gradient(top,  #a5a5a5 0%,#c8c8c8 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5a5a5', endColorstr='#c8c8c8',GradientType=0 ); /* IE6-8 */
 }
+
+.wm-bar-item-closer {
+    position: absolute;
+    right: 3px;
+    top: 2px;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    height: 16px;
+    width: 16px;
+    text-align: center;
+    line-height: 14px;
+}
+
+
+.wm-bar-item-closer:hover {
+    -moz-border-radius: 16px;
+    color: #444;
+    background-color: #eee;
+}

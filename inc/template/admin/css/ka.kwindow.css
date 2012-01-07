@@ -182,6 +182,10 @@
     border-top: 0px;
 }
 
+.ka-no-desktop .ka-kwindow-titleactions {
+    display: none;
+}
+
 
 /*
 .kwindow-win-title-extended {
