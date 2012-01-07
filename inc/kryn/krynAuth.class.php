@@ -67,14 +67,14 @@ class krynAuth {
      * admin?users-login=1
      * @var string
      */
-    public $loginKey = 'users-login';
+    public $loginTrigger = 'users-login';
 
     /**
      * The HTTP GET/POST key which triggers the logout.
      * admin?users-logout=1
      * @var string
      */
-    public $logoutKey = 'users-logout';
+    public $logoutTrigger = 'users-logout';
 
 
     /**
@@ -162,7 +162,7 @@ class krynAuth {
      */
     public function handleClientLoginLogout() {
 
-        if (getArgv($this->loginKey) == '1') {
+        if (getArgv($this->loginTrigger)) {
 
             $login = getArgv('username');
 
@@ -205,7 +205,7 @@ class krynAuth {
             }
         }
 
-        if (getArgv($this->logoutKey) == '1') {
+        if (getArgv($this->logoutTrigger)) {
             $this->logout();
             $this->syncStore();
             if (getArgv(1) == 'admin') {

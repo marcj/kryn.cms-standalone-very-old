@@ -1167,6 +1167,7 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
     });
 
     var hasActiveChilds = false;
+
     Object.each(pLink.childs, function (item, code) {
 
         if (!item.isLink) return;
@@ -1206,13 +1207,47 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
     if (!hasActiveChilds){
         menu.destroy();
     } else {
+        var childOpener;
 
-        mlink.addEvent('mouseover',function () {
+        if (pCode != 'system') {
+            mlink.addClass('ka-menu-item-hasChilds');
 
-            if (ka.lastVisibleDockMenu)
+            childOpener = new Element('a', {
+                'class': 'ka-menu-item-childopener'
+            }).inject(mlink);
+
+            new Element('img', {
+                src: _path+'inc/template/admin/images/icons/tree_minus.png'
+            })
+            .addEvent('mouseover',  function () {
+                childOpener.fireEvent('mouseover');
+            })
+            .addEvent('mousemove',  function () {
+                childOpener.fireEvent('mouseover');
+            })
+            .inject(childOpener);
+
+
+            childOpener.addEvent('click',function (e) {
+                e.stopPropagation();
+            });
+        } else {
+            childOpener = mlink;
+        }
+
+        childOpener.addEvent('mousemove', function (e) {
+            childOpener.fireEvent('mouseover');
+        });
+
+        childOpener.addEvent('mouseover', function (e) {
+
+            if (e)
+                e.stopPropagation();
+
+            if (ka.lastVisibleDockMenu && ka.lastVisibleDockMenu != menu)
                 ka.lastVisibleDockMenu.setStyle('display', 'none');
 
-            mlink.store('allowToDisappear', false);
+            childOpener.store('allowToDisappear', false);
 
             //find position
             var position = mlink.getPosition(document.id('border'));
@@ -1247,9 +1282,9 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
             }
 
             menu.addEvent('mouseover', function () {
-                mlink.store('allowToDisappear', false);
+                childOpener.store('allowToDisappear', false);
             }).addEvent('mouseout', function () {
-                mlink.fireEvent('mouseout');
+                childOpener.fireEvent('mouseout');
             }).inject($('header'), 'before');
 
             menu.setStyle('display', 'block');
@@ -1257,9 +1292,9 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
 
         }).addEvent('mouseout', function () {
 
-            mlink.store('allowToDisappear', true);
+            childOpener.store('allowToDisappear', true);
             (function () {
-                if (mlink.retrieve('allowToDisappear') == true) {
+                if (childOpener.retrieve('allowToDisappear') == true) {
                     menu.setStyle('display', 'none');
                 }
             }).delay(250);

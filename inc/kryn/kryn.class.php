@@ -655,9 +655,6 @@ class kryn {
             !kryn::$objects || $md5 != kryn::$objects['__md5']
             ) {
 
-            kryn::$tables = array();
-            kryn::$tables['__md5'] = $md5;
-
             foreach (kryn::$extensions as &$extension) {
                 kryn::$configs[$extension] = kryn::getModuleConfig($extension, false, true);
             }
@@ -679,6 +676,10 @@ class kryn {
         * load tables
         */
         if (!kryn::$tables || $md5 != kryn::$tables['__md5']){
+
+            kryn::$tables = array();
+            kryn::$tables['__md5'] = $md5;
+
             foreach (kryn::$configs as $extension => $config) {
 
                 if ($config['db']) {
@@ -1283,8 +1284,8 @@ class kryn {
 
             }
             $adminClient->autoLoginLogout = true;
-            $adminClient->loginKey = 'admin-users-login';
-            $adminClient->logoutKey = 'admin-users-logout';
+            $adminClient->loginTrigger = 'admin-users-login';
+            $adminClient->logoutTrigger = 'admin-users-logout';
 
             $adminClient->start();
             $client = $adminClient;
