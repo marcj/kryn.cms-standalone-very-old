@@ -72,7 +72,7 @@ html {
 }
 
 .ka-no-desktop #desktop {
-    top: 102px;
+    top: 56px;
 }
 
 /* main layout */
@@ -715,24 +715,13 @@ a.ka-subnavi-main:link {
 
 .ka-no-desktop div.windowList {
     position: absolute;
-    top: 77px;
-    left: 35px;
-    right: 35px;
-    height: 25px;
-    background-color: #5a585d;
-    background-image: url(../images/windowlist-bg.png);
-    background-repeat: repeat-x;
-
-
-    -moz-border-radius-topleft: 6px;
-    -moz-border-radius-topright: 6px;
-
-    -webkit-border-top-left-radius: 6px;
-    -webkit-border-top-right-radius: 6px;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    top: 28px;
+    left: 0px;
+    right: 0px;
+    height: 26px;
+    background-color: #444;
+    padding-top: 2px;
 }
-
 /*
 .iconbar {
     float: left;

@@ -206,7 +206,8 @@ ka.wm = {
                 style: 'position: absolute; right: 4px; top: 0px; font-weight: bold; color: white; font-size: 14px;',
                 text: 'x'
             })
-            .addEvent('click', function(){
+            .addEvent('click', function(e){
+                e.stopPropagation();
                 pWindow.close();
             })
             .inject(bar);

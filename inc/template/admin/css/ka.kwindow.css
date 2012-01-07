@@ -177,6 +177,11 @@
     -moz-border-radius-topright: 0px;
 }
 
+.ka-no-desktop .kwindow-border,
+.ka-no-desktop .kwindow-win-title {
+    border-top: 0px;
+}
+
 
 /*
 .kwindow-win-title-extended {

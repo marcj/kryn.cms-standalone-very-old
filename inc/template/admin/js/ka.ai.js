@@ -368,8 +368,11 @@ ka.ai.renderLogin = function () {
     document.id(ka.ai.loginViewSelection).addClass('ka-login-checkbox-login');
 
     //TODO, autodetect here mobile browsers
-    ka.ai.loginViewSelection.setValue(1);
-
+    if (Cookie.read('kryn_deactivate_desktop_mode') == "1") {
+        ka.ai.loginViewSelection.setValue(0);
+    } else {
+        ka.ai.loginViewSelection.setValue(1);
+    }
 
     ka.ai.loginMessage = new Element('div', {
         'class': 'loginMessage'
@@ -550,9 +553,13 @@ ka.ai.loginFailed = function () {
 ka.ai.loadBackend = function () {
 
     if (ka.ai.loginViewSelection.getValue() == 0){
+
+        Cookie.write('kryn_deactivate_desktop_mode', '1');
         document.body.addClass('ka-no-desktop');
         document.body.removeClass('ka-with-desktop');
     } else {
+
+        Cookie.write('kryn_deactivate_desktop_mode', '0');
         document.body.removeClass('ka-no-desktop');
         document.body.addClass('ka-with-desktop');
     }
