@@ -291,7 +291,9 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var propertyTable = new ka.propertyTable(propertyPanel, this.win);
+        var propertyTable = new ka.propertyTable(propertyPanel, this.win, {
+            arrayKey: true
+        });
 
         tr.store('propertyTable', propertyTable);
 
@@ -1629,7 +1631,7 @@ var admin_system_module_edit = new Class({
 
         var tr = new Element('tr').inject(this.objectTBody);
         new Element('th', {
-            text: t('Object id'),
+            text: t('Object key'),
             style: 'width: 260px;'
         }).inject(tr);
 
@@ -1780,7 +1782,7 @@ var admin_system_module_edit = new Class({
 
         tr.store('key', iKey);
 
-        new ka.Button(t('Properties'))
+        new ka.Button(t('Settings'))
         .addEvent('click', this.openObjectSettings.bind(this,tr))
         .inject(actionTd);
 

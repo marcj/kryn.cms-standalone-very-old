@@ -353,15 +353,15 @@
       {
         "template": {
           "label": "[[Template]]",
-          "type": "files",
           "withoutExtension": true,
-          "directory": "inc\/template\/users\/login\/"
+          "directory": "inc\/template\/users\/login\/",
+          "type": "files"
         },
         "templateLoggedIn": {
           "label": "[[Template logged in]]",
-          "type": "files",
           "withoutExtension": true,
-          "directory": "inc\/template\/users\/loggedIn\/"
+          "directory": "inc\/template\/users\/loggedIn\/",
+          "type": "files"
         },
         "target": {
           "label": "[[Target page [after login]]]",
@@ -373,9 +373,9 @@
         },
         "category_rsn": {
           "label": "[[Groups]]",
-          "desc": "[[Which groups can login?]]",
+          "store": "admin\/backend\/stores\/groups",
           "type": "textlist",
-          "store": "admin\/backend\/stores\/groups"
+          "desc": "[[Which groups can login?]]"
         }
       }
     ],
@@ -384,17 +384,17 @@
       {
         "template": {
           "label": "[[Template]]",
-          "type": "files",
           "withoutExtension": true,
-          "directory": "inc\/template\/users\/registration\/"
+          "directory": "inc\/template\/users\/registration\/",
+          "type": "files"
         },
         "category_rsn": {
           "label": "[[Group]]",
-          "desc": "[[Which group should the new users be added to?]]",
-          "type": "select",
-          "sql": "SELECT * FROM %pfx%system_groups",
+          "sql": "SELECT * FROM $pfx$system_groups",
+          "table_key": "rsn",
           "table_label": "name",
-          "table_id": "rsn"
+          "type": "select",
+          "desc": "[[Which group should the new users be added to?]]"
         },
         "targetpage": {
           "label": "[[Thanks page]]",
@@ -402,194 +402,121 @@
         },
         "activation": {
           "label": "[[Activation]]",
-          "desc": "[[How should the account be activated?]]",
+          "items": {
+            "now": "[[Immediately]]",
+            "admin": "[[By administrator]]",
+            "email": "[[Activation email]]",
+            "emailadmin": "[[Activation email and administrator]]"
+          },
           "type": "select",
-          "tableItems": [
-            {
-              "name": "[[Immediately]]",
-              "key": "now"
-            },
-            {
-              "name": "[[By administrator]]",
-              "key": "admin"
-            },
-            {
-              "name": "[[Activation email]]",
-              "key": "email"
-            },
-            {
-              "name": "[[Activation email and administrator]]",
-              "key": "emailadmin"
-            }
-          ],
-          "table_label": "name",
-          "table_id": "key",
+          "desc": "[[How should the account be activated?]]",
           "depends": {
             "email_actpage": {
-              "needValue": "email",
               "label": "[[Activation page]]",
-              "type": "page"
+              "type": "page",
+              "needValue": "email"
             },
             "email_subject": {
-              "needValue": "email",
-              "label": "[[Email subject]]"
+              "label": "[[Email subject]]",
+              "type": "text",
+              "needValue": "email"
             },
             "email_from": {
-              "needValue": "email",
-              "label": "[[Email from]]"
+              "label": "[[Email from]]",
+              "type": "text",
+              "needValue": "email"
             },
             "email_template": {
-              "needValue": "email",
               "label": "[[Email template]]",
-              "type": "files",
               "withoutExtension": true,
-              "directory": "inc\/template\/users\/activateemail\/"
+              "directory": "inc\/template\/users\/activateemail\/",
+              "type": "files",
+              "needValue": "email"
             },
             "emailadmin_actpage": {
-              "needValue": "emailadmin",
               "label": "[[Activation page]]",
-              "type": "page"
+              "type": "page",
+              "needValue": "emailadmin"
             },
             "emailadmin_subject": {
-              "needValue": "emailadmin",
-              "label": "[[Email subject]]"
+              "label": "[[Email subject]]",
+              "type": "text",
+              "needValue": "emailadmin"
             },
             "emailadmin_from": {
-              "needValue": "emailadmin",
-              "label": "[[Email from]]"
+              "label": "[[Email from]]",
+              "type": "text",
+              "needValue": "emailadmin"
             },
             "emailadmin_template": {
-              "needValue": "emailadmin",
               "label": "[[Email template]]",
-              "type": "files",
               "withoutExtension": true,
-              "directory": "inc\/template\/users\/activateemail\/"
+              "directory": "inc\/template\/users\/activateemail\/",
+              "type": "files",
+              "needValue": "emailadmin"
             }
           }
         },
         "required": {
           "label": "[[Required fields]]",
-          "desc": "[[Select the fields you want to set as required for registration. Email address and password are required by default.]]",
+          "items": {
+            "username": "Username",
+            "firstname": "First name",
+            "lastname": "Last name",
+            "street": "Street",
+            "city": "City",
+            "zipcode": "Zipcode",
+            "country": "Country",
+            "phone": "Phone",
+            "fax": "Fax",
+            "company": "Company"
+          },
           "type": "select",
-          "tableItems": [
-            {
-              "name": "Username",
-              "key": "username"
-            },
-            {
-              "name": "First name",
-              "key": "firstname"
-            },
-            {
-              "name": "Last name",
-              "key": "lastname"
-            },
-            {
-              "name": "Street",
-              "key": "street"
-            },
-            {
-              "name": "City",
-              "key": "city"
-            },
-            {
-              "name": "Zipcode",
-              "key": "zipcode"
-            },
-            {
-              "name": "Country",
-              "key": "country"
-            },
-            {
-              "name": "Phone",
-              "key": "phone"
-            },
-            {
-              "name": "Fax",
-              "key": "fax"
-            },
-            {
-              "name": "Company",
-              "key": "company"
-            }
-          ],
-          "table_label": "name",
-          "table_id": "key",
-          "multiple": true
+          "desc": "[[Select the fields you want to set as required for registration. Email address and password are required by default.]]"
         },
         "hidden": {
           "label": "[[Hidden fields]]",
-          "desc": "[[Select the fields you want to hide from registration. Email address and password can not be hidden.]]",
+          "items": {
+            "username": "Username",
+            "firstname": "First name",
+            "lastname": "Last name",
+            "street": "Street",
+            "city": "City",
+            "zipcode": "Zipcode",
+            "country": "Country",
+            "phone": "Phone",
+            "fax": "Fax",
+            "company": "Company"
+          },
           "type": "select",
-          "tableItems": [
-            {
-              "name": "Username",
-              "key": "username"
-            },
-            {
-              "name": "First name",
-              "key": "firstname"
-            },
-            {
-              "name": "Last name",
-              "key": "lastname"
-            },
-            {
-              "name": "Street",
-              "key": "street"
-            },
-            {
-              "name": "City",
-              "key": "city"
-            },
-            {
-              "name": "Zipcode",
-              "key": "zipcode"
-            },
-            {
-              "name": "Country",
-              "key": "country"
-            },
-            {
-              "name": "Phone",
-              "key": "phone"
-            },
-            {
-              "name": "Fax",
-              "key": "fax"
-            },
-            {
-              "name": "Company",
-              "key": "company"
-            }
-          ],
-          "table_label": "name",
-          "table_id": "key",
-          "multiple": true
+          "desc": "[[Select the fields you want to hide from registration. Email address and password can not be hidden.]]"
         },
         "notificationemail": {
           "label": "[[Email notification]]",
-          "desc": "[[Send an email to target address if an account was created]]",
           "type": "checkbox",
+          "desc": "[[Send an email to target address if an account was created]]",
           "depends": {
             "notifyemail_target": {
-              "needValue": "1",
-              "label": "[[Notify email target address]]"
+              "label": "[[Notify email target address]]",
+              "type": "text",
+              "needValue": "1"
             },
             "notifyemail_subject": {
-              "needValue": "1",
-              "label": "[[Notify email subject]]"
+              "label": "[[Notify email subject]]",
+              "type": "text",
+              "needValue": "1"
             },
             "notifyemail_from": {
-              "needValue": "1",
-              "label": "[[Notify email from address]]"
+              "label": "[[Notify email from address]]",
+              "type": "text",
+              "needValue": "1"
             },
             "notifyemail_template": {
-              "needValue": "1",
               "label": "[[Notify email template]]",
-              "type": "files",
               "withoutExtension": true,
-              "directory": "inc\/template\/users\/notifyemail\/"
+              "directory": "inc\/template\/users\/notifyemail\/",
+              "type": "files",
+              "needValue": "1"
             }
           }
         }
@@ -600,9 +527,9 @@
       {
         "template": {
           "label": "[[Template]]",
-          "type": "files",
           "withoutExtension": true,
-          "directory": "inc\/template\/users\/activation\/"
+          "directory": "inc\/template\/users\/activation\/",
+          "type": "files"
         }
       }
     ],
@@ -611,9 +538,9 @@
       {
         "template": {
           "label": "[[Template]]",
-          "type": "files",
           "withoutExtension": true,
-          "directory": "inc\/template\/users\/messageSystem\/inbox"
+          "directory": "inc\/template\/users\/messageSystem\/inbox",
+          "type": "files"
         },
         "newMessagePage": {
           "label": "[[Page with New-Message-Plugin]]",
@@ -621,7 +548,7 @@
         },
         "displayMessagesPerPage": {
           "label": "[[Display messages per page]]",
-          "type": "integer",
+          "type": "text",
           "default": "5"
         },
         "inplaceRespond": {
@@ -629,25 +556,26 @@
           "type": "checkbox",
           "depends": {
             "attachReMessage": {
-              "needValue": "1",
               "label": "[[Attach response message]]",
-              "type": "checkbox"
+              "type": "checkbox",
+              "needValue": "1"
             },
             "sendReminder": {
-              "needValue": "1",
               "label": "[[Send a reminder email to recipient]]",
               "type": "checkbox",
+              "needValue": "1",
               "depends": {
                 "sendReminderTemplate": {
-                  "needValue": "1",
                   "label": "[[Email template]]",
+                  "withoutExtension": true,
+                  "directory": "inc\/template\/users\/messageSystem\/newMessageEmails",
                   "type": "files",
-                  "directory": "inc\/template\/users\/messageSystem\/newMessageEmails"
+                  "needValue": "1"
                 },
                 "sendReminderSubject": {
-                  "needValue": "1",
                   "label": "[[Reminder email subject]]",
-                  "type": "string"
+                  "type": "text",
+                  "needValue": "1"
                 }
               }
             }
@@ -660,8 +588,9 @@
       {
         "template": {
           "label": "Template",
-          "type": "files",
-          "directory": "inc\/template\/users\/messageSystem\/countNew"
+          "withoutExtension": true,
+          "directory": "inc\/template\/users\/messageSystem\/countNew",
+          "type": "files"
         },
         "InboxMessagePage": {
           "label": "Page with Inbox-Message-Plugin",
@@ -674,8 +603,9 @@
       {
         "template": {
           "label": "Template",
-          "type": "files",
-          "directory": "inc\/template\/users\/messageSystem\/outbox"
+          "withoutExtension": true,
+          "directory": "inc\/template\/users\/messageSystem\/outbox",
+          "type": "files"
         },
         "showReciInfo": {
           "label": "Show read message",
@@ -683,7 +613,7 @@
         },
         "displayMessagesPerPage": {
           "label": "Display messages per page",
-          "type": "integer",
+          "type": "text",
           "default": "5"
         }
       }
@@ -693,8 +623,9 @@
       {
         "template": {
           "label": "Template",
-          "type": "files",
-          "directory": "inc\/template\/users\/messageSystem\/newMessage"
+          "withoutExtension": true,
+          "directory": "inc\/template\/users\/messageSystem\/newMessage",
+          "type": "files"
         },
         "attachReMessage": {
           "label": "Attach response message",
@@ -705,15 +636,16 @@
           "type": "checkbox",
           "depends": {
             "sendReminderTemplate": {
-              "needValue": "1",
               "label": "Email template",
+              "withoutExtension": true,
+              "directory": "inc\/template\/users\/messageSystem\/newMessageEmails",
               "type": "files",
-              "directory": "inc\/template\/users\/messageSystem\/newMessageEmails"
+              "needValue": "1"
             },
             "sendReminderSubject": {
-              "needValue": "1",
               "label": "Reminder email subject",
-              "type": "string"
+              "type": "text",
+              "needValue": "1"
             }
           }
         }

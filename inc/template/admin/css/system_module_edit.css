@@ -31,7 +31,7 @@
 }
 
 
-.admin-system-modules-show-layoutSettings .layoutSettings {
+.admin-system-modules-show-layoutSettings > .layoutSettings {
     display: block;
 }
 

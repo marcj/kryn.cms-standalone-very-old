@@ -4,11 +4,159 @@ ka.propertyTable = new Class({
     options: {
         withDependFields: false,
         addLabel: t('Add property'),
-        mode: 'kaField' //kaField = ka.field definition, object = object field definition
-
+        mode: 'kaField', //kaField = ka.field definition, object = object field definition
+        arrayKey: false //key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
     container: false,
+
+    kaFields: {
+        label: {
+            label: t('Label'),
+            desc: t('Surround the value with [[ and ]] to make it multilingual.'),
+            type: 'text'
+        },
+        'type': {
+            label: t('Type'),
+            type: 'select',
+            items: {
+                text: t('Text'),
+                password: t('Password'),
+                number: t('Number'),
+                checkbox: t('Checkbox'),
+                page: t('Page'),
+                file: t('File'),
+                folder: t('Folder'),
+                select: t('Select'),
+                textlist: t('Textlist'),
+                textarea: t('Textarea'),
+                array: t('Array'),
+                wysiwyg: t('Wysiwyg'),
+                date: t('Date'),
+                datetime: t('Datetime'),
+                files: t('File list from folder'),
+                filelist: t('File list (Attachments)'),
+                layoutelement: t('Layout element'),
+                headline: t('Headline'),
+                info: t('Info'),
+                label: t('Label'),
+                html: t('Html'),
+                imagegroup: t('Imagegroup'),
+                custom: t('Custom'),
+                childrenswitcher: t('Children switcher'),
+                window_list: t('Framework windowList')
+            },
+            'depends': {
+
+                //select
+                '__info__': {
+                    needValue: 'select',
+                    type: 'label',
+                    label: t('Use a store, a table, SQL or static items.')
+                },
+                'table': {
+                    needValue: 'select',
+                    label: t('Table name'),
+                    desc: t('Start with / to use a table which is not defined in kryn or is in a different database.'),
+                    type: 'text'
+                },
+                'sql': {
+                    needValue: 'select',
+                    label: t('SQL'),
+                    desc: t('Please only select in your SQL the table_key and table_label.'),
+                    type: 'text'
+                },
+                table_key: {
+                    needValue: function(n){if(n!='')return true;else return false;},
+                    againstField: ['table', 'sql'],
+                    label: t('Table primary column')
+                },
+                table_label: {
+                    needValue: function(n){if(n!='')return true;else return false;},
+                    againstField: ['table', 'sql'],
+                    label: t('Table label column')
+                },
+                items: {
+                    needValue: 'select',
+                    label: t('static items'),
+                    desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {"item1": "[[Item 1]]"} or ["Foo", "Bar", "Three"].')
+                },
+
+                //select, file and folder
+                'multi': {
+                    needValue: ['select', 'file', 'folder'],
+                    label: t('Multiple selection'),
+                    desc: t('This field returns then an array.'),
+                    type: 'checkbox'
+                },
+
+                //textlist
+                'doubles': {
+                    needValue: 'textlist',
+                    label: t('Allow double entries'),
+                    type: 'checkbox'
+                },
+
+                //select,textlist
+                'store': {
+                    needValue: ['select', 'textlist'],
+                    label: t('Store path'),
+                    desc: t('<extKey>/<EntryPath>, Example: publication/stores/news.')
+                },
+
+                //files
+                'withoutExtension': {
+                    needValue: 'files',
+                    type: 'checkbox',
+                    label: t('File names without extensions'),
+                    'default': 1
+                },
+                directory: {
+                    needValue: 'files',
+                    label: t('List files from this folder'),
+                    desc: t('Relative from Kryn.cms installation folder.')
+                }
+
+            }
+        },
+        __optional__: {
+            label: t('Optional'),
+            type: 'childrenswitcher',
+            depends: {
+                desc: {
+                    label: t('Description (Optional)'),
+                    type: 'text'
+                },
+                'needValue': {
+                    label: tc('kaPropertyTable', 'Visibility condition (Optional)'),
+                    desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, Array(use JSON notation), /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
+                },
+                againstField: {
+                    label: tc('kaPropertyTable', 'Visibility condition field (Optional)'),
+                    desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation. String or Array")
+                },
+                'length': {
+                    needValue: ['text', 'password', 'number'],
+                    againstField: 'type',
+                    type: 'text',
+                    label: t('Max value length. (Optional)')
+                },
+                'default': {
+                    needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
+                    againstField: 'type',
+                    type: 'text',
+                    label: t('Default value. Use JSON notation. (Optional)')
+                },
+                'required_regexp': {
+                    needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
+                    againstField: 'type',
+                    type: 'text',
+                    label: t('Required value as regular expression. (Optional)'),
+                    desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
+                }
+            }
+        }
+    },
 
     initialize: function(pContainer, pWin, pOptions){
 
@@ -53,17 +201,21 @@ ka.propertyTable = new Class({
 
         new ka.Button(this.options.addLabel)
         .addEvent('click', function(){
-            this.add();
+            this.add(null,null, this.itemContainer);
         }.bind(this))
         .inject(this.footer);
     },
 
     getValue: function(){
 
-        var value = {};
+        return this._getValue(this.itemContainer);
 
-        this.itemContainer.getChildren('.ka-propertyTable-item').each(function(item){
+    },
 
+    _getValue: function(pContainer){
+        var result = {};
+
+        pContainer.getChildren('.ka-propertyTable-item').each(function(item){
             var key = item.getElement('.ka-propertyTable-item-key');
             if (!key) return;
 
@@ -92,7 +244,8 @@ ka.propertyTable = new Class({
                     try {
 
                         //check if json array
-                        if (pval.substr(0,1) == '[' && pval.substr(pval.length-1,1) == ']')
+                        if (pval.substr(0,1) == '[' && pval.substr(pval.length-1) == ']'&&
+                            pval.substr(0,2) != '[[' && pval.substr(pval.length-2) != ']]')
                             newItem = JSON.decode(pval);
 
                         //check if json object
@@ -108,39 +261,49 @@ ka.propertyTable = new Class({
 
             }.bind(this));
 
-            var originDefinition = item.retrieve('definition');
+            property.depends = this._getValue(item.retrieve('dependDiv'));
 
-            if (originDefinition && originDefinition.depends)
-                property.depends = originDefinition.depends;
+            if (Object.getLength(property.depends) == 0)
+                delete property.depends;
 
-            value[key.value] = property;
+            result[key.value] = property;
+
         }.bind(this));
 
-        return value;
+        return result;
     },
 
     setValue: function(pValue){
 
         if (typeOf(pValue) == 'object'){
             Object.each(pValue, function(property,key){
-
-                this.add(key, property);
-
+                this._setValue(key, property, this.itemContainer)
             }.bind(this));
 
         }
     },
 
-    add: function(pKey, pDefinition){
+    _setValue: function(pKey, pProperty, pContainer){
+        var div = this.add(pKey, pProperty, pContainer);
 
+        if (pProperty.depends){
+            Object.each(pProperty.depends, function(property,key){
+                this._setValue(key, property, div.retrieve('dependDiv'));
+            }.bind(this));
+
+        }
+    },
+
+    add: function(pKey, pDefinition, pContainer){
+        var self = this;
 
         var div = new Element('div', {
             'class': 'ka-propertyTable-item',
             style: 'border-bottom: 1px solid silver; position: relative;'
-        }).inject(this.itemContainer);
+        }).inject(pContainer);
 
         var header = new Element('div', {
-            style: 'border-bottom: 1px solid silver; padding: 3px;'
+            'class': 'ka-propertyTable-item-header'
         }).inject(div);
 
         div.store('definition', pDefinition || {});
@@ -152,9 +315,18 @@ ka.propertyTable = new Class({
             'class': 'text ka-propertyTable-item-key'
         })
         .addEvent('keyup', function(e){
+
+            if (e.key.length > 1) return;
+            var range = this.getSelectedRange();
+
             this.value = this.value.replace(' ', '_');
-            this.value = this.value.replace(/[^a-zA-Z0-9_-]/, '-');
+            if (self.options.arrayKey)
+                this.value = this.value.replace(/[^a-zA-Z0-9_\-\[\]]/, '-');
+            else
+                this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
             this.value = this.value.replace(/--+/, '-');
+
+            this.selectRange(range.start, range.end);
         })
         .inject(header);
 
@@ -164,8 +336,11 @@ ka.propertyTable = new Class({
             style: 'cursor: pointer; position: relative; top: 3px;'
         })
         .addEvent('click', function(){
-            div.destroy();
-        })
+            this.win._confirm(t('Really delete?'), function(ok){
+                if(ok)
+                    div.destroy();
+            }.bind(this));
+        }.bind(this))
         .inject(header);
 
         new Element('img', {
@@ -201,9 +376,9 @@ ka.propertyTable = new Class({
         var ch = new ka.Checkbox(showDefinition);
         ch.addEvent('change', function(){
             if(ch.getValue()){
-                div.addClass('ka-propertyTable-showDefinition-show');
+                div.addClass('ka-propertyTable-showDefinition-show-sub');
             } else {
-                div.removeClass('ka-propertyTable-showDefinition-show');
+                div.removeClass('ka-propertyTable-showDefinition-show-sub');
             }
         });
 
@@ -217,154 +392,6 @@ ka.propertyTable = new Class({
             style: 'color: gray',
             'class': 'ka-propertyTable-key-info'
         }).inject(header);
-
-        this.kaFields = {
-            label: {
-                label: t('Label'),
-                desc: t('Surround the value with [[ and ]] to make it multilingual.'),
-                type: 'text'
-            },
-            'type': {
-                label: t('Type'),
-                type: 'select',
-                items: {
-                    text: t('Text'),
-                    password: t('Password'),
-                    number: t('Number'),
-                    checkbox: t('Checkbox'),
-                    page: t('Page'),
-                    file: t('File'),
-                    folder: t('Folder'),
-                    select: t('Select'),
-                    textlist: t('Textlist'),
-                    textarea: t('Textarea'),
-                    array: t('Array'),
-                    wysiwyg: t('Wysiwyg'),
-                    date: t('Date'),
-                    datetime: t('Datetime'),
-                    files: t('File list from folder'),
-                    filelist: t('File list (Attachments)'),
-                    layoutelement: t('Layout element'),
-                    headline: t('Headline'),
-                    info: t('Info'),
-                    label: t('Label'),
-                    html: t('Html'),
-                    imagegroup: t('Imagegroup'),
-                    custom: t('Custom'),
-                    childrenswitcher: t('Children switcher'),
-                    window_list: t('Framework windowList')
-                },
-                'depends': {
-
-                    //select
-                    '__info__': {
-                        needValue: 'select',
-                        type: 'label',
-                        label: t('Use a store, a table, SQL or static items.')
-                    },
-                    'table': {
-                        needValue: 'select',
-                        label: t('Table name'),
-                        desc: t('Start with / to use a table which is not defined in kryn or is in a different database.'),
-                        type: 'text'
-                    },
-                    'sql': {
-                        needValue: 'select',
-                        label: t('SQL'),
-                        desc: t('Please only select in your SQL the table_key and table_label.'),
-                        type: 'text'
-                    },
-                    table_key: {
-                        needValue: function(n){if(n!='')return true;else return false;},
-                        againstField: ['table', 'sql'],
-                        label: t('Table primary column')
-                    },
-                    table_label: {
-                        needValue: function(n){if(n!='')return true;else return false;},
-                        againstField: ['table', 'sql'],
-                        label: t('Table label column')
-                    },
-                    items: {
-                        needValue: 'select',
-                        label: t('static items'),
-                        desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {item1: \'Item 1\'} or ["Foo", "Bar", "Three"].')
-                    },
-
-                    //select, file and folder
-                    'multi': {
-                        needValue: ['select', 'file', 'folder'],
-                        label: t('Multiple selection'),
-                        desc: t('This field returns then an array.'),
-                        type: 'checkbox'
-                    },
-
-                    //textlist
-                    'doubles': {
-                        needValue: 'textlist',
-                        label: t('Allow double entries'),
-                        type: 'checkbox'
-                    },
-
-                    //select,textlist
-                    'store': {
-                        needValue: ['select', 'textlist'],
-                        label: t('Store path'),
-                        desc: t('<extKey>/<EntryPath>, Example: publication/stores/news.')
-                    },
-
-                    //files
-                    'withoutExtension': {
-                        needValue: 'files',
-                        type: 'checkbox',
-                        label: t('File names without extensions'),
-                        'default': 1
-                    },
-                    directory: {
-                        needValue: 'files',
-                        label: t('List files from this folder'),
-                        desc: t('Relative from Kryn.cms installation folder.')
-                    }
-
-                }
-            },
-            __optional__: {
-                label: t('Optional'),
-                type: 'childrenswitcher',
-                depends: {
-                    desc: {
-                        label: t('Description (Optional)'),
-                        type: 'text'
-                    },
-                    'needValue': {
-                        label: tc('kaPropertyTable', 'Visibility condition (Optional)'),
-                        desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, Array(use JSON notation), /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
-                    },
-                    againstField: {
-                        label: tc('kaPropertyTable', 'Visibility condition field (Optional)'),
-                        desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation. String or Array")
-                    },
-                    'length': {
-                        needValue: ['text', 'password', 'number'],
-                        againstField: 'type',
-                        type: 'text',
-                        label: t('Max value length. (Optional)')
-                    },
-                    'default': {
-                        needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
-                        againstField: 'type',
-                        type: 'text',
-                        label: t('Default value. Use JSON notation. (Optional)')
-                    },
-                    'required_regexp': {
-                        needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
-                        againstField: 'type',
-                        type: 'text',
-                        label: t('Required value as regular expression. (Optional)'),
-                        desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
-                    }
-                }
-            }
-        };
 
         var main = new Element('div',{'class': 'ka-propertyTable-definition',style: 'background-color: #e5e5e5'}).inject(div);
 
@@ -385,11 +412,27 @@ ka.propertyTable = new Class({
                 pDefinition.table_key = pDefinition.table_id+'';
                 delete pDefinition.table_id;
             }
+
             if(pDefinition.type == 'select' && pDefinition.tableItems){
-                pDefinition.items = Object.clone(pDefinition.tableItems);
+                if (typeOf(pDefinition.tableItems) == 'object')
+                    pDefinition.items = Object.clone(pDefinition.tableItems);
+
+                if (typeOf(pDefinition.tableItems) == 'array')
+                    pDefinition.items = Array.clone(pDefinition.tableItems);
+
                 delete pDefinition.tableItems;
             }
 
+            if (typeOf(pDefinition.items) == 'array'){
+                var first = pDefinition.items[0];
+                if (typeOf(first) == 'object'){
+                    var newItems = {};
+                    Array.each(pDefinition.items, function(item){
+                        newItems[ item[pDefinition.table_key] ] = item[pDefinition.table_label];
+                    });
+                    pDefinition.items = newItems;
+                }
+            }
 
             Object.each(pDefinition, function(value, valueKey){
 
@@ -405,17 +448,28 @@ ka.propertyTable = new Class({
         }
 
 
-        new ka.Button(t('Children'))
-        .addEvent('click', this.openDepends.bind(this, div))
-        .inject(main);
+        var dependDiv = new Element('div', {
+            'class': 'ka-propertyTable-children'
+        }).inject(div);
 
-        var dependDiv = new Element('div', {style: 'padding: 5px; padding-left: 15px; color: gray;'}).inject(main);
         div.store('dependDiv', dependDiv);
 
-        this.renderDependInfo(div);
+        var btnDiv = Element('div', {
+            style: 'padding-top: 3px; padding-left: 10px;'
+        }).inject(div)
 
-    },
+        new ka.Button(t('Add child'))
+        .addEvent('click', function(){
+            this.add('child_key_'+(dependDiv.getChildren().length+1), {}, dependDiv);
+        }.bind(this))
+        .inject(btnDiv);
 
+        //this.renderDependInfo(div);
+
+        return div;
+    }
+
+    /*
 
     renderDependInfo: function(pPropertyDiv){
 
@@ -482,5 +536,6 @@ ka.propertyTable = new Class({
         delete this.dialog;
 
     }
+    */
 
 })

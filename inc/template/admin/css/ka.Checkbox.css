@@ -54,11 +54,11 @@
     -webkit-border-radius: 3px;
     border-radius: 3px;
 
-    width: 30px;
+    width: 32px;
     height: 20px;
     position: relative;
 }
 
 .ka-Checkbox-on .ka-Checkbox-knob {
-    left: 30px;
+    left: 28px;
 }
