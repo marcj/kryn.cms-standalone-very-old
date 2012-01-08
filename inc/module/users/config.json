@@ -91,216 +91,255 @@
     }
   },
   "auth": {
-  
     "auth_imap": {
-        "server": {
-            "label": "[[Server]]",
+      "server": {
+        "label": "[[Server]]",
+        "type": "text"
+      },
+      "port": {
+        "label": "[[Port]]",
+        "type": "number",
+        "width": 50
+      },
+      "ssl": {
+        "label": "SSL",
+        "type": "checkbox"
+      },
+      "novalidate-cert": {
+        "label": "[[No cert validation]]",
+        "type": "checkbox"
+      },
+      "tls": {
+        "label": "TLS",
+        "type": "checkbox"
+      },
+      "default_group": {
+        "label": "[[Login mapping]]",
+        "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
+        "type": "array",
+        "startWith": 1,
+        "columns": [
+          {
+            "label": "[[Login]]"
+          },
+          {
+            "label": "[[Group]]",
+            "width": "65%"
+          }
+        ],
+        "fields": {
+          "login": {
             "type": "text"
-        },
-        "port": {
-            "label": "[[Port]]",
-            "type": "number",
-            "width": 50
-        },
-        "ssl": {
-            "label": "SSL",
-            "type": "checkbox"
-        },
-        "novalidate-cert": {
-            "label": "[[No cert validation]]",
-            "type": "checkbox"
-        },
-        "tls": {
-            "label": "TLS",
-            "type": "checkbox"
-        },
-        "default_group": {
-            "label": "[[Login mapping]]",
-            "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
-            "type": "array",
-            "startWith": 1,
-            "columns": [
-                {"label": "[[Login]]"},
-                {"label": "[[Group]]", "width": "65%"}
-            ],
-            "fields": {
-                "login": {
-                    "type": "text"
-                },
-                "group": {
-                    "type": "textlist",
-                    "multi": true,
-                    "store": "admin/backend/stores/groups"
-                }
-            }
+          },
+          "group": {
+            "type": "textlist",
+            "multi": true,
+            "store": "admin\/backend\/stores\/groups"
+          }
         }
+      }
     },
     "auth_ldap": {
-        "server": {
-            "label": "Server",
-            "type": "text"
-        }
+      "server": {
+        "label": "Server",
+        "type": "text"
+      }
     },
-    
     "auth_ftp": {
-    
-        "server": {
-            "label": "Server",
+      "server": {
+        "label": "Server",
+        "type": "text"
+      },
+      "port": {
+        "label": "Port",
+        "type": "number",
+        "width": 50
+      },
+      "ssl": {
+        "label": "SSL",
+        "type": "checkbox"
+      },
+      "default_group": {
+        "label": "[[Group mapping]]",
+        "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
+        "type": "array",
+        "columns": [
+          {
+            "label": "Login"
+          },
+          {
+            "label": "Group",
+            "width": "65%"
+          }
+        ],
+        "fields": {
+          "login": {
             "type": "text"
-        },
-        "port": {
-            "label": "Port",
-            "type": "number",
-            "width": 50
-        },
-        "ssl": {
-            "label": "SSL",
-            "type": "checkbox"
-        },
-        "default_group": {
-            "label": "[[Group mapping]]",
-            "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
-            "type": "array",
-            "columns": [
-                {"label": "Login"},
-                {"label": "Group", "width": "65%"}
-            ],
-            "fields": {
-                "login": {
-                    "type": "text"
-                },
-                "group": {
-                    "type": "textlist",
-                    "multi": true,
-                    "store": "admin/backend/stores/groups"
-                }
-            }
+          },
+          "group": {
+            "type": "textlist",
+            "multi": true,
+            "store": "admin\/backend\/stores\/groups"
+          }
         }
+      }
     },
     "auth_sql": {
-        "server": {
-            "label": "Server",
-            "type": "text"
-        }
+      "server": {
+        "label": "Server",
+        "type": "text"
+      }
     },
     "auth_pam": {
-        "server": {
-            "label": "Server",
-            "type": "text"
-        }
+      "server": {
+        "label": "Server",
+        "type": "text"
+      }
     },
     "auth_passwd": {
-        "server": {
-            "label": "Server",
-            "type": "text"
-        }
+      "server": {
+        "label": "Server",
+        "type": "text"
+      }
     },
     "auth_samba": {
-    
-        "server": {
-            "label": "Server",
-            "type": "text"
-        }
+      "server": {
+        "label": "Server",
+        "type": "text"
+      }
     }
   },
   "objects": {
-     "user": {
-         "title": "[[User]]",
-         "table": "system_user"
-     },
-     "group": {
-         "title": "[[Group]]",
-         "table": "system_groups"
-     }
+    "user": {
+      "title": "[[User]]",
+      "table": "system_user"
+    },
+    "group": {
+      "title": "[[Group]]",
+      "table": "system_groups"
+    }
   },
-
   "objectRelations": {
-      "user_group": [
-          "user", "rsn", "n-n", "system_groupaccess", "group", "rsn"
-      ]
+    "user_group": [
+      "user",
+      "rsn",
+      "n-n",
+      "system_groupaccess",
+      "group",
+      "rsn"
+    ]
   },
-
-
   "admin": {
     "browser": {
       "title": "[[User and group browse dialog]]",
       "type": "custom",
       "isLink": false,
+      "multi": false,
       "defaultWidth": 650,
-      "defaultHeight": 400
+      "defaultHeight": 400,
+      "childs": [
+        
+      ]
     },
     "users": {
       "title": "[[Users]]",
-      "type": "combine",
       "class": "usersAdminList",
-      "icon": "admin/images/admin-users-icon.png",
-      "defaultWidth": 700,
+      "type": "combine",
+      "icon": "admin\/images\/admin-users-icon.png",
+      "isLink": true,
+      "multi": false,
+      "minWidth": 850,
+      "defaultWidth": 850,
       "childs": {
+        "add": {
+          "title": "[[Users add]]",
+          "class": "usersAdminAdd",
+          "type": "add",
+          "isLink": false,
+          "multi": false,
+          "defaultWidth": 500,
+          "defaultHeight": 410,
+          "childs": [
+            
+          ]
+        },
         "edit": {
           "title": "[[Users edit]]",
-          "type": "edit",
           "class": "usersAdminEdit",
+          "type": "edit",
           "isLink": false,
+          "multi": false,
           "defaultWidth": 500,
-          "defaultHeight": 410
+          "defaultHeight": 410,
+          "childs": [
+            
+          ]
         },
         "editMe": {
           "title": "[[User self edit]]",
-          "type": "edit",
           "class": "usersAdminSelfEdit",
+          "type": "edit",
           "isLink": false,
+          "multi": false,
           "defaultWidth": 370,
           "defaultHeight": 520,
           "childs": {
             "groups": {
               "title": "[[Can edit groups]]",
-              "type": "acl"
+              "childs": [
+                
+              ]
             },
             "username": {
               "title": "[[Can change username]]",
-              "type": "acl"
+              "childs": [
+                
+              ]
             }
           }
         },
-        "add": {
-          "title": "[[Users add]]",
-          "type": "add",
-          "class": "usersAdminAdd",
-          "isLink": false,
-          "defaultWidth": 500,
-          "defaultHeight": 410
-        },
         "groups": {
           "title": "[[Groups]]",
-          "type": "list",
           "class": "usersAdminGroupList",
+          "type": "combine",
           "isLink": true,
+          "multi": false,
           "childs": {
             "edit": {
               "title": "[[Group edit]]",
-              "type": "edit",
               "class": "usersAdminGroupEdit",
+              "type": "edit",
               "isLink": false,
+              "multi": false,
               "fixedWidth": 475,
-              "fixedHeight": 200
+              "fixedHeight": 200,
+              "childs": [
+                
+              ]
             },
             "add": {
               "title": "[[Group add]]",
-              "type": "add",
               "class": "usersAdminGroupAdd",
+              "type": "add",
               "isLink": false,
+              "multi": false,
               "fixedWidth": 375,
-              "fixedHeight": 200
+              "fixedHeight": 200,
+              "childs": [
+                
+              ]
             }
           }
         },
         "acl": {
           "title": "[[Access management]]",
           "type": "custom",
-          "defaultWidth": 870,
-          "minWidth": 870,
-          "defaultHeight": 500,
           "isLink": true,
+          "multi": false,
+          "minWidth": 870,
+          "minHeight": 500,
+          "defaultWidth": 870,
+          "defaultHeight": 500,
           "childs": [
             
           ]
@@ -336,7 +375,7 @@
           "label": "[[Groups]]",
           "desc": "[[Which groups can login?]]",
           "type": "textlist",
-          "store": "admin/backend/stores/groups"
+          "store": "admin\/backend\/stores\/groups"
         }
       }
     ],
@@ -406,11 +445,10 @@
               "withoutExtension": true,
               "directory": "inc\/template\/users\/activateemail\/"
             },
-            
             "emailadmin_actpage": {
               "needValue": "emailadmin",
               "label": "[[Activation page]]",
-              "type": "page" 
+              "type": "page"
             },
             "emailadmin_subject": {
               "needValue": "emailadmin",
@@ -434,16 +472,46 @@
           "desc": "[[Select the fields you want to set as required for registration. Email address and password are required by default.]]",
           "type": "select",
           "tableItems": [
-            { "name": "Username",   "key": "username" },
-            { "name": "First name", "key": "firstname" },
-            { "name": "Last name",  "key": "lastname" },
-            { "name": "Street",     "key": "street" },
-            { "name": "City",       "key": "city" },
-            { "name": "Zipcode",    "key": "zipcode" },
-            { "name": "Country",    "key": "country" },
-            { "name": "Phone",      "key": "phone" },
-            { "name": "Fax",        "key": "fax" },
-            { "name": "Company",    "key": "company" }
+            {
+              "name": "Username",
+              "key": "username"
+            },
+            {
+              "name": "First name",
+              "key": "firstname"
+            },
+            {
+              "name": "Last name",
+              "key": "lastname"
+            },
+            {
+              "name": "Street",
+              "key": "street"
+            },
+            {
+              "name": "City",
+              "key": "city"
+            },
+            {
+              "name": "Zipcode",
+              "key": "zipcode"
+            },
+            {
+              "name": "Country",
+              "key": "country"
+            },
+            {
+              "name": "Phone",
+              "key": "phone"
+            },
+            {
+              "name": "Fax",
+              "key": "fax"
+            },
+            {
+              "name": "Company",
+              "key": "company"
+            }
           ],
           "table_label": "name",
           "table_id": "key",
@@ -454,16 +522,46 @@
           "desc": "[[Select the fields you want to hide from registration. Email address and password can not be hidden.]]",
           "type": "select",
           "tableItems": [
-            { "name": "Username",   "key": "username" },
-            { "name": "First name", "key": "firstname" },
-            { "name": "Last name",  "key": "lastname" },
-            { "name": "Street",     "key": "street" },
-            { "name": "City",       "key": "city" },
-            { "name": "Zipcode",    "key": "zipcode" },
-            { "name": "Country",    "key": "country" },
-            { "name": "Phone",      "key": "phone" },
-            { "name": "Fax",        "key": "fax" },
-            { "name": "Company",    "key": "company" }
+            {
+              "name": "Username",
+              "key": "username"
+            },
+            {
+              "name": "First name",
+              "key": "firstname"
+            },
+            {
+              "name": "Last name",
+              "key": "lastname"
+            },
+            {
+              "name": "Street",
+              "key": "street"
+            },
+            {
+              "name": "City",
+              "key": "city"
+            },
+            {
+              "name": "Zipcode",
+              "key": "zipcode"
+            },
+            {
+              "name": "Country",
+              "key": "country"
+            },
+            {
+              "name": "Phone",
+              "key": "phone"
+            },
+            {
+              "name": "Fax",
+              "key": "fax"
+            },
+            {
+              "name": "Company",
+              "key": "company"
+            }
           ],
           "table_label": "name",
           "table_id": "key",

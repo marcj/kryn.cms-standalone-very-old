@@ -38,7 +38,7 @@ ka.Checkbox = new Class({
     },
 
     getValue: function () {
-        return this.value == false ? 0 : 1;
+        return this.value == false ? false : true;
     },
 
     setValue:function (p) {

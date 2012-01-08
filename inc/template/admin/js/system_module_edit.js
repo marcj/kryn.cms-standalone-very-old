@@ -841,14 +841,17 @@ var admin_system_module_edit = new Class({
     saveLinks: function () {
 
         var admin = {};
-        this.layoutPaneItems.getChildren('div.layoutItem]').each(function (layoutItem) {
-            admin[ layoutItem.getFirst('input').value ] = this._getLayoutSetting(layoutItem);
+
+        this.layoutPaneItems.getChildren('.ka-extension-manager-links-item').each(function(item){
+            var input = item.getElement('input');
+            admin[input.value ] = this._getLayoutSetting(item);
         }.bind(this));
 
         var req = {};
         req.name = this.mod;
         req.admin = JSON.encode(admin);
         this.loader.show();
+
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLinks', noCache: 1, onComplete: function () {
             this.loader.hide();
             ka.loadSettings();
@@ -860,18 +863,21 @@ var admin_system_module_edit = new Class({
     _getLayoutSetting: function (pLayoutItem) {
         var res = {};
 
-        var settingPane = pLayoutItem.getFirst('div.layoutSettings');
-        res['title'] = settingPane.getElement('input.layoutSettingsTitle').value;
-        res['type'] = settingPane.getElement('select.layoutSettingsType').value;
-        res['class'] = settingPane.getElement('input.layoutSettingsClass').value;
-        res['isLink'] = settingPane.getElement('input.layoutSettingsIsLink').checked;
-        res['multi'] = settingPane.getElement('input.layoutSettingsCanMulti').checked;
+        var kaParser = pLayoutItem.retrieve('kaparser');
+        res = kaParser.getValue();
 
-        var childs = {};
-        pLayoutItem.getElement('div.layoutChilds').getChildren('div.layoutItem').each(function (layoutItem) {
-            childs[ layoutItem.getElement('input').value ] = this._getLayoutSetting(layoutItem);
+        Object.each(res, function(v,k){
+            if (v === '')
+                delete res[k];
+        })
+
+        res['childs'] = {};
+
+        pLayoutItem.getElement('.layoutChilds').getChildren('.ka-extension-manager-links-item').each(function(item){
+            var input = item.getElement('input');
+            res['childs'][input.value ] = this._getLayoutSetting(item);
         }.bind(this));
-        res['childs'] = childs;
+
         return res;
     },
 
@@ -881,6 +887,10 @@ var admin_system_module_edit = new Class({
         var tbody = new Element('tbody').inject(table);
 
         var kaFields = {
+            title: {
+                label: t('Title'),
+                desc: t('Surround the value with [[ and ]] to make it multilingual.')
+            },
             type: {
                 label: t('Type'),
                 type: 'select',
@@ -967,6 +977,19 @@ var admin_system_module_edit = new Class({
                         againstField: 'type',
                         type: 'number'
                     },
+                    defaultWidth: {
+                        label: t('Default width'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    defaultHeight: {
+                        label: t('Default height'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+
                     fixedWidth: {
                         label: t('Fixed width'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
@@ -984,7 +1007,7 @@ var admin_system_module_edit = new Class({
         }
 
         var kaParser = new ka.parse(tbody, kaFields, {allTableItems:1}, {win: this.win});
-        pSub.store('kaparser', kaParser);
+        pSub.getParent().store('kaparser', kaParser);
         kaParser.setValue(pLink);
     },
 
@@ -992,7 +1015,7 @@ var admin_system_module_edit = new Class({
 
         var lvl1 = new Element('div', {
             style: 'border: 1px solid #ccc; padding-left: 0px; padding-bottom: 5px; background-color: #e8e8e8; margin: 5px 0px; position: relative;',
-            'class': 'layoutItem'
+            'class': 'layoutItem ka-extension-manager-links-item'
         }).inject(pParent);
 
         var header = new Element('div',{

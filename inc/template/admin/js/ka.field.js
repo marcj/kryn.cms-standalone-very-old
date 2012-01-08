@@ -1646,8 +1646,12 @@ ka.field = new Class({
         this.renderText();
 
         this.input.addEvent('keyup', function () {
-            this.value = this.value.replace(/[^0-9]/g, '');
+            this.value = this.value.replace(/[^0-9\.]/g, '');
         });
+
+        this.getValue = function(){
+            return parseFloat(this.input.value);
+        }.bind(this);
 
     },
 

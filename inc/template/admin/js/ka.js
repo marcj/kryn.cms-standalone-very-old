@@ -2032,7 +2032,8 @@ ka.parse = new Class({
                         key = item.replace(']', '');
 
                         if (pos == items.length - 1) {
-                            last[key] = obj.getValue();
+                            if (typeOf(obj.getValue()) !== 'null')
+                                last[key] = obj.getValue();
                         } else {
                             last[key] = {};
                             last = last[key];
@@ -2040,7 +2041,8 @@ ka.parse = new Class({
                     });
                     res = Object.merge(res, newRes);
                 } else {
-                    res[id] = obj.getValue();
+                    if (typeOf(obj.getValue()) !== 'null')
+                        res[id] = obj.getValue();
                 }
             });
         }
