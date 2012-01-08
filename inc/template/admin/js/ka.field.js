@@ -1635,7 +1635,7 @@ ka.field = new Class({
 
         this._setValue = function(pValue){
             if (typeOf(pValue) == 'null') pValue = this.field['default'] || false;
-            this.checkbox.setValue(pValue);
+            this.checkbox.setValue(pValue+0);
         }.bind(this);
 
 

@@ -136,7 +136,7 @@ ka.propertyTable = new Class({
 
         var div = new Element('div', {
             'class': 'ka-propertyTable-item',
-            style: 'border-bottom: 1px solid silver;'
+            style: 'border-bottom: 1px solid silver; position: relative;'
         }).inject(this.itemContainer);
 
         var header = new Element('div', {
@@ -192,6 +192,25 @@ ka.propertyTable = new Class({
             div.inject(div.getNext(), 'after');
         })
         .inject(header);
+
+        var showDefinition = new Element('div', {
+            'class': 'ka-propertyTable-showDefinition',
+            style: 'width: 150px;'
+        }).inject(header);
+
+        var ch = new ka.Checkbox(showDefinition);
+        ch.addEvent('change', function(){
+            if(ch.getValue()){
+                div.addClass('ka-propertyTable-showDefinition-show');
+            } else {
+                div.removeClass('ka-propertyTable-showDefinition-show');
+            }
+        });
+
+        new Element('div',{
+            style: 'position: absolute; left: 70px; top: 6px; color: gray;',
+            text: t('Show definition')
+        }).inject(showDefinition);
 
         new Element('div', {
             text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
@@ -258,12 +277,12 @@ ka.propertyTable = new Class({
                     table_key: {
                         needValue: function(n){if(n!='')return true;else return false;},
                         againstField: ['table', 'sql'],
-                        label: t('Table primary key')
+                        label: t('Table primary column')
                     },
                     table_label: {
                         needValue: function(n){if(n!='')return true;else return false;},
                         againstField: ['table', 'sql'],
-                        label: t('Table label key')
+                        label: t('Table label column')
                     },
                     items: {
                         needValue: 'select',

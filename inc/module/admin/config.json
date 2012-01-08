@@ -1549,7 +1549,8 @@
     "admin\/css\/ka.Accordion.css",
     "admin\/css\/ka.imageGroup.css",
     "admin\/css\/ka.layoutBox.css",
-    "admin\/css\/ka.layoutContent.css",
+      "admin\/css\/ka.layoutContent.css",
+      "admin\/css\/ka.propertyTable.css",
     "admin\/css\/overview.css"
   ],
   "community": "1",

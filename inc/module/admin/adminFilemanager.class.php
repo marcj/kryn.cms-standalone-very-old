@@ -962,12 +962,29 @@ class adminFilemanager {
             }
         }
 
-        //$item['writeaccess'] = krynAcl::checkAccess(3, $item['path'], 'write', true);
-
         uksort($items, "strnatcasecmp");
+
+        $where = array();
+        foreach($items as &$file){
+            $where[] = 'path = \''.esc($file['path']).'\'';
+        }
+        $sql = 'SELECT rsn, path FROM %pfx%system_files WHERE 1=0 OR '.implode(' OR ', $where);
+
+        $res = dbExec($sql);
+        $path2id = array();
+
+        while ($row = dbFetch($res)){
+            $path2id[$row['path']] = $row['rsn'];
+        }
 
         foreach($items as &$file){
             //$file['object_id'] = Object
+            if (!$path2id[$file['path']]){
+                $id = dbInsert('system_files', array('path' => $file['path']));
+                $file['object_id'] = $id;
+            } else {
+                $file['object_id'] = $path2id[$file['path']];
+            }
             $file['writeaccess'] = krynAcl::checkAccess(3, $file['path'], 'write', true);
         }
 

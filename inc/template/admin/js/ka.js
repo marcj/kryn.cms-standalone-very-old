@@ -1953,9 +1953,9 @@ ka.parse = new Class({
             } else {
                 return false;
             }
-        } else if (typeOf(pChild.field.needValue) == 'string') {
+        } else if (typeOf(pChild.field.needValue) == 'string' || typeOf(pChild.field.needValue) == 'number') {
             var c = 'javascript:';
-            if (pChild.field.needValue.substr(0,c.length) == c){
+            if (typeOf(pChild.field.needValue) == 'string' && pChild.field.needValue.substr(0,c.length) == c){
 
                 var evalString = pChild.field.needValue.substr(c);
                 var value = pField.getValue();

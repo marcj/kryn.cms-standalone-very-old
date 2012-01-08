@@ -2402,7 +2402,7 @@ ka.files = new Class({
 
         var base = new Element('div', {
             'class': (pFile.path == '/trash' ? '' : 'admin-files-droppables ') + 'admin-files-item',
-            title: pFile.name
+            title: pFile.object_id+'='+pFile.name
         });
 
         if (pFile.path.lastIndexOf('.') && this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {

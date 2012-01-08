@@ -803,20 +803,23 @@ var admin_system_module_edit = new Class({
 
     _renderLinks: function (pConfig) {
         this.panes['links'].empty();
+
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 31px; padding: 5px;',
+            text: t('Show definitions')
         }).inject(this.panes['links']);
         this.layoutPaneItems = p;
 
-
-        this.linksAddLevelOneBtn = new Element('img', {
-            'src': _path + 'inc/template/admin/images/icons/add.png',
-            title: _('Add Link'),
-            style: 'cursor: pointer; margin: 3px;'
-        }).addEvent('click', function () {
-            this._linksAddNewLevel('first-lvl-id', {}, p);
-        }.bind(this)).inject(p);
+        var ch = new ka.Checkbox(p);
+        ch.addEvent('change', function(){
+            if (!ch.getValue())
+                p.addClass('admin-system-modules-hide-layoutSettings');
+            else
+                p.removeClass('admin-system-modules-hide-layoutSettings');
+        });
+        ch.setValue(0);
+        p.addClass('admin-system-modules-hide-layoutSettings');
 
         if (pConfig.admin) {
             Object.each(pConfig.admin, function (link, key) {
@@ -825,7 +828,13 @@ var admin_system_module_edit = new Class({
         }
 
         var buttonBar = new ka.buttonBar(this.panes['links']);
-        buttonBar.addButton(_('Save'), this.saveLinks.bind(this));
+
+        buttonBar.addButton(t('Add link'), function () {
+            var count = p.getChildren().length;
+            this._linksAddNewLevel('first_lvl_id_'+(count+1), {}, p);
+        }.bind(this));
+
+        buttonBar.addButton(t('Save'), this.saveLinks.bind(this));
 
     },
 
@@ -867,47 +876,134 @@ var admin_system_module_edit = new Class({
     },
 
     _createLayoutLinkSettings: function (pSub, pLink) {
-        var div = new Element('div').inject(pSub);
-        new Element('span', {html: _('Title: ')}).inject(div);
-        new Element('input', {'class': 'text layoutSettingsTitle', value: pLink.title}).inject(div);
 
-        new Element('span', {html: _(' Type: ')}).inject(div);
-        var select = new Element('select', {'class': 'text layoutSettingsType'}).inject(div);
-        var types = {'': 'No Window', 'custom': 'Custom Window', 'iframe': 'IFrame loader', 'edit': 'Framework: Edit form', 'combine': 'Framework: Combine(list/edit/add)',
-            'add': 'Framework: Add form', 'list': 'Framework: List form'};
-        Object.each(types, function (title, type) {
-            new Element('option', {
-                value: type,
-                html: _(title)
-            }).inject(select);
-        });
-        select.value = pLink.type;
+        var table = new Element('table', {width: '100%'}).inject(pSub)
+        var tbody = new Element('tbody').inject(table);
 
-        var div = new Element('div').inject(pSub);
-        new Element('span', {html: _(' Class: ')}).inject(div);
-        new Element('input', {'class': 'text layoutSettingsClass', value: pLink['class']}).inject(div);
+        var kaFields = {
+            type: {
+                label: t('Type'),
+                type: 'select',
+                items: {
+                    '': t('Only a access control list item'),
+                    custom: t('Custom window'),
+                    iframe: t('iFrame window'),
+                    list: t('Framework: list'),
+                    edit: t('Framework: edit'),
+                    add: t('Framework: add'),
+                    combine: t('Framework: Combine'),
+                    store: t('Store')
+                },
+                depends: {
+                    __info_store__: {
+                        label: t('Use a own class or a table name'),
+                        type: 'label'
+                    },
+                    'class': {
+                        label: t('PHP Class'),
+                        desc: t('Scheme: inc/module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
+                        needValue: ['list', 'edit', 'add', 'combine', 'store']
+                    },
+                    table: {
+                        label: t('Table'),
+                        needValue: 'store',
+                        depends: {
+                            table_key: {
+                                label: t('Table primary column'),
+                                needValue: function(n){if(n!='')return true;else return false;}
+                            },
+                            table_label: {
+                                label: t('Table label column'),
+                                needValue: function(n){if(n!='')return true;else return false;}
 
-        new Element('span', {html: _(' Is Link in extension bar: ')}).inject(div);
-        new Element('input', {'type': 'checkbox', 'class': 'layoutSettingsIsLink', value: 1, checked: (pLink.isLink == 0) ? false : true}).inject(div);
+                            }
+                        }
+                    },
+                    '__info_js_name__': {
+                        type: 'label',
+                        needValue: 'custom',
+                        label: t('File name and class information'),
+                        help: 'admin/extension-custom-javascript',
+                        desc: t('Javascript file: inc/template/&lt;extKey&gt;/admin/js/&lt;pathWithUnderscore&gt;.js and class name: &lt;extKey&gt;_&lt;pathWithUnderscore&gt;.')
+                    }
+                }
+            },
+            isLink: {
+                label: t('Is link in administration menu bar?'),
+                needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                desc: t('Only in the first and second level.'),
+                againstField: 'type',
+                type: 'checkbox',
+                depends: {
+                    icon: {
+                        needValue: 1,
+                        label: t('Icon (Optional)'),
+                        desc: t('Relative to inc/template/'),
+                        type: 'text'
+                    }
+                }
+            },
+            __optional__: {
+                label: t('Optional'),
+                type: 'childrenswitcher',
+                needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                againstField: 'type',
+                depends: {
+                    multi: {
+                        label: t('Allow multiple instances?'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'checkbox'
+                    },
+                    minWidth: {
+                        label: t('Min width'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    minHeight: {
+                        label: t('Min height'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    fixedWidth: {
+                        label: t('Fixed width'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    fixedHeight: {
+                        label: t('Fixed height'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    }
+                }
+            }
+        }
 
-        new Element('span', {html: _(' Multiple instances: ')}).inject(div);
-        new Element('input', {'type': 'checkbox', 'class': 'layoutSettingsCanMulti', value: 1, checked: (pLink.multi === 0) ? false : true}).inject(div);
-
-        var div = new Element('div').inject(pSub);
-        new Element('span', {html: _('Childs: ')}).inject(pSub);
+        var kaParser = new ka.parse(tbody, kaFields, {allTableItems:1}, {win: this.win});
+        pSub.store('kaparser', kaParser);
+        kaParser.setValue(pLink);
     },
 
     _linksAddNewLevel: function (pKey, pLink, pParent) {
+
         var lvl1 = new Element('div', {
-            style: 'border-left: 1px solid #ddd; padding: 4px; padding-left: 0px; background-color: #ddd;',
+            style: 'border: 1px solid #ccc; padding-left: 0px; padding-bottom: 5px; background-color: #e8e8e8; margin: 5px 0px; position: relative;',
             'class': 'layoutItem'
         }).inject(pParent);
+
+        var header = new Element('div',{
+            'style': 'border-bottom: 1px solid silver; background-color: #e1e1e1; padding: 2px;'
+        }).inject(lvl1);
 
         new Element('input', {
             value: pKey,
             'class': 'text',
             style: 'margin-left: 4px;'
-        }).inject(lvl1);
+        }).inject(header);
 
         var subDelBtn = new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/delete.png',
@@ -918,7 +1014,7 @@ var admin_system_module_edit = new Class({
                 if (!res)return;
                 lvl1.destroy();
             });
-        }.bind(this)).inject(lvl1);
+        }.bind(this)).inject(header);
 
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/arrow_up.png',
@@ -928,7 +1024,7 @@ var admin_system_module_edit = new Class({
             if (lvl1.getPrevious()) {
                 lvl1.inject(lvl1.getPrevious(), 'before');
             }
-        }.bind(this)).inject(lvl1);
+        }.bind(this)).inject(header);
 
         new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/arrow_down.png',
@@ -938,8 +1034,26 @@ var admin_system_module_edit = new Class({
             if (lvl1.getNext()) {
                 lvl1.inject(lvl1.getNext(), 'after');
             }
-        }.bind(this)).inject(lvl1);
+        }.bind(this)).inject(header);
 
+        var showDefinition = new Element('div', {
+            'class': 'admin-system-modules-edit-pane-showDefinition',
+            style: 'width: 250px;'
+        }).inject(header);
+
+        var ch = new ka.Checkbox(showDefinition);
+        ch.addEvent('change', function(){
+            if(ch.getValue()){
+                lvl1.addClass('admin-system-modules-show-layoutSettings');
+            } else {
+                lvl1.removeClass('admin-system-modules-show-layoutSettings');
+            }
+        });
+
+        new Element('div',{
+            style: 'position: absolute; left: 70px; top: 6px; color: gray;',
+            text: t('Show definition')
+        }).inject(showDefinition);
 
         var sub = new Element('div', {
             style: 'padding: 2px; padding-left: 25px',
@@ -947,12 +1061,13 @@ var admin_system_module_edit = new Class({
         }).inject(lvl1);
 
         var childs = new Element('div', {
-            style: 'padding: 2px; padding-left: 25px; background-color: #eee;',
+            style: 'padding: 2px; padding-left: 25px;',
             'class': 'layoutChilds'
         }).inject(lvl1);
 
         this._createLayoutLinkSettings(sub, pLink);
 
+        /*
         var subAddBtn = new Element('img', {
             'src': _path + 'inc/template/admin/images/icons/add.png',
             title: _('Add Link'),
@@ -960,6 +1075,15 @@ var admin_system_module_edit = new Class({
         }).addEvent('click', function () {
             this._linksAddNewLevel('mykey', {}, childs);
         }.bind(this)).inject(sub);
+        */
+
+        new ka.Button('Add children')
+        .addEvent('click', function(){
+            var count = childs.getChildren().length+1;
+            this._linksAddNewLevel('path_key_'+count, {}, childs);
+        }.bind(this))
+        .setStyle('margin-left', 15)
+        .inject(lvl1)
 
         if (pLink.childs) {
             Object.each(pLink.childs, function (item, key) {
@@ -1555,7 +1679,7 @@ var admin_system_module_edit = new Class({
                     table_label: {
                         needValue: function(n){if(n!='')return true;else return false;},
                         label: t('Table label key')
-                    },
+                    }
                 }
             },
             'class': {

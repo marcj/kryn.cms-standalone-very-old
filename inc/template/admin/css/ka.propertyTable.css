@@ -1,0 +1,15 @@
+.ka-propertyTable-showDefinition {
+    position: absolute;
+    top: 6px;
+    left: 220px;
+    display: none;
+}
+
+.ka-propertyTable-hide-definition .ka-propertyTable-showDefinition {
+    display: block;
+}
+
+
+.ka-propertyTable-showDefinition-show .ka-propertyTable-definition {
+    display: block;
+}
