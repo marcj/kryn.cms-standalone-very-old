@@ -339,20 +339,22 @@
       ],
       "fields": {
         "rsn": {
+          "label": "[[Id]]",
           "type": "number",
-          "label": "[[Id]]"
+          "primaryKey": true,
+          "autoIncrement": true,
+          "empty": true
         },
         "title": {
+          "label": "[[Title]]",
           "type": "text",
-          "length": 255,
-          "label": "[[Title]]"
+          "empty": true,
+          "length": "255"
         },
         "category_rsn": {
-          "type": "object",
           "label": "[[Category]]",
-          "object": "news_category",
-          "object_label": "title",
-          "object_label_map": "category_title"
+          "type": "text",
+          "empty": true
         }
       }
     },

@@ -116,6 +116,8 @@ class adminModule {
 
             case 'getObjects':
                 json(self::getObjects(getArgv('name', 2)));
+            case 'saveObjects':
+                json(self::saveObjects());
 
             case 'addCheckCode':
                 json(self::addCheckCode(getArgv('name', 2)));
@@ -282,6 +284,19 @@ class adminModule {
 
         $db = json_decode(getArgv('tables'), true);
         $config['db'] = $db;
+
+        self::writeConfig($name, $config);
+        json(1);
+    }
+
+    public static function saveObjects() {
+
+        $name = getArgv('name', 2);
+
+        $config = self::loadConfig($name);
+
+        $objects = json_decode(getArgv('objects'), true);
+        $config['objects'] = $objects;
 
         self::writeConfig($name, $config);
         json(1);

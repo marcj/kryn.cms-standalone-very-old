@@ -159,8 +159,8 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         var buttonBar = new ka.buttonBar(this.panes['plugins']);
-        buttonBar.addButton(_('Save'), this.savePlugins.bind(this));
         buttonBar.addButton(_('Add plugin'), this.addPlugin.bind(this));
+        buttonBar.addButton(_('Save'), this.savePlugins.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getPlugins', noCache: 1, onComplete: function (res) {
 
@@ -177,7 +177,6 @@ var admin_system_module_edit = new Class({
     savePlugins: function () {
 
         var req = {plugins: {}};
-        req.name = this.mod;
 
         this.pluginsPane.getElements('.plugin').each(function(pluginDiv){
 
@@ -196,6 +195,7 @@ var admin_system_module_edit = new Class({
         this.loader.show();
 
         req.plugins = JSON.encode(req.plugins);
+        req.name = this.mod;
         this.lr = new Request.JSON({url: _path + 'admin/system/module/savePlugins', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             ka.loadSettings();
@@ -229,9 +229,12 @@ var admin_system_module_edit = new Class({
             style: 'cursor: pointer; position: relative; top: 3px;'
         })
         .addEvent('click', function(){
-            tr.destroy();
-            tr2.destroy();
-        })
+            this.win._confirm(t('Really delete'), function(ok){
+                if (!ok) return;
+                tr.destroy();
+                tr2.destroy();
+            });
+        }.bind(this))
         .inject(actionTd);
 
         new Element('img', {
@@ -665,7 +668,10 @@ var admin_system_module_edit = new Class({
             title: _('Delete column'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
-            m.destroy();
+            this.win._confirm(t('Really delete'), function(ok){
+                if (!ok) return;
+                m.destroy();
+            });
         }.bind(this)).inject(actions);
 
         new Element('img', {
@@ -1362,7 +1368,10 @@ var admin_system_module_edit = new Class({
             title: _('Delete theme property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
-            li.destroy();
+            this.win._confirm(t('Really delete'), function(ok){
+                if (!ok) return;
+                li.destroy();
+            });
         }.bind(this)).inject(li);
     },
 
@@ -1389,7 +1398,11 @@ var admin_system_module_edit = new Class({
             title: _('Delete theme property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
-            li.destroy();
+
+            this.win._confirm(t('Really delete'), function(ok){
+                if (!ok) return;
+                li.destroy();
+            });
         }.bind(this)).inject(li);
     },
 
@@ -1650,8 +1663,8 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         var buttonBar = new ka.buttonBar(this.panes['objects']);
+        buttonBar.addButton(_('Add object'), this.addObject.bind(this));
         buttonBar.addButton(_('Save'), this.saveObjects.bind(this));
-        buttonBar.addButton(_('Add plugin'), this.addObject.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getObjects', noCache: 1, onComplete: function (res) {
 
@@ -1666,6 +1679,36 @@ var admin_system_module_edit = new Class({
     },
 
     saveObjects: function(){
+
+        var objects = {};
+
+        this.objectTBody.getChildren('.object').each(function(object){
+
+            var definition = object.retrieve('definition');
+            var iKey = object.getElements('input')[0];
+            var iLabel = object.getElements('input')[1];
+
+            var propertyTable = object.retrieve('propertyTable');
+
+            var fields = propertyTable.getValue();
+            if (Object.getLength(fields) > 0)
+                definition.fields = fields;
+
+            definition.label = iLabel.value;
+            objects[iKey.value] = definition;
+
+        });
+
+        if (this.lr) this.lr.cancel();
+        this.loader.show();
+
+        var req = {};
+        req.objects = JSON.encode(objects);
+        req.name = this.mod;
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveObjects', noCache: 1, onComplete: function (res) {
+            this.loader.hide();
+            ka.loadSettings();
+        }.bind(this)}).post(req);
 
     },
 
@@ -1691,29 +1734,59 @@ var admin_system_module_edit = new Class({
             },
             __info__: {
                 type: 'label',
-                label: t('Define a table or a own object class')
-            },
-            table: {
-                label: t('Table name'),
-                desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
+                label: t('Data model'),
+                desc: t('Define a table or a own object class'),
                 depends: {
-                    table_key: {
-                        needValue: function(n){if(n!='')return true;else return false;},
-                        label: t('Table primary key')
+                    table: {
+                        label: t('Table name'),
+                        desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
+                        depends: {
+                            table_key: {
+                                needValue: function(n){if(n!='')return true;else return false;},
+                                label: t('Table primary key')
+                            },
+                            table_label: {
+                                needValue: function(n){if(n!='')return true;else return false;},
+                                label: t('Table label key')
+                            }
+                        }
                     },
-                    table_label: {
-                        needValue: function(n){if(n!='')return true;else return false;},
-                        label: t('Table label key')
+                    'class': {
+                        label: t('Class name'),
+                        desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
                     }
                 }
-            },
-            'class': {
-                label: t('Class name'),
-                desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
             },
             plugins: {
                 label: t('Plugins'),
                 desc: t('Which plugins handles the frontend output of this object? These plugins generates then also the frontend URL. Comma separated.')
+            },
+            selectable: {
+                type: 'checkbox',
+                label: t('Selectable ?'),
+                desc: t('Is this object selectable by other objects through a ka.field?'),
+                depends:{
+                    __ownClass__: {
+                        type: 'label',
+                        needValue: 1,
+                        label: t('Define a own class name or the id and label of this object.')
+                    },
+                    chooserClass: {
+                        needValue: 1,
+                        label: t('Own chooser class'),
+                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
+                    },
+                    chooserTableKey: {
+                        needValue: 1,
+                        label: t('ID'),
+                        desc: t('Define which field key should be used as id')
+                    },
+                    chooserTableLabel: {
+                        needValue: 1,
+                        label: t('Label'),
+                        desc: t('Define which field key should be used as label')
+                    }
+                }
             }
         }
 
@@ -1776,7 +1849,22 @@ var admin_system_module_edit = new Class({
         var tr2 = new Element('tr').inject(this.objectTBody);
         var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
 
-        var iKey = new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(leftTd);
+        var iKey = new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''})
+        .addEvent('keyup', function(){
+
+            if (e.key.length > 1) return;
+            var range = this.getSelectedRange();
+
+            this.value = this.value.replace(' ', '_');
+            if (self.options.arrayKey)
+                this.value = this.value.replace(/[^a-zA-Z0-9_\-\[\]]/, '-');
+            else
+                this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
+            this.value = this.value.replace(/--+/, '-');
+
+            this.selectRange(range.start, range.end);
+        })
+        .inject(leftTd);
 
         new Element('input', {'class': 'text', style: 'width: 250px;', value:pDefinition?pDefinition['label']:''}).inject(rightTd);
 
@@ -1792,13 +1880,16 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
-            title: t('Delete property'),
+            title: t('Delete object'),
             style: 'cursor: pointer; position: relative; top: 3px;'
         })
         .addEvent('click', function(){
-            tr.destroy();
-            tr2.destroy();
-        })
+            this.win._confirm(t('Really delete'), function(ok){
+                if (!ok) return;
+                tr.destroy();
+                tr2.destroy();
+            })
+        }.bind(this))
         .inject(actionTd);
 
         new Element('img', {
@@ -1857,7 +1948,8 @@ var admin_system_module_edit = new Class({
 
         var propertyTable = new ka.propertyTable(propertyPanel, this.win, {
             addLabel: t('Add field'),
-            mode: 'object'
+            mode: 'object',
+            withTableDefinition: true
         });
 
         tr.store('propertyTable', propertyTable);

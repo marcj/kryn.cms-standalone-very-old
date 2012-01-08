@@ -1941,6 +1941,8 @@ ka.parse = new Class({
 
     getVisibility: function(pField, pChild){
 
+        if (typeOf(pChild.field.needValue) == 'null') return true;
+
         if (typeOf(pChild.field.needValue) == 'array') {
             if (pChild.field.needValue.contains(pField.getValue())) {
                 return true;

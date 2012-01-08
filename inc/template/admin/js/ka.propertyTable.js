@@ -5,6 +5,7 @@ ka.propertyTable = new Class({
         withDependFields: false,
         addLabel: t('Add property'),
         mode: 'kaField', //kaField = ka.field definition, object = object field definition
+        withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
         arrayKey: false //key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
@@ -119,6 +120,17 @@ ka.propertyTable = new Class({
 
             }
         },
+        primaryKey: {
+            label: t('Primary key'),
+            type: 'checkbox'
+        },
+        autoIncrement: {
+            label: 'Auto increment?',
+            desc: t('If no value is assigned the value will be increased by each insertion.'),
+            type: 'checkbox',
+            needValue: 'number',
+            againstField: 'type'
+        },
         __optional__: {
             label: t('Optional'),
             type: 'childrenswitcher',
@@ -126,6 +138,11 @@ ka.propertyTable = new Class({
                 desc: {
                     label: t('Description (Optional)'),
                     type: 'text'
+                },
+                empty: {
+                    label: t('Can be empty? (Optional)'),
+                    type: 'checkbox',
+                    'default': 1
                 },
                 'needValue': {
                     label: tc('kaPropertyTable', 'Visibility condition (Optional)'),
@@ -164,6 +181,11 @@ ka.propertyTable = new Class({
 
         this.container = pContainer;
         this.win = pWin;
+
+        if (!this.options.withTableDefinition){
+            delete this.kaFields.primaryKey;
+            delete this.kaFields.autoIncrement;
+        }
 
         this.header = new Element('div', {
             style: 'background-color: #d1d1d1; padding: 2px; height: 27px; position: relative; border-bottom: 1px solid silver;'

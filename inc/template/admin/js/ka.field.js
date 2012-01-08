@@ -207,17 +207,17 @@ ka.field = new Class({
                 break;
             case 'file':
             case 'filechooser':
-                this.renderChooser({pagefiles: 1, upload: 1, files: 1});
+                this.renderChooser(['file']);
                 break;
             case 'folder':
-                this.renderChooser({pagefiles: 1, upload: 1, files: 1, onlyDir: 1});
+                this.renderChooser(['folder']);
                 break;
             case 'pagechooser':
             case 'page':
-                this.renderChooser({pages: 1});
+                this.renderChooser(['page']);
                 break;
             case 'chooser':
-                this.renderChooser({pages: 1, files: 1, upload: 1, pagefiles: 1});
+                this.renderChooser();
                 break;
             case 'filelist':
                 this.renderFileList();
@@ -1104,7 +1104,7 @@ ka.field = new Class({
     },
 
 
-    renderChooser: function (pOpts) {
+    renderChooser: function (pObjects) {
         this.input = new Element('input', {
             'class': 'text',
             type: 'text',
@@ -1134,7 +1134,7 @@ ka.field = new Class({
                 cookie: this.field.cookie,
                 domain: this.field.domain,
                 display: this.field.display,
-                opts: pOpts});
+                objects: pObjects});
         }.bind(this)).setStyle('position', 'relative').setStyle('top', '-1px').inject(div, 'after');
 
         this.pageChooserPanel = new Element('span', {style: 'color: gray;'}).inject(button, 'after');
