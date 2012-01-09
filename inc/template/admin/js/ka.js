@@ -386,7 +386,7 @@ ka.getDomainOfPage = function (pRsn) {
     var rsn = false;
 
     pRsn = ',' + pRsn + ',';
-    $Object(ka.settings.r2d, function (pages, domain_rsn) {
+    Object.each(ka.settings.r2d, function (pages, domain_rsn) {
         var pages = ',' + pages + ',';
         if (pages.indexOf(pRsn) != -1) {
             rsn = domain_rsn;
