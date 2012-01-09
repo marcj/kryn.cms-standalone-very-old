@@ -87,8 +87,9 @@ class adminModule {
             case 'getConfig':
                 json(self::loadInfo(getArgv('name', 2)));
 
-            case 'getForms':
-                json(self::loadForms(getArgv('name', 2)));
+            case 'getWindows':
+                json(self::getWindows(getArgv('name', 2)));
+
             case 'getHelp':
                 json(self::getHelp(getArgv('name', 2), getArgv('lang', 2)));
             case 'saveHelp':
@@ -226,7 +227,24 @@ class adminModule {
         json(1);
     }
 
-    public static function loadForms($pName) {
+    public static function getWindows($pName) {
+
+        $classes = find(PATH_MODULE.$pName.'/*.class.php');
+        $windows = array();
+        $whiteList = array('windowlist', 'windowadd', 'windowedit', 'windowcombine');
+
+        foreach ($classes as $class){
+
+            $content = kryn::fileRead($class);
+
+            if (preg_match('/class ([^\s]*) extends ([^\s]*)\s*{/', $content, $matches)){
+                if (in_array(strtolower($matches[2]), $whiteList))
+                    $windows[] = $matches[1];
+            }
+
+        }
+
+        return $windows;
 
         if (!is_dir(PATH_MODULE . "$pName/forms")) return false;
         $h = opendir(PATH_MODULE . "$pName/forms");

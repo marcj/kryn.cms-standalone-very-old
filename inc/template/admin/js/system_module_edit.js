@@ -14,7 +14,7 @@ var admin_system_module_edit = new Class({
         this.buttons['general'] = this.topNavi.addButton(_('General'), '', this.viewType.bind(this, 'general'));
         this.buttons['links'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'links'));
         this.buttons['db'] = this.topNavi.addButton(_('Database'), '', this.viewType.bind(this, 'db'));
-        //this.buttons['forms'] = this.topNavi.addButton(_('Forms'), '', this.viewType.bind(this, 'forms'));
+        this.buttons['windows'] = this.topNavi.addButton(_('Windows'), '', this.viewType.bind(this, 'windows'));
         this.buttons['objects'] = this.topNavi.addButton(_('Objects'), '', this.viewType.bind(this, 'objects'));
         this.buttons['plugins'] = this.topNavi.addButton(_('Plugins'), '', this.viewType.bind(this, 'plugins'));
         this.buttons['docu'] = this.topNavi.addButton(_('Docu'), '', this.viewType.bind(this, 'docu'));
@@ -59,58 +59,6 @@ var admin_system_module_edit = new Class({
         this.loader.hide();
 
         this.viewType('general');
-    },
-
-    _renderForms: function (pForms) {
-        this.panes['forms'].empty();
-        var p = new Element('div', {
-            'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
-        }).inject(this.panes['forms']);
-        this.formsPaneItems = p;
-
-        this.formsAddImg = new Element('img', {
-            'src': _path + 'inc/template/admin/images/icons/add.png',
-            title: _('Add form'),
-            style: 'cursor: pointer; margin: 3px;'
-        }).addEvent('click', function () {
-            this.addForm('newFormClass', {});
-        }.bind(this)).inject(p);
-
-        pForms.each(function (form) {
-            this.addForm(form);
-        }.bind(this));
-
-
-        var buttonBar = new ka.buttonBar(this.panes['forms']);
-        buttonBar.addButton(_('Save'), this.saveForms.bind(this));
-    },
-
-    addForm: function (pForm) {
-        var m = new Element('div', {
-            'class': 'admin-system-modules-forms-class',
-            style: 'padding-left: 4px;'
-        }).inject(this.formsPaneItems);
-
-        new Element('input', {
-            value: pForm,
-            'class': 'text'
-        }).inject(m);
-
-        new Element('img', {
-            'src': _path + 'inc/template/admin/images/icons/delete.png',
-            title: _('Delete form'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
-        }).addEvent('click', function () {
-        }.bind(this)).inject(m);
-
-        new Element('img', {
-            'src': _path + 'inc/template/admin/images/icons/arrow_right.png',
-            title: _('Edit class'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
-        }).addEvent('click', function () {
-        }.bind(this)).inject(m);
-
     },
 
 
@@ -347,16 +295,96 @@ var admin_system_module_edit = new Class({
         this.loader.hide();
     },
 
-    saveForms: function () {
+    saveWindows: function () {
 
     },
 
-    loadForms: function () {
+    loadWindows: function () {
         if (this.lr) this.lr.cancel();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getForms', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/getWindows', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-            this._renderForms(res);
+            this._renderWindows(res);
         }.bind(this)}).post({name: this.mod});
+    },
+
+
+    _renderWindows: function (pForms) {
+
+        this.panes['windows'].empty();
+
+        var p = new Element('div', {
+            'class': 'admin-system-modules-edit-pane',
+            style: 'bottom: 31px;'
+        }).inject(this.panes['windows']);
+        this.windowsPaneItems = p;
+
+        var table = new Element('table', {
+            'class': 'ka-Table-head ka-Table-body', //
+            style: 'position: relative; top: 0px; background-color: #eee',
+            cellpadding: 0, cellspacing: 0
+        }).inject(this.windowsPaneItems);
+
+        this.windowsTBody = new Element('tbody').inject(table);
+
+        var tr = new Element('tr').inject(this.windowsTBody);
+        new Element('th', {
+            text: t('Class name'),
+            style: 'width: 260px;'
+        }).inject(tr);
+
+        new Element('th', {
+            text: t('Actions'),
+            style: 'width: 80px;'
+        }).inject(tr);
+
+        pForms.each(function (form) {
+            this.addWindow(form);
+        }.bind(this));
+
+
+        var buttonBar = new ka.buttonBar(this.panes['windows']);
+        buttonBar.addButton(t('Add window'), function(){
+            this.createWindow();
+        }.bind(this));
+    },
+
+    createWindow: function(){
+        //prompt
+        //request, check exists
+        //create file
+
+    },
+
+    addWindow: function (pClassName) {
+
+        var className = this.windowsTBody.getLast().hasClass('two')?'one':'two';
+
+        var tr = new Element('tr',{
+            'class': className
+        }).inject(this.windowsTBody);
+
+        var td = new Element('td', {
+            text: pClassName
+        }).inject(tr);
+
+        var td = new Element('td').inject(tr);
+
+
+        new ka.Button(t('Edit window'))
+        .addEvent('click', function(){
+
+            ka.wm.open('admin/system/module/editWindow', {module: this.mod, className: pClassName});
+        })
+        .inject(td);
+
+        new Element('img', {
+            'src': _path + 'inc/template/admin/images/icons/delete.png',
+            title: _('Delete form'),
+            style: 'cursor: pointer; position: relative; top: 3px;'
+        }).addEvent('click', function () {
+            //delete
+        }.bind(this)).inject(td);
+
     },
 
     /**
@@ -914,13 +942,23 @@ var admin_system_module_edit = new Class({
                 },
                 depends: {
                     __info_store__: {
+                        needValue: 'store',
                         label: t('Use a own class or a table name'),
+                        type: 'label'
+                    },
+                    __info_form__: {
+                        needValue: ['list', 'edit', 'add', 'combine'],
+                        label: t('Use a own class or select a form'),
                         type: 'label'
                     },
                     'class': {
                         label: t('PHP Class'),
                         desc: t('Scheme: inc/module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
                         needValue: ['list', 'edit', 'add', 'combine', 'store']
+                    },
+                    'form': {
+                        label: t('Form'),
+                        needValue: ['list', 'edit', 'add', 'combine']
                     },
                     table: {
                         label: t('Table'),
@@ -948,9 +986,7 @@ var admin_system_module_edit = new Class({
             },
             isLink: {
                 label: t('Is link in administration menu bar?'),
-                needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                 desc: t('Only in the first and second level.'),
-                againstField: 'type',
                 type: 'checkbox',
                 depends: {
                     icon: {
@@ -1982,8 +2018,8 @@ var admin_system_module_edit = new Class({
                 return this.loadLinks();
             case 'db':
                 return this.loadDb();
-            case 'forms':
-                return this.loadForms();
+            case 'windows':
+                return this.loadWindows();
             case 'docu':
                 return this.loadDocu();
             case 'help':

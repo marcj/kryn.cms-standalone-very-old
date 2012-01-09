@@ -1133,6 +1133,8 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
 
     var mlink = false;
 
+    if (!pLink.isLink) return;
+
     if (pCode == 'system') {
 
         mlink = new Element('a', {

@@ -355,6 +355,59 @@
           "label": "[[Category]]",
           "type": "text",
           "empty": true
+        },
+        "files": {
+          "label": "Attachments",
+          "type": "filelist",
+          "empty": true
+        },
+        "lang": {
+          "label": "Language",
+          "type": "text",
+          "length": "2"
+        },
+        "intro": {
+          "type": "textarea",
+          "empty": true
+        },
+        "content": {
+          "type": "textarea",
+          "empty": true
+        },
+        "created": {
+          "type": "number",
+          "empty": true
+        },
+        "modified": {
+          "type": "number",
+          "empty": true
+        },
+        "releaseat": {
+          "label": "[[Release at]]",
+          "type": "datetime",
+          "empty": true
+        },
+        "releasedate": {
+          "type": "datetime"
+        },
+        "deactivate": {
+          "label": "[[Hide]]",
+          "type": "checkbox",
+          "empty": true
+        },
+        "deactivatecomments": {
+          "label": "[[Deactivate comments]]",
+          "type": "checkbox",
+          "empty": true
+        },
+        "commentscount": {
+          "label": "[[Comments count]]",
+          "type": "number",
+          "empty": true
+        },
+        "tags": {
+          "type": "text",
+          "empty": true
         }
       }
     },

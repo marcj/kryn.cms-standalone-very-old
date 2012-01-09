@@ -120,14 +120,12 @@
     "system": {
       "title": "[[System (Butterfly)]]",
       "type": "custom",
-      "class": "",
       "isLink": true,
       "multi": true,
       "childs": {
         "desktopSettings": {
           "title": "[[Desktop settings]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -136,15 +134,14 @@
         },
         "searchIndexerList": {
           "title": "[[Search index]]",
-          "type": "list",
           "class": "adminSearchIndexList",
+          "type": "list",
           "isLink": false,
           "multi": true,
           "childs": {
             "doAction": {
               "title": "add",
               "type": "custom",
-              "class": "adminSearchIndexer",
               "isLink": true,
               "multi": true,
               "childs": [
@@ -156,7 +153,6 @@
         "layout": {
           "title": "[[Templates]]",
           "type": "custom",
-          "class": "",
           "isLink": true,
           "multi": true,
           "childs": [
@@ -166,14 +162,12 @@
         "languages": {
           "title": "[[Languages]]",
           "type": "custom",
-          "class": "",
           "isLink": true,
           "multi": true,
           "childs": {
             "edit": {
               "title": "[[Edit]]",
               "type": "custom",
-              "class": "",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -185,7 +179,6 @@
         "backup": {
           "title": "[[Backup]]",
           "type": "custom",
-          "class": "",
           "isLink": true,
           "multi": true,
           "childs": [
@@ -195,14 +188,13 @@
         "module": {
           "title": "[[Extensions]]",
           "type": "custom",
-          "class": "",
           "isLink": true,
           "multi": true,
           "childs": {
             "update": {
               "title": "[[Update extension]]",
-              "type": "list",
               "class": "moduleAdminList",
+              "type": "list",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -211,8 +203,8 @@
             },
             "new": {
               "title": "[[Install extension]]",
-              "type": "list",
               "class": "moduleAdminInstallList",
+              "type": "list",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -222,7 +214,6 @@
             "dbInit": {
               "title": "[[Database Update\/Init]]",
               "type": "custom",
-              "class": "",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -232,7 +223,6 @@
             "publish": {
               "title": "[[Publish]]",
               "type": "custom",
-              "class": "",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -242,7 +232,6 @@
             "edit": {
               "title": "[[Edit extension]]",
               "type": "custom",
-              "class": "",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -252,7 +241,6 @@
             "add": {
               "title": "[[Create extension]]",
               "type": "custom",
-              "class": "",
               "isLink": false,
               "multi": true,
               "childs": [
@@ -262,9 +250,19 @@
             "view": {
               "title": "[[Extension]]",
               "type": "custom",
-              "class": "",
               "isLink": false,
               "multi": true,
+              "childs": [
+                
+              ]
+            },
+            "editWindow": {
+              "title": "[[Edit window]]",
+              "type": "custom",
+              "isLink": false,
+              "multi": true,
+              "minWidth": 700,
+              "minHeight": 500,
               "childs": [
                 
               ]
@@ -274,7 +272,6 @@
         "settings": {
           "title": "[[Settings]]",
           "type": "custom",
-          "class": "",
           "isLink": true,
           "multi": true,
           "childs": [
@@ -283,16 +280,11 @@
         },
         "development": {
           "title": "[[Development]]",
-          "type": "",
-          "class": "",
           "isLink": true,
-          "multi": true,
-          "hasSubmenu": true,
           "childs": {
             "database": {
               "title": "[[Database]]",
               "type": "custom",
-              "class": "",
               "isLink": true,
               "multi": true,
               "childs": [
@@ -302,7 +294,6 @@
             "logs": {
               "title": "[[Logs]]",
               "type": "custom",
-              "class": "",
               "isLink": true,
               "multi": true,
               "childs": [
@@ -315,15 +306,11 @@
     },
     "backend": {
       "title": "[[Backend access]]",
-      "type": "",
-      "class": "",
       "isLink": false,
-      "multi": true,
       "childs": {
         "tinyDialog": {
           "title": "[[Dialog]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -333,7 +320,6 @@
         "chooser": {
           "title": "[[Chooser]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -342,47 +328,32 @@
         },
         "stores": {
           "title": "[[Stores]]",
-          "type": "",
-          "class": "",
           "isLink": false,
-          "multi": true,
           "childs": {
             "groups": {
-              "title": "",
               "type": "store",
-              "class": "",
-              "isLink": true,
-              "multi": true,
+              "isLink": false,
               "childs": [
                 
               ]
             },
             "languages": {
-              "title": "",
               "type": "store",
-              "class": "",
-              "isLink": true,
-              "multi": true,
+              "isLink": false,
               "childs": [
                 
               ]
             },
             "extensions": {
-              "title": "",
-              "type": "store",
               "class": "adminStoreExtensions",
-              "isLink": true,
-              "multi": true,
+              "type": "store",
+              "isLink": false,
               "childs": [
                 
               ]
             },
             "domains": {
-              "title": "",
-              "type": "",
-              "class": "adminStoreDomains",
-              "isLink": true,
-              "multi": true,
+              "isLink": false,
               "childs": [
                 
               ]
@@ -393,9 +364,8 @@
     },
     "overview": {
       "title": "[[Dashboard]]",
-      "icon": "admin/images/admin-dashboard-icon.png",
       "type": "custom",
-      "class": "",
+      "icon": "admin\/images\/admin-dashboard-icon.png",
       "isLink": true,
       "multi": true,
       "childs": [
@@ -405,15 +375,13 @@
     "pages": {
       "title": "[[Pages]]",
       "type": "custom",
-      "class": "",
+      "icon": "admin\/images\/admin-pages-icon.png",
       "isLink": true,
-      "icon": "admin/images/admin-pages-icon.png",
       "multi": true,
       "childs": {
         "addDialog": {
           "title": "[[Add pages]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -423,7 +391,6 @@
         "addDomains": {
           "title": "[[Add domains]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -433,7 +400,6 @@
         "bigEditor": {
           "title": "WYSIWYG-Editor",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -445,15 +411,13 @@
     "files": {
       "title": "[[Files]]",
       "type": "custom",
-      "class": "",
+      "icon": "admin\/images\/admin-files-icon.png",
       "isLink": true,
       "multi": true,
-      "icon": "admin/images/admin-files-icon.png",
       "childs": {
         "edit": {
           "title": "[[File edit]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -463,7 +427,6 @@
         "diff": {
           "title": "[[File diff]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -472,10 +435,7 @@
         },
         "systemfiles": {
           "title": "[[System files]]",
-          "type": "",
-          "class": "",
           "isLink": false,
-          "multi": true,
           "childs": [
             
           ]
@@ -483,7 +443,6 @@
         "properties": {
           "title": "[[Properties]]",
           "type": "custom",
-          "class": "",
           "isLink": false,
           "multi": true,
           "childs": [
@@ -495,7 +454,6 @@
     "help": {
       "title": "[[Help]]",
       "type": "custom",
-      "class": "",
       "isLink": false,
       "multi": true,
       "childs": [
@@ -1549,8 +1507,8 @@
     "admin\/css\/ka.Accordion.css",
     "admin\/css\/ka.imageGroup.css",
     "admin\/css\/ka.layoutBox.css",
-      "admin\/css\/ka.layoutContent.css",
-      "admin\/css\/ka.propertyTable.css",
+    "admin\/css\/ka.layoutContent.css",
+    "admin\/css\/ka.propertyTable.css",
     "admin\/css\/overview.css"
   ],
   "community": "1",

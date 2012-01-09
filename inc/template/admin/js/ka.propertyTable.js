@@ -29,6 +29,7 @@ ka.propertyTable = new Class({
                 file: t('File'),
                 folder: t('Folder'),
                 select: t('Select'),
+                lang: t('Language select'),
                 textlist: t('Textlist'),
                 textarea: t('Textarea'),
                 array: t('Array'),
@@ -409,11 +410,13 @@ ka.propertyTable = new Class({
             text: t('Show definition')
         }).inject(showDefinition);
 
-        new Element('div', {
-            text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
-            style: 'color: gray',
-            'class': 'ka-propertyTable-key-info'
-        }).inject(header);
+        if (!this.options.withTableDefinition) {
+            var headerInfo = new Element('div', {
+                text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
+                style: 'color: gray',
+                'class': 'ka-propertyTable-key-info'
+            }).inject(header);
+        }
 
         var main = new Element('div',{'class': 'ka-propertyTable-definition',style: 'background-color: #e5e5e5'}).inject(div);
 
