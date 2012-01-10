@@ -338,6 +338,9 @@
               ]
             },
             "languages": {
+              "table_key": "code",
+              "table_label": "title",
+              "table": "system_langs",
               "type": "store",
               "isLink": false,
               "childs": [
@@ -353,6 +356,7 @@
               ]
             },
             "domains": {
+              "type": "store",
               "isLink": false,
               "childs": [
                 
@@ -481,11 +485,91 @@
   "objects": {
     "file": {
       "title": "[[File]]",
-      "class": "kryn\/objects\/objectFile"
+      "class": "kryn\/objects\/objectFile",
+      "desc": "",
+      "table": "",
+      "plugins": "",
+      "chooserClass": "ka.files",
+      "chooserOptions": {
+        "onlyUserDefined": {
+          "label": "[[Only user defined files]]",
+          "type": "checkbox",
+          "empty": true
+        },
+        "search": {
+          "label": "[[Enable search]]",
+          "type": "checkbox",
+          "empty": true
+        },
+        "path": {
+          "label": "[[Start path]]",
+          "type": "folder",
+          "empty": true
+        },
+        "selectionOnlyFolders": {
+          "label": "[[Only folders]]",
+          "type": "checkbox",
+          "empty": true
+        },
+        "selectionOnlyFiles": {
+          "label": "[[Only files]]",
+          "type": "checkbox",
+          "empty": true
+        }
+      },
+      "chooserUseOwnClass": true,
+      "selectable": true,
+      "label": "[[File]]"
     },
-    "page": {
+    "node": {
       "title": "[[Page]]",
-      "class": "kryn\/objects\/objectPage"
+      "class": "kryn\/objects\/objectPage",
+      "label": "[[Node]]",
+      "desc": "[[Pages, Links, Deposits and Navigation folder]]",
+      "table": "",
+      "plugins": "",
+      "selectable": true,
+      "chooserClass": "ka.nodeChooser",
+      "chooserOptions": [
+        
+      ],
+      "chooserUseOwnClass": true
+    },
+    "domain": {
+      "desc": "",
+      "table_sync": false,
+      "table": "system_domains",
+      "class": "",
+      "plugins": "",
+      "chooserTableKey": "rsn",
+      "chooserTableLabel": "domain",
+      "chooserUseOwnClass": false,
+      "selectable": true,
+      "fields": {
+        "rsn": {
+          "label": "ID",
+          "type": "number",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "empty": true
+        },
+        "domain": {
+          "label": "[[Domain name]]",
+          "type": "text",
+          "empty": true
+        },
+        "lang": {
+          "label": "[[Language]]",
+          "type": "lang",
+          "empty": true
+        },
+        "master": {
+          "label": "[[Language master]]",
+          "type": "checkbox",
+          "empty": true
+        }
+      },
+      "label": "[[Domain]]"
     }
   },
   "db": {
@@ -1469,6 +1553,7 @@
     "admin\/js\/ka.imageGroup.js",
     "admin\/js\/ka.customField.js",
     "admin\/js\/ka.propertyTable.js",
+    "admin\/js\/ka.nodeChooser.js",
     "admin\/js\/swfupload.js",
     "admin\/js\/fupload.js",
     "admin\/js\/ka.crawler.js",

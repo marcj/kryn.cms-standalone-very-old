@@ -335,6 +335,7 @@ ka.propertyTable = new Class({
 
         var iKey = new Element('input', {
             value: pKey?pKey:'property_'+count,
+            style: 'width: 155px',
             'class': 'text ka-propertyTable-item-key'
         })
         .addEvent('keyup', function(e){

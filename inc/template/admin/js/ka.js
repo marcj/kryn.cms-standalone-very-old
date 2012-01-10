@@ -1745,9 +1745,13 @@ ka.parse = new Class({
         this.setOptions(pOptions);
         this.refs = pRefs;
 
-        this.main = new Element('div', {
-            'class': 'ka-fields-main'
-        }).inject(pContainer);
+        if (this.options.allTableItems){
+            this.main = pContainer;
+        } else {
+            this.main = new Element('div', {
+                'class': 'ka-fields-main'
+            }).inject(pContainer);
+        }
 
         this.parseLevel(pDefinition, this.main);
 

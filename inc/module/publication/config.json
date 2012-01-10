@@ -334,9 +334,7 @@
       "desc": "[[Articles]]",
       "table": "publication_news",
       "table_primary": "rsn",
-      "plugins": [
-        "newsDetail"
-      ],
+      "plugins": "newsDetail",
       "fields": {
         "rsn": {
           "label": "[[Id]]",
@@ -364,6 +362,7 @@
         "lang": {
           "label": "Language",
           "type": "text",
+          "empty": true,
           "length": "2"
         },
         "intro": {
@@ -388,7 +387,8 @@
           "empty": true
         },
         "releasedate": {
-          "type": "datetime"
+          "type": "datetime",
+          "empty": true
         },
         "deactivate": {
           "label": "[[Hide]]",
@@ -409,7 +409,13 @@
           "type": "text",
           "empty": true
         }
-      }
+      },
+      "table_sync": false,
+      "class": "",
+      "chooserTableKey": "rsn",
+      "chooserTableLabel": "title",
+      "chooserUseOwnClass": false,
+      "selectable": true
     },
     "news_comment": {
       "label": "[[Comments]]",
@@ -419,7 +425,15 @@
       "label": "[[Article categories]]",
       "table": "publication_news_category",
       "table_primary": "rsn",
-      "object_label": "title"
+      "object_label": "title",
+      "desc": "",
+      "table_sync": false,
+      "class": "",
+      "plugins": "",
+      "chooserTableKey": "rsn",
+      "chooserTableLabel": "title",
+      "chooserUseOwnClass": false,
+      "selectable": true
     }
   },
   "db": {

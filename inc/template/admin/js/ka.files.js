@@ -29,17 +29,19 @@ ka.files = new Class({
 
     options: {
 
+        useWindowHeader: false, //uses the kwindow instance to add smallTabButtons etc
+
         onlyUserDefined: false,
         search: true,
         path: '/',
         withSidebar: false,
 
-        selection: false,
-        /* if selection is false, all selection* options are ignored */
-        selectionValue: false,
+        selection: true,
+        /* if selection is false, all options below will be ignored */
+        selectionValue: false, //not useful, use setValue() instead
         selectionOnlyFiles: false,
         selectionOnlyFolders: false,
-        selectionMultiple: false
+        multi: false
     },
 
     rootFile: {},
@@ -48,7 +50,7 @@ ka.files = new Class({
     container: false,
     win: false,
 
-    initialize: function (pWindowApi, pContainer, pOptions) {
+    initialize: function (pContainer, pOptions, pWindowApi) {
         this.win = pWindowApi;
         this.container = pContainer;
 
@@ -697,7 +699,8 @@ ka.files = new Class({
 
             this.uploadFileChooser = new Element('input', {
                 type: 'file',
-                multiple: true
+                multiple: true,
+                style: 'position: absolute; left: -3000px; top: -9999px'
             }).inject(this.container);
 
             this.uploadBtn.addEventListener("click", function (e) {
@@ -712,9 +715,27 @@ ka.files = new Class({
         }
     },
 
+    addButtonGroup: function(){
+        return this.win.addButtonGroup();
+    },
+
     _createLayout: function () {
 
-        var boxNavi = this.win.addButtonGroup();
+        if (!this.options.useWindowHeader){
+
+            this.header = new Element('div', {
+                style: 'position: absolute; top: 6px; left: 0px; height: 30px; right: 0px;'
+            }).inject(this.container);
+
+            this.addButtonGroup = function () {
+                return new ka.buttonGroup(this.header);
+            }.bind(this);
+
+        } else {
+            this.header = this.win.titleGroups;
+        }
+
+        var boxNavi = this.addButtonGroup();
 
         var toLeft = new Element('img', {
             src: _path + 'inc/template/admin/images/admin-files-toLeft.png'
@@ -732,7 +753,7 @@ ka.files = new Class({
 
         boxNavi.addButton(_('Refresh'), _path + 'inc/template/admin/images/admin-files-refresh.png', this.reload.bind(this));
 
-        var boxAction = this.win.addButtonGroup();
+        var boxAction = this.addButtonGroup();
         this.boxAction = boxAction;
         boxAction.addButton(_('New file'), _path + 'inc/template/admin/images/admin-files-newFile.png', this.newFile.bind(this));
         boxAction.addButton(_('New directory'), _path + 'inc/template/admin/images/admin-files-newDir.png', this.newFolder.bind(this));
@@ -742,7 +763,7 @@ ka.files = new Class({
         this.upBtn.addClass('admin-files-droppables');
 
         //view types
-        var boxTypes = this.win.addButtonGroup();
+        var boxTypes = this.addButtonGroup();
         this.typeButtons = new Hash();
 
         this.typeButtons['icon'] = boxTypes.addButton(_('Icon view'), _path + 'inc/template/admin/images/admin-files-list-icons.png', this.setListType.bind(this, 'icon'));
@@ -758,13 +779,13 @@ ka.files = new Class({
             btn.store('oriClass', btn.get('class'));
         });
 
-        var userGrp = this.win.addButtonGroup();
+        var userGrp = this.addButtonGroup();
         this.userFilesBtn = userGrp.addButton(_('Hide system files'), _path + 'inc/template/admin/images/icons/folder_brick.png', this.toggleUserMode.bind(this));
         this.userFilesBtn.setPressed(this.options.onlyUserDefined);
 
         //address
 
-        var adressPos = new Element('div', {'class': 'admin-files-actionBar-addressPos'}).inject(this.win.titleGroups);
+        var adressPos = new Element('div', {'class': 'admin-files-actionBar-addressPos'}).inject(this.header);
         this.address = new Element('input', {
             'class': 'admin-files-actionBar-address',
             value: '/'
@@ -793,7 +814,7 @@ ka.files = new Class({
         }.bind(this))
         .addEvent('mousedown', function (e) {
             e.stopPropagation();
-        }).inject(this.win.titleGroups);
+        }).inject(this.header);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icon-search-loupe.png',
@@ -820,6 +841,11 @@ ka.files = new Class({
         }.bind(this)).addEvent('mousemove', function (pEvent) {
             this.checkMouseMove(pEvent);
         }.bind(this)).inject(this.container);
+
+
+        if (!this.options.useWindowHeader){
+            this.fileContainer.setStyle('top', 35);
+        }
 
         this.container.addEventListener('dragover', this.checkFileDragOver.bind(this));
         this.container.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
@@ -1028,9 +1054,13 @@ ka.files = new Class({
 
     loadPath: function (pPath, pCallback) {
 
-        if (pPath.substr(0, 6) == '/trash' && pPath.length >= 7) {
+        if (pPath.substr(0, 7) == '/trash/' && pPath.length >= 7) {
             this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
             return;
+        }
+
+        if (this.options.selection && (pPath.substr(0, 7) == '/trash/' || pPath == '/trash')){
+            return false;
         }
 
         if (this.history[ this.historyIndex ] != pPath) {
@@ -1785,7 +1815,7 @@ ka.files = new Class({
                 if (this.options.selectionOnlyFiles && file.type == 'dir') return;
                 if (this.options.selectionOnlyFolders && file.type == 'file') return;
 
-                if (!this.options.selectionMultiple && this.getSelectedCount() == 1) return;
+                if (!this.options.multi && this.getSelectedCount() == 1) return;
             }
 
             pItem.addClass('admin-files-item-selected');
@@ -1990,6 +2020,28 @@ ka.files = new Class({
             }
 
         }
+    },
+
+    getValue: function(){
+
+        var selectedFiles = this.getSelectedFilesAsArray();
+
+        if (selectedFiles.length == 1) {
+            this.options.selectionValue = selectedFiles[0];
+            return this.options.selectionValue.object_id;
+
+        } else if (selectedFiles.length > 1) {
+            this.options.selectionValue = selectedFiles;
+            var items = [];
+            selectedFiles.each(function(file){
+                items.include(file.object_id);
+            })
+
+            return items;
+
+        }
+
+        return false;
     },
 
     startDrag: function (pEvent, pItem) {

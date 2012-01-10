@@ -173,9 +173,10 @@ ka.field = new Class({
     },
 
     renderField: function () {
-        if (this.field.type) {
+
+        if (this.field.type)
             this.field.type = this.field.type.toLowerCase();
-        }
+
 
         switch (this.field.type) {
             case 'password':
@@ -214,7 +215,7 @@ ka.field = new Class({
                 break;
             case 'pagechooser':
             case 'page':
-                this.renderChooser(['page']);
+                this.renderChooser(['node']);
                 break;
             case 'chooser':
                 this.renderChooser();
@@ -256,6 +257,9 @@ ka.field = new Class({
             case 'window_list':
                 this.renderWindowList();
                 break;
+            case 'propertytable':
+                this.renderPropertyTable();
+                break;
             case 'text':
             default:
                 this.renderText();
@@ -270,6 +274,21 @@ ka.field = new Class({
             this.input.store('oldClass', this.input.get('class'));
         }
     },
+
+    renderPropertyTable: function(){
+
+        this.propertyTable = new ka.propertyTable(this.fieldPanel, this.win);
+
+        this.getValue = function(){
+            return this.propertyTable.getValue();
+        }.bind(this);
+
+        this.setValue = function(p){
+            this.propertyTable.setValue(p);
+        }.bind(this);
+
+    },
+
 
     renderChildrenSwitcher: function(){
 
@@ -1125,17 +1144,44 @@ ka.field = new Class({
             }).inject(this.fieldPanel);
 
         var div = new Element('span').inject(this.fieldPanel);
-        var button = new ka.Button(_('Choose')).addEvent('click', function () {
-            var _this = this;
-            ka.wm.openWindow('admin', 'backend/chooser', null, -1, {onChoose: function (pValue) {
+
+        //compatibility
+        if (this.field.domain){
+            if (!this.field.objectOptions) this.field.objectOptions = {};
+            if (!this.field.objectOptions.node) this.field.objectOptions.node = {};
+            this.field.objectOptions.node.domain = this.field.domain;
+        }
+
+        var chooserParams = {
+            onChoose: function (pValue) {
                 this.setValue(pValue, true);
             }.bind(this),
-                value: this._value,
-                cookie: this.field.cookie,
-                domain: this.field.domain,
-                display: this.field.display,
-                objects: pObjects});
-        }.bind(this)).setStyle('position', 'relative').setStyle('top', '-1px').inject(div, 'after');
+            value: this._value,
+            cookie: this.field.cookie,
+            objects: pObjects,
+            objectOptions: this.field.objectOptions,
+            multi: this.field.multi
+        };
+
+        if (this._value)
+            chooserParams.value = this._value;
+
+        if (this.field.cookie)
+            chooserParams.cookie = this.field.cookie;
+
+        if (this.field.domain)
+            chooserParams.domain = this.field.domain;
+
+
+        var button = new ka.Button(_('Choose')).addEvent('click', function () {
+
+            var _this = this;
+            ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
+
+        }.bind(this))
+        .setStyle('position', 'relative').setStyle('top', '-1px')
+        .inject(div, 'after');
+
 
         this.pageChooserPanel = new Element('span', {style: 'color: gray;'}).inject(button, 'after');
 

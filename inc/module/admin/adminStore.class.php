@@ -7,8 +7,8 @@ class adminStore {
     public $itemsMaxCount = 5;
 
     public $table;
-    public $label;
-    public $id;
+    public $table_label;
+    public $table_key;
 
     /**
      * Additional where clauses started with 'AND '
@@ -59,9 +59,9 @@ class adminStore {
             $id = "'" . esc($id) . "'";
         }
 
-        $sql = ' SELECT ' . $this->id . ' as id, ' . $this->label . ' as label
+        $sql = ' SELECT ' . $this->table_key . ' as id, ' . $this->table_label . ' as label
             FROM ' . $table . '
-            WHERE ' . $this->id . ' = ' . $id;
+            WHERE ' . $this->table_key . ' = ' . $id;
 
         $res = dbExfetch($sql, 1);
         return $res;
@@ -81,7 +81,7 @@ class adminStore {
 
         if (getArgv('search')) {
             $search = strtolower(getArgv('search', 1));
-            return ' AND LOWER(' . $this->label . ") LIKE '$search%' ";
+            return ' AND LOWER(' . $this->table_label . ") LIKE '$search%' ";
         }
 
         return '';
@@ -122,9 +122,9 @@ class adminStore {
         $where .= $this->getSearchWhere();
 
         if ($this->sql) {
-            $sql .= $limit;
+            $sql = $this->sql.$limit;
         } else {
-            $sql = ' SELECT ' . $this->id . ', ' . $this->label . '
+            $sql = ' SELECT ' . $this->table_key . ', ' . $this->table_label . '
             FROM ' . $table .
                    ' WHERE 1=1 ' . $where
                    . $limit;
@@ -132,7 +132,7 @@ class adminStore {
 
         $dbRes = dbExec($sql);
         while ($row = dbFetch($dbRes)) {
-            $res[$row[$this->id]] = $row[$this->label];
+            $res[$row[$this->table_key]] = $row[$this->table_label];
         }
 
         return $res;

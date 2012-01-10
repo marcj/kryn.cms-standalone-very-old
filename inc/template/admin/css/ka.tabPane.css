@@ -2,7 +2,7 @@
 	-moz-border-radius: 5px;
 	border: 1px solid #aaa;
 	padding: 10px;
-	margin:0px 5px	
+	margin:0px 5px;
 }
 
 .kwindow-win-tabPane .kwindow-win-tabWrapperLast {
@@ -13,4 +13,33 @@
     border-left:1px solid #aaa;
     border-right:1px solid #aaa;
     border-top:1px solid #888;	
+}
+
+.ka-tabPane-pane {
+    display: none;
+}
+
+.ka-tabPane-full .kwindow-win-tabPane-pane,
+.ka-tabPane-full .ka-tabPane-pane,
+.ka-tabPane-full {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    border: 0px;
+    -moz-border-radius: 0px;
+    margin: 0px;
+}
+
+.ka-tabPane-full .ka-tabPane-pane {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    top: 29px;
+}
+
+.ka-tabPane-tabsInWindowHeader .ka-tabPane-pane {
+    top: 0px;
 }

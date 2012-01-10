@@ -1,18 +1,30 @@
 ka.tabPane = new Class({
     Implements: Events,
-    initialize: function (pParent) {
+
+    index: -1,
+
+    initialize: function (pParent, pFull, pUseThisAsWindowHeader) {
         this.box = new Element('div', {
-            'class': 'kwindow-win-tabPane'
+            'class': 'kwindow-win-tabPane'+(pFull?' ka-tabPane-full':'')
         }).inject(pParent);
 
-        this.buttonGroup = new ka.smallTabGroup(this.box);
-        this.buttonGroup.box.setStyle('position', 'relativ').setStyle('top', 1);
-        this.clearer = new Element('div', {style: 'clear: both'}).inject(this.box);
+        if (pUseThisAsWindowHeader){
+            this.buttonGroup = pUseThisAsWindowHeader.addSmallTabGroup();
+            this.box.addClass('ka-tabPane-tabsInWindowHeader');
+        } else {
+            this.buttonGroup = new ka.smallTabGroup(this.box);
+            this.buttonGroup.box.setStyle('position', 'relativ').setStyle('top', 1);
+            this.clearer = new Element('div', {style: 'clear: both'}).inject(this.box);
+        }
+
         this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane'}).inject(this.box);
 
-        this.index = 0;
         this.panes = [];
         this.buttons = [];
+    },
+
+    toElement: function(){
+        return this.box;
     },
 
     setHeight: function (pHeight) {
@@ -26,9 +38,12 @@ ka.tabPane = new Class({
     },
 
     addPane: function (pTitle, pImageSrc) {
+
         var id = this.panes.length;
         var res = {};
-        res.pane = new Element('div').inject(this.paneBox);
+        res.pane = new Element('div', {
+            'class': 'ka-tabPane-pane'
+        }).inject(this.paneBox);
 
         this.panes.include(res.pane);
 
@@ -36,6 +51,11 @@ ka.tabPane = new Class({
 
         this.buttons.include(btn);
         res.button = btn;
+        res.id = id;
+
+        if (this.index == -1)
+            this.to(0);
+
         return res;
     },
 

@@ -1699,7 +1699,9 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         var buttonBar = new ka.buttonBar(this.panes['objects']);
-        buttonBar.addButton(_('Add object'), this.addObject.bind(this));
+        buttonBar.addButton(_('Add object'), function(){
+            this.addObject()
+        }.bind(this));
         buttonBar.addButton(_('Save'), this.saveObjects.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getObjects', noCache: 1, onComplete: function (res) {
@@ -1739,6 +1741,7 @@ var admin_system_module_edit = new Class({
         this.loader.show();
 
         var req = {};
+        logger(objects);
         req.objects = JSON.encode(objects);
         req.name = this.mod;
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveObjects', noCache: 1, onComplete: function (res) {
@@ -1777,13 +1780,11 @@ var admin_system_module_edit = new Class({
                         label: t('Table name'),
                         desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
                         depends: {
-                            table_key: {
+                            table_sync: {
                                 needValue: function(n){if(n!='')return true;else return false;},
-                                label: t('Table primary key')
-                            },
-                            table_label: {
-                                needValue: function(n){if(n!='')return true;else return false;},
-                                label: t('Table label key')
+                                label: t('Table synchronisation'),
+                                desc: t('Keep the field definition in sync with the columns of the defined table.'),
+                                type: 'checkbox'
                             }
                         }
                     },
@@ -1802,25 +1803,37 @@ var admin_system_module_edit = new Class({
                 label: t('Selectable ?'),
                 desc: t('Is this object selectable by other objects through a ka.field?'),
                 depends:{
-                    __ownClass__: {
-                        type: 'label',
-                        needValue: 1,
-                        label: t('Define a own class name or the id and label of this object.')
+                    chooser_icon: {
+                        label: t('Chooser icon'),
+                        desc: t('Relative to inc/tempate/.')
                     },
-                    chooserClass: {
+                    chooserUseOwnClass: {
                         needValue: 1,
-                        label: t('Own chooser class'),
-                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
-                    },
-                    chooserTableKey: {
-                        needValue: 1,
-                        label: t('ID'),
-                        desc: t('Define which field key should be used as id')
-                    },
-                    chooserTableLabel: {
-                        needValue: 1,
-                        label: t('Label'),
-                        desc: t('Define which field key should be used as label')
+                        label: t('Use own chooser javascript class'),
+                        type: 'checkbox',
+                        depends: {
+                            chooserClass: {
+                                needValue: 1,
+                                label: t('Own chooser class'),
+                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
+                            },
+                            chooserOptions: {
+                                label: t('Own properties'),
+                                needValue: 1,
+                                desc: t('You can allow extensions to set some properties when providing your object chooser.'),
+                                type: 'propertyTable'
+                            },
+                            chooserTableKey: {
+                                needValue: 0,
+                                label: t('ID'),
+                                desc: t('Define which field key should be used as id')
+                            },
+                            chooserTableLabel: {
+                                needValue: 0,
+                                label: t('Label'),
+                                desc: t('Define which field key should be used as label')
+                            }
+                        }
                     }
                 }
             }
@@ -1828,7 +1841,12 @@ var admin_system_module_edit = new Class({
 
         var definition = pTr.retrieve('definition');
 
-        var kaParseObj = new ka.parse(this.dialog.content, kaFields, {allTableItems: true}, {win: this.win});
+        var table = new Element('table', {
+            width: '100%'
+        }).inject(this.dialog.content);
+        var tbody = new Element('tbody').inject(table);
+
+        var kaParseObj = new ka.parse(tbody, kaFields, {allTableItems: true}, {win: this.win});
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 
@@ -1875,7 +1893,7 @@ var admin_system_module_edit = new Class({
             'class': 'object'
         }).inject(this.objectTBody);
 
-        tr.store('definition', pDefinition);
+        tr.store('definition', pDefinition||{});
 
         var leftTd = new Element('td').inject(tr);
         var rightTd = new Element('td').inject(tr);

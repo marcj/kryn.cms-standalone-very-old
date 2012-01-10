@@ -68,7 +68,7 @@ class adminSettings {
         dbUpdate('system_langs', array('visible' => 1), array('visible' => 0));
         $langs = getArgv('languages');
         foreach ($langs as $l)
-            dbUpdate('system_langs', array('rsn' => $l), array('visible' => 1));
+            dbUpdate('system_langs', array('code' => $l), array('visible' => 1));
 
         json($res);
     }

@@ -75,6 +75,7 @@ class admin {
 
         if ($info) {
             if ($info['type'] == 'store') {
+
                 if (!$info['class']) {
                     $obj = new adminStore();
                 } else {

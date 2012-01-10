@@ -325,8 +325,8 @@ var admin_system_settings = new Class({
             this.oldCommunityEmail = res.system['communityEmail'];
 
             var langs = [];
-            $H(res.langs).each(function (l, k) {
-                langs.include(l.rsn + '');
+            Object.each(res.langs, function (l, k) {
+                langs.include(l.code);
             });
             this.fields['languages'].setValue(langs);
 

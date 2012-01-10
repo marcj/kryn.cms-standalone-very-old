@@ -1,11 +1,31 @@
 var admin_backend_chooser = new Class({
 
+    Implements: [Events,Options],
+
+    options: {
+        cookie: 'kFieldChooser',
+        value: false,
+
+        objects: [], //
+        objectOptions: {}
+
+        /*
+        <objectId>: {
+            <objectChooserOptions>
+        }
+        files:
+
+        multi: false
+        */
+    },
+
+    objectChooserInstance: {},
+    pane2ObjectId: [],
+
     initialize: function (pWin) {
         this.win = pWin;
 
-        this.win.content.setStyle('display', 'none');
-
-        this.options = this.win.params.opts;
+        this.options = this.win.params;
 
         this.value = this.win.params.value;
         this.p = _path + 'inc/template/admin/images/';
@@ -17,7 +37,7 @@ var admin_backend_chooser = new Class({
 
         this.bottomBar = this.win.addBottomBar();
         this.bottomBar.addButton(_('Close'), this.win.close.bind(this.win));
-        this.bottomBar.addButton(_('Choose'), this.choose.bind(this));
+        this.bottomBar.addButton(_('Choose'), function(){this.choose();}.bind(this));
 
         this._createLayout();
     },
@@ -27,19 +47,11 @@ var admin_backend_chooser = new Class({
         Cookie.write(this.cookie + 'lastTab', this.currentPane);
     },
 
-    choose: function () {
-        this.saveCookie();
-        if (this.win.params.onChoose) {
-            this.win.params.onChoose(this.value);
-        }
-        this.win.close();
-    },
-
     _createLayout: function () {
-        this.buttonGroup = this.win.addTabGroup();
-        this.buttons = new Hash();
-        this.panes = new Hash();
 
+        this.tapPane = new ka.tabPane(this.win.content, true, this.win);
+
+        /*
         if (this.options.pages) {
             this.createPages();
             if (this.win.params.domain) {
@@ -52,16 +64,96 @@ var admin_backend_chooser = new Class({
                     this.createLanguageBox();
                 }
             }
+        }*/
+
+        if (!this.options.objectOptions)
+            this.options.objectOptions = {};
+
+        if (true || !this.options.objects || this.options.objects.length == 0){
+
+            Object.each(ka.settings.configs, function(config, extKey){
+
+                if (config.objects){
+                    Object.each(config.objects, function(object, objectKey){
+                        if (object.selectable)
+                            this.createObjectChooser(objectKey, object);
+                    }.bind(this));
+                }
+
+            }.bind(this));
+
+        } else {
+
         }
+
+    },
+
+    createObjectChooser: function(pObjectKey, pObject){
+
+        var bundle = this.tapPane.addPane(pObject.label, pObject.chooser_icon);
+        this.pane2ObjectId[bundle.id] = pObjectKey;
+
+        if (pObject.chooserClass){
+
+            var chooserClass = window[pObject.chooserClass];
+            if (pObject.chooserClass.indexOf('.') !== false){
+                var split = pObject.chooserClass.split('.');
+                chooserClass = window;
+                split.each(function(s){
+                    chooserClass = chooserClass[s];
+                })
+            }
+
+            if (!chooserClass){
+                this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
+                    .replace('%class%', pObject.chooserClass)
+                    .replace('%object%', pObjectKey)
+                )
+            } else {
+                this.objectChooserInstance[pObjectKey] = new chooserClass(
+                    bundle.pane,
+                    this.options.objectOptions[pObjectKey],
+                    this.win
+                );
+            }
+        }
+
+
+        if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent){
+            this.objectChooserInstance[pObjectKey].addEvent('choose', function(){
+                this.choose(pObjectKey);
+            }.bind(this));
+
+        }
+
+    },
+
+    choose: function(pObjectKey){
+
+        if (!pObjectKey){
+            pObjectKey = this.pane2ObjectId[this.tapPane.index];
+        }
+
+        if (pObjectKey && this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].getValue){
+            var value = this.objectChooserInstance[pObjectKey].getValue();
+            if (!value)
+                return;
+
+            logger(value);
+            this.saveCookie();
+            this.saveCookie();
+            this.fireEvent('choose', value);
+            this.win.close();
+        }
+    },
+
+    bullshit: function(){
+
+        return;
 
         if (this.options.files) {
             this.createFiles();
         }
-
-        /*        if( this.options.upload ){
-         this.createUpload();
-         }
-         */
 
         this.buttons.each(function (button) {
             button.store('oriClass', button.get('class'));
@@ -82,8 +174,6 @@ var admin_backend_chooser = new Class({
                 this.toPane('files');
             }
         }
-
-        this.win.content.setStyle('display', 'block');
     },
 
     createLanguageBox: function () {
@@ -221,10 +311,12 @@ var admin_backend_chooser = new Class({
         }
 
         this.filesPane = new ka.files(winApi, filesContent, {
+
             selection: true,
             selectionOnlyFolders: this.options.onlyDir,
             selectionMultiple: this.options.multi,
             selectionValue: this.value,
+
             onDblClick: function () {
                 this.choose();
             }.bind(this),
