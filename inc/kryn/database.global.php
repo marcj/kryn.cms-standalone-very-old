@@ -41,7 +41,7 @@ function esc($p, $pEscape = 1) {
     }
 
     if ($pEscape == 2) {
-        return preg_replace("/\W/", "", $p);
+        return preg_replace('/[^a-zA-Z0-9-_]/', '', $p);
     }
 
     if ($cfg['db_pdo'] + 0 == 1 || $cfg['db_pdo'] === '') {

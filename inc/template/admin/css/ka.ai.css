@@ -1148,11 +1148,3 @@ a.ka-create-search-index-icon.red {
     border-top: 1px solid #777; /*#555;*/
     box-shadow: 0px 1px 0px #eee;
 }
-
-.ka-propertyTable-hide-definition .ka-propertyTable-definition {
-    display: none;
-}
-
-.ka-propertyTable-hide-definition .ka-propertyTable-key-info {
-    display: none;
-}

@@ -1552,7 +1552,7 @@
     "admin\/js\/ka.Accordion.js",
     "admin\/js\/ka.imageGroup.js",
     "admin\/js\/ka.customField.js",
-    "admin\/js\/ka.propertyTable.js",
+    "admin\/js\/ka.fieldTable.js",
     "admin\/js\/ka.nodeChooser.js",
     "admin\/js\/ka.autoChooser.js",
     "admin\/js\/swfupload.js",
@@ -1594,7 +1594,7 @@
     "admin\/css\/ka.imageGroup.css",
     "admin\/css\/ka.layoutBox.css",
     "admin\/css\/ka.layoutContent.css",
-    "admin\/css\/ka.propertyTable.css",
+    "admin\/css\/ka.fieldTable.css",
     "admin\/css\/overview.css"
   ],
   "community": "1",

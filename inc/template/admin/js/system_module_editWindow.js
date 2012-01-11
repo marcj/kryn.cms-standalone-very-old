@@ -1,5 +1,10 @@
 var admin_system_module_editWindow = new Class({
 
+    windowEditFields: {}, //ka.field object
+    windowEditTabs: {}, //addtabPane object
+    windowEditFieldDefinition: {}, //json definition
+
+
     initialize: function(pWin){
 
         this.win = pWin;
@@ -103,13 +108,26 @@ var admin_system_module_editWindow = new Class({
             text: t('Inspector')
         }).inject(this.windowInspector);
 
-        this.loadWindowClass('windowEdit');
+        this.windowInspectorContainer = new Element('div').inject(this.windowInspector);
 
         this.loadInfo();
     },
 
     loadInfo: function(){
 
+        this.lr = new Request.JSON({url: _path+'admin/system/module/getWindowDefinition', noCache:1,
+        onComplete: this.renderWindowDefinition.bind(this)}).get({
+            name: this.win.params.module,
+            'class': this.win.params.className
+        });
+
+    },
+
+    renderWindowDefinition: function(pDefinition){
+
+        this.definition = pDefinition;
+
+        this.loadWindowClass(pDefinition.parentClass);
 
     },
 
@@ -136,26 +154,108 @@ var admin_system_module_editWindow = new Class({
 
             this.winTabPane = new ka.tabPane(win.content, true, win);
 
-            var general = this.winTabPane.addPane(t('General'));
-            var l = this.winTabPane.addPane('Add tab', _path+'inc/template/admin/images/icons/add.png');
+            this.windowEditTabs = {};
 
-            new ka.field({
-                label: 'Title'
-            }, general.pane, {win: win});
+            logger(this.definition);
 
-            new ka.field({
-                label: 'Foo',
-                type: 'select',
-                items: {
-                    Blaa: 'Baaar'
-                }
-            }, general.pane, {win: win});
 
-            new ka.Button(t('Add field')).inject(general.pane);
+            //normal fields without tab
+            if (typeOf(this.definition.properties.fields) == 'object'){
+                this.addWindowEditTab('general', '[[General]]');
+
+                Object.each(this.definition.properties.fields, function(field, key){
+                    this.addWindowEditField('general', key, field);
+                }.bind(this));
+            }
+
+            //tab fields with tab
+            if (typeOf(this.definition.properties.tabFields) == 'object'){
+
+                Object.each(this.definition.properties.tabFields, function(fields, tabKey){
+
+                    this.addWindowEditTab(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), tabKey);
+
+                    Object.each(fields, function(field, key){
+                        this.addWindowEditField(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), key, field);
+                    }.bind(this));
+                }.bind(this));
+
+            }
 
         }
 
 
+    },
+
+    loadToolbar: function(pKey){
+
+        var definition = this.windowEditFieldDefinition[pKey] || {};
+
+        if (this.lastFieldProperty){
+
+            this.windowInspectorContainer.empty();
+            delete this.lastFieldProperty;
+
+        }
+
+        this.lastFieldProperty = new ka.fieldProperty(pKey, definition, this.windowInspectorContainer, {
+            arrayKey: true,
+            addLabel: t('Add field'),
+            tableitem_title_width: 200,
+            allTableItems: false,
+            withActionsImages: false,
+            withoutChildren: true
+        });
+
+
+    },
+
+    addWindowEditField: function(pTabKey, pKey, pField){
+
+        var field = Object.clone(pField);
+
+        var field = new ka.field(
+            field,
+            this.windowEditTabs[pTabKey].pane,
+            {win: this.win}
+        );
+
+        var titleDiv = field.title;
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/bullet_wrench.png',
+            title: t('Edit'),
+            style: 'position: absolute; right: 50px; top: 0px; width: 13px; cursor: pointer;'
+        })
+        .addEvent('click', function(){
+            this.loadToolbar(pKey);
+        }.bind(this))
+        .inject(titleDiv);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/delete.png',
+            title: t('Delete'),
+            style: 'position: absolute; right: 35px; top: 0px; width: 13px; cursor: pointer;'
+        }).inject(titleDiv);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/arrow_up.png',
+            style: 'position: absolute; right: 20px; top: 0px; width: 13px; cursor: pointer;'
+        }).inject(titleDiv);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/arrow_down.png',
+            style: 'position: absolute; right: 5px; top: 0px; width: 13px; cursor: pointer;'
+        }).inject(titleDiv);
+
+        this.windowEditFields[pKey] = field;
+        this.windowEditFieldDefinition[pKey] = pField;
+        return this.windowEditFields[pKey];
+
+    },
+
+    addWindowEditTab: function(pTabKey, pTitle, pIcon){
+        this.windowEditTabs[pTabKey] = this.winTabPane.addPane(pTitle, pIcon);
     }
 
 })

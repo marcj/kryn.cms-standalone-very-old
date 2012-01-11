@@ -50,6 +50,7 @@ h2.ka-field-headline {
 }
 
 .ka-field-title {
+    position: relative;
 }
 
 div.ka-field-main div.desc {

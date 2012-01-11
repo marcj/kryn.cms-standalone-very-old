@@ -242,7 +242,7 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var propertyTable = new ka.propertyTable(propertyPanel, this.win, {
+        var propertyTable = new ka.fieldTable(propertyPanel, this.win, {
             arrayKey: true
         });
 
@@ -2004,10 +2004,11 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var propertyTable = new ka.propertyTable(propertyPanel, this.win, {
+        var propertyTable = new ka.fieldTable(propertyPanel, this.win, {
             addLabel: t('Add field'),
             mode: 'object',
-            withTableDefinition: true
+            withTableDefinition: true,
+            withoutChildren: true
         });
 
         tr.store('propertyTable', propertyTable);

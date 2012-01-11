@@ -122,7 +122,52 @@ class adminModule {
 
             case 'addCheckCode':
                 json(self::addCheckCode(getArgv('name', 2)));
+
+
+            case 'getWindowDefinition':
+                return self::getWindowDefinition(getArgv('name', 2), getArgv('class', 2));
         }
+    }
+
+    public static function getWindowDefinition($pName, $pClass){
+
+        $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
+
+        require_once(PATH_MODULE.'admin/adminWindowEdit.class.php');
+        require_once(PATH_MODULE.'admin/adminWindowAdd.class.php');
+        require_once(PATH_MODULE.'admin/adminWindowList.class.php');
+
+        $content = explode("\n",kryn::fileRead($path));
+
+        if (!file_exists($path)) return array('error' => 'class_file_not_found');
+
+        require_once($path);
+
+        $obj = new $pClass();
+        foreach ($obj as $k => $v)
+            $res['properties'][$k] = $v;
+
+
+        $reflection = new ReflectionClass($pClass);
+        $parent = $reflection->getParentClass();
+        $res['parentClass'] = $parent->name;
+
+        $methods = $reflection->getMethods();
+
+        foreach ($methods as $method){
+            if ($method->class == $pClass){
+
+                $code = '';
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+                    $code .= $content[$i];
+                }
+
+                $res['methods'][$method->name] = $code;
+            }
+        }
+
+        return $res;
+
     }
 
     public static function getDependExtension($pName, $pFile, $pNeedVersion) {

@@ -257,8 +257,8 @@ ka.field = new Class({
             case 'window_list':
                 this.renderWindowList();
                 break;
-            case 'propertytable':
-                this.renderPropertyTable();
+            case 'fieldtable':
+                this.renderFieldTable();
                 break;
             case 'text':
             default:
@@ -275,16 +275,16 @@ ka.field = new Class({
         }
     },
 
-    renderPropertyTable: function(){
+    renderFieldTable: function(){
 
-        this.propertyTable = new ka.propertyTable(this.fieldPanel, this.win, this.field.options);
+        this.fieldTable = new ka.fieldTable(this.fieldPanel, this.win, this.field.options);
 
         this.getValue = function(){
-            return this.propertyTable.getValue();
+            return this.fieldTable.getValue();
         }.bind(this);
 
         this.setValue = function(p){
-            this.propertyTable.setValue(p);
+            this.fieldTable.setValue(p);
         }.bind(this);
 
     },
