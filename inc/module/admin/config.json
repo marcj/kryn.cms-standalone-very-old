@@ -1554,6 +1554,7 @@
     "admin\/js\/ka.customField.js",
     "admin\/js\/ka.propertyTable.js",
     "admin\/js\/ka.nodeChooser.js",
+    "admin\/js\/ka.autoChooser.js",
     "admin\/js\/swfupload.js",
     "admin\/js\/fupload.js",
     "admin\/js\/ka.crawler.js",

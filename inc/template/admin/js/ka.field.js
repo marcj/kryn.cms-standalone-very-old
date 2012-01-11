@@ -277,7 +277,7 @@ ka.field = new Class({
 
     renderPropertyTable: function(){
 
-        this.propertyTable = new ka.propertyTable(this.fieldPanel, this.win);
+        this.propertyTable = new ka.propertyTable(this.fieldPanel, this.win, this.field.options);
 
         this.getValue = function(){
             return this.propertyTable.getValue();

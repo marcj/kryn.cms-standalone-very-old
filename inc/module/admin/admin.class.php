@@ -128,6 +128,8 @@ class admin {
                             break;
                         case 'nothing':
                             die("");
+                        case 'autoChooser':
+                            return self::autoChooser(getArgv('object'), getArgv('page'));
                         case 'clearCache':
                             json(admin::clearCache());
                         case 'loadJs':
@@ -239,11 +241,31 @@ class admin {
     }
 
     /**
+     *
+     *
+     *
+     * @static
+     * @param $pObject
+     * @param $pPage
+     */
+    public static function autoChooser($pObject, $pPage){
+
+        $definition = kryn::$objects[$pObject];
+        if (!$definition) return false;
+
+        $items = object::count($pObject.'://');
+
+
+    }
+
+    /**
+     *
      * Gets the item from the 'admin' entry points defined in the config.json, by the given code
      *
-     * @param string $pCode Example publication/news/list returns the hash of 'list'
+     * @static
+     * @param $pCode
+     * @return array|bool
      */
-
     public static function getPathItem($pCode) {
 
         $codes = explode('/', $pCode);

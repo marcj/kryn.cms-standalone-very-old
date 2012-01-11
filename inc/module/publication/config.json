@@ -411,11 +411,16 @@
         }
       },
       "table_sync": false,
-      "class": "",
-      "chooserTableKey": "rsn",
-      "chooserTableLabel": "title",
       "chooserUseOwnClass": false,
-      "selectable": true
+      "selectable": true,
+      "chooser_icon": "",
+      "chooserAutoColumns": {
+        "title": {
+          "label": "[[Title]]",
+          "type": "text",
+          "empty": true
+        }
+      }
     },
     "news_comment": {
       "label": "[[Comments]]",

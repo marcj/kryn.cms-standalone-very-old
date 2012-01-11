@@ -2,11 +2,11 @@ ka.propertyTable = new Class({
     Implements: Options,
 
     options: {
-        withDependFields: false,
         addLabel: t('Add property'),
-        mode: 'kaField', //kaField = ka.field definition, object = object field definition
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
-        arrayKey: false //key like foo[bar], foo[barsen], foo[bar][sen]
+        withWidthField: false, //for column definition.
+        withoutChildren: false, //deactivate children?
+        arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
     container: false,
@@ -121,6 +121,10 @@ ka.propertyTable = new Class({
 
             }
         },
+        width: {
+            label: t('Width'),
+            desc: t('Use a px value or a % value. Example: 25%, 50, 35px')
+        },
         primaryKey: {
             label: t('Primary key'),
             type: 'checkbox'
@@ -187,6 +191,9 @@ ka.propertyTable = new Class({
             delete this.kaFields.primaryKey;
             delete this.kaFields.autoIncrement;
         }
+
+        if (!this.options.withWidthField)
+            delete this.kaFields.width;
 
         this.header = new Element('div', {
             style: 'background-color: #d1d1d1; padding: 2px; height: 27px; position: relative; border-bottom: 1px solid silver;'
@@ -480,15 +487,17 @@ ka.propertyTable = new Class({
 
         div.store('dependDiv', dependDiv);
 
-        var btnDiv = Element('div', {
-            style: 'padding-top: 3px; padding-left: 10px;'
-        }).inject(div)
+        if (!this.options.withoutChildren){
+            var btnDiv = Element('div', {
+                style: 'padding-top: 3px; padding-left: 10px;'
+            }).inject(div)
 
-        new ka.Button(t('Add child'))
-        .addEvent('click', function(){
-            this.add('child_key_'+(dependDiv.getChildren().length+1), {}, dependDiv);
-        }.bind(this))
-        .inject(btnDiv);
+            new ka.Button(t('Add child'))
+            .addEvent('click', function(){
+                this.add('child_key_'+(dependDiv.getChildren().length+1), {}, dependDiv);
+            }.bind(this))
+            .inject(btnDiv);
+        }
 
         //this.renderDependInfo(div);
 

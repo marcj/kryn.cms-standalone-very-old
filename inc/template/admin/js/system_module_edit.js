@@ -1756,8 +1756,8 @@ var admin_system_module_edit = new Class({
         this.dialog = this.win.newDialog('', true);
 
         this.dialog.setStyles({
-            height: '60%',
-            width: '80%'
+            height: '80%',
+            width: '90%'
         });
         this.dialog.center();
 
@@ -1823,15 +1823,19 @@ var admin_system_module_edit = new Class({
                                 desc: t('You can allow extensions to set some properties when providing your object chooser.'),
                                 type: 'propertyTable'
                             },
-                            chooserTableKey: {
+                            chooserAutoColumns: {
+                                label: t('Columns in the chooser table'),
                                 needValue: 0,
-                                label: t('ID'),
-                                desc: t('Define which field key should be used as id')
+                                type: 'propertyTable',
+                                options: {
+                                    withWidthField: true,
+                                    withoutChildren: true
+                                }
                             },
-                            chooserTableLabel: {
+                            chooserAutoFilter: {
+                                label: t('Filter'),
                                 needValue: 0,
-                                label: t('Label'),
-                                desc: t('Define which field key should be used as label')
+                                desc: t('Use normal SQL WHERE conditions.')
                             }
                         }
                     }

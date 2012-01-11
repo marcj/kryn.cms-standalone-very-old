@@ -116,8 +116,14 @@ var admin_backend_chooser = new Class({
                     this.win
                 );
             }
+        } else {
+            this.objectChooserInstance[pObjectKey] = new ka.autoChooser(
+                bundle.pane,
+                pObjectKey,
+                pObject,
+                this.win
+            );
         }
-
 
         if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent){
             this.objectChooserInstance[pObjectKey].addEvent('choose', function(){
@@ -139,10 +145,12 @@ var admin_backend_chooser = new Class({
             if (!value)
                 return;
 
-            logger(value);
+            var url = pObjectKey+'://'+value;
+
+            logger(url);
             this.saveCookie();
             this.saveCookie();
-            this.fireEvent('choose', value);
+            this.fireEvent('choose', url);
             this.win.close();
         }
     },

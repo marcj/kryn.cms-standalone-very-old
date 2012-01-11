@@ -60,12 +60,12 @@
     background-repeat: repeat-x;
     left: 31px;
     height: 41px;
-    right: 31px;
+    right: 30px;
 }
 
 .ka-with-desktop .kwindow-shadow-left {
     position: absolute;
-    bottom: 26px;
+    bottom: 25px;
     left: -31px;
     width: 31px;
     background-image: url(../images/kwindow-shadow-left.png);
@@ -75,7 +75,7 @@
 
 .ka-with-desktop .kwindow-shadow-right {
     position: absolute;
-    bottom: 26px;
+    bottom: 25px;
     right: -31px;
     width: 31px;
     background-image: url(../images/kwindow-shadow-right.png);
@@ -105,7 +105,7 @@
 .ka-with-desktop .kwindow-shadow-bottom-left,
 .ka-with-desktop .kwindow-shadow-bottom-right {
     position: absolute;
-    bottom: -40px;
+    bottom: -41px;
     background-image: url(../images/kwindow-shadow-bottom-lr.png);
     background-repeat: no-repeat;
     width: 70px;
@@ -117,7 +117,7 @@
 }
 
 .ka-with-desktop .kwindow-shadow-bottom-right {
-    right: -39px;
+    right: -40px;
     background-position: -119px 0px;
 }
 
