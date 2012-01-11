@@ -374,7 +374,7 @@ var admin_system_module_edit = new Class({
         .addEvent('click', function(){
 
             ka.wm.open('admin/system/module/editWindow', {module: this.mod, className: pClassName});
-        })
+        }.bind(this))
         .inject(td);
 
         new Element('img', {

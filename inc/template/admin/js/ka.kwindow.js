@@ -24,12 +24,20 @@ ka.kwindow = new Class({
         this.active = true;
         this.isOpen = true;
         this.createWin();
-        //this.checkAccess();
-        this.loadContent();
 
-        this.addHotkey('esc', false, false, function () {
-            this.close(true);
-        }.bind(this));
+        //this.checkAccess();
+        if (pModule && pWindowCode) {
+
+            (function () {
+                this.toFront();
+            }).delay(40, this);
+
+            this.loadContent();
+
+            this.addHotkey('esc', false, false, function () {
+                this.close(true);
+            }.bind(this));
+        }
     },
 
     //drops a icon-link to desktop which links to this window
@@ -522,7 +530,10 @@ ka.kwindow = new Class({
             this.maximizer.set('src', _path + 'inc/template/admin/images/win-top-bar-maximize.png');
             this.maximized = false;
             this.border.removeClass('kwindow-border-maximized');
-            this.resizeBottomRight.setStyle('display', 'block');
+
+            if (this.resizeBottomRight)
+                this.resizeBottomRight.setStyle('display', 'block');
+
             this.bottom.set('class', 'kwindow-win-bottom');
         } else {
             this.borderDragger.detach();
@@ -537,7 +548,10 @@ ka.kwindow = new Class({
             });
             this.maximizer.set('src', _path + 'inc/template/admin/images/win-top-bar-maximize-1.png');
             this.maximized = true;
-            this.resizeBottomRight.setStyle('display', 'none');
+
+            if (this.resizeBottomRight)
+                this.resizeBottomRight.setStyle('display', 'none');
+
             this.bottom.set('class', 'kwindow-win-bottom-maximized');
         }
 
@@ -922,6 +936,10 @@ ka.kwindow = new Class({
         new Asset.javascript(_path + 'admin/backend/loadCustomJs/module:' + this.module + '/code:' + javascript + '/onLoad:' + id);
     },
 
+    toElement: function(){
+        return this.border;
+    },
+
     createWin: function () {
         var _this = this;
 
@@ -981,7 +999,7 @@ ka.kwindow = new Class({
 
             if (document.body.hasClass('ka-no-desktop')) return;
 
-            if (_this.values.noMaximize !== true) {
+            if (_this.values && _this.values.noMaximize !== true) {
                 _this.maximize();
             }
         }).inject(this.win);
@@ -1071,11 +1089,7 @@ ka.kwindow = new Class({
 
         this.inFront = true;
 
-        (function () {
-            _this.toFront();
-        }).delay(40);
-
-        //        this.loadContent();
+        //this.loadContent();
 
     },
 

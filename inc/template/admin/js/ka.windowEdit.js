@@ -25,7 +25,8 @@ ka.windowEdit = new Class({
         this.win.addEvent('close', this.bCheckClose);
         this.win.addEvent('resize', this.bCheckTabFieldWidth);
 
-        this.load();
+        if (this.win.module && this.win.code)
+            this.load();
     },
 
     destroy: function () {
@@ -353,7 +354,9 @@ ka.windowEdit = new Class({
 
         this.fireEvent('render');
 
-        this.loadItem();
+        if (this.winParams){
+            this.loadItem();
+        }
     },
 
     renderFields: function () {
