@@ -296,7 +296,7 @@ ka.field = new Class({
 
         var a = new Element('a', {
             text: this.field.label,
-            style: 'display: block; padding: 2px; cursor: pointer; position: relative; left: -9px;'
+            style: 'display: block; padding: 2px; cursor: pointer; position: relative; left: -5px;'
         }).inject(this.title);
 
         new Element('img', {

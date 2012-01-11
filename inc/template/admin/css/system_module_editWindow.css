@@ -1,0 +1,25 @@
+
+
+.ka-system-module-editWindow-windowPane {
+
+    background-image: url(../images/ka-system-module-editWindow-windowPane-bg.png);
+
+    position: absolute;
+    left: 0px;
+    right: 300px;
+    top: 0px;
+    bottom: 0px;
+    background-color: white;
+    overflow: hidden;
+
+}
+
+
+.ka-system-module-editWindow-windowInspector {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    width: 299px;
+    border-left: 1px solid silver;
+}
