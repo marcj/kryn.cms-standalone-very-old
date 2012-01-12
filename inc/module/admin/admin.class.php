@@ -129,7 +129,8 @@ class admin {
                         case 'nothing':
                             die("");
                         case 'autoChooser':
-                            return self::autoChooser(getArgv('object'), getArgv('page'));
+                            $content = self::autoChooser(getArgv('object'), getArgv('page'));
+                            break;
                         case 'clearCache':
                             json(admin::clearCache());
                         case 'loadJs':
@@ -248,13 +249,45 @@ class admin {
      * @param $pObject
      * @param $pPage
      */
-    public static function autoChooser($pObject, $pPage){
+    public static function autoChooser($pObjectKey, $pPage = 1){
 
-        $definition = kryn::$objects[$pObject];
-        if (!$definition) return false;
+        //todo, check permissions
 
-        $items = object::count($pObject.'://');
 
+        $definition = kryn::$objects[$pObjectKey];
+
+        if(!$definition['chooserAutoColumns'])
+            return array('error'=>'columns_not_defined');
+
+        $fields = array();
+
+        foreach ($definition['fields'] as $key => $field){
+            if ($field['primaryKey'])
+                $fields[] = $key;
+        }
+
+        foreach ($definition['chooserAutoColumns'] as $key => $column){
+            $fields[] = $key;
+        }
+
+        $itemsCount = krynObject::count($pObjectKey);
+        $itemsPerPage = 15;
+
+        $start = ($itemsPerPage*$pPage)-$itemsPerPage;
+
+        $pages = ceil($itemsCount/$itemsPerPage);
+
+        $items = krynObject::get($pObjectKey.'://?'.http_build_query(array(
+            'fields' => implode(',', $fields),
+            'limit'  => $itemsPerPage,
+            'offset' => $start
+        )));
+
+        return array(
+            'items' => count($items)>0?$items:false,
+            'count' => $itemsCount,
+            'pages' => $pages
+        );
 
     }
 
@@ -263,7 +296,7 @@ class admin {
      * Gets the item from the 'admin' entry points defined in the config.json, by the given code
      *
      * @static
-     * @param $pCode
+     * @param $pCode <extKey>/news/foo/bar/edit
      * @return array|bool
      */
     public static function getPathItem($pCode) {

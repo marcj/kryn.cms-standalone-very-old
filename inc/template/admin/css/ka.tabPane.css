@@ -19,7 +19,7 @@
     display: none;
 }
 
-.ka-tabPane-full .kwindow-win-tabPane-pane,
+.ka-tabPane-full .ka-tabPane-pane,
 .ka-tabPane-full .ka-tabPane-pane,
 .ka-tabPane-full {
     position: absolute;
@@ -32,7 +32,7 @@
     margin: 0px;
 }
 
-.ka-tabPane-full .ka-tabPane-pane {
+.ka-tabPane-full .kwindow-win-tabPane-pane {
     position: absolute;
     left: 0px;
     right: 0px;

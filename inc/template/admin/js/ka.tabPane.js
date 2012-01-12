@@ -30,7 +30,6 @@ ka.tabPane = new Class({
     setHeight: function (pHeight) {
 
         this.paneBox.setStyle('height', pHeight);
-
     },
 
     rerender: function () {

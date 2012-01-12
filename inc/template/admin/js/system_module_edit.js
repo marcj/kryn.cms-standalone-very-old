@@ -1761,81 +1761,89 @@ var admin_system_module_edit = new Class({
         });
         this.dialog.center();
 
-        new Element('h3', {
-            'class': 'kryn-headline',
-            style: 'margin-bottom: 5px; font-weight: bold;',
-            text: tc('kaExtensionManager','Settings for object \'%s\'').replace('%s', pTr.retrieve('key').value)
-        }).inject(this.dialog.content)
-
         var kaFields = {
-            'desc': {
-                label: t('Description')
-            },
-            __info__: {
-                type: 'label',
-                label: t('Data model'),
-                desc: t('Define a table or a own object class'),
+            '__general__': {
+                type: 'tab',
+                tabFullPage: true,
+                label: t('General'),
                 depends: {
-                    table: {
-                        label: t('Table name'),
-                        desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
+                    'desc': {
+                        label: t('Description')
+                    },
+                    __info__: {
+                        type: 'label',
+                        label: t('Data model'),
+                        desc: t('Define a table or a own object class'),
                         depends: {
-                            table_sync: {
-                                needValue: function(n){if(n!='')return true;else return false;},
-                                label: t('Table synchronisation'),
-                                desc: t('Keep the field definition in sync with the columns of the defined table.'),
-                                type: 'checkbox'
+                            table: {
+                                label: t('Table name'),
+                                desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
+                                depends: {
+                                    table_sync: {
+                                        needValue: function(n){if(n!='')return true;else return false;},
+                                        label: t('Table synchronisation'),
+                                        desc: t('Keep the field definition in sync with the columns of the defined table.'),
+                                        type: 'checkbox'
+                                    }
+                                }
+                            },
+                            'class': {
+                                label: t('Class name'),
+                                desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
                             }
                         }
                     },
-                    'class': {
-                        label: t('Class name'),
-                        desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
+                    plugins: {
+                        label: t('Plugins'),
+                        desc: t('Which plugins handles the frontend output of this object? These plugins generates then also the frontend URL. Comma separated.')
                     }
                 }
             },
-            plugins: {
-                label: t('Plugins'),
-                desc: t('Which plugins handles the frontend output of this object? These plugins generates then also the frontend URL. Comma separated.')
-            },
-            selectable: {
-                type: 'checkbox',
-                label: t('Selectable ?'),
-                desc: t('Is this object selectable by other objects through a ka.field?'),
-                depends:{
-                    chooser_icon: {
-                        label: t('Chooser icon'),
-                        desc: t('Relative to inc/tempate/.')
-                    },
-                    chooserUseOwnClass: {
-                        needValue: 1,
-                        label: t('Use own chooser javascript class'),
+            '__selection__':{
+                type: 'tab',
+                tabFullPage: true,
+                label: t('Selection'),
+                depends: {
+                    selectable: {
                         type: 'checkbox',
-                        depends: {
-                            chooserClass: {
-                                needValue: 1,
-                                label: t('Own chooser class'),
-                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
+                        label: t('Selectable ?'),
+                        desc: t('Is this object selectable by other objects through a ka.field?'),
+                        depends:{
+                            chooser_icon: {
+                                label: t('Chooser icon'),
+                                desc: t('Relative to inc/tempate/.')
                             },
-                            chooserOptions: {
-                                label: t('Own properties'),
+                            chooserUseOwnClass: {
                                 needValue: 1,
-                                desc: t('You can allow extensions to set some properties when providing your object chooser.'),
-                                type: 'propertyTable'
-                            },
-                            chooserAutoColumns: {
-                                label: t('Columns in the chooser table'),
-                                needValue: 0,
-                                type: 'propertyTable',
-                                options: {
-                                    withWidthField: true,
-                                    withoutChildren: true
+                                label: t('Use own chooser javascript class'),
+                                type: 'checkbox',
+                                depends: {
+                                    chooserClass: {
+                                        needValue: 1,
+                                        label: t('Own chooser class'),
+                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
+                                    },
+                                    chooserOptions: {
+                                        label: t('Own properties'),
+                                        needValue: 1,
+                                        desc: t('You can allow extensions to set some properties when providing your object chooser.'),
+                                        type: 'propertyTable'
+                                    },
+                                    chooserAutoColumns: {
+                                        label: t('Columns in the chooser table'),
+                                        needValue: 0,
+                                        type: 'propertyTable',
+                                        options: {
+                                            withWidthField: true,
+                                            withoutChildren: true
+                                        }
+                                    },
+                                    chooserAutoFilter: {
+                                        label: t('Filter'),
+                                        needValue: 0,
+                                        desc: t('Use normal SQL WHERE conditions.')
+                                    }
                                 }
-                            },
-                            chooserAutoFilter: {
-                                label: t('Filter'),
-                                needValue: 0,
-                                desc: t('Use normal SQL WHERE conditions.')
                             }
                         }
                     }

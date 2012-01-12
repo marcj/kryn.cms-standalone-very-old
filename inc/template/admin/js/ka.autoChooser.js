@@ -64,7 +64,16 @@ ka.autoChooser = new Class({
 
         this.table.empty();
 
+        Array.each(pResult.items, function(item){
 
+            var row  = [];
+            Object.each(item, function(col){
+                row.include(col);
+            })
+
+            this.table.addRow(row);
+
+        }.bind(this));
 
 
     }

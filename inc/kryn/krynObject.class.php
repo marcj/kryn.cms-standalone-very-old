@@ -50,6 +50,44 @@ class krynObject {
     }
 
     /**
+     * @static
+     * @param $pInternalUrl
+     * @return array [object_key, object_id/s, queryParams]
+     */
+    public static function parseUrl($pInternalUrl){
+
+        $pos = strpos($pInternalUrl,'://');
+        if ($pos === false){
+            return array(
+                $pInternalUrl,
+                false,
+                array()
+            );
+        }
+
+        $object_key = substr($pInternalUrl, 0, $pos);
+
+        $questionPos = strpos($pInternalUrl, '?');
+        $params = array();
+
+        if ($questionPos !== false){
+            parse_str(substr($pInternalUrl, $questionPos+1), $params);
+            $object_id = substr($pInternalUrl, $pos+3, $questionPos-($pos+3));
+        } else
+            $object_id = substr($pInternalUrl, $pos+3);
+
+        if (strpos($object_id, ',')!==false){
+            $object_id = explode(',', $object_id);
+        }
+
+        return array(
+            $object_key,
+            $object_id==""?false:$object_id,
+            $params
+        );
+    }
+
+    /**
      * Returns the object for the given url
      * 
      *
@@ -59,54 +97,29 @@ class krynObject {
      */
     public static function get($pInternalUrl){
 
-        //TODO, not done here
-        $pos = strpos($pInternalUrl,'://');
-        $object_id = substr($pInternalUrl, 0, $pos);
+        list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
 
-        $params = array();
-
-        $questionPos = strpos($pInternalUrl, '?');
-        if ($questionPos !== false){
-            parse_str(substr($pInternalUrl, $questionPos+1), $params);
-            $info = explode('/', substr($pInternalUrl, $pos+2, $questionPos-($pos+2)));
-        } else
-            $info = explode('/', substr($pInternalUrl, $pos+2));
-
-        if (strpos($info[1], ',') !== false){
-            $items = explode(',', $info[1]);
+        if (is_array($object_id)){
+            //don't call every time, instead make one big sql
             $res = array();
-            foreach ($items as $id){
-                $res[] = self::get($object_id.'://'.$id.(($questionPos===false)?'':'?'.substr($pInternalUrl, $questionPos+1)));
+            foreach ($object_id as $id){
+                $url = $object_key.'://'.$id.((count($params)==0)?'':'?'.http_build_query($params));
+                $res[] = self::get($url);
             }
             return $res;
         }
 
-        $definition = kryn::$objects[$object_id];
+        $definition = kryn::$objects[$object_key];
         if (!$definition) return false;
 
-        if (!self::$instances[$object_id]){
-            if ($definition['class']){
-                $path = (substr($definition[''], 0, 5) == 'kryn/'?'inc/':'inc/module/').$definition['class'].'.class.php';
-                @require_once($path);
-                $p = explode('/', $definition['class']);
-                $className = $p[count($p)-1];
-                if ($className && class_exists($className)){
-                    self::$instances[$object_id] = new $className($definition);
-                } else throw new Exception('Create object instance error: Class '.$className.' not found');
-
-            } else if ($definition['table']){
-                @require_once('inc/kryn/krynObject/krynObjectTable.class.php');
-                self::$instances[$object_id] = new krynObjectTable($definition);
-            }
-
-        }
+        $obj = self::getClassObject($object_key);
 
         if (!$params['fields'])
             $params['fields'] = '*';
 
-        if ($info[1]){
+        if ($object_id !== false){
 
-            $item = self::$instances[$object_id]->getItem($info[1], $params['fields']);
+            $item = $obj->getItem($object_id, $params['fields']);
 
             if (!$params['noForeignValues'])
                 self::setForeignValues($definition, $item, $params);
@@ -115,11 +128,40 @@ class krynObject {
 
         } else {
 
-            if (!$params['from']) $params['from'] = 0;
+            if (!$params['offset']) $params['offset'] = 0;
             if (!$params['limit'] && $definition['table_default_limit']) $params['limit'] = $definition['table_default_limit'];
 
-            return self::$instances[$object_id]->getItems($params['from'], $params['limit'], $params['condition'], $params['fields']);
+            return $obj->getItems($params['from'], $params['offset'], $params['condition'], $params['fields']);
         }
+    }
+
+
+    public static function getClassObject($pObjectKey){
+
+
+        $definition = kryn::$objects[$pObjectKey];
+        if (!$definition) return false;
+
+        if (!self::$instances[$pObjectKey]){
+            if ($definition['class']){
+                $path = (substr($definition[''], 0, 5) == 'kryn/'?'inc/':'inc/module/').$definition['class'].'.class.php';
+                @require_once($path);
+
+                $p = explode('/', $definition['class']);
+                $className = $p[count($p)-1];
+                if ($className && class_exists($className)){
+                    self::$instances[$pObjectKey] = new $className($definition);
+                } else throw new Exception('Create object instance error: Class '.$className.' not found');
+
+            } else if ($definition['table']){
+
+                @require_once('inc/kryn/krynObject/krynObjectTable.class.php');
+                self::$instances[$pObjectKey] = new krynObjectTable($definition);
+            }
+        }
+
+        return self::$instances[$pObjectKey];
+
     }
 
     /**
@@ -170,16 +212,28 @@ class krynObject {
 
         //TODO, not done here
 
-        $pos = strpos($pInternalUrl,'://');
-        $object_id = substr($pInternalUrl, 0, $pos);
-        $params = explode('/', substr($pInternalUrl, $pos+2));
+        list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
 
-        $objectDefinition = kryn::$objects[$object_id];
+        $objectDefinition = kryn::$objects[$object_key];
         if (!$objectDefinition) return false;
 
         if (method_exists($objectDefinition['_extension'], $objectDefinition['setter'])){
             return call_user_func(array($objectDefinition['_extension'], $objectDefinition['setter']), $params, $pObject);
         } else return false;
+
+    }
+
+    public static function count($pInternalUrl){
+
+
+        list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
+
+        $obj = self::getClassObject($object_key);
+
+        if (!$obj) return array('error'=>'object_not_found');
+
+        return $obj->getCount($params['condition']);
+
     }
 
     /**

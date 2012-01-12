@@ -1734,7 +1734,8 @@ ka.parse = new Class({
     options: {
         allTableItems: false,
         small: false,
-        tableitem_title_width: false
+        tableitem_title_width: false,
+        tabsInWindowHeader: false
     },
 
     initialize: function (pContainer, pDefinition, pOptions, pRefs) {
@@ -1744,19 +1745,13 @@ ka.parse = new Class({
 
         this.setOptions(pOptions);
         this.refs = pRefs;
-
-        if (this.options.allTableItems){
-            this.main = pContainer;
-        } else {
-            this.main = new Element('div', {
-                'class': 'ka-fields-main'
-            }).inject(pContainer);
-        }
+        this.main = pContainer
 
         this.parseLevel(pDefinition, this.main);
 
         //parse all fields which have 'againstField'
         Object.each(this.fields, function(obj,id){
+
             if(obj.field.againstField){
                 if (typeOf(obj.field.againstField) == 'array'){
 
@@ -1802,18 +1797,19 @@ ka.parse = new Class({
 
         Object.each(pLevel, function (field, id) {
 
+            var obj;
+
+            //json to objects
             Object.each(field, function(item,itemId){
-                if(typeOf(item)!='string') return;
+                if(typeOf(item) != 'string') return;
                 var newItem = false;
 
                 try {
-                    //check if json string
-                    if (item.substr(0,1) == '"' && item.substr(item.length-1,1) == '"')
-                        newItem = JSON.decode(item);
 
                     //check if json array
-                    if (item.substr(0,1) == '[' && item.substr(item.length-1,1) == ']')
-                        newItem = JSON.decode(item);
+                        if (item.substr(0,1) == '[' && item.substr(item.length-1) == ']'&&
+                            item.substr(0,2) != '[[' && item.substr(item.length-2) != ']]')
+                            newItem = JSON.decode(item);
 
                     //check if json object
                     if (item.substr(0,1) == '{' && item.substr(item.length-1,1) == '}')
@@ -1826,10 +1822,10 @@ ka.parse = new Class({
 
             });
 
-            if (this.options.allTableItems)
+            if (this.options.allTableItems && field.type != 'tab')
                 field.tableitem = 1;
 
-            if (this.options.small)
+            if (this.options.small && field.type != 'tab')
                 field.small = 1;
 
             if (this.options.tableitem_title_width)
@@ -1842,48 +1838,103 @@ ka.parse = new Class({
                 targetId = '*[id=' + field.target + ']';
             }
 
-            var target = this.mainContainer.getElement(targetId);
+            var target = pContainer.getElement(targetId);
 
             if (!target) {
                 target = pContainer;
             }
 
-            try {
-                var obj = new ka.field(field, target, this.refs);
+            if( field.type == 'tab'){
+                var tab;
 
-                if (pDependField) {
-                    obj.parent = pDependField;
-                    pDependField.depends[id] = obj;
+                if (!pDependField && !this.firstLevelTabBar){
+                    if (this.options.tabsInWindowHeader){
+                        this.firstLevelTabBar = new ka.tabPane(target, true, this.refs.win);
+                    } else {
+                        this.firstLevelTabBar = new ka.tabPane(target, field.tabFullPage?true:false);
+                    }
+                } else if(pDependField){
+                    //this tabPane is not on first level
+                    if (!target.tabPane)
+                        target.tabPane = new ka.tabPane(target, field.tabFullPage?true:false);
                 }
 
-            } catch (e) {
-                logger('Error in parsing field: ka.parse + ' + id + ': ' + e);
-                return;
+                if (pDependField){
+                    pDependField.tabPane.addPane(field.label, field.icon);
+                } else {
+                    tab = this.firstLevelTabBar.addPane(field.label, field.icon);
+                }
+
+                if (field.layoutHtml){
+                    tab.pane.set('html', field.layoutHtml);
+                }
+
+                obj = tab.button;
+                obj.childContainer = tab.pane;
+                obj.parent = pDependField;
+                obj.depends = {};
+                obj.toElement = function(){return tab.pane};
+                obj.isHidden = function(){return tab.button.setStyle('display')=='none';};
+                obj.show = function(){tab.button.setStyle('display', 'block')};
+                obj.hide = function(){tab.button.setStyle('display', 'none')};
+
+                obj.setValue = function(){return true;};
+                obj.getValue = function(){return true;};
+                obj.field = field;
+
+            } else {
+
+                if (field.tableitem && target.get('tag') != 'tbody'){
+
+                    if (!pContainer.kaFieldTBody){
+                        pContainer.kaFieldTable = new Element('table', {width: '100%'}).inject(target);
+                        pContainer.kaFieldTBody = new Element('tbody').inject(pContainer.kaFieldTable);
+                    }
+
+                    target = pContainer.kaFieldTBody;
+                }
+
+                try {
+                    obj = new ka.field(field, target, this.refs);
+
+                    if (pDependField) {
+                        obj.parent = pDependField;
+                        pDependField.depends[id] = obj;
+                    }
+
+                } catch (e) {
+                    logger('Error in parsing field: ka.parse + ' + id + ': ' + e);
+                    return;
+                }
             }
 
             if (field.depends) {
 
-                var childContainer = false;
 
-                var target = document.id(obj);
+                if (!obj.childContainer){
 
-                if (target.get('tag') == 'tr') {
-                    var tr = new Element('tr').inject(document.id(obj), 'after');
-                    target = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
+                    var childContainer;
+
+                    if (field.tableitem) {
+                        var tr = new Element('tr').inject(document.id(obj), 'after');
+                        var td = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
+
+                        childContainer = new Element('div', {
+                            'class': 'ka-fields-sub'
+                        }).inject(td);
+
+                    } else {
+                        childContainer = new Element('div', {
+                            'class': 'ka-fields-sub'
+                        }).inject(pContainer);
+                    }
+                    obj.childContainer = childContainer;
                 }
 
-                var childContainer = new Element('div', {
-                    'class': 'ka-fields-sub'
-                }).inject(target);
+                logger(field.depends);
+                logger(obj.childContainer);
 
-                obj.childContainer = childContainer;
-
-                if (field.tableitem) {
-                    var table = new Element('table', {width: '100%'}).inject(childContainer);
-                    childContainer = new Element('tbody').inject(table);
-                }
-
-                this.parseLevel(field.depends, childContainer, obj);
+                this.parseLevel(field.depends, obj.childContainer, obj);
 
                 if (!obj.handleChildsMySelf){
 
