@@ -1852,6 +1852,7 @@ ka.parse = new Class({
                         this.firstLevelTabBar = new ka.tabPane(target, true, this.refs.win);
                     } else {
                         this.firstLevelTabBar = new ka.tabPane(target, field.tabFullPage?true:false);
+                        logger('firstLevelTabBar: '+field.label);
                     }
                 } else if(pDependField){
                     //this tabPane is not on first level
@@ -1863,6 +1864,7 @@ ka.parse = new Class({
                     pDependField.tabPane.addPane(field.label, field.icon);
                 } else {
                     tab = this.firstLevelTabBar.addPane(field.label, field.icon);
+                    logger('newTab: '+field.label);
                 }
 
                 if (field.layoutHtml){
@@ -1873,14 +1875,16 @@ ka.parse = new Class({
                 obj.childContainer = tab.pane;
                 obj.parent = pDependField;
                 obj.depends = {};
-                obj.toElement = function(){return tab.pane};
-                obj.isHidden = function(){return tab.button.setStyle('display')=='none';};
-                obj.show = function(){tab.button.setStyle('display', 'block')};
-                obj.hide = function(){tab.button.setStyle('display', 'none')};
+                obj.toElement = function(){return tab.button};
+
+                obj.isHidden = function(){return tab.button.getStyle('display')=='none';};
+                obj.show = function(){return;tab.button.setStyle('display', 'blo2ck')};
+                obj.hide = function(){return; tab.button.setStyle('display', 'no2ne')};
 
                 obj.setValue = function(){return true;};
                 obj.getValue = function(){return true;};
                 obj.field = field;
+                obj.handleChildsMySelf = true;
 
             } else {
 
@@ -1910,7 +1914,6 @@ ka.parse = new Class({
 
             if (field.depends) {
 
-
                 if (!obj.childContainer){
 
                     var childContainer;
@@ -1930,9 +1933,6 @@ ka.parse = new Class({
                     }
                     obj.childContainer = childContainer;
                 }
-
-                logger(field.depends);
-                logger(obj.childContainer);
 
                 this.parseLevel(field.depends, obj.childContainer, obj);
 

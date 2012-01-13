@@ -20,7 +20,6 @@
 }
 
 .ka-tabPane-full .ka-tabPane-pane,
-.ka-tabPane-full .ka-tabPane-pane,
 .ka-tabPane-full {
     position: absolute;
     left: 0px;
@@ -40,6 +39,9 @@
     top: 29px;
 }
 
-.ka-tabPane-tabsInWindowHeader .ka-tabPane-pane {
+.ka-tabPane-tabsInWindowHeader .kwindow-win-tabPane-pane {
     top: 0px;
+    border: 0px;
+    margin: 0px;
+    -moz-border-radius: 0px;
 }
