@@ -424,7 +424,12 @@
     },
     "news_comment": {
       "label": "[[Comments]]",
-      "table": "publication_comments"
+      "table": "publication_comments",
+      "desc": "",
+      "table_sync": false,
+      "class": "",
+      "plugins": "",
+      "selectable": false
     },
     "news_category": {
       "label": "[[Article categories]]",
@@ -438,7 +443,7 @@
       "chooserTableKey": "rsn",
       "chooserTableLabel": "title",
       "chooserUseOwnClass": false,
-      "selectable": true
+      "selectable": false
     }
   },
   "db": {

@@ -1121,14 +1121,14 @@ ka.kwindow = new Class({
     addBottomBar: function () {
         this.bottomBar = new Element('div', {
             'class': 'ka-windowEdit-actions',
-            style: 'bottom: 18px'
-        }).inject(this.border);
+            style: 'bottom: 0px'
+        }).inject(this.resizeBottomRight, 'before');
 
         this.bottomBar.addButton = function (pTitle, pOnClick) {
             return new ka.Button(pTitle).addEvent('click', pOnClick).inject(this.bottomBar);
         }.bind(this);
 
-        this.content.setStyle('bottom', 49);
+        this.content.setStyle('bottom', 31);
         return this.bottomBar;
     },
 

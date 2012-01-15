@@ -569,7 +569,22 @@
           "empty": true
         }
       },
-      "label": "[[Domain]]"
+      "label": "[[Domain]]",
+      "chooser_icon": "",
+      "chooserAutoColumns": {
+        "lang": {
+          "label": "[[Language]]",
+          "type": "text",
+          "width": "60",
+          "empty": true
+        },
+        "domain": {
+          "label": "[[Domain]]",
+          "type": "text",
+          "empty": true
+        }
+      },
+      "chooserAutoFilter": ""
     }
   },
   "db": {

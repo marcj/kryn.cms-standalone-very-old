@@ -129,11 +129,11 @@ var admin_system_module_edit = new Class({
         this.pluginsPane.getElements('.plugin').each(function(pluginDiv){
 
             var inputs = pluginDiv.getElements('input');
-            var propertyTable = pluginDiv.retrieve('propertyTable');
+            var fieldTable = pluginDiv.retrieve('fieldTable');
 
             var plugin = [
                 inputs[1].value,
-                propertyTable.getValue()
+                fieldTable.getValue()
             ]
 
             req.plugins[inputs[0].value] = plugin;
@@ -242,14 +242,14 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var propertyTable = new ka.fieldTable(propertyPanel, this.win, {
+        var fieldTable = new ka.fieldTable(propertyPanel, this.win, {
             arrayKey: true
         });
 
-        tr.store('propertyTable', propertyTable);
+        tr.store('fieldTable', fieldTable);
 
         if (pPlugin)
-            propertyTable.setValue(pPlugin[1]);
+            fieldTable.setValue(pPlugin[1]);
 
     },
 
@@ -1726,9 +1726,9 @@ var admin_system_module_edit = new Class({
             var iKey = object.getElements('input')[0];
             var iLabel = object.getElements('input')[1];
 
-            var propertyTable = object.retrieve('propertyTable');
+            var fieldTable = object.retrieve('fieldTable');
 
-            var fields = propertyTable.getValue();
+            var fields = fieldTable.getValue();
             if (Object.getLength(fields) > 0)
                 definition.fields = fields;
 
@@ -1810,8 +1810,9 @@ var admin_system_module_edit = new Class({
                         desc: t('Is this object selectable by other objects through a ka.field?'),
                         depends:{
                             chooser_icon: {
+                                needValue: 1,
                                 label: t('Chooser icon'),
-                                desc: t('Relative to inc/tempate/.')
+                                desc: t('Relative to inc/template/.')
                             },
                             chooserUseOwnClass: {
                                 needValue: 1,
@@ -1827,12 +1828,12 @@ var admin_system_module_edit = new Class({
                                         label: t('Own properties'),
                                         needValue: 1,
                                         desc: t('You can allow extensions to set some properties when providing your object chooser.'),
-                                        type: 'propertyTable'
+                                        type: 'fieldTable'
                                     },
                                     chooserAutoColumns: {
                                         label: t('Columns in the chooser table'),
                                         needValue: 0,
-                                        type: 'propertyTable',
+                                        type: 'fieldTable',
                                         options: {
                                             withWidthField: true,
                                             withoutChildren: true
@@ -2012,17 +2013,17 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var propertyTable = new ka.fieldTable(propertyPanel, this.win, {
+        var fieldTable = new ka.fieldTable(propertyPanel, this.win, {
             addLabel: t('Add field'),
             mode: 'object',
             withTableDefinition: true,
             withoutChildren: true
         });
 
-        tr.store('propertyTable', propertyTable);
+        tr.store('fieldTable', fieldTable);
 
         if (pDefinition)
-            propertyTable.setValue(pDefinition['fields']);
+            fieldTable.setValue(pDefinition['fields']);
 
     },
 

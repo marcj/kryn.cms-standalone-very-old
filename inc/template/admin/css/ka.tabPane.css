@@ -31,12 +31,22 @@
     margin: 0px;
 }
 
+.ka-tabPane-full > .ka-tabGroup-small {
+    position: relative;
+    top: 1px;
+}
+
+
+.ka-tabPane-full .ka-tabPane-pane {
+    overflow: auto;
+}
+
 .ka-tabPane-full .kwindow-win-tabPane-pane {
     position: absolute;
     left: 0px;
     right: 0px;
     bottom: 0px;
-    top: 29px;
+    top: 28px;
 }
 
 .ka-tabPane-tabsInWindowHeader .kwindow-win-tabPane-pane {

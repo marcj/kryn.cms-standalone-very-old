@@ -11,13 +11,18 @@ ka.tabPane = new Class({
         if (pUseThisAsWindowHeader){
             this.buttonGroup = pUseThisAsWindowHeader.addSmallTabGroup();
             this.box.addClass('ka-tabPane-tabsInWindowHeader');
-        } else {
+        } else if (!pFull){
             this.buttonGroup = new ka.smallTabGroup(this.box);
-            this.buttonGroup.box.setStyle('position', 'relativ').setStyle('top', 1);
-            this.clearer = new Element('div', {style: 'clear: both'}).inject(this.box);
+            this.buttonGroup.box.setStyle('position', 'relative').setStyle('top', 1);
+            new Element('div', {style: 'clear: both'}).inject(this.box);
         }
 
         this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane'}).inject(this.box);
+
+        if (pFull && !pUseThisAsWindowHeader){
+            this.buttonGroup = new ka.smallTabGroup(this.box);
+            new Element('div', {style: 'clear: both'}).inject(this.box);
+        }
 
         this.panes = [];
         this.buttons = [];

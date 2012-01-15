@@ -14,7 +14,7 @@ ka._links = {};
  */
 ka.init = function () {
 
-    ka.buildClipboardMenu();
+    //ka.buildClipboardMenu();
     ka.buildUploadMenu();
 
     if (!document.body.hasClass('ka-no-desktop')){
@@ -730,13 +730,13 @@ ka.getClipboard = function () {
 
 ka.setClipboard = function (pTitle, pType, pValue) {
     ka.clipboard = { type: pType, value: pValue };
-    ka.clipboardMenu.set('html', pTitle);
-    ka.clipboardMenu.tween('top', 50);
+    //ka.clipboardMenu.set('html', pTitle);
+    //ka.clipboardMenu.tween('top', 50);
 }
 
 ka.clearClipboard = function () {
     ka.clipboard = {};
-    ka.clipboardMenu.tween('top', 20);
+    //ka.clipboardMenu.tween('top', 20);
 }
 
 ka.createModuleMenu = function () {
