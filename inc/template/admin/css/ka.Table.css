@@ -36,6 +36,7 @@
 
 .ka-Table-body tr td {
     padding: 3px;
+    cursor: default;
 }
 
 .ka-Table-body tr.one td {
@@ -62,4 +63,11 @@
 .ka-Table-body a.ka-Button,
 .ka-Table-body a.ka-Button:link {
     top: 0px;
+}
+
+
+.ka-Table-body tr.ka-table-body-item-active td,
+.ka-Table-body tr.ka-table-body-item-active:hover td {
+    background-color: #398eba;
+    color: white;
 }

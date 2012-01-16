@@ -56,8 +56,15 @@ class krynObject {
      */
     public static function parseUrl($pInternalUrl){
 
-        $pos = strpos($pInternalUrl,'://');
-        if ($pos === false){
+        $catch = 'object://';
+        if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch){
+            $pInternalUrl = substr($pInternalUrl, strlen($catch));
+        }
+
+        $pos = strpos($pInternalUrl, '/');
+        $questionPos = strpos($pInternalUrl, '?');
+
+        if ($pos === false && $questionPos === false){
             return array(
                 $pInternalUrl,
                 false,
@@ -65,16 +72,21 @@ class krynObject {
             );
         }
 
-        $object_key = substr($pInternalUrl, 0, $pos);
+        if ($pos === false && $questionPos != false)
+            $object_key = substr($pInternalUrl, 0, $questionPos);
+        else
+            $object_key = substr($pInternalUrl, 0, $pos);
 
-        $questionPos = strpos($pInternalUrl, '?');
         $params = array();
 
         if ($questionPos !== false){
             parse_str(substr($pInternalUrl, $questionPos+1), $params);
-            $object_id = substr($pInternalUrl, $pos+3, $questionPos-($pos+3));
-        } else
-            $object_id = substr($pInternalUrl, $pos+3);
+
+            if ($pos !== false)
+                $object_id = substr($pInternalUrl, $pos+1, $questionPos-($pos+1));
+
+        } else if ($pos !== false)
+            $object_id = substr($pInternalUrl, $pos+1);
 
         if (strpos($object_id, ',')!==false){
             $object_id = explode(',', $object_id);
@@ -95,43 +107,58 @@ class krynObject {
      * @param $pInternalUrl
      * @return object
      */
-    public static function get($pInternalUrl){
+    public static function getFromUrl($pInternalUrl){
 
         list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
 
-        if (is_array($object_id)){
+        return self::get($object_key, $object_id, $params);
+    }
+
+
+    /**
+     * Returns the object for the given url
+     *
+     * @static
+     * @param $pObjectKey
+     * @param bool $pObjectPrimaryValues
+     * @param bool $pOptions
+     * @return array|bool
+     */
+    public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = false){
+
+        if (is_array($pObjectPrimaryValues)){
             //don't call every time, instead make one big sql
             $res = array();
-            foreach ($object_id as $id){
-                $url = $object_key.'://'.$id.((count($params)==0)?'':'?'.http_build_query($params));
-                $res[] = self::get($url);
+            foreach ($pObjectPrimaryValues as $id){
+                $url = $pObjectKey.'/'.$id.((count($pOptions)==0)?'':'?'.http_build_query($pOptions));
+                $res[] = self::getFromUrl($url);
             }
             return $res;
         }
 
-        $definition = kryn::$objects[$object_key];
+        $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
 
-        $obj = self::getClassObject($object_key);
+        $obj = self::getClassObject($pObjectKey);
 
-        if (!$params['fields'])
-            $params['fields'] = '*';
+        if (!$pOptions['fields'])
+            $pOptions['fields'] = '*';
 
-        if ($object_id !== false){
+        if ($pObjectPrimaryValues !== false){
 
-            $item = $obj->getItem($object_id, $params['fields']);
+            $item = $obj->getItem($pObjectPrimaryValues, $pOptions['fields']);
 
-            if (!$params['noForeignValues'])
-                self::setForeignValues($definition, $item, $params);
+            if (!$pOptions['noForeignValues'])
+                self::setForeignValues($definition, $item, $pOptions);
 
             return $item;
 
         } else {
 
-            if (!$params['offset']) $params['offset'] = 0;
-            if (!$params['limit'] && $definition['table_default_limit']) $params['limit'] = $definition['table_default_limit'];
+            if (!$pOptions['offset']) $pOptions['offset'] = 0;
+            if (!$pOptions['limit'] && $definition['table_default_limit']) $pOptions['limit'] = $definition['table_default_limit'];
 
-            return $obj->getItems($params['from'], $params['offset'], $params['condition'], $params['fields']);
+            return $obj->getItems($pOptions['from'], $pOptions['offset'], $pOptions['condition'], $pOptions['fields']);
         }
     }
 

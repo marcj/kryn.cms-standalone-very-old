@@ -1777,7 +1777,6 @@ var admin_system_module_edit = new Class({
                         depends: {
                             table: {
                                 label: t('Table name'),
-                                desc: t('Use a / to define a table which is not defined throught a kryn.cms extension.'),
                                 depends: {
                                     table_sync: {
                                         needValue: function(n){if(n!='')return true;else return false;},
@@ -1792,6 +1791,16 @@ var admin_system_module_edit = new Class({
                                 desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
                             }
                         }
+                    },
+                    multiLanguage: {
+                        label: t('Multi-language'),
+                        type: 'checkbox',
+                        desc: t("You need then a extra field 'lang' varchar(2)")
+                    },
+                    domainDepended: {
+                        label: t('Domain depended'),
+                        type: 'checkbox',
+                        desc: t("You need then a extra field 'domain_rsn' int")
                     },
                     plugins: {
                         label: t('Plugins'),

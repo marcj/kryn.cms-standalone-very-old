@@ -20,6 +20,7 @@ ka.fieldProperty = new Class({
                 file: t('File'),
                 folder: t('Folder'),
                 select: t('Select'),
+                tab: t('Tab'),
                 lang: t('Language select'),
                 textlist: t('Textlist'),
                 textarea: t('Textarea'),
@@ -81,6 +82,13 @@ ka.fieldProperty = new Class({
                     label: t('Multiple selection'),
                     desc: t('This field returns then an array.'),
                     type: 'checkbox'
+                },
+
+                //tab
+                tabFullPage: {
+                    label: t('Full page'),
+                    type: 'checkbox',
+                    needValue: 'tab'
                 },
 
                 //textlist

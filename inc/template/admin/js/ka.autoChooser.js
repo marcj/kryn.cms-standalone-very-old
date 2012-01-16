@@ -1,15 +1,20 @@
 ka.autoChooser = new Class({
 
+    Implements: [Options, Events],
+
     container: false,
     objectKey: '',
-    objectDefinition: {},
     win: false,
 
-    initialize: function(pContainer, pObjectKey, pObjectDefinition, pWindowInstance){
+    options: {
+        multi: false
+    },
+
+    initialize: function(pContainer, pObjectKey, pChooserOptions, pWindowInstance){
 
         this.container = pContainer;
         this.objectKey = pObjectKey;
-        this.objectDefinition = pObjectDefinition;
+        this.setOptions(pChooserOptions);
         this.win = pWindowInstance;
 
         this._createLayout();
@@ -20,24 +25,68 @@ ka.autoChooser = new Class({
 
         this.container.empty();
 
-        var columns = [
-            ["ID", 50]
-        ];
+        var columns = [];
 
+        var primaries = ka.getPrimariesForObject(this.objectKey);
 
-        Object.each(this.objectDefinition.chooserAutoColumns, function(column, key){
+        Object.each(primaries, function(field, fieldKey){
+            columns.include([
+                field.label, field.width?field.width:80
+            ]);
+        });
+
+        var objectDefinition = ka.getObjectDefinition(this.objectKey);
+
+        Object.each(objectDefinition.chooserAutoColumns, function(column, key){
 
             columns.include([column.label, column.width?column.width:null]);
 
         });
 
+        this.table = new ka.Table(columns, {
+            selectable: true,
+            multi: this.options.multi
+        });
 
-        this.table = new ka.Table(columns);
+        this.table.addEvent('select', function(){
+            this.fireEvent('select');
+        }.bind(this));
 
         document.id(this.table).inject(this.container);
 
 
         this.loadPage(1);
+    },
+
+    deselect: function(){
+        this.table.deselect();
+    },
+
+    getValue: function(){
+
+        var tr = this.table.selected();
+        var item = tr.retrieve('item');
+
+        var primaries = ka.getPrimariesForObject(this.objectKey);
+
+        var result;
+
+        if (Object.getLength(primaries) > 1){
+            result = [];
+
+            Object.each(primaries, function(field, fieldKey){
+                result.include(item[fieldKey]);
+            });
+
+        } else if (Object.getLength(primaries) == 1){
+            Object.each(primaries, function(field, fieldKey){
+                result = item[fieldKey];
+            });
+        } else {
+            logger('There are no primaries for object '+this.objectKey);
+        }
+
+        return result;
     },
 
     loadPage: function(pPage){
@@ -71,7 +120,8 @@ ka.autoChooser = new Class({
                 row.include(col);
             })
 
-            this.table.addRow(row);
+            var tr = this.table.addRow(row);
+            tr.store('item', item);
 
         }.bind(this));
 

@@ -1677,7 +1677,7 @@ ka.files = new Class({
                     //if we click on the scrollbar, ignore it
                     return;
                 }
-                this.deselectAll();
+                this.deselect();
                 this.startSelector(pEvent);
             }
         }
@@ -1737,7 +1737,7 @@ ka.files = new Class({
         if (!pEvent) return;
 
         if ((!pEvent.control && !pEvent.meta && !pEvent.shift ) && !pEvent.rightClick) {
-            this.deselectAll();
+            this.deselect();
         }
 
         if (!pEvent.target) return;
@@ -1754,7 +1754,7 @@ ka.files = new Class({
 
         if (!item) {
 
-            this.deselectAll();
+            this.deselect();
 
             if (pEvent.rightClick) {
                 this.openContext(this.currentFile, pEvent);
@@ -2758,11 +2758,11 @@ ka.files = new Class({
 
     },
 
-    deselectAll: function () {
+    deselect: function () {
 
         this.fileContainer.getElements('.admin-files-item-selected').removeClass('admin-files-item-selected');
 
-        this.fireEvent('deselectAll');
+        this.fireEvent('deselect');
     },
 
     startSearch: function () {

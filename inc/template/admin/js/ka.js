@@ -1852,7 +1852,6 @@ ka.parse = new Class({
                         this.firstLevelTabBar = new ka.tabPane(target, true, this.refs.win);
                     } else {
                         this.firstLevelTabBar = new ka.tabPane(target, field.tabFullPage?true:false);
-                        logger('firstLevelTabBar: '+field.label);
                     }
                 } else if(pDependField){
                     //this tabPane is not on first level
@@ -1864,7 +1863,6 @@ ka.parse = new Class({
                     pDependField.tabPane.addPane(field.label, field.icon);
                 } else {
                     tab = this.firstLevelTabBar.addPane(field.label, field.icon);
-                    logger('newTab: '+field.label);
                 }
 
                 if (field.layoutHtml){
@@ -2109,6 +2107,36 @@ ka.parse = new Class({
         return res;
     }
 });
+
+ka.getPrimariesForObject = function(pObjectKey){
+
+    var definition = ka.getObjectDefinition(pObjectKey);
+
+    var result = {};
+
+    Object.each(definition.fields, function(field, fieldKey){
+
+        if (field.primaryKey){
+            result[fieldKey] = Object.clone(field);
+        }
+
+    });
+
+    return result;
+}
+
+ka.getObjectDefinition = function(pObjectKey){
+
+    var definition;
+
+    Object.each(ka.settings.configs, function(config,extensionKey){
+        if (config.objects && config.objects[pObjectKey])
+            definition = config.objects[pObjectKey];
+    });
+
+    return definition;
+}
+
 
 ka.getFieldCaching = function () {
 

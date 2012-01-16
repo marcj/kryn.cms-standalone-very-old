@@ -1,11 +1,19 @@
 ka.Table = new Class({
 
+    Implements: [Options, Events],
+
     safe: false,
+
+    options: {
+        absolute: true, //full size
+        selectable: false,
+        multi: false
+    },
 
     initialize: function (pColumns, pOpts) {
 
-        this.opts = pOpts;
-        if (pOpts && pOpts.absolute == false) {
+        this.setOptions(pOpts);
+        if (this.options.absolute == false) {
             this.main = new Element('div', {
                 style: 'position: relative;'
             });
@@ -15,7 +23,23 @@ ka.Table = new Class({
             });
         }
 
-        this.main.addClass('selectable');
+        if (this.options.selectable == true){
+            this.main.addEvent('click', function(e){
+
+                if (!e.target) return;
+
+                if (e.target.get('tag') == 'td'){
+                    if (!this.multi || (this.multi && (e.ctrl != true && e.meta != true)))
+                        e.target.getParent().getParent().getChildren('tr').removeClass('ka-table-body-item-active');
+                    e.target.getParent().addClass('ka-table-body-item-active');
+                    this.fireEvent('select');
+                } else {
+                    e.target.getElements('tr').removeClass('ka-table-body-item-active');
+                    this.fireEvent('deselect');
+                }
+
+            }.bind(this));
+        }
 
         if (pColumns && $type(pColumns) == 'array') {
             this.setColumns(pColumns);
@@ -25,10 +49,11 @@ ka.Table = new Class({
 
     deselect: function () {
         this.tableBody.getElements('tr').removeClass('active');
+        this.tableBody.getElements('tr').removeClass('ka-table-body-item-active');
     },
 
     selected: function () {
-        return this.tableBody.getElement('tr.active');
+        return this.tableBody.getElement('tr.active') || this.tableBody.getElement('tr.ka-table-body-item-active');
     },
 
     inject: function (pTo, pWhere) {

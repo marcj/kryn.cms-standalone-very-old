@@ -43,13 +43,14 @@
                                 <pre>{krynObject::count('news')|print_r:true}</pre>
 
                                 <hr />
-                                <pre>{krynObject::get('news://3?fields=rsn,title,category_rsn')|print_r:true}</pre>
+                                <pre>{krynObject::getFromUrl('object://news/3?fields=rsn,title,category_rsn')|print_r:true}</pre>
 
                                 <hr />
-                                <pre>{krynObject::get('news://1,3?fields=rsn,title')|print_r:true}</pre>
+                                <pre>{krynObject::getFromUrl('news/1,3?fields=rsn,title')|print_r:true}</pre>
 
                                 <hr />
-                                <pre>{krynObject::get('news://?fields=rsn,title')|print_r:true}</pre>
+                                <pre>{krynObject::getFromUrl('news?fields=rsn,title')|print_r:true}</pre>
+                                <hr />
 
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>

@@ -242,12 +242,10 @@ class admin {
     }
 
     /**
-     *
-     *
-     *
      * @static
-     * @param $pObject
-     * @param $pPage
+     * @param $pObjectKey
+     * @param int $pPage
+     * @return array
      */
     public static function autoChooser($pObjectKey, $pPage = 1){
 
@@ -277,11 +275,11 @@ class admin {
 
         $pages = ceil($itemsCount/$itemsPerPage);
 
-        $items = krynObject::get($pObjectKey.'://?'.http_build_query(array(
+        $items = krynObject::get($pObjectKey, false, array(
             'fields' => implode(',', $fields),
             'limit'  => $itemsPerPage,
             'offset' => $start
-        )));
+        ));
 
         return array(
             'items' => count($items)>0?$items:false,

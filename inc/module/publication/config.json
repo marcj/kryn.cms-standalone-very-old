@@ -420,7 +420,11 @@
           "type": "text",
           "empty": true
         }
-      }
+      },
+      "class": "",
+      "multiLanguage": true,
+      "domainDepended": true,
+      "chooserAutoFilter": ""
     },
     "news_comment": {
       "label": "[[Comments]]",

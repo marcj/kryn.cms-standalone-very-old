@@ -36,8 +36,8 @@ var admin_backend_chooser = new Class({
         this.cookie = 'kFieldChooser_' + this.cookie + '_';
 
         this.bottomBar = this.win.addBottomBar();
-        this.bottomBar.addButton(_('Close'), this.win.close.bind(this.win));
-        this.bottomBar.addButton(_('Choose'), function(){this.choose();}.bind(this));
+        this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
+        this.bottomBar.addButton(t('Choose'), function(){this.choose();}.bind(this));
 
         this._createLayout();
     },
@@ -76,7 +76,7 @@ var admin_backend_chooser = new Class({
                 if (config.objects){
                     Object.each(config.objects, function(object, objectKey){
                         if (object.selectable)
-                            this.createObjectChooser(objectKey, object);
+                            this.createObjectChooser(objectKey);
                     }.bind(this));
                 }
 
@@ -88,16 +88,24 @@ var admin_backend_chooser = new Class({
 
     },
 
-    createObjectChooser: function(pObjectKey, pObject){
+    createObjectChooser: function(pObjectKey){
 
-        var bundle = this.tapPane.addPane(pObject.label, pObject.chooser_icon);
+        var objectDefinition = ka.getObjectDefinition(pObjectKey);
+
+        var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.chooser_icon);
         this.pane2ObjectId[bundle.id] = pObjectKey;
 
-        if (pObject.chooserClass){
+        var objectOptions = this.options.objectOptions[pObjectKey] || {};
 
-            var chooserClass = window[pObject.chooserClass];
-            if (pObject.chooserClass.indexOf('.') !== false){
-                var split = pObject.chooserClass.split('.');
+        objectOptions.multi = this.options.multi;
+
+        if (objectDefinition.chooserClass){
+
+            var chooserClass = window[objectDefinition.chooserClass];
+
+            if (objectDefinition.chooserClass.indexOf('.') !== false){
+
+                var split = objectDefinition.chooserClass.split('.');
                 chooserClass = window;
                 split.each(function(s){
                     chooserClass = chooserClass[s];
@@ -106,13 +114,13 @@ var admin_backend_chooser = new Class({
 
             if (!chooserClass){
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
-                    .replace('%class%', pObject.chooserClass)
+                    .replace('%class%', objectDefinition.chooserClass)
                     .replace('%object%', pObjectKey)
                 )
             } else {
                 this.objectChooserInstance[pObjectKey] = new chooserClass(
                     bundle.pane,
-                    this.options.objectOptions[pObjectKey],
+                    objectOptions,
                     this.win
                 );
             }
@@ -120,17 +128,30 @@ var admin_backend_chooser = new Class({
             this.objectChooserInstance[pObjectKey] = new ka.autoChooser(
                 bundle.pane,
                 pObjectKey,
-                pObject,
+                objectOptions,
                 this.win
             );
         }
 
         if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent){
-            this.objectChooserInstance[pObjectKey].addEvent('choose', function(){
-                this.choose(pObjectKey);
+
+            this.objectChooserInstance[pObjectKey].addEvent('select', function(){
+                this.deselectAll(pObjectKey);
             }.bind(this));
 
         }
+
+    },
+
+    deselectAll: function(pWithoutThisObjectKey){
+
+        Object.each(this.objectChooserInstance, function(obj, objectKey){
+
+            if (obj && objectKey != pWithoutThisObjectKey && obj.deselect){
+                obj.deselect();
+            }
+
+        });
 
     },
 
@@ -145,12 +166,12 @@ var admin_backend_chooser = new Class({
             if (!value)
                 return;
 
-            var url = pObjectKey+'://'+value;
+            var url = 'object://'+pObjectKey+'/'+value;
 
             logger(url);
             this.saveCookie();
             this.saveCookie();
-            this.fireEvent('choose', url);
+            this.fireEvent('select', url);
             this.win.close();
         }
     },
