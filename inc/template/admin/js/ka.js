@@ -3,7 +3,7 @@ if (typeof ka == 'undefined') window.ka = {};
 ka.clipboard = {};
 ka.settings = {};
 
-ka.performance = true;
+ka.performance = false;
 ka.streamParams = {};
 
 ka.uploads = {};

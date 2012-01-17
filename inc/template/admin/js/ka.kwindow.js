@@ -1044,16 +1044,17 @@ ka.kwindow = new Class({
                 if (ka.performance) {
                     this.content.setStyle('display', 'none');
                     this.titleGroups.setStyle('display', 'none');
+
+                    ka.wm.hideContents();
                 }
                 window.fireEvent('click');
 
-                ka.wm.hideContents();
 
             }.bind(this),
             onComplete: function () {
-                ka.wm.showContents();
 
                 if (ka.performance) {
+                    ka.wm.showContents();
                     this.content.setStyle('display', 'block');
                     this.titleGroups.setStyle('display', 'block');
                 }
@@ -1064,9 +1065,9 @@ ka.kwindow = new Class({
                 this.saveDimension();
             }.bind(this),
             onCancel: function () {
-                ka.wm.showContents();
 
                 if (ka.performance) {
+                    ka.wm.showContents();
                     this.content.setStyle('display', 'block');
                     this.titleGroups.setStyle('display', 'block');
                 }

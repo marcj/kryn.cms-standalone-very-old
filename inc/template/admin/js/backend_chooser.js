@@ -39,6 +39,11 @@ var admin_backend_chooser = new Class({
         this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
         this.bottomBar.addButton(t('Choose'), function(){this.choose();}.bind(this));
 
+        this.searchBtn = new Element('a', {
+            'class': 'ka-backendChooser-search-button',
+            text: tc('Button', 'Search')
+        }).inject(this.bottomBar, 'top');
+
         this._createLayout();
     },
 
@@ -51,6 +56,7 @@ var admin_backend_chooser = new Class({
 
         this.tapPane = new ka.tabPane(this.win.content, true, this.win);
 
+        this.tapPane.addEvent('change', this.changeTab.bind(this));
         /*
         if (this.options.pages) {
             this.createPages();
@@ -69,14 +75,22 @@ var admin_backend_chooser = new Class({
         if (!this.options.objectOptions)
             this.options.objectOptions = {};
 
+        var needDomainSelection = false;
+        var needLanguageSelection = false;
+
         if (true || !this.options.objects || this.options.objects.length == 0){
 
             Object.each(ka.settings.configs, function(config, extKey){
 
                 if (config.objects){
                     Object.each(config.objects, function(object, objectKey){
-                        if (object.selectable)
+                        if (object.selectable){
                             this.createObjectChooser(objectKey);
+                            if (object.multiLanguage)
+                                needLanguageSelection = true;
+                            if (object.domainDepended)
+                                needDomainSelection = true;
+                        }
                     }.bind(this));
                 }
 
@@ -85,6 +99,77 @@ var admin_backend_chooser = new Class({
         } else {
 
         }
+
+        var domainRight = 1;
+
+        if (needLanguageSelection){
+            this.sLanguage = new ka.Select(this.win.titleGroups);
+
+            document.id(this.sLanguage).setStyles({
+                'position': 'absolute',
+                'right': 1,
+                'top': 0,
+                'width': 110
+            });
+            domainRight =+ 134;
+
+            this.sLanguage.addEvent('change', this.changeLanguage.bind(this));
+
+            this.sLanguage.add('', t('Unassigned language'));
+
+            Object.each(ka.settings.langs, function (lang, id) {
+                this.sLanguage.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
+            }.bind(this));
+        }
+
+        if (needDomainSelection){
+            this.sDomain = new ka.Select(this.win.titleGroups);
+
+            document.id(this.sDomain).setStyles({
+                'position': 'absolute',
+                'right': domainRight,
+                'top': 0,
+                'width': 110
+            });
+
+            this.sDomain.addEvent('change', this.changeDomain.bind(this));
+
+            Object.each(ka.settings.domains, function (domain) {
+                this.sDomain.add(domain.rsn, '['+domain.lang+'] '+ domain.domain);
+            }.bind(this));
+        }
+
+
+        this.changeTab(0);
+    },
+
+    changeTab: function(pTabIndex){
+
+        var objectKey = this.pane2ObjectId[pTabIndex];
+
+        var definition = ka.getObjectDefinition(objectKey);
+
+        if (definition.multiLanguage)
+            this.sLanguage.setStyle('visibility', 'visible');
+        else
+            this.sLanguage.setStyle('visibility', 'hidden');
+
+        if (definition.domainDepended)
+            this.sDomain.setStyle('visibility', 'visible');
+        else
+            this.sDomain.setStyle('visibility', 'hidden');
+
+
+    },
+
+    changeDomain: function(){
+
+
+
+    },
+
+    changeLanguage: function(){
+
 
     },
 
@@ -168,7 +253,7 @@ var admin_backend_chooser = new Class({
 
             var url = 'object://'+pObjectKey+'/'+value;
 
-            logger(url);
+
             this.saveCookie();
             this.saveCookie();
             this.fireEvent('select', url);
@@ -224,10 +309,6 @@ var admin_backend_chooser = new Class({
 
     },
 
-    changeLanguage: function () {
-        this.language = this.languageSelect.value;
-        this.loadPages();
-    },
 
     createPages: function () {
         this.buttons['pages'] = this.buttonGroup.addButton(_('Pages'), this.p + 'icons/page.png', this.toPane.bind(this, 'pages'));

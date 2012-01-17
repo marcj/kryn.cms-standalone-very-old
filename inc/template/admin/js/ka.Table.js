@@ -140,6 +140,7 @@ ka.Table = new Class({
 
             new Element('th', {
                 html: column[0],
+                'class': 'gradient',
                 width: (column[1]) ? column[1] : null
             }).inject(tr);
 

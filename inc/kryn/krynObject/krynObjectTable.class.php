@@ -54,14 +54,14 @@ class krynObjectTable {
 
     /**
      * @param int $pFrom
-     * @param bool $pLimit
-     * @param bool $pCondition
+     * @param bool|int $pLimit
+     * @param bool|int $pCondition
      * @param string $pFields
      * @return type
      */
     public function getItems ($pOffset = 0, $pLimit = false, $pCondition = false, $pFields = '*'){
 
-        $where = '';
+        $where = '1=1';
 
         if ($pOffset > 0)
             $where .= ' OFFSET '.($pOffset+0);
@@ -70,6 +70,7 @@ class krynObjectTable {
             $where .= ' LIMIT '.($pLimit+0);
 
         //todo, handle pCondition
+
 
         return dbTableFetch($this->definition['table'], $where, -1, $pFields);
     }

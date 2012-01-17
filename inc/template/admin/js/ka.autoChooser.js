@@ -10,6 +10,9 @@ ka.autoChooser = new Class({
         multi: false
     },
 
+
+    currentPage: 1,
+
     initialize: function(pContainer, pObjectKey, pChooserOptions, pWindowInstance){
 
         this.container = pContainer;
@@ -48,14 +51,84 @@ ka.autoChooser = new Class({
             multi: this.options.multi
         });
 
+        this.table.body.setStyle('padding-bottom', 24);
+
         this.table.addEvent('select', function(){
             this.fireEvent('select');
         }.bind(this));
 
         document.id(this.table).inject(this.container);
 
+        this.container.setStyle('overflow', 'hidden');
+
+        this.pagination = new Element('div', {
+            'class': 'ka-autoChooser-pagination-container gradient'
+        }).inject(this.container);
+
+        this.pagination.setStyle('bottom', -25);
+
+        this.imgToLeft = new Element('img', {
+            src: _path+'inc/template/admin/images/icons/control_back.png'
+        })
+        .addEvent('click', this.pageToLeft.bind(this))
+        .inject(this.pagination);
+
+        this.iCurrentPage = new Element('input', {
+            value: '-',
+            maxlength: 5
+        })
+        .addEvent('keydown', function(e){
+
+            if (e.control == false && e.meta == false && e.key.length == 1 && !e.key.test(/[0-9]/))
+                e.stop();
+
+            if (e.key == 'enter')
+                this.loadPage(this.iCurrentPage.value);
+
+        }.bind(this))
+        .addEvent('keyup', function(e){
+            this.value = this.value.replace(/[^0-9]+/, '');
+        })
+        .addEvent('blur', function(e){
+            if (this.value == ''){
+                this.value = 1;
+                this.loadPage(this.iCurrentPage.value);
+            }
+        })
+        .inject(this.pagination);
+
+        new Element('span', {
+            text: '/'
+        }).inject(this.pagination);
+
+        this.sMaxPages = new Element('span', {
+            text: ''
+        }).inject(this.pagination);
+
+        this.imgToRight = new Element('img', {
+            src: _path+'inc/template/admin/images/icons/control_play.png'
+        })
+        .addEvent('click', this.pageToRight.bind(this))
+        .inject(this.pagination);
 
         this.loadPage(1);
+
+
+        this.pagination.tween('bottom', 0);
+    },
+
+    pageToLeft: function(){
+
+        if (this.currentPage<=1) return false;
+        this.loadPage(--this.currentPage);
+
+    },
+
+    pageToRight: function(){
+
+        if (this.currentPage>=this.maxPages) return false;
+        this.loadPage(++this.currentPage);
+
     },
 
     deselect: function(){
@@ -96,8 +169,8 @@ ka.autoChooser = new Class({
 
         this.lr = new Request.JSON({url: _path+'admin/backend/autoChooser', noCache: 1, onComplete: function(pRes){
 
-            this.renderResult(pRes);
-            this.renderActions(pPage, pRes.maxPages, pRes.maxItems);
+            this.renderResult(pRes.items);
+            this.renderActions(pPage, pRes.pages, pRes.count);
 
         }.bind(this)}).post({object: this.objectKey, page: pPage});
 
@@ -105,15 +178,22 @@ ka.autoChooser = new Class({
 
     renderActions: function(pPage, pMaxPages, pMaxItems){
 
+        this.currentPage = pPage;
+        this.maxPages = pMaxPages;
+        this.sMaxPages.set('text', pMaxPages+'('+pMaxItems+')');
+        this.iCurrentPage.value = pPage;
+
+        this.imgToLeft.setStyle('opacity', (pPage == 1)?0.5:1);
+        this.imgToRight.setStyle('opacity', (pPage == pMaxPages)?0.5:1);
 
 
     },
 
-    renderResult: function(pResult){
+    renderResult: function(pItems){
 
         this.table.empty();
 
-        Array.each(pResult.items, function(item){
+        Array.each(pItems, function(item){
 
             var row  = [];
             Object.each(item, function(col){
@@ -124,7 +204,6 @@ ka.autoChooser = new Class({
             tr.store('item', item);
 
         }.bind(this));
-
 
     }
 

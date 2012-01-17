@@ -120,11 +120,11 @@ class krynObject {
      *
      * @static
      * @param $pObjectKey
-     * @param bool $pObjectPrimaryValues
-     * @param bool $pOptions
+     * @param mixed $pObjectPrimaryValues
+     * @param array $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = false){
+    public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = array()){
 
         if (is_array($pObjectPrimaryValues)){
             //don't call every time, instead make one big sql
@@ -158,7 +158,7 @@ class krynObject {
             if (!$pOptions['offset']) $pOptions['offset'] = 0;
             if (!$pOptions['limit'] && $definition['table_default_limit']) $pOptions['limit'] = $definition['table_default_limit'];
 
-            return $obj->getItems($pOptions['from'], $pOptions['offset'], $pOptions['condition'], $pOptions['fields']);
+            return $obj->getItems($pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields']);
         }
     }
 
@@ -250,16 +250,20 @@ class krynObject {
 
     }
 
-    public static function count($pInternalUrl){
-
-
+    public static function countFromUrl($pInternalUrl){
         list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
 
-        $obj = self::getClassObject($object_key);
+        return self::count($object_key, $params['condition']);
+    }
+
+
+    public static function count($pObjectKey, $pCondition = ''){
+
+        $obj = self::getClassObject($pObjectKey);
 
         if (!$obj) return array('error'=>'object_not_found');
 
-        return $obj->getCount($params['condition']);
+        return $obj->getCount($pCondition);
 
     }
 

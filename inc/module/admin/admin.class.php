@@ -268,7 +268,7 @@ class admin {
             $fields[] = $key;
         }
 
-        $itemsCount = krynObject::count($pObjectKey);
+        $itemsCount = krynObject::count($pObjectKey, $definition['chooserCondition']);
         $itemsPerPage = 15;
 
         $start = ($itemsPerPage*$pPage)-$itemsPerPage;
@@ -278,7 +278,8 @@ class admin {
         $items = krynObject::get($pObjectKey, false, array(
             'fields' => implode(',', $fields),
             'limit'  => $itemsPerPage,
-            'offset' => $start
+            'offset' => $start,
+            'condition' => $definition['chooserCondition']
         ));
 
         return array(

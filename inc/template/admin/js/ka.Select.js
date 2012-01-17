@@ -116,7 +116,7 @@ ka.Select = new Class({
 
         Object.each(this.a, function (item, id) {
             item.removeClass('active');
-            if (id == pValue && pValue != '') {
+            if (id == pValue) {
                 item.addClass('active');
             }
         });

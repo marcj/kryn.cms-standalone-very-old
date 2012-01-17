@@ -2,10 +2,8 @@ a.ka-Button, a.ka-Button:link {
     padding: 5px 5px 6px 10px;
     cursor: pointer;
     position: relative;
-    top: 2px;
-    left: -1px;
     color: #222;
-    line-height: 22px;
+    line-height: 29px;
     font-weight: normal;
     
     -moz-border-radius: 4px;
