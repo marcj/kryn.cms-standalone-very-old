@@ -187,7 +187,7 @@ class krynHtml {
 
                         //replace relative urls to absolute
                         $mypath = $cfg['path'] . dirname($file);
-                        $temp = preg_replace('/url\(/', 'url(' . $mypath . '/', $temp);
+                        $temp = preg_replace('/url\(\b(?!http:\/\/)/', 'url(' . $mypath . '/', $temp);
 
                         $cssContent .= $temp;
                     }
