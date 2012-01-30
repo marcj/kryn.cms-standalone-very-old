@@ -51,7 +51,7 @@ class krynHtml {
         global $_start;
 
         $res = self::$docTypeMap[strtolower(self::$docType)];
-        $res .= "\n<head>" . kryn::$htmlHeadTop;
+        $res .= "\n<html><head>" . kryn::$htmlHeadTop;
         $res .= self::buildHead(true);
 
         $res .= kryn::$htmlHeadEnd . '</head><body>' . kryn::$htmlBodyTop . $pContent . "\n\n" . kryn::$htmlBodyEnd .
@@ -64,7 +64,7 @@ class krynHtml {
         global $_start;
 
         print self::$docTypeMap[strtolower(self::$docType)];
-        print "\n<head>" . kryn::$htmlHeadTop;
+        print "\n<html><head>" . kryn::$htmlHeadTop;
         print self::buildHead(true);
         //print 'tooks '.(microtime(true)-$_start).' seconds<br/>';
 
