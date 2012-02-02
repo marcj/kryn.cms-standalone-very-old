@@ -39,11 +39,6 @@ var admin_backend_chooser = new Class({
         this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
         this.bottomBar.addButton(t('Choose'), function(){this.choose();}.bind(this));
 
-        this.searchBtn = new Element('a', {
-            'class': 'ka-backendChooser-search-button',
-            text: tc('Button', 'Search')
-        }).inject(this.bottomBar, 'top');
-
         this._createLayout();
     },
 

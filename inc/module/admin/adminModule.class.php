@@ -740,12 +740,20 @@ class adminModule {
 
     static public function loadLocal() {
 
-        $modules = kryn::readFolder(PATH_MODULE . '');
+        $modules = kryn::readFolder(PATH_MODULE);
         $modules[] = 'kryn';
         $res = array();
 
         foreach ($modules as $module) {
             $config = self::loadInfo($module);
+            unset($config['db']);
+            unset($config['admin']);
+            unset($config['objects']);
+            unset($config['plugins']);
+            unset($config['widgetsLayout']);
+            unset($config['widgets']);
+            unset($config['adminJavascript']);
+            unset($config['adminCss']);
             $res[$module] = $config;
             $res[$module]['activated'] = (kryn::$configs[$module]) ? 1 : 0;
         }

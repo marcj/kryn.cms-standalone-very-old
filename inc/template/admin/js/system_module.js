@@ -205,12 +205,10 @@ var admin_system_module = new Class({
             })
         }.bind(this));
 
-        table = new Element('table', { width: "100%"}).inject(p);
-
-        if ($type(pMods) == 'array') {
+        if (typeOf(pMods) == 'array') {
             new Element('div', {
                 style: 'color: gray; text-align: center; padding: 5px;',
-                html: _("No extensions found. Create or install a extension.")
+                html: t("No extensions found. Create or install a extension.")
             }).inject(p);
         }
 
@@ -233,6 +231,7 @@ var admin_system_module = new Class({
         new Element('h3', {
             html: _('Local extensions')
         }).inject(p);
+
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
         tables['local'] = new ka.Table([
             [_('Title')],
@@ -242,7 +241,6 @@ var admin_system_module = new Class({
             [_('Status'), 100],
             [_('Action'), 250]
         ], {absolute: false}).inject(tableLocalDiv);
-
 
         var lang = ka.settings['user']['adminLanguage'];
         Object.each(pMods, function (mod, key) {

@@ -16,6 +16,16 @@ ka.autoChooser = new Class({
     initialize: function(pContainer, pObjectKey, pChooserOptions, pWindowInstance){
 
         this.container = pContainer;
+
+        this.subcontainer = new Element('div', {
+            'class': 'ka-autoChooser-subContainer'
+        }).inject(this.container);
+
+        this.subcontainer.set('tween', {
+            transition: Fx.Transitions.Quad.easeOut,
+            duration: 300
+        });
+
         this.objectKey = pObjectKey;
         this.setOptions(pChooserOptions);
         this.win = pWindowInstance;
@@ -26,13 +36,13 @@ ka.autoChooser = new Class({
 
     _createLayout: function(){
 
-        this.container.empty();
+        this.subcontainer.empty();
 
         var columns = [];
 
         var primaries = ka.getPrimariesForObject(this.objectKey);
 
-        Object.each(primaries, function(field, fieldKey){
+        Object.each(primaries, function(field){
             columns.include([
                 field.label, field.width?field.width:80
             ]);
@@ -41,9 +51,7 @@ ka.autoChooser = new Class({
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
         Object.each(objectDefinition.chooserAutoColumns, function(column, key){
-
             columns.include([column.label, column.width?column.width:null]);
-
         });
 
         this.table = new ka.Table(columns, {
@@ -57,15 +65,30 @@ ka.autoChooser = new Class({
             this.fireEvent('select');
         }.bind(this));
 
-        document.id(this.table).inject(this.container);
+        document.id(this.table).inject(this.subcontainer);
 
-        this.container.setStyle('overflow', 'hidden');
+        this.subcontainer.setStyle('overflow', 'hidden');
+
+        this.absBar = new Element('div', {
+            'class': 'ka-autoChooser-absBar'
+        }).inject(this.subcontainer);
 
         this.pagination = new Element('div', {
             'class': 'ka-autoChooser-pagination-container gradient'
-        }).inject(this.container);
+        }).inject(this.absBar);
 
-        this.pagination.setStyle('bottom', -25);
+        this.searchBtn = new Element('div', {
+            'class': 'ka-autoChooser-searchBtn gradient',
+            text: t('Search')
+        })
+        .addEvent('click', this.toggleSearch.bind(this))
+        .inject(this.absBar);
+
+        this.searchPane = new Element('div', {
+            'class': 'ka-autoChooser-searchPane'
+        });
+
+        this.absBar.setStyle('bottom', -25);
 
         this.imgToLeft = new Element('img', {
             src: _path+'inc/template/admin/images/icons/control_back.png'
@@ -113,8 +136,21 @@ ka.autoChooser = new Class({
 
         this.loadPage(1);
 
+        this.absBar.tween('bottom', 0);
+    },
 
-        this.pagination.tween('bottom', 0);
+    toggleSearch: function(){
+
+        if(this.searchBtn.hasClass('ka-autoChooser-searchBtn-expanded')){
+            this.subcontainer.tween('bottom', 0);
+            this.searchPane.dispose()
+            this.searchBtn.removeClass('ka-autoChooser-searchBtn-expanded');
+        } else {
+            this.subcontainer.tween('bottom', 150);
+            this.searchPane.inject(this.container, 'top');
+            this.searchBtn.addClass('ka-autoChooser-searchBtn-expanded');
+        }
+
     },
 
     pageToLeft: function(){

@@ -41,7 +41,7 @@ ka.Table = new Class({
             }.bind(this));
         }
 
-        if (pColumns && $type(pColumns) == 'array') {
+        if (pColumns && typeOf(pColumns) == 'array') {
             this.setColumns(pColumns);
         }
 
@@ -126,7 +126,7 @@ ka.Table = new Class({
             'class': 'ka-Table-head-container'
         }).inject(this.main);
 
-        if (this.opts && this.opts.absolute == false) {
+        if (this.options.absolute == false) {
             this.head.setStyle('position', 'relative');
         }
 
@@ -149,7 +149,7 @@ ka.Table = new Class({
 
         if (this.body) this.body.destroy();
 
-        if (this.opts && this.opts.absolute == false) {
+        if (this.options.absolute == false) {
             this.body = new Element('div', {
                 style: 'position: relative;'
             }).inject(this.main);
@@ -246,9 +246,8 @@ ka.Table = new Class({
 
         this.tableBody.empty();
 
-        var trcount = 0;
-        if ($type(pValues) == 'array') {
-            pValues.each(function (row) {
+        if (typeOf(pValues) == 'array') {
+            pValues.each(function(row){
                 this.addRow(row);
             }.bind(this));
         }

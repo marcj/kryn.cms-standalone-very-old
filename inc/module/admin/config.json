@@ -322,6 +322,8 @@
           "type": "custom",
           "isLink": false,
           "multi": true,
+          "minWidth": 600,
+          "minHeight": 300,
           "childs": [
             
           ]
