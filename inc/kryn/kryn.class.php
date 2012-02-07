@@ -1947,7 +1947,7 @@ class kryn {
                 }
             }
 
-            if (!$access) {
+            if (!$access && $adminClient) {
                 foreach ($adminClient->user['groups'] as $group) {
                     if (strpos($groups, "," . $group . ",") !== false) {
                         $access = true;

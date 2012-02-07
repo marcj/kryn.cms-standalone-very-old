@@ -462,7 +462,7 @@ class krynHtml {
                     }
                 }
 
-                if (!$access && $adminClient && $adminClient->user_rsn > 0) {
+                if (!$access && $adminClient) {
                     foreach ($adminClient->user['groups'] as $group) {
                         if (strpos($groups, ',' . $group . ',') !== false) {
                             $access = true;
