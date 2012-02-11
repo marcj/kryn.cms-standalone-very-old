@@ -25,15 +25,28 @@ class adminWindowList {
      * Defines the table which should be accessed.
      * This variable has to be set by any subclass.
      *
+     * Use this only if you know, what you're doing,
+     * normally this comes from the object settings.
+     *
      * @var string table name
      * @abstract
      */
     public $table = '';
 
     /**
+     * Defines the object which should be listed.
+     *
+     * @var string object key
+     */
+    public $object = '';
+
+    /**
      * Defines your primary fiels as a array.
      * Example: $primary = array('rsn');
      * Example: $primary = array('id', 'name');
+     *
+     * Use this only if you know, what you're doing,
+     * normally this comes from the object settings.
      *
      * @abstract
      * @var array
@@ -128,6 +141,16 @@ class adminWindowList {
      */
     function __construct() {
 
+
+        if ($this->object){
+            $objectDefinition = kryn::$objects[$this->object];
+            $this->table = $objectDefinition['table'];
+            foreach ($objectDefinition['fields'] as $key => &$field){
+                if($field['primaryKey']){
+                    $this->primary[] = $key;
+                }
+            }
+        }
 
         if (!$this->orderBy)
             $this->orderBy = $this->primary[0];

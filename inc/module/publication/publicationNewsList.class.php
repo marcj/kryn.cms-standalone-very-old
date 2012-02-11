@@ -2,7 +2,7 @@
 
 class publicationNewsList extends adminWindowList {
 
-    public $table = 'publication_news';
+    public $object = 'news';
 
     public $itemsPerPage = 5;
     public $orderBy = 'category_rsn';

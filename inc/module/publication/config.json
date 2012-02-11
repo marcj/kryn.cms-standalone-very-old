@@ -351,7 +351,9 @@
         },
         "category_rsn": {
           "label": "[[Category]]",
-          "type": "text",
+          "object": "news_category",
+          "object_label": "title",
+          "type": "object",
           "empty": true
         },
         "files": {
@@ -366,11 +368,11 @@
           "length": "2"
         },
         "intro": {
-          "type": "textarea",
+          "type": "layoutelement",
           "empty": true
         },
         "content": {
-          "type": "textarea",
+          "type": "layoutelement",
           "empty": true
         },
         "created": {
@@ -433,7 +435,23 @@
       "table_sync": false,
       "class": "",
       "plugins": "",
-      "selectable": false
+      "selectable": false,
+      "fields": {
+        "rsn": {
+          "label": "ID",
+          "type": "number",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "empty": true
+        },
+        "parent_rsn": {
+          "label": "[[News]]",
+          "object": "news",
+          "object_label": "title",
+          "type": "object",
+          "empty": true
+        }
+      }
     },
     "news_category": {
       "label": "[[Article categories]]",
@@ -447,7 +465,33 @@
       "chooserTableKey": "rsn",
       "chooserTableLabel": "title",
       "chooserUseOwnClass": false,
-      "selectable": false
+      "selectable": false,
+      "multiLanguage": true,
+      "domainDepended": false,
+      "fields": {
+        "rsn": {
+          "label": "ID",
+          "type": "number",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "empty": true
+        },
+        "title": {
+          "label": "[[Title]]",
+          "type": "text",
+          "empty": true
+        },
+        "url": {
+          "label": "[[URL]]",
+          "type": "text",
+          "empty": true
+        },
+        "lang": {
+          "label": "[[Language]]",
+          "type": "lang",
+          "empty": true
+        }
+      }
     }
   },
   "db": {

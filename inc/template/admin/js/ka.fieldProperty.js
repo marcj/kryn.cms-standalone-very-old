@@ -20,6 +20,7 @@ ka.fieldProperty = new Class({
                 file: t('File'),
                 folder: t('Folder'),
                 select: t('Select'),
+                object: t('Object'),
                 tab: t('Tab'),
                 lang: t('Language select'),
                 textlist: t('Textlist'),
@@ -82,6 +83,33 @@ ka.fieldProperty = new Class({
                     label: t('Multiple selection'),
                     desc: t('This field returns then an array.'),
                     type: 'checkbox'
+                },
+
+                //object
+                'object': {
+                    needValue: 'object',
+                    label: t('Objecy key'),
+                    desc: t('The key of the object')
+                },
+                'object_label': {
+                    needValue: 'object',
+                    label: t('Object label field'),
+                    desc: t('The key of the field which should be used as label')
+                },
+                'object_label_map': {
+                    needValue: 'object',
+                    label: t('Object map key'),
+                    desc: t('Under which key should the label of this object be stored? Default is &lt;objectKey&gt;_&lt;labelKey&gt;')
+                },
+
+                'object_relation': {
+                    needValue: 'object',
+                    type: 'select',
+                    items: {
+                        '1To1': '1 - 1',
+                        'nTo1': 'n - 1',
+                        'NtoM': 'n - m'
+                    }
                 },
 
                 //tab

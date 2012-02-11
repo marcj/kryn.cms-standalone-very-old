@@ -56,6 +56,8 @@ class krynObject {
      */
     public static function parseUrl($pInternalUrl){
 
+        $pInternalUrl = str_replace(' ', '', trim($pInternalUrl));
+
         $catch = 'object://';
         if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch){
             $pInternalUrl = substr($pInternalUrl, strlen($catch));
@@ -144,21 +146,26 @@ class krynObject {
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
+        if (!$pOptions['foreignKeys'])
+            $pOptions['foreignKeys'] = '*';
+
         if ($pObjectPrimaryValues !== false){
 
-            $item = $obj->getItem($pObjectPrimaryValues, $pOptions['fields']);
+            $item = $obj->getItem($pObjectPrimaryValues, $pOptions['fields'], $pOptions['foreignKeys']);
 
-            if (!$pOptions['noForeignValues'])
-                self::setForeignValues($definition, $item, $pOptions);
+            //if (!$pOptions['noForeignValues'])
+            //    self::resolveForeignValues($definition, $item, $pOptions);
 
             return $item;
 
         } else {
 
             if (!$pOptions['offset']) $pOptions['offset'] = 0;
-            if (!$pOptions['limit'] && $definition['table_default_limit']) $pOptions['limit'] = $definition['table_default_limit'];
+            if (!$pOptions['limit'] && $definition['table_default_limit'])
+                $pOptions['limit'] = $definition['table_default_limit'];
 
-            return $obj->getItems($pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields']);
+            return $obj->getItems($pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
+                                  $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection']);
         }
     }
 
@@ -177,13 +184,13 @@ class krynObject {
                 $p = explode('/', $definition['class']);
                 $className = $p[count($p)-1];
                 if ($className && class_exists($className)){
-                    self::$instances[$pObjectKey] = new $className($definition);
+                    self::$instances[$pObjectKey] = new $className($definition, $pObjectKey);
                 } else throw new Exception('Create object instance error: Class '.$className.' not found');
 
             } else if ($definition['table']){
 
                 @require_once('inc/kryn/krynObject/krynObjectTable.class.php');
-                self::$instances[$pObjectKey] = new krynObjectTable($definition);
+                self::$instances[$pObjectKey] = new krynObjectTable($definition, $pObjectKey);
             }
         }
 
@@ -201,7 +208,7 @@ class krynObject {
      * @param  array &$pParams
      *
      */
-    public static function setForeignValues(&$pDefinition, &$pItem, $pParams){
+    public static function resolveForeignValues(&$pDefinition, &$pItem, $pParams){
 
         if ($pDefinition['fields']){
             $fields = $pParams['fields'];
@@ -214,12 +221,13 @@ class krynObject {
                     continue;
                 }
 
-                if ($field['type'] == 'object' && $field['object'] && !$pItem[$field['object_foreign_label']]){
-
-                    $label = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
-                    $object = self::get($field['object'].'://'.$pItem[$key].'?fields='.$label);
+                if ($field['type'] == 'object' && $field['object']){
 
                     $key = $field['object_label_map']?$field['object_label_map']:$field['object'].'_'.$field['object_label'];
+                    $label = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
+
+                    $object = self::get($field['object'].'://'.$pItem[$key].'?fields='.$label);
+
                     $pItem[$key] = $object[$label];
                 }
 
@@ -290,6 +298,20 @@ class krynObject {
 
 
 
+    }
+
+    public static function parseLayoutElement($pValue){
+
+        if (!is_array($pValue) && substr($pValue, 0, 13) == '{"template":"'){
+           $pValue = json_decode($pValue, true);
+        }
+
+        $oldContents = kryn::$contents;
+        kryn::$contents = $pValue['contents'];
+        $value = tFetch($pValue['template']);
+        kryn::$contents = $oldContents;
+
+        return $value;
     }
 
 }

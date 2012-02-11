@@ -22,16 +22,29 @@
 class adminWindowEdit {
 
     /**
-     * Defines the table which should be accessed
+     * Defines the table which should be accessed.
+     * Use this only if you know, what you're doing,
+     * normally this is not filled and the table comes
+     * from the object settings.
      *
      * @var string
      */
     public $table = '';
 
     /**
+     * Defines the object key which should be accessed
+     *
+     * @var string
+     */
+    public $object = '';
+
+    /**
      * Defines your primary fiels as a array.
      * Example: $primary = array('rsn');
      * Example: $primary = array('id', 'name');
+     *
+     * Use this only if you know, what you're doing,
+     * normally this comes from the object settings.
      *
      * @abstract
      * @var array
@@ -103,10 +116,26 @@ class adminWindowEdit {
      */
     public $titleField = false;
 
+
+    function __construct(){
+
+        if ($this->object){
+            $objectDefinition = kryn::$objects[$this->object];
+            $this->table = $objectDefinition['table'];
+            foreach ($objectDefinition['fields'] as $key => &$field){
+                if($field['primaryKey']){
+                    $this->primary[] = $key;
+                }
+            }
+        }
+
+    }
+
     /**
-     * Initialize $fields and $tabFields. Called when opened the window.
+     * Initialize $fields and $tabFields. Called when opened the window
      *
-     * @return windowEdit
+     * @param bool $pAndLoadPreviewPages
+     * @return adminWindowEdit
      */
     public function init($pAndLoadPreviewPages = false) {
         $this->_fields = array();
