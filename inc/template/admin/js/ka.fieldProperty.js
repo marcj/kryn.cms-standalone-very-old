@@ -103,13 +103,18 @@ ka.fieldProperty = new Class({
                 },
 
                 'object_relation': {
+                    label: t('Relation'),
+                    desc: t('For n-m the table synchronisation will not create a column in the database table for this field.'),
                     needValue: 'object',
                     type: 'select',
                     items: {
-                        '1To1': '1 - 1',
                         'nTo1': 'n - 1',
                         'NtoM': 'n - m'
                     }
+                },
+                'object_relation_table': {
+                    label :t('Relation table name'),
+                    desc: t('Will also be created during the table synchronisation. The columns of this table are based on the primary keys of left and right table.')
                 },
 
                 //tab
@@ -153,6 +158,8 @@ ka.fieldProperty = new Class({
             desc: t('Use a px value or a % value. Example: 25%, 50, 35px')
         },
         primaryKey: {
+            needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder', 'page'],
+            againstField: 'type',
             label: t('Primary key'),
             type: 'checkbox'
         },
@@ -178,11 +185,11 @@ ka.fieldProperty = new Class({
                 },
                 'needValue': {
                     label: tc('kaFieldTable', 'Visibility condition (Optional)'),
-                    desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, Array(use JSON notation), /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
+                    desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
                 },
                 againstField: {
                     label: tc('kaFieldTable', 'Visibility condition field (Optional)'),
-                    desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation. String or Array")
+                    desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
                 },
                 'length': {
                     needValue: ['text', 'password', 'number'],
@@ -191,10 +198,9 @@ ka.fieldProperty = new Class({
                     label: t('Max value length. (Optional)')
                 },
                 'default': {
-                    needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
                     againstField: 'type',
                     type: 'text',
-                    label: t('Default value. Use JSON notation. (Optional)')
+                    label: t('Default value. Use JSON notation for arrays and objects. (Optional)')
                 },
                 'required_regexp': {
                     needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],

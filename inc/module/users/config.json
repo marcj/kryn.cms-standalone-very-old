@@ -212,11 +212,119 @@
   "objects": {
     "user": {
       "title": "[[User]]",
-      "table": "system_user"
+      "table": "system_user",
+      "fields": {
+        "rsn": {
+          "label": "ID",
+          "type": "number",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "empty": true
+        },
+        "username": {
+          "label": "[[Username]]",
+          "type": "text",
+          "empty": true
+        },
+        "auth_class": {
+          "label": "[[Auth class]]",
+          "type": "text",
+          "empty": true
+        },
+        "passwd": {
+          "type": "text",
+          "empty": true,
+          "length": "32"
+        },
+        "passwd_salt": {
+          "type": "text",
+          "empty": true
+        },
+        "activationkey": {
+          "type": "text",
+          "empty": true
+        },
+        "email": {
+          "type": "text",
+          "empty": true
+        },
+        "desktop": {
+          "type": "textarea",
+          "empty": true
+        },
+        "settings": {
+          "type": "textarea",
+          "empty": true
+        },
+        "activated": {
+          "type": "checkbox",
+          "empty": true
+        },
+        "logins": {
+          "type": "number",
+          "empty": true
+        },
+        "lastlogin": {
+          "type": "number",
+          "empty": true
+        },
+        "created": {
+          "type": "number",
+          "empty": true
+        },
+        "modified": {
+          "type": "number",
+          "empty": true
+        },
+        "groups": {
+          "label": "[[Group membership]]",
+          "object": "groups",
+          "object_label": "name",
+          "object_relation": "NtoM",
+          "object_relation_table": "system_groupaccess",
+          "type": "object",
+          "empty": true
+        }
+      },
+      "label": "",
+      "desc": "",
+      "table_sync": true,
+      "class": "",
+      "multiLanguage": false,
+      "domainDepended": false,
+      "plugins": "",
+      "selectable": false
     },
     "group": {
       "title": "[[Group]]",
-      "table": "system_groups"
+      "table": "system_groups",
+      "label": "",
+      "desc": "",
+      "table_sync": true,
+      "class": "",
+      "multiLanguage": false,
+      "domainDepended": false,
+      "plugins": "",
+      "selectable": false,
+      "fields": {
+        "rsn": {
+          "label": "ID",
+          "type": "number",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "empty": true
+        },
+        "name": {
+          "label": "[[Name]]",
+          "type": "text",
+          "empty": true
+        },
+        "description": {
+          "label": "[[Description]]",
+          "type": "text",
+          "empty": true
+        }
+      }
     }
   },
   "objectRelations": {
