@@ -90,7 +90,7 @@ class krynObject {
         } else if ($pos !== false)
             $object_id = substr($pInternalUrl, $pos+1);
 
-        if (strpos($object_id, ',')!==false){
+        if (strpos($object_id, ',') !== false){
             $object_id = explode(',', $object_id);
         }
 

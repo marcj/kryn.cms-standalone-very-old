@@ -109,10 +109,13 @@ ka.fieldProperty = new Class({
                     type: 'select',
                     items: {
                         'nTo1': 'n - 1',
-                        'NtoM': 'n - m'
+                        'nToM': 'n - m'
                     }
                 },
+
                 'object_relation_table': {
+                    needValue: 'nToM',
+                    againstField: 'object_relation',
                     label :t('Relation table name'),
                     desc: t('Will also be created during the table synchronisation. The columns of this table are based on the primary keys of left and right table.')
                 },

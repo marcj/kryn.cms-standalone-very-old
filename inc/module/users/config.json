@@ -210,7 +210,7 @@
     }
   },
   "objects": {
-    "user": {
+    "system_user": {
       "title": "[[User]]",
       "table": "system_user",
       "fields": {
@@ -278,9 +278,9 @@
         },
         "groups": {
           "label": "[[Group membership]]",
-          "object": "groups",
+          "object": "system_group",
           "object_label": "name",
-          "object_relation": "NtoM",
+          "object_relation": "nToM",
           "object_relation_table": "system_groupaccess",
           "type": "object",
           "empty": true
@@ -295,7 +295,7 @@
       "plugins": "",
       "selectable": false
     },
-    "group": {
+    "system_group": {
       "title": "[[Group]]",
       "table": "system_groups",
       "label": "",

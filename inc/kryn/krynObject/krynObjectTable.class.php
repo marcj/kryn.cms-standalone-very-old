@@ -58,11 +58,17 @@ class krynObjectTable {
         $options = database::getOptions($this->definition['table']);
         $where  = '1=1 ';
 
+        if (substr($pFields, -1) == ',')
+            $pFields = substr($pFields, 0, -1);
+
         $aFields = explode(',', $pFields);
 
-        $select = array();
+        $select = array(); //columns
+        $fSelect = array(); //final selects
         $joins = array();
         $primaryField = '';
+
+        $grouped = false;
 
         $foreignColumns = explode(',', str_replace(' ', '', trim($pResolveForeignValues)));
 
@@ -82,6 +88,8 @@ class krynObjectTable {
 
 
                 if ($field['type'] == 'object'){
+
+
                     $foreignObjectDefinition = kryn::$objects[$field['object']];
                     if (!$foreignObjectDefinition)
                         continue;
@@ -89,52 +97,104 @@ class krynObjectTable {
                     $oKey = $field['object_label_map']?$field['object_label_map']:$field['object'].'_'.$field['object_label'];
                     $oLabel = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
 
-                    $select[] = $field['object'].'.'.$oLabel.' AS '.$oKey;
-                    $join = 'LEFT OUTER JOIN '.dbTableName($foreignObjectDefinition['table']).' as '.$field['object'].
-                               ' ON ( 1=1';
+                    if ($field['object_relation'] != 'nToM'){
+                        //n to 1
 
-                    //If we have multiple foreign keys
-                    if ($field['foreign_key_map']){
+                        $select[] = $field['object'].'.'.$oLabel.' AS '.$oKey;
+                        $join = 'LEFT OUTER JOIN '.dbTableName($foreignObjectDefinition['table']).' AS '.$field['object'].
+                                   ' ON ( 1=1';
 
-                        //todo, test this stuff
-                        foreach ($field['foreign_key_map'] as $primaryKey => $primaryForeignKey){
-                            $join .= ' AND '.$field['object'].'.'.$primaryForeignKey.' = '.$this->object_key.'.'.$primaryKey;
+                        //If we have multiple foreign keys
+                        if ($field['foreign_key_map']){
+
+                            //todo, test this stuff
+                            foreach ($field['foreign_key_map'] as $primaryKey => $primaryForeignKey){
+                                $join .= ' AND '.$field['object'].'.'.$primaryForeignKey.' = '.$this->object_key.'.'.$primaryKey;
+                            }
+
+                        } else {
+                            //normal foreign key through one column
+                            foreach ($foreignObjectDefinition['fields'] as $tempKey => $tempField){
+                                if ($tempField['primaryKey']) {
+                                    $primaryField = $tempKey;
+                                    break;
+                                }
+                            }
+                            $join .= ' AND '.$field['object'].'.'.$primaryField.' = '.$this->object_key.'.'.$key;
                         }
+
+                        $join .= ')';
+
+                        $joins[] = $join;
 
                     } else {
-                        //normal foreign key through one column
-                        foreach ($foreignObjectDefinition['fields'] as $tempKey => $tempField){
-                            if ($tempField['primaryKey']) {
-                                $primaryField = $tempKey;
-                                break;
+                        //n to m
+
+                        $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
+                        $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
+
+                        $join = 'LEFT OUTER JOIN '.dbTableName($field['object_relation_table']).' AS '.
+                                $field['object_relation_table'].' ON (1=1 ';
+
+                        foreach ($this->definition['fields'] as $tkey => &$tfield){
+                            if ($tfield['primaryKey']){
+                                $join .= ' AND '.$field['object_relation_table'];
+                                $join .= '.'.$this->object_key.'_'.$tkey.' = ';
+                                $join .= $this->object_key.'.'.$tkey;
                             }
+
                         }
-                        $join .= ' AND '.$field['object'].'.'.$primaryField.' = '.$this->object_key.'.'.$key;
+                        $join .= ')';
+                        $joins[] = $join;
+
+                        $join = 'LEFT OUTER JOIN '.dbTableName($foreignObjectDefinition['table']).' AS '.
+                                $field['object'].' ON (1=1 ';
+
+                        foreach ($foreignObjectDefinition['fields'] as $tkey => &$tfield){
+                            if ($tfield['primaryKey']){
+                                $join .= ' AND '.$field['object_relation_table'];
+                                $join .= '.'.$field['object'].'_'.$tkey.' = ';
+                                $join .= $field['object'].'.'.$tkey;
+                            }
+
+                        }
+
+                        $join .= ')';
+
+                        $joins[] = $join;
+
+                        $grouped = true;
+
                     }
-
-                    $join .= ')';
-
-                    $joins[] = $join;
+                } else {
+                    $select[] = $this->object_key.'.'.$key;
                 }
 
             }
 
         }
 
-        if ($pFields == '*'){
-            $sql = 'SELECT '.$this->object_key.'.*';
-        } else {
-            $selects = explode(',', $pFields);
-            foreach ($selects as &$col ){
-                $col = $this->object_key.'.'.$col;
-            }
-            $sql = 'SELECT '.implode(', ', $selects);
 
+        $sql = 'SELECT ';
+
+
+        if (count($select)>0){
+
+            if ($grouped){
+                foreach ($select as &$sel){
+                    $dotPos = strpos($sel, '.');
+                    $sel = 'MAX('.$sel.') as '.substr($sel, $dotPos?$dotPos+1:0);
+                }
+            }
+
+            $sql .= implode(', ', $select);
         }
 
-        if (count($select)>0)
-            $sql .= ','.implode(',', $select);
-
+        if (count($fSelect)>0){
+            if (count($select)>0)
+                $sql .= ', ';
+            $sql .= implode(', ', $fSelect);
+        }
 
         $table = dbTableName($this->definition['table']);
         $sql .= ' FROM '.$table.' as '.$this->object_key;
