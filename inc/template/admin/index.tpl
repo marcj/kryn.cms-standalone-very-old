@@ -54,6 +54,9 @@
             window._session.tokenid = '{$client->tokenid}';
             window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
             window._session.lastlogin = '{$user.lastlogin}';
+            {if $noAdminAccess}
+            window._session.noAdminAccess = true;
+            {/if}
         </script>
         
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />

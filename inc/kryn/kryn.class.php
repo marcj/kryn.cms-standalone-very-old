@@ -1141,6 +1141,7 @@ class kryn {
      * @static
      */
     public static function checkAccess() {
+        global $adminClient;
 
         $bypass = array('loadJs', 'loadCss');
         if (in_array(getArgv(2), $bypass))
@@ -1162,6 +1163,9 @@ class kryn {
 
 
             if (!getArgv(2)) {
+                if ($adminClient->user_rsn > 0){
+                    tAssign('noAdminAccess', true);
+                }
                 admin::showLogin();
                 exit;
             } else {

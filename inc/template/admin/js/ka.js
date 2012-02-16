@@ -416,7 +416,6 @@ ka.checkAccess = function (pType, pCode, pAction, pRootHasAccess) {
 
     if (!ka.settings.acls[pType] || ka.settings.acls[pType].length == 0) return true;
 
-
     var access = false;
 
     var current_code = $pCode;

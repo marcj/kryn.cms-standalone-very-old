@@ -121,7 +121,11 @@ window.addEvent('load', function () {
 
     } else {
         if (_session.user_rsn > 0) {
-            ka.ai.loginSuccess(_session, true);
+            if (window._session.noAdminAccess){
+                ka.ai.loginFailed();
+            } else {
+                ka.ai.loginSuccess(_session, true);
+            }
         }
     }
 });

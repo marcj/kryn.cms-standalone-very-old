@@ -65,6 +65,7 @@ class krynObjectTable {
 
         $select = array(); //columns
         $fSelect = array(); //final selects
+        $groupedColumns = array();
         $joins = array();
         $primaryField = '';
 
@@ -128,10 +129,10 @@ class krynObjectTable {
                         $joins[] = $join;
 
                     } else {
-                        //n to m
 
-                        $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
-                        $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
+                        //n to m
+                        $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.')) AS '.$oKey;
+                        $groupedColumns[$oKey] = true;
 
                         $join = 'LEFT OUTER JOIN '.dbTableName($field['object_relation_table']).' AS '.
                                 $field['object_relation_table'].' ON (1=1 ';
@@ -150,13 +151,30 @@ class krynObjectTable {
                         $join = 'LEFT OUTER JOIN '.dbTableName($foreignObjectDefinition['table']).' AS '.
                                 $field['object'].' ON (1=1 ';
 
+                        $primaryFields = array();
+
                         foreach ($foreignObjectDefinition['fields'] as $tkey => &$tfield){
                             if ($tfield['primaryKey']){
                                 $join .= ' AND '.$field['object_relation_table'];
                                 $join .= '.'.$field['object'].'_'.$tkey.' = ';
                                 $join .= $field['object'].'.'.$tkey;
+
+                                if ($tfield['type'] == 'number')
+                                    $primaryFields[$tkey] = $tfield;
                             }
 
+                        }
+
+                        if (count($primaryFields) == 1){
+                            foreach ($primaryFields as $k => $f){
+                                $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key;
+                                $groupedColumns[$key] = true;
+                            }
+                        } else if(count($primaryFields) > 1){
+                            foreach ($primaryFields as $k => $f){
+                                $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key.'_'.$k;
+                                $groupedColumns[$key.'_'.$k] = true;
+                            }
                         }
 
                         $join .= ')';
@@ -174,9 +192,7 @@ class krynObjectTable {
 
         }
 
-
         $sql = 'SELECT ';
-
 
         if (count($select)>0){
 
@@ -219,7 +235,6 @@ class krynObjectTable {
             }
         }
 
-
         if ($pOffset > 0)
             $sql .= ' OFFSET '.($pOffset+0);
 
@@ -231,15 +246,23 @@ class krynObjectTable {
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);
             self::parseValues($item);
+            if (kryn::$config['db_type'] == 'postgresql')
+                foreach ($groupedColumns as $col => $b)
+                    $item[$col] = substr($item[$col], -1);
+
             return $item;
         } else {
-            $items = dbExfetch($sql, -1);
-            if (count($items)>0){
-                foreach ($items as &$item){
-                    self::parseValues($item);
-                }
-                return $items;
+            $res = dbExec($sql);
+            $c = count($groupedColumns);
+
+            while ($row = dbFetch($res)){
+                self::parseValues($row);
+                if ($c > 0 && kryn::$config['db_type'] == 'postgresql')
+                    foreach ($groupedColumns as $col => $b)
+                        $row[$col] = substr($row[$col], 0, -1);
+                $items[] = $row;
             }
+            return $items;
         }
 
     }

@@ -677,8 +677,14 @@ ka.kwindow = new Class({
             }
         }
 
-        if (newY) this.border.setStyle('top', newY);
-        if (newX) this.border.setStyle('left', newX);
+        if (borderPosition.y < 0)
+            newY = 0;
+
+        if (borderPosition.x < 0)
+            newX = 0;
+
+        if (newY !== false) this.border.setStyle('top', newY);
+        if (newX !== false) this.border.setStyle('left', newX);
 
         if (newHeight) this.border.setStyle('height', newHeight);
         if (newWidth) this.border.setStyle('width', newWidth);

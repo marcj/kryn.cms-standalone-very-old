@@ -2,10 +2,11 @@
 
 class publicationNewsAdd extends windowAdd {
 
-    public $table = 'publication_news';
+    //public $table = 'publication_news';
+    public $object = 'news';
 
-    public $primary = array('rsn');
-    public $multiLanguage = true;
+    //public $primary = array('rsn');
+    //public $multiLanguage = true;
 
     public function saveItem() {
         parent::saveItem();
@@ -14,11 +15,7 @@ class publicationNewsAdd extends windowAdd {
 
     public $tabFields = array(
         'General' => array(
-            'title' => array(
-                'label' => 'Title',
-                'type' => 'text',
-                'empty' => false
-            ),
+            'title',
             'category_rsn' => array(
                 'label' => 'Category',
                 'type' => 'select',
@@ -32,10 +29,7 @@ class publicationNewsAdd extends windowAdd {
                 'label' => 'Tags',
                 'type' => 'text'
             ),
-            'introimage' => array(
-                'label' => 'Intro image',
-                'type' => 'fileChooser'
-            ),
+            'introimage',
             'introimage2' => array(
                 'label' => 'Intro image 2',
                 'type' => 'fileChooser'

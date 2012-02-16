@@ -92,7 +92,7 @@ class adminWindow {
         $obj->db = ($config['db']) ? $config['db'] : array();
         $obj->module = $info['_module'];
         $obj->code = $info['_code'];
-        $obj->init();
+        $res = $obj->init(getArgv('cmd')==''?true:false);
 
         switch (getArgv('cmd')) {
             case 'getItems':
@@ -116,7 +116,6 @@ class adminWindow {
                 $res = $obj->removeSelected();
                 break;
             default:
-                $res = $obj->init(true);
                 if (getArgv('relation_table')) {
                     $res->relation = database::getRelation(getArgv('relation_table'), $res->table);
                 }

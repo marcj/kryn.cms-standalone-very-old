@@ -117,16 +117,57 @@ class adminWindowEdit {
     public $titleField = false;
 
 
+    /**
+     *  object definition cache
+     */
+    private $objectDefinition = array();
+
     function __construct(){
 
         if ($this->object){
-            $objectDefinition = kryn::$objects[$this->object];
-            $this->table = $objectDefinition['table'];
-            foreach ($objectDefinition['fields'] as $key => &$field){
+            $this->objectDefinition = kryn::$objects[$this->object];
+            $this->table = $this->objectDefinition['table'];
+            foreach ($this->objectDefinition['fields'] as $key => &$field){
                 if($field['primaryKey']){
                     $this->primary[] = $key;
                 }
             }
+
+            if ($this->fields){
+                $this->prepareFieldDefinition($this->fields);
+            }
+
+            if ($this->tabFields){
+                foreach ($this->tabFields as &$fields){
+                    $this->prepareFieldDefinition($fields);
+                }
+            }
+
+        }
+    }
+
+    public function prepareFieldDefinition(&$pFields){
+
+        $i = 0;
+        foreach ($pFields as $key => $field){
+            if (is_numeric($key)){
+
+                $newItem = $this->objectDefinition['fields'][$field];
+                if (!$newItem['label']) $newItem['label'] = $field;
+
+                $pFields = array_merge(
+                    array_slice($pFields, 0, $i),
+                    array($field => $newItem),
+                    array_slice($pFields, $i+1)
+                );
+                reset($pFields);
+                $i = -1;
+            }
+            $i++;
+        }
+
+        foreach ($pFields as $key => &$field){
+            if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
         }
 
     }
@@ -138,6 +179,7 @@ class adminWindowEdit {
      * @return adminWindowEdit
      */
     public function init($pAndLoadPreviewPages = false) {
+
         $this->_fields = array();
         if ($this->fields) {
             $this->prepareFieldItem($this->fields);
@@ -270,10 +312,13 @@ class adminWindowEdit {
      *
      * @param array $pFields
      * @param bool  $pKey
+     * @return bool
      */
     public function prepareFieldItem(&$pFields, $pKey = false) {
+
         if (is_array($pFields) && $pFields['type'] == '') {
-            foreach ($pFields as $key => &$field) {
+            foreach ($pFields as $key => $field) {
+
                 if ($field['type'] != '' && is_array($field)) {
                     if ($this->prepareFieldItem($field, $key) == false) {
                         unset($pFields[$key]);
@@ -284,6 +329,7 @@ class adminWindowEdit {
             if ($pFields['needAccess'] && !kryn::checkUrlAccess($pFields['needAccess'])) {
                 return false;
             }
+
             $this->_fields[$pKey] = $pFields;
 
             switch ($pFields['type']) {
@@ -327,7 +373,7 @@ class adminWindowEdit {
                     break;
             }
             if (is_array($pFields['depends'])) {
-                $this->prepareFieldItem($pFields['depends']);
+                //$this->prepareFieldItem($pFields['depends']);
             }
         }
         return true;

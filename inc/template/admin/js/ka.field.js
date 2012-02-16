@@ -267,9 +267,11 @@ ka.field = new Class({
         }
         if (this.input) {
 
+            /*
             if (this.field.length + 0 > 0) {
                 this.input.setStyle('width', (this.field.length.toInt() * 9));
             }
+            */
 
             this.input.store('oldClass', this.input.get('class'));
         }

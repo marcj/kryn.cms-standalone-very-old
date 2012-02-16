@@ -329,8 +329,8 @@ class krynAuth {
 
                 if (preg_match('/' . $item['login'] . '/', $pUser['username']) == 1) {
                     dbInsert('system_groupaccess', array(
-                        'group_rsn' => $item['group'],
-                        'user_rsn' => $pUser['rsn']
+                        'system_group_rsn' => $item['group'],
+                        'system_user_rsn' => $pUser['rsn']
                     ));
                     $this->clearCache($pUser['rsn']);
                 }
@@ -398,11 +398,11 @@ class krynAuth {
 
             $result['groups'] = array();
             $statement = dbExec(
-                'SELECT group_rsn FROM %pfx%system_groupaccess
-    		  WHERE user_rsn = ' . $pUserId);
+                'SELECT system_group_rsn FROM %pfx%system_groupaccess
+    		  WHERE system_user_rsn = ' . $pUserId);
 
             while ($row = dbFetch($statement)) {
-                $result['groups'][] = $row['group_rsn'];
+                $result['groups'][] = $row['system_group_rsn'];
             }
 
             $result['inGroups'] = '0';

@@ -346,13 +346,13 @@
         "title": {
           "label": "[[Title]]",
           "type": "text",
-          "empty": true,
           "length": "255"
         },
         "category_rsn": {
           "label": "[[Category]]",
           "object": "news_category",
           "object_label": "title",
+          "object_relation": "nTo1",
           "type": "object",
           "empty": true
         },
@@ -410,6 +410,14 @@
         "tags": {
           "type": "text",
           "empty": true
+        },
+        "introimage": {
+          "type": "text",
+          "empty": true
+        },
+        "introimage2": {
+          "type": "text",
+          "empty": true
         }
       },
       "table_sync": false,
@@ -448,6 +456,7 @@
           "label": "[[News]]",
           "object": "news",
           "object_label": "title",
+          "object_relation": "nTo1",
           "type": "object",
           "empty": true
         }
