@@ -333,6 +333,9 @@
           "isLink": false,
           "childs": {
             "groups": {
+              "table_key": "rsn",
+              "table_label": "name",
+              "table": "system_groups",
               "type": "store",
               "isLink": false,
               "childs": [

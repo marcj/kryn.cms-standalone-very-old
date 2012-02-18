@@ -150,6 +150,10 @@ class adminWindowList {
                     $this->primary[] = $key;
                 }
             }
+
+            if ($this->columns){
+                $this->prepareFieldDefinition($this->columns);
+            }
         }
 
         if (!$this->orderBy)
@@ -185,6 +189,33 @@ class adminWindowList {
         if ($this->tabFields) {
             foreach ($this->tabFields as &$field)
                 $this->prepareFieldItem($field);
+        }
+
+    }
+
+
+    public function prepareFieldDefinition(&$pFields){
+
+        $i = 0;
+        foreach ($pFields as $key => $field){
+            if (is_numeric($key)){
+
+                $newItem = $this->objectDefinition['fields'][$field];
+                if (!$newItem['label']) $newItem['label'] = $field;
+
+                $pFields = array_merge(
+                    array_slice($pFields, 0, $i),
+                    array($field => $newItem),
+                    array_slice($pFields, $i+1)
+                );
+                reset($pFields);
+                $i = -1;
+            }
+            $i++;
+        }
+
+        foreach ($pFields as $key => &$field){
+            if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
         }
 
     }

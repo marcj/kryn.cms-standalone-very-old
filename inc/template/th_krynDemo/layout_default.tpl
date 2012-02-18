@@ -39,7 +39,7 @@
                             {navigation id="history" template="th_krynDemo/navigation_breadcrumb.tpl"}
 
                                 <hr />
-                                <div style="position: relative; z-index:123123123;">{krynObject::getFromUrl('object://system_user?fields=rsn,username,groups')|print_r:true}</pre>
+                                <div style="position: relative; z-index:123123123;">{krynObject::getFromUrl('object://system_user?fields=rsn,username,groups&condition=system_user.rsn>0')|print_r:true}</pre>
 
                                 <hr />
                                 <pre>{krynObject::count('news')|print_r:true}</pre>

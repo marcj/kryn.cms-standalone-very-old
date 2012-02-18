@@ -162,6 +162,8 @@ class admin {
                         case 'getDefaultImages':
                             self::getDefaultImages();
                             break;
+                        case 'objects':
+                            self::sendObjectStore();
 
                         case 'imageThumb':
                             $content = adminFilemanager::imageThumb(getArgv('path'));

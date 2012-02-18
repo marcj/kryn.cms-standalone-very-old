@@ -235,6 +235,16 @@ class krynObjectTable {
             }
         }
 
+        if ($grouped){
+            $prim = array();
+            foreach ($this->definition['fields'] as $key => &$field){
+                if ($field['primaryKey']){
+                    $prim[] = $this->object_key.'.'.$key;
+                }
+            }
+            $sql .= ' GROUP BY '.implode(',', $prim);
+        }
+
         if ($pOffset > 0)
             $sql .= ' OFFSET '.($pOffset+0);
 

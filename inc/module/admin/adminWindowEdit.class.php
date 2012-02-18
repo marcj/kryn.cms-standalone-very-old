@@ -185,8 +185,8 @@ class adminWindowEdit {
             $this->prepareFieldItem($this->fields);
         }
         if ($this->tabFields) {
-            foreach ($this->tabFields as &$field)
-                $this->prepareFieldItem($field);
+            foreach ($this->tabFields as &$fields)
+                $this->prepareFieldItem($fields);
         }
 
         if ($pAndLoadPreviewPages)
@@ -317,7 +317,7 @@ class adminWindowEdit {
     public function prepareFieldItem(&$pFields, $pKey = false) {
 
         if (is_array($pFields) && $pFields['type'] == '') {
-            foreach ($pFields as $key => $field) {
+            foreach ($pFields as $key => &$field) {
 
                 if ($field['type'] != '' && is_array($field)) {
                     if ($this->prepareFieldItem($field, $key) == false) {
@@ -330,50 +330,57 @@ class adminWindowEdit {
                 return false;
             }
 
+            error_log($pKey);
+            if ($pKey == 'groups')
+                error_log(print_r($pFields,true));
+
+            if (!$pFields['store']){
+                switch ($pFields['type']) {
+                    case 'select':
+
+                        if (!empty($field['eval']))
+                            $pFields['tableItems'] = eval($field['eval']);
+                        elseif ($pFields['relation'] == 'n-n')
+                            $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
+                        else if ($pFields['table'])
+                            $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
+                        else if ($pFields['sql'])
+                            $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
+                        else if ($pFields['method']) {
+                            $nam = $pFields['method'];
+                            if (method_exists($this, $nam))
+                                $pFields['tableItems'] = $this->$nam($pFields);
+                        }
+
+                        if ($pFields['modifier'] && !empty($pFields['modifier']) &&
+                                         method_exists($this, $pFields['modifier']))
+                            $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+
+
+                        break;
+                    case 'files':
+
+                        $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
+                        if (count($files) > 0) {
+                            foreach ($files as $file) {
+                                $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
+                            }
+                        } else {
+                            $pFields['tableItems'] = array();
+                        }
+                        $pFields['table_key'] = 'id';
+                        $pFields['table_label'] = 'label';
+                        $pFields['type'] = 'select';
+
+                        break;
+                }
+            }
+
+
             $this->_fields[$pKey] = $pFields;
 
-            switch ($pFields['type']) {
-                case 'select':
-
-                    if (!empty($field['eval']))
-                        $pFields['tableItems'] = eval($field['eval']);
-                    elseif ($pFields['relation'] == 'n-n')
-                        $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
-                    else if ($pFields['table'])
-                        $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
-                    else if ($pFields['sql'])
-                        $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
-                    else if ($pFields['method']) {
-                        $nam = $pFields['method'];
-                        if (method_exists($this, $nam))
-                            $pFields['tableItems'] = $this->$nam($pFields);
-                    }
-
-                    if ($pFields['modifier'] && !empty($pFields['modifier']) &&
-                        method_exists($this, $pFields['modifier'])
-                    )
-                        $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
-
-
-                    break;
-                case 'files':
-
-                    $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
-                    if (count($files) > 0) {
-                        foreach ($files as $file) {
-                            $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
-                        }
-                    } else {
-                        $pFields['tableItems'] = array();
-                    }
-                    $pFields['table_key'] = 'id';
-                    $pFields['table_label'] = 'label';
-                    $pFields['type'] = 'select';
-
-                    break;
-            }
             if (is_array($pFields['depends'])) {
-                //$this->prepareFieldItem($pFields['depends']);
+                $this->prepareFieldItem($pFields['depends']);
             }
         }
         return true;

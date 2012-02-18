@@ -25,10 +25,7 @@ class publicationNewsList extends adminWindowList {
     public $primary = array('rsn');
 
     public $columns = array(
-        'title' => array(
-            'label' => 'Title',
-            'type' => 'text'
-        ),
+        'title',
         'category_rsn' => array(
             'label' => 'Category',
             'type' => 'select',

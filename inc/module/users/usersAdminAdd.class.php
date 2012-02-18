@@ -2,7 +2,7 @@
 
 class usersAdminAdd extends windowAdd {
 
-    public $table = 'system_user';
+    public $object = 'system_user';
     public $checkUsage = true; //default on
 
     public $primary = array('rsn');
@@ -113,7 +113,8 @@ class usersAdminAdd extends windowAdd {
                 'customSave' => 'saveUserBg',
                 'customValue' => 'userBgValue',
             ),
-            'groups' => array(
+            'groups',
+            /*'groups' => array(
                 'label' => 'Groups',
                 'type' => 'textlist',
                 'store' => 'admin/backend/stores/groups',
@@ -127,7 +128,7 @@ class usersAdminAdd extends windowAdd {
                     'middle_keyleft' => 'user_rsn',
                     'left_key' => 'rsn'
                 )
-            )
+            )*/
         )
     );
 

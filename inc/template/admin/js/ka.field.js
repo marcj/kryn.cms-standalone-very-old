@@ -217,6 +217,9 @@ ka.field = new Class({
             case 'page':
                 this.renderChooser(['node']);
                 break;
+            case 'object':
+                this.renderChooser([this.field.object]);
+                break;
             case 'chooser':
                 this.renderChooser();
                 break;
@@ -1175,7 +1178,7 @@ ka.field = new Class({
             chooserParams.domain = this.field.domain;
 
 
-        var button = new ka.Button(_('Choose')).addEvent('click', function () {
+        var button = new ka.Button(t('Choose')).addEvent('click', function () {
 
             var _this = this;
             ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);

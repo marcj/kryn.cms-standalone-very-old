@@ -73,27 +73,26 @@ var admin_backend_chooser = new Class({
         var needDomainSelection = false;
         var needLanguageSelection = false;
 
-        if (true || !this.options.objects || this.options.objects.length == 0){
 
-            Object.each(ka.settings.configs, function(config, extKey){
+        Object.each(ka.settings.configs, function(config, extKey){
 
-                if (config.objects){
-                    Object.each(config.objects, function(object, objectKey){
-                        if (object.selectable){
-                            this.createObjectChooser(objectKey);
-                            if (object.multiLanguage)
-                                needLanguageSelection = true;
-                            if (object.domainDepended)
-                                needDomainSelection = true;
-                        }
-                    }.bind(this));
-                }
+            if (config.objects){
+                Object.each(config.objects, function(object, objectKey){
 
-            }.bind(this));
+                    if (this.options.objects && !this.options.objects.contains(objectKey)) return;
 
-        } else {
+                    if (object.selectable){
+                        this.createObjectChooser(objectKey);
+                        if (object.multiLanguage)
+                            needLanguageSelection = true;
+                        if (object.domainDepended)
+                            needDomainSelection = true;
+                    }
+                }.bind(this));
+            }
 
-        }
+        }.bind(this));
+
 
         var domainRight = 1;
 
@@ -146,12 +145,12 @@ var admin_backend_chooser = new Class({
 
         if (definition.multiLanguage)
             this.sLanguage.setStyle('visibility', 'visible');
-        else
+        else if (this.sLanguage)
             this.sLanguage.setStyle('visibility', 'hidden');
 
         if (definition.domainDepended)
             this.sDomain.setStyle('visibility', 'visible');
-        else
+        else if (this.sDomain)
             this.sDomain.setStyle('visibility', 'hidden');
 
 
