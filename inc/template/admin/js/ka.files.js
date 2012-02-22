@@ -1703,6 +1703,7 @@ ka.files = new Class({
             if (file.type == 'file' && this.options.selection && !this.options.selectionOnlyFolders) {
                 this.fireEvent('select', [file, item]);
                 this.fireEvent('dblClick', [file, item]);
+                this.fireEvent('instantSelect', [file, item]);
             } else {
                 if (file.type == 'file'){
                     if (file.path.substr(0, 7) == '/trash/') {

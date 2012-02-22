@@ -1823,35 +1823,98 @@ var admin_system_module_edit = new Class({
                                 label: t('Chooser icon'),
                                 desc: t('Relative to inc/template/.')
                             },
-                            chooserUseOwnClass: {
+                            chooserFieldType: {
                                 needValue: 1,
-                                label: t('Use own chooser javascript class'),
-                                type: 'checkbox',
+                                label: t('Field UI'),
+                                type: 'select',
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom javascript class'
+                                },
+                                depends: {
+                                    'chooserFieldClass': {
+                                        needValue:'custom',
+                                        label: t('Javascript class name'),
+                                        desc: t('You can inject javascript files through extension settings to make a javascript class available.')
+                                    },
+                                    'chooserFieldDataModel': {
+                                        needValue: 'default',
+                                        label: t('Data Model'),
+                                        type: 'select',
+                                        items: {
+                                            'store': 'Framework Store',
+                                            'custom': 'Custom class'
+                                        },
+                                        depends: {
+                                            chooserFieldDataModelField: {
+                                                label: t('Field key'),
+                                                needValue: 'store',
+                                                desc: t('Which field should be used for the store?')
+                                            },
+                                            chooserFieldDataModelClass: {
+                                                label: t('PHP Class'),
+                                                needValue: '1',
+                                                desc: t('Have to be at inc/modules/&lt;extKey&gt;/&lt;className&gt;.class.php')
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            chooserType: {
+                                needValue: 1,
+                                label: t('Object browser UI'),
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom javascript class'
+                                },
+                                type: 'select',
                                 depends: {
                                     chooserClass: {
-                                        needValue: 1,
-                                        label: t('Own chooser class'),
+                                        needValue: 'custom',
+                                        label: t('Javascript class'),
                                         desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
                                     },
                                     chooserOptions: {
-                                        label: t('Own properties'),
-                                        needValue: 1,
+                                        label: t('UI properties'),
+                                        needValue: 'custom',
                                         desc: t('You can allow extensions to set some properties when providing your object chooser.'),
                                         type: 'fieldTable'
                                     },
                                     chooserAutoColumns: {
                                         label: t('Columns in the chooser table'),
-                                        needValue: 0,
+                                        needValue: 'default',
                                         type: 'fieldTable',
                                         options: {
                                             withWidthField: true,
-                                            withoutChildren: true
+                                            withoutChildren: true,
+                                            addLabel: t('Add column')
                                         }
                                     },
-                                    chooserAutoFilter: {
-                                        label: t('Filter'),
-                                        needValue: 0,
-                                        desc: t('Use normal SQL WHERE conditions.')
+                                    'chooserBrowserDataModel': {
+                                        type: 'select',
+                                        label: t('Data Model'),
+                                        items: {
+                                            'default': 'Framework Store',
+                                            'custom': 'Own php class'
+                                        },
+                                        depends: {
+                                            chooserPhpClass: {
+                                                label: t('PHP Class'),
+                                                needValue: 'custom',
+                                                desc: t('Have to be at inc/modules/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                            },
+                                            chooserBrowserCondition: {
+                                                needValue: 'default',
+                                                label: t('Additional SQL condition'),
+                                                desc: t("If you want to limit the output add here a valid SQL string without 'WHERE' and 'AND' at the beginning")
+                                            },
+                                            chooserFields: {
+                                                needValue: 'custom',
+                                                againstField: 'chooserType',
+                                                label: t('Object fields'),
+                                                desc: t('Comma separated. Without primary keys. (Ignore this when you use a own php data model)')
+                                            }
+                                        }
                                     }
                                 }
                             }

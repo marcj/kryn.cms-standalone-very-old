@@ -10,7 +10,7 @@ ka.uploads = {};
 ka._links = {};
 
 /*
- * Build the administration interface
+ * Build the administration interface after login
  */
 ka.init = function () {
 
@@ -49,7 +49,7 @@ ka.init = function () {
 
     if (ka._crawler) {
         ka._crawler.stop();
-        ka._crawler = null;
+        delete ka._crawler;
         ka._crawler = new ka.crawler();
     } else {
         ka._crawler = new ka.crawler();

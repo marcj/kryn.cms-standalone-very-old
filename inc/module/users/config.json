@@ -223,7 +223,8 @@
         },
         "username": {
           "label": "[[Username]]",
-          "type": "text"
+          "type": "text",
+          "empty": true
         },
         "auth_class": {
           "label": "[[Auth class]]",
@@ -233,6 +234,7 @@
         "passwd": {
           "label": "[[Password]]",
           "type": "password",
+          "empty": true,
           "length": "32"
         },
         "passwd_salt": {
@@ -246,6 +248,7 @@
         "email": {
           "label": "[[Email]]",
           "type": "text",
+          "empty": true,
           "required_regexp": "\/^[^@]+@[^@]{3,}.[^.@0-9]{2,}$\/"
         },
         "desktop": {
@@ -329,12 +332,18 @@
       "chooser_icon": "",
       "chooserAutoColumns": {
         "name": {
+          "label": "[[Name]]",
           "type": "text",
           "empty": true
         }
       },
       "chooserAutoFilter": "",
-      "chooserUseOwnClass": false
+      "chooserUseOwnClass": false,
+      "chooser": "name",
+      "chooserFieldType": "default",
+      "chooserType": "default",
+      "chooserFields": "name",
+      "chooserModel": "0"
     }
   },
   "objectRelations": {

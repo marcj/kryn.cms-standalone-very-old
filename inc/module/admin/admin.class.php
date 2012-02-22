@@ -128,6 +128,9 @@ class admin {
                             break;
                         case 'nothing':
                             die("");
+                        case 'objectGetLabel':
+                            $content = self::objectGetLabel(getArgv('url'));
+                            break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object'), getArgv('page'));
                             break;
@@ -241,6 +244,17 @@ class admin {
             admin::showLogin();
 
         json(array('error' => 'param_failed'));
+    }
+
+
+    public static function objectGetLabel($pUrl){
+
+        list($object_key, $object_id, $params) = krynObject::parseUrl($pUrl);
+
+        $definition = kryn::$objects[$object_key];
+        if (!$definition) return array('error' => 'object_not_found');
+
+        return $pUrl;
     }
 
     /**

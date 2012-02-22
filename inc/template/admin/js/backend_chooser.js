@@ -25,7 +25,7 @@ var admin_backend_chooser = new Class({
     initialize: function (pWin) {
         this.win = pWin;
 
-        this.options = this.win.params;
+        this.setOptions(this.win.params);
 
         this.value = this.win.params.value;
         this.p = _path + 'inc/template/admin/images/';
@@ -218,6 +218,10 @@ var admin_backend_chooser = new Class({
                 this.deselectAll(pObjectKey);
             }.bind(this));
 
+            this.objectChooserInstance[pObjectKey].addEvent('instantSelect', function(){
+                this.choose(pObjectKey);
+            }.bind(this));
+
         }
 
     },
@@ -246,7 +250,6 @@ var admin_backend_chooser = new Class({
                 return;
 
             var url = 'object://'+pObjectKey+'/'+value;
-
 
             this.saveCookie();
             this.saveCookie();

@@ -51,7 +51,7 @@ ka.autoChooser = new Class({
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
         Object.each(objectDefinition.chooserAutoColumns, function(column, key){
-            columns.include([column.label, column.width?column.width:null]);
+            columns.include([column.label?column.label:key, column.width?column.width:null]);
         });
 
         this.table = new ka.Table(columns, {
