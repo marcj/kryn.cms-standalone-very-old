@@ -343,7 +343,11 @@
       "chooserFieldType": "default",
       "chooserType": "default",
       "chooserFields": "name",
-      "chooserModel": "0"
+      "chooserModel": "0",
+      "chooserFieldDataModelField": "name",
+      "chooserFieldDataModel": "store",
+      "chooserBrowserCondition": "",
+      "chooserBrowserDataModel": "default"
     }
   },
   "objectRelations": {

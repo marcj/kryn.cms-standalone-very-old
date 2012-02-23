@@ -472,7 +472,7 @@ class adminWindowEdit {
                            $res['values'][$field['n-n']['left_key']] . "
                         ";
                     $res['values'][$key] = dbExfetch($sql, DB_FETCH_ALL);
-                } else {
+                } else if ($field['type'] == 'textlist') {
                     $sql = "
                         SELECT 
                             tablemiddle." . $field['n-n']['middle_keyright'] . " as middlevalue

@@ -174,8 +174,16 @@ var admin_backend_chooser = new Class({
         var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.chooser_icon);
         this.pane2ObjectId[bundle.id] = pObjectKey;
 
-        var objectOptions = this.options.objectOptions[pObjectKey] || {};
+        var objectOptions = this.options.objectOptions[pObjectKey];
 
+        if (this.options.objects.length==1 && !objectOptions){
+            objectOptions = this.options.objectOptions;
+        }
+
+        if (!objectOptions)
+            objectOptions = {};
+
+        logger(objectOptions);
         objectOptions.multi = this.options.multi;
 
         if (objectDefinition.chooserClass){
@@ -206,9 +214,9 @@ var admin_backend_chooser = new Class({
         } else {
             this.objectChooserInstance[pObjectKey] = new ka.autoChooser(
                 bundle.pane,
-                pObjectKey,
                 objectOptions,
-                this.win
+                this.win,
+                pObjectKey
             );
         }
 

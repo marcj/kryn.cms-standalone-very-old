@@ -1782,6 +1782,7 @@ ka.parse = new Class({
                         this.setVisibility(this.fields[obj.field.againstField], obj);
                         self.showChildContainer(this.fields[obj.field.againstField]);
                     }.bind(this));
+                    this.fields[obj.field.againstField].fireEvent('check-depends');
                 }
             }
         }.bind(this));

@@ -50,12 +50,13 @@ ka.files = new Class({
     container: false,
     win: false,
 
-    initialize: function (pContainer, pOptions, pWindowApi) {
+    initialize: function (pContainer, pOptions, pWindowApi, pObjectKey) {
         this.win = pWindowApi;
         this.container = pContainer;
 
         this.setOptions(pOptions);
 
+        logger(this.options);
         if (this.options.onlyUserDefined == false) {
             this.options.onlyUserDefined = (Cookie.read('adminFiles_OnlyUserFiles') == 0) ? false : true;
         }

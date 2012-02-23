@@ -87,9 +87,6 @@ class adminModule {
             case 'getConfig':
                 json(self::loadInfo(getArgv('name', 2)));
 
-            case 'getWindows':
-                json(self::getWindows(getArgv('name', 2)));
-
             case 'getHelp':
                 json(self::getHelp(getArgv('name', 2), getArgv('lang', 2)));
             case 'saveHelp':
@@ -126,7 +123,30 @@ class adminModule {
 
             case 'getWindowDefinition':
                 return self::getWindowDefinition(getArgv('name', 2), getArgv('class', 2));
+            case 'getWindows':
+                json(self::getWindows(getArgv('name', 2)));
+            case 'newWindow':
+                json(self::newWindow(getArgv('name', 2), getArgv('className')));
         }
+    }
+
+    public static function newWindow($pName, $pClass){
+
+        $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
+        if (file_exists($path)) return array('error' => 'file_exists');
+
+        $content = "<?php
+
+class $pClass extends windowEdit {
+
+}
+
+?>";
+
+        kryn::fileWrite($path, $content);
+
+
+        return true;
     }
 
     public static function getWindowDefinition($pName, $pClass){
@@ -169,6 +189,40 @@ class adminModule {
         return $res;
 
     }
+
+    public static function getWindows($pName) {
+
+        $classes = find(PATH_MODULE.$pName.'/*.class.php');
+        $windows = array();
+        $whiteList = array('windowlist', 'windowadd', 'windowedit', 'windowcombine');
+
+        foreach ($classes as $class){
+
+            $content = kryn::fileRead($class);
+
+            if (preg_match('/class ([^\s]*) extends ([^\s]*)\s*{/', $content, $matches)){
+                if (in_array(strtolower($matches[2]), $whiteList))
+                    $windows[] = $matches[1];
+            }
+
+        }
+
+        return $windows;
+
+        if (!is_dir(PATH_MODULE . "$pName/forms")) return false;
+        $h = opendir(PATH_MODULE . "$pName/forms");
+
+        $res = array();
+        while ($file = readdir($h)) {
+            if ($file == '.' || $file == '..' || $file == '.svn') continue;
+            $class = substr($file, 0, -5);
+            $res[] = $class;
+        }
+
+        return $res;
+    }
+
+
 
     public static function getDependExtension($pName, $pFile, $pNeedVersion) {
         $res = array('ok' => false);
@@ -270,38 +324,6 @@ class adminModule {
             mkdir(PATH_MODULE . "$name/docu/");
         kryn::fileWrite(PATH_MODULE . "$name/docu/$lang.html", $text);
         json(1);
-    }
-
-    public static function getWindows($pName) {
-
-        $classes = find(PATH_MODULE.$pName.'/*.class.php');
-        $windows = array();
-        $whiteList = array('windowlist', 'windowadd', 'windowedit', 'windowcombine');
-
-        foreach ($classes as $class){
-
-            $content = kryn::fileRead($class);
-
-            if (preg_match('/class ([^\s]*) extends ([^\s]*)\s*{/', $content, $matches)){
-                if (in_array(strtolower($matches[2]), $whiteList))
-                    $windows[] = $matches[1];
-            }
-
-        }
-
-        return $windows;
-
-        if (!is_dir(PATH_MODULE . "$pName/forms")) return false;
-        $h = opendir(PATH_MODULE . "$pName/forms");
-
-        $res = array();
-        while ($file = readdir($h)) {
-            if ($file == '.' || $file == '..' || $file == '.svn') continue;
-            $class = substr($file, 0, -5);
-            $res[] = $class;
-        }
-
-        return $res;
     }
 
     public static function addCheckCode($pName) {

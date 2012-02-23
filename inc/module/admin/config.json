@@ -524,7 +524,19 @@
       },
       "chooserUseOwnClass": true,
       "selectable": true,
-      "label": "[[File]]"
+      "label": "[[File]]",
+      "multiLanguage": false,
+      "domainDepended": false,
+      "chooser_icon": "",
+      "chooserFieldDataModelClass": "adminFileFieldModel",
+      "chooserFieldDataModel": "custom",
+      "chooserFieldType": "default",
+      "chooserAutoColumns": [
+        
+      ],
+      "chooserBrowserCondition": "",
+      "chooserBrowserDataModel": "default",
+      "chooserType": "default"
     },
     "node": {
       "title": "[[Page]]",

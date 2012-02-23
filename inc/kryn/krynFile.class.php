@@ -248,12 +248,15 @@ class krynFile {
      */
     public static function getPath($pId){
 
-        if (is_string($pId))
+        if (!is_numeric($pId))
             return 'inc/template/'.$pId;
 
 
-        //TODO, fetch the path from the id. table: system_files
-        //TODO, not done here
+        //page bases caching here
+        $sql = 'SELECT rsn, path FROM %pfx%system_files WHERE rsn = '.($pId+0);
+        $item = dbExfetch($sql);
+
+        return $item['path'];
 
     }
 

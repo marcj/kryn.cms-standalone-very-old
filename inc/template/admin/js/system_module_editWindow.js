@@ -24,6 +24,7 @@ var admin_system_module_editWindow = new Class({
         this.saveBtn = this.btnGroup.addButton(t('Save'), _path + 'inc/template/admin/images/button-save.png', function () {
             this.save();
         }.bind(this));
+
         var generalFields = {
             'class': {
                 label: t('Class'),
@@ -99,16 +100,34 @@ var admin_system_module_editWindow = new Class({
             'class': 'ka-system-module-editWindow-windowPane'
         }).inject(this.windowTab.pane);
 
+        this.actionBar = new Element('div', {
+            'class': 'ka-system-module-editWindow-actionbar'
+        }).inject(this.windowTab.pane);
+
+        new ka.Button(t('Add tab'))
+        .addEvent('click', function(){
+            this.addWindowEditTab('__tab__', 'Tab');
+        }.bind(this))
+        .inject(this.actionBar);
 
         this.windowInspector = new Element('div', {
             'class': 'ka-system-module-editWindow-windowInspector'
         }).inject(this.windowTab.pane);
 
         new Element('h3',{
-            text: t('Inspector')
+            text: t('Inspector'),
+            'class': 'ka-system-module-editWindow-windowInspector-header'
         }).inject(this.windowInspector);
 
-        this.windowInspectorContainer = new Element('div').inject(this.windowInspector);
+        this.windowInspectorContainer = new Element('div',{
+            'class': 'ka-system-module-editWindow-windowInspector-content'
+        }).inject(this.windowInspector);
+
+        this.windowInspectorActionbar = new Element('div',{
+            'class': 'ka-system-module-editWindow-windowInspector-actionbar'
+        }).inject(this.windowInspector);
+
+        new ka.Button(t('Apply')).inject(this.windowInspectorActionbar);
 
         this.loadInfo();
     },
@@ -131,33 +150,42 @@ var admin_system_module_editWindow = new Class({
 
     },
 
+    newWindow: function(){
+
+        this.windowPane.empty();
+        var win = new ka.kwindow();
+
+        win.borderDragger.detach();
+        document.id(win).inject(this.windowPane);
+
+        document.id(win).setStyles({
+            left: 25,
+            top: 25,
+            right: 25,
+            bottom: 25,
+            width: 'auto',
+            height: 'auto'
+        });
+
+        win.closer.removeEvents('click');
+        win.minimizer.removeEvents('click');
+        win.linker.destroy();
+
+        return win;
+    },
+
     loadWindowClass: function(pClass){
 
 
         if (pClass == 'windowEdit' || pClass == 'windowAdd'){
 
-            var win = new ka.kwindow();
+            var win = this.newWindow();
 
-            win.borderDragger.detach();
-            document.id(win).inject(this.windowPane);
-
-            document.id(win).setStyles({
-                left: 25,
-                top: 25,
-                right: 25,
-                bottom: 25,
-                width: 'auto',
-                height: 'auto'
-            });
-
-            new ka.windowEdit(win, win.content);
+            //new ka.windowEdit(win, win.content);
 
             this.winTabPane = new ka.tabPane(win.content, true, win);
 
             this.windowEditTabs = {};
-
-            logger(this.definition);
-
 
             //normal fields without tab
             if (typeOf(this.definition.properties.fields) == 'object'){
@@ -182,6 +210,10 @@ var admin_system_module_editWindow = new Class({
 
             }
 
+            if (!this.definition.properties.fields.length && !this.definition.properties.tabFields.length){
+                this.addWindowEditTab('general', '[[General]]');
+            }
+
         }
 
 
@@ -189,7 +221,12 @@ var admin_system_module_editWindow = new Class({
 
     loadToolbar: function(pKey){
 
+        if (this.lastLoadedField && this.windowEditFields[this.lastLoadedField]){
+            document.id(this.windowEditFields[this.lastLoadedField]).setStyle('border', '0px');
+        }
+
         var definition = this.windowEditFieldDefinition[pKey] || {};
+        var field = this.windowEditFields[pKey];
 
         if (this.lastFieldProperty){
 
@@ -207,23 +244,28 @@ var admin_system_module_editWindow = new Class({
             withoutChildren: true
         });
 
+        if (field){
+            document.id(field).setStyle('border', '1px dotted gray');
 
+        }
+
+        this.lastLoadedField = pKey;
     },
 
-    addWindowEditField: function(pTabKey, pKey, pField){
+    addWindowEditField: function(pTabPane, pKey, pField){
 
         var field = Object.clone(pField);
 
         var field = new ka.field(
             field,
-            this.windowEditTabs[pTabKey].pane,
+            pTabPane.fieldContainer,
             {win: this.win}
         );
 
         var titleDiv = field.title;
 
         new Element('img', {
-            src: _path+'inc/template/admin/images/icons/bullet_wrench.png',
+            src: _path+'inc/template/admin/images/icons/pencil.png',
             title: t('Edit'),
             style: 'position: absolute; right: 50px; top: 0px; width: 13px; cursor: pointer;'
         })
@@ -255,7 +297,35 @@ var admin_system_module_editWindow = new Class({
     },
 
     addWindowEditTab: function(pTabKey, pTitle, pIcon){
-        this.windowEditTabs[pTabKey] = this.winTabPane.addPane(pTitle, pIcon);
+        var pane = this.winTabPane.addPane(pTitle, pIcon);
+
+        pane.fieldContainer = new Element('div')
+            .inject(pane.pane);
+
+        pane.addButton = new ka.Button(t('Add field')).inject(pane.pane);
+        pane.addButton.addEvent('click', function(){
+
+            var items = pane.fieldContainer.getChildren();
+
+            this.addWindowEditField(pane,
+                'field_'+(items.length+1), {type: 'text', label: 'Field '+(items.length+1)});
+
+        }.bind(this));
+
+        this.windowEditTabs[pTabKey] = pane;
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/pencil.png',
+            title: t('Edit'),
+            style: 'margin-left: 4px;',
+            'class': 'ka-system-module-editWindow-tab-edit'
+        }).inject(pane.button);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/delete.png',
+            title: t('Delete'),
+            'class': 'ka-system-module-editWindow-tab-edit'
+        }).inject(this.windowEditTabs[pTabKey].button);
     }
 
 })

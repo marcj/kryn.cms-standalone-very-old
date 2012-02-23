@@ -25,7 +25,6 @@ class adminFilemanager {
 
     public static function init() {
 
-
         $path = str_replace('..', '', getArgv('path'));
         $path = str_replace('//', '/', $path);
         if ($path != '/' && substr($path,-1) == '/') $path = substr($path,0,-1);
@@ -990,7 +989,6 @@ class adminFilemanager {
 
         return $items;
     }
-
 
 }
 

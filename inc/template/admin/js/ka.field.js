@@ -210,16 +210,13 @@ ka.field = new Class({
             case 'filechooser':
                 this.renderChooser(['file']);
                 break;
-            case 'folder':
-                this.renderChooser(['folder']);
-                break;
             case 'pagechooser':
             case 'page':
             case 'node':
                 this.renderChooser(['node']);
                 break;
             case 'object':
-                this.renderChooser([this.field.object]);
+                this.renderChooser(typeOf(this.field.object)=='array'?this.field.object:[this.field.object]);
                 break;
             case 'chooser':
                 this.renderChooser();
@@ -741,6 +738,7 @@ ka.field = new Class({
 
         this._setValue = function (pValue) {
 
+            logger(pValue);
             div.getElements('.ka-field-textlist-item').destroy();
             if (pValue == '' || !pValue) return;
 
@@ -1159,9 +1157,9 @@ ka.field = new Class({
         this.input = new Element('input', {
             'class': 'text',
             type: 'text',
-            style: ((this.field.small == 1) ? 'width: 100px' : 'width: 210px'),
-            disabled: this.field.onlyIntern
+            style: ((this.field.small == 1) ? 'width: 100px' : 'width: 210px')
         }).addEvent('focus', function () {
+            this.input.blur();
             this.setInputActive(true);
         }.bind(this)).addEvent('blur', function () {
             if (this._value && this.input.value != this._automaticUrl) {//wurde verändert
@@ -1185,14 +1183,13 @@ ka.field = new Class({
 
         var chooserParams = {
             onSelect: function (pUrl) {
-                logger(pUrl);
                 this.setValue(pUrl, true);
             }.bind(this),
             value: this._value,
             cookie: this.field.cookie,
             objects: pObjects,
-            objectOptions: this.field.objectOptions,
-            multi: this.field.multi
+            objectOptions: this.field.objectOptions
+            //multi: this.field.multi
         };
 
         if (this._value)
@@ -1218,11 +1215,14 @@ ka.field = new Class({
 
             if (typeOf(pVal) == 'null' || pVal === false) pVal = '';
 
+            if (pVal && (typeOf(pVal) != 'string' || pVal.substr(0, 'object://'.length) != 'object://')){
+                pVal = 'object://'+pObjects[0]+'/'+pVal;
+            }
+
             this._value = pVal;
 
             this.pageChooserPanel.empty();
 
-            logger(pVal.substr(0, 9));
             if (pVal+0 > 0 || (typeOf(pVal)=='string' && pVal.substr(0, 9) == 'object://')) {
                 this.setInputActive(false);
 
@@ -1243,7 +1243,11 @@ ka.field = new Class({
         }
 
         this.getValue = function () {
-            return (this._value) ? this._value : this.input.value;
+            var val = (this._value) ? this._value : this.input.value;
+            if (!this.field.returnUrl && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
+                return val.substr('object://'.length).split('/')[1];
+            }
+            return val;
         }
     },
 

@@ -249,12 +249,47 @@ class admin {
 
     public static function objectGetLabel($pUrl){
 
-        list($object_key, $object_id, $params) = krynObject::parseUrl($pUrl);
+        if (is_numeric($pUrl)){
+            //compatibility
+            $object_key = '';
+        } else {
+            list($object_key, $object_id, $params) = krynObject::parseUrl($pUrl);
+        }
 
         $definition = kryn::$objects[$object_key];
         if (!$definition) return array('error' => 'object_not_found');
 
-        return $pUrl;
+        //todo check here access
+
+        if ($definition['chooserFieldDataModel'] == 'custom'){
+
+            $class = $definition['chooserFieldDataModelClass'];
+            $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
+            if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
+
+            require_once($classFile);
+            $dataModel = new $class();
+
+            $item = $dataModel->getItem($object_id);
+            return $item['label'];
+
+        } else {
+
+            $primaryKey = '';
+            foreach ($definition['fields'] as $key => $field){
+                if ($field['primaryKey'])
+                    $primaryKey = $key;
+            }
+
+            $dataModel = new adminStore();
+            $dataModel->table = $definition['table'];
+            $dataModel->table_key = $primaryKey;
+            $dataModel->table_label = $definition['chooserFieldDataModelField'];
+
+            $item = $dataModel->getItem($object_id);
+            return $item['label'];
+
+        }
     }
 
     /**

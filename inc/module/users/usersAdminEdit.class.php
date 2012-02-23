@@ -131,8 +131,8 @@ class usersAdminEdit extends windowEdit {
                     'right_key' => 'rsn',
                     'right_label' => 'name',
                     'middle' => 'system_groupaccess',
-                    'middle_keyright' => 'group_rsn',
-                    'middle_keyleft' => 'user_rsn',
+                    'middle_keyright' => 'system_group_rsn',
+                    'middle_keyleft' => 'system_user_rsn',
                     'left_key' => 'rsn'
                 )
             )

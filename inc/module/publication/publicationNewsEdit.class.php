@@ -47,7 +47,11 @@ class publicationNewsEdit extends windowEdit {
             ),
             'introimage' => array(
                 'label' => 'Intro image',
-                'type' => 'fileChooser'
+                'type' => 'object',
+                'object' => 'file',
+                'objectOptions' => array(
+                    'selectionOnlyFiles' => true
+                )
             ),
             'introimage2' => array(
                 'label' => 'Intro image 2',

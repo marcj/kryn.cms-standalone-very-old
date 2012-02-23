@@ -344,15 +344,32 @@ var admin_system_module_edit = new Class({
 
         var buttonBar = new ka.buttonBar(this.panes['windows']);
         buttonBar.addButton(t('Add window'), function(){
-            this.createWindow();
+            this.createWindow('');
         }.bind(this));
     },
 
-    createWindow: function(){
+    createWindow: function(pName){
         //prompt
         //request, check exists
         //create file
 
+        this.win._prompt(t('Window class name'), pName, function(name){
+            if(!name) return;
+
+            new Request.JSON({url: _path+'admin/system/module/newWindow', noCache: 1, onComplete: function(res){
+
+                if (res.error == 'file_exists'){
+                    this.win._alert(t('Class already exist'), function(){
+                        this.createWindow(name);
+                    }.bind(this));
+                    return;
+                } else {
+                    this.addWindow(name);
+                }
+
+            }.bind(this)}).get({className: name, name: this.mod});
+
+        }.bind(this));
     },
 
     addWindow: function (pClassName) {
@@ -1833,7 +1850,7 @@ var admin_system_module_edit = new Class({
                                 },
                                 depends: {
                                     'chooserFieldClass': {
-                                        needValue:'custom',
+                                        needValue: 'custom',
                                         label: t('Javascript class name'),
                                         desc: t('You can inject javascript files through extension settings to make a javascript class available.')
                                     },
@@ -1853,7 +1870,7 @@ var admin_system_module_edit = new Class({
                                             },
                                             chooserFieldDataModelClass: {
                                                 label: t('PHP Class'),
-                                                needValue: '1',
+                                                needValue: 'custom',
                                                 desc: t('Have to be at inc/modules/&lt;extKey&gt;/&lt;className&gt;.class.php')
                                             }
                                         }
