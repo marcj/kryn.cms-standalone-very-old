@@ -3,7 +3,7 @@
 
 class usersAdminEdit extends windowEdit {
 
-    public $table = 'system_user';
+    public $object = 'system_user';
     public $primary = array('rsn');
     public $versioning = false;
 
@@ -121,7 +121,9 @@ class usersAdminEdit extends windowEdit {
                 'customSave' => 'saveUserBg',
                 'customValue' => 'userBgValue',
             ),
-            'groups' => array(
+            'groups'
+
+            /*'groups' => array(
                 'label' => 'Groups',
                 'type' => 'textlist',
                 'store' => 'admin/backend/stores/groups',
@@ -135,7 +137,7 @@ class usersAdminEdit extends windowEdit {
                     'middle_keyleft' => 'system_user_rsn',
                     'left_key' => 'rsn'
                 )
-            )
+            )*/
         ),
         'Administration' => array(
             'adminLanguage' => array(

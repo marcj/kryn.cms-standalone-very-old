@@ -82,6 +82,7 @@ var admin_backend_chooser = new Class({
                     if (this.options.objects && !this.options.objects.contains(objectKey)) return;
 
                     if (object.selectable){
+                        logger('new createObjectChooser; '+objectKey);
                         this.createObjectChooser(objectKey);
                         if (object.multiLanguage)
                             needLanguageSelection = true;

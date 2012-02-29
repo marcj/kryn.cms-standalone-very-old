@@ -131,7 +131,7 @@ class krynObjectTable {
                     } else {
 
                         //n to m
-                        $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.')) AS '.$oKey;
+                        $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.', \'s\')) AS '.$oKey;
                         $groupedColumns[$oKey] = true;
 
                         $join = 'LEFT OUTER JOIN '.dbTableName($field['object_relation_table']).' AS '.
@@ -140,7 +140,12 @@ class krynObjectTable {
                         foreach ($this->definition['fields'] as $tkey => &$tfield){
                             if ($tfield['primaryKey']){
                                 $join .= ' AND '.$field['object_relation_table'];
-                                $join .= '.'.$this->object_key.'_'.$tkey.' = ';
+
+                                if ($field['object_relation_table_left'])
+                                    $join .= '.'.$field['object_relation_table_left'].' = ';
+                                else
+                                    $join .= '.'.$this->object_key.'_'.$tkey.' = ';
+
                                 $join .= $this->object_key.'.'.$tkey;
                             }
 
@@ -156,7 +161,12 @@ class krynObjectTable {
                         foreach ($foreignObjectDefinition['fields'] as $tkey => &$tfield){
                             if ($tfield['primaryKey']){
                                 $join .= ' AND '.$field['object_relation_table'];
-                                $join .= '.'.$field['object'].'_'.$tkey.' = ';
+
+                                if ($field['object_relation_table_right'])
+                                    $join .= '.'.$field['object_relation_table_right'].' = ';
+                                else
+                                    $join .= '.'.$field['object'].'_'.$tkey.' = ';
+
                                 $join .= $field['object'].'.'.$tkey;
 
                                 if ($tfield['type'] == 'number')
@@ -258,7 +268,8 @@ class krynObjectTable {
             self::parseValues($item);
             if (kryn::$config['db_type'] == 'postgresql')
                 foreach ($groupedColumns as $col => $b)
-                    $item[$col] = substr($item[$col], -1);
+                    if (substr($item[$col], 0, -1) == ',')
+                        $item[$col] = substr($item[$col], -1);
 
             return $item;
         } else {
@@ -269,7 +280,8 @@ class krynObjectTable {
                 self::parseValues($row);
                 if ($c > 0 && kryn::$config['db_type'] == 'postgresql')
                     foreach ($groupedColumns as $col => $b)
-                        $row[$col] = substr($row[$col], 0, -1);
+                        if (substr($row[$col], 0, -1) == ',')
+                            $row[$col] = substr($row[$col], 0, -1);
                 $items[] = $row;
             }
             return $items;

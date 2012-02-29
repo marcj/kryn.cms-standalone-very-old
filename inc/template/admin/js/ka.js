@@ -2114,6 +2114,11 @@ ka.getPrimariesForObject = function(pObjectKey){
 
     var result = {};
 
+    if (!definition) {
+        logger('Can not found object definition for object "'+pObjectKey+'"');
+        return;
+    }
+
     Object.each(definition.fields, function(field, fieldKey){
 
         if (field.primaryKey){

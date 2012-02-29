@@ -2,6 +2,8 @@ ka.Table = new Class({
 
     Implements: [Options, Events],
 
+
+    tableBody: false,
     safe: false,
 
     options: {

@@ -206,6 +206,11 @@ ka.kwindow = new Class({
                 }
             }.bind(this)).inject(main.bottom);
 
+            main.addEvent('close', function(){
+                if (pCallback)
+                pCallback(false);
+            });
+
             ok = new ka.Button('OK').addEvent('keyup',
                 function (e) {
                     e.stopPropagation();
@@ -292,12 +297,10 @@ ka.kwindow = new Class({
         }.bind(this);
         this.addEvent('resize', main.center);
 
-        main.close = function () {
-
+        main.close = function(){
             main.overlay.destroy();
             main.destroy();
             this.removeEvent('resize', main.center);
-
         }.bind(this);
 
         main.bottom = new Element('div', {
@@ -698,6 +701,21 @@ ka.kwindow = new Class({
 
     close: function (pInternal) {
 
+
+        //search for dialogs
+
+        var dialogs = this.border.getChildren('.ka-kwindow-prompt');
+        if (dialogs.length > 0){
+
+            var lastDialog = dialogs[dialogs.length-1];
+            lastDialog.fireEvent('close');
+            lastDialog.close();
+
+            delete lastDialog;
+            return;
+        }
+
+        //close main window
         if (this.isActive() == false) return;
 
         if (pInternal) {

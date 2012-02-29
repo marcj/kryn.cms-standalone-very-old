@@ -286,6 +286,8 @@
           "object_label": "name",
           "object_relation": "nToM",
           "object_relation_table": "system_groupaccess",
+          "object_relation_table_left": "user_rsn",
+          "object_relation_table_right": "group_rsn",
           "type": "object",
           "empty": true
         }

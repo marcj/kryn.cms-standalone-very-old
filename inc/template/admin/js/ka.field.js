@@ -1137,9 +1137,9 @@ ka.field = new Class({
             [t("ID"), 70]
         ];
 
-        var definition = ka.getObjectDefinition(pObjects[0]);
-        if (definition.chooserUseOwnClass != 1){
-            Object.each(definition.chooserAutoColumns, function(field,key){
+        this.objectDefinition = ka.getObjectDefinition(pObjects[0]);
+        if (this.objectDefinition.chooserUseOwnClass != 1){
+            Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
                 columns.include([
                     field.label?field.label:key,
                     field.width?field.width:null
@@ -1147,7 +1147,112 @@ ka.field = new Class({
             });
         }
 
-        this.chooserTable = new ka.Table(columns);
+        columns.include(["", 50]);
+
+        this.chooserTable = new ka.Table(columns, {absolute: false});
+
+        var tr = new Element('tr').inject(this.chooserTable.tableBody);
+        new Element('td', {
+            colspan: columns.length,
+            style: 'text-align: center; color: gray; padding: 5px;',
+            text: t('Empty')
+        }).inject(tr);
+
+        this.chooserTable.inject(this.fieldPanel);
+
+
+        //compatibility
+        if (this.field.domain){
+            if (!this.field.objectOptions) this.field.objectOptions = {};
+            if (!this.field.objectOptions.node) this.field.objectOptions.node = {};
+            this.field.objectOptions.node.domain = this.field.domain;
+        }
+
+
+        this._value = [];
+
+        var chooserParams = {
+            onSelect: function (pId) {
+                this._value.include(pId);
+                this.renderObjectTable();
+            }.bind(this),
+            value: this._value,
+            cookie: this.field.cookie,
+            objects: pObjects,
+            objectOptions: this.field.objectOptions
+        };
+
+        if (this._value)
+            chooserParams.value = this._value;
+
+        if (this.field.cookie)
+            chooserParams.cookie = this.field.cookie;
+
+        if (this.field.domain)
+            chooserParams.domain = this.field.domain;
+
+
+        var button = new ka.Button(t('Add')).addEvent('click', function () {
+            ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
+        }.bind(this))
+
+        button.inject(this.fieldPanel);
+
+        this._setValue = function(pVal){
+
+            this._value = pVal;
+            if (!this._value) this._value = [];
+
+            this.renderObjectTable();
+
+        }.bind(this);
+
+        this.getValue = function(){
+            return this._value;
+        }
+
+    },
+
+    renderObjectTable: function(){
+
+        Array.each(this._value, function(id){
+
+            var row = [
+                id
+            ];
+
+            if (this.objectDefinition.chooserUseOwnClass != 1){
+                var extraColumns = [];
+                Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
+                    extraColumns.include(key);
+                });
+
+                var placeHolders = {};
+
+                Array.each(extraColumns, function(col){
+
+                    placeHolders[col] = new Element('span');
+
+                    row.include(placeHolders[col]);
+                });
+
+                this.renderObjectTableLoadItem(id, placeHolders);
+            }
+
+            var actionBar = new Element('div');
+            new Element('img', {
+                src: _path+'inc/template/admin/images/icons/delete.png'
+            }).inject(actionBar);
+
+            row.include(actionBar);
+
+            this.chooserTable.addRow(row);
+        }.bind(this));
+    },
+
+    renderObjectTableLoadItem: function(pId, pPlaceHolders){
+
+
 
 
     },
@@ -1159,7 +1264,7 @@ ka.field = new Class({
             type: 'text',
             style: ((this.field.small == 1) ? 'width: 100px' : 'width: 210px')
         }).addEvent('focus', function () {
-            this.input.blur();
+            //this.input.blur();
             this.setInputActive(true);
         }.bind(this)).addEvent('blur', function () {
             if (this._value && this.input.value != this._automaticUrl) {//wurde verändert
@@ -1189,7 +1294,6 @@ ka.field = new Class({
             cookie: this.field.cookie,
             objects: pObjects,
             objectOptions: this.field.objectOptions
-            //multi: this.field.multi
         };
 
         if (this._value)

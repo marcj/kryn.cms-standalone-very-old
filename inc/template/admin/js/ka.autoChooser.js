@@ -13,7 +13,7 @@ ka.autoChooser = new Class({
 
     currentPage: 1,
 
-    initialize: function(pContainer, pObjectKey, pChooserOptions, pWindowInstance){
+    initialize: function(pContainer, pChooserOptions, pWindowInstance, pObjectKey){
 
         this.container = pContainer;
 
@@ -174,6 +174,8 @@ ka.autoChooser = new Class({
     getValue: function(){
 
         var tr = this.table.selected();
+        if (!tr) return;
+
         var item = tr.retrieve('item');
 
         var primaries = ka.getPrimariesForObject(this.objectKey);

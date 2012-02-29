@@ -260,7 +260,6 @@ class admin {
         if (!$definition) return array('error' => 'object_not_found');
 
         //todo check here access
-
         if ($definition['chooserFieldDataModel'] == 'custom'){
 
             $class = $definition['chooserFieldDataModelClass'];
@@ -301,7 +300,6 @@ class admin {
     public static function autoChooser($pObjectKey, $pPage = 1){
 
         //todo, check permissions
-
 
         $definition = kryn::$objects[$pObjectKey];
 

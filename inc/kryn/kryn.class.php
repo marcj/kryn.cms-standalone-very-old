@@ -2834,10 +2834,10 @@ class kryn {
      * other optcode caching, then this method is way
      * faster then tcp caching-server.
      * Please be sure, that you really want to use that: This
-     * is not compatible with load balanced kryn installations
+     * is not compatible with load balanced Kryn.cms installations
      * and should only be used, if you are really sure, that
      * a other machine in a load balanced scenario does not
-     * need informations about this cache.
+     * need information about this cache.
      * A good purpose for this is for example caching converted
      * local json files (like the installed extension configs).
      *
