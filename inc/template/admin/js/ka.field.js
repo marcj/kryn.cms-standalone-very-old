@@ -1133,33 +1133,26 @@ ka.field = new Class({
 
     renderChooserMulti: function(pObjects){
 
-        var columns = [
+        this.renderChooserColumns = [
             [t("ID"), 70]
         ];
 
         this.objectDefinition = ka.getObjectDefinition(pObjects[0]);
         if (this.objectDefinition.chooserUseOwnClass != 1){
             Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
-                columns.include([
+                this.renderChooserColumns.include([
                     field.label?field.label:key,
                     field.width?field.width:null
                 ]);
-            });
+            }.bind(this));
         }
 
-        columns.include(["", 50]);
+        this.renderChooserColumns.include(["", 50]);
 
-        this.chooserTable = new ka.Table(columns, {absolute: false});
-
-        var tr = new Element('tr').inject(this.chooserTable.tableBody);
-        new Element('td', {
-            colspan: columns.length,
-            style: 'text-align: center; color: gray; padding: 5px;',
-            text: t('Empty')
-        }).inject(tr);
+        this.chooserTable = new ka.Table(this.renderChooserColumns, {absolute: false});
 
         this.chooserTable.inject(this.fieldPanel);
-
+        this.renderObjectTableNoItems();
 
         //compatibility
         if (this.field.domain){
@@ -1173,8 +1166,15 @@ ka.field = new Class({
 
         var chooserParams = {
             onSelect: function (pId) {
+
+                if (typeOf(pId) == 'string' && pId.substr(0, 'object://'.length) == 'object://'){
+                    pId = pId.substr('object://'.length).split('/')[1];
+                }
+
+                logger(this._value);
                 this._value.include(pId);
                 this.renderObjectTable();
+
             }.bind(this),
             value: this._value,
             cookie: this.field.cookie,
@@ -1213,41 +1213,58 @@ ka.field = new Class({
 
     },
 
+    renderObjectTableNoItems: function(){
+
+        var tr = new Element('tr').inject(this.chooserTable.tableBody);
+        new Element('td', {
+            colspan: this.renderChooserColumns.length,
+            style: 'text-align: center; color: gray; padding: 5px;',
+            text: t('Empty')
+        }).inject(tr);
+    },
+
     renderObjectTable: function(){
 
-        Array.each(this._value, function(id){
 
-            var row = [
-                id
-            ];
+        this.chooserTable.empty();
 
-            if (this.objectDefinition.chooserUseOwnClass != 1){
-                var extraColumns = [];
-                Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
-                    extraColumns.include(key);
-                });
+        if (!this._value || this._value.length == 0){
+            this.renderObjectTableNoItems();
+        } else {
+            Array.each(this._value, function(id){
 
-                var placeHolders = {};
+                var row = [
+                    id
+                ];
 
-                Array.each(extraColumns, function(col){
+                if (this.objectDefinition.chooserUseOwnClass != 1){
+                    var extraColumns = [];
+                    Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
+                        extraColumns.include(key);
+                    });
 
-                    placeHolders[col] = new Element('span');
+                    var placeHolders = {};
 
-                    row.include(placeHolders[col]);
-                });
+                    Array.each(extraColumns, function(col){
 
-                this.renderObjectTableLoadItem(id, placeHolders);
-            }
+                        placeHolders[col] = new Element('span');
 
-            var actionBar = new Element('div');
-            new Element('img', {
-                src: _path+'inc/template/admin/images/icons/delete.png'
-            }).inject(actionBar);
+                        row.include(placeHolders[col]);
+                    });
 
-            row.include(actionBar);
+                    this.renderObjectTableLoadItem(id, placeHolders);
+                }
 
-            this.chooserTable.addRow(row);
-        }.bind(this));
+                var actionBar = new Element('div');
+                new Element('img', {
+                    src: _path+'inc/template/admin/images/icons/delete.png'
+                }).inject(actionBar);
+
+                row.include(actionBar);
+
+                this.chooserTable.addRow(row);
+            }.bind(this));
+        }
     },
 
     renderObjectTableLoadItem: function(pId, pPlaceHolders){

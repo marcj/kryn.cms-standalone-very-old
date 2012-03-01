@@ -259,7 +259,7 @@
           "type": "textarea",
           "empty": true
         },
-        "activated": {
+        "activate": {
           "label": "[[Active account]]",
           "type": "checkbox",
           "empty": true

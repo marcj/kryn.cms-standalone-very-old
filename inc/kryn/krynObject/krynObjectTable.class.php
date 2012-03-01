@@ -261,10 +261,12 @@ class krynObjectTable {
         if ($pLimit > 0)
             $sql .= ' LIMIT '.($pLimit+0);
 
-        print $sql."#\n";
-
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);
+
+            if (dbError()) throw new Exception(dbError());
+
+
             self::parseValues($item);
             if (kryn::$config['db_type'] == 'postgresql')
                 foreach ($groupedColumns as $col => $b)
@@ -274,6 +276,9 @@ class krynObjectTable {
             return $item;
         } else {
             $res = dbExec($sql);
+
+            if (dbError()) throw new Exception(dbError());
+
             $c = count($groupedColumns);
 
             while ($row = dbFetch($res)){

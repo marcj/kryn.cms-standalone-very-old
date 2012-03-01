@@ -118,6 +118,9 @@ function dbExec($pSql) {
 
     $res = $kdb->exec($pSql);
 
+    if (dbError())
+        klog('database', dbError());
+
     return $res;
 }
 

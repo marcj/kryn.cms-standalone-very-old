@@ -330,10 +330,6 @@ class adminWindowEdit {
                 return false;
             }
 
-            error_log($pKey);
-            if ($pKey == 'groups')
-                error_log(print_r($pFields,true));
-
             if (!$pFields['store']){
                 switch ($pFields['type']) {
                     case 'select':
@@ -422,13 +418,45 @@ class adminWindowEdit {
 
         } else {
 
-            $sql = "
+
+            if ($this->object){
+
+                $fields = array();
+
+                $definition = kryn::$objects[$this->object];
+                foreach ($definition['fields'] as $key=>$field){
+                    if ($field['primaryKey'])
+                        $fields[] = $key;
+                }
+
+                foreach ($this->_fields as $key=>$field){
+                    if (!$field['customValue'] && !($field['select'] && $field['relation'] == 'n-n')
+                        && !in_array($key, $fields)
+                    ){
+                        $fields[] = $key;
+                    }
+                }
+
+                $primary = 1;
+                $res['values'] = krynObject::get($this->object, $primary, array(
+                    'fields' => implode(',', $fields)
+                ));
+
+                foreach ($res['values'] as $key => $val){
+                    //todo, explode the grouped values
+
+                }
+
+            } else {
+
+                $sql = "
                 SELECT * FROM %pfx%" . $this->table . "
                 WHERE 1=1
                     $where
                 LIMIT 1";
 
-            $res['values'] = dbExfetch($sql, 1);
+                $res['values'] = dbExfetch($sql, 1);
+            }
         }
 
         $res['preview_urls'] = $this->getPreviewUrls($res['values']);
