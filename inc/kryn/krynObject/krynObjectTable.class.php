@@ -101,6 +101,7 @@ class krynObjectTable {
                     if ($field['object_relation'] != 'nToM'){
                         //n to 1
 
+                        $select[] = $this->object_key.'.'.$key;
                         $select[] = $field['object'].'.'.$oLabel.' AS '.$oKey;
                         $join = 'LEFT OUTER JOIN '.dbTableName($foreignObjectDefinition['table']).' AS '.$field['object'].
                                    ' ON ( 1=1';
@@ -131,7 +132,7 @@ class krynObjectTable {
                     } else {
 
                         //n to m
-                        $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.', \'s\')) AS '.$oKey;
+                        $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.')) AS '.$oKey;
                         $groupedColumns[$oKey] = true;
 
                         $join = 'LEFT OUTER JOIN '.dbTableName($field['object_relation_table']).' AS '.
@@ -277,6 +278,8 @@ class krynObjectTable {
         } else {
             $res = dbExec($sql);
 
+            print $sql;
+            print dbError();
             if (dbError()) throw new Exception(dbError());
 
             $c = count($groupedColumns);
@@ -295,6 +298,8 @@ class krynObjectTable {
     }
 
     public function parseValues(&$pItem){
+
+        if (!is_array($pItem)) return;
 
         foreach ($pItem as $key => &$value ){
 

@@ -45,7 +45,7 @@
                                 <pre>{krynObject::count('news')|print_r:true}</pre>
 
                                 <hr />
-                                <pre>{krynObject::getFromUrl('object://news/5?fields=rsn,title,category_rsn,intro')|print_r:true}</pre>
+                                <pre>{krynObject::getFromUrl('object://news/2?fields=rsn,title,category_rsn,intro')|print_r:true}</pre>
 
                                 <hr />
                                 <pre>{krynObject::getFromUrl('news/1,3?fields=rsn,title')|print_r:true}</pre>
