@@ -163,14 +163,19 @@ class $pClass extends windowEdit {
 
         require_once($path);
 
+        $res = array(
+            'properties' => array(
+                '__file__' => $path
+            )
+        );
+
         $obj = new $pClass();
         foreach ($obj as $k => $v)
             $res['properties'][$k] = $v;
 
-
         $reflection = new ReflectionClass($pClass);
         $parent = $reflection->getParentClass();
-        $res['parentClass'] = $parent->name;
+        $res['class'] = $parent->name;
 
         $methods = $reflection->getMethods();
 

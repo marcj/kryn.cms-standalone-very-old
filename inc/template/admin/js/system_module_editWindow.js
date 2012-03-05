@@ -26,6 +26,10 @@ var admin_system_module_editWindow = new Class({
         }.bind(this));
 
         var generalFields = {
+            '__file__': {
+                label: t('File'),
+                disabled: true
+            },
             'class': {
                 label: t('Class'),
                 type: 'select',
@@ -85,7 +89,13 @@ var admin_system_module_editWindow = new Class({
 
             __optional__: {
                 label: t('Optional'),
-                type: 'childrenswitcher'
+                type: 'childrenswitcher',
+                depends: {
+                    versioning: {
+                        label: t('Versioning'),
+                        desc: t('This is the old way of versioning. Stores a json copy of the table row in the table system_frameworkversion. Please consider to use workspace option instead.')
+                    }
+                }
             }
 
         };
@@ -106,7 +116,124 @@ var admin_system_module_editWindow = new Class({
 
         new ka.Button(t('Add tab'))
         .addEvent('click', function(){
-            this.addWindowEditTab('__tab__', 'Tab');
+
+            var dialog = this.win.newDialog('<b>'+t('New tab')+'</b>');
+            dialog.setStyle('width', 400);
+
+            var d = new Element('div', {
+                style: 'padding: 5px 0px;'
+            }).inject(dialog.content);
+
+            var table = new Element('table').inject(d);
+            var tbody = new Element('tbody').inject(table);
+
+            var tr = new Element('tr').inject(tbody);
+
+            new Element('td', {text: t('Tab id:')}).inject(tr);
+            var td = new Element('td').inject(tr);
+            new Element('input', {'class': 'text'}).inject(td);
+
+            var tr = new Element('tr').inject(tbody);
+            new Element('td', {text: t('Tab label:')}).inject(tr);
+            var td = new Element('td').inject(tr);
+            new Element('input', {'class': 'text'}).inject(td);
+
+
+            new ka.Button(t('Cancel'))
+                .addEvent('click', function(){
+                dialog.close();
+            })
+                .inject(dialog.bottom);
+
+            new ka.Button(t('Apply'))
+            .addEvent('click', function(){
+                this.addWindowEditTab('__tab__', 'Tab');
+                dialog.close();
+            }.bind(this))
+            .inject(dialog.bottom);
+
+
+            dialog.center();
+
+
+        }.bind(this))
+        .inject(this.actionBar);
+
+        new ka.Button(t('Add custom field'))
+        .addEvent('click', function(){
+
+            var currentTab = this.winTabPane.getSelected();
+
+            var items = currentTab.pane.fieldContainer.getChildren();
+
+            this.addWindowEditField(currentTab,
+                'field_'+(items.length+1), {type: 'text', label: 'Field '+(items.length+1)});
+
+        }.bind(this))
+        .inject(this.actionBar);
+
+
+        new ka.Button(t('Add predefined object field'))
+        .addEvent('click', function(){
+
+            var dialog = this.win.newDialog('<b>'+t('Add predefined object field')+'</b>');
+            dialog.setStyle('width', 400);
+
+            var d = new Element('div', {
+                style: 'padding: 5px 0px;'
+            }).inject(dialog.content);
+
+            var table = new Element('table').inject(d);
+            var tbody = new Element('tbody').inject(table);
+
+            var tr = new Element('tr').inject(tbody);
+
+            var dataModel = this.generalObj.getValue('dataModel');
+            if (dataModel == 'object'){
+                var object = this.generalObj.getValue('object');
+
+                if (!object){
+                    new Element('td', {colspan: 2, text: t('Please define first the object key under General.')}).inject(tr);
+                } else {
+
+
+                    var definition = ka.getObjectDefinition(object);
+                    if (!definition){
+                        new Element('td', {colspan: 2, text: t('Can not find the object definition of %s.').replace('%s', object)}).inject(tr);
+                    } else {
+                        new Element('td', {text: t('Object field:')}).inject(tr);
+                        var td = new Element('td').inject(tr);
+                        var select = new ka.Select();
+
+                        Object.each(definition.fields, function(field, key){
+
+                            select.add(key, field.label?field.label:key);
+
+                        });
+                    }
+                }
+            } else {
+                new Element('td', {colspan: 2, text: t('This windows does not use a object as data model.')}).inject(tr);
+            }
+
+
+            new ka.Button(t('Cancel'))
+                .addEvent('click', function(){
+                dialog.close();
+            })
+            .inject(dialog.bottom);
+
+            if (select){
+                new ka.Button(t('Apply'))
+                    .addEvent('click', function(){
+                    this.addWindowEditTab('__tab__', 'Tab');
+                    dialog.close();
+                }.bind(this))
+                .inject(dialog.bottom);
+            }
+
+            dialog.center();
+
         }.bind(this))
         .inject(this.actionBar);
 
@@ -146,7 +273,8 @@ var admin_system_module_editWindow = new Class({
 
         this.definition = pDefinition;
 
-        this.loadWindowClass(pDefinition.parentClass);
+        this.generalObj.setValue(pDefinition.properties);
+        this.loadWindowClass(pDefinition['class']);
 
     },
 
@@ -164,7 +292,8 @@ var admin_system_module_editWindow = new Class({
             right: 25,
             bottom: 25,
             width: 'auto',
-            height: 'auto'
+            height: 'auto',
+            zIndex: null
         });
 
         win.closer.removeEvents('click');
@@ -189,10 +318,10 @@ var admin_system_module_editWindow = new Class({
 
             //normal fields without tab
             if (typeOf(this.definition.properties.fields) == 'object'){
-                this.addWindowEditTab('general', '[[General]]');
+                var tab = this.addWindowEditTab('general', '[[General]]');
 
                 Object.each(this.definition.properties.fields, function(field, key){
-                    this.addWindowEditField('general', key, field);
+                    this.addWindowEditField(tab, key, field);
                 }.bind(this));
             }
 
@@ -201,10 +330,10 @@ var admin_system_module_editWindow = new Class({
 
                 Object.each(this.definition.properties.tabFields, function(fields, tabKey){
 
-                    this.addWindowEditTab(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), tabKey);
+                    var tab = this.addWindowEditTab(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), tabKey);
 
                     Object.each(fields, function(field, key){
-                        this.addWindowEditField(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), key, field);
+                        this.addWindowEditField(tab, key, field);
                     }.bind(this));
                 }.bind(this));
 
@@ -252,13 +381,13 @@ var admin_system_module_editWindow = new Class({
         this.lastLoadedField = pKey;
     },
 
-    addWindowEditField: function(pTabPane, pKey, pField){
+    addWindowEditField: function(pTab, pKey, pField){
 
         var field = Object.clone(pField);
 
         var field = new ka.field(
             field,
-            pTabPane.fieldContainer,
+            pTab.pane.fieldContainer,
             {win: this.win}
         );
 
@@ -297,35 +426,27 @@ var admin_system_module_editWindow = new Class({
     },
 
     addWindowEditTab: function(pTabKey, pTitle, pIcon){
-        var pane = this.winTabPane.addPane(pTitle, pIcon);
+        var tab = this.winTabPane.addPane(pTitle, pIcon);
 
-        pane.fieldContainer = new Element('div')
-            .inject(pane.pane);
+        tab.pane.fieldContainer = new Element('div')
+        .inject(tab.pane);
 
-        pane.addButton = new ka.Button(t('Add field')).inject(pane.pane);
-        pane.addButton.addEvent('click', function(){
-
-            var items = pane.fieldContainer.getChildren();
-
-            this.addWindowEditField(pane,
-                'field_'+(items.length+1), {type: 'text', label: 'Field '+(items.length+1)});
-
-        }.bind(this));
-
-        this.windowEditTabs[pTabKey] = pane;
+        this.windowEditTabs[pTabKey] = tab;
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/pencil.png',
             title: t('Edit'),
             style: 'margin-left: 4px;',
             'class': 'ka-system-module-editWindow-tab-edit'
-        }).inject(pane.button);
+        }).inject(tab.button);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
             title: t('Delete'),
             'class': 'ka-system-module-editWindow-tab-edit'
         }).inject(this.windowEditTabs[pTabKey].button);
+
+        return tab;
     }
 
 })

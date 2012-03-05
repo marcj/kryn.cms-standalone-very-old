@@ -41,6 +41,17 @@ ka.tabPane = new Class({
         this.buttonGroup.rerender();
     },
 
+    getSelected: function(){
+
+        if (this.index == -1) return;
+
+        return {
+            pane: this.panes[this.index],
+            button: this.buttons[this.index]
+        };
+
+    },
+
     addPane: function (pTitle, pImageSrc) {
 
         var id = this.panes.length;
