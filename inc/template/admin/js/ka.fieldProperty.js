@@ -224,6 +224,7 @@ ka.fieldProperty = new Class({
         tableitem_title_width: 330,
         allTableItems: true,
         withActionsImages: true,
+        asFrameworkFieldDefinition: false, //means for usage in ka.parse (and therefore in adminWindowEdit/Add)
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
@@ -240,6 +241,15 @@ ka.fieldProperty = new Class({
         if (!this.options.withTableDefinition){
             delete this.kaFields.primaryKey;
             delete this.kaFields.autoIncrement;
+        }
+
+        if (this.options.asFrameworkFieldDefinition){
+
+            delete this.kaFields.type.depends.object_label;
+            delete this.kaFields.type.depends.object_label_map;
+            delete this.kaFields.type.depends.object_relation;
+            delete this.kaFields.type.depends.object_relation_table;
+
         }
 
         if (!this.options.withWidthField)

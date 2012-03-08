@@ -424,6 +424,8 @@ ka.kwindow = new Class({
             this.deleteOverlay();
             ka.wm.updateWindowBar();
 
+            this.fireEvent('toFront');
+
             return true;
         }
     },

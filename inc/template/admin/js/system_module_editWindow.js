@@ -18,7 +18,8 @@ var admin_system_module_editWindow = new Class({
 
         this.generalTab = this.tabPane.addPane(t('General'));
         this.windowTab  = this.tabPane.addPane(t('Window'));
-        this.methodTab  = this.tabPane.addPane(t('Overwrite methods'));
+        this.methodTab  = this.tabPane.addPane(t('Class methods'));
+        this.methodTab  = this.tabPane.addPane(t('Custom methods'));
 
         this.btnGroup = this.win.addButtonGroup();
         this.saveBtn = this.btnGroup.addButton(t('Save'), _path + 'inc/template/admin/images/button-save.png', function () {
@@ -131,12 +132,12 @@ var admin_system_module_editWindow = new Class({
 
             new Element('td', {text: t('Tab id:')}).inject(tr);
             var td = new Element('td').inject(tr);
-            new Element('input', {'class': 'text'}).inject(td);
+            var iId = new Element('input', {'class': 'text'}).inject(td);
 
             var tr = new Element('tr').inject(tbody);
             new Element('td', {text: t('Tab label:')}).inject(tr);
             var td = new Element('td').inject(tr);
-            new Element('input', {'class': 'text'}).inject(td);
+            var iLabel =new Element('input', {'class': 'text'}).inject(td);
 
 
             new ka.Button(t('Cancel'))
@@ -147,7 +148,14 @@ var admin_system_module_editWindow = new Class({
 
             new ka.Button(t('Apply'))
             .addEvent('click', function(){
-                this.addWindowEditTab('__tab__', 'Tab');
+
+                if (iId.value.substr(0,2) == '__')
+                    iId.value = '__' + iId.value;
+
+                if (iId.value.substr(iId.value.length-2) == '__')
+                    iId.value += '__';
+
+                this.addWindowEditTab(iId.value, iLabel.value);
                 dialog.close();
             }.bind(this))
             .inject(dialog.bottom);
@@ -198,6 +206,8 @@ var admin_system_module_editWindow = new Class({
 
 
                     var definition = ka.getObjectDefinition(object);
+                    logger(object);
+                    logger(definition);
                     if (!definition){
                         new Element('td', {colspan: 2, text: t('Can not find the object definition of %s.').replace('%s', object)}).inject(tr);
                     } else {
@@ -210,6 +220,8 @@ var admin_system_module_editWindow = new Class({
                             select.add(key, field.label?field.label:key);
 
                         });
+
+                        select.inject(td);
                     }
                 }
             } else {
@@ -225,8 +237,10 @@ var admin_system_module_editWindow = new Class({
 
             if (select){
                 new ka.Button(t('Apply'))
-                    .addEvent('click', function(){
-                    this.addWindowEditTab('__tab__', 'Tab');
+                .addEvent('click', function(){
+
+
+
                     dialog.close();
                 }.bind(this))
                 .inject(dialog.bottom);
@@ -261,6 +275,12 @@ var admin_system_module_editWindow = new Class({
 
     loadInfo: function(){
 
+
+        this.win.clearTitle();
+        this.win.addTitle(this.win.params.module);
+        this.win.addTitle(this.win.params.className);
+
+
         this.lr = new Request.JSON({url: _path+'admin/system/module/getWindowDefinition', noCache:1,
         onComplete: this.renderWindowDefinition.bind(this)}).get({
             name: this.win.params.module,
@@ -272,6 +292,7 @@ var admin_system_module_editWindow = new Class({
     renderWindowDefinition: function(pDefinition){
 
         this.definition = pDefinition;
+
 
         this.generalObj.setValue(pDefinition.properties);
         this.loadWindowClass(pDefinition['class']);
@@ -294,6 +315,10 @@ var admin_system_module_editWindow = new Class({
             width: 'auto',
             height: 'auto',
             zIndex: null
+        });
+
+        win.addEvent('toFront', function(){
+            win.border.setStyle('zIndex', null);
         });
 
         win.closer.removeEvents('click');
@@ -351,7 +376,7 @@ var admin_system_module_editWindow = new Class({
     loadToolbar: function(pKey){
 
         if (this.lastLoadedField && this.windowEditFields[this.lastLoadedField]){
-            document.id(this.windowEditFields[this.lastLoadedField]).setStyle('border', '0px');
+            document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '0px');
         }
 
         var definition = this.windowEditFieldDefinition[pKey] || {};
@@ -370,11 +395,12 @@ var admin_system_module_editWindow = new Class({
             tableitem_title_width: 200,
             allTableItems: false,
             withActionsImages: false,
-            withoutChildren: true
+            withoutChildren: true,
+            asFrameworkFieldDefinition: true
         });
 
         if (field){
-            document.id(field).setStyle('border', '1px dotted gray');
+            document.id(field).setStyle('outline', '1px dashed green');
 
         }
 
@@ -444,7 +470,13 @@ var admin_system_module_editWindow = new Class({
             src: _path+'inc/template/admin/images/icons/delete.png',
             title: t('Delete'),
             'class': 'ka-system-module-editWindow-tab-edit'
-        }).inject(this.windowEditTabs[pTabKey].button);
+        })
+        .addEvent('click', function(e){
+            e.stop();
+
+            this.winTabPane.remove(tab.id);
+        }.bind(this))
+        .inject(this.windowEditTabs[pTabKey].button);
 
         return tab;
     }

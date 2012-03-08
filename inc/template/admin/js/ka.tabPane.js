@@ -97,6 +97,18 @@ ka.tabPane = new Class({
 
     },
 
+    remove: function(pId){
+
+        this.buttons[pId].destroy();
+        this.panes[pId].destroy();
+
+        this.buttonGroup.rerender();
+
+        delete this.buttons[pId];
+        delete this.panes[pId];
+
+    },
+
     destroy: function () {
         this.box.destroy();
     },
