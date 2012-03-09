@@ -21,8 +21,8 @@
  * Defines a value to the specified name in the template engine
  * Accessible in template engine {$<$pName>}
  *
- * @param type $pName
- * @param type $pVal
+ * @param string $pName
+ * @param mixed $pVal
  */
 function tAssign($pName, $pVal) {
     global $tpl;
@@ -33,8 +33,8 @@ function tAssign($pName, $pVal) {
  * Defines a value by reference to the specified name in the template engine
  * Accessible in template engine {$<$pName>}
  *
- * @param type $pName
- * @param type $pVal
+ * @param string $pName
+ * @param mixed $pVal
  */
 function tAssignRef($pName, &$pVal) {
     global $tpl;
@@ -45,7 +45,7 @@ function tAssignRef($pName, &$pVal) {
  * Parse and compiled specified template and return the parsed template.
  * Path pFile is relative to inc/template/
  *
- * @param type $pFile
+ * @param string $pFile
  *
  * @return string Parsed template file
  */
