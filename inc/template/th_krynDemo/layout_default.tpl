@@ -35,24 +35,7 @@
                 <td valign="top">
                     <div class="content-main">
                         <div class="content-main-padding">
-
                             {navigation id="history" template="th_krynDemo/navigation_breadcrumb.tpl"}
-
-                                <hr />
-                                <div style="position: relative; z-index:123123123;">{krynObject::getFromUrl('object://system_user?fields=rsn,username,groups&condition=system_user.rsn>0')|print_r:true}</pre>
-
-                                <hr />
-                                <pre>{krynObject::count('news')|print_r:true}</pre>
-
-                                <hr />
-                                <pre>{krynObject::getFromUrl('object://news/2?fields=rsn,title,category_rsn,intro')|print_r:true}</pre>
-
-                                <hr />
-                                <pre>{krynObject::getFromUrl('news/1,3?fields=rsn,title')|print_r:true}</pre>
-
-                                <hr />
-                                <pre>{krynObject::getFromUrl('news?fields=rsn,title,category_rsn&condition=news.rsn>1&orderBy=news.rsn')|print_r:true}</pre>
-                                <hr />
 
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>
