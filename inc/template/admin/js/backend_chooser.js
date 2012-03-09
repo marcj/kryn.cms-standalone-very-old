@@ -144,7 +144,7 @@ var admin_backend_chooser = new Class({
                             _domain.unselect();
                         });
                         if (_this.options.files) {
-                            _this.filesPane.unselect();
+                            _this.filesPane.deselectAll();
                         }
                         _this.value = pPage.rsn;
                     },
@@ -168,7 +168,7 @@ var admin_backend_chooser = new Class({
                     _domain.unselect();
                 });
                 if (_this.options.files) {
-                    _this.filesPane.unselect();
+                    _this.filesPane.deselectAll();
                 }
                 _this.value = pPage.rsn;
             },
