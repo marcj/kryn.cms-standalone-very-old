@@ -79,7 +79,7 @@ ka.fieldProperty = new Class({
 
                 //select, file and folder
                 'multi': {
-                    needValue: ['select', 'file', 'folder'],
+                    needValue: ['select', 'file', 'folder', 'object'],
                     label: t('Multiple selection'),
                     desc: t('This field returns then an array.'),
                     type: 'checkbox'
@@ -249,6 +249,9 @@ ka.fieldProperty = new Class({
             delete this.kaFields.type.depends.object_label_map;
             delete this.kaFields.type.depends.object_relation;
             delete this.kaFields.type.depends.object_relation_table;
+
+        } else {
+
 
         }
 

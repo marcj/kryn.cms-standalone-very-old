@@ -125,10 +125,29 @@ ka.field = new Class({
             this.updateOkInfo();
         }.bind(this));
 
-        this.renderField();
+        if (this.field.designMode){
+            try {
+
+                this.renderField();
+
+            } catch(e){
+
+                if (this.tr)
+                    this.tr.destroy();
+
+                if (this.main)
+                    this.main.destroy();
+
+                throw e;
+
+                return false;
+            }
+        } else {
+            this.renderField();
+        }
 
         if (this.field['default'] && this.field['default'] != "" && this.field.type != 'datetime') {
-            this.setValue(this.field['default']);
+            this.setValue(this.field['default'], true);
         }
 
         if (!this.field.startempty && this.field.value) {
@@ -823,6 +842,8 @@ ka.field = new Class({
 
         var addRow = function (pValue) {
 
+            if (this.field.designMode) return;
+
             var tr = new Element('tr').inject(tbody);
             tr.fields = {};
 
@@ -856,7 +877,7 @@ ka.field = new Class({
 
         }.bind(this);
 
-        new ka.Button(this.field.addText ? this.field.addText : _('Add')).addEvent('click', addRow).inject(actions);
+        new ka.Button(this.field.addText ? this.field.addText : t('Add')).addEvent('click', addRow).inject(actions);
 
         this.getValue = function () {
             var res = [];
@@ -1193,7 +1214,10 @@ ka.field = new Class({
 
 
         var button = new ka.Button(t('Add')).addEvent('click', function () {
+
+            if (this.field.designMode) return;
             ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
+
         }.bind(this))
 
         button.inject(this.fieldPanel);
@@ -1324,7 +1348,10 @@ ka.field = new Class({
 
 
         var button = new ka.Button(t('Choose')).addEvent('click', function () {
+
+            if (this.field.designMode) return;
             ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
+
         }.bind(this))
         .setStyle('position', 'relative').setStyle('top', '-1px')
         .inject(div, 'after');
@@ -1845,6 +1872,7 @@ ka.field = new Class({
 
         this._setValue = function(pValue){
             if (typeOf(pValue) == 'null') pValue = this.field['default'] || false;
+            if (typeOf(pValue) == 'string') pValue = pValue.toInt();
             this.checkbox.setValue(pValue+0);
         }.bind(this);
 

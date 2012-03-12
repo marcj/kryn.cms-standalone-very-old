@@ -2,7 +2,6 @@ var admin_system_module_editWindow = new Class({
 
     windowEditFields: {}, //ka.field object
     windowEditTabs: {}, //addtabPane object
-    windowEditFieldDefinition: {}, //json definition
 
 
     initialize: function(pWin){
@@ -268,7 +267,9 @@ var admin_system_module_editWindow = new Class({
             'class': 'ka-system-module-editWindow-windowInspector-actionbar'
         }).inject(this.windowInspector);
 
-        new ka.Button(t('Apply')).inject(this.windowInspectorActionbar);
+        new ka.Button(t('Apply'))
+        .addEvent('click', this.applyFieldProperties.bind(this))
+        .inject(this.windowInspectorActionbar);
 
         this.loadInfo();
     },
@@ -339,6 +340,17 @@ var admin_system_module_editWindow = new Class({
 
             this.winTabPane = new ka.tabPane(win.content, true, win);
 
+            this.winTabPaneSortables = new Sortables(null, {
+                revert: { duration: 500, transition: 'elastic:out' },
+                dragOptions: {},
+                opacity: 0.7,
+                onSort: function(){
+                    (function(){
+                        this.winTabPane.buttonGroup.rerender();
+                    }).delay(50, this);
+                }.bind(this)
+            });
+
             this.windowEditTabs = {};
 
             //normal fields without tab
@@ -373,14 +385,35 @@ var admin_system_module_editWindow = new Class({
 
     },
 
+
+
+    applyFieldProperties: function(){
+        var val = this.lastFieldProperty.getValue();
+
+        var oField = document.id(this.windowEditFields[this.lastLoadedField]);
+        delete this.windowEditFields[this.lastLoadedField];
+
+        var tab = this.winTabPane.getSelected();
+        var field = this.addWindowEditField(tab, val.key, val.definition);
+
+        var nField = document.id(field);
+        nField.inject(oField, 'after');
+
+        this.lastLoadedField = val.key;
+        document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '1px dashed green');
+
+        oField.destroy();
+
+    },
+
     loadToolbar: function(pKey){
 
         if (this.lastLoadedField && this.windowEditFields[this.lastLoadedField]){
             document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '0px');
         }
 
-        var definition = this.windowEditFieldDefinition[pKey] || {};
         var field = this.windowEditFields[pKey];
+        var definition = document.id(field).retrieve('field') || {};
 
         if (this.lastFieldProperty){
 
@@ -411,13 +444,41 @@ var admin_system_module_editWindow = new Class({
 
         var field = Object.clone(pField);
 
-        var field = new ka.field(
-            field,
-            pTab.pane.fieldContainer,
-            {win: this.win}
-        );
+        field.designMode = true;
 
-        var titleDiv = field.title;
+        var errorDiv;
+
+        try {
+
+            var field = new ka.field(
+                field,
+                pTab.pane.fieldContainer,
+                {win: this.win}
+            );
+        } catch(e){
+
+            errorDiv = new Element('div', {
+                text: t('There was an error in initializing this field.'),
+                style: 'border: 1px solid red; padding: 5px; color: red; position: relative;'
+            }).inject(pTab.pane.fieldContainer);
+
+            new Element('div', {
+                style: 'color: silver; margin: 5px; border: 1px dashed gray; background-color: #e6e6e6;',
+                text: e
+            }).inject(errorDiv);
+
+            new Element('div', {
+                style: 'color: gray; ',
+                text: t('Please check if you have entered all properties correctly.')
+            }).inject(errorDiv);
+
+            errorDiv.store('field', pField);
+            errorDiv.store('key', pKey);
+            this.windowEditFields[pKey] = errorDiv;
+
+        }
+
+        var titleDiv = field.title || null;
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/pencil.png',
@@ -427,7 +488,15 @@ var admin_system_module_editWindow = new Class({
         .addEvent('click', function(){
             this.loadToolbar(pKey);
         }.bind(this))
-        .inject(titleDiv);
+        .inject(titleDiv || errorDiv);
+
+        if (errorDiv){
+            return errorDiv;
+        }
+
+
+        document.id(field).store('field', pField);
+        document.id(field).store('key', pKey);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
@@ -446,7 +515,7 @@ var admin_system_module_editWindow = new Class({
         }).inject(titleDiv);
 
         this.windowEditFields[pKey] = field;
-        this.windowEditFieldDefinition[pKey] = pField;
+
         return this.windowEditFields[pKey];
 
     },
@@ -454,10 +523,11 @@ var admin_system_module_editWindow = new Class({
     addWindowEditTab: function(pTabKey, pTitle, pIcon){
         var tab = this.winTabPane.addPane(pTitle, pIcon);
 
-        tab.pane.fieldContainer = new Element('div')
-        .inject(tab.pane);
+        tab.pane.fieldContainer = new Element('div').inject(tab.pane);
 
         this.windowEditTabs[pTabKey] = tab;
+
+        this.winTabPaneSortables.addItems(tab.button);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/pencil.png',

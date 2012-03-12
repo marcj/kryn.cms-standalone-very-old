@@ -34,8 +34,11 @@ ka.tabGroup = new Class({
 
         items.removeClass('ka-tabGroup-item-first');
         items.removeClass('ka-tabGroup-item-last');
-        items[0].addClass('ka-tabGroup-item-first');
-        items.getLast().addClass('ka-tabGroup-item-last');
+
+        if (items.length > 0){
+            items[0].addClass('ka-tabGroup-item-first');
+            items.getLast().addClass('ka-tabGroup-item-last');
+        }
 
     },
 

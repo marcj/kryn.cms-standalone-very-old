@@ -114,7 +114,7 @@ class adminWindowEdit {
      *
      * @var string
      */
-    public $titleField = false;
+    public $titleField = '';
 
 
     /**

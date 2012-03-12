@@ -47,7 +47,8 @@ ka.tabPane = new Class({
 
         return {
             pane: this.panes[this.index],
-            button: this.buttons[this.index]
+            button: this.buttons[this.index],
+            id: this.index
         };
 
     },
