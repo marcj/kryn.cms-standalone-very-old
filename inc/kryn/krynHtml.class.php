@@ -333,9 +333,10 @@ class krynHtml {
                 AND ( c.cdate > 0 AND c.cdate IS NOT NULL )
             ORDER BY c.sort");
 
-            while ($page = dbFetch($res)) {
-                if (kryn::checkPageAccess($page, false) !== false)
-                    $result[$page['box_id']][] = $page;
+            while ($content = dbFetch($res)) {
+                if (kryn::checkPageAccess($content, false) !== false){
+                    $result[$content['box_id']][] = $content;
+                }
             }
 
         } else {
@@ -485,8 +486,8 @@ class krynHtml {
         tAssign('layoutContentsMax', $count);
         tAssign('layoutContentsIsFirst', true);
         tAssign('layoutContentsIsLast', false);
-        tAssign('layoutContentsId', $params['id']);
-        tAssign('layoutContentsName', $params['name']);
+        tAssign('layoutContentsId', $pSlotProperties['id']);
+        tAssign('layoutContentsName', $pSlotProperties['name']);
 
 
         $slot = $pSlotProperties;
@@ -498,6 +499,8 @@ class krynHtml {
 
 
         //$oldContent = $tpl->getTemplateVars('content');
+
+        $html = '';
 
         if ($count > 0) {
             foreach ($contents as &$content) {

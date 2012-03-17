@@ -201,6 +201,7 @@ class database {
                 switch ($this->type) {
                     case 'sqlite':
                         $this->connection = sqlite_open($host);
+                        sqlite_query($this->connection, 'PRAGMA short_column_names = 1');
                         break;
                     case 'mysql':
                         if ($this->connection = mysql_pconnect($host, $user, $pw)) {
