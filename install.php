@@ -575,9 +575,9 @@ function step4(){
 ?>
 
 <br />
-Your installation file contains following extensions.<br />
+Your installation file contains following extensions:<br />
 <br />
-Dactivate the checkbox if you don't want to install some extensione.<br />
+Dactivate the checkbox if you don't want to install a extension.<br />
 <br />
 <form action="?step=5" method="post" id="form.modules">
 
@@ -657,13 +657,16 @@ after this installation, but keep the information above in your mind.<br />
 <br />
 <?php
 
+    $anythingOk = true;
+
     $t = explode("-", PHP_VERSION);
     $v = ( $t[0] ) ? $t[0] : PHP_VERSION;
 
-    if(! version_compare($v, "5.2.0", "ge") ){
-        print "<b>PHP version tot old.</b><br />";
+    if (!version_compare($v, "5.2.0", "ge")) {
+        print "<div style='padding: 5px; border: 1px solid red; text-align: center;'><b>PHP version too old.</b><br />";
         print "You need PHP version 5.2.0 or greater.<br />";
-        print "Installed version: $v (".PHP_VERSION.")<br/><br/>";
+        print "Installed version: $v (".PHP_VERSION.")<br/></div>";
+        $anythingOk = false;
     } else {
         $versionOk = true;
     }
@@ -706,6 +709,7 @@ after this installation, but keep the information above in your mind.<br />
     
     $files = checkDir( "." );
     if( $files != "" ){
+        $anythingOk = false;
         print 'Following files are not writeable. Please set write permissions to webserver or to anonymous:<br/>
                <br />
                Use your FTP client to adjust the permissions or directly through ssh:
@@ -723,7 +727,7 @@ after this installation, but keep the information above in your mind.<br />
     <a href="?step=1" class="button" >Back</a>
     <?php
 
-    if( $filesOk && $versionOk ){
+    if( $anythingOk ){
         print '<a href="?step=3" class="button" >Next</a>'; 
     } else {
         print '<a href="?step=2" class="button" >Re-Check</a>';
