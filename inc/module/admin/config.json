@@ -1502,7 +1502,7 @@
       ],
       "user_system_object_field": [
         "varchar",
-        "",
+        "32",
         "-",
         false
       ],

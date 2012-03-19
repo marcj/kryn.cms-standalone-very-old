@@ -1198,6 +1198,8 @@ class kryn {
     public static function initConfig() {
         global $cfg;
 
+        $cfg['path'] = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+
         $cfg['templatepath'] = $cfg['path'] . 'inc/template';
 
         if (!$cfg['sessiontime'] && !$cfg['session_timeout'])
@@ -1241,7 +1243,6 @@ class kryn {
             if (!$cfg['cache_params'] || $cfg['cache_params']['files_path'] == '') {
                 $cfg['cache_params']['files_path'] = 'cache/object/';
             }
-
         }
 
         kryn::$cache = new krynCache($cfg['cache_type'], $cfg['cache_params']);
@@ -1818,6 +1819,7 @@ class kryn {
         if (getArgv(1) != 'admin') {
 
             $possibleLanguage = self::getPossibleLanguage();
+
             $domains =& kryn::getCache('domains');
 
             if (!$domains || $domains['r2d']) {

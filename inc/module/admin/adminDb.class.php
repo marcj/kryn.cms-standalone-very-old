@@ -351,9 +351,10 @@ class adminDb {
                 $sql .= ' AUTO_INCREMENT ';
             }
 
-            if( $cfg['db_type'] == 'sqlite' ){
-            	$sql .= ' AUTOINCREMENT ';
-            }
+            //http://www.sqlite.org/faq.html#q1
+            //if( $cfg['db_type'] == 'sqlite' ){
+            //	$sql .= ' AUTOINCREMENT ';
+            //}
 
             if ($cfg['db_type'] == 'postgresql') {
                 database::$hideSql = true;

@@ -114,6 +114,7 @@ class krynAuth {
         $this->token = $this->getToken();
         $this->session = $this->loadSession();
 
+        error_log('sessionid: '.$this->token);
 
         $this->startSession = $this->session;
 
@@ -521,10 +522,7 @@ class krynAuth {
                 $session = $this->newSessionCache();
             }
             if ($session) {
-                setCookie($this->tokenid, '', time() - 3600 * 24 * 700, "/");
-                setCookie($this->tokenid, '', time() - 3600 * 24 * 700, "/admin");
-                setCookie($this->tokenid, '', time() - 3600 * 24 * 700, "/admin/");
-                setCookie($this->tokenid, $this->token, time() + 3600 * 24 * 7, "/"); //7 Days
+                setCookie($this->tokenid, $this->token, time() + 3600 * 24 * 7, kryn::$config['path']); //7 Days
                 return $session;
             }
         }

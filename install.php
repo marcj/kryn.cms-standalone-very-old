@@ -270,7 +270,8 @@ function checkDb(){
 	    "db_passwd"		=> $_REQUEST['passwd'],
 	    "db_name"		=> $_REQUEST['db'],
 	    "db_prefix"		=> $_REQUEST['prefix'],
-	    "db_type"		=> $_REQUEST['type']
+	    "db_type"		=> $_REQUEST['type'],
+	    "db_pdo"		=> $_REQUEST['pdo']
 	);
 	
 	require_once( 'inc/kryn/krynModule.class.php' );
@@ -575,9 +576,9 @@ function step4(){
 ?>
 
 <br />
-Your installation file contains following extensions:<br />
+Your installation file contains following extensions.<br />
 <br />
-Dactivate the checkbox if you don't want to install a extension.<br />
+Dactivate the checkbox if you don't want to install a extensions.<br />
 <br />
 <form action="?step=5" method="post" id="form.modules">
 
@@ -657,16 +658,13 @@ after this installation, but keep the information above in your mind.<br />
 <br />
 <?php
 
-    $anythingOk = true;
-
     $t = explode("-", PHP_VERSION);
     $v = ( $t[0] ) ? $t[0] : PHP_VERSION;
 
-    if (!version_compare($v, "5.2.0", "ge")) {
-        print "<div style='padding: 5px; border: 1px solid red; text-align: center;'><b>PHP version too old.</b><br />";
+    if(! version_compare($v, "5.2.0", "ge") ){
+        print "<b>PHP version tot old.</b><br />";
         print "You need PHP version 5.2.0 or greater.<br />";
-        print "Installed version: $v (".PHP_VERSION.")<br/></div>";
-        $anythingOk = false;
+        print "Installed version: $v (".PHP_VERSION.")<br/><br/>";
     } else {
         $versionOk = true;
     }
@@ -709,7 +707,6 @@ after this installation, but keep the information above in your mind.<br />
     
     $files = checkDir( "." );
     if( $files != "" ){
-        $anythingOk = false;
         print 'Following files are not writeable. Please set write permissions to webserver or to anonymous:<br/>
                <br />
                Use your FTP client to adjust the permissions or directly through ssh:
@@ -727,7 +724,7 @@ after this installation, but keep the information above in your mind.<br />
     <a href="?step=1" class="button" >Back</a>
     <?php
 
-    if( $anythingOk ){
+    if( $filesOk && $versionOk ){
         print '<a href="?step=3" class="button" >Next</a>'; 
     } else {
         print '<a href="?step=2" class="button" >Re-Check</a>';
@@ -742,24 +739,23 @@ function step3(){
     
     ?>
 
-Please enter your database data.<br />
+Please enter your database credentials.<br />
 <script type="text/javascript">
     checkDBEntries = function(){
         var ok = true;
         
-        if( $('db.server').value == '' ){ $('db.server').highlight(); ok = false; }
-        if( $('db.prefix').value == '' ){ $('db.prefix').highlight(); ok = false; }
+        if( $('db_server').value == '' ){ $('db_server').highlight(); ok = false; }
+        if( $('db_prefix').value == '' ){ $('db_prefix').highlight(); ok = false; }
         if( ok ){
             $( 'status' ).set('html', '<span style="color:green;">Check data ...</span>');
             var req = {};
-            req.type = $('db.type').value;
-            req.server = $('db.server').value;
-            req.db = $('db.db').value;
-            req.prefix = $('db.prefix').value;
-            req.username = $('db.username').value;
-            req.passwd = $('db.passwd').value;
-            //req.pdo = ($('db.pdo').checked) ? 1 : 0;
-            //req.forceutf8 = ($('db.forceutf8').checked) ? 1 : 0;
+            req.type = $('db_type').value;
+            req.server = $('db_server').value;
+            req.db = $('db_db').value;
+            req.prefix = $('db_prefix').value;
+            req.username = $('db_username').value;
+            req.passwd = $('db_passwd').value;
+            req.pdo = $('db_pdo').checked?1:0;
 
             new Request.JSON({url: 'install.php?step=checkDb', onComplete: function(stat){
                 if( stat != null && stat.res == true )
@@ -774,33 +770,45 @@ Please enter your database data.<br />
             }}).post(req);
         }
     }
+
+    var checkDbType = function(){
+
+        var type = document.id('db_type').value;
+        var display = 'none';
+
+        if (type != 'sqlite'){
+            display = 'table-row';
+        }
+
+        ['ui_username', 'ui_passwd', 'ui_db'].each(function(i){
+            document.id(i).setStyle('display', display);
+        })
+    }
+
+    window.addEvent('domready', function(){
+        document.id('db_type').addEvent('change', checkDbType);
+        checkDbType();
+    });
+
 </script>
-<form id="db.form">
+<form id="db_form">
 <table style="width: 100%" cellpadding="3">
  	<tr>
-        <td width="250">Database</td>
-        <td><select name="db.type" id="db.type">
+        <td width="250">Database driver</td>
+        <td><select name="db_type" id="db_type">
         	<option value="mysql">MySQL</option>
         	<option value="mysqli">MySQLi</option>
+            <option value="sqlite">SQLite (need PHP 5.3 or PDO driver)</option>
         	<option value="postgresql">PostgreSQL</option>
         	<option value="oracle">Oracle (experimental)</option> 
-        	<option value="oracle">MSSql (experimental, no pdo)</option> 
-        	<option value="sqlite">SQLite</option>
+        	<option value="oracle">MSSql (experimental, no pdo)</option>
         </select></td>
     </tr>
-    <!--
-    <tr>
-        <td>Use PDO
-        <div style="color: silver">
-        (Experimental)
-        </div></td>
-        <td><input type="checkbox" name="pdo" id="db.pdo" value="1" /></td>
+    <td>PDO driver</td>
+    <td>
+        <input type="checkbox" id="db_pdo" />
+    </td>
     </tr>
-    <tr>
-        <td>Force UTF-8</td>
-        <td><input type="checkbox" name="forceutf8" checked="checked" id="db.forceutf8" value="1" /></td>
-    </tr>
-    -->
     <tr>
         <td>
         	Host
@@ -808,28 +816,28 @@ Please enter your database data.<br />
 	        	For SQLite enter the path to the file. 
 	        </div>
         </td>
-        <td><input class="text" type="text" name="server" id="db.server" value="localhost" /></td>
+        <td><input class="text" type="text" name="server" id="db_server" value="localhost" /></td>
     </tr>
-    <tr>
+    <tr id="ui_username">
         <td>Username</td>
-        <td><input class="text" type="text" name="username" id="db.username" /></td>
+        <td><input class="text" type="text" name="username" id="db_username" /></td>
     </tr>
-    <tr>
+    <tr id="ui_passwd">
         <td>Password</td>
-        <td><input class="text" type="password" name="passwd" id="db.passwd" /></td>
+        <td><input class="text" type="password" name="passwd" id="db_passwd" /></td>
     </tr>
-    <tr>
+    <tr id="ui_db">
         <td>
         	Database name
         </td>
-        <td><input class="text" type="text" name="db" id="db.db" /></td>
+        <td><input class="text" type="text" name="db" id="db_db" /></td>
     </tr>
     <tr>
         <td>Prefix
 	        <div style="color: silver">
 	        	Please use only a lowercase string.
 	        </div></td>
-        <td><input class="text" type="text" name="prefix" id="db.prefix" value="kryn_" /></td>
+        <td><input class="text" type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
 </table>
 </form>

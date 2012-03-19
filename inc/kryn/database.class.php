@@ -200,8 +200,8 @@ class database {
             try {
                 switch ($this->type) {
                     case 'sqlite':
-                        $this->connection = sqlite_open($host);
-                        sqlite_query($this->connection, 'PRAGMA short_column_names = 1');
+                        $this->connection = new SQLite3($host);
+                        //$this->connection->query('PRAGMA short_column_names = 1');
                         break;
                     case 'mysql':
                         if ($this->connection = mysql_pconnect($host, $user, $pw)) {
@@ -339,7 +339,7 @@ class database {
             if ($pRows == 1) {
                 switch ($this->type) {
                     case 'sqlite':
-                        $res = sqlite_fetch_array($pStatement, SQLITE_ASSOC);
+                        $res = $pStatement->fetchArray(SQLITE3_ASSOC);
                         break;
                     case 'mysql':
                         $res = mysql_fetch_assoc($pStatement);
@@ -359,7 +359,7 @@ class database {
                 $i = 0;
                 switch ($this->type) {
                     case 'sqlite':
-                        while (($pRows > $i++ || $pRows == -1) && $row = sqlite_fetch_array($pStatement, SQLITE_ASSOC))
+                        while (($pRows > $i++ || $pRows == -1) && $row = $pStatement->fetchArray(SQLITE3_ASSOC))
                             $res[] = $row;
                         break;
                     case 'mysql':
@@ -415,8 +415,6 @@ class database {
 
     public static function getOptions($pTable) {
 
-        $pTable = str_replace('/', '', $pTable);
-
         $cacheKey = 'krynDatabaseTable-' . str_replace('_', '..', $pTable);
         $columnDefs =& kryn::getCache($cacheKey);
 
@@ -434,8 +432,7 @@ class database {
                 foreach ($columns as $key => &$column) {
 
                     $ncolumn = array();
-                    $ncolumn['primary'] = ($column[2] == 'DB_PRIMARY') ? true : false;
-                    $ncolumn['auto_increment'] = ($column[3]) ? true : false;
+                    $ncolumn['auto_increment'] = ($column[3] == 'DB_PRIMARY') ? true : false;
                     $ncolumn['escape'] = self::isIntEscape($column[0]) ? 'int' : 'text';
                     $ncolumn['type'] = $column[0];
                     $ncolumns[$key] = $ncolumn;
@@ -513,7 +510,7 @@ class database {
         if (!$kdb->usePdo) {
             switch ($kdb->type) {
                 case 'sqlite':
-                    return sqlite_last_insert_rowid($kdb->connection);
+                    return $kdb->connection->lastInsertRowID();
                 case 'mysql':
                     return mysql_insert_id($kdb->connection);
                 case 'mysqli':
@@ -577,19 +574,19 @@ class database {
             try {
                 switch ($this->type) {
                     case 'sqlite':
-                        $res = @sqlite_query($this->connection, $pQuery);
+                        $res = $this->connection->query($pQuery);
                         break;
                     case 'mysql':
-                        $res = @mysql_query($pQuery, $this->connection);
+                        $res = mysql_query($pQuery, $this->connection);
                         break;
                     case 'mysqli':
-                        $res = @mysqli_query($this->connection, $pQuery);
+                        $res = mysqli_query($this->connection, $pQuery);
                         break;
                     case 'mssql':
-                        $res = @mssql_query($pQuery, $this->connection);
+                        $res = mssql_query($pQuery, $this->connection);
                         break;
                     case 'postgresql':
-                        $res = @pg_query($this->connection, $pQuery);
+                        $res = pg_query($this->connection, $pQuery);
                         break;
                 }
             } catch (Exception $e) {
@@ -598,13 +595,7 @@ class database {
                 if (!database::$hideSql)
                     klog('database', $this->lastError);
 
-                return false;
-            }
-            if (!$res && $this->_last_error()) {
-                $this->lastError = $this->_last_error();
-
-                if (!database::$hideSql)
-                    klog('database', $this->lastError);
+                throw new Exception($e."\n SQL: ".$pQuery);
 
                 return false;
             }
@@ -661,7 +652,7 @@ class database {
     public function _last_error() {
         switch ($this->type) {
             case 'sqlite':
-                $res = sqlite_last_error($this->connection);
+                $res = $this->connection->lastErrorMsg();
                 break;
             case 'mysql':
                 $res = mysql_error($this->connection);

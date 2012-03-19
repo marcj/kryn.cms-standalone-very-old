@@ -233,7 +233,7 @@ class krynSearch extends baseModule {
 
         $url = esc($pUrl);
         $row =
-            dbExfetch("SELECT rsn FROM %pfx%system_search WHERE url = '$url' AND domain_rsn = " . $pDomainRsn + 0, 1);
+            dbExfetch("SELECT url FROM %pfx%system_search WHERE url = '$url' AND domain_rsn = " . ($pDomainRsn+0), 1);
 
         $values = array(
             'url' => $pUrl,
@@ -244,7 +244,7 @@ class krynSearch extends baseModule {
         );
 
         if ($row)
-            dbUpdate('system_search', array('rsn' => $row['rsn']), $values);
+            dbUpdate('system_search', array('url' => $row['url']), $values);
         else
             dbInsert('system_search', $values);
 

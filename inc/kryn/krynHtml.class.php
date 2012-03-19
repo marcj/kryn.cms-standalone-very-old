@@ -301,7 +301,9 @@ class krynHtml {
             return array();
 
         $result =& kryn::getCache('pageContents-' . $pRsn);
-        if ($result && !$pWithoutCache) return $result;
+        if (false && $result && !$pWithoutCache) return $result;
+
+        $result = array();
 
         $versionRsn = $page['active_version_rsn'];
 
@@ -434,10 +436,10 @@ class krynHtml {
         $access = true;
         $contents = array();
 
-        if (!is_array($pContents)) return;
+        if (!is_array($pContents)) return '';
+
 
         foreach ($pContents as $key => &$content) {
-
 
             $access = true;
 
@@ -448,7 +450,7 @@ class krynHtml {
                 $access = false;
             }
 
-            if ($content['hide'] === 0) {
+            if ($content['hide'] === 1) {
                 $access = false;
             }
 
