@@ -738,24 +738,22 @@ function step3(){
     
     ?>
 
-Please enter your database data.<br />
+Please enter your database credentials.<br />
 <script type="text/javascript">
     checkDBEntries = function(){
         var ok = true;
         
-        if( $('db.server').value == '' ){ $('db.server').highlight(); ok = false; }
-        if( $('db.prefix').value == '' ){ $('db.prefix').highlight(); ok = false; }
+        if( $('db_server').value == '' ){ $('db_server').highlight(); ok = false; }
+        if( $('db_prefix').value == '' ){ $('db_prefix').highlight(); ok = false; }
         if( ok ){
             $( 'status' ).set('html', '<span style="color:green;">Check data ...</span>');
             var req = {};
-            req.type = $('db.type').value;
-            req.server = $('db.server').value;
-            req.db = $('db.db').value;
-            req.prefix = $('db.prefix').value;
-            req.username = $('db.username').value;
-            req.passwd = $('db.passwd').value;
-            //req.pdo = ($('db.pdo').checked) ? 1 : 0;
-            //req.forceutf8 = ($('db.forceutf8').checked) ? 1 : 0;
+            req.type = $('db_type').value;
+            req.server = $('db_server').value;
+            req.db = $('db_db').value;
+            req.prefix = $('db_prefix').value;
+            req.username = $('db_username').value;
+            req.passwd = $('db_passwd').value;
 
             new Request.JSON({url: 'install.php?step=checkDb', onComplete: function(stat){
                 if( stat != null && stat.res == true )
@@ -770,33 +768,40 @@ Please enter your database data.<br />
             }}).post(req);
         }
     }
+
+    var checkDbType = function(){
+
+        var type = document.id('db_type').value;
+        var display = 'none';
+
+        if (type != 'sqlite'){
+            display = 'table-row';
+        }
+
+        ['ui_username', 'ui_passwd', 'ui_db'].each(function(i){
+            document.id(i).setStyle('display', display);
+        })
+    }
+
+    window.addEvent('domready', function(){
+        document.id('db_type').addEvent('change', checkDbType);
+        checkDbType();
+    });
+
 </script>
-<form id="db.form">
+<form id="db_form">
 <table style="width: 100%" cellpadding="3">
  	<tr>
-        <td width="250">Database</td>
-        <td><select name="db.type" id="db.type">
+        <td width="250">Database driver</td>
+        <td><select name="db_type" id="db_type">
         	<option value="mysql">MySQL</option>
         	<option value="mysqli">MySQLi</option>
+            <option value="sqlite">SQLite</option>
         	<option value="postgresql">PostgreSQL</option>
         	<option value="oracle">Oracle (experimental)</option> 
-        	<option value="oracle">MSSql (experimental, no pdo)</option> 
-        	<option value="sqlite">SQLite</option>
+        	<option value="oracle">MSSql (experimental, no pdo)</option>
         </select></td>
     </tr>
-    <!--
-    <tr>
-        <td>Use PDO
-        <div style="color: silver">
-        (Experimental)
-        </div></td>
-        <td><input type="checkbox" name="pdo" id="db.pdo" value="1" /></td>
-    </tr>
-    <tr>
-        <td>Force UTF-8</td>
-        <td><input type="checkbox" name="forceutf8" checked="checked" id="db.forceutf8" value="1" /></td>
-    </tr>
-    -->
     <tr>
         <td>
         	Host
@@ -804,28 +809,28 @@ Please enter your database data.<br />
 	        	For SQLite enter the path to the file. 
 	        </div>
         </td>
-        <td><input class="text" type="text" name="server" id="db.server" value="localhost" /></td>
+        <td><input class="text" type="text" name="server" id="db_server" value="localhost" /></td>
     </tr>
-    <tr>
+    <tr id="ui_username">
         <td>Username</td>
-        <td><input class="text" type="text" name="username" id="db.username" /></td>
+        <td><input class="text" type="text" name="username" id="db_username" /></td>
     </tr>
-    <tr>
+    <tr id="ui_passwd">
         <td>Password</td>
-        <td><input class="text" type="password" name="passwd" id="db.passwd" /></td>
+        <td><input class="text" type="password" name="passwd" id="db_passwd" /></td>
     </tr>
-    <tr>
+    <tr id="ui_db">
         <td>
         	Database name
         </td>
-        <td><input class="text" type="text" name="db" id="db.db" /></td>
+        <td><input class="text" type="text" name="db" id="db_db" /></td>
     </tr>
     <tr>
         <td>Prefix
 	        <div style="color: silver">
 	        	Please use only a lowercase string.
 	        </div></td>
-        <td><input class="text" type="text" name="prefix" id="db.prefix" value="kryn_" /></td>
+        <td><input class="text" type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
 </table>
 </form>
