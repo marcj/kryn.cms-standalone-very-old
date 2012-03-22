@@ -1864,9 +1864,9 @@ var admin_system_module_edit = new Class({
                                         },
                                         depends: {
                                             chooserFieldDataModelField: {
-                                                label: t('Field key'),
-                                                needValue: 'store',
-                                                desc: t('Which field should be used for the store?')
+                                                label: t('Fields'),
+                                                type: 'fieldTable',
+                                                needValue: 'store'
                                             },
                                             chooserFieldDataModelClass: {
                                                 label: t('PHP Class'),
