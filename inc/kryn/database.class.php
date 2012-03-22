@@ -599,6 +599,19 @@ class database {
 
                 return false;
             }
+
+            if (!$res){
+
+                if ($this->type == 'sqlite'){
+                    if ($this->_last_error() == 'database is locked'){
+                        sleep(0.05);
+                        return $this->exec($pQuery);
+                    }
+                }
+
+                error_log($this->_last_error().' - '.$pQuery);
+            }
+
             return $res;
         } else {
 
