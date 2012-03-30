@@ -378,7 +378,7 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 <tr>
     <td>Codemirror</td>
     <td><a href="http://codemirror.net/">codemirror.net</a></td>
-    <td>&raquo; <a href="http://codemirror.net/LICENSE">zlib-style license</a></td>
+    <td>&raquo; <a href="inc/lib/codemirror/LICENSE">MIT-style license</a></td>
 </tr>
 
 <tr>

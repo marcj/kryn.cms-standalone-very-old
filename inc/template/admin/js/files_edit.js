@@ -16,16 +16,16 @@ var admin_files_edit = new Class({
 
     loadFile: function () {
         new Request.JSON({url: _path + 'admin/files/getContent', noCache: 1, onComplete: function (res) {
-            if (typeOf(res) != 'null') {
-                this.textarea.value = res;
-            } else {
-                this.textarea.value = '';
-            }
-            this.renderCodePress();
+            this.renderCodeMirror(res);
         }.bind(this)}).get({ path: this.win.params.file.path });
     },
 
-    renderCodePress: function () {
+    renderCodeMirror: function (pContent) {
+
+        if (!pContent){
+            pContent = '';
+        }
+
         var exts = {
             php: 'php',
             php3: 'php',
@@ -36,26 +36,32 @@ var admin_files_edit = new Class({
             css: 'css',
             txt: 'text'
         };
+
         if (this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1)) {
 
             var type = this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1);
 
             if (exts[type]) {
-                var css = 'js';
-                var js = ["tokenizejavascript.js", "parsejavascript.js"];
-                if (['html', 'htm', 'tpl'].contains(type)) {
-                    css = 'xml';
-                    js = "parsexml.js";
+
+                var mode = 'htmlmixed';
+
+                if (type == 'css')
+                    mode = 'css';
+
+                if (type == 'js')
+                    mode = 'javascript';
+
+                if (type == 'php')
+                    mode = 'php';
+
+                try {
+                    this.editor = CodeMirror(this.fileContainer, {
+                        value: pContent,
+                        mode: mode
+                    });
+                } catch(e){
+                    this.fileContainer.set('text', pContent);
                 }
-                if (type == 'css') {
-                    css = 'css';
-                    js = "parsecss.js";
-                }
-                this.editor = CodeMirror.fromTextArea(this.textarea, {
-                    parserfile: js,
-                    path: _path + "inc/lib/codemirror/js/",
-                    stylesheet: _path + "inc/lib/codemirror/css/" + css + "colors.css"
-                });
             }
         }
     },
@@ -63,9 +69,9 @@ var admin_files_edit = new Class({
     save: function () {
         var _this = this;
         this.saveBtn.startTip(_('Save ...'));
-        var value = (this.editor) ? this.editor.getCode() : this.textarea.value;
+        var value = (this.editor) ? this.editor.getCode() : this.fileContainer.get('html');
         new Request.JSON({url: _path + 'admin/files/setContent', noCache: 1, onComplete: function (res) {
-            this.saveBtn.stopTip(_('Saved'));
+            this.saveBtn.stopTip(t('Saved'));
         }.bind(this)}).post({ path: this.win.params.file.path, content: value });
     },
 
@@ -75,12 +81,9 @@ var admin_files_edit = new Class({
             var boxNavi = this.win.addButtonGroup();
             this.fileSaveGrp = boxNavi;
             this.saveBtn = boxNavi.addButton(_('Save'), _path + 'inc/template/admin/images/button-save.png', this.save.bind(this));
-            this.textarea = new Element('textarea', {
-                value: _('Loading ...'),
-                styles: {
-                    width: '100%', height: '100%', 'border': '0px', 'font-size': '12px', 'padding': 0
-                },
-                id: 'filesEdit_' + this.win.id
+            this.fileContainer = new Element('div', {
+                value: t('Loading ...'),
+                'class': 'admin-files-edit-fileContainer'
             }).inject(this.win.content);
             this.loadFile();
         } else {

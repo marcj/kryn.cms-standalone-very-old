@@ -22,7 +22,13 @@
         <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
         <script type="text/javascript" src="{$cfg.path}admin/getLanguagePluralForm:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
 
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/js/codemirror.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/lib/codemirror.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/xml/xml.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/javascript/javascript.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/php/php.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/diff/diff.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/css/css.js"></script>
 
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc=1.0" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js?nc=1.0" ></script>
@@ -30,6 +36,9 @@
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Select.js" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.Checkbox.js" ></script>
         
+		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/codemirror/lib/codemirror.css">
+
+
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.css">
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
 		<link rel="stylesheet" type="text/css" href="{$cfg.path}inc/lib/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">

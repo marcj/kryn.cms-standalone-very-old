@@ -10,5 +10,25 @@
 
 .admin-files-sidebar-image-active {
     border: 2px solid #555;
-    margin. 6px 4px;
+    margin: 6px 4px;
+}
+
+.admin-files-edit-fileContainer {
+    white-space: pre;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    font-size: 12px;
+}
+
+
+.admin-files-edit-fileContainer .CodeMirror-scroll {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    height: 100%;
 }
