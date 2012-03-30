@@ -69,7 +69,7 @@ var admin_files_edit = new Class({
     save: function () {
         var _this = this;
         this.saveBtn.startTip(_('Save ...'));
-        var value = (this.editor) ? this.editor.getCode() : this.fileContainer.get('html');
+        var value = (this.editor) ? this.editor.getValue() : this.fileContainer.get('html');
         new Request.JSON({url: _path + 'admin/files/setContent', noCache: 1, onComplete: function (res) {
             this.saveBtn.stopTip(t('Saved'));
         }.bind(this)}).post({ path: this.win.params.file.path, content: value });

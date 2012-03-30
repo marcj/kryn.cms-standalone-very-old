@@ -44,3 +44,17 @@
 .admin-layout-theme-items a:link {
     padding: 2px 5px 2px 15px;
 }
+
+.ka-system-layout-codemirror {
+    background-color: white;
+    border: 1px solid #bbb;
+}
+
+.ka-system-layout-codemirror .CodeMirror-scroll {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    height: 100%;
+}

@@ -133,20 +133,15 @@ var admin_system_layout = new Class({
         }).inject(infos);
 
         var bottom = new Element('div', {
+            'class': 'ka-system-layout-codemirror',
             style: 'position: absolute; top: 120px; left: 6px; right: 14px; bottom: 11px; padding: 0px;'
         }).inject(p);
+        this.fileContainer = bottom;
 
-        this.textarea = new Element('textarea', {
-            text: pFile.content,
-            wrap: 'off',
-            style: 'width: 100%; height: 100%;'
-        }).addEvent('change', this.extractCssFiles.bind(this)).addEvent('keyup', this.extractCssFiles.bind(this)).inject(bottom);
-
-        this.editor = CodeMirror.fromTextArea(this.textarea, {
-            parserfile: "parsexml.js",
-            path: _path + "inc/lib/codemirror/js/",
+        this.editor = CodeMirror(bottom, {
+            value: pFile.content,
             onChange: this.extractCssFiles.bind(this),
-            stylesheet: _path + "inc/lib/codemirror/css/xmlcolors.css"
+            mode: "htmlmixed"
         });
 
         bottomBar = new Element('div', {
@@ -171,7 +166,8 @@ var admin_system_layout = new Class({
          var sub = '{addCss file="th_blueSkybasecss"}{addCss file="th_blueSky/two_columns.css"}';
          */
 
-        var value = (this.editor.editor) ? this.editor.getCode() : this.textarea.value;
+        var value = (this.editor) ? this.editor.getValue() : this.fileContainer.get('text');
+
         var matches = value.match(/\{addCss\s+file=["|']?[^\}"']*["|']\}/gi);
         /*logger("test");
          var matches = regex.exec(sub);
