@@ -7,6 +7,10 @@ html, body {
 
 }
 
+.CodeMirror-gutter {
+    z-index: auto;
+}
+
 div, span {
    -khtml-user-select: none;
    -webkit-user-select: none;

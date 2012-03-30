@@ -141,6 +141,7 @@ var admin_system_layout = new Class({
         this.editor = CodeMirror(bottom, {
             value: pFile.content,
             onChange: this.extractCssFiles.bind(this),
+            lineNumbers: true,
             mode: "htmlmixed"
         });
 
