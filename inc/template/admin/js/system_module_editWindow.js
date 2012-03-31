@@ -3,6 +3,25 @@ var admin_system_module_editWindow = new Class({
     windowEditFields: {}, //ka.field object
     windowEditTabs: {}, //addtabPane object
 
+    newCode: {},
+    customCode: {},
+
+    classMethods: {
+
+        windowList: [
+            'saveItem', '__construct', 'prepareFieldDefinition', 'prepareFieldItem', 'deleteItem', 'removeSelected',
+            '_removeN2N', 'filterSql', 'where', 'sql', 'countSql', 'getItems', 'exportItems', 'acl'
+        ],
+        windowAdd: [
+            '__construct', 'prepareFieldDefinition', 'prepareFieldItem', 'init', 'loadPreviewPages', 'unlock', 'lock',
+            'canLock', 'cachePluginsRelations', 'getItem', 'saveItem', 'getPreviewUrls'
+        ],
+        windowEdit: [
+            '__construct', 'prepareFieldDefinition', 'prepareFieldItem', 'init', 'loadPreviewPages', 'unlock', 'lock',
+            'canLock', 'cachePluginsRelations', 'getItem', 'saveItem', 'getPreviewUrls'
+        ]
+
+    },
 
     initialize: function(pWin){
 
@@ -18,7 +37,7 @@ var admin_system_module_editWindow = new Class({
         this.generalTab = this.tabPane.addPane(t('General'));
         this.windowTab  = this.tabPane.addPane(t('Window'));
         this.methodTab  = this.tabPane.addPane(t('Class methods'));
-        this.methodTab  = this.tabPane.addPane(t('Custom methods'));
+        this.customMethodTab  = this.tabPane.addPane(t('Custom methods'));
 
         this.btnGroup = this.win.addButtonGroup();
         this.saveBtn = this.btnGroup.addButton(t('Save'), _path + 'inc/template/admin/images/button-save.png', this.save.bind(this));
@@ -348,9 +367,147 @@ var admin_system_module_editWindow = new Class({
 
         this.definition = pDefinition;
 
-
         this.generalObj.setValue(pDefinition.properties);
         this.loadWindowClass(pDefinition['class']);
+
+        //prepare methods
+        Object.each(this.definition.methods, function(code, key){
+            this.newCode[key] = "<?php\n\n"+code+"\n\n?>";
+
+        }.bind(this));
+
+        //methodTab
+        this.methodTab.pane.empty();
+
+        this.methodContainer = new Element('div', {
+            'class': 'ka-system-module-windowEdit-method-container'
+        }).inject(this.methodTab.pane);
+
+        this.methodRight = new Element('div', {
+            'class': 'ka-system-module-windowEdit-method-right ka-system-module-windowEdit-method-codemirror'
+        }).inject(this.methodTab.pane);
+
+        this.methodActionBar = new Element('div', {
+            'class': 'ka-system-module-windoeEdit-method-actionbar'
+        }).inject(this.methodTab.pane);
+
+        new ka.Button(t('Undo'))
+        .addEvent('click', function(){
+            this.methodEditor.undo();
+        }.bind(this))
+        .inject(this.methodActionBar);
+
+        new ka.Button(t('Redo'))
+            .addEvent('click', function(){
+            this.methodEditor.redo();
+        }.bind(this))
+            .inject(this.methodActionBar);
+
+        new ka.Button(t('Remove overwrite'))
+        .addEvent('click', function(){
+
+            if (this.methodEditor && this.lastMethodItem){
+                this.lastMethodItem.removeClass('active');
+
+                var code = this.lastMethodItem.get('text');
+                delete this.newCode[code];
+                this.selectMethod(this.lastMethodItem);
+
+            }
+        }.bind(this))
+        .inject(this.methodActionBar);
+
+        Object.each(this.definition.parentMethods, function(code, item){
+
+            var a = new Element('a', {
+                'class': 'ka-system-module-windowEdit-methods-item',
+                text: item
+            }).inject(this.methodContainer);
+
+            if (this.definition.methods[item]){
+                a.addClass('active');
+            }
+
+            a.addEvent('click', this.selectMethod.bind(this, a));
+
+        }.bind(this));
+
+    },
+
+    checkCurrentEditor: function(){
+
+        if (this.methodEditor && this.lastMethodItem){
+
+            var code = this.lastMethodItem.get('text');
+
+            var newCode = this.methodEditor.getValue();
+
+            if (this.customCode[code] != newCode){
+                this.newCode[code] = newCode;
+                this.lastMethodItem.addClass('active');
+            }
+
+        }
+
+    },
+
+    selectMethod: function(pA){
+
+        this.methodContainer.getChildren().removeClass('selected');
+        pA.addClass('selected');
+
+        var code = pA.get('text');
+        var php;
+
+        if (this.definition.methods[code])
+            php = "<?php\n\n"+this.definition.methods[code]+"\n\n?>";
+
+        if (this.newCode[code])
+            php = this.newCode[code];
+
+        if (!php){
+            php = "<?php\n\n"+this.definition.parentMethods[code]+"\n        $result = parent::"+code+"();\n\n" +
+                "        //my custom code here\n\n" +
+                "        return $result;\n\n" +
+                "    }"+"\n\n?>";
+
+            this.customCode[code] = php;
+
+            this.methodRight.addClass('deactivateTabIndex')
+
+            if (!this.lastMethodNotOverwritten){
+                this.lastMethodNotOverwritten = new Element('div', {
+                    html: '<h2>'+t('Not overwritten.')+'</h2>',
+                    'class': 'ka-system-module-windowEdit-methods-notoverwritten'
+                }).inject(this.methodRight.getParent());
+                this.lastMethodNotOverwritten.setStyle('opacity', 0.8);
+
+                new ka.Button('Overwrite now')
+                .addEvent('click', function(){
+                    this.lastMethodNotOverwritten.destroy();
+                    delete this.lastMethodNotOverwritten;
+                }.bind(this))
+                .inject(this.lastMethodNotOverwritten);
+            }
+
+        } else if (this.lastMethodNotOverwritten){
+            this.lastMethodNotOverwritten.destroy();
+            delete this.lastMethodNotOverwritten;
+        }
+
+        this.lastMethodItem = pA;
+
+        if (!this.methodEditor){
+            this.methodEditor = CodeMirror(this.methodRight, {
+                value: php,
+                lineNumbers: true,
+                onChange: this.checkCurrentEditor.bind(this),
+                mode: "php"
+            });
+        } else {
+            this.methodEditor.setValue(php);
+            this.methodEditor.clearHistory();
+        }
 
     },
 
@@ -386,7 +543,7 @@ var admin_system_module_editWindow = new Class({
     loadWindowClass: function(pClass){
 
 
-        if (pClass == 'windowEdit' || pClass == 'windowAdd'){
+        if (pClass == 'adminWindowEdit' || pClass == 'adminWindowAdd'){
 
             var win = this.newWindow();
 
@@ -441,43 +598,94 @@ var admin_system_module_editWindow = new Class({
 
 
     applyFieldProperties: function(){
-        var val = this.lastFieldProperty.getValue();
 
-        var oField = document.id(this.windowEditFields[this.lastLoadedField]);
-        delete this.windowEditFields[this.lastLoadedField];
 
-        var tab = this.winTabPane.getSelected();
-        var field = this.addWindowEditField(tab.pane, val.key, val.definition);
+        if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.field)){
 
-        var nField = document.id(field);
-        nField.inject(oField, 'after');
+            var val = this.lastFieldProperty.getValue();
 
-        this.lastLoadedField = val.key;
-        document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '1px dashed green');
+            var oField = document.id(this.windowEditFields[this.lastLoadedField]);
+            delete this.windowEditFields[this.lastLoadedField];
 
-        oField.destroy();
+            var tab = this.winTabPane.getSelected();
+            var field = this.addWindowEditField(tab.pane, val.key, val.definition);
+
+            var nField = document.id(field);
+            nField.inject(oField, 'after');
+
+            this.lastLoadedField = val.key;
+            document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '1px dashed green');
+
+            oField.destroy();
+
+        } else {
+
+            var btn = this.windowEditFields[this.lastLoadedField].button;
+
+            var children = btn.getChildren();
+            children.adopt();
+
+            var key = this.toolbarTabId.getValue();
+
+            if (key.substr(0,2) != '__')
+                key = '__' + key;
+            if (key.substr(key.length-2) != '__')
+                key += '__';
+
+            //tab
+            btn.set('text', this.toolbarTabLabel.getValue());
+            btn.store('key', key);
+            btn.store('label', this.toolbarTabLabel.getValue());
+
+            children.inject(btn);
+
+
+        }
 
     },
 
     loadToolbar: function(pKey){
 
         if (this.lastLoadedField && this.windowEditFields[this.lastLoadedField]){
-            document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '0px');
+
+            if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.field))
+                document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline');
+            else
+                document.id(this.windowEditFields[this.lastLoadedField].button).setStyle('border');
         }
 
         var field = this.windowEditFields[pKey];
-        var definition = document.id(field).retrieve('field') || {};
+
+        this.windowInspectorContainer.empty();
 
         if (this.lastFieldProperty){
-
-            this.windowInspectorContainer.empty();
             delete this.lastFieldProperty;
-
         }
+
+        if (!instanceOf(field, ka.field)){
+
+            field.button.setStyle('border', '1px dashed green');
+
+            this.toolbarTabId = new ka.field({
+                type: 'text', label: t('ID'), desc: t('Will be surrounded with __ and __ (double underscore) if its not already.')
+            }, this.windowInspectorContainer);
+
+            this.toolbarTabLabel = new ka.field({
+                type: 'text', label: t('Label')
+            }, this.windowInspectorContainer);
+
+            this.toolbarTabId.setValue(field.button.retrieve('key'));
+            this.toolbarTabLabel.setValue(field.button.retrieve('label'));
+
+            this.lastLoadedField = pKey;
+            return;
+        }
+
+
+        var definition = document.id(field).retrieve('field') || {};
 
         this.lastFieldProperty = new ka.fieldProperty(pKey, definition, this.windowInspectorContainer, {
             arrayKey: true,
-            addLabel: t('Add field'),
             tableitem_title_width: 200,
             allTableItems: false,
             withActionsImages: false,
@@ -510,7 +718,6 @@ var admin_system_module_editWindow = new Class({
 
         if (typeOf(pParentKey) == 'string' && this.windowEditFields[pParentKey]){
 
-            logger(this.windowEditFields[pParentKey]);
             if (this.windowEditFields[pParentKey].pane && this.windowEditFields[pParentKey].pane.hasClass('kwindow-win-tabPane-pane'))
                 parentContainer = this.windowEditFields[pParentKey].pane.fieldContainer;
             else
@@ -640,7 +847,9 @@ var admin_system_module_editWindow = new Class({
             title: t('Edit'),
             style: 'margin-left: 4px;',
             'class': 'ka-system-module-editWindow-tab-edit'
-        }).inject(tab.button);
+        })
+        .addEvent('click', this.loadToolbar.bind(this, pTabKey))
+        .inject(tab.button);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',

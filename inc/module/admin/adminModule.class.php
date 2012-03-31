@@ -175,7 +175,21 @@ class $pClass extends windowEdit {
 
         $reflection = new ReflectionClass($pClass);
         $parent = $reflection->getParentClass();
-        $res['class'] = $parent->name;
+        $parentClass = $parent->name;
+
+        if ($parentClass == 'windowEdit')
+            $parentClass = 'adminWindowEdit';
+
+        if ($parentClass == 'windowAdd')
+            $parentClass = 'adminWindowAdd';
+
+        if ($parentClass == 'windowList')
+            $parentClass = 'adminWindowList';
+
+        if ($parentClass == 'windowCombine')
+            $parentClass = 'adminWindowCombine';
+
+        $res['class'] = $parentClass;
 
         $methods = $reflection->getMethods();
 
@@ -184,10 +198,32 @@ class $pClass extends windowEdit {
 
                 $code = '';
                 for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
-                    $code .= $content[$i];
+                    $code .= $content[$i]."\n";
                 }
 
                 $res['methods'][$method->name] = $code;
+            }
+        }
+
+        $parentPath = PATH_MODULE.'admin/'.$parentClass.'.class.php';
+
+        $parentContent = explode("\n",kryn::fileRead($parentPath));
+        $parentReflection = new ReflectionClass($parentClass);
+
+        $methods = $parentReflection->getMethods();
+        foreach ($methods as $method){
+            if ($method->class == $parentClass){
+
+                $code = '';
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+
+                    $code .= $parentContent[$i]."\n";
+                    if (strpos($parentContent[$i], '{'))
+                        break;
+
+                }
+
+                $res['parentMethods'][$method->name] = $code;
             }
         }
 

@@ -2,11 +2,9 @@
 
 class publicationNewsEdit extends windowEdit {
 
-    public $table = 'publication_news';
+    public $object = 'news';
 
-    public $primary = array('rsn');
     public $multiLanguage = true;
-
     public $versioning = true;
 
     public $previewPlugins = array(

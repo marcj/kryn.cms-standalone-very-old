@@ -26,43 +26,38 @@ var admin_files_edit = new Class({
             pContent = '';
         }
 
-        var exts = {
-            php: 'php',
-            php3: 'php',
-            tpl: 'html',
-            html: 'html',
-            htm: 'html',
-            js: 'javascript',
-            css: 'css',
-            txt: 'text'
-        };
+        var type = this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1);
+        var lineNumbers = false;
+        var json;
 
-        if (this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1)) {
+        var mode = 'htmlmixed';
 
-            var type = this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1);
+        if (type == 'css')
+            mode = 'css';
 
-            if (exts[type]) {
+        if (type == 'js')
+            mode = 'javascript';
 
-                var mode = 'htmlmixed';
+        if (['php', 'php3'].contains(type))
+            mode = 'php';
 
-                if (type == 'css')
-                    mode = 'css';
+        if (type == 'json'){
+            mode = 'javascript';
+            json = true;
+        }
 
-                if (type == 'js')
-                    mode = 'javascript';
+        if (['php', 'javascript', 'htmlmixed', 'css'].contains(mode))
+            lineNumbers = true;
 
-                if (type == 'php')
-                    mode = 'php';
-
-                try {
-                    this.editor = CodeMirror(this.fileContainer, {
-                        value: pContent,
-                        mode: mode
-                    });
-                } catch(e){
-                    this.fileContainer.set('text', pContent);
-                }
-            }
+        try {
+            this.editor = CodeMirror(this.fileContainer, {
+                value: pContent,
+                lineNumbers: lineNumbers,
+                json: json,
+                mode: mode
+            });
+        } catch(e){
+            this.fileContainer.set('text', pContent);
         }
     },
 

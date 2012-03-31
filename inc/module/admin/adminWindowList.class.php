@@ -284,14 +284,6 @@ class adminWindowList {
             }
         }
     }
-
-    /**
-     * Loads all entries from {@link $table}
-     */
-    function load() {
-        $items = dbTableFetch($this->table, DB_FETCH_ALL);
-    }
-
     /**
      * Deletes the Item from the database which is specified in the request
      *
