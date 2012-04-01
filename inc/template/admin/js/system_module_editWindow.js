@@ -466,7 +466,7 @@ var admin_system_module_editWindow = new Class({
             php = this.newCode[code];
 
         if (!php){
-            php = "<?php\n\n"+this.definition.parentMethods[code]+"\n        $result = parent::"+code+"();\n\n" +
+            php = "<?php\n\n"+this.definition.parentMethods[code]+"\n" +
                 "        //my custom code here\n\n" +
                 "        return $result;\n\n" +
                 "    }"+"\n\n?>";
@@ -501,12 +501,64 @@ var admin_system_module_editWindow = new Class({
             this.methodEditor = CodeMirror(this.methodRight, {
                 value: php,
                 lineNumbers: true,
-                onChange: this.checkCurrentEditor.bind(this),
+                onCursorActivity: this.onEditorCursorActivity,
+                onChange: this.onEditorChange.bind(this),
                 mode: "php"
             });
         } else {
             this.methodEditor.setValue(php);
             this.methodEditor.clearHistory();
+        }
+
+    },
+
+    onEditorChange: function(pEditor, pChanges){
+
+        //todo, push this feature to the codemirrow github repo (as "limit" option)
+
+        //if the user want to remove the linebreak in first editable line
+        if (pChanges.from.line == 2 && pChanges.to.line == 3 && pChanges.to.ch == 0){
+            pEditor.replaceRange("\n", pChanges.from);
+            pEditor.setCursor(pChanges.to);
+        }
+
+        //if the user want to remove the linebreak in the line before the last editable line
+        if (pChanges.to.line == pEditor.lineCount()-3 && pChanges.to.ch == 0){
+            pEditor.replaceRange("\n", pEditor.getCursor(false));
+        }
+
+        //check if we have changed the content
+        this.checkCurrentEditor();
+    },
+
+    onEditorCursorActivity: function(pEditor){
+
+        //todo, push this feature to the codemirrow github repo (as "limit" option)
+
+        var firstPos = pEditor.getCursor(true);
+        var lastPos = pEditor.getCursor(false);
+
+        var newFirstPos = firstPos, newLastPos = lastPos, hasBeenChanged = false;
+
+        if (firstPos.line < 3){
+            firstPos.line = 3;
+            firstPos.ch = 0;
+            hasBeenChanged = true;
+        }
+
+        if (lastPos.line > pEditor.lineCount()-5){
+
+            lastPos.line = pEditor.lineCount()-5;
+            lastPos.ch = pEditor.getLine(lastPos.line).length;
+            hasBeenChanged = true;
+        }
+
+        if (hasBeenChanged){
+            if (firstPos == lastPos){
+                pEditor.setCursor(firstPos);
+            } else{
+                pEditor.setSelection(firstPos, lastPos);
+            }
         }
 
     },
