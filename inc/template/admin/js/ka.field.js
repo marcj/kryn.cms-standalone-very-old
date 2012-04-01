@@ -3,7 +3,15 @@ ka.field = new Class({
     Implements: [Options, Events],
 
     options: {
-
+        small: 0,
+        label: null,
+        type: 'text',
+        tableitem: false, //use TR as parent instead of div
+        help: null,
+        startempty: false,
+        'default': null,
+        designMode: false,
+        noWrapper: false //doesnt include the ka-field wrapper, and inject the field controls directly to pContainer
     },
 
     handleChildsMySelf: false, //defines whether this object handles his child visibility itself
@@ -30,7 +38,7 @@ ka.field = new Class({
         if (this.field.tableitem) {
             this.tr = new Element('tr', {
                 'class': 'ka-field-main'
-            }).inject(pContainer || document.hidden);
+            });
             this.tr.store('ka.field', this);
 
             this.title = new Element('td', {
@@ -41,10 +49,13 @@ ka.field = new Class({
             this.main = new Element('td', {
             }).inject(this.tr);
 
+            if (!this.options.noWrapper)
+                this.tr.inject(pContainer || document.hidden);
+
         } else {
             this.main = new Element('div', {
                 'class': 'ka-field-main'
-            }).inject(pContainer || document.hidden);
+            });
             this.main.store('ka.field', this);
 
             if (this.field.panel_width) {
@@ -71,6 +82,8 @@ ka.field = new Class({
                 'class': 'ka-field-title'
             }).inject(this.main);
 
+            if (!this.options.noWrapper)
+                this.main.inject(pContainer || document.hidden);
         }
 
         if (this.field.invisible == 1) {
@@ -119,6 +132,10 @@ ka.field = new Class({
         this.fieldPanel = new Element('div', {
             'class': 'ka-field-field'
         }).inject(this.main);
+
+        if (this.options.noWrapper){
+            this.fieldPanel = pContainer;
+        }
 
         this.addEvent('change', function () {
             this.fireEvent('check-depends');
