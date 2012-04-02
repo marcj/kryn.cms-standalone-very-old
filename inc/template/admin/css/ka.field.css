@@ -145,7 +145,7 @@ textarea:focus {
     width: 304px;
 }
 
-.ka-field-field img.emptyIcon {
+.ka-field-emptyIcon {
     position: absolute;
     top: 6px;
     left: -20px;

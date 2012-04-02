@@ -70,7 +70,7 @@ ka.field = new Class({
                 }).inject(this.main);
                 new Element('h2', {
                     'class': 'ka-field-headline',
-                    html: _(pField.label)
+                    html: t(pField.label)
                 }).inject(this.main);
                 return;
             }
@@ -134,7 +134,7 @@ ka.field = new Class({
         }).inject(this.main);
 
         if (this.options.noWrapper){
-            this.fieldPanel = pContainer;
+            this.fieldPanel = new Element('div', {style: 'position: relative'}).inject(pContainer);
         }
 
         this.addEvent('change', function () {
@@ -2045,7 +2045,7 @@ ka.field = new Class({
 
         this.emptyIcon = new Element('img', {
             src: _path + 'inc/template/admin/images/icons/exclamation.png',
-            'class': 'emptyIcon'
+            'class': 'ka-field-emptyIcon'
         }).inject(this.input.getParent());
 
         this.input.set('class', this.input.get('class') + ' empty');
@@ -2063,7 +2063,7 @@ ka.field = new Class({
         return this.isOk();
     },
 
-    isOk: function () {
+    isFieldValid: function () {
         var ok = true;
 
         if (this.field.empty === false && this.getValue() === '')
@@ -2080,8 +2080,14 @@ ka.field = new Class({
     },
 
     updateOkInfo: function(){
-        var status = this.isOk();
+        var status = this.isFieldValid();
         this.setIsOk(status);
+    },
+
+    isOk: function(){
+        var status = this.isFieldValid();
+        this.setIsOk(status);
+        return status;
     },
 
     getValue: function () {
