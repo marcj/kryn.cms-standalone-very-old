@@ -3,8 +3,10 @@ var admin_system_module_editWindow = new Class({
     windowEditFields: {}, //ka.field object
     windowEditTabs: {}, //addtabPane object
 
-    newCode: {},
-    customCode: {},
+    newCode: {}, //for class methods
+    customCode: {}, //for class methods
+
+    customMethods: {}, //for custom methods
 
     classMethods: {
 
@@ -372,11 +374,11 @@ var admin_system_module_editWindow = new Class({
 
         //prepare methods
         Object.each(this.definition.methods, function(code, key){
-            this.newCode[key] = "<?php\n\n"+code+"\n\n?>";
+            this.newCode[key] = "<?php\n\n"+code+"\n?>";
 
         }.bind(this));
 
-        //methodTab
+        //class methods Tab
         this.methodTab.pane.empty();
 
         this.methodContainer = new Element('div', {
@@ -393,15 +395,17 @@ var admin_system_module_editWindow = new Class({
 
         new ka.Button(t('Undo'))
         .addEvent('click', function(){
-            this.methodEditor.undo();
+            if (this.methodEditor)
+                this.methodEditor.undo();
         }.bind(this))
         .inject(this.methodActionBar);
 
         new ka.Button(t('Redo'))
-            .addEvent('click', function(){
-            this.methodEditor.redo();
+        .addEvent('click', function(){
+            if (this.methodEditor)
+                this.methodEditor.redo();
         }.bind(this))
-            .inject(this.methodActionBar);
+        .inject(this.methodActionBar);
 
         new ka.Button(t('Remove overwrite'))
         .addEvent('click', function(){
@@ -411,6 +415,7 @@ var admin_system_module_editWindow = new Class({
 
                 var code = this.lastMethodItem.get('text');
                 delete this.newCode[code];
+                delete this.definition.methods[code];
                 this.selectMethod(this.lastMethodItem);
 
             }
@@ -432,6 +437,129 @@ var admin_system_module_editWindow = new Class({
 
         }.bind(this));
 
+
+        //custom methods Tab
+        this.customMethodTab.pane.empty();
+
+        this.customMethodContainer = new Element('div', {
+            'class': 'ka-system-module-windowEdit-method-container',
+            style: 'bottom: 35px; border-bottom: 1px solid silver; '
+        }).inject(this.customMethodTab.pane);
+
+        var addBtnContainer = new Element('div', {
+            'class': 'ka-system-module-windowEdit-method-add'
+        }).inject(this.customMethodTab.pane);
+
+        new ka.Button(t('Add method'))
+        .addEvent('click', function(){
+
+            var dialog = this.win.newDialog('<b>'+t('New method')+'</b>');
+            dialog.setStyle('width', 400);
+
+            var d = new Element('div', {
+                style: 'padding: 5px 0px;'
+            }).inject(dialog.content);
+
+            var table = new Element('table').inject(d);
+            var tbody = new Element('tbody').inject(table);
+
+            var fnDefinition = {
+                name: {
+                    type: 'text',
+                    label: t('Name'),
+                    required_regexp: /^[a-zA-Z0-9_]*$/,
+                    empty: false
+                },
+                arguments: {
+                    type: 'text', label: t('Arguments'), desc: t('Comma sperated')
+                },
+                visibility: {
+                    type: 'select', label: t('Visibility'), type: 'select',
+                    items: {public: t('Public'), private: t('Private')}
+                },
+                static: {
+                    type: 'checkbox', label: t('Static')
+                }
+            }
+
+            var fnDefinitionObj = new ka.parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
+
+            new ka.Button(t('Cancel'))
+            .addEvent('click', function(){
+                dialog.close();
+            })
+            .inject(dialog.bottom);
+
+            new ka.Button(t('Apply'))
+            .addEvent('click', function(){
+
+                if (fnDefinitionObj.isOk()){
+
+                    var name = fnDefinitionObj.getValue('name');
+                    if (this.definition.parentMethods[name]){
+                        this.win._alert(t('This method name is already in used by the parent class. Please write your code in the class methods tab.'));
+                        return;
+                    }
+
+
+                    if (this.customMethods[name]){
+                        this.win._alert(t('This method does already exists. Please choose another name.'));
+                        return;
+                    }
+
+                    //this.customMethods[name] = "<?php\n\n    ";
+
+                    this.customMethods[name] = fnDefinitionObj.getValue('visibility')+" ";
+
+                    this.customMethods[name] += fnDefinitionObj.getValue('static')==1?"static ":"";
+
+
+                    this.customMethods[name] += "function "+name+"("+fnDefinitionObj.getValue('arguments')+"){";
+
+                    var a = new Element('a', {
+                        'class': 'ka-system-module-windowEdit-methods-item',
+                        text: name
+                    })
+                    .inject(this.customMethodContainer);
+
+                    a.addEvent('click', this.selectCustomMethod.bind(this,a));
+
+                    this.selectCustomMethod(a);
+                    dialog.close();
+                }
+
+
+            }.bind(this))
+            .inject(dialog.bottom);
+
+
+            dialog.center();
+
+        }.bind(this))
+        .inject(addBtnContainer);
+
+        this.customMethodRight = new Element('div', {
+            'class': 'ka-system-module-windowEdit-method-right ka-system-module-windowEdit-method-codemirror'
+        }).inject(this.customMethodTab.pane);
+
+        this.customMethodActionBar = new Element('div', {
+            'class': 'ka-system-module-windoeEdit-method-actionbar'
+        }).inject(this.customMethodTab.pane);
+
+        new ka.Button(t('Undo'))
+        .addEvent('click', function(){
+            if (this.customMethodEditor)
+                this.customMethodEditor.undo();
+        }.bind(this))
+        .inject(this.customMethodActionBar);
+
+        new ka.Button(t('Redo'))
+        .addEvent('click', function(){
+            if (this.customMethodEditor)
+                this.customMethodEditor.redo();
+        }.bind(this))
+        .inject(this.customMethodActionBar);
+
     },
 
     checkCurrentEditor: function(){
@@ -451,6 +579,48 @@ var admin_system_module_editWindow = new Class({
 
     },
 
+    checkCurrentCustomEditor: function(){
+        if (this.customMethodEditor && this.lastCustomMethodItem){
+
+            var code = this.lastCustomMethodItem.get('text');
+            logger("update: "+code);
+            this.customMethods[code] = this.customMethodEditor.getValue();
+
+        }
+    },
+
+    selectCustomMethod: function(pA){
+
+        this.customMethodContainer.getChildren().removeClass('selected');
+        pA.addClass('selected');
+        var name = pA.get('text');
+
+        if (this.customMethods[name].substr(0,5) != '<?php'){
+            this.customMethods[name] = "<?php\n\n    "+this.customMethods[name]+"\n\n       //my code\n    }\n\n?>";
+        }
+
+        this.lastCustomMethodItem = pA;
+
+        var php = this.customMethods[name];
+
+        if (!this.customMethodEditor){
+            this.customMethodEditor = CodeMirror(this.customMethodRight, {
+                value: php,
+                lineNumbers: true,
+                onCursorActivity: this.onEditorCursorActivity,
+                onChange: function(pEditor, pChanged){
+                    this.onEditorChange(pEditor, pChanged);
+                    this.checkCurrentCustomEditor();
+                }.bind(this),
+                mode: "php"
+            });
+        } else {
+            this.customMethodEditor.setValue(php);
+            this.customMethodEditor.clearHistory();
+        }
+
+    },
+
     selectMethod: function(pA){
 
         this.methodContainer.getChildren().removeClass('selected');
@@ -460,7 +630,7 @@ var admin_system_module_editWindow = new Class({
         var php;
 
         if (this.definition.methods[code])
-            php = "<?php\n\n"+this.definition.methods[code]+"\n\n?>";
+            php = "<?php\n\n"+this.definition.methods[code]+"\n?>";
 
         if (this.newCode[code])
             php = this.newCode[code];
@@ -502,7 +672,10 @@ var admin_system_module_editWindow = new Class({
                 value: php,
                 lineNumbers: true,
                 onCursorActivity: this.onEditorCursorActivity,
-                onChange: this.onEditorChange.bind(this),
+                onChange: function(pEditor, pChanged){
+                    this.onEditorChange(pEditor, pChanged);
+                    this.checkCurrentEditor();
+                }.bind(this),
                 mode: "php"
             });
         } else {
@@ -514,7 +687,7 @@ var admin_system_module_editWindow = new Class({
 
     onEditorChange: function(pEditor, pChanges){
 
-        //todo, push this feature to the codemirrow github repo (as "limit" option)
+        //todo, push this feature to the codemirror github repo (as "limit" option)
 
         //if the user want to remove the linebreak in first editable line
         if (pChanges.from.line == 2 && pChanges.to.line == 3 && pChanges.to.ch == 0){
@@ -523,17 +696,15 @@ var admin_system_module_editWindow = new Class({
         }
 
         //if the user want to remove the linebreak in the line before the last editable line
-        if (pChanges.to.line == pEditor.lineCount()-3 && pChanges.to.ch == 0){
+        if (pChanges.to.line == pEditor.lineCount()-2 && pChanges.to.ch == 0){
             pEditor.replaceRange("\n", pEditor.getCursor(false));
         }
 
-        //check if we have changed the content
-        this.checkCurrentEditor();
     },
 
     onEditorCursorActivity: function(pEditor){
 
-        //todo, push this feature to the codemirrow github repo (as "limit" option)
+        //todo, push this feature to the codemirror github repo (as "limit" option)
 
         var firstPos = pEditor.getCursor(true);
         var lastPos = pEditor.getCursor(false);
@@ -546,9 +717,9 @@ var admin_system_module_editWindow = new Class({
             hasBeenChanged = true;
         }
 
-        if (lastPos.line > pEditor.lineCount()-5){
+        if (pEditor.lineCount() > 6 && lastPos.line > pEditor.lineCount()-4){
 
-            lastPos.line = pEditor.lineCount()-5;
+            lastPos.line = pEditor.lineCount()-4;
             lastPos.ch = pEditor.getLine(lastPos.line).length;
             hasBeenChanged = true;
         }

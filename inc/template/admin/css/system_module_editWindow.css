@@ -158,6 +158,11 @@
     color: white;
 }
 
+.ka-system-module-windowEdit-method-add {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+}
 
 .ka-system-module-windowEdit-method-codemirror {
     background-color: white;
