@@ -7,6 +7,7 @@ var admin_system_module_editWindow = new Class({
     customCode: {}, //for class methods
 
     customMethods: {}, //for custom methods
+    customMethodItems: {}, //ref to <a> element of the custom method list
 
     classMethods: {
 
@@ -372,9 +373,13 @@ var admin_system_module_editWindow = new Class({
         this.generalObj.setValue(pDefinition.properties);
         this.loadWindowClass(pDefinition['class']);
 
-        //prepare methods
+        //prepare class methods
         Object.each(this.definition.methods, function(code, key){
             this.newCode[key] = "<?php\n\n"+code+"\n?>";
+
+            if (!this.definition.parentMethods[key]){
+                this.customMethods[key] = this.newCode[key];
+            }
 
         }.bind(this));
 
@@ -516,22 +521,15 @@ var admin_system_module_editWindow = new Class({
 
                     this.customMethods[name] += "function "+name+"("+fnDefinitionObj.getValue('arguments')+"){";
 
-                    var a = new Element('a', {
-                        'class': 'ka-system-module-windowEdit-methods-item',
-                        text: name
-                    })
-                    .inject(this.customMethodContainer);
+                    this.renderCustomMethodList();
 
-                    a.addEvent('click', this.selectCustomMethod.bind(this,a));
-
-                    this.selectCustomMethod(a);
+                    this.selectCustomMethod(this.customMethodItems[name]);
                     dialog.close();
                 }
 
 
             }.bind(this))
             .inject(dialog.bottom);
-
 
             dialog.center();
 
@@ -560,6 +558,132 @@ var admin_system_module_editWindow = new Class({
         }.bind(this))
         .inject(this.customMethodActionBar);
 
+        this.renderCustomMethodList();
+
+    },
+
+    renderCustomMethodList: function(){
+
+        delete this.customMethodItems;
+        this.customMethodItems = {};
+
+        this.customMethodContainer.empty();
+
+        Object.each(this.customMethods, function(code, key){
+
+            var a = new Element('a', {
+                'class': 'ka-system-module-windowEdit-methods-item',
+                text: key
+            })
+            .inject(this.customMethodContainer);
+
+            new Element('img', {
+                src: _path+'inc/template/admin/images/icons/pencil.png',
+                'class': 'ka-system-module-windowEdit-methods-item-pencil',
+                title: t('Edit')
+            })
+            .addEvent('click', function(e){
+                e.stopPropagation();
+                this.openCustomMethodEditor(a);
+            }.bind(this))
+            .inject(a);
+
+            a.addEvent('click', this.selectCustomMethod.bind(this,a));
+
+            this.customMethodItems[key] = a;
+
+        }.bind(this));
+
+    },
+
+    parseMethodDefintion: function(pCode){
+
+
+
+    },
+
+    openCustomMethodEditor: function(pA){
+
+        var key = pA.get('text');
+
+        var parsedInfos = this.parseMethodDefintion(this.customMethods[key]);
+
+        var dialog = this.win.newDialog('<b>'+t('Edit method')+'</b>');
+        dialog.setStyle('width', 400);
+
+        var d = new Element('div', {
+            style: 'padding: 5px 0px;'
+        }).inject(dialog.content);
+
+        var table = new Element('table').inject(d);
+        var tbody = new Element('tbody').inject(table);
+
+        var fnDefinition = {
+            name: {
+                type: 'text',
+                label: t('Name'),
+                required_regexp: /^[a-zA-Z0-9_]*$/,
+                empty: false
+            },
+            arguments: {
+                type: 'text', label: t('Arguments'), desc: t('Comma sperated')
+            },
+            visibility: {
+                type: 'select', label: t('Visibility'), type: 'select',
+                items: {public: t('Public'), private: t('Private')}
+            },
+            static: {
+                type: 'checkbox', label: t('Static')
+            }
+        }
+
+        var fnDefinitionObj = new ka.parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
+
+        new ka.Button(t('Cancel'))
+            .addEvent('click', function(){
+            dialog.close();
+        })
+            .inject(dialog.bottom);
+
+        new ka.Button(t('Apply'))
+            .addEvent('click', function(){
+
+            if (fnDefinitionObj.isOk()){
+
+                var name = fnDefinitionObj.getValue('name');
+                if (this.definition.parentMethods[name]){
+                    this.win._alert(t('This method name is already in used by the parent class. Please write your code in the class methods tab.'));
+                    return;
+                }
+
+                if (this.customMethods[name]){
+                    this.win._alert(t('This method does already exists. Please choose another name.'));
+                    return;
+                }
+
+                //this.customMethods[name] = "<?php\n\n    ";
+
+                this.customMethods[name] = fnDefinitionObj.getValue('visibility')+" ";
+
+                this.customMethods[name] += fnDefinitionObj.getValue('static')==1?"static ":"";
+
+
+                this.customMethods[name] += "function "+name+"("+fnDefinitionObj.getValue('arguments')+"){";
+
+                this.renderCustomMethodList();
+
+                this.selectCustomMethod(this.customMethodItems[name]);
+                dialog.close();
+            }
+
+
+        }.bind(this))
+            .inject(dialog.bottom);
+
+        dialog.center();
+
+        fnDefinitionObj.setValue()
+
     },
 
     checkCurrentEditor: function(){
@@ -583,7 +707,6 @@ var admin_system_module_editWindow = new Class({
         if (this.customMethodEditor && this.lastCustomMethodItem){
 
             var code = this.lastCustomMethodItem.get('text');
-            logger("update: "+code);
             this.customMethods[code] = this.customMethodEditor.getValue();
 
         }

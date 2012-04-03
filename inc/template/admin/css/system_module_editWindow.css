@@ -134,6 +134,7 @@
     padding: 4px 15px;
     color: #aaa;
     cursor: default;
+    position: relative;
     border-bottom: 1px solid #ddd;
 }
 
@@ -168,6 +169,14 @@
     background-color: white;
     border: 1px solid #bbb;
     margin: 5px;
+}
+
+.ka-system-module-windowEdit-methods-item-pencil {
+    position: absolute;
+    right: 8px;
+    top: 4px;
+    width: 12px;
+    cursor: pointer;
 }
 
 .ka-system-module-windowEdit-method-codemirror .CodeMirror-scroll {
