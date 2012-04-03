@@ -3,8 +3,8 @@ var admin_system_module_editWindow = new Class({
     windowEditFields: {}, //ka.field object
     windowEditTabs: {}, //addtabPane object
 
-    newCode: {}, //for class methods
-    customCode: {}, //for class methods
+    newCode: {}, //for class methods, code after modifing
+    customCode: {}, //for class methods, presaved code
 
     customMethods: {}, //for custom methods
     customMethodItems: {}, //ref to <a> element of the custom method list
@@ -303,7 +303,7 @@ var admin_system_module_editWindow = new Class({
 
         var tabs = this.winTabPane.buttonGroup.box.getChildren();
 
-        var res = {};
+        var fields = {};
 
         Array.each(tabs, function(button, idx){
 
@@ -317,7 +317,7 @@ var admin_system_module_editWindow = new Class({
 
             var label = button.retrieve('label');
 
-            res[key] = {
+            fields[key] = {
                 type: 'tab',
                 label: label
             };
@@ -325,8 +325,8 @@ var admin_system_module_editWindow = new Class({
             var depends = {};
             var iIdx = 0;
 
-            var fields = button.pane.getElements('.ka-field-main');
-            Array.each(fields, function(field, idx){
+            var subfields = button.pane.getElements('.ka-field-main');
+            Array.each(subfields, function(field, idx){
 
                 var fKey = field.retrieve('key');
                 var fField = field.retrieve('field');
@@ -341,10 +341,62 @@ var admin_system_module_editWindow = new Class({
 
             });
 
-            res[key]['depends'] = depends;
+            fields[key]['depends'] = depends;
 
 
         });
+
+        var methods = {}
+
+        this.methodContainer.getElements('a').each(function(item){
+            var key = item.get('text');
+
+            if (this.newCode[key]){
+                methods[key] = this.newCode[key];
+            }
+        }.bind(this));
+
+        this.customMethodContainer.getElements('a').each(function(item){
+            var key = item.get('text');
+
+            if (this.customMethods[key]){
+                methods[key] = this.customMethods[key];
+            }
+        }.bind(this));
+
+        var res = {
+            name: this.win.params.module,
+            'class': this.win.params.className,
+
+            general: this.generalObj.getValue(),
+
+            fields: fields,
+            methods: methods
+        };
+
+        this.saveBtn.startTip(t('Saving ...'));
+
+        this.lastReq = new Request.JSON({url: _path+'admin/system/module/saveWindowClass', noCache: 1,
+
+        noErrorReporting: true,
+        onComplete: function(res){
+
+            if (res.error == 'no_writeaccess'){
+                this.win._alert(t('No writeaccess to file: %s').replace('%s', res.error_file));
+                this.saveBtn.stopTip(t('Failed (Writeaccess)'));
+                return;
+            }
+
+
+            if (res.success == 1){
+                this.saveBtn.stopTip(t('Done'));
+                return;
+            }
+
+            this.saveBtn.stopTip(t('Failed'));
+
+
+        }.bind(this)}).post(res);
 
 
         logger(res);
@@ -572,7 +624,7 @@ var admin_system_module_editWindow = new Class({
         Object.each(this.customMethods, function(code, key){
 
             var a = new Element('a', {
-                'class': 'ka-system-module-windowEdit-methods-item',
+                'class': 'ka-system-module-windowEdit-customMethods-item',
                 text: key
             })
             .inject(this.customMethodContainer);
@@ -588,6 +640,30 @@ var admin_system_module_editWindow = new Class({
             }.bind(this))
             .inject(a);
 
+            new Element('img', {
+                src: _path+'inc/template/admin/images/icons/delete.png',
+                'class': 'ka-system-module-windowEdit-methods-item-remove',
+                title: t('Remove')
+            })
+            .addEvent('click', function(e){
+
+                e.stopPropagation();
+                this.win._confirm(t('Really remove?'), function(res){
+
+                    if (!res) return;
+                    delete this.customMethods[key];
+
+                    if (this.lastCustomMethodItem == a){
+                        this.customMethodEditor.setValue('');
+                        delete this.lastCustomMethodItem;
+                    }
+
+                    a.destroy();
+                }.bind(this));
+
+            }.bind(this))
+            .inject(a);
+
             a.addEvent('click', this.selectCustomMethod.bind(this,a));
 
             this.customMethodItems[key] = a;
@@ -598,7 +674,20 @@ var admin_system_module_editWindow = new Class({
 
     parseMethodDefintion: function(pCode){
 
+        var res = pCode.match(/(public|private)\s*(static|)\s*function ([a-zA-Z0-9]*)\(([^\)]*)\)\s*{/);
 
+        if (res){
+
+            return {
+                visibility: res[1],
+                static: res[2]!=""?true:false,
+                name: res[3],
+                arguments: res[4]
+            };
+
+        }
+
+        return {};
 
     },
 
@@ -656,23 +745,28 @@ var admin_system_module_editWindow = new Class({
                     return;
                 }
 
-                if (this.customMethods[name]){
-                    this.win._alert(t('This method does already exists. Please choose another name.'));
-                    return;
-                }
-
                 //this.customMethods[name] = "<?php\n\n    ";
 
-                this.customMethods[name] = fnDefinitionObj.getValue('visibility')+" ";
+                var pos = this.customMethods[key].indexOf('{');
+                var lPos = this.customMethods[key].indexOf('}');
+                var codeContent = this.customMethods[key].substring(pos+1, lPos);
 
-                this.customMethods[name] += fnDefinitionObj.getValue('static')==1?"static ":"";
+                var newCode = fnDefinitionObj.getValue('visibility')+" ";
 
+                newCode += fnDefinitionObj.getValue('static')==1?"static ":"";
 
-                this.customMethods[name] += "function "+name+"("+fnDefinitionObj.getValue('arguments')+"){";
+                newCode += "function "+name+"("+fnDefinitionObj.getValue('arguments')+"){";
+
+                delete this.customMethods[key];
+                this.customMethods[name] = "<?php\n\n    "+newCode + codeContent+"}\n\n?>";
+
+                var selectThis = this.lastCustomMethodItem == this.customMethodItems[key];
 
                 this.renderCustomMethodList();
 
-                this.selectCustomMethod(this.customMethodItems[name]);
+                if (selectThis)
+                    this.selectCustomMethod(this.customMethodItems[name]);
+
                 dialog.close();
             }
 
@@ -682,7 +776,7 @@ var admin_system_module_editWindow = new Class({
 
         dialog.center();
 
-        fnDefinitionObj.setValue()
+        fnDefinitionObj.setValue(parsedInfos);
 
     },
 
@@ -715,6 +809,9 @@ var admin_system_module_editWindow = new Class({
     selectCustomMethod: function(pA){
 
         this.customMethodContainer.getChildren().removeClass('selected');
+
+        $$(this.customMethodRight, this.customMethodActionBar).setStyle('display', 'block');
+
         pA.addClass('selected');
         var name = pA.get('text');
 
@@ -749,6 +846,8 @@ var admin_system_module_editWindow = new Class({
         this.methodContainer.getChildren().removeClass('selected');
         pA.addClass('selected');
 
+        $$(this.methodRight, this.methodActionBar).setStyle('display', 'block');
+
         var code = pA.get('text');
         var php;
 
@@ -771,7 +870,8 @@ var admin_system_module_editWindow = new Class({
             if (!this.lastMethodNotOverwritten){
                 this.lastMethodNotOverwritten = new Element('div', {
                     html: '<h2>'+t('Not overwritten.')+'</h2>',
-                    'class': 'ka-system-module-windowEdit-methods-notoverwritten'
+                    'class': 'ka-system-module-windowEdit-methods-notoverwritten',
+                    style: 'display: block'
                 }).inject(this.methodRight.getParent());
                 this.lastMethodNotOverwritten.setStyle('opacity', 0.8);
 

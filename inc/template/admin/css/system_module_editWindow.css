@@ -98,6 +98,7 @@
 .ka-system-module-windowEdit-method-right,
 .ka-system-module-windowEdit-methods-notoverwritten {
     position: absolute;
+    display: none;
     right: 0px;
     left: 251px;
     top: 0px;
@@ -112,6 +113,7 @@
 
 .ka-system-module-windoeEdit-method-actionbar {
     position: absolute;
+    display: none;
     right: 5px;
     bottom: 5px;
 }
@@ -171,12 +173,25 @@
     margin: 5px;
 }
 
-.ka-system-module-windowEdit-methods-item-pencil {
+.ka-system-module-windowEdit-methods-item-pencil,
+.ka-system-module-windowEdit-methods-item-remove {
     position: absolute;
     right: 8px;
     top: 4px;
     width: 12px;
     cursor: pointer;
+}
+
+
+.ka-system-module-windowEdit-methods-item-pencil {
+    right: 22px;
+}
+
+.ka-system-module-windowEdit-method-container a.ka-system-module-windowEdit-customMethods-item {
+    color: #333;
+}
+.ka-system-module-windowEdit-method-container a.ka-system-module-windowEdit-customMethods-item.selected {
+    color: white;
 }
 
 .ka-system-module-windowEdit-method-codemirror .CodeMirror-scroll {

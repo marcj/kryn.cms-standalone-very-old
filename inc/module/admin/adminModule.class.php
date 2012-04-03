@@ -123,6 +123,8 @@ class adminModule {
 
             case 'getWindowDefinition':
                 return self::getWindowDefinition(getArgv('name', 2), getArgv('class', 2));
+            case 'saveWindowClass':
+                return self::saveWindowClass(getArgv('name', 2), getArgv('class', 2));
             case 'getWindows':
                 json(self::getWindows(getArgv('name', 2)));
             case 'newWindow':
@@ -147,6 +149,13 @@ class $pClass extends windowEdit {
 
 
         return true;
+    }
+
+    public static function saveWindowClass($pName, $pClass){
+
+        $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
+
+        return array('error' => 'no_writeaccess', 'error_file' => $path);
     }
 
     public static function getWindowDefinition($pName, $pClass){
