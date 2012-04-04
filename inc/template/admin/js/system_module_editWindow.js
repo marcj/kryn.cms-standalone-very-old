@@ -54,10 +54,10 @@ var admin_system_module_editWindow = new Class({
                 label: t('Class'),
                 type: 'select',
                 items: {
-                    windowEdit: t('Window edit'),
-                    windowAdd: t('Window add'),
-                    windowList: t('Window list'),
-                    windowCombine: t('Window combine')
+                    adminWindowEdit: t('Window edit'),
+                    adminWindowAdd: t('Window add'),
+                    adminWindowList: t('Window list'),
+                    adminWindowCombine: t('Window combine')
                 }
             },
             dataModel: {

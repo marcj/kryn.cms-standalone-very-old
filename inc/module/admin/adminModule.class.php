@@ -155,7 +155,65 @@ class $pClass extends windowEdit {
 
         $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
 
-        return array('error' => 'no_writeaccess', 'error_file' => $path);
+        if (file_exists($path) && !is_writeable($path)){
+            return array('error' => 'no_writeaccess', 'error_file' => $path);
+        }
+
+        if (!file_exists($path) && !is_writeable(dirname($path))){
+            return array('error' => 'no_writeaccess', 'error_file' => dirname($path));
+        }
+
+        if (!file_exists($path)){
+            touch($path);
+        }
+
+        $general = getArgv('general');
+
+        $php = "<?php\n\n";
+
+        $php .= "class $pClass extends ".$general['class']." {\n\n";
+
+        foreach ($general as $key => $val){
+            if ($key == 'class') continue;
+            if ($key == 'object') continue;
+            if ($key == 'primary') continue;
+
+            if ($key == 'dataModel'){
+                if ($val == 'object')
+                    $php .= "    public \$object = '".$general['object']."';\n\n";
+                else {
+                    $php .= "    public \$table = '".$general['table']."';\n\n";
+                    $php .= "    public \primary = '".$general['primary']."';\n\n";
+                }
+            } else {
+                if ($val == 'true') $val = true;
+                if ($val == 'false') $val = false;
+                $php .= "    public $".$key." = ".var_export($val,true).";\n\n";
+            }
+        }
+
+        $methods = getArgv('methods');
+
+        foreach ($methods as $key => $val){
+
+            if (substr($val, 0, 5) == '<?php'){
+                $val = substr($val, 6, -3);
+            }
+
+            $php .= $val;
+
+        }
+
+        $fieldsCode = var_export(getArgv('fields'), true);
+        $fieldsCode = preg_replace("/=>\s*array/", "=> array", $fieldsCode);
+        $fieldsCode = str_replace("\n", "\n      ", $fieldsCode);
+
+        $php .= "\n    public \$tabFields = ".$fieldsCode.";\n\n";
+
+        $php .= "}\n ?>";
+
+        return kryn::fileWrite($path, $php);
+
     }
 
     public static function getWindowDefinition($pName, $pClass){
@@ -166,7 +224,7 @@ class $pClass extends windowEdit {
         require_once(PATH_MODULE.'admin/adminWindowAdd.class.php');
         require_once(PATH_MODULE.'admin/adminWindowList.class.php');
 
-        $content = explode("\n",kryn::fileRead($path));
+        $content = explode("\n", kryn::fileRead($path));
 
         if (!file_exists($path)) return array('error' => 'class_file_not_found');
 

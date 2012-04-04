@@ -2766,7 +2766,9 @@ class kryn {
      */
     public static function fileWrite($pPath, $pContent) {
 
-        $h = @fopen((substr($pPath,0,1) == '/') ? $pPath : PATH . $pPath, 'w');
+        $pPath = (substr($pPath,0,1) == '/' || substr($pPath,1,1) == ':') ? $pPath : PATH . $pPath;
+
+        $h = @fopen($pPath, 'w');
         if ($h) {
             fwrite($h, $pContent);
             fclose($h);
