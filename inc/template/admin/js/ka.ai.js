@@ -59,7 +59,6 @@ Request.JSON = new Class({
         ka.kastRequestBubble = ka._helpsystem.newBubble(
             t('Request error'),
             t('There has been a error occured during the last request. Either you lost your internet connection or the server has serious troubles.')+
-                "<br/><br/>"+t('Error code: %s').replace('%s', pResult.error)+
                 "<br/>"+'URI: %s'.replace('%s', this.options.url),
             15000);
 

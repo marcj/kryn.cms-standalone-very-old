@@ -812,9 +812,11 @@ class admin {
 
     public static function getDesktop() {
         global $adminClient;
+
         if ($adminClient->user_rsn > 0) {
             $row = dbTableFetch('system_user', 1, "rsn = " . $adminClient->user_rsn);
-            json($row['desktop']);
+            if ($row['desktop'])
+                json($row['desktop']);
         }
         json(false);
     }
