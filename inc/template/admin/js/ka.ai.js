@@ -1,4 +1,4 @@
-/* admin index */
+
 if (typeof window.ka == 'undefined') {
     window.ka = {};
 }
@@ -13,7 +13,7 @@ document.addEvent('touchmove', function (event) {
 if ($type(ka.langs) != 'object') ka.langs = {};
 
 var logger = function (pVal) {
-    if (typeof console != "undefined") {
+    if (typeOf(console) != "undefined") {
         console.log(pVal);
     }
 }
@@ -32,7 +32,6 @@ window._ = function (p) {
     return t(p);
     //return _kml2html(p);
 }
-
 
 /**
  * Request.JSON - extended to get some informations about calls
