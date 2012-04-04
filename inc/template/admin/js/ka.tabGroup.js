@@ -101,6 +101,10 @@ ka.tabGroup = new Class({
             }
         }
 
+        pButton.isPressed = function(){
+            return pButton.hasClass('ka-tabGroup-item-active');
+        }
+
         pButton.store('visible', true);
         this.rerender(true);
     }

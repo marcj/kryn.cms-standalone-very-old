@@ -166,8 +166,12 @@ class adminWindowEdit {
             $i++;
         }
 
-        foreach ($pFields as $key => &$field){
-            if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
+        if (is_array($pFields)){
+            foreach ($pFields as $key => &$field){
+                if (is_array($field) && $field['depends']){
+                    $this->prepareFieldDefinition($field['depends']);
+                }
+            }
         }
 
     }

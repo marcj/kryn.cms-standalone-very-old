@@ -1744,7 +1744,8 @@ ka.parse = new Class({
 
         this.setOptions(pOptions);
         this.refs = pRefs;
-        this.main = pContainer
+        this.main = pContainer;
+        this.definition = pDefinition;
 
         this.parseLevel(pDefinition, this.main);
 
@@ -1786,6 +1787,21 @@ ka.parse = new Class({
                 }
             }
         }.bind(this));
+    },
+
+    getTabButtons: function(){
+
+        var res = {};
+
+        Object.each(this.definition, function(item, key){
+
+            if (item.type == 'tab'){
+                res[key] = this.fields[key];
+            }
+
+        }.bind(this));
+
+        return res;
     },
 
     toElement: function () {
@@ -2061,6 +2077,10 @@ ka.parse = new Class({
 
     getFields: function () {
         return this.fields;
+    },
+
+    getField: function (pField) {
+        return this.fields[pField];
     },
 
     getValue: function (pField) {

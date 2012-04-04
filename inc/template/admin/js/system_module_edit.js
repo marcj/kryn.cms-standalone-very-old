@@ -1820,8 +1820,8 @@ var admin_system_module_edit = new Class({
                         desc: t("You need then a extra field 'domain_rsn' int")
                     },
                     plugins: {
-                        label: t('Plugins'),
-                        desc: t('Which plugins handles the frontend output of this object? These plugins generates then also the frontend URL. Comma separated.')
+                        label: t('Plugins (View controller)'),
+                        desc: t('Which plugins handles the frontend output of this object? Comma separated.')
                     }
                 }
             },

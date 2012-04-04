@@ -17,6 +17,7 @@
 
 .ka-tabPane-pane {
     display: none;
+    position: relative;
 }
 
 .ka-tabPane-full .ka-tabPane-pane,

@@ -186,9 +186,9 @@ class $pClass extends windowEdit {
                     $php .= "    public \primary = '".$general['primary']."';\n\n";
                 }
             } else {
-                if ($val == 'true') $val = true;
-                if ($val == 'false') $val = false;
-                $php .= "    public $".$key." = ".var_export($val,true).";\n\n";
+                if ($val === 'true') $val = true;
+                if ($val === 'false') $val = false;
+                $php .= "    public $".$key." = ".var_export($val, true).";\n\n";
             }
         }
 
@@ -204,17 +204,34 @@ class $pClass extends windowEdit {
 
         }
 
-        $fieldsCode = var_export(getArgv('fields'), true);
+        $fields = getArgv('fields');
+        self::parseFieldValues($fields);
+
+        $fieldsCode = var_export($fields, true);
         $fieldsCode = preg_replace("/=>\s*array/", "=> array", $fieldsCode);
         $fieldsCode = str_replace("\n", "\n      ", $fieldsCode);
 
-        $php .= "\n    public \$tabFields = ".$fieldsCode.";\n\n";
+        $php .= "\n    public \$fields = ".$fieldsCode.";\n\n";
 
         $php .= "}\n ?>";
 
         return kryn::fileWrite($path, $php);
 
     }
+
+    public static function parseFieldValues(&$pFields){
+
+        if (is_array($pFields)){
+            foreach ($pFields as &$value){
+                if (is_numeric($value)) $value += 0;
+                if (is_array($value)) self::parseFieldValues($value);
+
+            }
+        }
+
+
+    }
+
 
     public static function getWindowDefinition($pName, $pClass){
 
@@ -270,6 +287,10 @@ class $pClass extends windowEdit {
 
                 $res['methods'][$method->name] = $code;
             }
+        }
+
+        if (getArgv('parentClass')){
+            $parentClass = getArgv('parentClass', 2);
         }
 
         $parentPath = PATH_MODULE.'admin/'.$parentClass.'.class.php';

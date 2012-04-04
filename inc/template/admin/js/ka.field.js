@@ -1880,7 +1880,7 @@ ka.field = new Class({
         this.checkbox = new ka.Checkbox(this.fieldPanel);
 
         this.getValue = function(){
-            return this.checkbox.getValue();
+            return this.checkbox.getValue() == true? 1:0;
         }.bind(this);
 
         this.checkbox.addEvent('change', function(){
@@ -2066,7 +2066,7 @@ ka.field = new Class({
     isFieldValid: function () {
         var ok = true;
 
-        if (this.field.empty === false && this.getValue() === '')
+        if ((this.field.empty === "0" || this.field.empty === 0 || this.field.empty === false) && this.getValue() === '')
             ok = false;
 
         if (this.field.required_regexp){

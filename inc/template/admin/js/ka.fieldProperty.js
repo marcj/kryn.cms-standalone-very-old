@@ -418,7 +418,7 @@ ka.fieldProperty = new Class({
         var property = kaParse.getValue();
 
         Object.each(property, function(pval, pkey){
-            if(pval == ''){
+            if(pval === ''){
                 delete property[pkey];
                 return;
             }
@@ -455,6 +455,8 @@ ka.fieldProperty = new Class({
             }
 
         }.bind(this));
+
+        logger(property);
 
         property.depends = {};
 

@@ -4,6 +4,8 @@ ka.windowEdit = new Class({
 
     inline: false,
 
+    fieldToTabOIndex: {}, //index fieldkey to main-tabid
+
     winParams: {}, //copy of pWin.params in constructor
 
     initialize: function (pWin, pContainer) {
@@ -361,8 +363,8 @@ ka.windowEdit = new Class({
 
     renderFields: function () {
 
-        if (this.values.fields && $type(this.values.fields) != 'array') {
-            //backward compatible
+        if (this.values.fields && typeOf(this.values.fields) != 'array') {
+
             this.form = new Element('div', {
                 'class': 'ka-windowEdit-form'
             }).inject(this.container);
@@ -371,11 +373,13 @@ ka.windowEdit = new Class({
                 this.form.set('html', this.values.layout);
             }
 
-            var parser = new ka.parse(this.form, this.values.fields, {}, {win: this.win});
+            var parser = new ka.parse(this.form, this.values.fields, {tabsInWindowHeader: 1}, {win: this.win});
             this.fields = parser.getFields();
 
-        } else if (this.values.tabFields) {
+            this._buttons = parser.getTabButtons();
 
+        } else if (this.values.tabFields) {
+            //backward compatible
 
             this.topTabGroup = this.win.addSmallTabGroup();
 
@@ -403,11 +407,34 @@ ka.windowEdit = new Class({
                 var pfields = parser.getFields();
                 Object.append(this.fields, pfields);
 
-                this._buttons[ title ] = this.topTabGroup.addButton(_(title), this.changeTab.bind(this, title));
+                this._buttons[ title ] = this.topTabGroup.addButton(t(title), this.changeTab.bind(this, title));
             }.bind(this));
             this.changeTab(this.firstTab);
         }
 
+
+        //generate index, fieldkey => main-tabid
+        Object.each(this.values.fields, function(item, key){
+            if (item.type == 'tab')
+                this.setFieldToTabIdIndex(item.depends, key);
+        }.bind(this));
+
+
+        //generate index, fieldkey => main-tabid
+        Object.each(this.values.tabFields, function(items, key){
+            this.setFieldToTabIdIndex(items, key);
+        }.bind(this));
+
+
+    },
+
+    setFieldToTabIdIndex: function(childs, tabId){
+        Object.each(childs, function(item, key){
+            this.fieldToTabOIndex[key] = tabId;
+            if (item.depends){
+                this.setFieldToTabIdIndex(item.depends, tabId);
+            }
+        }.bind(this));
     },
 
     renderVersions: function () {
@@ -613,6 +640,11 @@ ka.windowEdit = new Class({
 
     },
 
+    removeTooltip: function(){
+        this.stopTip();
+        this.removeEvent('click', this.removeTooltip);
+    },
+
     retrieveData: function (pWithoutEmptyCheck) {
 
         var go = true;
@@ -620,30 +652,27 @@ ka.windowEdit = new Class({
 
         Object.each(this.fields, function (item, fieldId) {
 
+            if (!instanceOf(item, ka.field)) return;
+
             if (['window_list'].contains(item.type)) return;
 
             if (!pWithoutEmptyCheck && !item.isHidden() && !item.isOk()) {
 
-                if (this.currentTab && this.values.tabFields) {
-                    var currenTab2highlight = false;
-                    Object.each(this.values.tabFields, function (fields, key) {
-                        Object.each(fields, function (field, fieldKey) {
-                            if (fieldKey == fieldId) {
-                                currenTab2highlight = key;
-                            }
-                        })
-                    });
+                var properTabKey = this.fieldToTabOIndex[fieldId];
+                if (!properTabKey) return;
+                var tabButton = this.fields[properTabKey];
 
-                    if (currenTab2highlight && this.currentTab != currenTab2highlight) {
-                        var button = this._buttons[ currenTab2highlight ];
-                        this._buttons[ currenTab2highlight ].startTip(_('Please fill!'));
-                        button.toolTip.loader.set('src', _path + 'inc/template/admin/images/icons/error.png');
-                        button.toolTip.loader.setStyle('position', 'relative');
-                        button.toolTip.loader.setStyle('top', '-2px');
-                        document.id(button.toolTip).setStyle('top', document.id(button.toolTip).getStyle('top').toInt()+2);
-                    } else {
-                        this._buttons[ currenTab2highlight ].stopTip();
-                    }
+                if (tabButton && !tabButton.isPressed()){
+
+                    tabButton.startTip(t('Please fill!'));
+                    tabButton.toolTip.loader.set('src', _path + 'inc/template/admin/images/icons/error.png');
+                    tabButton.toolTip.loader.setStyle('position', 'relative');
+                    tabButton.toolTip.loader.setStyle('top', '-2px');
+                    document.id(tabButton.toolTip).setStyle('top', document.id(tabButton.toolTip).getStyle('top').toInt()+2);
+
+                    tabButton.addEvent('click', this.removeTooltip);
+                } else {
+                    tabButton.stopTip();
                 }
 
                 item.highlight();
@@ -654,7 +683,7 @@ ka.windowEdit = new Class({
 
             if (item.field.relation == 'n-n') {
                 req[ fieldId ] = JSON.encode(value);
-            } else if ($type(value) == 'object') {
+            } else if (typeOf(value) == 'object') {
                 req[ fieldId ] = JSON.encode(value);
             } else {
                 req[ fieldId ] = value;

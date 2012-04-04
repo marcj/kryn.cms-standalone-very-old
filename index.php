@@ -26,7 +26,7 @@ require('inc/kryn/bootstrap.php');
 kryn::initConfig();
 
 /*
- * Load list of active modules
+ * Load cached list of active modules
  */
 kryn::loadActiveModules();
 
@@ -35,13 +35,12 @@ if (getArgv(1) != 'admin') {
 }
 
 /*
- * Load themes, db scheme and object definitions from configs
+ * Load cached themes, db scheme and object definitions from configs
  */
 kryn::loadModuleConfigs();
 
 /*
- * Initialize the krynAuth objects.
- * Handle users-logout/users-login
+ * Initialize the krynAuth user objects.
  */
 kryn::initAuth();
 
@@ -92,14 +91,14 @@ tAssign('admin', kryn::$admin);
 if (getArgv(1) == 'admin') {
 
     /*
-     * Start administration controller
+     * Start backend controller
      */
     $modules['admin']->content();
 
 } else {
 
     /*
-     * Start normal frontend generation
+     * Start frontend controller
      */
     kryn::display();
 }

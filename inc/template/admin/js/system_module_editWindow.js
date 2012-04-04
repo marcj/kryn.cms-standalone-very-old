@@ -58,7 +58,32 @@ var admin_system_module_editWindow = new Class({
                     adminWindowAdd: t('Window add'),
                     adminWindowList: t('Window list'),
                     adminWindowCombine: t('Window combine')
-                }
+                },
+                onChange: function(value){
+
+                    if (this.lastClass == 'adminWindowEdit' || this.lastClass == 'adminWindowAdd'){
+                        if (value == 'adminWindowList' || value == 'adminWindowCombine'){
+                            this.win._confirm(t('This change requires a reload of the whole editor. Unchanged content will be lost. Continue?'),
+                            function(a){
+
+                                if (a){
+                                    this.generalObj.getField('class').setValue(value);
+                                    this.lastClass = value;
+
+                                    //reload
+                                    this.useThisClassAfterReload = value;
+                                    this.loadInfo();
+                                }
+
+                            }.bind(this));
+
+                            this.generalObj.getField('class').setValue(this.lastClass);
+                        }
+                    }
+
+                    this.lastClass = value;
+
+                }.bind(this)
             },
             dataModel: {
                 label: t('Data model'),
@@ -113,6 +138,7 @@ var admin_system_module_editWindow = new Class({
                 depends: {
                     versioning: {
                         label: t('Versioning'),
+                        type: 'checkbox',
                         desc: t('This is the old way of versioning. Stores a json copy of the table row in the table system_frameworkversion. Please consider to use workspace option instead.')
                     }
                 }
@@ -383,23 +409,20 @@ var admin_system_module_editWindow = new Class({
 
             if (res.error == 'no_writeaccess'){
                 this.win._alert(t('No writeaccess to file: %s').replace('%s', res.error_file));
-                this.saveBtn.stopTip(t('Failed (Writeaccess)'));
+                this.saveBtn.stopTip(t('Failed'));
                 return;
             }
 
 
-            if (res.success == 1){
+            if (res){
                 this.saveBtn.stopTip(t('Done'));
-                return;
+            } else {
+                this.saveBtn.stopTip(t('Failed'));
             }
-
-            this.saveBtn.stopTip(t('Failed'));
 
 
         }.bind(this)}).post(res);
 
-
-        logger(res);
     },
 
     loadInfo: function(){
@@ -409,11 +432,11 @@ var admin_system_module_editWindow = new Class({
         this.win.addTitle(this.win.params.module);
         this.win.addTitle(this.win.params.className);
 
-
         this.lr = new Request.JSON({url: _path+'admin/system/module/getWindowDefinition', noCache:1,
         onComplete: this.renderWindowDefinition.bind(this)}).get({
             name: this.win.params.module,
-            'class': this.win.params.className
+            'class': this.win.params.className,
+            parentClass: this.useThisClassAfterReload
         });
 
     },
@@ -421,6 +444,13 @@ var admin_system_module_editWindow = new Class({
     renderWindowDefinition: function(pDefinition){
 
         this.definition = pDefinition;
+
+        if (this.useThisClassAfterReload){
+            this.definition['class'] = this.useThisClassAfterReload;
+            delete this.useThisClassAfterReload;
+        }
+
+        this.lastClass = this.definition['class'];
 
         this.generalObj.setValue(pDefinition.properties);
         this.loadWindowClass(pDefinition['class']);
@@ -1012,11 +1042,33 @@ var admin_system_module_editWindow = new Class({
 
             //normal fields without tab
             if (typeOf(this.definition.properties.fields) == 'object'){
-                var tab = this.addWindowEditTab('general', '[[General]]');
 
-                Object.each(this.definition.properties.fields, function(field, key){
-                    this.addWindowEditField(tab.pane, key, field);
-                }.bind(this));
+                //do we have on the first leve tabs?
+
+                var doWeHaveTabs = false;
+                Object.each(this.definition.properties.fields, function(item, key){
+                    if (item.type == 'tab'){
+                        doWeHaveTabs = true;
+                    }
+                });
+
+                if (!doWeHaveTabs){
+                    var tab = this.addWindowEditTab('general', '[[General]]');
+
+                    Object.each(this.definition.properties.fields, function(field, key){
+                        this.addWindowEditField(tab.pane, key, field);
+                    }.bind(this));
+                } else {
+                    Object.each(this.definition.properties.fields, function(tab, tkey){
+
+                        var tabObj = this.addWindowEditTab(tkey, tab.label);
+
+                        Object.each(tab.depends, function(field, key){
+                            this.addWindowEditField(tabObj.pane, key, field);
+                        }.bind(this));
+
+                    }.bind(this));
+                }
             }
 
             //tab fields with tab
