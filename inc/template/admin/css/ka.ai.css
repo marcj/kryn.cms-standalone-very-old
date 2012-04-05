@@ -1,10 +1,8 @@
 html, body {
-    font-family: Arial,sans;
+    font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
     font-size: 11px;
     margin: 0px;
     padding: 0px;
-    overflow: hidden;
-
 }
 
 .CodeMirror-gutter {

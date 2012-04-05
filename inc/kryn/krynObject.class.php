@@ -211,7 +211,7 @@ class krynObject {
 
         } else {
 
-            return $obj->getItems($pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
+            return $obj->getItems(null, $pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
                                   $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
         }
     }
