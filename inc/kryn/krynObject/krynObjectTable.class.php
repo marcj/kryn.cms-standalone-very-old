@@ -59,12 +59,19 @@ class krynObjectTable {
         $aFields = $pFields;
 
         if (!is_array($pFields)){
-
             if (substr($pFields, -1) == ',')
                 $pFields = substr($pFields, 0, -1);
 
             $aFields = explode(',', $pFields);
+        }
 
+        $aResolveForeignValues = $pResolveForeignValues;
+
+        if (!is_array($pResolveForeignValues)){
+            if (substr($pResolveForeignValues, -1) == ',')
+                $pResolveForeignValues = substr($pResolveForeignValues, 0, -1);
+
+            $aResolveForeignValues = explode(',', $pResolveForeignValues);
         }
 
         $select = array(); //columns
@@ -90,7 +97,6 @@ class krynObjectTable {
 
 
                 if ($field['type'] == 'object'){
-
 
                     $foreignObjectDefinition = kryn::$objects[$field['object']];
                     if (!$foreignObjectDefinition)

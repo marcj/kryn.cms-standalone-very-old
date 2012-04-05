@@ -102,8 +102,28 @@ class krynObject {
     }
 
     /**
-     * Returns the object for the given url
-     * 
+     * Returns the object for the given url. Same arguments as in krynObject::get() but given by a string.
+     *
+     * The string consists of the object key, the object primary key and options URL encoded.
+     *
+     * Examples:
+     *
+     *    system_user/2 => returns the whole object system_user with the primary value of 2
+     *
+     *    system_user/2?fields=name => returns the object system_user with the primary value is 2 and only with the
+     *                                 column "name"
+     *
+     *    system_user/2?fields=name,title,bar  => returns the object system_user with the primary value is 2 and
+     *                                             only with the column "name", "title" and "bar"
+     *
+     *    system_users/?limit=30 => returns the first 30 objects of system_user
+     *
+     *    system_users/?limit=5&offset=3 => returns the first 5 objects of system_user starting at the third.
+     *
+     *    system_users/?condition=rsn&gt;3 => returns all objects of system_user where rsn is bigger than 3
+     *
+     * Note: If you use getFromUrl() you need to have "condition" url encoded.
+     *       (So > and < doesnt work! Use &gt; etc instead)
      *
      * @static
      * @param $pInternalUrl
@@ -118,15 +138,46 @@ class krynObject {
 
 
     /**
-     * Returns the object for the given url
+     * Returns the single row or a list of objects.
+     *
+     * The $pObjectPrimaryValues can be mixed. Following some examples:
+     *
+     * Returns single row:
+     * "1" => returns one item with the primary=1
+     * array(1) => equal as above
+     * array('rsn' => 1) => equal as above (if the primary=rsn)
+     * array('primary_1' => 2, 'primary_2' => 3)
+     *
+     * Returns multiple row (list):
+     * "1,2,3" => returns three items whereas the primary from the first is 1, from tht second 2, etc
+     * array(1,2) => equal as above
+     * array( array('rsn'=>1), array('rsn'=>2) )
+     * array( array('primary_1'=>2, 'primary_2'=>3), array('primary_1'=>3, 'primary_2'=>5) )
+     *
+     * If you need more complex filterin use $pOptions['condition'] which is a SQL condition (check for SQL injection!)
+     *
+     * Use esc() function, if you use $pOptions['condition']
+     *
+     * $pOptions is a array which can contain following options. All options are optional.
+     *
+     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
+     *                    If empty all columns will be selected.
+     *  'condition'       SQL condition without WHERE or AND at the beginning
+     *  'offset'          Offset of the result set (in SQL OFFSET)
+     *  'limit'           Limits the result set (in SQL LIMIT)
+     *  'orderBy'         The column to order
+     *  'orderDirection'  The order direction
+     *  'foreignKeys'     Define which column should be resolved. If empty all columns will be resolved.
+     *                    Use a array or a comma separated list (like in SQL SELECT)
      *
      * @static
-     * @param $pObjectKey
-     * @param mixed $pObjectPrimaryValues
-     * @param array $pOptions
+     * @param string $pObjectKey
+     * @param mixed  $pObjectPrimaryValues
+     * @param array  $pOptions
+     * @param bool   $pRawData
      * @return array|bool
      */
-    public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = array()){
+    public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = array(), $pRawData = false){
 
 
         $definition = kryn::$objects[$pObjectKey];
@@ -147,32 +198,32 @@ class krynObject {
         ){
 
             return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
-                $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection']);
+                $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
 
         }
 
 
         if ($pObjectPrimaryValues !== false){
 
-            $item = $obj->getItem($pObjectPrimaryValues, $pOptions['fields'], $pOptions['foreignKeys']);
-
-            //if (!$pOptions['noForeignValues'])
-            //    self::resolveForeignValues($definition, $item, $pOptions);
+            $item = $obj->getItem($pObjectPrimaryValues, $pOptions['fields'], $pOptions['foreignKeys'], $pRawData);
 
             return $item;
 
         } else {
 
-            if (!$pOptions['offset']) $pOptions['offset'] = 0;
-            if (!$pOptions['limit'] && $definition['table_default_limit'])
-                $pOptions['limit'] = $definition['table_default_limit'];
-
             return $obj->getItems($pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
-                                  $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection']);
+                                  $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
         }
     }
 
-
+    /**
+     * Returns the class object for $pObjectKey
+     *
+     * @static
+     * @param $pObjectKey
+     * @return bool
+     * @throws Exception
+     */
     public static function getClassObject($pObjectKey){
 
 
@@ -202,44 +253,7 @@ class krynObject {
     }
 
     /**
-     * Replaces the foreign keys with the real value/label (table column: $pDefinition['fields'][..]['object_label'])
-     * mapped as id $pDefinition['fields'][..]['object_label_map']
-     *
-     * @static
-     * @param  array &$pDefinition
-     * @param  array &$pItem
-     * @param  array &$pParams
-     *
-     */
-    public static function resolveForeignValues(&$pDefinition, &$pItem, $pParams){
-
-        if ($pDefinition['fields']){
-            $fields = $pParams['fields'];
-            if ($fields != '*')
-                $fields = ','.$fields.',';
-
-            foreach ($pDefinition['fields'] as $key => &$field){
-
-                if ($fields != '*' && strpos($fields, ','.$key.',') === false){;
-                    continue;
-                }
-
-                if ($field['type'] == 'object' && $field['object']){
-
-                    $key = $field['object_label_map']?$field['object_label_map']:$field['object'].'_'.$field['object_label'];
-                    $label = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
-
-                    $object = self::get($field['object'].'://'.$pItem[$key].'?fields='.$label);
-
-                    $pItem[$key] = $object[$label];
-                }
-
-            }
-        }
-    }
-
-    /**
-     * Sets the object for the given url
+     * Sets the object values for the given url
      *
      * @static
      * @param  $pInternalUrl
@@ -261,6 +275,14 @@ class krynObject {
 
     }
 
+
+    /**
+     * Counts the items of $pInternalUrl
+     *
+     * @static
+     * @param $pInternalUrl
+     * @return array
+     */
     public static function countFromUrl($pInternalUrl){
         list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
 
@@ -268,6 +290,15 @@ class krynObject {
     }
 
 
+    /**
+     *
+     * Counts the items of $pObjectKey filtered by $pCondition
+     *
+     * @static
+     * @param $pObjectKey
+     * @param string $pCondition
+     * @return array
+     */
     public static function count($pObjectKey, $pCondition = ''){
 
         $obj = self::getClassObject($pObjectKey);
@@ -299,22 +330,6 @@ class krynObject {
 
     public static function addUsage($pObjectId, $pUseObjectId){
 
-
-
-    }
-
-    public static function parseLayoutElement($pValue){
-
-        if (!is_array($pValue) && substr($pValue, 0, 13) == '{"template":"'){
-           $pValue = json_decode($pValue, true);
-        }
-
-        $oldContents = kryn::$contents;
-        kryn::$contents = $pValue['contents'];
-        $value = tFetch($pValue['template']);
-        kryn::$contents = $oldContents;
-
-        return $value;
     }
 
 }
