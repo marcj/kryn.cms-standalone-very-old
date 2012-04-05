@@ -145,6 +145,80 @@ ka.kwindow = new Class({
 
     },
 
+    setLoading: function(pState, pText, pFrame){
+
+
+        if (pState == true){
+
+            if (!pText){
+                pText = t('Loading ...');
+            }
+
+            if (this.loadingObj){
+                this.loadingObj.destroy();
+                delete this.loadingObj;
+            }
+
+            if (this.loadingFx)
+                delete this.loadingFx;
+
+            this.loadingObj = new ka.loader(null, true).inject(this.border);
+
+            var div = new Element('div', {
+                'class': 'ka-kwindow-loader-content gradient',
+                html: pText+"<br/>"
+            }).inject(this.loadingObj.td);
+
+
+            this.loadingObj.main.setStyles({'top': 25});
+            this.loadingObj.transBg.setStyles({'top': 25});
+
+            this.loadingObj.main.setStyles(pFrame);
+            this.loadingObj.transBg.setStyles(pFrame);
+
+            this.loadingObj.img.inject(div);
+            
+            this.loadingObj.transBg.setStyle('opacity', 0.05);
+            div.setStyles({
+                'opacity': 0,
+                'top': 30
+            });
+
+            this.loadingFx = new Fx.Morph(div, {
+                duration: 500, transition: Fx.Transitions.Quint.easeOut
+            });
+
+            this.loadingObj.show();
+
+            this.loadingFx.start({
+                'top': 0,
+                opacity: 1
+            });
+
+        } else {
+            if (this.loadingObj){
+
+                this.loadingFx.cancel();
+
+                this.loadingFx.addEvent('complete', function(){
+
+                    this.loadingObj.destroy();
+                    delete this.loadingObj;
+                    delete this.loadingFx;
+
+                }.bind(this));
+
+                this.loadingFx.start({
+                    'top': -30,
+                    opacity: 0
+                });
+
+            }
+        }
+
+
+    },
+
     getOpener: function () {
         return ka.wm.getOpener(this.id);
     },

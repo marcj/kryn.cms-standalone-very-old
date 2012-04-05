@@ -1863,16 +1863,20 @@ var admin_system_module_edit = new Class({
                                             'custom': 'Custom class'
                                         },
                                         depends: {
-                                            chooserFieldDataModelField: {
-                                                label: t('Fields'),
-                                                type: 'fieldTable',
-                                                needValue: 'store'
-                                            },
                                             chooserFieldDataModelClass: {
                                                 label: t('PHP Class'),
                                                 needValue: 'custom',
                                                 desc: t('Have to be at inc/modules/&lt;extKey&gt;/&lt;className&gt;.class.php')
                                             }
+                                        }
+                                    },
+                                    chooserFieldDataModelField: {
+                                        label: t('Fields'),
+                                        type: 'fieldTable',
+                                        options: {
+                                            asFrameworkColumn: true,
+                                            withoutChildren: true,
+                                            addLabel: t('Add column')
                                         }
                                     }
                                 }
@@ -1902,7 +1906,7 @@ var admin_system_module_edit = new Class({
                                         needValue: 'default',
                                         type: 'fieldTable',
                                         options: {
-                                            withWidthField: true,
+                                            asFrameworkColumn: true,
                                             withoutChildren: true,
                                             addLabel: t('Add column')
                                         }

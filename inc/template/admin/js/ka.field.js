@@ -1209,7 +1209,6 @@ ka.field = new Class({
                     pId = pId.substr('object://'.length).split('/')[1];
                 }
 
-                logger(this._value);
                 this._value.include(pId);
                 this.renderObjectTable();
 
@@ -1269,6 +1268,10 @@ ka.field = new Class({
 
         this.chooserTable.empty();
 
+        this.objectTableLoaderQueue = {};
+
+        logger(this._value);
+
         if (!this._value || this._value.length == 0){
             this.renderObjectTableNoItems();
         } else {
@@ -1278,23 +1281,21 @@ ka.field = new Class({
                     id
                 ];
 
-                if (this.objectDefinition.chooserUseOwnClass != 1){
-                    var extraColumns = [];
-                    Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
-                        extraColumns.include(key);
-                    });
+                var extraColumns = [];
+                Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
+                    extraColumns.include(key);
+                });
 
-                    var placeHolders = {};
+                var placeHolders = {};
 
-                    Array.each(extraColumns, function(col){
+                Array.each(extraColumns, function(col){
 
-                        placeHolders[col] = new Element('span');
+                    placeHolders[col] = new Element('span');
 
-                        row.include(placeHolders[col]);
-                    });
+                    row.include(placeHolders[col]);
+                });
 
-                    this.renderObjectTableLoadItem(id, placeHolders);
-                }
+                this.renderObjectTableLoadItem(id, placeHolders);
 
                 var actionBar = new Element('div');
                 new Element('img', {
@@ -1304,14 +1305,69 @@ ka.field = new Class({
                 row.include(actionBar);
 
                 this.chooserTable.addRow(row);
+
             }.bind(this));
         }
     },
 
     renderObjectTableLoadItem: function(pId, pPlaceHolders){
 
+        if (this.objectLastTableLoaderTimer){
+            clearTimeout(this.objectLastTableLoaderTimer);
+        }
+
+        this.objectTableLoaderQueue[pId] = pPlaceHolders;
+
+        this.objectLastTableLoaderTimer = this.doObjectTableLoad.delay(50, this);
+    },
+
+    doObjectTableLoad: function(){
+
+        var ids = [];
+        Object.each(this.objectTableLoaderQueue, function(placeholders, id){
+            ids.include(id);
+        });
+
+        if (this.lastRq)
+            this.lastRq.cancel();
+
+        this.lastRq = new Request.JSON({url: _path+'admin/backend/objectGetLabels',
+        noErrorReporting: true,
+        onComplete: function(res){
+
+            if (res.error == 'no_object_access'){
+
+                this.chooserTable.empty();
+                new Element('div', {
+                    text: t('No access to this object.'),
+                    style: 'color: red; padding: 4px;'
+                }).inject(this.chooserTable, 'after');
+
+            } else if (res.error == 'object_not_found'){
+
+                this.chooserTable.empty();
+                new Element('div', {
+                    text: t('Object definition not found.'),
+                    style: 'color: red; padding: 4px;'
+                }).inject(this.chooserTable, 'after');
+
+            } else {
+
+                Object.each(this.objectTableLoaderQueue, function(placeholders, id){
+
+                    Object.each(placeholders, function(td, colId){
+                        td.set('text', res[id][colId])
+                    });
+
+                });
+
+            }
 
 
+        }.bind(this)}).post({
+            object: this.field.object,
+            ids: ids
+        });
 
     },
 

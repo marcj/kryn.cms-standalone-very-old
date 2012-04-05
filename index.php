@@ -100,6 +100,7 @@ if (getArgv(1) == 'admin') {
     /*
      * Start frontend controller
      */
+
     kryn::display();
 }
 

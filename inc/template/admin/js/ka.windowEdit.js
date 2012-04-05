@@ -103,7 +103,8 @@ ka.windowEdit = new Class({
             this.lastRq.cancel();
         }
 
-        this.loader.show();
+        this.win.setLoading(true, null, {left: this.container.getStyle('left')});
+
         this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItem',
         noCache: true, onComplete: function (res) {
             this._loadItem(res);
@@ -160,7 +161,7 @@ ka.windowEdit = new Class({
 
         this.renderVersionItems();
 
-        this.loader.hide();
+        this.win.setLoading(false);
         this.fireEvent('load', pItem);
 
         this.ritem = this.retrieveData(true);
@@ -339,8 +340,7 @@ ka.windowEdit = new Class({
     render: function (pValues) {
         this.values = pValues;
 
-        this.loader = new ka.loader().inject(this.container);
-        this.loader.show();
+        this.win.setLoading(true, null, {left: 265});
 
         this.fields = {};
 
@@ -377,6 +377,8 @@ ka.windowEdit = new Class({
             this.fields = parser.getFields();
 
             this._buttons = parser.getTabButtons();
+
+            this.topTabGroup = parser.firstLevelTabBar.buttonGroup;
 
         } else if (this.values.tabFields) {
             //backward compatible
@@ -558,6 +560,8 @@ ka.windowEdit = new Class({
     checkTabFieldWidth: function(){
 
         if (!this.topTabGroup) return;
+
+        logger(this.topTabGroup);
 
         if (!this.cachedTabItems)
             this.cachedTabItems = document.id(this.topTabGroup).getElements('a');

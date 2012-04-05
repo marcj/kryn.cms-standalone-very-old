@@ -76,7 +76,8 @@ Request.JSON = new Class({
 
                 ka.kastRequestBubble = ka._helpsystem.newBubble(
                     t('Access denied'),
-                    t('You started a secured action or requested a secured information.'),
+                    t('You started a secured action or requested a secured information.')+
+                        "<br/>"+'URI: %s'.replace('%s', this.options.url),
                     15000);
 
             } else {

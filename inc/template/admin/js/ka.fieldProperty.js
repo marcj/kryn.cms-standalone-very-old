@@ -120,6 +120,17 @@ ka.fieldProperty = new Class({
                     desc: t('Will also be created during the table synchronisation. The columns of this table are based on the primary keys of left and right table.')
                 },
 
+                object_relation_table_left: {
+                    needValue: 'nToM',
+                    againstField: 'object_relation',
+                    label: t('Relation table left column (optional)')
+                },
+                object_relation_table_right: {
+                    needValue: 'nToM',
+                    againstField: 'object_relation',
+                    label: t('Relation table right column (optional)')
+                },
+
                 //tab
                 tabFullPage: {
                     label: t('Full page'),
@@ -219,7 +230,7 @@ ka.fieldProperty = new Class({
     options: {
         addLabel: t('Add property'),
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
-        withWidthField: false, //for column definition.
+        asFrameworkColumn: false, //for column definition, with width field. without the optional stuff
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
@@ -255,8 +266,11 @@ ka.fieldProperty = new Class({
 
         }
 
-        if (!this.options.withWidthField)
+        if (!this.options.asFrameworkColumn){
             delete this.kaFields.width;
+        } else {
+            delete this.kaFields.__optional__;
+        }
 
         var self = this;
 

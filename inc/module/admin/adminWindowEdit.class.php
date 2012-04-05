@@ -397,7 +397,8 @@ class adminWindowEdit {
         $tableInfo = database::getOptions($this->table);
         $where = '';
         $primaries = array();
-        $code = $this->table;
+
+        $code = $this->table ? $this->table : 'o:'.$this->object;
 
         foreach ($this->primary as $primary) {
 
@@ -426,38 +427,46 @@ class adminWindowEdit {
             if ($this->object){
 
                 $fields = array();
+                $explodeGrouped = array();
 
                 $definition = kryn::$objects[$this->object];
                 foreach ($definition['fields'] as $key=>$field){
-                    if ($field['primaryKey'])
+                    if ($field['primaryKey']){
                         $fields[] = $key;
+                        $primaryValues[$key] = getArgv($key);
+                    }
                 }
 
-                foreach ($this->_fields as $key=>$field){
+                foreach ($this->_fields as $key => $field){
                     if (!$field['customValue'] && !($field['select'] && $field['relation'] == 'n-n')
                         && !in_array($key, $fields)
                     ){
                         $fields[] = $key;
+                        if ($field['type'] == 'object' && $field['object_relation'] == 'nToM'){
+                            $explodeGrouped[] = $key;
+                        }
                     }
                 }
 
-                $primary = 1;
-                $res['values'] = krynObject::get($this->object, $primary, array(
+                $res['values'] = krynObject::get($this->object, $primaryValues, array(
                     'fields' => implode(',', $fields)
                 ));
 
-                foreach ($res['values'] as $key => $val){
-                    //todo, explode the grouped values
-
+                foreach ($explodeGrouped as $key){
+                    $res['values'][$key] = explode(',',$res['values'][$key]);
                 }
 
             } else {
+
+                //backward compatibility
 
                 $sql = "
                 SELECT * FROM %pfx%" . $this->table . "
                 WHERE 1=1
                     $where
                 LIMIT 1";
+
+                error_log($sql);
 
                 $res['values'] = dbExfetch($sql, 1);
             }
@@ -483,10 +492,13 @@ class adminWindowEdit {
         }
 
         foreach ($this->_fields as $key => $field) {
+
             if ($field['customValue']) {
                 $func = $field['customValue'];
                 $res['values'][$key] = $this->$func($primaries, $res);
             }
+
+            //backward compatiblity
             if ($field['relation'] == 'n-n') {
                 if ($field['type'] == 'select') {
                     $sql = "

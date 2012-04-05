@@ -34,14 +34,13 @@ class krynObjectTable {
      * @param bool|string $pResolveForeignValues
      * @return type
      */
-    public function getItem($pId, $pFields = '*', $pResolveForeignValues = '*'){
+    public function getItem($pId, $pFields = '*', $pResolveForeignValues = '*', $pRawData){
 
-
-        return $this->_getItems($pId, $pFields, $pResolveForeignValues, false, false, '', true);
+        return $this->_getItems($pId, $pFields, $pResolveForeignValues, false, false, '', true, null, null, $pRawData);
     }
 
     /**
-     * @param bool $pId
+     * @param bool $pPrimaryIds
      * @param string $pFields
      * @param string $pResolveForeignValues
      * @param bool $pOffset
@@ -52,22 +51,28 @@ class krynObjectTable {
      * @param string $pOrderDirection
      * @return array
      */
-    private function _getItems($pId = false, $pFields = '*', $pResolveForeignValues = '*', $pOffset = false, $pLimit = false,
-                              $pCondition = '', $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc'){
+    private function _getItems($pPrimaryIds = false, $pFields = '*', $pResolveForeignValues = '*', $pOffset = false, $pLimit = false,
+                              $pCondition = '', $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc', $pRawData = false){
 
-        $options = database::getOptions($this->definition['table']);
         $where  = '1=1 ';
 
-        if (substr($pFields, -1) == ',')
-            $pFields = substr($pFields, 0, -1);
+        $aFields = $pFields;
 
-        $aFields = explode(',', $pFields);
+        if (!is_array($pFields)){
+
+            if (substr($pFields, -1) == ',')
+                $pFields = substr($pFields, 0, -1);
+
+            $aFields = explode(',', $pFields);
+
+        }
 
         $select = array(); //columns
         $fSelect = array(); //final selects
         $groupedColumns = array();
         $joins = array();
         $primaryField = '';
+        $firstPrimaryField = '';
 
         $grouped = false;
 
@@ -75,17 +80,13 @@ class krynObjectTable {
 
         foreach ($this->definition['fields'] as $key => &$field){
 
+            if ($field['primaryKey'] && !$firstPrimaryField){
+                $firstPrimaryField = $key;
+            }
+
             if (($pResolveForeignValues == '*' || in_array($key, $foreignColumns)) &&
                 ($pFields == '*' || in_array($key, $aFields))
                ){
-
-                if ($field['primaryKey'] && $pId){
-                    $where .= ' AND '.$this->object_key.'.'.$key.' = ';
-                    if ($options[$key]['escape'] == 'int')
-                        $where .= (is_array($pId)?$pId[$key]+0:$pId+0);
-                    else
-                        $where .= "'".esc((is_array($pId)?$pId[$key]:$pId))."'";
-                }
 
 
                 if ($field['type'] == 'object'){
@@ -132,7 +133,11 @@ class krynObjectTable {
                     } else {
 
                         //n to m
-                        $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.')) AS '.$oKey;
+                        if (kryn::$config['db_type'] == 'sqlite')
+                            $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
+                        else
+                            $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.')) AS '.$oKey;
+
                         $groupedColumns[$oKey] = true;
 
                         $join = 'LEFT OUTER JOIN '.dbTableName($field['object_relation_table']).' AS '.
@@ -178,12 +183,22 @@ class krynObjectTable {
 
                         if (count($primaryFields) == 1){
                             foreach ($primaryFields as $k => $f){
-                                $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key;
+
+                                if (kryn::$config['db_type'] == 'sqlite')
+                                    $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key;
+                                else
+                                    $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key;
+
                                 $groupedColumns[$key] = true;
                             }
                         } else if(count($primaryFields) > 1){
                             foreach ($primaryFields as $k => $f){
-                                $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key.'_'.$k;
+
+                                if (kryn::$config['db_type'] == 'sqlite')
+                                    $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key.'_'.$k;
+                                else
+                                    $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key.'_'.$k;
+
                                 $groupedColumns[$key.'_'.$k] = true;
                             }
                         }
@@ -230,10 +245,59 @@ class krynObjectTable {
             $sql .= ' '.implode(" \n",$joins);
         }
 
+        //LIMIT ITEMS based on $pPrimaryIds
+        if (is_array($pPrimaryIds)){
+            if (!array_key_exists(0, $pPrimaryIds)){
+
+                $where .= ' AND (';
+                foreach ($pPrimaryIds as $key => $val){
+                    $where .= $this->object_key.'.'.$key.' = ';
+                    $where .= '\''.esc($val).'\' AND ';
+                }
+                $where = substr($where, 0, -5).' )';
+
+            } else {
+                //we return multiple items, since the the array is without string index
+
+                $where .= ' AND (';
+
+                foreach ($pPrimaryIds as $id){
+
+                    $where .= ' (';
+
+                    if (is_array($id)){
+
+                        //we want multiple items based on multiple keys
+                        $where .= ' (';
+                        foreach ($id as $key => $val){
+                            $where .= $this->object_key.'.'.$key.' = ';
+                            $where .= '\''.esc($val).'\' AND ';
+                        }
+
+                        $where = substr($where, 0, -5).' ) AND ';
+
+                    } else {
+                        $where .= $this->object_key.'.'.$firstPrimaryField.' = ';
+                        $where .= '\''.esc($id).'\' AND ';
+                    }
+
+                    $where = substr($where, 0, -5). ') OR';
+                }
+
+                $where = substr($where, 0, -3).' )';
+
+            }
+        } else if ($pPrimaryIds){
+            $where .= $this->object_key.'.'.$firstPrimaryField.' = ';
+            $where .= '\''.esc($pPrimaryIds).'\' AND ';
+        }
+
+
         if ($pCondition)
             $where .= ' AND '.$pCondition;
 
         $sql .= ' WHERE '.$where;
+
 
         if ($pOrderBy){
             $direction = 'ASC';
@@ -265,10 +329,9 @@ class krynObjectTable {
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);
 
-            if (dbError()) throw new Exception(dbError());
+            if (!$pRawData)
+                self::parseValues($item);
 
-
-            self::parseValues($item);
             if (kryn::$config['db_type'] == 'postgresql')
                 foreach ($groupedColumns as $col => $b)
                     if (substr($item[$col], 0, -1) == ',')
@@ -278,14 +341,14 @@ class krynObjectTable {
         } else {
             $res = dbExec($sql);
 
-            print $sql;
-            print dbError();
-            if (dbError()) throw new Exception(dbError());
-
             $c = count($groupedColumns);
 
             while ($row = dbFetch($res)){
-                self::parseValues($row);
+
+
+                if (!$pRawData)
+                    self::parseValues($row);
+
                 if ($c > 0 && kryn::$config['db_type'] == 'postgresql')
                     foreach ($groupedColumns as $col => $b)
                         if (substr($row[$col], 0, -1) == ',')
@@ -314,6 +377,7 @@ class krynObjectTable {
     }
 
     /**
+     * @param mixed $pPrimaryIds
      * @param int $pOffset
      * @param int $pLimit
      * @param bool $pCondition
@@ -323,11 +387,11 @@ class krynObjectTable {
      * @param string $pOrderDirection
      * @return array
      */
-    public function getItems ($pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
-                              $pResolveForeignValues = '*', $pOrderBy = '', $pOrderDirection = 'asc'){
+    public function getItems ($pPrimaryIds, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
+                              $pResolveForeignValues = '*', $pOrderBy = '', $pOrderDirection = 'asc', $pRawData = false){
 
-        return $this->_getItems(false, $pFields, $pResolveForeignValues, $pOffset, $pLimit, $pCondition, false,
-                                $pOrderBy, $pOrderDirection);
+        return $this->_getItems($pPrimaryIds, $pFields, $pResolveForeignValues, $pOffset, $pLimit, $pCondition, false,
+                                $pOrderBy, $pOrderDirection, $pRawData);
     }
 
 

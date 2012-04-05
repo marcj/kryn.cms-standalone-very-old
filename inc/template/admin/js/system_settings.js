@@ -102,6 +102,10 @@ var admin_system_settings = new Class({
                     }
                 }
             },
+            'db_error_print_sql': {
+                label: t('Display the full SQL if a database fails'),
+                type: 'checkbox'
+            },
             'timezone': {
                 label: _('Server timezone'),
                 type: 'select',

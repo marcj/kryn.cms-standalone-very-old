@@ -217,71 +217,85 @@
         "rsn": {
           "label": "ID",
           "type": "number",
-          "primaryKey": true,
-          "autoIncrement": true,
-          "empty": true
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
         },
         "username": {
           "label": "[[Username]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "auth_class": {
           "label": "[[Auth class]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "passwd": {
           "label": "[[Password]]",
           "type": "password",
-          "empty": true,
+          "primaryKey": 0,
+          "empty": 1,
           "length": "32"
         },
         "passwd_salt": {
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "activationkey": {
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "email": {
           "label": "[[Email]]",
           "type": "text",
-          "empty": true,
+          "primaryKey": 0,
+          "empty": 1,
           "required_regexp": "\/^[^@]+@[^@]{3,}.[^.@0-9]{2,}$\/"
         },
         "desktop": {
           "type": "textarea",
-          "empty": true
+          "empty": 1
         },
         "settings": {
           "type": "textarea",
-          "empty": true
+          "empty": 1
         },
         "activate": {
           "label": "[[Active account]]",
           "type": "checkbox",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "logins": {
           "type": "number",
-          "empty": true
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
         },
         "lastlogin": {
           "type": "number",
-          "empty": true
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
         },
         "created": {
           "type": "datetime",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "modified": {
           "type": "datetime",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "groups": {
           "label": "[[Group membership]]",
+          "multi": 0,
           "object": "system_group",
           "object_label": "name",
           "object_relation": "nToM",
@@ -289,7 +303,7 @@
           "object_relation_table_left": "user_rsn",
           "object_relation_table_right": "group_rsn",
           "type": "object",
-          "empty": true
+          "empty": 1
         }
       },
       "label": "[[Users]]",
@@ -306,37 +320,38 @@
       "table": "system_groups",
       "label": "[[Groups]]",
       "desc": "",
-      "table_sync": true,
+      "table_sync": 1,
       "class": "",
-      "multiLanguage": false,
-      "domainDepended": false,
+      "multiLanguage": 0,
+      "domainDepended": 0,
       "plugins": "",
-      "selectable": true,
+      "selectable": 1,
       "fields": {
         "rsn": {
           "label": "ID",
           "type": "number",
-          "primaryKey": true,
-          "autoIncrement": true,
-          "empty": true
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
         },
         "name": {
           "label": "[[Name]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "description": {
           "label": "[[Description]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         }
       },
       "chooser_icon": "",
       "chooserAutoColumns": {
         "name": {
           "label": "[[Name]]",
-          "type": "text",
-          "empty": true
+          "type": "text"
         }
       },
       "chooserAutoFilter": "",
@@ -346,7 +361,12 @@
       "chooserType": "default",
       "chooserFields": "name",
       "chooserModel": "0",
-      "chooserFieldDataModelField": "name",
+      "chooserFieldDataModelField": {
+        "name": {
+          "label": "[[Name]]",
+          "type": "text"
+        }
+      },
       "chooserFieldDataModel": "store",
       "chooserBrowserCondition": "",
       "chooserBrowserDataModel": "default"

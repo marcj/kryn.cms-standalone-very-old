@@ -10,10 +10,7 @@ ka.loader = new Class({
         }
 
         this.main = new Element('div', {
-            styles: {
-                left: 0, right: 0, 'top': 0, bottom: 0, position: 'absolute',
-                display: 'none'
-            }
+            'class': 'ka-loader-main'
         });
 
         if (!pTransBg) {
@@ -36,6 +33,7 @@ ka.loader = new Class({
         var tr = new Element('tr').inject(this.loadingTable);
         var td = new Element('td', {align: 'center', valign: 'center', width: '100%', height: '100%'}).inject(tr);
         this.img = new Element('img', {src: this.src}).inject(td);
+        this.td = td;
     },
 
     setStyle: function (p, p2) {

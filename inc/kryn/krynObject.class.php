@@ -141,37 +141,16 @@ class krynObject {
             $pOptions['foreignKeys'] = '*';
 
 
-        if (is_array($pObjectPrimaryValues)){
+        if (
+            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues)) ||
+            (is_string($pObjectPrimaryValues) && strpos($pObjectPrimaryValues, ',') !== false)
+        ){
 
-            if ($pObjectPrimaryValues[0]){
-                //we return multiple items
+            return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
+                $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection']);
 
-                if ($pOptions['condition']){
-                    $pOptions['condition'] .= ' AND ';
-                }
-
-                foreach ($definition['fields'] as $key=>$field){
-                    if ($field['primaryKey']){
-                        $pOptions['condition'] .= $pObjectKey.'.'.$key.' = ';
-                        if ($field['type'] == 'number'){
-                            $pOptions['condition'] .= $pObjectPrimaryValues[$key]+0;
-                        } else {
-                            $pOptions['condition'] .= '\''.esc($pObjectPrimaryValues[$key]).'\'';
-                        }
-                        $pOptions['condition'] .= ' AND ';
-                    }
-                }
-
-                $pOptions['condition'] = substr($pOptions['condition'], 0, -5);
-
-                return $obj->getItems($pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
-                    $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection']);
-
-            } else {
-                //we return one item based on composite primary key
-                //do nothing else here, since getItem() does it
-            }
         }
+
 
         if ($pObjectPrimaryValues !== false){
 

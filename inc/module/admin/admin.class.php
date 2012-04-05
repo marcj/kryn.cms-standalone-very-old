@@ -131,6 +131,9 @@ class admin {
                         case 'objectGetLabel':
                             $content = self::objectGetLabel(getArgv('url'));
                             break;
+                        case 'objectGetLabels':
+                            $content = self::objectGetLabels(getArgv('object', 2), getArgv('ids'));
+                            break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object'), getArgv('page'));
                             break;
@@ -247,6 +250,58 @@ class admin {
     }
 
 
+    public static function objectGetLabels($pObject, $pIds){
+
+        $definition = kryn::$objects[$pObject];
+        if (!$definition) return array('error' => 'object_not_found');
+
+        //todo check here access
+
+
+        if ($definition['chooserFieldDataModel'] == 'custom'){
+
+            $class = $definition['chooserFieldDataModelClass'];
+            $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
+            if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
+
+            require_once($classFile);
+            $dataModel = new $class();
+
+            $items = $dataModel->getItems($pIds);
+            return $items;
+
+        } else {
+
+            $primaryKey = '';
+            $fields = array();
+            foreach ($definition['fields'] as $key => $field){
+                if ($field['primaryKey']){
+                    $primaryKey = $key;
+                    $fields[] = $key;
+                }
+
+            }
+
+            foreach ($definition['chooserFieldDataModelField'] as $key => $val){
+                $fields[] = $key;
+            }
+
+            $items = krynObject::get($pObject, $pIds, array(
+                'fields' => $fields
+            ));
+
+            $res = array();
+            foreach ($items as &$item){
+                $res[ $item[$primaryKey] ] = $item;
+            }
+
+            return $res;
+
+
+
+        }
+    }
+
     public static function objectGetLabel($pUrl){
 
         if (is_numeric($pUrl)){
@@ -260,6 +315,7 @@ class admin {
         if (!$definition) return array('error' => 'object_not_found');
 
         //todo check here access
+
         if ($definition['chooserFieldDataModel'] == 'custom'){
 
             $class = $definition['chooserFieldDataModelClass'];
@@ -488,7 +544,7 @@ class admin {
         $res['exectime'] = microtime(true) - $startExec;
 
         if (!$execRes) {
-            $res['error'] = database::lastError();
+            $res['error'] = dbError();
         } else {
             $startFetch = microtime(true);
             $res['items'] = dbFetch($execRes, -1);

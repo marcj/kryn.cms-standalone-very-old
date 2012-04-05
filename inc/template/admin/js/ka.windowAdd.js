@@ -6,7 +6,7 @@ ka.windowAdd = new Class({
     },
     loadItem: function () {
         //ist in render() am ende also lösche unnötigen balast
-        this.loader.hide();
+        this.win.setLoading(false);
 
         if (this.saveNoClose) {
             this.saveNoClose.hide();
