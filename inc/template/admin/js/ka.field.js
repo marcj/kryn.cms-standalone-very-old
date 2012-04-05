@@ -1019,7 +1019,8 @@ ka.field = new Class({
     renderImageGroup: function () {
 
         this.input = new Element('div', {
-            style: 'padding: 5px;'
+            style: 'padding: 5px;',
+            'class': 'ka-field-imageGroup'
         }).inject(this.fieldPanel);
 
         this.imageGroup = new ka.imageGroup(this.input);
@@ -1041,8 +1042,8 @@ ka.field = new Class({
         this.getValue = function () {
 
             var value = false;
-            $H(this.imageGroupImages).each(function (button, tvalue) {
-                if (button.get('class').test('buttonHover')) {
+            Object.each(this.imageGroupImages, function (button, tvalue) {
+                if (button.hasClass('buttonHover')) {
                     value = tvalue;
                 }
             });
@@ -1052,7 +1053,7 @@ ka.field = new Class({
 
         this._setValue = function (pValue) {
 
-            $H(this.imageGroupImages).each(function (button, tvalue) {
+            Object.each(this.imageGroupImages, function (button, tvalue) {
                 button.removeClass('buttonHover');
                 if (pValue == tvalue) {
                     button.addClass('buttonHover');

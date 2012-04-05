@@ -627,7 +627,7 @@ class database {
 
         if ($this->type == 'sqlite'){
             if ($pErrorStr == 'database is locked'){
-                sleep(0.05);
+                usleep(50*1000);
                 return $this->exec($this->lastQuery);
             }
         }

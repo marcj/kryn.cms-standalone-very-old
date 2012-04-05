@@ -25,3 +25,14 @@
 .ka-imageGroup .kwindow-win-tabWrapperLast {
     -moz-border-radius-bottomright: 4px;    
 }
+
+
+.ka-imageGroup {
+    padding-top: 20px;
+}
+
+.ka-field-imageGroup a {
+    background-repeat: no-repeat;
+    background-position: center 1px;
+    cursor: pointer;
+}
