@@ -139,10 +139,10 @@ class krynObjectTable {
                     } else {
 
                         //n to m
-                        if (kryn::$config['db_type'] == 'sqlite')
-                            $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
+                        if (kryn::$config['db_type'] == 'postgresql')
+                            $fSelect[] = 'string_agg('.$field['object'].'.'.$oLabel.', \',\') AS '.$oKey;
                         else
-                            $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$oLabel.')) AS '.$oKey;
+                            $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
 
                         $groupedColumns[$oKey] = true;
 
@@ -190,20 +190,20 @@ class krynObjectTable {
                         if (count($primaryFields) == 1){
                             foreach ($primaryFields as $k => $f){
 
-                                if (kryn::$config['db_type'] == 'sqlite')
-                                    $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key;
+                                if (kryn::$config['db_type'] == 'postgresql')
+                                    $fSelect[] = 'string_agg('.$field['object'].'.'.$k.', \',\') AS '.$key;
                                 else
-                                    $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key;
+                                    $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key;
 
                                 $groupedColumns[$key] = true;
                             }
                         } else if(count($primaryFields) > 1){
                             foreach ($primaryFields as $k => $f){
 
-                                if (kryn::$config['db_type'] == 'sqlite')
-                                    $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key.'_'.$k;
+                                if (kryn::$config['db_type'] == 'postgresql')
+                                    $fSelect[] = 'string_agg('.$field['object'].'.'.$k.', \',\') AS '.$key.'_'.$k;
                                 else
-                                    $fSelect[] = 'group_concat(CONCAT('.$field['object'].'.'.$k.')) AS '.$key.'_'.$k;
+                                    $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key.'_'.$k;
 
                                 $groupedColumns[$key.'_'.$k] = true;
                             }
