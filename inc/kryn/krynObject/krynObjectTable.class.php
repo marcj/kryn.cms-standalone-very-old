@@ -140,7 +140,7 @@ class krynObjectTable {
 
                         //n to m
                         if (kryn::$config['db_type'] == 'postgresql')
-                            $fSelect[] = 'string_agg('.$field['object'].'.'.$oLabel.', \',\') AS '.$oKey;
+                            $fSelect[] = 'string_agg('.$field['object'].'.'.$oLabel.'||\'\', \',\') AS '.$oKey;
                         else
                             $fSelect[] = 'group_concat('.$field['object'].'.'.$oLabel.') AS '.$oKey;
 
@@ -191,7 +191,7 @@ class krynObjectTable {
                             foreach ($primaryFields as $k => $f){
 
                                 if (kryn::$config['db_type'] == 'postgresql')
-                                    $fSelect[] = 'string_agg('.$field['object'].'.'.$k.', \',\') AS '.$key;
+                                    $fSelect[] = 'string_agg('.$field['object'].'.'.$k.'||\'\', \',\') AS '.$key;
                                 else
                                     $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key;
 
@@ -201,7 +201,7 @@ class krynObjectTable {
                             foreach ($primaryFields as $k => $f){
 
                                 if (kryn::$config['db_type'] == 'postgresql')
-                                    $fSelect[] = 'string_agg('.$field['object'].'.'.$k.', \',\') AS '.$key.'_'.$k;
+                                    $fSelect[] = 'string_agg('.$field['object'].'.'.$k.'||\'\', \',\') AS '.$key.'_'.$k;
                                 else
                                     $fSelect[] = 'group_concat('.$field['object'].'.'.$k.') AS '.$key.'_'.$k;
 
