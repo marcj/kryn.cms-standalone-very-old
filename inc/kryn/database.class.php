@@ -320,9 +320,8 @@ class database {
         }
     }
 
-    public static function lastError() {
-        global $kdb;
-            return $kdb->lastError;
+    public function lastError() {
+        return $this->lastError;
     }
 
     public function connected() {
@@ -559,6 +558,8 @@ class database {
         if ($pQuery == "")
             return false;
 
+        $this->lastQuery = $pQuery;
+
         $this->lastError = null;
 
         $queries = explode(';', $pQuery);
@@ -567,8 +568,6 @@ class database {
                 $this->lastInsertTable = $matches[1];
             }
         }
-
-        $table = preg_match('//', $pQuery, $matches);
 
         if (!$this->usePdo) {
             try {
@@ -590,26 +589,11 @@ class database {
                         break;
                 }
             } catch (Exception $e) {
-                $this->lastError = $e;
-
-                if (!database::$hideSql)
-                    klog('database', $this->lastError);
-
-                throw new Exception($e."\n SQL: ".$pQuery);
-
-                return false;
+                return $this->raiseError($e);
             }
 
             if (!$res){
-
-                if ($this->type == 'sqlite'){
-                    if ($this->_last_error() == 'database is locked'){
-                        sleep(0.05);
-                        return $this->exec($pQuery);
-                    }
-                }
-
-                error_log($this->_last_error().' - '.$pQuery);
+                return $this->raiseError($this->retrieveError());
             }
 
             return $res;
@@ -617,37 +601,14 @@ class database {
 
 
             try {
+
                 $res = $this->pdo->prepare($pQuery);
                 if (method_exists($res, 'execute'))
                     $state = $res->execute();
+
             } catch (PDOException $err) {
 
-                if (!database::$hideSql)
-                    klog('database', "pdo exec exception: " . $err->getMessage());
-
-                $this->lastError = $err->getMessage();
-                return false;
-            }
-
-            if (!$state && !database::$hideSql && $res) {
-                $err = $res->errorInfo();
-                $this->lastError = $err[2];
-
-                if ($err[2] && !database::$hideSql)
-                    klog('database', "pdo exec error: " . $err[2] . ", SQL: $pQuery");
-
-                return false;
-            }
-
-            if (!$res) {
-
-                $err = $this->pdo->errorInfo();
-                $this->lastError = $err[2];
-
-                if (!database::$hideSql)
-                    klog('database', $this->lastError);
-
-                return false;
+                return $this->raiseError($err->getMessage());
             }
 
         }
@@ -662,7 +623,30 @@ class database {
         return $res;
     }
 
-    public function _last_error() {
+    public function raiseError($pErrorStr){
+
+        if ($this->type == 'sqlite'){
+            if ($pErrorStr == 'database is locked'){
+                sleep(0.05);
+                error_log("ERROR '$pErrorStr'");
+                return $this->exec($this->lastQuery);
+            }
+        }
+
+        if (kryn::$config['db_error_print_sql'])
+            $pErrorStr .= "\n SQL: ".$this->lastQuery;
+
+        if (!database::$hideSql)
+            klog('database', $pErrorStr);
+
+        $this->lastError = $pErrorStr;
+
+        throw new Exception($pErrorStr);
+
+        return false;
+    }
+
+    public function retrieveError() {
         switch ($this->type) {
             case 'sqlite':
                 $res = $this->connection->lastErrorMsg();

@@ -250,8 +250,9 @@ function dbToKeyIndex(&$pItems, $pIndex) {
 }
 
 function dbError() {
+    global $kdb;
 
-    return database::lastError();
+    return $kdb->lastError();
 
 }
 
