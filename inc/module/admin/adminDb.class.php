@@ -42,6 +42,7 @@ class adminDb {
 
     public function checkPostgres() {
 
+        try {
         dbExec("create aggregate array_accum (
             sfunc = array_append,
             basetype = anyelement,
@@ -65,7 +66,9 @@ class adminDb {
             SFUNC = group_concat,
             STYPE = text
             );");
-
+        } catch (Exception $e){
+            //force silence
+        }
     }
 
     function _install($pDb) {
@@ -152,7 +155,7 @@ class adminDb {
                 }
                 if ($isType != $nType || ($isType == 'varchar' && $varcharLength != $fOptions[1])) {
 
-                    $sql = self::addColumn($pTable, $fName, $fOptions, 2, in_array($fName, $indexe));
+                    $sql = self::addColumn($pTable, $fName, $fOptions, 2);
 
                     if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
                         $sql = 'ALTER TABLE ' . $pTable . ' CHANGE COLUMN ' . $fName . ' ' . $sql;
@@ -336,7 +339,7 @@ class adminDb {
 
         }
 
-        if ($unsigned)
+        if ($unsigned && $cfg['db_type'] != 'postgresql')
             $sql .= ' UNSIGNED ';
 
         if ($pFieldOptions[2] == "DB_PRIMARY")
@@ -358,8 +361,12 @@ class adminDb {
 
             if ($cfg['db_type'] == 'postgresql') {
                 database::$hideSql = true;
-                dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
-                dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
+                try {
+                    dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
+                    dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
+                } catch (Exception $e){
+                    //force silence
+                }
                 database::$hideSql = false;
                 $sql .= " DEFAULT nextval('kryn_" . $pTable . "_seq') ";
             }
