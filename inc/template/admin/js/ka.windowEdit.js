@@ -378,7 +378,8 @@ ka.windowEdit = new Class({
 
             this._buttons = parser.getTabButtons();
 
-            this.topTabGroup = parser.firstLevelTabBar.buttonGroup;
+            if (parser.firstLevelTabBar)
+                this.topTabGroup = parser.firstLevelTabBar.buttonGroup;
 
         } else if (this.values.tabFields) {
             //backward compatible
@@ -560,8 +561,6 @@ ka.windowEdit = new Class({
     checkTabFieldWidth: function(){
 
         if (!this.topTabGroup) return;
-
-        logger(this.topTabGroup);
 
         if (!this.cachedTabItems)
             this.cachedTabItems = document.id(this.topTabGroup).getElements('a');
