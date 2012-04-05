@@ -466,8 +466,6 @@ class adminWindowEdit {
                     $where
                 LIMIT 1";
 
-                error_log($sql);
-
                 $res['values'] = dbExfetch($sql, 1);
             }
         }
