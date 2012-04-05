@@ -31,6 +31,8 @@ class publicationNewsEdit extends adminWindowEdit {
         '__General__' => array (
           'type' => 'tab',
           'label' => 'General',
+          'needValue' => 1,
+          'againstField' => 'deactivatecomments',
           'depends' => array (
             'title' => array (
               'label' => 'Title',

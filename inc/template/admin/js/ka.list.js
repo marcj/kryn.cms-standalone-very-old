@@ -149,7 +149,7 @@ ka.list = new Class({
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-            $H(ka.settings.langs).each(function (lang, id) {
+            Object.each(ka.settings.langs, function(lang, id){
                 new Element('option', {
                     text: lang.langtitle + ' (' + lang.title + ', ' + id + ')',
                     value: id

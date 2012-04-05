@@ -36,8 +36,20 @@ ka.tabGroup = new Class({
         items.removeClass('ka-tabGroup-item-last');
 
         if (items.length > 0){
-            items[0].addClass('ka-tabGroup-item-first');
-            items.getLast().addClass('ka-tabGroup-item-last');
+
+            var lastItem, firstItem;
+            Array.each(items, function(item){
+                if (item.getStyle('display') != 'none'){
+                    if (!firstItem) firstItem = item;
+                    lastItem = item;
+                }
+            });
+
+            if (firstItem)
+                firstItem.addClass('ka-tabGroup-item-first');
+
+            if (lastItem)
+                lastItem.addClass('ka-tabGroup-item-last');
         }
 
     },
@@ -71,13 +83,30 @@ ka.tabGroup = new Class({
             pButton.store('visible', false);
             pButton.setStyle('display', 'none');
             this.rerender();
+
+            if (pButton.tabPane && pButton.isPressed()){
+
+                var items = this.box.getChildren('a');
+                var index = items.indexOf(pButton);
+                if (items[index+1])
+                    pButton.tabPane.to(index+1);
+                if (items[index-1])
+                    pButton.tabPane.to(index-1);
+
+
+            }
         }.bind(this);
 
         pButton.show = function () {
             pButton.store('visible', true);
             pButton.setStyle('display', 'inline');
             this.rerender();
+
         }.bind(this);
+
+        pButton.isHidden = function(){
+            return pButton.getStyle('display')=='none';
+        };
 
         pButton.startTip = function (pText) {
             if (!this.toolTip) {

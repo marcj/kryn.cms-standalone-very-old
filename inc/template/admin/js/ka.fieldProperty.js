@@ -197,6 +197,11 @@ ka.fieldProperty = new Class({
                     type: 'checkbox',
                     'default': 1
                 },
+                target: {
+                    label: t('Target (Optional)'),
+                    desc: t('If your layout has a own layout.'),
+                    type: 'text'
+                },
                 'needValue': {
                     label: tc('kaFieldTable', 'Visibility condition (Optional)'),
                     desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
@@ -260,9 +265,12 @@ ka.fieldProperty = new Class({
             delete this.kaFields.type.depends.object_label_map;
             delete this.kaFields.type.depends.object_relation;
             delete this.kaFields.type.depends.object_relation_table;
+            delete this.kaFields.type.depends.object_relation_table_left;
+            delete this.kaFields.type.depends.object_relation_table_right;
 
         } else {
 
+            delete this.kaFields.__optional__.depends.target;
 
         }
 

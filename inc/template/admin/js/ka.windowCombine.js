@@ -611,26 +611,28 @@ ka.windowCombine = new Class({
     },
 
     renderMultilanguage: function () {
-        //chooser
 
-        this.languageSelect = new ka.Select();
-        this.languageSelect.inject(this.win.titleGroups);
-        document.id(this.languageSelect).setStyles({
-            'width': 106,
-            left: 80,
-            'position': 'absolute',
-            'top': 0
-        });
+        if (this.values.multiLanguage) {
 
-        this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
+            this.languageSelect = new ka.Select();
+            this.languageSelect.inject(this.win.titleGroups);
+            document.id(this.languageSelect).setStyles({
+                'width': 106,
+                left: 80,
+                'position': 'absolute',
+                'top': 0
+            });
 
-        $H(ka.settings.langs).each(function (lang, id) {
+            this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-            this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
+            Object.each(ka.settings.langs, function (lang, id) {
 
-        }.bind(this));
+                this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
 
-        this.languageSelect.setValue(window._session.lang);
+            }.bind(this));
+
+            this.languageSelect.setValue(window._session.lang);
+        }
 
     },
 

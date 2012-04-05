@@ -65,6 +65,7 @@ ka.tabPane = new Class({
 
         var btn = this.buttonGroup.addButton(pTitle, this._to.bind(this, id), pImageSrc);
 
+        btn.tabPane = this;
         this.buttons.include(btn);
         res.button = btn;
 

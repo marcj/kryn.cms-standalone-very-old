@@ -240,6 +240,7 @@ class $pClass extends windowEdit {
         require_once(PATH_MODULE.'admin/adminWindowEdit.class.php');
         require_once(PATH_MODULE.'admin/adminWindowAdd.class.php');
         require_once(PATH_MODULE.'admin/adminWindowList.class.php');
+        require_once(PATH_MODULE.'admin/adminWindowCombine.class.php');
 
         $content = explode("\n", kryn::fileRead($path));
 
@@ -293,14 +294,35 @@ class $pClass extends windowEdit {
             $parentClass = getArgv('parentClass', 2);
         }
 
-        $parentPath = PATH_MODULE.'admin/'.$parentClass.'.class.php';
+        self::extractParentClassInformation($parentClass, $res['parentMethods']);
+
+        return $res;
+    }
+
+    public static function extractParentClassInformation($pParentClass, &$pMethods){
+
+        preg_match('/[A-Z]/', $pParentClass, $matches, PREG_OFFSET_CAPTURE);
+
+        $firstCapLetter = $matches[0][1];
+        $extKey = substr($pParentClass, 0, $firstCapLetter);
+
+        $parentPath = PATH_MODULE.'admin/'.$pParentClass.'.class.php';
+
+        if (file_exists($parentPath)){
+            require_once($parentPath);
+        } else {
+            $parentPath = PATH_MODULE.$extKey.'/'.$pParentClass.'.class.php';
+            if (file_exists($parentPath)){
+                require_once($parentPath);
+            }
+        }
 
         $parentContent = explode("\n",kryn::fileRead($parentPath));
-        $parentReflection = new ReflectionClass($parentClass);
+        $parentReflection = new ReflectionClass($pParentClass);
 
         $methods = $parentReflection->getMethods();
         foreach ($methods as $method){
-            if ($method->class == $parentClass){
+            if ($method->class == $pParentClass){
 
                 $code = '';
                 for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
@@ -311,11 +333,29 @@ class $pClass extends windowEdit {
 
                 }
 
-                $res['parentMethods'][$method->name] = $code;
+                $pMethods[$method->name] = $code;
             }
         }
 
-        return $res;
+        $parent = $parentReflection->getParentClass();
+        if ($parent){
+            $parentClass = $parent->name;
+
+            if ($parentClass == 'windowEdit')
+                $parentClass = 'adminWindowEdit';
+
+            if ($parentClass == 'windowAdd')
+                $parentClass = 'adminWindowAdd';
+
+            if ($parentClass == 'windowList')
+                $parentClass = 'adminWindowList';
+
+            if ($parentClass == 'windowCombine')
+                $parentClass = 'adminWindowCombine';
+
+
+            self::extractParentClassInformation($parentClass, $pMethods);
+        }
 
     }
 
@@ -329,8 +369,8 @@ class $pClass extends windowEdit {
 
             $content = kryn::fileRead($class);
 
-            if (preg_match('/class ([^\s]*) extends ([^\s]*)\s*{/', $content, $matches)){
-                if (in_array(strtolower($matches[2]), $whiteList))
+            if (preg_match('/class ([^\s]*) extends (admin|)([^\s]*)\s*{/', $content, $matches)){
+                if (in_array(strtolower($matches[3]), $whiteList))
                     $windows[] = $matches[1];
             }
 

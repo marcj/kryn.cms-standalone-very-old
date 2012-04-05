@@ -400,6 +400,7 @@ ka.windowEdit = new Class({
                     style: 'display: none;'
                 }).inject(this.container);
 
+                //backward compatibility
                 if (this.values.tabLayouts && this.values.tabLayouts[title]) {
                     this._panes[title].set('html', this.values.tabLayouts[title]);
                 }

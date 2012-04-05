@@ -61,25 +61,21 @@ var admin_system_module_editWindow = new Class({
                 },
                 onChange: function(value){
 
-                    if (this.lastClass == 'adminWindowEdit' || this.lastClass == 'adminWindowAdd'){
-                        if (value == 'adminWindowList' || value == 'adminWindowCombine'){
-                            this.win._confirm(t('This change requires a reload of the whole editor. Unchanged content will be lost. Continue?'),
-                            function(a){
+                    this.win._confirm(t('This change requires a reload of the whole editor. Unchanged content will be lost. Continue?'),
+                    function(a){
 
-                                if (a){
-                                    this.generalObj.getField('class').setValue(value);
-                                    this.lastClass = value;
+                        if (a){
+                            this.generalObj.getField('class').setValue(value);
+                            this.lastClass = value;
 
-                                    //reload
-                                    this.useThisClassAfterReload = value;
-                                    this.loadInfo();
-                                }
-
-                            }.bind(this));
-
-                            this.generalObj.getField('class').setValue(this.lastClass);
+                            //reload
+                            this.useThisClassAfterReload = value;
+                            this.loadInfo();
                         }
-                    }
+
+                    }.bind(this));
+
+                    this.generalObj.getField('class').setValue(this.lastClass);
 
                     this.lastClass = value;
 
@@ -333,20 +329,16 @@ var admin_system_module_editWindow = new Class({
 
         Array.each(tabs, function(button, idx){
 
+            var definition = button.retrieve('definition');
             var key = button.retrieve('key');
 
-            if (!key && button.retrieve('label')){
-                key = button.retrieve('label').toLowerCase().replace(/\W/, '-');
+            if (!key && definition.label){
+                key = definition.label.toLowerCase().replace(/\W/, '-');
             } else if (!key){
                 return;
             }
 
-            var label = button.retrieve('label');
-
-            fields[key] = {
-                type: 'tab',
-                label: label
-            };
+            fields[key] = definition;
 
             var depends = {};
             var iIdx = 0;
@@ -453,6 +445,8 @@ var admin_system_module_editWindow = new Class({
         this.lastClass = this.definition['class'];
 
         this.generalObj.setValue(pDefinition.properties);
+        this.generalObj.getField('class').setValue(this.definition['class']);
+
         this.loadWindowClass(pDefinition['class']);
 
         //prepare class methods
@@ -516,7 +510,7 @@ var admin_system_module_editWindow = new Class({
                 text: item
             }).inject(this.methodContainer);
 
-            if (this.definition.methods[item]){
+            if (this.definition.methods && this.definition.methods[item]){
                 a.addClass('active');
             }
 
@@ -1053,7 +1047,7 @@ var admin_system_module_editWindow = new Class({
                 });
 
                 if (!doWeHaveTabs){
-                    var tab = this.addWindowEditTab('general', '[[General]]');
+                    var tab = this.addWindowEditTab('general', {label: '[[General]]'});
 
                     Object.each(this.definition.properties.fields, function(field, key){
                         this.addWindowEditField(tab.pane, key, field);
@@ -1061,7 +1055,7 @@ var admin_system_module_editWindow = new Class({
                 } else {
                     Object.each(this.definition.properties.fields, function(tab, tkey){
 
-                        var tabObj = this.addWindowEditTab(tkey, tab.label);
+                        var tabObj = this.addWindowEditTab(tkey, tab);
 
                         Object.each(tab.depends, function(field, key){
                             this.addWindowEditField(tabObj.pane, key, field);
@@ -1071,12 +1065,12 @@ var admin_system_module_editWindow = new Class({
                 }
             }
 
-            //tab fields with tab
+            //tab fields with tab, bacjward compatibility
             if (typeOf(this.definition.properties.tabFields) == 'object'){
 
                 Object.each(this.definition.properties.tabFields, function(fields, tabKey){
 
-                    var tab = this.addWindowEditTab(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), tabKey);
+                    var tab = this.addWindowEditTab(tabKey.replace(/[^a-zA-Z0-9_\-]/, ''), {label: tabKey});
 
                     Object.each(fields, function(field, key){
                         this.addWindowEditField(tab.pane, key, field);
@@ -1086,7 +1080,7 @@ var admin_system_module_editWindow = new Class({
             }
 
             if (!!this.definition.properties.fields.length && !!this.definition.properties.tabFields.length){
-                this.addWindowEditTab('general', '[[General]]');
+                this.addWindowEditTab('general', {label: '[[General]]'});
             }
         }
 
@@ -1122,8 +1116,10 @@ var admin_system_module_editWindow = new Class({
 
             var children = btn.getChildren();
             children.adopt();
+            var definition = this.toolbarTabItemObj.getValue();
 
-            var key = this.toolbarTabId.getValue();
+            var key = definition.key;
+            delete definition.key;
 
             if (key.substr(0,2) != '__')
                 key = '__' + key;
@@ -1131,9 +1127,9 @@ var admin_system_module_editWindow = new Class({
                 key += '__';
 
             //tab
-            btn.set('text', this.toolbarTabLabel.getValue());
+            btn.set('text', definition.label);
             btn.store('key', key);
-            btn.store('label', this.toolbarTabLabel.getValue());
+            btn.store('definition', definition);
 
             children.inject(btn);
 
@@ -1164,16 +1160,41 @@ var admin_system_module_editWindow = new Class({
 
             field.button.setStyle('border', '1px dashed green');
 
-            this.toolbarTabId = new ka.field({
-                type: 'text', label: t('ID'), desc: t('Will be surrounded with __ and __ (double underscore) if its not already.')
-            }, this.windowInspectorContainer);
+            this.toolbarTabItemDef = {
+                key: {
+                    type: 'text', label: t('ID'), desc: t('Will be surrounded with __ and __ (double underscore) if its not already.')
+                },
+                label: {
+                    type: 'text', label: t('Label')
+                },
+                layout: {
+                    type: 'textarea', label: t('Content layout (Optional)'),
+                    height: 200,
+                    desc: t('If you want to have a own layout in this content tab, then just type here the HTML.')+
+                        "\n"+t('Use in your fields as target the same ID as the id attribute in these HTML elements.')
+                },
+                __optional__: {
+                    label: t('More'),
+                    type: 'childrenswitcher',
+                    depends: {
+                        'needValue': {
+                            label: tc('kaFieldTable', 'Visibility condition (Optional)'),
+                            desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
+                        },
+                        againstField: {
+                            label: tc('kaFieldTable', 'Visibility condition field (Optional)'),
+                            desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
+                        },
+                    }
+                }
+            };
 
-            this.toolbarTabLabel = new ka.field({
-                type: 'text', label: t('Label')
-            }, this.windowInspectorContainer);
+            this.toolbarTabItemObj = new ka.parse(this.windowInspectorContainer, this.toolbarTabItemDef);
 
-            this.toolbarTabId.setValue(field.button.retrieve('key'));
-            this.toolbarTabLabel.setValue(field.button.retrieve('label'));
+            var values = field.button.retrieve('definition');
+            values.key = field.button.retrieve('key');
+
+            this.toolbarTabItemObj.setValue(values);
 
             this.lastLoadedField = pKey;
             return;
@@ -1319,7 +1340,7 @@ var admin_system_module_editWindow = new Class({
 
     },
 
-    addWindowEditTab: function(pTabKey, pTitle, pIcon){
+    addWindowEditTab: function(pTabKey, pDefinition, pIcon){
 
         if (pTabKey.substr(0,2) != '__')
             pTabKey = '__' + pTabKey;
@@ -1327,7 +1348,7 @@ var admin_system_module_editWindow = new Class({
         if (pTabKey.substr(pTabKey.length-2) != '__')
             pTabKey += '__';
 
-        var tab = this.winTabPane.addPane(pTitle, pIcon);
+        var tab = this.winTabPane.addPane(pDefinition.label, pIcon);
 
         this.windowEditFields[pTabKey] = tab;
 
@@ -1338,7 +1359,7 @@ var admin_system_module_editWindow = new Class({
         this.winTabPaneSortables.addItems(tab.button);
 
         tab.button.store('key', pTabKey);
-        tab.button.store('label', pTitle);
+        tab.button.store('definition', pDefinition);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/pencil.png',

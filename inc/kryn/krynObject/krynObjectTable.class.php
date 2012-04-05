@@ -335,9 +335,6 @@ class krynObjectTable {
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);
 
-            if (!$pRawData)
-                self::parseValues($item);
-
             if (kryn::$config['db_type'] == 'postgresql')
                 foreach ($groupedColumns as $col => $b)
                     if (substr($item[$col], 0, -1) == ',')
@@ -352,9 +349,6 @@ class krynObjectTable {
             while ($row = dbFetch($res)){
 
 
-                if (!$pRawData)
-                    self::parseValues($row);
-
                 if ($c > 0 && kryn::$config['db_type'] == 'postgresql')
                     foreach ($groupedColumns as $col => $b)
                         if (substr($row[$col], 0, -1) == ',')
@@ -364,22 +358,6 @@ class krynObjectTable {
             return $items;
         }
 
-    }
-
-    public function parseValues(&$pItem){
-
-        if (!is_array($pItem)) return;
-
-        foreach ($pItem as $key => &$value ){
-
-            if ($this->definition['fields'][$key]){
-                if (strtolower($this->definition['fields'][$key]['type']) == 'layoutelement'){
-                    if (substr($value, 0, 13) == '{"template":"'){
-                        $value = krynObject::parseLayoutElement($value);
-                    }
-                }
-            }
-        }
     }
 
     /**

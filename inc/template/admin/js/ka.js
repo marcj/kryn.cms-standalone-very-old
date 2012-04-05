@@ -1779,11 +1779,15 @@ ka.parse = new Class({
                     }.bind(this));
 
                 } else {
-                    this.fields[obj.field.againstField].addEvent('check-depends', function(){
-                        this.setVisibility(this.fields[obj.field.againstField], obj);
-                        self.showChildContainer(this.fields[obj.field.againstField]);
-                    }.bind(this));
-                    this.fields[obj.field.againstField].fireEvent('check-depends');
+                    if (this.fields[obj.field.againstField]){
+                        this.fields[obj.field.againstField].addEvent('check-depends', function(){
+                            this.setVisibility(this.fields[obj.field.againstField], obj);
+                            self.showChildContainer(this.fields[obj.field.againstField]);
+                        }.bind(this));
+                        this.fields[obj.field.againstField].fireEvent('check-depends');
+                    } else {
+                        logger('ka.field "againstField" does not exist: '+obj.field.againstField);
+                    }
                 }
             }
         }.bind(this));
@@ -1881,8 +1885,8 @@ ka.parse = new Class({
                     tab = this.firstLevelTabBar.addPane(field.label, field.icon);
                 }
 
-                if (field.layoutHtml){
-                    tab.pane.set('html', field.layoutHtml);
+                if (field.layout){
+                    tab.pane.set('html', field.layout);
                 }
 
                 obj = tab.button;
@@ -1890,10 +1894,6 @@ ka.parse = new Class({
                 obj.parent = pDependField;
                 obj.depends = {};
                 obj.toElement = function(){return tab.button};
-
-                obj.isHidden = function(){return tab.button.getStyle('display')=='none';};
-                obj.show = function(){return;tab.button.setStyle('display', 'blo2ck')};
-                obj.hide = function(){return; tab.button.setStyle('display', 'no2ne')};
 
                 obj.setValue = function(){return true;};
                 obj.getValue = function(){return true;};
