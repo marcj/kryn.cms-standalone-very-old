@@ -36,7 +36,11 @@ class adminDb {
     function _remove($pDb) {
         foreach ($pDb as $tableName => $tableFields) {
             $sql = "DROP TABLE %pfx%$tableName";
-            dbExec($sql);
+            try {
+                @dbExec($sql);
+            } catch(Exception $e){
+
+            }
         }
     }
 

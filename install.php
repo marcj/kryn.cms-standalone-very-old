@@ -501,8 +501,10 @@ function step5(){
     foreach( kryn::$configs as $module => $config ){
         print "Install <b>$module</b>:<br />
         <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
+        print adminDb::remove( $config );
         print adminDb::install( $config );
         print "</div>";
+        flush();
     }
 
     dbDelete( 'system_domains' );
@@ -740,6 +742,9 @@ function step3(){
     ?>
 
 Please enter your database credentials.<br />
+<br/>
+    Please note: All tables which already exists will be deleted!
+<br/>
 <script type="text/javascript">
     checkDBEntries = function(){
         var ok = true;
