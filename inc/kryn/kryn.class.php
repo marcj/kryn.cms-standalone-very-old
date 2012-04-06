@@ -1563,6 +1563,9 @@ class kryn {
 
         $url = $_REQUEST['_kurl'];
 
+        if (substr($url, 0, 1) == '/')
+            $url = substr($url, 1);
+
         kryn::$url = '';
 
         $t = explode("/", $url);
