@@ -184,7 +184,7 @@ class adminDb {
 
         dbExec($sql);
 
-        self::updateIndexes($pTable, $pFields, false); //delete all and create new
+        self::updateIndexes($pTable, $pFields, true); //delete all and create new
     }
 
     public static function deleteIndex($pName, $pTable) {
