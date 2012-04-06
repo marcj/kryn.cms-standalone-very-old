@@ -1930,22 +1930,7 @@ ka.parse = new Class({
 
                 if (!obj.childContainer){
 
-                    var childContainer;
-
-                    if (field.tableitem) {
-                        var tr = new Element('tr').inject(document.id(obj), 'after');
-                        var td = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
-
-                        childContainer = new Element('div', {
-                            'class': 'ka-fields-sub'
-                        }).inject(td);
-
-                    } else {
-                        childContainer = new Element('div', {
-                            'class': 'ka-fields-sub'
-                        }).inject(pContainer);
-                    }
-                    obj.childContainer = childContainer;
+                    obj.prepareChildContainer();
                 }
 
                 this.parseLevel(field.depends, obj.childContainer, obj);
@@ -2013,6 +1998,7 @@ ka.parse = new Class({
     getVisibility: function(pField, pChild){
 
         if (typeOf(pChild.field.needValue) == 'null') return true;
+        if (pChild.field.needValue === '') return true;
 
         if (typeOf(pChild.field.needValue) == 'array') {
             if (pChild.field.needValue.contains(pField.getValue())) {
@@ -2085,6 +2071,8 @@ ka.parse = new Class({
 
     getValue: function (pField) {
 
+        var val;
+
         var res = {};
         if (pField && this.fields[pField]) {
 
@@ -2118,8 +2106,9 @@ ka.parse = new Class({
                     });
                     res = Object.merge(res, newRes);
                 } else {
-                    if (typeOf(obj.getValue()) !== 'null')
-                        res[id] = obj.getValue();
+                    val = obj.getValue();
+                    if (typeOf(val) !== 'null' && val !== '')
+                        res[id] = val;
                 }
             });
         }

@@ -21,6 +21,7 @@ ka.fieldProperty = new Class({
                 folder: t('Folder'),
                 select: t('Select'),
                 object: t('Object'),
+                predefined: t('Predefined'),
                 tab: t('Tab'),
                 lang: t('Language select'),
                 textlist: t('Textlist'),
@@ -87,9 +88,14 @@ ka.fieldProperty = new Class({
 
                 //object
                 'object': {
-                    needValue: 'object',
+                    needValue: ['object', 'predefined'],
                     label: t('Objecy key'),
                     desc: t('The key of the object')
+                },
+                'field': {
+                    needValue: 'predefined',
+                    label: t('Field key'),
+                    desc: t('The key of the field')
                 },
                 'object_label': {
                     needValue: 'object',
@@ -198,8 +204,8 @@ ka.fieldProperty = new Class({
                     'default': 1
                 },
                 target: {
-                    label: t('Target (Optional)'),
-                    desc: t('If your layout has a own layout.'),
+                    label: t('Inject to target (Optional)'),
+                    desc: t('If your tab has a own layout.'),
                     type: 'text'
                 },
                 'needValue': {
@@ -207,7 +213,7 @@ ka.fieldProperty = new Class({
                     desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
                 },
                 againstField: {
-                    label: tc('kaFieldTable', 'Visibility condition field (Optional)'),
+                    label: tc('kaFieldTable', 'Visibility condition target field (Optional)'),
                     desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
                 },
                 'length': {
@@ -227,6 +233,11 @@ ka.fieldProperty = new Class({
                     type: 'text',
                     label: t('Required value as regular expression. (Optional)'),
                     desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
+                },
+                tableitem: {
+                    label: t('Acts as a table item'),
+                    desc: t('Injects instead of a DIV a TR element.'),
+                    type: 'checkbox'
                 }
             }
         }
@@ -240,6 +251,7 @@ ka.fieldProperty = new Class({
         tableitem_title_width: 330,
         allTableItems: true,
         withActionsImages: true,
+        withPredefinedType: false,
         asFrameworkFieldDefinition: false, //means for usage in ka.parse (and therefore in adminWindowEdit/Add)
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
@@ -269,8 +281,9 @@ ka.fieldProperty = new Class({
             delete this.kaFields.type.depends.object_relation_table_right;
 
         } else {
-
+            //if not frameworkField
             delete this.kaFields.__optional__.depends.target;
+            delete this.kaFields.__optional__.depends.tableitem;
 
         }
 
@@ -278,6 +291,10 @@ ka.fieldProperty = new Class({
             delete this.kaFields.width;
         } else {
             delete this.kaFields.__optional__;
+        }
+
+        if (!this.options.withPredefinedType){
+            delete this.kaFields.type.items.predefined;
         }
 
         var self = this;
@@ -478,19 +495,19 @@ ka.fieldProperty = new Class({
 
         }.bind(this));
 
-        logger(property);
+        if (!this.options.withoutChildren){
+            property.depends = {};
 
-        property.depends = {};
+            this.children.each(function(child){
+                var fieldProperty = child.retrieve('ka.fieldProperty');
+                var value = fieldProperty.getValue();
 
-        this.children.each(function(child){
-            var fieldProperty = child.retrieve('ka.fieldProperty');
-            var value = fieldProperty.getValue();
+                property.depends[value.key] = value.definition;
+            });
 
-            property.depends[value.key] = value.definition;
-        });
-
-        if (Object.getLength(property.depends) == 0)
-            delete property.depends;
+            if (Object.getLength(property.depends) == 0)
+                delete property.depends;
+        }
 
         return {
             key: key,
@@ -548,13 +565,15 @@ ka.fieldProperty = new Class({
         this.children = [];
         this.childDiv.empty();
 
-        if (pDefinition.depends){
-            Object.each(pDefinition.depends, function(definition, key){
+        if (!this.options.withoutChildren){
+            if (pDefinition.depends){
+                Object.each(pDefinition.depends, function(definition, key){
 
-                this.children.include(new ka.fieldProperty(key, {}, this.childDiv, this.options));
+                    this.children.include(new ka.fieldProperty(key, {}, this.childDiv, this.options));
 
-            }.bind(this));
+                }.bind(this));
 
+            }
         }
     }
 

@@ -212,6 +212,7 @@ var admin_system_module_editWindow = new Class({
         .addEvent('click', function(){
 
             var currentTab = this.winTabPane.getSelected();
+            var currentTab = this.winTabPane.getSelected();
 
             var items = currentTab.pane.fieldContainer.getChildren();
 
@@ -285,7 +286,11 @@ var admin_system_module_editWindow = new Class({
                     var items = currentTab.pane.fieldContainer.getChildren();
 
                     this.addWindowEditField(currentTab.pane,
-                        select.getValue(), {}, true);
+                        select.getValue(), {
+                            type: 'predefined',
+                            object: this.generalObj.getValue('object'),
+                            field: select.getValue()
+                        }, true);
 
                     dialog.close();
                 }.bind(this))
@@ -314,9 +319,15 @@ var admin_system_module_editWindow = new Class({
             'class': 'ka-system-module-editWindow-windowInspector-actionbar'
         }).inject(this.windowInspector);
 
-        new ka.Button(t('Apply'))
+        this.inspectorBtnApply = new ka.Button(t('Apply'))
         .addEvent('click', this.applyFieldProperties.bind(this))
         .inject(this.windowInspectorActionbar);
+
+        this.inspectorBtnCancel = new ka.Button(t('Cancel'))
+        .addEvent('click', this.cancelFieldProperties.bind(this))
+        .inject(this.windowInspectorActionbar);
+
+        this.cancelFieldProperties();
 
         this.loadInfo();
     },
@@ -329,7 +340,7 @@ var admin_system_module_editWindow = new Class({
 
         Array.each(tabs, function(button, idx){
 
-            var definition = button.retrieve('definition');
+            var definition = Object.clone(button.retrieve('definition'));
             var key = button.retrieve('key');
 
             if (!key && definition.label){
@@ -341,23 +352,36 @@ var admin_system_module_editWindow = new Class({
             fields[key] = definition;
 
             var depends = {};
-            var iIdx = 0;
+            var iIdx = 0, kaFieldObj;
 
-            var subfields = button.pane.getElements('.ka-field-main');
-            Array.each(subfields, function(field, idx){
+            var extractFields = function(pDom, pDependsRef){
 
-                var fKey = field.retrieve('key');
-                var fField = field.retrieve('field');
-                var fPredefined = field.retrieve('predefined');
+                var subfields = pDom.getChildren('.ka-field-main');
+                Array.each(subfields, function(field, idx){
 
-                if (!fPredefined){
-                    depends[fKey] = fField;
-                } else {
-                    depends[iIdx] = fKey;
-                    iIdx++;
-                }
+                    var fKey = field.retrieve('key');
+                    var fField = Object.clone(field.retrieve('field'));
 
-            });
+                    kaFieldObj = field.retrieve('ka.field');
+                    if (kaFieldObj.childContainer){
+                        fField.depends = {};
+                        extractFields(kaFieldObj.childContainer, fField.depends);
+                    }
+
+                    if (false && fField.type == 'predefined' && fField.object == this.generalObj.getValue('object')){
+                        //if the type is predefeind and the object is the same as in the class
+                        //then we dont need to save the whole definition.
+                        //todo, what is with children? deactivated
+                        pDependsRef[iIdx] = fKey;
+                        iIdx++;
+                    } else {
+                        pDependsRef[fKey] = fField;
+                    }
+                });
+
+            };
+
+            extractFields(button.pane, depends);
 
             fields[key]['depends'] = depends;
 
@@ -394,7 +418,10 @@ var admin_system_module_editWindow = new Class({
 
         this.saveBtn.startTip(t('Saving ...'));
 
-        this.lastReq = new Request.JSON({url: _path+'admin/system/module/saveWindowClass', noCache: 1,
+        if (this.lastSaveReq)
+            this.lastSaveReq.cancel();
+
+        this.lastSaveReq = new Request.JSON({url: _path+'admin/system/module/saveWindowClass', noCache: 1,
 
         noErrorReporting: true,
         onComplete: function(res){
@@ -1087,16 +1114,34 @@ var admin_system_module_editWindow = new Class({
 
     },
 
+    cancelFieldProperties: function(){
 
+        this.inspectorBtnCancel.hide();
+        this.inspectorBtnApply.hide();
+
+        this.windowInspectorContainer.empty();
+
+        if (this.lastFieldProperty)
+            delete this.lastFieldProperty;
+
+        if (this.lastLoadedField){
+            if (this.windowEditFields[this.lastLoadedField])
+                document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline');
+        }
+
+        if (this.lastLoadedField)
+            delete this.lastLoadedField;
+
+    },
 
     applyFieldProperties: function(){
-
 
         if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.field)){
 
             var val = this.lastFieldProperty.getValue();
 
             var oField = document.id(this.windowEditFields[this.lastLoadedField]);
+            var oFieldObj = this.windowEditFields[this.lastLoadedField];
             delete this.windowEditFields[this.lastLoadedField];
 
             var tab = this.winTabPane.getSelected();
@@ -1104,6 +1149,11 @@ var admin_system_module_editWindow = new Class({
 
             var nField = document.id(field);
             nField.inject(oField, 'after');
+
+            if (oField.childContainer){
+                field.prepareChildContainer();
+                oField.childContainer.getChildren().inject(field.childContainer);
+            }
 
             this.lastLoadedField = val.key;
             document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline', '1px dashed green');
@@ -1118,6 +1168,7 @@ var admin_system_module_editWindow = new Class({
             children.adopt();
             var definition = this.toolbarTabItemObj.getValue();
 
+            definition.type = 'tab';
             var key = definition.key;
             delete definition.key;
 
@@ -1147,6 +1198,9 @@ var admin_system_module_editWindow = new Class({
             else
                 document.id(this.windowEditFields[this.lastLoadedField].button).setStyle('border');
         }
+
+        this.inspectorBtnCancel.show();
+        this.inspectorBtnApply.show();
 
         var field = this.windowEditFields[pKey];
 
@@ -1184,7 +1238,7 @@ var admin_system_module_editWindow = new Class({
                         againstField: {
                             label: tc('kaFieldTable', 'Visibility condition field (Optional)'),
                             desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
-                        },
+                        }
                     }
                 }
             };
@@ -1214,23 +1268,15 @@ var admin_system_module_editWindow = new Class({
 
         if (field){
             document.id(field).setStyle('outline', '1px dashed green');
-
         }
 
         this.lastLoadedField = pKey;
     },
 
-    addWindowEditField: function(pParentKey, pKey, pField, pPredefined){
-        var field;
+    addWindowEditField: function(pParentKey, pKey, pField){
+        var field, errorMsg;
 
-
-        if (!pPredefined){
-            field = Object.clone(pField);
-        } else {
-            var definition = ka.getObjectDefinition(this.generalObj.getValue('object'));
-            field = definition.fields[pKey];
-        }
-
+        field = Object.clone(pField);
         field.designMode = true;
 
         var errorDiv, parentContainer;
@@ -1239,45 +1285,39 @@ var admin_system_module_editWindow = new Class({
 
             if (this.windowEditFields[pParentKey].pane && this.windowEditFields[pParentKey].pane.hasClass('kwindow-win-tabPane-pane'))
                 parentContainer = this.windowEditFields[pParentKey].pane.fieldContainer;
-            else
+            else {
+                this.windowEditFields[pParentKey].prepareChildContainer();
                 parentContainer = this.windowEditFields[pParentKey].childContainer;
+            }
         }
 
         if (typeOf(pParentKey) == 'element'){
             parentContainer = pParentKey;
         }
 
-        try {
-
-            var field = new ka.field(
-                field,
-                parentContainer,
-                {win: this.win}
-            );
-        } catch(e){
-
-            errorDiv = new Element('div', {
-                text: t('There was an error in initializing this field.'),
-                style: 'border: 1px solid red; padding: 5px; color: red; position: relative;'
-            }).inject(pTab.pane.fieldContainer);
-
-            new Element('div', {
-                style: 'color: silver; margin: 5px; border: 1px dashed gray; background-color: #e6e6e6;',
-                text: e
-            }).inject(errorDiv);
-
-            new Element('div', {
-                style: 'color: gray; ',
-                text: t('Please check if you have entered all properties correctly.')
-            }).inject(errorDiv);
-
-            errorDiv.store('field', pField);
-            errorDiv.store('key', pKey);
-            this.windowEditFields[pKey] = errorDiv;
-
-        }
+        var field = new ka.field(
+            field,
+            parentContainer,
+            {win: this.win}
+        );
 
         var titleDiv = field.title || null;
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/add.png',
+            title: t('Add child'),
+            style: 'position: absolute; right: 65px; top: 0px; width: 13px; cursor: pointer;'
+        })
+        .addEvent('click', function(){
+
+            var key = document.id(field).retrieve('key');
+            this.windowEditFields[key].prepareChildContainer();
+            var child = this.windowEditFields[key].childContainer;
+            var count = child.getElements('.ka-field-main').length+1;
+            this.addWindowEditField(key, 'field_'+count, {label: 'Field '+count});
+
+        }.bind(this))
+        .inject(titleDiv || errorDiv);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/pencil.png',
@@ -1296,10 +1336,6 @@ var admin_system_module_editWindow = new Class({
         document.id(field).store('field', pField);
         document.id(field).store('key', pKey);
 
-        if (pPredefined)
-            document.id(field).store('predefined', true);
-
-
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
             title: t('Delete'),
@@ -1312,7 +1348,7 @@ var admin_system_module_editWindow = new Class({
                 delete this.windowEditFields[document.id(field).retrieve('key')];
             }.bind(this))
         }.bind(this))
-        .inject(titleDiv);
+        .inject(titleDiv || errorDiv);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/arrow_up.png',
@@ -1322,7 +1358,7 @@ var admin_system_module_editWindow = new Class({
             if (document.id(field).getPrevious())
                 document.id(field).inject(document.id(field).getPrevious(), 'before');
         })
-        .inject(titleDiv);
+        .inject(titleDiv || errorDiv);
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/arrow_down.png',
@@ -1332,9 +1368,15 @@ var admin_system_module_editWindow = new Class({
             if (document.id(field).getNext())
                 document.id(field).inject(document.id(field).getNext(), 'before');
         })
-        .inject(titleDiv);
+        .inject(titleDiv || errorDiv);
 
         this.windowEditFields[pKey] = field;
+
+        if (pField.depends){
+            Object.each(pField.depends, function(field, key){
+                this.addWindowEditField(pKey, key, field);
+            }.bind(this));
+        }
 
         return this.windowEditFields[pKey];
 

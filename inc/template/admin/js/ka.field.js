@@ -19,12 +19,23 @@ ka.field = new Class({
     field: {},
     depends: {},
     childContainer: false,
+    container: false,
 
     initialize: function (pField, pContainer, pRefs) {
 
-        this.field = Object.clone(pField);
+        if (pField.type == 'predefined'){
+            var definition = ka.getObjectDefinition(pField.object);
+            this.field = Object.clone(definition.fields[pField.field]);
 
-        this.setOptions(pField);
+            if (pField.label)
+                this.field.label = pField.label;
+
+        } else {
+            this.field = Object.clone(pField);
+        }
+
+        this.setOptions(this.field);
+        this.container = pContainer;
 
         if (typeOf(pRefs) == 'object') {
             Object.each(pRefs, function (item, key) {
@@ -64,18 +75,18 @@ ka.field = new Class({
                 this.main.setStyle('width', 330);
             }
 
-            if (pField.type == 'headline') {
+            if (this.field.type == 'headline') {
                 new Element('div', {
                     style: 'clear: both;'
                 }).inject(this.main);
                 new Element('h2', {
                     'class': 'ka-field-headline',
-                    html: t(pField.label)
+                    html: t(this.field.label)
                 }).inject(this.main);
                 return;
             }
 
-            if (pField.small) {
+            if (this.field.small) {
                 this.main.set('class', 'ka-field-main ka-field-main-small');
             }
             this.title = new Element('div', {
@@ -94,14 +105,14 @@ ka.field = new Class({
             this.win = this.field.win;
         }
 
-        if (pField.label) {
+        if (this.field.label) {
             this.titleText = new Element('div', {
                 'class': 'title',
-                html: pField.label
+                html: this.field.label
             }).inject(this.title);
         }
 
-        if (pField.help && this.titleText) {
+        if (this.field.help && this.titleText) {
             new Element('img', {
                 src: _path + 'inc/template/admin/images/icons/help_gray.png',
                 width: 14,
@@ -118,7 +129,7 @@ ka.field = new Class({
                     this.setStyle('opacity', 0.7);
                 }).addEvent('click',
                 function () {
-                    ka.wm.open('admin/help', {id: pField.help});
+                    ka.wm.open('admin/help', {id: this.field.help});
                 }).inject(this.titleText);
         }
 
@@ -774,7 +785,6 @@ ka.field = new Class({
 
         this._setValue = function (pValue) {
 
-            logger(pValue);
             div.getElements('.ka-field-textlist-item').destroy();
             if (pValue == '' || !pValue) return;
 
@@ -1270,8 +1280,6 @@ ka.field = new Class({
         this.chooserTable.empty();
 
         this.objectTableLoaderQueue = {};
-
-        logger(this._value);
 
         if (!this._value || this._value.length == 0){
             this.renderObjectTableNoItems();
@@ -2137,11 +2145,14 @@ ka.field = new Class({
     },
 
     updateOkInfo: function(){
+        if (this.field.designMode) return;
         var status = this.isFieldValid();
         this.setIsOk(status);
     },
 
     isOk: function(){
+        if (this.field.designMode) return;
+
         var status = this.isFieldValid();
         this.setIsOk(status);
         return status;
@@ -2194,6 +2205,26 @@ ka.field = new Class({
         this.win = win.retrieve('win');
     },
 
+    prepareChildContainer: function(){
+
+        if (this.childContainer) return;
+
+        if (this.field.tableitem) {
+            var tr = new Element('tr').inject(document.id(this), 'after');
+            var td = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
+
+            this.childContainer = new Element('div', {
+                'class': 'ka-fields-sub'
+            }).inject(td);
+
+        } else {
+            this.childContainer = new Element('div', {
+                'class': 'ka-fields-sub'
+            }).inject(document.id(this), 'after');
+        }
+
+    },
+
     toElement: function () {
         return ( this.field.tableitem ) ? this.tr : this.main;
     },
@@ -2231,7 +2262,7 @@ ka.field = new Class({
 
     hide: function () {
 
-        if (this.childContainer) this.childContainer.hide();
+        if (this.childContainer && this.childContainer.hide) this.childContainer.hide();
 
         if (this.tr) {
             this.tr.setStyle('display', 'none');
