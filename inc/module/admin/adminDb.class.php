@@ -327,8 +327,8 @@ class adminDb {
             if ($cfg['db_type'] == 'postgresql') {
                 database::$hideSql = true;
                 try {
-                    dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
-                    dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
+                    @dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
+                    @dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
                 } catch (Exception $e){
                     //force silence
                 }
