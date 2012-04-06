@@ -502,7 +502,12 @@ class database {
                 case 'postgresql':
 
                     if (!$seqName) return false;
-                    $row = @$this->exfetch("SELECT currval('" . $seqName . "') as lastid");
+
+                    try {
+                        $row = @$this->exfetch("SELECT currval('" . $seqName . "') as lastid");
+                    }catch (Exception $e){
+                        return false;
+                    }
 
                     if (!$row) return false;
                     return $row['lastid'];
