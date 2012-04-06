@@ -234,7 +234,7 @@ function dbInsert($pTable, $pFields) {
     $sql .= " $sqlFields ) VALUES( $sqlInsert )";
 
     if (dbExec($sql))
-        return database::last_id();
+        return dbLastId();
     else
         return false;
 }
@@ -253,7 +253,12 @@ function dbError() {
     global $kdb;
 
     return $kdb->lastError();
+}
 
+function dbLastId() {
+    global $kdb;
+
+    return $kdb->lastId();
 }
 
 

@@ -481,41 +481,30 @@ class database {
         }
     }
 
-    public static function last_id() {
-        global $kdb;
-        $seqName = null;
+    public function lastId() {
 
-        if ($kdb->type == 'postgresql') {
+        if($this->lastInsertTable)
+            $seqName = 'kryn_' . $this->lastInsertTable . '_seq';
 
-            $table = substr($kdb->lastInsertTable, strlen(pfx));
-            $columns = self::getOptions($table);
-
-            if (!$columns)
-                $columns = self::getOptions($kdb->lastInsertTable);
-
-            if (is_array($columns)) {
-                foreach ($columns as $fKey => $field) {
-                    if ($field['auto_increment']) {
-                        $seqName = 'kryn_' . $kdb->lastInsertTable . '_seq';
-                    }
-                }
-            }
+        if ($this->usePdo) {
+            if (!$seqName) return false;
+            return $this->pdo->lastInsertId($seqName) + 0;
         }
 
-        if ($kdb->usePdo) {
-            return $kdb->pdo->lastInsertId($seqName) + 0;
-        }
-
-        if (!$kdb->usePdo) {
-            switch ($kdb->type) {
+        if (!$this->usePdo) {
+            switch ($this->type) {
                 case 'sqlite':
-                    return $kdb->connection->lastInsertRowID();
+                    return $this->connection->lastInsertRowID();
                 case 'mysql':
-                    return mysql_insert_id($kdb->connection);
+                    return mysql_insert_id($this->connection);
                 case 'mysqli':
-                    return mysqli_insert_id($kdb->connection);
+                    return mysqli_insert_id($this->connection);
                 case 'postgresql':
-                    $row = $kdb->exfetch("SELECT currval('" . $seqName . "') as lastid");
+
+                    if (!$seqName) return false;
+                    $row = $this->exfetch("SELECT currval('" . $seqName . "') as lastid");
+
+                    if (!$row) return false;
                     return $row['lastid'];
             }
         }

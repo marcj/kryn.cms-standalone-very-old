@@ -62,7 +62,7 @@ class adminWindowAdd extends adminWindowEdit {
         }
 
         dbInsert($this->table, $row);
-        $this->last = database::last_id();
+        $this->last = dbLastId();
         $_REQUEST[$this->primary[0]] = $this->last;
 
         //custom saves
