@@ -54,7 +54,7 @@ class krynCache {
      * krynCache class constructor.
      *
      * @param string  $pType                    can be memcached, redis, files, xcache or apc.
-     * @param string  $pConfig
+     * @param array  $pConfig
      *                                          memcached and redis: array(
      *                                              'servers' => array(
      *                                                  array('ip' => '12.12.12.12', 'port' => 6379
@@ -75,30 +75,22 @@ class krynCache {
         switch ($this->type) {
             case 'memcached':
                 if (!$this->initMemcached()) {
-                    klog('cache', _l('Can not load the memcache(d) class. Fallback to file caching.'));
-                    $this->type = 'files';
-                    $this->config['files_path'] = 'cache/object/';
+                    throw new Exception('Can not load the memcache(d) class');
                 }
                 break;
             case 'redis':
                 if (!$this->initRedis()) {
-                    klog('cache', _l('Can not load the Redis class. Fallback to file caching.'));
-                    $this->type = 'files';
-                    $this->config['files_path'] = 'cache/object/';
+                    throw new Exception('Can not load the Redis class');
                 }
                 break;
             case 'apc':
                 if (!function_exists('apc_store')) {
-                    klog('cache', _l('The php apc module is not loaded. Fallback to file caching.'));
-                    $this->type = 'files';
-                    $this->config['files_path'] = 'cache/object/';
+                    throw new Exception('The php apc module is not loaded');
                 }
                 break;
             case 'xcache':
                 if (!function_exists('xcache_get')) {
-                    klog('cache', _l('The php xcache module is not loaded. Fallback to file caching.'));
-                    $this->type = 'files';
-                    $this->config['files_path'] = 'cache/object/';
+                    throw new Exception('The php xcache module is not loaded');
                 }
                 break;
         }

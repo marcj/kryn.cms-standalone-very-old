@@ -1245,7 +1245,11 @@ class kryn {
             }
         }
 
-        kryn::$cache = new krynCache($cfg['cache_type'], $cfg['cache_params']);
+        try {
+            kryn::$cache = new krynCache($cfg['cache_type'], $cfg['cache_params']);
+        } catch (Exception $e){
+            kryn::internalError($e);
+        }
 
         if (function_exists('apc_store'))
             kryn::$cacheFast = new krynCache('apc');
@@ -2447,6 +2451,8 @@ class kryn {
      *
      * @param bool $pReturn Return instead of exit()
      *
+     * @return bool
+     *
      * @internal
      */
     public static function display($pReturn = false) {
@@ -2851,7 +2857,7 @@ class kryn {
      * @static
      */
     public static function setFastCache($pCode, $pValue) {
-        kryn::$cacheFast->set($pCode, $pValue);
+        return kryn::$cacheFast?kryn::$cacheFast->set($pCode, $pValue):false;
     }
 
     /**
@@ -2864,7 +2870,7 @@ class kryn {
      * @static
      */
     public static function &getFastCache($pCode) {
-        return kryn::$cacheFast->get($pCode);
+        return kryn::$cacheFast?kryn::$cacheFast->get($pCode):false;
     }
 
     /**

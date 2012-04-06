@@ -31,15 +31,23 @@
                 color: gray;
                 padding-left: 13px;
             }
-            
+
+            .error-msg {
+                white-space: pre;
+                overflow-x: auto;
+                width: 580px;
+                border: 1px solid silver;
+                background-color: white;
+                padding: 5px;
+            }
+
         </style>
     </head>
     <body>
         <div id="error">
             <h2>[[Internal system error]]</h2>
             <br />
-            <div>
-                {$msg}
+            <div class="error-msg">{$msg}
             </div>
         </div>
     </body>
