@@ -43,10 +43,10 @@ class usersAcl {
     	
     	if( substr($code, 0, 1) == 'd' ){
     		//domain
-    		
-    		$domains = kryn::getPhpCache('domains');
-    		$res['title'] = $domains['r2d']['rsn='.$rsn]['domain'];
-    		$res['path'] = $domains['r2d']['rsn='.$rsn]['lang'];
+
+            $domain = dbExfetch('SELECT domain, lang FROM %pfx%system_domains WHERE rsn = '.$rsn);
+    		$res['title'] = $domain['domain'];
+    		$res['path'] = $domain['lang'];
     		
     	} else {
     		//page

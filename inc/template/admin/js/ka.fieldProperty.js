@@ -38,6 +38,7 @@ ka.fieldProperty = new Class({
                 label: t('Label'),
                 html: t('Html'),
                 imagegroup: t('Imagegroup'),
+                checkboxgroup: t('Checkboxgroup'),
                 custom: t('Custom'),
                 childrenswitcher: t('Children switcher'),
                 window_list: t('Framework windowList')
@@ -193,7 +194,7 @@ ka.fieldProperty = new Class({
             desc: t('Use a px value or a % value. Example: 25%, 50, 35px')
         },
         primaryKey: {
-            needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder', 'page'],
+            needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'object', 'datetime', 'file', 'folder', 'page'],
             againstField: 'type',
             label: t('Primary key'),
             type: 'checkbox'
@@ -217,6 +218,18 @@ ka.fieldProperty = new Class({
                     label: t('Can be empty? (Optional)'),
                     type: 'checkbox',
                     'default': 1
+                },
+                input_width: {
+                    label: t('Input element width'),
+                    needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime', 'date'],
+                    againstField: 'type',
+                    type: 'text'
+                },
+                maxlength: {
+                    label: t('Max length'),
+                    needValue: ['text', 'number', 'password'],
+                    againstField: 'type',
+                    type: 'text'
                 },
                 target: {
                     label: t('Inject to target (Optional)'),

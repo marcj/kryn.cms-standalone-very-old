@@ -90,7 +90,7 @@ var admin_pages = new Class({
 
         this.rsn = pRsn;
         this.oldPage = this.page;
-        this.loader.setStyle('display', 'block');
+        this.win.setLoading(true, null, {left: this.main.getStyle('left')});
 
         this.oldLoadPageRequest = new Request.JSON({url: _path + 'admin/pages/getPage', noCache: 1, onComplete: function (res) {
 
@@ -127,7 +127,7 @@ var admin_pages = new Class({
             }
 
             this._loadPage();
-            this.loader.setStyle('display', 'none');
+            this.win.setLoading(false);
 
             this.rpage = this.retrieveData();
 
@@ -737,18 +737,6 @@ var admin_pages = new Class({
         this._createSearchIndexPane();
         this._createProperties();
 
-
-        this.loader = new Element('div', {
-            styles: {
-                position: 'absolute',
-                'background-color': '#eee',
-                'background-image': 'url(' + _path + 'inc/template/admin/images/loading.gif)',
-                'background-repeat': 'no-repeat',
-                'background-position': 'center center',
-                left: 0, width: '100%', 'top': 0, bottom: 0
-            }
-        }).setStyle('display', 'none').inject(this.main);
-
     },
 
     refreshPageTrees: function () {
@@ -1208,16 +1196,14 @@ var admin_pages = new Class({
         var found = false;
         if (this.inDomainModus) {
             ['domain', 'domainTheme', 'domainProperties', 'domainSettings'].each(function (item) {
-                if (this.viewButtons[item].retrieve('visible')) {
-                    found = true;
-                    this.changeType(item);
+                if (!this.viewButtons[item].isHidden()) {
+                    found = item;
                 }
             }.bind(this))
         } else {
             ['general', 'rights', 'contents', 'resources', 'properties', 'searchIndex', 'versioning'].each(function (item) {
-                if (this.viewButtons[item].retrieve('visible')) {
-                    found = true;
-                    this.changeType(item);
+                if (!this.viewButtons[item].isHidden()) {
+                    found = item;
                 }
             }.bind(this))
         }
@@ -1232,6 +1218,8 @@ var admin_pages = new Class({
 
             this.viewTypeGrpDomain.hide();
             this.viewTypeGrp.hide();
+        } else {
+            this.viewType(found, true);
         }
     },
 
@@ -1245,6 +1233,9 @@ var admin_pages = new Class({
         this.inDomainModus = true;
 
         if (this.oldLoadDomainRequest) this.oldLoadDomainRequest.cancel();
+
+
+        this.win.setLoading(true, null, {left: this.main.getStyle('left')});
 
         this.oldLoadDomainRequest = new Request.JSON({url: _path + 'admin/pages/domain/get', noCache: 1, onComplete: function (pResult) {
 
@@ -1355,16 +1346,16 @@ var admin_pages = new Class({
             this.showDomainMaster(res.rsn);
 
             //set domain propertie to default
-            $H(this._domainPropertiesFields).each(function (fields, extKey) {
-                $H(fields).each(function (field) {
+            Object.each(this._domainPropertiesFields, function (fields, extKey) {
+                Object.each(fields, function (field) {
                     field.setValue();
                 })
             });
             this.currentDomain.extproperties = JSON.decode(this.currentDomain.extproperties);
             if (this.currentDomain.extproperties) {
                 //set page values
-                $H(this.currentDomain.extproperties).each(function (properties, extKey) {
-                    $H(properties).each(function (property, propertyKey) {
+               Object.each(this.currentDomain.extproperties, function (properties, extKey) {
+                    Object.each(properties, function (property, propertyKey) {
                         if (this._domainPropertiesFields[extKey] && this._domainPropertiesFields[extKey][propertyKey]) {
                             this._domainPropertiesFields[extKey][propertyKey].setValue(property);
                         }
@@ -1399,6 +1390,8 @@ var admin_pages = new Class({
             this.toAlternativPane();
 
             this.rdomain = this.retrieveDomainData();
+
+            this.win.setLoading(false);
 
         }.bind(this)}).post({rsn: pDomain});
 
@@ -3022,7 +3015,8 @@ var admin_pages = new Class({
     },
 
     addPageToBlacklist: function (pUrl) {
-        this.loader.show();
+
+        this.win.setLoading(true, null, {left: this.main.getStyle('left')});
 
         new Request.JSON({ url: _path + 'admin/backend/window/loadClass/saveItem', noCache: 1,
             onComplete: function (pSRes) {
@@ -3031,7 +3025,7 @@ var admin_pages = new Class({
                     ka._helpsystem.newBubble(_('URL successfully added!'), nMsg, 10000);
                     this.loadSearchIndexOverview();
                 }
-                this.loader.hide();
+                this.win.setLoading(false);
             }.bind(this)
 
 
@@ -3122,9 +3116,9 @@ var admin_pages = new Class({
 
         //properties
         var properties = {};
-        $H(this._pagePropertiesFields).each(function (fields, extKey) {
+        Object.each(this._pagePropertiesFields, function (fields, extKey) {
             properties[extKey] = {};
-            $H(fields).each(function (field, fieldKey) {
+            Object.each(fields, function (field, fieldKey) {
                 properties[extKey][fieldKey] = field.getValue();
             })
         });

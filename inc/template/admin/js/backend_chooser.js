@@ -190,9 +190,9 @@ var admin_backend_chooser = new Class({
 
             var chooserClass = window[objectDefinition.chooserBrowserJavascriptClass];
 
-            if (objectDefinition.chooserClass.indexOf('.') !== false){
+            if (objectDefinition.chooserBrowserJavascriptClass.indexOf('.') !== false){
 
-                var split = objectDefinition.chooserClass.split('.');
+                var split = objectDefinition.chooserBrowserJavascriptClass.split('.');
                 chooserClass = window;
                 split.each(function(s){
                     chooserClass = chooserClass[s];
@@ -201,11 +201,11 @@ var admin_backend_chooser = new Class({
 
             if (!chooserClass){
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
-                    .replace('%class%', objectDefinition.chooserClass)
+                    .replace('%class%', objectDefinition.chooserBrowserJavascriptClass)
                     .replace('%object%', pObjectKey)
                 )
             } else {
-                this.objectChooserInstance[pObjectKey] = new window[chooserClass](
+                this.objectChooserInstance[pObjectKey] = new chooserClass(
                     bundle.pane,
                     objectOptions,
                     this.win

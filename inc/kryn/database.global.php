@@ -92,7 +92,7 @@ function dbConnect() {
  *
  * @return array
  */
-function dbExfetch($pSql, $pRowCount = -1) {
+function dbExfetch($pSql, $pRowCount = 1) {
     global $kdb, $cfg;
 
     dbConnect();

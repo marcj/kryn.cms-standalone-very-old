@@ -1277,6 +1277,8 @@ ka.field = new Class({
 
     renderChooser: function (pObjects) {
 
+        if (!pObjects) return;
+
         var definition = ka.getObjectDefinition(pObjects[0]);
         if (definition.chooserFieldJavascriptClass){
 
@@ -1611,11 +1613,16 @@ ka.field = new Class({
         this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/objectGetLabel', noCache: 1, onComplete: function (res) {
             if (!res.error){
 
-                var definition = ka.getObjectDefinition(res.object);
-                var value = res.values[definition.chooserFieldDataModelField];
+                if (res.values){
+                    var definition = ka.getObjectDefinition(res.object);
+                    var value = res.values[definition.chooserFieldDataModelField];
 
-                this._automaticUrl = value;
-                this.input.value = value;
+                    this._automaticUrl = value;
+                    this.input.value = value;
+                } else {
+                    this.input.value = '';
+                    this._automaticUrl = '';
+                }
             } else {
                 this.input.value = res.error;
             }
@@ -2035,6 +2042,9 @@ ka.field = new Class({
         }).inject(this.fieldPanel);
         var datePicker = new ka.datePicker(this.input, pOptions);
 
+        if (this.field.input_width)
+            this.input.setStyle('width', this.field.input_width);
+
         if (this.field.win) {
             this.field.win.addEvent('resize', datePicker.updatePos.bind(datePicker));
             this.field.win.addEvent('move', datePicker.updatePos.bind(datePicker));
@@ -2108,6 +2118,10 @@ ka.field = new Class({
         }).inject(this.fieldPanel);
 
         if (this.field.length) this.input.set('maxlength', this.field.length);
+
+        if (this.field.input_width)
+            this.input.setStyle('width', this.field.input_width);
+
 
         var _this = this;
 
@@ -2205,6 +2219,9 @@ ka.field = new Class({
         }).inject(this.fieldPanel);
 
         if (this.field.length) this.input.set('maxlength', this.field.length);
+
+        if (this.field.input_width)
+            this.input.setStyle('width', this.field.input_width);
 
         this.input.addEvent('change', function(){
             this.fireEvent('change', this.input.value);
