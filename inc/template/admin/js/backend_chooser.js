@@ -184,12 +184,11 @@ var admin_backend_chooser = new Class({
         if (!objectOptions)
             objectOptions = {};
 
-        logger(objectOptions);
         objectOptions.multi = this.options.multi;
 
-        if (objectDefinition.chooserClass){
+        if (objectDefinition.chooserBrowserType == 'custom' && objectDefinition.chooserBrowserJavascriptClass){
 
-            var chooserClass = window[objectDefinition.chooserClass];
+            var chooserClass = window[objectDefinition.chooserBrowserJavascriptClass];
 
             if (objectDefinition.chooserClass.indexOf('.') !== false){
 
@@ -206,7 +205,7 @@ var admin_backend_chooser = new Class({
                     .replace('%object%', pObjectKey)
                 )
             } else {
-                this.objectChooserInstance[pObjectKey] = new chooserClass(
+                this.objectChooserInstance[pObjectKey] = new window[chooserClass](
                     bundle.pane,
                     objectOptions,
                     this.win

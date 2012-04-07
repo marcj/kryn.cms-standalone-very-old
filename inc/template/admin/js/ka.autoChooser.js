@@ -13,7 +13,7 @@ ka.autoChooser = new Class({
 
     currentPage: 1,
 
-    initialize: function(pContainer, pChooserOptions, pWindowInstance, pObjectKey){
+    initialize: function(pContainer, pChooserBrowserOptions, pWindowInstance, pObjectKey){
 
         this.container = pContainer;
 
@@ -27,7 +27,7 @@ ka.autoChooser = new Class({
         });
 
         this.objectKey = pObjectKey;
-        this.setOptions(pChooserOptions);
+        this.setOptions(pChooserBrowserOptions);
         this.win = pWindowInstance;
 
         this._createLayout();
@@ -40,17 +40,9 @@ ka.autoChooser = new Class({
 
         var columns = [];
 
-        var primaries = ka.getPrimariesForObject(this.objectKey);
-
-        Object.each(primaries, function(field){
-            columns.include([
-                field.label, field.width?field.width:80
-            ]);
-        });
-
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
-        Object.each(objectDefinition.chooserAutoColumns, function(column, key){
+        Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
             columns.include([column.label?column.label:key, column.width?column.width:null]);
         });
 
@@ -230,13 +222,15 @@ ka.autoChooser = new Class({
     renderResult: function(pItems){
 
         this.table.empty();
+        var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
         Array.each(pItems, function(item){
 
             var row  = [];
-            Object.each(item, function(col){
-                row.include(col);
-            })
+
+            Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
+                row.include(item[key]);
+            });
 
             var tr = this.table.addRow(row);
             tr.store('item', item);

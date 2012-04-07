@@ -424,7 +424,7 @@
       "chooserUseOwnClass": false,
       "selectable": true,
       "chooser_icon": "",
-      "chooserAutoColumns": {
+      "chooserBrowserAutoColumns": {
         "title": {
           "label": "[[Title]]",
           "type": "text",

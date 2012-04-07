@@ -103,6 +103,8 @@ ka.field = new Class({
 
         if (this.field.win) {
             this.win = this.field.win;
+        } else {
+            this.findWin();
         }
 
         if (this.field.label) {
@@ -263,6 +265,7 @@ ka.field = new Class({
                 this.renderChooser(['node']);
                 break;
             case 'object':
+
                 this.renderChooser(typeOf(this.field.object)=='array'?this.field.object:[this.field.object]);
                 break;
             case 'chooser':
@@ -302,6 +305,9 @@ ka.field = new Class({
             case 'childrenswitcher':
                 this.renderChildrenSwitcher();
                 break;
+            case 'checkboxgroup':
+                this.renderCheckboxGroup();
+                break;
             case 'window_list':
                 this.renderWindowList();
                 break;
@@ -325,6 +331,70 @@ ka.field = new Class({
         }
     },
 
+
+    renderCheckboxGroup: function(){
+
+        var addCheckbox = function(pKey, pLabel){
+
+            var div = new Element('div').inject(this.fieldPanel);
+
+            var id = (new Date()).getTime()+'_kaField_checkboxgroup_'+pKey;
+            var cb = new Element('input', {
+                type: 'checkbox',
+                id: id
+            }).inject(div).store('key', pKey);
+
+            new Element('label', {
+                'for': id,
+                text: pLabel,
+                style: 'position: relative; top: -2px;'
+            }).inject(div);
+
+        }.bind(this);
+
+        if (this.field.items){
+
+            if (typeOf(this.field.items) == 'object'){
+                Object.each(this.field.items, function(label, key){
+                    addCheckbox(key, label);
+                }.bind(this));
+            }
+
+        }
+
+        var items = this.fieldPanel.getElements('input');
+
+        this._setValue = function(pValue){
+            if (typeOf(pValue) == 'array'){
+
+                items.set('checked', false);
+
+                Array.each(items, function(item){
+
+                    if (pValue.indexOf(item.retrieve('key')) == -1){
+                        item.set('checked', false);
+                    } else {
+                        item.set('checked', true);
+                    }
+
+                });
+
+            }
+
+        }.bind(this);
+
+        this.getValue = function(){
+
+            var res = [];
+            Array.each(items, function(item){
+
+                if (item.get('checked')) res.include(item.retrieve('key'));
+
+            });
+        };
+
+    },
+
     renderFieldTable: function(){
 
         this.fieldTable = new ka.fieldTable(this.fieldPanel, this.win, this.field.options);
@@ -333,7 +403,7 @@ ka.field = new Class({
             return this.fieldTable.getValue();
         }.bind(this);
 
-        this.setValue = function(p){
+        this._setValue = function(p){
             this.fieldTable.setValue(p);
         }.bind(this);
 
@@ -362,7 +432,7 @@ ka.field = new Class({
 
         this.handleChildsMySelf = true;
 
-        this.setValue = function(pValue){
+        this._setValue = function(pValue){
             this.value = pValue || 0;
             if (!this.childContainer) return;
 
@@ -376,12 +446,12 @@ ka.field = new Class({
         }.bind(this);
 
         a.addEvent('click', function(){
-            this.setValue( this.value==0?1:0)
+            this._setValue( this.value==0?1:0)
         }.bind(this));
 
         //with check-depends we have this.childContainer
         this.addEvent('check-depends', function(){
-            this.setValue(this.value);
+            this._setValue(this.value);
         }.bind(this));
 
     },
@@ -826,6 +896,7 @@ ka.field = new Class({
             this.getValue = this.customObj.getValue.bind(this.customObj);
             this.isOk = this.customObj.isEmpty.bind(this.customObj);
             this.highlight = this.customObj.highlight.bind(this.customObj);
+
         } else {
             alert(_('Custom field: ' + this.field['class'] + '. Can not find this javascript class.'));
         }
@@ -857,8 +928,15 @@ ka.field = new Class({
         var tr = new Element('tr').inject(thead);
         Array.each(this.field.columns, function (col, colid) {
             var td = new Element('th', {
-                text: _(col.label)
+                valign: 'top',
+                text: t(col.label)
             }).inject(tr);
+            if (col.desc){
+                new Element('div', {
+                    'class': 'ka-field-array-column-desc',
+                    text: col.desc
+                }).inject(td);
+            }
             if (col.width) {
                 td.set('width', col.width);
             }
@@ -866,6 +944,11 @@ ka.field = new Class({
         var td = new Element('th', {
             style: 'width: 30px'
         }).inject(tr);
+
+
+        if (this.field.withOrder){
+            td.setStyle('width', 52);
+        }
 
         var addRow = function (pValue) {
 
@@ -892,14 +975,36 @@ ka.field = new Class({
 
             var td = new Element('td').inject(tr);
 
+            if (this.field.withOrder){
+
+                new Element('img', {
+                    src: _path + 'inc/template/admin/images/icons/arrow_up.png',
+                    style: 'cursor: pointer;',
+                    title: t('Move up')
+                }).addEvent('click', function () {
+                    if(tr.getPrevious())
+                        tr.inject(tr.getPrevious(), 'before');
+                }).inject(td);
+
+
+                new Element('img', {
+                    src: _path + 'inc/template/admin/images/icons/arrow_down.png',
+                    style: 'cursor: pointer;',
+                    title: t('Move down')
+                }).addEvent('click', function () {
+                    if(tr.getNext())
+                        tr.inject(tr.getNext(), 'after');
+                }).inject(td);
+
+            }
+
             new Element('img', {
                 src: _path + 'inc/template/admin/images/icons/delete.png',
                 style: 'cursor: pointer;',
                 title: _('Remove')
-            }).addEvent('click',
-                function () {
-                    tr.destroy();
-                }).inject(td);
+            }).addEvent('click', function () {
+                tr.destroy();
+            }).inject(td);
 
 
         }.bind(this);
@@ -1172,10 +1277,32 @@ ka.field = new Class({
 
     renderChooser: function (pObjects) {
 
-        if (this.field.object_relation == 'nToM' || this.field.multi == 1){
-            this.renderChooserMulti(pObjects);
+        var definition = ka.getObjectDefinition(pObjects[0]);
+        if (definition.chooserFieldJavascriptClass){
+
+            if (!window[definition.chooserFieldJavascriptClass]){
+                logger('Can no load custom object field class "'+definition.chooserFieldJavascriptClass+'" for object '+pObjects[0]);
+                return;
+            }
+
+            this.customObj = new window[definition.chooserFieldJavascriptClass](this.field, this.fieldPanel, this);
+
+            this.customObj.addEvent('change', function () {
+                this.fireEvent('change', this.getValue());
+            }.bind(this));
+
+            this._setValue = this.customObj.setValue.bind(this.customObj);
+            this.getValue = this.customObj.getValue.bind(this.customObj);
+            this.isOk = this.customObj.isEmpty.bind(this.customObj);
+            this.highlight = this.customObj.highlight.bind(this.customObj);
+
         } else {
-            this.renderChooserSingle(pObjects);
+
+            if (this.field.object_relation == 'nToM' || this.field.multi == 1){
+                this.renderChooserMulti(pObjects);
+            } else {
+                this.renderChooserSingle(pObjects);
+            }
         }
 
     },
@@ -1291,7 +1418,7 @@ ka.field = new Class({
                 ];
 
                 var extraColumns = [];
-                Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
+                Object.each(this.objectDefinition.chooserFieldDataModelFields, function(field,key){
                     extraColumns.include(key);
                 });
 
@@ -1340,7 +1467,7 @@ ka.field = new Class({
         if (this.lastRq)
             this.lastRq.cancel();
 
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/objectGetLabels',
+        this.lastRq = new Request.JSON({url: _path+'admin/backend/objectGetItems',
         noErrorReporting: true,
         onComplete: function(res){
 
@@ -1383,22 +1510,18 @@ ka.field = new Class({
     renderChooserSingle: function(pObjects){
 
         this.input = new Element('input', {
-            'class': 'text',
+            'class': 'text text-inactive',
             type: 'text',
+            disabled: true,
             style: ((this.field.small == 1) ? 'width: 100px' : 'width: 210px')
-        }).addEvent('focus', function () {
-            //this.input.blur();
-            this.setInputActive(true);
-        }.bind(this)).addEvent('blur', function () {
-            if (this._value && this.input.value != this._automaticUrl) {//wurde verändert
-                this._value = false;
-                this.setInputActive(true);
-            } else {
-                this.setInputActive(false);
-            }
-        }.bind(this)).addEvent('keyup',function () {
-                this.fireEvent('blur');
+        })
+        .addEvent('keyup',function () {
+            this.fireEvent('blur');
         }).inject(this.fieldPanel);
+
+        if (this.field.input_width){
+            this.input.setStyle('width', this.field.input_width);
+        }
 
         var div = new Element('span').inject(this.fieldPanel);
 
@@ -1454,14 +1577,12 @@ ka.field = new Class({
             this.pageChooserPanel.empty();
 
             if (pVal+0 > 0 || (typeOf(pVal)=='string' && pVal.substr(0, 9) == 'object://')) {
-                this.setInputActive(false);
 
                 this.objectGetLabel(this._value, function(pLabel){
                     this.input.value = pLabel;
                 });
 
             } else {
-                this.setInputActive(true);
                 this.input.value = pVal;
             }
 
@@ -1489,8 +1610,12 @@ ka.field = new Class({
 
         this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/objectGetLabel', noCache: 1, onComplete: function (res) {
             if (!res.error){
-                this._automaticUrl = res;
-                this.input.value = res;
+
+                var definition = ka.getObjectDefinition(res.object);
+                var value = res.values[definition.chooserFieldDataModelField];
+
+                this._automaticUrl = value;
+                this.input.value = value;
             } else {
                 this.input.value = res.error;
             }

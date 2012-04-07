@@ -131,8 +131,8 @@ class admin {
                         case 'objectGetLabel':
                             $content = self::objectGetLabel(getArgv('url'));
                             break;
-                        case 'objectGetLabels':
-                            $content = self::objectGetLabels(getArgv('object', 2), getArgv('ids'));
+                        case 'objectGetItems':
+                            $content = self::objectGetItems(getArgv('object', 2), getArgv('ids'));
                             break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object'), getArgv('page'));
@@ -250,17 +250,16 @@ class admin {
     }
 
 
-    public static function objectGetLabels($pObject, $pIds){
+    public static function objectGetItems($pObject, $pIds){
 
         $definition = kryn::$objects[$pObject];
         if (!$definition) return array('error' => 'object_not_found');
 
         //todo check here access
 
-
         if ($definition['chooserFieldDataModel'] == 'custom'){
 
-            $class = $definition['chooserFieldDataModelClass'];
+            $class = $definition['chooserFieldDataModel'];
             $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
             if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
 
@@ -279,15 +278,15 @@ class admin {
                     $primaryKey = $key;
                     $fields[] = $key;
                 }
-
             }
 
-            foreach ($definition['chooserFieldDataModelField'] as $key => $val){
+            foreach ($definition['chooserFieldDataModelFields'] as $key => $val){
                 $fields[] = $key;
             }
 
             $items = krynObject::get($pObject, $pIds, array(
-                'fields' => $fields
+                'fields' => $fields,
+                'condition' => $definition['chooserFieldDataModelCondition']
             ));
 
             $res = array();
@@ -296,8 +295,6 @@ class admin {
             }
 
             return $res;
-
-
 
         }
     }
@@ -330,19 +327,23 @@ class admin {
 
         } else {
 
-            $primaryKey = '';
+            $fields = array();
             foreach ($definition['fields'] as $key => $field){
                 if ($field['primaryKey'])
-                    $primaryKey = $key;
+                    $fields[] = $key;
             }
 
-            $dataModel = new adminStore();
-            $dataModel->table = $definition['table'];
-            $dataModel->table_key = $primaryKey;
-            $dataModel->table_label = $definition['chooserFieldDataModelField'];
+            $fields[] = $definition['chooserFieldDataModelField'];
 
-            $item = $dataModel->getItem($object_id);
-            return $item['label'];
+            $item = krynObject::get($object_key, $object_id, array(
+                'fields' => $fields,
+                'condition' => $definition['chooserFieldDataModelCondition']
+            ));
+
+            return array(
+                'object' => $object_key,
+                'values' => $item
+            );
 
         }
     }
@@ -359,8 +360,14 @@ class admin {
 
         $definition = kryn::$objects[$pObjectKey];
 
-        if(!$definition['chooserAutoColumns'])
-            return array('error'=>'columns_not_defined');
+        if ($definition['chooserBrowserDataModel'] == 'none')
+            return;
+
+        if ($definition['chooserBrowserDataModel'] == 'custom' && $definition['chooserBrowserDataModelClass']){
+
+
+            return $items;
+        }
 
         $fields = array();
 
@@ -369,11 +376,25 @@ class admin {
                 $fields[] = $key;
         }
 
-        foreach ($definition['chooserAutoColumns'] as $key => $column){
-            $fields[] = $key;
+        if ($definition['chooserBrowserAutoColumns']){
+            foreach ($definition['chooserBrowserAutoColumns'] as $key => $column){
+                $fields[] = $key;
+            }
+        } else {
+            if ($definition['chooserBrowserDataModelFields']){
+                $tempFields = explode(',', str_replace(' ', '', $definition['chooserBrowserDataModelFields']));
+                if (is_array($tempFields)){
+                    foreach ($tempFields as $field){
+                        $fields[] = $field;
+                    }
+                }
+            }
         }
 
         $itemsCount = krynObject::count($pObjectKey, $definition['chooserCondition']);
+        if ($itemsCount['error'])
+            return $itemsCount;
+
         $itemsPerPage = 15;
 
         $start = ($itemsPerPage*$pPage)-$itemsPerPage;
@@ -384,7 +405,7 @@ class admin {
             'fields' => implode(',', $fields),
             'limit'  => $itemsPerPage,
             'offset' => $start,
-            'condition' => $definition['chooserCondition']
+            'condition' => $definition['chooserBrowserDataModelCondition']
         ));
 
         return array(

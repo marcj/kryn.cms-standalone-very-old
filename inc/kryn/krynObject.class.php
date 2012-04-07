@@ -232,11 +232,14 @@ class krynObject {
 
         if (!self::$instances[$pObjectKey]){
             if ($definition['class']){
-                $path = (substr($definition[''], 0, 5) == 'kryn/'?'inc/':'inc/module/').$definition['class'].'.class.php';
-                @require_once($path);
+                $path = (substr($definition['class'], 0, 5) == 'kryn/'?'inc/':'inc/module/'.$definition['_extension'].'/').$definition['class'].'.class.php';
+                if (!file_exists($path))
+                    throw new Exception('Create object instance error: Class file for '.$pObjectKey.' ('.$definition['class'].', '.$path.') not found');
+                require_once($path);
 
                 $p = explode('/', $definition['class']);
                 $className = $p[count($p)-1];
+
                 if ($className && class_exists($className)){
                     self::$instances[$pObjectKey] = new $className($definition, $pObjectKey);
                 } else throw new Exception('Create object instance error: Class '.$className.' not found');

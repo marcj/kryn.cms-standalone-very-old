@@ -71,6 +71,8 @@ ka.tabPane = new Class({
 
         res.button.pane = res.pane;
         res.pane.button = res.button;
+        res.hide = res.button.hide;
+        res.show = res.button.show;
         res.id = id;
 
         if (this.index == -1){

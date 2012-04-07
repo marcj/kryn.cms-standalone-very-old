@@ -361,15 +361,15 @@
       "chooserType": "default",
       "chooserFields": "name",
       "chooserModel": "0",
-      "chooserFieldDataModelField": {
-        "name": {
-          "label": "[[Name]]",
-          "type": "text"
-        }
-      },
+      "chooserFieldDataModelField": "name",
       "chooserFieldDataModel": "store",
       "chooserBrowserCondition": "",
-      "chooserBrowserDataModel": "default"
+      "chooserBrowserDataModel": "default",
+      "chooserFieldDataModelFields": {
+        "name": {
+          "type": "text"
+        }
+      }
     }
   },
   "objectRelations": {

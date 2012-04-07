@@ -369,7 +369,7 @@ class $pClass extends windowEdit {
 
             $content = kryn::fileRead($class);
 
-            if (preg_match('/class ([^\s]*) extends (admin|)([^\s]*)\s*{/', $content, $matches)){
+            if (preg_match('/class ([a-zA-Z0-9_]*) extends (admin|)([a-zA-Z0-9_]*)\s*{/', $content, $matches)){
                 if (in_array(strtolower($matches[3]), $whiteList))
                     $windows[] = $matches[1];
             }
@@ -377,18 +377,6 @@ class $pClass extends windowEdit {
         }
 
         return $windows;
-
-        if (!is_dir(PATH_MODULE . "$pName/forms")) return false;
-        $h = opendir(PATH_MODULE . "$pName/forms");
-
-        $res = array();
-        while ($file = readdir($h)) {
-            if ($file == '.' || $file == '..' || $file == '.svn') continue;
-            $class = substr($file, 0, -5);
-            $res[] = $class;
-        }
-
-        return $res;
     }
 
 

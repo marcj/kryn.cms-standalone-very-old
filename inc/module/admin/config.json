@@ -494,8 +494,7 @@
       "desc": "",
       "table": "",
       "plugins": "",
-      "chooserClass": "ka.files",
-      "chooserOptions": {
+      "chooserBrowserOptions": {
         "onlyUserDefined": {
           "label": "[[Only user defined files]]",
           "type": "checkbox",
@@ -522,7 +521,6 @@
           "empty": true
         }
       },
-      "chooserUseOwnClass": true,
       "selectable": true,
       "label": "[[File]]",
       "multiLanguage": false,
@@ -531,12 +529,13 @@
       "chooserFieldDataModelClass": "adminFileFieldModel",
       "chooserFieldDataModel": "custom",
       "chooserFieldType": "default",
-      "chooserAutoColumns": [
+      "chooserBrowserAutoColumns": [
         
       ],
       "chooserBrowserCondition": "",
       "chooserBrowserDataModel": "default",
-      "chooserType": "default"
+      "chooserBrowserJavascriptClass": "ka.files",
+      "chooserBrowserType": "custom"
     },
     "node": {
       "title": "[[Page]]",
@@ -545,12 +544,35 @@
       "desc": "[[Pages, Links, Deposits and Navigation folder]]",
       "table": "",
       "plugins": "",
-      "selectable": true,
-      "chooserClass": "ka.nodeChooser",
-      "chooserOptions": [
+      "selectable": 1,
+      "chooserBrowserJavascriptClass": "ka.nodeChooser",
+      "chooserBrowserOptions": [
         
       ],
-      "chooserUseOwnClass": true
+      "chooserBrowserType": "custom",
+      "multiLanguage": 0,
+      "domainDepended": 0,
+      "chooserFieldDataModel": "store",
+      "chooserFieldDataModelFields": [
+        
+      ],
+      "chooserFieldType": "default",
+      "chooserBrowserDataModel": "none",
+      "fields": {
+        "rsn": {
+          "label": "[[ID]]",
+          "type": "number",
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
+        },
+        "title": {
+          "label": "[[Title]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        }
+      }
     },
     "domain": {
       "desc": "",
@@ -566,29 +588,31 @@
         "rsn": {
           "label": "ID",
           "type": "number",
-          "primaryKey": true,
-          "autoIncrement": true,
-          "empty": true
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
         },
         "domain": {
           "label": "[[Domain name]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "lang": {
           "label": "[[Language]]",
           "type": "lang",
-          "empty": true
+          "empty": 1
         },
         "master": {
           "label": "[[Language master]]",
           "type": "checkbox",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         }
       },
       "label": "[[Domain]]",
       "chooser_icon": "",
-      "chooserAutoColumns": {
+      "chooseBrowserAutoColumns": {
         "lang": {
           "label": "[[Language]]",
           "type": "text",
@@ -602,6 +626,48 @@
         }
       },
       "chooserAutoFilter": ""
+    },
+    "system_entrypoint": {
+      "class": "objectEntrypoint",
+      "multiLanguage": 0,
+      "domainDepended": 0,
+      "selectable": 1,
+      "chooserFieldDataModel": "store",
+      "chooserFieldDataModelField": "path",
+      "chooserFieldType": "default",
+      "chooserBrowserAutoColumns": {
+        "title": {
+          "type": "text",
+          "width": "40%"
+        },
+        "path": {
+          "type": "text"
+        }
+      },
+      "chooserBrowserDataModel": "default",
+      "chooserType": "default",
+      "fields": {
+        "path": {
+          "type": "text",
+          "primaryKey": 1,
+          "empty": 1
+        },
+        "title": {
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        }
+      },
+      "label": "[[Entry point]]",
+      "chooserFieldDataModelFields": {
+        "path": {
+          "type": "text"
+        },
+        "title": {
+          "type": "text",
+          "width": "40%"
+        }
+      }
     }
   },
   "db": {

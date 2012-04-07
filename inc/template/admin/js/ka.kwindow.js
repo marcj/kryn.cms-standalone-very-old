@@ -145,7 +145,7 @@ ka.kwindow = new Class({
 
     },
 
-    setLoading: function(pState, pText, pFrame){
+    setLoading: function(pState, pText, pOffset){
 
 
         if (pState == true){
@@ -173,8 +173,8 @@ ka.kwindow = new Class({
             this.loadingObj.main.setStyles({'top': 25});
             this.loadingObj.transBg.setStyles({'top': 25});
 
-            this.loadingObj.main.setStyles(pFrame);
-            this.loadingObj.transBg.setStyles(pFrame);
+            this.loadingObj.main.setStyles(pOffset);
+            this.loadingObj.transBg.setStyles(pOffset);
 
             this.loadingObj.img.inject(div);
             

@@ -38,7 +38,8 @@ var admin_system_module_editWindow = new Class({
         this.tabPane = new ka.tabPane(this.win.content, true, this.win);
 
         this.generalTab = this.tabPane.addPane(t('General'));
-        this.windowTab  = this.tabPane.addPane(t('Window'));
+        this.windowTabEdit  = this.tabPane.addPane(t('Window'));
+        this.windowTabList  = this.tabPane.addPane(t('Window list'));
         this.methodTab  = this.tabPane.addPane(t('Class methods'));
         this.customMethodTab  = this.tabPane.addPane(t('Custom methods'));
 
@@ -106,6 +107,8 @@ var admin_system_module_editWindow = new Class({
 
             titleField: {
                 label: t('Window title field'),
+                needValue: 'adminWindowEdit',
+                againstField: 'class',
                 desc: t('Defines which field the window should use for his title.')
             },
 
@@ -141,22 +144,22 @@ var admin_system_module_editWindow = new Class({
             }
 
         };
-
         var table = new Element('table', {width: '100%'}).inject(this.generalTab.pane);
         this.generalTbody = new Element('tbody').inject(table);
 
         this.generalObj = new ka.parse(this.generalTbody, generalFields, {allTableItems:true, tableitem_title_width: 250}, {win:this.win});
 
+
         //window
         this.windowPane = new Element('div', {
             'class': 'ka-system-module-editWindow-windowPane'
-        }).inject(this.windowTab.pane);
+        }).inject(this.windowTabEdit.pane);
 
         this.actionBar = new Element('div', {
             'class': 'ka-system-module-editWindow-actionbar'
-        }).inject(this.windowTab.pane);
+        }).inject(this.windowTabEdit.pane);
 
-        new ka.Button(t('Add tab'))
+        this.windowEditAddTabBtn = new ka.Button(t('Add tab'))
         .addEvent('click', function(){
 
             var dialog = this.win.newDialog('<b>'+t('New tab')+'</b>');
@@ -208,7 +211,7 @@ var admin_system_module_editWindow = new Class({
         }.bind(this))
         .inject(this.actionBar);
 
-        new ka.Button(t('Add custom field'))
+        this.windowEditAddFieldBtn = new ka.Button(t('Add custom field'))
         .addEvent('click', function(){
 
             var currentTab = this.winTabPane.getSelected();
@@ -224,7 +227,7 @@ var admin_system_module_editWindow = new Class({
 
         var select;
 
-        new ka.Button(t('Add predefined object field'))
+        this.windowEditAddPredefinedFieldBtn = new ka.Button(t('Add predefined object field'))
         .addEvent('click', function(){
 
             var dialog = this.win.newDialog('<b>'+t('Add predefined object field')+'</b>');
@@ -304,7 +307,7 @@ var admin_system_module_editWindow = new Class({
 
         this.windowInspector = new Element('div', {
             'class': 'ka-system-module-editWindow-windowInspector'
-        }).inject(this.windowTab.pane);
+        }).inject(this.windowTabEdit.pane);
 
         new Element('h3',{
             text: t('Inspector'),
@@ -451,6 +454,11 @@ var admin_system_module_editWindow = new Class({
         this.win.addTitle(this.win.params.module);
         this.win.addTitle(this.win.params.className);
 
+        if (this.lr)
+            this.lr.cancel();
+
+        this.win.setLoading(true);
+
         this.lr = new Request.JSON({url: _path+'admin/system/module/getWindowDefinition', noCache:1,
         onComplete: this.renderWindowDefinition.bind(this)}).get({
             name: this.win.params.module,
@@ -475,6 +483,12 @@ var admin_system_module_editWindow = new Class({
         this.generalObj.getField('class').setValue(this.definition['class']);
 
         this.loadWindowClass(pDefinition['class']);
+
+        if (!this.definition.methods)
+            this.definition.methods = {};
+
+        if (!this.definition.parentMethods)
+            this.definition.parentMethods = {};
 
         //prepare class methods
         Object.each(this.definition.methods, function(code, key){
@@ -662,6 +676,9 @@ var admin_system_module_editWindow = new Class({
         .inject(this.customMethodActionBar);
 
         this.renderCustomMethodList();
+
+
+        this.win.setLoading(false);
 
     },
 
@@ -1037,10 +1054,134 @@ var admin_system_module_editWindow = new Class({
         return win;
     },
 
+    windowListAddColumn: function(){
+
+
+        this.previewWin;
+
+    },
+
     loadWindowClass: function(pClass){
 
+        this.windowEditAddTabBtn.hide();
+        this.windowEditAddFieldBtn.hide();
+        this.windowEditAddPredefinedFieldBtn.hide();
+
+        this.windowTabEdit.hide();
+        this.windowTabList.hide();
+
+        if (pClass == 'adminWindowList'){
+            this.windowTabList.show();
+
+            var listFields = {
+
+
+                columns: {
+
+                    label: t('Columns'),
+                    type: 'fieldTable',
+                    options: {
+                        asFrameworkColumn: true,
+                        withoutChildren: true,
+                        addLabel: t('Add column')
+                    }
+
+                },
+
+                __actions__: {
+
+                    label: t('Actions'),
+                    type: 'childrenswitcher',
+                    depends: {
+                        itemActions: {
+                            label: t('Item actions'),
+                            desc: t('This generates on each record a extra icon which opens the defined entry point.'),
+                            type: 'array',
+                            withOrder: true,
+                            columns: [
+                                {'label': t('Entry point'), desc: t('The path to the entry point')},
+                                {'label': t('Title')},
+                                {'label': t('Icon path'), desc: t('Relative to inc/template/')}
+                            ],
+                            fields: {
+                                entrypoint: {
+                                    type: 'object',
+                                    object: 'system_entrypoint'
+                                },
+                                label: {
+                                    type: 'text'
+                                },
+                                icon: {
+                                    type: 'text'
+                                }
+                            }
+                        }
+                    }
+
+                },
+
+                __export__: {
+                    label: t('Export'),
+                    type: 'childrenswitcher',
+                    depends: {
+                        export: {
+                            label: t('Export'),
+                            type: 'checkbox',
+                            desc: t('Provide a export button in the window header.')
+                        },
+
+
+                        export_types: {
+                            label: t('Types'),
+                            needValue: 1,
+                            againstField: 'export',
+                            type: 'checkboxgroup',
+                            items: {
+                                csv: t('CSV'),
+                                json: t('JSON'),
+                                xml: t('XML')
+                            }
+                        },
+
+                        export_custom: {
+                            needValue: 1,
+                            width: 400,
+                            againstField: 'export',
+                            label: t('Custom export'),
+                            type: 'array',
+                            columns: [
+                                {'label': t('Method')},
+                                {'label': t('Label')}
+                            ],
+                            fields: {
+                                method: {
+                                    type: 'text'
+                                },
+                                label: {
+                                    type: 'text'
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            };
+
+
+            var table = new Element('table', {width: '100%'}).inject(this.windowTabList.pane);
+            this.windowListTbody = new Element('tbody').inject(table);
+
+            this.windowListObj = new ka.parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
+
+        }
 
         if (pClass == 'adminWindowEdit' || pClass == 'adminWindowAdd'){
+
+            this.windowTabEdit.show();
+            this.windowEditAddTabBtn.show();
+            this.windowEditAddFieldBtn.show();
+            this.windowEditAddPredefinedFieldBtn.show();
 
             var win = this.newWindow();
 

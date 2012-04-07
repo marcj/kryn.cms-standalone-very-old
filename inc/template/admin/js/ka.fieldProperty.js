@@ -44,6 +44,21 @@ ka.fieldProperty = new Class({
             },
             'depends': {
 
+                //array
+                withOrder: {
+                    type: 'checkbox',
+                    label: t('With order possibility'),
+                    needValue: 'array',
+                    againstField: 'type'
+                },
+
+                columns: {
+                    type: 'checkbox',
+                    label: t('With order possibility'),
+                    needValue: 'array',
+                    againstField: 'type'
+                },
+
                 //select
                 '__info__': {
                     needValue: 'select',
@@ -59,7 +74,7 @@ ka.fieldProperty = new Class({
                 'sql': {
                     needValue: 'select',
                     label: t('SQL'),
-                    desc: t('Please only select in your SQL the table_key and table_label.'),
+                    desc: t('Please only select in your SQL the table_key and table_label from below.'),
                     type: 'text'
                 },
                 table_key: {
@@ -246,7 +261,7 @@ ka.fieldProperty = new Class({
     options: {
         addLabel: t('Add property'),
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
-        asFrameworkColumn: false, //for column definition, with width field. without the optional stuff
+        asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
@@ -262,9 +277,10 @@ ka.fieldProperty = new Class({
 
     children: [], //instances of ka.fieldProperty
 
-    initialize: function(pKey, pDefinition, pContainer, pOptions){
+    initialize: function(pKey, pDefinition, pContainer, pOptions, pWin){
 
         this.setOptions(pOptions);
+        this.win = pWin;
 
         if (!this.options.withTableDefinition){
             delete this.kaFields.primaryKey;
@@ -291,7 +307,22 @@ ka.fieldProperty = new Class({
             delete this.kaFields.width;
         } else {
             delete this.kaFields.__optional__;
-        }
+            this.kaFields.type.items ={
+                text: t('Text'),
+                number: t('Number'),
+                checkbox: t('Checkbox'),
+                page: t('Page'),
+                file: t('File'),
+                folder: t('Folder'),
+                select: t('Select'),
+                object: t('Object'),
+                predefined: t('Predefined'),
+                lang: t('Language select'),
+                date: t('Date'),
+                datetime: t('Datetime'),
+                imagemap: t('Imagemap')
+            };
+        };
 
         if (!this.options.withPredefinedType){
             delete this.kaFields.type.items.predefined;
@@ -344,8 +375,11 @@ ka.fieldProperty = new Class({
             })
             .addEvent('click', function(){
                 this.win._confirm(t('Really delete?'), function(ok){
-                    if(ok)
+                    if(ok){
                         this.fireEvent('delete');
+                        this.main.destroy();
+                        delete this;
+                    }
                 }.bind(this));
             }.bind(this))
             .inject(header);

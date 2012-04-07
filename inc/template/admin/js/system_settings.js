@@ -272,7 +272,6 @@ var admin_system_settings = new Class({
 
         var p = this.panes['caching'];
 
-
         this.fields['media_cache'] = new ka.field({
             label: _('Media cache path'), desc: 'Default is cache/media/. This folder is for caching template files, so it should be available via HTTP.'
         }).inject(p);

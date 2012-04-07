@@ -89,7 +89,7 @@ ka.fieldTable = new Class({
 
     add: function(pKey, pDefinition, pContainer){
 
-        return new ka.fieldProperty(pKey, pDefinition, pContainer, this.options);
+        return new ka.fieldProperty(pKey, pDefinition, pContainer, this.options, this.win);
 
     }
 

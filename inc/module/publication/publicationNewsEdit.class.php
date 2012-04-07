@@ -4,8 +4,6 @@ class publicationNewsEdit extends adminWindowEdit {
 
     public $object = 'news';
 
-    public $titleField = '';
-
     public $workspace = '0';
 
     public $multiLanguage = '1';
@@ -29,15 +27,22 @@ class publicationNewsEdit extends adminWindowEdit {
 
     public $fields = array (
         '__General__' => array (
-          'type' => 'tab',
           'label' => 'General',
-          'needValue' => 1,
-          'againstField' => 'deactivatecomments',
+          'type' => 'tab',
           'depends' => array (
             'title' => array (
               'label' => 'Title',
               'type' => 'text',
               'empty' => 0,
+              'depends' => array (
+                'test' => array (
+                  'label' => 'Test2',
+                  'type' => 'text',
+                  'empty' => 1,
+                  'needValue' => 'javascript: value!=\'\'',
+                  'tableitem' => 0,
+                ),
+              ),
             ),
             'category_rsn' => array (
               'label' => 'Category',
@@ -89,6 +94,7 @@ class publicationNewsEdit extends adminWindowEdit {
               'type' => 'checkbox',
             ),
           ),
+          'key' => '__Access__',
         ),
         '__Intro__' => array (
           'type' => 'tab',

@@ -16,6 +16,8 @@ abstract class krynObjectAbstract {
 
     abstract public function updateItem($pId);
 
+    abstract public function getCount($pId, $pCondition);
+
 }
 
 ?>
