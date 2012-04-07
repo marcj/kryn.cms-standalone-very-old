@@ -52,6 +52,7 @@ include('inc/kryn/database.class.php');
 include('inc/kryn/krynModule.class.php');
 
 include('inc/kryn/kryn.class.php');
+include('inc/kryn/krynObject/krynObjectAbstract.class.php');
 include('inc/kryn/krynCache.class.php');
 include('inc/kryn/krynAcl.class.php');
 include('inc/kryn/krynObject.class.php');
