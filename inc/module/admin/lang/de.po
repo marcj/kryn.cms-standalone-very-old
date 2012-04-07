@@ -2310,7 +2310,7 @@ msgid "Length"
 msgstr "Länge"
 
 msgid "Add column"
-msgstr "Feld hinzufügen"
+msgstr "Spalte hinzufügen"
 
 msgid "Delete table"
 msgstr "Tabelle löschen"
