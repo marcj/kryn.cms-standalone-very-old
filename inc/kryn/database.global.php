@@ -92,7 +92,7 @@ function dbConnect() {
  *
  * @return array
  */
-function dbExfetch($pSql, $pRowCount = 1) {
+function dbExfetch($pSql, $pRowCount = -1) {
     global $kdb, $cfg;
 
     dbConnect();
@@ -127,7 +127,7 @@ function dbExec($pSql) {
 
 function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
     if ($_REQUEST['lang'])
-        $lang = $_REQUEST['lang'];
+        $lang = esc($_REQUEST['lang']);
     else
         $lang = kryn::$language;
     if ($pWhere)
