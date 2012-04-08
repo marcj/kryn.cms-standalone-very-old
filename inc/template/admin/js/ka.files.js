@@ -36,6 +36,9 @@ ka.files = new Class({
         path: '/',
         withSidebar: false,
 
+        onlyLocal: false, //only local files are selectable. So exludes all magic folders
+        returnPath: false, //return the path instead of the object_id (like in version <= 0.9)
+
         selection: true,
         /* if selection is false, all options below will be ignored */
         selectionValue: false, //not useful, use setValue() instead
@@ -56,7 +59,6 @@ ka.files = new Class({
 
         this.setOptions(pOptions);
 
-        logger(this.options);
         if (this.options.onlyUserDefined == false) {
             this.options.onlyUserDefined = (Cookie.read('adminFiles_OnlyUserFiles') == 0) ? false : true;
         }
@@ -1813,6 +1815,8 @@ ka.files = new Class({
         var file = pItem.retrieve('file');
         if (file && file.path != '/trash') {
 
+            if (this.options.onlyLocal == 1 && file.magic) return false;
+
             if (this.options.selection) {
                 if (this.options.selectionOnlyFiles && file.type == 'dir') return;
                 if (this.options.selectionOnlyFolders && file.type == 'file') return;
@@ -2030,14 +2034,21 @@ ka.files = new Class({
 
         if (selectedFiles.length == 1) {
             this.options.selectionValue = selectedFiles[0];
-            return this.options.selectionValue.object_id;
+            if (this.options.returnPath)
+                return this.options.selectionValue.path;
+            else
+                return this.options.selectionValue.object_id;
 
         } else if (selectedFiles.length > 1) {
             this.options.selectionValue = selectedFiles;
             var items = [];
+
             selectedFiles.each(function(file){
-                items.include(file.object_id);
-            })
+                if (this.options.returnPath)
+                    items.include(file.path);
+                else
+                    items.include(file.object_id);
+            }.bind(this))
 
             return items;
 

@@ -1732,7 +1732,7 @@ ka.parse = new Class({
 
     options: {
         allTableItems: false,
-        small: false,
+        allSmall: false,
         tableitem_title_width: false,
         tabsInWindowHeader: false
     },
@@ -1845,7 +1845,7 @@ ka.parse = new Class({
             if (this.options.allTableItems && field.type != 'tab')
                 field.tableitem = 1;
 
-            if (this.options.small && field.type != 'tab')
+            if (this.options.allSmall && field.type != 'tab')
                 field.small = 1;
 
             if (this.options.tableitem_title_width)

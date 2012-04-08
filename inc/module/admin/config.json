@@ -498,33 +498,46 @@
         "onlyUserDefined": {
           "label": "[[Only user defined files]]",
           "type": "checkbox",
-          "empty": true
+          "empty": 1
         },
         "search": {
           "label": "[[Enable search]]",
           "type": "checkbox",
-          "empty": true
+          "empty": 1
         },
         "path": {
           "label": "[[Start path]]",
+          "multi": 0,
           "type": "folder",
-          "empty": true
+          "empty": 1
         },
         "selectionOnlyFolders": {
           "label": "[[Only folders]]",
           "type": "checkbox",
-          "empty": true
+          "empty": 1
         },
         "selectionOnlyFiles": {
           "label": "[[Only files]]",
           "type": "checkbox",
-          "empty": true
+          "empty": 1
+        },
+        "onlyLocal": {
+          "label": "[[Only local files]]",
+          "type": "checkbox",
+          "desc": "[[Exclude all external files in magic folders]]",
+          "empty": 1
+        },
+        "returnPath": {
+          "label": "[[Return path]]",
+          "type": "checkbox",
+          "desc": "[[Instead of returning the object id]]",
+          "empty": 1
         }
       },
-      "selectable": true,
+      "selectable": 1,
       "label": "[[File]]",
-      "multiLanguage": false,
-      "domainDepended": false,
+      "multiLanguage": 0,
+      "domainDepended": 0,
       "chooser_icon": "",
       "chooserFieldDataModelClass": "adminFileFieldModel",
       "chooserFieldDataModel": "custom",
@@ -535,7 +548,29 @@
       "chooserBrowserCondition": "",
       "chooserBrowserDataModel": "default",
       "chooserBrowserJavascriptClass": "ka.files",
-      "chooserBrowserType": "custom"
+      "chooserBrowserType": "custom",
+      "chooserFieldDataModelFields": {
+        "id": {
+          "label": "[[Path]]",
+          "type": "text"
+        }
+      },
+      "chooserFieldDataModelField": "id",
+      "fields": {
+        "id": {
+          "label": "[[ID]]",
+          "type": "number",
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
+        },
+        "path": {
+          "label": "[[Path]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        }
+      }
     },
     "node": {
       "title": "[[Page]]",

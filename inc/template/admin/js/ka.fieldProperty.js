@@ -45,6 +45,16 @@ ka.fieldProperty = new Class({
             },
             'depends': {
 
+                //datetime, date
+                format: {
+                    type: 'text',
+                    label: t('Date format (Optional)'),
+                    help: 'admin/field-date-format',
+                    needValue: ['date', 'datetime'],
+                    againstField: 'type',
+                    input_width: 150
+                },
+
                 //array
                 withOrder: {
                     type: 'checkbox',
@@ -89,7 +99,7 @@ ka.fieldProperty = new Class({
                     label: t('Table label column')
                 },
                 items: {
-                    needValue: 'select',
+                    needValue: ['select', 'checkboxgroup', 'imagegroup'],
                     label: t('static items'),
                     desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {"item1": "[[Item 1]]"} or ["Foo", "Bar", "Three"].')
                 },
@@ -191,6 +201,7 @@ ka.fieldProperty = new Class({
         },
         width: {
             label: t('Width'),
+            input_width: 100,
             desc: t('Use a px value or a % value. Example: 25%, 50, 35px')
         },
         primaryKey: {
@@ -220,13 +231,13 @@ ka.fieldProperty = new Class({
                     'default': 1
                 },
                 input_width: {
-                    label: t('Input element width'),
+                    label: t('Input element width (Optional)'),
                     needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime', 'date'],
                     againstField: 'type',
                     type: 'text'
                 },
                 maxlength: {
-                    label: t('Max length'),
+                    label: t('Max length (Optional)'),
                     needValue: ['text', 'number', 'password'],
                     againstField: 'type',
                     type: 'text'
@@ -243,12 +254,6 @@ ka.fieldProperty = new Class({
                 againstField: {
                     label: tc('kaFieldTable', 'Visibility condition target field (Optional)'),
                     desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
-                },
-                'length': {
-                    needValue: ['text', 'password', 'number'],
-                    againstField: 'type',
-                    type: 'text',
-                    label: t('Max value length. (Optional)')
                 },
                 'default': {
                     againstField: 'type',
@@ -275,12 +280,13 @@ ka.fieldProperty = new Class({
         addLabel: t('Add property'),
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
+        asFrameworkSearch: false, //Remove some option fields, like visibility condition, can be empty, etc
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
+        allSmall: false,
         withActionsImages: true,
-        withPredefinedType: false,
-        asFrameworkFieldDefinition: false, //means for usage in ka.parse (and therefore in adminWindowEdit/Add)
+        asFrameworkFieldDefinition: false, //means for usage in ka.parse (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
@@ -316,11 +322,29 @@ ka.fieldProperty = new Class({
 
         }
 
+
+        if (this.options.asFrameworkSearch){
+            delete this.kaFields.__optional__.depends.empty;
+            delete this.kaFields.__optional__.depends.target;
+            delete this.kaFields.__optional__.depends.needValue;
+            delete this.kaFields.__optional__.depends.againstField;
+            delete this.kaFields.__optional__.depends.required_regexp;
+            delete this.kaFields.__optional__.depends.tableitem;
+
+            delete this.kaFields.type.items.window_list;
+            delete this.kaFields.type.items.childrenswitcher;
+            delete this.kaFields.type.items.layoutelement;
+            delete this.kaFields.type.items.wysiwyg;
+            delete this.kaFields.type.items.array;
+            delete this.kaFields.type.items.tab;
+
+        }
+
         if (!this.options.asFrameworkColumn){
             delete this.kaFields.width;
         } else {
             delete this.kaFields.__optional__;
-            this.kaFields.type.items ={
+            this.kaFields.type.items = {
                 text: t('Text'),
                 number: t('Number'),
                 checkbox: t('Checkbox'),
@@ -337,8 +361,18 @@ ka.fieldProperty = new Class({
             };
         };
 
-        if (!this.options.withPredefinedType){
-            delete this.kaFields.type.items.predefined;
+        if (this.kaFields.type.items.object){
+            this.kaFields.type.depends.object.type = 'select';
+            this.kaFields.type.depends.object.items = {};
+
+            Object.each(ka.settings.configs, function(config,extensionKey){
+                if (config.objects){
+                    Object.each(config.objects, function(object,object_key){
+                        if ((this.options.asFrameworkFieldDefinition && object.selectable) || !this.options.asFrameworkFieldDefinition)
+                            this.kaFields.type.depends.object.items[object_key] = object.title+" ("+object_key+")";
+                    }.bind(this));
+                }
+            }.bind(this));
         }
 
         var self = this;
@@ -426,7 +460,7 @@ ka.fieldProperty = new Class({
 
         var showDefinition = new Element('div', {
             'class': 'ka-fieldTable-showDefinition',
-            style: 'width: 150px;'
+            style: 'width: 220px;'
         }).inject(header);
 
         var ch = new ka.Checkbox(showDefinition);
@@ -465,7 +499,11 @@ ka.fieldProperty = new Class({
             fieldContainer = main;
         }
 
-        this.kaParse = new ka.parse(fieldContainer, this.kaFields, {allTableItems:this.options.allTableItems, tableitem_title_width: this.options.tableitem_title_width}, {win:this.win});
+        this.kaParse = new ka.parse(fieldContainer, this.kaFields, {
+            allTableItems:this.options.allTableItems,
+            tableitem_title_width: this.options.tableitem_title_width,
+            allSmall:this.options.allSmall
+        }, {win:this.win});
 
         this.main.store('kaParse', this.kaParse);
 

@@ -177,7 +177,7 @@ var admin_backend_chooser = new Class({
 
         var objectOptions = this.options.objectOptions[pObjectKey];
 
-        if (this.options.objects.length==1 && !objectOptions){
+        if (this.options.objects.length == 1 && !objectOptions){
             objectOptions = this.options.objectOptions;
         }
 

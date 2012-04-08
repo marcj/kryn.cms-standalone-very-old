@@ -400,13 +400,22 @@ ka.list = new Class({
 
         if (this.actionsNavi) {
             if (this.values.remove) {
-                this.actionsNavi.addButton(_('Remove selected'), _path + 'inc/template/admin/images/icons/' + this.values.iconDelete, function () {
+                var img = _path + 'inc/template/admin/images/icons/' + this.values.iconDelete;
+                if (this.values.removeIcon)
+                    img = _path + 'inc/template/' + this.values.removeIcon;
+
+                this.actionsNavi.addButton(t('Remove selected'), img, function () {
                     this.removeSelected();
                 }.bind(this));
             }
 
             if (this.values.add) {
-                this.actionsNavi.addButton(_('Add'), _path + 'inc/template/admin/images/icons/' + this.values.iconAdd, function () {
+
+                var img = _path + 'inc/template/admin/images/icons/' + this.values.iconAdd;
+                if (this.values.addIcon)
+                    img = _path + 'inc/template/' + this.values.addIcon;
+
+                this.actionsNavi.addButton(t('Add'), img, function () {
                     ka.wm.openWindow(_this.win.module, _this.win.code + '/add', null, null, {
                         lang: (_this.languageSelect) ? _this.languageSelect.value : false,
                         relation_params: this.relation_params_filtered,
@@ -797,27 +806,42 @@ ka.list = new Class({
             }
 
             if (pItem.edit) {
+
+                var img = _path + 'inc/template/admin/images/icons/' + this.values.iconEdit;
+                if (this.values.editIcon)
+                    img = _path + 'inc/template/' + this.values.editIcon;
+
                 new Element('img', {
-                    src: _path + 'inc/template/admin/images/icons/' + this.values.iconEdit
+                    src: img
                 }).addEvent('click',
                     function () {
-                        if (_this.values.editCode) {
-                            ka.wm.open(_this.values.editCode, pItem);
-                        } else if (pItem.edit) {
-                            ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+
+                        if (_this.values.editEntrypoint){
+                            ka.wm.open(_this.values.editEntrypoint, pItem);
+                        } else {
+                            if (_this.values.editCode) {
+                                ka.wm.open(_this.values.editCode, pItem);
+                            } else if (pItem.edit) {
+                                ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+                            }
                         }
+
                     }).inject(icon);
             }
             if (pItem['remove']) {
+
+                var img = _path + 'inc/template/admin/images/icons/' + _this.values.iconDelete;
+                if (this.values.removeIcon)
+                    img = _path + 'inc/template/' + _this.values.removeIcon;
+
                 new Element('img', {
-                    src: _path + 'inc/template/admin/images/icons/' + this.values.iconDelete
-                }).addEvent('click',
-                    function () {
-                        _this.win._confirm(_('Really delete?'), function (res) {
-                            if (!res) return;
-                            _this.deleteItem(pItem);
-                        });
-                    }).inject(icon);
+                    src: img
+                }).addEvent('click', function () {
+                    _this.win._confirm(t('Really delete?'), function (res) {
+                        if (!res) return;
+                        _this.deleteItem(pItem);
+                    });
+                }).inject(icon);
             }
         }
     }

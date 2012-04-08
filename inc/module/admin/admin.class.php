@@ -323,7 +323,10 @@ class admin {
             $dataModel = new $class();
 
             $item = $dataModel->getItem($object_id);
-            return $item['label'];
+            return array(
+                'object' => $object_key,
+                'values' => $item
+            );
 
         } else {
 

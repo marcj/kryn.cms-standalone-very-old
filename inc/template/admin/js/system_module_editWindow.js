@@ -1088,11 +1088,130 @@ var admin_system_module_editWindow = new Class({
 
                 },
 
+                itemsPerPage: {
+
+                    label: t('Items per page'),
+                    type: 'number'
+
+                },
+
+                order: {
+
+                    label: t('Default order'),
+                    type: 'array',
+                    columns: [
+                        {label: t('Field'), width: '60%'},
+                        {label: t('Direction')}
+                    ],
+                    withOrder: true,
+                    fields: {
+                        field: {
+                            type: 'text'
+                        },
+                        direction: {
+                            type: 'select',
+                            items: {
+                                asc: 'ASC',
+                                desc: 'DESC'
+                            }
+                        }
+                    }
+
+                },
+
+                __search__: {
+                    type: 'childrenswitcher',
+                    label: 'Search',
+                    depends: {
+                        filter: {
+                            label: t('Search fields'),
+                            type: 'fieldTable',
+                            options: {
+                                asFrameworkSearch: true,
+                                withoutChildren: true,
+                                addLabel: t('Add field'),
+                                asFrameworkFieldDefinition: true
+                            }
+                        }
+                    }
+                },
+
                 __actions__: {
 
                     label: t('Actions'),
                     type: 'childrenswitcher',
                     depends: {
+
+                        add: {
+
+                            label: t('Add functionality'),
+                            type: 'checkbox',
+                            depends: {
+                                addIcon: {
+                                    label: t('Icon file'),
+                                    type: 'file',
+                                    needValue: 1,
+                                    objectOptions: {
+                                        returnPath: 1,
+                                        onlyLocal: 1
+                                    }
+                                },
+                                addEntrypoint: {
+                                    label: t('Entrypoint'),
+                                    type: 'object',
+                                    needValue: 1,
+                                    object: 'system_entrypoint',
+                                    desc: t('Default is &lt;current&gt;/add')
+                                }
+                            }
+
+                        },
+
+                        edit: {
+
+                            label: t('Edit functionality'),
+                            type: 'checkbox',
+                            depends: {
+                                editIcon: {
+                                    label: t('Icon file'),
+                                    type: 'file',
+                                    needValue: 1,
+                                    objectOptions: {
+                                        returnPath: 1,
+                                        onlyLocal: 1
+                                    }
+                                },
+                                editEntrypoint: {
+                                    label: t('Entrypoint'),
+                                    type: 'object',
+                                    needValue: 1,
+                                    object: 'system_entrypoint',
+                                    desc: t('Default is &lt;current&gt;/edit')
+                                }
+                            }
+
+                        },
+
+                        remove: {
+
+                            label: t('Remove functionality'),
+                            type: 'checkbox',
+                            depends: {
+
+                                removeIcon: {
+                                    label: t('Icon file'),
+                                    type: 'file',
+                                    needValue: 1,
+                                    objectOptions: {
+                                        returnPath: 1,
+                                        onlyLocal: 1
+                                    }
+                                },
+
+                            }
+
+                        },
+
                         itemActions: {
                             label: t('Item actions'),
                             desc: t('This generates on each record a extra icon which opens the defined entry point.'),
@@ -1174,6 +1293,36 @@ var admin_system_module_editWindow = new Class({
 
             this.windowListObj = new ka.parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
 
+
+            //compatibility
+            if (this.definition.properties){
+                if (this.definition.properties.orderBy){
+                    this.definition.properties.order = [];
+                    this.definition.properties.order.include({
+                        field: this.definition.properties.orderBy,
+                        direction: this.definition.properties.orderByDirection ? this.definition.properties.orderByDirection.toLowerCase() : 'asc'
+                    });
+                }
+
+                if (this.definition.properties.secondOrderBy){
+                    if (!this.definition.properties.order) this.definition.properties.order = [];
+                    this.definition.properties.order.include({
+                        field: this.definition.properties.secondOrderBy,
+                        direction: this.definition.properties.secondOrderByDirection ? this.definition.properties.secondOrderByDirection.toLowerCase() : 'asc'
+                    });
+                }
+
+                if (this.definition.properties.iconEdit)
+                    this.definition.properties.editIcon = '/admin/images/icons/'+this.definition.properties.iconEdit;
+
+                if (this.definition.properties.iconAdd)
+                    this.definition.properties.addIcon = '/admin/images/icons/'+this.definition.properties.iconAdd;
+
+                if (this.definition.properties.iconDelete)
+                    this.definition.properties.removeIcon = '/admin/images/icons/'+this.definition.properties.iconDelete;
+            }
+
+            this.windowListObj.setValue(this.definition.properties);
         }
 
         if (pClass == 'adminWindowEdit' || pClass == 'adminWindowAdd'){

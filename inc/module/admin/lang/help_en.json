@@ -40,5 +40,12 @@
     "id": "backup_started_in_administration",
     "faq": 0,
     "help": "This mechanism starts only, if your server has blocked the php function popen().\n\nThis means, that a backup has been started through the administration instead of a own php process. If your php has a low max_execution_time and you have a huge amount of data, then it will probably fail. You should consider to activate the php function popen() in your php.ini. If you don't know, what this means, then you should probably contact  your administration or the support of your webhoster. "
+  },
+  {
+    "title": "[Field] Date format",
+    "tags": "datetime, date, format",
+    "id": "field-date-format",
+    "faq": 0,
+    "help": "You have following keys to format your date field.\n\nhttp:\/\/mootools.net\/docs\/more\/Types\/Date#Date:format"
   }
 ]

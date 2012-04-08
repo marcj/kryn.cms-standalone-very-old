@@ -132,7 +132,7 @@ ka.field = new Class({
                 }).addEvent('click',
                 function () {
                     ka.wm.open('admin/help', {id: this.field.help});
-                }).inject(this.titleText);
+                }.bind(this)).inject(this.titleText);
         }
 
         if (this.field.desc) {
@@ -961,9 +961,14 @@ ka.field = new Class({
 
                 if (!field.panel_width) field.panel_width = '100%';
 
-                var nField = new ka.field(field);
-                var td = new Element('td').inject(tr);
-                nField.inject(td);
+                var copy = Object.clone(field);
+                field.noWrapper = 1;
+
+                var td = new Element('td', {
+                    'class': 'ka-field'
+                }).inject(tr);
+
+                var nField = new ka.field(field, td, {win: this.win});
 
                 if (pValue && pValue[field_key]) {
                     nField.setValue(pValue[field_key]);
@@ -1085,7 +1090,6 @@ ka.field = new Class({
         var pos = this.field['window'].indexOf('/');
         var module = this.field['window'].substr(0, pos);
         var code = this.field['window'].substr(pos + 1);
-
 
         var win = {};
         Object.append(win, this.win);
@@ -2040,6 +2044,7 @@ ka.field = new Class({
             type: 'text',
             style: 'width: 110px'
         }).inject(this.fieldPanel);
+
         var datePicker = new ka.datePicker(this.input, pOptions);
 
         if (this.field.input_width)

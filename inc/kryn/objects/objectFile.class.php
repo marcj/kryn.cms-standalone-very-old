@@ -22,4 +22,8 @@ class objectFile extends krynObjectAbstract {
     public function updateItem($pId){
 
     }
+
+    public function getCount($pId, $pCondition){
+
+    }
 }

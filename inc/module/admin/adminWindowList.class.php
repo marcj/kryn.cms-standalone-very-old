@@ -41,6 +41,13 @@ class adminWindowList {
     public $object = '';
 
     /**
+     * Copy of the object definition
+     *
+     * @var array
+     */
+    private $objectDefinition = array();
+
+    /**
      * Defines your primary fiels as a array.
      * Example: $primary = array('rsn');
      * Example: $primary = array('id', 'name');
@@ -68,27 +75,95 @@ class adminWindowList {
      */
     public $itemsPerPage = 10;
 
+    /**
+     * Order field
+     *
+     * @deprecated Use $order instead
+     * @var string
+     */
     public $orderBy = '';
+
+    /**
+     * Order field
+     *
+     * @private
+     * @var string
+     */
+    private $customOrderBy = '';
+
+    /**
+     * Order direction
+     *
+     * @deprecated Use $order instead
+     * @var string
+     */
     public $orderByDirection = 'ASC';
 
     /**
-     * Defines the icon for the add button
+     * Order direction
+     *
+     * @private
+     * @var string
+     */
+    private $custonOrderByDirection = 'ASC';
+
+    /**
+     * Default order
+     *
+     * $order = array(
+     *      array('field' => 'group_id', 'direction' => 'asc'),
+     *      array('field' => 'title', 'direction' => 'asc')
+     * );
+     *
+     * @var array
+     */
+    public $order = array();
+
+    /**
+     * Defines the icon for the add button. Relative to inc/template/admin/images/icons/
      *
      * @var string name of image
+     * @deprecated Use $addIcon instead
      */
     public $iconAdd = 'add.png';
     /**
-     * Defines the icon for the edit button
+     * Defines the icon for the edit button. Relative to inc/template/admin/images/icons/
      *
      * @var string name of image
+     * @deprecated Use $editIcon instead
      */
     public $iconEdit = 'page_white_edit.png';
     /**
-     * Defines the icon for the remove/delete button
+     * Defines the icon for the remove/delete button. Relative to inc/template/admin/images/icons/
+     *
+     * @var string name of image
+     * @deprecated Use $removeIcon instead
+     */
+    public $iconDelete = 'delete.png';
+
+
+    /**
+     * Defines the icon for the add button. Relative to inc/template/
      *
      * @var string name of image
      */
-    public $iconDelete = 'delete.png';
+    public $addIcon = '';
+    /**
+     * Defines the icon for the edit button. Relative to inc/template/
+     *
+     * @var string name of image
+     */
+    public $editIcon = '';
+    /**
+     * Defines the icon for the remove/delete button. Relative to inc/template/
+     *
+     * @var string name of image
+     */
+    public $removeIcon = '';
+
+
+
+
     /**
      * Defines whether the add button should be displayed
      *
@@ -143,9 +218,12 @@ class adminWindowList {
 
 
         if ($this->object){
-            $objectDefinition = kryn::$objects[$this->object];
-            $this->table = $objectDefinition['table'];
-            foreach ($objectDefinition['fields'] as $key => &$field){
+            $this->objectDefinition = kryn::$objects[$this->object];
+            if (!$this->objectDefinition){
+                throw new Exception("Can not find object '".$this->object."'");
+            }
+            $this->table = $this->objectDefinition['table'];
+            foreach ($this->objectDefinition['fields'] as $key => &$field){
                 if($field['primaryKey']){
                     $this->primary[] = $key;
                 }
@@ -156,14 +234,14 @@ class adminWindowList {
             }
         }
 
-        if (!$this->orderBy)
+        if (!$this->orderBy && count($this->order) == 0)
             $this->orderBy = $this->primary[0];
 
         if (getArgv('orderBy') != '')
-            $this->orderBy = getArgv('orderBy', 1);
+            $this->customOrderBy = getArgv('orderBy', 1);
 
         if (getArgv('orderByDirection') != '')
-            $this->orderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';
+            $this->custonOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';
 
         $this->_fields = array();
         $this->filterFields = array();
@@ -193,8 +271,13 @@ class adminWindowList {
 
     }
 
-
-    public function prepareFieldDefinition(&$pFields){
+    /**
+     * prepares $pFields. Replace array items which are only a key (with no array definition) with
+     * the array definition of the proper field from the object fields.
+     *
+     * @param $pFields
+     */
+    private function prepareFieldDefinition(&$pFields){
 
         $i = 0;
         foreach ($pFields as $key => $field){
@@ -226,7 +309,7 @@ class adminWindowList {
      * @param array $pFields
      * @param bool  $pKey
      */
-    function prepareFieldItem(&$pFields, $pKey = false) {
+    private function prepareFieldItem(&$pFields, $pKey = false) {
         if (is_array($pFields) && $pFields['type'] == '') {
             foreach ($pFields as $key => &$field) {
                 if ($field['type'] != '' && is_array($field)) {
@@ -289,7 +372,7 @@ class adminWindowList {
      *
      * @return bool
      */
-    function deleteItem() {
+    public function deleteItem() {
         $options = database::getOptions($this->table);
 
         foreach ($this->primary as $primary) {
@@ -300,7 +383,7 @@ class adminWindowList {
             $where = " AND $primary = $val";
         }
 
-        $this->_removeN2N($_POST['item']);
+        $this->removeN2N($_POST['item']);
 
         $sql = "DELETE FROM " . dbTableName($this->table) . " WHERE 1=1 $where";
         dbExec($sql);
@@ -313,7 +396,7 @@ class adminWindowList {
      *
      * @return boolean
      */
-    function removeSelected() {
+    public function removeSelected() {
 
         $selected = json_decode(getArgv('selected'), 1);
         $where = '';
@@ -322,7 +405,7 @@ class adminWindowList {
             $where .= ' OR (';
             //TODO check ACL before remove
             foreach ($this->primary as $primary) {
-                $where .= " $primary = '" . $select[$primary] . "' AND ";
+                $where .= " $primary = '" . esc($select[$primary]) . "' AND ";
             }
             $where = substr($where, 0, -4) . ' )';
 
@@ -339,7 +422,7 @@ class adminWindowList {
      *
      * @param datatype $pVal
      */
-    function _removeN2N($pVal) {
+    private function removeN2N($pVal) {
         foreach ($this->columns as $key => $column) {
             if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
                 $sql = "DELETE FROM " . dbTableName($column['n-n']['middle']) . " WHERE " . $column['n-n']['middle_keyleft'] .
@@ -354,7 +437,7 @@ class adminWindowList {
      *
      * @return datatype
      */
-    function filterSql() {
+    function getWhereSql() {
 
         $table = pfx . $this->table;
 
@@ -362,6 +445,7 @@ class adminWindowList {
         if (getArgv('filter') == 1) {
             if (!count($this->filter) > 0)
                 return '';
+
             $res = '';
 
             $filterVals = json_decode(getArgv('filterVals'), true);
@@ -407,7 +491,7 @@ class adminWindowList {
      *
      * @return string
      */
-    function where() {
+    function getExtraWhereSql() {
         return '';
     }
 
@@ -418,7 +502,7 @@ class adminWindowList {
      *
      * @return string
      */
-    function sql($pCountSql = false) {
+    function getFullSql($pCountSql = false) {
         global $kdb, $cfg, $user;
 
         $extraFields = array();
@@ -426,8 +510,8 @@ class adminWindowList {
 
         $table = dbTableName($this->table);
 
-        $filter = "WHERE 1=1 " . $this->filterSql();
-        $extraWhere = " " . $this->where();
+        $filter = "WHERE 1=1 " . $this->getWhereSql();
+        $extraWhere = " " . $this->getExtraWhereSql();
 
         //relation stuff
         $options = database::getOptions($this->table);
@@ -450,7 +534,6 @@ class adminWindowList {
                 }
             }
         }
-
 
         if ($this->multiLanguage) {
             $curLang = getArgv('language', 2);
@@ -524,13 +607,56 @@ class adminWindowList {
      *
      * @return string SQL
      */
-    function countSql() {
-        return preg_replace('/SELECT(.*)FROM/mi', 'SELECT count(*) as ctn FROM', str_replace("\n", " ", $this->sql(true)));
+    public function getCountSql() {
+        return preg_replace('/SELECT(.*)FROM/mi', 'SELECT count(*) as ctn FROM', str_replace("\n", " ", $this->getFullSql(true)));
+    }
+
+
+    /**
+     * Returns the order SQL statesment
+     *
+     * @return string
+     */
+    public function getOrderSql(){
+
+        $order = " ORDER BY ";
+
+        if ($this->customOrderBy){
+
+            $order .= dbTableName($this->table).'.'.$this->customOrderBy.' ';
+            $order .= strtolower($this->customOrderByDirection)=='asc'?'asc':'desc';
+            return $order;
+        }
+
+        if (is_array($this->order) && count($this->order) > 0){
+            foreach($this->order as $order){
+                $order .= dbTableName($this->table).'.'.$order['field'].' ';
+                $order .= strtolower($order['field'])=='asc'?'asc':'desc';
+                $order .= ', ';
+            }
+        }
+
+        if ($this->orderBy && $this->orderByDirection){
+            $order .= dbTableName($this->table).'.'.$this->orderBy.' ';
+            $order .= strtolower($this->orderByDirection)=='asc'?'asc':'desc';
+            $order .= ', ';
+        }
+
+        if ($this->secondOrderBy && $this->secondOrderByDirection){
+            $order .= dbTableName($this->table).'.'.$this->secondOrderBy.' ';
+            $order .= strtolower($this->secondOrderByDirection)=='asc'?'asc':'desc';
+            $order .= ', ';
+        }
+
+        $order = substr($order, 0, -2);
+
+        return $order;
     }
 
     /**
      * Gets all Items for getArvg('page')
      *
+     * @param string $pPage
      * @return array
      */
     function getItems($pPage) {
@@ -541,10 +667,10 @@ class adminWindowList {
         $start = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
         $end = $this->itemsPerPage;
 
-        $this->listSql = $this->sql();
+        $this->listSql = $this->getFullSql();
 
         /* count sql */
-        $countSql = $this->countSql();
+        $countSql = $this->getCountSql();
         $temp = dbExfetch($countSql);
         $results['maxItems'] = $temp['ctn'];
 
@@ -553,9 +679,7 @@ class adminWindowList {
         else
             $results['maxPages'] = 0;
 
-        $secondOrder = '';
-        if ($this->secondOrderBy && $this->secondOrderBy != $this->orderBy)
-            $secondOrder = ', ' . dbTableName($this->table) . '.' . $this->secondOrderBy . ' ' . $this->secondOrderByDirection;
+        $order = $this->getOrderSql();
 
 
         if ($_POST['getPosition']) {
@@ -570,7 +694,7 @@ class adminWindowList {
             $sql = "
                 " . $this->listSql . "
                 $unique
-                ORDER BY " . dbTableName($this->table) . "." . $this->orderBy . " " . $this->orderByDirection . " $secondOrder";
+                $order";
 
             $aWhere = array();
 
@@ -632,8 +756,7 @@ class adminWindowList {
             SELECT * FROM (
                 " . $this->listSql . "
                 $unique
-                ORDER BY " . dbTableName($this->table) . "." . $this->orderBy . " " . $this->orderByDirection . "
-                $secondOrder
+                $order
             ) as t
             $limit";
 
@@ -680,14 +803,12 @@ class adminWindowList {
 
         //TODO
 
+        $this->listSql = $this->getFullSql();
+        $order = $this->getOrderSql();
 
-        $this->listSql = $this->sql();
-        $listSql = "
-            " . $this->listSql . "
-            ORDER BY " .dbTableName($this->table) . "." . $this->orderBy . " " . $this->orderByDirection;
-
-        if ($this->secondOrderBy && $this->secondOrderBy != $this->orderBy)
-            $listSql .= ', '.dbTableName($this->table) . '.' . $this->secondOrderBy . ' ' . $this->secondOrderByDirection;
+        $listSql =
+            $this->listSql .
+            $order;
 
         $sres = dbExec($listSql);
 

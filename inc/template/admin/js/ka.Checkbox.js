@@ -29,6 +29,7 @@ ka.Checkbox = new Class({
             this.fireEvent('change');
         }.bind(this));
 
+
         if (pContainer)
             this.box.inject(pContainer);
     },

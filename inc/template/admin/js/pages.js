@@ -1400,7 +1400,7 @@ var admin_pages = new Class({
     domainExtensionsCreate: function () {
 
         pModules = ka.settings.config;
-        $H(pModules).each(function (item, key) {
+        Object.each(pModules, function (item, key) {
             if (!item) return;
             if (!item.properties) return;
             var titleTxt = (item.title[window._session.lang]) ? item.title[window._session.lang] : item.title['en'];
