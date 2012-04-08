@@ -39,6 +39,13 @@ class adminWindowEdit {
     public $object = '';
 
     /**
+     * Copy of the current entry path definition
+     *
+     * @var array
+     */
+    private $entryPathItem = array();
+
+    /**
      * Defines your primary fiels as a array.
      * Example: $primary = array('rsn');
      * Example: $primary = array('id', 'name');
@@ -122,7 +129,9 @@ class adminWindowEdit {
      */
     private $objectDefinition = array();
 
-    function __construct(){
+    function __construct($pEntryPathItem){
+
+        $this->entryPathItem = $pEntryPathItem;
 
         if ($this->object){
             $this->objectDefinition = kryn::$objects[$this->object];
@@ -142,7 +151,15 @@ class adminWindowEdit {
                     $this->prepareFieldDefinition($fields);
                 }
             }
+        }
 
+        $this->_fields = array();
+        if ($this->fields) {
+            $this->prepareFieldItem($this->fields);
+        }
+        if ($this->tabFields) {
+            foreach ($this->tabFields as &$fields)
+                $this->prepareFieldItem($fields);
         }
     }
 
@@ -176,28 +193,114 @@ class adminWindowEdit {
 
     }
 
-    /**
-     * Initialize $fields and $tabFields. Called when opened the window
-     *
-     * @param bool $pAndLoadPreviewPages
-     * @return adminWindowEdit
-     */
-    public function init($pAndLoadPreviewPages = false) {
-
-        $this->_fields = array();
-        if ($this->fields) {
-            $this->prepareFieldItem($this->fields);
-        }
-        if ($this->tabFields) {
-            foreach ($this->tabFields as &$fields)
-                $this->prepareFieldItem($fields);
-        }
-
-        if ($pAndLoadPreviewPages)
-            $this->loadPreviewPages();
-
-        return $this;
+    public function unlock($pType, $pId) {
+        dbDelete('system_lock', "type = '$pType' AND key = '$pId'");
+        return true;
     }
+
+    public function canLock($pType, $pId) {
+        global $user;
+
+        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
+        if ($row['session_id'] == $user->sessionid) return true;
+        if (!$row['rsn'] > 0) return true;
+
+        $user = dbTableFetch('system_user');
+        return false;
+    }
+
+    public function lock($pType, $pId) {
+        global $user;
+
+        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
+        if ($row['rsn'] > 0) return false;
+
+        dbInsert('system_lock', array(
+            'type' => $pType,
+            'key' => $pId,
+            'session_id' => $user->sessionid,
+            'time' => time()
+        ));
+        return true;
+    }
+
+
+    public function getPreviewUrls($pRow) {
+
+        if ($this->previewPlugins) {
+
+            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+            $module = $this->module;
+
+            foreach ($this->previewPlugins as $plugin => $urlGetter) {
+
+                $moduleToUse = $module;
+                $pluginToUse = $plugin;
+
+                if (strpos($plugin, '/') !== false) {
+                    $ex = explode('/', $plugin);
+                    $moduleToUse = $ex[0];
+                    $pluginToUse = $ex[1];
+                }
+
+                $pages =& $cachedPluginRelations[$moduleToUse][$pluginToUse];
+                if (count($pages) > 0) {
+                    foreach ($pages as &$page) {
+
+                        $pluginValue = substr($page['content'], strpos($page['content'], '::'));
+                        $pluginValue = substr($pluginValue, strpos($pluginValue, '::'));
+
+                        if (method_exists($this, $urlGetter)) {
+                            $previewUrls[$moduleToUse . '/' . $pluginToUse][$page['rsn']] =
+                                kryn::pageUrl($page['rsn']) . '/' .
+                                    $this->$urlGetter($pRow, json_decode($pluginValue, true), $page['rsn']);
+                        }
+
+                    }
+                }
+            }
+        }
+        return $previewUrls;
+    }
+
+    /**
+     * Loads all plugins from system_contents to a indexed cached array
+
+     */
+    public static function cachePluginsRelations() {
+
+        $res = dbExec('
+        SELECT p.domain_rsn, p.rsn, c.content, p.title
+        FROM 
+            %pfx%system_contents c,
+            %pfx%system_pagesversions v,
+            %pfx%system_pages p
+        WHERE 1=1
+            AND c.type = \'plugin\'
+            AND c.hide = 0
+            AND v.rsn = c.version_rsn
+            AND p.rsn = v.page_rsn
+            AND (p.access_denied = \'0\' OR p.access_denied IS NULL)
+            AND v.active = 1
+        ');
+
+        if (!$res) {
+            kryn::setCache('kryn_pluginrelations', array());
+            return;
+        }
+
+        $pluginRelations = array();
+
+        while ($row = dbFetch($res)) {
+
+            preg_match('/([a-zA-Z0-9_-]*)::([a-zA-Z0-9_-]*)::(.*)/', $row['content'], $matches);
+            $pluginRelations[$matches[1]][$matches[2]][] = $row;
+
+        }
+        kryn::setCache('kryn_pluginrelations', $pluginRelations);
+    }
+
+
 
     /**
      * Loads all pages which have included the plugin in $previewPlugins
@@ -239,75 +342,6 @@ class adminWindowEdit {
                 }
             }
         }
-    }
-
-    public function unlock($pType, $pId) {
-        dbDelete('system_lock', "type = '$pType' AND key = '$pId'");
-        return true;
-    }
-
-    public function canLock($pType, $pId) {
-        global $user;
-
-        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if ($row['session_id'] == $user->sessionid) return true;
-        if (!$row['rsn'] > 0) return true;
-
-        $user = dbTableFetch('system_user');
-        return false;
-    }
-
-    public function lock($pType, $pId) {
-        global $user;
-
-        $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if ($row['rsn'] > 0) return false;
-
-        dbInsert('system_lock', array(
-            'type' => $pType,
-            'key' => $pId,
-            'session_id' => $user->sessionid,
-            'time' => time()
-        ));
-        return true;
-    }
-
-
-    /**
-     * Loads all plugins from system_contents to a indexed cached array
-
-     */
-    public static function cachePluginsRelations() {
-
-        $res = dbExec('
-        SELECT p.domain_rsn, p.rsn, c.content, p.title
-        FROM 
-            %pfx%system_contents c,
-            %pfx%system_pagesversions v,
-            %pfx%system_pages p
-        WHERE 1=1
-            AND c.type = \'plugin\'
-            AND c.hide = 0
-            AND v.rsn = c.version_rsn
-            AND p.rsn = v.page_rsn
-            AND (p.access_denied = \'0\' OR p.access_denied IS NULL)
-            AND v.active = 1
-        ');
-
-        if (!$res) {
-            kryn::setCache('kryn_pluginrelations', array());
-            return;
-        }
-
-        $pluginRelations = array();
-
-        while ($row = dbFetch($res)) {
-
-            preg_match('/([a-zA-Z0-9_-]*)::([a-zA-Z0-9_-]*)::(.*)/', $row['content'], $matches);
-            $pluginRelations[$matches[1]][$matches[2]][] = $row;
-
-        }
-        kryn::setCache('kryn_pluginrelations', $pluginRelations);
     }
 
     /**
@@ -656,44 +690,6 @@ class adminWindowEdit {
 
         $res['preview_urls'] = $this->getPreviewUrls($row);
         return $res;
-    }
-
-    public function getPreviewUrls($pRow) {
-
-        if ($this->previewPlugins) {
-
-            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
-            $module = $this->module;
-
-            foreach ($this->previewPlugins as $plugin => $urlGetter) {
-
-                $moduleToUse = $module;
-                $pluginToUse = $plugin;
-
-                if (strpos($plugin, '/') !== false) {
-                    $ex = explode('/', $plugin);
-                    $moduleToUse = $ex[0];
-                    $pluginToUse = $ex[1];
-                }
-
-                $pages =& $cachedPluginRelations[$moduleToUse][$pluginToUse];
-                if (count($pages) > 0) {
-                    foreach ($pages as &$page) {
-
-                        $pluginValue = substr($page['content'], strpos($page['content'], '::'));
-                        $pluginValue = substr($pluginValue, strpos($pluginValue, '::'));
-
-                        if (method_exists($this, $urlGetter)) {
-                            $previewUrls[$moduleToUse . '/' . $pluginToUse][$page['rsn']] =
-                                kryn::pageUrl($page['rsn']) . '/' .
-                                $this->$urlGetter($pRow, json_decode($pluginValue, true), $page['rsn']);
-                        }
-
-                    }
-                }
-            }
-        }
-        return $previewUrls;
     }
 
 }

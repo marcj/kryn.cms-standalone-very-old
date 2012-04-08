@@ -198,18 +198,6 @@ class adminWindowList {
      */
     public $multiLanguage = false;
 
-    /**
-     * TBD
-     *
-     * @return object this object
-     */
-    function init() {
-
-        //store this in the acl-table in the future
-        #$this->add = true;
-
-        return $this;
-    }
 
     /**
      * Constructor
@@ -238,7 +226,7 @@ class adminWindowList {
             $this->orderBy = $this->primary[0];
 
         if (getArgv('orderBy') != '')
-            $this->customOrderBy = getArgv('orderBy', 1);
+            $this->customOrderBy = getArgv('orderBy', 2);
 
         if (getArgv('orderByDirection') != '')
             $this->customOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';

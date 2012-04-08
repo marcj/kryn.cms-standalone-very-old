@@ -95,7 +95,7 @@ class admin {
                     json($obj->handle($info));
                 }
             }
-        } else if(getArgv('cmd') == 'getInfo'){
+        } else if($_POST['cmd'] == 'getInfo'){
             json(array('error'=>'param_failed'));
         }
 
@@ -136,6 +136,9 @@ class admin {
                             break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object'), getArgv('page'));
+                            break;
+                        case 'getObjectPlugins':
+                            $content = self::getObjectPlugins(getArgv('object', 2));
                             break;
                         case 'clearCache':
                             json(admin::clearCache());
@@ -247,6 +250,91 @@ class admin {
             admin::showLogin();
 
         json(array('error' => 'param_failed'));
+    }
+
+
+    public static function getObjectPlugins($pObjectKey){
+
+        if (!kryn::$objects[$pObjectKey]) return array('error' => 'object_not_found');
+
+        $definition = kryn::$objects[$pObjectKey];
+
+        $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+        if (true || !$cachedPluginRelations || count($cachedPluginRelations) == 0) {
+            self::cachePluginsRelations();
+            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+        }
+
+        $module = $definition['_extension'];
+
+        $previewPluginPages = array();
+
+        if (!$definition['plugins']) return array('error' => 'no_plugins_defined');
+        $plugins = explode(',', str_replace(' ', '', $definition['plugins']));
+
+        foreach ($plugins as $plugin) {
+
+            $moduleToUse = $module;
+            $pluginToUse = $plugin;
+
+            if (strpos($plugin, '/') !== false) {
+                $ex = explode('/', $plugin);
+                $moduleToUse = $ex[0];
+                $pluginToUse = $ex[1];
+            }
+
+            $pages =& $cachedPluginRelations[$moduleToUse][$pluginToUse];
+            if (count($pages) > 0) {
+                foreach ($pages as &$page) {
+                    $previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_rsn']][$page['rsn']] =
+                        array(
+                            'title' => $page['title'],
+                            'path' => kryn::getPagePath($page['rsn'])
+                        );
+                }
+            }
+        }
+
+        return $previewPluginPages;
+    }
+
+
+
+
+    /**
+     * Loads all plugins from system_contents to a indexed cached array
+     */
+    private static function cachePluginsRelations() {
+
+        $res = dbExec('
+        SELECT p.domain_rsn, p.rsn, c.content, p.title
+        FROM
+            %pfx%system_contents c,
+            %pfx%system_pagesversions v,
+            %pfx%system_pages p
+        WHERE 1=1
+            AND c.type = \'plugin\'
+            AND c.hide = 0
+            AND v.rsn = c.version_rsn
+            AND p.rsn = v.page_rsn
+            AND (p.access_denied = \'0\' OR p.access_denied IS NULL)
+            AND v.active = 1
+        ');
+
+        if (!$res) {
+            kryn::setCache('kryn_pluginrelations', array());
+            return;
+        }
+
+        $pluginRelations = array();
+
+        while ($row = dbFetch($res)) {
+
+            preg_match('/([a-zA-Z0-9_-]*)::([a-zA-Z0-9_-]*)::(.*)/', $row['content'], $matches);
+            $pluginRelations[$matches[1]][$matches[2]][] = $row;
+
+        }
+        kryn::setCache('kryn_pluginrelations', $pluginRelations);
     }
 
 

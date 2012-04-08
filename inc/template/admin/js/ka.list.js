@@ -33,7 +33,7 @@ ka.list = new Class({
 
     load: function () {
         var _this = this;
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=', noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getClassDefinition', noCache: true, onComplete: function (res) {
             this.render(res);
             this.classLoaded = true;
             this.fireEvent('render');

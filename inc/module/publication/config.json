@@ -334,107 +334,129 @@
       "desc": "[[Articles]]",
       "table": "publication_news",
       "table_primary": "rsn",
-      "plugins": "newsDetail",
+      "plugins": "newsDetail, newsList",
       "fields": {
         "rsn": {
           "label": "[[Id]]",
           "type": "number",
-          "primaryKey": true,
-          "autoIncrement": true,
-          "empty": true
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
         },
         "title": {
           "label": "[[Title]]",
           "type": "text",
-          "length": "255"
+          "primaryKey": 0,
+          "empty": 1
         },
         "category_rsn": {
           "label": "[[Category]]",
+          "multi": 0,
           "object": "news_category",
           "object_label": "title",
           "object_relation": "nTo1",
           "type": "object",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "files": {
           "label": "Attachments",
           "type": "filelist",
-          "empty": true
+          "empty": 1
         },
         "lang": {
           "label": "Language",
           "type": "text",
-          "empty": true,
-          "length": "2"
+          "primaryKey": 0,
+          "empty": 1
         },
         "intro": {
           "type": "layoutelement",
-          "empty": true
+          "empty": 1
         },
         "content": {
           "type": "layoutelement",
-          "empty": true
+          "empty": 1
         },
         "created": {
           "type": "number",
-          "empty": true
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
         },
         "modified": {
           "type": "number",
-          "empty": true
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
         },
         "releaseat": {
           "label": "[[Release at]]",
           "type": "datetime",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "releasedate": {
           "type": "datetime",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "deactivate": {
           "label": "[[Hide]]",
           "type": "checkbox",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "deactivatecomments": {
           "label": "[[Deactivate comments]]",
           "type": "checkbox",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "commentscount": {
           "label": "[[Comments count]]",
           "type": "number",
-          "empty": true
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
         },
         "tags": {
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "introimage": {
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "introimage2": {
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         }
       },
-      "table_sync": false,
+      "table_sync": 0,
       "chooserUseOwnClass": false,
-      "selectable": true,
+      "selectable": 1,
       "chooser_icon": "",
       "chooserBrowserAutoColumns": {
         "title": {
           "label": "[[Title]]",
-          "type": "text",
-          "empty": true
+          "type": "text"
         }
       },
       "class": "",
-      "multiLanguage": true,
-      "domainDepended": true,
-      "chooserAutoFilter": ""
+      "multiLanguage": 1,
+      "domainDepended": 1,
+      "chooserAutoFilter": "",
+      "chooserFieldDataModel": "store",
+      "chooserFieldDataModelFields": [
+        
+      ],
+      "chooserFieldType": "default",
+      "chooserBrowserDataModel": "default",
+      "chooserBrowserType": "default"
     },
     "news_comment": {
       "label": "[[Comments]]",
@@ -448,17 +470,19 @@
         "rsn": {
           "label": "ID",
           "type": "number",
-          "primaryKey": true,
-          "autoIncrement": true,
-          "empty": true
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
         },
         "parent_rsn": {
           "label": "[[News]]",
+          "multi": 0,
           "object": "news",
           "object_label": "title",
           "object_relation": "nTo1",
           "type": "object",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         }
       }
     },
@@ -481,24 +505,26 @@
         "rsn": {
           "label": "ID",
           "type": "number",
-          "primaryKey": true,
-          "autoIncrement": true,
-          "empty": true
+          "primaryKey": 1,
+          "autoIncrement": 1,
+          "empty": 1
         },
         "title": {
           "label": "[[Title]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "url": {
           "label": "[[URL]]",
           "type": "text",
-          "empty": true
+          "primaryKey": 0,
+          "empty": 1
         },
         "lang": {
           "label": "[[Language]]",
           "type": "lang",
-          "empty": true
+          "empty": 1
         }
       }
     }

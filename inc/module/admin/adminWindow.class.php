@@ -69,7 +69,7 @@ class adminWindow {
 
         if (file_exists(PATH_MODULE . "$module2LoadClass/$class.class.php")) {
             require_once(PATH_MODULE . "$module2LoadClass/$class.class.php");
-            $obj = new $class;
+            $obj = new $class($info, getArgv('cmd'));
         } else {
             $form = kryn::fileRead(PATH_MODULE . "$module2LoadClass/forms/$class.json");
             $formObj = json_decode($form, 1);
@@ -82,17 +82,6 @@ class adminWindow {
                 $obj->$optKey = $optVal;
 
         }
-
-        $config = kryn::$configs[$module];
-
-        //        $dbFile = PATH_MODULE."$module/db.php";
-        //        if( file_exists($dbFile) )
-        //            require($dbFile);
-
-        $obj->db = ($config['db']) ? $config['db'] : array();
-        $obj->module = $info['_module'];
-        $obj->code = $info['_code'];
-        $res = $obj->init(getArgv('cmd')==''?true:false);
 
         switch (getArgv('cmd')) {
             case 'getItems':
@@ -114,6 +103,9 @@ class adminWindow {
                 break;
             case 'removeSelected':
                 $res = $obj->removeSelected();
+                break;
+            case 'getClassDefinition':
+                $res = $obj;
                 break;
             default:
                 if (getArgv('relation_table')) {
