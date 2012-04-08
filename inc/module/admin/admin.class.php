@@ -89,13 +89,13 @@ class admin {
                 require(PATH_MODULE . 'admin/adminWindow.class.php');
                 $obj = new adminWindow();
 
-                if (getArgv('cmd') == 'getInfo') {
+                if ($_GET['cmd'] == 'getInfo') {
                     json($info);
                 } else if (in_array($info['type'], $adminWindows)) {
                     json($obj->handle($info));
                 }
             }
-        } else if($_POST['cmd'] == 'getInfo'){
+        } else if($_GET['cmd'] == 'getInfo'){
             json(array('error'=>'param_failed'));
         }
 
