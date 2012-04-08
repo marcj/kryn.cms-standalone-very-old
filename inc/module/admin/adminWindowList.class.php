@@ -105,7 +105,7 @@ class adminWindowList {
      * @private
      * @var string
      */
-    private $custonOrderByDirection = 'ASC';
+    private $customOrderByDirection = 'ASC';
 
     /**
      * Default order
@@ -241,7 +241,7 @@ class adminWindowList {
             $this->customOrderBy = getArgv('orderBy', 1);
 
         if (getArgv('orderByDirection') != '')
-            $this->custonOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';
+            $this->customOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';
 
         $this->_fields = array();
         $this->filterFields = array();
@@ -634,18 +634,20 @@ class adminWindowList {
                 $order .= strtolower($order['field'])=='asc'?'asc':'desc';
                 $order .= ', ';
             }
-        }
+        } else {
 
-        if ($this->orderBy && $this->orderByDirection){
-            $order .= dbTableName($this->table).'.'.$this->orderBy.' ';
-            $order .= strtolower($this->orderByDirection)=='asc'?'asc':'desc';
-            $order .= ', ';
-        }
+            if ($this->orderBy && $this->orderByDirection){
+                $order .= dbTableName($this->table).'.'.$this->orderBy.' ';
+                $order .= strtolower($this->orderByDirection)=='asc'?'asc':'desc';
+                $order .= ', ';
+            }
 
-        if ($this->secondOrderBy && $this->secondOrderByDirection){
-            $order .= dbTableName($this->table).'.'.$this->secondOrderBy.' ';
-            $order .= strtolower($this->secondOrderByDirection)=='asc'?'asc':'desc';
-            $order .= ', ';
+            if ($this->secondOrderBy && $this->secondOrderByDirection){
+                $order .= dbTableName($this->table).'.'.$this->secondOrderBy.' ';
+                $order .= strtolower($this->secondOrderByDirection)=='asc'?'asc':'desc';
+                $order .= ', ';
+            }
+
         }
 
         $order = substr($order, 0, -2);
