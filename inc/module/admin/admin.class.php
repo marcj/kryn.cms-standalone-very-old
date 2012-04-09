@@ -137,8 +137,8 @@ class admin {
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object'), getArgv('page'));
                             break;
-                        case 'getObjectPlugins':
-                            $content = self::getObjectPlugins(getArgv('object', 2));
+                        case 'getPluginElements':
+                            $content = self::getPluginElements(getArgv('object', 2));
                             break;
                         case 'clearCache':
                             json(admin::clearCache());
@@ -252,8 +252,14 @@ class admin {
         json(array('error' => 'param_failed'));
     }
 
-
-    public static function getObjectPlugins($pObjectKey){
+    /**
+     * Returns all plugin elements for specified object
+     *
+     * @static
+     * @param $pObjectKey
+     * @return array
+     */
+    public static function getPluginElements($pObjectKey){
 
         if (!kryn::$objects[$pObjectKey]) return array('error' => 'object_not_found');
 

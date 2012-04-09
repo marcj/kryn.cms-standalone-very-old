@@ -1921,7 +1921,7 @@ ka.parse = new Class({
                     }
 
                 } catch (e) {
-                    logger('Error in parsing field: ka.parse + ' + id + ': ' + e);
+                    logger('Error in parsing field: ka.parse, id: ' + id + ', type: '+field.type+' => ' + e);
                     return;
                 }
             }

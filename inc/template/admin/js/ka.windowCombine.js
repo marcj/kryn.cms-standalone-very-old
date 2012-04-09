@@ -14,7 +14,6 @@ ka.windowCombine = new Class({
             style: 'bottom: 0px; top: 0px; overflow: hidden;'
         }).inject(this.win.content);
 
-
         this.inputTrigger = new Element('input').inject(document.hidden);
 
         this.inputTrigger.addEvent('focus', function () {
@@ -231,53 +230,10 @@ ka.windowCombine = new Class({
 
         }.bind(this));
 
-        //this.sortSelect.value = this.sortField;
-
 
         this.sortSelect.setValue(this.sortField + '______' + ((this.sortDirection == 'DESC') ? 'desc' : 'asc'));
 
         this.createItemLoader();
-
-        /*
-         this.userFilter = new Element('div', {
-         'class': 'ka-list-combine-userfilter'
-         }).inject( this.mainLeftTop );
-
-         new Element('a', {
-         text: _('me')
-         }).inject( this.userFilter );
-
-
-         new Element('a', {
-         text: _('all'),
-         'class': 'active'
-         }).inject( this.userFilter );
-
-         new Element('a', {
-         html: '<img src="'+_path+'inc/template/admin/images/icons/tree_minus.png" />',
-         style: 'padding-left: 2px; padding-right: 2px;'
-         }).inject( this.userFilter );
-         */
-        /*
-         this.searchBar = this.win.addButtonGroup();
-
-         new Element('input', {
-         'class': 'ka-list-combine-search',
-         value: 'Keyword ...'
-         })
-         .addEvent('click', function(e){
-         e.stop();
-         })
-         .inject( this.searchBar.boxWrapper );
-
-
-         new Element('a', {
-         html: '<img src="'+_path+'inc/template/admin/images/icons/tree_minus.png" />',
-         style: 'padding-left: 2px; padding-right: 2px;'
-         }).inject( this.searchBar.boxWrapper );
-
-         this.searchBar.setStyle('margin-right', 3);
-         */
 
     },
 
@@ -302,11 +258,11 @@ ka.windowCombine = new Class({
                     mkey = filter;
                 }
 
-                var field = this.values.filterFields[ mkey ];
+                var field = Object.clone(this.values.filterFields[ mkey ]);
 
 
                 var title = this.values.columns[mkey].label;
-                field.label = _(title);
+                field.label = t(title);
                 field.small = true;
                 field.tableitem = true;
                 field.tableitem_title_width = 50;
@@ -1244,6 +1200,7 @@ ka.windowCombine = new Class({
     addItem: function (pItem) {
 
         var layout = '';
+        var titleAdded, nameAdded;
 
         if (this.values.itemLayout) {
             layout = this.values.itemLayout;
@@ -1251,8 +1208,10 @@ ka.windowCombine = new Class({
 
             if (this.values.columns.title) {
                 layout += '<h2 id="title"></h2>';
+                titleAdded = true;
             } else if (this.values.columns.name) {
                 layout += '<h2 id="name"></h2>';
+                nameAdded = true;
             }
 
             layout += '<div class="subline">';
@@ -1260,8 +1219,8 @@ ka.windowCombine = new Class({
             var c = 1;
             this.values.columns.each(function (bla, id) {
 
-                if (id == "title") return;
-                if (id == "name") return;
+                if (id == "title" && titleAdded) return;
+                if (id == "name" && nameAdded) return;
 
                 if (c > 2) return;
 

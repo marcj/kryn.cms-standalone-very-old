@@ -39,9 +39,11 @@ var admin_system_module_editWindow = new Class({
 
         this.generalTab = this.tabPane.addPane(t('General'));
         this.windowTabEdit  = this.tabPane.addPane(t('Window'));
-        this.windowTabList  = this.tabPane.addPane(t('Window list'));
+        this.windowTabList  = this.tabPane.addPane(t('Window'));
         this.methodTab  = this.tabPane.addPane(t('Class methods'));
         this.customMethodTab  = this.tabPane.addPane(t('Custom methods'));
+
+        this.windowTabList.hide();
 
         this.btnGroup = this.win.addButtonGroup();
         this.saveBtn = this.btnGroup.addButton(t('Save'), _path + 'inc/template/admin/images/button-save.png', this.save.bind(this));
@@ -101,6 +103,11 @@ var admin_system_module_editWindow = new Class({
                     object: {
                         needValue: 'object',
                         label: t('Object key')
+                    },
+                    preview: {
+                        needValue: 'object',
+                        label: t('Preview possibility'),
+                        type: 'checkbox'
                     }
                 }
             },
@@ -115,6 +122,8 @@ var admin_system_module_editWindow = new Class({
             workspace: {
                 label: t('Workspace'),
                 type: 'checkbox',
+                needValue: 'object',
+                againstField: 'dataModel',
                 help: 'admin/extensions-object-workspace',
                 desc: t('This is a kind of a versioning. All changes goes into the workspace versioning table and will only be merged in your orin table behind the object, when the user publishs his workspace to LIVE. The object or table needs a extra field \'live\' for this.')
             },
@@ -337,59 +346,9 @@ var admin_system_module_editWindow = new Class({
 
     save: function(){
 
-        var tabs = this.winTabPane.buttonGroup.box.getChildren();
 
-        var fields = {};
+        var general = this.generalObj.getValue();
 
-        Array.each(tabs, function(button, idx){
-
-            var definition = Object.clone(button.retrieve('definition'));
-            var key = button.retrieve('key');
-
-            if (!key && definition.label){
-                key = definition.label.toLowerCase().replace(/\W/, '-');
-            } else if (!key){
-                return;
-            }
-
-            fields[key] = definition;
-
-            var depends = {};
-            var iIdx = 0, kaFieldObj;
-
-            var extractFields = function(pDom, pDependsRef){
-
-                var subfields = pDom.getChildren('.ka-field-main');
-                Array.each(subfields, function(field, idx){
-
-                    var fKey = field.retrieve('key');
-                    var fField = Object.clone(field.retrieve('field'));
-
-                    kaFieldObj = field.retrieve('ka.field');
-                    if (kaFieldObj.childContainer){
-                        fField.depends = {};
-                        extractFields(kaFieldObj.childContainer, fField.depends);
-                    }
-
-                    if (false && fField.type == 'predefined' && fField.object == this.generalObj.getValue('object')){
-                        //if the type is predefeind and the object is the same as in the class
-                        //then we dont need to save the whole definition.
-                        //todo, what is with children? deactivated
-                        pDependsRef[iIdx] = fKey;
-                        iIdx++;
-                    } else {
-                        pDependsRef[fKey] = fField;
-                    }
-                });
-
-            };
-
-            extractFields(button.pane, depends);
-
-            fields[key]['depends'] = depends;
-
-
-        });
 
         var methods = {}
 
@@ -412,12 +371,83 @@ var admin_system_module_editWindow = new Class({
         var res = {
             name: this.win.params.module,
             'class': this.win.params.className,
-
-            general: this.generalObj.getValue(),
-
-            fields: fields,
+            general: general,
             methods: methods
         };
+
+        if (general['class'] == 'adminWindowEdit' || general['class'] == 'adminWindowAdd'){
+
+            var tabs = this.winTabPane.buttonGroup.box.getChildren();
+
+            var fields = {};
+
+            Array.each(tabs, function(button, idx){
+
+                var definition = Object.clone(button.retrieve('definition'));
+                var key = button.retrieve('key');
+
+                if (!key && definition.label){
+                    key = definition.label.toLowerCase().replace(/\W/, '-');
+                } else if (!key){
+                    return;
+                }
+
+                fields[key] = definition;
+
+                var depends = {};
+                var iIdx = 0, kaFieldObj;
+
+                var extractFields = function(pDom, pDependsRef){
+
+                    var subfields = pDom.getChildren('.ka-field-main');
+                    Array.each(subfields, function(field, idx){
+
+                        var fKey = field.retrieve('key');
+                        var fField = Object.clone(field.retrieve('field'));
+
+                        kaFieldObj = field.retrieve('ka.field');
+                        if (kaFieldObj.childContainer){
+                            fField.depends = {};
+                            extractFields(kaFieldObj.childContainer, fField.depends);
+                        }
+
+                        if (false && fField.type == 'predefined' && fField.object == this.generalObj.getValue('object')){
+                            //if the type is predefeind and the object is the same as in the class
+                            //then we dont need to save the whole definition.
+                            //todo, what is with children? deactivated
+                            pDependsRef[iIdx] = fKey;
+                            iIdx++;
+                        } else {
+                            pDependsRef[fKey] = fField;
+                        }
+                    });
+
+                };
+
+                extractFields(button.pane, depends);
+
+                fields[key]['depends'] = depends;
+
+
+            });
+
+            res.fields = fields;
+        }
+
+
+
+        if (general['class'] == 'adminWindowList' || general['class'] == 'adminWindowCombine'){
+
+            var fields = this.windowListObj.getValue();
+
+            Object.each(fields, function(value,key){
+
+                res.general[key] = value;
+
+            });
+
+        }
+
 
         this.saveBtn.startTip(t('Saving ...'));
 
@@ -478,6 +508,9 @@ var admin_system_module_editWindow = new Class({
         }
 
         this.lastClass = this.definition['class'];
+
+        //compatibility
+        pDefinition.properties.dataModel = pDefinition.properties.object?'object':'table';
 
         this.generalObj.setValue(pDefinition.properties);
         this.generalObj.getField('class').setValue(this.definition['class']);
@@ -1088,6 +1121,17 @@ var admin_system_module_editWindow = new Class({
 
                 },
 
+                itemLayout: {
+                    label: t('Item layout'),
+                    desc: t('Default behaviour is that the system extracts the first three columns and build it on it own. You can define here your own item HTML. Use as id attribute the column key.')+
+                    '<br/>'+t('Example:')+'<br/>'+
+                    '&lt;div id="title"&gt;&lt;/div&gt;<br/>'+
+                    '&lt;div style="font-size: 10px;" id="subtitle"&gt;&lt;/div&gt;',
+                    type: 'codemirror',
+                    input_height: 150,
+                    input_width: '98%'
+                },
+
                 itemsPerPage: {
 
                     label: t('Items per page'),
@@ -1206,7 +1250,7 @@ var admin_system_module_editWindow = new Class({
                                         returnPath: 1,
                                         onlyLocal: 1
                                     }
-                                },
+                                }
 
                             }
 
@@ -1288,7 +1332,7 @@ var admin_system_module_editWindow = new Class({
             };
 
 
-            var table = new Element('table', {width: '100%'}).inject(this.windowTabList.pane);
+            var table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
             this.windowListTbody = new Element('tbody').inject(table);
 
             this.windowListObj = new ka.parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});

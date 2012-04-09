@@ -106,12 +106,6 @@ class adminWindow {
                 break;
             case 'getClassDefinition':
                 $res = $obj;
-                break;
-            default:
-                if (getArgv('relation_table')) {
-                    $res->relation = database::getRelation(getArgv('relation_table'), $res->table);
-                }
-                break;
         }
 
         $obj = NULL;

@@ -194,14 +194,16 @@ class $pClass extends windowEdit {
 
         $methods = getArgv('methods');
 
-        foreach ($methods as $key => $val){
+        if (is_array($methods)){
+            foreach ($methods as $key => $val){
 
-            if (substr($val, 0, 5) == '<?php'){
-                $val = substr($val, 6, -3);
+                if (substr($val, 0, 5) == '<?php'){
+                    $val = substr($val, 6, -3);
+                }
+
+                $php .= $val;
+
             }
-
-            $php .= $val;
-
         }
 
         $fields = getArgv('fields');
