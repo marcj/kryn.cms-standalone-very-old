@@ -95,13 +95,14 @@ ka.tabGroup = new Class({
 
 
             }
+
+
         }.bind(this);
 
         pButton.show = function () {
             pButton.store('visible', true);
             pButton.setStyle('display', 'inline');
             this.rerender();
-
         }.bind(this);
 
         pButton.isHidden = function(){
@@ -125,8 +126,10 @@ ka.tabGroup = new Class({
         pButton.setPressed = function (pPressed) {
             if (pPressed) {
                 pButton.addClass('ka-tabGroup-item-active');
+                pButton.fireEvent('show');
             } else {
                 pButton.removeClass('ka-tabGroup-item-active');
+                pButton.fireEvent('hide');
             }
         }
 

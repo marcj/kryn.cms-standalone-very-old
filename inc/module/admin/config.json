@@ -1691,7 +1691,8 @@
     "admin\/js\/swfupload.js",
     "admin\/js\/fupload.js",
     "admin\/js\/ka.crawler.js",
-    "admin\/mootools-extras\/Array.sortOn.js"
+    "admin\/mootools-extras\/Array.sortOn.js",
+    "admin\/mootools-extras\/Stylesheet.js"
   ],
   "adminCss": [
     "admin\/css\/style.css",

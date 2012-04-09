@@ -28,6 +28,7 @@ ka.fieldProperty = new Class({
                 textarea: t('Textarea'),
                 array: t('Array'),
                 wysiwyg: t('Wysiwyg'),
+                codemirror: t('CodeMirror (sourcecode editor)'),
                 date: t('Date'),
                 datetime: t('Datetime'),
                 files: t('File list from folder'),
@@ -233,6 +234,12 @@ ka.fieldProperty = new Class({
                 input_width: {
                     label: t('Input element width (Optional)'),
                     needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime', 'date'],
+                    againstField: 'type',
+                    type: 'text'
+                },
+                input_height: {
+                    label: t('Input element height (Optional)'),
+                    needValue: ['textarea', 'codemirror'],
                     againstField: 'type',
                     type: 'text'
                 },

@@ -314,6 +314,9 @@ ka.field = new Class({
             case 'fieldtable':
                 this.renderFieldTable();
                 break;
+            case 'codemirror':
+                this.renderCodemirror();
+                break;
             case 'text':
             default:
                 this.renderText();
@@ -2186,6 +2189,77 @@ ka.field = new Class({
         }
     },
 
+    renderCodemirror: function(){
+
+        this.editorPanel = new Element('div', {
+            style: 'border: 1px solid silver; min-height: 50px; background-color: white;'
+        }).inject(this.fieldPanel);
+
+
+        if (this.field.input_width)
+            this.editorPanel.setStyle('width', this.field.input_width);
+
+        if (this.field.input_height){
+
+            var cssClassName = 'codemirror_'+(new Date()).getTime()+'_'+Number.random(0, 10000)+'_'+Number.random(0, 10000);
+
+            if (typeOf(this.field.input_height) == 'number' || !this.field.input_height.match('[^0-9]')){
+                this.field.input_height += 'px';
+            }
+
+            new Stylesheet().addRule('.'+cssClassName+' .CodeMirror-scroll', {
+                height: this.field.input_height
+            });
+
+            this.editorPanel.addClass(cssClassName);
+
+        }
+
+        var options = {
+            lineNumbers: true,
+            mode: 'htmlmixed',
+            value: ''
+        };
+
+        if (this.field.codemirrorOptions){
+            Object.each(this.field.codemirrorOptions, function(value, key){
+                options[key] = value;
+            });
+        }
+
+        this.editor = CodeMirror(this.editorPanel, options);
+
+        this._setValue = function(pValue){
+
+            this.editor.setValue(pValue?pValue:"");
+
+        }.bind(this);
+
+        this.getValue = function(){
+
+            return this.editor.getValue();
+
+        }.bind(this);
+
+        var refresh = function(){
+            this.editor.refresh();
+        }.bind(this);
+
+        var window = this.fieldPanel.getParent('.kwindow-border');
+        if (this.win){
+            this.win.addEvent('resize', refresh);
+        } else if (window){
+            this.win.retrieve('win').addEvent('resize', refresh);
+        }
+
+        var tabPane = this.fieldPanel.getParent('.ka-tabPane-pane');
+        if (tabPane){
+            tabPane.button.addEvent('show', refresh);
+        }
+
+
+    },
+
     renderTextarea: function () {
         var _this = this;
         this.input = new Element('textarea', {
@@ -2195,6 +2269,12 @@ ka.field = new Class({
                 'width': (this.field.width) ? this.field.width : ''
             }
         }).inject(this.fieldPanel);
+
+        if (this.field.input_width)
+            this.input.setStyle('width', this.field.input_width);
+
+        if (this.field.input_height)
+            this.input.setStyle('height', this.field.input_height);
 
         this.input.addEvent('change', function(){
             this.fireEvent('change', this.input.value);

@@ -357,7 +357,7 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 <table style="width: 100%" cellpadding="3">
     <tr>
     <th width="160">Name</th>
-    <th width="250">Link</th>
+    <th width="250">Author/Link</th>
     <th>License</th>
 </tr>
 <tr>
@@ -383,33 +383,36 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 
 <tr>
     <td>Silk icon set 1.3</td>
-    <td><a href="http://www.famfamfam.com/lab/icons/silk//">www.famfamfam.com/lab/icons/silk/</a></td>
+    <td><a href="http://www.famfamfam.com/lab/icons/silk/">www.famfamfam.com/lab/icons/silk/</a></td>
     <td>&raquo; <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License.</a></td>
 </tr>
-
-
 <tr>
-    <td>PEAR JSON</td>
+    <td>[PEAR] JSON</td>
     <td><a href="http://pear.php.net/package/Services_JSON">PEAR/Services_JSON</a></td>
     <td>&raquo; <a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a></td>
 </tr>
 
 <tr>
-    <td>PEAR Archive</td>
+    <td>[PEAR] Archive</td>
     <td><a href="http://pear.php.net/package/File_Archive/">PEAR/File_Archive</a></td>
     <td>&raquo; <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a></td>
 </tr>
 
 <tr>
-    <td>PEAR MIME</td>
+    <td>[PEAR] MIME</td>
     <td><a href="http://pear.php.net/package/MIME_Type">PEAR/MIME_Type</a></td>
     <td>&raquo; <a href="http://www.php.net/license/3_0.txt">PHP License 3.0</a></td>
 </tr>
 
 <tr>
-    <td>PEAR Structures_Graph</td>
+    <td>[PEAR] Structures_Graph</td>
     <td><a href="http://pear.php.net/package/MIME_Type">PEAR/Structures_Graph</a></td>
     <td>&raquo; <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a></td>
+</tr>
+<tr>
+    <td  width="160">[Mootools plugin] Stylesheet</td>
+    <td  width="250"><a href="http://mifjs.net">Anton Samoylov</a></td>
+    <td>&raquo; <a href="http://mifjs.net/license.txt">MIT-Style License</a></td>
 </tr>
 </table>
 <a href="?step=2" class="button" >Accept</a>
