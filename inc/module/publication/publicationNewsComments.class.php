@@ -1,38 +1,63 @@
 <?php
 
-class publicationNewsComments extends windowList {
+class publicationNewsComments extends adminWindowList {
 
     public $table = 'publication_comments';
 
+    public $primary = 'rsn';
+
+    public $multiLanguage = 0;
+
+    public $multiDomain = 0;
+
+    public $versioning = 0;
+
+    public $columns = array (
+  'owner_username' => 
+  array (
+    'label' => 'Name',
+    'type' => 'text',
+  ),
+  'email' => 
+  array (
+    'label' => 'E-Mail',
+    'type' => 'text',
+  ),
+  'ip' => 
+  array (
+    'label' => 'IP',
+    'type' => 'text',
+  ),
+  'created' => 
+  array (
+    'label' => 'Created',
+    'type' => 'datetime',
+  ),
+);
+
     public $itemsPerPage = 20;
-    public $orderBy = 'created';
 
-    public $filter = array('owner_username', 'email');
+    public $order = array (
+  0 => 
+  array (
+    'field' => 'created',
+    'direction' => 'asc',
+  ),
+);
 
-    public $add = true;
-    public $edit = true;
-    public $remove = true;
+    public $filter = array (
+  0 => 'owner_username',
+  1 => 'email',
+);
 
-    public $primary = array('rsn');
+    public $add = 1;
 
-    public $columns = array(
-        'owner_username' => array(
-            'label' => 'Name',
-            'type' => 'text'
-        ),
-        'email' => array(
-            'label' => 'E-Mail',
-            'type' => 'text'
-        ),
-        'ip' => array(
-            'label' => 'IP',
-            'type' => 'text'
-        ),
-        'created' => array(
-            'label' => 'Created',
-            'type' => 'datetime'
-        )
-    );
+    public $edit = 1;
+
+    public $remove = 1;
+
+    public $export = 0;
+
 
     function deleteItem() {
 
@@ -83,3 +108,4 @@ class publicationNewsComments extends windowList {
         return true;
     }
 }
+ ?>

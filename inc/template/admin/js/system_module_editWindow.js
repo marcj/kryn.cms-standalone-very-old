@@ -107,6 +107,7 @@ var admin_system_module_editWindow = new Class({
                     preview: {
                         needValue: 'object',
                         label: t('Preview possibility'),
+                        desc: t('Requires defined plugins at the object'),
                         type: 'checkbox'
                     }
                 }
@@ -1103,7 +1104,7 @@ var admin_system_module_editWindow = new Class({
         this.windowTabEdit.hide();
         this.windowTabList.hide();
 
-        if (pClass == 'adminWindowList'){
+        if (pClass == 'adminWindowList' || pClass == 'adminWindowCombine'){
             this.windowTabList.show();
 
             var listFields = {
@@ -1122,7 +1123,7 @@ var admin_system_module_editWindow = new Class({
                 },
 
                 itemLayout: {
-                    label: t('Item layout'),
+                    label: t('Item layout (Optional)'),
                     desc: t('Default behaviour is that the system extracts the first three columns and build it on it own. You can define here your own item HTML. Use as id attribute the column key.')+
                     '<br/>'+t('Example:')+'<br/>'+
                     '&lt;div id="title"&gt;&lt;/div&gt;<br/>'+
@@ -1167,16 +1168,35 @@ var admin_system_module_editWindow = new Class({
                     type: 'childrenswitcher',
                     label: 'Search',
                     depends: {
-                        filter: {
-                            label: t('Search fields'),
-                            type: 'fieldTable',
-                            options: {
-                                asFrameworkSearch: true,
-                                withoutChildren: true,
-                                addLabel: t('Add field'),
-                                asFrameworkFieldDefinition: true
+                        __search__kind__: {
+                            type: 'select',
+                            input_width: 150,
+                            label: t('Definition'),
+                            items: {
+                                quick: t('Quickdefinition from defined columns'),
+                                custom: t('Complete custom fields')
+                            },
+                            depends: {
+                                filter: {
+                                    type: 'text',
+                                    needValue: 'quick',
+                                    label: t('Search fields'),
+                                    desc: t('Comma seperated. Use only  defined columns from above.')
+                                },
+                                filterCustom: {
+                                    label: t('Search fields'),
+                                    needValue: 'custom',
+                                    type: 'fieldTable',
+                                    options: {
+                                        asFrameworkSearch: true,
+                                        withoutChildren: true,
+                                        addLabel: t('Add field'),
+                                        asFrameworkFieldDefinition: true
+                                    }
+                                }
                             }
                         }
+
                     }
                 },
 
@@ -1269,13 +1289,20 @@ var admin_system_module_editWindow = new Class({
                             fields: {
                                 entrypoint: {
                                     type: 'object',
+                                    input_width: 100,
                                     object: 'system_entrypoint'
                                 },
                                 label: {
                                     type: 'text'
                                 },
                                 icon: {
-                                    type: 'text'
+                                    type: 'object',
+                                    input_width: 100,
+                                    object: 'file',
+                                    objectOptions: {
+                                        onlyLocal: 1,
+                                        returnPath: 1
+                                    }
                                 }
                             }
                         }
@@ -1335,6 +1362,10 @@ var admin_system_module_editWindow = new Class({
             var table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
             this.windowListTbody = new Element('tbody').inject(table);
 
+            if (pClass != 'adminWindowCombine'){
+                delete listFields.itemLayout;
+            }
+
             this.windowListObj = new ka.parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
 
 
@@ -1364,6 +1395,13 @@ var admin_system_module_editWindow = new Class({
 
                 if (this.definition.properties.iconDelete)
                     this.definition.properties.removeIcon = '/admin/images/icons/'+this.definition.properties.iconDelete;
+
+                if (this.definition.properties.filter && typeOf(this.definition.properties.filter) == 'array')
+                    this.definition.properties.filter = this.definition.properties.filter.join(',');
+
+                if (this.definition.properties.filterCustom && typeOf(this.definition.properties.filterCustom) == 'array' &&
+                    Object.getLength(this.definition.properties.filterCustom) > 0)
+                    this.definition.properties.__search__kind__ = 'custom';
             }
 
             this.windowListObj.setValue(this.definition.properties);

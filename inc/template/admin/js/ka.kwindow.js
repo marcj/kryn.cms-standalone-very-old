@@ -9,13 +9,14 @@ ka.kwindow = new Class({
     link   : {},
     params : {},
 
-    initialize: function (pModule, pWindowCode, pLink, pInstanceId, pParams, pInline) {
+    initialize: function (pModule, pWindowCode, pLink, pInstanceId, pParams, pInline, pSource) {
         this.params = pParams;
         this.id = pInstanceId;
         this.module = pModule;
         this.code = pWindowCode;
         this.inline = pInline;
         this.link = pLink;
+        this.source = pSource;
 
         if (!pLink) {
             this.link = {module: pModule, code: pWindowCode };
@@ -857,7 +858,7 @@ ka.kwindow = new Class({
 
     _loadContent: function (pVals, pPath) {
         this.values = pVals;
-        if (this.values.multi === false) {
+        if (this.values.multi === false || this.values.multi === 0) {
             var win = ka.wm.checkOpen(this.module, this.code, this.id);
             if (win) {
                 this.close(true);
@@ -900,7 +901,7 @@ ka.kwindow = new Class({
             this.createResizer();
         }
 
-        this.titleText.set('text', _(pVals.title));
+        this.titleText.set('text', t(pVals.title));
 
         var _this = this;
 
@@ -996,7 +997,7 @@ ka.kwindow = new Class({
     },
 
     renderList: function () {
-        this.list = new ka.list(this);
+        this.list = new ka.list(this, null, this.content);
     },
 
     renderCustom: function () {

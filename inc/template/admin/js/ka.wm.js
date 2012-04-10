@@ -15,7 +15,7 @@ ka.wm = {
     events: {},
     zIndex: 1000,
 
-    openWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline) {
+    openWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource) {
         /*
          pDependOn:
          0..x: ID of a legal window
@@ -29,7 +29,7 @@ ka.wm = {
         if (pLink && pLink.onlyonce && this.checkOpen(id)) {
             return this.toFront(id);
         }
-        return ka.wm.loadWindow(pModule, pWindowCode, pLink, pDependOn, pParams, pInline);
+        return ka.wm.loadWindow(pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource);
     },
 
     checkDimensionsAndSendResize: function () {
@@ -67,11 +67,12 @@ ka.wm = {
         }
     },
 
-    open: function (pTarget, pParams, pDepend, pInline) {
+    open: function (pTarget, pParams, pDepend, pInline, pSource) {
         var firstSlash = pTarget.indexOf('/');
+        if (firstSlash == -1) return logger('Invalid entrypoint: '+pTarget);
         var module = pTarget.substr(0, firstSlash);
         var path = pTarget.substr(firstSlash + 1, pTarget.length);
-        return ka.wm.openWindow(module, path, null, pDepend, pParams, pInline);
+        return ka.wm.openWindow(module, path, null, pDepend, pParams, pInline, pSource);
     },
 
     dependExist: function (pWindowId) {
@@ -153,7 +154,7 @@ ka.wm = {
         });
     },
 
-    loadWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline) {
+    loadWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource) {
         var instance = ka.wm.windows.getLength() + 1;
 
         if (pDependOn > 0) {
@@ -164,7 +165,7 @@ ka.wm = {
             }
         }
 
-        var win = new ka.kwindow(pModule, pWindowCode, pLink, instance, pParams, pInline);
+        var win = new ka.kwindow(pModule, pWindowCode, pLink, instance, pParams, pInline, pSource);
         ka.wm.windows.include(instance, win);
         ka.wm.updateWindowBar();
         return win;

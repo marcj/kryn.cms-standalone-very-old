@@ -308,15 +308,6 @@
       "title": "[[Backend access]]",
       "isLink": false,
       "childs": {
-        "tinyDialog": {
-          "title": "[[Dialog]]",
-          "type": "custom",
-          "isLink": false,
-          "multi": true,
-          "childs": [
-            
-          ]
-        },
         "chooser": {
           "title": "[[Chooser]]",
           "type": "custom",

@@ -384,8 +384,10 @@ class admin {
             ));
 
             $res = array();
-            foreach ($items as &$item){
-                $res[ $item[$primaryKey] ] = $item;
+            if (is_array($items)){
+                foreach ($items as &$item){
+                    $res[ $item[$primaryKey] ] = $item;
+                }
             }
 
             return $res;

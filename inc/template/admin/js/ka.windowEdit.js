@@ -13,6 +13,10 @@ ka.windowEdit = new Class({
 
         this.winParams = Object.clone(this.win.params); //copy
 
+
+        if (!this.winParams.item && this.winParams.values)
+            this.winParams.item = this.winParams.values; //compatibility
+
         if (!pContainer) {
             this.container = this.win.content;
             this.container.setStyle('overflow', 'visible');
@@ -74,6 +78,9 @@ ka.windowEdit = new Class({
 
     load: function () {
         var _this = this;
+
+        this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
+
         new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+'?cmd=getClassDefinition', noCache: true, onComplete: function (res) {
             this.render(res);
         }.bind(this)}).post();
@@ -86,9 +93,9 @@ ka.windowEdit = new Class({
             req.version = pVersion;
         }
 
-        if (this.winParams) {
+        if (this.winParams && this.winParams.item) {
             this.values.primary.each(function (prim) {
-                req[ prim ] = this.winParams.values[prim];
+                req[ prim ] = this.winParams.item[prim];
             }.bind(this));
         }
 
@@ -126,23 +133,11 @@ ka.windowEdit = new Class({
             }
             try {
 
-                if (this.windowAdd && this.winParams && this.winParams.relation_table && this.winParams.relation_params[fieldId]) {
-                    field.setValue(this.winParams.relation_params[fieldId]);
-
-                } else if (field.field.type == 'window_list') {
-                    field.setValue({table: this.values.table, params: pItem.values});
-
-                } else if (typeOf(pItem.values[fieldId]) == 'null') {
+                if (typeOf(pItem.values[fieldId]) == 'null') {
                     field.setValue('');
 
                 } else if (!field.field.startempty) {
                     field.setValue(pItem.values[fieldId]);
-                }
-
-                if (!this.windowAdd) {
-                    var contentCss = _path + "inc/template/css/kryn_tinyMceContentElement.css";
-                    initResizeTiny(field.lastId, contentCss);
-                    ka._wysiwygId2Win.include(field.lastId, this.win);
                 }
 
                 if (field.field.depends) {
@@ -340,6 +335,8 @@ ka.windowEdit = new Class({
     render: function (pValues) {
         this.values = pValues;
 
+        this.container.empty();
+
         this.win.setLoading(true, null, {left: 265});
 
         this.fields = {};
@@ -491,8 +488,8 @@ ka.windowEdit = new Class({
 
             }.bind(this));
 
-            if (this.winParams) {
-                this.languageSelect.setValue(this.winParams.lang);
+            if (this.winParams && this.winParams.item) {
+                this.languageSelect.setValue(this.winParams.item.lang);
             }
 
         }
@@ -799,21 +796,14 @@ ka.windowEdit = new Class({
                 ka.settings['user']['adminLanguage'] = req['adminLanguage'];
             }
 
-            if (this.winParams) {
+            if (this.winParams && this.winParams.item) {
 
                 if (!this.windowAdd) {
                     this.values.primary.each(function (prim) {
-                        req[ prim ] = this.winParams.values[prim];
+                        req[ prim ] = this.winParams.item[prim];
                     }.bind(this));
                 }
 
-                if (this.winParams.relation_params) {
-                    Object.each(this.winParams.relation_params, function (value, id) {
-                        req[ id ] = value;
-                    });
-                    req['_kryn_relation_table'] = this.winParams.relation_table;
-                    req['_kryn_relation_params'] = this.winParams.relation_params;
-                }
             }
 
             new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=saveItem', noCache: true, onComplete: function (res) {

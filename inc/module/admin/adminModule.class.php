@@ -177,20 +177,38 @@ class $pClass extends windowEdit {
             if ($key == 'class') continue;
             if ($key == 'object') continue;
             if ($key == 'primary') continue;
+            if ($key == 'table') continue;
+            if ($key == 'filter' && is_string($val)) {
+                $val = explode(',', str_replace(' ', '', $val));
+            };
 
             if ($key == 'dataModel'){
                 if ($val == 'object')
                     $php .= "    public \$object = '".$general['object']."';\n\n";
                 else {
                     $php .= "    public \$table = '".$general['table']."';\n\n";
-                    $php .= "    public \primary = '".$general['primary']."';\n\n";
+                    $php .= "    public \$primary = '".$general['primary']."';\n\n";
                 }
             } else {
                 if ($val === 'true') $val = true;
                 if ($val === 'false') $val = false;
+                if (preg_match('/[0-9.]+/', $val)) $val += 0;
                 $php .= "    public $".$key." = ".var_export($val, true).";\n\n";
             }
         }
+
+        $fields = getArgv('fields');
+
+        if ($fields){
+            self::parseFieldValues($fields);
+
+            $fieldsCode = var_export($fields, true);
+            $fieldsCode = preg_replace("/=>\s*array/", "=> array", $fieldsCode);
+            $fieldsCode = str_replace("\n", "\n      ", $fieldsCode);
+
+            $php .= "\n    public \$fields = ".$fieldsCode.";\n\n";
+        }
+
 
         $methods = getArgv('methods');
 
@@ -205,15 +223,6 @@ class $pClass extends windowEdit {
 
             }
         }
-
-        $fields = getArgv('fields');
-        self::parseFieldValues($fields);
-
-        $fieldsCode = var_export($fields, true);
-        $fieldsCode = preg_replace("/=>\s*array/", "=> array", $fieldsCode);
-        $fieldsCode = str_replace("\n", "\n      ", $fieldsCode);
-
-        $php .= "\n    public \$fields = ".$fieldsCode.";\n\n";
 
         $php .= "}\n ?>";
 

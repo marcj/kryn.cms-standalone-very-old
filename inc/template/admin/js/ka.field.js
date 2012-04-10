@@ -1480,6 +1480,8 @@ ka.field = new Class({
         noErrorReporting: true,
         onComplete: function(res){
 
+            if(!res) return;
+
             if (res.error == 'no_object_access'){
 
                 this.chooserTable.empty();
@@ -1805,6 +1807,9 @@ ka.field = new Class({
                 this.fireEvent('change', this.getValue());
             }.bind(this));
 
+            if (this.field.input_width)
+                document.id(this.select).setStyle('width', this.field.input_width);
+
             this.select.inject(this.fieldPanel);
 
             this.renderItems = function () {
@@ -1995,50 +2000,6 @@ ka.field = new Class({
         var mooeditable = initWysiwyg(this.input);
 
         return;
-
-        //(function(){
-        //     tinyMCE.execCommand('mceAddControl', false, this.lastId );
-        //    initTiny( this.lastId );
-        //}).bind(this).delay(100);
-        if (!this.field.withOutTinyInit) {
-            try {
-                //initResizeTiny( this.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
-                /*            tinyMCE.init({
-                 mode: 'exact',
-                 element: this.lastId,
-                 content_css: _path+'inc/template/css/kryn_tinyMceContent.css',
-                 document_base_url : _path
-                 });
-                 */
-                //initTiny( this.lastId, _path+'inc/template/css/kryn_tinyMceContent.css' );
-            } catch (e) {
-            }
-        }
-
-        this.initTiny = function () {
-            ka._wysiwygId2Win.include(this.lastId, this.field.win);
-            initResizeTiny(this.lastId, _path + 'inc/template/css/kryn_tinyMceContent.css');
-        }.bind(this);
-
-        this._setValue = function (pValue, pIntern) {
-            var tiny = tinyMCE.get(this.lastId);
-            if (tiny) {
-                tiny.setContent(pValue);
-            } else {
-                this.input.value = pValue;
-            }
-
-            if (pIntern) {
-                this.fireEvent('change', this.getValue());
-            }
-        }
-
-        this.getValue = function () {
-            if (!tinyMCE.get(this.lastId)) {
-                return false;
-            }
-            return tinyMCE.get(this.lastId).getContent();
-        }
     },
 
     renderDate: function (pOptions) {
@@ -2226,8 +2187,10 @@ ka.field = new Class({
                 options[key] = value;
             });
         }
-
         this.editor = CodeMirror(this.editorPanel, options);
+
+        this.editor.setOption("mode", options.mode);
+        CodeMirror.autoLoadMode(this.editor, options.mode);
 
         this._setValue = function(pValue){
 
@@ -2256,6 +2219,8 @@ ka.field = new Class({
         if (tabPane){
             tabPane.button.addEvent('show', refresh);
         }
+
+        this.addEvent('show', refresh);
 
 
     },
@@ -2498,6 +2463,7 @@ ka.field = new Class({
         }
 
         this.fireEvent('check-depends');
+        this.fireEvent('hide');
     },
 
 
@@ -2523,6 +2489,7 @@ ka.field = new Class({
         }
 
         this.fireEvent('check-depends');
+        this.fireEvent('show');
     },
 
 

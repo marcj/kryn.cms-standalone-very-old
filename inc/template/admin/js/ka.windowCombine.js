@@ -199,7 +199,7 @@ ka.windowCombine = new Class({
         this.sortSelect.inject(this.sortSpan);
         this.sortSelect.setStyle('width', 150);
         //this.sortSelect = new Element('select').inject( this.sortSpan );
-        this.values.columns.each(function (column, id) {
+        Object.each(this.values.columns, function (column, id) {
 
             this.sortSelect.add(id + '______asc', _(column.label) + ' <img style="position: relative; top: -1px" src="' + _path + 'inc/template/admin/images/icons/bullet_arrow_up_s.png" />');
             this.sortSelect.add(id + '______desc', _(column.label) + ' <img style="position: relative; top: -1px" src="' + _path + 'inc/template/admin/images/icons/bullet_arrow_down_s.png" />');
@@ -916,7 +916,7 @@ ka.windowCombine = new Class({
                 win[i] = this.win[i];
 
             win.code = this.oriWinCode+'/edit';
-            win.params = pItem;
+            win.params = {item: pItem};
 
             this.currentEdit = new ka.windowEdit(win, this.mainRight);
 
@@ -1217,7 +1217,7 @@ ka.windowCombine = new Class({
             layout += '<div class="subline">';
 
             var c = 1;
-            this.values.columns.each(function (bla, id) {
+            Object.each(this.values.columns, function (bla, id) {
 
                 if (id == "title" && titleAdded) return;
                 if (id == "name" && nameAdded) return;
@@ -1307,7 +1307,7 @@ ka.windowCombine = new Class({
         }
 
         //parse
-        this.values.columns.each(function (column, columnId) {
+        Object.each(this.values.columns, function (column, columnId) {
 
             if (item.getElement('*[id=' + columnId + ']')) {
 
@@ -1347,7 +1347,7 @@ ka.windowCombine = new Class({
             }
         }
 
-        this.values.columns.each(function (column, columnId) {
+        Object.each(this.values.columns, function (column, columnId) {
             var value = pItem['values'][columnId];
 
             if (column.format == 'timestamp') {

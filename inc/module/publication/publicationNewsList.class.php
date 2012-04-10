@@ -1,6 +1,6 @@
 <?php
 
-class publicationNewsList extends adminWindowList {
+class publicationNewsList extends adminWindowCombine {
 
     public $object = 'news';
 

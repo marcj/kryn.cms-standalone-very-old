@@ -436,7 +436,7 @@
           "empty": 1
         }
       },
-      "table_sync": 0,
+      "table_sync": 1,
       "chooserUseOwnClass": false,
       "selectable": 1,
       "chooser_icon": "",
@@ -451,12 +451,16 @@
       "domainDepended": 1,
       "chooserAutoFilter": "",
       "chooserFieldDataModel": "store",
-      "chooserFieldDataModelFields": [
-        
-      ],
+      "chooserFieldDataModelFields": {
+        "title": {
+          "label": "[[Title]]",
+          "type": "text"
+        }
+      },
       "chooserFieldType": "default",
       "chooserBrowserDataModel": "default",
-      "chooserBrowserType": "default"
+      "chooserBrowserType": "default",
+      "chooserFieldDataModelField": "title"
     },
     "news_comment": {
       "label": "[[Comments]]",

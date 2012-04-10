@@ -36,7 +36,6 @@ function klog($pArea, $pMsg) {
  * @return string|array
  */
 function getArgv($pVal, $pEscape = false) {
-    $_REQUEST[$pVal] = str_replace('%pfx%', '$pfx$', $_REQUEST[$pVal]);
     $_REQUEST[$pVal] = str_replace(chr(0), '', $_REQUEST[$pVal]);
     if ($pEscape == false) return $_REQUEST[$pVal];
     return esc($_REQUEST[$pVal], $pEscape);

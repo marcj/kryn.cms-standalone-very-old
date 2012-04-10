@@ -3,11 +3,17 @@ ka.list = new Class({
 
     loadAlreadyTriggeredBySearch: false,
 
-    initialize: function (pWindow, pOptions) {
+    initialize: function (pWindow, pOptions, pContainer) {
 
         this.options = pOptions || {};
         this.win = pWindow;
-        this.win.content.setStyle('overflow', 'hidden');
+
+        if (pContainer)
+            this.container = pContainer;
+        else
+            this.container = this.win.content;
+
+        this.container.setStyle('overflow', 'hidden');
         this.page = 1;
         this.checkboxes = [];
 
@@ -33,11 +39,14 @@ ka.list = new Class({
 
     load: function () {
         var _this = this;
+
+        this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
+
         new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getClassDefinition', noCache: true, onComplete: function (res) {
             this.render(res);
             this.classLoaded = true;
             this.fireEvent('render');
-        }.bind(this)}).post({ module: this.win.module, 'code': this.win.code, relation_table: this.options.relation_table });
+        }.bind(this)}).get();
     },
 
     deleteItem: function (pItem) {
@@ -47,8 +56,6 @@ ka.list = new Class({
             this._deleteSuccess();
             this.reload();
         }.bind(this)}).post({
-            module: this.win.module,
-            code: this.win.code,
             item: pItem.values
         });
     },
@@ -61,13 +68,15 @@ ka.list = new Class({
 
         pItem = this.columns[pColumn];
 
-        if (!this.values.orderByDirection) {
-            this.values.orderByDirection = 'ASC';
+        var sort = this.getSortField();
+
+        if (!this.sortDirection) {
+            this.sortDirection = 'ASC';
         }
 
         if (this.sortField != pColumn) {
             this.sortField = pColumn;
-            this.sortDirection = (this.values.orderByDirection.toLowerCase() == 'asc') ? 'ASC' : 'DESC';
+            this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'ASC' : 'DESC';
         } else {
             if (this.sortDirection == 'ASC') {
                 this.sortDirection = 'DESC';
@@ -93,20 +102,45 @@ ka.list = new Class({
         this.loadPage(this.currentPage);
     },
 
+    getSortField: function(){
+
+        var field, direction;
+
+        if (this.values.orderBy){
+            //compatibility
+            field = this.values.orderBy;
+            if (this.values.orderDirection) {
+                direction = this.values.orderDirection;
+            }
+            if (this.values.orderByDirection) {
+                direction = this.values.orderByDirection;
+            }
+        }
+
+        if (this.values.order){
+            Array.each(this.values.order, function(order){
+                if (!field){
+                    field = order.field;
+                    direction = order.direction;
+                }
+            }.bind(this));
+        }
+
+        return {
+            field: field,
+            direction: direction
+        }
+    },
+
     render: function (pValues) {
         var _this = this;
         this.values = pValues;
-        this.values.columns = $H(pValues.columns);
 
+        var sort = this.getSortField();
+        this.sortField = sort.field;
+        this.sortDirection = sort.direction;
 
-        this.sortField = this.values.orderBy;
-        if (this.values.orderDirection) {
-            this.sortDirection = this.values.orderDirection;
-        }
-        if (this.values.orderByDirection) {
-            this.sortDirection = this.values.orderByDirection;
-        }
-
+        this.container.empty();
 
         this.renderLayout();
 
@@ -118,8 +152,6 @@ ka.list = new Class({
         this.renderLoader();
 
         this.renderFinished();
-
-        //this.loadPage(1);
     },
 
     renderFinished: function () {
@@ -128,7 +160,8 @@ ka.list = new Class({
 
         if (!this.loadAlreadyTriggeredBySearch) {
             if (this.columns) {
-                this.click(this.values.orderBy);
+                var sort = this.getSortField();
+                this.click(sort.field);
             } else {
                 this.loadPage(1);
             }
@@ -166,7 +199,7 @@ ka.list = new Class({
 
         this.head = new Element('div', {
             'class': 'ka-list-head'
-        }).inject(this.win.content);
+        }).inject(this.container);
 
         this.headTable = new Element('table', {
             cellspacing: 0
@@ -194,7 +227,7 @@ ka.list = new Class({
 
         /*** title-Th ***/
         this.columns = new Hash();
-        this.values.columns.each(function (column, columnId) {
+        Object.each(this.values.columns, function (column, columnId) {
             _this.columns[columnId] = new Element('th', {
                 valign: 'top',
                 html: _(column.label)
@@ -219,7 +252,7 @@ ka.list = new Class({
         /* content */
         this.main = new Element('div', {
             'class': 'ka-list-main'
-        }).inject(this.win.content);
+        }).inject(this.container);
 
 
         this.table = new Element('table', {
@@ -231,7 +264,7 @@ ka.list = new Class({
 
         this.bottom = new Element('div', {
             'class': 'ka-list-bottom'
-        }).inject(this.win.content);
+        }).inject(this.container);
     },
 
     changeLanguage: function () {
@@ -416,12 +449,12 @@ ka.list = new Class({
                     img = _path + 'inc/template/' + this.values.addIcon;
 
                 this.actionsNavi.addButton(t('Add'), img, function () {
-                    ka.wm.openWindow(_this.win.module, _this.win.code + '/add', null, null, {
-                        lang: (_this.languageSelect) ? _this.languageSelect.value : false,
-                        relation_params: this.relation_params_filtered,
-                        relation_table: this.options.relation_table
-                    });
-                }.bind(this));
+
+                    ka.entrypoint.open(_this.values.addEntrypoint || _this.win.module+'/'+_this.win.code + '/add', {
+                        lang: (_this.languageSelect) ? _this.languageSelect.value : false
+                    }, this);
+
+                });
             }
         }
 
@@ -504,8 +537,6 @@ ka.list = new Class({
                     this._deleteSuccess();
 
                 }.bind(this)}).post({
-                    module: this.win.module,
-                    code: this.win.code,
                     selected: JSON.encode(this.getSelected())
                 });
             }.bind(this));
@@ -557,7 +588,7 @@ ka.list = new Class({
             this.table.setStyle('padding-bottom', 50);
             this.actionBar = new Element('div', {
                 'class': 'ka-list-actionBar'
-            }).inject(this.win.content);
+            }).inject(this.container);
         }
         if (this.values.add) {
             this.actionAdd = new Element('a', {
@@ -570,7 +601,7 @@ ka.list = new Class({
 
     addDummy: function () {
         var tr = new Element('tr').inject(this.tbody);
-        var count = this.dummyCount + this.values.columns.getLength();
+        var count = this.dummyCount + Object.getLength(this.values.columns);
         new Element('td', {
             colspan: count,
             styles: {
@@ -628,16 +659,12 @@ ka.list = new Class({
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems', noCache: true, onComplete: function (res) {
             this.renderItems(res);
         }.bind(this)}).post({
-            module: this.win.module,
-            code: this.win.code,
             page: pPage,
             orderBy: _this.sortField,
             filter: this.searchEnable,
             language: (this.languageSelect) ? this.languageSelect.value : false,
             filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-            orderByDirection: _this.sortDirection,
-            relation_table: this.options.relation_table,
-            relation_params: params
+            orderByDirection: _this.sortDirection
         });
     },
 
@@ -722,7 +749,7 @@ ka.list = new Class({
             }
         }
 
-        this.values.columns.each(function (column, columnId) {
+        Object.each(this.values.columns, function (column, columnId) {
 
             var value = pItem['values'][columnId];
 
@@ -751,34 +778,30 @@ ka.list = new Class({
 
             var td = new Element('td', {
                 html: value
-            }).addEvent('click',
-                function (e) {
-                    _this.select(this);
-                }).addEvent('mousedown',
-                function (e) {
-                    e.stop();
-                }).addEvent('dblclick',
-                function (e) {
+            }).addEvent('click',function (e) {
+                _this.select(this);
+            }).addEvent('mousedown',function (e) {
+                e.stop();
+            }).addEvent('dblclick', function (e) {
+
+                if (_this.values.edit){
                     if (_this.values.editCode) {
-                        ka.wm.open(_this.values.editCode, pItem);
-                    } else if (pItem.edit) {
-                        ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
+                        //compatibility
+                        ka.entrypoint.open(_this.values.editCode, {
+                            item: pItem.values
+                        }, this);
+                    } else {
+                        ka.entrypoint.open(_this.values.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
+                            item: pItem.values
+                        }, this);
                     }
-                }).inject(tr);
+                }
+
+            }).inject(tr);
 
             if (column.type == 'html') {
                 td.set('html', value);
             }
-
-            //open window if open definied
-            //todo: may this section isn't in use ?
-            if (pItem.open) {
-                td.addEvent('dblclick', function () {
-                    var params = ( pItem.open[2] ) ? pItem.open[2] : pItem;
-                    ka.wm.openWindow(pItem.open[0], pItem.open[1], null, null, params);
-                });
-            }
-            //todoend
 
             if (column.width > 0) {
                 td.setStyle('width', column.width + 'px');
@@ -793,13 +816,28 @@ ka.list = new Class({
 
             if (this.values.itemActions && this.values.itemActions.each) {
                 this.values.itemActions.each(function (action) {
-                    new Element('img', {
-                        src: _path + 'inc/template/' + action[1],
-                        title: action[0]
-                    }).addEvent('click',
-                        function () {
-                            ka.wm.open(action[2], {item: pItem, filter: action[3]});
+
+                    if (typeOf(action) == 'array') {
+                        //compatibility
+                        new Element('img', {
+                            src: _path + 'inc/template/' + action[1],
+                            title: action[0]
+                        }).addEvent('click',function () {
+                            ka.wm.open(action[2], {item: pItem.values, filter: action[3]});
                         }).inject(icon);
+                    }
+
+                    if (typeOf(action) == 'object') {
+                        //compatibility
+                        new Element('img', {
+                            src: _path + 'inc/template/' + action.icon,
+                            title: action.label
+                        }).addEvent('click',function () {
+                            ka.entrypoint.open(action.entrypoint, {item: pItem.values}, this);
+                        }).inject(icon);
+                    }
+
+
                 });
                 icon.setStyle('width', 40 + (20 * this.values.itemActions.length));
                 this.titleIconTd.setStyle('width', 40 + (20 * this.values.itemActions.length));
@@ -813,20 +851,24 @@ ka.list = new Class({
 
                 new Element('img', {
                     src: img
-                }).addEvent('click',
-                    function () {
+                }).addEvent('click', function () {
 
-                        if (_this.values.editEntrypoint){
-                            ka.wm.open(_this.values.editEntrypoint, pItem);
+                    if (_this.values.editEntrypoint){
+                        ka.wm.open(_this.values.editEntrypoint, pItem);
+                    } else {
+
+                        if (_this.values.editCode) {
+                            //compatibility
+                            ka.wm.open(_this.values.editCode, {item: pItem.values}, this);
                         } else {
-                            if (_this.values.editCode) {
-                                ka.wm.open(_this.values.editCode, pItem);
-                            } else if (pItem.edit) {
-                                ka.wm.openWindow(_this.win.module, _this.win.code + '/edit', null, null, pItem);
-                            }
+                            ka.entrypoint.open(_this.values.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
+                                item: pItem.values
+                            }, this);
                         }
 
-                    }).inject(icon);
+                    }
+
+                }).inject(icon);
             }
             if (pItem['remove']) {
 

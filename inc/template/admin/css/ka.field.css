@@ -186,16 +186,10 @@ input.ka-field-dateTime {
     left: 260px;
 }
 
-.ka-field-array .ka-field-main,
-.ka-field-array .ka-field-field {
-    padding: 0px;
-    margin: 0px;
-}
-
-.ka-field-array .ka-field-field textarea,
-.ka-field-array .ka-field-field select,
-.ka-field-array .ka-field-field input {
-    width: auto;
+.ka-field-array .ka-field textarea,
+.ka-field-array .ka-field select,
+.ka-field-array .ka-field input.text {
+    width: 85%;
 }
 
 .ka-field-textlist {

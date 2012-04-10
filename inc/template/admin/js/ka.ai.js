@@ -10,9 +10,9 @@ document.addEvent('touchmove', function (event) {
     event.preventDefault();
 });
 
-if ($type(ka.langs) != 'object') ka.langs = {};
+if (typeOf(ka.langs) != 'object') ka.langs = {};
 
-var logger = function (pVal) {
+window.logger = function (pVal) {
     if (typeOf(console) != "undefined") {
         console.log(pVal);
     }
@@ -153,9 +153,78 @@ window._kml2html = function (pRes) {
     return pRes;
 }
 
-ka._wysiwygId2Win = new Hash({});
+window.ka.findWindow = function(pElement){
 
-ka.tinyPopup2Win = new Hash({});
+    if (!typeOf(pElement)){
+        return logger('ka.findWindow(): pElement is not an element.')
+    }
+
+    var window = pElement.getParent('.kwindow-border');
+
+    return window?window.retrieve('win'):false;
+
+}
+
+window.ka.entrypoint = {
+
+    open: function(pEntrypoint, pOptions, pSource, pInline, pDependWindowId){
+
+        var entrypoint = ka.entrypoint.get(pEntrypoint);
+
+        if (!entrypoint){
+            logger('Can not be found entrypoint: '+pEntrypoint);
+            return false;
+        }
+
+        if (['custom', 'iframe', 'list', 'edit', 'add', 'combine'].contains(entrypoint.type)){
+            ka.wm.open(pEntrypoint, pOptions, pDependWindowId, pInline, pSource);
+        } else if(entrypoint.type == 'function'){
+            ka.entrypoint.exec(entrypoint, pOptions, pSource);
+        }
+
+
+    },
+
+    //executes a entrypont from type function
+    exec: function(pEntrypoint, pOptions, pSource){
+
+        if (pEntrypoint.functionType == 'global'){
+            if (window[pEntrypoint.functionName]){
+                window[pEntrypoint.functionName](pOptions);
+            }
+        } else if(pEntrypoint.functionType == 'code'){
+            eval(pEntrypoint.functionCode);
+        }
+
+    },
+
+    get: function(pEntrypoint){
+
+        if (typeOf(pEntrypoint) != 'string') return false;
+
+        var splitted = pEntrypoint.split('/');
+        if (splitted.length < 2) return false;
+        var extension = splitted[0];
+        var tempEntry = false;
+
+        Object.each(ka.settings.configs, function(config, key){
+            if (key == extension && config.admin){
+
+                tempEntry = config.admin[splitted[1]];
+                Array.each(splitted, function(item, idx){
+                    if (idx <= 1) return;
+                    if (tempEntry.childs && tempEntry.childs[item]){
+                        tempEntry = tempEntry.childs[item];
+                    }
+                });
+
+            }
+        });
+
+        return tempEntry || false;
+    }
+
+};
 
 window.addEvent('load', function () {
 

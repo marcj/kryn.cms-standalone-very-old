@@ -162,6 +162,21 @@ class adminWindowList {
     public $removeIcon = '';
 
 
+    /**
+     * The system opens this entrypoint when clicking on the add button
+     * Default is <current>/add
+     * @var string
+     */
+    public $addEntrypoint = '';
+
+    /**
+     * The system opens this entrypoint when clicking on the edit button
+     * Default is <current>/edit
+     *
+     * @var string
+     */
+    public $editEntrypoint = '';
+
 
 
     /**
@@ -220,6 +235,10 @@ class adminWindowList {
             if ($this->columns){
                 $this->prepareFieldDefinition($this->columns);
             }
+        }
+
+        if (is_string($this->primary)){
+            $this->primary = explode(',', str_replace(' ', '', $this->primary));
         }
 
         if (!$this->orderBy && count($this->order) == 0)
@@ -617,9 +636,9 @@ class adminWindowList {
         }
 
         if (is_array($this->order) && count($this->order) > 0){
-            foreach($this->order as $order){
-                $order .= dbTableName($this->table).'.'.$order['field'].' ';
-                $order .= strtolower($order['field'])=='asc'?'asc':'desc';
+            foreach($this->order as $field){
+                $order .= dbTableName($this->table).'.'.$field['field'].' ';
+                $order .= strtolower($field['direction'])=='asc'?'asc':'desc';
                 $order .= ', ';
             }
         } else {

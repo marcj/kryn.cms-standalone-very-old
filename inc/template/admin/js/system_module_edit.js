@@ -948,14 +948,15 @@ var admin_system_module_edit = new Class({
                 label: t('Type'),
                 type: 'select',
                 items: {
-                    '': t('Only a access control list item'),
-                    custom: t('Custom window'),
-                    iframe: t('iFrame window'),
-                    list: t('Framework: list'),
-                    edit: t('Framework: edit'),
-                    add: t('Framework: add'),
-                    combine: t('Framework: Combine'),
-                    store: t('Store')
+                    '': t('Only access control list item'),
+                    store: t('Store'),
+                    'function': t('Background function'),
+                    custom: t('[Window] Custom'),
+                    iframe: t('[Window] iFrame'),
+                    list: t('[Window] Framework list'),
+                    edit: t('[Window] Framework edit'),
+                    add: t('[Window] Framework add'),
+                    combine: t('[Window] Framework Combine')
                 },
                 depends: {
                     __info_store__: {
@@ -973,9 +974,34 @@ var admin_system_module_edit = new Class({
                         desc: t('Scheme: inc/module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
                         needValue: ['list', 'edit', 'add', 'combine', 'store']
                     },
-                    'form': {
-                        label: t('Form'),
-                        needValue: ['list', 'edit', 'add', 'combine']
+                    functionType: {
+                        needValue: 'function',
+                        type: 'select',
+                        label: t('Function type'),
+                        items: {
+                            global: t('Call global defined function'),
+                            code: t('Execture code')
+                        },
+                        depends: {
+                            functionName: {
+                                type: 'text',
+                                label: t('Function name'),
+                                needValue: 'global'
+                            },
+                            functionCode: {
+                                type: 'codemirror',
+                                needValue: 'code',
+                                codemirrorOptions: {
+                                    mode: 'javascript'
+                                },
+                                label: t('Javascript code')
+                            }
+                        }
+                    },
+                    __or__: {
+                        label: t('or'),
+                        type: 'label',
+                        needValue: 'store'
                     },
                     table: {
                         label: t('Table'),
@@ -1800,6 +1826,16 @@ var admin_system_module_edit = new Class({
                                         label: t('Table synchronisation'),
                                         desc: t('Keep the field definition in sync with the columns of the defined table.'),
                                         type: 'checkbox'
+                                    },
+                                    additionalWhere: {
+                                        needValue: function(n){if(n!='')return true;else return false;},
+                                        label: t('Additional condition'),
+                                        desc: t('SQL without "WHERE" and "AND"'),
+                                        type: 'codemirror',
+                                        codemirrorOptions: {
+                                            mode: 'sql'
+                                        },
+                                        input_height: 50,
                                     }
                                 }
                             },
@@ -1995,17 +2031,6 @@ var admin_system_module_edit = new Class({
 
     },
 
-    setTableDefinition: function(pTr){
-
-        var definition = pTr.retrieve('definition');
-
-        if (!definition.table){
-            this.win._alert(t('This object does not have configured a table under his settings.'));
-            return;
-        }
-
-    },
-
     addObject: function(pDefinition, pKey){
 
 
@@ -2048,14 +2073,10 @@ var admin_system_module_edit = new Class({
         .addEvent('click', this.openObjectSettings.bind(this,tr))
         .inject(actionTd);
 
-        new ka.Button(t('Set table definition'))
-        .addEvent('click', this.setTableDefinition.bind(this,tr))
-        .inject(actionTd);
-
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
             title: t('Delete object'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
+            style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         })
         .addEvent('click', function(){
             this.win._confirm(t('Really delete'), function(ok){
@@ -2066,6 +2087,7 @@ var admin_system_module_edit = new Class({
         }.bind(this))
         .inject(actionTd);
 
+        /*
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/arrow_up.png',
             title: t('Move up'),
@@ -2093,6 +2115,7 @@ var admin_system_module_edit = new Class({
             tr.inject(tr2, 'before');
         })
         .inject(actionTd);
+        */
 
         var a = new Element('a', {
             text: t('Fields'),
@@ -2101,7 +2124,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/tree_plus.png',
-            style: 'margin-left: 2px; margin-right: 3px;'
+            style: 'margin-left: 3px; margin-right: 3px;'
         }).inject(a, 'top');
 
         var propertyPanel = new Element('div', {

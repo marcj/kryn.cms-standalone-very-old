@@ -23,14 +23,8 @@
         <script type="text/javascript" src="{$cfg.path}admin/getLanguagePluralForm:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
 
         <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/lib/codemirror.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/xml/xml.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/javascript/javascript.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/php/php.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/clike/clike.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/diff/diff.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/css/css.js"></script>
-        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/mode/smarty/smarty.js"></script>
+        <script type="text/javascript" src="{$cfg.path}inc/lib/codemirror/lib/util/loadmode.js"></script>
+
 
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.ai.js?nc=1.0" ></script>
         <script type="text/javascript" src="{$path}inc/template/admin/js/ka.js?nc=1.0" ></script>
@@ -68,6 +62,8 @@
             {if $noAdminAccess}
             window._session.noAdminAccess = true;
             {/if}
+
+            CodeMirror.modeURL = "{$cfg.path}inc/lib/codemirror/mode/%N/%N.js";
         </script>
         
         <link rel="stylesheet" type="text/css" href="{$cfg.templatepath}/admin/css/ka.login.css" />
