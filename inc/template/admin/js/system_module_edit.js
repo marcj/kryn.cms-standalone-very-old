@@ -1833,9 +1833,9 @@ var admin_system_module_edit = new Class({
                                         desc: t('SQL without "WHERE" and "AND"'),
                                         type: 'codemirror',
                                         codemirrorOptions: {
-                                            mode: 'sql'
+                                            mode: 'mysql'
                                         },
-                                        input_height: 50,
+                                        input_height: 80
                                     }
                                 }
                             },
