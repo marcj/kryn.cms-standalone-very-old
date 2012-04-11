@@ -1,58 +1,39 @@
 <?php
 
 
-class krynObjectTable {
+class krynObjectTable extends krynObjectAbstract {
 
-    /**
-     * Object definition
-     *
-     * @var array
-     */
-    public $definition = array();
 
-    /**
-     * The key of the object
-     *
-     * @var string
-     */
-    public $object_key = '';
+    public function getItem($pPrimaryValues, $pFields = '*', $pResolveForeignValues = '*'){
 
-    /**
-     * Constructor
-     *
-     * @param array  $pDefinition
-     * @param string $pObjectKey
-     */
-    function __construct($pDefinition, $pObjectKey){
-        $this->definition = $pDefinition;
-        $this->object_key = $pObjectKey;
+        return $this->_getItems($pPrimaryValues, $pFields, $pResolveForeignValues, false, false, '', true, null, null);
     }
 
-    /**
-     * @param $pId
-     * @param string $pFields
-     * @param bool|string $pResolveForeignValues
-     * @return type
-     */
-    public function getItem($pId, $pFields = '*', $pResolveForeignValues = '*', $pRawData){
+    public function getItems ($pPrimaryValues, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
+                              $pResolveForeignValues = '*', $pOrder){
 
-        return $this->_getItems($pId, $pFields, $pResolveForeignValues, false, false, '', true, null, null, $pRawData);
+        return $this->_getItems($pPrimaryValues, $pFields, $pResolveForeignValues, $pOffset, $pLimit, $pCondition, false,
+            $pOrder);
     }
 
-    /**
-     * @param bool $pPrimaryIds
-     * @param string $pFields
-     * @param string $pResolveForeignValues
-     * @param bool $pOffset
-     * @param bool $pLimit
-     * @param string $pCondition
-     * @param bool $pSingleRow
-     * @param string $pOrderBy
-     * @param string $pOrderDirection
-     * @return array
-     */
+    public function getCount($pCondition = false){
+        return dbCount($this->definition['table'], $pCondition);
+    }
+
+    public function removeItem($pPrimaryValues){
+        return dbDelete($this->definition['table'], $pPrimaryValues);
+    }
+
+    public function addItem($pValues){
+        $lastId = dbInsert($this->definition['table'], $pValues);
+    }
+
+    public function updateItem($pPrimaryValues, $pValues){
+        return dbUpdate($this->definition['table'], $pPrimaryValues, $pValues);
+    }
+
     private function _getItems($pPrimaryIds = false, $pFields = '*', $pResolveForeignValues = '*', $pOffset = false, $pLimit = false,
-                              $pCondition = '', $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc', $pRawData = false){
+                              $pCondition = '', $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc'){
 
         $where  = '1=1 ';
 
@@ -251,53 +232,10 @@ class krynObjectTable {
             $sql .= ' '.implode(" \n",$joins);
         }
 
-        //LIMIT ITEMS based on $pPrimaryIds
-        if (is_array($pPrimaryIds)){
-            if (!array_key_exists(0, $pPrimaryIds)){
+        $primaryCondition = $this->primaryArrayToSql($pPrimaryIds);
 
-                $where .= ' AND (';
-                foreach ($pPrimaryIds as $key => $val){
-                    $where .= $this->object_key.'.'.$key.' = ';
-                    $where .= '\''.esc($val).'\' AND ';
-                }
-                $where = substr($where, 0, -5).' )';
-
-            } else {
-                //we return multiple items, since the the array is without string index
-
-                $where .= ' AND (';
-
-                foreach ($pPrimaryIds as $id){
-
-                    $where .= ' (';
-
-                    if (is_array($id)){
-
-                        //we want multiple items based on multiple keys
-                        $where .= ' (';
-                        foreach ($id as $key => $val){
-                            $where .= $this->object_key.'.'.$key.' = ';
-                            $where .= '\''.esc($val).'\' AND ';
-                        }
-
-                        $where = substr($where, 0, -5).' ) AND ';
-
-                    } else {
-                        $where .= $this->object_key.'.'.$firstPrimaryField.' = ';
-                        $where .= '\''.esc($id).'\' AND ';
-                    }
-
-                    $where = substr($where, 0, -5). ') OR';
-                }
-
-                $where = substr($where, 0, -3).' )';
-
-            }
-        } else if ($pPrimaryIds){
-            $where .= $this->object_key.'.'.$firstPrimaryField.' = ';
-            $where .= '\''.esc($pPrimaryIds).'\' AND ';
-        }
-
+        if ($primaryCondition)
+            $where .= ' AND '.$primaryCondition;
 
         if ($pCondition)
             $where .= ' AND '.$pCondition;
@@ -357,34 +295,6 @@ class krynObjectTable {
             }
             return $items;
         }
-
-    }
-
-    /**
-     * @param mixed $pPrimaryIds
-     * @param int $pOffset
-     * @param int $pLimit
-     * @param bool $pCondition
-     * @param string $pFields
-     * @param string $pResolveForeignValues
-     * @param string $pOrderBy
-     * @param string $pOrderDirection
-     * @return array
-     */
-    public function getItems ($pPrimaryIds, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
-                              $pResolveForeignValues = '*', $pOrderBy = '', $pOrderDirection = 'asc', $pRawData = false){
-
-        return $this->_getItems($pPrimaryIds, $pFields, $pResolveForeignValues, $pOffset, $pLimit, $pCondition, false,
-                                $pOrderBy, $pOrderDirection, $pRawData);
-    }
-
-
-    public function getCount($pCondition = false){
-
-        //todo, handle pCondition
-
-        return dbCount($this->definition['table']);
-
 
     }
 }

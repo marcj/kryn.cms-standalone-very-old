@@ -49,6 +49,8 @@
 .ka-Table-body tr td {
     padding: 3px;
     cursor: default;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
 }
 
 .ka-Table-body tr.one td {

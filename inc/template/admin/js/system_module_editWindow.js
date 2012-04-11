@@ -936,6 +936,8 @@ var admin_system_module_editWindow = new Class({
                 }.bind(this),
                 mode: "php"
             });
+            
+            CodeMirror.autoLoadMode(this.customMethodEditor,  "php");
         } else {
             this.customMethodEditor.setValue(php);
             this.customMethodEditor.clearHistory();
@@ -1003,6 +1005,8 @@ var admin_system_module_editWindow = new Class({
                 }.bind(this),
                 mode: "php"
             });
+
+            CodeMirror.autoLoadMode(this.methodEditor,  "php");
         } else {
             this.methodEditor.setValue(php);
             this.methodEditor.clearHistory();
@@ -1214,17 +1218,14 @@ var admin_system_module_editWindow = new Class({
                                 addIcon: {
                                     label: t('Icon file'),
                                     type: 'file',
-                                    needValue: 1,
-                                    objectOptions: {
-                                        returnPath: 1,
-                                        onlyLocal: 1
-                                    }
+                                    needValue: 1
                                 },
                                 addEntrypoint: {
                                     label: t('Entrypoint'),
                                     type: 'object',
                                     needValue: 1,
                                     object: 'system_entrypoint',
+                                    withoutObjectWrapper: 1,
                                     desc: t('Default is &lt;current&gt;/add')
                                 }
                             }
@@ -1290,6 +1291,7 @@ var admin_system_module_editWindow = new Class({
                                 entrypoint: {
                                     type: 'object',
                                     input_width: 100,
+                                    withoutObjectWrapper: 1,
                                     object: 'system_entrypoint'
                                 },
                                 label: {
@@ -1299,6 +1301,7 @@ var admin_system_module_editWindow = new Class({
                                     type: 'object',
                                     input_width: 100,
                                     object: 'file',
+                                    withoutObjectWrapper: 1,
                                     objectOptions: {
                                         onlyLocal: 1,
                                         returnPath: 1
@@ -1446,7 +1449,7 @@ var admin_system_module_editWindow = new Class({
                 });
 
                 if (!doWeHaveTabs){
-                    var tab = this.addWindowEditTab('general', {label: '[[General]]'});
+                    var tab = this.addWindowEditTab('general', {label: '[[General]]', type: 'tab'});
 
                     Object.each(this.definition.properties.fields, function(field, key){
                         this.addWindowEditField(tab.pane, key, field);
@@ -1479,7 +1482,7 @@ var admin_system_module_editWindow = new Class({
             }
 
             if (!!this.definition.properties.fields.length && !!this.definition.properties.tabFields.length){
-                this.addWindowEditTab('general', {label: '[[General]]'});
+                this.addWindowEditTab('general', {label: '[[General]]', type: 'tab'});
             }
         }
 

@@ -1821,21 +1821,11 @@ var admin_system_module_edit = new Class({
                             table: {
                                 label: t('Table name'),
                                 depends: {
-                                    table_sync: {
+                                    tableSync: {
                                         needValue: function(n){if(n!='')return true;else return false;},
                                         label: t('Table synchronisation'),
                                         desc: t('Keep the field definition in sync with the columns of the defined table.'),
                                         type: 'checkbox'
-                                    },
-                                    additionalWhere: {
-                                        needValue: function(n){if(n!='')return true;else return false;},
-                                        label: t('Additional condition'),
-                                        desc: t('SQL without "WHERE" and "AND"'),
-                                        type: 'codemirror',
-                                        codemirrorOptions: {
-                                            mode: 'mysql'
-                                        },
-                                        input_height: 80
                                     }
                                 }
                             },
@@ -1895,7 +1885,7 @@ var admin_system_module_edit = new Class({
                                         label: t('Data Model'),
                                         type: 'select',
                                         items: {
-                                            'store': 'Framework',
+                                            'default': 'Framework',
                                             'custom': 'Custom class'
                                         },
                                         depends: {
@@ -1907,7 +1897,12 @@ var admin_system_module_edit = new Class({
                                             chooserFieldDataModelCondition: {
                                                 needValue: 'default',
                                                 label: t('Additional SQL condition'),
-                                                desc: t("If you want to limit the output add here a valid SQL string without 'WHERE' and 'AND' at the beginning")
+                                                desc: t("Without 'WHERE' and 'AND' at the beginning"),
+                                                type: 'codemirror',
+                                                codemirrorOptions: {
+                                                    mode: 'mysql'
+                                                },
+                                                input_height: 50
                                             }
                                         }
                                     },
@@ -1919,6 +1914,7 @@ var admin_system_module_edit = new Class({
                                         options: {
                                             asFrameworkColumn: true,
                                             withoutChildren: true,
+                                            tableitem_title_width: 200,
                                             addLabel: t('Add column')
                                         }
                                     },
@@ -1957,6 +1953,7 @@ var admin_system_module_edit = new Class({
                                         options: {
                                             asFrameworkColumn: true,
                                             withoutChildren: true,
+                                            tableitem_title_width: 200,
                                             addLabel: t('Add column')
                                         }
                                     },
@@ -1977,7 +1974,12 @@ var admin_system_module_edit = new Class({
                                             chooserBrowserDataModelCondition: {
                                                 needValue: 'default',
                                                 label: t('Additional SQL condition'),
-                                                desc: t("If you want to limit the output add here a valid SQL string without 'WHERE' and 'AND' at the beginning")
+                                                desc: t("Without 'WHERE' and 'AND' at the beginning"),
+                                                type: 'codemirror',
+                                                codemirrorOptions: {
+                                                    mode: 'mysql'
+                                                },
+                                                input_height: 50
                                             },
                                             chooserBrowserDataModelFields: {
                                                 needValue: 'custom',

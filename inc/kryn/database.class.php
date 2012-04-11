@@ -634,7 +634,8 @@ class database {
 
         $this->lastError = $pErrorStr;
 
-        throw new Exception($pErrorStr);
+        if (kryn::$config['db_exceptions_nostop'] != 1)
+            throw new Exception($pErrorStr);
 
         return false;
     }

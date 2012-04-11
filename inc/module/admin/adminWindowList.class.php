@@ -213,6 +213,14 @@ class adminWindowList {
      */
     public $multiLanguage = false;
 
+    /**
+     * Defines whether the list windows should display the domain select box.
+     * Note: Your table need a field 'domain_rsn' int. The windowList class filter by this.
+     *
+     * @var bool
+     */
+    public $domainDepended = false;
+
 
     /**
      * Constructor
@@ -328,47 +336,52 @@ class adminWindowList {
                 $pFields = null;
                 return;
             }
-            $this->_fields[$pKey] = $pFields;
 
-            switch ($pFields['type']) {
-                case 'select':
+            if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
 
-                    if (!empty($field['eval']))
-                        $pFields['tableItems'] = eval($field['eval']);
-                    elseif ($pFields['relation'] == 'n-n')
-                        $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
-                    else if ($pFields['table'])
-                        $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
-                    else if ($pFields['sql'])
-                        $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
-                    else if ($pFields['method']) {
-                        $nam = $pFields['method'];
-                        if (method_exists($this, $nam))
-                            $pFields['tableItems'] = $this->$nam($pFields);
-                    }
+                $this->_fields[$pKey] = $pFields;
 
-                    if ($pFields['modifier'] && !empty($pFields['modifier']) &&
-                        method_exists($this, $pFields['modifier'])
-                    )
-                        $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+                switch ($pFields['type']) {
+                    case 'select':
 
-                    break;
-                case 'files':
-
-                    $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
-                    if (count($files) > 0) {
-                        foreach ($files as $file) {
-                            $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
+                        if (!empty($field['eval']))
+                            $pFields['tableItems'] = eval($field['eval']);
+                        elseif ($pFields['relation'] == 'n-n')
+                            $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
+                        else if ($pFields['table'])
+                            $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
+                        else if ($pFields['sql'])
+                            $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
+                        else if ($pFields['method']) {
+                            $nam = $pFields['method'];
+                            if (method_exists($this, $nam))
+                                $pFields['tableItems'] = $this->$nam($pFields);
                         }
-                    } else {
-                        $pFields['tableItems'] = array();
-                    }
-                    $pFields['table_key'] = 'id';
-                    $pFields['table_label'] = 'label';
-                    $pFields['type'] = 'select';
 
-                    break;
+                        if ($pFields['modifier'] && !empty($pFields['modifier']) &&
+                            method_exists($this, $pFields['modifier'])
+                        )
+                            $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+
+                        break;
+                    case 'files':
+
+                        $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
+                        if (count($files) > 0) {
+                            foreach ($files as $file) {
+                                $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
+                            }
+                        } else {
+                            $pFields['tableItems'] = array();
+                        }
+                        $pFields['table_key'] = 'id';
+                        $pFields['table_label'] = 'label';
+                        $pFields['type'] = 'select';
+
+                        break;
+                }
             }
+
             if (is_array($pFields['depends'])) {
                 $this->prepareFieldItem($pFields['depends']);
             }
@@ -520,28 +533,6 @@ class adminWindowList {
         $filter = "WHERE 1=1 " . $this->getWhereSql();
         $extraWhere = " " . $this->getExtraWhereSql();
 
-        //relation stuff
-        $options = database::getOptions($this->table);
-
-        if (getArgv('relation_table')) {
-
-            $relation = database::getRelation(getArgv('relation_table'), $this->table);
-
-            if ($relation) {
-                $params = getArgv('relation_params');
-
-                foreach ($relation['fields'] as $field_left => $field_right) {
-
-                    $extraWhere .= " AND $table.$field_right = ";
-                    if ($options[$field_right]['escape'] == 'int')
-                        $extraWhere .= $params[$field_right] + 0;
-                    else
-                        $extraWhere .= "'" . esc($params[$field_right]) . "'";
-
-                }
-            }
-        }
-
         if ($this->multiLanguage) {
             $curLang = getArgv('language', 2);
             $filter .= " AND ( $table.lang = '$curLang' OR $table.lang is NULL OR $table.lang = '' )";
@@ -550,7 +541,15 @@ class adminWindowList {
         $fields = "";
         $end = "";
 
+        //add primary fields to SELECT
+        foreach($this->primary as $field){
+            $extraFields[] = dbTableName($this->table).'.'.$field;
+        }
+
         foreach ($this->columns as $key => $column) {
+
+            $extraFields[] = dbTableName($this->table).'.'.$key;
+
             if ($pCountSql == false) {
                 if ($column['type'] == 'select' && $column['relation'] != 'n-n') {
                     $exTable = dbTableName($column['table']);
@@ -586,12 +585,12 @@ class adminWindowList {
 
 
         if (count($extraFields) > 0)
-            $fields .= ", " . implode(",", $extraFields);
+            $fields = implode(",", $extraFields);
 
         if ($pCountSql == false) {
 
             $sql = "
-                SELECT $table.* $fields
+                SELECT $fields
                 FROM $table
                 $joins
                 $filter
@@ -600,7 +599,7 @@ class adminWindowList {
                 ";
         } else {
             $sql = "
-                SELECT $table.* $fields
+                SELECT $fields
                 FROM $table
                 $filter
                 $extraWhere

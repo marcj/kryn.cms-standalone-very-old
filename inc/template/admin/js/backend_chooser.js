@@ -257,7 +257,7 @@ var admin_backend_chooser = new Class({
             if (!value)
                 return;
 
-            var url = 'object://'+pObjectKey+'/'+value;
+            var url = 'object://'+pObjectKey+'/'+ka.urlEncode(value);
 
             this.saveCookie();
             this.saveCookie();

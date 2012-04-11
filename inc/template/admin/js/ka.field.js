@@ -257,6 +257,13 @@ ka.field = new Class({
                 break;
             case 'file':
             case 'filechooser':
+
+                this.field.withoutObjectWrapper = 1;
+                this.field.objectOptions = {
+                    returnPath: 1,
+                    onlyLocal: 1
+                };
+
                 this.renderChooser(['file']);
                 break;
             case 'pagechooser':
@@ -265,7 +272,6 @@ ka.field = new Class({
                 this.renderChooser(['node']);
                 break;
             case 'object':
-
                 this.renderChooser(typeOf(this.field.object)=='array'?this.field.object:[this.field.object]);
                 break;
             case 'chooser':
@@ -1353,7 +1359,7 @@ ka.field = new Class({
             onSelect: function (pId) {
 
                 if (typeOf(pId) == 'string' && pId.substr(0, 'object://'.length) == 'object://'){
-                    pId = pId.substr('object://'.length).split('/')[1];
+                    pId = ka.urlDecode(pId.substr(10+pId.substr('object://'.length).indexOf('/')));
                 }
 
                 this._value.include(pId);
@@ -1521,10 +1527,9 @@ ka.field = new Class({
     renderChooserSingle: function(pObjects){
 
         this.input = new Element('input', {
-            'class': 'text text-inactive',
+            'class': 'text chooser text-inactive',
             type: 'text',
-            disabled: true,
-            style: ((this.field.small == 1) ? 'width: 100px' : 'width: 210px')
+            disabled: true
         })
         .addEvent('keyup',function () {
             this.fireEvent('blur');
@@ -1577,27 +1582,27 @@ ka.field = new Class({
 
         this._setValue = function (pVal, pIntern) {
 
-            if (typeOf(pVal) == 'null' || pVal === false) pVal = '';
-
-            if (pVal && (typeOf(pVal) != 'string' || pVal.substr(0, 'object://'.length) != 'object://')){
-                pVal = 'object://'+pObjects[0]+'/'+pVal;
+            if (typeOf(pVal) == 'null' || pVal === false || pVal === '' || !ka.getObjectId(pVal)) {
+                this._value = '';
+                this.input.value = '';
+                this.input.title = '';
+                return;
             }
 
+            pVal = String.from(pVal);
+
+            if ((typeOf(pVal) == 'string' && pVal.substr(0, 'object://'.length) != 'object://')){
+                pVal = 'object://'+pObjects[0]+'/'+ka.urlEncode(pVal);
+            }
             this._value = pVal;
 
             this.pageChooserPanel.empty();
 
-            if (pVal+0 > 0 || (typeOf(pVal)=='string' && pVal.substr(0, 9) == 'object://')) {
+            this.objectGetLabel(this._value, function(pLabel){
+                this.input.value = pLabel;
+            });
 
-                this.objectGetLabel(this._value, function(pLabel){
-                    this.input.value = pLabel;
-                });
-
-            } else {
-                this.input.value = pVal;
-            }
-
-            this.input.title = pVal;
+            this.input.title = ka.getObjectId(pVal);
 
             if (pIntern) {
                 this.fireEvent('change', this.getValue());
@@ -1606,8 +1611,8 @@ ka.field = new Class({
 
         this.getValue = function () {
             var val = (this._value) ? this._value : this.input.value;
-            if (!this.field.returnUrl && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
-                return val.substr('object://'.length).split('/')[1];
+            if (this.field.withoutObjectWrapper && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
+                return ka.getObjectId(val);
             }
             return val;
         }
@@ -2322,6 +2327,8 @@ ka.field = new Class({
 
     isFieldValid: function () {
         var ok = true;
+
+        if (this.isHidden()) return ok;
 
         if ((this.field.empty === "0" || this.field.empty === 0 || this.field.empty === false) && this.getValue() === '')
             ok = false;

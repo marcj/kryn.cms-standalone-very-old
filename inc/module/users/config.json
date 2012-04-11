@@ -210,7 +210,7 @@
     }
   },
   "objects": {
-    "system_user": {
+    "user": {
       "title": "[[User]]",
       "table": "system_user",
       "fields": {
@@ -300,22 +300,20 @@
           "object_label": "name",
           "object_relation": "nToM",
           "object_relation_table": "system_groupaccess",
-          "object_relation_table_left": "user_rsn",
-          "object_relation_table_right": "group_rsn",
           "type": "object",
           "empty": 1
         }
       },
       "label": "[[Users]]",
       "desc": "",
-      "table_sync": true,
+      "tableSync": true,
       "class": "",
       "multiLanguage": false,
       "domainDepended": false,
       "plugins": "",
       "selectable": false
     },
-    "system_group": {
+    "group": {
       "title": "[[Group]]",
       "table": "system_groups",
       "label": "[[Groups]]",

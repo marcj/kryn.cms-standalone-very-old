@@ -66,19 +66,13 @@ class adminWindowEdit {
      */
     public $multiLanguage = false;
 
-
     /**
-     * Defines the preview plugins
-     * Example content: array(
-     *     '<pluginKey>' => '<urlGetterMethod'
-     * )
-     * Example urlGetterMethod:
-     * public function getUrl( $pItem, $pPluginValues, $pPageRsn ){
-     *     return kryn::toModRewrite( $pItem['title'] ) . '/' . $pItem['rsn'];
-     * }
-
+     * Defines whether the list windows should display the domain select box.
+     * Note: Your table need a field 'domain_rsn' int. The windowList class filter by this.
+     *
+     * @var bool
      */
-    public $previewPlugins = false;
+    public $domainDepended = false;
 
     /**
      * Defines the fields. (ka.fields)
@@ -103,6 +97,7 @@ class adminWindowEdit {
      *  )
      * (
      *
+     * @deprecated use $fields instead
      * @var array
      */
     public $tabFields = array();
@@ -151,6 +146,10 @@ class adminWindowEdit {
                     $this->prepareFieldDefinition($fields);
                 }
             }
+        }
+
+        if (is_string($this->primary)){
+            $this->primary = explode(',', str_replace(' ', '', $this->primary));
         }
 
         $this->_fields = array();
@@ -368,50 +367,54 @@ class adminWindowEdit {
                 return false;
             }
 
-            if (!$pFields['store']){
-                switch ($pFields['type']) {
-                    case 'select':
 
-                        if (!empty($field['eval']))
-                            $pFields['tableItems'] = eval($field['eval']);
-                        elseif ($pFields['relation'] == 'n-n')
-                            $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
-                        else if ($pFields['table'])
-                            $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
-                        else if ($pFields['sql'])
-                            $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
-                        else if ($pFields['method']) {
-                            $nam = $pFields['method'];
-                            if (method_exists($this, $nam))
-                                $pFields['tableItems'] = $this->$nam($pFields);
-                        }
+            if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
 
-                        if ($pFields['modifier'] && !empty($pFields['modifier']) &&
-                                         method_exists($this, $pFields['modifier']))
-                            $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+                if (!$pFields['store']){
+                    switch ($pFields['type']) {
+                        case 'select':
 
-
-                        break;
-                    case 'files':
-
-                        $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
-                        if (count($files) > 0) {
-                            foreach ($files as $file) {
-                                $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
+                            if (!empty($field['eval']))
+                                $pFields['tableItems'] = eval($field['eval']);
+                            elseif ($pFields['relation'] == 'n-n')
+                                $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
+                            else if ($pFields['table'])
+                                $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
+                            else if ($pFields['sql'])
+                                $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
+                            else if ($pFields['method']) {
+                                $nam = $pFields['method'];
+                                if (method_exists($this, $nam))
+                                    $pFields['tableItems'] = $this->$nam($pFields);
                             }
-                        } else {
-                            $pFields['tableItems'] = array();
-                        }
-                        $pFields['table_key'] = 'id';
-                        $pFields['table_label'] = 'label';
-                        $pFields['type'] = 'select';
 
-                        break;
+                            if ($pFields['modifier'] && !empty($pFields['modifier']) &&
+                                             method_exists($this, $pFields['modifier']))
+                                $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+
+
+                            break;
+                        case 'files':
+
+                            $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
+                            if (count($files) > 0) {
+                                foreach ($files as $file) {
+                                    $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
+                                }
+                            } else {
+                                $pFields['tableItems'] = array();
+                            }
+                            $pFields['table_key'] = 'id';
+                            $pFields['table_label'] = 'label';
+                            $pFields['type'] = 'select';
+
+                            break;
+                    }
                 }
+
+
+                $this->_fields[$pKey] = $pFields;
             }
-
-
-            $this->_fields[$pKey] = $pFields;
 
             if (is_array($pFields['depends'])) {
                 $this->prepareFieldItem($pFields['depends']);
@@ -493,9 +496,18 @@ class adminWindowEdit {
             } else {
 
                 //backward compatibility
+                $fields = $this->primary;
+
+                foreach ($this->_fields as $key => $field){
+                    $fields[] = $key;
+                }
+
+                $fields = implode(', ', $fields);
 
                 $sql = "
-                SELECT * FROM %pfx%" . $this->table . "
+                SELECT
+                    $fields
+                FROM " . dbTableName($this->table) . "
                 WHERE 1=1
                     $where
                 LIMIT 1";

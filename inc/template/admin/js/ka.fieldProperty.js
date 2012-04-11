@@ -31,7 +31,7 @@ ka.fieldProperty = new Class({
                 codemirror: t('CodeMirror (sourcecode editor)'),
                 date: t('Date'),
                 datetime: t('Datetime'),
-                files: t('File list from folder'),
+                files: t('File select from folder'),
                 filelist: t('File list (Attachments)'),
                 layoutelement: t('Layout element'),
                 headline: t('Headline'),
@@ -83,6 +83,11 @@ ka.fieldProperty = new Class({
                     desc: t('Start with / to use a table which is not defined in kryn or is in a different database.'),
                     type: 'text'
                 },
+                __or__: {
+                    needValue: 'select',
+                    type: 'label',
+                    label: t('- or -')
+                },
                 'sql': {
                     needValue: 'select',
                     label: t('SQL'),
@@ -90,13 +95,11 @@ ka.fieldProperty = new Class({
                     type: 'text'
                 },
                 table_key: {
-                    needValue: function(n){if(n!='')return true;else return false;},
-                    againstField: ['table', 'sql'],
+                    needValue: 'select',
                     label: t('Table primary column')
                 },
                 table_label: {
-                    needValue: function(n){if(n!='')return true;else return false;},
-                    againstField: ['table', 'sql'],
+                    needValue: 'select',
                     label: t('Table label column')
                 },
                 items: {
@@ -311,6 +314,13 @@ ka.fieldProperty = new Class({
         if (!this.options.withTableDefinition){
             delete this.kaFields.primaryKey;
             delete this.kaFields.autoIncrement;
+        } else {
+            delete this.kaFields.type.items.label;
+            delete this.kaFields.type.items.html;
+            delete this.kaFields.type.items.info;
+            delete this.kaFields.type.items.headline;
+            delete this.kaFields.type.items.tab;
+            delete this.kaFields.type.items.predefined;
         }
 
         if (this.options.asFrameworkFieldDefinition){
@@ -351,21 +361,34 @@ ka.fieldProperty = new Class({
             delete this.kaFields.width;
         } else {
             delete this.kaFields.__optional__;
+            this.kaFields.type.label = t('Display type');
             this.kaFields.type.items = {
                 text: t('Text'),
                 number: t('Number'),
-                checkbox: t('Checkbox'),
-                page: t('Page'),
-                file: t('File'),
-                folder: t('Folder'),
-                select: t('Select'),
-                object: t('Object'),
-                predefined: t('Predefined'),
+                bool: t('Boolean'),
                 lang: t('Language select'),
-                date: t('Date'),
                 datetime: t('Datetime'),
                 imagemap: t('Imagemap')
             };
+
+            this.kaFields.type.depends.imageMap = {
+                label: t('Map'),
+                desc: t('To use Regex surround the value with /.'),
+                type: 'array',
+                columns: [
+                    {label: t('Value'), width: '50%'},
+                    {label: t('Image path')}
+                ],
+                fields: {
+                    value: {
+                        type: 'text'
+                    },
+                    imagePath: {
+                        type: 'file'
+                    }
+                }
+
+            }
         };
 
         if (this.kaFields.type.items.object){

@@ -25,6 +25,7 @@
  * function.
  *
  * @param string $p
+ * @param int $pEscape
  *
  * @return string Escaped string
  */
@@ -58,6 +59,16 @@ function esc($p, $pEscape = 1) {
                 return pg_escape_string($kdb->connection, $p);
         }
     }
+}
+
+/**
+ * Quotes Keywords and Identifiers
+ *
+ * @param $pValue
+ * @return mixed
+ */
+function dbQuote($pValue){
+    return (kryn::$config['db_type'] = 'mysql') ? "`$pValue`": '"'.$pValue.'"';
 }
 
 function dbConnect() {
@@ -103,11 +114,11 @@ function dbExfetch($pSql, $pRowCount = 1) {
 
 
 /**
- * Execute a query and return the resultset
+ * Execute a query and return the resultset. To retrieve the values, call dbFetch() with the result.
  *
  * @param string $pSql
  *
- * @return array
+ * @return resultset
  */
 function dbExec($pSql) {
     global $kdb;
@@ -124,7 +135,14 @@ function dbExec($pSql) {
     return $res;
 }
 
-
+/**
+ *
+ *
+ * @param $pTable
+ * @param $pCount
+ * @param bool $pWhere
+ * @return array
+ */
 function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
     if ($_REQUEST['lang'])
         $lang = esc($_REQUEST['lang']);
@@ -146,9 +164,9 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
  * @param string  $pWhere
  * @param string  $pFields Comma separated list of the columns
  *
- * @return type
+ * @return array
  */
-function dbTableFetch($pTable, $pCount = -1, $pWhere = false, $pFields = '*') {
+function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
 
     //to change pCount <-> pWhere
     if (is_numeric($pWhere)){
@@ -239,7 +257,14 @@ function dbInsert($pTable, $pFields) {
         return false;
 }
 
-
+/**
+ * Converts $pItems to an array index with $pIndex
+ *
+ * @param $pItems
+ * @param $pIndex
+ *
+ * @return array
+ */
 function dbToKeyIndex(&$pItems, $pIndex) {
     $res = array();
     if (count($pItems) > 0)
@@ -249,12 +274,23 @@ function dbToKeyIndex(&$pItems, $pIndex) {
     return $res;
 }
 
+/**
+ * Returns the last occured error if exists
+ *
+ * @return mixed
+ */
+
 function dbError() {
     global $kdb;
 
     return $kdb->lastError();
 }
 
+/**
+ * Returns the last_insert_id() (if you use auto_increment/sequences)
+ *
+ * @return mixed
+ */
 function dbLastId() {
     global $kdb;
 
@@ -327,19 +363,31 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
 /**
  * Deletes rows from the table based on the pWhere
  *
- * @param type $pTable The table name based on your extension table definition
- * @param type $pWhere Do not forget this, otherwise the table will be truncated.
+ * @param string $pTable The table name based on your extension table definition
+ * @param string $pWhere Do not forget this, otherwise the table will be truncated.
+ *
+ * @return bool
  */
-function dbDelete($pTable, $pWhere = false) {
+function dbDelete($pTable, $pWhere = '') {
 
     $table = dbTableName($pTable);
 
     $sql = "DELETE FROM " . $table . "";
-    if ($pWhere != false)
+    if (is_string($pWhere))
         $sql .= " WHERE $pWhere ";
-    dbExec($sql);
+
+    return dbExec($sql);
 }
 
+/**
+ * Returns count
+ *
+ * @param string $pTable
+ * @param bool   $pWhere
+ *
+ *
+ * @return int
+ */
 function dbCount($pTable, $pWhere = false) {
     $table = dbTableName($pTable);
     $sql = "SELECT count(*) as count FROM $table";
@@ -350,12 +398,12 @@ function dbCount($pTable, $pWhere = false) {
 }
 
 /**
- * Fetch a row based on the specified Resultset from dbExec()
+ * Fetch a row based on the specified resultset from dbExec()
  *
- * @param type $pRes   The result of dbExec()
- * @param type $pCount Defines how many items the function returns
+ * @param resultset $pRes   The result of dbExec()
+ * @param int    $pCount Defines how many items the function returns
  *
- * @return type
+ * @return array
  */
 function dbFetch($pRes, $pCount = 1) {
     global $kdb;

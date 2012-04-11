@@ -52,6 +52,8 @@ class adminSettings {
             $blacklist = array('communityEmail', 'communityId', 'languages');
         }
 
+        $blacklist[] = 'passwd_hash_key';
+
         if (!getArgv('sessiontime'))
             $_REQUEST['sessiontime'] = 3600;
 

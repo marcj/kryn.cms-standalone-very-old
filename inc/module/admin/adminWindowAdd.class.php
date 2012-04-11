@@ -14,7 +14,6 @@ class adminWindowAdd extends adminWindowEdit {
     public $versioning = false;
 
     function saveItem() {
-        $tableInfo = $this->db[$this->table];
 
         $row = array();
 
@@ -44,29 +43,47 @@ class adminWindowAdd extends adminWindowEdit {
             $row[$key] = $val;
         }
 
-        if (getArgv('_kryn_relation_table')) {
-            $relation = database::getRelation(getArgv('_kryn_relation_table'), $this->table);
-            if ($relation) {
-                $params = getArgv('_kryn_relation_params');
-                foreach ($relation['fields'] as $field_left => $field_right) {
-                    if (!$row[$field_right]) {
-                        $row[$field_right] = $params[$field_right];
+        if ($this->multiLanguage) {
+            $row['lang'] = getArgv('lang', 2);
+        }
+
+        if ($this->domainDepended) {
+            $row['lang'] = getArgv('domain_rsn')+0;
+        }
+
+        if ($this->object){
+
+            $this->last = krynObject::add($this->object, $row);
+
+            //custom saves
+            foreach ($this->_fields as $key => $field) {
+                if (!empty($field['customSave'])) {
+                    $func = $field['customSave'];
+                    $this->$func();
+                }
+            }
+
+        } else {
+
+            $this->last = dbInsert($this->table, $row);
+            $_REQUEST[$this->primary[0]] = $this->last;
+
+            //relations
+            foreach ($this->_fields as $key => $field) {
+                if ($field['relation'] == 'n-n') {
+                    $values = json_decode(getArgv($key));
+                    foreach ($values as $value) {
+                        $sqlInsert = "
+                            INSERT INTO %pfx%" . $field['n-n']['middle'] . "
+                            ( " . $field['n-n']['middle_keyleft'] . ", " . $field['n-n']['middle_keyright'] . " )
+                            VALUES ( '" . getArgv($field['n-n']['left_key']) . "', '$value' );";
+                        dbExec($sqlInsert);
                     }
                 }
             }
         }
 
-        if ($this->multiLanguage) {
-            $curLang = getArgv('lang', 2);
-            $row['lang'] = $curLang;
-        }
-
-        dbInsert($this->table, $row);
-        $this->last = dbLastId();
-        $_REQUEST[$this->primary[0]] = $this->last;
-
         //custom saves
-
         foreach ($this->_fields as $key => $field) {
             if (!empty($field['customSave'])) {
                 $func = $field['customSave'];
@@ -74,19 +91,6 @@ class adminWindowAdd extends adminWindowEdit {
             }
         }
 
-        //relations
-        foreach ($this->_fields as $key => $field) {
-            if ($field['relation'] == 'n-n') {
-                $values = json_decode(getArgv($key));
-                foreach ($values as $value) {
-                    $sqlInsert = "
-                        INSERT INTO %pfx%" . $field['n-n']['middle'] . "
-                        ( " . $field['n-n']['middle_keyleft'] . ", " . $field['n-n']['middle_keyright'] . " )
-                        VALUES ( '" . getArgv($field['n-n']['left_key']) . "', '$value' );";
-                    dbExec($sqlInsert);
-                }
-            }
-        }
 
         return array('last_id' => $this->last);
     }

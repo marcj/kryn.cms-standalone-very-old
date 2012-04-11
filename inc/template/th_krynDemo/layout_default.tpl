@@ -39,7 +39,7 @@
 
 <pre>
 
-    {krynObject::get('system_user', array(1,2))|@print_r}
+    {krynObject::get('test', 1)|@print_r}
 
 </pre>
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}

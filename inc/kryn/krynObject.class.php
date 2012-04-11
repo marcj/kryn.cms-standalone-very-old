@@ -50,6 +50,47 @@ class krynObject {
     }
 
     /**
+     * Parse the internal object url scheme and return the information as array.
+     *
+     * Pattern:
+     *    object://<object_key>[/<primay_values_url_encoded-1>][/<primay_values_url_encoded-n>][/?<options_as_querystring>]
+     *
+     * Examples:
+     *
+     * 1. object://news/1
+     *   => returns the object news with primary value equal 1
+     *
+     * 2. object://news/rsn=1
+     *   => equal as 1.
+     *
+     * 3. object://news/1/2
+     *   => returns a list of the objects with primary value equal 1 or 2
+     *
+     * 4. object://news/rsn=1/rsn=2
+     *   => equal as 3.
+     *
+     * 5. object://object_with_multiple_primary/2,54
+     *   => returns the object with the first primary field equal 2 and second priamry field equal 54
+     *
+     * 6. object://object_with_multiple_primary/2,54/34,55
+     *   => returns a list of the objects
+     *
+     * 7. object://object_with_multiple_primary/rsn=2,parent_rsn=54/rsn=34,parent_rsn=55
+     *   => equal as 6 if the first defined primary is 'rsn' and the second 'parent_rsn'
+     *
+     * 8. object://news/1?fields=title
+     *   => equal as 1. but returns only the field title
+     *
+     * 9. object://news/1?fields=title,category_rsn
+     *   => equal as 1. but returns only the field title and category_rsn
+     *
+     * 10. object://news?fields=title
+     *   => returns all objects from type news
+     *
+     * 11. object://news?fields=title&limit=5
+     *   => returns first 5 objects from type news
+     *
+     *
      * @static
      * @param $pInternalUrl
      * @return array [object_key, object_id/s, queryParams]
@@ -90,13 +131,14 @@ class krynObject {
         } else if ($pos !== false)
             $object_id = substr($pInternalUrl, $pos+1);
 
-        if (strpos($object_id, ',') !== false){
-            $object_id = explode(',', $object_id);
-        }
+
+        $obj = self::getClassObject($object_key);
+
+        $object_id = $obj->primaryStringToArray($object_id);
 
         return array(
             $object_key,
-            $object_id==""?false:$object_id,
+            (!$object_id) ? false : $object_id,
             $params
         );
     }
@@ -104,26 +146,7 @@ class krynObject {
     /**
      * Returns the object for the given url. Same arguments as in krynObject::get() but given by a string.
      *
-     * The string consists of the object key, the object primary key and options URL encoded.
-     *
-     * Examples:
-     *
-     *    system_user/2 => returns the whole object system_user with the primary value of 2
-     *
-     *    system_user/2?fields=name => returns the object system_user with the primary value is 2 and only with the
-     *                                 column "name"
-     *
-     *    system_user/2?fields=name,title,bar  => returns the object system_user with the primary value is 2 and
-     *                                             only with the column "name", "title" and "bar"
-     *
-     *    system_users/?limit=30 => returns the first 30 objects of system_user
-     *
-     *    system_users/?limit=5&offset=3 => returns the first 5 objects of system_user starting at the third.
-     *
-     *    system_users/?condition=rsn&gt;3 => returns all objects of system_user where rsn is bigger than 3
-     *
-     * Note: If you use getFromUrl() you need to have "condition" url encoded.
-     *       (So > and < doesnt work! Use &gt; etc instead)
+     * Take a look at the krynObject::parseUrl() method for more information.
      *
      * @static
      * @param $pInternalUrl
@@ -140,23 +163,23 @@ class krynObject {
     /**
      * Returns the single row or a list of objects.
      *
-     * The $pObjectPrimaryValues can be mixed. Following some examples:
+     * The $pObjectPrimaryValues can be mixed. Additionally to the patter of krynObject::parseUrl() we have:
      *
      * Returns single row:
-     * "1" => returns one item with the primary=1
-     * array(1) => equal as above
+     * array(1) => returns one item with the first primary=1
      * array('rsn' => 1) => equal as above (if the primary=rsn)
      * array('primary_1' => 2, 'primary_2' => 3)
      *
      * Returns multiple row (list):
-     * "1,2,3" => returns three items whereas the primary from the first is 1, from tht second 2, etc
-     * array(1,2) => equal as above
-     * array( array('rsn'=>1), array('rsn'=>2) )
+     * array(1,2) => returns three items whereas the primary for the first object is 1, for the second object 2, etc
+     * array( array('rsn'=>1), array('rsn'=>2) ) equal as above
      * array( array('primary_1'=>2, 'primary_2'=>3), array('primary_1'=>3, 'primary_2'=>5) )
      *
      * If you need more complex filterin use $pOptions['condition'] which is a SQL condition (check for SQL injection!)
      *
-     * Use esc() function, if you use $pOptions['condition']
+     * !IMPORTANT!:
+     * Don't forget to use esc() function, if you use $pOptions['condition'], to escape the values (because in this
+     * function we do _NOT_ escape this value)
      *
      * $pOptions is a array which can contain following options. All options are optional.
      *
@@ -165,8 +188,12 @@ class krynObject {
      *  'condition'       SQL condition without WHERE or AND at the beginning
      *  'offset'          Offset of the result set (in SQL OFFSET)
      *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'orderBy'         The column to order
-     *  'orderDirection'  The order direction
+     *  'order'           The column to order. Example:
+     *                    array(
+     *                      array('field' => 'category', 'direction' => 'asc'),
+     *                      array('field' => 'title',    'direction' => 'asc')
+     *                    )
+     *
      *  'foreignKeys'     Define which column should be resolved. If empty all columns will be resolved.
      *                    Use a array or a comma separated list (like in SQL SELECT)
      *
@@ -178,7 +205,6 @@ class krynObject {
      * @return array|bool
      */
     public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = array(), $pRawData = false){
-
 
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -193,8 +219,7 @@ class krynObject {
 
 
         if (
-            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues)) ||
-            (is_string($pObjectPrimaryValues) && strpos($pObjectPrimaryValues, ',') !== false)
+            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues))
         ){
 
             return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
@@ -241,13 +266,13 @@ class krynObject {
                 $className = $p[count($p)-1];
 
                 if ($className && class_exists($className)){
-                    self::$instances[$pObjectKey] = new $className($definition, $pObjectKey);
+                    self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
                 } else throw new Exception('Create object instance error: Class '.$className.' not found');
 
             } else if ($definition['table']){
 
-                @require_once('inc/kryn/krynObject/krynObjectTable.class.php');
-                self::$instances[$pObjectKey] = new krynObjectTable($definition, $pObjectKey);
+                require_once('inc/kryn/krynObject/krynObjectTable.class.php');
+                self::$instances[$pObjectKey] = new krynObjectTable($pObjectKey, $definition);
             }
         }
 
@@ -312,15 +337,16 @@ class krynObject {
 
     }
 
-    /**
-     * TBD
-     *
-     * @static
-     * @param $pObjectId
-     * @param $pObject
-     */
-    public static function add($pObjectId, $pObject){
-        //TODO
+    public static function add($pObjectKey, $pValues){
+        $obj = self::getClassObject($pObjectKey);
+        return $obj->addItem($pValues);
+
+    }
+
+    public static function update($pObjectKey, $pPrimaryValues, $pValues){
+        $obj = self::getClassObject($pObjectKey);
+        return $obj->updateItem($pPrimaryValues, $pValues);
+
     }
 
     public static function removeUsages($pObjectId){

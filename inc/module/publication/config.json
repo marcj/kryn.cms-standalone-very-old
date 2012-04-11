@@ -436,7 +436,7 @@
           "empty": 1
         }
       },
-      "table_sync": 1,
+      "tableSync": 1,
       "chooserUseOwnClass": false,
       "selectable": 1,
       "chooser_icon": "",
@@ -444,17 +444,29 @@
         "title": {
           "label": "[[Title]]",
           "type": "text"
+        },
+        "category_rsn": {
+          "object": "news",
+          "field": "category_rsn",
+          "type": "predefined",
+          "width": "30%"
         }
       },
       "class": "",
       "multiLanguage": 1,
-      "domainDepended": 1,
+      "domainDepended": 0,
       "chooserAutoFilter": "",
       "chooserFieldDataModel": "store",
       "chooserFieldDataModelFields": {
         "title": {
           "label": "[[Title]]",
           "type": "text"
+        },
+        "category_rsn": {
+          "object": "news",
+          "field": "category_rsn",
+          "type": "predefined",
+          "width": "30%"
         }
       },
       "chooserFieldType": "default",
@@ -466,7 +478,7 @@
       "label": "[[Comments]]",
       "table": "publication_comments",
       "desc": "",
-      "table_sync": false,
+      "tableSync": false,
       "class": "",
       "plugins": "",
       "selectable": false,
@@ -496,7 +508,7 @@
       "table_primary": "rsn",
       "object_label": "title",
       "desc": "",
-      "table_sync": false,
+      "tableSync": false,
       "class": "",
       "plugins": "",
       "chooserTableKey": "rsn",

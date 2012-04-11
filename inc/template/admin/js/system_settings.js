@@ -12,7 +12,7 @@ var admin_system_settings = new Class({
     preload: function () {
 
         this.tabGroup = this.win.addSmallTabGroup();
-        this.tabButtons = $H();
+        this.tabButtons = {};
         this.tabButtons['general'] = this.tabGroup.addButton(_('General'), this.changeType.bind(this, 'general'));
         this.tabButtons['system'] = this.tabGroup.addButton(_('System'), this.changeType.bind(this, 'system'));
         this.tabButtons['auth'] = this.tabGroup.addButton(_('Session'), this.changeType.bind(this, 'auth'));
@@ -25,7 +25,7 @@ var admin_system_settings = new Class({
         this.saveButton = this.saveGrp.addButton(_('Save'), _path + 'inc/template/admin/images/button-save.png', this.save.bind(this));
 
         this.panes = {};
-        this.tabButtons.each(function (item, key) {
+        Object.each(this.tabButtons, function (item, key) {
             this.panes[key] = new Element('div', {
                 'class': 'admin-system-settings-pane',
                 lang: key
@@ -103,7 +103,11 @@ var admin_system_settings = new Class({
                 }
             },
             'db_error_print_sql': {
-                label: t('Display the full SQL if a database fails'),
+                label: t('Display the full SQL in the logs when a query fails'),
+                type: 'checkbox'
+            },
+            'db_exceptions_nostop': {
+                label: t('Do not stop the script during an query failure'),
                 type: 'checkbox'
             },
             'timezone': {
@@ -239,36 +243,45 @@ var admin_system_settings = new Class({
 
 
         var p = this.panes['database'];
-        this.fields['db_type'] = new ka.field({
-            label: _('Database type'), empty: false, type: 'select',
-            table_items: [
-                {i: 'mysql', v: 'MySQL'},
-                {i: 'postgresql', v: 'PostgreSQL'},
-                {i: 'sqlite', v: 'SQLite'}
-            ],
-            table_id: 'i',
-            table_label: 'v'
-        }).inject(p);
 
-        this.fields['db_server'] = new ka.field({
-            label: _('Database server'), desc: _('Example: localhost'), empty: false
-        }).inject(p);
+        var databaseFields = {
+            db_type: {
+                label: t('Database type'),
+                empty: false,
+                type: 'select',
+                items: {
+                    mysql: 'MySQL',
+                    postgresql: 'PostgreSQL',
+                    sqlite: 'SQLite',
+                    mssql: 'MSSQL'
+                }
+            },
+            db_server: {
+                label: t('Database server'),
+                desc: t('Example: localhost. For SQLite enter the path'),
+                empty: false
+            },
+            db_user: {
+                needValue: ['postgresql', 'mysql', 'mssql'],
+                againstField: 'db_type',
+                label: t('Database login'), empty: false
+            },
+            db_passwd: {
+                needValue: ['postgresql', 'mysql', 'mssql'],
+                againstField: 'db_type',
+                label: t('Database password'), type: 'password'
+            },
+            db_name: {
+                needValue: ['postgresql', 'mysql', 'mssql'],
+                againstField: 'db_type',
+                label: t('Database name'), empty: false
+            },
+            db_prefix: {
+                label: t('Database prefix'), empty: false
+            }
+        };
 
-        this.fields['db_user'] = new ka.field({
-            label: _('Database login'), empty: false
-        }).inject(p);
-
-        this.fields['db_passwd'] = new ka.field({
-            label: _('Database password'), type: 'password'
-        }).inject(p);
-
-        this.fields['db_name'] = new ka.field({
-            label: _('Database name'), empty: false
-        }).inject(p);
-
-        this.fields['db_prefix'] = new ka.field({
-            label: _('Database prefix'), empty: false
-        }).inject(p);
+        this.databaseFieldObj = new ka.parse(p, databaseFields);
 
         var p = this.panes['caching'];
 
@@ -290,12 +303,12 @@ var admin_system_settings = new Class({
     },
 
     changeType: function (pType) {
-        this.tabButtons.each(function (button, id) {
+        Object.each(this.tabButtons, function (button, id) {
             button.setPressed(false);
             this.panes[id].setStyle('display', 'none');
         }.bind(this));
-        this.tabButtons[ pType ].setPressed(true);
         this.panes[ pType ].setStyle('display', 'block');
+        this.tabButtons[ pType ].setPressed(true);
     },
 
     load: function () {
@@ -325,6 +338,8 @@ var admin_system_settings = new Class({
                 }
             }
 
+            this.databaseFieldObj.setValue(res.system);
+
             this.oldCommunityEmail = res.system['communityEmail'];
 
             var langs = [];
@@ -338,7 +353,7 @@ var admin_system_settings = new Class({
     },
 
     save: function () {
-        var req = new Hash();
+        var req = {}
         var dontGo = false;
 
         Object.each(this.fields, function (field, key) {
@@ -353,7 +368,7 @@ var admin_system_settings = new Class({
 
                 this.changeType(parent.get('lang'));
             }
-            req.set(key, field.getValue());
+            req[key] = field.getValue();
         }.bind(this));
 
         var auth_class = this.fields['auth_class'].getValue();
@@ -364,6 +379,17 @@ var admin_system_settings = new Class({
             req['auth_params'] = obj.getValue();
         }
         if (dontGo) return;
+
+        if (!this.databaseFieldObj.isOk()){
+            this.changeType('database');
+            return;
+        }
+
+        var values = this.databaseFieldObj.getValue();
+        Object.each(values, function(val, key){
+            req[key] = val;
+        })
+
 
         this.saveButton.startTip(_('Saving ...'));
 

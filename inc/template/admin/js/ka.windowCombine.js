@@ -916,7 +916,7 @@ ka.windowCombine = new Class({
                 win[i] = this.win[i];
 
             win.code = this.oriWinCode+'/edit';
-            win.params = {item: pItem};
+            win.params = {item: pItem.values};
 
             this.currentEdit = new ka.windowEdit(win, this.mainRight);
 
@@ -931,7 +931,7 @@ ka.windowCombine = new Class({
                 this.win.interruptClose = true;
                 this.win._confirm(_('There are unsaved data. Want to continue?'), function (pAccepted) {
                     if (pAccepted) {
-                        this.currentEdit.winParams = pItem;
+                        this.currentEdit.winParams = {item: pItem.values};
                         this.currentEdit.loadItem();
                         this.addBtn.setPressed(false);
                         this.setActiveItem(pItem);
@@ -939,7 +939,7 @@ ka.windowCombine = new Class({
                 }.bind(this));
                 return;
             } else {
-                this.currentEdit.winParams = pItem;
+                this.currentEdit.winParams = {item: pItem.values};
                 this.currentEdit.loadItem();
                 this.addBtn.setPressed(false);
                 this.setActiveItem(pItem);

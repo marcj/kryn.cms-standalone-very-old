@@ -3,12 +3,13 @@
 
 class objectEntrypoint extends krynObjectAbstract {
 
-    public function getItem($pId, $pFields = '*'){
+    public function getItem($pPrimaryValues, $pFields = '*', $pResolveForeignValues = '*'){
 
-        return array('path' => $pId);
+        return array('path' => $pPrimaryValues['path']);
     }
 
-    public function getItems($pFrom = 0, $pLimit = false, $pCondition = false, $pFields = '*'){
+    public function getItems($pPrimaryValues, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
+                             $pResolveForeignValues = '*', $pOrder){
 
         return array(array('path' => 'admin/test', 'title' => 'test'));
     }
@@ -21,11 +22,11 @@ class objectEntrypoint extends krynObjectAbstract {
 
     }
 
-    public function updateItem($pId){
+    public function updateItem($pPrimaryValue, $pValues){
 
     }
 
-    public function getCount($pId, $pCondition){
+    public function getCount($pCondition = false){
         return 1;
     }
 }

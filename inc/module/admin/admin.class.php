@@ -135,7 +135,7 @@ class admin {
                             $content = self::objectGetItems(getArgv('object', 2), getArgv('ids'));
                             break;
                         case 'autoChooser':
-                            $content = self::autoChooser(getArgv('object'), getArgv('page'));
+                            $content = self::autoChooser(getArgv('object', 2), getArgv('page'));
                             break;
                         case 'getPluginElements':
                             $content = self::getPluginElements(getArgv('object', 2));
@@ -249,7 +249,7 @@ class admin {
         if (!getArgv(2))
             admin::showLogin();
 
-        json(array('error' => 'param_failed'));
+        json(false);
     }
 
     /**
@@ -434,7 +434,7 @@ class admin {
 
             $fields[] = $definition['chooserFieldDataModelField'];
 
-            $item = krynObject::get($object_key, $object_id, array(
+            $item = krynObject::get($object_key, $object_id[0], array(
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
@@ -463,7 +463,6 @@ class admin {
             return;
 
         if ($definition['chooserBrowserDataModel'] == 'custom' && $definition['chooserBrowserDataModelClass']){
-
 
             return $items;
         }

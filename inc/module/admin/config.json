@@ -602,7 +602,7 @@
     },
     "domain": {
       "desc": "",
-      "table_sync": false,
+      "tableSync": false,
       "table": "system_domains",
       "class": "",
       "plugins": "",

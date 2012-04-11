@@ -2035,7 +2035,13 @@ ka.parse = new Class({
     isOk: function () {
 
         var ok = true;
-        Object.each(this.fields, function (field) {
+        Object.each(this.fields, function (field, id) {
+
+            if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+                return;
+
+            if (field.isHidden())
+                return;
 
             if (!field.isOk()) {
                 ok = false;

@@ -24,6 +24,125 @@ class adminDb {
     function install($pModuleConfig) {
         if (is_array($pModuleConfig['db']))
             return self::_install($pModuleConfig['db']);
+
+
+        if (is_array($pModuleConfig['objects'])){
+            $objectTables = array();
+
+            $typesMap = array(
+                'text' => array('textarea', 'wysiwyg', 'codemirror', 'array', 'layoutelement', 'checkboxgroup', 'filelist'),
+                'int' => array('number')
+            );
+
+            $tables = array();
+
+            foreach ($pModuleConfig['objects'] as $objectKey => $object){
+                if ($object['tableSync']){
+
+                    $table = array();
+                    foreach ($object['fields'] as $fieldKey => $field){
+                        $type = 'varchar';
+                        $length = 255;
+                        $autoincrement = false;
+                        $mode = '';
+
+                        if ($field['primaryKey'])
+                            $mode = 'DB_PRIMARY';
+
+                        if ($field['dbIndex'])
+                            $mode = 'DB_INDEX';
+
+                        if ($field['autoIncrement'])
+                            $mode = true;
+
+
+                        if ($field['type'] == 'text' || $field['type'] == 'password' || $field['type'] == 'number'){
+                            if ($field['maxlength'] && $field['maxlength'] <= 255)
+                                $length = $field['maxlength'];
+                        }
+
+
+                        if ($field['type'] == 'object'){
+
+                            $definition = kryn::$objects[$field['object']];
+                            if ($definition && $definition['fields']){
+
+                                if ($field['object_relation'] == 'nToM'){
+
+                                    $relTable = array();
+                                    foreach ($object['fields'] as $relFieldKey => $relField){
+                                        //todo for the left "side" of the rel table
+                                    }
+
+                                    foreach ($definition['fields'] as $relFieldKey => $relField){
+                                        //todo for the right "side" of the rel table
+                                    }
+
+
+                                } else {
+                                    $primaryKeys = array();
+                                    $lastPrimaryKey = array();
+                                    foreach ($definition['fields'] as $dKey => $dField){
+                                        if ($dField['primaryKey']){
+                                            $primaryKeys[$dKey] = $dField;
+                                            $lastPrimaryKey = $dField;
+                                        }
+                                    }
+
+                                    if (count($primaryKeys) == 1){
+                                        $type = $lastPrimaryKey['type'];
+                                        if ($lastPrimaryKey['maxlength']+0 > 0)
+                                            $length = $lastPrimaryKey['maxlength'];
+                                    } else if(count($primaryKeys) > 1){
+
+                                        $index = array();
+                                        foreach ($primaryKeys as $pKey => $pField){
+                                            $index[] = $pKey;
+
+                                            $table[ $field['object'].'_'.$pKey ] = array(
+                                                ($pField['type'] == 'number')?'int':'varchar',
+                                                $pField['maxlength']?$pField:(($pField['type'] == 'number')?'':'255')
+                                            );
+
+                                        }
+
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+
+
+
+                        if (in_array($field['type'], $typesMap['text'])){
+                            $type = 'text';
+                            $length = '';
+                        }
+
+                        if ($field['type'] == 'number'){
+                            $type = 'int';
+                            $length = '';
+                        }
+
+
+                        $table[$fieldKey] = array(
+                            $type,
+                            $length,
+                            $mode,
+                            $autoincrement
+                        );
+                    }
+
+                    $tables[$object['table']] = $table;
+                }
+            }
+
+
+            return self::_install($tables);
+
+        }
+
+
         return false;
     }
 

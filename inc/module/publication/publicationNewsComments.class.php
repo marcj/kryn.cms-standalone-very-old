@@ -50,11 +50,30 @@ class publicationNewsComments extends adminWindowList {
   1 => 'email',
 );
 
+    public $addIcon = 0;
+
+    public $addEntrypoint = '';
+
     public $add = 1;
+
+    public $editIcon = 0;
+
+    public $editEntrypoint = '';
 
     public $edit = 1;
 
+    public $removeIcon = 0;
+
     public $remove = 1;
+
+    public $itemActions = array (
+  0 => 
+  array (
+    'entrypoint' => 'admin/test/ficker$%,,df/Fg',
+    'label' => 'Test',
+    'icon' => '/admin/images/admin-files-list-icons.png',
+  ),
+);
 
     public $export = 0;
 

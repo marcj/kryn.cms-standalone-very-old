@@ -226,6 +226,49 @@ window.ka.entrypoint = {
 
 };
 
+ka.urlEncode = function(pValue){
+
+    if (typeOf(pValue) == 'string'){
+        if (pValue.test(/[\/=\?#:]/)){
+            return encodeURIComponent(pValue);
+        }
+    } else if (typeOf(pValue) == 'array'){
+        var result = '';
+        Array.each(pValue, function(item){
+             result += ka.urlEncode(item)+'/';
+        });
+        return result.substr(0, result.length-1);
+    } else if (typeOf(pValue) == 'object'){
+        var result = '';
+        Array.each(pValue, function(item, key){
+             result += key+'='+ka.urlEncode(item)+'/';
+        });
+        return result.substr(0, result.length-1);
+    }
+
+    return pValue;
+
+}
+
+ka.urlDecode = function(pValue){
+
+    if (typeOf(pValue) != 'string') return pValue;
+
+    try {
+        return decodeURIComponent(pValue);
+    } catch(e){
+        return pValue;
+    }
+
+
+}
+
+ka.getObjectId = function(pUrl){
+    if (typeOf(pUrl) != 'string') return pUrl;
+    return ka.urlDecode(pUrl.substr(10+pUrl.substr('object://'.length).indexOf('/')));
+}
+
+
 window.addEvent('load', function () {
 
     window.ka.ai.renderLogin();

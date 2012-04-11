@@ -495,6 +495,9 @@ function step5(){
         }
 
     }
+
+    //todo, load all objects
+    //todo,
     
     //delete first all tables
     foreach( kryn::$tables as $table => $columns ){

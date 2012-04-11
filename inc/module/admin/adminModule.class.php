@@ -62,14 +62,14 @@ class adminModule {
             case 'getPublishInfo':
                 return self::getPublishInfo(getArgv('name', 2));
             case 'publish':
-                json(self::publish(getArgv('pw'), getArgv('name', 2), getArgv('message')));
+                return self::publish(getArgv('pw'), getArgv('name', 2), getArgv('message'));
             case 'getVersion':
-                json(self::getVersion(getArgv('name', 2)));
+                return self::getVersion(getArgv('name', 2));
             case 'getPackage':
-                json(self::getPackage(getArgv('name', 2)));
+                return self::getPackage(getArgv('name', 2));
 
             case 'getChangedFiles':
-                json(self::getChangedFiles(getArgv('name', 2)));
+                return self::getChangedFiles(getArgv('name', 2));
             case 'remove':
                 json(self::removeModule(getArgv('name', 2)));
 
@@ -80,15 +80,15 @@ class adminModule {
             case 'extractLanguage':
                 json(krynLanguage::extractLanguage(getArgv('name', 2)));
             case 'getLanguage':
-                json(krynLanguage::getLanguage(getArgv('name', 2), getArgv('lang', 2)));
+                return krynLanguage::getLanguage(getArgv('name', 2), getArgv('lang', 2));
             case 'saveLanguage':
                 json(krynLanguage::saveLanguage(getArgv('name', 2), getArgv('lang', 2), getArgv('langs')));
 
             case 'getConfig':
-                json(self::loadInfo(getArgv('name', 2)));
+                return self::loadInfo(getArgv('name', 2));
 
             case 'getHelp':
-                json(self::getHelp(getArgv('name', 2), getArgv('lang', 2)));
+                return self::getHelp(getArgv('name', 2), getArgv('lang', 2));
             case 'saveHelp':
                 json(self::saveHelp(getArgv('name', 2), getArgv('lang', 2), getArgv('help')));
 
@@ -104,21 +104,21 @@ class adminModule {
             case 'saveDocu':
                 json(self::saveDocu());
             case 'getDocu':
-                json(self::getDocu());
+                return self::getDocu();
 
             case 'savePlugins':
                 json(self::savePlugins());
             case 'getPlugins':
-                json(self::getPlugins(getArgv('name', 2)));
+                return self::getPlugins(getArgv('name', 2));
 
 
             case 'getObjects':
-                json(self::getObjects(getArgv('name', 2)));
+                return self::getObjects(getArgv('name', 2));
             case 'saveObjects':
-                json(self::saveObjects());
+                return self::saveObjects();
 
             case 'addCheckCode':
-                json(self::addCheckCode(getArgv('name', 2)));
+                return self::addCheckCode(getArgv('name', 2));
 
 
             case 'getWindowDefinition':
@@ -126,9 +126,9 @@ class adminModule {
             case 'saveWindowClass':
                 return self::saveWindowClass(getArgv('name', 2), getArgv('class', 2));
             case 'getWindows':
-                json(self::getWindows(getArgv('name', 2)));
+                return self::getWindows(getArgv('name', 2));
             case 'newWindow':
-                json(self::newWindow(getArgv('name', 2), getArgv('className')));
+                return self::newWindow(getArgv('name', 2), getArgv('className'));
         }
     }
 

@@ -81,6 +81,11 @@ tr.ka-field-main td div.desc {
     width: 296px;
 }
 
+
+.ka-field-field input.chooser {
+    width: 220px;
+}
+
 select,
 textarea,
 input.text {
