@@ -252,14 +252,17 @@ class krynObject {
     public static function getClassObject($pObjectKey){
 
 
-        $definition = kryn::$objects[$pObjectKey];
+        $definition =& kryn::$objects[$pObjectKey];
         if (!$definition) return false;
 
         if (!self::$instances[$pObjectKey]){
             if ($definition['class']){
+
                 $path = (substr($definition['class'], 0, 5) == 'kryn/'?'inc/':'inc/module/'.$definition['_extension'].'/').$definition['class'].'.class.php';
+
                 if (!file_exists($path))
                     throw new Exception('Create object instance error: Class file for '.$pObjectKey.' ('.$definition['class'].', '.$path.') not found');
+
                 require_once($path);
 
                 $p = explode('/', $definition['class']);

@@ -1813,23 +1813,37 @@ var admin_system_module_edit = new Class({
                     'desc': {
                         label: t('Description')
                     },
-                    __info__: {
-                        type: 'label',
+                    __dataModel__: {
+                        type: 'select',
                         label: t('Data model'),
+                        items: {
+                            'table': t('SQL Table'),
+                            'custom': t('Custom class')
+                        },
                         desc: t('Define a table or a own object class'),
                         depends: {
                             table: {
+                                needValue: 'table',
                                 label: t('Table name'),
-                                depends: {
-                                    tableSync: {
-                                        needValue: function(n){if(n!='')return true;else return false;},
-                                        label: t('Table synchronisation'),
-                                        desc: t('Keep the field definition in sync with the columns of the defined table.'),
-                                        type: 'checkbox'
-                                    }
-                                }
+                            },
+                            tableSync: {
+                                needValue: 'table',
+                                label: t('Table synchronisation'),
+                                desc: t('Keep the field definition in sync with the columns of the defined table.'),
+                                type: 'checkbox'
+                            },
+                            tableCondition: {
+                                needValue: 'table',
+                                label: t('Additional SQL condition'),
+                                desc: t("Without 'WHERE' and 'AND' at the beginning"),
+                                type: 'codemirror',
+                                codemirrorOptions: {
+                                    mode: 'mysql'
+                                },
+                                input_height: 50
                             },
                             'class': {
+                                needValue: 'custom',
                                 label: t('Class name'),
                                 desc: t('You need then a file under inc/module/&lt;extKey&gt;/&lt;className&gt;.class.php')
                             }
@@ -2019,6 +2033,12 @@ var admin_system_module_edit = new Class({
 
             this.cancelObjectSettings();
         }.bind(this)).inject(this.dialog.bottom);
+
+
+        //switcher
+        if (definition.table){
+            definition.__dataModel__ = 'table';
+        }
 
         if (definition)
             kaParseObj.setValue(definition);

@@ -483,8 +483,6 @@ ka.windowCombine = new Class({
             }
 
         }.bind(this)}).post({
-            module: this.win.module,
-            code: this.oriWinCode,
             from: pFrom,
             max: pMax,
             orderBy: this.sortField,

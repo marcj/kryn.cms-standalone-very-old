@@ -3,7 +3,7 @@
 
 class usersAdminEdit extends windowEdit {
 
-    public $object = 'system_user';
+    public $object = 'user';
     public $primary = array('rsn');
     public $versioning = false;
 

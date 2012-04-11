@@ -2,7 +2,7 @@
 
 class usersAdminList extends windowList {
 
-    public $object = 'system_user';
+    public $object = 'user';
 
     public $itemsPerPage = 20;
     public $orderBy = 'username';

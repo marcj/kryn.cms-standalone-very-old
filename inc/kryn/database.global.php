@@ -64,17 +64,31 @@ function esc($p, $pEscape = 1) {
 /**
  * Quotes Keywords and Identifiers
  *
- * @param $pValue
+ * @param string|array $pValue
  * @return mixed
  */
 function dbQuote($pValue){
-    return (kryn::$config['db_type'] = 'mysql') ? "`$pValue`": '"'.$pValue.'"';
+    if (is_array($pValue)){
+        foreach ($pValue as &$value)
+            $value = dbQuote($value);
+        return $pValue;
+    }
+    return (kryn::$config['db_type'] == 'mysql') ? '`'.$pValue.'`': '"'.$pValue.'"';
 }
 
-function dbConnect() {
+/**
+ * Connects to the database
+ *
+ * @param bool $pReadOnly If true, we try to connect to a slave (if defined)
+ *
+ * @return mixed
+ */
+function dbConnect($pReadOnly = false) {
     global $kdb, $cfg;
 
     if ($kdb) return;
+
+    //todo, handle $pReadOnly
 
     $kdb = new database(
         $cfg['db_type'],
@@ -103,7 +117,7 @@ function dbConnect() {
  *
  * @return array
  */
-function dbExfetch($pSql, $pRowCount = 1) {
+function dbExFetch($pSql, $pRowCount = 1) {
     global $kdb, $cfg;
 
     dbConnect();
@@ -114,11 +128,11 @@ function dbExfetch($pSql, $pRowCount = 1) {
 
 
 /**
- * Execute a query and return the resultset. To retrieve the values, call dbFetch() with the result.
+ * Execute a query and return the resultSet. To retrieve the values, call dbFetch() with the result.
  *
  * @param string $pSql
  *
- * @return resultset
+ * @return resultSet
  */
 function dbExec($pSql) {
     global $kdb;
@@ -209,8 +223,7 @@ function dbInsert($pTable, $pFields) {
 
     $options = database::getOptions($pTable);
 
-    if (substr($pTable,1)!='/')
-        $table = pfx.$pTable;
+    $table = dbQuote(dbTableName($pTable));
 
     $sql = "INSERT INTO $table (";
 
@@ -237,7 +250,7 @@ function dbInsert($pTable, $pFields) {
 
         if (!$options[$fieldName]) continue;
 
-        $sqlFields .= "$fieldName,";
+        $sqlFields .= dbQuote($fieldName).",";
 
         if ($options[$fieldName]['escape'] == 'int') {
             $sqlInsert .= ($val + 0) . ",";
@@ -311,7 +324,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
 
     $options = database::getOptions($pTable);
 
-    $table = dbTableName($pTable);
+    $table = dbQuote(dbTableName($pTable));
 
     $sql = "UPDATE $table SET ";
 
@@ -320,7 +333,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
         foreach ($pPrimary as $fieldName => $fieldValue) {
             if (!$options[$fieldName]) continue;
 
-            $where .= '' . $fieldName . ' ';
+            $where .= dbQuote($fieldName). ' ';
             if ($options[$fieldName]['escape'] == 'int') {
                 $where .= ' = ' . ($fieldValue + 0) . " AND ";
             } else {
@@ -346,7 +359,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
 
         if (!$options[$fieldName]) continue;
 
-        $sqlInsert .= "$fieldName";
+        $sqlInsert .= dbQuote($fieldName);
 
         if ($options[$fieldName]['escape'] == 'int') {
             $sqlInsert .= ' = ' . ($val + 0) . ",";

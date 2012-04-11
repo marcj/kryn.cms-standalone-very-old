@@ -675,133 +675,169 @@ class adminWindowList {
         $start = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
         $end = $this->itemsPerPage;
 
-        $this->listSql = $this->getFullSql();
-
-        /* count sql */
-        $countSql = $this->getCountSql();
-        $temp = dbExfetch($countSql);
-        $results['maxItems'] = $temp['ctn'];
-
-        if ($temp['ctn'] > 0)
-            $results['maxPages'] = ceil($temp['ctn'] / $this->itemsPerPage);
-        else
-            $results['maxPages'] = 0;
-
-        $order = $this->getOrderSql();
+        if ($this->object){
 
 
-        if ($_POST['getPosition']) {
-
-            $limit = "";
-            $itemsBefore = array();
-            $itemsAfter = array();
-
-            $fields = implode(',', $this->primary);
-
-            $unique = '';
-            $sql = "
-                " . $this->listSql . "
-                $unique
-                $order";
-
-            $aWhere = array();
-
-            $table = database::getTable($this->table);
-            $options = database::getOptions($table);
-
-            $selected = getArgv('getPosition');
-
-            $sqlInsert = '';
-            foreach ($this->primary as $primary) {
-
-                $val = $selected[$primary];
-                if ($options[$primary]['escape'] == 'int') {
-                    $sqlInsert .= ($val + 0);
-                } else {
-                    $sqlInsert .= "'" . esc($val) . "'";
-                }
-
-                $aWhere[] = "t.$primary = " . $sqlInsert;
+            if (!$pPage) {
+                $start = getArgv('from') + 0;
+                $end = getArgv('max') + 0;
             }
 
-            $where = implode(' AND ', $aWhere);
+            $items = krynObject::get($this->object, false, array(
+                'offset' => $start,
+                'limit'  => $end
+            ));
 
-            $res = dbExec($sql);
+            $result = array(
+                'maxItems' => krynObject::count($this->object)
+            );
 
-            $c = 1;
-            $found = false;
-            while ($row = dbFetch($res)) {
 
-                $found = true;
-                foreach ($this->primary as $primary) {
-                    if ($row[$primary] != $selected[$primary])
-                        $found = false;
+            foreach ($items as $item){
+                $_res = $this->acl($item);
+
+                if ($_res){
+                    $mod = $this->modifier;
+                    if (!empty($mod) && method_exists($this, $mod))
+                        $_res = $this->$mod($_res);
+
+                    if ($_res != null)
+                        $result['items'][] = $_res;
                 }
-
-                if ($found == true) {
-                    json($c);
-                }
-
-                $c++;
             }
+            return $result;
 
-            json(1);
 
         } else {
 
-            if (!$pPage) {
-                $from = getArgv('from') + 0;
-                $max = getArgv('max') + 0;
-                $limit = " LIMIT $max OFFSET $from";
+            $this->listSql = $this->getFullSql();
+
+            /* count sql */
+            $countSql = $this->getCountSql();
+            $temp = dbExfetch($countSql);
+            $results['maxItems'] = $temp['ctn'];
+
+            if ($temp['ctn'] > 0)
+                $results['maxPages'] = ceil($temp['ctn'] / $this->itemsPerPage);
+            else
+                $results['maxPages'] = 0;
+
+            $order = $this->getOrderSql();
+
+
+            if ($_POST['getPosition']) {
+
+                $limit = "";
+                $itemsBefore = array();
+                $itemsAfter = array();
+
+                $fields = implode(',', $this->primary);
+
+                $unique = '';
+                $sql = "
+                    " . $this->listSql . "
+                    $unique
+                    $order";
+
+                $aWhere = array();
+
+                $table = database::getTable($this->table);
+                $options = database::getOptions($table);
+
+                $selected = getArgv('getPosition');
+
+                $sqlInsert = '';
+                foreach ($this->primary as $primary) {
+
+                    $val = $selected[$primary];
+                    if ($options[$primary]['escape'] == 'int') {
+                        $sqlInsert .= ($val + 0);
+                    } else {
+                        $sqlInsert .= "'" . esc($val) . "'";
+                    }
+
+                    $aWhere[] = "t.$primary = " . $sqlInsert;
+                }
+
+                $where = implode(' AND ', $aWhere);
+
+                $res = dbExec($sql);
+
+                $c = 1;
+                $found = false;
+                while ($row = dbFetch($res)) {
+
+                    $found = true;
+                    foreach ($this->primary as $primary) {
+                        if ($row[$primary] != $selected[$primary])
+                            $found = false;
+                    }
+
+                    if ($found == true) {
+                        json($c);
+                    }
+
+                    $c++;
+                }
+
+                json(1);
 
             } else {
-                //default behaviour
-                $limit = " LIMIT $end OFFSET $start";
+
+                if (!$pPage) {
+                    $from = getArgv('from') + 0;
+                    $max = getArgv('max') + 0;
+                    $limit = " LIMIT $max OFFSET $from";
+
+                } else {
+                    //default behaviour
+                    $limit = " LIMIT $end OFFSET $start";
+                }
+
+                $unique = '';
+                $listSql = "
+                SELECT * FROM (
+                    " . $this->listSql . "
+                    $unique
+                    $order
+                ) as t
+                $limit";
+
             }
 
-            $unique = '';
-            $listSql = "
-            SELECT * FROM (
-                " . $this->listSql . "
-                $unique
-                $order
-            ) as t
-            $limit";
+            $res = dbExec($listSql);
 
-        }
+            while ($item = dbFetch($res)) {
 
-        $res = dbExec($listSql);
+                foreach ($this->columns as $key => $column) {
+                    if (kryn::$config['db_type'] == 'postgresql') {
+                        if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
+                            $tempRow = dbExfetch("
+                                SELECT group_concat(" .dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_label'] .
+                                                 ") AS " . $key . "__label
+                                FROM " .dbTableName($column['n-n']['right']) . ", " . dbTableName($column['n-n']['middle']) . "
+                                WHERE
+                                ".dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_key'] . " = " .
+                                    dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyright'] . " AND
+                                ".dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyleft'] . " = " .
+                                                 $item[$column['n-n']['left_key']], 1);
+                            $item[$key . '__label'] = $tempRow[$key . '__label'];
 
-        while ($item = dbFetch($res)) {
-
-            foreach ($this->columns as $key => $column) {
-                if (kryn::$config['db_type'] == 'postgresql') {
-                    if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
-                        $tempRow = dbExfetch("
-                            SELECT group_concat(" .dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_label'] .
-                                             ") AS " . $key . "__label
-                            FROM " .dbTableName($column['n-n']['right']) . ", " . dbTableName($column['n-n']['middle']) . "
-                            WHERE
-                            ".dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_key'] . " = " .
-                                dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyright'] . " AND
-                            ".dbTableName($column['n-n']['middle']) . "." . $column['n-n']['middle_keyleft'] . " = " .
-                                             $item[$column['n-n']['left_key']], 1);
-                        $item[$key . '__label'] = $tempRow[$key . '__label'];
-
+                        }
                     }
                 }
+                $_res = $this->acl($item);
+
+                $mod = $this->modifier;
+                if (!empty($mod) && method_exists($this, $mod))
+                    $_res = $this->$mod($_res);
+
+                if ($res != null)
+                    $results['items'][] = $_res;
+
             }
-            $_res = $this->acl($item);
-
-            $mod = $this->modifier;
-            if (!empty($mod) && method_exists($this, $mod))
-                $_res = $this->$mod($_res);
-
-            if ($res != null)
-                $results['items'][] = $_res;
-
+            return $results;
         }
-        return $results;
     }
 
     /**

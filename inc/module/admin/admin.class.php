@@ -358,7 +358,7 @@ class admin {
             if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
 
             require_once($classFile);
-            $dataModel = new $class();
+            $dataModel = new $class($pObject);
 
             $items = $dataModel->getItems($pIds);
             return $items;
@@ -397,6 +397,7 @@ class admin {
 
     public static function objectGetLabel($pUrl){
 
+
         if (is_numeric($pUrl)){
             //compatibility
             $object_key = '';
@@ -416,9 +417,9 @@ class admin {
             if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
 
             require_once($classFile);
-            $dataModel = new $class();
+            $dataModel = new $class($object_key);
 
-            $item = $dataModel->getItem($object_id);
+            $item = $dataModel->getItem($object_id[0]);
             return array(
                 'object' => $object_key,
                 'values' => $item

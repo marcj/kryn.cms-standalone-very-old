@@ -323,6 +323,9 @@ ka.field = new Class({
             case 'codemirror':
                 this.renderCodemirror();
                 break;
+            case 'condition':
+                this.renderCondition();
+                break;
             case 'text':
             default:
                 this.renderText();
@@ -338,6 +341,33 @@ ka.field = new Class({
 
             this.input.store('oldClass', this.input.get('class'));
         }
+    },
+
+    renderCondition: function(){
+
+
+        var addCondition = function(pTarget, pValues){
+
+        }
+
+        var addGroup = function(pTarget, pValues){
+
+        }
+
+
+
+
+        this._setValue = function(pValue){
+
+
+        }
+
+        this.getValue = function(){
+
+
+
+        }
+
     },
 
 

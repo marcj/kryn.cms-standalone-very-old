@@ -64,7 +64,7 @@ abstract class krynObjectAbstract {
             foreach ($pPrimaryValue as $group){
                 $sql .= ' (';
                 foreach ($group as $primKey => $primValue){
-                    $sql .= $this->object_key.".$primKey = '".esc($primValue)."' AND ";
+                    $sql .= dbQuote($this->object_key).".".dbQuote($primKey)." = '".esc($primValue)."' AND ";
                 }
                 $sql = substr($sql, 0, -5).') OR ';
             }
@@ -74,7 +74,7 @@ abstract class krynObjectAbstract {
             //we only have to select one row
             $sql .= ' (';
             foreach ($pPrimaryValue as $primKey => $primValue){
-                $sql .= $this->object_key.".$primKey = '".esc($primValue)."' AND ";
+                $sql .= dbQuote($this->object_key).'.'.dbQuote($primKey)." = '".esc($primValue)."' AND ";
             }
             $sql = substr($sql, 0, -5).')';
         }
@@ -168,10 +168,10 @@ abstract class krynObjectAbstract {
      * Updates an object
      *
      * @abstract
-     * @param $pPrimaryValuse
+     * @param $pPrimaryValues
      * @param $pValues
      */
-    abstract public function updateItem($pPrimaryValuse, $pValues);
+    abstract public function updateItem($pPrimaryValues, $pValues);
 
     /**
      * @abstract

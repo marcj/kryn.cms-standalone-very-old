@@ -2,7 +2,7 @@
 
 class usersAdminAdd extends windowAdd {
 
-    public $object = 'system_user';
+    public $object = 'user';
     public $checkUsage = true; //default on
 
     public $primary = array('rsn');

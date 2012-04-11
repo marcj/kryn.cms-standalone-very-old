@@ -4,12 +4,20 @@ class adminFileFieldModel {
 
     public function getItem($pId){
 
-        $path = krynFile::getPath($pId);
+        if (is_numeric($pId['id'])){
 
-        return array(
-            'id' => $pId,
-            'path' => $path
-        );
+            $path = krynFile::getPath($pId);
+
+            return array(
+                'id' => $pId['id'],
+                'path' => $path
+            );
+        } else {
+            return array(
+                'id' => $pId['id'],
+                'path' => $pId['id']
+            );
+        }
 
     }
 

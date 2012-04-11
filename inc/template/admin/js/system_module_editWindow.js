@@ -1190,7 +1190,7 @@ var admin_system_module_editWindow = new Class({
                                 filterCustom: {
                                     label: t('Search fields'),
                                     needValue: 'custom',
-                                    type: 'fieldTable',
+                                    type: 'feeeeieldTable',
                                     options: {
                                         asFrameworkSearch: true,
                                         withoutChildren: true,
