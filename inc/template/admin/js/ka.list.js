@@ -64,6 +64,8 @@ ka.list = new Class({
     },
 
     click: function (pColumn) {
+
+        logger('click: '+pColumn);
         if (!this.columns || !this.columns[pColumn]) return;
 
         pItem = this.columns[pColumn];
@@ -158,6 +160,7 @@ ka.list = new Class({
 
         if (this.options.noInitLoad == true) return;
 
+        logger('renderFinished');
         if (!this.loadAlreadyTriggeredBySearch) {
             if (this.columns) {
                 var sort = this.getSortField();
@@ -226,7 +229,7 @@ ka.list = new Class({
         }
 
         /*** title-Th ***/
-        this.columns = new Hash();
+        this.columns = {};
         Object.each(this.values.columns, function (column, columnId) {
             _this.columns[columnId] = new Element('th', {
                 valign: 'top',

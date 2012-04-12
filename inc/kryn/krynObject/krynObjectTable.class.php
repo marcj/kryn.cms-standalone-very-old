@@ -25,10 +25,18 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     public function addItem($pValues){
-        $lastId = dbInsert($this->definition['table'], $pValues);
+
+
+        //TODO
+
+        return dbInsert($this->definition['table'], $pValues);
+
     }
 
     public function updateItem($pPrimaryValues, $pValues){
+
+        //TODO
+
         return dbUpdate($this->definition['table'], $pPrimaryValues, $pValues);
     }
 
@@ -79,32 +87,38 @@ class krynObjectTable extends krynObjectAbstract {
 
                 if ($field['type'] == 'object'){
 
-                    $foreignObjectDefinition = kryn::$objects[$field['object']];
+                    $foreignObjectDefinition =& kryn::$objects[$field['object']];
                     if (!$foreignObjectDefinition)
                         continue;
 
                     //todo, if target object has mulitple keys
-                    $oKey = $field['object'].'_'.$field['object_label'];
+
+                    $oKey = $key.'_'.$field['object_label'];
                     $oLabel = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
 
                     if ($field['object_relation'] != 'nToM'){
                         //n to 1
 
-                        $select[] = dbQuote($this->object_key).'.'.dbQuote($key);
+                        $relPrimaryFields = krynObject::getPrimaries($field['object']);
+
                         $select[] = dbQuote($field['object']).'.'.dbQuote($oLabel).' AS '.dbQuote($oKey);
+
                         $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($foreignObjectDefinition['table'])).' AS '.dbQuote($field['object']).
                                    ' ON ( 1=1';
 
                         //If we have multiple foreign keys
-                        if ($field['foreign_key_map']){
+                        if (count($relPrimaryFields) > 1){
 
                             //todo, test this stuff
-                            foreach ($field['foreign_key_map'] as $primaryKey => $primaryForeignKey){
-                                $join .= ' AND '.dbQuote($field['object']).'.'.dbQuote($primaryForeignKey).' = '.
-                                         dbQuote($this->object_key).'.'.dbQuote($primaryKey);
+                            foreach ($relPrimaryFields as $primaryKey => $primaryForeignKey){
+                                $join .= ' AND '.dbQuote($this->object_key).'.'.dbQuote($key.'_'.$primaryKey).' = '.
+                                         dbQuote($field['object']).'.'.dbQuote($primaryKey);
                             }
 
                         } else {
+
+                            $select[] = dbQuote($this->object_key).'.'.dbQuote($key);
+
                             //normal foreign key through one column
                             foreach ($foreignObjectDefinition['fields'] as $tempKey => $tempField){
                                 if ($tempField['primaryKey']) {

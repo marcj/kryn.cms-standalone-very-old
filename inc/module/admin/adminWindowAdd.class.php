@@ -23,6 +23,7 @@ class adminWindowAdd extends adminWindowEdit {
 
             $val = getArgv($key);
 
+            //compatibility, deprecated
             $mod = ($field['add']['modifier']) ? $field['add']['modifier'] : $field['modifier'];
             if ($mod) {
                 $val = $this->$mod($val);

@@ -157,7 +157,7 @@ class adminDb {
                             foreach ($primaryKeys as $pKey => $pField){
                                 $index[] = $pKey;
 
-                                $table[ $objectKey.'_'.$pKey ] = array(
+                                $table[ $fieldKey.'_'.$pKey ] = array(
                                     ($pField['type'] == 'number')?'int':'varchar',
                                     $pField['maxlength']?$pField['maxlength']:(($pField['type'] == 'number')?'':'255')
                                 );
@@ -493,10 +493,8 @@ class adminDb {
         if ($unsigned && $cfg['db_type'] != 'postgresql')
             $sql .= ' UNSIGNED ';
 
-        if ($pFieldOptions[2] == "DB_PRIMARY")
-            $sql .= 'NOT NULL ';
-        else
-            $sql .= 'NULL ';
+        //if ($pFieldOptions[2] == "DB_PRIMARY")
+        //    $sql .= 'NOT NULL ';
 
         //auto increment
         if ($pFieldOptions[3] == true) {

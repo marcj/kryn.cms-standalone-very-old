@@ -249,8 +249,12 @@ class adminWindowList {
             $this->primary = explode(',', str_replace(' ', '', $this->primary));
         }
 
-        if (!$this->orderBy && count($this->order) == 0)
-            $this->orderBy = $this->primary[0];
+        if (!$this->orderBy && count($this->order) == 0){
+            foreach ($this->columns as $colId => $col){
+                $this->orderBy = $colId;
+                break;
+            }
+        }
 
         if (getArgv('orderBy') != '')
             $this->customOrderBy = getArgv('orderBy', 2);
@@ -260,6 +264,7 @@ class adminWindowList {
 
         $this->_fields = array();
         $this->filterFields = array();
+
         if ($this->filter) {
             foreach ($this->filter as $key => $val) {
 
@@ -278,10 +283,6 @@ class adminWindowList {
             }
 
             $this->prepareFieldItem($this->fields);
-        }
-        if ($this->tabFields) {
-            foreach ($this->tabFields as &$field)
-                $this->prepareFieldItem($field);
         }
 
     }
@@ -670,7 +671,7 @@ class adminWindowList {
     function getItems($pPage) {
         global $kdb, $cfg;
 
-        $results['page'] = $pPage;
+        $results['page'] = $pPage?$pPage:1;
 
         $start = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
         $end = $this->itemsPerPage;
@@ -685,13 +686,16 @@ class adminWindowList {
 
             $items = krynObject::get($this->object, false, array(
                 'offset' => $start,
+                'fields' => array_keys($this->columns),
                 'limit'  => $end
             ));
 
-            $result = array(
-                'maxItems' => krynObject::count($this->object)
-            );
+            $results['maxItems'] = krynObject::count($this->object);
 
+            if ($results['maxItems'] > 0)
+                $results['maxPages'] = ceil($results['maxItems'] / $this->itemsPerPage);
+            else
+                $results['maxPages'] = 0;
 
             foreach ($items as $item){
                 $_res = $this->acl($item);
@@ -702,10 +706,10 @@ class adminWindowList {
                         $_res = $this->$mod($_res);
 
                     if ($_res != null)
-                        $result['items'][] = $_res;
+                        $results['items'][] = $_res;
                 }
             }
-            return $result;
+            return $results;
 
 
         } else {
@@ -726,12 +730,6 @@ class adminWindowList {
 
 
             if ($_POST['getPosition']) {
-
-                $limit = "";
-                $itemsBefore = array();
-                $itemsAfter = array();
-
-                $fields = implode(',', $this->primary);
 
                 $unique = '';
                 $sql = "
@@ -758,8 +756,6 @@ class adminWindowList {
 
                     $aWhere[] = "t.$primary = " . $sqlInsert;
                 }
-
-                $where = implode(' AND ', $aWhere);
 
                 $res = dbExec($sql);
 
