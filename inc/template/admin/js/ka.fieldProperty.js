@@ -110,7 +110,7 @@ ka.fieldProperty = new Class({
 
                 //select, file and folder
                 'multi': {
-                    needValue: ['select', 'file', 'folder', 'object'],
+                    needValue: ['select', 'file', 'folder'],
                     label: t('Multiple selection'),
                     desc: t('This field returns then an array.'),
                     type: 'checkbox'

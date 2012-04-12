@@ -408,13 +408,159 @@ class database {
     }
 
     public static function clearOptionsCache($pTable) {
-        $cacheKey = 'krynDatabaseTable-' . str_replace('_', '..', $pTable);
+        $cacheKey = 'krynDatabaseTable_' . str_replace('_', '..', $pTable);
         kryn::deleteCache($cacheKey);
+    }
+
+    public static function getTablesFromObject($pObjectKey){
+
+
+        $objectKey = $pObjectKey;
+        $object = kryn::$objects[$objectKey];
+
+        if (!$object || !$object['table']) return false;
+
+        $typesMap = array(
+            'text' => array('textarea', 'wysiwyg', 'codemirror', 'array', 'layoutelement', 'checkboxgroup', 'filelist'),
+            'int' => array('number')
+        );
+
+        $tables = array();
+
+        $table = array();
+        foreach ($object['fields'] as $fieldKey => $field){
+            $type = 'varchar';
+            $length = 255;
+            $autoincrement = false;
+            $mode = '';
+
+            if ($field['primaryKey'])
+                $mode = 'DB_PRIMARY';
+
+            if ($field['dbIndex'])
+                $mode = 'DB_INDEX';
+
+            if ($field['autoIncrement'])
+                $autoincrement = true;
+
+            if ($field['type'] == 'text' || $field['type'] == 'password' || $field['type'] == 'number'){
+                if ($field['maxlength'] && $field['maxlength'] <= 255)
+                    $length = $field['maxlength'];
+            }
+
+            if ($field['type'] == 'object'){
+
+                $definition = kryn::$objects[$field['object']];
+                if (!$definition){
+                    klog('adminDb', 'The wished object cant be found: '.$field['object'].' for field '.$fieldKey.' '.
+                        'during the initializing of table '.$object['table'].' for object'.$pObjectKey);
+                    continue;
+                }
+
+                if (!$definition['fields']){
+                    klog('adminDb', 'The wished object doesnt have any fields: '.$field['object'].' for field '.$fieldKey.' '.
+                        'during the initializing of table '.$object['table'].' for object'.$pObjectKey);
+                    continue;
+                }
+
+                if ($definition && $definition['fields']){
+
+                    if ($field['object_relation'] == 'nToM'){
+
+                        $relTable = array();
+                        $leftPrimaryKeys = array();
+
+                        $relTableName = $field['object_relation_table'];
+                        if (!$relTableName)
+                            $relTableName = 'relation_'.$objectKey.'_'.$field['object'];
+
+                        foreach ($object['fields'] as $relFieldKey => $relField){
+
+                            if ($relField['primaryKey']){
+                                $relTable[$objectKey.'_'.$relFieldKey] = array(
+                                    ($relField['type'] == 'number')?'int':'varchar',
+                                    $relField['maxlength']?$relField['maxlength']:(($relField['type'] == 'number')?'':'255')
+                                );
+                                $leftPrimaryKeys[] = $objectKey.'_'.$relFieldKey;
+                            }
+                        }
+                        $relTable['___index'][] = implode(',', $leftPrimaryKeys);
+
+                        foreach ($definition['fields'] as $relFieldKey => $relField){
+                            if ($relField['primaryKey']){
+                                $relTable[$field['object'].'_'.$relFieldKey] = array(
+                                    ($relField['type'] == 'number')?'int':'varchar',
+                                    $relField['maxlength']?$relField['maxlength']:(($relField['type'] == 'number')?'':'255')
+                                );
+                                $leftPrimaryKeys[] = $relFieldKey;
+                            }
+                        }
+
+                        $tables[strtolower($relTableName)] = $relTable;
+
+
+                    } else {
+                        //n-1
+
+                        $primaryKeys = array();
+                        $lastPrimaryKey = array();
+
+                        foreach ($definition['fields'] as $dKey => $dField){
+                            if ($dField['primaryKey']){
+                                $primaryKeys[$dKey] = $dField;
+                                $lastPrimaryKey = $dField;
+                            }
+                        }
+
+                        if (count($primaryKeys) == 1){
+                            $type = ($lastPrimaryKey['type'] == 'number')?'int':'varchar';
+                            $length = $lastPrimaryKey['maxlength']?$lastPrimaryKey['maxlength']:(($lastPrimaryKey['type'] == 'number')?'':'255');
+
+                        } else if(count($primaryKeys) > 1){
+
+                            $index = array();
+                            foreach ($primaryKeys as $pKey => $pField){
+                                $index[] = $pKey;
+
+                                $table[ $fieldKey.'_'.$pKey ] = array(
+                                    ($pField['type'] == 'number')?'int':'varchar',
+                                    $pField['maxlength']?$pField['maxlength']:(($pField['type'] == 'number')?'':'255')
+                                );
+
+                            }
+
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            if (in_array($field['type'], $typesMap['text'])){
+                $type = 'text';
+                $length = '';
+            }
+
+            if ($field['type'] == 'number'){
+                $type = 'int';
+                $length = '';
+            }
+
+            $table[$fieldKey] = array(
+                $type,
+                $length,
+                $mode,
+                $autoincrement
+            );
+        }
+
+        $tables[strtolower($object['table'])] = $table;
+        return $tables;
     }
 
     public static function getOptions($pTable) {
 
-        $cacheKey = 'krynDatabaseTable-' . str_replace('_', '..', $pTable);
+        $pTable = strtolower($pTable);
+        $cacheKey = 'krynDatabaseTable_' . str_replace('_', '-', $pTable);
         $columnDefs =& kryn::getCache($cacheKey);
 
         if (!$columnDefs) {
@@ -423,7 +569,7 @@ class database {
             $ncolumns = array();
 
             if (kryn::$tables[$pTable]) {
-                $columns =& kryn::$tables[$pTable];
+                $columns = kryn::$tables[$pTable];
             }
 
             if ($columns) {
@@ -470,12 +616,11 @@ class database {
                     kryn::setCache($cacheKey, $ncolumns);
                     return $ncolumns;
                 } else {
-                    kryn::setCache($cacheKey, 'doesnt_exist');
+                    kryn::deleteCache($cacheKey);
+                    return false;
                 }
             }
 
-        } else if ($columnDefs == 'doesnt_exist') {
-            return false;
         } else {
             return $columnDefs;
         }

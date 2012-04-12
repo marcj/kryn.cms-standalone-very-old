@@ -24,12 +24,66 @@ class krynObjectTable extends krynObjectAbstract {
         return dbDelete($this->definition['table'], $pPrimaryValues);
     }
 
+    public function retrieveValues($pValues){
+
+        $row = array();
+
+        foreach ($this->definition['fields'] as $key => $field){
+            if ($pValues[$key]){
+
+                if ($field['type'] == 'object'){
+
+                    $foreignObjectDefinition =& kryn::$objects[$field['object']];
+                    if (!$foreignObjectDefinition){
+                        return false;
+                    }
+
+                    $relPrimaryFields = krynObject::getPrimaries($field['object']);
+
+                    list($object_key, $object_ids, $params) = krynObject::parseUrl($pValues[$key]);
+
+                    if ($field['object_relation'] != 'nToM'){
+
+                        //only one item in $object_ids
+
+                        if(count($relPrimaryFields) == 1){
+                            //target table has only one primary key, so we store $object_id in $key
+                            $row[$key] = $object_ids[0][key($relPrimaryFields)];
+                        } else {
+                            //target table has multiple primary keys, so we have to store
+                            //$object_ids in different columns
+
+                            foreach ($relPrimaryFields as $rKey => $rField){
+                                $row[$key.'_'.$rKey] = $object_ids[0][$rKey];
+                            }
+
+                        }
+
+                    } else {
+
+                        //multiple items in $object_ids
+
+
+                    }
+
+
+                } else {
+                    $row[$key] = $pValues[$key];
+                }
+
+
+            }
+        }
+
+        return $row;
+    }
+
     public function addItem($pValues){
 
+        $row = $this->retrieveValues($pValues);
+        error_log(print_r($row,true));
 
-        //TODO
-
-        return dbInsert($this->definition['table'], $pValues);
+        return dbInsert($this->definition['table'], $row);
 
     }
 

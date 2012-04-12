@@ -66,7 +66,7 @@ if (getArgv(1) == 'admin') {
      */
     require('inc/kryn/adminForm.class.php');
     require(PATH_MODULE . 'admin/admin.class.php');
-    $modules['admin'] = new admin();
+    kryn::$modules['admin'] = new admin();
 
     /*
      * Check url access
@@ -93,7 +93,7 @@ if (getArgv(1) == 'admin') {
     /*
      * Start backend controller
      */
-    $modules['admin']->content();
+    kryn::$modules['admin']->content();
 
 } else {
 

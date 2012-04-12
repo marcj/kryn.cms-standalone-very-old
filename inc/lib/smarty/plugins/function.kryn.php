@@ -1,6 +1,5 @@
 <?php
 function smarty_function_kryn($params, &$smarty){
-        global $modules;
 
         $module = $params['module'];
         $method = $params['plugin'];
@@ -18,8 +17,8 @@ function smarty_function_kryn($params, &$smarty){
             break;
         default:
 
-            if( method_exists($modules[$module], $method) ){
-                print $modules[$module]->$method( $params );
+            if( method_exists(kryn::$modules[$module], $method) ){
+                print kryn::$modules[$module]->$method( $params );
             } else {
                 print sprintf(t('Can not found method %s of %s.'), $method, $module);
             }

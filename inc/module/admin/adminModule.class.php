@@ -96,6 +96,8 @@ class adminModule {
                 json(self::saveLayouts());
             case 'saveGeneral':
                 json(self::saveGeneral());
+            case 'saveExtras':
+                json(self::saveExtras());
             case 'saveLinks':
                 json(self::saveLinks());
             case 'saveDb':
@@ -604,6 +606,20 @@ class $pClassName extends $pClass {
         json(1);
     }
 
+    public static function saveExtras() {
+
+        $vars = array('attachEvents', 'events', 'caches', 'cacheInvalidation');
+
+        $name = getArgv('name', 2);
+        $config = self::loadConfig($name);
+
+        foreach ($vars as $var){
+            $config[$var] = getArgv($var);
+        }
+
+        self::writeConfig($name, $config);
+        json(1);
+    }
 
     public static function saveLayouts() {
 

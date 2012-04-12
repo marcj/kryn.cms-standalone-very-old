@@ -1729,5 +1729,45 @@
     "de": "",
     "en": ""
   },
-  "depends": ""
+  "depends": "",
+  "attachEvents": "",
+  "events": "",
+  "caches": [
+    {
+      "key": "systemTablesv2",
+      "method": ""
+    },
+    {
+      "key": "systemThemes",
+      "method": ""
+    },
+    {
+      "key": "systemObjects",
+      "method": ""
+    },
+    {
+      "key": "systemUrls",
+      "method": "cacheDeleteSystemUrls"
+    },
+    {
+      "key": "systemLanguages",
+      "method": ""
+    },
+    {
+      "key": "systemDomains",
+      "method": ""
+    },
+    {
+      "key": "systemPages2Domain",
+      "method": ""
+    }
+  ],
+  "cacheInvalidation": [
+    {
+      "key": "krynDatabaseTable"
+    },
+    {
+      "key": ""
+    }
+  ]
 }

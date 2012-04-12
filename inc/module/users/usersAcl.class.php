@@ -185,42 +185,6 @@ class usersAcl {
 
         $acls = dbTableFetch( 'system_acl', DB_FETCH_ALL, $where );
 
-        $adminInfos = array();
-        $dbmods = dbTableFetch('system_modules', -1, 'activated = 1');
-        if( count( $dbsmods ) > 0 ){
-            foreach( $dbsmods as $mod ){
-                $config = kryn::getModuleConfig( $mod );
-                if( $config['admin'] ){
-                    $adminInfos = array_merge($adminInfos, self::getInfo( 'admin', $config['admin'] ));
-                }
-            }
-        }
-
-                /*
-        if( count($acls) > 0 ){
-            foreach( $acls as &$acl ){
-                
-                $temp = explode( '/', $acl['code'] );
-
-                if( $temp[0] == 'admin' ){
-                    if( strpos($acl['code'], '%') > 0 )
-                        $andAll = ' inkl. Unterseiten';
-
-                    $code = str_replace('%', '', $acl['code']);
-
-                    if( substr( $code, -1 ) == '/' )
-                        $code = substr($code, 0, -1);
-
-                    if( $code == 'admin' ){
-                        $acl['title'] = 'Komplette Administration'.$andAll;
-                    } else {
-                        $infos = $adminInfos[ $code ];
-                        $acl['title'] = $infos['title'].$andAll;
-                    }
-                } 
-            }
-        }*/
-
         json( $acls );
     }
     

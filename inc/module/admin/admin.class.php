@@ -14,9 +14,9 @@
 class admin {
 
     public function activateLL() {
-        global $modules;
+
         if (!$this) {
-            $modules->modules['admin']->activateLL();
+            kryn::$modules->modules['admin']->activateLL();
             return;
         }
         tAssign('activateLL', true);
@@ -37,7 +37,6 @@ class admin {
     }
 
     public function content() {
-        global $tpl, $navigation, $modules, $cfg, $adminClient, $adminClient;
 
         if (getArgv('getLanguage') != '')
             self::printLanguage();
@@ -99,9 +98,9 @@ class admin {
             json(array('error'=>'param_failed'));
         }
 
-        if ($modules[getArgv(2)] && getArgv(2) != 'admin') {
+        if (kryn::$modules[getArgv(2)] && getArgv(2) != 'admin') {
 
-            json($modules[getArgv(2)]->admin());
+            json(kryn::$modules[getArgv(2)]->admin());
 
         } else {
             $content = null;
@@ -675,10 +674,9 @@ class admin {
     }
 
     public static function miniSearch($pQ) {
-        global $modules;
 
         $res = array();
-        foreach ($modules as &$mod) {
+        foreach (kryn::$modules as &$mod) {
             if (method_exists($mod, 'searchAdmin')) {
                 $res = array_merge($res, $mod->searchAdmin($pQ));
             }
@@ -765,13 +763,31 @@ class admin {
 
     public static function clearCache() {
 
-
-        //TODO, all modules should have a moethod 'clearCache'
-
         clearfolder('cache/object/');
         clearfolder(kryn::$config['media_cache']);
 
-        kryn::deleteCache('krynPage2Domains');
+        foreach (kryn::$configs as $extKey => $config){
+            if ($config['caches']){
+                foreach ($config['caches'] as $cache){
+                    if ($m = $cache['method']){
+                        if (method_exists(kryn::$modules[$extKey], $m))
+                            try {
+                                kryn::$modules[$extKey]->$m();
+                            } catch (Exception $e){
+                                klog('admin', 'Error during the clearCache function: '.$e);
+                            }
+                    } else {
+                        kryn::deleteCache($cache['key']);
+                    }
+                }
+            }
+            if ($config['cacheInvalidation']){
+                foreach ($config['cacheInvalidation'] as $cache){
+                    kryn::invalidateCache($cache['key']);
+                }
+            }
+        }
+
 
         return true;
     }
@@ -1141,7 +1157,7 @@ class admin {
 
 
         if ($loadKeys == false || in_array('r2d', $loadKeys)){
-            $res['r2d'] =& kryn::getCache("krynPage2Domains");
+            $res['r2d'] =& kryn::getCache("systemPages2Domain");
 
             if (!$res['r2d']){
                 require_once(PATH_MODULE.'admin/adminPages.class.php');
@@ -1214,7 +1230,6 @@ class admin {
     }
 
     public static function stream() {
-        global $modules, $adminClient;
 
         $res['time'] = date('H:i');
         $res['last'] = time();
@@ -1232,9 +1247,9 @@ class admin {
             }
             $stream = $conf['stream'];
 
-            if ($stream && method_exists($modules[$key], $stream)) {
+            if ($stream && method_exists(kryn::$modules[$key], $stream)) {
 
-                $res[$key] = $modules[$key]->$stream();
+                $res[$key] = kryn::$modules[$key]->$stream();
             }
         }
 
@@ -1451,7 +1466,7 @@ class admin {
 
         $page = dbExfetch('SELECT * FROM %pfx%system_pages WHERE rsn = ' . ($pContent + 0));
         kryn::$domain['rsn'] = $page['domain_rsn'];
-        kryn::$realUrls =& kryn::readCache('urls');
+        kryn::$realUrls =& kryn::readCache('systemUrls');
 
         $_content =
             "$pContent: <strong>" . $page['title'] . "</strong> (" . kryn::$realUrls['rsn']["rsn=" . $pContent] . ")";
@@ -1464,7 +1479,7 @@ class admin {
         $page = adminPages::getPageByRsn($pContent);
 
         kryn::$domain['rsn'] = $page['domain_rsn'];
-        kryn::$realUrls =& kryn::readCache('urls');
+        kryn::$realUrls =& kryn::readCache('systemUrls');
 
         $_content = "<strong>" . $page['title'] . "</strong> (" . kryn::$realUrls['rsn']["rsn=" . $pContent] . ")";
         json($_content);
@@ -1640,32 +1655,19 @@ class admin {
         return $pRow;
     }
 
-    public function widgetSessions($pConf) {
+    public function cacheDeleteSystemUrls(){
 
-        $res['title'] = _l('Current Sessions');
+        $domains = krynObject::get('domain');
+        foreach ($domains as $domain)
+            kryn::deleteCache('systemUrls-'.$domain['rsn']);
 
+    }
 
-        $sessions = dbExFetch('SELECT s.*, u.username
-                    FROM ' . pfx . 'system_sessions s, ' . pfx . 'system_user u
-                    WHERE s.user_rsn = u.rsn 
-                    ORDER BY time DESC
-                    ', DB_FETCH_ALL);
+    public function cacheDeleteSystemDomain(){
 
-        $sessionsCount = dbExFetch('SELECT count(rsn) as anzahl 
-                    FROM ' . pfx . 'system_sessions s
-                    ', 1);
-
-        $res['title'] .= ' (' . $sessionsCount['anzahl'] . ')';
-
-        $html = '<table width="100%">';
-        foreach ($sessions as $session) {
-            $html .= '<tr><td width="90">' . date("d. M H:i:s", $session['time']) . '</td>';
-            $html .= '<td>' . $session['username'] . '</td><td width="90">' . $session['ip'] . '</td>';
-            $html .= '<td>' . $session['page'] . '</td></tr>';
-        }
-        $html .= '</table>';
-        $res['content'] = $html;
-        return $res;
+        $domains = krynObject::get('domain');
+        foreach ($domains as $domain)
+            kryn::deleteCache('systemDomain-'.$domain['rsn']);
     }
 }
 

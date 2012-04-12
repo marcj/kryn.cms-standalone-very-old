@@ -15,7 +15,6 @@ define('PATH_TEMPLATE', PATH . 'inc/template/');
 * @globals
 */
 $cfg = array();
-$modules = array();
 $languages = array();
 $kcache = array();
 $_AGET = array();

@@ -12,6 +12,7 @@ var admin_system_module_edit = new Class({
         this.topNavi = this.win.addTabGroup();
         this.buttons = {};
         this.buttons['general'] = this.topNavi.addButton(_('General'), '', this.viewType.bind(this, 'general'));
+        this.buttons['extras'] = this.topNavi.addButton(_('Extras'), '', this.viewType.bind(this, 'extras'));
         this.buttons['links'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'links'));
         this.buttons['db'] = this.topNavi.addButton(_('Database'), '', this.viewType.bind(this, 'db'));
         this.buttons['windows'] = this.topNavi.addButton(_('Windows'), '', this.viewType.bind(this, 'windows'));
@@ -1849,7 +1850,6 @@ var admin_system_module_edit = new Class({
         this.loader.show();
 
         var req = {};
-        logger(objects);
         req.objects = JSON.encode(objects);
         req.name = this.mod;
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveObjects', noCache: 1, onComplete: function (res) {
@@ -2236,6 +2236,140 @@ var admin_system_module_edit = new Class({
 
     },
 
+    loadExtras: function(){
+
+        var extrasFields = {
+
+            __caches__: {
+                type: 'childrenswitcher',
+                label: tc('extensionEditor', 'Cache'),
+                depends: {
+
+                    caches: {
+
+                        label: t('Cache keys'),
+                        desc: t('Define here all cache keys your extension use, so that we can delete all properly. You can optional define a method, if you have stored this cache not through our cache layer and want to do own stuff.'),
+                        type: 'array',
+                        columns: [
+                            {label: t('Key'), width: '50%'},
+                            {label: t('Method (optional)')}
+                        ],
+                        fields: {
+                            key: {
+                                type: 'text'
+                            },
+                            method: {
+                                type: 'text'
+                            }
+                        }
+
+                    },
+
+                    cacheInvalidation: {
+
+                        label: t('Cache invalidation keys'),
+                        desc: t('Define here all "invalidation"-keys your extension use, so that we can flag all key properly.'),
+                        type: 'array',
+                        columns: [
+                            {label: t('Key')}
+                        ],
+                        fields: {
+                            key: {
+                                type: 'text'
+                            }
+                        }
+                    }
+
+                }
+            },
+
+            __events__: {
+                type: 'childrenswitcher',
+                label: tc('extensionEditor', 'Events'),
+                depends: {
+
+                    events: {
+                        type: 'array',
+                        label: t('Own events'),
+                        desc: t('Here you can define events, where others can attach their code. Call krynEvent::fire() to fire it.'),
+                        columns: [
+                            {label: t('Key'), width: '40%'},
+                            {label: t('Description')}
+                        ],
+                        fields: {
+                            key: {
+                                type: 'text'
+                            },
+                            desc: {
+                                type: 'text'
+                            }
+                        }
+                    },
+
+                    attachEvents: {
+
+                        label: t('Attach events'),
+                        desc: t('You can attach here directly your methods to a event (additional to the way through krynEvent::attach())'),
+                        type: 'array',
+                        columns: [
+                            {label: t('Key'), width: '40%'},
+                            {label: t('Method')}
+                        ],
+                        fields: {
+                            key: {
+                                type: 'text'
+                            },
+                            desc: {
+                                type: 'text'
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        if (this.lr) this.lr.cancel();
+        this.panes['extras'].empty();
+
+        this.extrasPane = new Element('div', {
+            'class': 'admin-system-modules-edit-pane',
+            style: 'bottom: 31px;'
+        }).inject(this.panes['extras']);
+
+        this.extraFieldsObj = new ka.parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 350});
+
+        var buttonBar = new ka.buttonBar(this.panes['extras']);
+        buttonBar.addButton(_('Save'), this.saveExtras.bind(this));
+
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
+
+            if (res) {
+                this.extraFieldsObj.setValue(res);
+            }
+            this.loader.hide();
+
+        }.bind(this)}).post({name: this.mod});
+
+
+    },
+
+    saveExtras: function(){
+
+        var req =this.extraFieldsObj.getValue();
+        req.name = this.mod;
+
+        this.loader.show();
+
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveExtras', noCache: 1, onComplete: function () {
+            this.loader.hide();
+            ka.loadSettings();
+        }.bind(this)}).post(req);
+    },
+
     viewType: function (pType) {
         Object.each(this.buttons, function (button, id) {
             button.setPressed(false);
@@ -2255,6 +2389,8 @@ var admin_system_module_edit = new Class({
                 return this.loadLayouts();
             case 'general':
                 return this.loadGeneral();
+            case 'extras':
+                return this.loadExtras();
             case 'links':
                 return this.loadLinks();
             case 'db':

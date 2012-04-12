@@ -33,7 +33,6 @@ class adminWidgets {
     }
 
     public static function getPage() {
-        global $modules;
 
         $ext = getArgv('extension');
         $widgetCode = getArgv('widget');
@@ -97,17 +96,17 @@ class adminWidgets {
 
                     $idNr++;
                 }
-                if ($widget['manipulate_row'] && $modules[$ext] &&
-                    method_exists($modules[$ext], $widget['manipulate_row'])
+                if ($widget['manipulate_row'] && kryn::$modules[$ext] &&
+                    method_exists(kryn::$modules[$ext], $widget['manipulate_row'])
                 )
-                    $item = $modules[$ext]->$widget['manipulate_row']($item);
+                    $item = kryn::$modules[$ext]->$widget['manipulate_row']($item);
                 $return['items'][] = $item;
 
             }
         }
 
-        if ($widget['method'] && $modules[$ext] && method_exists($modules[$ext], $widget['method']))
-            return $modules[$ext]->$widget['method']();
+        if ($widget['method'] && kryn::$modules[$ext] && method_exists(kryn::$modules[$ext], $widget['method']))
+            return kryn::$modules[$ext]->$widget['method']();
 
 
         return $return;
@@ -179,13 +178,12 @@ class adminWidgets {
     }
 
     public static function load() {
-        global $modules;
 
         $module = getArgv('module');
         $widget = getArgv('widget');
 
         $conf = array();
-        $values = $modules[$module]->$widget($conf);
+        $values = kryn::$modules[$module]->$widget($conf);
         json($values);
     }
 

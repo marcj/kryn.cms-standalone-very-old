@@ -70,13 +70,12 @@ class adminPlugins {
     }
 
     public static function get($pModule, $pPlugin) {
-        global $modules;
 
 
         $config = kryn::$configs[$pModule];
         $plugin = $config['plugins'][$pPlugin];
 
-        $moduleObj = $modules[$pModule];
+        $moduleObj = kryn::$modules[$pModule];
         self::preparePlugin($plugin[1], $moduleObj);
 
         json($plugin);

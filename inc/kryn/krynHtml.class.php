@@ -544,7 +544,6 @@ class krynHtml {
      * @internal
      */
     public static function renderContent($pContent, $pProperties) {
-        global $modules, $tpl, $client, $adminClient;
 
         $content =& $pContent;
 
@@ -645,13 +644,13 @@ class krynHtml {
 
                 $content['content'] = '<div>Plugin not found.</div>';
 
-                if ($modules[$t[0]]) {
+                if (kryn::$modules[$t[0]]) {
 
                     $config = substr($config, strlen($t[0]) + 2 + strlen($t[1]) + 2);
                     $config = json_decode($config, true);
 
-                    if (method_exists($modules[$t[0]], $t[1]))
-                        $content['content'] = $modules[$t[0]]->$t[1]($config);
+                    if (method_exists(kryn::$modules[$t[0]], $t[1]))
+                        $content['content'] = kryn::$modules[$t[0]]->$t[1]($config);
 
                     // if in seachindex mode and plugin is configured unsearchable the kill plugin output
                     if (isset(kryn::$configs[$t[0]]['plugins'][$t[1]][3]) &&

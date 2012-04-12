@@ -249,6 +249,14 @@ class kryn {
     public static $configs;
 
     /**
+     * Contains all extension class instances of all installed extensions
+     *
+     * @var array
+     * @static
+     */
+    public static $modules;
+
+    /**
      * Contains all installed database tables from config.json#db
      * Example: array('publication' => array('publication_news' => array([fields], 'publication_news_category' => array()))
      * @static
@@ -673,6 +681,32 @@ class kryn {
         }
 
         /*
+        * load object definitions
+        */
+
+        if (!kryn::$objects || $md5 != kryn::$objects['__md5']){
+
+            kryn::$objects = array();
+            kryn::$objects['__md5'] = $md5;
+
+            foreach (kryn::$extensions as &$extension) {
+
+                $config = kryn::$configs[$extension];
+
+                if ($config['objects'] && is_array($config['objects'])){
+
+                    foreach ($config['objects'] as $objectId => $objectDefinition){
+                        $objectDefinition['_extension'] = $extension; //caching
+                        kryn::$objects[$objectId] = $objectDefinition;
+                    }
+                }
+
+            }
+            kryn::setCache('systemObjects', kryn::$objects);
+        }
+        unset(kryn::$objects['__md5']);
+
+        /*
         * load tables
         */
         if (!kryn::$tables || $md5 != kryn::$tables['__md5']){
@@ -684,10 +718,23 @@ class kryn {
 
                 if ($config['db']) {
                     foreach ($config['db'] as $key => &$table) {
-                        if (kryn::$tables[$key])
-                            kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
+                        if (kryn::$tables[strtolower($key)])
+                            kryn::$tables[strtolower($key)] = array_merge(kryn::$tables[strtolower($key)], $table);
                         else
-                            kryn::$tables[$key] = $table;
+                            kryn::$tables[strtolower($key)] = $table;
+                    }
+                }
+                if ($config['objects']){
+                    foreach ($config['objects'] as $key => &$definition) {
+                        $tables = database::getTablesFromObject($key);
+                        if ($tables){
+                            foreach ($tables as $tKey => $tDef){
+                                if (kryn::$tables[strtolower($tKey)])
+                                    kryn::$tables[strtolower($tKey)] = array_merge(kryn::$tables[strtolower($tKey)], $tDef);
+                                else
+                                    kryn::$tables[strtolower($tKey)] = $tDef;
+                            }
+                        }
                     }
                 }
 
@@ -716,31 +763,6 @@ class kryn {
         }
         unset(kryn::$themes['__md5']);
 
-        /*
-         * load object definitions
-         */
-
-        if (!kryn::$objects || $md5 != kryn::$objects['__md5']){
-
-            kryn::$objects = array();
-            kryn::$objects['__md5'] = $md5;
-
-            foreach (kryn::$extensions as &$extension) {
-
-                $config = kryn::$configs[$extension];
-
-                if ($config['objects'] && is_array($config['objects'])){
-
-                    foreach ($config['objects'] as $objectId => $objectDefinition){
-                        $objectDefinition['_extension'] = $extension; //caching
-                        kryn::$objects[$objectId] = $objectDefinition;
-                    }
-                }
-
-            }
-            kryn::setCache('systemObjects', kryn::$objects);
-        }
-        unset(kryn::$objects['__md5']);
     }
 
     /**
@@ -855,17 +877,16 @@ class kryn {
      * @internal
      */
     public static function initModules() {
-        global $modules;
 
         include_once(PATH_MODULE . "users/users.class.php");
-        $modules['users'] = new users();
+        kryn::$modules['users'] = new users();
 
         foreach (kryn::$extensions as $mod) {
             $classFile = PATH_MODULE . '' . $mod . '/' . $mod . '.class.php';
             if ($mod != 'admin' && $mod != 'users') {
                 if (file_exists($classFile)) {
                     include_once($classFile);
-                    $modules[$mod] = new $mod();
+                    kryn::$modules[$mod] = new $mod();
                 }
             }
         }
@@ -1454,7 +1475,7 @@ class kryn {
             $cachedUrls =& kryn::$urls;
             $domain_rsn = kryn::$domain['rsn'];
         } else {
-            $cachedUrls =& kryn::getCache('urls-' . $domain_rsn);
+            $cachedUrls =& kryn::getCache('systemUrls-' . $domain_rsn);
         }
 
         if (!$cachedUrls) {
@@ -1738,7 +1759,7 @@ class kryn {
     public static function getDomain($pDomainRsn) {
 
         $pDomainRsn += 0;
-        $cacheKey = 'domain-' . $pDomainRsn;
+        $cacheKey = 'systemDomain-' . $pDomainRsn;
 
         if ($pDomainRsn == 0) return;
 
@@ -1827,7 +1848,7 @@ class kryn {
 
             $possibleLanguage = self::getPossibleLanguage();
 
-            $domains =& kryn::getCache('domains');
+            $domains =& kryn::getCache('systemDomains');
 
             if (!$domains || $domains['r2d']) {
                 require_once(PATH_MODULE . 'admin/adminPages.class.php');
@@ -2195,7 +2216,7 @@ class kryn {
     public static function getDomainOfPage($pRsn) {
         $rsn = false;
 
-        $page2Domain =& kryn::getCache('krynPage2Domains');
+        $page2Domain =& kryn::getCache('systemPages2Domain');
         if (!is_array($page2Domain)) {
             require_once(PATH_MODULE . 'admin/adminPages.class.php');
             $page2Domain = adminPages::updatePage2DomainCache();
@@ -2258,12 +2279,12 @@ class kryn {
         tAssign('url', $url);
 
         $domain = kryn::$domain['rsn'];
-        kryn::$urls =& kryn::readCache('urls');
+        kryn::$urls =& kryn::readCache('systemUrls');
 
         if (!is_array(kryn::$urls)) {
             require_once(PATH_MODULE . 'admin/adminPages.class.php');
             adminPages::updateUrlCache($domain);
-            kryn::$urls =& kryn::readCache('urls');
+            kryn::$urls =& kryn::readCache('systemUrls');
         }
 
         //extract extra url attributes
@@ -2389,7 +2410,7 @@ class kryn {
             $page['properties'] = $page['extensionProperties'];
 
             if ($page['domain_rsn'] != kryn::$domain['rsn']) {
-                $realUrls =& kryn::getCache('urls-' . $page['domain_rsn']);
+                $realUrls =& kryn::getCache('systemUrls-' . $page['domain_rsn']);
             } else {
                 $realUrls =& kryn::$urls;
             }
@@ -2459,7 +2480,7 @@ class kryn {
      * @internal
      */
     public static function display($pReturn = false) {
-        global $_start, $modules, $client;
+        global $_start, $client;
 
         kryn::$pageUrl = '/' . kryn::getRequestPageUrl(true); //kryn::$baseUrl.$possibleUrl;
 
@@ -2547,9 +2568,11 @@ class kryn {
             if (getArgv('kGetPage') + 0 > 0)
                 $page = dbTableFetch("system_pages", 1, "rsn = " . (getArgv('kGetPage', 1) + 0));
             else {
+
                 $url = getArgv('kGetPage', 1);
                 if (substr($url, -1) == '/')
                     $url = substr($url, 0, -1);
+
                 $rsn = kryn::$urls['url']['url=' . $url];
 
                 $page = dbTableFetch("system_pages", 1, "rsn = " . ($rsn));
@@ -2606,8 +2629,8 @@ class kryn {
         //htmlspecialchars(urldecode(kryn::$url));
         kryn::$pageHtml = preg_replace('/href="#(.*)"/', 'href="' . kryn::$url . '#$1"', kryn::$pageHtml);
 
-        foreach ($modules as $key => $mod) {
-            $modules[$key] = NULL;
+        foreach (kryn::$modules as $key => $mod) {
+            kryn::$modules[$key] = NULL;
         }
 
         $pageTitle = (kryn::$page['page_title']) ? kryn::$page['page_title'] : kryn::$page['title'];
@@ -2877,12 +2900,11 @@ class kryn {
     }
 
     /**
-     * Internal function for returning cache system-informations.
-     *
-     * @param string $pCode
+     * Internal function to return cache values depended on a domain.
      *
      * @static
-     * @internal
+     * @param string $pCode
+     * @return mixed
      */
     public static function &readCache($pCode) {
         $rsn = kryn::$domain['rsn'];
