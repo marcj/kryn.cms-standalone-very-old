@@ -37,9 +37,6 @@
                         <div class="content-main-padding">
                             {navigation id="history" template="th_krynDemo/navigation_breadcrumb.tpl"}
 
-<pre>
-    {krynObject::get('testItem')|@print_r}
-</pre>
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>
                     </div>
