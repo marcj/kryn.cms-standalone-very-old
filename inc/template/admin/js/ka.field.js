@@ -450,7 +450,7 @@ ka.field = new Class({
 
             reRender(pTarget);
 
-        }
+        }.bind(this);
 
         addGroup = function(pTarget, pValues, pCondition){
 
@@ -516,7 +516,7 @@ ka.field = new Class({
             reRender(pTarget);
 
             renderValues(pValues, con);
-        }
+        }.bind(this);
 
         renderValues = function (pValue, pTarget, pLastRel){
             if (typeOf(pValue) == 'array'){
