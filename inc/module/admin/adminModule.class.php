@@ -239,7 +239,6 @@ class $pClassName extends $pClass {
             }
         }
 
-
     }
 
 
@@ -550,8 +549,7 @@ class $pClassName extends $pClass {
         $objects = json_decode(getArgv('objects'), true);
         $config['objects'] = $objects;
 
-        self::writeConfig($name, $config);
-        json(1);
+        return self::writeConfig($name, $config);
     }
 
     public static function savePlugins() {
@@ -621,10 +619,17 @@ class $pClassName extends $pClass {
 
     public static function writeConfig($pName, $pConfig) {
         $json = json_format(json_encode($pConfig));
-        if ($pName == 'kryn')
-            kryn::fileWrite("inc/kryn/config.json", $json);
-        else
-            kryn::fileWrite(PATH_MODULE . "$pName/config.json", $json);
+
+        $path = "inc/kryn/config.json";
+
+        if ($pName != 'kryn')
+            $path = PATH_MODULE . "$pName/config.json";
+
+        if (!is_writeable($path)){
+            return array('error' => 'file_not_writeable');
+        }
+
+        return kryn::fileWrite(PATH_MODULE . "$pName/config.json", $json);
     }
 
     public static function removeModule($pModuleName) {
