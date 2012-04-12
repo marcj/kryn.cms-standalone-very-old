@@ -63,6 +63,10 @@ class krynObjectTable extends krynObjectAbstract {
             $aResolveForeignValues = explode(',', $pResolveForeignValues);
         }
 
+        $additionalCondition = false;
+        if ($this->definition['tableCondition'])
+            $additionalCondition = krynObjectAbstract::conditionArrayToSql($this->definition['tableCondition'], $this->object_key);
+
         $select = array(); //columns
         $fSelect = array(); //final selects
         $groupedColumns = array();
@@ -91,15 +95,13 @@ class krynObjectTable extends krynObjectAbstract {
                     if (!$foreignObjectDefinition)
                         continue;
 
-                    //todo, if target object has mulitple keys
+                    $relPrimaryFields = krynObject::getPrimaries($field['object']);
 
                     $oKey = $key.'_'.$field['object_label'];
                     $oLabel = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
 
                     if ($field['object_relation'] != 'nToM'){
                         //n to 1
-
-                        $relPrimaryFields = krynObject::getPrimaries($field['object']);
 
                         $select[] = dbQuote($field['object']).'.'.dbQuote($oLabel).' AS '.dbQuote($oKey);
 
@@ -109,7 +111,6 @@ class krynObjectTable extends krynObjectAbstract {
                         //If we have multiple foreign keys
                         if (count($relPrimaryFields) > 1){
 
-                            //todo, test this stuff
                             foreach ($relPrimaryFields as $primaryKey => $primaryForeignKey){
                                 $join .= ' AND '.dbQuote($this->object_key).'.'.dbQuote($key.'_'.$primaryKey).' = '.
                                          dbQuote($field['object']).'.'.dbQuote($primaryKey);
@@ -150,14 +151,12 @@ class krynObjectTable extends krynObjectAbstract {
                         $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($relTableName)).' AS '.
                                 dbQuote($relTableNamePre).' ON (1=1 ';
 
-                        foreach ($this->definition['fields'] as $tkey => &$tfield){
-                            if ($tfield['primaryKey']){
-                                $join .= ' AND '.dbQuote($relTableNamePre);
+                        foreach ($relPrimaryFields as $tkey => &$tfield){
+                            $join .= ' AND '.dbQuote($relTableNamePre);
 
-                                $join .= '.'.dbQuote($this->object_key.'_'.$tkey).' = ';
+                            $join .= '.'.dbQuote($this->object_key.'_'.$tkey).' = ';
 
-                                $join .= dbQuote($this->object_key).'.'.dbQuote($tkey);
-                            }
+                            $join .= dbQuote($this->object_key).'.'.dbQuote($tkey);
                         }
 
                         $join .= ')';
@@ -168,17 +167,15 @@ class krynObjectTable extends krynObjectAbstract {
 
                         $primaryFields = array();
 
-                        foreach ($foreignObjectDefinition['fields'] as $tkey => &$tfield){
-                            if ($tfield['primaryKey']){
-                                $join .= ' AND '.dbQuote($field['object_relation_table']);
+                        foreach ($relPrimaryFields as $tkey => &$tfield){
+                            $join .= ' AND '.dbQuote($relTableNamePre);
 
-                                $join .= '.'.dbQuote($field['object'].'_'.$tkey).' = ';
+                            $join .= '.'.dbQuote($field['object'].'_'.$tkey).' = ';
 
-                                $join .= dbQuote($field['object']).'.'.dbQuote($tkey);
+                            $join .= dbQuote($field['object']).'.'.dbQuote($tkey);
 
-                                if ($tfield['type'] == 'number')
-                                    $primaryFields[$tkey] = $tfield;
-                            }
+                            if ($tfield['type'] == 'number')
+                                $primaryFields[$tkey] = $tfield;
 
                         }
 
@@ -219,31 +216,31 @@ class krynObjectTable extends krynObjectAbstract {
 
         }
 
-        $sql = 'SELECT ';
+        $sql = 'SELECT '.chr(13);
 
         if (count($select)>0){
 
             if ($grouped){
                 foreach ($select as &$sel){
                     $dotPos = strpos($sel, '.');
-                    $sel = 'MAX('.$sel.') as '.substr($sel, $dotPos?$dotPos+1:0);
+                    $sel = 'MAX('.$sel.') AS '.substr($sel, $dotPos?$dotPos+1:0);
                 }
             }
 
-            $sql .= implode(', ', $select);
+            $sql .= implode(", \n", $select);
         }
 
         if (count($fSelect)>0){
             if (count($select)>0)
                 $sql .= ', ';
-            $sql .= implode(', ', $fSelect);
+            $sql .= "\n".implode(", \n", $fSelect);
         }
 
         $table = dbTableName($this->definition['table']);
-        $sql .= ' FROM '.dbQuote($table).' as '.dbQuote($this->object_key);
+        $sql .= " \nFROM ".dbQuote($table).' AS '.dbQuote($this->object_key);
 
         if (count($joins)>0){
-            $sql .= ' '.implode(" \n",$joins);
+            $sql .= " \n".implode(" \n", $joins);
         }
 
         $primaryCondition = $this->primaryArrayToSql($pPrimaryIds);
@@ -254,7 +251,10 @@ class krynObjectTable extends krynObjectAbstract {
         if ($pCondition)
             $where .= ' AND '.$pCondition;
 
-        $sql .= ' WHERE '.$where;
+        if ($additionalCondition)
+            $where .= ' AND '.$additionalCondition;
+
+        $sql .= " \nWHERE ".$where;
 
 
         if ($pOrderBy){
@@ -283,7 +283,6 @@ class krynObjectTable extends krynObjectAbstract {
 
         if ($pLimit > 0)
             $sql .= ' LIMIT '.($pLimit+0);
-
 
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);

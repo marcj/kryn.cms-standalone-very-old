@@ -124,6 +124,65 @@ abstract class krynObjectAbstract {
 
     }
 
+    /**
+     * Converts the array from ka.field type 'condition' to SQL
+     *
+     * @param array  $pConditions
+     * @param string $pTable
+     *
+     * @return string
+     */
+    public static function conditionArrayToSql($pConditions, $pTable = ''){
+
+        $result = '';
+
+        if (is_string($pConditions[0])){
+            //only one condition, ex: array('rsn', '>', 0)
+
+            $result = self::conditionSingleField($pConditions, $pTable);
+
+        } else {
+            foreach ($pConditions as $condition){
+
+                if (is_array($condition) && is_array($condition[0])){
+                    $result .= ' ('.self::conditionArrayToSql($condition, $pTable).')';
+                } else if(is_array($condition)){
+                    $result .= self::conditionSingleField($condition, $pTable);
+                } else if (is_string($condition)){
+                    $result .= ' '.$condition.' ';
+                }
+
+            }
+        }
+
+        return $result;
+    }
+
+    private static function conditionSingleField($pCondition, $pTable = ''){
+
+        if (($pos = strpos($pCondition[0], '.')) === false){
+            $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
+        } else {
+            $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
+        }
+
+        if ($pCondition[1] == 'REGEXP')
+            $result .= kryn::$config['db_type']=='mysql'?'REGEXP':'~';
+        else
+            $result .= $pCondition[1];
+
+        if ($pCondition[1] == 'IN'){
+            if (is_numeric($pCondition[2]))
+                $result .= ' '.$pCondition[2];
+            else
+                $result .= " '".esc($pCondition[2])."'";
+        } else {
+            $result .= ' '.$pCondition[2];
+        }
+
+        return $result;
+    }
+
 
     /**
      *

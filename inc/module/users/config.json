@@ -237,8 +237,7 @@
           "label": "[[Password]]",
           "type": "password",
           "primaryKey": 0,
-          "empty": 1,
-          "length": "32"
+          "empty": 1
         },
         "passwd_salt": {
           "type": "text",
@@ -296,22 +295,31 @@
         "groups": {
           "label": "[[Group membership]]",
           "multi": 0,
-          "object": "system_group",
+          "object": "group",
           "object_label": "name",
           "object_relation": "nToM",
           "object_relation_table": "system_groupaccess",
           "type": "object",
+          "primaryKey": 0,
           "empty": 1
         }
       },
       "label": "[[Users]]",
       "desc": "",
-      "tableSync": true,
+      "tableSync": 1,
+      "tableCondition": [
+        [
+          "rsn",
+          ">",
+          "0"
+        ]
+      ],
       "class": "",
-      "multiLanguage": false,
-      "domainDepended": false,
+      "multiLanguage": 0,
+      "domainDepended": 0,
       "plugins": "",
-      "selectable": false
+      "selectable": 0,
+      "__dataModel__": "table"
     },
     "group": {
       "title": "[[Group]]",
