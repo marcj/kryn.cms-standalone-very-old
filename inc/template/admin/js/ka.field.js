@@ -345,27 +345,258 @@ ka.field = new Class({
 
     renderCondition: function(){
 
+        var addCondition, addGroup, renderValues;
 
-        var addCondition = function(pTarget, pValues){
+        var reRender = function(pTarget){
+
+            pTarget.getChildren().removeClass('ka-field-condition-withoutRel');
+
+            var first = pTarget.getFirst();
+            if (first) first.addClass('ka-field-condition-withoutRel');
 
         }
 
-        var addGroup = function(pTarget, pValues){
+        addCondition = function(pTarget, pValues, pCondition){
+
+            var div = new Element('div', {
+                'class': 'ka-field-condition-item'
+            }).inject(pTarget);
+
+            var table = new Element('table', {
+                style: 'width: 100%; table-layout: fixed'
+            }).inject(div);
+
+            var tbody = new Element('tbody').inject(table);
+            var tr = new Element('tr').inject(tbody);
+
+            new Element('td', {
+                'class': 'ka-field-condition-leftBracket',
+                text: '('
+            }).inject(tr);
+
+            var td = new Element('td', {style: 'width: 40px', 'class': 'ka-field-condition-relContainer'}).inject(tr);
+
+            var relSelect = new ka.Select(td);
+            document.id(relSelect).setStyle('width', '100%');
+            relSelect.add('AND', 'AND');
+            relSelect.add('OR', 'OR');
+
+            div.relSelect = relSelect;
+
+            if (pCondition)
+                relSelect.setValue(pCondition.toUpperCase());
+
+            var td = new Element('td', {style: 'width: 25%'}).inject(tr);
+
+            div.iLeft = new Element('input', {
+                'class': 'text',
+                style: 'width: 100%',
+                value: pValues?pValues[0]:''
+            }).inject(td);
+
+            var td = new Element('td', {style: 'width: 41px; text-align: center'}).inject(tr);
+            var select = new ka.Select(td);
+            div.iMiddle = select;
+
+            document.id(select).setStyle('width', '100%');
+
+            ['<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'].each(function(item){
+                select.add(item, item);
+            });
+
+            if (pValues)
+                select.setValue(pValues[1]);
+
+
+            var td = new Element('td', {style: 'width: 25%'}).inject(tr);
+            div.iRight = new Element('input', {
+                'class': 'text',
+                style: 'width: 100%',
+                value: pValues?pValues[2]:''
+            }).inject(td);
+
+            var actions = new Element('td', {style: 'padding-top: 3px; width: '+parseInt((16*4)+3)+'px'}).inject(tr);
+
+            new Element('img', {src: _path+'inc/template/admin/images/icons/arrow_up.png'})
+            .addEvent('click', function(){
+                if (div.getPrevious()){
+                    div.inject(div.getPrevious(), 'before');
+                    reRender(pTarget);
+                }
+            })
+            .inject(actions);
+            new Element('img', {src: _path+'inc/template/admin/images/icons/arrow_down.png'})
+            .addEvent('click', function(){
+                if (div.getNext()){
+                    div.inject(div.getNext(), 'after');
+                    reRender(pTarget);
+                }
+            }).inject(actions);
+
+            new Element('img', {src: _path+'inc/template/admin/images/icons/delete.png'})
+            .addEvent('click', function(){
+                this.win._confirm(t('Really delete?'), function(a){
+                    if (!a) return;
+                    div.destroy();
+                    reRender(pTarget);
+                })
+            }.bind(this))
+            .inject(actions);
+
+            new Element('td', {
+                'class': 'ka-field-condition-leftBracket',
+                text: ')'
+            }).inject(tr);
+
+            reRender(pTarget);
 
         }
 
+        addGroup = function(pTarget, pValues, pCondition){
 
+            var div = new Element('div', {
+                'class': 'ka-field-condition-group'
+            }).inject(pTarget);
 
+            var relContainer = new Element('span', {
+                'class': 'ka-field-condition-relContainer',
+                style: 'position: absolute; left: -52px;'
+            }).inject(div);
+
+            var relSelect = new ka.Select(relContainer);
+            document.id(relSelect).setStyle('width', '47px');
+            relSelect.add('AND', 'AND');
+            relSelect.add('OR', 'OR');
+            div.relSelect = relSelect;
+
+            if (pCondition)
+                relSelect.setValue(pCondition.toUpperCase());
+
+            var con = new Element('div', {
+                'class': 'ka-field-condition-container'
+            }).inject(div);
+            div.container = con;
+
+            new ka.Button(t('Add condition'))
+            .addEvent('click', addCondition.bind(this, con))
+            .inject(con, 'before');
+
+            new ka.Button(t('Add group'))
+            .addEvent('click', addGroup.bind(this, con))
+            .inject(con, 'before');
+
+            var actions = new Element('span', {style: 'position: relative; top: 3px; width: '+parseInt((16*4)+3)+'px'}).inject(con, 'before');
+
+            new Element('img', {src: _path+'inc/template/admin/images/icons/arrow_up.png'})
+                .addEvent('click', function(){
+                if (div.getPrevious()){
+                    div.inject(div.getPrevious(), 'before');
+                    reRender(pTarget);
+                }
+            })
+                .inject(actions);
+            new Element('img', {src: _path+'inc/template/admin/images/icons/arrow_down.png'})
+                .addEvent('click', function(){
+                if (div.getNext()){
+                    div.inject(div.getNext(), 'after');
+                    reRender(pTarget);
+                }
+            }).inject(actions);
+
+            new Element('img', {src: _path+'inc/template/admin/images/icons/delete.png'})
+                .addEvent('click', function(){
+                this.win._confirm(t('Really delete?'), function(a){
+                    if (!a) return;
+                    div.destroy();
+                    reRender(pTarget);
+                })
+            }.bind(this))
+            .inject(actions);
+
+            reRender(pTarget);
+
+            renderValues(pValues, con);
+        }
+
+        renderValues = function (pValue, pTarget, pLastRel){
+            if (typeOf(pValue) == 'array'){
+
+                var lastRel = pLastRel || '';
+
+                Array.each(pValue, function(item){
+
+                    if (typeOf(item) == 'array' && typeOf(item[0]) == 'array'){
+                        //item is a group
+                        addGroup(pTarget, item, lastRel)
+
+                    } else if(typeOf(item) == 'array'){
+                        //item is a condition
+                        addCondition(pTarget, item, lastRel)
+
+                    } else if(typeOf(item) == 'string'){
+                        lastRel = item;
+                    }
+                });
+            }
+        };
+
+        var con = new Element('div', {
+            'class': 'ka-field-condition-container'
+        }).inject(this.fieldPanel);
+
+        new ka.Button(t('Add condition'))
+        .addEvent('click', addCondition.bind(this, con))
+        .inject(this.fieldPanel);
+
+        new ka.Button(t('Add group'))
+        .addEvent('click', addGroup.bind(this, con))
+        .inject(this.fieldPanel);
 
         this._setValue = function(pValue){
 
+            con.empty();
+
+            if(typeOf(pValue) == 'array' && typeOf(pValue[0]) == 'string')
+                pValue = [pValue];
+
+            if (typeOf(pValue) == 'array'){
+                renderValues(pValue, con);
+            }
+
+        }.bind(this);
+
+        var extractValues = function(pTarget){
+
+            var result = [];
+
+            pTarget.getChildren().each(function(item){
+
+                if (item.hasClass('ka-field-condition-item')){
+
+                    if (!item.hasClass('ka-field-condition-withoutRel'))
+                        result.push(item.relSelect.getValue());
+
+                    result.push([
+                        item.iLeft.value,
+                        item.iMiddle.getValue(),
+                        item.iRight.value
+                    ])
+                }
+
+                if (item.hasClass('ka-field-condition-group')){
+                    if (!item.hasClass('ka-field-condition-withoutRel'))
+                        result.push(item.relSelect.getValue());
+                    result.push(extractValues(item.container));
+                }
+
+            });
+
+            return result;
 
         }
 
         this.getValue = function(){
-
-
-
+            return extractValues(con);
         }
 
     },

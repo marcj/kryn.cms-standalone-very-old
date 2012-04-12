@@ -1,8 +1,5 @@
 .ka-Select-box {
 
-    margin: 0px 4px;
-    margin-left: 0px;
-
     border: 1px solid #bbb;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -10,14 +7,12 @@
 
     cursor: pointer;
     position: relative;
-    padding-right: 15px;
 
     overflow: hidden;
-    height: 20px;
+    height: 21px;
     display: inline-block;
-    line-height: 20px;
-
-    top: -1px;
+    line-height: 21px;
+    margin: 2px auto;
 
     vertical-align: top;
     width: 100px;
@@ -74,13 +69,14 @@
     position: absolute;
     padding-top: 1px;
     padding-right: 0px;
-    top: 3px;
+    top: 4px;
     right: 3px;
     width: 12px;
 }
 
 .ka-Select-chooser {
 
+    margin: 0px auto;
     border: 1px solid #bbb;
 
     border-top: 0px;
@@ -93,7 +89,6 @@
     max-width: 400px;
     overflow: auto;
     background-color: #dddddd;
-    margin-top: -1px;
     /*box-shadow: -1px 1px 1px #888;*/
 
     -moz-border-radius-bottomright: 4px;

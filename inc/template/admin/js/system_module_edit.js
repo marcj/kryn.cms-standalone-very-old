@@ -1899,13 +1899,8 @@ var admin_system_module_edit = new Class({
                             },
                             tableCondition: {
                                 needValue: 'table',
-                                label: t('Additional SQL condition'),
-                                desc: t("Without 'WHERE' and 'AND' at the beginning"),
-                                type: 'codemirror',
-                                codemirrorOptions: {
-                                    mode: 'mysql'
-                                },
-                                input_height: 50
+                                label: t('Additional condition'),
+                                type: 'condition'
                             },
                             'class': {
                                 needValue: 'custom',

@@ -22,9 +22,3 @@
     text-align: right;
     padding-right: 9px;
 }
-
-
-.kwindow-win-buttonBar a.ka-Button,
-.kwindow-win-buttonBar a.ka-Button:link {
-    line-height: 29px;
-}

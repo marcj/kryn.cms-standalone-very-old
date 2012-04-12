@@ -1,5 +1,6 @@
 a.ka-Button, a.ka-Button:link {
-    padding: 5px 5px 6px 10px;
+    padding: 0px 5px 0px 10px;
+    margin: 2px auto;
     cursor: pointer;
     position: relative;
     color: #222;
@@ -15,6 +16,8 @@ a.ka-Button, a.ka-Button:link {
     
     text-decoration: none;
     outline: 0;
+
+    display: inline-block;
     
     background-image: url(../images/button-bg.png);
     background-repeat: no-repeat;

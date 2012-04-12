@@ -94,11 +94,16 @@ input.text {
     font-size: 11px;
     -moz-border-radius: 3px;
     background-color: white;
+    margin: 2px auto;
 }
 
-textarea,
-input.text {
+textarea {
     padding: 4px;
+}
+
+input.text {
+    padding: 4px 0px;
+    text-indent: 4px;
 }
 
 input.text {
@@ -340,4 +345,31 @@ input.ka-field-dateTime {
     color: #aaa;
     font-weight: normal;
     font-size: 10px;
+}
+
+.ka-field-condition-leftBracket,
+.ka-field-condition-reftBracket {
+    display: none;
+    font-size: 24px;
+}
+
+.ka-field-condition-withLeftBracket .ka-field-condition-leftBracket,
+.ka-field-condition-withRightBracket .ka-field-condition-rightBracket{
+    display: table-cell;
+}
+
+.ka-field-condition-group {
+    margin: 1px 0px;
+    margin-left: 54px;
+    position: relative;
+}
+
+.ka-field-condition-group {
+    border-top: 1px solid silver;
+    border-bottom: 1px solid silver;
+    border-left: 1px solid silver;
+}
+
+.ka-field-condition-withoutRel .ka-field-condition-relContainer .ka-Select-box {
+    display: none;
 }
