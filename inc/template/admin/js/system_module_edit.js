@@ -2142,10 +2142,7 @@ var admin_system_module_edit = new Class({
             var range = this.getSelectedRange();
 
             this.value = this.value.replace(' ', '_');
-            if (self.options.arrayKey)
-                this.value = this.value.replace(/[^a-zA-Z0-9_\-\[\]]/, '-');
-            else
-                this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
+            this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
             this.value = this.value.replace(/--+/, '-');
 
             this.selectRange(range.start, range.end);

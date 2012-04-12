@@ -276,6 +276,8 @@ class krynObject {
 
                 require_once('inc/kryn/krynObject/krynObjectTable.class.php');
                 self::$instances[$pObjectKey] = new krynObjectTable($pObjectKey, $definition);
+            } else {
+                klog('krynObject', 'No class or table defined for object '.$pObjectKey);
             }
         }
 
@@ -362,6 +364,18 @@ class krynObject {
 
     public static function addUsage($pObjectId, $pUseObjectId){
 
+    }
+
+    public static function getPrimaries($pObjectId){
+        $objectDefinition =& kryn::$objects[$pObjectId];
+
+        $primaryFields = array();
+        foreach ($objectDefinition['fields'] as $fieldKey => $field){
+            if ($field['primaryKey'])
+                $primaryFields[$fieldKey] = $field;
+        }
+
+        return $primaryFields;
     }
 
 }

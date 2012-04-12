@@ -1481,7 +1481,8 @@ var admin_system_module_editWindow = new Class({
 
             }
 
-            if (!this.definition.properties.fields.length && !this.definition.properties.tabFields.length){
+            if (Object.getLength(this.definition.properties.fields) == 0 &&
+                Object.getLength(this.definition.properties.tabFields) == 0){
                 this.addWindowEditTab('general', {label: '[[General]]', type: 'tab'});
             }
         }

@@ -62,7 +62,9 @@ function esc($p, $pEscape = 1) {
 }
 
 /**
- * Quotes Keywords and Identifiers
+ * Quotes Keywords and Identifiers and return
+ * pValue with quotes surrounded and lowercase (because table names and column name
+ * have to be lowercased)
  *
  * @param string|array $pValue
  * @return mixed
@@ -73,7 +75,7 @@ function dbQuote($pValue){
             $value = dbQuote($value);
         return $pValue;
     }
-    return (kryn::$config['db_type'] == 'mysql') ? '`'.$pValue.'`': '"'.$pValue.'"';
+    return strtolower((kryn::$config['db_type'] == 'mysql') ? '`'.$pValue.'`': '"'.$pValue.'"');
 }
 
 /**
@@ -208,7 +210,7 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
  * @return string
  */
 function dbTableName($pTable){
-    return (substr($pTable,0,1) == '/')?$pTable:pfx.$pTable;
+    return strtolower((substr($pTable,0,1) == '/')?$pTable:pfx.$pTable);
 }
 
 /**
