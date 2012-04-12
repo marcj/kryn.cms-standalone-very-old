@@ -444,6 +444,7 @@ function step5(){
     require_once( 'inc/kryn/krynModule.class.php' );
 	require_once( 'inc/kryn/kryn.class.php' );
 	kryn::$config = $cfg;
+    kryn::$config['db_error_print_sql'] = 1;
 	require_once( 'inc/kryn/krynAuth.class.php' );
 
     
@@ -752,7 +753,7 @@ Please enter your database credentials.<br />
     Please note: All tables which already exists will be deleted!
 <br/>
 <script type="text/javascript">
-    checkDBEntries = function(){
+    window.checkDBEntries = function(){
         var ok = true;
         
         if( $('db_server').value == '' ){ $('db_server').highlight(); ok = false; }
@@ -766,7 +767,7 @@ Please enter your database credentials.<br />
             req.prefix = $('db_prefix').value;
             req.username = $('db_username').value;
             req.passwd = $('db_passwd').value;
-            req.pdo = $('db_pdo').checked?1:0;
+            //req.pdo = $('db_pdo').checked?1:0;
 
             new Request.JSON({url: 'install.php?step=checkDb', onComplete: function(stat){
                 if( stat != null && stat.res == true )
@@ -781,26 +782,6 @@ Please enter your database credentials.<br />
             }}).post(req);
         }
     }
-
-    var checkDbType = function(){
-
-        var type = document.id('db_type').value;
-        var display = 'none';
-
-        if (type != 'sqlite'){
-            display = 'table-row';
-        }
-
-        ['ui_username', 'ui_passwd', 'ui_db'].each(function(i){
-            document.id(i).setStyle('display', display);
-        })
-    }
-
-    window.addEvent('domready', function(){
-        document.id('db_type').addEvent('change', checkDbType);
-        checkDbType();
-    });
-
 </script>
 <form id="db_form">
 <table style="width: 100%" cellpadding="3">
@@ -809,23 +790,20 @@ Please enter your database credentials.<br />
         <td><select name="db_type" id="db_type">
         	<option value="mysql">MySQL</option>
         	<option value="mysqli">MySQLi</option>
-            <option value="sqlite">SQLite (need PHP 5.3 or PDO driver)</option>
         	<option value="postgresql">PostgreSQL</option>
         	<option value="oracle">Oracle (experimental)</option> 
         	<option value="oracle">MSSql (experimental, no pdo)</option>
         </select></td>
     </tr>
-    <td>PDO driver</td>
+    <!--<td>PDO driver</td>
     <td>
         <input type="checkbox" id="db_pdo" />
     </td>
     </tr>
+    -->
     <tr>
         <td>
         	Host
-	        <div style="color: silver">
-	        	For SQLite enter the path to the file. 
-	        </div>
         </td>
         <td><input class="text" type="text" name="server" id="db_server" value="localhost" /></td>
     </tr>

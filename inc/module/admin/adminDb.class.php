@@ -21,138 +21,185 @@ define('DB_INDEX', 2);
 
 class adminDb {
 
-    function install($pModuleConfig) {
+    public static function install($pModuleConfig) {
+        $res = '';
         if (is_array($pModuleConfig['db']))
-            return self::_install($pModuleConfig['db']);
-
+            $res .= self::_install($pModuleConfig['db']);
 
         if (is_array($pModuleConfig['objects'])){
-            $objectTables = array();
-
-            $typesMap = array(
-                'text' => array('textarea', 'wysiwyg', 'codemirror', 'array', 'layoutelement', 'checkboxgroup', 'filelist'),
-                'int' => array('number')
-            );
-
-            $tables = array();
-
             foreach ($pModuleConfig['objects'] as $objectKey => $object){
-                if ($object['tableSync']){
+                $res .= adminDb::installObjectTable($objectKey);
+            }
+        };
 
-                    $table = array();
-                    foreach ($object['fields'] as $fieldKey => $field){
-                        $type = 'varchar';
-                        $length = 255;
-                        $autoincrement = false;
-                        $mode = '';
+        $res .= "\nDatabase installed.\n";
+        return $res;
+    }
 
-                        if ($field['primaryKey'])
-                            $mode = 'DB_PRIMARY';
+    public static function checkObjectTable($pObjectTable){
 
-                        if ($field['dbIndex'])
-                            $mode = 'DB_INDEX';
+        $res = '';
 
-                        if ($field['autoIncrement'])
-                            $mode = true;
+        foreach (kryn::$objects as $objectKey => $object){
+            if ($object['table'] && $object['table'] == $pObjectTable){
+                $res .= self::installObjectTable($objectKey);
+            }
+        }
 
+        return $res;
+    }
 
-                        if ($field['type'] == 'text' || $field['type'] == 'password' || $field['type'] == 'number'){
-                            if ($field['maxlength'] && $field['maxlength'] <= 255)
-                                $length = $field['maxlength'];
+    public static function installObjectTable($pObjectKey){
+
+        $objectKey = $pObjectKey;
+        $object = kryn::$objects[$objectKey];
+        if (!$object || !$object['tableSync'] || !$object['table']) return false;
+
+        $typesMap = array(
+            'text' => array('textarea', 'wysiwyg', 'codemirror', 'array', 'layoutelement', 'checkboxgroup', 'filelist'),
+            'int' => array('number')
+        );
+
+        $tables = array();
+
+        $table = array();
+        foreach ($object['fields'] as $fieldKey => $field){
+            $type = 'varchar';
+            $length = 255;
+            $autoincrement = false;
+            $mode = '';
+
+            if ($field['primaryKey'])
+                $mode = 'DB_PRIMARY';
+
+            if ($field['dbIndex'])
+                $mode = 'DB_INDEX';
+
+            if ($field['autoIncrement'])
+                $autoincrement = true;
+
+            if ($field['type'] == 'text' || $field['type'] == 'password' || $field['type'] == 'number'){
+                if ($field['maxlength'] && $field['maxlength'] <= 255)
+                    $length = $field['maxlength'];
+            }
+
+            if ($field['type'] == 'object'){
+
+                $definition = kryn::$objects[$field['object']];
+                if (!$definition){
+                    klog('adminDb', 'The wished object cant be found: '.$field['object'].' for field '.$fieldKey.' '.
+                                    'during the initializing of table '.$object['table'].' for object'.$pObjectKey);
+                    continue;
+                }
+
+                if (!$definition['fields']){
+                    klog('adminDb', 'The wished object doesnt have any fields: '.$field['object'].' for field '.$fieldKey.' '.
+                        'during the initializing of table '.$object['table'].' for object'.$pObjectKey);
+                    continue;
+                }
+
+                if ($definition && $definition['fields']){
+
+                    if ($field['object_relation'] == 'nToM'){
+
+                        $relTable = array();
+                        $leftPrimaryKeys = array();
+
+                        $relTableName = $field['object_relation_table'];
+                        if (!$relTableName)
+                            $relTableName = 'relation_'.$objectKey.'_'.$field['object'];
+
+                        foreach ($object['fields'] as $relFieldKey => $relField){
+
+                            if ($relField['primaryKey']){
+                                $relTable[$objectKey.'_'.$relFieldKey] = array(
+                                    ($relField['type'] == 'number')?'int':'varchar',
+                                    $relField['maxlength']?$relField['maxlength']:(($relField['type'] == 'number')?'':'255')
+                                );
+                                $leftPrimaryKeys[] = $objectKey.'_'.$relFieldKey;
+                            }
                         }
+                        $relTable['___index'][] = implode(',', $leftPrimaryKeys);
 
-
-                        if ($field['type'] == 'object'){
-
-                            $definition = kryn::$objects[$field['object']];
-                            if ($definition && $definition['fields']){
-
-                                if ($field['object_relation'] == 'nToM'){
-
-                                    $relTable = array();
-                                    foreach ($object['fields'] as $relFieldKey => $relField){
-                                        //todo for the left "side" of the rel table
-                                    }
-
-                                    foreach ($definition['fields'] as $relFieldKey => $relField){
-                                        //todo for the right "side" of the rel table
-                                    }
-
-
-                                } else {
-                                    $primaryKeys = array();
-                                    $lastPrimaryKey = array();
-                                    foreach ($definition['fields'] as $dKey => $dField){
-                                        if ($dField['primaryKey']){
-                                            $primaryKeys[$dKey] = $dField;
-                                            $lastPrimaryKey = $dField;
-                                        }
-                                    }
-
-                                    if (count($primaryKeys) == 1){
-                                        $type = $lastPrimaryKey['type'];
-                                        if ($lastPrimaryKey['maxlength']+0 > 0)
-                                            $length = $lastPrimaryKey['maxlength'];
-                                    } else if(count($primaryKeys) > 1){
-
-                                        $index = array();
-                                        foreach ($primaryKeys as $pKey => $pField){
-                                            $index[] = $pKey;
-
-                                            $table[ $field['object'].'_'.$pKey ] = array(
-                                                ($pField['type'] == 'number')?'int':'varchar',
-                                                $pField['maxlength']?$pField:(($pField['type'] == 'number')?'':'255')
-                                            );
-
-                                        }
-
-                                        continue;
-                                    }
-                                }
+                        foreach ($definition['fields'] as $relFieldKey => $relField){
+                            if ($relField['primaryKey']){
+                                $relTable[$field['object'].'_'.$relFieldKey] = array(
+                                    ($relField['type'] == 'number')?'int':'varchar',
+                                    $relField['maxlength']?$relField['maxlength']:(($relField['type'] == 'number')?'':'255')
+                                );
+                                $leftPrimaryKeys[] = $relFieldKey;
                             }
                         }
 
+                        $tables[$relTableName] = $relTable;
 
 
-                        if (in_array($field['type'], $typesMap['text'])){
-                            $type = 'text';
-                            $length = '';
+                    } else {
+                        //n-1
+
+                        $primaryKeys = array();
+                        $lastPrimaryKey = array();
+
+                        foreach ($definition['fields'] as $dKey => $dField){
+                            if ($dField['primaryKey']){
+                                $primaryKeys[$dKey] = $dField;
+                                $lastPrimaryKey = $dField;
+                            }
                         }
 
-                        if ($field['type'] == 'number'){
-                            $type = 'int';
-                            $length = '';
+                        if (count($primaryKeys) == 1){
+                            $type = ($lastPrimaryKey['type'] == 'number')?'int':'varchar';
+                            $length = $lastPrimaryKey['maxlength']?$lastPrimaryKey['maxlength']:(($lastPrimaryKey['type'] == 'number')?'':'255');
+
+                        } else if(count($primaryKeys) > 1){
+
+                            $index = array();
+                            foreach ($primaryKeys as $pKey => $pField){
+                                $index[] = $pKey;
+
+                                $table[ $objectKey.'_'.$pKey ] = array(
+                                    ($pField['type'] == 'number')?'int':'varchar',
+                                    $pField['maxlength']?$pField['maxlength']:(($pField['type'] == 'number')?'':'255')
+                                );
+
+                            }
+
+                            continue;
                         }
-
-
-                        $table[$fieldKey] = array(
-                            $type,
-                            $length,
-                            $mode,
-                            $autoincrement
-                        );
                     }
-
-                    $tables[$object['table']] = $table;
                 }
             }
 
+            if (in_array($field['type'], $typesMap['text'])){
+                $type = 'text';
+                $length = '';
+            }
 
-            return self::_install($tables);
+            if ($field['type'] == 'number'){
+                $type = 'int';
+                $length = '';
+            }
 
+            $table[$fieldKey] = array(
+                $type,
+                $length,
+                $mode,
+                $autoincrement
+            );
         }
 
+        $tables[$object['table']] = $table;
 
-        return false;
+        return self::_install($tables);
     }
 
-    function remove($pModuleConfig) {
+    public static function remove($pModuleConfig) {
         if (!is_array($pModuleConfig['db'])) return false;
         self::_remove($pModuleConfig['db']);
         return true;
     }
 
-    function _remove($pDb) {
+    public static function _remove($pDb) {
         foreach ($pDb as $tableName => $tableFields) {
             $sql = "DROP TABLE %pfx%$tableName";
             try {
@@ -163,8 +210,8 @@ class adminDb {
         }
     }
 
-    function _install($pDb) {
-        global $cfg, $kdb;
+    private static function _install($pDb) {
+        global $kdb;
 
         $db = &$pDb;
 
@@ -194,26 +241,32 @@ class adminDb {
             //check index bundles
             if ($tableFields['___index']){
                 foreach ($tableFields['___index'] as $indexBundle){
-                    $indexName = preg_replace('/\W/', '-', $indexBundle);
-                    dbExec('CREATE INDEX '.strtolower($indexName).' ON '.$tableName.' ('.$indexBundle.')');
+
+                    $indexName = dbQuote(preg_replace('/\W/', '_', $indexBundle));
+                    $indexFields = explode(',', $indexBundle);
+                    $indexFields = implode(', ', dbQuote($indexFields));
+
+                    try {
+                        dbExec('CREATE INDEX '.strtolower($indexName).' ON '.dbQuote($tableName).' ('.$indexFields.')');
+                    } catch (Exception $e){
+
+                    }
                 }
             }
 
             database::clearOptionsCache($tableName);
         }
-        $res .= "\nDatabase installed.\n";
 
         $kdb->updateSequences($db);
         return $res;
     }
 
 
-    function _updateTable($pTable, $pFields) {
+    private static function _updateTable($pTable, $pFields) {
         global $cfg;
 
         self::updateIndexes($pTable, $pFields, false); //delete all and don't create new
 
-        $column = array();
         $columns = database::getColumns($pTable);
 
         $primaries = array();
@@ -236,19 +289,18 @@ class adminDb {
                     if ($isType == 'varchar')
                         $varcharLength = str_replace(')', '', $temp[1]);
                 }
+
                 if ($isType == 'integer')
                     $isType = 'int';
 
-                if ($pTable == 'kryn_publication_news_category') {
-                }
                 if ($isType != $nType || ($isType == 'varchar' && $varcharLength != $fOptions[1])) {
 
                     $sql = self::addColumn($pTable, $fName, $fOptions, 2);
 
                     if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
-                        $sql = 'ALTER TABLE ' . $pTable . ' CHANGE COLUMN ' . $fName . ' ' . $sql;
+                        $sql = 'ALTER TABLE ' . dbQuote($pTable) . ' CHANGE COLUMN ' . dbQuote($fName) . ' ' . $sql;
                     } else {
-                        $sql = 'ALTER TABLE ' . $pTable . ' ALTER COLUMN ' . $sql;
+                        $sql = 'ALTER TABLE ' . dbQuote($pTable) . ' ALTER COLUMN ' . $sql;
                     }
                     dbExec($sql);
                 }
@@ -261,17 +313,9 @@ class adminDb {
 
         //check primary index
         if (count($primaries) > 0){
-            $name = implode(',', $primaries);
-            dbExec('CREATE INDEX ' . preg_replace('/\W/', '_', $name) . ' ON ' . $pTable . ' (' . $name . ')');
-        }
-
-
-        foreach ($columns as $fieldName => &$field) {
-            if (!array_key_exists($fieldName, $pFields)) {
-                //there exists a column in the database, which isn't in the config.json
-                //delete it
-                dbExec("ALTER TABLE $pTable DROP $fieldName");
-            }
+            $fields = implode(',', dbQuote($primaries));
+            $name = str_replace(' ', '', implode(',', $primaries));
+            dbExec('CREATE INDEX ' . dbQuote(preg_replace('/\W/', '_', $name)) . ' ON ' . dbQuote($pTable) . ' (' . $fields . ')');
         }
 
         self::updateIndexes($pTable, $pFields, true); //delete all and create new
@@ -279,7 +323,7 @@ class adminDb {
 
     public static function _installTable($pTable, $pFields) {
         global $cfg;
-        $sql = 'CREATE TABLE ' . $pTable . ' (' . "\n";
+        $sql = 'CREATE TABLE ' . dbQuote($pTable) . ' (' . "\n";
 
         $primaries = '';
 
@@ -290,13 +334,13 @@ class adminDb {
             $sql .= self::addColumn($pTable, $fName, $fOptions, 1) . ", \n";
 
             if ($fOptions[2] == "DB_PRIMARY")
-                $primaries .= '' . $fName . ',';
+                $primaries .=  dbQuote($fName) . ',';
         }
 
         $primaries = substr($primaries, 0, -1);
 
         if ($primaries == '')
-            $sql = substr($sql, 0, -1);
+            $sql = substr($sql, 0, -3);
         else
             $sql .= ' PRIMARY KEY ( ' . $primaries . ' )';
 
@@ -313,15 +357,20 @@ class adminDb {
     public static function deleteIndex($pName, $pTable) {
         global $cfg;
 
-        switch ($cfg['db_type']) {
-            case 'mysql':
-            case 'mysqli':
-                dbExec('DROP INDEX ' . $pName . ' ON ' . $pTable);
-                break;
-            case 'postgresql':
-            case 'sqlite':
-                dbExec('DROP INDEX IF EXISTS ' . $pName);
-                break;
+        try {
+            switch ($cfg['db_type']) {
+                case 'mysql':
+                case 'mysqli':
+                    dbExec('DROP INDEX ' . dbQuote($pName) . ' ON ' . dbQuote($pTable));
+                    break;
+                case 'postgresql':
+                case 'sqlite':
+                    dbExec('DROP INDEX IF EXISTS ' . dbQuote($pName));
+                    break;
+            }
+            return true;
+        } catch(Exception $e){
+            return false;
         }
     }
 
@@ -330,21 +379,35 @@ class adminDb {
 
         //dont throw error's to log
         database::$hideSql = true;
+        $primaries = array();
         foreach ($pFields as $fName => $fOptions) {
 
-            $indexName = 'kryn_idx_' . $pTable . '_' . $fName;
+            if ($fName == '___index') continue;
+
+            $indexName = $pTable . '_' . $fName;
             self::deleteIndex($indexName, $pTable);
             self::deleteIndex($fName, $pTable);
+
+            if ($fOptions[2] == 'DB_PRIMARY'){
+                $primaries[] = $fName;
+            }
 
             if ($fOptions[2] == "DB_INDEX" || $fOptions[2] == "DB_FULLTEXT") { //DB_FULLTEXT deprecated since 1.0
                 if ($pCreate) {
                     if ($fOptions[0] == 'text')
                         $fName .= '(255)';
 
-                    dbExec('CREATE INDEX ' . $indexName . ' ON ' . $pTable . ' (' . $fName . ')');
+                    dbExec('CREATE INDEX ' . dbQuote($indexName) . ' ON ' . dbQuote($pTable) . ' (' . dbQuote($fName) . ')');
                 }
             }
         }
+
+        //check primary index
+        if (count($primaries) > 0){
+            $name = str_replace(' ', '', implode(',', $primaries));
+            self::deleteIndex(preg_replace('/\W/', '_', $name), $pTable);
+        }
+
         database::$hideSql = false;
 
     }
@@ -360,7 +423,7 @@ class adminDb {
         */
         global $cfg;
 
-        $sqlBegin = 'ALTER TABLE '.strtolower($pTable).' ADD ';
+        $sqlBegin = 'ALTER TABLE '.dbQuote(strtolower($pTable)).' ADD ';
 
         $sql = strtolower($pFieldName).' ';
 
@@ -441,11 +504,6 @@ class adminDb {
             if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
                 $sql .= ' AUTO_INCREMENT ';
             }
-
-            //http://www.sqlite.org/faq.html#q1
-            //if( $cfg['db_type'] == 'sqlite' ){
-            //	$sql .= ' AUTOINCREMENT ';
-            //}
 
             if ($cfg['db_type'] == 'postgresql') {
                 database::$hideSql = true;

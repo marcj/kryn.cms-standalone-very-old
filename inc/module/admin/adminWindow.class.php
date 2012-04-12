@@ -70,17 +70,6 @@ class adminWindow {
         if (file_exists(PATH_MODULE . "$module2LoadClass/$class.class.php")) {
             require_once(PATH_MODULE . "$module2LoadClass/$class.class.php");
             $obj = new $class($info, getArgv('cmd'));
-        } else {
-            $form = kryn::fileRead(PATH_MODULE . "$module2LoadClass/forms/$class.json");
-            $formObj = json_decode($form, 1);
-
-            $type = $formObj['type'];
-
-            $obj = new $type();
-
-            foreach ($formObj as $optKey => $optVal)
-                $obj->$optKey = $optVal;
-
         }
 
         switch (getArgv('cmd')) {
@@ -105,6 +94,9 @@ class adminWindow {
                 $res = $obj->removeSelected();
                 break;
             case 'getClassDefinition':
+                if (!$obj){
+                    return(array('error' => 'class_not_found'));
+                }
                 $res = $obj;
         }
 

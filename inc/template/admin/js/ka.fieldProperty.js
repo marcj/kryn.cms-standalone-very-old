@@ -132,11 +132,6 @@ ka.fieldProperty = new Class({
                     label: t('Object label field'),
                     desc: t('The key of the field which should be used as label')
                 },
-                'object_label_map': {
-                    needValue: 'object',
-                    label: t('Object map key'),
-                    desc: t('Under which key should the label of this object be stored? Default is &lt;objectKey&gt;_&lt;labelKey&gt;')
-                },
 
                 'object_relation': {
                     label: t('Relation'),
@@ -152,8 +147,8 @@ ka.fieldProperty = new Class({
                 'object_relation_table': {
                     needValue: 'nToM',
                     againstField: 'object_relation',
-                    label :t('Relation table name'),
-                    desc: t('Will also be created during the table synchronisation. The columns of this table are based on the primary keys of left and right table.')
+                    label :t('Relation table name (Optional)'),
+                    desc: t('Will also be created during the table synchronisation. The columns of this table are based on the primary keys of left and right table. Default is relation_&lt;leftObjectKEy&gt;_&lt;rightObjectKey&gt;')
                 },
 
                 object_relation_table_left: {

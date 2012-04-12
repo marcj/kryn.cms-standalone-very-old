@@ -353,23 +353,83 @@ var admin_system_module_edit = new Class({
         //request, check exists
         //create file
 
-        this.win._prompt(t('Window class name'), pName, function(name){
-            if(!name) return;
+        var dialog = this.win.newDialog('<b>'+t('New tab')+'</b>');
+        dialog.setStyle('width', 400);
+
+        var d = new Element('div', {
+            style: 'padding: 5px 0px;'
+        }).inject(dialog.content);
+
+        var table = new Element('table').inject(d);
+        var tbody = new Element('tbody').inject(table);
+
+        var tr = new Element('tr').inject(tbody);
+
+        new Element('td', {text: t('Window class name:')}).inject(tr);
+        var td = new Element('td').inject(tr);
+        var name = new Element('input', {'class': 'text'})
+        .addEvent('change', function(e){
+            this.value = this.value.replace(/\W/, '_');
+        }).addEvent('keyup', function(e){
+            this.fireEvent('change');
+        })
+        .inject(td);
+
+        var tr = new Element('tr').inject(tbody);
+        new Element('td', {text: t('Class:')}).inject(tr);
+        var td = new Element('td').inject(tr);
+        var typeClass = new ka.field({
+            type: 'select', items: {
+                adminWindowAdd: 'adminWindowAdd',
+                adminWindowEdit: 'adminWindowEdit',
+                adminWindowList: 'adminWindowList',
+                adminWindowCombine: 'adminWindowCombine'
+            },
+            noWrapper: 1,
+            input_width: 150
+        }, td)
+
+
+        this.newWindowDialogCancelBtn = new ka.Button(t('Cancel'))
+            .addEvent('click', function(){
+            dialog.close();
+        })
+        .inject(dialog.bottom);
+
+        this.newWindowDialogApplyBtn = new ka.Button(t('Apply'))
+        .addEvent('click', function(){
+
+            if (name.value == ''){
+
+                this.win._alert(t('Class name is empty'));
+                return;
+            }
+
+            this.newWindowDialogCancelBtn.deactivate();
+            this.newWindowDialogApplyBtn.deactivate();
+            this.newWindowDialogApplyBtn.startTip(t('Please wait ...'));
 
             new Request.JSON({url: _path+'admin/system/module/newWindow', noCache: 1, onComplete: function(res){
 
+                this.newWindowDialogApplyBtn.stopTip();
+                dialog.close();
+
                 if (res.error == 'file_exists'){
                     this.win._alert(t('Class already exist'), function(){
-                        this.createWindow(name);
+                        this.createWindow(name.value);
                     }.bind(this));
                     return;
                 } else {
-                    this.addWindow(name);
+                    this.addWindow(name.value);
                 }
 
-            }.bind(this)}).get({className: name, name: this.mod});
+            }.bind(this)}).get({className: name.value, name: this.mod, 'class': typeClass.getValue()});
 
-        }.bind(this));
+        }.bind(this))
+        .inject(dialog.bottom);
+
+        dialog.center();
+
     },
 
     addWindow: function (pClassName) {
@@ -1745,6 +1805,11 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(_('Add object'), function(){
             this.addObject()
         }.bind(this));
+
+        buttonBar.addButton(t('DB-Update'), function () {
+            ka.wm.open('admin/system/module/dbInit', {name: this.mod});
+        }.bind(this));
+
         buttonBar.addButton(_('Save'), this.saveObjects.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getObjects', noCache: 1, onComplete: function (res) {
@@ -1824,7 +1889,7 @@ var admin_system_module_edit = new Class({
                         depends: {
                             table: {
                                 needValue: 'table',
-                                label: t('Table name'),
+                                label: t('Table name')
                             },
                             tableSync: {
                                 needValue: 'table',

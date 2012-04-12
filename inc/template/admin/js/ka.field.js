@@ -1855,7 +1855,6 @@ ka.field = new Class({
 
                 if (typeOf(this.field.tableItems) == 'array') {
                     if (key) {
-
                         Array.each(this.field.tableItems, function (item) {
 
                             if (this.field.multiLanguage && this.field.lang && item.lang != this.field.lang && item.lang) return;

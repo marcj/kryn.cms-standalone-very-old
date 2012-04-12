@@ -128,25 +128,24 @@ class adminModule {
             case 'getWindows':
                 return self::getWindows(getArgv('name', 2));
             case 'newWindow':
-                return self::newWindow(getArgv('name', 2), getArgv('className'));
+                return self::newWindow(getArgv('name', 2), getArgv('className'), getArgv('class'));
         }
     }
 
-    public static function newWindow($pName, $pClass){
+    public static function newWindow($pName, $pClassName, $pClass){
 
-        $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
+        $path = PATH_MODULE.$pName.'/'.$pClassName.'.class.php';
         if (file_exists($path)) return array('error' => 'file_exists');
 
         $content = "<?php
 
-class $pClass extends windowEdit {
+class $pClassName extends $pClass {
 
 }
 
 ?>";
 
         kryn::fileWrite($path, $content);
-
 
         return true;
     }

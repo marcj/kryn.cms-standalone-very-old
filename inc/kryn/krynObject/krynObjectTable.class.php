@@ -83,7 +83,8 @@ class krynObjectTable extends krynObjectAbstract {
                     if (!$foreignObjectDefinition)
                         continue;
 
-                    $oKey = $field['object_label_map']?$field['object_label_map']:$field['object'].'_'.$field['object_label'];
+                    //todo, if target object has mulitple keys
+                    $oKey = $field['object'].'_'.$field['object_label'];
                     $oLabel = $field['object_label']?$field['object_label']:kryn::$objects[$field['object']]['object_label'];
 
                     if ($field['object_relation'] != 'nToM'){
@@ -129,22 +130,22 @@ class krynObjectTable extends krynObjectAbstract {
 
                         $groupedColumns[$oKey] = true;
 
-                        $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($field['object_relation_table'])).' AS '.
-                                dbQuote($field['object_relation_table']).' ON (1=1 ';
+                        $relTableNamePre = 'relation_'.$this->object_key.'_'.$field['object'];
+                        $relTableName = $field['object_relation_table']?$field['object_relation_table']:$relTableNamePre;
+
+                        $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($relTableName)).' AS '.
+                                dbQuote($relTableNamePre).' ON (1=1 ';
 
                         foreach ($this->definition['fields'] as $tkey => &$tfield){
                             if ($tfield['primaryKey']){
-                                $join .= ' AND '.dbQuote($field['object_relation_table']);
+                                $join .= ' AND '.dbQuote($relTableNamePre);
 
-                                if ($field['object_relation_table_left'])
-                                    $join .= '.'.dbQuote($field['object_relation_table_left']).' = ';
-                                else
-                                    $join .= '.'.dbQuote($this->object_key.'_'.$tkey).' = ';
+                                $join .= '.'.dbQuote($this->object_key.'_'.$tkey).' = ';
 
                                 $join .= dbQuote($this->object_key).'.'.dbQuote($tkey);
                             }
-
                         }
+
                         $join .= ')';
                         $joins[] = $join;
 
@@ -157,10 +158,7 @@ class krynObjectTable extends krynObjectAbstract {
                             if ($tfield['primaryKey']){
                                 $join .= ' AND '.dbQuote($field['object_relation_table']);
 
-                                if ($field['object_relation_table_right'])
-                                    $join .= '.'.dbQuote($field['object_relation_table_right']).' = ';
-                                else
-                                    $join .= '.'.dbQuote($field['object'].'_'.$tkey).' = ';
+                                $join .= '.'.dbQuote($field['object'].'_'.$tkey).' = ';
 
                                 $join .= dbQuote($field['object']).'.'.dbQuote($tkey);
 
