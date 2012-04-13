@@ -2152,6 +2152,10 @@ var admin_system_module_edit = new Class({
         .addEvent('click', this.openObjectSettings.bind(this,tr))
         .inject(actionTd);
 
+        new ka.Button(t('Window wizard'))
+        .addEvent('click', this.openObjectWizard.bind(this,[pKey, pDefinition]))
+        .inject(actionTd);
+
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
             title: t('Delete object'),
@@ -2165,36 +2169,6 @@ var admin_system_module_edit = new Class({
             })
         }.bind(this))
         .inject(actionTd);
-
-        /*
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/arrow_up.png',
-            title: t('Move up'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
-        })
-        .addEvent('click', function(){
-            var previous = tr.getPrevious();
-            if (previous.getElement('th')) return;
-
-            tr.inject(previous.getPrevious(), 'before');
-            tr2.inject(tr,'after');
-        })
-        .inject(actionTd);
-
-
-        new Element('img', {
-            src: _path+'inc/template/admin/images/icons/arrow_down.png',
-            title: t('Move down'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
-        })
-        .addEvent('click', function(){
-            if (!tr2.getNext())
-                return false;
-            tr2.inject(tr2.getNext().getNext(), 'after');
-            tr.inject(tr2, 'before');
-        })
-        .inject(actionTd);
-        */
 
         var a = new Element('a', {
             text: t('Fields'),
@@ -2233,6 +2207,96 @@ var admin_system_module_edit = new Class({
 
         if (pDefinition)
             fieldTable.setValue(pDefinition['fields']);
+
+    },
+
+    openObjectWizard: function(pKey, pDefinition){
+
+        this.dialog = this.win.newDialog('', true);
+
+        this.dialog.setStyles({
+            height: '80%',
+            width: '90%'
+        });
+
+        this.dialog.center();
+
+        var table = new Element('table', {
+            width: '100%'
+        }).inject(this.dialog.content);
+        var tbody = new Element('tbody').inject(table);
+
+        var columns = {}, fields = {};
+        var columnsActive = [], fieldsActive = [];
+
+        var colCount = 0;
+        Object.each(pDefinition.fields, function(field,key){
+
+            if (!field.primaryKey && colCount <= 4){
+                columnsActive.push(key);
+                colCount++;
+            }
+
+            if (!field.primaryKey)
+                fieldsActive.push(key);
+
+            if (!field.autoIncrement)
+                fields[key] = (field.label?field.label:'No label')+' ('+key+')';
+
+            columns[key] = (field.label?field.label:'No label')+' ('+key+')';
+        });
+
+        var kaFields = {
+
+            windowListName: {
+                label: tc('objectWindowWizard', 'Window list class name'),
+                regexp_replace: '',
+                type: 'text',
+                'default': pKey+'List'
+            },
+            windowAddName: {
+                label: tc('objectWindowWizard', 'Window add class name'),
+                type: 'text',
+                'default': pKey+'Add'
+            },
+            windowEditName: {
+                label: tc('objectWindowWizard', 'Window edit class name'),
+                type: 'text',
+                'default': pKey+'Edit'
+            },
+
+            windowListColumns: {
+                label: tc('objectwindowWizard', 'Window list columns'),
+                type: 'checkboxgroup',
+                items: columns,
+                'default': columnsActive
+            },
+
+            windowListColumns: {
+                label: tc('objectwindowWizard', 'Window list columns'),
+                type: 'checkboxgroup',
+                items: columns,
+                'default': columnsActive
+            },
+
+            windowAddFields: {
+                label: tc('objectwindowWizard', 'Window add fields'),
+                type: 'checkboxgroup',
+                items: fields,
+                'default': fieldsActive
+            },
+
+            windowEditFields: {
+                label: tc('objectwindowWizard', 'Window edit fields'),
+                type: 'checkboxgroup',
+                items: fields,
+                'default': fieldsActive
+            }
+
+        }
+
+        var kaParseObj = new ka.parse(tbody, kaFields, {allTableItems: true}, {win: this.win});
+
 
     },
 
