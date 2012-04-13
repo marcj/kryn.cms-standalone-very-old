@@ -1,4 +1,7 @@
 a.ka-Button, a.ka-Button:link {
+
+    white-space: nowrap;
+
     padding: 0px 5px 0px 10px;
     margin: 2px auto;
     cursor: pointer;

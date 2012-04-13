@@ -9,7 +9,7 @@
  */
 
 if (array_key_exists('_kurl', $_REQUEST)) {
-    $pfile = preg_replace('/\.\.+/', '.', $_REQUEST['_kurl']);
+    $pfile = preg_replace('/\.\.+/', '.', trim($_REQUEST['_kurl']));
     $temp = 'inc/template/';
     $file = false;
 

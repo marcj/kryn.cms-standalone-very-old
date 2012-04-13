@@ -372,7 +372,13 @@ ka.kwindow = new Class({
         }.bind(this);
         this.addEvent('resize', main.center);
 
-        main.close = function(){
+        main.canClosed = true;
+
+        main.close = function(pInternal){
+
+            if (pInternal === true)
+                main.fireEvent('close');
+
             main.overlay.destroy();
             main.destroy();
             this.removeEvent('resize', main.center);
@@ -785,8 +791,9 @@ ka.kwindow = new Class({
         if (dialogs.length > 0){
 
             var lastDialog = dialogs[dialogs.length-1];
-            lastDialog.fireEvent('close');
-            lastDialog.close();
+
+            if (lastDialog.canClosed === false) return;
+            lastDialog.close(true);
 
             delete lastDialog;
             return;

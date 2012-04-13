@@ -2226,14 +2226,17 @@ var admin_system_module_edit = new Class({
         }).inject(this.dialog.content);
         var tbody = new Element('tbody').inject(table);
 
-        var columns = {}, fields = {};
-        var columnsActive = [], fieldsActive = [];
+        var columns = [], fields = {};
+        var fieldsActive = [];
 
         var colCount = 0;
+        var useIt = false;
+
         Object.each(pDefinition.fields, function(field,key){
 
+            useIt = false;
             if (!field.primaryKey && colCount <= 4){
-                columnsActive.push(key);
+                useIt = true;
                 colCount++;
             }
 
@@ -2243,8 +2246,34 @@ var admin_system_module_edit = new Class({
             if (!field.autoIncrement)
                 fields[key] = (field.label?field.label:'No label')+' ('+key+')';
 
-            columns[key] = (field.label?field.label:'No label')+' ('+key+')';
+            columns.push({usage: useIt, key: key, label: (field.label?field.label:'No label'), width: field.width});
         });
+
+        var reqs = {};
+
+        var checkClassName = function(pValue, pFieldObject, pFieldId){
+
+
+            if (reqs[pFieldId])
+                reqs[pFieldId].cancel();
+
+            reqs[pFieldId] = new Request.JSON({url: _path+'admin/system/module/windowsExists', noCache: 1,
+            onComplete: function(pResult){
+                if(pFieldObject.existsInfo) {
+                    pFieldObject.existsInfo.destroy();
+                }
+
+                if (pResult){
+
+                    pFieldObject.existsInfo = new Element('div', {
+                        style: 'color: red;',
+                        text: t('This class already exists. It will be overwritten!')
+                    }).inject(pFieldObject.input, 'after');
+
+                }
+            }}).get({name: this.mod, className: pValue});
+
+        }.bind(this)
 
         var kaFields = {
 
@@ -2252,31 +2281,49 @@ var admin_system_module_edit = new Class({
                 label: tc('objectWindowWizard', 'Window list class name'),
                 regexp_replace: '',
                 type: 'text',
-                'default': pKey+'List'
+                'default': pKey+'List',
+                onChange: checkClassName
             },
             windowAddName: {
                 label: tc('objectWindowWizard', 'Window add class name'),
                 type: 'text',
-                'default': pKey+'Add'
+                'default': pKey+'Add',
+                onChange: checkClassName
             },
             windowEditName: {
                 label: tc('objectWindowWizard', 'Window edit class name'),
                 type: 'text',
-                'default': pKey+'Edit'
+                'default': pKey+'Edit',
+                onChange: checkClassName
             },
 
             windowListColumns: {
                 label: tc('objectwindowWizard', 'Window list columns'),
-                type: 'checkboxgroup',
-                items: columns,
-                'default': columnsActive
-            },
+                type: 'array',
+                columns: [
+                    {label: t('Usage'), width: 50},
+                    {label: t('Key'), width: 100},
+                    {label: t('Label')},
+                    {label: t('Width'), width: 50}
+                ],
+                withoutAdd: true,
+                withoutRemove: true,
+                fields: {
+                    usage: {
+                        type: 'checkbox'
+                    },
+                    key: {
+                        type: 'label'
+                    },
+                    label: {
+                        type: 'text'
+                    },
+                    width: {
+                        type: 'text'
+                    }
 
-            windowListColumns: {
-                label: tc('objectwindowWizard', 'Window list columns'),
-                type: 'checkboxgroup',
-                items: columns,
-                'default': columnsActive
+                },
+                'default': columns
             },
 
             windowAddFields: {
@@ -2291,11 +2338,42 @@ var admin_system_module_edit = new Class({
                 type: 'checkboxgroup',
                 items: fields,
                 'default': fieldsActive
+            },
+
+            addEntrypoints: {
+                label: tc('objectWindowWizard', 'Create entry points'),
+                type: 'checkbox',
+                'default': 1
             }
 
         }
 
         var kaParseObj = new ka.parse(tbody, kaFields, {allTableItems: true}, {win: this.win});
+
+        this.objectWizardCloseBtn = new ka.Button(t('Cancel')).addEvent('click', function(){
+            this.dialog.close();
+        }.bind(this)).inject(this.dialog.bottom);
+
+        this.objectWizardSaveBtn = new ka.Button(t('Apply')).addEvent('click', function(){
+
+            var values = kaParseObj.getValue();
+            this.dialog.canClosed = false;
+            this.objectWizardCloseBtn.deactivate();
+            this.objectWizardSaveBtn.deactivate();
+
+            this.win.setLoading(true, t('Creating windows ...'));
+
+            this.lr = new Request.JSON({url: _path + 'admin/system/module/createWindows', noCache: 1, onComplete: function (res) {
+
+                this.win.setLoading(false);
+                this.dialog.close();
+                ka.loadMenu();
+                ka.loadSettings();
+
+            }.bind(this)}).post({object: pKey, name: this.mod, values: values});
+
+
+        }.bind(this)).inject(this.dialog.bottom);
 
 
     },

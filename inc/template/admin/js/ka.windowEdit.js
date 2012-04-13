@@ -767,6 +767,8 @@ ka.windowEdit = new Class({
         var _this = this;
         var req = {};
 
+        if (this.lastSaveRq) this.lastSaveRq.cancel();
+
         var data = this.retrieveData();
 
         if (!data) return;
@@ -806,7 +808,34 @@ ka.windowEdit = new Class({
 
             }
 
-            new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=saveItem', noCache: true, onComplete: function (res) {
+            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=saveItem',
+                noErrorReporting: true,
+                noCache: true, onComplete: function (res) {
+
+                if (!res){
+                    if (pPublish) {
+                        this.saveAndPublishBtn.stopTip(_('Failed'));
+                    } else {
+                        this.saveBtn.stopTip(_('Failed'));
+                    }
+                    return;
+                }
+
+                if(res && res.error){
+                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+
+                    Array.each(res.fields, function(field){
+                        if (this.fields[field])
+                            this.fields[field].setIsOk(false);
+                    }.bind(this));
+
+                    if (pPublish) {
+                        this.saveAndPublishBtn.stopTip(_('Failed'));
+                    } else {
+                        this.saveBtn.stopTip(_('Failed'));
+                    }
+                    return;
+                }
 
                 window.fireEvent('softReload', this.win.module + '/' + this.win.code.substr(0, this.win.code.lastIndexOf('/')));
 

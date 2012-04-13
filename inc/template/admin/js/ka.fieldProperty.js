@@ -363,7 +363,8 @@ ka.fieldProperty = new Class({
                 bool: t('Boolean'),
                 lang: t('Language select'),
                 datetime: t('Datetime'),
-                imagemap: t('Imagemap')
+                imagemap: t('Imagemap'),
+                predefined: t('Predefined')
             };
 
             this.kaFields.type.depends.imageMap = {

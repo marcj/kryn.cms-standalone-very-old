@@ -24,6 +24,13 @@ class krynObjectTable extends krynObjectAbstract {
         return dbDelete($this->definition['table'], $pPrimaryValues);
     }
 
+    /**
+     * Converts the values array to the proper array for the table columns.
+     *
+     *
+     * @param $pValues
+     * @return array|bool
+     */
     public function retrieveValues($pValues){
 
         $row = array();
@@ -62,7 +69,7 @@ class krynObjectTable extends krynObjectAbstract {
                     } else {
 
                         //multiple items in $object_ids
-
+                        //save it in other table
 
                     }
 
@@ -78,20 +85,59 @@ class krynObjectTable extends krynObjectAbstract {
         return $row;
     }
 
+    private function getFieldAtPos($pPos){
+        $pos = 1;
+        foreach ($this->definition['fields'] as $key => $field){
+            if ($pos == $pPos) return $key;
+            $pos++;
+        }
+        return false;
+    }
+
+    public function parseError($e){
+
+        //check for postgresql
+        if (strpos($e, 'duplicate key value violates unique constraint') !== false){
+
+            preg_match('/Key \(([^)]*)\)=\(.*\) already exists/', $e, $matches);
+            $fields = explode(',', str_replace(' ', '', $matches[1]));
+            return array('error' => 'duplicate_key', 'fields' => $fields);
+        }
+
+        //TODO, check for mysql
+        if (preg_match("/Duplicate entry '.*' for key ([0-9]*)/", $e, $matches)){
+            $field = $this->getFieldAtPos($matches[1]+0);
+            return array('error' => 'duplicate_key', 'fields' => array($field));
+        }
+
+        return false;
+    }
+
     public function addItem($pValues){
 
         $row = $this->retrieveValues($pValues);
-        error_log(print_r($row,true));
 
-        return dbInsert($this->definition['table'], $row);
+        try {
+            $lastId = dbInsert($this->definition['table'], $row);
+        } catch(Exception $e){
+            $error = $this->parseError($e);
+            return $error?$error:false;
+        }
+
+        return $lastId;
 
     }
 
     public function updateItem($pPrimaryValues, $pValues){
 
-        //TODO
+        $row = $this->retrieveValues($pValues);
 
-        return dbUpdate($this->definition['table'], $pPrimaryValues, $pValues);
+        try {
+            return dbUpdate($this->definition['table'], $pPrimaryValues, $row);
+        } catch(Exception $e){
+            $error = $this->parseError($e);
+            return $error?$error:false;
+        }
     }
 
     private function _getItems($pPrimaryIds = false, $pFields = '*', $pResolveForeignValues = '*', $pOffset = false, $pLimit = false,

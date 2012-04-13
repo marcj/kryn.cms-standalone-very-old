@@ -17,11 +17,14 @@ ka.field = new Class({
     handleChildsMySelf: false, //defines whether this object handles his child visibility itself
 
     field: {},
+    id: '',
     depends: {},
     childContainer: false,
     container: false,
 
-    initialize: function (pField, pContainer, pRefs) {
+    initialize: function (pField, pContainer, pRefs, pFieldId) {
+
+        this.id = pFieldId;
 
         if (pField.type == 'predefined'){
             var definition = ka.getObjectDefinition(pField.object);
@@ -195,19 +198,9 @@ ka.field = new Class({
                     this.setStyle('border', '1px solid silver');
                     this.setStyle('background-color', this.retrieve('oldBg'));
                 });
-                this.input.addEvent('keyup', function () {
-                    this.fireEvent('change', this.getValue());
-                }.bind(this));
             }
 
-            if (!this.field.disabled) {
-                this.input.addEvent('change', function () {
-                    this.fireEvent('change', this.getValue());
-                }.bind(this));
-                this.input.addEvent('keyup', function () {
-                    this.fireEvent('change', this.getValue());
-                }.bind(this));
-            } else {
+            if (this.field.disabled) {
                 this.input.set('disabled', true);
             }
         }
@@ -661,6 +654,8 @@ ka.field = new Class({
                 if (item.get('checked')) res.include(item.retrieve('key'));
 
             });
+
+            return res;
         };
 
     },
@@ -1159,7 +1154,7 @@ ka.field = new Class({
             this.customObj = new window[this.field['class']](this.field, this.fieldPanel);
 
             this.customObj.addEvent('change', function () {
-                this.fireEvent('change', this.getValue());
+                this.fireChange();
             }.bind(this));
 
             this._setValue = this.customObj.setValue.bind(this.customObj);
@@ -1175,7 +1170,7 @@ ka.field = new Class({
     renderArray: function () {
 
         var table = new Element('table', {
-            cellpadding: 1,
+            cellpadding: 2,
             cellspacing: 0,
             width: '100%',
             'class': 'ka-field-array'
@@ -1248,7 +1243,9 @@ ka.field = new Class({
 
             }.bind(this));
 
-            var td = new Element('td').inject(tr);
+            if (this.field.withOrder && !this.field.withoutRemove){
+                var td = new Element('td').inject(tr);
+            }
 
             if (this.field.withOrder){
 
@@ -1273,18 +1270,22 @@ ka.field = new Class({
 
             }
 
-            new Element('img', {
-                src: _path + 'inc/template/admin/images/icons/delete.png',
-                style: 'cursor: pointer;',
-                title: _('Remove')
-            }).addEvent('click', function () {
-                tr.destroy();
-            }).inject(td);
+            if (!this.field.withoutRemove){
+                new Element('img', {
+                    src: _path + 'inc/template/admin/images/icons/delete.png',
+                    style: 'cursor: pointer;',
+                    title: _('Remove')
+                }).addEvent('click', function () {
+                    tr.destroy();
+                }).inject(td);
+            }
 
 
         }.bind(this);
 
-        new ka.Button(this.field.addText ? this.field.addText : t('Add')).addEvent('click', addRow).inject(actions);
+        if (!this.field.withoutAdd){
+            new ka.Button(this.field.addText ? this.field.addText : t('Add')).addEvent('click', addRow).inject(actions);
+        }
 
         this.getValue = function () {
             var res = [];
@@ -1424,7 +1425,7 @@ ka.field = new Class({
 
         this.imageGroup.addEvent('change', function () {
 
-            this.fireEvent('change', this.getValue());
+            this.fireChange();
 
         }.bind(this));
 
@@ -1490,6 +1491,7 @@ ka.field = new Class({
                 value: pPath,
                 text: pPath
             }).inject(input);
+            this.fireChange();
         }
 
         this.addImgBtn = new Element('img', {
@@ -1536,7 +1538,6 @@ ka.field = new Class({
                     value: item
                 }).inject(input);
             });
-            this.fireEvent('change', this.getValue());
         }
 
     },
@@ -1564,7 +1565,7 @@ ka.field = new Class({
             this.customObj = new window[definition.chooserFieldJavascriptClass](this.field, this.fieldPanel, this);
 
             this.customObj.addEvent('change', function () {
-                this.fireEvent('change', this.getValue());
+                this.fireChange();
             }.bind(this));
 
             this._setValue = this.customObj.setValue.bind(this.customObj);
@@ -1865,9 +1866,6 @@ ka.field = new Class({
 
             this.input.title = ka.getObjectId(pVal);
 
-            if (pIntern) {
-                this.fireEvent('change', this.getValue());
-            }
         }
 
         this.getValue = function () {
@@ -1931,7 +1929,7 @@ ka.field = new Class({
             this.input = new Element('select', {
                 size: this.field.size
             }).addEvent('change', function () {
-                this.fireEvent('change', this.getValue());
+                this.fireChange();
             }.bind(this)).inject(this.fieldPanel);
         }
 
@@ -2070,7 +2068,7 @@ ka.field = new Class({
             this.select = new ka.Select();
 
             this.select.addEvent('change', function () {
-                this.fireEvent('change', this.getValue());
+                this.fireChange();
             }.bind(this));
 
             if (this.field.input_width)
@@ -2167,7 +2165,7 @@ ka.field = new Class({
             }).inject(this.select || this.input, 'after');
         }
 
-        this._setValue = function (pValue, pIntern) {
+        this._setValue = function (pValue) {
 
             if (multiple) {
                 this.inputVals.empty();
@@ -2226,9 +2224,6 @@ ka.field = new Class({
                 this.select.setValue(pValue);
             }
 
-            if (pIntern) {
-                this.fireEvent('change', this.getValue());
-            }
         };
 
         this.getValue = function () {
@@ -2285,18 +2280,14 @@ ka.field = new Class({
         }
 
         datePicker.addEvent('change', function () {
-            this.fireEvent('change', this.getValue());
+            this.fireChange();
         }.bind(this));
 
         this.getValue = function () {
             return datePicker.getTime();
         };
-        this._setValue = function (pVal, pIntern) {
+        this._setValue = function (pVal) {
             datePicker.setTime((pVal != 0) ? pVal : false);
-
-            if (pIntern) {
-                this.fireEvent('change', this.getValue());
-            }
         }.bind(this);
 
         if (this.field['default'] && this.field['default'] != "") {
@@ -2318,7 +2309,7 @@ ka.field = new Class({
         }.bind(this);
 
         this.checkbox.addEvent('change', function(){
-            this.fireEvent('change', this.checkbox.getValue());
+            this.fireChange();
         }.bind(this));
 
         this._setValue = function(pValue){
@@ -2360,11 +2351,11 @@ ka.field = new Class({
         var _this = this;
 
         this.input.addEvent('change', function(){
-            this.fireEvent('change', this.input.value);
+            this.fireChange();
         }.bind(this));
 
         this.input.addEvent('keyup', function(){
-            this.fireEvent('change', this.input.value);
+            this.fireChange();
         }.bind(this));
 
         if (this.field.width) {
@@ -2507,11 +2498,11 @@ ka.field = new Class({
             this.input.setStyle('height', this.field.input_height);
 
         this.input.addEvent('change', function(){
-            this.fireEvent('change', this.input.value);
+            this.fireChange();
         }.bind(this));
 
         this.input.addEvent('keyup', function(){
-            this.fireEvent('change', this.input.value);
+            this.fireChange();
         }.bind(this));
 
         this._setValue = function (pVal) {
@@ -2539,11 +2530,11 @@ ka.field = new Class({
             this.input.setStyle('width', this.field.input_width);
 
         this.input.addEvent('change', function(){
-            this.fireEvent('change', this.input.value);
+            this.fireChange();
         }.bind(this));
 
         this.input.addEvent('keyup', function(){
-            this.fireEvent('change', this.input.value);
+            this.fireChange();
         }.bind(this));
 
         this._setValue = function (pVal) {
@@ -2637,11 +2628,17 @@ ka.field = new Class({
         }
 
         if (pIntern) {
-            this.fireEvent('change', this.getValue());
+            this.fireChange();
         } //fires check-depends too
         else {
             this.fireEvent('check-depends');
         }
+    },
+
+    fireChange: function(){
+
+        this.fireEvent('change', [this.getValue(), this, this.id]);
+
     },
 
     _setValue: function (pValue, pIntern) {
@@ -2651,7 +2648,7 @@ ka.field = new Class({
     //should not be used anymore
     //use instead: this.fireEvent('change', this.getValue());
     onChange: function () {
-        this.fireEvent('change', this.getValue());
+        this.fireEvent('change', [this.getValue(), this, this.id]);
     },
 
     findWin: function () {

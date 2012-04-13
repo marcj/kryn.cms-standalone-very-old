@@ -577,7 +577,8 @@ class database {
                 foreach ($columns as $key => &$column) {
 
                     $ncolumn = array();
-                    $ncolumn['auto_increment'] = ($column[3] == 'DB_PRIMARY') ? true : false;
+                    $ncolumn['auto_increment'] = ($column[4]) ? true : false;
+                    $ncolumn['primary'] = ($column[3] == 'DB_PRIMARY') ? true : false;
                     $ncolumn['escape'] = self::isIntEscape($column[0]) ? 'int' : 'text';
                     $ncolumn['type'] = $column[0];
                     $ncolumns[$key] = $ncolumn;

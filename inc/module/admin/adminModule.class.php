@@ -126,18 +126,160 @@ class adminModule {
             case 'getWindowDefinition':
                 return self::getWindowDefinition(getArgv('name', 2), getArgv('class', 2));
             case 'saveWindowClass':
-                return self::saveWindowClass(getArgv('name', 2), getArgv('class', 2));
+                return self::saveWindowClass(getArgv('name', 2), getArgv('class', 2), array(
+                    'general' => getArgv('general'),
+                    'fields' => getArgv('fields'),
+                    'columns' => getArgv('columns'),
+                    'methods' => getArgv('methods'),
+                ));
             case 'getWindows':
                 return self::getWindows(getArgv('name', 2));
+            case 'windowsExists':
+                return self::windowsExists(getArgv('name', 2), getArgv('className', 2));
+            case 'createWindows':
+                return self::createWindows(getArgv('name', 2), getArgv('object', 2), getArgv('values', 2));
             case 'newWindow':
                 return self::newWindow(getArgv('name', 2), getArgv('className'), getArgv('class'));
         }
     }
 
+
+
+    public static function windowsExists($pName, $pClassName){
+
+        if (!$pName) return false;
+
+        $path = PATH_MODULE.$pName.'/'.$pClassName.'.class.php';
+        return file_exists($path);
+
+    }
+
+    public static function createWindows($pName, $pObjectKey, $pValues){
+
+        $columns = array();
+
+        $config = self::loadConfig($pName);
+        $definition = $config['objects'][$pObjectKey];
+
+        foreach ($pValues['windowListColumns'] as $column){
+            if ($column['usage']){
+                $columns[$column['key']] = array(
+                    'label' => $column['label'],
+                    'type' => 'predefined',
+                    'object' => $pObjectKey,
+                    'field' => $column['key'],
+                    'width' => $column['width']
+                );
+            }
+        }
+
+        $list = array(
+            'general' => array(
+                'class' => 'adminWindowList',
+                'dataModel' => 'object',
+                'object' => $pObjectKey,
+                'add' => true,
+                'edit' => true,
+                'remove' => true,
+                'domainDepended' => $definition['domainDepended'],
+                'multiLanguage' => $definition['multiLanguage'],
+                'workspace' => $definition['workspace']
+            ),
+            'columns' => $columns
+        );
+        self::saveWindowClass($pName, trim($pValues['windowListName']), $list);
+
+
+        $fields = array();
+
+        foreach ($pValues['windowEditFields'] as $field){
+            $fields[$field] = array(
+                'label' => $definition['fields'][$field]['label']?$definition['fields'][$field]['label']:$field,
+                'type' => 'predefined',
+                'object' => $pObjectKey,
+                'field' => $field
+            );
+        }
+
+        $edit = array(
+            'general' => array(
+                'class' => 'adminWindowEdit',
+                'dataModel' => 'object',
+                'object' => $pObjectKey,
+                'add' => true,
+                'edit' => true,
+                'remove' => true,
+                'domainDepended' => $definition['domainDepended'],
+                'multiLanguage' => $definition['multiLanguage'],
+                'workspace' => $definition['workspace']
+            ),
+            'fields' => $fields
+        );
+        self::saveWindowClass($pName, trim($pValues['windowEditName']), $edit);
+
+        $fields = array();
+
+        foreach ($pValues['windowAddFields'] as $field){
+            $fields[$field] = array(
+                'label' => $definition['fields'][$field]['label']?$definition['fields'][$field]['label']:$field,
+                'type' => 'predefined',
+                'object' => $pObjectKey,
+                'field' => $field
+            );
+        }
+
+        $add = array(
+            'general' => array(
+                'class' => 'adminWindowAdd',
+                'dataModel' => 'object',
+                'object' => $pObjectKey,
+                'add' => true,
+                'edit' => true,
+                'remove' => true,
+                'domainDepended' => $definition['domainDepended'],
+                'multiLanguage' => $definition['multiLanguage'],
+                'workspace' => $definition['workspace']
+            ),
+            'fields' => $fields
+        );
+        self::saveWindowClass($pName, trim($pValues['windowAddName']), $add);
+
+
+        if ($pValues['addEntrypoints']){
+
+            //$config = self::loadConfig($pName);
+            $config['admin'][$pObjectKey] = array(
+                'title' => $pObjectKey.' list',
+                'type'  => 'list',
+                'isLink' =>  1,
+                'class' => trim($pValues['windowListName']),
+                'childs' => array(
+                    'add' => array(
+                        'title' => 'Add',
+                        'type'  => 'add',
+                        'isLink' =>  0,
+                        'class' => trim($pValues['windowAddName']),
+                    ),
+                    'edit' => array(
+                        'title' => 'Edit',
+                        'type'  => 'edit',
+                        'isLink' =>  0,
+                        'class' => trim($pValues['windowEditName']),
+                    )
+                )
+            );
+
+            self::writeConfig($pName, $config);
+
+        }
+
+        return true;
+    }
+
     public static function newWindow($pName, $pClassName, $pClass){
 
         $path = PATH_MODULE.$pName.'/'.$pClassName.'.class.php';
-        if (file_exists($path)) return array('error' => 'file_exists');
+        if (file_exists($path)) return array('error' => 'file_already_exists');
 
         $content = "<?php
 
@@ -152,7 +294,7 @@ class $pClassName extends $pClass {
         return true;
     }
 
-    public static function saveWindowClass($pName, $pClass){
+    public static function saveWindowClass($pName, $pClass, $pValues){
 
         $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
 
@@ -168,7 +310,7 @@ class $pClassName extends $pClass {
             touch($path);
         }
 
-        $general = getArgv('general');
+        $general = $pValues['general'];
 
         $php = "<?php\n\n";
 
@@ -198,7 +340,13 @@ class $pClassName extends $pClass {
             }
         }
 
-        $fields = getArgv('fields');
+        if ($pValues['columns']){
+            $fields = $pValues['columns'];
+            $var = 'columns';
+        } else {
+            $fields = $pValues['fields'];
+            $var = 'fields';
+        }
 
         if ($fields){
             self::parseFieldValues($fields);
@@ -207,11 +355,11 @@ class $pClassName extends $pClass {
             $fieldsCode = preg_replace("/=>\s*array/", "=> array", $fieldsCode);
             $fieldsCode = str_replace("\n", "\n      ", $fieldsCode);
 
-            $php .= "\n    public \$fields = ".$fieldsCode.";\n\n";
+            $php .= "\n    public \$".$var." = ".$fieldsCode.";\n\n";
         }
 
 
-        $methods = getArgv('methods');
+        $methods = $pValues['methods'];
 
         if (is_array($methods)){
             foreach ($methods as $key => $val){
@@ -237,7 +385,6 @@ class $pClassName extends $pClass {
             foreach ($pFields as &$value){
                 if (is_numeric($value)) $value += 0;
                 if (is_array($value)) self::parseFieldValues($value);
-
             }
         }
 

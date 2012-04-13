@@ -198,12 +198,6 @@ class adminWindowList {
      * @var boolean
      */
     public $edit = false;
-    /**
-     * TBD
-     *
-     * @var boolean
-     */
-    public $navigation = false;
 
     /**
      * Defines whether the list windows should display the language select box.
@@ -220,6 +214,14 @@ class adminWindowList {
      * @var bool
      */
     public $domainDepended = false;
+
+    /**
+     * Defines whether the workspace slider should appears or not.
+     * Needs a column workspace_rsn in the table or active workspace at object.
+     *
+     * @var bool
+     */
+    public $workspace = false;
 
 
     /**

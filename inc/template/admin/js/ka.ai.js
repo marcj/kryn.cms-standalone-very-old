@@ -377,6 +377,9 @@ ka._renderMiniSearchResults = function (pRes) {
 
 }
 
+ka.newBubble = function(pTitle, pText, pDuration){
+    return ka._helpsystem.newBubble(pTitle, pText, pDuration);
+}
 
 ka.hideMiniSearch = function () {
     if (ka._miniSearchPane) {

@@ -43,6 +43,7 @@ ka.init = function () {
     }).inject(ka._iconSessionCounterDiv);
 
 
+    window.addEvent('resize', ka.checkMainBarWidth);
     ka.buildUserMenu();
 
     window.fireEvent('init');
@@ -779,8 +780,7 @@ ka.createModuleMenu = function () {
     }).inject(ka.moduleItemsScrollerContainer);
     //}).inject( ka._moduleMenu );
 
-    window.addEvent('resize', ka.updateModuleItemsScrollerSize);
-    window.addEvent('resize', ka.renderAdminLink);
+    //window.addEvent('resize', ka.updateModuleItemsScrollerSize);
 
 
     ka.moduleItemsScroller.addEvent('mousedown', function () {
@@ -913,10 +913,22 @@ ka.toggleModuleMenu = function () {
 }
 
 ka.loadMenu = function () {
-    new Request.JSON({url: _path + 'admin/backend/getMenus/', noCache: true, onComplete: function (res) {
-        ka.createModuleMenu();
+
+    if (ka.lastLoadMenuReq) ka.lastLoadMenuReq.cancel();
+
+    ka.lastLoadMenuReq = new Request.JSON({url: _path + 'admin/backend/getMenus/', noCache: true, onComplete: function (res) {
+
+        //ka.createModuleMenu();
+        //ka.moduleItems.empty();
         $('mainLinks').empty();
-        ka.moduleItems.empty();
+        if (ka.additionalMainMenu) {
+            ka.additionalMainMenu.destroy();
+            ka.additionalMainMenuContainer.destroy();
+            delete ka.additionalMainMenu;
+        }
+
+        ka.removedMainMenuItems = [];
+        delete ka.mainMenuItems;
 
         var mlinks = res;
 
@@ -944,11 +956,9 @@ ka.loadMenu = function () {
 
         ka.needMainMenuWidth = false;
 
-        ka.updateModuleItemsScrollerSize();
-        ka.renderAdminLink.delay(200);
+        //ka.updateModuleItemsScrollerSize();
+        ka.checkMainBarWidth();
 
-        document.id('mainLinks').getChildren('a').removeClass('first');
-        document.id('mainLinks').getFirst('a').addClass('first');
 
     }}).get();
 };
@@ -956,7 +966,7 @@ ka.loadMenu = function () {
 
 ka.removedMainMenuItems = [];
 
-ka.renderAdminLink = function () {
+ka.checkMainBarWidth = function () {
 
     var windowSize = window.getSize().x;
     if (windowSize < 500) {
@@ -986,12 +996,12 @@ ka.renderAdminLink = function () {
     //var searchBoxWidth = 263;
     var searchBoxWidth = 221;
 
+
     if (ka.additionalMainMenu) {
         searchBoxWidth += ka.additionalMainMenu.getSize().x;
     }
 
     var curWidth = menubarSize.x + iconbarSize.x + searchBoxWidth;
-
 
     if (!ka.needMainMenuWidth) {
         //first run, read all children widths
@@ -1912,17 +1922,11 @@ ka.parse = new Class({
                     target = pContainer.kaFieldTBody;
                 }
 
-                try {
-                    obj = new ka.field(field, target, this.refs);
+                obj = new ka.field(field, target, this.refs, id);
 
-                    if (pDependField) {
-                        obj.parent = pDependField;
-                        pDependField.depends[id] = obj;
-                    }
-
-                } catch (e) {
-                    logger('Error in parsing field: ka.parse, id: ' + id + ', type: '+field.type+' => ' + e);
-                    return;
+                if (pDependField) {
+                    obj.parent = pDependField;
+                    pDependField.depends[id] = obj;
                 }
             }
 

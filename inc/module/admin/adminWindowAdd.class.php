@@ -56,6 +56,11 @@ class adminWindowAdd extends adminWindowEdit {
 
             $this->last = krynObject::add($this->object, $row);
 
+            if (is_array($this->last)){
+                //error
+                return $this->last;
+            }
+
             //custom saves
             foreach ($this->_fields as $key => $field) {
                 if (!empty($field['customSave'])) {
