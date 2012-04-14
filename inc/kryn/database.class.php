@@ -21,24 +21,76 @@ define("DB_FETCH_ALL", -1);
 
 class database {
 
-    public $results;
+    /**
+     * Which target database we use (mysql, postgresql, etc)
+     *
+     * @var string
+     */
     public $type;
+
+    /**
+     * Counter of queries
+     *
+     * @var int
+     */
     public $querycount = 0;
+
+    /**
+     * Instance of current PDO object
+     *
+     * @var
+     */
     public $pdo;
 
+    /**
+     * Ressource to current database
+     *
+     * @var
+     */
     public $connection;
+
+    /**
+     * Stores the last error (if some appears)
+     *
+     * @var string
+     */
     public $lastError;
+
+    /**
+     * Stores last inserted table
+     *
+     * @var string
+     */
     public $lastInsertTable;
 
+    /**
+     *  If true, we do not log or throw errors
+     *
+     * @var bool
+     */
     public static $hideSql = false;
 
-    public static $needToInt = array('int*', 'tinyint*', 'bit*', 'timestamp', 'double', 'float', 'bigint*');
-    public static $alreadyLoaded = false;
+    /**
+     * Some types which represents a number
+     *
+     * @var array
+     */
+    private static $needToInt = array('int*', 'tinyint*', 'bit*', 'timestamp', 'double', 'float', 'bigint*');
 
+    /**
+     * Defines whether we use the pdo driver
+     *
+     * @var bool
+     */
     public $usePdo = false;
-    public $databaseName = '';
 
-    public $user = '';
+    /**
+     * Defined whether this connection is connected to a slave
+     *
+     * @var bool
+     */
+    public $readOnly = false;
+
 
     public function __construct($pDatabaseType = false, $pHost = false, $pUser = false,
                                 $pPassword = false, $pDatabaseName = false, $pUsePdo = true) {
@@ -48,9 +100,6 @@ class database {
 
         if ($pUsePdo)
             $this->usePdo = true;
-
-        $this->databaseName = $pDatabaseName;
-        $this->user = $pUser;
 
         if ($pDatabaseType && $pHost) {
             $this->login($pHost, $pUser, $pPassword, $pDatabaseName);
@@ -145,6 +194,7 @@ class database {
         global $kdb;
 
         $res = array();
+        $pTable = dbQuote($pTable);
 
         switch ($kdb->type) {
             case 'sqlite':
@@ -192,9 +242,6 @@ class database {
             if (is_array($t) && $t[1] != "")
                 $port = $t[1];
         }
-
-        $this->databaseName = $kdb;
-        $this->user = $user;
 
         if (!$this->usePdo) {
             try {
@@ -708,6 +755,14 @@ class database {
                 $this->lastInsertTable = $matches[1];
             }
         }
+
+
+        if (!database::$hideSql && kryn::$config['debug_log_sqls']){
+            database::$hideSql = true;
+            klog('debug', 'query: '.$pQuery);
+            database::$hideSql = false;
+        }
+
 
         if (!$this->usePdo) {
             try {

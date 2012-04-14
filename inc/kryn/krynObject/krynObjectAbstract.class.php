@@ -43,47 +43,6 @@ abstract class krynObjectAbstract {
     }
 
     /**
-     * Converts given primary values into proper SQL.
-     * Resolve all patterns in krynObject::parseUrl();
-     *
-     * @param $pPrimaryValue
-     * @return bool|string
-     */
-    public function primaryArrayToSql($pPrimaryValue){
-
-        $sql = '';
-
-        if (!is_array($pPrimaryValue)){
-            $pPrimaryValue = $this->primaryStringToArray($pPrimaryValue);
-        }
-
-        if (!$pPrimaryValue) return false;
-
-        if (array_key_exists(0, $pPrimaryValue)){
-            //we have to select multiple rows
-            foreach ($pPrimaryValue as $group){
-                $sql .= ' (';
-                foreach ($group as $primKey => $primValue){
-                    $sql .= dbQuote($this->object_key).".".dbQuote($primKey)." = '".esc($primValue)."' AND ";
-                }
-                $sql = substr($sql, 0, -5).') OR ';
-            }
-
-            $sql = substr($sql, 0, -3);
-        } else {
-            //we only have to select one row
-            $sql .= ' (';
-            foreach ($pPrimaryValue as $primKey => $primValue){
-                $sql .= dbQuote($this->object_key).'.'.dbQuote($primKey)." = '".esc($primValue)."' AND ";
-            }
-            $sql = substr($sql, 0, -5).')';
-        }
-
-        return $sql;
-
-    }
-
-    /**
      * Converts given primary values from type string into proper array definition.
      * Generates a array for the usage of krynObject:get()
      *
@@ -105,7 +64,6 @@ abstract class krynObjectAbstract {
 
             foreach ($primaryGroups as $pos => $value){
 
-
                 if ($ePos = strpos($value, '=')){
                     $key = substr($value, 0, $ePos);
                     if (!in_array($key, $this->primaryKeys)) continue;
@@ -123,66 +81,6 @@ abstract class krynObjectAbstract {
         return $result;
 
     }
-
-    /**
-     * Converts the array from ka.field type 'condition' to SQL
-     *
-     * @param array  $pConditions
-     * @param string $pTable
-     *
-     * @return string
-     */
-    public static function conditionArrayToSql($pConditions, $pTable = ''){
-
-        $result = '';
-
-        if (is_string($pConditions[0])){
-            //only one condition, ex: array('rsn', '>', 0)
-
-            $result = self::conditionSingleField($pConditions, $pTable);
-
-        } else {
-            foreach ($pConditions as $condition){
-
-                if (is_array($condition) && is_array($condition[0])){
-                    $result .= ' ('.self::conditionArrayToSql($condition, $pTable).')';
-                } else if(is_array($condition)){
-                    $result .= self::conditionSingleField($condition, $pTable);
-                } else if (is_string($condition)){
-                    $result .= ' '.$condition.' ';
-                }
-
-            }
-        }
-
-        return $result;
-    }
-
-    private static function conditionSingleField($pCondition, $pTable = ''){
-
-        if (($pos = strpos($pCondition[0], '.')) === false){
-            $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
-        } else {
-            $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
-        }
-
-        if ($pCondition[1] == 'REGEXP')
-            $result .= kryn::$config['db_type']=='mysql'?'REGEXP':'~';
-        else
-            $result .= $pCondition[1];
-
-        if ($pCondition[1] == 'IN'){
-            if (is_numeric($pCondition[2]))
-                $result .= ' '.$pCondition[2];
-            else
-                $result .= " '".esc($pCondition[2])."'";
-        } else {
-            $result .= ' '.$pCondition[2];
-        }
-
-        return $result;
-    }
-
 
     /**
      *

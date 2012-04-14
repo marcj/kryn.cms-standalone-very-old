@@ -199,7 +199,7 @@ class krynObject {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pObjectPrimaryValues
+     * @param mixed  $pObjectPrimaryValues string or array
      * @param array  $pOptions
      * @param bool   $pRawData
      * @return array|bool
@@ -216,7 +216,6 @@ class krynObject {
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
-
 
         if (
             (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues))
@@ -278,36 +277,13 @@ class krynObject {
                 self::$instances[$pObjectKey] = new krynObjectTable($pObjectKey, $definition);
             } else {
                 klog('krynObject', 'No class or table defined for object '.$pObjectKey);
+                throw new Exception('No class or table defined for object '.$pObjectKey);
             }
         }
 
         return self::$instances[$pObjectKey];
 
     }
-
-    /**
-     * Sets the object values for the given url
-     *
-     * @static
-     * @param  $pInternalUrl
-     * @param  $pObject
-     * @return bool
-     */
-    public static function set($pInternalUrl, $pObject){
-
-        //TODO, not done here
-
-        list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
-
-        $objectDefinition = kryn::$objects[$object_key];
-        if (!$objectDefinition) return false;
-
-        if (method_exists($objectDefinition['_extension'], $objectDefinition['setter'])){
-            return call_user_func(array($objectDefinition['_extension'], $objectDefinition['setter']), $params, $pObject);
-        } else return false;
-
-    }
-
 
     /**
      * Counts the items of $pInternalUrl

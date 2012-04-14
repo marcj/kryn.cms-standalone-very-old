@@ -131,7 +131,7 @@ class admin {
                             $content = self::objectGetLabel(getArgv('url'));
                             break;
                         case 'objectGetItems':
-                            $content = self::objectGetItems(getArgv('object', 2), getArgv('ids'));
+                            $content = self::objectGetItems(getArgv('object'));
                             break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object', 2), getArgv('page'));
@@ -343,9 +343,16 @@ class admin {
     }
 
 
-    public static function objectGetItems($pObject, $pIds){
+    public static function objectGetItems($pUrl){
 
-        $definition = kryn::$objects[$pObject];
+        if (is_numeric($pUrl)){
+            //compatibility
+            $object_key = '';
+        } else {
+            list($object_key, $object_ids, $params) = krynObject::parseUrl($pUrl);
+        }
+
+        $definition = kryn::$objects[$object_key];
         if (!$definition) return array('error' => 'object_not_found');
 
         //todo check here access
@@ -357,41 +364,39 @@ class admin {
             if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
 
             require_once($classFile);
-            $dataModel = new $class($pObject);
+            $dataModel = new $class($object_key);
 
-            $items = $dataModel->getItems($pIds);
-            return $items;
+            $items = $dataModel->getItems($object_ids);
 
         } else {
 
-            $primaryKey = '';
-            $fields = array();
-            foreach ($definition['fields'] as $key => $field){
-                if ($field['primaryKey']){
-                    $primaryKey = $key;
-                    $fields[] = $key;
-                }
-            }
+            $primaryKeys = krynObject::getPrimaries($object_key);
+
+            $fields = array_keys($primaryKeys);
 
             foreach ($definition['chooserFieldDataModelFields'] as $key => $val){
                 $fields[] = $key;
             }
 
-            $items = krynObject::get($pObject, $pIds, array(
+            $items = krynObject::get($object_key, $object_ids, array(
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
-
-            $res = array();
-            if (is_array($items)){
-                foreach ($items as &$item){
-                    $res[ $item[$primaryKey] ] = $item;
-                }
-            }
-
-            return $res;
-
         }
+
+        $res = array();
+        if (is_array($items)){
+            foreach ($items as &$item){
+
+                $keys = array();
+                foreach($primaryKeys as $key => &$field){
+                    $keys[] = rawurlencode($item[$key]);
+                }
+                $res[ implode(',', $keys) ] = $item;
+            }
+        }
+
+        return $res;
     }
 
     public static function objectGetLabel($pUrl){
@@ -490,7 +495,7 @@ class admin {
         }
 
         $itemsCount = krynObject::count($pObjectKey, $definition['chooserCondition']);
-        if ($itemsCount['error'])
+        if (is_array($itemsCount) && $itemsCount['error'])
             return $itemsCount;
 
         $itemsPerPage = 15;

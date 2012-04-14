@@ -1880,7 +1880,7 @@ var admin_system_module_edit = new Class({
                     },
                     __dataModel__: {
                         type: 'select',
-                        label: t('Data model'),
+                        label: t('Data source'),
                         items: {
                             'table': t('SQL Table'),
                             'custom': t('Custom class')
@@ -1956,7 +1956,7 @@ var admin_system_module_edit = new Class({
                                     },
                                     'chooserFieldDataModel': {
                                         needValue: 'default',
-                                        label: t('Data Model'),
+                                        label: t('Data source'),
                                         type: 'select',
                                         items: {
                                             'default': 'Framework',
@@ -2033,7 +2033,7 @@ var admin_system_module_edit = new Class({
                                     },
                                     'chooserBrowserDataModel': {
                                         type: 'select',
-                                        label: t('Data Model'),
+                                        label: t('Data source'),
                                         items: {
                                             'default': 'Framework',
                                             'custom': 'Own php class',
@@ -2059,7 +2059,7 @@ var admin_system_module_edit = new Class({
                                                 needValue: 'custom',
                                                 againstField: 'chooserBrowserType',
                                                 label: t('Object fields'),
-                                                desc: t('Comma separated. Without primary keys. (Ignore this when you use a own php data model)')
+                                                desc: t('Comma separated. Without primary keys. (Ignore this when you use a own php class)')
                                             }
                                         }
                                     }
@@ -2152,9 +2152,11 @@ var admin_system_module_edit = new Class({
         .addEvent('click', this.openObjectSettings.bind(this,tr))
         .inject(actionTd);
 
-        new ka.Button(t('Window wizard'))
-        .addEvent('click', this.openObjectWizard.bind(this,[pKey, pDefinition]))
-        .inject(actionTd);
+        if (pDefinition){
+            new ka.Button(t('Window wizard'))
+            .addEvent('click', this.openObjectWizard.bind(this,[pKey, pDefinition]))
+            .inject(actionTd);
+        }
 
         new Element('img', {
             src: _path+'inc/template/admin/images/icons/delete.png',
@@ -2220,6 +2222,7 @@ var admin_system_module_edit = new Class({
         });
 
         this.dialog.center();
+
 
         var table = new Element('table', {
             width: '100%'

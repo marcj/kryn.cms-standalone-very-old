@@ -32,6 +32,22 @@ class adminWindow {
         }
     }
 
+    public static function translateFields(&$pFields){
+
+        if (is_array($pFields)){
+            foreach ($pFields as &$field){
+                if ($field['label'] && substr($field['label'],0,2) == '[[' && substr($field['label'],-2) == ']]'){
+                    $field['label'] = t(substr($field['label'], 2, -2));
+                } else if ($field['title'] && substr($field['title'],0,2) == '[[' && substr($field['title'],-2) == ']]')
+                    $field['title'] = t(substr($field['title'], 2, -2));
+                else if(is_array($field['depends'])){
+                    self::translateFields($field['depends']);
+                }
+            }
+        }
+
+    }
+
     public static function getModule() {
         $url = kryn::getRequestPath();
         //admin/ = 6
@@ -122,7 +138,7 @@ class adminWindow {
         $_REQUEST['path'] = $_POST['path'] = $_GET['path'] = getArgv('path') . $sessionId;
 
         //now upload the file
-        return adminFilemanager::uploadFile();
+        return adminFilemanager::uploadFile($_REQUEST['path']);
 
     }
 

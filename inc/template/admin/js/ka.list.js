@@ -26,11 +26,18 @@ ka.list = new Class({
         this.load();
         var _this = this;
 
-        window.addEvent('softReload', function (pCode) {
-            if (pCode == this.win.module + '/' + this.win.code) {
-                this.reload();
-            }
-        }.bind(this));
+        this.fReload = this.softReload.bind(this);
+
+        window.addEvent('softReload', this.fReload);
+
+    },
+
+    softReload: function (pCode) {
+        if (this.win.closed) return;
+
+        if (pCode == this.win.module + '/' + this.win.code) {
+            this.reload();
+        }
     },
 
     reload: function () {
@@ -680,6 +687,10 @@ ka.list = new Class({
             this.loader.hide();
         }
 
+        if (!pItems){
+            pItems = {page: 0, maxPages:0};
+        }
+
         this._lastItems = pItems;
 
         [this.ctrlFirst, this.ctrlPrevious, this.ctrlNext, this.ctrlLast].each(function (item) {
@@ -754,30 +765,8 @@ ka.list = new Class({
 
         Object.each(this.values.columns, function (column, columnId) {
 
-            var value = pItem['values'][columnId];
 
-            if (column.format == 'timestamp') {
-                value = new Date(value * 1000).toLocaleString();
-            }
-
-            if (column.type == 'datetime' || column.type == 'date') {
-                if (value != 0 && value) {
-                    var format = ( !column.format ) ? '%d.%m.%Y %H:%M' : column.format;
-                    value = new Date(value * 1000).format(format);
-                } else {
-                    value = '';
-                }
-            }
-
-
-            if (column.type == 'select') {
-                value = pItem['values'][columnId + '__label'];
-            }
-
-
-            if (column.imageMap) {
-                value = '<img src="' + _path + column.imageMap[value] + '"/>';
-            }
+            var value = ka.getListLabel(pItem['values'], column, columnId);
 
             var td = new Element('td', {
                 html: value
@@ -801,10 +790,6 @@ ka.list = new Class({
                 }
 
             }).inject(tr);
-
-            if (column.type == 'html') {
-                td.set('html', value);
-            }
 
             if (column.width > 0) {
                 td.setStyle('width', column.width + 'px');

@@ -86,6 +86,7 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
 
 
             database::$hideSql = true;
+            if (!kryn::$tables['system_log']) return;
             dbInsert('system_log', array(
                 'date' => time(),
                 'ip' => $ip,

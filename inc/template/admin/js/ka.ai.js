@@ -235,13 +235,13 @@ ka.urlEncode = function(pValue){
     } else if (typeOf(pValue) == 'array'){
         var result = '';
         Array.each(pValue, function(item){
-             result += ka.urlEncode(item)+'/';
+             result += ka.urlEncode(item)+',';
         });
         return result.substr(0, result.length-1);
     } else if (typeOf(pValue) == 'object'){
         var result = '';
         Array.each(pValue, function(item, key){
-             result += key+'='+ka.urlEncode(item)+'/';
+             result += key+'='+ka.urlEncode(item)+',';
         });
         return result.substr(0, result.length-1);
     }
@@ -265,7 +265,81 @@ ka.urlDecode = function(pValue){
 
 ka.getObjectId = function(pUrl){
     if (typeOf(pUrl) != 'string') return pUrl;
-    return ka.urlDecode(pUrl.substr(10+pUrl.substr('object://'.length).indexOf('/')));
+    var res = [];
+
+    if (pUrl.indexOf('object://') != -1){
+        var id = pUrl.substr(10+pUrl.substr('object://'.length).indexOf('/'));
+    } else if (pUrl.indexOf('/') != -1){
+        var id = pUrl.substr(pUrl.indexOf('/'));
+    } else {
+        var id = pUrl;
+    }
+
+    if (id.indexOf('/') != -1){
+        Array.each(id.split('/'), function(tId){
+            res.push(ka.getObjectId(tId));
+        });
+        return res;
+    } else {
+        if (id.indexOf(',') != -1){
+            Array.each(id.split(','), function(tId){
+                rest.push(ka.urlDecode(tId));
+            });
+            return res.substr(0, res.length-1);
+        } else {
+            return ka.urlDecode(id);
+        }
+    }
+}
+
+
+
+ka.getListLabel = function(pValue, pField, pFieldId){
+
+    var value = pValue[pFieldId] || '';
+
+    var field = pField;
+    if (field.type == 'predefined'){
+        field = ka.getObjectDefinition(field.object).fields[field.field];
+    }
+
+    if (field.format == 'timestamp') {
+        value = new Date(value * 1000).toLocaleString();
+    }
+
+    if (field.type == 'datetime' || field.type == 'date') {
+        if (value != 0 && value) {
+            var format = ( !field.format ) ? '%d.%m.%Y %H:%M' : field.format;
+            value = new Date(value * 1000).format(format);
+        } else {
+            value = '';
+        }
+    }
+
+    if (field.type == 'object'){
+
+        value = pValue[pFieldId+'_'+field['object_label']];
+
+    }
+
+    if (field.type == 'select') {
+        value = pValue[pFieldId + '__label'];
+    }
+
+    if (field.type == 'imagemap'){
+
+    }
+
+    if (field.imageMap) {
+        return '<img src="' + _path + field.imageMap[value] + '"/>';
+    } else if (field.type == 'html') {
+        return value;
+    } else if(typeOf(value) == 'string'){
+        return value.replace('<', '&lt;').replace('>', '&gt;');
+    } else if(typeOf(value) == 'number'){
+        return value
+    }
+    return '';
 }
 
 

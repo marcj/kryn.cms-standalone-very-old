@@ -224,12 +224,15 @@ ka.autoChooser = new Class({
         this.table.empty();
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
+        var value;
         Array.each(pItems, function(item){
 
             var row  = [];
 
             Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
-                row.include(item[key]);
+
+                value = ka.getListLabel(item, column, key);
+                row.include(value);
             });
 
             var tr = this.table.addRow(row);

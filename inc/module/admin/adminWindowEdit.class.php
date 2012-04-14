@@ -154,9 +154,11 @@ class adminWindowEdit {
 
         $this->_fields = array();
         if ($this->fields) {
+            adminWindow::translateFields($this->fields);
             $this->prepareFieldItem($this->fields);
         }
         if ($this->tabFields) {
+            adminWindow::translateFields($this->tabFields);
             foreach ($this->tabFields as &$fields)
                 $this->prepareFieldItem($fields);
         }
@@ -671,30 +673,46 @@ class adminWindowEdit {
 
         } else {
 
-            if ($this->versioning == true) {
-                //save old state
-                admin::addVersion($this->table, $primary);
-            }
 
-            //publish - means: write in origin table
-            dbUpdate($this->table, $primary, $row);
+                if ($this->versioning == true) {
+                    //save old state
+                    admin::addVersion($this->table, $primary);
+                }
 
-            $res['version_rsn'] = '-'; //means live
+            if ($this->object){
 
-            foreach ($this->_fields as $key => $field) {
-                if ($field['relation'] == 'n-n') {
-                    $values = json_decode(getArgv($key));
-                    $sqlDelete = "
-                        DELETE FROM %pfx%" . $field['n-n']['middle'] . "
-                        WHERE " . $field['n-n']['middle_keyleft'] . " = '" . getArgv($field['n-n']['left_key'], 1) .
-                                 "'";
-                    dbExec($sqlDelete);
-                    foreach ($values as $value) {
-                        $sqlInsert = "
-                            INSERT INTO %pfx%" . $field['n-n']['middle'] . "
-                            ( " . $field['n-n']['middle_keyleft'] . ", " . $field['n-n']['middle_keyright'] . " )
-                            VALUES ( '" . getArgv($field['n-n']['left_key'], 1) . "', '" . esc($value) . "' );";
-                        dbExec($sqlInsert);
+                $this->last = krynObject::update($this->object, $primary, $row);
+
+                if (is_array($this->last)){
+                    //error
+                    return $this->last;
+                }
+
+                if ($this->last)
+                    $res['success'] = true;
+
+            } else {
+
+                //publish - means: write in origin table
+                $res['success'] = dbUpdate($this->table, $primary, $row);
+
+                $res['version_rsn'] = '-'; //means live
+
+                foreach ($this->_fields as $key => $field) {
+                    if ($field['relation'] == 'n-n') {
+                        $values = json_decode(getArgv($key));
+                        $sqlDelete = "
+                            DELETE FROM %pfx%" . $field['n-n']['middle'] . "
+                            WHERE " . $field['n-n']['middle_keyleft'] . " = '" . getArgv($field['n-n']['left_key'], 1) .
+                                     "'";
+                        dbExec($sqlDelete);
+                        foreach ($values as $value) {
+                            $sqlInsert = "
+                                INSERT INTO %pfx%" . $field['n-n']['middle'] . "
+                                ( " . $field['n-n']['middle_keyleft'] . ", " . $field['n-n']['middle_keyright'] . " )
+                                VALUES ( '" . getArgv($field['n-n']['left_key'], 1) . "', '" . esc($value) . "' );";
+                            dbExec($sqlInsert);
+                        }
                     }
                 }
             }

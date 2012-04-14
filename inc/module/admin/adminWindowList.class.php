@@ -267,6 +267,8 @@ class adminWindowList {
         $this->_fields = array();
         $this->filterFields = array();
 
+        adminWindow::translateFields($this->columns);
+
         if ($this->filter) {
             foreach ($this->filter as $key => $val) {
 
@@ -671,7 +673,6 @@ class adminWindowList {
      * @return array
      */
     function getItems($pPage) {
-        global $kdb, $cfg;
 
         $results['page'] = $pPage?$pPage:1;
 
@@ -686,9 +687,13 @@ class adminWindowList {
                 $end = getArgv('max') + 0;
             }
 
+            $fields = array_keys($this->columns);
+            $primaryFields = krynObject::getPrimaries($this->object);
+            $fields = array_merge($fields, array_keys($primaryFields));
+
             $items = krynObject::get($this->object, false, array(
                 'offset' => $start,
-                'fields' => array_keys($this->columns),
+                'fields' => $fields,
                 'limit'  => $end
             ));
 

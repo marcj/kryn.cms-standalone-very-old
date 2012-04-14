@@ -371,6 +371,7 @@ ka.fieldProperty = new Class({
                 label: t('Map'),
                 desc: t('To use Regex surround the value with /.'),
                 type: 'array',
+                needValue: 'imagemap',
                 columns: [
                     {label: t('Value'), width: '50%'},
                     {label: t('Image path')}

@@ -102,10 +102,35 @@ function dbConnect($pReadOnly = false) {
         ($cfg['db_forceutf8'] == '1') ? true : false
     );
 
+    $kdb->readOnly = $pReadOnly;
+
     if (!$kdb->isActive()) {
         kryn::internalError('Can not connect to the database. Error: ' . $kdb->lastError());
     }
 
+}
+
+/**
+ * Begins a transaction. If we've connected to a database slave, this call let us reconnect to a master
+ *
+ */
+function dbBegin(){
+    dbExec('BEGIN');
+}
+
+/**
+ * Reverts back to the original version before the call of dbBegin()
+ */
+function dbRollback(){
+    dbExec('ROLLBACK');
+}
+
+/**
+ * Stores all changed between dbBegin() and dbCommit()
+ *
+ */
+function dbCommit(){
+    dbExec('COMMIT');
 }
 
 
@@ -372,14 +397,14 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
 
     $sqlInsert = substr($sqlInsert, 0, -1);
     $sql .= " $sqlInsert WHERE $where ";
-    return dbExec($sql);
+    return dbExec($sql)?true:false;
 }
 
 /**
  * Deletes rows from the table based on the pWhere
  *
  * @param string $pTable The table name based on your extension table definition
- * @param string $pWhere Do not forget this, otherwise the table will be truncated.
+ * @param string|array $pWhere Do not forget this, otherwise the table will be truncated. You can use array as in
  *
  * @return bool
  */
@@ -424,5 +449,124 @@ function dbFetch($pRes, $pCount = 1) {
     global $kdb;
     return $kdb->fetch($pRes, $pCount);
 }
+
+/**
+ * Converts given primary values into proper SQL.
+ * Resolve all patterns in krynObject::parseUrl();
+ *
+ * Examples:
+ *
+ * array( 'id' => 1, 'cat_id' => 3) => "id = 1 AND cat_id = 3"
+ *
+ * array(
+ *  array('id' => 1, 'cat_id' => 3,
+ *  array('id' => 1, 'cat_id' => 4
+ * )) => "(id = 1 AND cat_id = 3) OR (id = 1 AND cat_id = 4)"
+ *
+ * @param array $pPrimaryValue
+ * @param string $pTable Adds the table in front of the field names
+ * @return bool|string
+ */
+function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
+
+    $sql = '';
+
+    if (!is_array($pPrimaryValue)){
+        return false;
+    }
+
+    if (!$pPrimaryValue) return false;
+
+    if (array_key_exists(0, $pPrimaryValue)){
+        //we have to select multiple rows
+        foreach ($pPrimaryValue as $group){
+            $sql .= ' (';
+            foreach ($group as $primKey => $primValue){
+                $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($primValue)."' AND ";
+            }
+            $sql = substr($sql, 0, -5).') OR ';
+        }
+
+        $sql = substr($sql, 0, -3);
+    } else {
+        //we only have to select one row
+        $sql .= ' (';
+        foreach ($pPrimaryValue as $primKey => $primValue){
+            $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($primValue)."' AND ";
+        }
+        $sql = substr($sql, 0, -5).')';
+    }
+
+    return $sql;
+
+}
+
+/**
+ * Converts the array from ka.field type 'condition' to SQL
+ *
+ * @param array  $pConditions
+ * @param string $pTable
+ *
+ * @return string
+ */
+function dbConditionArrayToSql($pConditions, $pTable = ''){
+
+    $result = '';
+
+    if (is_string($pConditions[0])){
+        //only one condition, ex: array('rsn', '>', 0)
+
+        $result = dbConditionSingleField($pConditions, $pTable);
+
+    } else {
+        foreach ($pConditions as $condition){
+
+            if (is_array($condition) && is_array($condition[0])){
+                $result .= ' ('.dbConditionArrayToSql($condition, $pTable).')';
+            } else if(is_array($condition)){
+                $result .= dbConditionSingleField($condition, $pTable);
+            } else if (is_string($condition)){
+                $result .= ' '.$condition.' ';
+            }
+
+        }
+    }
+
+    return $result;
+}
+
+/**
+ * Helper function for dbConditionArrayToSql()
+ *
+ * @internal
+ * @param $pCondition
+ * @param string $pTable
+ * @return string
+ */
+function dbConditionSingleField($pCondition, $pTable = ''){
+
+    if (($pos = strpos($pCondition[0], '.')) === false){
+        $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
+    } else {
+        $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
+    }
+
+    if ($pCondition[1] == 'REGEXP')
+        $result .= kryn::$config['db_type']=='mysql'?'REGEXP':'~';
+    else
+        $result .= $pCondition[1];
+
+    if ($pCondition[1] == 'IN'){
+        if (is_numeric($pCondition[2]))
+            $result .= ' '.$pCondition[2];
+        else
+            $result .= " '".esc($pCondition[2])."'";
+    } else {
+        $result .= ' '.$pCondition[2];
+    }
+
+    return $result;
+}
+
 
 ?>

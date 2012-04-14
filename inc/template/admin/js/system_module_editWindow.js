@@ -85,7 +85,7 @@ var admin_system_module_editWindow = new Class({
                 }.bind(this)
             },
             dataModel: {
-                label: t('Data model'),
+                label: t('Data source'),
                 type: 'select',
                 items: {
                     object: t('Object'),

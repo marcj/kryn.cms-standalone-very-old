@@ -110,6 +110,11 @@ var admin_system_settings = new Class({
                 label: t('Do not stop the script during an query failure'),
                 type: 'checkbox'
             },
+            'debug_log_sqls': {
+                label: t('[Debug] Log SQL queries'),
+                desc: t('Deactivate this on productive machines, otherwise it will blow up your logs!'),
+                type: 'checkbox'
+            },
             'timezone': {
                 label: _('Server timezone'),
                 type: 'select',

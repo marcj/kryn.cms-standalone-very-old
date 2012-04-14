@@ -1243,7 +1243,7 @@ ka.field = new Class({
 
             }.bind(this));
 
-            if (this.field.withOrder && !this.field.withoutRemove){
+            if (this.field.withOrder || !this.field.withoutRemove){
                 var td = new Element('td').inject(tr);
             }
 
@@ -1555,6 +1555,14 @@ ka.field = new Class({
         if (!pObjects) return;
 
         var definition = ka.getObjectDefinition(pObjects[0]);
+        if (!definition.selectable) {
+
+            new Element('div', {
+                style:'color: gray; padding :5px;',
+                text: t('Object is not selectable.')
+            }).inject(this.fieldPanel);
+            return;
+        }
         if (definition.chooserFieldJavascriptClass){
 
             if (!window[definition.chooserFieldJavascriptClass]){
@@ -1586,18 +1594,19 @@ ka.field = new Class({
 
     renderChooserMulti: function(pObjects){
 
-        this.renderChooserColumns = [
-            [t("ID"), 70]
-        ];
+        this.renderChooserColumns = [];
 
         this.objectDefinition = ka.getObjectDefinition(pObjects[0]);
+
         if (this.objectDefinition.chooserUseOwnClass != 1){
-            Object.each(this.objectDefinition.chooserAutoColumns, function(field,key){
+            Object.each(this.objectDefinition.chooserFieldDataModelFields, function(field,key){
                 this.renderChooserColumns.include([
                     field.label?field.label:key,
                     field.width?field.width:null
                 ]);
             }.bind(this));
+
+
         }
 
         this.renderChooserColumns.include(["", 50]);
@@ -1620,11 +1629,7 @@ ka.field = new Class({
         var chooserParams = {
             onSelect: function (pId) {
 
-                if (typeOf(pId) == 'string' && pId.substr(0, 'object://'.length) == 'object://'){
-                    pId = ka.urlDecode(pId.substr(10+pId.substr('object://'.length).indexOf('/')));
-                }
-
-                this._value.include(pId);
+                this._value.include(ka.getObjectId(pId));
                 this.renderObjectTable();
 
             }.bind(this),
@@ -1657,7 +1662,9 @@ ka.field = new Class({
 
             this._value = pVal;
             if (!this._value) this._value = [];
+            if (typeOf(this._value) != 'array') this._value = [this._value];
 
+            logger(this._value);
             this.renderObjectTable();
 
         }.bind(this);
@@ -1680,7 +1687,6 @@ ka.field = new Class({
 
     renderObjectTable: function(){
 
-
         this.chooserTable.empty();
 
         this.objectTableLoaderQueue = {};
@@ -1688,11 +1694,10 @@ ka.field = new Class({
         if (!this._value || this._value.length == 0){
             this.renderObjectTableNoItems();
         } else {
+            logger(this._value);
             Array.each(this._value, function(id){
 
-                var row = [
-                    id
-                ];
+                var row = [];
 
                 var extraColumns = [];
                 Object.each(this.objectDefinition.chooserFieldDataModelFields, function(field,key){
@@ -1704,8 +1709,8 @@ ka.field = new Class({
                 Array.each(extraColumns, function(col){
 
                     placeHolders[col] = new Element('span');
-
                     row.include(placeHolders[col]);
+
                 });
 
                 this.renderObjectTableLoadItem(id, placeHolders);
@@ -1728,18 +1733,20 @@ ka.field = new Class({
         if (this.objectLastTableLoaderTimer){
             clearTimeout(this.objectLastTableLoaderTimer);
         }
-
-        this.objectTableLoaderQueue[pId] = pPlaceHolders;
+        this.objectTableLoaderQueue[ka.urlEncode(pId)] = pPlaceHolders;
 
         this.objectLastTableLoaderTimer = this.doObjectTableLoad.delay(50, this);
     },
 
     doObjectTableLoad: function(){
 
+        var url = 'object://'+this.field.object+'/';
         var ids = [];
+
         Object.each(this.objectTableLoaderQueue, function(placeholders, id){
             ids.include(id);
         });
+        url += ids.join('/');
 
         if (this.lastRq)
             this.lastRq.cancel();
@@ -1768,10 +1775,14 @@ ka.field = new Class({
 
             } else {
 
+                var fields = ka.getObjectDefinition(this.field.object).fields;
+
                 Object.each(this.objectTableLoaderQueue, function(placeholders, id){
 
                     Object.each(placeholders, function(td, colId){
-                        td.set('text', res[id][colId])
+
+                        var value = ka.getListLabel(res[id], fields[colId], colId);
+                        td.set('text', value);
                     });
 
                 });
@@ -1779,9 +1790,8 @@ ka.field = new Class({
             }
 
 
-        }.bind(this)}).post({
-            object: this.field.object,
-            ids: ids
+        }.bind(this)}).get({
+            object: url
         });
 
     },
@@ -1870,6 +1880,7 @@ ka.field = new Class({
 
         this.getValue = function () {
             var val = (this._value) ? this._value : this.input.value;
+
             if (this.field.withoutObjectWrapper && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
                 return ka.getObjectId(val);
             }
