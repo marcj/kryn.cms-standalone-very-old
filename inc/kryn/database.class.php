@@ -181,7 +181,7 @@ class database {
                 $ttemp = dbExfetch('SHOW TABLES', -1);
                 if (count($ttemp) > 0) {
                     foreach ($ttemp as $t) {
-                        $res[] = $t['Tables_in_' . $kdb->databaseName];
+                        $res[] = current($t);
                     }
                 }
                 break;
