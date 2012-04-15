@@ -697,7 +697,7 @@ class adminWindowList {
                 'limit'  => $end
             ));
 
-            $results['maxItems'] = krynObject::count($this->object);
+            $results['maxItems'] = krynObject::getCount($this->object);
 
             if ($results['maxItems'] > 0)
                 $results['maxPages'] = ceil($results['maxItems'] / $this->itemsPerPage);

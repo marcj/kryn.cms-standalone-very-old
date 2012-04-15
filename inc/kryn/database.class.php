@@ -745,6 +745,12 @@ class database {
         if ($pQuery == "")
             return false;
 
+        if (!database::$hideSql && kryn::$config['debug_log_sqls']){
+            database::$hideSql = true;
+            klog('debug', 'query: '.$pQuery);
+            database::$hideSql = false;
+        }
+
         $this->lastQuery = $pQuery;
 
         $this->lastError = null;
@@ -754,13 +760,6 @@ class database {
             if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $query, $matches)) {
                 $this->lastInsertTable = $matches[1];
             }
-        }
-
-
-        if (!database::$hideSql && kryn::$config['debug_log_sqls']){
-            database::$hideSql = true;
-            klog('debug', 'query: '.$pQuery);
-            database::$hideSql = false;
         }
 
 

@@ -1846,7 +1846,6 @@ ka.field = new Class({
             ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
 
         }.bind(this))
-        .setStyle('position', 'relative').setStyle('top', '-1px')
         .inject(div, 'after');
 
 

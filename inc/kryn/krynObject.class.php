@@ -19,8 +19,8 @@ class krynObject {
      * Translates the internal url to the real path.
      *
      * Example: getUrl('file://45') => '/myImageFolder/Picture1.png'
-     *          getUrl('news://4/<contentPluginId>') => '/newspage/detail/my-news-title'
-     *          getUrl('user://1/<contentPluginId>') => '/userdetail/admini-strator'
+     *          getUrl('news://4') => '/newspage/detail/my-news-title'
+     *          getUrl('user://1') => '/userdetail/admini-strator'
      *
      * @link http://docu.kryn.org/developer/extensions/internal-url
      *
@@ -29,10 +29,11 @@ class krynObject {
      *
      * @static
      * @param string $pInternalUrl
+     * @param int    $pPluginContentElementId
      *
      * @return string|bool
      */
-    public static function getUrl($pInternalUrl){
+    public static function getUrl($pInternalUrl, $pPluginContentElementId){
 
         //TODO, not done here
 
@@ -141,6 +142,14 @@ class krynObject {
             (!$object_id) ? false : $object_id,
             $params
         );
+    }
+
+    public static function toUrl($pObjectKey, $pPrimaryValues){
+        $url = 'object://'.$pObjectKey.'/';
+        foreach ($pPrimaryValues as $key => $val){
+            $url .= $key.'='.rawurlencode($val).',';
+        }
+        return substr($url, 0, -1);
     }
 
     /**
@@ -295,7 +304,7 @@ class krynObject {
     public static function countFromUrl($pInternalUrl){
         list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
 
-        return self::count($object_key, $params['condition']);
+        return self::getCount($object_key, $params['condition']);
     }
 
 
@@ -304,29 +313,34 @@ class krynObject {
      * Counts the items of $pObjectKey filtered by $pCondition
      *
      * @static
-     * @param $pObjectKey
-     * @param string $pCondition
+     * @param $pObjectUrl
+     * @param string $pAdditionalCondition
      * @return array
      */
-    public static function count($pObjectKey, $pCondition = ''){
+    public static function getCount($pObjectUrl, $pAdditionalCondition = ''){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClassObject($pObjectUrl);
 
         if (!$obj) return array('error'=>'object_not_found');
 
-        return $obj->getCount($pCondition);
+        return $obj->getCount($pAdditionalCondition);
 
     }
 
-    public static function add($pObjectKey, $pValues){
-        $obj = self::getClassObject($pObjectKey);
+    public static function add($pObjectUrl, $pValues){
+        $obj = self::getClassObject($pObjectUrl);
         return $obj->addItem($pValues);
 
     }
 
-    public static function update($pObjectKey, $pPrimaryValues, $pValues){
-        $obj = self::getClassObject($pObjectKey);
-        return $obj->updateItem($pPrimaryValues, $pValues);
+    public static function update($pObjectUrl, $pValues){
+        $obj = self::getClassObject($pObjectUrl);
+        list($object_key, $object_id, $params) = self::parseUrl($pObjectUrl);
+        return $obj->updateItem($object_id, $pValues);
+
+    }
+
+    public static function remove($pObjectKey){
 
     }
 

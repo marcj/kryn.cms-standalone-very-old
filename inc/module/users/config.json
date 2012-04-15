@@ -294,12 +294,23 @@
         },
         "groups": {
           "label": "[[Group membership]]",
-          "multi": 0,
           "object": "group",
           "object_label": "name",
           "object_relation": "nToM",
           "object_relation_table": "system_groupaccess",
           "type": "object",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "first_name": {
+          "label": "[[First name]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "last_name": {
+          "label": "[[Last name]]",
+          "type": "text",
           "primaryKey": 0,
           "empty": 1
         }
@@ -368,14 +379,27 @@
       "chooserFields": "name",
       "chooserModel": "0",
       "chooserFieldDataModelField": "name",
-      "chooserFieldDataModel": "store",
+      "chooserFieldDataModel": "default",
       "chooserBrowserCondition": "",
       "chooserBrowserDataModel": "default",
       "chooserFieldDataModelFields": {
         "name": {
+          "label": "[[Name]]",
           "type": "text"
         }
-      }
+      },
+      "__dataModel__": "table",
+      "tableSync": 0,
+      "tableCondition": [
+        
+      ],
+      "chooserBrowserAutoColumns": {
+        "name": {
+          "label": "[[Name]]",
+          "type": "text"
+        }
+      },
+      "chooserBrowserType": "default"
     }
   },
   "objectRelations": {

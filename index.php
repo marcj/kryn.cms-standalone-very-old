@@ -14,7 +14,6 @@
  * Index.php
  *
  * @author MArc Schmidt <marc@kryn.org>
-
  */
 
 require('inc/kryn/checkFile.php');

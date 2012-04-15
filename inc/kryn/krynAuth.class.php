@@ -359,7 +359,8 @@ class krynAuth {
             $this->user = array(
                 'rsn' => 0,
                 'username' => 'Guest',
-                'groups' => array(0)
+                'groups' => array(0),
+                'inGroups' => '0'
             );
         } else {
             $this->user =& $this->getUser($pUserRsn);
@@ -371,15 +372,13 @@ class krynAuth {
     }
 
     /**
-     *
-     * Get the user hash as ref
+     * Returns user information
      *
      * @param int $pUserId The rsn of the system_user table
-     * @params bool force to reload the cache
-     *
-     * @return &array returns false if not found
+     * @param bool $pForceReload to reload the cache
+     * @return array|bool returns false if not found
      */
-    public static function &getUser($pUserId, $pForceReload = false) {
+    public function &getUser($pUserId, $pForceReload = false) {
 
         $pUserId += 0;
 

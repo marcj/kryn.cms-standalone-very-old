@@ -681,7 +681,9 @@ class adminWindowEdit {
 
             if ($this->object){
 
-                $this->last = krynObject::update($this->object, $primary, $row);
+                $url = krynObject::toUrl($this->object, $primary);
+
+                $this->last = krynObject::update($url, $row);
 
                 if (is_array($this->last)){
                     //error

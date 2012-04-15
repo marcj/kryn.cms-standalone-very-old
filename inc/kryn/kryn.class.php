@@ -1136,6 +1136,8 @@ class kryn {
                 ORDER BY code DESC
         ", DB_FETCH_ALL);
 
+        //$acls = krynAcl::getRules(1);
+
         if (count($acls) > 0) {
             $firstCode = $acls[0]['code'];
             $count = 1;
@@ -2122,7 +2124,7 @@ class kryn {
      * @internal
      */
     public static function checkPageAcl($pRsn, $pAction, $pType = 'p') {
-        $acls = kryn::getPageAcls();
+        $acls = krynAcl::getRules(2);
 
         if (count($acls) == 0) return true;
 

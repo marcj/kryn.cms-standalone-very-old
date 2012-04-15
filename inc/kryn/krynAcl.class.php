@@ -20,54 +20,48 @@ class krynAcl {
     public static $acls = array();
 
 
-    public static function &readAcls($pType, $pForce = false) {
-        global $user;
+    public static function &getRules($pType, $pForce = false) {
+        global $client;
 
-        if (self::$acls[$pType] && $pForce == false)
-            return self::$acls[$pType];
+        if (self::$cache[$pType] && $pForce == false)
+            return self::$cache[$pType];
 
-        $userRsn = $user->user_rsn;
-        $inGroups = '';
-        if (count($user->groups) > 0)
-            foreach ($user->groups as $group) {
-                $inGroups .= $group['group_rsn'] . ",";
-            }
-        $inGroups .= "0";
+        $userRsn = $client->user_rsn;
+        $inGroups = $client->user['inGroups'];
 
-        $pType = $pType + 0;
+        $pType += 0;
 
-        self::$acls[$pType] = dbExfetch("
+        $sql = "
                 SELECT code, access FROM %pfx%system_acl
                 WHERE
                 type = $pType AND
                 (
                     ( target_type = 1 AND target_rsn IN ($inGroups))
                     OR
-                    ( target_type = 2 AND target_rsn IN ($userRsn))
+                    ( target_type = 2 AND target_rsn = $userRsn)
                 )
-                ORDER BY code DESC
-        ", DB_FETCH_ALL);
+                ORDER BY code DESC, prio DESC
+        ";
 
-        return self::$acls[$pType];
+        self::$cache[$pType] = dbExfetch($sql, DB_FETCH_ALL);
+
+        return self::$cache[$pType];
     }
 
-
     /**
-     * Checks the access to a ACL
-     *
-     * @param integer $pCode
-     * @param string  $pAction which action should be checked?
-     *
+     * @static
+     * @param $pType
+     * @param $pCode
+     * @param bool $pAction
+     * @param bool $pRootHasAccess
      * @return bool
-     * @internal
      */
-    public static function checkAccess($pType, $pCode, $pAction, $pRootHasAccess = false) {
+    public static function checkAccess($pType, $pCode, $pAction = false, $pRootHasAccess = false) {
 
         self::normalizeCode($pCode);
-        $acls =& self::readAcls($pType);
+        $acls =& self::getRules($pType);
 
         if (count($acls) == 0) return true;
-        //print "<br/> -".$pCode."- <br />";
 
         if (self::$cache['checkAckl_' . $pType . '_' . $pCode . '__' . $pAction])
             return self::$cache['checkAckl_' . $pType . '_' . $pCode . '__' . $pAction];
@@ -86,21 +80,20 @@ class krynAcl {
         while ($not_found) {
             $i++;
 
-            //print 'c: '.$current_code."<br/>";
             if ($i > 10) {
                 $not_found = false;
                 break;
             }
 
-            $acl = self::getAcl($pType, $current_code);
+            $acl = self::getItem($pType, $current_code);
 
             if ($acl && $acl['code']) {
 
                 $code = str_replace(']', '', $acl['code']);
                 $t = explode('[', $code);
-                $codes = explode(",", $t[1]);
+                $codes = $t[1]?explode(",", $t[1]):array();
 
-                if (in_array($pAction, $codes)) {
+                if (!$pAction || in_array($pAction, $codes)) {
                     if (
                         ($parent_acl == false) || //i'am not a parent
                         ($parent_acl == true && strpos($acl['code'], '%') !== false) //i'am a parent
@@ -151,22 +144,22 @@ class krynAcl {
      * @return array
      * @internal
      */
-    public static function &getAcl($pType, $pCode) {
-        $acl = false;
+    public static function &getItem($pType, $pCode) {
 
         self::normalizeCode($pCode);
-        $acls =& self::readAcls($pType);
+        $acls =& self::getRules($pType);
 
         foreach ($acls as &$item) {
             $code = str_replace('%', '', $item['code']);
             $t = explode('[', $code);
             $code = $t[0];
+            self::normalizeCode($code);
             if ($code == $pCode) {
-                $acl =& $item;
+                return $item;
             }
         }
 
-        return $acl;
+        return false;
     }
 
 
@@ -188,11 +181,11 @@ class krynAcl {
         $last_id = dbInsert('system_acl', array(
             'type' => $pType,
             'target_type' => $pTargetType,
-            'target_rsn' => $pTargetRsn,
+            'target_rsn' => $pTargetId,
             'code' => $pCode
         ));
 
-        self::readAcls($pType, true);
+        self::$cache[$pType] = null;
 
         return $last_id;
     }
@@ -212,6 +205,8 @@ class krynAcl {
          AND target_rsn = $pTargetId
          AND code LIKE '$pCode%'");
 
+        self::$cache[$pType] = null;
+
     }
 
     public static function normalizeCode(&$pCode) {
@@ -221,6 +216,8 @@ class krynAcl {
         if (substr($pCode, 0, 1) != '/')
             $pCode = '/' . $pCode;
 
+        if (substr($pCode, -1) == '/')
+            $pCode = substr($pCode, 0, -1);
 
     }
 

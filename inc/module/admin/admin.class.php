@@ -50,6 +50,7 @@ class admin {
 
         header('Expires:');
 
+        require(PATH_MODULE . 'admin/adminWindow.class.php');
         require(PATH_MODULE . 'admin/adminModule.class.php');
         require(PATH_MODULE . 'admin/adminDb.class.php');
         require(PATH_MODULE . 'admin/adminLayout.class.php');
@@ -85,7 +86,6 @@ class admin {
                 json($obj->handle($info));
             } else {
                 $adminWindows = array('edit', 'list', 'add', 'combine');
-                require(PATH_MODULE . 'admin/adminWindow.class.php');
                 $obj = new adminWindow();
 
                 if ($_GET['cmd'] == 'getInfo') {
@@ -494,7 +494,7 @@ class admin {
             }
         }
 
-        $itemsCount = krynObject::count($pObjectKey, $definition['chooserCondition']);
+        $itemsCount = krynObject::getCount($pObjectKey, $definition['chooserCondition']);
         if (is_array($itemsCount) && $itemsCount['error'])
             return $itemsCount;
 

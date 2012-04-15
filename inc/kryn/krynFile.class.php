@@ -32,13 +32,13 @@ class krynFile {
         if ($pPath != '/') {
 
             $sPos = strpos(substr($pPath, 1), '/');
-            if( $sPos === false )
+            if ($sPos === false)
                 $firstFolder = substr($pPath,1);
             else
                 $firstFolder = substr($pPath, 1, $sPos);
 
             //if firstFolder a magic folder?
-            if( $fs = kryn::$config['magic_folder'][$firstFolder] ){
+            if ($fs = kryn::$config['magic_folder'][$firstFolder]) {
                 $class = $fs['class'];
                 $file = $fs['file'];
                 $params = $fs['params'];
@@ -46,7 +46,7 @@ class krynFile {
             }
         }
 
-        if(self::$fsObjects[$class]) return self::$fsObjects[$class];
+        if (self::$fsObjects[$class]) return self::$fsObjects[$class];
 
         if ($file)
             require_once($file);

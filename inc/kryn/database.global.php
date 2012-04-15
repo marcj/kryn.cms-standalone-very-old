@@ -62,18 +62,23 @@ function esc($p, $pEscape = 1) {
 }
 
 /**
- * Quotes Keywords and Identifiers and return
- * pValue with quotes surrounded and lowercase (because table names and column name
- * have to be lowercased)
+ * Quotes column or table names and return pValue with quotes surrounded and
+ * lowercase (because table names and column names have to be lowercased)
  *
- * @param string|array $pValue
+ * @param string|array $pValue Possible is "test, bla, blub" or just "foo". If array("foo", "bar") it returns a array again
  * @return mixed
  */
 function dbQuote($pValue){
+
     if (is_array($pValue)){
         foreach ($pValue as &$value)
             $value = dbQuote($value);
         return $pValue;
+    }
+    if (strpos($pValue, ',') !== false){
+        $values = explode(',', str_replace(' ', '', $pValue));
+        $values = dbQuote($values);
+        return implode(', ', $values);
     }
     return strtolower((kryn::$config['db_type'] == 'mysql') ? '`'.$pValue.'`': '"'.$pValue.'"');
 }
@@ -246,50 +251,15 @@ function dbTableName($pTable){
  *
  * @return integer The last_insert_id() (if you use auto_increment/sequences)
  */
-function dbInsert($pTable, $pFields) {
-
-    $options = database::getOptions($pTable);
+function dbInsert($pTable, $pValues) {
 
     $table = dbQuote(dbTableName($pTable));
+    $values = dbValuesToCommaSeperated($pValues);
 
-    $sql = "INSERT INTO $table (";
+    $fields = dbQuote($values[0]);
+    $values = $values[1];
 
-    $fields = array();
-    foreach ($pFields as $key => $field) {
-        if ($options[$key])
-            $fields[$key] = $field;
-        else if ($options[$field])
-            $fields[] = $field;
-    }
-
-    $sqlFields = '';
-    $sqlInsert = '';
-
-    foreach ($fields as $key => $field) {
-
-        if (is_numeric($key)) {
-            $fieldName = $field;
-            $val = getArgv($field);
-        } else {
-            $fieldName = $key;
-            $val = $field;
-        }
-
-        if (!$options[$fieldName]) continue;
-
-        $sqlFields .= dbQuote($fieldName).",";
-
-        if ($options[$fieldName]['escape'] == 'int') {
-            $sqlInsert .= ($val + 0) . ",";
-        } else {
-            $sqlInsert .= "'" . esc($val) . "',";
-        }
-    }
-
-    $sqlInsert = substr($sqlInsert, 0, -1);
-    $sqlFields = substr($sqlFields, 0, -1);
-
-    $sql .= " $sqlFields ) VALUES( $sqlInsert )";
+    $sql = "INSERT INTO $table ($fields) VALUES ($values)";
 
     if (dbExec($sql))
         return dbLastId();
@@ -349,54 +319,14 @@ function dbLastId() {
  */
 function dbUpdate($pTable, $pPrimary, $pFields) {
 
-    $options = database::getOptions($pTable);
-
     $table = dbQuote(dbTableName($pTable));
+    $values = dbValuesToUpdateSql($pFields);
 
-    $sql = "UPDATE $table SET ";
+    if (is_array($pPrimary) || !$pPrimary)
+        $pPrimary = (!$pPrimary)?'1=1':dbPrimaryArrayToSql($pPrimary);
 
-    if (is_array($pPrimary)) {
-        $where = ' ';
-        foreach ($pPrimary as $fieldName => $fieldValue) {
-            if (!$options[$fieldName]) continue;
+    $sql = "UPDATE $table SET $values WHERE $pPrimary";
 
-            $where .= dbQuote($fieldName). ' ';
-            if ($options[$fieldName]['escape'] == 'int') {
-                $where .= ' = ' . ($fieldValue + 0) . " AND ";
-            } else {
-                $where .= " = '" . esc($fieldValue) . "' AND ";
-            }
-        }
-
-        $where = substr($where, 0, -4);
-    } else {
-        $where = $pPrimary;
-    }
-
-    $sqlInsert = '';
-    foreach ($pFields as $key => $field) {
-
-        if (is_numeric($key)) {
-            $fieldName = $field;
-            $val = getArgv($field);
-        } else {
-            $fieldName = $key;
-            $val = $field;
-        }
-
-        if (!$options[$fieldName]) continue;
-
-        $sqlInsert .= dbQuote($fieldName);
-
-        if ($options[$fieldName]['escape'] == 'int') {
-            $sqlInsert .= ' = ' . ($val + 0) . ",";
-        } else {
-            $sqlInsert .= " = '" . esc($val) . "',";
-        }
-    }
-
-    $sqlInsert = substr($sqlInsert, 0, -1);
-    $sql .= " $sqlInsert WHERE $where ";
     return dbExec($sql)?true:false;
 }
 
@@ -448,6 +378,78 @@ function dbCount($pTable, $pWhere = false) {
 function dbFetch($pRes, $pCount = 1) {
     global $kdb;
     return $kdb->fetch($pRes, $pCount);
+}
+
+/**
+ * Returns a array with as first element a comma sperated list of all keys and as second
+ * element a comma seperated list of the values. Can be used in INSERT queries.
+ *
+ * If a element in $pValues has a numeric key, the value will be retrieved
+ * from getArgv($key)
+ *
+ * Example:
+ *
+ * array('title' => 'Foo', 'category_rsn' => 2)
+ * => returns array( "title, category_rsn", "'foo', 2" )
+ *
+ * @param  array $pValues
+ * @return string
+ */
+function dbValuesToCommaSeperated($pValues){
+
+    $fields = array();
+    $values = array();
+    foreach ($pValues as $key => $field) {
+
+        if (is_numeric($key)) {
+            $fieldName = $field;
+            $val = getArgv($field);
+        } else {
+            $fieldName = $key;
+            $val = $field;
+        }
+
+        $fields[] = $fieldName;
+
+        $values[] = is_numeric($val) ? $val : "'".esc($val)."'";
+    }
+
+    return array(
+        implode(', ', $fields),
+        implode(', ', $values)
+    );
+}
+
+/**
+ * Returns a comma sperated list of $pValues to be used in UPDATE queries.
+ * If a element in $pValues has a numeric key, the value will be retrieved
+ * from getArgv($key). The keys will go through dbQuote()
+ *
+ * Example:
+ *
+ * array('title' => 'Foo', 'category_rsn' => 2)
+ * => returns "`title` = 'Foo', `category_rsn` = 2"
+ *
+ * @param  array $pValues
+ * @return string
+ */
+function dbValuesToUpdateSql($pValues){
+
+    $values = array();
+
+    foreach ($pValues as $key => $field) {
+        if (is_numeric($key)) {
+            $fieldName = $field;
+            $val = getArgv($field);
+        } else {
+            $fieldName = $key;
+            $val = $field;
+        }
+
+        $values[] = dbQuote($fieldName).' = '.(is_numeric($val) ? $val : "'".esc($val)."'");
+    }
+
+    return implode(', ', $values);
 }
 
 /**

@@ -173,9 +173,7 @@ class krynObjectTable extends krynObjectAbstract {
 
                 }
 
-
             }
-
         }
 
     }
@@ -320,11 +318,11 @@ class krynObjectTable extends krynObjectAbstract {
             $sql .= ' GROUP BY '.implode(',', $prim);
         }
 
-        if ($pOffset > 0)
-            $sql .= ' OFFSET '.($pOffset+0);
-
         if ($pLimit > 0)
             $sql .= ' LIMIT '.($pLimit+0);
+
+        if ($pOffset > 0)
+            $sql .= ' OFFSET '.($pOffset+0);
 
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);
