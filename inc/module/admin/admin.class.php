@@ -248,7 +248,7 @@ class admin {
                 json($content);
         }
 
-        if (!getArgv(2))
+        if (php_sapi_name() !== 'cli' && !getArgv(2))
             admin::showLogin();
 
         json(false);

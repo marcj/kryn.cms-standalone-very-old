@@ -22,12 +22,15 @@ $errorHandlerInside = false;
 
 
 function kryn_shutdown() {
-    global $client;
+    global $client, $adminClient;
 
-    $client->syncStore();
+    if ($client)
+        $client->syncStore();
 
-    if ($adminClient != $client && $adminClient) {
-        $adminClient->syncStore();
+    if ($adminClient && $client){
+        if ($adminClient != $client && $adminClient) {
+            $adminClient->syncStore();
+        }
     }
 
 }
@@ -85,7 +88,7 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
                 die('Error in boot: ' . $pCode . ': ' . $pMsg . ' ' . $pFile . ':' . $pLine);
 
 
-            database::$hideSql = true;
+            database::$hideReporting = true;
             if (!kryn::$tables['system_log']) return;
             dbInsert('system_log', array(
                 'date' => time(),
@@ -94,7 +97,7 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
                 'code' => $pCode,
                 'message' => htmlspecialchars($pMsg)
             ));
-            database::$hideSql = false;
+            database::$hideReporting = false;
         }
     }
     $errorHandlerInside = false;

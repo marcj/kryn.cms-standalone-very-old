@@ -1014,17 +1014,22 @@ class $pClassName extends $pClass {
     }
 
     public static function dbInit($pName) {
-        $config = kryn::getModuleConfig($pName);
-        $res = adminDb::install($config);
 
-        if ($config['extendConfig']) {
-            foreach ($config['extendConfig'] as $extendExt => $extendConfig) {
-                if ($extendConfig['db']) {
-                    $res .= "\n\nExtend: " . $extendExt . "\n";
-                    $res .= adminDb::install($extendConfig);
-                }
+
+        if (!$pName){
+            $res = '';
+            foreach (kryn::$configs as $key => $config){
+
+                $res .= $key.' => '.self::dbInit($key)."\n";
             }
+
+            return $res;
         }
+
+
+
+        $config = kryn::getModuleConfig($pName);
+        $res = adminDb::sync($config);
 
         if ($config['depends']) {
             $depends = explode(',', $config['depends']);
@@ -1045,11 +1050,11 @@ class $pClassName extends $pClass {
 
                 $depConfig = kryn::getModuleConfig($depName);
                 $res .= "\n\nDepend: " . $depName . "\n";
-                $res .= adminDb::install($depConfig);
+                $res .= adminDb::sync($depConfig);
             }
         }
 
-        json($res);
+        return $res;
     }
 
     public static function getPublishInfo($pName) {

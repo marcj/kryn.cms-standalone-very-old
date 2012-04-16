@@ -52,14 +52,18 @@ function json($pValue) {
 
     ob_end_clean();
     ob_clean();
-    //header('Content-Type: application/json');
-    //header('HTTP/1.1 200 OK');
-    header('Content-Type: text/javascript; charset=utf-8');
+
+    if (php_sapi_name() !== 'cli' )
+        header('Content-Type: text/javascript; charset=utf-8');
 
     if ($adminClient) $adminClient->syncStore();
     if ($client) $client->syncStore();
 
-    print (json_encode($pValue));
+    if (php_sapi_name() !== 'cli' )
+        print (json_encode($pValue));
+    else
+        print json_format(json_encode($pValue))."\n";
+
     exit(0);
 }
 

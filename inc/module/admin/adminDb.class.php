@@ -21,17 +21,22 @@ define('DB_INDEX', 2);
 
 class adminDb {
 
-    public static function install($pModuleConfig) {
+    public static function sync($pModuleConfig) {
         $res = '';
 
-        if (is_array($pModuleConfig['db']))
-            $res .= self::_install($pModuleConfig['db']);
 
+        database::$hideReporting = true;
+        if (is_array($pModuleConfig['db']))
+            $res .= self::tableSync($pModuleConfig['db']);
+
+        /*
         if (is_array($pModuleConfig['objects'])){
             foreach ($pModuleConfig['objects'] as $objectKey => $object){
                 $res .= adminDb::installObjectTable($objectKey);
             }
         };
+        */
+        database::$hideReporting = false;
 
         $res .= "\nDatabase installed.\n";
         return $res;
@@ -69,39 +74,34 @@ class adminDb {
     public static function _remove($pDb) {
         foreach ($pDb as $tableName => $tableFields) {
             $sql = "DROP TABLE %pfx%$tableName";
-            try {
-                @dbExec($sql);
-            } catch(Exception $e){
-
-            }
+            dbExec($sql);
         }
     }
 
-    private static function _install($pDb) {
+    private static function tableSync($pTables) {
         global $kdb;
 
-        $db = &$pDb;
-
-        if (!count($db) > 0)
+        if (!count($pTables) > 0)
             return 'No Tables.';
 
-        $ttables = database::getAllTables();
-        if (count($ttables) > 0) {
-            foreach ($ttables as $table) {
+        $tTables = database::getAllTables();
+        if (count($tTables) > 0) {
+            foreach ($tTables as $table) {
                 $tables[$table] = true;
             }
         }
 
         $res = '';
 
-        foreach ($db as $tableName => $tableFields) {
+        foreach ($pTables as $tableName => $tableFields) {
             $tableName = strtolower(pfx . $tableName);
 
             if ($tables[$tableName]) {
-                self::_updateTable($tableName, $tableFields);
-                $res .= "Update table <i>$tableName</i>\n";
+
+                //self::_updateTable($tableName, $tableFields);
+                //$res .= "Update table <i>$tableName</i>\n";
             } else {
-                self::_installTable($tableName, $tableFields);
+                self::installTable($tableName, $tableFields);
                 $res .= "Create table <i>$tableName</i>\n";
             }
 
@@ -113,18 +113,14 @@ class adminDb {
                     $indexFields = explode(',', $indexBundle);
                     $indexFields = implode(', ', dbQuote($indexFields));
 
-                    try {
-                        dbExec('CREATE INDEX '.strtolower($indexName).' ON '.dbQuote($tableName).' ('.$indexFields.')');
-                    } catch (Exception $e){
-
-                    }
+                    dbExec('CREATE INDEX '.strtolower($indexName).' ON '.dbQuote($tableName).' ('.$indexFields.')');
                 }
             }
 
             database::clearOptionsCache($tableName);
         }
 
-        $kdb->updateSequences($db);
+        $kdb->updateSequences($pTables);
         return $res;
     }
 
@@ -188,17 +184,23 @@ class adminDb {
         self::updateIndexes($pTable, $pFields, true); //delete all and create new
     }
 
-    public static function _installTable($pTable, $pFields) {
-        global $cfg;
-        $sql = 'CREATE TABLE ' . dbQuote($pTable) . ' (' . "\n";
+    public static function installTable($pTable, $pFields) {
+
+        $createTable = 'CREATE TABLE ' . dbQuote($pTable) . ' (' . "\n";
 
         $primaries = '';
+        $sequence = false;
 
         foreach ($pFields as $fName => $fOptions) {
 
             if ($fName == '___index') continue;
 
-            $sql .= self::addColumn($pTable, $fName, $fOptions, 1) . ", \n";
+            $createTable .= self::getField4CreateTable($pTable, $fName, $fOptions) . ", \n";
+
+            if ($fOptions[3] && kryn::$config['db_type'] == 'postgresql'){
+                //it is auto_increment, if postgresql, we need a Sequence
+                $sequence = true;
+            }
 
             if ($fOptions[2] == "DB_PRIMARY")
                 $primaries .=  dbQuote($fName) . ',';
@@ -207,18 +209,72 @@ class adminDb {
         $primaries = substr($primaries, 0, -1);
 
         if ($primaries == '')
-            $sql = substr($sql, 0, -3);
+            $createTable = substr($sql, 0, -3);
         else
-            $sql .= ' PRIMARY KEY ( ' . $primaries . ' )';
+            $createTable .= ' PRIMARY KEY ( ' . $primaries . ' )';
 
-        $sql .= "\n )";
+        $createTable .= "\n )";
 
-        if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli')
-            $sql .= 'ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
+        if (kryn::$config['db_type'] == 'mysql' || kryn::$config['db_type'] == 'mysqli')
+            $createTable .= 'ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
 
+        $createSequence = '';
+        if ($sequence){
+
+            $sequenceName = 'kryn_' . $pTable . '_seq';
+
+            $sequenceExist = dbExfetch("SELECT c.relname FROM pg_class c WHERE c.relkind = 'S' AND relname = '$sequenceName'", 1);
+
+            if (!$sequenceExist){
+                $createSequence  = "CREATE SEQUENCE $sequenceName; ";
+                $createSequence .= "ALTER SEQUENCE $sequenceName RESTART WITH 1;";
+            }
+
+        }
+
+        $createIndexes = array();
+
+        foreach ($pFields as $fName => $fOptions) {
+
+            if ($fOptions[2] == "DB_INDEX"){
+                $createIndexes[] = $fName;
+            }
+
+        }
+        if (is_array($pFields['___index'])){
+            foreach ($pFields['___index'] as $index){
+
+                $createIndexes[] = $index;
+
+            }
+        }
+
+
+        if ($createSequence)
+            dbExec($createSequence);
+
+        print $createTable;
+        dbExec($createTable);
+
+        foreach ($createIndexes as $index){
+
+            if (strpos($index, ',') !== false){
+                $indexName = dbQuote($pTable.'_'.preg_replace('/\W/', '_', $index).'_idx');
+            } else {
+                $indexName = $pTable.'_'.$index;
+            }
+
+            try {
+                dbExec('CREATE INDEX ' . dbQuote($indexName) . ' ON ' . dbQuote($pTable) . ' (' . dbQuote($index) . ')');
+            } catch(Exception $e){}
+        }
+
+
+        die($sql);
         dbExec($sql);
 
-        self::updateIndexes($pTable, $pFields, true); //delete all and create new
+        //self::updateIndexes($pTable, $pFields, true); //delete all and create new
+
     }
 
     public static function deleteIndex($pName, $pTable) {
@@ -245,7 +301,7 @@ class adminDb {
         global $cfg;
 
         //dont throw error's to log
-        database::$hideSql = true;
+
         $primaries = array();
         foreach ($pFields as $fName => $fOptions) {
 
@@ -274,30 +330,31 @@ class adminDb {
             $name = str_replace(' ', '', implode(',', $primaries));
             self::deleteIndex(preg_replace('/\W/', '_', $name), $pTable);
         }
-
-        database::$hideSql = false;
-
     }
 
-    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false) {
+    public static function getField4CreateTable($pTableName, $pFieldName, $pFieldOptions){
 
-        /*
-        * $pMode
-        *  false: full sql
-        *  1: only the column definition
-        *  2: only the column definition for ALTER COLUMN
-        *
-        */
-        global $cfg;
+        $sql = dbQuote($pFieldName).' '.self::getFieldSqlType($pFieldOptions);
 
-        $sqlBegin = 'ALTER TABLE '.dbQuote(strtolower($pTable)).' ADD ';
+        //auto increment
+        if ($pFieldOptions[3] == true) {
 
-        $sql = strtolower($pFieldName).' ';
+            if (kryn::$config['db_type'] == 'mysql' || kryn::$config['db_type'] == 'mysqli') {
+                $sql .= ' AUTO_INCREMENT';
+            }
 
+            if (kryn::$config['db_type'] == 'postgresql') {
+                $sql .= " DEFAULT nextval('kryn_" . $pTableName . "_seq')";
 
-        if ($cfg['db_type'] == 'postgresql' && $pMode == 2) {
-            $sql .= 'TYPE ';
+            }
         }
+
+        return $sql;
+    }
+
+    public static function getFieldSqlType($pFieldOptions){
+
+        $sql = '';
 
         $field = strtolower($pFieldOptions[0]);
         $unsigned = false;
@@ -306,59 +363,86 @@ class adminDb {
             $unsigned = true;
             $field = str_replace(' unsigned', '', $field);
         }
+
         switch ($field) {
 
             case 'char':
-                $sql .= 'char( ' . $pFieldOptions[1] . ' ) '; break;
+                $sql .= 'char(' . $pFieldOptions[1] . ')'; break;
             case 'varchar':
-                $sql .= 'varchar( ' . $pFieldOptions[1] . ' ) '; break;
+                $sql .= 'varchar(' . $pFieldOptions[1] . ')'; break;
             case 'text':
                 $sql .= 'text '; break;
 
             case 'enum': //deprecated since 1.0
-                $sql .= 'varchar(255) ';
+                $sql .= 'varchar(255)';
                 break;
 
             //dates
             case 'date':
-                $sql .= 'date '; break;
+                $sql .= 'date'; break;
             case 'time':
-                $sql .= 'time '; break;
+                $sql .= 'time'; break;
             case 'timestamp':
-                $sql .= 'timestamp '; break;
+                $sql .= 'timestamp'; break;
 
 
             //numerics
             case 'boolean':
-                $sql .= 'boolean '; break;
+                $sql .= 'boolean'; break;
 
             case 'smallint':
-                $sql .= 'smallint '; break;
+                $sql .= 'smallint'; break;
 
             case 'int':
             case 'integer':
-                $sql .= 'integer ';break;
+                $sql .= 'integer';break;
 
             case 'decimal':
-                $sql .= 'decimal( ' . $pFieldOptions[1] . ' ) '; break;
+                $sql .= 'decimal( ' . $pFieldOptions[1] . ' )'; break;
 
             case 'bigint':
                 $sql .= 'bigint ';break;
 
             case 'float4':
-                if ($cfg['db_type'] == 'postgresql')
-                    $sql .= 'float4 ';
+                if (kryn::$config['db_type'] == 'postgresql')
+                    $sql .= 'float4';
                 else
-                    $sql .= 'float ';
+                    $sql .= 'float';
                 break;
 
             case 'double precision':
-                $sql .= 'double precision '; break;
+                $sql .= 'double precision'; break;
 
         }
 
-        if ($unsigned && $cfg['db_type'] != 'postgresql')
-            $sql .= ' UNSIGNED ';
+        if ($unsigned && kryn::$config['db_type'] != 'postgresql')
+            $sql .= ' UNSIGNED';
+
+        return $sql;
+
+    }
+
+    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false) {
+
+        /*
+        * $pMode
+        *  false: ADD column and execute
+        *  1: only the column definition for CREATE TABLE
+        *  2: only the column definition for ALTER COLUMN
+        *
+        */
+        global $cfg;
+
+        $sqlBegin = 'ALTER TABLE '.dbQuote(strtolower($pTable)).' ';
+
+        $sql = dbQuote($pFieldName).' ';
+
+
+        if ($cfg['db_type'] == 'postgresql' && $pMode == 2) {
+            $sql .= 'TYPE ';
+        }
+
+
 
         //if ($pFieldOptions[2] == "DB_PRIMARY")
         //    $sql .= 'NOT NULL ';
@@ -371,15 +455,13 @@ class adminDb {
             }
 
             if ($cfg['db_type'] == 'postgresql') {
-                database::$hideSql = true;
-                try {
-                    @dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
-                    @dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
-                } catch (Exception $e){
-                    //force silence
-                }
-                database::$hideSql = false;
-                $sql .= " DEFAULT nextval('kryn_" . $pTable . "_seq') ";
+
+                if (!$pMode)
+                    $sql  = $sqlBegin.' ADD '.$sql.';'.$sqlBegin;
+
+                dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
+                dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
+                $sql .= " SET DEFAULT nextval('kryn_" . $pTable . "_seq') ";
             }
 
         }
@@ -388,7 +470,8 @@ class adminDb {
             return $sql;
 
         $sql .= ';';
-        dbExec($sqlBegin . $sql);
+
+        dbExec($sqlBegin .' ADD ' . $sql);
     }
 
 }

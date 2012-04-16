@@ -33,7 +33,7 @@ class database {
      *
      * @var int
      */
-    public $querycount = 0;
+    public $queryCount = 0;
 
     /**
      * Instance of current PDO object
@@ -68,7 +68,7 @@ class database {
      *
      * @var bool
      */
-    public static $hideSql = false;
+    public static $hideReporting = false;
 
     /**
      * Some types which represents a number
@@ -168,10 +168,10 @@ class database {
                 break;
 
             case 'postgresql':
-                $ttemp = dbExfetch("SELECT tablename FROM pg_tables WHERE tableowner = '" . $kdb->user . "'", -1);
+                $ttemp = dbExfetch("SELECT tablename FROM pg_tables", -1);
                 if (count($ttemp) > 0) {
                     foreach ($ttemp as $t) {
-                        $res[] = $t['tablename'];
+                        $res[] = current($t);
                     }
                 }
                 break;
@@ -194,11 +194,11 @@ class database {
         global $kdb;
 
         $res = array();
-        $pTable = dbQuote($pTable);
+        $qTable = dbQuote($pTable);
 
         switch ($kdb->type) {
             case 'sqlite':
-                $ttemp = dbExfetch("PRAGMA table_info($pTable)", -1);
+                $ttemp = dbExfetch("PRAGMA table_info($qTable)", -1);
                 if (count($ttemp) > 0) {
                     foreach ($ttemp as $t) {
                         $res[$t['name']] = array(
@@ -220,7 +220,7 @@ class database {
                 break;
 
             case 'mysql';
-                $ttemp = dbExfetch('SHOW COLUMNS FROM ' . $pTable, -1);
+                $ttemp = dbExfetch('SHOW COLUMNS FROM ' . $qTable, -1);
                 if (is_array($ttemp) && count($ttemp) > 0) {
                     foreach ($ttemp as $t) {
                         $res[$t['Field']] = array(
@@ -745,10 +745,10 @@ class database {
         if ($pQuery == "")
             return false;
 
-        if (!database::$hideSql && kryn::$config['debug_log_sqls']){
-            database::$hideSql = true;
+        if (!database::$hideReporting && kryn::$config['debug_log_sqls']){
+            database::$hideReporting = true;
             klog('debug', 'query: '.$pQuery);
-            database::$hideSql = false;
+            database::$hideReporting = false;
         }
 
         $this->lastQuery = $pQuery;
@@ -806,7 +806,7 @@ class database {
             }
 
         }
-        $this->querycount++;
+        $this->queryCount++;
 
 
         if ($state === false)
@@ -829,12 +829,12 @@ class database {
         if (kryn::$config['db_error_print_sql'])
             $pErrorStr .= "\n SQL: ".$this->lastQuery;
 
-        if (!database::$hideSql)
+        if (!database::$hideReporting)
             klog('database', $pErrorStr);
 
         $this->lastError = $pErrorStr;
 
-        if (kryn::$config['db_exceptions_nostop'] != 1)
+        if (!database::$hideReporting && kryn::$config['db_exceptions_nostop'] != 1)
             throw new Exception($pErrorStr);
 
         return false;
