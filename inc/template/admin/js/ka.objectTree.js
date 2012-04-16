@@ -1,40 +1,40 @@
-ka.pagesTree = new Class({
+ka.objectTree = new Class({
 
     Implements: [Options, Events],
     ready: false,
 
-    options: {},
+    options: {
+        withObjectAdd: false, //adds a plus sign and opens <withObjectAdd> entry point
+        viewAllObjects: false, //loads initily all objects
+        rootObject: false
+    },
 
     items: {},
     loadChildsRequests: {},
 
-    types: {
-        '0': 'page_green.png',
-        '1': 'page_green.png',
-        '2': 'folder.png',
-        '3': 'page_white_text.png',
-        '-1': 'world.png'
-    },
-
     loadingDone: false,
     firstLoadDone: false,
 
-    load_page_childs: false,
-    need2SelectAPage: false,
+    load_object_childs: false,
+    need2SelectAObject: false,
     domainA: false,
     inItemsGeneration: false,
 
-    //contains the open state of the pages
+    //contains the open state of the objects
     opens: {},
 
-    initialize: function (pContainer, pDomain, pOptions, pRefs) {
-        this.domain_rsn = pDomain;
+    objectKey: '',
+    objectDefinition: {},
+
+    initialize: function (pContainer, pObjectKey, pOptions, pRefs) {
+
+        this.objectKey = pObjectKey;
         this.container = pContainer;
 
         this.setOptions(pOptions);
 
-        if (Cookie.read('krynPageTree_' + pDomain)) {
-            var opens = Cookie.read('krynPageTree_' + pDomain);
+        if (Cookie.read('krynObjectTree_' + pObjectKey)) {
+            var opens = Cookie.read('krynObjectTree_' + pObjectKey);
             opens = opens.split('.');
             Array.each(opens, function (open) {
                 this.opens[ open ] = true;
@@ -42,47 +42,49 @@ ka.pagesTree = new Class({
         }
 
         if (pRefs) {
-            this.options.pageObj = pRefs.pageObj;
+            this.options.objectObj = pRefs.objectObj;
             this.options.win = pRefs.win;
         }
 
         this.main = new Element('div', {
-            'class': 'ka-pageTree'
+            'class': 'ka-objectTree'
         }).inject(this.container);
 
         this.topDummy = new Element('div', {
-            'class': 'ka-pageTree-top-dummy'
+            'class': 'ka-objectTree-top-dummy'
         }).inject(this.main);
 
-        this.panePagesTable = new Element('table', {
+        this.paneObjectsTable = new Element('table', {
             style: 'width: 100%',
             cellpadding: 0,
             cellspacing: 0
         }).inject(this.main);
 
-        this.container.addEvent('scroll', this.setDomainPosition.bind(this));
+        this.container.addEvent('scroll', this.setRootPosition.bind(this));
 
         if (this.options.win)
-            this.options.win.addEvent('resize', this.setDomainPosition.bind(this));
+            this.options.win.addEvent('resize', this.setRootPosition.bind(this));
 
-        this.panePagesTBody = new Element('tbody').inject(this.panePagesTable);
-        this.panePagesTr = new Element('tr').inject(this.panePagesTBody);
-        this.panePagesTd = new Element('td').inject(this.panePagesTr);
+        this.paneObjectsTBody = new Element('tbody').inject(this.paneObjectsTable);
+        this.paneObjectsTr = new Element('tr').inject(this.paneObjectsTBody);
+        this.paneObjectsTd = new Element('td').inject(this.paneObjectsTr);
 
-        this.panePages = new Element('div', {
-            'class': 'ka-pageTree-pages'
-        }).inject(this.panePagesTd);
+        this.paneObjects = new Element('div', {
+            'class': 'ka-objectTree-objects'
+        }).inject(this.paneObjectsTd);
 
-        this.paneDomain = new Element('div', {
-            'class': 'ka-pageTree-domain'
-        }).inject(this.main);
+        this.paneObjects.setStyle('display', '');
 
-        this.panePages.setStyle('display', '');
 
-        this.paneDomain.set('morph', {duration: 200});
+        if (this.options.rootObject){
+            this.paneRoot = new Element('div', {
+                'class': 'ka-objectTree-domain'
+            }).inject(this.main);
+            this.paneRoot.set('morph', {duration: 200});
+        }
 
-        if (this.options.selectPage) {
-            this.startupWithPageInfo(this.options.selectPage);
+        if (this.options.selectObject) {
+            this.startupWithObjectInfo(this.options.selectObject);
         } else {
             this.loadFirstLevel();
         }
@@ -98,14 +100,14 @@ ka.pagesTree = new Class({
     },
 
 
-    startupWithPageInfo: function (pRsn, pCallback) {
+    startupWithObjectInfo: function (pRsn, pCallback) {
 
-        new Request.JSON({url: _path + 'admin/pages/getPageInfo', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/objects/getObjectInfo', noCache: 1, onComplete: function (res) {
 
             if (res.domain_rsn == this.domain_rsn) {
-                this.load_page_childs = [];
-                res._parents.each(function (page) {
-                    this.load_page_childs.include(page.rsn);
+                this.load_object_childs = [];
+                res._parents.each(function (object) {
+                    this.load_object_childs.include(object.rsn);
                 }.bind(this));
             }
             if (pCallback) {
@@ -124,19 +126,21 @@ ka.pagesTree = new Class({
 
     },
 
-    setDomainPosition: function () {
+    setRootPosition: function () {
+
+        if (!this.options.rootObject) return;
 
         var nLeft = this.container.scrollLeft;
         var nTop = 0;
 
-        var panePos = this.panePagesTable.getPosition(this.container).y;
+        var panePos = this.paneObjectsTable.getPosition(this.container).y;
         if (panePos - 20 < 0) {
             nTop = (panePos - 20) * -1;
-            var maxTop = this.panePages.getSize().y - 20;
+            var maxTop = this.paneObjects.getSize().y - 20;
             if (nTop > maxTop) nTop = maxTop;
         }
 
-        this.paneDomain.morph({
+        this.paneRoot.morph({
             //'width': nWidth,
             'left': nLeft,
             'top': nTop
@@ -150,11 +154,11 @@ ka.pagesTree = new Class({
             this.lastFirstLevelRq.cancel();
         }
 
-        var viewAllPages = this.options.viewAllPages ? 1 : 0;
+        var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/pages/getTreeDomain', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objects/getTreeDomain', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
             domain_rsn: this.domain_rsn,
-            viewAllPages: viewAllPages
+            viewAllObjects: viewAllObjects
         });
 
     },
@@ -174,19 +178,19 @@ ka.pagesTree = new Class({
             return;
         }
 
-        this.paneDomain.empty();
-        this.panePages.empty();
+        this.paneRoot.empty();
+        this.paneObjects.empty();
 
-        this.domainA = this.addItem(pDomain, this.paneDomain);
+        this.domainA = this.addItem(pDomain, this.paneRoot);
 
-        if (this.options.withPageAdd) {
-            if (ka.checkDomainAccess(pDomain.rsn, 'addPages')) {
+        if (this.options.withObjectAdd) {
+            if (ka.checkDomainAccess(pDomain.rsn, 'addObjects')) {
                 new Element('img', {
                     src: _path + 'inc/template/admin/images/icons/add.png',
-                    title: _('Add page'),
-                    'class': 'ka-pageTree-add'
+                    title: _('Add object'),
+                    'class': 'ka-objectTree-add'
                 }).addEvent('click', function (e) {
-                    this.fireEvent('pageAdd', pDomain.rsn);
+                    this.fireEvent('objectAdd', pDomain.rsn);
                 }.bind(this)).inject(this.items[0]);
             }
         }
@@ -206,14 +210,14 @@ ka.pagesTree = new Class({
         if (!target) return;
         var a = null;
 
-        if (target.hasClass('ka-pageTree-item-toggler')) return;
+        if (target.hasClass('ka-objectTree-item-toggler')) return;
 
-        if (target.hasClass('ka-pageTree-item')) {
+        if (target.hasClass('ka-objectTree-item')) {
             a = target;
         }
 
-        if (!a && target.getParent('.ka-pageTree-item')) {
-            a = target.getParent('.ka-pageTree-item');
+        if (!a && target.getParent('.ka-objectTree-item')) {
+            a = target.getParent('.ka-objectTree-item');
         }
 
         if (!a) return;
@@ -234,11 +238,11 @@ ka.pagesTree = new Class({
 
                 this.unselect();
                 if (this.options.noActive != true) {
-                    a.addClass('ka-pageTree-item-selected');
+                    a.addClass('ka-objectTree-item-selected');
                 }
 
                 this.lastSelectedItem = a;
-                this.lastSelectedPage = item;
+                this.lastSelectedObject = item;
             }
 
         } else {
@@ -249,11 +253,11 @@ ka.pagesTree = new Class({
             this.unselect();
 
             if (this.options.noActive != true) {
-                a.addClass('ka-pageTree-item-selected');
+                a.addClass('ka-objectTree-item-selected');
             }
 
             this.lastSelectedItem = a;
-            this.lastSelectedPage = item;
+            this.lastSelectedObject = item;
         }
 
     },
@@ -262,13 +266,13 @@ ka.pagesTree = new Class({
 
         if (!this.lastSelectedItem) return;
 
-        if (this.lastSelectedPage.domain || this.lastSelectedPage.prsn == 0) {
+        if (this.lastSelectedObject.domain || this.lastSelectedObject.prsn == 0) {
             this.reload();
             return;
         }
 
         var parent = this.lastSelectedItem.getParent().getPrevious();
-        if (parent && parent.hasClass('ka-pageTree-item')) {
+        if (parent && parent.hasClass('ka-objectTree-item')) {
             this.lastScrollPos = this.container.getScroll();
             this.loadChilds(parent);
         }
@@ -277,7 +281,7 @@ ka.pagesTree = new Class({
     addItem: function (pItem, pParent) {
 
         var a = new Element('div', {
-            'class': 'ka-pageTree-item',
+            'class': 'ka-objectTree-item',
             title: 'ID=' + pItem.rsn
         });
 
@@ -293,23 +297,23 @@ ka.pagesTree = new Class({
 
         a.inject(container);
 
-        a.pageTreeObj = this;
+        a.objectTreeObj = this;
 
         a.span = new Element('span', {
-            'class': 'ka-pageTree-item-title',
+            'class': 'ka-objectTree-item-title',
             text: (pItem.title) ? pItem.title : pItem.domain
         }).inject(a);
 
-        if (this.lastSelectedPage && (
-            (this.lastSelectedPage.domain && pItem.domain && this.lastSelectedPage.rsn == pItem.rsn) || (!pItem.domain && !this.lastSelectedPage.domain && this.lastSelectedPage.rsn == pItem.rsn)
+        if (this.lastSelectedObject && (
+            (this.lastSelectedObject.domain && pItem.domain && this.lastSelectedObject.rsn == pItem.rsn) || (!pItem.domain && !this.lastSelectedObject.domain && this.lastSelectedObject.rsn == pItem.rsn)
             )) {
 
             if (this.options.noActive != true) {
-                a.addClass('ka-pageTree-item-selected');
+                a.addClass('ka-objectTree-item-selected');
             }
 
             this.lastSelectedItem = a;
-            this.lastSelectedPage = pItem;
+            this.lastSelectedObject = pItem;
         }
 
         if (pItem.domain) {
@@ -320,7 +324,7 @@ ka.pagesTree = new Class({
             if (!this.options.noDrag) {
                 a.addEvent('mousedown', function (e) {
 
-                    if (!ka.checkPageAccess(pItem.rsn, 'movePages')) {
+                    if (!ka.checkObjectAccess(pItem.rsn, 'moveObjects')) {
                         return;
                     }
 
@@ -351,11 +355,11 @@ ka.pagesTree = new Class({
 
         /* masks */
         a.masks = new Element('span', {
-            'class': 'ka-pageTree-item-masks'
+            'class': 'ka-objectTree-item-masks'
         }).inject(a, 'top');
 
         new Element('img', {
-            'class': 'ka-pageTree-item-type',
+            'class': 'ka-objectTree-item-type',
             src: _path + 'inc/template/admin/images/icons/' + this.types[pItem.type]
         }).inject(a.masks);
 
@@ -392,7 +396,7 @@ ka.pagesTree = new Class({
 
         /* toggler */
         a.toggler = new Element('img', {
-            'class': 'ka-pageTree-item-toggler',
+            'class': 'ka-objectTree-item-toggler',
             title: _('Open/Close subitems'),
             src: _path + 'inc/template/admin/images/icons/tree_plus.png'
         }).inject(a, 'top');
@@ -409,10 +413,10 @@ ka.pagesTree = new Class({
 
         /* childs */
         if (pItem.domain) {
-            a.childContainer = this.panePages;
+            a.childContainer = this.paneObjects;
         } else {
             a.childContainer = new Element('div', {
-                'class': 'ka-pageTree-item-childs'
+                'class': 'ka-objectTree-item-childs'
             }).inject(container);
         }
 
@@ -420,14 +424,14 @@ ka.pagesTree = new Class({
 
         var openId = ( pItem.domain ) ? 'p' + pItem.rsn : pItem.rsn;
 
-        if ((!this.firstLoadDone || this.need2SelectAPage)) {
-            if ((this.options.selectDomain && pItem.domain ) || (this.options.selectPage && !pItem.domain && pItem.rsn == this.options.selectPage)) {
+        if ((!this.firstLoadDone || this.need2SelectAObject)) {
+            if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && !pItem.domain && pItem.rsn == this.options.selectObject)) {
                 if (this.options.noActive != true) {
-                    a.addClass('ka-pageTree-item-selected');
+                    a.addClass('ka-objectTree-item-selected');
                 }
                 this.lastSelectedItem = a;
-                this.lastSelectedPage = pItem;
-                this.need2SelectAPage = false;
+                this.lastSelectedObject = pItem;
+                this.need2SelectAObject = false;
             }
         }
 
@@ -435,13 +439,13 @@ ka.pagesTree = new Class({
             this.openChilds(a);
         }
 
-        if ((!this.firstLoadDone || this.need2SelectAPage) && this.load_page_childs !== false) {
-            if (!pItem.domain && this.load_page_childs.contains(pItem.rsn)) {
+        if ((!this.firstLoadDone || this.need2SelectAObject) && this.load_object_childs !== false) {
+            if (!pItem.domain && this.load_object_childs.contains(pItem.rsn)) {
                 this.openChilds(a);
             } else if (pItem.domain) {
                 this.openChilds(a);
             }
-        } else if ((!this.firstLoadDone || this.need2SelectAPage) && this.options.openFirstLevel && pItem.domain && !this.opens[openId]) {
+        } else if ((!this.firstLoadDone || this.need2SelectAObject) && this.options.openFirstLevel && pItem.domain && !this.opens[openId]) {
             this.openChilds(a);
         }
 
@@ -491,7 +495,7 @@ ka.pagesTree = new Class({
             if (this.lastScrollPos) {
                 this.container.scrollTo(this.lastScrollPos.x, this.lastScrollPos.y);
             }
-            this.setDomainPosition();
+            this.setRootPosition();
         }
 
         this.loadingDone = loadingDone;
@@ -506,7 +510,7 @@ ka.pagesTree = new Class({
                 opens += key + '.';
             }
         });
-        Cookie.write('krynPageTree_' + this.domain_rsn, opens);
+        Cookie.write('krynObjectTree_' + this.domain_rsn, opens);
 
     },
 
@@ -526,7 +530,7 @@ ka.pagesTree = new Class({
         pA.childContainer.setStyle('display', '');
         pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_plus.png');
         this.opens[ id ] = false;
-        this.setDomainPosition();
+        this.setRootPosition();
 
         this.saveOpens();
     },
@@ -544,7 +548,7 @@ ka.pagesTree = new Class({
         } else {
             this.loadChilds(pA, true);
         }
-        this.setDomainPosition();
+        this.setRootPosition();
 
     },
 
@@ -568,10 +572,10 @@ ka.pagesTree = new Class({
 
             var id = ( item.domain ) ? 'p' + item.rsn : item.rsn;
 
-            var viewAllPages = this.options.viewAllPages ? 1 : 0;
+            var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
             this.loadChildsRequests[ item.rsn ] = true;
-            new Request.JSON({url: _path + 'admin/pages/getTree', noCache: 1, onComplete: function (pItems) {
+            new Request.JSON({url: _path + 'admin/objects/getTree', noCache: 1, onComplete: function (pItems) {
 
                 pA.childContainer.empty();
 
@@ -601,9 +605,9 @@ ka.pagesTree = new Class({
                 this.checkDoneState();
 
                 this.fireEvent('childsLoaded', [item, pA]);
-                this.setDomainPosition();
+                this.setRootPosition();
 
-            }.bind(this)}).get({ page_rsn: item.rsn, viewAllPages: viewAllPages });
+            }.bind(this)}).get({ object_rsn: item.rsn, viewAllObjects: viewAllObjects });
 
         }
     },
@@ -611,26 +615,26 @@ ka.pagesTree = new Class({
     unselect: function () {
 
         if (this.lastSelectedItem) {
-            this.lastSelectedItem.removeClass('ka-pageTree-item-selected');
+            this.lastSelectedItem.removeClass('ka-objectTree-item-selected');
         }
 
         this.lastSelectedItem = false;
-        this.lastSelectedPage = false;
+        this.lastSelectedObject = false;
     },
 
     createDrag: function (pA, pEvent) {
 
-        this.currentPageToDrag = pA;
+        this.currentObjectToDrag = pA;
 
-        var canMovePage = true;
-        var page = pA.retrieve('item');
-        if (page.domain) {
-            if (!ka.checkPageAccess(page.rsn, 'movePages', 'd')) {
-                canMovePage = false;
+        var canMoveObject = true;
+        var object = pA.retrieve('item');
+        if (object.domain) {
+            if (!ka.checkObjectAccess(object.rsn, 'moveObjects', 'd')) {
+                canMoveObject = false;
             }
         } else {
-            if (!ka.checkPageAccess(page.rsn, 'movePages')) {
-                canMovePage = false;
+            if (!ka.checkObjectAccess(object.rsn, 'moveObjects')) {
+                canMoveObject = false;
             }
         }
 
@@ -641,7 +645,7 @@ ka.pagesTree = new Class({
         }
 
         this.lastClone = new Element('div', {
-            'class': 'ka-pageTree-drag-box'
+            'class': 'ka-objectTree-drag-box'
         }).inject(kwin);
 
         new Element('span', {
@@ -656,8 +660,8 @@ ka.pagesTree = new Class({
                 if (!pEvent.target) return;
                 var element = pEvent.target;
 
-                if (!element.hasClass('ka-pageTree-item')) {
-                    element = element.getParent('.ka-pageTree-item');
+                if (!element.hasClass('ka-objectTree-item')) {
+                    element = element.getParent('.ka-objectTree-item');
                 }
 
                 if (element) {
@@ -707,13 +711,13 @@ ka.pagesTree = new Class({
             delete this.dropElement;
         }
 
-        if (this.currentPageToDrag == pTarget) return;
+        if (this.currentObjectToDrag == pTarget) return;
 
         this.dragNDropElement = pTarget;
         this.dragNDropPos = pPos;
 
         if (this.dropLastItem) {
-            this.dropLastItem.removeClass('ka-pageTree-item-dragOver');
+            this.dropLastItem.removeClass('ka-objectTree-item-dragOver');
             this.dropLastItem.setStyle('padding-bottom', 1);
             this.dropLastItem.setStyle('padding-top', 1);
         }
@@ -727,7 +731,7 @@ ka.pagesTree = new Class({
         if (!item.domain) {
             if (pPos == 'after' || pPos == 'before') {
                 this.dropElement = new Element('div', {
-                    'class': 'ka-pageTree-dropElement',
+                    'class': 'ka-objectTree-dropElement',
                     styles: {
                         'margin-left': pTarget.getStyle('padding-left').toInt() + 16
                     }
@@ -742,24 +746,24 @@ ka.pagesTree = new Class({
 
         var canMoveInto = true;
         if (item.domain) {
-            if (!ka.checkPageAccess(item.rsn, 'addPages', 'd')) {
+            if (!ka.checkObjectAccess(item.rsn, 'addObjects', 'd')) {
                 canMoveInto = false;
             }
         } else {
-            if (!ka.checkPageAccess(item.rsn, 'addPages')) {
+            if (!ka.checkObjectAccess(item.rsn, 'addObjects')) {
                 canMoveInto = false;
             }
         }
 
         var canMoveAround = true;
         if (pTarget.parent) {
-            var parentPage = pTarget.parent.retrieve('item');
-            if (parentPage.domain) {
-                if (!ka.checkPageAccess(parentPage.rsn, 'addPages', 'd')) {
+            var parentObject = pTarget.parent.retrieve('item');
+            if (parentObject.domain) {
+                if (!ka.checkObjectAccess(parentObject.rsn, 'addObjects', 'd')) {
                     canMoveAround = false;
                 }
             } else {
-                if (!ka.checkPageAccess(parentPage.rsn, 'addPages')) {
+                if (!ka.checkObjectAccess(parentObject.rsn, 'addObjects')) {
                     canMoveAround = false;
                 }
             }
@@ -779,7 +783,7 @@ ka.pagesTree = new Class({
 
         } else if (pPos == 'inside') {
             if (canMoveInto) {
-                pTarget.addClass('ka-pageTree-item-dragOver');
+                pTarget.addClass('ka-objectTree-item-dragOver');
             }
             this.loadChildsDelay = function () {
                 this.openChilds(pTarget);
@@ -801,7 +805,7 @@ ka.pagesTree = new Class({
             delete this.dropElement;
         }
         if (this.dropLastItem) {
-            this.dropLastItem.removeClass('ka-pageTree-item-dragOver');
+            this.dropLastItem.removeClass('ka-objectTree-item-dragOver');
             this.dropLastItem.setStyle('padding-bottom', 1);
             this.dropLastItem.setStyle('padding-top', 1);
             delete this.dropLastItem;
@@ -819,14 +823,14 @@ ka.pagesTree = new Class({
             };
 
             var to = this.dragNDropElement.retrieve('item');
-            var where = this.currentPageToDrag.retrieve('item');
+            var where = this.currentObjectToDrag.retrieve('item');
 
             var whereRsn = where.rsn;
             var toRsn = to.rsn;
             var code = pos[this.dragNDropPos];
 
             var toDomain = to.domain ? true : false;
-            this.movePage(whereRsn, toRsn, code, toDomain);
+            this.moveObject(whereRsn, toRsn, code, toDomain);
         }
         document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
     },
@@ -834,13 +838,13 @@ ka.pagesTree = new Class({
 
     reloadParent: function (pA) {
         if (pA.parent) {
-            pA.pageTreeObj.reloadChilds(pA.parent);
+            pA.objectTreeObj.reloadChilds(pA.parent);
         } else {
-            pA.pageTreeObj.reload();
+            pA.objectTreeObj.reload();
         }
     },
 
-    movePage: function (pWhereRsn, pToRsn, pCode, pToDomain) {
+    moveObject: function (pWhereRsn, pToRsn, pCode, pToDomain) {
         var _this = this;
         var req = {
             rsn: pWhereRsn,
@@ -849,20 +853,20 @@ ka.pagesTree = new Class({
             toDomain: pToDomain ? 1 : 0
         };
 
-        new Request.JSON({url: _path + 'admin/pages/move', onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/objects/move', onComplete: function (res) {
 
             //target item this.dragNDropElement
             if (this.dragNDropElement.parent) {
-                this.dragNDropElement.pageTreeObj.reloadChilds(this.dragNDropElement.parent);
+                this.dragNDropElement.objectTreeObj.reloadChilds(this.dragNDropElement.parent);
             } else {
-                this.dragNDropElement.pageTreeObj.reload();
+                this.dragNDropElement.objectTreeObj.reload();
             }
 
-            //origin item this.currentPageToDrag
-            if (this.currentPageToDrag.parent && (!this.dragNDropElement.parent || this.dragNDropElement.parent != this.currentPageToDrag.parent)) {
-                this.currentPageToDrag.pageTreeObj.reloadChilds(this.currentPageToDrag.parent);
-            } else if (!this.dragNDropElement.parent || this.dragNDropElement.pageTreeObj != this.currentPageToDrag.pageTreeObj) {
-                this.currentPageToDrag.pageTreeObj.reload();
+            //origin item this.currentObjectToDrag
+            if (this.currentObjectToDrag.parent && (!this.dragNDropElement.parent || this.dragNDropElement.parent != this.currentObjectToDrag.parent)) {
+                this.currentObjectToDrag.objectTreeObj.reloadChilds(this.currentObjectToDrag.parent);
+            } else if (!this.dragNDropElement.parent || this.dragNDropElement.objectTreeObj != this.currentObjectToDrag.objectTreeObj) {
+                this.currentObjectToDrag.objectTreeObj.reload();
             }
 
             ka.loadSettings(['r2d']);
@@ -880,8 +884,8 @@ ka.pagesTree = new Class({
         return this.firstLoadDone;
     },
 
-    hasChilds: function (pPage) {
-        if (this._pagesParent.get(pPage.rsn)) {
+    hasChilds: function (pObject) {
+        if (this._objectsParent.get(pObject.rsn)) {
             return true;
         }
         return false;
@@ -892,12 +896,11 @@ ka.pagesTree = new Class({
         var pos = this.currentDropper.getPosition(this.container);
         var st = this.container.scrollTop.toInt();
 
-
         var _this = this;
-        var t = pWhere.retrieve('page');
+        var t = pWhere.retrieve('object');
         pWhereRsn = t.rsn;
 
-        var t = pTo.retrieve('page');
+        var t = pTo.retrieve('object');
         var domain_rsn = 0;
         var actions = [
             {code: 'up', label: _('Above')},
@@ -929,7 +932,7 @@ ka.pagesTree = new Class({
         }
 
         var context = new Element('div', {
-            'class': 'pagesTree-context-move'
+            'class': 'objectsTree-context-move'
         }).setStyles({
             left: mleft,
             top: mtop,
@@ -951,7 +954,7 @@ ka.pagesTree = new Class({
                 'class': item.code
             }).addEvent('click',
                 function () {
-                    _this.movePage(pWhereRsn, pToRsn, item.code, domain_rsn);
+                    _this.moveObject(pWhereRsn, pToRsn, item.code, domain_rsn);
                     context.destroy();
                 }).addEvent('mouseover',
                 function (e) {
@@ -977,21 +980,21 @@ ka.pagesTree = new Class({
 
         if (this.items[ pRsn ]) {
             //has been already loaded
-            this.items[ pRsn ].addClass('ka-pageTree-item-selected');
+            this.items[ pRsn ].addClass('ka-objectTree-item-selected');
 
             this.lastSelectedItem = this.items[ pRsn ];
-            this.lastSelectedPage = this.items[ pRsn ].retrieve('item');
+            this.lastSelectedObject = this.items[ pRsn ].retrieve('item');
             return;
         }
 
-        this.need2SelectAPage = true;
+        this.need2SelectAObject = true;
 
-        this.startupWithPageInfo(pRsn, function (res) {
+        this.startupWithObjectInfo(pRsn, function (res) {
 
-            this.options.selectPage = pRsn;
+            this.options.selectObject = pRsn;
             this.renderFirstLevel();
 
-            Array.each(this.load_page_childs, function (item) {
+            Array.each(this.load_object_childs, function (item) {
                 if (this.items[item]) {
                     this.openChilds(this.items[item]);
                 }
@@ -1002,267 +1005,14 @@ ka.pagesTree = new Class({
 
     destroyContext: function () {
         if (this.oldContext) {
-            this.lastContextA.removeClass('ka-pageTree-item-hover');
+            this.lastContextA.removeClass('ka-objectTree-item-hover');
             this.oldContext.destroy();
             delete this.oldContext;
         }
     },
 
-    openContext: function (pEvent, pA, pPage) {
+    openContext: function (pEvent, pA, pObject) {
 
-        if (this.options.withContext != true) return;
-
-        if (!pEvent.rightClick) return;
-
-        window.fireEvent('mouseup');
-        pEvent.stopPropagation();
-
-        pA.addClass('ka-pageTree-item-hover');
-        this.lastContextA = pA;
-
-        this.oldContext = new Element('div', {
-            'class': 'ka-pagesTree-context'
-        }).inject(document.body);
-
-        var wsize = window.getSize();
-
-        var left = pEvent.page.x - (this.container.getPosition(document.body).x);
-        var mtop = pEvent.page.y - (this.container.getPosition(document.body).y);
-
-        var left = pEvent.page.x;
-        var mtop = pEvent.page.y;
-        if (mtop < 0) {
-            mtop = 1;
-        }
-
-        this.oldContext.setStyles({
-            left: left,
-            'top': mtop
-        });
-
-        if (pPage.type == 0 || pPage.type == 1) {
-            new Element('a', {
-                html: _('Preview')
-            }).addEvent('click', function () {
-                if (this.options.pageObj) {
-                    this.options.pageObj.toPage(pPage);
-                }
-            }.bind(this)).inject(this.oldContext);
-
-            new Element('a', {
-                'class': 'delimiter'
-            }).inject(this.oldContext);
-        }
-
-        var canDelete = canAdd = canHide = false;
-
-        if (pPage.domain) {
-            canDelete = ka.checkPageAccess(pPage.rsn, 'deletePages', 'd');
-            canAdd = ka.checkPageAccess(pPage.rsn, 'addPages', 'd');
-        } else {
-            canDelete = ka.checkPageAccess(pPage.rsn, 'deletePages');
-            canAdd = ka.checkPageAccess(pPage.rsn, 'addPages');
-            canHide = ka.checkPageAccess(pPage.rsn, 'visible');
-        }
-
-        if (canAdd) {
-            new Element('a', {
-                html: _('New')
-            }).addEvent('click', function () {
-
-                var param = {};
-                if (pPage.domain) {
-                    param.selectDomain = pPage.rsn;
-                    param.domain_rsn = pPage.rsn;
-                } else {
-                    param.selectPage = pPage.rsn;
-                    param.domain_rsn = pPage.domain_rsn;
-                }
-
-                param.onComplete = function (pDomain) {
-                    this.options.pageObj.domainTrees[pDomain].reload();
-                }.bind(this)
-
-                ka.wm.open('admin/pages/addDialog', param);
-
-            }.bind(this)).inject(this.oldContext);
-        }
-
-        if (canDelete) {
-
-            new Element('a', {
-                html: _('Delete')
-            }).addEvent('click', function () {
-                if (this.options.pageObj) {
-                    if (pPage.domain) {
-                        this.options.pageObj.deleteDomain(pPage);
-                    } else {
-                        this.options.pageObj.deletePage(pPage);
-                    }
-                }
-            }.bind(this)).inject(this.oldContext);
-
-        }
-
-        if (canHide) {
-            new Element('a', {
-                html: _('Hide/Unhide')
-            }).addEvent('click', function () {
-                this.toggleHide(pA);
-            }.bind(this)).inject(this.oldContext);
-        }
-
-        if (canAdd || canDelete || canHide) {
-            new Element('a', {
-                'class': 'delimiter'
-            }).inject(this.oldContext);
-
-        }
-
-        new Element('a', {
-            html: _('Export')
-        }).addEvent('click', function () {
-            var param = {};
-            if (pPage.domain) {
-                param.domain = pPage.rsn;
-            } else {
-                param.page = pPage.rsn;
-            }
-            param.type = 'export';
-            ka.wm.open('admin/system/backup', param);
-        }.bind(this)).inject(this.oldContext);
-
-        new Element('a', {
-            html: _('Import')
-        }).addEvent('click', function () {
-            var param = {};
-            if (pPage.domain) {
-                param.domain = pPage.rsn;
-            } else {
-                param.page = pPage.rsn;
-            }
-            param.type = 'import';
-            ka.wm.open('admin/system/backup', param);
-        }.bind(this)).inject(this.oldContext);
-
-        new Element('a', {
-            'class': 'delimiter'
-        }).inject(this.oldContext);
-
-        if (!pPage.domain) {
-            new Element('a', {
-                html: _('Copy')
-            }).addEvent('click', function () {
-                ka.setClipboard(' \'' + pPage.title + '\' ' + _('page copied'), 'pageCopy', pPage);
-            }.bind(this)).inject(this.oldContext);
-
-            new Element('a', {
-                html: _('Copy with subpages')
-            }).addEvent('click', function () {
-                ka.setClipboard(' \'' + pPage.title + '\' ' + _('page with subpages copied'), 'pageCopyWithSubpages', pPage);
-            }.bind(this)).inject(this.oldContext);
-
-            new Element('a', {
-                'class': 'delimiter'
-            }).inject(this.oldContext);
-        }
-
-        var canPasteInto = true;
-        if (pPage.domain) {
-            if (!ka.checkPageAccess(pPage.rsn, 'addPages', 'd')) {
-                canPasteInto = false;
-            }
-        } else {
-            if (!ka.checkPageAccess(pPage.rsn, 'addPages')) {
-                canPasteInto = false;
-            }
-        }
-
-        var canPasteAround = true;
-        if (pA.parent) {
-            var parentPage = pA.parent.retrieve('item');
-            if (parentPage.domain) {
-                if (!ka.checkPageAccess(parentPage.rsn, 'addPages', 'd')) {
-                    canPasteAround = false;
-                }
-            } else {
-                if (!ka.checkPageAccess(parentPage.rsn, 'addPages')) {
-                    canPasteAround = false;
-                }
-            }
-        }
-
-        if (canPasteAround || canPasteInto) {
-
-            new Element('a', {
-                'class': 'noaction',
-                html: _('Paste')
-            }).inject(this.oldContext);
-
-
-            if (canPasteAround && !pPage.domain) {
-                new Element('a', {
-                    'class': 'indented',
-                    html: _('Before')
-                }).addEvent('click', function () {
-                    this.paste('up', pPage);
-                }.bind(this)).inject(this.oldContext);
-            }
-
-            if (canPasteInto) {
-                new Element('a', {
-                    'class': 'indented',
-                    html: _('Into')
-                }).addEvent('click', function () {
-                    this.paste('into', pPage);
-                }.bind(this)).inject(this.oldContext);
-            }
-            if (canPasteAround && !pPage.domain) {
-                new Element('a', {
-                    'class': 'indented',
-                    html: _('After')
-                }).addEvent('click', function () {
-                    this.paste('down', pPage);
-                }.bind(this)).inject(this.oldContext);
-            }
-        }
-        var csize = this.oldContext.getSize();
-
-        if (mtop + csize.y > wsize.y) {
-            mtop = mtop - csize.y;
-            this.oldContext.setStyle('top', mtop + 1);
-        }
-    },
-
-    toggleHide: function (pA) {
-
-        var item = pA.retrieve('item');
-
-        var req = {rsn: item.rsn};
-        req.visible = item.visible == 1 ? 0 : 1;
-
-        new Request.JSON({url: _path + 'admin/pages/setHide', noCache: 1, async: false, onComplete: function () {
-            this.reloadParent(pA);
-        }.bind(this)}).post(req);
-    },
-
-    paste: function (pPos, pPage) {
-        var clipboard = ka.getClipboard();
-        if (!(clipboard.type == 'pageCopyWithSubpages' || clipboard.type == 'pageCopy')) {
-            return;
-        }
-
-        var req = {};
-        req.page = clipboard.value.rsn;
-
-        req.to = pPage.rsn;
-        req.to_domain = pPage.domain ? 1 : 0;
-        req.pos = pPos;
-        req.type = clipboard.type;
-
-        new Request.JSON({url: _path + 'admin/pages/paste', noCache: 1, async: false, onComplete: function () {
-            this.reload();
-            ka.loadSettings(['r2d']);
-        }.bind(this)}).post(req);
     }
+
 });

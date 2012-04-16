@@ -23,6 +23,7 @@ class adminDb {
 
     public static function install($pModuleConfig) {
         $res = '';
+
         if (is_array($pModuleConfig['db']))
             $res .= self::_install($pModuleConfig['db']);
 

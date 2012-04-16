@@ -133,6 +133,9 @@ class admin {
                         case 'objectGetItems':
                             $content = self::objectGetItems(getArgv('object'));
                             break;
+                        case 'objectTree':
+                            $content = self::getObjectTree(getArgv('object'));
+                            break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object', 2), getArgv('page'));
                             break;
@@ -250,6 +253,13 @@ class admin {
 
         json(false);
     }
+
+
+
+    public static function getObjectTree($pObjectUrl, $pWithAllChildren = false) {
+        return krynObject::getTree($pObjectUrl, $pWithAllChildren);
+    }
+
 
     /**
      * Returns all plugin elements for specified object
@@ -469,6 +479,7 @@ class admin {
 
         if ($definition['chooserBrowserDataModel'] == 'custom' && $definition['chooserBrowserDataModelClass']){
 
+            //todo
             return $items;
         }
 

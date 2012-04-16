@@ -6,14 +6,13 @@ class krynObjectTable extends krynObjectAbstract {
 
     public function getItem($pPrimaryValues, $pFields = '*', $pResolveForeignValues = '*'){
 
-        return $this->_getItems($pPrimaryValues, $pFields, $pResolveForeignValues, false, false, '', true, null, null);
+        return $this->_getItems($pPrimaryValues, $pFields, $pResolveForeignValues, false, false, true, null, null);
     }
 
-    public function getItems ($pPrimaryValues, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
+    public function getItems ($pCondition, $pOffset = 0, $pLimit = 0, $pFields = '*',
                               $pResolveForeignValues = '*', $pOrder){
 
-        return $this->_getItems($pPrimaryValues, $pFields, $pResolveForeignValues, $pOffset, $pLimit, $pCondition, false,
-            $pOrder);
+        return $this->_getItems($pCondition, $pFields, $pResolveForeignValues, $pOffset, $pLimit, false, $pOrder);
     }
 
     public function getCount($pCondition = false){
@@ -22,6 +21,65 @@ class krynObjectTable extends krynObjectAbstract {
 
     public function removeItem($pPrimaryValues){
         return dbDelete($this->definition['table'], $pPrimaryValues);
+    }
+
+    public function getTree($pParentValues){
+
+        if (!$this->definition['chooserBrowserTreeLabel']){
+            throw new Exception('chooserBrowserTreeLabel in object not defined.');
+        }
+
+        $condition = array();
+
+        if (!$pParentValues){
+            //all on first and second level
+
+
+            $title = $this->definition['chooserBrowserTreeLabel'];
+            $icon  = $this->definition['chooserBrowserTreeIcon'];
+
+            $table = dbQuote(dbTableName($this->definition['table']));
+            $id    = dbQuote('node').'.'.dbQuote(current($this->primaryKeys));
+            $pid    = dbQuote('parent').'.'.dbQuote(current($this->primaryKeys));
+
+            $depth = dbQuote('_depth');
+
+            $selects[] = 'MAX('.$id.') as id';
+            $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($title).') as label';
+            if ($icon)
+                $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($icon).') as icon';
+
+            $selects[] = '((MAX('.dbQuote('node').'.'.dbQuote('rgt').')-1-MAX('.dbQuote('node').'.'.dbQuote('lft').'))/2) AS '.dbQuote('_children');
+            $selects[] = "(COUNT($pid) - 1) AS ".$depth;
+            $selects = implode(', ', $selects);
+
+            $tables[] = "$table as ".dbQuote('parent');
+            $tables[] = "$table as ".dbQuote('node');
+            $tables = implode(', ', $tables);
+
+            $nodeLft = dbQuote('node').'.'.dbQuote('lft');
+            $parentLft = dbQuote('parent').'.'.dbQuote('lft');
+            $parentRgt = dbQuote('parent').'.'.dbQuote('rgt');
+
+            $sql = "
+            SELECT   $selects
+            FROM     $tables
+            WHERE    $nodeLft BETWEEN $parentLft AND $parentRgt
+            GROUP BY $id
+            HAVING $depth <= 1
+            ORDER BY MAX($nodeLft)
+            ";
+
+            return dbExFetch($sql, DB_FETCH_ALL);
+
+        } else {
+
+            $condition[$this->definition['tableNestedParentField']] = current($pPrimaryValues);
+            return $this->getItems($condition, 0, 0, $fields);
+
+        }
+
+
     }
 
     /**
@@ -34,8 +92,6 @@ class krynObjectTable extends krynObjectAbstract {
     public function retrieveValues($pValues){
 
         $row = array();
-
-        error_log(print_r($pValues, true));
 
         foreach ($this->definition['fields'] as $key => $field){
             if ($pValues[$key]){
@@ -83,7 +139,6 @@ class krynObjectTable extends krynObjectAbstract {
 
             }
         }
-        error_log(print_r($row, true));
 
         return $row;
     }
@@ -196,7 +251,7 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     private function _getItems($pPrimaryIds = false, $pFields = '*', $pResolveForeignValues = '*', $pOffset = false, $pLimit = false,
-                              $pCondition = '', $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc'){
+                                $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc'){
 
         $where  = '1=1 ';
 
@@ -287,9 +342,6 @@ class krynObjectTable extends krynObjectAbstract {
 
         if ($primaryCondition)
             $where .= ' AND '.$primaryCondition;
-
-        if ($pCondition)
-            $where .= ' AND '.$pCondition;
 
         if ($additionalCondition)
             $where .= ' AND '.$additionalCondition;

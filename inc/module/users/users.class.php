@@ -23,6 +23,8 @@ class users extends krynModule {
             $client->logout();
             if( $pConf['logoutTarget'] ){
                 kryn::redirectToPage( $pConf['logoutTarget'] );
+            } else {
+                kryn::redirectToPage( kryn::$page['rsn'] );
             }
         }
         
@@ -32,8 +34,11 @@ class users extends krynModule {
             
             $client->login( $login, getArgv('users-passwd') );
 
-            if( $client->user_rsn > 0 && $pConf['logoutTarget'] ){
-                kryn::redirectToPage( $pConf['logoutTarget'] );
+            if( $client->user_rsn > 0 ){
+                if ($pConf['logoutTarget'])
+                    kryn::redirectToPage( $pConf['logoutTarget'] );
+                else
+                    kryn::redirectToPage( kryn::$page['rsn'] );
             } else {
                 tAssign('loginFailed', 1);
             }

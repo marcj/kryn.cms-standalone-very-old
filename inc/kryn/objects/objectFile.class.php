@@ -23,8 +23,8 @@ class objectFile extends krynObjectAbstract {
      * @param string $pResolveForeignValues
      * @param $pOrder
      */
-    public function getItems($pPrimaryValues, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
-                             $pResolveForeignValues = '*', $pOrder)
+    public function getItems($pCondition, $pOffset = 0, $pLimit = 0, $pFields = '*', $pResolveForeignValues = '*',
+                             $pOrder)
     {
         // TODO: Implement getItems() method.
     }
@@ -68,5 +68,11 @@ class objectFile extends krynObjectAbstract {
     {
         // TODO: Implement getCount() method.
     }
+
+    public function getTree($PrimaryValues)
+    {
+        // TODO: Implement getTree() method.
+    }
+
 
 }

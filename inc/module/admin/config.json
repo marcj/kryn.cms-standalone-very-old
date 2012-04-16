@@ -564,26 +564,33 @@
       }
     },
     "node": {
-      "title": "[[Page]]",
-      "class": "kryn\/objects\/objectPage",
-      "label": "[[Node]]",
       "desc": "[[Pages, Links, Deposits and Navigation folder]]",
-      "table": "",
-      "plugins": "",
-      "selectable": 1,
+      "table": "system_pages",
+      "tableSync": 1,
+      "tableCondition": [
+        
+      ],
+      "tableNestedParentField": "prsn",
+      "tableNested": 1,
+      "multiLanguage": 0,
+      "domainDepended": 0,
+      "chooserFieldDataModel": "default",
+      "chooserFieldDataModelFields": {
+        "title": {
+          "type": "text"
+        }
+      },
+      "chooserFieldType": "default",
+      "chooserBrowserTreeLabel": "title",
+      "chooserBrowserTreeIcon": "type",
+      "chooserBrowserTreeType": "1",
       "chooserBrowserJavascriptClass": "ka.nodeChooser",
       "chooserBrowserOptions": [
         
       ],
-      "chooserBrowserType": "custom",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooserFieldDataModel": "store",
-      "chooserFieldDataModelFields": [
-        
-      ],
-      "chooserFieldType": "default",
       "chooserBrowserDataModel": "none",
+      "chooserBrowserType": "custom",
+      "selectable": 1,
       "fields": {
         "rsn": {
           "label": "[[ID]]",
@@ -592,13 +599,96 @@
           "autoIncrement": 1,
           "empty": 1
         },
+        "prsn": {
+          "label": "[[Parent ID]]",
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
+        },
+        "domain_rsn": {
+          "label": "[[Domain ID]]",
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
+        },
+        "type": {
+          "label": "[[Type]]",
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
+        },
         "title": {
           "label": "[[Title]]",
           "type": "text",
           "primaryKey": 0,
           "empty": 1
+        },
+        "page_title": {
+          "label": "[[Page title]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "url": {
+          "label": "[[URL]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "link": {
+          "label": "[[Link]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "lft": {
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
+        },
+        "right": {
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
+        },
+        "target": {
+          "label": "[[Link target]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "visible": {
+          "label": "[[Visible in navigation]]",
+          "type": "checkbox",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "access_denied": {
+          "label": "[[Access denied]]",
+          "type": "text",
+          "primaryKey": 0,
+          "desc": "For everyone. This remove the page from the navigation.",
+          "empty": 1
+        },
+        "meta": {
+          "label": "[[Meta tags]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "force_https": {
+          "label": "[[Force HTTPS]]",
+          "type": "checkbox",
+          "primaryKey": 0,
+          "empty": 1
         }
-      }
+      },
+      "label": "[[Node]]"
     },
     "domain": {
       "desc": "",
@@ -1646,6 +1736,7 @@
     "admin\/js\/ka.widget.js",
     "admin\/js\/ka.list.js",
     "admin\/js\/ka.overview.js",
+    "admin\/js\/ka.objectTree.js",
     "admin\/js\/ka.pagesTree.js",
     "admin\/js\/ka.windowEdit.js",
     "admin\/js\/ka.windowCombine.js",

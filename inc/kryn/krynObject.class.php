@@ -18,9 +18,9 @@ class krynObject {
     /**
      * Translates the internal url to the real path.
      *
-     * Example: getUrl('file://45') => '/myImageFolder/Picture1.png'
-     *          getUrl('news://4') => '/newspage/detail/my-news-title'
-     *          getUrl('user://1') => '/userdetail/admini-strator'
+     * Example: getUri('file://45') => '/myImageFolder/Picture1.png'
+     *          getUri('news://4') => '/newspage/detail/my-news-title'
+     *          getUri('user://1') => '/userdetail/admini-strator'
      *
      * @link http://docu.kryn.org/developer/extensions/internal-url
      *
@@ -28,18 +28,18 @@ class krynObject {
      * is on a different domain.
      *
      * @static
-     * @param string $pInternalUrl
+     * @param string $pInternalUri
      * @param int    $pPluginContentElementId
      *
      * @return string|bool
      */
-    public static function getUrl($pInternalUrl, $pPluginContentElementId){
+    public static function getUri($pInternalUri, $pPluginContentElementId){
 
         //TODO, not done here
 
-        $pos = strpos($pInternalUrl,'://');
-        $object_id = substr($pInternalUrl, 0, $pos);
-        $params = explode('/', substr($pInternalUrl, $pos+2));
+        $pos = strpos($pInternalUri,'://');
+        $object_id = substr($pInternalUri, 0, $pos);
+        $params = explode('/', substr($pInternalUri, $pos+2));
 
         $objectDefinition = kryn::$objects[$object_id];
         if (!$objectDefinition) return false;
@@ -93,45 +93,44 @@ class krynObject {
      *
      *
      * @static
-     * @param $pInternalUrl
+     * @param $pInternalUri
      * @return array [object_key, object_id/s, queryParams]
      */
-    public static function parseUrl($pInternalUrl){
+    public static function parseUri($pInternalUri){
 
-        $pInternalUrl = str_replace(' ', '', trim($pInternalUrl));
+        $pInternalUri = str_replace(' ', '', trim($pInternalUri));
 
         $catch = 'object://';
-        if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch){
-            $pInternalUrl = substr($pInternalUrl, strlen($catch));
+        if (substr(strtolower($pInternalUri),0,strlen($catch)) == $catch){
+            $pInternalUri = substr($pInternalUri, strlen($catch));
         }
 
-        $pos = strpos($pInternalUrl, '/');
-        $questionPos = strpos($pInternalUrl, '?');
+        $pos = strpos($pInternalUri, '/');
+        $questionPos = strpos($pInternalUri, '?');
 
         if ($pos === false && $questionPos === false){
             return array(
-                $pInternalUrl,
+                $pInternalUri,
                 false,
                 array()
             );
         }
 
         if ($pos === false && $questionPos != false)
-            $object_key = substr($pInternalUrl, 0, $questionPos);
+            $object_key = substr($pInternalUri, 0, $questionPos);
         else
-            $object_key = substr($pInternalUrl, 0, $pos);
+            $object_key = substr($pInternalUri, 0, $pos);
 
         $params = array();
 
         if ($questionPos !== false){
-            parse_str(substr($pInternalUrl, $questionPos+1), $params);
+            parse_str(substr($pInternalUri, $questionPos+1), $params);
 
             if ($pos !== false)
-                $object_id = substr($pInternalUrl, $pos+1, $questionPos-($pos+1));
+                $object_id = substr($pInternalUri, $pos+1, $questionPos-($pos+1));
 
         } else if ($pos !== false)
-            $object_id = substr($pInternalUrl, $pos+1);
-
+            $object_id = substr($pInternalUri, $pos+1);
 
         $obj = self::getClassObject($object_key);
 
@@ -144,10 +143,14 @@ class krynObject {
         );
     }
 
-    public static function toUrl($pObjectKey, $pPrimaryValues){
+    public static function toUri($pObjectKey, $pPrimaryValues){
         $url = 'object://'.$pObjectKey.'/';
-        foreach ($pPrimaryValues as $key => $val){
-            $url .= $key.'='.rawurlencode($val).',';
+        if (is_array($pPrimaryValues)){
+            foreach ($pPrimaryValues as $key => $val){
+                $url .= $key.'='.rawurlencode($val).',';
+            }
+        } else {
+            return $url . rawurlencode($pPrimaryValues);
         }
         return substr($url, 0, -1);
     }
@@ -155,15 +158,15 @@ class krynObject {
     /**
      * Returns the object for the given url. Same arguments as in krynObject::get() but given by a string.
      *
-     * Take a look at the krynObject::parseUrl() method for more information.
+     * Take a look at the krynObject::parseUri() method for more information.
      *
      * @static
-     * @param $pInternalUrl
+     * @param $pInternalUri
      * @return object
      */
-    public static function getFromUrl($pInternalUrl){
+    public static function getFromUri($pInternalUri){
 
-        list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
+        list($object_key, $object_id, $params) = self::parseUri($pInternalUri);
 
         return self::get($object_key, $object_id, $params);
     }
@@ -172,7 +175,7 @@ class krynObject {
     /**
      * Returns the single row or a list of objects.
      *
-     * The $pObjectPrimaryValues can be mixed. Additionally to the patter of krynObject::parseUrl() we have:
+     * The $pObjectPrimaryValues can be mixed. Additionally to the patter of krynObject::parseUri() we have:
      *
      * Returns single row:
      * array(1) => returns one item with the first primary=1
@@ -194,7 +197,7 @@ class krynObject {
      *
      *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
      *                    If empty all columns will be selected.
-     *  'condition'       SQL condition without WHERE or AND at the beginning
+     *  'condition'       Condition as array. Take a look at dbConditionArrayToSql to get information about the structure.
      *  'offset'          Offset of the result set (in SQL OFFSET)
      *  'limit'           Limits the result set (in SQL LIMIT)
      *  'order'           The column to order. Example:
@@ -230,7 +233,7 @@ class krynObject {
             (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues))
         ){
 
-            return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
+            return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
                 $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
 
         }
@@ -244,7 +247,7 @@ class krynObject {
 
         } else {
 
-            return $obj->getItems(null, $pOptions['offset'], $pOptions['limit'], $pOptions['condition'], $pOptions['fields'],
+            return $obj->getItems(null, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
                                   $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
         }
     }
@@ -295,14 +298,14 @@ class krynObject {
     }
 
     /**
-     * Counts the items of $pInternalUrl
+     * Counts the items of $pInternalUri
      *
      * @static
-     * @param $pInternalUrl
+     * @param $pInternalUri
      * @return array
      */
-    public static function countFromUrl($pInternalUrl){
-        list($object_key, $object_id, $params) = self::parseUrl($pInternalUrl);
+    public static function countFromUri($pInternalUri){
+        list($object_key, $object_id, $params) = self::parseUri($pInternalUri);
 
         return self::getCount($object_key, $params['condition']);
     }
@@ -313,13 +316,13 @@ class krynObject {
      * Counts the items of $pObjectKey filtered by $pCondition
      *
      * @static
-     * @param $pObjectUrl
+     * @param $pObjectUri
      * @param string $pAdditionalCondition
      * @return array
      */
-    public static function getCount($pObjectUrl, $pAdditionalCondition = ''){
+    public static function getCount($pObjectUri, $pAdditionalCondition = ''){
 
-        $obj = self::getClassObject($pObjectUrl);
+        $obj = self::getClassObject($pObjectUri);
 
         if (!$obj) return array('error'=>'object_not_found');
 
@@ -327,33 +330,73 @@ class krynObject {
 
     }
 
-    public static function add($pObjectUrl, $pValues){
-        $obj = self::getClassObject($pObjectUrl);
+    public static function add($pObjectUri, $pValues){
+        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+        $obj = self::getClassObject($object_key);
         return $obj->addItem($pValues);
 
     }
 
-    public static function update($pObjectUrl, $pValues){
-        $obj = self::getClassObject($pObjectUrl);
-        list($object_key, $object_id, $params) = self::parseUrl($pObjectUrl);
+    public static function update($pObjectUri, $pValues){
+        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+        $obj = self::getClassObject($object_key);
         return $obj->updateItem($object_id, $pValues);
 
     }
 
-    public static function remove($pObjectKey){
+    public static function remove($pObjectUri){
 
     }
 
-    public static function removeUsages($pObjectId){
+    public static function removeUsages($pObjectUri){
 
     }
 
-    public static function removeUsage($pObjectId, $pUseObjectId){
+    public static function removeUsage($pObjectUri, $pUseObjectId){
 
     }
 
-    public static function addUsage($pObjectId, $pUseObjectId){
+    public static function addUsage($pObjectUri, $pUseObjectId){
 
+    }
+
+    public static function getTree($pParentObjectUri, $pWithAllChildren = false){
+
+
+        list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
+
+        $obj = self::getClassObject($object_key);
+
+        return $obj->getTree($object_id[0]);
+
+return 'hi';
+        $pDomainRsn = $pDomainRsn + 0;
+
+        $viewAllPages = (getArgv('viewAllPages') == 1) ? true : false;
+        if ($viewAllPages && !kryn::checkUriAccess('users/users/acl'))
+            $viewAllPages = false;
+
+        if (!$viewAllPages && !kryn::checkPageAcl($pDomainRsn, 'showDomain', 'd')) {
+            json(array('error' => 'access_denied'));
+        }
+
+        $domain = dbTableFetch('system_domains', 1, "rsn = $pDomainRsn");
+        $domain['type'] = -1;
+
+        $childs = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
+        $domain['childs'] = array();
+
+        $cachedUris =& kryn::getCache('systemUris-' . $pDomainRsn);
+
+        foreach ($childs as &$page) {
+            if ($viewAllPages || kryn::checkPageAcl($page['rsn'], 'showPage') == true) {
+                $page['realUri'] = $cachedUris['rsn']['rsn=' . $page['rsn']];
+                $page['hasChilds'] = kryn::pageHasChilds($page['rsn']);
+                $domain['childs'][] = $page;
+            }
+        }
+
+        json($domain);
     }
 
     public static function getPrimaries($pObjectId){
@@ -366,6 +409,20 @@ class krynObject {
         }
 
         return $primaryFields;
+    }
+
+    public static function getParentId($pObjectUri){
+
+        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+
+        $obj = self::getClassObject($object_key);
+
+        return $obj->getParentId($object_id[0]);
+    }
+
+    public static function getParent($pObjectUri){
+        $obj = self::getClassObject($pObjectUri);
+        return $obj->getParent();
     }
 
 }

@@ -1852,6 +1852,7 @@ var admin_system_module_edit = new Class({
         var req = {};
         req.objects = JSON.encode(objects);
         req.name = this.mod;
+
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveObjects', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             ka.loadSettings();
@@ -1901,6 +1902,12 @@ var admin_system_module_edit = new Class({
                                 needValue: 'table',
                                 label: t('Additional condition'),
                                 type: 'condition'
+                            },
+                            tableNested: {
+                                needValue: 'table',
+                                label: t('Nested Sets'),
+                                desc: t('Needs two additional fields: lft(int) and rgt(int)'),
+                                type: 'checkbox'
                             },
                             'class': {
                                 needValue: 'custom',
@@ -2000,9 +2007,42 @@ var admin_system_module_edit = new Class({
                                     }
                                 }
                             },
+                            chooserBrowserTreeType: {
+                                againstField: 'tableNested',
+                                type: 'checkbox',
+                                needValue: 1,
+                                label: t('Browser UI (tree)'),
+                                depends: {
+                                    chooserBrowserTreeLabel: {
+                                        needValue: 1,
+                                        label: t('Label field')
+                                    },
+                                    chooserBrowserTreeIcon: {
+                                        needValue: 1,
+                                        label: t('Icon field')
+                                    },
+                                    chooserBrowserTreeIconMapping: {
+                                        label: t('Icon path mapping'),
+                                        needValue: 1,
+                                        type: 'array',
+                                        columns: [
+                                            {label: t('Value'), width: '30%'},
+                                            {label: t('Icon path')}
+                                        ],
+                                        fields: {
+                                            value: {
+                                                type: 'text'
+                                            },
+                                            path: {
+                                                type: 'file'
+                                            }
+                                        }
+                                    }
+                                }
+                            },
                             chooserBrowserType: {
                                 needValue: 1,
-                                label: t('Browser UI'),
+                                label: t('Browser UI (table)'),
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom javascript class'
@@ -2071,6 +2111,8 @@ var admin_system_module_edit = new Class({
             }
         }
 
+
+
         var definition = pTr.retrieve('definition');
 
         var table = new Element('table', {
@@ -2085,11 +2127,8 @@ var admin_system_module_edit = new Class({
         new ka.Button(t('Apply')).addEvent('click', function(){
 
             var values = kaParseObj.getValue();
-            Object.each(values, function(i,k){
-                definition[k] = i;
-            });
 
-            pTr.store('definition', definition);
+            pTr.store('definition', values);
 
             this.cancelObjectSettings();
         }.bind(this)).inject(this.dialog.bottom);

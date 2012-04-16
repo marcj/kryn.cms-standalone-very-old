@@ -506,8 +506,23 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
 /**
  * Converts the array from ka.field type 'condition' to SQL
  *
+ * Structure example:
+ *
+ * array(
+ *   array('id', '=', '2'),
+ *   'OR',
+ *   array('id', '>', 1),
+ *   'OR',
+ *   array(
+ *     array('category_id', '=', 15),
+ *     'AND',
+ *     array('id', '=', 0)
+ *   )
+ * )
+ *
+ *
  * @param array  $pConditions
- * @param string $pTable
+ * @param string $pTable Adds the table in front of the column names
  *
  * @return string
  */

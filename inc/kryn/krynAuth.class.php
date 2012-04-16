@@ -343,6 +343,8 @@ class krynAuth {
 
     /**
      * Clears the cache of the current user.
+     *
+     * @param int $pUserRsn
      * @internal
      */
     private function clearCache($pUserRsn = false) {
@@ -351,21 +353,11 @@ class krynAuth {
     }
 
     /**
-     *
+     * @param $pUserRsn
      */
     public function loadUser($pUserRsn) {
 
-        if ($pUserRsn == 0) {
-            $this->user = array(
-                'rsn' => 0,
-                'username' => 'Guest',
-                'groups' => array(0),
-                'inGroups' => '0'
-            );
-        } else {
-            $this->user =& $this->getUser($pUserRsn);
-        }
-
+        $this->user =& $this->getUser($pUserRsn);
         $this->user_rsn = $this->user['rsn'];
 
         tAssign('user', $this->user);
@@ -384,6 +376,16 @@ class krynAuth {
 
         $cacheCode = 'system-users-' . $pUserId;
         $result =& kryn::getCache($cacheCode);
+
+        if ($pUserId == 0){
+
+            return array(
+                'rsn' => 0,
+                'username' => 'Guest',
+                'groups' => array(0),
+                'inGroups' => '0'
+            );
+        }
 
         if ($result == false || $pForceReload) {
             $result = dbExfetch("SELECT * FROM %pfx%system_user WHERE rsn = " . $pUserId, 1);

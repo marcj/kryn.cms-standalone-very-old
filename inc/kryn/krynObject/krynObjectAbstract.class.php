@@ -18,6 +18,7 @@ abstract class krynObjectAbstract {
 
     /**
      * Cached primary key order
+     * Only keys
      *
      * @var array
      */
@@ -103,8 +104,8 @@ abstract class krynObjectAbstract {
      * @param string $pResolveForeignValues
      * @param $pOrder
      */
-    abstract public function getItems($pPrimaryValues, $pOffset = 0, $pLimit = 0, $pCondition = false, $pFields = '*',
-                                      $pResolveForeignValues = '*', $pOrder);
+    abstract public function getItems($pCondition, $pOffset = 0, $pLimit = 0, $pFields = '*', $pResolveForeignValues = '*',
+                                      $pOrder);
 
     /**
      * @abstract
@@ -137,6 +138,42 @@ abstract class krynObjectAbstract {
      * @return int
      */
     abstract public function getCount($pCondition = false);
+
+
+    abstract public function getTree($PrimaryValues);
+
+    /**
+     * Returns the parent, if exists
+     *
+     * @param $pPrimaryValues
+     * @return bool
+     */
+    public function getParent($pPrimaryValues){
+
+        return false;
+    }
+
+    /**
+     * Returns parent's id, if exists
+     *
+     * @param $pPrimaryValues
+     * @return array
+     */
+    public function getParentId($pPrimaryValues){
+        $object = $this->getParent($pPrimaryValues);
+
+        if (!$object) return false;
+
+        if (count($this->primaryKeys) == 1){
+            return $object[key($this->primaryKeys)];
+        } else {
+            $result = array();
+            foreach ($this->primaryKeys as $key){
+                $result[] = $object[$key];
+            }
+            return $result;
+        }
+    }
 
 }
 

@@ -1130,14 +1130,20 @@
         true
       ],
       "type": [
-        "int",
-        "3",
+        "boolean",
+        "",
+        "-",
+        false
+      ],
+      "object": [
+        "varchar",
+        "64",
         "DB_INDEX",
         false
       ],
       "target_type": [
         "int",
-        "11",
+        "",
         "DB_INDEX",
         false
       ],
@@ -1153,9 +1159,21 @@
         "-",
         false
       ],
+      "sub": [
+        "boolean",
+        "",
+        "-",
+        false
+      ],
+      "fields": [
+        "text",
+        "",
+        "-",
+        false
+      ],
       "access": [
-        "enum",
-        "'0', '1'",
+        "boolean",
+        "",
         "-",
         false
       ],

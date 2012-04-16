@@ -29,12 +29,12 @@ class krynAcl {
         $userRsn = $client->user_rsn;
         $inGroups = $client->user['inGroups'];
 
-        $pType += 0;
+        $pType = esc($pType);
 
         $sql = "
-                SELECT code, access FROM %pfx%system_acl
+                SELECT code, access, sub, fields FROM %pfx%system_acl
                 WHERE
-                type = $pType AND
+                object = '$pType' AND
                 (
                     ( target_type = 1 AND target_rsn IN ($inGroups))
                     OR
@@ -45,26 +45,32 @@ class krynAcl {
 
         self::$cache[$pType] = dbExfetch($sql, DB_FETCH_ALL);
 
+        foreach (self::$cache[$pType] as &$acl){
+            if ($acl['fields'] && substr($acl['fields'], 0, 1) == '{'){
+                $acl['fields'] = json_decode($acl['fields'], true);
+            }
+        }
+
         return self::$cache[$pType];
     }
 
     /**
      * @static
-     * @param $pType
+     * @param $pObject
      * @param $pCode
-     * @param bool $pAction
+     * @param bool $pField
      * @param bool $pRootHasAccess
      * @return bool
      */
-    public static function checkAccess($pType, $pCode, $pAction = false, $pRootHasAccess = false) {
+    public static function checkAccess($pObject, $pCode, $pField = false, $pRootHasAccess = false) {
 
         self::normalizeCode($pCode);
-        $acls =& self::getRules($pType);
+        $acls =& self::getRules($pObject);
 
         if (count($acls) == 0) return true;
 
-        if (self::$cache['checkAckl_' . $pType . '_' . $pCode . '__' . $pAction])
-            return self::$cache['checkAckl_' . $pType . '_' . $pCode . '__' . $pAction];
+        if (self::$cache['checkAckl_' . $pObject . '_' . $pCode . '__' . $pField])
+            return self::$cache['checkAckl_' . $pObject . '_' . $pCode . '__' . $pField];
 
 
         $access = false;
@@ -80,56 +86,73 @@ class krynAcl {
         while ($not_found) {
             $i++;
 
-            if ($i > 10) {
+            if ($i > 20) {
                 $not_found = false;
                 break;
             }
 
-            $acl = self::getItem($pType, $current_code);
+            foreach ($acls as $acl){
 
-            if ($acl && $acl['code']) {
+                //print $acl['rsn'].', '.$acl['code'] .' == '. $current_code.'<br/>';
+                if ($acl['code'] == $current_code){
 
-                $code = str_replace(']', '', $acl['code']);
-                $t = explode('[', $code);
-                $codes = $t[1]?explode(",", $t[1]):array();
+                    if ($parent_acl && $acl['sub'] == 0) continue;
 
-                if (!$pAction || in_array($pAction, $codes)) {
-                    if (
-                        ($parent_acl == false) || //i'am not a parent
-                        ($parent_acl == true && strpos($acl['code'], '%') !== false) //i'am a parent
-                    ) {
-                        $access = ($acl['access'] == 1) ? true : false;
-                        $not_found = false; //done
-                        continue;
+                    $fieldKey = $pField;
+
+                    if ($pField){
+
+                        if (is_array($pField)){
+
+                            if (is_array($acl['fields'][key($pField)])){
+                                //this field has limits
+
+                                if ( ($fieldAcl = $acl['fields'][key($pField)]) !== null){
+                                    if ($fieldAcl[current($pField)] !== null){
+                                        return ($fieldAcl[current($pField)] == 1) ? true : false;
+                                    } else {
+                                        //current($pField) is not exactly defined in $fieldAcl, so we set $access to $acl['access']
+                                        //
+                                        //if access = 2 then wo do not know it, cause 2 means 'inherited', so maybe
+                                        //a other rule has more detailed rule
+                                        if ($acl['access'] != 2)
+                                            return ($acl['access'] == 1) ? true : false;
+                                    }
+                                }
+                            } else {
+                                //this field has only true or false
+                                $fieldKey = key($pField);
+                            }
+                        }
+
+                        if(!is_array($fieldKey)){
+                            if ($acl['fields'] && ($fieldAcl = $acl['fields'][$fieldKey]) !== null && !is_array($acl['fields'][$fieldKey])){
+                                return ($fieldAcl == 1) ? true : false;
+                            } else {
+                                //$pField is not exactly defined, so we set $access to $acl['access']
+                                //and maybe a rule with the same code has the field defined
+                                // if access = 2 then this rule is only for exactly define fields
+                                if ($acl['access'] != 2)
+                                    return ($acl['access'] == 1) ? true : false;
+                            }
+                        }
+                    } else {
+                        return ($acl['access'] == 1) ? true : false;
                     }
                 }
             }
 
-            if ($current_code == '/') {
-                //we are at the top. no parents left
+            if (!$current_code = krynObject::getParentId(krynObject::toUri($pObject, $current_code))){
                 if ($pRootHasAccess)
                     $access = true;
-                $not_found = false; //go out
+                return $access;
             }
 
-            //go to parent
-            if ($not_found == true && $current_code != '/') {
-                //search and set parent
-                if (substr($current_code, -1, 1) == '/') {
-                    $pos = strrpos(substr($current_code, 0, -1), '/');
-                    $current_code = substr($current_code, 0, $pos);
-                } else {
-                    $pos = strrpos($current_code, '/');
-                    $current_code = substr($current_code, 0, $pos + 1);
-                }
-                if ($current_code == '')
-                    $current_code = '/';
-
-                $parent_acl = true;
-            }
+            //print "--parent--\n";
+            $parent_acl = true;
         }
 
-        self::$cache['checkAckl_' . $pCode . '__' . $pAction] = $access;
+        self::$cache['checkAckl_' . $pCode . '__' . $pField] = $access;
         return $access;
     }
 
@@ -138,18 +161,18 @@ class krynAcl {
      *
      * Returns the acl infos for the specified id
      *
-     * @param string  $pType
+     * @param string  $pObject
      * @param integer $pCode
      *
      * @return array
      * @internal
      */
-    public static function &getItem($pType, $pCode) {
+    public static function &getItem($pObject, $pCode) {
 
         self::normalizeCode($pCode);
-        $acls =& self::getRules($pType);
+        $acls =& self::getRules($pObject);
 
-        foreach ($acls as &$item) {
+        foreach ($acls as $item) {
             $code = str_replace('%', '', $item['code']);
             $t = explode('[', $code);
             $code = $t[0];
