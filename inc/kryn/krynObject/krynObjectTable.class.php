@@ -23,13 +23,27 @@ class krynObjectTable extends krynObjectAbstract {
         return dbDelete($this->definition['table'], $pPrimaryValues);
     }
 
-    public function getTree($pParentValues){
+    /**
+     * @param $pParentValues
+     * @param int $pDepth  0 returns only the root. 1 returns with one level of children, 2 with two levels etc
+     * @param string|array $pExtraFields
+     * @return array|bool
+     * @throws Exception
+     */
+    public function getTree($pParentValues, $pDepth = 1, $pExtraFields = ''){
+
+        if (!$this->definition['tableNested']){
+            throw new Exception('Object is not marked as nested.');
+        }
 
         if (!$this->definition['chooserBrowserTreeLabel']){
             throw new Exception('chooserBrowserTreeLabel in object not defined.');
         }
 
         $condition = array();
+
+        if (!is_array($pExtraFields) && $pExtraFields != '')
+            $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
 
         if (!$pParentValues){
             //all on first and second level
@@ -38,39 +52,65 @@ class krynObjectTable extends krynObjectAbstract {
             $title = $this->definition['chooserBrowserTreeLabel'];
             $icon  = $this->definition['chooserBrowserTreeIcon'];
 
+            $primKey = current($this->primaryKeys);
+
             $table = dbQuote(dbTableName($this->definition['table']));
-            $id    = dbQuote('node').'.'.dbQuote(current($this->primaryKeys));
+            $id    = dbQuote('node').'.'.dbQuote($primKey);
             $pid    = dbQuote('parent').'.'.dbQuote(current($this->primaryKeys));
 
             $depth = dbQuote('_depth');
 
-            $selects[] = 'MAX('.$id.') as id';
-            $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($title).') as label';
+            $selects[] = 'MAX('.$id.') as '.$primKey;
+            $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($title).') as '.dbQuote($title);
             if ($icon)
-                $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($icon).') as icon';
+                $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($icon).') as '.dbQuote($icon);
 
-            $selects[] = '((MAX('.dbQuote('node').'.'.dbQuote('rgt').')-1-MAX('.dbQuote('node').'.'.dbQuote('lft').'))/2) AS '.dbQuote('_children');
+            $selects[] = '((MAX('.dbQuote('rgt', 'node').')-1-MAX('.dbQuote('lft', 'node').'))/2) AS '.dbQuote('_children_count');
             $selects[] = "(COUNT($pid) - 1) AS ".$depth;
+
+            if (is_array($pExtraFields) && count($pExtraFields) > 0){
+                foreach ($pExtraFields as $extraField)
+                    $selects[] = dbQuote($extraField, 'node');
+            }
+
             $selects = implode(', ', $selects);
 
             $tables[] = "$table as ".dbQuote('parent');
             $tables[] = "$table as ".dbQuote('node');
             $tables = implode(', ', $tables);
 
-            $nodeLft = dbQuote('node').'.'.dbQuote('lft');
-            $parentLft = dbQuote('parent').'.'.dbQuote('lft');
-            $parentRgt = dbQuote('parent').'.'.dbQuote('rgt');
+            $nodeLft = dbQuote('lft', 'node');
+            $parentLft = dbQuote('lft', 'parent');
+            $parentRgt = dbQuote('rgt', 'parent');
 
             $sql = "
             SELECT   $selects
             FROM     $tables
             WHERE    $nodeLft BETWEEN $parentLft AND $parentRgt
             GROUP BY $id
-            HAVING $depth <= 1
+            HAVING $depth <= $pDepth
             ORDER BY MAX($nodeLft)
             ";
 
-            return dbExFetch($sql, DB_FETCH_ALL);
+            $res = dbExec($sql);
+
+            if (!$res) return false;
+
+            $result = array();
+            $lastParentKey = null;
+
+            while ($row = dbFetch($res)){
+
+                if ($row['_depth'] == 0){
+                    $result[ $row[$primKey] ] = $row;
+                    $lastParentKey = $row[$primKey];
+                } else {
+                    $result[ $lastParentKey ]['_children'][$row[$primKey]] = $row;
+                }
+
+            }
+
+            return $result;
 
         } else {
 

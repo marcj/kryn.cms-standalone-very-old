@@ -1019,40 +1019,16 @@ class $pClassName extends $pClass {
         if (!$pName){
             $res = '';
             foreach (kryn::$configs as $key => $config){
-
-                $res .= $key.' => '.self::dbInit($key)."\n";
+                $res .= self::dbInit($key)."\n";
             }
 
             return $res;
         }
 
-
+        $res = 'Sync tables in extension '.$pName.":\n\n";
 
         $config = kryn::getModuleConfig($pName);
-        $res = adminDb::sync($config);
-
-        if ($config['depends']) {
-            $depends = explode(',', $config['depends']);
-            foreach ($depends as $depend) {
-
-
-                $del = false;
-                $del = (strpos($depend, '>') === false) ? $del : '>';
-                $del = (strpos($depend, '=') === false) ? $del : '=';
-                $del = (strpos($depend, '=>') === false) ? $del : '=>';
-                $del = (strpos($depend, '>=') === false) ? $del : '>=';
-                $del = (strpos($depend, '<') === false) ? $del : '<';
-                $del = (strpos($depend, '<=') === false) ? $del : '<=';
-                $del = (strpos($depend, '=<') === false) ? $del : '=<';
-
-                $temp = explode($del, $depend);
-                $depName = $temp[0];
-
-                $depConfig = kryn::getModuleConfig($depName);
-                $res .= "\n\nDepend: " . $depName . "\n";
-                $res .= adminDb::sync($depConfig);
-            }
-        }
+        $res .= adminDb::sync($config);
 
         return $res;
     }

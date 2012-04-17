@@ -360,14 +360,24 @@ class krynObject {
 
     }
 
-    public static function getTree($pParentObjectUri, $pWithAllChildren = false){
+    /**
+     *
+     *
+     * @param $pParentObjectUri
+     * @param int $pDepth  0 returns only the root. 1 returns with one level of children, 2 with two levels etc
+     * @param string|array $pExtraFields
+     * @return array|bool
+     */
+    public static function getTree($pParentObjectUri, $pDepth = 1, $pExtraFields = ''){
 
 
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
 
         $obj = self::getClassObject($object_key);
 
-        return $obj->getTree($object_id[0]);
+        return $obj->getTree($object_id[0], $pDepth, $pExtraFields);
+
+
 
 return 'hi';
         $pDomainRsn = $pDomainRsn + 0;

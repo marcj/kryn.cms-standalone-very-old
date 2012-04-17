@@ -68,7 +68,7 @@ function esc($p, $pEscape = 1) {
  * @param string|array $pValue Possible is "test, bla, blub" or just "foo". If array("foo", "bar") it returns a array again
  * @return mixed
  */
-function dbQuote($pValue){
+function dbQuote($pValue, $pTable = ''){
 
     if (is_array($pValue)){
         foreach ($pValue as &$value)
@@ -79,6 +79,10 @@ function dbQuote($pValue){
         $values = explode(',', str_replace(' ', '', $pValue));
         $values = dbQuote($values);
         return implode(', ', $values);
+    }
+
+    if ($pTable && strpos($pValue, '.') === false){
+        return dbQuote($pTable).'.'.dbQuote($pValue);
     }
     return strtolower((kryn::$config['db_type'] == 'mysql') ? '`'.$pValue.'`': '"'.$pValue.'"');
 }

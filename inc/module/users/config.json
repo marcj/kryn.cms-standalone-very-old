@@ -1130,7 +1130,7 @@
         true
       ],
       "type": [
-        "boolean",
+        "bit",
         "",
         "-",
         false
@@ -1160,7 +1160,7 @@
         false
       ],
       "sub": [
-        "boolean",
+        "bit",
         "",
         "-",
         false
@@ -1172,7 +1172,7 @@
         false
       ],
       "access": [
-        "boolean",
+        "bit",
         "",
         "-",
         false

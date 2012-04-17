@@ -36,9 +36,8 @@ class adminDb {
             }
         };
         */
-        database::$hideReporting = false;
 
-        $res .= "\nDatabase installed.\n";
+        database::$hideReporting = false;
         return $res;
     }
 
@@ -97,91 +96,90 @@ class adminDb {
             $tableName = strtolower(pfx . $tableName);
 
             if ($tables[$tableName]) {
-
-                //self::_updateTable($tableName, $tableFields);
-                //$res .= "Update table <i>$tableName</i>\n";
+                self::updateTable($tableName, $tableFields);
+                $res .= "Update table $tableName\n";
             } else {
                 self::installTable($tableName, $tableFields);
-                $res .= "Create table <i>$tableName</i>\n";
+                $res .= "Install table $tableName\n";
             }
 
-            //check index bundles
-            if ($tableFields['___index']){
-                foreach ($tableFields['___index'] as $indexBundle){
-
-                    $indexName = dbQuote(preg_replace('/\W/', '_', $indexBundle));
-                    $indexFields = explode(',', $indexBundle);
-                    $indexFields = implode(', ', dbQuote($indexFields));
-
-                    dbExec('CREATE INDEX '.strtolower($indexName).' ON '.dbQuote($tableName).' ('.$indexFields.')');
-                }
-            }
-
-            database::clearOptionsCache($tableName);
+            self::updateIndexes($tableName, $tableFields);
         }
 
-        $kdb->updateSequences($pTables);
         return $res;
     }
 
 
-    private static function _updateTable($pTable, $pFields) {
-        global $cfg;
-
-        self::updateIndexes($pTable, $pFields, false); //delete all and don't create new
+    private static function updateTable($pTable, $pFields) {
 
         $columns = database::getColumns($pTable);
 
-        $primaries = array();
+        $tableName = dbQuote($pTable);
+
+        //print $pTable."--------------------------------------\n";
 
         foreach ($pFields as $fName => $fOptions) {
 
             if ($fName == '___index') continue;
 
+            $fieldDef = dbQuote($fName).' '.self::getFieldSqlType($fOptions);
+            $field = dbQuote($fName);
+
             if (!array_key_exists($fName, $columns)) {
-                self::addColumn($pTable, $fName, $fOptions);
+
+                if (kryn::$config['db_type'] == 'postgresql') {
+                    //todo
+                } else {
+                    $query = "ALTER TABLE $tableName ADD $fieldDef";
+                }
+
+                dbExec($query);
+
             } else {
-                //found check type
-                //
-                $isType = $columns[$fName]['type'];
-                $nType = $fOptions[0];
+                //update column
 
-                if (strpos($isType, '(') !== false) {
-                    $temp = explode('(', $isType);
-                    $isType = $temp[0];
-                    if ($isType == 'varchar')
-                        $varcharLength = str_replace(')', '', $temp[1]);
+                //check if the type is different
+                $fieldType = $columns[$fName]['type'];
+                $fieldOption = '';
+
+                list($fieldType, $fieldOption) = self::splitFieldDefinition($columns[$fName]['type']);
+                //print $columns[$fName]['type']." => $fieldType ==  $fieldOption \n";
+
+                list($fieldType, $fieldOption) = self::splitFieldDefinition(self::getFieldSqlType(array($fieldType,$fieldOption )));
+                list($newFieldType, $newFieldOption) = self::splitFieldDefinition(self::getFieldSqlType($fOptions));
+
+                if ($fieldType == $newFieldType && $fieldOption == $newFieldOption) continue;
+
+                if (kryn::$config['db_type'] == 'postgresql') {
+                    //$sql = 'ALTER TABLE ' . dbQuote($pTable) . ' ALTER COLUMN ' . $sql;
+                    //todo
+                } else {
+                    $query = "ALTER TABLE $tableName CHANGE COLUMN $field $fieldDef";
                 }
 
-                if ($isType == 'integer')
-                    $isType = 'int';
+                //print $columns[$fName]['type']." => $fieldType == $newFieldType && $fieldOption == $newFieldOption\n";
 
-                if ($isType != $nType || ($isType == 'varchar' && $varcharLength != $fOptions[1])) {
-
-                    $sql = self::addColumn($pTable, $fName, $fOptions, 2);
-
-                    if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
-                        $sql = 'ALTER TABLE ' . dbQuote($pTable) . ' CHANGE COLUMN ' . dbQuote($fName) . ' ' . $sql;
-                    } else {
-                        $sql = 'ALTER TABLE ' . dbQuote($pTable) . ' ALTER COLUMN ' . $sql;
-                    }
-                    dbExec($sql);
-                }
-
-                if ($fOptions[2] == 'DB_PRIMARY')
-                    $primaries[] = $fName;
+                dbExec($query);
 
             }
         }
+    }
 
-        //check primary index
-        if (count($primaries) > 0){
-            $fields = implode(',', dbQuote($primaries));
-            $name = str_replace(' ', '', implode(',', $primaries));
-            dbExec('CREATE INDEX ' . dbQuote(preg_replace('/\W/', '_', $name)) . ' ON ' . dbQuote($pTable) . ' (' . $fields . ')');
+    public static function splitFieldDefinition($pDef){
+
+        $fieldType = $pDef;
+        $fieldOption = '';
+        if (($pos1 = strpos($pDef, '(')) !== false){
+            $pos2 = strpos($pDef, ')');
+
+            $fieldType = trim(substr($pDef, 0, $pos1).substr($pDef, $pos2+1));
+            $fieldOption = substr($pDef, $pos1+1, $pos2-$pos1-1);
         }
 
-        self::updateIndexes($pTable, $pFields, true); //delete all and create new
+        return array(
+            $fieldType,
+            $fieldOption
+        );
     }
 
     public static function installTable($pTable, $pFields) {
@@ -209,7 +207,7 @@ class adminDb {
         $primaries = substr($primaries, 0, -1);
 
         if ($primaries == '')
-            $createTable = substr($sql, 0, -3);
+            $createTable = substr($createTable, 0, -3);
         else
             $createTable .= ' PRIMARY KEY ( ' . $primaries . ' )';
 
@@ -232,6 +230,16 @@ class adminDb {
 
         }
 
+        if ($createSequence)
+            dbExec($createSequence);
+
+
+        dbExec($createTable);
+
+    }
+
+    public static function updateIndexes($pTable, $pFields, $pCreate = true) {
+
         $createIndexes = array();
 
         foreach ($pFields as $fName => $fOptions) {
@@ -249,87 +257,42 @@ class adminDb {
             }
         }
 
-
-        if ($createSequence)
-            dbExec($createSequence);
-
-        print $createTable;
-        dbExec($createTable);
-
         foreach ($createIndexes as $index){
 
             if (strpos($index, ',') !== false){
-                $indexName = dbQuote($pTable.'_'.preg_replace('/\W/', '_', $index).'_idx');
+                $indexName = md5(preg_replace('/\W/', '_', $index)).'_idx';
             } else {
-                $indexName = $pTable.'_'.$index;
+                $indexName = $index;
             }
 
-            try {
-                dbExec('CREATE INDEX ' . dbQuote($indexName) . ' ON ' . dbQuote($pTable) . ' (' . dbQuote($index) . ')');
-            } catch(Exception $e){}
-        }
+            if (!self::indexExists($pTable, $indexName)){
 
-
-        die($sql);
-        dbExec($sql);
-
-        //self::updateIndexes($pTable, $pFields, true); //delete all and create new
-
-    }
-
-    public static function deleteIndex($pName, $pTable) {
-        global $cfg;
-
-        try {
-            switch ($cfg['db_type']) {
-                case 'mysql':
-                case 'mysqli':
-                    dbExec('DROP INDEX ' . dbQuote($pName) . ' ON ' . dbQuote($pTable));
-                    break;
-                case 'postgresql':
-                case 'sqlite':
-                    dbExec('DROP INDEX IF EXISTS ' . dbQuote($pName));
-                    break;
-            }
-            return true;
-        } catch(Exception $e){
-            return false;
-        }
-    }
-
-    public static function updateIndexes($pTable, $pFields, $pCreate = true) {
-        global $cfg;
-
-        //dont throw error's to log
-
-        $primaries = array();
-        foreach ($pFields as $fName => $fOptions) {
-
-            if ($fName == '___index') continue;
-
-            $indexName = $pTable . '_' . $fName;
-            self::deleteIndex($indexName, $pTable);
-            self::deleteIndex($fName, $pTable);
-
-            if ($fOptions[2] == 'DB_PRIMARY'){
-                $primaries[] = $fName;
-            }
-
-            if ($fOptions[2] == "DB_INDEX" || $fOptions[2] == "DB_FULLTEXT") { //DB_FULLTEXT deprecated since 1.0
-                if ($pCreate) {
-                    if ($fOptions[0] == 'text')
-                        $fName .= '(255)';
-
-                    dbExec('CREATE INDEX ' . dbQuote($indexName) . ' ON ' . dbQuote($pTable) . ' (' . dbQuote($fName) . ')');
+                try {
+                    dbExec('CREATE INDEX ' . dbQuote($indexName) . ' ON ' . dbQuote($pTable) . ' (' . dbQuote($index) . ')');
+                } catch(Exception $e){
+                    return false;
                 }
             }
         }
 
-        //check primary index
-        if (count($primaries) > 0){
-            $name = str_replace(' ', '', implode(',', $primaries));
-            self::deleteIndex(preg_replace('/\W/', '_', $name), $pTable);
+        return true;
+    }
+
+    public static function indexExists($pTable, $pIndexName){
+
+        $table = esc($pTable);
+        $keyName = esc($pIndexName);
+
+        if (kryn::$config['db_type'] == 'postgresql'){
+            $query = "SELECT * FROM pg_indexes WHERE tablename = $table AND todo";
+        } else {
+            $query = "SHOW INDEX FROM ".dbQuote($pTable)." WHERE Key_name = '$keyName'";
         }
+
+        $res = dbExFetch($query, 1);
+
+        return $res?true:false;
+
     }
 
     public static function getField4CreateTable($pTableName, $pFieldName, $pFieldOptions){
@@ -387,8 +350,9 @@ class adminDb {
 
 
             //numerics
+            case 'bit':
             case 'boolean':
-                $sql .= 'boolean'; break;
+                $sql .= 'bit'; break;
 
             case 'smallint':
                 $sql .= 'smallint'; break;

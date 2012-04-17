@@ -31,7 +31,7 @@ function klog($pArea, $pMsg) {
  * value with pEscape.
  *
  * @param string  $pVal
- * @param integer $pEscape 1: Will be escaped with esc(), 2: will delete character beside a-Z0-9.
+ * @param bool|integer $pEscape 1: Will be escaped with esc(), 2: will delete character beside a-Z0-9.
  *
  * @return string|array
  */
@@ -61,8 +61,12 @@ function json($pValue) {
 
     if (php_sapi_name() !== 'cli' )
         print (json_encode($pValue));
-    else
-        print json_format(json_encode($pValue))."\n";
+    else {
+        if ($argv[4] == 1)
+            print json_format(json_encode($pValue))."\n";
+        else
+            print_r($pValue);
+    }
 
     exit(0);
 }
