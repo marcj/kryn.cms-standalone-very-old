@@ -28,13 +28,13 @@ class adminDb {
         if (is_array($pModuleConfig['db']) && $tables = self::tableSync($pModuleConfig['db']))
             $res = array_merge($res, $tables);
 
-        /*
+
         if (is_array($pModuleConfig['objects'])){
             foreach ($pModuleConfig['objects'] as $objectKey => $object){
-                $res .= adminDb::installObjectTable($objectKey);
+                $res = array_merge($res, adminDb::installObjectTable($objectKey));
             }
         };
-        */
+
 
         //database::$hideReporting = false;
         return $res;
@@ -42,11 +42,11 @@ class adminDb {
 
     public static function checkObjectTable($pObjectTable){
 
-        $res = '';
+        $res = array();
 
         foreach (kryn::$objects as $objectKey => $object){
             if ($object['table'] && $object['table'] == $pObjectTable){
-                $res .= self::installObjectTable($objectKey);
+                $res = array_merge($res, self::installObjectTable($objectKey));
             }
         }
 
@@ -56,10 +56,10 @@ class adminDb {
     public static function installObjectTable($pObjectKey){
 
         $object =& kryn::$objects[$pObjectKey];
-        if (!$object || !$object['tableSync']) return false;
+        if (!$object || !$object['tableSync']) return array();
         $tables = database::getTablesFromObject($pObjectKey);
 
-        return $tables?self::_install($tables):false;
+        return $tables ? self::tableSync($tables) : array();
 
     }
 

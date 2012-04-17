@@ -1057,7 +1057,7 @@ class $pClassName extends $pClass {
 
         if (!$pName){
 
-            $res = (php_sapi_name() === 'cli' )?"Remove all tables from all extensions\n\n":array();
+            $res = (php_sapi_name() === 'cli' )?"Sync all tables from all extensions\n\n":array();
 
             foreach (kryn::$configs as $key => $config){
                 if (php_sapi_name() === 'cli' ){
@@ -1070,7 +1070,7 @@ class $pClassName extends $pClass {
             return $res;
         }
 
-        $res = 'Remove tables in extension '.$pName.":\n\n";
+        $res = 'Sync tables in extension '.$pName.":\n\n";
 
         $config = kryn::getModuleConfig($pName);
         $installedTables = adminDb::sync($config);
