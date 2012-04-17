@@ -153,11 +153,10 @@ class database {
     }
 
     public static function getAllTables() {
-        global $cfg, $kdb;
 
         $res = array();
 
-        switch ($kdb->type) {
+        switch (kryn::$config['db_type']) {
             case 'sqlite':
                 $ttemp = dbExfetch("SELECT * FROM sqlite_master WHERE type = 'table'", -1);
                 if (count($ttemp) > 0) {
@@ -187,7 +186,13 @@ class database {
                 break;
 
         }
-        return $res;
+
+        if (count($res) > 0) {
+            foreach ($res as $table) {
+                $tables[$table] = true;
+            }
+        }
+        return $tables;
     }
 
     public static function getColumns($pTable) {

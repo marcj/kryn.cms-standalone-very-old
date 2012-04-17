@@ -32,7 +32,6 @@
 function esc($p, $pEscape = 1) {
     global $kdb, $cfg;
 
-    dbConnect();
 
     if (is_array($p)) {
         foreach ($p as $k => $v) {
@@ -45,6 +44,7 @@ function esc($p, $pEscape = 1) {
         return preg_replace('/[^a-zA-Z0-9-_]/', '', $p);
     }
 
+    dbConnect();
     if ($cfg['db_pdo'] + 0 == 1 || $cfg['db_pdo'] === '') {
         return substr(substr($kdb->pdo->quote($p), 1), 0, -1);
     } else {

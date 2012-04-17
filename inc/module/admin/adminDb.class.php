@@ -22,12 +22,11 @@ define('DB_INDEX', 2);
 class adminDb {
 
     public static function sync($pModuleConfig) {
-        $res = '';
+        $res = array();
 
-
-        database::$hideReporting = true;
-        if (is_array($pModuleConfig['db']))
-            $res .= self::tableSync($pModuleConfig['db']);
+//        database::$hideReporting = true;
+        if (is_array($pModuleConfig['db']) && $tables = self::tableSync($pModuleConfig['db']))
+            $res = array_merge($res, $tables);
 
         /*
         if (is_array($pModuleConfig['objects'])){
@@ -37,7 +36,7 @@ class adminDb {
         };
         */
 
-        database::$hideReporting = false;
+        //database::$hideReporting = false;
         return $res;
     }
 
@@ -66,41 +65,43 @@ class adminDb {
 
     public static function remove($pModuleConfig) {
         if (!is_array($pModuleConfig['db'])) return false;
-        self::_remove($pModuleConfig['db']);
-        return true;
+
+        return self::dropTables($pModuleConfig['db']);
     }
 
-    public static function _remove($pDb) {
+    public static function dropTables($pDb) {
+        $result = array();
+
+        $tables = database::getAllTables();
+
         foreach ($pDb as $tableName => $tableFields) {
-            $sql = "DROP TABLE %pfx%$tableName";
-            dbExec($sql);
-        }
-    }
-
-    private static function tableSync($pTables) {
-        global $kdb;
-
-        if (!count($pTables) > 0)
-            return 'No Tables.';
-
-        $tTables = database::getAllTables();
-        if (count($tTables) > 0) {
-            foreach ($tTables as $table) {
-                $tables[$table] = true;
+            if ($tables[pfx.$tableName]){
+                dbExec("DROP TABLE ".dbQuote(pfx.$tableName));
+                $result[] = $tableName;
             }
         }
 
-        $res = '';
+        return $result;
+    }
+
+    private static function tableSync($pTables) {
+
+        if (!count($pTables) > 0)
+            return false;
+
+        $tables = database::getAllTables();
+
+        $res = array();
 
         foreach ($pTables as $tableName => $tableFields) {
             $tableName = strtolower(pfx . $tableName);
 
             if ($tables[$tableName]) {
                 self::updateTable($tableName, $tableFields);
-                $res .= "Update table $tableName\n";
+                $res[$tableName] = 0;
             } else {
                 self::installTable($tableName, $tableFields);
-                $res .= "Install table $tableName\n";
+                $res[$tableName] = 1;
             }
 
             self::updateIndexes($tableName, $tableFields);
@@ -138,9 +139,6 @@ class adminDb {
             } else {
                 //update column
 
-                //check if the type is different
-                $fieldType = $columns[$fName]['type'];
-                $fieldOption = '';
 
                 list($fieldType, $fieldOption) = self::splitFieldDefinition($columns[$fName]['type']);
                 //print $columns[$fName]['type']." => $fieldType ==  $fieldOption \n";
@@ -148,6 +146,7 @@ class adminDb {
                 list($fieldType, $fieldOption) = self::splitFieldDefinition(self::getFieldSqlType(array($fieldType,$fieldOption )));
                 list($newFieldType, $newFieldOption) = self::splitFieldDefinition(self::getFieldSqlType($fOptions));
 
+                //check if the type is different
                 if ($fieldType == $newFieldType && $fieldOption == $newFieldOption) continue;
 
                 if (kryn::$config['db_type'] == 'postgresql') {
@@ -259,10 +258,11 @@ class adminDb {
 
         foreach ($createIndexes as $index){
 
+            $indexName = $pTable.'_';
             if (strpos($index, ',') !== false){
-                $indexName = md5(preg_replace('/\W/', '_', $index)).'_idx';
+                $indexName .= md5(preg_replace('/\W/', '_', $index)).'_idx';
             } else {
-                $indexName = $index;
+                $indexName .= $index;
             }
 
             if (!self::indexExists($pTable, $indexName)){
@@ -284,7 +284,7 @@ class adminDb {
         $keyName = esc($pIndexName);
 
         if (kryn::$config['db_type'] == 'postgresql'){
-            $query = "SELECT * FROM pg_indexes WHERE tablename = $table AND todo";
+            $query = "SELECT * FROM pg_indexes WHERE tablename = '$table' AND indexname = '$keyName'";
         } else {
             $query = "SHOW INDEX FROM ".dbQuote($pTable)." WHERE Key_name = '$keyName'";
         }
@@ -348,7 +348,6 @@ class adminDb {
             case 'timestamp':
                 $sql .= 'timestamp'; break;
 
-
             //numerics
             case 'bit':
             case 'boolean':
@@ -384,58 +383,6 @@ class adminDb {
 
         return $sql;
 
-    }
-
-    public static function addColumn($pTable, $pFieldName, $pFieldOptions, $pMode = false) {
-
-        /*
-        * $pMode
-        *  false: ADD column and execute
-        *  1: only the column definition for CREATE TABLE
-        *  2: only the column definition for ALTER COLUMN
-        *
-        */
-        global $cfg;
-
-        $sqlBegin = 'ALTER TABLE '.dbQuote(strtolower($pTable)).' ';
-
-        $sql = dbQuote($pFieldName).' ';
-
-
-        if ($cfg['db_type'] == 'postgresql' && $pMode == 2) {
-            $sql .= 'TYPE ';
-        }
-
-
-
-        //if ($pFieldOptions[2] == "DB_PRIMARY")
-        //    $sql .= 'NOT NULL ';
-
-        //auto increment
-        if ($pFieldOptions[3] == true) {
-
-            if ($cfg['db_type'] == 'mysql' || $cfg['db_type'] == 'mysqli') {
-                $sql .= ' AUTO_INCREMENT ';
-            }
-
-            if ($cfg['db_type'] == 'postgresql') {
-
-                if (!$pMode)
-                    $sql  = $sqlBegin.' ADD '.$sql.';'.$sqlBegin;
-
-                dbExec('CREATE SEQUENCE kryn_' . $pTable . '_seq;');
-                dbExec('ALTER SEQUENCE kryn_' . $pTable . '_seq RESTART WITH 1');
-                $sql .= " SET DEFAULT nextval('kryn_" . $pTable . "_seq') ";
-            }
-
-        }
-
-        if ($pMode)
-            return $sql;
-
-        $sql .= ';';
-
-        dbExec($sqlBegin .' ADD ' . $sql);
     }
 
 }

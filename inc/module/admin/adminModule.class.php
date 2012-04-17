@@ -76,6 +76,9 @@ class adminModule {
             case 'dbInit':
                 return self::dbInit(getArgv('name', 2));
 
+            case 'dbRemove':
+                return self::dbRemove(getArgv('name', 2));
+
             //edit module
             case 'extractLanguage':
                 json(krynLanguage::extractLanguage(getArgv('name', 2)));
@@ -1013,24 +1016,77 @@ class $pClassName extends $pClass {
 
     }
 
-    public static function dbInit($pName) {
+    public static function dbRemove($pName) {
 
 
         if (!$pName){
-            $res = '';
+
+            $res = (php_sapi_name() === 'cli' )?"Remove all tables from all extensions\n\n":array();
+
             foreach (kryn::$configs as $key => $config){
-                $res .= self::dbInit($key)."\n";
+                if (php_sapi_name() === 'cli' ){
+                    $res .= self::dbRemove($key)."\n";
+                } else {
+                    $res = array_merge($res, self::dbRemove($key));
+                }
             }
 
             return $res;
         }
 
-        $res = 'Sync tables in extension '.$pName.":\n\n";
+        $res = 'Remove tables in extension '.$pName.":\n\n";
 
         $config = kryn::getModuleConfig($pName);
-        $res .= adminDb::sync($config);
+        $removedTables = adminDb::remove($config);
 
-        return $res;
+        if (php_sapi_name() === 'cli' ){
+            if (is_array($removedTables) && count($removedTables) > 0){
+                foreach ($removedTables as $table){
+                    $res .= "\t$table removed.\n";
+                }
+            } else {
+                $res .= "\tno tables removed.\n";
+            }
+            return $res;
+        } else {
+            return array($pName =>$removedTables);
+        }
+    }
+
+    public static function dbInit($pName) {
+
+        if (!$pName){
+
+            $res = (php_sapi_name() === 'cli' )?"Remove all tables from all extensions\n\n":array();
+
+            foreach (kryn::$configs as $key => $config){
+                if (php_sapi_name() === 'cli' ){
+                    $res .= self::dbInit($key)."\n";
+                } else {
+                    $res = array_merge($res, self::dbInit($key));
+                }
+            }
+
+            return $res;
+        }
+
+        $res = 'Remove tables in extension '.$pName.":\n\n";
+
+        $config = kryn::getModuleConfig($pName);
+        $installedTables = adminDb::sync($config);
+
+        if (php_sapi_name() === 'cli' ){
+            if (is_array($installedTables) && count($installedTables) > 0){
+                foreach ($installedTables as $table => $status){
+                    $res .= "\t$table ".($status?"installed":"updated").".\n";
+                }
+            } else {
+                $res .= "\tno tables to install.\n";
+            }
+            return $res;
+        } else {
+            return array($pName =>$installedTables);
+        }
     }
 
     public static function getPublishInfo($pName) {
