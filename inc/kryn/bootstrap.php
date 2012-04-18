@@ -19,6 +19,7 @@ $languages = array();
 $kcache = array();
 $_AGET = array();
 $tpl = false;
+@ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE);
 
 # install
 if (!file_exists('inc/config.php')) {
@@ -31,7 +32,6 @@ include('inc/config.php');
 if (!array_key_exists('display_errors', $cfg))
     $cfg['display_errors'] = 0;
 
-@ini_set('error_reporting', E_ERROR | E_PARSE);
 
 if ($cfg['display_errors'] == 0) {
     @ini_set('display_errors', 0);
@@ -83,12 +83,47 @@ $_REQUEST['lang'] = ($_GET['lang']) ? $_GET['lang'] : $_POST['lang'];
 //read out the url so that we can use getArgv()
 kryn::prepareUrl();
 
+
+kryn::$admin = (getArgv(1) == 'admin');
+tAssign('admin', kryn::$admin);
+
 //special file /krynJavascriptGlobalPath.js
 if (getArgv(1) == 'krynJavascriptGlobalPath.js') {
     $cfg['path'] = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
     header("Content-type: text/javascript");
     die("var path = '" . $cfg['path'] . "'; var _path = '" . $cfg['path'] . "'; var _baseUrl = 'http://" .
         $_SERVER['SERVER_NAME'] . ($cfg['port'] ? ':' . $cfg['port'] : '') . $cfg['path'] . "'");
+}
+
+/*
+ * Initialize the inc/config.php values. Make some vars compatible to older versions etc.
+ */
+kryn::initConfig();
+
+
+/*
+ * Load list of active modules
+ */
+kryn::loadActiveModules();
+
+
+/*
+ * Load current language
+ */
+kryn::loadLanguage();
+
+
+/*
+ * Load themes, db scheme and object definitions from configs
+ */
+kryn::loadModuleConfigs();
+
+
+if (getArgv(1) == 'admin') {
+    /*
+    * Load the whole config of all modules
+    */
+    kryn::loadConfigs();
 }
 
 ?>

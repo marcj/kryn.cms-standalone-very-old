@@ -22,7 +22,6 @@ class krynNavigation {
     public $navigations;
 
     public static function getLinks($pRsn, $pWithFolders = false, $pDomain = false, $pWithoutCache = false) {
-        global $user, $time;
 
         if (!is_numeric($pRsn))
             return array();
@@ -39,10 +38,10 @@ class krynNavigation {
             $navigation =& kryn::getCache('navigation-' . $code);
         }
 
-        if ($pWithoutCache == true || !is_array($navigation)) {
+        if (true || $pWithoutCache == true || !is_array($navigation)) {
 
-            $links = dbExfetch("
-            SELECT 
+            $query = "
+            SELECT
                 rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
                 access_from, access_to, access_nohidenavi, access_from_groups, properties
             FROM
@@ -50,8 +49,8 @@ class krynNavigation {
             WHERE
                 prsn = $pRsn AND domain_rsn = $pDomain
                 AND ( type = 0 OR type = 1 OR type = 2)
-                
-                AND ( 
+
+                AND (
                     ( type = 2 )
                     OR
                     (
@@ -59,7 +58,8 @@ class krynNavigation {
                     )
                 )
                 AND access_denied != '1'
-            ORDER BY sort", -1);
+            ORDER BY sort";
+            $links = dbExfetch($query, -1);
 
             $pages = array();
             foreach ($links as &$page) {

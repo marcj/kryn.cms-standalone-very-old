@@ -48,7 +48,7 @@ function getArgv($pVal, $pEscape = false) {
  * @param mixed
  */
 function json($pValue) {
-    global $client, $adminClient;
+    global $client, $adminClient, $argv;
 
     ob_end_clean();
     ob_clean();
@@ -62,7 +62,7 @@ function json($pValue) {
     if (php_sapi_name() !== 'cli' )
         print (json_encode($pValue));
     else {
-        if ($argv[4] == 1)
+        if ($argv[2] == "1")
             print json_format(json_encode($pValue))."\n";
         else
             print_r($pValue);

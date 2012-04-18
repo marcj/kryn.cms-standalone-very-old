@@ -21,29 +21,22 @@ class krynSearch extends baseModule {
 
     public static $redirectTo = '';
 
-
     public static $autoCrawlPermissionLifetime = 60; //sec
 
-    public static function initSearch() {
+    //create a new search index for this page
+    public static function createPageIndex(&$pContent) {
 
         //indexing forced no matter if already indexed
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
 
             //force could only be enabled with correct search_index_key for this domain
             $validation = dbExFetch("SELECT rsn FROM %pfx%system_domains WHERE rsn = " . kryn::$domain['rsn'] .
-                                    " AND search_index_key = '" . esc($_REQUEST['forceSearchIndex']) . "'", 1);
+                " AND search_index_key = '" . esc($_REQUEST['forceSearchIndex']) . "'", 1);
 
             if (!empty($validation) && $validation['rsn'] == kryn::$domain['rsn'])
                 self::$forceSearchIndex = $_REQUEST['forceSearchIndex'];
 
         }
-
-    }
-
-
-    //create a new search index for this page
-    public static function createPageIndex(&$pContent) {
-        global $cfg;
 
         if (getArgv(1) == 'admin' || kryn::$page['rsn'] + 0 == 0) return;
 

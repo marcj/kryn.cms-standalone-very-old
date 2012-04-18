@@ -772,32 +772,29 @@ class kryn {
      */
     public static function loadConfigs() {
 
-        if (getArgv(1) == 'admin') {
+        kryn::$configs = array();
 
-            kryn::$configs = array();
+        foreach (kryn::$extensions as &$extension) {
+            kryn::$configs[$extension] = kryn::getModuleConfig($extension);
+        }
+        //print_r(kryn::$configs['admin']);
+        //die();
 
-            foreach (kryn::$extensions as &$extension) {
-                kryn::$configs[$extension] = kryn::getModuleConfig($extension);
-            }
-            //print_r(kryn::$configs['admin']);
-            //die();
-
-            foreach (kryn::$configs as &$config) {
-                if (is_array($config['extendConfig'])) {
-                    foreach ($config['extendConfig'] as $extendModule => &$extendConfig) {
-                        if (kryn::$configs[$extendModule]) {
-                            kryn::$configs[$extendModule] =
-                                array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
-                        }
+        foreach (kryn::$configs as &$config) {
+            if (is_array($config['extendConfig'])) {
+                foreach ($config['extendConfig'] as $extendModule => &$extendConfig) {
+                    if (kryn::$configs[$extendModule]) {
+                        kryn::$configs[$extendModule] =
+                            array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
                     }
                 }
-                if ($config['db']) {
-                    foreach ($config['db'] as $key => &$table) {
-                        if (kryn::$tables[$key])
-                            kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
-                        else
-                            kryn::$tables[$key] = $table;
-                    }
+            }
+            if ($config['db']) {
+                foreach ($config['db'] as $key => &$table) {
+                    if (kryn::$tables[$key])
+                        kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
+                    else
+                        kryn::$tables[$key] = $table;
                 }
             }
         }
@@ -1585,6 +1582,12 @@ class kryn {
         global $_AGET;
 
         $url = $_REQUEST['_kurl'];
+
+        if (($pos = strpos($url, '?')) !== false){
+            $query = substr($url, $pos+1);
+            $url = substr($url, 0, $pos);
+            parse_str($query, $_REQUEST);
+        }
 
         if (substr($url, 0, 1) == '/')
             $url = substr($url, 1);

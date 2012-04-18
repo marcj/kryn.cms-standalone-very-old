@@ -731,7 +731,7 @@ var admin_system_module_edit = new Class({
             '--',
             'float4 unsigned', 'double precision unsigned',
             '--',
-            'bit', 'smallint', 'int', 'decimal', 'bigint',
+            'boolean', 'smallint', 'int', 'decimal', 'bigint',
             '--',
             'smallint unsigned', 'integer unsigned', 'decimal unsigned', 'bigint unsigned'
 

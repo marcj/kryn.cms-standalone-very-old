@@ -20,42 +20,14 @@
 
 if (php_sapi_name() !== 'cli') exit;
 
+if (count($argv) == 1) die("params failed.\nUse: php cli.php <module>/entry/path");
+
 $_REQUEST['_kurl'] = 'admin/'.$argv[1];
 
 require('inc/kryn/bootstrap.php');
 
 
-/*
- * Initialize the inc/config.php values. Make some vars compatible to older versions etc.
- */
-kryn::initConfig();
-
-
 @ini_set('display_errors', 1);
-
-
-/*
- * Load list of active modules
- */
-kryn::loadActiveModules();
-
-
-/*
- * Load themes, db scheme and object definitions from configs
- */
-kryn::loadModuleConfigs();
-
-
-/*
- * Load current language
- */
-kryn::loadLanguage();
-
-
-/*
-* Load the whole config of all modules
-*/
-kryn::loadConfigs();
 
 /*
 * initialize administration controller

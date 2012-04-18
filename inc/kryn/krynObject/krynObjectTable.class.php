@@ -41,6 +41,7 @@ class krynObjectTable extends krynObjectAbstract {
         }
 
         $condition = array();
+        $pDepth += 0;
 
         if (!is_array($pExtraFields) && $pExtraFields != '')
             $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
@@ -65,12 +66,13 @@ class krynObjectTable extends krynObjectAbstract {
             if ($icon)
                 $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($icon).') as '.dbQuote($icon);
 
+            $aDepth = "(COUNT($pid) - 1)";
             $selects[] = '((MAX('.dbQuote('rgt', 'node').')-1-MAX('.dbQuote('lft', 'node').'))/2) AS '.dbQuote('_children_count');
-            $selects[] = "(COUNT($pid) - 1) AS ".$depth;
+            $selects[] = $aDepth ." AS ".$depth;
 
             if (is_array($pExtraFields) && count($pExtraFields) > 0){
                 foreach ($pExtraFields as $extraField)
-                    $selects[] = dbQuote($extraField, 'node');
+                    $selects[] = 'MAX('.dbQuote($extraField, 'node').')';
             }
 
             $selects = implode(', ', $selects);
@@ -88,7 +90,7 @@ class krynObjectTable extends krynObjectAbstract {
             FROM     $tables
             WHERE    $nodeLft BETWEEN $parentLft AND $parentRgt
             GROUP BY $id
-            HAVING $depth <= $pDepth
+            HAVING $aDepth <= $pDepth
             ORDER BY MAX($nodeLft)
             ";
 
@@ -97,15 +99,18 @@ class krynObjectTable extends krynObjectAbstract {
             if (!$res) return false;
 
             $result = array();
-            $lastParentKey = null;
+            $lastParent = array();
 
             while ($row = dbFetch($res)){
 
                 if ($row['_depth'] == 0){
                     $result[ $row[$primKey] ] = $row;
-                    $lastParentKey = $row[$primKey];
+                    $lastParent[$row['_depth']] =& $result[ $row[$primKey] ];
                 } else {
-                    $result[ $lastParentKey ]['_children'][$row[$primKey]] = $row;
+                    $lastParent[$row['_depth']-1]['_children'][$row[$primKey]] = $row;
+                    $lastParent[$row['_depth']] =& $lastParent[$row['_depth']-1]['_children'][$row[$primKey]];
+                    //$lastParent[$row['_depth']-1]['_children'][$row[$primKey]] = $row;
+
                 }
 
             }
@@ -115,7 +120,7 @@ class krynObjectTable extends krynObjectAbstract {
         } else {
 
             $condition[$this->definition['tableNestedParentField']] = current($pPrimaryValues);
-            return $this->getItems($condition, 0, 0, $fields);
+            return $this->getItems($condition, 0, 0, $pExtraFields);
 
         }
 
@@ -552,4 +557,5 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
 }
+
 ?>

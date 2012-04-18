@@ -495,21 +495,40 @@ function step5(){
             }
         }
 
-    }
+        if ($config['objects'] && is_array($config['objects'])){
 
-    //todo, load all objects
-    //todo,
-    
-    //delete first all tables
-    foreach( kryn::$tables as $table => $columns ){
-        dbExec('DROP TABLE IF EXISTS '.pfx.$table);
+            foreach ($config['objects'] as $objectId => $objectDefinition){
+                $objectDefinition['_extension'] = $extension; //caching
+                if (kryn::$objects[$objectId]){
+                    kryn::$objects[$objectId] = array_merge(kryn::$objects[$objectId], $objectDefinition);
+                } else {
+                    kryn::$objects[$objectId] = $objectDefinition;
+                }
+            }
+        }
+
     }
             
     foreach( kryn::$configs as $module => $config ){
         print "Install <b>$module</b>:<br />
-        <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre;'>";
-        print adminDb::remove( $config );
-        print adminDb::install( $config );
+        <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre; font-family: monospace;'>";
+
+        $removedTables = adminDb::remove($config);
+
+        if (is_array($removedTables) && count($removedTables) > 0){
+            foreach ($removedTables as $table){
+                print "\t[-] $table removed.\n";
+            }
+        }
+
+        $installedTables = adminDb::sync($config);
+        if (is_array($installedTables) && count($installedTables) > 0){
+            foreach ($installedTables as $table => $status){
+                print "\t[+] $table ".($status?"installed":"updated").".\n";
+            }
+        } else {
+            print "\tno tables to install.\n";
+        }
         print "</div>";
         flush();
     }
@@ -585,9 +604,8 @@ function step4(){
 ?>
 
 <br />
-Your installation file contains following extensions.<br />
+Your installation file contains following extensions:<br />
 <br />
-Dactivate the checkbox if you don't want to install a extensions.<br />
 <br />
 <form action="?step=5" method="post" id="form.modules">
 
@@ -610,6 +628,7 @@ Dactivate the checkbox if you don't want to install a extensions.<br />
 ?>
 </table>
 </form>
+<b style="color: red;">All database tables we install will be dropped in the next step!</b><br /><br/>
 <a href="?step=3" class="button" >Back</a>
 <a href="javascript: $('form.modules').submit();" class="button" >Install!</a>
 <?php

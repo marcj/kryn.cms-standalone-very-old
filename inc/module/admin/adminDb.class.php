@@ -66,7 +66,55 @@ class adminDb {
     public static function remove($pModuleConfig) {
         if (!is_array($pModuleConfig['db'])) return false;
 
-        return self::dropTables($pModuleConfig['db']);
+        $tables = database::getAllTables();
+        $removedTables = array();
+
+        foreach ($pModuleConfig['db'] as $tableName => $tableFields) {
+            if ($tables[pfx.$tableName]){
+                dbExec("DROP TABLE ".dbQuote(pfx.$tableName));
+                unset($tables[pfx.$tableName]);
+                $removedTables[pfx.$tableName] = $tableFields;
+                $res[] = $tableName;
+            }
+        }
+
+        if ($pModuleConfig['objects']){
+            foreach ($pModuleConfig['objects'] as $objectKey => $object){
+                if ($object['table']){
+                    $objectTables = database::getTablesFromObject($objectKey);
+                    if (is_array($tables)){
+                        foreach ($objectTables as $tableName => $tableFields) {
+                            if ($tables[pfx.$tableName]){
+                                dbExec("DROP TABLE ".dbQuote(pfx.$tableName));
+                                unset($tables[pfx.$tableName]);
+                                $removedTables[pfx.$tableName] = $tableFields;
+                                $res[] = $tableName;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //remove sequences in postgresql
+        if (kryn::$config['db_type'] == 'postgresql'){
+            foreach($removedTables as $table => $fields){
+                foreach ($fields as $fName => $fOptions) {
+                    if ($fOptions[3]){
+                        $sequenceName = 'kryn_'.$table.'_seq';
+
+                        $sequenceExist = dbExfetch("SELECT c.relname FROM pg_class c WHERE c.relkind = 'S' AND relname = '$sequenceName'", 1);
+
+                        if ($sequenceExist){
+                            dbExec("DROP SEQUENCE $sequenceName");
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return $res;
     }
 
     public static function dropTables($pDb) {
@@ -349,10 +397,8 @@ class adminDb {
                 $sql .= 'timestamp'; break;
 
             //numerics
-            case 'bit':
             case 'boolean':
-                $sql .= 'bit'; break;
-
+            case 'tinyint':
             case 'smallint':
                 $sql .= 'smallint'; break;
 

@@ -1476,8 +1476,8 @@ class $pClassName extends $pClass {
 
         # db install
         if ($pModuleName != 'kryn') {
-            dbDelete('system_modules', "name = '$pModuleName'");
-            dbExec("INSERT INTO %pfx%system_modules VALUES('" . $pModuleName . "', 1)");
+            dbDelete('system_modules', array('name' => $pModuleName));
+            dbInsert('system_modules', array('name' => $pModuleName, 'activated' => 1));
             adminDb::install($info);
         }
 
