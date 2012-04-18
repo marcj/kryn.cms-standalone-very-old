@@ -134,7 +134,10 @@ class admin {
                             $content = self::objectGetItems(getArgv('object'));
                             break;
                         case 'objectTree':
-                            $content = self::getObjectTree(getArgv('object'), getArgv('depth'));
+                            $content = self::getObjectTree(getArgv('object'), getArgv('depth')?getArgv('depth'):1);
+                            break;
+                        case 'objectParents':
+                            $content = self::getObjectParents(getArgv('object'));
                             break;
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object', 2), getArgv('page'));
@@ -256,7 +259,11 @@ class admin {
 
 
 
-    public static function getObjectTree($pObjectUrl, $pDepth = 1) {
+    public static function getObjectParents($pObjectUrl){
+        return krynObject::getParents($pObjectUrl);
+    }
+
+    public static function getObjectTree($pObjectUrl, $pDepth = 1){
         return krynObject::getTree($pObjectUrl, $pDepth);
     }
 

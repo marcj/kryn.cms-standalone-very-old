@@ -1,0 +1,206 @@
+.ka-objectTree {
+    position: relative;
+}
+
+.ka-objectTree-root {
+    /*position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;*/
+    background-color: #f3f3f3;
+}
+
+
+.ka-objectTree-top-dummy {
+    height: 20px;
+}
+
+.ka-objectTree-pages {
+    position: relative;
+    display: none;
+}
+
+.ka-objectTree-item-toggler {
+    position: relative;
+    top: 2px;
+    margin: 0px 2px;
+}
+
+.ka-objectTree-item,
+.ka-objectTree-drag-box {
+    position: relative;
+    display: block;
+    line-height: 18px;
+    height: 18px;
+    padding: 1px;
+    cursor: pointer;
+    color: #444;
+    white-space: nowrap;
+}
+
+.ka-objectTree-drag-box span,
+.ka-objectTree-drag-box img,
+.ka-objectTree-item span,
+.ka-objectTree-item img {
+    display: block;
+    float: left;
+}
+
+.ka-objectTree-item-hover,
+.ka-objectTree-item-hover:link,
+.ka-objectTree-item:hover {
+    background-color: #e5e5e5;
+    color: #444;
+}
+
+
+.ka-objectTree-item-over {
+    
+}
+
+.ka-objectTree-add {
+    position: absolute;
+    right: 5px;
+    top: 1px;
+}
+
+.ka-objectTree-item-childs {
+    display: none;
+    position: relative;
+}
+
+.ka-objectTree-item-masks {
+    margin-right: 4px;
+    position: relative;
+    height: 18px;
+    width: 15px;
+}
+
+.ka-objectTree-item-masks img {
+    position: absolute;
+    top: 1px;
+    left: 0px;
+}
+
+.ka-objectTree-item-selected,
+.ka-objectTree-item-selected:hover {
+    background-color: #bbb;
+    color: #222;
+}
+
+.ka-objectTree-drag-box {
+    font-size: 11px;
+    position: absolute;
+    border: 1px solid silver;
+    background-color: #eee;
+    padding: 2px;
+    box-shadow: 1px 1px 1px #888;
+    z-index: 7000000;
+}
+
+
+.ka-objectTree-dropElement {
+    border-bottom: 1px dashed gray;
+}
+
+.ka-objectTree-item-dragOver .ka-objectTree-item-title {
+    outline: 1px dotted silver;
+    background-color: #ddd;
+}
+
+
+
+
+
+
+.ka-objectTree-domain .ka-objectTree-item-title {
+    /*position: absolute;
+    left: 35px;
+    top: 1px;*/
+}
+
+
+
+
+.ka-objectTree-context {
+    position: absolute;
+    z-index: 50000000;
+    min-width: 100px;
+    left: 0px;
+    top: 0px;
+    padding: 3px 0px;
+    border: 1px solid gray;
+    border-left: 1px solid silver;
+    border-top: 1px solid silver;
+    background-color: #f5f5f5;
+    box-shadow: 0px 0px 2px gray;
+    -moz-border-radius: 4px;
+}
+
+.ka-objectTree-context a,
+.ka-objectTree-context a:link {
+    display: block;
+    line-height: 13px;
+    padding: 1px 5px 1px 8px;
+    cursor: pointer;
+    color: #444;
+}
+
+.ka-objectTree-context a:hover {
+    background-color: gray;
+    color: white;
+}
+
+
+.ka-objectTree-context a.noaction,
+.ka-objectTree-context a.noaction:link,
+.ka-objectTree-context a.noaction:hover,
+.ka-objectTree-context a.delimiter:hover {
+    color: #999;
+    background-color: transparent;
+}
+
+.ka-objectTree-context a.delimiter {
+    border-bottom: 1px solid #ddd;
+    padding-top: 1px;
+    height: 1px;
+    margin-bottom: 2px;
+}
+
+.ka-objectTree-context a.indented {
+    padding-left: 20px;
+}
+
+.pageTree-context-move {
+    position: absolute;
+    width: 120px;
+    background-color: white;
+    border: 1px solid silver;
+    border-bottom: 0px;
+}
+
+.pageTree-context-move a.into {
+    background-image: url(../images/icons/arrow_right.png);
+}
+
+.pageTree-context-move a.up {
+    background-image: url(../images/icons/arrow_turn_up.png);
+}
+
+.pageTree-context-move a.down {
+    background-image: url(../images/icons/arrow_turn_bottom.png);
+}
+
+.pageTree-context-move a,
+.pageTree-context-move a:link {
+    background-repeat: no-repeat;
+    border-bottom: 1px solid silver;
+    display: block;
+    padding: 2px 5px 2px 25px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pageTree-context-move a:hover {
+    background-color: #f7f7f7;
+}

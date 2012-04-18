@@ -431,8 +431,19 @@ return 'hi';
     }
 
     public static function getParent($pObjectUri){
-        $obj = self::getClassObject($pObjectUri);
-        return $obj->getParent();
+        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+
+        $obj = self::getClassObject($object_key);
+
+        return $obj->getParent($object_id[0]);
+    }
+
+    public static function getParents($pObjectUri){
+        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+
+        $obj = self::getClassObject($object_key);
+
+        return $obj->getParents($object_id[0]);
     }
 
 }

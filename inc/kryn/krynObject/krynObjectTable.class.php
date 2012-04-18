@@ -23,6 +23,55 @@ class krynObjectTable extends krynObjectAbstract {
         return dbDelete($this->definition['table'], $pPrimaryValues);
     }
 
+    public function getParents($pPrimaryValues){
+
+        if (!$this->definition['tableNested']){
+            throw new Exception('Object is not marked as nested.');
+        }
+
+        if (!$this->definition['chooserBrowserTreeLabel']){
+            throw new Exception('chooserBrowserTreeLabel in object not defined.');
+        }
+        $primKey = current($this->primaryKeys);
+        $idValue = $pPrimaryValues[$primKey]+0;
+        $id      = dbQuote('node').'.'.dbQuote($primKey);
+        $icon  = $this->definition['chooserBrowserTreeIcon'];
+
+
+        $title = $this->definition['chooserBrowserTreeLabel'];
+
+        $selectId = $id.' AS '.$primKey;
+        $selects[] = dbQuote($primKey, 'parent').' AS '.$primKey;
+        $selects[] = dbQuote('parent').'.'.dbQuote($title).' AS '.dbQuote($title);
+        if ($icon)
+            $selects[] = dbQuote('node').'.'.dbQuote($icon).' AS '.dbQuote($icon);
+
+        $selects = implode(",\n", $selects);
+
+
+        $table = dbQuote(dbTableName($this->definition['table']));
+        $tables[] = "$table as ".dbQuote('parent');
+        $tables[] = "$table as ".dbQuote('node');
+        $tablesDefault = implode(', ', $tables);
+
+        $sql = "
+            SELECT $selects
+            FROM $tablesDefault
+            WHERE
+                node.lft BETWEEN parent.lft AND parent.rgt
+                AND $id = $idValue
+            ORDER BY node.lft";
+
+        $result = array();
+        $res = dbExec($sql);
+
+        while ($row = dbFetch($res)){
+            $result[ $row[$primKey] ] = $row;
+        }
+
+        return $result;
+    }
+
     /**
      * @param $pParentValues
      * @param int $pDepth  0 returns only the root. 1 returns with one level of children, 2 with two levels etc
@@ -32,6 +81,7 @@ class krynObjectTable extends krynObjectAbstract {
      */
     public function getTree($pParentValues, $pDepth = 1, $pExtraFields = ''){
 
+        $start = microtime(true);
         if (!$this->definition['tableNested']){
             throw new Exception('Object is not marked as nested.');
         }
@@ -40,20 +90,22 @@ class krynObjectTable extends krynObjectAbstract {
             throw new Exception('chooserBrowserTreeLabel in object not defined.');
         }
 
-        $condition = array();
-        $pDepth += 0;
+        $primKey = current($this->primaryKeys);
+        $idValue = $pParentValues[$primKey]?$pParentValues[$primKey]+0:'root';
 
-        if (!is_array($pExtraFields) && $pExtraFields != '')
-            $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
+        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.$idValue;
 
-        if (!$pParentValues){
-            //all on first and second level
+        if (!($result = kryn::getCache($cacheKey))){
+
+            $condition = array();
+            $pDepth += 0;
+
+            if (!is_array($pExtraFields) && $pExtraFields != '')
+                $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
 
 
             $title = $this->definition['chooserBrowserTreeLabel'];
             $icon  = $this->definition['chooserBrowserTreeIcon'];
-
-            $primKey = current($this->primaryKeys);
 
             $table = dbQuote(dbTableName($this->definition['table']));
             $id    = dbQuote('node').'.'.dbQuote($primKey);
@@ -61,34 +113,62 @@ class krynObjectTable extends krynObjectAbstract {
 
             $depth = dbQuote('_depth');
 
-            $selects[] = 'MAX('.$id.') as '.$primKey;
-            $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($title).') as '.dbQuote($title);
+            $selectId = 'MAX('.$id.') as '.$primKey;
+            $selects[] = $selectId;
+            $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($title).') AS '.dbQuote($title);
             if ($icon)
-                $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($icon).') as '.dbQuote($icon);
+                $selects[] = 'MAX('.dbQuote('node').'.'.dbQuote($icon).') AS '.dbQuote($icon);
 
-            $aDepth = "(COUNT($pid) - 1)";
             $selects[] = '((MAX('.dbQuote('rgt', 'node').')-1-MAX('.dbQuote('lft', 'node').'))/2) AS '.dbQuote('_children_count');
-            $selects[] = $aDepth ." AS ".$depth;
 
             if (is_array($pExtraFields) && count($pExtraFields) > 0){
                 foreach ($pExtraFields as $extraField)
                     $selects[] = 'MAX('.dbQuote($extraField, 'node').')';
             }
 
-            $selects = implode(', ', $selects);
-
             $tables[] = "$table as ".dbQuote('parent');
             $tables[] = "$table as ".dbQuote('node');
-            $tables = implode(', ', $tables);
+            $tablesDefault = implode(', ', $tables);
+
+            $aDepth = "(COUNT($pid) - 1)";
 
             $nodeLft = dbQuote('lft', 'node');
             $parentLft = dbQuote('lft', 'parent');
             $parentRgt = dbQuote('rgt', 'parent');
+            $parent1Lft = dbQuote('lft', 'parent1');
+            $parent1Rgt = dbQuote('rgt', 'parent1');
+            $parent1 = dbQuote('parent1');
+
+            if ($pParentValues){
+
+                $tables[] ="(
+                    SELECT
+                        MAX(node.lft) as lft, MAX(node.rgt) as rgt, (COUNT($id)) AS $depth
+                    FROM
+                        $tablesDefault
+                    WHERE $nodeLft BETWEEN $parentLft AND $parentRgt
+                    AND node.id = $idValue
+                    GROUP BY $id
+                    ORDER BY MAX($nodeLft)
+                  ) AS $parent1";
+
+                $additionalWhere = " AND $nodeLft BETWEEN $parent1Lft AND $parent1Rgt";
+                $aDepth = "(COUNT($pid) - MAX($parent1.$depth))";
+
+            } else {
+                //all on first and second level
+                $additionalWhere = '';
+            }
+            $selects[] = "$aDepth AS ".$depth;
+
+            $tables = implode(",\n", $tables);
+            $selects = implode(",\n", $selects);
 
             $sql = "
             SELECT   $selects
             FROM     $tables
             WHERE    $nodeLft BETWEEN $parentLft AND $parentRgt
+            $additionalWhere
             GROUP BY $id
             HAVING $aDepth <= $pDepth
             ORDER BY MAX($nodeLft)
@@ -104,25 +184,25 @@ class krynObjectTable extends krynObjectAbstract {
             while ($row = dbFetch($res)){
 
                 if ($row['_depth'] == 0){
-                    $result[ $row[$primKey] ] = $row;
-                    $lastParent[$row['_depth']] =& $result[ $row[$primKey] ];
+                    if ($pParentValues){
+                        $result = $row;
+                        $lastParent[$row['_depth']] =& $result;
+                    } else{
+                        $result[ $row[$primKey] ] = $row;
+                        $lastParent[$row['_depth']] =& $result[ $row[$primKey] ];
+                    }
                 } else {
                     $lastParent[$row['_depth']-1]['_children'][$row[$primKey]] = $row;
                     $lastParent[$row['_depth']] =& $lastParent[$row['_depth']-1]['_children'][$row[$primKey]];
-                    //$lastParent[$row['_depth']-1]['_children'][$row[$primKey]] = $row;
-
                 }
 
             }
-
-            return $result;
-
-        } else {
-
-            $condition[$this->definition['tableNestedParentField']] = current($pPrimaryValues);
-            return $this->getItems($condition, 0, 0, $pExtraFields);
+            kryn::setCache($cacheKey, $result);
 
         }
+
+        return $result;
+
 
 
     }

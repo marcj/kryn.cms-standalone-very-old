@@ -8,10 +8,26 @@ var users_users_acl = new Class({
 
     _createLayout: function(){
 
-        new ka.objectTree(this.win.content, 'pages', {}, {win: this.win});
+        var bla = new ka.objectTree(this.win.content, 'test_category', {}, {win: this.win});
 
 
+        new ka.Button('Select 7')
+        .addEvent('click', function(){
+            bla.select(7);
+        })
+        .inject(this.win.content);
 
+        new ka.Button('Select 11')
+        .addEvent('click', function(){
+            bla.select(11);
+        })
+        .inject(this.win.content);
+
+        new ka.Button('Select 14')
+        .addEvent('click', function(){
+            bla.select(14);
+        })
+        .inject(this.win.content);
     }
 
 });

@@ -134,12 +134,12 @@ class krynAuth {
                 }
             }
 
-            $this->loadUser($this->session['user_rsn']);
-
             if ($this->refreshing)
                 $this->updateSession();
 
         }
+
+        $this->loadUser($this->session['user_rsn']);
 
         if( $this->autoLoginLogout )
             $this->handleClientLoginLogout();

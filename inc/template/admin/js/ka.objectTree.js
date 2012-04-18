@@ -6,8 +6,11 @@ ka.objectTree = new Class({
     options: {
         withObjectAdd: false, //adds a plus sign and opens <withObjectAdd> entry point
         viewAllObjects: false, //loads initily all objects
-        rootObject: false
+        rootObject: false,
+        selectObject: false
     },
+
+    types: {},
 
     items: {},
     loadChildsRequests: {},
@@ -30,6 +33,20 @@ ka.objectTree = new Class({
 
         this.objectKey = pObjectKey;
         this.container = pContainer;
+        this.objectDefinition = ka.getObjectDefinition(this.objectKey);
+        if (!this.objectDefinition){
+            throw 'Object not found: '+pObjectKey;
+            return;
+        }
+
+        this.primaryKeys = ka.getPrimariesForObject(pObjectKey);
+        Object.each(this.primaryKeys, function(def, id){
+            if (!this.primaryKey) this.primaryKey = id;
+        }.bind(this));
+
+        if (!this.primaryKey){
+            throw 'Object has no primary key: '+pObjectKey;
+        }
 
         this.setOptions(pOptions);
 
@@ -75,13 +92,10 @@ ka.objectTree = new Class({
 
         this.paneObjects.setStyle('display', '');
 
-
-        if (this.options.rootObject){
-            this.paneRoot = new Element('div', {
-                'class': 'ka-objectTree-domain'
-            }).inject(this.main);
-            this.paneRoot.set('morph', {duration: 200});
-        }
+        this.paneRoot = new Element('div', {
+            'class': 'ka-objectTree-root'
+        }).inject(this.main);
+        //this.paneRoot.set('morph', {duration: 200});
 
         if (this.options.selectObject) {
             this.startupWithObjectInfo(this.options.selectObject);
@@ -100,23 +114,22 @@ ka.objectTree = new Class({
     },
 
 
-    startupWithObjectInfo: function (pRsn, pCallback) {
+    startupWithObjectInfo: function (pId, pCallback) {
 
-        new Request.JSON({url: _path + 'admin/objects/getObjectInfo', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/backend/objectParents', noCache: 1, onComplete: function (parents) {
 
-            if (res.domain_rsn == this.domain_rsn) {
-                this.load_object_childs = [];
-                res._parents.each(function (object) {
-                    this.load_object_childs.include(object.rsn);
-                }.bind(this));
-            }
+            this.load_object_childs = [];
+            Object.each(parents, function (item, id) {
+                this.load_object_childs.include(id);
+            }.bind(this));
+
             if (pCallback) {
-                pCallback(res);
+                pCallback(parents);
             } else {
                 this.loadFirstLevel();
             }
 
-        }.bind(this)}).get({rsn: pRsn});
+        }.bind(this)}).get({object: this.objectKey+'/'+pId});
 
     },
 
@@ -156,33 +169,31 @@ ka.objectTree = new Class({
 
         var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objects/getTreeDomain', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
-            domain_rsn: this.domain_rsn,
-            viewAllObjects: viewAllObjects
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
+            object: this.objectKey
         });
 
     },
 
-    renderFirstLevel: function (pDomain) {
+    renderFirstLevel: function (pItems) {
+        logger(this.load_object_childs);
 
         this.loadingDone = false;
 
-        if (!pDomain && this.lastDomain) {
-            pDomain = this.lastDomain;
+        if (!pItems && this.lastRootItems) {
+            pItems = this.lastRootItems;
         }
 
-        this.lastDomain = pDomain;
+        this.lastRootItems = pItems;
 
-        if (pDomain.error) {
-            this.main.destroy();
-            return;
-        }
+        if (this.paneRoot)
+            this.paneRoot.empty();
 
-        this.paneRoot.empty();
         this.paneObjects.empty();
 
-        this.domainA = this.addItem(pDomain, this.paneRoot);
+        this.rootA = this.addRootItems(pItems, this.paneRoot);
 
+        /*
         if (this.options.withObjectAdd) {
             if (ka.checkDomainAccess(pDomain.rsn, 'addObjects')) {
                 new Element('img', {
@@ -194,7 +205,8 @@ ka.objectTree = new Class({
                 }.bind(this)).inject(this.items[0]);
             }
         }
-        this.fireEvent('childsLoaded', [pDomain, this.domainA]);
+        */
+        //this.fireEvent('childsLoaded', [pDomain, this.domainA]);
 
     },
 
@@ -278,21 +290,37 @@ ka.objectTree = new Class({
         }
     },
 
+    addRootItems: function(pItems, pContainer){
+
+        Object.each(pItems, function(item, id){
+
+            this.addItem(item, pContainer);
+
+        }.bind(this));
+
+    },
+
     addItem: function (pItem, pParent) {
+
+
+        var id = pItem[this.primaryKey];
+        var label = pItem[this.objectDefinition.chooserBrowserTreeLabel];
 
         var a = new Element('div', {
             'class': 'ka-objectTree-item',
-            title: 'ID=' + pItem.rsn
+            title: 'ID=' + id
         });
 
-        if (pItem.domain) {
-            this.domainA = a;
-        }
+        a.id = id;
 
         var container = pParent;
         if (pParent.childContainer) {
             container = pParent.childContainer;
             a.parent = pParent;
+        }
+
+        if (id == this.options.selectObject && this.options.noActive != true){
+            a.addClass('ka-objectTree-item-selected');
         }
 
         a.inject(container);
@@ -301,9 +329,10 @@ ka.objectTree = new Class({
 
         a.span = new Element('span', {
             'class': 'ka-objectTree-item-title',
-            text: (pItem.title) ? pItem.title : pItem.domain
+            text: label
         }).inject(a);
 
+        /*
         if (this.lastSelectedObject && (
             (this.lastSelectedObject.domain && pItem.domain && this.lastSelectedObject.rsn == pItem.rsn) || (!pItem.domain && !this.lastSelectedObject.domain && this.lastSelectedObject.rsn == pItem.rsn)
             )) {
@@ -314,30 +343,26 @@ ka.objectTree = new Class({
 
             this.lastSelectedItem = a;
             this.lastSelectedObject = pItem;
-        }
+        }*/
 
-        if (pItem.domain) {
-            this.items[0] = a;
-        } else {
-            this.items[ pItem.rsn ] = a;
-            //Drag'n'Drop
-            if (!this.options.noDrag) {
-                a.addEvent('mousedown', function (e) {
+        this.items[ id ] = a;
+        //Drag'n'Drop
+        if (!this.options.noDrag) {
+            a.addEvent('mousedown', function (e) {
 
-                    if (!ka.checkObjectAccess(pItem.rsn, 'moveObjects')) {
-                        return;
-                    }
+                // if (!ka.checkObjectAccess(pItem.rsn, 'moveObjects')) {
+                //     return;
+                //}
 
-                    a.store('mousedown', true);
-                    if (this.options.move != false) {
-                        (function () {
-                            if (a.retrieve('mousedown')) {
-                                this.createDrag(a, e);
-                            }
-                        }).delay(200, this)
-                    }
-                }.bind(this))
-            }
+                a.store('mousedown', true);
+                if (this.options.move != false) {
+                    (function () {
+                        if (a.retrieve('mousedown')) {
+                            this.createDrag(a, e);
+                        }
+                    }).delay(200, this)
+                }
+            }.bind(this))
         }
 
         a.addEvent('mouseout', function () {
@@ -401,7 +426,7 @@ ka.objectTree = new Class({
             src: _path + 'inc/template/admin/images/icons/tree_plus.png'
         }).inject(a, 'top');
 
-        if (!pItem.hasChilds && (!pItem.childs || pItem.childs.length == 0 )) {
+        if (pItem._children_count == 0) {
             a.toggler.setStyle('visibility', 'hidden');
         } else {
             a.toggler.addEvent('click', function (e) {
@@ -411,18 +436,13 @@ ka.objectTree = new Class({
             }.bind(this));
         }
 
-        /* childs */
-        if (pItem.domain) {
-            a.childContainer = this.paneObjects;
-        } else {
-            a.childContainer = new Element('div', {
-                'class': 'ka-objectTree-item-childs'
-            }).inject(container);
-        }
+        a.childContainer = new Element('div', {
+            'class': 'ka-objectTree-item-childs'
+        }).inject(container);
 
-        a.childsLoaded = (pItem.childs) ? true : false;
+        a.childsLoaded = (pItem._children) ? true : false;
 
-        var openId = ( pItem.domain ) ? 'p' + pItem.rsn : pItem.rsn;
+        var openId = id;
 
         if ((!this.firstLoadDone || this.need2SelectAObject)) {
             if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && !pItem.domain && pItem.rsn == this.options.selectObject)) {
@@ -439,24 +459,25 @@ ka.objectTree = new Class({
             this.openChilds(a);
         }
 
-        if ((!this.firstLoadDone || this.need2SelectAObject) && this.load_object_childs !== false) {
-            if (!pItem.domain && this.load_object_childs.contains(pItem.rsn)) {
-                this.openChilds(a);
-            } else if (pItem.domain) {
+        if (/*(!this.firstLoadDone || this.need2SelectAObject) && */this.load_object_childs !== false) {
+
+            logger(id+' => '+this.load_object_childs.contains(id));
+            if (this.load_object_childs.contains(id)) {
                 this.openChilds(a);
             }
-        } else if ((!this.firstLoadDone || this.need2SelectAObject) && this.options.openFirstLevel && pItem.domain && !this.opens[openId]) {
-            this.openChilds(a);
         }
+        /*else if ((!this.firstLoadDone || this.need2SelectAObject) && this.options.openFirstLevel && !this.opens[openId]) {
+            this.openChilds(a);
+        }*/
 
-        if (pItem.childs) {
+        if (pItem._children) {
             var canChangeItemsGeneration = this.inItemsGeneration == true ? false : true;
 
             if (canChangeItemsGeneration) {
                 this.inItemsGeneration = true;
             }
 
-            Array.each(pItem.childs, function (item) {
+            Object.each(pItem._children, function (item) {
                 this.addItem(item, a);
             }.bind(this));
 
@@ -510,7 +531,7 @@ ka.objectTree = new Class({
                 opens += key + '.';
             }
         });
-        Cookie.write('krynObjectTree_' + this.domain_rsn, opens);
+        Cookie.write('krynObjectTree_' + this.objectKey, opens);
 
     },
 
@@ -525,11 +546,10 @@ ka.objectTree = new Class({
 
     closeChilds: function (pA) {
         var item = pA.retrieve('item');
-        var id = item.domain ? 'p' + item.rsn : item.rsn;
 
         pA.childContainer.setStyle('display', '');
         pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_plus.png');
-        this.opens[ id ] = false;
+        this.opens[ pA.id ] = false;
         this.setRootPosition();
 
         this.saveOpens();
@@ -537,13 +557,10 @@ ka.objectTree = new Class({
 
     openChilds: function (pA) {
 
-        var item = pA.retrieve('item');
-        var id = item.domain ? 'p' + item.rsn : item.rsn;
-
         pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_minus.png');
         if (pA.childsLoaded == true) {
             pA.childContainer.setStyle('display', 'block');
-            this.opens[ id ] = true;
+            this.opens[ pA.id ] = true;
             this.saveOpens();
         } else {
             this.loadChilds(pA, true);
@@ -560,63 +577,53 @@ ka.objectTree = new Class({
 
         var item = pA.retrieve('item');
 
-        if (item.domain) {
+        var loader = new Element('img', {
+            src: _path + 'inc/template/admin/images/loading.gif'
+        }).inject(pA.masks)
 
-            this.loadFirstLevel();
+        var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
-        } else {
+        logger('loadchilds: '+pA.id);
+        this.loadChildsRequests[ pA.id ] = true;
+        new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: function (pItem) {
 
-            var loader = new Element('img', {
-                src: _path + 'inc/template/admin/images/loading.gif'
-            }).inject(pA.masks)
+            pA.childContainer.empty();
 
-            var id = ( item.domain ) ? 'p' + item.rsn : item.rsn;
+            loader.destroy();
 
-            var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
+            if (pAndOpen) {
+                pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_minus.png');
+                pA.childContainer.setStyle('display', 'block');
+                this.opens[ pA.id ] = true;
+                this.saveOpens();
+            }
 
-            this.loadChildsRequests[ item.rsn ] = true;
-            new Request.JSON({url: _path + 'admin/objects/getTree', noCache: 1, onComplete: function (pItems) {
+            pA.childsLoaded = true;
 
-                pA.childContainer.empty();
+            if (pItem._children_count == 0) {
+                pA.toggler.setStyle('visibility', 'hidden');
+                return;
+            }
 
-                loader.destroy();
+            this.inItemsGeneration = true;
+            Object.each(pItem._children, function (childitem) {
+                this.addItem(childitem, pA);
+            }.bind(this));
+            this.inItemsGeneration = false;
 
-                if (pAndOpen) {
-                    pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_minus.png');
-                    pA.childContainer.setStyle('display', 'block');
-                    this.opens[ id ] = true;
-                    this.saveOpens();
-                }
+            this.loadChildsRequests[ pA.id ] = false;
+            this.checkDoneState();
 
-                pA.childsLoaded = true;
+            this.fireEvent('childsLoaded', [item, pA]);
+            this.setRootPosition();
 
-                if (pItems.length == 0) {
-                    pA.toggler.setStyle('visibility', 'hidden');
-                    return;
-                }
+        }.bind(this)}).get({ object: this.objectKey+'/'+pA.id });
 
-                this.inItemsGeneration = true;
-                Array.each(pItems, function (childitem) {
-                    this.addItem(childitem, pA);
-                }.bind(this));
-                this.inItemsGeneration = false;
-
-                this.loadChildsRequests[ item.rsn ] = false;
-                this.checkDoneState();
-
-                this.fireEvent('childsLoaded', [item, pA]);
-                this.setRootPosition();
-
-            }.bind(this)}).get({ object_rsn: item.rsn, viewAllObjects: viewAllObjects });
-
-        }
     },
 
     unselect: function () {
 
-        if (this.lastSelectedItem) {
-            this.lastSelectedItem.removeClass('ka-objectTree-item-selected');
-        }
+        this.container.getElements('.ka-objectTree-item-selected').removeClass('ka-objectTree-item-selected');
 
         this.lastSelectedItem = false;
         this.lastSelectedObject = false;
@@ -932,7 +939,7 @@ ka.objectTree = new Class({
         }
 
         var context = new Element('div', {
-            'class': 'objectsTree-context-move'
+            'class': 'objectTree-context-move'
         }).setStyles({
             left: mleft,
             top: mtop,
@@ -968,37 +975,36 @@ ka.objectTree = new Class({
     },
 
     getSelected: function () {
-        if (this.lastSelectedItem) {
-            return this.lastSelectedItem;
-        }
-        return false;
+        var selected = this.container.getElement('.ka-objectTree-item-selected');
+        return selected?selected.retrieve('item'):false;
     },
 
-    select: function (pRsn) {
+    select: function (pId) {
 
         this.unselect();
 
-        if (this.items[ pRsn ]) {
-            //has been already loaded
-            this.items[ pRsn ].addClass('ka-objectTree-item-selected');
+        if (this.items[ pId ]) {
+            //has been loaded already
+            this.items[ pId ].addClass('ka-objectTree-item-selected');
 
-            this.lastSelectedItem = this.items[ pRsn ];
-            this.lastSelectedObject = this.items[ pRsn ].retrieve('item');
+            this.lastSelectedItem = this.items[ pId ];
+            this.lastSelectedObject = this.items[ pId ].retrieve('item');
             return;
         }
 
-        this.need2SelectAObject = true;
+        //this.need2SelectAObject = true;
 
-        this.startupWithObjectInfo(pRsn, function (res) {
+        this.startupWithObjectInfo(pId, function (parents) {
 
-            this.options.selectObject = pRsn;
-            this.renderFirstLevel();
+            this.options.selectObject = pId;
 
-            Array.each(this.load_object_childs, function (item) {
-                if (this.items[item]) {
-                    this.openChilds(this.items[item]);
+            Array.each(this.load_object_childs, function (id) {
+                logger(id+' => '+this.items[id]);
+                if (this.items[id]) {
+                    this.openChilds(this.items[id]);
                 }
             }.bind(this));
+
         }.bind(this));
 
     },
