@@ -124,22 +124,96 @@ function dbConnect($pReadOnly = false) {
  *
  */
 function dbBegin(){
+    if (database::$activeTransaction) return;
     dbExec('BEGIN');
+    database::$activeTransaction = true;
 }
 
 /**
- * Reverts back to the original version before the call of dbBegin()
+ * Reverts back to the original version before the call of dbBegin().
+ * This also unlocks all locked tables.
  */
 function dbRollback(){
+
+    if (database::$activeLock && kryn::$config['db_type'] == 'mysql'){
+        dbLock('UNLOCK TABLES');
+        database::$activeLock = false;
+    }
+
+    if (!database::$activeTransaction) return;
     dbExec('ROLLBACK');
+    database::$activeTransaction = false;
 }
 
 /**
  * Stores all changed between dbBegin() and dbCommit()
+ * This also unlocks all locked tables.
  *
  */
 function dbCommit(){
+
+    if (database::$activeLock && kryn::$config['db_type'] == 'mysql'){
+        dbLock('UNLOCK TABLES');
+        database::$activeLock = false;
+    }
+
+    if (!database::$activeTransaction) return;
+
     dbExec('COMMIT');
+    database::$activeTransaction = false;
+}
+
+/**
+ * Lock a table in write mode.
+ * To be postgresql compatible, this starts a transaction (if a transaction has not already been started)
+ *
+ * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
+ */
+function dbWriteLock($pTable){
+    dbLock($pTable, 'write');
+}
+
+/**
+ * Lock a table in read mode.
+ * To be postgresql compatible, this starts a transaction (if a transaction has not already been started)
+ *
+ * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
+ */
+function dbReadLock($pTable){
+    dbLock($pTable, 'read');
+}
+
+/**
+ * Lock a table in write or read mode.
+ * To be postgresql compatible, this starts a transaction (if a transaction has not already been started)
+ *
+ * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
+ * @param $pMode read || write
+ */
+function dbLock($pTable, $pMode = 'read'){
+
+    if (!database::$activeTransaction){
+        dbExec('BEGIN');
+        database::$activeTransaction = true;
+    }
+
+    database::$activeLock = true;
+
+    if (kryn::$config['db_type'] == 'mysql')
+        dbExec('LOCK TABLE '.dbQuote($pTable).' '.($pMode=='read'?'READ':'WRITE'));
+    else {
+        dbExec('LOCK TABLE '.dbQuote($pTable).' IN '.($pMode=='read'?'ACCESS SHARE':'ROW EXCLUSIVE MODE'));
+    }
+}
+
+/**
+ *
+ * Unlock tables.
+ * To be psotgresql compatible, this fires dbCommit() and commits therefore the active transaction.
+ *
+ */
+function dbUnlockTables(){
+    dbCommit();
 }
 
 

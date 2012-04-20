@@ -19,7 +19,7 @@ class krynObjectTable extends krynObjectAbstract {
         return dbCount($this->definition['table'], $pCondition);
     }
 
-    public function removeItem($pPrimaryValues){
+    public function remove($pPrimaryValues){
         return dbDelete($this->definition['table'], $pPrimaryValues);
     }
 
@@ -70,6 +70,194 @@ class krynObjectTable extends krynObjectAbstract {
         }
 
         return $result;
+    }
+
+
+    /**
+     * If the object has nested mode enabled, we do move around it with this function.
+     * Modifies lft and rgt field to the new sort
+     *
+     * @param $pSourcePrimaryValues
+     * @param $pTargetPrimaryValues
+     * @param $pMode
+     *
+     */
+    public function move($pSourcePrimaryValues, $pTargetPrimaryValues, $pMode){
+
+        $source = $this->getItem($pSourcePrimaryValues);
+        $target = $this->getItem($pTargetPrimaryValues);
+
+        if ($pMode == 'over' && $source['rgt']+1 == $target['lft']) return false;
+        if ($pMode == 'below' && $source['lft']-1 == $target['rgt']) return false;
+
+        if ($pMode == 'into' && $source['lft']-1 == $target['lft']) return false;
+
+        //no move to his own children
+        if ($pMode == 'into' && ($source['lft'] < $target['lft'] && $source['rgt'] > $target['lft']) ) return false;
+
+        $targetLeft  = $target['lft'];
+        $targetRight = $target['rgt'];
+        $sourceRight = $source['rgt'];
+        $sourceLeft  = $source['lft'];
+        $sourceWidth = $sourceRight-$sourceLeft;
+
+        //quote some field names
+        $table = dbTableName($this->definition['table']);
+        $tableQuoted = dbQuote($table);
+        $lft = dbQuote('lft');
+        $rgt = dbQuote('rgt');
+
+
+        //Step 1. Hide source by converting lft and rgt to negative values
+        $transformSource = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft-$sourceRight,
+                rgt = rgt-$sourceRight
+            WHERE
+                lft >= $sourceLeft AND rgt <= $sourceRight
+            ";
+
+
+        //Step 2. Move all between source and target, so that we have space for source
+
+        if ($pMode == 'over'){
+
+            $sign = '+';
+            $condition = "lft >= $targetLeft AND rgt < $sourceLeft";
+            $andSourceWidth = " + $sourceWidth";
+
+            if ($source['lft'] < $target['lft']){
+                $sign = '-';
+                $condition = "lft > $sourceRight AND rgt <= $targetRight";
+                $andSourceWidth = '';
+            }
+
+            //If we wanna move before target
+            $moveBetweenTarget = "
+                UPDATE
+                    $tableQuoted
+                SET
+                    lft = lft $sign ( $sourceWidth + 1),
+                    rgt = rgt $sign ( $sourceWidth + 1)
+                WHERE
+                    $condition
+            ";
+
+            //move source to new position
+            $moveSource = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft + $targetLeft $andSourceWidth,
+                rgt = rgt + $targetLeft $andSourceWidth
+            WHERE
+                rgt <= 0
+            ";
+
+        } else if ($pMode == 'below'){
+
+            $sign = '+';
+            $condition = "lft > $targetRight AND rgt < $sourceLeft";
+            $sourceNewPosition = $targetRight+$sourceWidth+1;
+
+            if ($source['lft'] < $target['lft']){
+                $sign = '-';
+                $condition = "lft > $sourceRight AND rgt <= $targetRight";
+                $sourceNewPosition = ($targetRight-$sourceWidth)+$sourceWidth;
+            }
+
+            //If we wanna move after target
+            $moveBetweenTarget = "
+                UPDATE
+                    $tableQuoted
+                SET
+                    lft = lft$sign($sourceWidth+1),
+                    rgt = rgt$sign($sourceWidth+1)
+                WHERE
+                    $condition
+            ";
+
+            //move source to new position
+            $moveSource = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft+$sourceNewPosition,
+                rgt = rgt+$sourceNewPosition
+            WHERE
+                rgt <= 0
+            ";
+
+        } else if ($pMode == 'into'){
+
+            $condition = "lft > $targetLeft AND rgt < $sourceLeft";
+
+            $mod = "+ $sourceWidth +1";
+            $mod .= ", rgt = rgt + $sourceWidth +1";
+
+            $modSource = "+ $targetLeft + $sourceWidth + 1";
+
+            if ($source['lft'] < $target['lft']){
+                $condition = "lft = $targetLeft";
+                $mod = "- $sourceWidth -1";
+                $modSource = "+ $sourceWidth + $targetLeft - $sourceWidth";
+            }
+
+            //If we wanna move before target
+            $moveBetweenTarget = "
+                UPDATE
+                    $tableQuoted
+                SET
+                    lft = lft $mod
+                WHERE
+                    $condition
+            ";
+
+            //move source to new position
+            $moveSource = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft $modSource,
+                rgt = rgt $modSource
+            WHERE
+                rgt <= 0
+            ";
+
+
+        }
+
+
+        dbBegin();
+        dbWriteLock($table);
+
+        try {
+
+            dbExec($transformSource);
+            dbExec($moveBetweenTarget);
+            dbExec($moveSource);
+
+            dbCommit();
+        } catch (Exception $e){
+            dbRollback();
+            return false;
+        }
+        dbUnlockTables();
+
+        kryn::invalidateCache('systemObjectTrees');
+
+        /*
+        print "<pre>";
+        print_r($transformSource);
+        print_r($moveBetweenTarget);
+        print_r($moveSource);
+        print_r($source);
+        print_r($target);
+        */
+        return true;
+
     }
 
     /**
@@ -188,12 +376,13 @@ class krynObjectTable extends krynObjectAbstract {
                         $result = $row;
                         $lastParent[$row['_depth']] =& $result;
                     } else{
-                        $result[ $row[$primKey] ] = $row;
-                        $lastParent[$row['_depth']] =& $result[ $row[$primKey] ];
+                        $result[] = $row;
+                        $lastParent[$row['_depth']] =& $result[count($result)-1];
                     }
                 } else {
-                    $lastParent[$row['_depth']-1]['_children'][$row[$primKey]] = $row;
-                    $lastParent[$row['_depth']] =& $lastParent[$row['_depth']-1]['_children'][$row[$primKey]];
+                    $p =& $lastParent[$row['_depth']-1]['_children'];
+                    $p[] = $row;
+                    $lastParent[$row['_depth']] =& $p[count($p)-1];
                 }
 
             }
@@ -203,12 +392,10 @@ class krynObjectTable extends krynObjectAbstract {
 
         return $result;
 
-
-
     }
 
     /**
-     * Converts the values array to the proper array for the table columns.
+     * Converts the values in the array to the proper column names. Especially for object fields.
      *
      *
      * @param $pValues
@@ -296,7 +483,7 @@ class krynObjectTable extends krynObjectAbstract {
         return false;
     }
 
-    public function addItem($pValues){
+    public function add($pValues){
 
         $row = $this->retrieveValues($pValues);
         $primaries = array();
@@ -358,7 +545,7 @@ class krynObjectTable extends krynObjectAbstract {
 
     }
 
-    public function updateItem($pPrimaryValues, $pValues){
+    public function update($pPrimaryValues, $pValues){
 
         $row = $this->retrieveValues($pValues);
 

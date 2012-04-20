@@ -7,10 +7,11 @@ ka.objectTree = new Class({
         withObjectAdd: false, //adds a plus sign and opens <withObjectAdd> entry point
         viewAllObjects: false, //loads initily all objects
         rootObject: false,
-        selectObject: false
+        selectObject: false,
+        iconMap: false,
+        move: true, //can we move the objects around
+        icon: 'admin/images/icons/folder.png' //If iconMap is not defined, we use this
     },
-
-    types: {},
 
     items: {},
     loadChildsRequests: {},
@@ -178,6 +179,10 @@ ka.objectTree = new Class({
     renderFirstLevel: function (pItems) {
         logger(this.load_object_childs);
 
+        Object.each(pItems, function(item, id){
+            logger(id+' => '+item.title);
+        })
+
         this.loadingDone = false;
 
         if (!pItems && this.lastRootItems) {
@@ -292,7 +297,7 @@ ka.objectTree = new Class({
 
     addRootItems: function(pItems, pContainer){
 
-        Object.each(pItems, function(item, id){
+        Array.each(pItems, function(item){
 
             this.addItem(item, pContainer);
 
@@ -312,6 +317,7 @@ ka.objectTree = new Class({
         });
 
         a.id = id;
+        a.parent = pParent;
 
         var container = pParent;
         if (pParent.childContainer) {
@@ -378,46 +384,9 @@ ka.objectTree = new Class({
 
         a.store('item', pItem);
 
+        this.addItemIcon(pItem, a);
+
         /* masks */
-        a.masks = new Element('span', {
-            'class': 'ka-objectTree-item-masks'
-        }).inject(a, 'top');
-
-        new Element('img', {
-            'class': 'ka-objectTree-item-type',
-            src: _path + 'inc/template/admin/images/icons/' + this.types[pItem.type]
-        }).inject(a.masks);
-
-
-        if ((pItem.type == 0 || pItem.type == 1) && pItem.visible == 0) {
-            new Element('img', {
-                src: _path + 'inc/template/admin/images/icons/pageMasks/invisible.png'
-            }).inject(a.masks);
-        }
-
-        if (pItem.type == 1) {
-            new Element('img', {
-                src: _path + 'inc/template/admin/images/icons/pageMasks/link.png'
-            }).inject(a.masks);
-        }
-
-        if ((pItem.type == 0 || pItem.type == 3) && pItem.draft_exist == 1) {
-            new Element('img', {
-                src: _path + 'inc/template/admin/images/icons/pageMasks/draft_exist.png'
-            }).inject(a.masks);
-        }
-
-        if (pItem.access_denied == 1) {
-            new Element('img', {
-                src: _path + 'inc/template/admin/images/icons/pageMasks/access_denied.png'
-            }).inject(a.masks);
-        }
-
-        if (pItem.type == 0 && pItem.access_from_groups != "" && typeOf(pItem.access_from_groups) == 'string') {
-            new Element('img', {
-                src: _path + 'inc/template/admin/images/icons/pageMasks/access_group_limited.png'
-            }).inject(a.masks);
-        }
 
         /* toggler */
         a.toggler = new Element('img', {
@@ -477,7 +446,7 @@ ka.objectTree = new Class({
                 this.inItemsGeneration = true;
             }
 
-            Object.each(pItem._children, function (item) {
+            Array.each(pItem._children, function (item) {
                 this.addItem(item, a);
             }.bind(this));
 
@@ -489,6 +458,61 @@ ka.objectTree = new Class({
         this.checkDoneState();
 
         return a;
+    },
+
+    addItemIcon: function(pItem, pA){
+
+        var icon = this.options.icon;
+
+        if (this.options.iconMap && this.objectDefinition.chooserBrowserTreeIcon)
+            icon = this.options.iconMap[pItem[this.objectDefinition.chooserBrowserTreeIcon]];
+
+        if (!icon) return;
+
+        pA.masks = new Element('span', {
+            'class': 'ka-objectTree-item-masks'
+        }).inject(pA, 'top');
+
+        new Element('img', {
+            'class': 'ka-objectTree-item-type',
+            src: _path + 'inc/template/' + icon
+        }).inject(pA.masks);
+
+
+        /**
+         *  Extract to pagesTree
+         *
+         */
+        if ((pItem.type == 0 || pItem.type == 1) && pItem.visible == 0) {
+            new Element('img', {
+                src: _path + 'inc/template/admin/images/icons/pageMasks/invisible.png'
+            }).inject(pA.masks);
+        }
+
+        if (pItem.type == 1) {
+            new Element('img', {
+                src: _path + 'inc/template/admin/images/icons/pageMasks/link.png'
+            }).inject(pA.masks);
+        }
+
+        if ((pItem.type == 0 || pItem.type == 3) && pItem.draft_exist == 1) {
+            new Element('img', {
+                src: _path + 'inc/template/admin/images/icons/pageMasks/draft_exist.png'
+            }).inject(pA.masks);
+        }
+
+        if (pItem.access_denied == 1) {
+            new Element('img', {
+                src: _path + 'inc/template/admin/images/icons/pageMasks/access_denied.png'
+            }).inject(pA.masks);
+        }
+
+        if (pItem.type == 0 && pItem.access_from_groups != "" && typeOf(pItem.access_from_groups) == 'string') {
+            new Element('img', {
+                src: _path + 'inc/template/admin/images/icons/pageMasks/access_group_limited.png'
+            }).inject(pA.masks);
+        }
+
     },
 
     checkDoneState: function () {
@@ -557,6 +581,8 @@ ka.objectTree = new Class({
 
     openChilds: function (pA) {
 
+        if (!pA.toggler) return;
+
         pA.toggler.set('src', _path + 'inc/template/admin/images/icons/tree_minus.png');
         if (pA.childsLoaded == true) {
             pA.childContainer.setStyle('display', 'block');
@@ -579,7 +605,7 @@ ka.objectTree = new Class({
 
         var loader = new Element('img', {
             src: _path + 'inc/template/admin/images/loading.gif'
-        }).inject(pA.masks)
+        }).inject(pA.span)
 
         var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
@@ -635,6 +661,7 @@ ka.objectTree = new Class({
 
         var canMoveObject = true;
         var object = pA.retrieve('item');
+        /*
         if (object.domain) {
             if (!ka.checkObjectAccess(object.rsn, 'moveObjects', 'd')) {
                 canMoveObject = false;
@@ -643,7 +670,7 @@ ka.objectTree = new Class({
             if (!ka.checkObjectAccess(object.rsn, 'moveObjects')) {
                 canMoveObject = false;
             }
-        }
+        }*/
 
         var kwin = pA.getParent('.kwindow-border');
 
@@ -659,7 +686,8 @@ ka.objectTree = new Class({
             text: pA.get('text')
         }).inject(this.lastClone);
 
-        pA.masks.clone().inject(this.lastClone, 'top');
+        if (pA.masks)
+            pA.masks.clone().inject(this.lastClone, 'top');
 
         var drag = this.lastClone.makeDraggable({
             snap: 0,
@@ -752,6 +780,7 @@ ka.objectTree = new Class({
 
 
         var canMoveInto = true;
+        /*
         if (item.domain) {
             if (!ka.checkObjectAccess(item.rsn, 'addObjects', 'd')) {
                 canMoveInto = false;
@@ -760,11 +789,12 @@ ka.objectTree = new Class({
             if (!ka.checkObjectAccess(item.rsn, 'addObjects')) {
                 canMoveInto = false;
             }
-        }
+        }*/
 
         var canMoveAround = true;
         if (pTarget.parent) {
             var parentObject = pTarget.parent.retrieve('item');
+            /*
             if (parentObject.domain) {
                 if (!ka.checkObjectAccess(parentObject.rsn, 'addObjects', 'd')) {
                     canMoveAround = false;
@@ -773,7 +803,7 @@ ka.objectTree = new Class({
                 if (!ka.checkObjectAccess(parentObject.rsn, 'addObjects')) {
                     canMoveAround = false;
                 }
-            }
+            }*/
         }
 
         if (!item.domain && pPos == 'after') {
@@ -829,15 +859,11 @@ ka.objectTree = new Class({
                 'inside': 'into'
             };
 
-            var to = this.dragNDropElement.retrieve('item');
-            var where = this.currentObjectToDrag.retrieve('item');
+            var target = this.dragNDropElement;
+            var source = this.currentObjectToDrag;
 
-            var whereRsn = where.rsn;
-            var toRsn = to.rsn;
             var code = pos[this.dragNDropPos];
-
-            var toDomain = to.domain ? true : false;
-            this.moveObject(whereRsn, toRsn, code, toDomain);
+            this.moveObject(source.id, target.id, code);
         }
         document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
     },
@@ -851,13 +877,12 @@ ka.objectTree = new Class({
         }
     },
 
-    moveObject: function (pWhereRsn, pToRsn, pCode, pToDomain) {
+    moveObject: function (pSourceId, pTargetId, pCode, pToDomain) {
         var _this = this;
         var req = {
-            rsn: pWhereRsn,
-            torsn: pToRsn,
-            mode: pCode,
-            toDomain: pToDomain ? 1 : 0
+            source: this.objectKey+'/'+pSourceId,
+            target: this.objectKey+'/'+pTargetId,
+            mode: pCode
         };
 
         new Request.JSON({url: _path + 'admin/objects/move', onComplete: function (res) {
@@ -989,6 +1014,18 @@ ka.objectTree = new Class({
 
             this.lastSelectedItem = this.items[ pId ];
             this.lastSelectedObject = this.items[ pId ].retrieve('item');
+
+            //open parents too
+            var parent = this.items[ pId ];
+            while(true){
+                if (parent.parent){
+                    parent = parent.parent;
+                    this.openChilds(parent);
+                } else {
+                    break;
+                }
+            }
+
             return;
         }
 

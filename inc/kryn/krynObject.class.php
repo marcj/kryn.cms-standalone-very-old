@@ -333,14 +333,14 @@ class krynObject {
     public static function add($pObjectUri, $pValues){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
         $obj = self::getClassObject($object_key);
-        return $obj->addItem($pValues);
+        return $obj->add($pValues);
 
     }
 
     public static function update($pObjectUri, $pValues){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
         $obj = self::getClassObject($object_key);
-        return $obj->updateItem($object_id, $pValues);
+        return $obj->update($object_id, $pValues);
 
     }
 
@@ -377,36 +377,6 @@ class krynObject {
 
         return $obj->getTree($object_id[0], $pDepth, $pExtraFields);
 
-
-
-return 'hi';
-        $pDomainRsn = $pDomainRsn + 0;
-
-        $viewAllPages = (getArgv('viewAllPages') == 1) ? true : false;
-        if ($viewAllPages && !kryn::checkUriAccess('users/users/acl'))
-            $viewAllPages = false;
-
-        if (!$viewAllPages && !kryn::checkPageAcl($pDomainRsn, 'showDomain', 'd')) {
-            json(array('error' => 'access_denied'));
-        }
-
-        $domain = dbTableFetch('system_domains', 1, "rsn = $pDomainRsn");
-        $domain['type'] = -1;
-
-        $childs = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
-        $domain['childs'] = array();
-
-        $cachedUris =& kryn::getCache('systemUris-' . $pDomainRsn);
-
-        foreach ($childs as &$page) {
-            if ($viewAllPages || kryn::checkPageAcl($page['rsn'], 'showPage') == true) {
-                $page['realUri'] = $cachedUris['rsn']['rsn=' . $page['rsn']];
-                $page['hasChilds'] = kryn::pageHasChilds($page['rsn']);
-                $domain['childs'][] = $page;
-            }
-        }
-
-        json($domain);
     }
 
     public static function getPrimaries($pObjectId){
@@ -444,6 +414,16 @@ return 'hi';
         $obj = self::getClassObject($object_key);
 
         return $obj->getParents($object_id[0]);
+    }
+
+    public static function move($pSourceObjectUri, $pTargetObjectUri, $pMode){
+
+        list($object_key, $object_id, $params) = self::parseUri($pSourceObjectUri);
+        $target = self::parseUri($pTargetObjectUri);
+
+        $obj = self::getClassObject($object_key);
+
+        return $obj->move($object_id[0], $target[1][0], $pMode);
     }
 
 }

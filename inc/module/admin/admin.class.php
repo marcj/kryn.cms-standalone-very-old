@@ -127,6 +127,9 @@ class admin {
                             break;
                         case 'nothing':
                             die("");
+
+
+
                         case 'objectGetLabel':
                             $content = self::objectGetLabel(getArgv('url'));
                             break;
@@ -139,12 +142,19 @@ class admin {
                         case 'objectParents':
                             $content = self::getObjectParents(getArgv('object'));
                             break;
+                        case 'moveObject':
+                            $content = self::moveObject(getArgv('source'), getArgv('target'), getArgv('mode', 2));
+                            break;
+
+
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object', 2), getArgv('page'));
                             break;
                         case 'getPluginElements':
                             $content = self::getPluginElements(getArgv('object', 2));
                             break;
+
+
                         case 'clearCache':
                             json(admin::clearCache());
                         case 'loadJs':
@@ -265,6 +275,10 @@ class admin {
 
     public static function getObjectTree($pObjectUrl, $pDepth = 1){
         return krynObject::getTree($pObjectUrl, $pDepth);
+    }
+
+    public static function moveObject($pSourceObjectUrl, $pTargetObjectUrl, $pMode){
+        return krynObject::move($pSourceObjectUrl, $pTargetObjectUrl, $pMode);
     }
 
 

@@ -22,7 +22,7 @@
 
 .ka-objectTree-item-toggler {
     position: relative;
-    top: 2px;
+    top: 3px;
     margin: 0px 2px;
 }
 
@@ -30,8 +30,8 @@
 .ka-objectTree-drag-box {
     position: relative;
     display: block;
-    line-height: 18px;
-    height: 18px;
+    line-height: 20px;
+    height: 19px;
     padding: 1px;
     cursor: pointer;
     color: #444;

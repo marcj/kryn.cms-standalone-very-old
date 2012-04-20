@@ -91,6 +91,9 @@ class database {
      */
     public $readOnly = false;
 
+    public static $activeTransaction = false;
+    public static $activeLock = false;
+
 
     public function __construct($pDatabaseType = false, $pHost = false, $pUser = false,
                                 $pPassword = false, $pDatabaseName = false, $pUsePdo = true) {

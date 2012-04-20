@@ -112,7 +112,7 @@ abstract class krynObjectAbstract {
      * @param $pPrimaryValues
      *
      */
-    abstract public function removeItem($pPrimaryValues);
+    abstract public function remove($pPrimaryValues);
 
     /**
      * @abstract
@@ -120,7 +120,7 @@ abstract class krynObjectAbstract {
      *
      * @return inserted primary key. (last_insert_id() for SQL backend)
      */
-    abstract public function addItem($pValues);
+    abstract public function add($pValues);
 
     /**
      * Updates an object
@@ -129,7 +129,7 @@ abstract class krynObjectAbstract {
      * @param $pPrimaryValues
      * @param $pValues
      */
-    abstract public function updateItem($pPrimaryValues, $pValues);
+    abstract public function update($pPrimaryValues, $pValues);
 
     /**
      * @abstract
