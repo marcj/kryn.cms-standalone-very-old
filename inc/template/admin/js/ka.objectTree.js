@@ -177,11 +177,6 @@ ka.objectTree = new Class({
     },
 
     renderFirstLevel: function (pItems) {
-        logger(this.load_object_childs);
-
-        Object.each(pItems, function(item, id){
-            logger(id+' => '+item.title);
-        })
 
         this.loadingDone = false;
 
@@ -596,7 +591,11 @@ ka.objectTree = new Class({
     },
 
     reloadChilds: function (pA) {
-        this.loadChilds(pA, false);
+        if (pA.hasClass('ka-objectTree-root')){
+            this.loadFirstLevel();
+        } else {
+            this.loadChilds(pA, false);
+        }
     },
 
     loadChilds: function (pA, pAndOpen) {
@@ -854,8 +853,8 @@ ka.objectTree = new Class({
         if (pWithoutMoving != true) {
 
             var pos = {
-                'before': 'up',
-                'after': 'down',
+                'before': 'over',
+                'after': 'below',
                 'inside': 'into'
             };
 
@@ -885,7 +884,7 @@ ka.objectTree = new Class({
             mode: pCode
         };
 
-        new Request.JSON({url: _path + 'admin/objects/move', onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/backend/moveObject', onComplete: function (res) {
 
             //target item this.dragNDropElement
             if (this.dragNDropElement.parent) {
@@ -903,7 +902,7 @@ ka.objectTree = new Class({
 
             ka.loadSettings(['r2d']);
 
-        }.bind(this)}).post(req);
+        }.bind(this)}).get(req);
     },
 
     reload: function () {

@@ -79,13 +79,19 @@ class krynObjectTable extends krynObjectAbstract {
      *
      * @param $pSourcePrimaryValues
      * @param $pTargetPrimaryValues
-     * @param $pMode
+     * @param $pMode over | into | below
      *
+     * @return boolean
      */
     public function move($pSourcePrimaryValues, $pTargetPrimaryValues, $pMode){
 
         $source = $this->getItem($pSourcePrimaryValues);
         $target = $this->getItem($pTargetPrimaryValues);
+
+        $modes = array('over', 'below', 'into');
+        if (!in_array($pMode, $modes)) return false;
+
+        if ($pMode != 'over' && $pMode != 'below') return false;
 
         if ($pMode == 'over' && $source['rgt']+1 == $target['lft']) return false;
         if ($pMode == 'below' && $source['lft']-1 == $target['rgt']) return false;
@@ -124,68 +130,82 @@ class krynObjectTable extends krynObjectAbstract {
 
         if ($pMode == 'over'){
 
-            $sign = '+';
-            $condition = "lft >= $targetLeft AND rgt < $sourceLeft";
-            $andSourceWidth = " + $sourceWidth";
-
             if ($source['lft'] < $target['lft']){
-                $sign = '-';
-                $condition = "lft > $sourceRight AND rgt <= $targetRight";
-                $andSourceWidth = '';
+                $moveBetweenTarget = "
+                UPDATE $tableQuoted SET
+                    rgt = rgt - ( $sourceWidth + 1)
+                WHERE
+                    rgt > $sourceLeft AND rgt < $targetLeft;
+
+                UPDATE $tableQuoted SET
+                    lft = lft - ( $sourceWidth + 1)
+                WHERE
+                    lft > $sourceLeft AND lft < $targetLeft;
+                ";
+                $mod = "- 1";
+            } else {
+                $moveBetweenTarget = "
+                UPDATE $tableQuoted SET
+                    rgt = rgt + ( $sourceWidth + 1)
+                WHERE
+                    rgt > $targetLeft AND rgt < $sourceLeft;
+
+                UPDATE $tableQuoted SET
+                    lft = lft + ( $sourceWidth + 1)
+                WHERE
+                    lft >= $targetLeft AND lft < $sourceLeft;
+                ";
+                $mod = "+ $sourceWidth";
             }
 
-            //If we wanna move before target
-            $moveBetweenTarget = "
-                UPDATE
-                    $tableQuoted
-                SET
-                    lft = lft $sign ( $sourceWidth + 1),
-                    rgt = rgt $sign ( $sourceWidth + 1)
-                WHERE
-                    $condition
-            ";
-
-            //move source to new position
+            //step 3. move source to new position
             $moveSource = "
             UPDATE
                 $tableQuoted
             SET
-                lft = lft + $targetLeft $andSourceWidth,
-                rgt = rgt + $targetLeft $andSourceWidth
+                lft = lft + $targetLeft $mod,
+                rgt = rgt + $targetLeft $mod
             WHERE
                 rgt <= 0
             ";
 
         } else if ($pMode == 'below'){
 
-            $sign = '+';
-            $condition = "lft > $targetRight AND rgt < $sourceLeft";
-            $sourceNewPosition = $targetRight+$sourceWidth+1;
+            if ($source['rgt'] < $target['rgt']){
+                $moveBetweenTarget = "
+                UPDATE $tableQuoted SET
+                    rgt = rgt - ( $sourceWidth + 1)
+                WHERE
+                    rgt > $sourceRight AND rgt <= $targetRight;
 
-            if ($source['lft'] < $target['lft']){
-                $sign = '-';
-                $condition = "lft > $sourceRight AND rgt <= $targetRight";
-                $sourceNewPosition = ($targetRight-$sourceWidth)+$sourceWidth;
+                UPDATE $tableQuoted SET
+                    lft = lft - ( $sourceWidth + 1)
+                WHERE
+                    lft > $sourceRight AND lft < $targetRight;
+                ";
+                $mod = " ";
+            } else {
+                $moveBetweenTarget = "
+                UPDATE $tableQuoted SET
+                    rgt = rgt + ( $sourceWidth + 1)
+                WHERE
+                    rgt > $targetRight AND rgt < $sourceLeft;
+
+                UPDATE $tableQuoted SET
+                    lft = lft + ( $sourceWidth + 1)
+                WHERE
+                    lft > $targetRight AND lft < $sourceLeft;
+                ";
+                $mod = "+ $sourceWidth +1";
             }
 
-            //If we wanna move after target
-            $moveBetweenTarget = "
-                UPDATE
-                    $tableQuoted
-                SET
-                    lft = lft$sign($sourceWidth+1),
-                    rgt = rgt$sign($sourceWidth+1)
-                WHERE
-                    $condition
-            ";
-
-            //move source to new position
+            //step 3. move source to new position
             $moveSource = "
             UPDATE
                 $tableQuoted
             SET
-                lft = lft+$sourceNewPosition,
-                rgt = rgt+$sourceNewPosition
+                lft = lft + $targetRight $mod,
+                rgt = rgt + $targetRight $mod
             WHERE
                 rgt <= 0
             ";
@@ -205,7 +225,6 @@ class krynObjectTable extends krynObjectAbstract {
                 $modSource = "+ $sourceWidth + $targetLeft - $sourceWidth";
             }
 
-            //If we wanna move before target
             $moveBetweenTarget = "
                 UPDATE
                     $tableQuoted
@@ -215,7 +234,7 @@ class krynObjectTable extends krynObjectAbstract {
                     $condition
             ";
 
-            //move source to new position
+            //step 3. move source to new position
             $moveSource = "
             UPDATE
                 $tableQuoted
@@ -241,10 +260,11 @@ class krynObjectTable extends krynObjectAbstract {
 
             dbCommit();
         } catch (Exception $e){
+
+            error_log($e);
             dbRollback();
             return false;
         }
-        dbUnlockTables();
 
         kryn::invalidateCache('systemObjectTrees');
 
