@@ -263,8 +263,6 @@ class krynObjectTable extends krynObjectAbstract {
 
             dbCommit();
         } catch (Exception $e){
-
-            error_log($e);
             dbRollback();
             return false;
         }
