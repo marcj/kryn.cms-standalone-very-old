@@ -570,7 +570,6 @@
       "tableCondition": [
         
       ],
-      "tableNestedParentField": "prsn",
       "tableNested": 1,
       "multiLanguage": 0,
       "domainDepended": 0,
@@ -581,9 +580,15 @@
         }
       },
       "chooserFieldType": "default",
+      "chooserBrowserTreeDataModel": "default",
+      "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
+      "chooserBrowserTreeJavascript": "custom",
       "chooserBrowserTreeLabel": "title",
       "chooserBrowserTreeIcon": "type",
-      "chooserBrowserTreeType": "1",
+      "chooserBrowserTreeIconMapping": [
+        
+      ],
+      "chooserBrowserTreeType": 1,
       "chooserBrowserJavascriptClass": "ka.nodeChooser",
       "chooserBrowserOptions": [
         
@@ -1737,7 +1742,7 @@
     "admin\/js\/ka.list.js",
     "admin\/js\/ka.overview.js",
     "admin\/js\/ka.objectTree.js",
-    "admin\/js\/ka.pagesTree.js",
+    "admin\/js\/ka.nodeTree.js",
     "admin\/js\/ka.windowEdit.js",
     "admin\/js\/ka.windowCombine.js",
     "admin\/js\/ka.windowAdd.js",
@@ -1788,7 +1793,7 @@
     "admin\/css\/ka.widget.css",
     "admin\/css\/ka.list.css",
     "admin\/css\/ka.objectTree.css",
-    "admin\/css\/ka.pagesTree.css",
+    "admin\/css\/ka.nodeTree.css",
     "admin\/css\/ka.windowEdit.css",
     "admin\/css\/ka.wm.css",
     "admin\/css\/ka.dialog.css",

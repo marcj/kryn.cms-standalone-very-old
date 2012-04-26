@@ -2012,7 +2012,42 @@ var admin_system_module_edit = new Class({
                                 type: 'checkbox',
                                 needValue: 1,
                                 label: t('Browser UI (tree)'),
+                                desc: t('Only for nested objects.'),
                                 depends: {
+                                    chooserBrowserTreeDataModel: {
+                                        needValue: 1,
+                                        label: t('Data model'),
+                                        items: {
+                                            'default': 'Framework',
+                                            'custom': 'Custom class'
+                                        },
+                                        type: 'select',
+                                        depends: {
+                                            chooserBrowserTreeDataModelClass: {
+                                                label: t('PHP Class'),
+                                                needValue: 'custom',
+                                                desc: t('Have to be at inc/modules/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                            }
+                                        }
+                                    },
+                                    chooserBrowserTreeJavascript: {
+                                        needValue: 1,
+                                        label: t('Javascript class'),
+                                        items: {
+                                            'default': 'Framework',
+                                            'custom': 'Custom class'
+                                        },
+                                        type: 'select',
+                                        depends: {
+                                            chooserBrowserTreeJavascriptClass: {
+                                                needValue: 'custom',
+                                                label: t('Javascript class'),
+                                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                                            }
+                                        }
+                                    },
+
+
                                     chooserBrowserTreeLabel: {
                                         needValue: 1,
                                         label: t('Label field')
@@ -2052,7 +2087,7 @@ var admin_system_module_edit = new Class({
                                     chooserBrowserJavascriptClass: {
                                         needValue: 'custom',
                                         label: t('Javascript class'),
-                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "include javascript files" under tab "General"')
+                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
                                     },
                                     chooserBrowserOptions: {
                                         label: t('UI properties'),

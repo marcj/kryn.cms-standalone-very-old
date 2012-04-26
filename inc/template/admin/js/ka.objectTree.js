@@ -8,6 +8,7 @@ ka.objectTree = new Class({
         viewAllObjects: false, //loads initily all objects
         rootObject: false,
         selectObject: false,
+        withContext: true,
         iconMap: false,
         move: true, //can we move the objects around
         icon: 'admin/images/icons/folder.png' //If iconMap is not defined, we use this
@@ -211,12 +212,32 @@ ka.objectTree = new Class({
     },
 
     onMousedown: function (e) {
+
+
+        if (!this.options.noDrag && e.target){
+
+            var el = e.target;
+
+            if (!el.hasClass('ka-objectTree-item'))
+                el = el.getParent('.ka-objectTree-item');
+
+            if (el){
+                this.activePress = true;
+                (function(){
+                    if (this.activePress)
+                        this.createDrag(el, e);
+                }).delay(200, this);
+
+            }
+        }
+
         e.preventDefault();
     },
 
     onClick: function (e) {
 
         if (this.inDragMode) return;
+        this.activePress = false;
 
         var target = e.target;
         if (!target) return;
@@ -236,6 +257,7 @@ ka.objectTree = new Class({
 
         var item = a.retrieve('item');
 
+        logger(e.rightClick);
         if (e.rightClick) {
             this.openContext(e, a, item);
             return;
@@ -347,31 +369,6 @@ ka.objectTree = new Class({
         }*/
 
         this.items[ id ] = a;
-        //Drag'n'Drop
-        if (!this.options.noDrag) {
-            a.addEvent('mousedown', function (e) {
-
-                // if (!ka.checkObjectAccess(pItem.rsn, 'moveObjects')) {
-                //     return;
-                //}
-
-                a.store('mousedown', true);
-                if (this.options.move != false) {
-                    (function () {
-                        if (a.retrieve('mousedown')) {
-                            this.createDrag(a, e);
-                        }
-                    }).delay(200, this)
-                }
-            }.bind(this))
-        }
-
-        a.addEvent('mouseout', function () {
-            this.store('mousedown', false);
-        });
-        a.addEvent('mouseup', function () {
-            this.store('mousedown', false);
-        });
 
         if (!pItem.domain && a.parent) {
             a.setStyle('padding-left', a.parent.getStyle('padding-left').toInt() + 15);
@@ -922,82 +919,6 @@ ka.objectTree = new Class({
         return false;
     },
 
-    createMoveContextMenu: function (pWhere, pTo) {
-
-        var pos = this.currentDropper.getPosition(this.container);
-        var st = this.container.scrollTop.toInt();
-
-        var _this = this;
-        var t = pWhere.retrieve('object');
-        pWhereRsn = t.rsn;
-
-        var t = pTo.retrieve('object');
-        var domain_rsn = 0;
-        var actions = [
-            {code: 'up', label: _('Above')},
-            {code: 'into', label: _('Into')},
-            {code: 'down', label: _('Below')}
-        ];
-
-
-        pToRsn = t.rsn;
-        if (t.rsn == 0) {
-            //t.rsn = 'domain';
-            pToRsn = 'domain';
-            domain_rsn = t.domain_rsn;
-            var actions = [
-                {code: 'into', label: _('Into')}
-            ];
-        }
-
-        _this.createMoveContextMenuOver = true;
-
-        var mtop = pos.y - 15;
-        if (mtop < 0) {
-            mtop = 1;
-        }
-
-        var mleft = 6;
-        if (this.currentDropper.getStyle('padding-left')) {
-            mleft = this.currentDropper.getStyle('padding-left').toInt();
-        }
-
-        var context = new Element('div', {
-            'class': 'objectTree-context-move'
-        }).setStyles({
-            left: mleft,
-            top: mtop,
-            opacity: 0
-        }).addEvent('mouseout',
-            function () {
-                _this.createMoveContextMenuOver = false;
-                var __this = this;
-                (function () {
-                    if (!_this.createMoveContextMenuOver) {
-                        __this.destroy();
-                    }
-                }).delay(500);
-            }).inject(this.container);
-
-        actions.each(function (item) {
-            new Element('a', {
-                html: item.label,
-                'class': item.code
-            }).addEvent('click',
-                function () {
-                    _this.moveObject(pWhereRsn, pToRsn, item.code, domain_rsn);
-                    context.destroy();
-                }).addEvent('mouseover',
-                function (e) {
-                    _this.createMoveContextMenuOver = true;
-                }).inject(context);
-        });
-
-        context.set('tween', {duration: 200});
-        context.tween('opacity', 1);
-
-    },
-
     getSelected: function () {
         var selected = this.container.getElement('.ka-objectTree-item-selected');
         return selected?selected.retrieve('item'):false;
@@ -1055,6 +976,84 @@ ka.objectTree = new Class({
 
     openContext: function (pEvent, pA, pObject) {
 
+        logger('0');
+        logger(this.options.withContext);
+        logger(pEvent.rightClick);
+
+        if (this.options.withContext != true) return;
+
+        if (!pEvent.rightClick) return;
+
+        window.fireEvent('mouseup');
+        pEvent.stopPropagation();
+
+        pA.addClass('ka-objectTree-item-hover');
+        this.lastContextA = pA;
+
+        this.oldContext = new Element('div', {
+            'class': 'ka-objectTree-context'
+        }).inject(document.body);
+
+
+        this.createContextItems(pObject);
+        this.doContextPosition(pEvent);
+    },
+
+    createContextItems: function(pObject){
+        var objectCopy = {
+            objectKey: this.objectKey,
+            object: pObject
+        };
+
+        new Element('a', {
+            html: t('Copy')
+        }).addEvent('click', function () {
+            ka.setClipboard(t('Object %s copied').replace('%s', this.objectDefinition.label), 'objectCopy', objectCopy);
+        }.bind(this)).inject(this.oldContext);
+
+        new Element('a', {
+            html: t('Copy with sub-elements')
+        }).addEvent('click', function () {
+            ka.setClipboard(t('Object %s with sub elements copied').replace('%s', this.objectDefinition.label),
+                'objectCopyyWithSubElements', objectCopy);
+        }.bind(this)).inject(this.oldContext);
+
+        new Element('a', {
+            'class': 'delimiter'
+        }).inject(this.oldContext);
+
+        new Element('a', {
+            html: t('Delete')
+        }).addEvent('click', function () {
+
+        }.bind(this)).inject(this.oldContext);
+
+    },
+
+    doContextPosition: function(pEvent){
+
+        var wsize = window.getSize();
+        var csize = this.oldContext.getSize();
+
+
+        var left = pEvent.page.x - (this.container.getPosition(document.body).x);
+        var mtop = pEvent.page.y - (this.container.getPosition(document.body).y);
+
+        var left = pEvent.page.x;
+        var mtop = pEvent.page.y;
+        if (mtop < 0) {
+            mtop = 1;
+        }
+
+        this.oldContext.setStyles({
+            left: left,
+            'top': mtop
+        });
+
+        if (mtop + csize.y > wsize.y) {
+            mtop = mtop - csize.y;
+            this.oldContext.setStyle('top', mtop + 1);
+        }
     }
 
 });

@@ -1,12 +1,5 @@
-ka.pagesTree = new Class({
-
-    Implements: [Options, Events],
-    ready: false,
-
-    options: {},
-
-    items: {},
-    loadChildsRequests: {},
+ka.nodeTree = new Class({
+    Extends: ka.objectTree,
 
     types: {
         '0': 'page_green.png',
@@ -15,17 +8,6 @@ ka.pagesTree = new Class({
         '3': 'page_white_text.png',
         '-1': 'world.png'
     },
-
-    loadingDone: false,
-    firstLoadDone: false,
-
-    load_page_childs: false,
-    need2SelectAPage: false,
-    domainA: false,
-    inItemsGeneration: false,
-
-    //contains the open state of the pages
-    opens: {},
 
     initialize: function (pContainer, pDomain, pOptions, pRefs) {
         this.domain_rsn = pDomain;
@@ -885,83 +867,6 @@ ka.pagesTree = new Class({
             return true;
         }
         return false;
-    },
-
-    createMoveContextMenu: function (pWhere, pTo) {
-
-        var pos = this.currentDropper.getPosition(this.container);
-        var st = this.container.scrollTop.toInt();
-
-
-        var _this = this;
-        var t = pWhere.retrieve('page');
-        pWhereRsn = t.rsn;
-
-        var t = pTo.retrieve('page');
-        var domain_rsn = 0;
-        var actions = [
-            {code: 'up', label: _('Above')},
-            {code: 'into', label: _('Into')},
-            {code: 'down', label: _('Below')}
-        ];
-
-
-        pToRsn = t.rsn;
-        if (t.rsn == 0) {
-            //t.rsn = 'domain';
-            pToRsn = 'domain';
-            domain_rsn = t.domain_rsn;
-            var actions = [
-                {code: 'into', label: _('Into')}
-            ];
-        }
-
-        _this.createMoveContextMenuOver = true;
-
-        var mtop = pos.y - 15;
-        if (mtop < 0) {
-            mtop = 1;
-        }
-
-        var mleft = 6;
-        if (this.currentDropper.getStyle('padding-left')) {
-            mleft = this.currentDropper.getStyle('padding-left').toInt();
-        }
-
-        var context = new Element('div', {
-            'class': 'pagesTree-context-move'
-        }).setStyles({
-            left: mleft,
-            top: mtop,
-            opacity: 0
-        }).addEvent('mouseout',
-            function () {
-                _this.createMoveContextMenuOver = false;
-                var __this = this;
-                (function () {
-                    if (!_this.createMoveContextMenuOver) {
-                        __this.destroy();
-                    }
-                }).delay(500);
-            }).inject(this.container);
-
-        actions.each(function (item) {
-            new Element('a', {
-                html: item.label,
-                'class': item.code
-            }).addEvent('click',
-                function () {
-                    _this.movePage(pWhereRsn, pToRsn, item.code, domain_rsn);
-                    context.destroy();
-                }).addEvent('mouseover',
-                function (e) {
-                    _this.createMoveContextMenuOver = true;
-                }).inject(context);
-        });
-
-        context.set('tween', {duration: 200});
-        context.tween('opacity', 1);
-
     },
 
     getSelected: function () {

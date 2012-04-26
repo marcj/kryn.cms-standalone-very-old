@@ -223,6 +223,7 @@ class krynObjectTable extends krynObjectAbstract {
                 WHERE
                     lft > $sourceRight AND lft <= $targetLeft;
                 ";
+                $mod = '';
             } else {
                 $moveBetweenTarget = "
                 UPDATE $tableQuoted SET
@@ -235,6 +236,7 @@ class krynObjectTable extends krynObjectAbstract {
                 WHERE
                     lft > $targetLeft AND lft < $sourceLeft;
                 ";
+                $mod = " + $sourceWidth +1";
             }
 
             //step 3. move source to new position
@@ -242,8 +244,8 @@ class krynObjectTable extends krynObjectAbstract {
             UPDATE
                 $tableQuoted
             SET
-                lft = lft + $targetLeft + $sourceWidth +1,
-                rgt = rgt + $targetLeft + $sourceWidth +1
+                lft = lft + $targetLeft $mod,
+                rgt = rgt + $targetLeft $mod
             WHERE
                 rgt <= 0
             ";
@@ -302,7 +304,7 @@ class krynObjectTable extends krynObjectAbstract {
         $primKey = current($this->primaryKeys);
         $idValue = $pParentValues[$primKey]?$pParentValues[$primKey]+0:'root';
 
-        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.$idValue;
+        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.$idValue.'-'.$pDepth;
 
         if (!($result = kryn::getCache($cacheKey))){
 
@@ -374,7 +376,7 @@ class krynObjectTable extends krynObjectAbstract {
             $selects = implode(",\n", $selects);
 
             $sql = "
-            SELECT   $selects
+            SELECT   $selects, MAX(node.lft) as lft, MAX(node.rgt) as rgt
             FROM     $tables
             WHERE    $nodeLft BETWEEN $parentLft AND $parentRgt
             $additionalWhere
