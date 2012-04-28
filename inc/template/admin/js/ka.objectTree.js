@@ -976,10 +976,6 @@ ka.objectTree = new Class({
 
     openContext: function (pEvent, pA, pObject) {
 
-        logger('0');
-        logger(this.options.withContext);
-        logger(pEvent.rightClick);
-
         if (this.options.withContext != true) return;
 
         if (!pEvent.rightClick) return;
@@ -1015,7 +1011,7 @@ ka.objectTree = new Class({
             html: t('Copy with sub-elements')
         }).addEvent('click', function () {
             ka.setClipboard(t('Object %s with sub elements copied').replace('%s', this.objectDefinition.label),
-                'objectCopyyWithSubElements', objectCopy);
+                'objectCopyWithSubElements', objectCopy);
         }.bind(this)).inject(this.oldContext);
 
         new Element('a', {
@@ -1027,6 +1023,75 @@ ka.objectTree = new Class({
         }).addEvent('click', function () {
 
         }.bind(this)).inject(this.oldContext);
+
+        var clipboard = ka.getClipboard();
+        if (!(clipboard.type == 'objectCopyWithSubpages' || clipboard.type == 'objectCopy')) {
+            return;
+        }
+
+        var canPasteInto = true;
+        var canPasteAround = true;
+
+        /* todo
+
+         if (pPage.domain) {
+             if (!ka.checkPageAccess(pPage.rsn, 'addPages', 'd')) {
+                canPasteInto = false;
+             }
+         } else {
+             if (!ka.checkPageAccess(pPage.rsn, 'addPages')) {
+                canPasteInto = false;
+             }
+         }
+
+         if (pA.parent) {
+            var parentPage = pA.parent.retrieve('item');
+            if (parentPage.domain) {
+                if (!ka.checkPageAccess(parentPage.rsn, 'addPages', 'd')) {
+                    canPasteAround = false;
+                }
+            } else {
+                if (!ka.checkPageAccess(parentPage.rsn, 'addPages')) {
+                    canPasteAround = false;
+                }
+            }
+        }*/
+
+
+        if (canPasteAround || canPasteInto) {
+
+            new Element('a', {
+                'class': 'noaction',
+                html: _('Paste')
+            }).inject(this.oldContext);
+
+
+            if (canPasteAround && !pPage.domain) {
+                new Element('a', {
+                    'class': 'indented',
+                    html: _('Before')
+                }).addEvent('click', function () {
+                    this.paste('up', pPage);
+                }.bind(this)).inject(this.oldContext);
+            }
+
+            if (canPasteInto) {
+                new Element('a', {
+                    'class': 'indented',
+                    html: _('Into')
+                }).addEvent('click', function () {
+                    this.paste('into', pPage);
+                }.bind(this)).inject(this.oldContext);
+            }
+            if (canPasteAround && !pPage.domain) {
+                new Element('a', {
+                    'class': 'indented',
+                    html: _('After')
+                }).addEvent('click', function () {
+                    this.paste('down', pPage);
+                }.bind(this)).inject(this.oldContext);
+            }
+        }
 
     },
 

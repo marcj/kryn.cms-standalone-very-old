@@ -98,7 +98,7 @@ class krynObject {
      */
     public static function parseUri($pInternalUri){
 
-        $pInternalUri = str_replace(' ', '', trim($pInternalUri));
+        $pInternalUri = trim($pInternalUri);
 
         $catch = 'object://';
         if (substr(strtolower($pInternalUri),0,strlen($catch)) == $catch){
@@ -135,6 +135,10 @@ class krynObject {
         $obj = self::getClassObject($object_key);
 
         $object_id = $obj->primaryStringToArray($object_id);
+
+        if ($params && $params['condition']){
+            $params['condition'] = json_decode($params['condition'], true);
+        }
 
         return array(
             $object_key,
@@ -372,10 +376,9 @@ class krynObject {
 
 
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
-
         $obj = self::getClassObject($object_key);
 
-        return $obj->getTree($object_id[0], $pDepth, $pExtraFields);
+        return $obj->getTree($object_id[0], $pDepth, $pExtraFields, $params['condition']);
 
     }
 

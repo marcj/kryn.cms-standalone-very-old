@@ -24,7 +24,6 @@ class adminDb {
     public static function sync($pModuleConfig) {
         $res = array();
 
-//        database::$hideReporting = true;
         if (is_array($pModuleConfig['db']) && $tables = self::tableSync($pModuleConfig['db']))
             $res = array_merge($res, $tables);
 
@@ -36,7 +35,6 @@ class adminDb {
         };
 
 
-        //database::$hideReporting = false;
         return $res;
     }
 
@@ -176,11 +174,7 @@ class adminDb {
 
             if (!array_key_exists($fName, $columns)) {
 
-                if (kryn::$config['db_type'] == 'postgresql') {
-                    //todo
-                } else {
-                    $query = "ALTER TABLE $tableName ADD $fieldDef";
-                }
+                $query = "ALTER TABLE $tableName ADD $fieldDef";
 
                 dbExec($query);
 
@@ -198,8 +192,7 @@ class adminDb {
                 if ($fieldType == $newFieldType && $fieldOption == $newFieldOption) continue;
 
                 if (kryn::$config['db_type'] == 'postgresql') {
-                    //$sql = 'ALTER TABLE ' . dbQuote($pTable) . ' ALTER COLUMN ' . $sql;
-                    //todo
+                    $query = "ALTER TABLE $tableName ALTER COLUMN $field TYPE $fieldDef";
                 } else {
                     $query = "ALTER TABLE $tableName CHANGE COLUMN $field $fieldDef";
                 }

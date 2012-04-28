@@ -573,6 +573,9 @@
       "tableNested": 1,
       "multiLanguage": 0,
       "domainDepended": 0,
+      "chooserFieldDataModelCondition": [
+        
+      ],
       "chooserFieldDataModel": "default",
       "chooserFieldDataModelFields": {
         "title": {
@@ -583,11 +586,18 @@
       "chooserBrowserTreeDataModel": "default",
       "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
       "chooserBrowserTreeJavascript": "custom",
+      "chooserBrowserTreeRootObject": "domain",
+      "chooserBrowserTreeRootObjectField": "domain_rsn",
+      "chooserBrowserTreeRootObjectLabel": "domain",
+      "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
+      "chooserBrowserTreeRootObjectFixedIcon": 1,
+      "chooserBrowserTreeRootAsObject": 1,
       "chooserBrowserTreeLabel": "title",
       "chooserBrowserTreeIcon": "type",
       "chooserBrowserTreeIconMapping": [
         
       ],
+      "chooserBrowserTreeFixedIcon": 0,
       "chooserBrowserTreeType": 1,
       "chooserBrowserJavascriptClass": "ka.nodeChooser",
       "chooserBrowserOptions": [
@@ -655,7 +665,7 @@
           "autoIncrement": 0,
           "empty": 1
         },
-        "right": {
+        "rgt": {
           "type": "number",
           "primaryKey": 0,
           "autoIncrement": 0,
@@ -691,9 +701,51 @@
           "type": "checkbox",
           "primaryKey": 0,
           "empty": 1
+        },
+        "access_from": {
+          "type": "datetime",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "access_to": {
+          "type": "datetime",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "access_redirectto": {
+          "type": "page",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "access_nohidenavi": {
+          "type": "checkbox",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "access_need_via": {
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "empty": 1
+        },
+        "access_from_groups": {
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "search_words": {
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "unsearchable": {
+          "type": "checkbox",
+          "primaryKey": 0,
+          "empty": 1
         }
       },
-      "label": "[[Node]]"
+      "label": "[[Node]]",
+      "__dataModel__": "table"
     },
     "domain": {
       "desc": "",

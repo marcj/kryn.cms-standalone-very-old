@@ -403,7 +403,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
     if (is_array($pPrimary) || !$pPrimary)
         $pPrimary = (!$pPrimary)?'1=1':dbPrimaryArrayToSql($pPrimary);
 
-    $sql = "UPDATE $table SET $values WHERE $pPrimary";
+    $sql = "UPDATE $table SET $values WHERE $pPrimary\n";
 
     return dbExec($sql)?true:false;
 }
@@ -598,6 +598,7 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
  *   )
  * )
  *
+ * Structure can also be as in dbPrimaryArrayToSql. We call this function if we detect the structure of it.
  *
  * @param array  $pConditions
  * @param string $pTable Adds the table in front of the column names
@@ -607,6 +608,16 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
 function dbConditionArrayToSql($pConditions, $pTable = ''){
 
     $result = '';
+
+    if (is_array($pConditions) && !is_numeric(key($pConditions))){
+        //we have a structure like in dbPrimaryArrayToSql, so call it
+        return dbPrimaryArrayToSql($pConditions, $pTable);
+    }
+
+    if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))){
+        //we have a structure like in dbPrimaryArrayToSql, so call it
+        return dbPrimaryArrayToSql($pConditions, $pTable);
+    }
 
     if (is_string($pConditions[0])){
         //only one condition, ex: array('rsn', '>', 0)

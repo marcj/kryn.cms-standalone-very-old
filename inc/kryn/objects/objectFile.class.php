@@ -33,9 +33,9 @@ class objectFile extends krynObjectAbstract {
      * @param $pPrimaryValues
      *
      */
-    public function removeItem($pPrimaryValues)
+    public function remove($pPrimaryValues)
     {
-        // TODO: Implement removeItem() method.
+        // TODO: Implement remove() method.
     }
 
     /**
@@ -43,9 +43,9 @@ class objectFile extends krynObjectAbstract {
      *
      * @return inserted primary key. (last_insert_id() for SQL backend)
      */
-    public function addItem($pValues)
+    public function add($pValues)
     {
-        // TODO: Implement addItem() method.
+        // TODO: Implement add() method.
     }
 
     /**
@@ -54,9 +54,9 @@ class objectFile extends krynObjectAbstract {
      * @param $pPrimaryValues
      * @param $pValues
      */
-    public function updateItem($pPrimaryValues, $pValues)
+    public function update($pPrimaryValues, $pValues)
     {
-        // TODO: Implement updateItem() method.
+        // TODO: Implement update() method.
     }
 
     /**

@@ -36,7 +36,6 @@ require('inc/kryn/adminForm.class.php');
 require(PATH_MODULE . 'admin/admin.class.php');
 kryn::$modules['admin'] = new admin();
 
-
 //register the shutdown function
 register_shutdown_function('kryn_shutdown');
 

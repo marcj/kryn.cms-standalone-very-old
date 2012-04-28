@@ -284,13 +284,15 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     /**
-     * @param $pParentValues
+     * @param bool|array $pParent array('field_key' => 'value')
      * @param int $pDepth  0 returns only the root. 1 returns with one level of children, 2 with two levels etc
      * @param string|array $pExtraFields
+     * @param bool|array $pCondition array('field_key' => 'value') or structure of dbConditionArrayToSql or dbPrimaryArrayToSql
+     *
      * @return array|bool
      * @throws Exception
      */
-    public function getTree($pParentValues, $pDepth = 1, $pExtraFields = ''){
+    public function getTree($pParent = false, $pDepth = 1, $pExtraFields = '', $pCondition = false){
 
         $start = microtime(true);
         if (!$this->definition['tableNested']){
@@ -302,11 +304,13 @@ class krynObjectTable extends krynObjectAbstract {
         }
 
         $primKey = current($this->primaryKeys);
-        $idValue = $pParentValues[$primKey]?$pParentValues[$primKey]+0:'root';
 
-        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.$idValue.'-'.$pDepth;
+        if ($pParent)
+            $idValue = $pParent[$primKey]?$pParent[$primKey]+0:'root';
 
-        if (!($result = kryn::getCache($cacheKey))){
+        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.md5($idValue.'-'.$pDepth.'-'.serialize($pCondition));
+
+        if (true || !($result = kryn::getCache($cacheKey))){
 
             $condition = array();
             $pDepth += 0;
@@ -350,7 +354,10 @@ class krynObjectTable extends krynObjectAbstract {
             $parent1Rgt = dbQuote('rgt', 'parent1');
             $parent1 = dbQuote('parent1');
 
-            if ($pParentValues){
+
+            if ($pParent){
+
+                $conditionSql = dbConditionArrayToSql($pParent, 'node');
 
                 $tables[] ="(
                     SELECT
@@ -358,7 +365,7 @@ class krynObjectTable extends krynObjectAbstract {
                     FROM
                         $tablesDefault
                     WHERE $nodeLft BETWEEN $parentLft AND $parentRgt
-                    AND node.id = $idValue
+                    AND $conditionSql
                     GROUP BY $id
                     ORDER BY MAX($nodeLft)
                   ) AS $parent1";
@@ -369,10 +376,19 @@ class krynObjectTable extends krynObjectAbstract {
             } else {
                 //all on first and second level
                 $additionalWhere = '';
+
+                //if we have chooserBrowserTreeRootAsObject as 1 we do not allow to fetch elements without conditions
+                //since rgt and lft would overlap
+
+                if ($this->definition['chooserBrowserTreeRootAsObject'] == 1 && !$pCondition) return false;
+
+                $additionalWhere = ' AND '.dbConditionArrayToSql($pCondition, 'parent');
+
             }
+
             $selects[] = "$aDepth AS ".$depth;
 
-            $tables = implode(",\n", $tables);
+            $tables  = implode(",\n", $tables);
             $selects = implode(",\n", $selects);
 
             $sql = "
@@ -395,7 +411,7 @@ class krynObjectTable extends krynObjectAbstract {
             while ($row = dbFetch($res)){
 
                 if ($row['_depth'] == 0){
-                    if ($pParentValues){
+                    if ($pParent){
                         $result = $row;
                         $lastParent[$row['_depth']] =& $result;
                     } else{

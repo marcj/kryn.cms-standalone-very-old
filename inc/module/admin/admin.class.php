@@ -380,7 +380,7 @@ class admin {
             //compatibility
             $object_key = '';
         } else {
-            list($object_key, $object_ids, $params) = krynObject::parseUrl($pUrl);
+            list($object_key, $object_ids, $params) = krynObject::parseUri($pUrl);
         }
 
         $definition = kryn::$objects[$object_key];
@@ -437,7 +437,7 @@ class admin {
             //compatibility
             $object_key = '';
         } else {
-            list($object_key, $object_id, $params) = krynObject::parseUrl($pUrl);
+            list($object_key, $object_id, $params) = krynObject::parseUri($pUrl);
         }
 
         $definition = kryn::$objects[$object_key];
@@ -500,18 +500,14 @@ class admin {
 
         $order = false; //todo
 
-
         if ($definition['chooserBrowserDataModel'] == 'custom' && $definition['chooserBrowserDataModelClass']){
-
-            //todo
-            return $items;
 
             $class = $definition['chooserBrowserDataModelClass'];
             $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
             if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
 
             require_once($classFile);
-            $dataModel = new $class($object_key);
+            $dataModel = new $class($pObjectKey);
 
             $itemsCount = $dataModel->getCount();
             if (is_array($itemsCount) && $itemsCount['error'])
@@ -522,7 +518,7 @@ class admin {
             $pages = ceil($itemsCount/$itemsPerPage);
 
             $items = $dataModel->getItems(
-                $definition['chooserBrowserDataModelCondition'], $start, $itemsPerPage, implode(',', $fields), $order
+                $definition['chooserBrowserDataModelCondition'], $start, $itemsPerPage, null, $order
             );
 
             return array(

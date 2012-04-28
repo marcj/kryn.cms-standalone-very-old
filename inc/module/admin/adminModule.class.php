@@ -2,6 +2,9 @@
 
 class adminModule {
 
+
+    private static $migrationCurrentPos = 0;
+
     public static function init() {
         global $cfg;
 
@@ -26,6 +29,9 @@ class adminModule {
             case 'new':
                 return self::listTopModules();
             */
+
+            case 'convertPagesTo1.0':
+                return self::convertPagesTo10();
 
             case 'managerSearch':
                 return self::managerSearch(getArgv('q'));
@@ -146,7 +152,64 @@ class adminModule {
         }
     }
 
+    /**
+     * Converts system_pages to the new nested architecture (lft, rgt columns)
+     *
+     * @static
+     * @return bool
+     */
+    public static function convertPagesTo10(){
 
+        $res = dbExec('SELECT rsn FROM '.pfx.'system_domains');
+        while ($row = dbFetch($res)){
+            self::convertPagesTo10Domain($row['rsn']);
+        }
+
+        return true;
+    }
+
+    public static function convertPagesTo10Domain($pDomainRsn){
+
+        $res = dbExec('SELECT rsn, prsn FROM '.pfx.'system_pages WHERE prsn = 0 AND domain_rsn = '.($pDomainRsn+0).
+                      ' ORDER BY sort');
+
+        self::$migrationCurrentPos = 0;
+        while ($row = dbFetch($res)){
+
+            self::convertPagesTo10Node($row['rsn']);
+
+        }
+
+    }
+    public static function convertPagesTo10Node($pNodeRsn, $pDepth = 1){
+
+        $node = dbExFetch('SELECT rsn, prsn, title FROM '.pfx.'system_pages WHERE rsn = '.($pNodeRsn+0));
+
+        self::$migrationCurrentPos++;
+        $newPosOfNode = array('lft' => self::$migrationCurrentPos);
+
+        $res = dbExec('SELECT rsn, prsn FROM '.pfx.'system_pages WHERE prsn = '.($pNodeRsn+0).' ORDER BY sort ASC');
+
+        echo str_repeat('  ', $pDepth)."#".$node['rsn'].' - '.$node['title'].' => '.$newPosOfNode['lft']."\n";
+
+        if ($res){
+            while ($row = dbFetch($res)){
+                $newPos = self::convertPagesTo10Node($row['rsn'], $pDepth+1);
+            }
+        }
+
+        self::$migrationCurrentPos++;
+        $newPosOfNode['rgt'] = self::$migrationCurrentPos;
+        echo str_repeat('  ', $pDepth)."#".$node['rsn'].' - '.$newPosOfNode['rgt']."\n";
+
+        dbUpdate('system_pages', array('rsn' => $pNodeRsn), array(
+            'lft' => $newPosOfNode['lft'],
+            'rgt' => $newPosOfNode['rgt']
+        ));
+
+        return $newPosOfNode;
+
+    }
 
     public static function windowsExists($pName, $pClassName){
 

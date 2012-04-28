@@ -29,7 +29,6 @@ if (getArgv(1) != 'admin') {
  */
 kryn::initAuth();
 
-
 tAssignRef("request", $_REQUEST); #compatibility
 tAssignRef("user", $user->user); #compatibility
 

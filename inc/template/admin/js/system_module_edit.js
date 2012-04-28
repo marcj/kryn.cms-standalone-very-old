@@ -1977,13 +1977,8 @@ var admin_system_module_edit = new Class({
                                             },
                                             chooserFieldDataModelCondition: {
                                                 needValue: 'default',
-                                                label: t('Additional SQL condition'),
-                                                desc: t("Without 'WHERE' and 'AND' at the beginning"),
-                                                type: 'codemirror',
-                                                codemirrorOptions: {
-                                                    mode: 'mysql'
-                                                },
-                                                input_height: 50
+                                                label: t('Additional condition'),
+                                                type: 'condition'
                                             }
                                         }
                                     },
@@ -2046,30 +2041,94 @@ var admin_system_module_edit = new Class({
                                             }
                                         }
                                     },
+                                    chooserBrowserTreeRootAsObject: {
+                                        needValue: 1,
+                                        label: t('Root as object (Optional)'),
+                                        type: 'checkbox',
+                                        depends: {
+                                            chooserBrowserTreeRootObject: {
+                                                needValue: 1,
+                                                label: t('Object key')
+                                            },
+                                            chooserBrowserTreeRootObjectField: {
+                                                needValue: 1,
+                                                label: t('Foreign key'),
+                                                desc: t('Which field in the current object contains the primary value of the object above?')
+                                            },
+                                            chooserBrowserTreeRootObjectLabel: {
+                                                needValue: 1,
+                                                label: t('Label field')
+                                            },
 
-
+                                            chooserBrowserTreeRootObjectFixedIcon: {
+                                                type: 'checkbox',
+                                                needValue: 1,
+                                                label: t('Fixed icon'),
+                                                depends: {
+                                                    chooserBrowserTreeRootObjectIconPath: {
+                                                        needValue: 1,
+                                                        type: 'file',
+                                                        label: t('Icon field')
+                                                    },
+                                                    chooserBrowserTreeRootObjectIcon: {
+                                                        needValue: 0,
+                                                        label: t('Icon field')
+                                                    },
+                                                    chooserBrowserTreeRootObjectIconMapping: {
+                                                        label: t('Icon path mapping'),
+                                                        needValue: 0,
+                                                        type: 'array',
+                                                        columns: [
+                                                            {label: t('Value'), width: '30%'},
+                                                            {label: t('Icon path')}
+                                                        ],
+                                                        fields: {
+                                                            value: {
+                                                                type: 'text'
+                                                            },
+                                                            path: {
+                                                                type: 'file'
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
                                     chooserBrowserTreeLabel: {
                                         needValue: 1,
                                         label: t('Label field')
                                     },
-                                    chooserBrowserTreeIcon: {
+                                    chooserBrowserTreeFixedIcon: {
+                                        type: 'checkbox',
                                         needValue: 1,
-                                        label: t('Icon field')
-                                    },
-                                    chooserBrowserTreeIconMapping: {
-                                        label: t('Icon path mapping'),
-                                        needValue: 1,
-                                        type: 'array',
-                                        columns: [
-                                            {label: t('Value'), width: '30%'},
-                                            {label: t('Icon path')}
-                                        ],
-                                        fields: {
-                                            value: {
-                                                type: 'text'
+                                        label: t('Fixed icon'),
+                                        depends: {
+                                            chooserBrowserTreeIconPath: {
+                                                needValue: 1,
+                                                type: 'file',
+                                                label: t('Icon field')
                                             },
-                                            path: {
-                                                type: 'file'
+                                            chooserBrowserTreeIcon: {
+                                                needValue: 0,
+                                                label: t('Icon field')
+                                            },
+                                            chooserBrowserTreeIconMapping: {
+                                                label: t('Icon path mapping'),
+                                                needValue: 0,
+                                                type: 'array',
+                                                columns: [
+                                                    {label: t('Value'), width: '30%'},
+                                                    {label: t('Icon path')}
+                                                ],
+                                                fields: {
+                                                    value: {
+                                                        type: 'text'
+                                                    },
+                                                    path: {
+                                                        type: 'file'
+                                                    }
+                                                }
                                             }
                                         }
                                     }
