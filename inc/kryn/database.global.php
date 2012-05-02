@@ -524,7 +524,7 @@ function dbValuesToUpdateSql($pValues){
             $val = $field;
         }
 
-        $values[] = dbQuote($fieldName).' = '.(is_numeric($val) ? $val : "'".esc($val)."'");
+        $values[] = dbQuote($fieldName) . ' = ' . (!is_string($val) ? $val+0 : "'".esc($val)."'");
     }
 
     return implode(', ', $values);
@@ -669,7 +669,7 @@ function dbConditionSingleField($pCondition, $pTable = ''){
         else
             $result .= " '".esc($pCondition[2])."'";
     } else {
-        $result .= ' '.$pCondition[2];
+        $result .= ' ' . is_string($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
     }
 
     return $result;

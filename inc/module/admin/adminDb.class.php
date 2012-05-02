@@ -170,6 +170,7 @@ class adminDb {
             if ($fName == '___index') continue;
 
             $fieldDef = dbQuote($fName).' '.self::getFieldSqlType($fOptions);
+            $fieldDefType = self::getFieldSqlType($fOptions);
             $field = dbQuote($fName);
 
             if (!array_key_exists($fName, $columns)) {
@@ -185,21 +186,27 @@ class adminDb {
                 list($fieldType, $fieldOption) = self::splitFieldDefinition($columns[$fName]['type']);
                 //print $columns[$fName]['type']." => $fieldType ==  $fieldOption \n";
 
-                list($fieldType, $fieldOption) = self::splitFieldDefinition(self::getFieldSqlType(array($fieldType,$fieldOption )));
+                list($fieldType, $fieldOption) = self::splitFieldDefinition(self::getFieldSqlType(array($fieldType,$fieldOption)));
                 list($newFieldType, $newFieldOption) = self::splitFieldDefinition(self::getFieldSqlType($fOptions));
 
                 //check if the type is different
                 if ($fieldType == $newFieldType && $fieldOption == $newFieldOption) continue;
 
+                //print $columns[$fName]['type']." - $fieldType == $newFieldType && $fieldOption == $newFieldOption\n";
+
                 if (kryn::$config['db_type'] == 'postgresql') {
-                    $query = "ALTER TABLE $tableName ALTER COLUMN $field TYPE $fieldDef";
+                    $query = "ALTER TABLE $tableName ALTER COLUMN $field TYPE $fieldDefType";
                 } else {
                     $query = "ALTER TABLE $tableName CHANGE COLUMN $field $fieldDef";
                 }
 
                 //print $columns[$fName]['type']." => $fieldType == $newFieldType && $fieldOption == $newFieldOption\n";
 
-                dbExec($query);
+                try {
+                    @dbExec($query);
+                } catch(Exception $e){
+                    klog('dbSync', "Can't change the type of column '$fName' from $fieldType to $newFieldType in table $pTable");
+                }
 
             }
         }
@@ -372,7 +379,9 @@ class adminDb {
 
             case 'char':
                 $sql .= 'char(' . $pFieldOptions[1] . ')'; break;
+
             case 'varchar':
+            case 'character varying':
                 $sql .= 'varchar(' . $pFieldOptions[1] . ')'; break;
             case 'text':
                 $sql .= 'text '; break;

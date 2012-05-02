@@ -595,8 +595,13 @@ class database {
                 $length = '';
             }
 
-            if ($field['type'] == 'number'){
+            if ($field['type'] == 'number' || $field['type'] == 'datetime' || $field['type'] == 'date'){
                 $type = 'int';
+                $length = '';
+            }
+
+            if ($field['type'] == 'checkbox'){
+                $type = 'smallint';
                 $length = '';
             }
 

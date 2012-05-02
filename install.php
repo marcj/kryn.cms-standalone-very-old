@@ -511,7 +511,7 @@ function step5(){
             
     foreach( kryn::$configs as $module => $config ){
         print "Install <b>$module</b>:<br />
-        <div style='padding-left: 15px; margin-bottom: 4px; color: silver; white-space: pre; font-family: monospace;'>";
+        <div style='padding-left: 15px; margin-bottom: 4px; color: #999; white-space: pre; font-family: monospace;'>";
 
         $removedTables = adminDb::remove($config);
 
@@ -524,7 +524,7 @@ function step5(){
         $installedTables = adminDb::sync($config);
         if (is_array($installedTables) && count($installedTables) > 0){
             foreach ($installedTables as $table => $status){
-                print "\t[+] $table ".($status?"installed":"updated").".\n";
+                print "\t".($status?"[+] $table installed":"[~] $table updated").".\n";
             }
         } else {
             print "\tno tables to install.\n";

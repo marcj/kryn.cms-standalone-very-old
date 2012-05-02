@@ -1120,7 +1120,7 @@ class $pClassName extends $pClass {
 
         if (!$pName){
 
-            $res = (php_sapi_name() === 'cli' )?"Sync all tables from all extensions\n\n":array();
+            $res = (php_sapi_name() === 'cli')?"Sync all tables from all extensions\n\n":array();
 
             foreach (kryn::$configs as $key => $config){
                 if (php_sapi_name() === 'cli' ){
@@ -1138,7 +1138,7 @@ class $pClassName extends $pClass {
         $config = kryn::getModuleConfig($pName);
         $installedTables = adminDb::sync($config);
 
-        if (php_sapi_name() === 'cli' ){
+        if (php_sapi_name() === 'cli'){
             if (is_array($installedTables) && count($installedTables) > 0){
                 foreach ($installedTables as $table => $status){
                     $res .= "\t$table ".($status?"installed":"updated").".\n";
@@ -1148,7 +1148,7 @@ class $pClassName extends $pClass {
             }
             return $res;
         } else {
-            return array($pName =>$installedTables);
+            return array($pName => $installedTables);
         }
     }
 
