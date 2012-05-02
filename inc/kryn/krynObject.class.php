@@ -382,6 +382,31 @@ class krynObject {
 
     }
 
+    public static function getTreeRoot($pParentObjectUri, $pRootId){
+
+
+        list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
+
+        $definition = kryn::$objects[$object_key];
+
+        if (!$definition['chooserBrowserTreeRootAsObject']) return false;
+        if (!$definition['chooserBrowserTreeRootObject']) return false;
+
+        $obj = self::getClassObject($definition['chooserBrowserTreeRootObject']);
+
+        $fields = $obj->primaryKeys;
+        $fields[] = $definition['chooserBrowserTreeRootObjectLabel'];
+
+        if ($definition['chooserBrowserTreeRootObjectExtraFields']){
+            $extraFields = explode(',', trim(str_replace(' ', '', $definition['chooserBrowserTreeRootObjectExtraFields'])));
+            foreach ($extraFields as $field)
+                $fields[] = $field;
+        }
+
+        return $obj->getItem($pRootId, $fields);
+
+    }
+
     public static function getPrimaries($pObjectId){
         $objectDefinition =& kryn::$objects[$pObjectId];
 

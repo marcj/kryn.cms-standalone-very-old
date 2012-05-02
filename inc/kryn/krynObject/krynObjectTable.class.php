@@ -359,7 +359,7 @@ class krynObjectTable extends krynObjectAbstract {
 
                 $conditionSql = dbConditionArrayToSql($pParent, 'node');
 
-                $tables[] ="(
+                $tables[] = "(
                     SELECT
                         MAX(node.lft) as lft, MAX(node.rgt) as rgt, (COUNT($id)) AS $depth
                     FROM

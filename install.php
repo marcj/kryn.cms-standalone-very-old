@@ -524,7 +524,7 @@ function step5(){
         $installedTables = adminDb::sync($config);
         if (is_array($installedTables) && count($installedTables) > 0){
             foreach ($installedTables as $table => $status){
-                print "\t".($status?"[+] $table installed":"[~] $table updated").".\n";
+                print "\t".($status?"[+] $table installed":"[#] $table updated").".\n";
             }
         } else {
             print "\tno tables to install.\n";

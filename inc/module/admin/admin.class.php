@@ -139,6 +139,10 @@ class admin {
                         case 'objectTree':
                             $content = self::getObjectTree(getArgv('object'), getArgv('depth')?getArgv('depth'):1);
                             break;
+                        case 'objectTreeRoot':
+                            $content = self::getObjectTreeRoot(getArgv('object'), getArgv('rootId'));
+                            break;
+
                         case 'objectParents':
                             $content = self::getObjectParents(getArgv('object'));
                             break;
@@ -275,6 +279,10 @@ class admin {
 
     public static function getObjectTree($pObjectUrl, $pDepth = 1){
         return krynObject::getTree($pObjectUrl, $pDepth);
+    }
+
+    public static function getObjectTreeRoot($pObjectUrl, $pRootId){
+        return krynObject::getTreeRoot($pObjectUrl, $pRootId);
     }
 
     public static function moveObject($pSourceObjectUrl, $pTargetObjectUrl, $pMode){

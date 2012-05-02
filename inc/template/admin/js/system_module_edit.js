@@ -2059,6 +2059,12 @@ var admin_system_module_edit = new Class({
                                                 needValue: 1,
                                                 label: t('Label field')
                                             },
+                                            chooserBrowserTreeRootObjectExtraFields: {
+                                                needValue: 1,
+                                                label: t('Extra fields (Optional)'),
+                                                desc: t('Comma separated. backend/objectTreeRoot returns primary key, label and these extra fields.'),
+                                                empty: true
+                                            },
 
                                             chooserBrowserTreeRootObjectFixedIcon: {
                                                 type: 'checkbox',

@@ -7,6 +7,7 @@ ka.objectTree = new Class({
         withObjectAdd: false, //adds a plus sign and opens <withObjectAdd> entry point
         viewAllObjects: false, //loads initily all objects
         rootObject: false,
+        rootId: false,
         selectObject: false,
         withContext: true,
         iconMap: false,
@@ -51,6 +52,12 @@ ka.objectTree = new Class({
         }
 
         this.setOptions(pOptions);
+
+
+        if (this.objectDefinition.chooserBrowserTreeRootAsObject){
+            if (!this.options.rootObject)
+                this.options.rootObject = this.objectDefinition.chooserBrowserTreeRootObject;
+        }
 
         if (Cookie.read('krynObjectTree_' + pObjectKey)) {
             var opens = Cookie.read('krynObjectTree_' + pObjectKey);
@@ -163,7 +170,7 @@ ka.objectTree = new Class({
 
     },
 
-    loadFirstLevel: function () {
+    loadFirstLevel: function (pRootId) {
 
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
@@ -171,9 +178,32 @@ ka.objectTree = new Class({
 
         var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
+        if (!pRootId && this.options.rootObject){
+            this.loadRoot();
+            return;
+        }
+
+        var objectUrl = this.objectKey;
+        if (this.options.rootObject)
+            objectUrl += '?'+Object.toQueryString({condition: JSON.encode([this.objectDefinition.chooserBrowserTreeRootObjectField, '=', this.options.rootId])});
+
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
+            object: objectUrl
+        });
+
+    },
+
+    loadRoot: function(){
+
+        if (this.lastFirstLevelRq) {
+            this.lastFirstLevelRq.cancel();
+        }
+
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTreeRoot', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
+            rootId: this.options.rootId,
             object: this.objectKey
         });
+
 
     },
 

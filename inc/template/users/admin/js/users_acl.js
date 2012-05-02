@@ -8,7 +8,7 @@ var users_users_acl = new Class({
 
     _createLayout: function(){
 
-        var bla = new ka.objectTree(this.win.content, 'test_category', {}, {win: this.win});
+        var bla = new ka.objectTree(this.win.content, 'node', {rootId: 1}, {win: this.win});
 
 
         new ka.Button('Select 7')
