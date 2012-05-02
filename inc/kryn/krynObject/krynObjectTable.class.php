@@ -382,7 +382,8 @@ class krynObjectTable extends krynObjectAbstract {
 
                 if ($this->definition['chooserBrowserTreeRootAsObject'] == 1 && !$pCondition) return false;
 
-                $additionalWhere = ' AND '.dbConditionArrayToSql($pCondition, 'parent');
+                if ($pCondition)
+                    $additionalWhere = ' AND '.dbConditionArrayToSql($pCondition, 'parent');
 
             }
 

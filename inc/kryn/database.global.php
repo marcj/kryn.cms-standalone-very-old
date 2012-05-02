@@ -531,10 +531,9 @@ function dbValuesToUpdateSql($pValues){
 }
 
 /**
- * Converts given primary values into proper SQL.
- * Resolve all patterns in krynObject::parseUrl();
+ * Converts simple structure of a condition to SQL counterpart.
  *
- * Examples:
+ * Structure:
  *
  * array( 'id' => 1, 'cat_id' => 3) => "id = 1 AND cat_id = 3"
  *
@@ -582,9 +581,11 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
 }
 
 /**
- * Converts the array from ka.field type 'condition' to SQL
+ * Converts a complex structure of conditions to the SQL counterpart.
+ * (Converts the array from ka.field type 'condition' to SQL)
  *
- * Structure example:
+ *
+ * Structure:
  *
  * array(
  *   array('id', '=', '2'),
