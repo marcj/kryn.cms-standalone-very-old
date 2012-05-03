@@ -1288,7 +1288,8 @@ ka.field = new Class({
         }
 
         this.getValue = function () {
-            var res = [];
+
+            var res = this.field.asHash?{}:[];
             var ok = true;
 
             tbody.getChildren('tr').each(function (tr) {
@@ -1304,15 +1305,29 @@ ka.field = new Class({
                         row[field_key] = field.getValue();
                     }
 
-                });
+                }.bind(this));
 
-                res.include(row);
+                if (this.field.asHash)
+                    res[row[0]] = row[1];
+                else
+                    res.include(row);
 
-            });
+            }.bind(this));
 
             if (ok == false) return;
             return res;
-        }
+        }.bind(this)
+
+
+        var first, second;
+        Object.each(this.field.fields, function(item, key){
+            if (!first){
+                first = key;
+            } else if (!second){
+                second = key;
+            }
+        });
+
 
         this._setValue = function (pValue) {
             tbody.empty();
@@ -1321,12 +1336,21 @@ ka.field = new Class({
                 pValue = JSON.decode(pValue);
             }
 
-            if (typeOf(pValue) != 'array') return;
+            if (this.field.asHash){
+                Object.each(pValue, function (item, idx) {
 
-            Array.each(pValue, function (item) {
-                addRow(item);
-            });
-        }
+                    var val = {};
+                    val[first] = idx;
+                    val[second] = item;
+                    addRow(val);
+                });
+            } else {
+                Array.each(pValue, function (item) {
+                    addRow(item);
+                });
+            }
+
+        }.bind(this);
 
         if (this.field.startWith && this.field.startWith > 0) {
             for (var i = 0; i < this.field.startWith; i++) {

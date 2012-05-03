@@ -10,7 +10,21 @@ class objectFile extends krynObjectAbstract {
      */
     public function getItem($pPrimaryValues, $pFields = '*', $pResolveForeignValues = '*')
     {
-        // TODO: Implement getItem() method.
+
+        if (is_numeric($pPrimaryValues['id'])){
+
+            $path = krynFile::getPath($pPrimaryValues);
+
+            return array(
+                'id' => $pPrimaryValues['id'],
+                'path' => $path
+            );
+        } else {
+            return array(
+                'id' => $pPrimaryValues['id'],
+                'path' => $pPrimaryValues['id']
+            );
+        }
     }
 
     /**
@@ -69,10 +83,9 @@ class objectFile extends krynObjectAbstract {
         // TODO: Implement getCount() method.
     }
 
-    public function getTree($PrimaryValues)
+    public function getTree($pCondition = false, $pDepth = 1, $pExtraFields = '')
     {
         // TODO: Implement getTree() method.
     }
-
 
 }

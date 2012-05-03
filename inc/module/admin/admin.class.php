@@ -440,7 +440,6 @@ class admin {
 
     public static function objectGetLabel($pUrl){
 
-
         if (is_numeric($pUrl)){
             //compatibility
             $object_key = '';

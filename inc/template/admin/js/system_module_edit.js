@@ -2083,6 +2083,7 @@ var admin_system_module_edit = new Class({
                                                     chooserBrowserTreeRootObjectIconMapping: {
                                                         label: t('Icon path mapping'),
                                                         needValue: 0,
+                                                        asHash: true,
                                                         type: 'array',
                                                         columns: [
                                                             {label: t('Value'), width: '30%'},

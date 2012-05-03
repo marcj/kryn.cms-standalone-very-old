@@ -480,11 +480,22 @@
   },
   "objects": {
     "file": {
-      "title": "[[File]]",
       "class": "kryn\/objects\/objectFile",
-      "desc": "",
-      "table": "",
-      "plugins": "",
+      "multiLanguage": 0,
+      "domainDepended": 0,
+      "chooserFieldDataModelCondition": [
+        
+      ],
+      "chooserFieldDataModel": "default",
+      "chooserFieldDataModelFields": {
+        "id": {
+          "label": "[[Path]]",
+          "type": "text"
+        }
+      },
+      "chooserFieldDataModelField": "id",
+      "chooserFieldType": "default",
+      "chooserBrowserJavascriptClass": "ka.files",
       "chooserBrowserOptions": {
         "onlyUserDefined": {
           "label": "[[Only user defined files]]",
@@ -525,28 +536,9 @@
           "empty": 1
         }
       },
-      "selectable": 1,
-      "label": "[[File]]",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooser_icon": "",
-      "chooserFieldDataModelClass": "adminFileFieldModel",
-      "chooserFieldDataModel": "custom",
-      "chooserFieldType": "default",
-      "chooserBrowserAutoColumns": [
-        
-      ],
-      "chooserBrowserCondition": "",
       "chooserBrowserDataModel": "default",
-      "chooserBrowserJavascriptClass": "ka.files",
       "chooserBrowserType": "custom",
-      "chooserFieldDataModelFields": {
-        "id": {
-          "label": "[[Path]]",
-          "type": "text"
-        }
-      },
-      "chooserFieldDataModelField": "id",
+      "selectable": 1,
       "fields": {
         "id": {
           "label": "[[ID]]",
@@ -561,7 +553,8 @@
           "primaryKey": 0,
           "empty": 1
         }
-      }
+      },
+      "label": "[[File]]"
     },
     "node": {
       "desc": "[[Pages, Links, Deposits and Navigation folder]]",
@@ -589,8 +582,10 @@
       "chooserBrowserTreeRootObject": "domain",
       "chooserBrowserTreeRootObjectField": "domain_rsn",
       "chooserBrowserTreeRootObjectLabel": "domain",
-      "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
-      "chooserBrowserTreeRootObjectFixedIcon": 1,
+      "chooserBrowserTreeRootObjectIconMapping": {
+        "test": "\/nlaa"
+      },
+      "chooserBrowserTreeRootObjectFixedIcon": 0,
       "chooserBrowserTreeRootAsObject": 1,
       "chooserBrowserTreeLabel": "title",
       "chooserBrowserTreeIcon": "type",
