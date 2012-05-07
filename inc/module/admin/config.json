@@ -582,10 +582,8 @@
       "chooserBrowserTreeRootObject": "domain",
       "chooserBrowserTreeRootObjectField": "domain_rsn",
       "chooserBrowserTreeRootObjectLabel": "domain",
-      "chooserBrowserTreeRootObjectIconMapping": {
-        "test": "\/nlaa"
-      },
-      "chooserBrowserTreeRootObjectFixedIcon": 0,
+      "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
+      "chooserBrowserTreeRootObjectFixedIcon": 1,
       "chooserBrowserTreeRootAsObject": 1,
       "chooserBrowserTreeLabel": "title",
       "chooserBrowserTreeIcon": "type",
@@ -739,8 +737,7 @@
           "empty": 1
         }
       },
-      "label": "[[Node]]",
-      "__dataModel__": "table"
+      "label": "[[Node]]"
     },
     "domain": {
       "desc": "",

@@ -5,7 +5,6 @@ ka.objectTree = new Class({
 
     options: {
         withObjectAdd: false, //adds a plus sign and opens <withObjectAdd> entry point
-        viewAllObjects: false, //loads initily all objects
         rootObject: false,
         rootId: false,
         selectObject: false,
@@ -102,11 +101,12 @@ ka.objectTree = new Class({
             'class': 'ka-objectTree-objects'
         }).inject(this.paneObjectsTd);
 
-        this.paneObjects.setStyle('display', '');
+        this.paneObjects.setStyle('display', 'block');
 
         this.paneRoot = new Element('div', {
             'class': 'ka-objectTree-root'
         }).inject(this.main);
+
         this.paneRoot.set('morph', {duration: 200});
 
         if (this.options.selectObject) {
@@ -124,7 +124,6 @@ ka.objectTree = new Class({
         this.main.addEvent('mouseup', this.onClick.bind(this));
         this.main.addEvent('mousedown', this.onMousedown.bind(this));
     },
-
 
     startupWithObjectInfo: function (pId, pCallback) {
 
@@ -175,17 +174,15 @@ ka.objectTree = new Class({
 
     loadFirstLevel: function (pRootId) {
 
+        logger('loadFirstLevel');
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
         }
-
-        var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
 
         if (this.options.rootObject && !this.rootLoaded){
             this.loadRoot();
             return;
         }
-
         var objectUrl = this.objectKey;
 
         if (this.options.rootObject)
@@ -215,12 +212,11 @@ ka.objectTree = new Class({
     renderRoot: function(pRes){
 
         var rootDefinition = ka.getObjectDefinition(this.objectDefinition.chooserBrowserTreeRootObject);
-        var primaryKeys = ka.getPrimariesForObject(this.objectDefinition.chooserBrowserTreeRootObject);
+        var primaryKeys = ka.getPrimaryListForObject(this.objectDefinition.chooserBrowserTreeRootObject);
 
         this.rootObject = pRes;
         var id = pRes[primaryKeys[0]];
         var label = pRes[this.objectDefinition.chooserBrowserTreeRootObjectLabel];
-
 
         if (this.paneRoot)
             this.paneRoot.empty();
@@ -231,7 +227,7 @@ ka.objectTree = new Class({
         });
 
         a.id = id;
-        a.parent = this.paneRoot;
+        a.objectKey = this.objectDefinition.chooserBrowserTreeRootObject;
 
         if (id == this.options.selectObject && this.options.noActive != true){
             a.addClass('ka-objectTree-item-selected');
@@ -250,28 +246,40 @@ ka.objectTree = new Class({
 
         a.store('item', pRes);
 
+        a.childsLoaded = true;
+
         this.rootA = a;
+        a.childContainer = this.paneObjects;
 
-
-        var icon = this.options.chooserBrowserTreeRootObjectIconPath;
+        var icon = this.objectDefinition.chooserBrowserTreeRootObjectIconPath;
 
         if (!this.objectDefinition.chooserBrowserTreeRootObjectFixedIcon){
-
+            //todo
             icon = this.options.iconMap[pRes[this.objectDefinition.chooserBrowserTreeRootObjectIcon]];
         }
 
-        if (!icon) return;
+        if (icon){
+            a.masks = new Element('span', {
+                'class': 'ka-objectTree-item-masks'
+            }).inject(a, 'top');
 
-        pA.masks = new Element('span', {
-            'class': 'ka-objectTree-item-masks'
-        }).inject(pA, 'top');
+            new Element('img', {
+                'class': 'ka-objectTree-item-type',
+                src: _path + 'inc/template/' + icon
+            }).inject(a.masks);
+        }
 
-        new Element('img', {
-            'class': 'ka-objectTree-item-type',
-            src: _path + 'inc/template/' + icon
-        }).inject(pA.masks);
+        a.toggler = new Element('img', {
+            'class': 'ka-objectTree-item-toggler',
+            title: _('Open/Close sub-items'),
+            src: _path + 'inc/template/admin/images/icons/tree_minus.png'
+        }).inject(a, 'top');
 
-
+        a.toggler.addEvent('click', function (e) {
+            e.stopPropagation();
+            window.fireEvent('click');
+            this.toggleChilds(a);
+        }.bind(this));
 
 
 
@@ -292,7 +300,7 @@ ka.objectTree = new Class({
 
         this.paneObjects.empty();
 
-        this.rootA = this.addRootItems(pItems, this.paneObjects);
+        this.addRootItems(pItems, this.paneObjects);
 
         /*
         if (this.options.withObjectAdd) {
@@ -415,7 +423,7 @@ ka.objectTree = new Class({
 
         Array.each(pItems, function(item){
 
-            this.addItem(item, pContainer);
+            this.addItem(item, this.rootA);
 
         }.bind(this));
 
@@ -434,6 +442,7 @@ ka.objectTree = new Class({
 
         a.id = id;
         a.parent = pParent;
+        a.objectKey = this.objectKey;
 
         var container = pParent;
         if (pParent.childContainer) {
@@ -689,11 +698,25 @@ ka.objectTree = new Class({
     },
 
     reloadChilds: function (pA) {
-        if (pA.hasClass('ka-objectTree-root')){
+
+        if (this.rootA == pA){
             this.loadFirstLevel();
         } else {
             this.loadChilds(pA, false);
         }
+    },
+
+    removeChilds: function(pA){
+
+        if (!pA.childContainer) return;
+
+        pA.childContainer.getElements('ka-objectTree-item').each(function(a){
+            delete this.items[a.id];
+        }.bind(this));
+
+
+        pA.childContainer.empty();
+
     },
 
     loadChilds: function (pA, pAndOpen) {
@@ -704,13 +727,10 @@ ka.objectTree = new Class({
             src: _path + 'inc/template/admin/images/loading.gif'
         }).inject(pA.span)
 
-        var viewAllObjects = this.options.viewAllObjects ? 1 : 0;
-
-        logger('loadchilds: '+pA.id);
         this.loadChildsRequests[ pA.id ] = true;
         new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: function (pItem) {
 
-            pA.childContainer.empty();
+            this.removeChilds(pA);
 
             loader.destroy();
 
@@ -860,7 +880,7 @@ ka.objectTree = new Class({
         pTarget.setStyle('padding-bottom', 1);
         pTarget.setStyle('padding-top', 1);
 
-        if (!item.domain) {
+        if (pTarget.objectKey == this.objectKey) {
             if (pPos == 'after' || pPos == 'before') {
                 this.dropElement = new Element('div', {
                     'class': 'ka-objectTree-dropElement',
@@ -903,13 +923,13 @@ ka.objectTree = new Class({
             }*/
         }
 
-        if (!item.domain && pPos == 'after') {
+        if (pTarget.objectKey == this.objectKey && pPos == 'after') {
             if (canMoveAround) {
                 this.dropElement.inject(pTarget.getNext(), 'after');
                 pTarget.setStyle('padding-bottom', 0);
             }
 
-        } else if (!item.domain && pPos == 'before') {
+        } else if (pTarget.objectKey == this.objectKey && pPos == 'before') {
             if (canMoveAround) {
                 this.dropElement.inject(pTarget, 'before');
                 pTarget.setStyle('padding-top', 0);
@@ -960,7 +980,14 @@ ka.objectTree = new Class({
             var source = this.currentObjectToDrag;
 
             var code = pos[this.dragNDropPos];
-            this.moveObject(source.id, target.id, code);
+            var targetId = target.objectKey+'/'+target.id;
+            var sourceId = source.objectKey+'/'+source.id;
+
+            if (this.rootA == this.dragNDropElement){
+                code = 'into';
+            }
+
+            this.moveObject(sourceId, targetId, code);
         }
         document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
     },
@@ -977,8 +1004,8 @@ ka.objectTree = new Class({
     moveObject: function (pSourceId, pTargetId, pCode, pToDomain) {
         var _this = this;
         var req = {
-            source: this.objectKey+'/'+pSourceId,
-            target: this.objectKey+'/'+pTargetId,
+            source: pSourceId,
+            target: pTargetId,
             mode: pCode
         };
 
@@ -986,6 +1013,7 @@ ka.objectTree = new Class({
 
             //target item this.dragNDropElement
             if (this.dragNDropElement.parent) {
+                logger(this.dragNDropElement.parent);
                 this.dragNDropElement.objectTreeObj.reloadChilds(this.dragNDropElement.parent);
             } else {
                 this.dragNDropElement.objectTreeObj.reload();
@@ -1057,7 +1085,6 @@ ka.objectTree = new Class({
             this.options.selectObject = pId;
 
             Array.each(this.load_object_childs, function (id) {
-                logger(id+' => '+this.items[id]);
                 if (this.items[id]) {
                     this.openChilds(this.items[id]);
                 }
@@ -1092,11 +1119,14 @@ ka.objectTree = new Class({
         }).inject(document.body);
 
 
-        this.createContextItems(pObject);
+        this.createContextItems(pA);
         this.doContextPosition(pEvent);
     },
 
-    createContextItems: function(pObject){
+    createContextItems: function(pA){
+
+        var pObject = pA.retrieve('item');
+
         var objectCopy = {
             objectKey: this.objectKey,
             object: pObject

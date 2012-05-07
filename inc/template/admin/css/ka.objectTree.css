@@ -10,6 +10,9 @@
     background-color: #f3f3f3;
 }
 
+.ka-objectTree-objects {
+    display: none;
+}
 
 .ka-objectTree-top-dummy {
     height: 20px;
