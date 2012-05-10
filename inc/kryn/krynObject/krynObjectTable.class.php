@@ -286,13 +286,13 @@ class krynObjectTable extends krynObjectAbstract {
     /**
      * @param bool|array $pParent array('field_key' => 'value')
      * @param int $pDepth  0 returns only the root. 1 returns with one level of children, 2 with two levels etc
+     * @param bool|array $pRootObjectId The primary value of the root object
      * @param string|array $pExtraFields
-     * @param bool|array $pCondition array('field_key' => 'value') or structure of dbConditionArrayToSql or dbPrimaryArrayToSql
      *
      * @return array|bool
      * @throws Exception
      */
-    public function getTree($pParent = false, $pDepth = 1, $pExtraFields = '', $pCondition = false){
+    public function getTree($pParent = false, $pDepth = 1, $pRootObjectId = false, $pExtraFields = ''){
 
         $start = microtime(true);
         if (!$this->definition['tableNested']){
@@ -380,10 +380,12 @@ class krynObjectTable extends krynObjectAbstract {
                 //if we have chooserBrowserTreeRootAsObject as 1 we do not allow to fetch elements without conditions
                 //since rgt and lft would overlap
 
-                if ($this->definition['chooserBrowserTreeRootAsObject'] == 1 && !$pCondition) return false;
+                if ($this->definition['chooserBrowserTreeRootAsObject'] == 1 && !$pRootObjectId) return false;
 
-                if ($pCondition)
-                    $additionalWhere = ' AND '.dbConditionArrayToSql($pCondition, 'parent');
+                if ($pRootObjectId){
+                    $field = dbQuote($this->definition['chooserBrowserTreeRootObjectField'], 'parent');
+                    $additionalWhere = " AND $field = '".esc($pRootObjectId)."'";
+                }
 
             }
 

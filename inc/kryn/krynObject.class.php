@@ -378,7 +378,7 @@ class krynObject {
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
         $obj = self::getClassObject($object_key);
 
-        return $obj->getTree($object_id[0], $pDepth, $pExtraFields, $params['condition']);
+        return $obj->getTree($object_id[0], $pDepth, $params['rootId'], $pExtraFields);
 
     }
 

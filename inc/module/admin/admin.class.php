@@ -129,7 +129,6 @@ class admin {
                             die("");
 
 
-
                         case 'objectGetLabel':
                             $content = self::objectGetLabel(getArgv('url'));
                             break;
@@ -149,7 +148,6 @@ class admin {
                         case 'moveObject':
                             $content = self::moveObject(getArgv('source'), getArgv('target'), getArgv('mode', 2));
                             break;
-
 
                         case 'autoChooser':
                             $content = self::autoChooser(getArgv('object', 2), getArgv('page'));

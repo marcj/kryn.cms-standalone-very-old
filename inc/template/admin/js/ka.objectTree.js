@@ -112,6 +112,7 @@ ka.objectTree = new Class({
         if (this.options.selectObject) {
             this.startupWithObjectInfo(this.options.selectObject);
         } else {
+            logger('go0');
             this.loadFirstLevel();
         }
 
@@ -137,6 +138,7 @@ ka.objectTree = new Class({
             if (pCallback) {
                 pCallback(parents);
             } else {
+                logger('go-111');
                 this.loadFirstLevel();
             }
 
@@ -174,7 +176,6 @@ ka.objectTree = new Class({
 
     loadFirstLevel: function (pRootId) {
 
-        logger('loadFirstLevel');
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
         }
@@ -185,8 +186,9 @@ ka.objectTree = new Class({
         }
         var objectUrl = this.objectKey;
 
+        logger('loadFirstLevel');
         if (this.options.rootObject)
-            objectUrl += '?'+Object.toQueryString({condition: JSON.encode([this.objectDefinition.chooserBrowserTreeRootObjectField, '=', this.options.rootId])});
+            objectUrl += '?'+Object.toQueryString({rootId: this.options.rootId});
 
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
             object: objectUrl
@@ -284,6 +286,7 @@ ka.objectTree = new Class({
 
 
         this.rootLoaded = true;
+        logger('go');
         this.loadFirstLevel();
 
     },
@@ -700,6 +703,7 @@ ka.objectTree = new Class({
     reloadChilds: function (pA) {
 
         if (this.rootA == pA){
+            logger('go1');
             this.loadFirstLevel();
         } else {
             this.loadChilds(pA, false);
@@ -1033,6 +1037,7 @@ ka.objectTree = new Class({
 
     reload: function () {
         this.lastScrollPos = this.container.getScroll();
+        logger('go2');
         this.loadFirstLevel();
     },
 
