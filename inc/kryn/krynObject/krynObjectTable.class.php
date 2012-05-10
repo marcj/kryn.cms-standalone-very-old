@@ -80,13 +80,31 @@ class krynObjectTable extends krynObjectAbstract {
      * @param $pSourcePrimaryValues
      * @param $pTargetPrimaryValues
      * @param $pMode over | into | below
+     * @param $pTargetObjectKey
      *
      * @return boolean
      */
-    public function move($pSourcePrimaryValues, $pTargetPrimaryValues, $pMode){
+    public function move($pSourcePrimaryValues, $pTargetPrimaryValues, $pMode, $pTargetObjectKey = false){
 
         $source = $this->getItem($pSourcePrimaryValues);
-        $target = $this->getItem($pTargetPrimaryValues);
+
+        $rootCondition = ' 1=1';
+        if ($oField = $this->definition['chooserBrowserTreeRootObjectField']){
+            $field = dbQuote($oField, 'parent');
+            $rootCondition = " $field = '".esc($source[$oField])."'";
+        }
+
+        if ($pTargetObjectKey && $pTargetObjectKey != $this->object_key){
+
+            $rgt = dbQuote('rgt', 'parent');
+            $table = dbQuote(dbTableName($this->definition['table']));
+            $row = dbExFetch("SELECT $rgt FROM $table as parent WHERE $rootCondition ORDER BY $rgt DESC LIMIT 1", 1);
+
+            $target = array( 'lft' => 0, 'rgt' => $row['rgt']+1 );
+
+        } else {
+            $target = $this->getItem($pTargetPrimaryValues);
+        }
 
         $modes = array('over', 'below', 'into');
         if (!in_array($pMode, $modes)) return false;
@@ -121,6 +139,7 @@ class krynObjectTable extends krynObjectAbstract {
                 rgt = rgt-$sourceRight
             WHERE
                 lft >= $sourceLeft AND rgt <= $sourceRight
+
             ";
 
 
@@ -130,15 +149,15 @@ class krynObjectTable extends krynObjectAbstract {
 
             if ($source['lft'] < $target['lft']){
                 $moveBetweenTarget = "
-                UPDATE $tableQuoted SET
+                UPDATE $tableQuoted  SET
                     rgt = rgt - ( $sourceWidth + 1)
                 WHERE
-                    rgt > $sourceLeft AND rgt < $targetLeft;
+                    rgt > $sourceLeft AND rgt < $targetLeft ;
 
                 UPDATE $tableQuoted SET
                     lft = lft - ( $sourceWidth + 1)
                 WHERE
-                    lft > $sourceLeft AND lft < $targetLeft;
+                    lft > $sourceLeft AND lft < $targetLeft ;
                 ";
                 $mod = "- 1";
             } else {
@@ -146,12 +165,12 @@ class krynObjectTable extends krynObjectAbstract {
                 UPDATE $tableQuoted SET
                     rgt = rgt + ( $sourceWidth + 1)
                 WHERE
-                    rgt > $targetLeft AND rgt < $sourceLeft;
+                    rgt > $targetLeft AND rgt < $sourceLeft ;
 
                 UPDATE $tableQuoted SET
                     lft = lft + ( $sourceWidth + 1)
                 WHERE
-                    lft >= $targetLeft AND lft < $sourceLeft;
+                    lft >= $targetLeft AND lft < $sourceLeft ;
                 ";
                 $mod = "+ $sourceWidth";
             }
@@ -174,12 +193,12 @@ class krynObjectTable extends krynObjectAbstract {
                 UPDATE $tableQuoted SET
                     rgt = rgt - ( $sourceWidth + 1)
                 WHERE
-                    rgt > $sourceRight AND rgt <= $targetRight;
+                    rgt > $sourceRight AND rgt <= $targetRight ;
 
                 UPDATE $tableQuoted SET
                     lft = lft - ( $sourceWidth + 1)
                 WHERE
-                    lft > $sourceRight AND lft < $targetRight;
+                    lft > $sourceRight AND lft < $targetRight ;
                 ";
                 $mod = " ";
             } else {
@@ -187,12 +206,12 @@ class krynObjectTable extends krynObjectAbstract {
                 UPDATE $tableQuoted SET
                     rgt = rgt + ( $sourceWidth + 1)
                 WHERE
-                    rgt > $targetRight AND rgt < $sourceLeft;
+                    rgt > $targetRight AND rgt < $sourceLeft ;
 
                 UPDATE $tableQuoted SET
                     lft = lft + ( $sourceWidth + 1)
                 WHERE
-                    lft > $targetRight AND lft < $sourceLeft;
+                    lft > $targetRight AND lft < $sourceLeft ;
                 ";
                 $mod = "+ $sourceWidth +1";
             }
@@ -216,12 +235,12 @@ class krynObjectTable extends krynObjectAbstract {
                 UPDATE $tableQuoted SET
                     rgt = rgt - ( $sourceWidth + 1)
                 WHERE
-                    rgt > $sourceRight AND rgt < $targetLeft;
+                    rgt > $sourceRight AND rgt < $targetLeft ;
 
                 UPDATE $tableQuoted SET
                     lft = lft - ( $sourceWidth + 1)
                 WHERE
-                    lft > $sourceRight AND lft <= $targetLeft;
+                    lft > $sourceRight AND lft <= $targetLeft ;
                 ";
                 $mod = '';
             } else {
@@ -229,12 +248,12 @@ class krynObjectTable extends krynObjectAbstract {
                 UPDATE $tableQuoted SET
                     rgt = rgt + ( $sourceWidth + 1)
                 WHERE
-                    rgt > $targetLeft AND rgt < $sourceLeft;
+                    rgt > $targetLeft AND rgt < $sourceLeft ;
 
                 UPDATE $tableQuoted SET
                     lft = lft + ( $sourceWidth + 1)
                 WHERE
-                    lft > $targetLeft AND lft < $sourceLeft;
+                    lft > $targetLeft AND lft < $sourceLeft ;
                 ";
                 $mod = " + $sourceWidth +1";
             }
@@ -308,7 +327,7 @@ class krynObjectTable extends krynObjectAbstract {
         if ($pParent)
             $idValue = $pParent[$primKey]?$pParent[$primKey]+0:'root';
 
-        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.md5($idValue.'-'.$pDepth.'-'.serialize($pCondition));
+        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.md5($idValue.'-'.$pDepth.'-'.$pRootObjectId);
 
         if (true || !($result = kryn::getCache($cacheKey))){
 

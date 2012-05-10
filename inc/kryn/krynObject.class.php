@@ -451,7 +451,15 @@ class krynObject {
 
         $obj = self::getClassObject($object_key);
 
-        return $obj->move($object_id[0], $target[1][0], $pMode);
+        $targetId = $target[1][0];
+        $pTargetObjectKey = false;
+
+        if ($target[0] != $object_key){
+            $pMode = 'into';
+            $pTargetObjectKey = $target[0];
+        }
+
+        return $obj->move($object_id[0], $targetId, $pMode, $pTargetObjectKey);
     }
 
 }
