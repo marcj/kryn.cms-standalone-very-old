@@ -89,9 +89,9 @@ class krynObjectTable extends krynObjectAbstract {
         $source = $this->getItem($pSourcePrimaryValues);
 
         $rootCondition = ' 1=1';
-        if ($oField = $this->definition['chooserBrowserTreeRootObjectField']){
-            $field = dbQuote($oField, 'parent');
-            $rootCondition = " $field = '".esc($source[$oField])."'";
+        if ($rField = $this->definition['chooserBrowserTreeRootObjectField']){
+            $field = dbQuote($rField);
+            $rootCondition = " $field = '".esc($source[$rField])."'";
         }
 
         if ($pTargetObjectKey && $pTargetObjectKey != $this->object_key){
@@ -139,138 +139,83 @@ class krynObjectTable extends krynObjectAbstract {
                 rgt = rgt-$sourceRight
             WHERE
                 lft >= $sourceLeft AND rgt <= $sourceRight
-
+                AND $rootCondition
             ";
 
+        //Step 2. close hole
+        $closeHole = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft-$sourceWidth-1
+            WHERE
+                lft >= $sourceLeft AND $rootCondition;
 
-        //Step 2. Move all between source and target, so that we have space for source
+            UPDATE
+                $tableQuoted
+            SET
+                rgt = rgt-$sourceWidth-1
+            WHERE
+                rgt >= $sourceRight AND $rootCondition;
+
+        ";
+
+
+        //step 3. create new place for target root condition
+
+        if ($source['lft'] < $target['lft']){
+            $targetLeft -= $sourceWidth+1;
+            $targetRight -= $sourceWidth+1;
+        }
+
+        $where = '';
+        $whereParents = "lft < $targetLeft AND rgt > $targetRight";
 
         if ($pMode == 'over'){
-
-            if ($source['lft'] < $target['lft']){
-                $moveBetweenTarget = "
-                UPDATE $tableQuoted  SET
-                    rgt = rgt - ( $sourceWidth + 1)
-                WHERE
-                    rgt > $sourceLeft AND rgt < $targetLeft ;
-
-                UPDATE $tableQuoted SET
-                    lft = lft - ( $sourceWidth + 1)
-                WHERE
-                    lft > $sourceLeft AND lft < $targetLeft ;
-                ";
-                $mod = "- 1";
-            } else {
-                $moveBetweenTarget = "
-                UPDATE $tableQuoted SET
-                    rgt = rgt + ( $sourceWidth + 1)
-                WHERE
-                    rgt > $targetLeft AND rgt < $sourceLeft ;
-
-                UPDATE $tableQuoted SET
-                    lft = lft + ( $sourceWidth + 1)
-                WHERE
-                    lft >= $targetLeft AND lft < $sourceLeft ;
-                ";
-                $mod = "+ $sourceWidth";
-            }
-
-            //step 3. move source to new position
-            $moveSource = "
-            UPDATE
-                $tableQuoted
-            SET
-                lft = lft + $targetLeft $mod,
-                rgt = rgt + $targetLeft $mod
-            WHERE
-                rgt <= 0
-            ";
+            $where = "lft >= $targetLeft";
+            $newSourceLeft = $targetLeft;
 
         } else if ($pMode == 'below'){
+            $where = "lft > $targetRight";
+            $newSourceLeft = $targetRight+1;
 
-            if ($source['rgt'] < $target['rgt']){
-                $moveBetweenTarget = "
-                UPDATE $tableQuoted SET
-                    rgt = rgt - ( $sourceWidth + 1)
-                WHERE
-                    rgt > $sourceRight AND rgt <= $targetRight ;
-
-                UPDATE $tableQuoted SET
-                    lft = lft - ( $sourceWidth + 1)
-                WHERE
-                    lft > $sourceRight AND lft < $targetRight ;
-                ";
-                $mod = " ";
-            } else {
-                $moveBetweenTarget = "
-                UPDATE $tableQuoted SET
-                    rgt = rgt + ( $sourceWidth + 1)
-                WHERE
-                    rgt > $targetRight AND rgt < $sourceLeft ;
-
-                UPDATE $tableQuoted SET
-                    lft = lft + ( $sourceWidth + 1)
-                WHERE
-                    lft > $targetRight AND lft < $sourceLeft ;
-                ";
-                $mod = "+ $sourceWidth +1";
-            }
-
-            //step 3. move source to new position
-            $moveSource = "
-            UPDATE
-                $tableQuoted
-            SET
-                lft = lft + $targetRight $mod,
-                rgt = rgt + $targetRight $mod
-            WHERE
-                rgt <= 0
-            ";
-
-        } else if ($pMode == 'into'){
-
-
-            if ($source['lft'] < $target['lft']){
-                $moveBetweenTarget = "
-                UPDATE $tableQuoted SET
-                    rgt = rgt - ( $sourceWidth + 1)
-                WHERE
-                    rgt > $sourceRight AND rgt < $targetLeft ;
-
-                UPDATE $tableQuoted SET
-                    lft = lft - ( $sourceWidth + 1)
-                WHERE
-                    lft > $sourceRight AND lft <= $targetLeft ;
-                ";
-                $mod = '';
-            } else {
-                $moveBetweenTarget = "
-                UPDATE $tableQuoted SET
-                    rgt = rgt + ( $sourceWidth + 1)
-                WHERE
-                    rgt > $targetLeft AND rgt < $sourceLeft ;
-
-                UPDATE $tableQuoted SET
-                    lft = lft + ( $sourceWidth + 1)
-                WHERE
-                    lft > $targetLeft AND lft < $sourceLeft ;
-                ";
-                $mod = " + $sourceWidth +1";
-            }
-
-            //step 3. move source to new position
-            $moveSource = "
-            UPDATE
-                $tableQuoted
-            SET
-                lft = lft + $targetLeft $mod,
-                rgt = rgt + $targetLeft $mod
-            WHERE
-                rgt <= 0
-            ";
-
-
+        } else {//into
+            $where = "lft > $targetLeft";
+            $whereParents = "lft <= $targetLeft AND rgt >= $targetRight";
+            $newSourceLeft = $targetLeft+1;
         }
+
+        $createPlace = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft+$sourceWidth+1,
+                rgt = rgt+$sourceWidth+1
+            WHERE
+                $where
+                AND $rootCondition;
+
+            UPDATE
+                $tableQuoted
+            SET
+                rgt = rgt+$sourceWidth+1
+            WHERE
+                $whereParents
+                AND $rootCondition;
+        ";
+
+        //step 4. move source to new created place
+        $changeRoot = ($rField) ? ', '.$rootCondition : '';
+        $moveSource = "
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft + $sourceWidth + $newSourceLeft,
+                rgt = rgt + $sourceWidth + $newSourceLeft
+                $changeRoot
+            WHERE
+                rgt <= 0
+        ";
 
 
         dbBegin();
@@ -279,11 +224,13 @@ class krynObjectTable extends krynObjectAbstract {
         try {
 
             dbExec($transformSource);
-            dbExec($moveBetweenTarget);
+            dbExec($closeHole);
+            dbExec($createPlace);
             dbExec($moveSource);
 
             dbCommit();
         } catch (Exception $e){
+            error_log($e);
             dbRollback();
             return false;
         }
