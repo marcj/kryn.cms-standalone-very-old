@@ -94,7 +94,7 @@ class krynObjectTable extends krynObjectAbstract {
             $rootCondition = " $field = '".esc($source[$rField])."'";
         }
 
-        if ($pTargetObjectKey && $pTargetObjectKey != $this->object_key){
+        if ($pTargetObjectKey && $pTargetObjectKey != $this->object_key && $rField){
 
             $rgt = dbQuote('rgt', 'parent');
             $table = dbQuote(dbTableName($this->definition['table']));
@@ -102,8 +102,16 @@ class krynObjectTable extends krynObjectAbstract {
 
             $target = array( 'lft' => 0, 'rgt' => $row['rgt']+1 );
 
+            $objectRow = krynObject::get($pTargetObjectKey, $pTargetPrimaryValues);
+            $primaries = krynObject::getPrimaryList($pTargetObjectKey);
+            $target[$rField] = $objectRow[$primaries[0]];
+
         } else {
             $target = $this->getItem($pTargetPrimaryValues);
+        }
+
+        if ($rField){
+            $rValue = $target[$rField];
         }
 
         $modes = array('over', 'below', 'into');
@@ -205,7 +213,7 @@ class krynObjectTable extends krynObjectAbstract {
         ";
 
         //step 4. move source to new created place
-        $changeRoot = ($rField) ? ', '.$rootCondition : '';
+        $changeRoot = ($rField) ? ", $rField = '".esc($rValue)."' " : '';
         $moveSource = "
             UPDATE
                 $tableQuoted

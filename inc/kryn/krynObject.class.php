@@ -407,6 +407,15 @@ class krynObject {
 
     }
 
+    /**
+     * Returns a hash of all primary fields.
+     *
+     * Returns array('<keyOne>' => <arrayDefinition>, '<keyTwo>' => <arrayDefinition>, ...)
+     *
+     * @static
+     * @param $pObjectId
+     * @return array
+     */
     public static function getPrimaries($pObjectId){
         $objectDefinition =& kryn::$objects[$pObjectId];
 
@@ -414,6 +423,27 @@ class krynObject {
         foreach ($objectDefinition['fields'] as $fieldKey => $field){
             if ($field['primaryKey'])
                 $primaryFields[$fieldKey] = $field;
+        }
+
+        return $primaryFields;
+    }
+
+    /**
+     * Return a list of all primary keys.
+     *
+     * Returns array('<keyOne>', '<keyTwo>', ...);
+     *
+     * @static
+     * @param $pObjectId
+     * @return array
+     */
+    public static function getPrimaryList($pObjectId){
+        $objectDefinition =& kryn::$objects[$pObjectId];
+
+        $primaryFields = array();
+        foreach ($objectDefinition['fields'] as $fieldKey => $field){
+            if ($field['primaryKey'])
+                $primaryFields[] = $fieldKey;
         }
 
         return $primaryFields;
