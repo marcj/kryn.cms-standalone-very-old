@@ -245,14 +245,6 @@ class krynObjectTable extends krynObjectAbstract {
 
         kryn::invalidateCache('systemObjectTrees');
 
-        /*
-        print "<pre>";
-        print_r($transformSource);
-        print_r($moveBetweenTarget);
-        print_r($moveSource);
-        print_r($source);
-        print_r($target);
-        */
         return true;
 
     }

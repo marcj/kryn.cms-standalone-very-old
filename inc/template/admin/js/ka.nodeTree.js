@@ -132,11 +132,8 @@ ka.nodeTree = new Class({
             this.lastFirstLevelRq.cancel();
         }
 
-        var viewAllPages = this.options.viewAllPages ? 1 : 0;
-
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/pages/getTreeDomain', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
-            domain_rsn: this.domain_rsn,
-            viewAllPages: viewAllPages
+            domain_rsn: this.domain_rsn
         });
 
     },
@@ -550,8 +547,6 @@ ka.nodeTree = new Class({
 
             var id = ( item.domain ) ? 'p' + item.rsn : item.rsn;
 
-            var viewAllPages = this.options.viewAllPages ? 1 : 0;
-
             this.loadChildsRequests[ item.rsn ] = true;
             new Request.JSON({url: _path + 'admin/pages/getTree', noCache: 1, onComplete: function (pItems) {
 
@@ -585,7 +580,7 @@ ka.nodeTree = new Class({
                 this.fireEvent('childsLoaded', [item, pA]);
                 this.setDomainPosition();
 
-            }.bind(this)}).get({ page_rsn: item.rsn, viewAllPages: viewAllPages });
+            }.bind(this)}).get({ page_rsn: item.rsn });
 
         }
     },

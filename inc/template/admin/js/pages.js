@@ -742,7 +742,7 @@ var admin_pages = new Class({
     refreshPageTrees: function () {
 
         Object.each(this.domainTrees, function (domainTree) {
-            domainTree.setDomainPosition();
+            domainTree.setRootPosition();
         });
 
     },
@@ -3442,7 +3442,17 @@ var admin_pages = new Class({
 
             if (domain.lang != this.language) return;
 
-            this.domainTrees[domain.rsn] = new ka.pagesTree(_this.treeContainer, domain.rsn, {
+
+            this.domainTrees[domain.rsn] = new ka.objectTree(this.treeContainer, 'node', {
+                rootId: domain.rsn,
+
+                onSelection: function (pPage, pObject) {
+                    this.prepareToLoadItem(pPage, pObject.objectKey == 'node'?false:true);
+                }.bind(this)
+
+            }, {win: this.win});
+
+            /*this.domainTrees[domain.rsn] = new ka.pagesTree(_this.treeContainer, domain.rsn, {
 
                 onClick: function (pPage) {
                     this.prepareToLoadItem(pPage);
@@ -3467,10 +3477,11 @@ var admin_pages = new Class({
                 pageObj: this,
                 win: this.win
             });
+            */
 
-            if (pOpts.selectDomain == domain.rsn) {
+            /*if (pOpts.selectDomain == domain.rsn) {
                 this.loadDomain(domain);
-            }
+            }*/
 
         }.bind(this));
 
