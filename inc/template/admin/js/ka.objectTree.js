@@ -4,12 +4,16 @@ ka.objectTree = new Class({
     ready: false,
 
     options: {
-        withObjectAdd: false, //adds a plus sign and opens <withObjectAdd> entry point
+        openFirstLevel: false,
         rootObject: false,
         rootId: false,
         selectObject: false,
         withContext: true,
         iconMap: false,
+        noSelection: false,
+        withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
+        iconAdd: 'admin/images/icons/add.png',
+
         move: true, //can we move the objects around
         icon: 'admin/images/icons/folder.png' //If iconMap is not defined, we use this
     },
@@ -186,7 +190,6 @@ ka.objectTree = new Class({
         }
         var objectUrl = this.objectKey;
 
-        logger('loadFirstLevel');
         if (this.options.rootObject)
             objectUrl += '?'+Object.toQueryString({rootId: this.options.rootId});
 
@@ -230,6 +233,7 @@ ka.objectTree = new Class({
 
         a.id = id;
         a.objectKey = this.objectDefinition.chooserBrowserTreeRootObject;
+        a.label = label;
 
         if (id == this.options.selectObject && this.options.noActive != true){
             a.addClass('ka-objectTree-item-selected');
@@ -286,8 +290,13 @@ ka.objectTree = new Class({
 
 
         this.rootLoaded = true;
-        logger('go');
+
+
         this.loadFirstLevel();
+
+        if (this.options.openFirstLevel){
+            this.openChilds(this.rootA);
+        }
 
     },
 
@@ -305,19 +314,22 @@ ka.objectTree = new Class({
 
         this.addRootItems(pItems, this.paneObjects);
 
-        /*
         if (this.options.withObjectAdd) {
-            if (ka.checkDomainAccess(pDomain.rsn, 'addObjects')) {
+
+            if (ka.checkDomainAccess(this.rootA.id, 'addObjects')) {
+
                 new Element('img', {
-                    src: _path + 'inc/template/admin/images/icons/add.png',
-                    title: _('Add object'),
+                    src: _path + 'inc/template/'+this.options.iconAdd,
+                    title: t('Add object'),
                     'class': 'ka-objectTree-add'
                 }).addEvent('click', function (e) {
-                    this.fireEvent('objectAdd', pDomain.rsn);
-                }.bind(this)).inject(this.items[0]);
+                    this.fireEvent('objectAdd', this.rootA.id, this.rootA.objectKey);
+                }.bind(this)).inject(this.rootA);
+
             }
+
         }
-        */
+
         //this.fireEvent('childsLoaded', [pDomain, this.domainA]);
 
     },
@@ -325,7 +337,7 @@ ka.objectTree = new Class({
     onMousedown: function (e) {
 
 
-        if (!this.options.noDrag && e.target){
+        if (this.options.move && e.target){
 
             var el = e.target;
 
@@ -446,6 +458,7 @@ ka.objectTree = new Class({
         a.id = id;
         a.parent = pParent;
         a.objectKey = this.objectKey;
+        a.label = label;
 
         var container = pParent;
         if (pParent.childContainer) {
@@ -535,7 +548,6 @@ ka.objectTree = new Class({
 
         if (/*(!this.firstLoadDone || this.need2SelectAObject) && */this.load_object_childs !== false) {
 
-            logger(id+' => '+this.load_object_childs.contains(id));
             if (this.load_object_childs.contains(id)) {
                 this.openChilds(a);
             }

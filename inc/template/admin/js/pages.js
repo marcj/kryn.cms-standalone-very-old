@@ -3302,6 +3302,9 @@ var admin_pages = new Class({
     },
 
     pageAdd: function (pDomain) {
+
+
+
         var domaintitle = '';
         ka.settings.domains.each(function (domain) {
             if (domain.rsn == pDomain) {
@@ -3442,13 +3445,15 @@ var admin_pages = new Class({
 
             if (domain.lang != this.language) return;
 
-
             this.domainTrees[domain.rsn] = new ka.objectTree(this.treeContainer, 'node', {
                 rootId: domain.rsn,
 
                 onSelection: function (pPage, pObject) {
                     this.prepareToLoadItem(pPage, pObject.objectKey == 'node'?false:true);
-                }.bind(this)
+                }.bind(this),
+
+                withObjectAdd: true,
+                onObjectAdd: this.pageAdd.bind(this)
 
             }, {win: this.win});
 

@@ -174,7 +174,7 @@
     padding-left: 20px;
 }
 
-.pageTree-context-move {
+.ka-objectTree-context-move {
     position: absolute;
     width: 120px;
     background-color: white;
@@ -182,20 +182,20 @@
     border-bottom: 0px;
 }
 
-.pageTree-context-move a.into {
+.ka-objectTree-context-move a.into {
     background-image: url(../images/icons/arrow_right.png);
 }
 
-.pageTree-context-move a.up {
+.ka-objectTree-context-move a.up {
     background-image: url(../images/icons/arrow_turn_up.png);
 }
 
-.pageTree-context-move a.down {
+.ka-objectTree-context-move a.down {
     background-image: url(../images/icons/arrow_turn_bottom.png);
 }
 
-.pageTree-context-move a,
-.pageTree-context-move a:link {
+.ka-objectTree-context-move a,
+.ka-objectTree-context-move a:link {
     background-repeat: no-repeat;
     border-bottom: 1px solid silver;
     display: block;
@@ -204,6 +204,6 @@
     cursor: pointer;
 }
 
-.pageTree-context-move a:hover {
+.ka-objectTree-context-move a:hover {
     background-color: #f7f7f7;
 }

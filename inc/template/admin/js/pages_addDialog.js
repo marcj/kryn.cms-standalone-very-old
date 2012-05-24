@@ -8,7 +8,7 @@ var admin_pages_addDialog = new Class({
         this._renderLayout();
     },
 
-    choosePlace: function (pTitle, pPos) {
+    choosePlace: function (pDomObject, pPos) {
         if (this.lastContext) this.lastContext.destroy();
 
         if (this.lastChoosenTitle) {
@@ -19,25 +19,25 @@ var admin_pages_addDialog = new Class({
             this.lastLine.destroy();
         }
 
-        var page = pTitle.retrieve('item');
-        this.lastChoosenTitle = pTitle;
+        var page = pDomObject.retrieve('item');
+        this.lastChoosenTitle = pDomObject;
         if (pPos == 'into') {
             this.lastChoosenTitle.addClass('ka-pageTree-item-selected');
         } else {
             this.lastLine = new Element('div', {
                 style: 'border-top: 1px solid gray; height: 1px;',
                 styles: {
-                    'margin-left': pTitle.getStyle('padding-left').toInt() + 10
+                    'margin-left': pDomObject.getStyle('padding-left').toInt() + 10
                 }
             });
 
             if (pPos == 'up') {
-                this.lastLine.inject(pTitle, 'before');
+                this.lastLine.inject(pDomObject, 'before');
             } else {
-                var target = pTitle;
+                var target = pDomObject;
 
-                if (pTitle.getNext() && pTitle.getNext().hasClass('ka-pageTree-item-childs')) {
-                    target = pTitle.getNext();
+                if (pDomObject.getNext() && pDomObject.getNext().hasClass('ka-pageTree-item-childs')) {
+                    target = pDomObject.getNext();
                 }
 
                 this.lastLine.inject(target, 'after');
@@ -45,23 +45,20 @@ var admin_pages_addDialog = new Class({
         }
 
         this.choosenPage = page;
+        this.choosenDomObject = pDomObject;
         this.choosenPos = pPos;
         this.renderChoosenPlace();
     },
 
     renderChoosenPlace: function () {
-        var pos = _('Below');
+        var pos = t('Below');
         if (this.choosenPos == 'up') {
-            pos = _('Above');
+            pos = t('Above');
         }
         if (this.choosenPos == 'into') {
-            pos = _('Into');
+            pos = t('Into');
         }
-        var title = this.choosenPage.title;
-        if (this.choosenPage.type == -1) // Domain
-        {
-            title = this.choosenPage.domain;
-        }
+        var title = this.choosenDomObject.label;
         this.choosenPlaceDiv.set('html', _('Position') + ': <b>' + pos + ' <u>' + title + '</u></b>');
     },
 
@@ -187,12 +184,105 @@ var admin_pages_addDialog = new Class({
             if (this.lastContext) this.lastContext.destroy();
         }.bind(this));
 
+
         var selectDomain = (this.win.params) ? this.win.params.selectDomain : null;
         var selectPage = (this.win.params) ? this.win.params.selectPage : null;
 
+
+        this.pageTree = new ka.objectTree(rightSide, 'node', {
+            rootId: this.win.params.domain_rsn,
+            move: false,
+            noSelection: true,
+            openFirstLevel: true,
+            onReady: function () {
+
+                var domainItem = this.pageTree.rootA.retrieve('item');
+                this.win.setTitle(_('Add pages to %s').replace('%s', domainItem.domain));
+                var selected = this.pageTree.getSelected();
+
+                if (selected) {
+                    this.choosePlace(selected, 'into');
+                }
+
+            }.bind(this),
+
+            onSelection: function (pItem, pDomObject) {
+
+                if (this.lastContext) this.lastContext.destroy();
+
+                if (pDomObject.objectKey == 'system_domain') {
+                    if (!ka.checkPageAccess(pPage.rsn, 'addPages', 'd')) {
+                        return;
+                    }
+                }
+
+                this.lastContext = new Element('div', {
+                    'class': 'ka-objectTree-context-move'
+                }).addEvent('mouseover',
+                    function (e) {
+                        e.stop();
+                    }).inject(this.win.content);
+
+                var parent = pDomObject.parent;
+                if (parent){
+                    parentItem = parent.retrieve('item');
+                }
+
+                if (pDomObject.objectKey == 'node') {
+                    if (!parent || (
+                        (parent.objectKey == 'node' && ka.checkPageAccess(parent.id, 'addPages') ) && (parent.objectKey == 'system_domain' && ka.checkPageAccess(parent.id, 'addPages', 'd') )
+                        )) {
+                        new Element('a', {
+                            text: t('Above'),
+                            'class': 'up'
+                        }).addEvent('click', function () {
+                            this.choosePlace(pDomObject, 'up')
+                        }.bind(this)).inject(this.lastContext);
+
+                    }
+                }
+                new Element('a', {
+                    text: _('Into'),
+                    'class': 'into'
+                }).addEvent('click', function () {
+                    this.choosePlace(pDomObject, 'into')
+                }.bind(this)).inject(this.lastContext);
+
+                if (parent && parent.objectKey == 'node') {
+                    if (!parent || (
+                        (parent.objectKey == 'node' && ka.checkPageAccess(parent.id, 'addPages') ) && (parent.objectKey == 'system_domain' && ka.checkPageAccess(parent.id, 'addPages', 'd') )
+                        )) {
+                        new Element('a', {
+                            text: t('Below'),
+                            'class': 'down'
+                        }).addEvent('click', function () {
+                            this.choosePlace(pDomObject, 'down')
+                        }.bind(this)).inject(this.lastContext);
+                    }
+                }
+
+                var pos = pDomObject.getPosition(this.win.content);
+
+                var mleft = pos.x;
+                if (pDomObject.getStyle('padding-left')) {
+                    mleft = pos.x + pDomObject.getStyle('padding-left').toInt();
+                }
+
+                this.lastContext.setStyles({
+                    left: mleft,
+                    top: pos.y - (this.lastContext.getSize().y / 2) + 7 + rightSide.scrollTop
+                });
+            }.bind(this)
+
+
+        }, {win: this.win});
+
+
+        /*
+
         this.pageTree = new ka.pagesTree(rightSide, this.win.params.domain_rsn, {
             move: false,
-            noActive: true,
+            noSelection: true,
             openFirstLevel: true,
             onReady: function () {
 
@@ -272,7 +362,7 @@ var admin_pages_addDialog = new Class({
                 });
             }.bind(this)
         });
-
+        */
         this.bottom = new Element('div', {
             'class': 'kwindow-win-buttonBar' }).inject(this.win.content);
 
@@ -298,7 +388,7 @@ var admin_pages_addDialog = new Class({
         });
         req.pos = this.choosenPos;
         if (!this.choosenPage) {
-            this.win._alert(_('Please choose a position.'));
+            this.win._alert(t('Please choose a position.'));
             return;
         }
         if (this.choosenPage.type == -1) {

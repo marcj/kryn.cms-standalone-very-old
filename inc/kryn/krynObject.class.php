@@ -384,7 +384,6 @@ class krynObject {
 
     public static function getTreeRoot($pParentObjectUri, $pRootId){
 
-
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
 
         $definition = kryn::$objects[$object_key];
@@ -403,7 +402,10 @@ class krynObject {
                 $fields[] = $field;
         }
 
-        return $obj->getItem($pRootId, $fields);
+
+        list($rootKey, $rootId, $params) = self::parseUri($definition['chooserBrowserTreeRootObject'].'/'.$pRootId);
+
+        return $obj->getItem($rootId[0], $fields);
 
     }
 
