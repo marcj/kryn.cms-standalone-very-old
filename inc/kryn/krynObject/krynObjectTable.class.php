@@ -20,6 +20,9 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     public function remove($pPrimaryValues){
+
+        //todo, remove relations
+
         return dbDelete($this->definition['table'], $pPrimaryValues);
     }
 
@@ -79,7 +82,7 @@ class krynObjectTable extends krynObjectAbstract {
      *
      * @param $pSourcePrimaryValues
      * @param $pTargetPrimaryValues
-     * @param $pMode over | into | below
+     * @param $pMode 'over' | 'into' | 'below'
      * @param $pTargetObjectKey
      *
      * @return boolean
@@ -491,7 +494,7 @@ class krynObjectTable extends krynObjectAbstract {
         return false;
     }
 
-    public function add($pValues){
+    public function add($pValues, $pParentValues = false, $pMode = 'into', $pParentObjectKey = false){
 
         $row = $this->retrieveValues($pValues);
         $primaries = array();
@@ -506,6 +509,17 @@ class krynObjectTable extends krynObjectAbstract {
                     $primaries[$k] = $row[$k];
             }
             $this->updateRelation($primaries, $pValues);
+
+            if ($this->definition['tableNested']){
+                if ($this->object_key != $pParentObjectKey && $this->definition['chooserBrowserTreeRootAsObject']){
+
+                    $targetPrimaries = krynObject::getPrimaryList($this->definition['chooserBrowserTreeRootObject']);
+                    $targetPrimaries[$targetPrimaries[0]] = $row[ $this->definition['chooserBrowserTreeRootObjectField'] ];
+
+                    $this->move($primaries, $targetPrimaries, $pMode, $this->definition['chooserBrowserTreeRootObject']);
+                }
+            }
+
 
         } catch(Exception $e){
             $error = $this->parseError($e);
@@ -658,7 +672,7 @@ class krynObjectTable extends krynObjectAbstract {
             $sql .= " \n".implode(" \n", $joins);
         }
 
-        $primaryCondition = dbPrimaryArrayToSql($pPrimaryIds, $this->object_key);
+        $primaryCondition = dbPrimaryArrayToSql($pPrimaryIds, $this->object_key, $this->object_key);
 
         if ($primaryCondition)
             $where .= ' AND '.$primaryCondition;

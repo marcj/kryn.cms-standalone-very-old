@@ -19,7 +19,8 @@ var admin_pages_addDialog = new Class({
             this.lastLine.destroy();
         }
 
-        var page = pDomObject.retrieve('item');
+        var item = pDomObject.retrieve('item');
+
         this.lastChoosenTitle = pDomObject;
         if (pPos == 'into') {
             this.lastChoosenTitle.addClass('ka-pageTree-item-selected');
@@ -44,7 +45,7 @@ var admin_pages_addDialog = new Class({
             }
         }
 
-        this.choosenPage = page;
+        this.choosenItem = item;
         this.choosenDomObject = pDomObject;
         this.choosenPos = pPos;
         this.renderChoosenPlace();
@@ -87,10 +88,10 @@ var admin_pages_addDialog = new Class({
         this.type = new ka.field({
             label: _('Type'), type: 'select',
             items: {
-                "0": _('Page'),
-                "1": _('Link'),
-                "2": _('Folder'),
-                "3": _('Deposit'),
+                "0": t('Page'),
+                "1": t('Link'),
+                "2": t('Folder'),
+                "3": t('Deposit')
             }
         }).inject(leftSide);
 
@@ -387,19 +388,16 @@ var admin_pages_addDialog = new Class({
             c++;
         });
         req.pos = this.choosenPos;
-        if (!this.choosenPage) {
+
+
+        if (!this.choosenItem) {
             this.win._alert(t('Please choose a position.'));
             return;
         }
-        if (this.choosenPage.type == -1) {
-            // Domain
-            req.rsn = 0;
-            req.domain_rsn = this.choosenPage.rsn;
-        } else {
-            // Everything else
-            req.rsn = this.choosenPage.rsn;
-            req.domain_rsn = this.choosenPage.domain_rsn;
-        }
+        req.parentId = this.choosenDomObject.id;
+        req.parentObjectKey = this.choosenDomObject.objectKey;
+
+
         req.type = this.type.getValue();
         req.layout = this.layout.getValue();
         req.visible = this.visible.getValue();

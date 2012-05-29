@@ -532,21 +532,27 @@ function dbValuesToUpdateSql($pValues){
 
 /**
  * Converts simple structure of a condition to SQL counterpart.
+ * This is used in krynObject::get() second argument.
  *
- * Structure:
+ * Structure can be:
  *
  * array( 'id' => 1, 'cat_id' => 3) => "id = 1 AND cat_id = 3"
+ * array( array(1,3) ) (need $pObjectKey then)=> "id = 1 AND cat_id = 3"
+ *
+ * array( 1,3 ) (need $pObjectKey then) => "(id = 1) or (id = 3)"
+ * array( array(1,3), array(2,3) ) (need $pObjectKey then) => "(id = 1 AND cat_id = 3) OR (id = 2 AND cat_id = 3)"
  *
  * array(
  *  array('id' => 1, 'cat_id' => 3,
  *  array('id' => 1, 'cat_id' => 4
  * )) => "(id = 1 AND cat_id = 3) OR (id = 1 AND cat_id = 4)"
  *
- * @param array $pPrimaryValue
- * @param string $pTable Adds the table in front of the field names
+ * @param array       $pPrimaryValue
+ * @param string      $pTable Adds the table in front of the field names
+ * @param string|bool $pObjectKey
  * @return bool|string
  */
-function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
+function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
 
     $sql = '';
 
@@ -556,17 +562,33 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = ''){
 
     if (!$pPrimaryValue) return false;
 
+    if ($pObjectKey){
+        $primaries = krynObject::getPrimaryList($pObjectKey);
+    }
+
     if (array_key_exists(0, $pPrimaryValue)){
-        //we have to select multiple rows
-        foreach ($pPrimaryValue as $group){
+        foreach ($pPrimaryValue as $idx => $group){
             $sql .= ' (';
-            foreach ($group as $primKey => $primValue){
-                $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($primValue)."' AND ";
+            if (is_array($group)){
+
+                foreach ($group as $primKey => $primValue){
+
+                    if (!is_string($primKey))
+                        $primKey = $primaries[$primKey];
+
+                    $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($primValue)."' AND ";
+                }
+            } else {
+                if (!is_string($idx))
+                    $primKey = $primaries[0];
+
+                $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($group)."' AND ";
             }
             $sql = substr($sql, 0, -5).') OR ';
         }
 
         $sql = substr($sql, 0, -3);
+
     } else {
         //we only have to select one row
         $sql .= ' (';

@@ -1030,11 +1030,23 @@ class adminPages {
         $layout = getArgv('layout', 1);
         $visible = getArgv('visible');
 
+        $targetItem = krynObject::get(getArgv('parentObjectKey'), getArgv('parentId'));
+
+        if (getArgv('parentObjectKey') == 'node'){
+            $domain_rsn = $targetItem['domain_rsn'];
+        } else {
+            $domain_rsn = $targetItem['rsn'];
+        }
+
+        //3print_r($targetItem); exit;
+
         if ($rsn > 0)
             $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
 
         $domain_rsn = ($rsn > 0) ? $page['domain_rsn'] : getArgv('domain_rsn');
         $prsn = ($rsn > 0) ? $page['prsn'] : 0;
+
+        //todo, check ACL
 
         if ($prsn == 0) {
             if (!kryn::checkPageAcl($domain_rsn, 'addPages', 'd')) {
@@ -1063,11 +1075,21 @@ class adminPages {
                 $sort_mode = $pos;
             }
 
-            dbInsert('system_pages', array('title' => $val, 'sort' => $sort, 'sort_mode' => $sort_mode,
-                'access_denied' => 0, 'cdate' => time(), 'mdate' => time(), 'cache' => 0,
+            $row = array(
+                'title' => $val,
+                'access_denied' => 0,
+                'cdate' => time(),
+                'mdate' => time(),
+                'cache' => 0,
                 'access_from' => 0, 'access_to' => 0,
-                'url' => kryn::toModRewrite($val), 'layout' => $layout, 'visible' => $visible,
-                'prsn' => $prsn, 'domain_rsn' => $domain_rsn, 'type' => $type));
+                'url' => kryn::toModRewrite($val),
+                'layout' => $layout,
+                'visible' => $visible,
+                'domain_rsn' => $domain_rsn,
+                'type' => $type
+            );
+
+            krynObject::add('node', $row, getArgv('parentId'), getArgv('parentObjectKey'));
             $c++;
         }
 

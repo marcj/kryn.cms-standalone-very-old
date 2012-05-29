@@ -233,8 +233,14 @@ class krynObject {
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
+        if ($pObjectPrimaryValues !== false && !is_array($pObjectPrimaryValues)){
+            $pObjectPrimaryValues = array($pObjectPrimaryValues);
+        }
+
         if (
-            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues))
+            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues) && count($pObjectPrimaryValues) > 1)
+            ||
+            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues) && count($pObjectPrimaryValues) > 1)
         ){
 
             return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
@@ -334,10 +340,11 @@ class krynObject {
 
     }
 
-    public static function add($pObjectUri, $pValues){
-        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        $obj = self::getClassObject($object_key);
-        return $obj->add($pValues);
+    public static function add($pObjectKey, $pValues, $pParentId = false, $pParentObjectKey = false){
+
+        $obj = self::getClassObject($pObjectKey);
+
+        return $obj->add($pValues, $pParentId, $pParentObjectKey);
 
     }
 

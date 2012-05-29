@@ -117,10 +117,13 @@ abstract class krynObjectAbstract {
     /**
      * @abstract
      * @param $pValues
+     * @param $pParentValues
+     * @param $pMode
+     * @param $pParentObjectKey
      *
      * @return inserted primary key. (last_insert_id() for SQL backend)
      */
-    abstract public function add($pValues);
+    abstract public function add($pValues, $pParentValues = false, $pMode = 'into', $pParentObjectKey = false);
 
     /**
      * Updates an object

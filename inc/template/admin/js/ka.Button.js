@@ -101,11 +101,15 @@ ka.Button = new Class({
     },
 
     show: function () {
-        this.main.setStyle('display', 'inline');
+        this.main.setStyle('display', 'inline-block');
     },
 
     hide: function () {
         this.main.setStyle('display', 'none');
+    },
+
+    isHidden: function(){
+        return this.main.getStyle('display') == 'none';
     },
 
     activate: function () {
