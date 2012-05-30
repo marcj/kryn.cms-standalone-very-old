@@ -72,6 +72,15 @@ function json($pValue) {
 }
 
 /**
+ * Prints the json ["error": "<errorCode>"] to the client and exit.
+ *
+ * @param string Error code
+ */
+function jsonError($pErrorCode){
+    json(array('error' => $pErrorCode));
+}
+
+/**
  * Return a translated message $pMsg with plural and context ability
  *
  * @param string $pMsg     message id (msgid)

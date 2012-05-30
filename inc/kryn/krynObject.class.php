@@ -230,6 +230,8 @@ class krynObject {
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
+        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
+
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
@@ -271,7 +273,6 @@ class krynObject {
      * @throws Exception
      */
     public static function getClassObject($pObjectKey){
-
 
         $definition =& kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -340,11 +341,11 @@ class krynObject {
 
     }
 
-    public static function add($pObjectKey, $pValues, $pParentId = false, $pParentObjectKey = false){
+    public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false){
 
         $obj = self::getClassObject($pObjectKey);
 
-        return $obj->add($pValues, $pParentId, $pParentObjectKey);
+        return $obj->add($pValues, $pParentId, $pPosition, $pParentObjectKey);
 
     }
 

@@ -302,6 +302,9 @@ ka.objectTree = new Class({
 
     renderFirstLevel: function (pItems) {
 
+        logger('renderFirstLevel');
+        logger(pItems);
+
         this.loadingDone = false;
 
         if (!pItems && this.lastRootItems) {
@@ -741,7 +744,7 @@ ka.objectTree = new Class({
 
         var loader = new Element('img', {
             src: _path + 'inc/template/admin/images/loading.gif'
-        }).inject(pA.span)
+        }).inject(pA.span);
 
         this.loadChildsRequests[ pA.id ] = true;
         new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: function (pItem) {
@@ -1028,8 +1031,8 @@ ka.objectTree = new Class({
         new Request.JSON({url: _path + 'admin/backend/moveObject', onComplete: function (res) {
 
             //target item this.dragNDropElement
+
             if (this.dragNDropElement.parent) {
-                logger(this.dragNDropElement.parent);
                 this.dragNDropElement.objectTreeObj.reloadChilds(this.dragNDropElement.parent);
             } else {
                 this.dragNDropElement.objectTreeObj.reload();

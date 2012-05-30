@@ -1030,6 +1030,12 @@ class adminPages {
         $layout = getArgv('layout', 1);
         $visible = getArgv('visible');
 
+        if (!getArgv('parentId'))
+            jsonError('no_parent_id');
+
+        if (!getArgv('parentObjectKey'))
+            jsonError('no_parent_object_key');
+
         $targetItem = krynObject::get(getArgv('parentObjectKey'), getArgv('parentId'));
 
         if (getArgv('parentObjectKey') == 'node'){
@@ -1040,14 +1046,15 @@ class adminPages {
 
         //3print_r($targetItem); exit;
 
-        if ($rsn > 0)
-            $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
+        //if ($rsn > 0)
+        //    $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
 
-        $domain_rsn = ($rsn > 0) ? $page['domain_rsn'] : getArgv('domain_rsn');
-        $prsn = ($rsn > 0) ? $page['prsn'] : 0;
+        //$domain_rsn = ($rsn > 0) ? $page['domain_rsn'] : getArgv('domain_rsn');
+        //$prsn = ($rsn > 0) ? $page['prsn'] : 0;
 
         //todo, check ACL
 
+        /*
         if ($prsn == 0) {
             if (!kryn::checkPageAcl($domain_rsn, 'addPages', 'd')) {
                 json(array('error' => 'access_denied'));
@@ -1058,21 +1065,13 @@ class adminPages {
                 json(array('error' => 'access_denied'));
                 ;
             }
-        }
+        }*/
 
         while ($found) {
             $val = getArgv('field_' . $c);
             if ($val == '') {
                 $found = false;
                 continue;
-            }
-            if ($pos == 'into') {
-                $sort = 1;
-                $sort_mode = 'up';
-                $prsn = ($rsn > 0) ? $page['rsn'] : 0;
-            } else {
-                $sort = $page['sort'];
-                $sort_mode = $pos;
             }
 
             $row = array(
@@ -1081,7 +1080,8 @@ class adminPages {
                 'cdate' => time(),
                 'mdate' => time(),
                 'cache' => 0,
-                'access_from' => 0, 'access_to' => 0,
+                'access_from' => 0,
+                'access_to' => 0,
                 'url' => kryn::toModRewrite($val),
                 'layout' => $layout,
                 'visible' => $visible,
@@ -1089,20 +1089,20 @@ class adminPages {
                 'type' => $type
             );
 
-            krynObject::add('node', $row, getArgv('parentId'), getArgv('parentObjectKey'));
+            krynObject::add('node', $row, getArgv('parentId'), $pos, getArgv('parentObjectKey'));
+
             $c++;
         }
-
-        if ($c > 1)
-            self::cleanSort($domain_rsn, $prsn);
 
         self::updateUrlCache($domain_rsn);
         self::updateMenuCache($domain_rsn);
 
-        kryn::deleteCache('page-' . $rsn);
-        $parents = kryn::getPageParents($rsn);
-        foreach ($parents as &$parent) {
-            kryn::deleteCache('page-' . $parent['rsn']);
+        if (getArgv('parentObjectKey') == 'node'){
+            kryn::deleteCache('page-' . $rsn);
+            $parents = kryn::getPageParents($rsn);
+            foreach ($parents as &$parent) {
+                kryn::deleteCache('page-' . $parent['rsn']);
+            }
         }
 
         kryn::invalidateCache('navigation-' . $domain_rsn);

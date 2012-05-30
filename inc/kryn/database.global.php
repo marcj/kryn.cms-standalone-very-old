@@ -165,7 +165,7 @@ function dbCommit(){
 
 /**
  * Lock a table in write mode.
- * To be postgresql compatible, this starts a transaction (if a transaction has not already been started)
+ * This starts a transaction (if a transaction has not already been started) as in dbBegin() (to be postgresql compatible)
  *
  * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
  */
@@ -175,7 +175,7 @@ function dbWriteLock($pTable){
 
 /**
  * Lock a table in read mode.
- * To be postgresql compatible, this starts a transaction (if a transaction has not already been started)
+ * This starts a transaction (if a transaction has not already been started) as in dbBegin() (to be postgresql compatible)
  *
  * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
  */
@@ -199,10 +199,10 @@ function dbLock($pTable, $pMode = 'read'){
 
     database::$activeLock = true;
 
-    if (kryn::$config['db_type'] == 'mysql')
-        dbExec('LOCK TABLE '.dbQuote($pTable).' '.($pMode=='read'?'READ':'WRITE'));
+    if (kryn::$config['db_type'] != 'postgresql')
+        dbExec('LOCK TABLE '.dbQuote(dbTableName($pTable)).' '.($pMode=='read'?'READ':'WRITE'));
     else {
-        dbExec('LOCK TABLE '.dbQuote($pTable).' IN '.($pMode=='read'?'ACCESS SHARE':'ROW EXCLUSIVE MODE'));
+        dbExec('LOCK TABLE '.dbQuote(dbTableName($pTable)).' IN '.($pMode=='read'?'ACCESS SHARE':'ROW EXCLUSIVE MODE'));
     }
 }
 
@@ -302,9 +302,14 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
 
     $table = dbTableName($pTable);
 
+    if ($pFields != '*')
+        $pFields = dbQuote($pFields);
+
     $sql = "SELECT $pFields FROM $table";
-    if ($pWhere != false)
+    if ($pWhere != false){
+        if (is_array($pWhere)) $pWhere = dbConditionArrayToSql($pWhere);
         $sql .= " WHERE $pWhere";
+    }
 
     return dbExfetch($sql, $pCount);
 }
@@ -548,7 +553,7 @@ function dbValuesToUpdateSql($pValues){
  * )) => "(id = 1 AND cat_id = 3) OR (id = 1 AND cat_id = 4)"
  *
  * @param array       $pPrimaryValue
- * @param string      $pTable Adds the table in front of the field names
+ * @param string      $pTable Adds the table name in front of the field names. ($pTable.<column>)
  * @param string|bool $pObjectKey
  * @return bool|string
  */
@@ -576,13 +581,15 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
                     if (!is_string($primKey))
                         $primKey = $primaries[$primKey];
 
-                    $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($primValue)."' AND ";
+                    $val = is_numeric($primValue) ? $primValue+0 : "'".esc($primValue)."'";
+                    $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = $val AND ";
                 }
             } else {
                 if (!is_string($idx))
                     $primKey = $primaries[0];
 
-                $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($group)."' AND ";
+                $val = is_numeric($group) ? $group+0 : "'".esc($group)."'";
+                $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = $val AND ";
             }
             $sql = substr($sql, 0, -5).') OR ';
         }
@@ -593,7 +600,8 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
         //we only have to select one row
         $sql .= ' (';
         foreach ($pPrimaryValue as $primKey => $primValue){
-            $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = '".esc($primValue)."' AND ";
+            $val = is_numeric($primValue) ? $primValue+0 : "'".esc($primValue)."'";
+            $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = $val AND ";
         }
         $sql = substr($sql, 0, -5).')';
     }
@@ -691,10 +699,35 @@ function dbConditionSingleField($pCondition, $pTable = ''){
         else
             $result .= " '".esc($pCondition[2])."'";
     } else {
-        $result .= ' ' . is_string($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
+        $result .= ' ' . !is_numiric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
     }
 
     return $result;
+}
+
+/**
+ *
+ * Generates a safe SQL condition
+ *
+ * @param string      $pTable
+ * @param string      $pField
+ * @param mixed       $pValue
+ * @param string      $pSign
+ * @param string|bool $pTableAlias
+ *
+ * @return string
+ */
+function dbSqlCondition($pTable, $pField, $pValue, $pSign = '=', $pTableAlias = false){
+
+    $columns = database::getOptions($pTable);
+
+    if ($columns[$pField]['escape'] == 'int')
+        $value = $pValue+0;
+    else
+        $value = "'".esc($pValue)."'";
+
+    return dbQuote($pField, $pTableAlias)." $pSign $value";
+
 }
 
 

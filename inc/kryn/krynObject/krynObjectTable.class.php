@@ -230,7 +230,7 @@ class krynObjectTable extends krynObjectAbstract {
 
 
         dbBegin();
-        dbWriteLock($table);
+        dbWriteLock($this->definition['table']);
 
         try {
 
@@ -241,7 +241,6 @@ class krynObjectTable extends krynObjectAbstract {
 
             dbCommit();
         } catch (Exception $e){
-            error_log($e);
             dbRollback();
             return false;
         }
@@ -324,13 +323,24 @@ class krynObjectTable extends krynObjectAbstract {
             $parent1 = dbQuote('parent1');
 
 
+            $additionalWhere = '';
+
+            if ($this->definition['chooserBrowserTreeRootAsObject'])
+                $rField = $this->definition['chooserBrowserTreeRootObjectField'];
+
             if ($pParent){
 
                 $conditionSql = dbConditionArrayToSql($pParent, 'node');
 
+                $eFields = '';
+                if ($rField){
+                    $eFields = ', MAX('.dbQuote($rField, 'node').') as '.dbQuote($rField);
+                    $conditionSql .= ' AND '.dbQuote($rField, 'parent').' = '.dbQuote($rField, 'node');
+                }
+
                 $tables[] = "(
                     SELECT
-                        MAX(node.lft) as lft, MAX(node.rgt) as rgt, (COUNT($id)) AS $depth
+                        MAX(node.lft) as lft, MAX(node.rgt) as rgt, (COUNT($id)) AS $depth $eFields
                     FROM
                         $tablesDefault
                     WHERE $nodeLft BETWEEN $parentLft AND $parentRgt
@@ -342,21 +352,31 @@ class krynObjectTable extends krynObjectAbstract {
                 $additionalWhere = " AND $nodeLft BETWEEN $parent1Lft AND $parent1Rgt";
                 $aDepth = "(COUNT($pid) - MAX($parent1.$depth))";
 
-            } else {
-                //all on first and second level
-                $additionalWhere = '';
 
+            }
+
+            if ($this->definition['chooserBrowserTreeRootAsObject']){
                 //if we have chooserBrowserTreeRootAsObject as 1 we do not allow to fetch elements without conditions
                 //since rgt and lft would overlap
 
-                if ($this->definition['chooserBrowserTreeRootAsObject'] == 1 && !$pRootObjectId) return false;
+                if (!$pParent && !$pRootObjectId) return false;
 
-                if ($pRootObjectId){
-                    $field = dbQuote($this->definition['chooserBrowserTreeRootObjectField'], 'parent');
-                    $additionalWhere = " AND $field = '".esc($pRootObjectId)."'";
+                if (!$pRootObjectId && $pParent){
+                    $additionalWhere .= " AND ".dbQuote($rField, 'node').' = '.dbQuote($rField, 'parent1');
+                    $additionalWhere .= " AND ".dbQuote($rField, 'parent').' = '.dbQuote($rField, 'parent1');
                 }
 
+                if ($pRootObjectId){
+
+                    $rootObjectDefinition =& kryn::$objects[$this->definition['chooserBrowserTreeRootObject']];
+                    $table = $rootObjectDefinition['table'];
+
+                    //$field = dbQuote($this->definition['chooserBrowserTreeRootObjectField'], 'parent');
+                    $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'node');
+                    $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'parent');
+                }
             }
+
 
             $selects[] = "$aDepth AS ".$depth;
 
@@ -373,6 +393,7 @@ class krynObjectTable extends krynObjectAbstract {
             ORDER BY MAX($nodeLft)
             ";
 
+            //print_r($sql); exit;
             $res = dbExec($sql);
 
             if (!$res) return false;
@@ -499,7 +520,89 @@ class krynObjectTable extends krynObjectAbstract {
         $row = $this->retrieveValues($pValues);
         $primaries = array();
 
+        $additionalWhere = '';
+
+        if ($this->definition['tableNested']){
+
+            if (!$pParentValues){
+                return array('error' => 'no_parent_values');
+            }
+
+            $oField = $this->definition['chooserBrowserTreeRootObjectField'];
+
+            $fields = 'lft';
+
+            if ($oField) $fields .= ', '.$oField;
+
+            if ($pParentObjectKey != $this->object_key && $this->definition['chooserBrowserTreeRootAsObject'] && $oField){
+                $targetItem = krynObject::get($pParentObjectKey, $pParentValues);
+            } else {
+                $targetItem = krynObject::get($this->object_key, $pParentValues, array('fields' => $fields));
+            }
+
+            if ($pParentObjectKey != $this->object_key &&
+                $this->definition['chooserBrowserTreeRootAsObject'] && $oField){
+
+
+                $targetPrimaries = krynObject::getPrimaryList($pParentObjectKey);
+                $value = $targetItem[$targetPrimaries[0]];
+
+                $additionalWhere = dbSqlCondition($this->definition['table'], $oField, $value);
+
+                $where = $additionalWhere.' AND '.dbQuote('lft').' > 0 ';
+
+                $lowestLft = dbTableFetch($this->definition['table'], 1, $where.' ORDER BY lft ASC LIMIT 1', 'lft');
+
+                $lft = $lowestLft ? $lowestLft['lft']-1:0;
+                $rgt = $lowestLft ? $lowestLft['lft']:1;
+
+                $row['lft'] = $lft+1;
+                $row['rgt'] = $rgt+1;
+
+            } else {
+
+                if ($this->definition['chooserBrowserTreeRootAsObject'] && $oField){
+
+                    $additionalWhere = dbSqlCondition($this->definition['table'], $oField, $targetItem[$oField]);
+
+                }
+
+                var_dump($targetItem);
+                $lowestLft = $targetItem;
+
+                $lft = $lowestLft ? $lowestLft['lft']+1:0;
+                $rgt = $lowestLft ? $lowestLft['lft']+2:1;
+
+                $row['lft'] = $lft;
+                $row['rgt'] = $rgt;
+
+            }
+
+            print_r($lowestLft);
+            print_r($row);
+        }
+
         try {
+
+            dbWriteLock($this->definition['table']);
+
+            if ($this->definition['tableNested']){
+
+                if ($additionalWhere){
+                    $additionalWhere = ' AND '.$additionalWhere;
+                }
+
+                $createHole  = 'UPDATE '.dbTableName($this->definition['table']);
+                $createHole .= ' SET   rgt = rgt+2';
+                $createHole .= ' WHERE rgt >= '.$lft.$additionalWhere.";\n\n";
+
+                $createHole .= 'UPDATE '.dbTableName($this->definition['table']);
+                $createHole .= ' SET   lft = lft+2';
+                $createHole .= ' WHERE lft >= '.$lft.$additionalWhere.';';
+
+                dbExec($createHole);
+            }
+
             $lastId = dbInsert($this->definition['table'], $row);
 
             foreach ($this->primaryKeys as $k => $f){
@@ -510,20 +613,21 @@ class krynObjectTable extends krynObjectAbstract {
             }
             $this->updateRelation($primaries, $pValues);
 
-            if ($this->definition['tableNested']){
-                if ($this->object_key != $pParentObjectKey && $this->definition['chooserBrowserTreeRootAsObject']){
+            dbCommit();
 
-                    $targetPrimaries = krynObject::getPrimaryList($this->definition['chooserBrowserTreeRootObject']);
-                    $targetPrimaries[$targetPrimaries[0]] = $row[ $this->definition['chooserBrowserTreeRootObjectField'] ];
-
-                    $this->move($primaries, $targetPrimaries, $pMode, $this->definition['chooserBrowserTreeRootObject']);
-                }
+            if ($pMode != 'into'){
+                $targetUri  = $pParentObjectKey?$pParentObjectKey:$this->object_key;
+                $targetUri .= '/'.$pParentValues;
+                krynObject::move($this->object_key.'/'.$lastId, $targetUri, $pMode);
             }
 
-
         } catch(Exception $e){
+
+            dbRollback();
+
             $error = $this->parseError($e);
-            return $error?$error:false;
+            if (is_array($error)) throw new Exception($error);
+            return false;
         }
 
         return $lastId;
