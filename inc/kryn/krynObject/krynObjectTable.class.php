@@ -121,12 +121,12 @@ class krynObjectTable extends krynObjectAbstract {
             $rValue = $target[$rField];
         }
 
-        //print_r($target);
-
-        if ($pMode == 'over' && $source['rgt']+1 == $target['lft']) return false;
-        if ($pMode == 'below' && $source['lft']-1 == $target['rgt']) return false;
-        if ($pMode == 'into' && $source['lft']-1 == $target['lft']) return false;
-        if ($pMode == 'into' && $source['lft'] == $target['lft']) return false;
+        if (!$rField || $source[$rField] == $target[$rField]){
+            if ($pMode == 'over' && $source['rgt']+1 == $target['lft']) return false;
+            if ($pMode == 'below' && $source['lft']-1 == $target['rgt']) return false;
+            if ($pMode == 'into' && $source['lft']-1 == $target['lft']) return false;
+            if ($pMode == 'into' && $source['lft'] == $target['lft']) return false;
+        }
 
         //no move to his own children
         if ($source['lft'] < $target['lft'] && $source['rgt'] > $target['lft']) return false;
@@ -177,12 +177,13 @@ class krynObjectTable extends krynObjectAbstract {
 
         //step 3. create new place for target root condition
 
-/*
- *      TODO, should not be necessary but without it, it crashes
- *         if ($source['lft'] < $target['lft']){
-            $targetLeft -= $sourceWidth+1;
-            $targetRight -= $sourceWidth+1;
-        }*/
+        if ($source['lft'] < $target['lft']){
+
+            if (!$rField || $source[$rField] == $target[$rField]){
+                $targetLeft -= $sourceWidth+1;
+                $targetRight -= $sourceWidth+1;
+            }
+        }
 
         $where = '';
         $whereParents = "lft < $targetLeft AND rgt > $targetRight";
@@ -223,7 +224,7 @@ class krynObjectTable extends krynObjectAbstract {
 
         ";
 
-        //print $createPlace."\n";
+
 
         //step 4. move source to new created place
         $changeRoot = ($rField) ? ', '.dbSqlCondition($this->definition['table'], $rField, $rValue) : '';
@@ -235,11 +236,22 @@ class krynObjectTable extends krynObjectAbstract {
                 rgt = rgt + $sourceWidth + $newSourceLeft
                 $changeRoot
             WHERE
-                rgt <= 0
+                rgt <= 0;
         ";
 
 
-        //print $moveSource."\n";
+        $updateParentId = "
+
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft + $sourceWidth + $newSourceLeft,
+                rgt = rgt + $sourceWidth + $newSourceLeft
+                $changeRoot
+            WHERE
+                rgt <= 0;
+        ";
+
         dbBegin();
         dbWriteLock($this->definition['table']);
 
@@ -250,6 +262,9 @@ class krynObjectTable extends krynObjectAbstract {
             dbExec($createPlace);
             dbExec($moveSource);
 
+            if ($updateParentId)
+                dbExec($updateParentId);
+
             dbCommit();
         } catch (Exception $e){
             dbRollback();
@@ -258,7 +273,6 @@ class krynObjectTable extends krynObjectAbstract {
 
         kryn::invalidateCache('systemObjectTrees');
 
-        //exit;
         return true;
 
     }

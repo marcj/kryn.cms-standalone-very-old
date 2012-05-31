@@ -57,7 +57,7 @@ ka.field = new Class({
 
             this.title = new Element('td', {
                 'class': 'ka-field-tdtitle',
-                width: (this.field.tableitem_title_width) ? this.field.tableitem_title_width : 180
+                width: (this.field.tableitem_title_width) ? this.field.tableitem_title_width : '40%'
             }).inject(this.tr);
 
             this.main = new Element('td', {

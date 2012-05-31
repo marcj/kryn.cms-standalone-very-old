@@ -1907,7 +1907,35 @@ var admin_system_module_edit = new Class({
                                 needValue: 'table',
                                 label: t('Nested Sets'),
                                 desc: t('Needs two additional fields: lft(int) and rgt(int)'),
-                                type: 'checkbox'
+                                type: 'checkbox',
+                                depends: {
+                                    chooserBrowserTreeRootAsObject: {
+                                        needValue: 1,
+                                        label: t('Root as object (Optional)'),
+                                        type: 'checkbox',
+                                        depends: {
+                                            chooserBrowserTreeRootObject: {
+                                                needValue: 1,
+                                                label: t('Object key')
+                                            },
+                                            chooserBrowserTreeRootObjectField: {
+                                                needValue: 1,
+                                                label: t('Foreign key'),
+                                                desc: t('Which field in the current object contains the primary value of the object above?')
+                                            },
+                                            chooserBrowserTreeRootObjectLabel: {
+                                                needValue: 1,
+                                                label: t('Label field')
+                                            },
+                                            chooserBrowserTreeRootObjectExtraFields: {
+                                                needValue: 1,
+                                                label: t('Extra fields (Optional)'),
+                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You might use this to get more fields in the user interface classes.'),
+                                                empty: true
+                                            }
+                                        }
+                                    }
+                                }
                             },
                             'class': {
                                 needValue: 'custom',
@@ -2041,62 +2069,37 @@ var admin_system_module_edit = new Class({
                                             }
                                         }
                                     },
-                                    chooserBrowserTreeRootAsObject: {
-                                        needValue: 1,
-                                        label: t('Root as object (Optional)'),
-                                        type: 'checkbox',
-                                        depends: {
-                                            chooserBrowserTreeRootObject: {
-                                                needValue: 1,
-                                                label: t('Object key')
-                                            },
-                                            chooserBrowserTreeRootObjectField: {
-                                                needValue: 1,
-                                                label: t('Foreign key'),
-                                                desc: t('Which field in the current object contains the primary value of the object above?')
-                                            },
-                                            chooserBrowserTreeRootObjectLabel: {
-                                                needValue: 1,
-                                                label: t('Label field')
-                                            },
-                                            chooserBrowserTreeRootObjectExtraFields: {
-                                                needValue: 1,
-                                                label: t('Extra fields (Optional)'),
-                                                desc: t('Comma separated. backend/objectTreeRoot returns primary key, label and these extra fields.'),
-                                                empty: true
-                                            },
 
-                                            chooserBrowserTreeRootObjectFixedIcon: {
-                                                type: 'checkbox',
+                                    chooserBrowserTreeRootObjectFixedIcon: {
+                                        type: 'checkbox',
+                                        needValue: 1,
+                                        againstField: 'chooserBrowserTreeRootAsObject',
+                                        label: t('Fixed root icon'),
+                                        depends: {
+                                            chooserBrowserTreeRootObjectIconPath: {
                                                 needValue: 1,
-                                                label: t('Fixed icon'),
-                                                depends: {
-                                                    chooserBrowserTreeRootObjectIconPath: {
-                                                        needValue: 1,
-                                                        type: 'file',
-                                                        label: t('Icon field')
+                                                type: 'file',
+                                                label: t('Icon field')
+                                            },
+                                            chooserBrowserTreeRootObjectIcon: {
+                                                needValue: 0,
+                                                label: t('Icon field')
+                                            },
+                                            chooserBrowserTreeRootObjectIconMapping: {
+                                                label: t('Icon path mapping'),
+                                                needValue: 0,
+                                                asHash: true,
+                                                type: 'array',
+                                                columns: [
+                                                    {label: t('Value'), width: '30%'},
+                                                    {label: t('Icon path')}
+                                                ],
+                                                fields: {
+                                                    value: {
+                                                        type: 'text'
                                                     },
-                                                    chooserBrowserTreeRootObjectIcon: {
-                                                        needValue: 0,
-                                                        label: t('Icon field')
-                                                    },
-                                                    chooserBrowserTreeRootObjectIconMapping: {
-                                                        label: t('Icon path mapping'),
-                                                        needValue: 0,
-                                                        asHash: true,
-                                                        type: 'array',
-                                                        columns: [
-                                                            {label: t('Value'), width: '30%'},
-                                                            {label: t('Icon path')}
-                                                        ],
-                                                        fields: {
-                                                            value: {
-                                                                type: 'text'
-                                                            },
-                                                            path: {
-                                                                type: 'file'
-                                                            }
-                                                        }
+                                                    path: {
+                                                        type: 'file'
                                                     }
                                                 }
                                             }
@@ -2221,7 +2224,7 @@ var admin_system_module_edit = new Class({
         }).inject(this.dialog.content);
         var tbody = new Element('tbody').inject(table);
 
-        var kaParseObj = new ka.parse(tbody, kaFields, {allTableItems: true}, {win: this.win});
+        var kaParseObj = new ka.parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 180}, {win: this.win});
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 
