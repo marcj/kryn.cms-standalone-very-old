@@ -32,16 +32,16 @@ class krynObjectTable extends krynObjectAbstract {
             throw new Exception('Object is not marked as nested.');
         }
 
-        if (!$this->definition['chooserBrowserTreeLabel']){
-            throw new Exception('chooserBrowserTreeLabel in object not defined.');
+        if (!$this->definition['tableNestedLabel']){
+            throw new Exception('tableNestedLabel in object not defined.');
         }
         $primKey = current($this->primaryKeys);
         $idValue = $pPrimaryValues[$primKey]+0;
         $id      = dbQuote('node').'.'.dbQuote($primKey);
-        $icon  = $this->definition['chooserBrowserTreeIcon'];
+        $icon  = $this->definition['tableNestedIcon'];
 
 
-        $title = $this->definition['chooserBrowserTreeLabel'];
+        $title = $this->definition['tableNestedLabel'];
 
         $selectId = $id.' AS '.$primKey;
         $selects[] = dbQuote($primKey, 'parent').' AS '.$primKey;
@@ -96,7 +96,7 @@ class krynObjectTable extends krynObjectAbstract {
         $source = $this->getItem($pSourcePrimaryValues);
 
         $rootCondition = ' 1=1';
-        if ($this->definition['chooserBrowserTreeRootAsObject'] && $rField = $this->definition['chooserBrowserTreeRootObjectField']){
+        if ($this->definition['tableNestedRootAsObject'] && $rField = $this->definition['tableNestedRootObjectField']){
             $field = dbQuote($rField);
             $rootCondition = " $field = '".esc($source[$rField])."'";
         }
@@ -239,7 +239,6 @@ class krynObjectTable extends krynObjectAbstract {
                 rgt <= 0;
         ";
 
-
         $updateParentId = "
 
             UPDATE
@@ -293,8 +292,8 @@ class krynObjectTable extends krynObjectAbstract {
             throw new Exception('Object is not marked as nested.');
         }
 
-        if (!$this->definition['chooserBrowserTreeLabel']){
-            throw new Exception('chooserBrowserTreeLabel in object not defined.');
+        if (!$this->definition['tableNestedLabel']){
+            throw new Exception('tableNestedLabel in object not defined.');
         }
 
         $primKey = current($this->primaryKeys);
@@ -313,8 +312,8 @@ class krynObjectTable extends krynObjectAbstract {
                 $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
 
 
-            $title = $this->definition['chooserBrowserTreeLabel'];
-            $icon  = $this->definition['chooserBrowserTreeIcon'];
+            $title = $this->definition['tableNestedLabel'];
+            $icon  = $this->definition['tableNestedIcon'];
 
             $table = dbQuote(dbTableName($this->definition['table']));
             $id    = dbQuote('node').'.'.dbQuote($primKey);
@@ -351,8 +350,8 @@ class krynObjectTable extends krynObjectAbstract {
 
             $additionalWhere = '';
 
-            if ($this->definition['chooserBrowserTreeRootAsObject'])
-                $rField = $this->definition['chooserBrowserTreeRootObjectField'];
+            if ($this->definition['tableNestedRootAsObject'])
+                $rField = $this->definition['tableNestedRootObjectField'];
 
             if ($pParent){
 
@@ -381,8 +380,8 @@ class krynObjectTable extends krynObjectAbstract {
 
             }
 
-            if ($this->definition['chooserBrowserTreeRootAsObject']){
-                //if we have chooserBrowserTreeRootAsObject as 1 we do not allow to fetch elements without conditions
+            if ($this->definition['tableNestedRootAsObject']){
+                //if we have tableNestedRootAsObject as 1 we do not allow to fetch elements without conditions
                 //since rgt and lft would overlap
 
                 if (!$pParent && !$pRootObjectId) return false;
@@ -394,10 +393,10 @@ class krynObjectTable extends krynObjectAbstract {
 
                 if ($pRootObjectId){
 
-                    $rootObjectDefinition =& kryn::$objects[$this->definition['chooserBrowserTreeRootObject']];
+                    $rootObjectDefinition =& kryn::$objects[$this->definition['tableNestedRootObject']];
                     $table = $rootObjectDefinition['table'];
 
-                    //$field = dbQuote($this->definition['chooserBrowserTreeRootObjectField'], 'parent');
+                    //$field = dbQuote($this->definition['tableNestedRootObjectField'], 'parent');
                     $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'node');
                     $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'parent');
                 }
@@ -554,20 +553,20 @@ class krynObjectTable extends krynObjectAbstract {
                 return array('error' => 'no_parent_values');
             }
 
-            $oField = $this->definition['chooserBrowserTreeRootObjectField'];
+            $oField = $this->definition['tableNestedRootObjectField'];
 
             $fields = 'lft';
 
             if ($oField) $fields .= ', '.$oField;
 
-            if ($pParentObjectKey != $this->object_key && $this->definition['chooserBrowserTreeRootAsObject'] && $oField){
+            if ($pParentObjectKey != $this->object_key && $this->definition['tableNestedRootAsObject'] && $oField){
                 $targetItem = krynObject::get($pParentObjectKey, $pParentValues);
             } else {
                 $targetItem = krynObject::get($this->object_key, $pParentValues, array('fields' => $fields));
             }
 
             if ($pParentObjectKey != $this->object_key &&
-                $this->definition['chooserBrowserTreeRootAsObject'] && $oField){
+                $this->definition['tableNestedRootAsObject'] && $oField){
 
 
                 $targetPrimaries = krynObject::getPrimaryList($pParentObjectKey);
@@ -587,7 +586,7 @@ class krynObjectTable extends krynObjectAbstract {
 
             } else {
 
-                if ($this->definition['chooserBrowserTreeRootAsObject'] && $oField){
+                if ($this->definition['tableNestedRootAsObject'] && $oField){
 
                     $additionalWhere = dbSqlCondition($this->definition['table'], $oField, $targetItem[$oField]);
 

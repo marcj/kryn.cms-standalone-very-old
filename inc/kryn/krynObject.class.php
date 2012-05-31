@@ -396,22 +396,22 @@ class krynObject {
 
         $definition = kryn::$objects[$object_key];
 
-        if (!$definition['chooserBrowserTreeRootAsObject']) return false;
-        if (!$definition['chooserBrowserTreeRootObject']) return false;
+        if (!$definition['tableNestedRootAsObject']) return false;
+        if (!$definition['tableNestedRootObject']) return false;
 
-        $obj = self::getClassObject($definition['chooserBrowserTreeRootObject']);
+        $obj = self::getClassObject($definition['tableNestedRootObject']);
 
         $fields = $obj->primaryKeys;
-        $fields[] = $definition['chooserBrowserTreeRootObjectLabel'];
+        $fields[] = $definition['tableNestedRootObjectLabel'];
 
-        if ($definition['chooserBrowserTreeRootObjectExtraFields']){
-            $extraFields = explode(',', trim(str_replace(' ', '', $definition['chooserBrowserTreeRootObjectExtraFields'])));
+        if ($definition['tableNestedRootObjectExtraFields']){
+            $extraFields = explode(',', trim(str_replace(' ', '', $definition['tableNestedRootObjectExtraFields'])));
             foreach ($extraFields as $field)
                 $fields[] = $field;
         }
 
 
-        list($rootKey, $rootId, $params) = self::parseUri($definition['chooserBrowserTreeRootObject'].'/'.$pRootId);
+        list($rootKey, $rootId, $params) = self::parseUri($definition['tableNestedRootObject'].'/'.$pRootId);
 
         return $obj->getItem($rootId[0], $fields);
 

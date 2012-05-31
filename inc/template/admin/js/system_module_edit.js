@@ -1909,25 +1909,30 @@ var admin_system_module_edit = new Class({
                                 desc: t('Needs two additional fields: lft(int) and rgt(int)'),
                                 type: 'checkbox',
                                 depends: {
-                                    chooserBrowserTreeRootAsObject: {
+
+                                    tableNestedLabel: {
+                                        needValue: 1,
+                                        label: t('Label field')
+                                    },
+                                    tableNestedRootAsObject: {
                                         needValue: 1,
                                         label: t('Root as object (Optional)'),
                                         type: 'checkbox',
                                         depends: {
-                                            chooserBrowserTreeRootObject: {
+                                            tableNestedRootObject: {
                                                 needValue: 1,
                                                 label: t('Object key')
                                             },
-                                            chooserBrowserTreeRootObjectField: {
+                                            tableNestedRootObjectField: {
                                                 needValue: 1,
                                                 label: t('Foreign key'),
                                                 desc: t('Which field in the current object contains the primary value of the object above?')
                                             },
-                                            chooserBrowserTreeRootObjectLabel: {
+                                            tableNestedRootObjectLabel: {
                                                 needValue: 1,
                                                 label: t('Label field')
                                             },
-                                            chooserBrowserTreeRootObjectExtraFields: {
+                                            tableNestedRootObjectExtraFields: {
                                                 needValue: 1,
                                                 label: t('Extra fields (Optional)'),
                                                 desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You might use this to get more fields in the user interface classes.'),
@@ -2030,9 +2035,9 @@ var admin_system_module_edit = new Class({
                                     }
                                 }
                             },
-                            chooserBrowserTreeType: {
+                            __chooserBrowserTree__: {
                                 againstField: 'tableNested',
-                                type: 'checkbox',
+                                type: 'label',
                                 needValue: 1,
                                 label: t('Browser UI (tree)'),
                                 desc: t('Only for nested objects.'),
@@ -2054,8 +2059,7 @@ var admin_system_module_edit = new Class({
                                         }
                                     },
                                     chooserBrowserTreeJavascript: {
-                                        needValue: 1,
-                                        label: t('Javascript class'),
+                                        label: t('Javascript UI class'),
                                         items: {
                                             'default': 'Framework',
                                             'custom': 'Custom class'
@@ -2105,13 +2109,8 @@ var admin_system_module_edit = new Class({
                                             }
                                         }
                                     },
-                                    chooserBrowserTreeLabel: {
-                                        needValue: 1,
-                                        label: t('Label field')
-                                    },
                                     chooserBrowserTreeFixedIcon: {
                                         type: 'checkbox',
-                                        needValue: 1,
                                         label: t('Fixed icon'),
                                         depends: {
                                             chooserBrowserTreeIconPath: {
