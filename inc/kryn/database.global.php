@@ -699,7 +699,7 @@ function dbConditionSingleField($pCondition, $pTable = ''){
         else
             $result .= " '".esc($pCondition[2])."'";
     } else {
-        $result .= ' ' . !is_numiric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
+        $result .= ' ' . !is_numeric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
     }
 
     return $result;
