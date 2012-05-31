@@ -89,10 +89,14 @@ class krynObjectTable extends krynObjectAbstract {
      */
     public function move($pSourcePrimaryValues, $pTargetPrimaryValues, $pMode, $pTargetObjectKey = false){
 
+
+        $modes = array('over', 'below', 'into');
+        if (!in_array($pMode, $modes)) return false;
+
         $source = $this->getItem($pSourcePrimaryValues);
 
         $rootCondition = ' 1=1';
-        if ($rField = $this->definition['chooserBrowserTreeRootObjectField']){
+        if ($this->definition['chooserBrowserTreeRootAsObject'] && $rField = $this->definition['chooserBrowserTreeRootObjectField']){
             $field = dbQuote($rField);
             $rootCondition = " $field = '".esc($source[$rField])."'";
         }
@@ -117,8 +121,7 @@ class krynObjectTable extends krynObjectAbstract {
             $rValue = $target[$rField];
         }
 
-        $modes = array('over', 'below', 'into');
-        if (!in_array($pMode, $modes)) return false;
+        //print_r($target);
 
         if ($pMode == 'over' && $source['rgt']+1 == $target['lft']) return false;
         if ($pMode == 'below' && $source['lft']-1 == $target['rgt']) return false;
@@ -174,10 +177,12 @@ class krynObjectTable extends krynObjectAbstract {
 
         //step 3. create new place for target root condition
 
-        if ($source['lft'] < $target['lft']){
+/*
+ *      TODO, should not be necessary but without it, it crashes
+ *         if ($source['lft'] < $target['lft']){
             $targetLeft -= $sourceWidth+1;
             $targetRight -= $sourceWidth+1;
-        }
+        }*/
 
         $where = '';
         $whereParents = "lft < $targetLeft AND rgt > $targetRight";
@@ -196,15 +201,8 @@ class krynObjectTable extends krynObjectAbstract {
             $newSourceLeft = $targetLeft+1;
         }
 
+        $newRootCondition = ($rField) ? dbSqlCondition($this->definition['table'], $rField, $rValue) : '1=1';
         $createPlace = "
-            UPDATE
-                $tableQuoted
-            SET
-                lft = lft+$sourceWidth+1,
-                rgt = rgt+$sourceWidth+1
-            WHERE
-                $where
-                AND $rootCondition;
 
             UPDATE
                 $tableQuoted
@@ -212,11 +210,23 @@ class krynObjectTable extends krynObjectAbstract {
                 rgt = rgt+$sourceWidth+1
             WHERE
                 $whereParents
-                AND $rootCondition;
+                AND $newRootCondition;
+
+            UPDATE
+                $tableQuoted
+            SET
+                lft = lft+$sourceWidth+1,
+                rgt = rgt+$sourceWidth+1
+            WHERE
+                $where
+                AND $newRootCondition;
+
         ";
 
+        //print $createPlace."\n";
+
         //step 4. move source to new created place
-        $changeRoot = ($rField) ? ", $rField = '".esc($rValue)."' " : '';
+        $changeRoot = ($rField) ? ', '.dbSqlCondition($this->definition['table'], $rField, $rValue) : '';
         $moveSource = "
             UPDATE
                 $tableQuoted
@@ -229,6 +239,7 @@ class krynObjectTable extends krynObjectAbstract {
         ";
 
 
+        //print $moveSource."\n";
         dbBegin();
         dbWriteLock($this->definition['table']);
 
@@ -247,6 +258,7 @@ class krynObjectTable extends krynObjectAbstract {
 
         kryn::invalidateCache('systemObjectTrees');
 
+        //exit;
         return true;
 
     }

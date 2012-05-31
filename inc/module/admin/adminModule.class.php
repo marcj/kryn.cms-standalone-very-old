@@ -170,7 +170,7 @@ class adminModule {
 
     public static function convertPagesTo10Domain($pDomainRsn){
 
-        $res = dbExec('SELECT rsn, prsn FROM '.pfx.'system_pages WHERE prsn = 0 AND domain_rsn = '.($pDomainRsn+0).
+        $res = dbExec('SELECT rsn, prsn FROM '.pfx.'system_pages WHERE (prsn = 0 OR prsn IS NULL) AND domain_rsn = '.($pDomainRsn+0).
                       ' ORDER BY sort');
 
         self::$migrationCurrentPos = 0;
