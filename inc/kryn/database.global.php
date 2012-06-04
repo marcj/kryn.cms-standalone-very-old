@@ -655,7 +655,7 @@ function dbConditionArrayToSql($pConditions, $pTable = ''){
 
         $result = dbConditionSingleField($pConditions, $pTable);
 
-    } else {
+    } else if (is_array($pConditions)){
         foreach ($pConditions as $condition){
 
             if (is_array($condition) && is_array($condition[0])){

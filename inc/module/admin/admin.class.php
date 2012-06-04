@@ -415,7 +415,7 @@ class admin {
                 $fields[] = $key;
             }
 
-            $items = krynObject::get($object_key, $object_ids, array(
+            $items = krynObject::getList($object_key, $object_ids, array(
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
@@ -563,7 +563,7 @@ class admin {
         $start = ($itemsPerPage*$pPage)-$itemsPerPage;
         $pages = ceil($itemsCount/$itemsPerPage);
 
-        $items = krynObject::get($pObjectKey, false, array(
+        $items = krynObject::getList($pObjectKey, false, array(
             'fields' => implode(',', $fields),
             'limit'  => $itemsPerPage,
             'offset' => $start,
@@ -1721,7 +1721,7 @@ class admin {
 
     public function cacheDeleteSystemUrls(){
 
-        $domains = krynObject::get('domain');
+        $domains = krynObject::getList('domain');
         foreach ($domains as $domain)
             kryn::deleteCache('systemUrls-'.$domain['rsn']);
 
@@ -1729,7 +1729,7 @@ class admin {
 
     public function cacheDeleteSystemDomain(){
 
-        $domains = krynObject::get('domain');
+        $domains = krynObject::getList('domain');
         foreach ($domains as $domain)
             kryn::deleteCache('systemDomain-'.$domain['rsn']);
     }

@@ -100,8 +100,16 @@ class krynObject {
 
         $pInternalUri = trim($pInternalUri);
 
+        $list = false;
+
         $catch = 'object://';
         if (substr(strtolower($pInternalUri),0,strlen($catch)) == $catch){
+            $pInternalUri = substr($pInternalUri, strlen($catch));
+        }
+
+        $catch = 'objects://';
+        if (substr(strtolower($pInternalUri),0,strlen($catch)) == $catch){
+            $list = true;
             $pInternalUri = substr($pInternalUri, strlen($catch));
         }
 
@@ -112,7 +120,8 @@ class krynObject {
             return array(
                 $pInternalUri,
                 false,
-                array()
+                array(),
+                $list
             );
         }
 
@@ -143,7 +152,8 @@ class krynObject {
         return array(
             $object_key,
             (!$object_id) ? false : $object_id,
-            $params
+            $params,
+            $list
         );
     }
 
@@ -170,38 +180,19 @@ class krynObject {
      */
     public static function getFromUri($pInternalUri){
 
-        list($object_key, $object_id, $params) = self::parseUri($pInternalUri);
+        list($object_key, $object_id, $params, $asList) = self::parseUri($pInternalUri);
 
-        return self::get($object_key, $object_id, $params);
+        return $asList?self::getList($object_key, $object_id, $params):self::get($object_key, $object_id, $params);
     }
 
 
     /**
-     * Returns the single row or a list of objects.
-     *
-     * The $pObjectPrimaryValues can be mixed. Additionally to the patter of krynObject::parseUri() we have:
-     *
-     * Returns single row:
-     * array(1) => returns one item with the first primary=1
-     * array('rsn' => 1) => equal as above (if the primary=rsn)
-     * array('primary_1' => 2, 'primary_2' => 3)
-     *
-     * Returns multiple row (list):
-     * array(1,2) => returns three items whereas the primary for the first object is 1, for the second object 2, etc
-     * array( array('rsn'=>1), array('rsn'=>2) ) equal as above
-     * array( array('primary_1'=>2, 'primary_2'=>3), array('primary_1'=>3, 'primary_2'=>5) )
-     *
-     * If you need more complex filterin use $pOptions['condition'] which is a SQL condition (check for SQL injection!)
-     *
-     * !IMPORTANT!:
-     * Don't forget to use esc() function, if you use $pOptions['condition'], to escape the values (because in this
-     * function we do _NOT_ escape this value)
-     *
+     * Returns the single row of a object.
+
      * $pOptions is a array which can contain following options. All options are optional.
      *
      *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
      *                    If empty all columns will be selected.
-     *  'condition'       Condition as array. Take a look at dbConditionArrayToSql to get information about the structure.
      *  'offset'          Offset of the result set (in SQL OFFSET)
      *  'limit'           Limits the result set (in SQL LIMIT)
      *  'order'           The column to order. Example:
@@ -215,12 +206,11 @@ class krynObject {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pObjectPrimaryValues string or array
+     * @param mixed  $pConditionValues Can be the structure of dbPrimaryArrayToSql() or dbConditionArrayToSql()
      * @param array  $pOptions
-     * @param bool   $pRawData
      * @return array|bool
      */
-    public static function get($pObjectKey, $pObjectPrimaryValues = false, $pOptions = array(), $pRawData = false){
+    public static function get($pObjectKey, $pConditionValues = false, $pOptions = array()){
 
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -235,33 +225,61 @@ class krynObject {
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
-        if ($pObjectPrimaryValues !== false && !is_array($pObjectPrimaryValues)){
-            $pObjectPrimaryValues = array($pObjectPrimaryValues);
+        if ($pConditionValues !== false && !is_array($pConditionValues)){
+            $pConditionValues = array($pConditionValues);
         }
 
-        if (
-            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues) && count($pObjectPrimaryValues) > 1)
-            ||
-            (is_array($pObjectPrimaryValues) && array_key_exists(0, $pObjectPrimaryValues) && count($pObjectPrimaryValues) > 1)
-        ){
+        return $obj->getItem($pConditionValues, $pOptions['fields'], $pOptions['foreignKeys'], $pRawData);
 
-            return $obj->getItems($pObjectPrimaryValues, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
-                $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
+    }
 
+    /**
+     * Returns the list of objects.
+     *
+     *
+     * $pOptions is a array which can contain following options. All options are optional.
+     *
+     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
+     *                    If empty all columns will be selected.
+     *  'offset'          Offset of the result set (in SQL OFFSET)
+     *  'limit'           Limits the result set (in SQL LIMIT)
+     *  'order'           The column to order. Example:
+     *                    array(
+     *                      array('field' => 'category', 'direction' => 'asc'),
+     *                      array('field' => 'title',    'direction' => 'asc')
+     *                    )
+     *
+     *  'foreignKeys'     Define which column should be resolved. If empty all columns will be resolved.
+     *                    Use a array or a comma separated list (like in SQL SELECT)
+     *
+     * @static
+     * @param string $pObjectKey
+     * @param mixed  $pConditionValues Can be the structure of dbPrimaryArrayToSql() or dbConditionArrayToSql()
+     * @param array  $pOptions
+     * @return array|bool
+     */
+    public static function getList($pObjectKey, $pConditionValues = false, $pOptions = array()){
+
+        $definition = kryn::$objects[$pObjectKey];
+        if (!$definition) return false;
+
+        $obj = self::getClassObject($pObjectKey);
+
+        if (!$pOptions['fields'])
+            $pOptions['fields'] = '*';
+
+        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
+
+        if (!$pOptions['foreignKeys'])
+            $pOptions['foreignKeys'] = '*';
+
+        if ($pConditionValues !== false && !is_array($pConditionValues)){
+            $pConditionValues = array($pConditionValues);
         }
 
+        return $obj->getItems($pConditionValues, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
+            $pOptions['foreignKeys'], $pOptions['order']);
 
-        if ($pObjectPrimaryValues !== false){
-
-            $item = $obj->getItem($pObjectPrimaryValues, $pOptions['fields'], $pOptions['foreignKeys'], $pRawData);
-
-            return $item;
-
-        } else {
-
-            return $obj->getItems(null, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
-                                  $pOptions['foreignKeys'], $pOptions['orderBy'], $pOptions['orderDirection'], $pRawData);
-        }
     }
 
     /**

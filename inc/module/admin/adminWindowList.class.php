@@ -691,7 +691,7 @@ class adminWindowList {
             $primaryFields = krynObject::getPrimaries($this->object);
             $fields = array_merge($fields, array_keys($primaryFields));
 
-            $items = krynObject::get($this->object, false, array(
+            $items = krynObject::getList($this->object, false, array(
                 'offset' => $start,
                 'fields' => $fields,
                 'limit'  => $end

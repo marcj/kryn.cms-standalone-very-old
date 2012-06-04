@@ -189,17 +189,38 @@ class usersAcl {
     }
     
     public static function search(){
-        $q = getArgv('q', true);
-        $type = getArgv('type');
+
+        $q = getArgv('q', 1);
 
         $q = str_replace("*", "%", $q);
 
-        if( $type == 'user' )
+        /*if( $type == 'user' )
             $res = dbTableFetch('system_user', DB_FETCH_ALL, "username LIKE '$q%' AND rsn > 0 ORDER BY username LIMIT 30");
-        else
+        else if ($)
             $res = dbTableFetch('system_groups', DB_FETCH_ALL, "name LIKE '$q%' ORDER BY name LIMIT 30");
+        */
 
-        json( $res );
+        $userFilter = array();
+        $groupFilter = array();
+
+
+        $query = "
+
+        ";
+
+        $users = krynObject::getList('user', $userFilter, array(
+            'limit' => 5,
+            'fields' => 'rsn,username, email, groups, first_name, last_name'
+        ));
+
+        $groups = krynObject::getList('group', $groupFilter, array(
+            'limit' => 5
+        ));
+
+        json( array(
+            'users' => $users,
+            'groups' => $groups
+        ));
     }
 
 }

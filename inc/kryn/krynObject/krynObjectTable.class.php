@@ -176,7 +176,6 @@ class krynObjectTable extends krynObjectAbstract {
 
 
         //step 3. create new place for target root condition
-
         if ($source['lft'] < $target['lft']){
 
             if (!$rField || $source[$rField] == $target[$rField]){
@@ -801,7 +800,7 @@ class krynObjectTable extends krynObjectAbstract {
             $sql .= " \n".implode(" \n", $joins);
         }
 
-        $primaryCondition = dbPrimaryArrayToSql($pPrimaryIds, $this->object_key, $this->object_key);
+        $primaryCondition = dbConditionArrayToSql($pPrimaryIds, $this->object_key, $this->object_key);
 
         if ($primaryCondition)
             $where .= ' AND '.$primaryCondition;

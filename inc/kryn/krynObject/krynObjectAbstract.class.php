@@ -96,13 +96,12 @@ abstract class krynObjectAbstract {
     /**
      *
      * @abstract
-     * @param mixed $pPrimaryValues
-     * @param int $pOffset
-     * @param int $pLimit
-     * @param bool $pCondition
-     * @param string $pFields
-     * @param string $pResolveForeignValues
-     * @param $pOrder
+     * @param bool|array   $pCondition
+     * @param int          $pOffset
+     * @param int          $pLimit
+     * @param string|array $pFields
+     * @param string       $pResolveForeignValues
+     * @param array        $pOrder
      */
     abstract public function getItems($pCondition, $pOffset = 0, $pLimit = 0, $pFields = '*', $pResolveForeignValues = '*',
                                       $pOrder);
