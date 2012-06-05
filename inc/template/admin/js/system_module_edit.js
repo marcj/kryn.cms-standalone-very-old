@@ -1009,7 +1009,7 @@ var admin_system_module_edit = new Class({
                 label: t('Type'),
                 type: 'select',
                 items: {
-                    '': t('Only access control list item'),
+                    '': t('Default'),
                     store: t('Store'),
                     'function': t('Background function'),
                     custom: t('[Window] Custom'),

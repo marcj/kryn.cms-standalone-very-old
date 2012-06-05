@@ -20,57 +20,57 @@ class krynAcl {
     public static $acls = array();
 
 
-    public static function &getRules($pType, $pForce = false) {
+    public static function &getRules($pObjectKey, $pForce = false) {
         global $client;
 
-        if (self::$cache[$pType] && $pForce == false)
-            return self::$cache[$pType];
+        if (self::$cache[$pObjectKey] && $pForce == false)
+            return self::$cache[$pObjectKey];
 
         $userRsn = $client->user_rsn;
         $inGroups = $client->user['inGroups'];
 
-        $pType = esc($pType);
+        $pObjectKey = esc($pObjectKey);
 
         $sql = "
                 SELECT code, access, sub, fields FROM %pfx%system_acl
                 WHERE
-                object = '$pType' AND
+                object = '$pObjectKey' AND
                 (
                     ( target_type = 1 AND target_rsn IN ($inGroups))
                     OR
                     ( target_type = 2 AND target_rsn = $userRsn)
                 )
-                ORDER BY code DESC, prio DESC
+                ORDER BY prio DESC
         ";
 
-        self::$cache[$pType] = dbExfetch($sql, DB_FETCH_ALL);
+        self::$cache[$pObjectKey] = dbExfetch($sql, DB_FETCH_ALL);
 
-        foreach (self::$cache[$pType] as &$acl){
+        foreach (self::$cache[$pObjectKey] as &$acl){
             if ($acl['fields'] && substr($acl['fields'], 0, 1) == '{'){
                 $acl['fields'] = json_decode($acl['fields'], true);
             }
         }
 
-        return self::$cache[$pType];
+        return self::$cache[$pObjectKey];
     }
 
     /**
      * @static
-     * @param $pObject
-     * @param $pCode
-     * @param bool $pField
-     * @param bool $pRootHasAccess
+     * @param string     $pObjectKey
+     * @param string     $pCode
+     * @param bool|array $pField
+     * @param bool       $pRootHasAccess
      * @return bool
      */
-    public static function checkAccess($pObject, $pCode, $pField = false, $pRootHasAccess = false) {
+    public static function check($pObjectKey, $pCode, $pField = false, $pRootHasAccess = false) {
 
         self::normalizeCode($pCode);
-        $acls =& self::getRules($pObject);
+        $acls =& self::getRules($pObjectKey);
 
         if (count($acls) == 0) return true;
 
-        if (self::$cache['checkAckl_' . $pObject . '_' . $pCode . '__' . $pField])
-            return self::$cache['checkAckl_' . $pObject . '_' . $pCode . '__' . $pField];
+        if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pCode . '__' . $pField])
+            return self::$cache['checkAckl_' . $pObjectKey . '_' . $pCode . '__' . $pField];
 
 
         $access = false;
@@ -142,7 +142,7 @@ class krynAcl {
                 }
             }
 
-            if (!$current_code = krynObject::getParentId(krynObject::toUri($pObject, $current_code))){
+            if (!$current_code = krynObject::getParentId($pObjectKey, $current_code)){
                 if ($pRootHasAccess)
                     $access = true;
                 return $access;
@@ -186,7 +186,7 @@ class krynAcl {
     }
 
 
-    public static function setAcl($pType, $pTargetType, $pTargetId, $pCode, $pActions, $pWithSub) {
+    public static function set($pType, $pTargetType, $pTargetId, $pCode, $pActions, $pWithSub) {
 
         self::normalizeCode($pCode);
         $pType += 0;
@@ -213,7 +213,7 @@ class krynAcl {
         return $last_id;
     }
 
-    public static function removeAcl($pType, $pTargetType, $pTargetId, $pCode) {
+    public static function remove($pType, $pTargetType, $pTargetId, $pCode) {
 
         self::normalizeCode($pCode);
 

@@ -229,7 +229,7 @@ class krynObject {
             $pConditionValues = array($pConditionValues);
         }
 
-        return $obj->getItem($pConditionValues, $pOptions['fields'], $pOptions['foreignKeys'], $pRawData);
+        return $obj->getItem($pConditionValues, $pOptions['fields'], $pOptions['foreignKeys']);
 
     }
 
@@ -333,7 +333,7 @@ class krynObject {
      * @param $pInternalUri
      * @return array
      */
-    public static function countFromUri($pInternalUri){
+    public static function getCountFromUri($pInternalUri){
         list($object_key, $object_id, $params) = self::parseUri($pInternalUri);
 
         return self::getCount($object_key, $params['condition']);
@@ -477,30 +477,53 @@ class krynObject {
         return $primaryFields;
     }
 
-    public static function getParentId($pObjectUri){
+
+
+
+    public static function getParentId($pObjectKey, $pObjectId){
+
+        $obj = self::getClassObject($pObjectKey);
+
+        return $obj->getParentId($pObjectId);
+    }
+
+    public static function getParentIdFromUri($pObjectUri){
 
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
 
-        $obj = self::getClassObject($object_key);
-
-        return $obj->getParentId($object_id[0]);
+        return self::getParentId($object_key, $object_id[0]);
     }
 
-    public static function getParent($pObjectUri){
+
+
+
+    public static function getParent($pObjectKey, $pObjectId){
+        $obj = self::getClassObject($pObjectKey);
+        return $obj->getParent($pObjectId);
+    }
+
+    public static function getParentFromUri($pObjectUri){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-
-        $obj = self::getClassObject($object_key);
-
-        return $obj->getParent($object_id[0]);
+        return self::getParent($object_key, $object_id[0]);
     }
 
-    public static function getParents($pObjectUri){
+
+
+
+
+
+
+    public static function getParents($pObjectKey, $pObjectId){
+        $obj = self::getClassObject($pObjectKey);
+        return $obj->getParents($pObjectId);
+    }
+
+    public static function getParentsFromUri($pObjectUri){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-
-        $obj = self::getClassObject($object_key);
-
-        return $obj->getParents($object_id[0]);
+        return self::getParents($object_key, $object_id[0]);
     }
+
+
 
     public static function move($pSourceObjectUri, $pTargetObjectUri, $pMode){
 

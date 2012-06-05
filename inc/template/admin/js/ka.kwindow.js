@@ -1249,7 +1249,7 @@ ka.kwindow = new Class({
 
         this.linker = new Element('img', {
             'class': 'ka-kwindow-titleactions',
-            style: 'position: absolute; left: 3px; top: 8px; cursor: pointer',
+            style: 'position: absolute; left: 5px; top: 8px; cursor: pointer',
             title: _('Create a shortcut to the desktop'),
             src: _path + 'inc/template/admin/images/win-top-bar-link.png'
         }).addEvent('click', this.dropLink.bind(this)).inject(this.win);

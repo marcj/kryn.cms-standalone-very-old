@@ -191,30 +191,30 @@ class usersAcl {
     public static function search(){
 
         $q = getArgv('q', 1);
-
         $q = str_replace("*", "%", $q);
-
-        /*if( $type == 'user' )
-            $res = dbTableFetch('system_user', DB_FETCH_ALL, "username LIKE '$q%' AND rsn > 0 ORDER BY username LIMIT 30");
-        else if ($)
-            $res = dbTableFetch('system_groups', DB_FETCH_ALL, "name LIKE '$q%' ORDER BY name LIMIT 30");
-        */
 
         $userFilter = array();
         $groupFilter = array();
 
-
-        $query = "
-
-        ";
+        if ($q){
+            $userFilter = array(
+                array('username', 'like', "$q%"), 'OR',
+                array('first_name', 'like', "$q%"), 'OR',
+                array('last_name', 'like', "$q%"), 'OR',
+                array('email', 'like', "$q%"),
+            );
+            $groupFilter = array(
+                array('name', 'like', "$q%")
+            );
+        }
 
         $users = krynObject::getList('user', $userFilter, array(
-            'limit' => 5,
+            'limit' => 10,
             'fields' => 'rsn,username, email, groups, first_name, last_name'
         ));
 
         $groups = krynObject::getList('group', $groupFilter, array(
-            'limit' => 5
+            'limit' => 10
         ));
 
         json( array(

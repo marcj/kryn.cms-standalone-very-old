@@ -342,6 +342,19 @@ ka.getListLabel = function(pValue, pField, pFieldId){
     return '';
 }
 
+ka.getExtensionTitle = function(pExtensionKey){
+
+    var config = ka.settings.configs[pExtensionKey];
+    if (!config) return false;
+
+    if (typeOf(config.title) != 'string'){
+        return config.title[window._session.lang] || config.title['en'];
+    }
+
+    return config.title;
+
+}
+
 
 window.addEvent('load', function () {
 

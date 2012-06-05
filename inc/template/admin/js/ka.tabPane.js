@@ -126,9 +126,11 @@ ka.tabPane = new Class({
 
     hide: function () {
         this.box.setStyle('display', 'none');
+        this.buttonGroup.hide();
     },
 
     show: function () {
+        this.buttonGroup.show();
         this.box.setStyle('display', 'block');
     }
 });
