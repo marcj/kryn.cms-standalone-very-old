@@ -165,14 +165,12 @@ var users_users_acl = new Class({
         }).inject(subLine);
         div.withSub = new ka.Checkbox(subLine);
 
-
         div.tabPane = new ka.tabPane(div);
 
-        var list = div.tabPane.addPane('List');
+        var list = div.tabPane.addPane('View');
         div.tabPane.addPane('Edit');
 
         div.fieldsList = this.renderObjectFields(list.pane, pObjectKey);
-
 
     },
 
@@ -264,10 +262,44 @@ var users_users_acl = new Class({
         })
         .inject(this.objectTab.pane);
 
+        this.objectConstraints = new Element('div', {
+            'class': 'users-acl-object-constraints'
+        })
+        .inject(this.objectTab.pane);
+
+        new Element('h3', {
+            text: t('Constraints')
+        }).inject(this.objectConstraints);
+
+        var allDiv = new Element('div', {
+            'class': 'ka-list-combine-item'
+        }).inject(this.objectConstraints);
+
+        new Element('h2', {
+            text: t('All objects')
+        }).inject(allDiv);
+
+        new Element('div', {
+            'class': 'ka-list-combine-splititem',
+            text: t('Custom')
+        }).inject(this.objectConstraints);
+
+
+        new Element('div', {
+            'class': 'ka-list-combine-splititem',
+            text: t('Exact')
+        }).inject(this.objectConstraints);
+
+
+
         this.objectRules = new Element('div', {
             'class': 'users-acl-object-rules'
         })
         .inject(this.objectTab.pane);
+
+        new Element('h3', {
+            text: t('Rules')
+        }).inject(this.objectRules);
 
         this.addObjectsToList(ka.settings.configs.admin, 'admin');
         this.addObjectsToList(ka.settings.configs.users, 'users');
