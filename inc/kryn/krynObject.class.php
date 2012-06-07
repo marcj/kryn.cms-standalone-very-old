@@ -414,22 +414,22 @@ class krynObject {
 
         $definition = kryn::$objects[$object_key];
 
-        if (!$definition['tableNestedRootAsObject']) return false;
-        if (!$definition['tableNestedRootObject']) return false;
+        if (!$definition['nestedRootAsObject']) return false;
+        if (!$definition['nestedRootObject']) return false;
 
-        $obj = self::getClassObject($definition['tableNestedRootObject']);
+        $obj = self::getClassObject($definition['nestedRootObject']);
 
         $fields = $obj->primaryKeys;
-        $fields[] = $definition['tableNestedRootObjectLabel'];
+        $fields[] = $definition['nestedRootObjectLabel'];
 
-        if ($definition['tableNestedRootObjectExtraFields']){
-            $extraFields = explode(',', trim(str_replace(' ', '', $definition['tableNestedRootObjectExtraFields'])));
+        if ($definition['nestedRootObjectExtraFields']){
+            $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
             foreach ($extraFields as $field)
                 $fields[] = $field;
         }
 
 
-        list($rootKey, $rootId, $params) = self::parseUri($definition['tableNestedRootObject'].'/'.$pRootId);
+        list($rootKey, $rootId, $params) = self::parseUri($definition['nestedRootObject'].'/'.$pRootId);
 
         return $obj->getItem($rootId[0], $fields);
 

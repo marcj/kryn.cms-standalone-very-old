@@ -29,6 +29,7 @@ class usersAcl {
                 return self::save();
             case 'getPageItemInfo':
             	return self::getPageItemInfo();
+
         }
     }
     

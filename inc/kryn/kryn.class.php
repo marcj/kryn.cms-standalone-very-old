@@ -2270,9 +2270,9 @@ class kryn {
 
 
     /**
-     * Search the current page or the startpage, loads all informations and checks the access.
-     * Internal function
+     * Search the current page or the start page, loads all information and checks the access.
      * @internal
+     * @return int
      */
     public static function searchPage() {
         global $path, $cfg, $_start, $client, $kcache;

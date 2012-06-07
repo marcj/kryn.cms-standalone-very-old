@@ -60,9 +60,9 @@ ka.objectTree = new Class({
         this.setOptions(pOptions);
 
 
-        if (this.objectDefinition.tableNestedRootAsObject){
+        if (this.objectDefinition.nestedRootAsObject){
             if (!this.options.rootObject)
-                this.options.rootObject = this.objectDefinition.tableNestedRootObject;
+                this.options.rootObject = this.objectDefinition.nestedRootObject;
         }
 
         if (Cookie.read('krynObjectTree_' + pObjectKey)) {
@@ -216,12 +216,12 @@ ka.objectTree = new Class({
 
     renderRoot: function(pRes){
 
-        var rootDefinition = ka.getObjectDefinition(this.objectDefinition.tableNestedRootObject);
-        var primaryKeys = ka.getPrimaryListForObject(this.objectDefinition.tableNestedRootObject);
+        var rootDefinition = ka.getObjectDefinition(this.objectDefinition.nestedRootObject);
+        var primaryKeys = ka.getPrimaryListForObject(this.objectDefinition.nestedRootObject);
 
         this.rootObject = pRes;
         var id = pRes[primaryKeys[0]];
-        var label = pRes[this.objectDefinition.tableNestedRootObjectLabel];
+        var label = pRes[this.objectDefinition.nestedRootObjectLabel];
 
         if (this.paneRoot)
             this.paneRoot.empty();
@@ -232,7 +232,7 @@ ka.objectTree = new Class({
         });
 
         a.id = id;
-        a.objectKey = this.objectDefinition.tableNestedRootObject;
+        a.objectKey = this.objectDefinition.nestedRootObject;
         a.label = label;
 
         if (id == this.options.selectObject && this.options.noActive != true){
@@ -248,7 +248,7 @@ ka.objectTree = new Class({
             text: label
         }).inject(a);
 
-        this.items[ this.objectDefinition.tableNestedRootObject+'_'+id ] = a;
+        this.items[ this.objectDefinition.nestedRootObject+'_'+id ] = a;
 
         a.store('item', pRes);
 
@@ -451,7 +451,7 @@ ka.objectTree = new Class({
 
 
         var id = pItem[this.primaryKey];
-        var label = pItem[this.objectDefinition.tableNestedLabel];
+        var label = pItem[this.objectDefinition.nestedLabel];
 
         var a = new Element('div', {
             'class': 'ka-objectTree-item',
@@ -584,8 +584,8 @@ ka.objectTree = new Class({
 
         var icon = this.options.icon;
 
-        if (this.options.iconMap && this.objectDefinition.tableNestedIcon)
-            icon = this.options.iconMap[pItem[this.objectDefinition.tableNestedIcon]];
+        if (this.options.iconMap && this.objectDefinition.nestedIcon)
+            icon = this.options.iconMap[pItem[this.objectDefinition.nestedIcon]];
 
         if (!icon) return;
 

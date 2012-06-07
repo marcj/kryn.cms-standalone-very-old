@@ -28,20 +28,20 @@ class krynObjectTable extends krynObjectAbstract {
 
     public function getParents($pPrimaryValues){
 
-        if (!$this->definition['tableNested']){
+        if (!$this->definition['nested']){
             throw new Exception('Object is not marked as nested.');
         }
 
-        if (!$this->definition['tableNestedLabel']){
-            throw new Exception('tableNestedLabel in object not defined.');
+        if (!$this->definition['nestedLabel']){
+            throw new Exception('nestedLabel in object not defined.');
         }
         $primKey = current($this->primaryKeys);
         $idValue = $pPrimaryValues[$primKey]+0;
         $id      = dbQuote('node').'.'.dbQuote($primKey);
-        $icon  = $this->definition['tableNestedIcon'];
+        $icon  = $this->definition['nestedIcon'];
 
 
-        $title = $this->definition['tableNestedLabel'];
+        $title = $this->definition['nestedLabel'];
 
         $selectId = $id.' AS '.$primKey;
         $selects[] = dbQuote($primKey, 'parent').' AS '.$primKey;
@@ -96,7 +96,7 @@ class krynObjectTable extends krynObjectAbstract {
         $source = $this->getItem($pSourcePrimaryValues);
 
         $rootCondition = ' 1=1';
-        if ($this->definition['tableNestedRootAsObject'] && $rField = $this->definition['tableNestedRootObjectField']){
+        if ($this->definition['nestedRootAsObject'] && $rField = $this->definition['nestedRootObjectField']){
             $field = dbQuote($rField);
             $rootCondition = " $field = '".esc($source[$rField])."'";
         }
@@ -287,12 +287,12 @@ class krynObjectTable extends krynObjectAbstract {
     public function getTree($pParent = false, $pDepth = 1, $pRootObjectId = false, $pExtraFields = ''){
 
         $start = microtime(true);
-        if (!$this->definition['tableNested']){
+        if (!$this->definition['nested']){
             throw new Exception('Object is not marked as nested.');
         }
 
-        if (!$this->definition['tableNestedLabel']){
-            throw new Exception('tableNestedLabel in object not defined.');
+        if (!$this->definition['nestedLabel']){
+            throw new Exception('nestedLabel in object not defined.');
         }
 
         $primKey = current($this->primaryKeys);
@@ -311,8 +311,8 @@ class krynObjectTable extends krynObjectAbstract {
                 $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
 
 
-            $title = $this->definition['tableNestedLabel'];
-            $icon  = $this->definition['tableNestedIcon'];
+            $title = $this->definition['nestedLabel'];
+            $icon  = $this->definition['nestedIcon'];
 
             $table = dbQuote(dbTableName($this->definition['table']));
             $id    = dbQuote('node').'.'.dbQuote($primKey);
@@ -349,8 +349,8 @@ class krynObjectTable extends krynObjectAbstract {
 
             $additionalWhere = '';
 
-            if ($this->definition['tableNestedRootAsObject'])
-                $rField = $this->definition['tableNestedRootObjectField'];
+            if ($this->definition['nestedRootAsObject'])
+                $rField = $this->definition['nestedRootObjectField'];
 
             if ($pParent){
 
@@ -379,8 +379,8 @@ class krynObjectTable extends krynObjectAbstract {
 
             }
 
-            if ($this->definition['tableNestedRootAsObject']){
-                //if we have tableNestedRootAsObject as 1 we do not allow to fetch elements without conditions
+            if ($this->definition['nestedRootAsObject']){
+                //if we have nestedRootAsObject as 1 we do not allow to fetch elements without conditions
                 //since rgt and lft would overlap
 
                 if (!$pParent && !$pRootObjectId) return false;
@@ -392,10 +392,10 @@ class krynObjectTable extends krynObjectAbstract {
 
                 if ($pRootObjectId){
 
-                    $rootObjectDefinition =& kryn::$objects[$this->definition['tableNestedRootObject']];
+                    $rootObjectDefinition =& kryn::$objects[$this->definition['nestedRootObject']];
                     $table = $rootObjectDefinition['table'];
 
-                    //$field = dbQuote($this->definition['tableNestedRootObjectField'], 'parent');
+                    //$field = dbQuote($this->definition['nestedRootObjectField'], 'parent');
                     $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'node');
                     $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'parent');
                 }
@@ -546,26 +546,26 @@ class krynObjectTable extends krynObjectAbstract {
 
         $additionalWhere = '';
 
-        if ($this->definition['tableNested']){
+        if ($this->definition['nested']){
 
             if (!$pParentValues){
                 return array('error' => 'no_parent_values');
             }
 
-            $oField = $this->definition['tableNestedRootObjectField'];
+            $oField = $this->definition['nestedRootObjectField'];
 
             $fields = 'lft';
 
             if ($oField) $fields .= ', '.$oField;
 
-            if ($pParentObjectKey != $this->object_key && $this->definition['tableNestedRootAsObject'] && $oField){
+            if ($pParentObjectKey != $this->object_key && $this->definition['nestedRootAsObject'] && $oField){
                 $targetItem = krynObject::get($pParentObjectKey, $pParentValues);
             } else {
                 $targetItem = krynObject::get($this->object_key, $pParentValues, array('fields' => $fields));
             }
 
             if ($pParentObjectKey != $this->object_key &&
-                $this->definition['tableNestedRootAsObject'] && $oField){
+                $this->definition['nestedRootAsObject'] && $oField){
 
 
                 $targetPrimaries = krynObject::getPrimaryList($pParentObjectKey);
@@ -585,7 +585,7 @@ class krynObjectTable extends krynObjectAbstract {
 
             } else {
 
-                if ($this->definition['tableNestedRootAsObject'] && $oField){
+                if ($this->definition['nestedRootAsObject'] && $oField){
 
                     $additionalWhere = dbSqlCondition($this->definition['table'], $oField, $targetItem[$oField]);
 
@@ -610,7 +610,7 @@ class krynObjectTable extends krynObjectAbstract {
 
             dbWriteLock($this->definition['table']);
 
-            if ($this->definition['tableNested']){
+            if ($this->definition['nested']){
 
                 if ($additionalWhere){
                     $additionalWhere = ' AND '.$additionalWhere;

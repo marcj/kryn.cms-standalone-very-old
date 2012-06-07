@@ -9,14 +9,25 @@
     position: relative;
     cursor: default;
     box-shadow: 0px 1px 0px #f8f8f8;
+    display: inline-block;
 }
 
 .ka-Checkbox-text-off {
-    font-weight: bold; color: #f4f4f4; position: absolute; right: 9px; font-size: 15px; top: 2px;
+    font-weight: bold;
+    color: #f4f4f4;
+    position: absolute;
+    right: 9px;
+    font-size: 15px;
+    top: 0px;
 }
 
 .ka-Checkbox-text-on {
-    font-weight: bold; color: white; position: absolute; left: 13px; font-size: 15px; top: 2px;
+    font-weight: bold;
+    color: white;
+    position: absolute;
+    left: 13px;
+    font-size: 15px;
+    top: 0px;
 }
 
 .ka-Checkbox-off {

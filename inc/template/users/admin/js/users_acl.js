@@ -3,6 +3,8 @@ var users_users_acl = new Class({
     groupDivs: {},
     userDivs: {},
 
+    objectDivs: {},
+
     initialize: function(pWindow){
         this.win = pWindow;
 
@@ -20,7 +22,6 @@ var users_users_acl = new Class({
         this.right = new Element('div', {
             'class': 'users-acl-right'
         }).inject(this.win.content);
-
 
         this.query = new Element('input', {
             'class': 'text gradient users-acl-query',
@@ -44,23 +45,22 @@ var users_users_acl = new Class({
         this.tabs = new ka.tabPane(this.right, true, this.win);
 
         this.entryPointTab = this.tabs.addPane(t('Entry points'), '');
-        this.tabs.addPane(t('Objects'), '');
-        this.tabs.addPane(t('Windows'), '');
+        this.objectTab = this.tabs.addPane(t('Objects'), '');
 
         this.tabs.hide();
 
+        this.win.setLoading(true);
+
         this.loadEntryPoints();
         this.loadObjects();
-        this.loadWindows();
 
         document.id(this.tabs.buttonGroup).setStyle('position', 'absolute');
         document.id(this.tabs.buttonGroup).setStyle('left', 200);
         document.id(this.tabs.buttonGroup).setStyle('top', 0);
 
-
         this.loadList();
 
-
+        this.win.setLoading(false);
 
         return;
         var bla = new ka.objectTree(this.win.content, 'node', {rootId: 1}, {win: this.win});
@@ -85,16 +85,199 @@ var users_users_acl = new Class({
         .inject(this.win.content);
     },
 
-    loadObjects: function(){
+    loadObjectRules: function(pObjectKey){
 
 
+        //ka.getObjectDefinition(pObjectKey);
+
+        this.objectList.getElements('.ka-list-combine-item').removeClass('active');
+        this.objectDivs[pObjectKey].addClass('active');
+
+        this.addObjectRule(pObjectKey, {});
+        //this.loadObjectRule();
+
+    },
+
+    addObjectRule: function(pObjectKey, pRule){
+
+        var div = new Element('div', {
+            'class': 'users-acl-object-rule'
+        }).inject(this.objectRules);
+
+        var title = new Element('div', {
+            'class': 'users-acl-object-rule-title'
+        }).inject(div);
+
+        var subLine = new Element('div', {
+            'class': 'users-acl-object-rule-subline'
+        }).inject(div);
+
+        var actions = new Element('div', {
+            'class': 'users-acl-object-rule-actions'
+        }).inject(div);
+
+        var titleSpan = new Element('span', {
+            'class': 'users-acl-object-rule-titlespan'
+        }).inject(title);
+
+        new Element('span', {
+            text: t('All')
+        }).inject(titleSpan);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/pencil.png',
+            title: t('Choose')
+        }).inject(titleSpan);
+
+
+        /* actions */
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/arrow_up.png',
+            title: t('Up')
+        }).inject(actions);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/arrow_down.png',
+            title: t('Down')
+        }).inject(actions);
+
+        new Element('img', {
+            src: _path+'inc/template/admin/images/icons/delete.png',
+            title: t('Delete')
+        }).inject(actions);
+
+        /* subline */
+
+        new Element('span', {
+            text: t('Default access'),
+            style: 'position: relative; top: -6px; padding-right: 5px;'
+        }).inject(subLine);
+        div.access = new ka.Select(subLine);
+
+
+        div.access.add(2, 'Inherited');
+        div.access.add(1, 'Allow');
+        div.access.add(0, 'Deny');
+
+        new Element('span', {
+            text: t('With sub-items'),
+            style: 'position: relative; top: -6px; padding: 0px 5px;'
+        }).inject(subLine);
+        div.withSub = new ka.Checkbox(subLine);
+
+
+        div.tabPane = new ka.tabPane(div);
+
+        var list = div.tabPane.addPane('List');
+        div.tabPane.addPane('Edit');
+
+        div.fieldsList = this.renderObjectFields(list.pane, pObjectKey);
 
 
     },
 
-    loadWindows: function(){
+    renderObjectFields: function(pPane, pObjectKey){
+
+        var result  = {};
+
+        result.getValue = function(){};
+        result.setValue = function(){};
+
+        var definition = ka.getObjectDefinition(pObjectKey);
+
+        if (!definition.fields || typeOf(definition.fields) != 'object') return result;
+
+        result.table = new Element('table', {
+            width: '100%',
+            cellspacing: 0,
+            cellpadding: 0
+        }).inject(pPane);
+
+        result.tbody = new Element('tbody').inject(result.table);
+
+        var td;
+
+        Object.each(definition.fields, function(field, fieldKey){
+
+            var tr = new Element('tr').inject(result.tbody);
+
+            new Element('td', {
+                text: field.label,
+                width: 150
+            }).inject(tr);
+
+            td = new Element('td', {
+                width: 150
+            }).inject(tr);
+
+            td.access = new ka.Select(td);
+            td.access.add(2, 'Inherited');
+            td.access.add(1, 'Allow');
+            td.access.add(0, 'Deny');
 
 
+            td = new Element('td', {
+            }).inject(tr);
+
+        }.bind(this));
+
+
+        return result;
+    },
+
+    addObjectsToList: function(pConfig, pExtKey){
+
+        new Element('div', {
+            'class': 'ka-list-combine-splititem',
+            text: ka.getExtensionTitle(pExtKey)
+        }).inject(this.objectList);
+
+        Object.each(pConfig.objects, function(object, objectKey){
+
+            var div = new Element('div', {
+                'class': 'ka-list-combine-item'
+            })
+            .addEvent('click', this.loadObjectRules.bind(this, objectKey))
+            .inject(this.objectList);
+
+            this.objectDivs[objectKey] = div;
+
+            new Element('h2', {
+                text: object.label+' (#'+objectKey+')'
+            }).inject(div);
+
+            if (object.desc){
+                new Element('div',{
+                    'class': 'subline',
+                    text: object.desc
+                }).inject(div);
+            }
+
+        }.bind(this));
+
+    },
+
+    loadObjects: function(){
+
+        this.objectList = new Element('div', {
+            'class': 'users-acl-object-list'
+        })
+        .inject(this.objectTab.pane);
+
+        this.objectRules = new Element('div', {
+            'class': 'users-acl-object-rules'
+        })
+        .inject(this.objectTab.pane);
+
+        this.addObjectsToList(ka.settings.configs.admin, 'admin');
+        this.addObjectsToList(ka.settings.configs.users, 'users');
+
+        Object.each(ka.settings.configs, function(config, extKey){
+
+            if (!config.objects || extKey == 'admin' || extKey == 'users' || typeOf(config.objects) != 'object') return;
+            this.addObjectsToList(config, extKey);
+
+        }.bind(this));
 
 
     },
@@ -342,7 +525,6 @@ var users_users_acl = new Class({
         if (!div) return;
 
         this.left.getElements('.ka-list-combine-item').removeClass('active');
-
         div.addClass('active');
 
         var title;

@@ -563,7 +563,7 @@
       "tableCondition": [
         
       ],
-      "tableNested": 1,
+      "nested": 1,
       "multiLanguage": 0,
       "domainDepended": 0,
       "chooserFieldDataModelCondition": [
@@ -579,12 +579,12 @@
       "chooserBrowserTreeDataModel": "default",
       "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
       "chooserBrowserTreeJavascript": "custom",
-      "tableNestedRootObject": "domain",
-      "tableNestedRootObjectField": "domain_rsn",
-      "tableNestedRootObjectLabel": "domain",
-      "tableNestedRootAsObject": 1,
-      "tableNestedLabel": "title",
-      "tableNestedIcon": "type",
+      "nestedRootObject": "domain",
+      "nestedRootObjectField": "domain_rsn",
+      "nestedRootObjectLabel": "domain",
+      "nestedRootAsObject": 1,
+      "nestedLabel": "title",
+      "nestedIcon": "type",
       "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
       "chooserBrowserTreeRootObjectFixedIcon": 1,
       "chooserBrowserTreeIconMapping": [

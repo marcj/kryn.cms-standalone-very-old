@@ -3,6 +3,7 @@
 	border: 1px solid #aaa;
 	padding: 10px;
 	margin:0px 5px;
+    background-color: #eee;
 }
 
 .kwindow-win-tabPane .kwindow-win-tabWrapperLast {
@@ -20,7 +21,7 @@
     position: relative;
 }
 
-.ka-tabPane-full .ka-tabPane-pane,
+.ka-tabPane-full > .kwindow-win-tabPane-pane > .ka-tabPane-pane,
 .ka-tabPane-full {
     position: absolute;
     left: 0px;
@@ -39,11 +40,11 @@
 }
 
 
-.ka-tabPane-full .ka-tabPane-pane {
+.ka-tabPane-full > .kwindow-win-tabPane-pane > .ka-tabPane-pane {
     overflow: auto;
 }
 
-.ka-tabPane-full .kwindow-win-tabPane-pane {
+.ka-tabPane-full > .kwindow-win-tabPane-pane {
     position: absolute;
     left: 0px;
     right: 0px;
@@ -51,7 +52,7 @@
     top: 32px;
 }
 
-.ka-tabPane-tabsInWindowHeader .kwindow-win-tabPane-pane {
+.ka-tabPane-tabsInWindowHeader > .kwindow-win-tabPane-pane {
     top: 0px;
     border: 0px;
     margin: 0px;

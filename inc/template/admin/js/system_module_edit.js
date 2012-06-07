@@ -1903,36 +1903,34 @@ var admin_system_module_edit = new Class({
                                 label: t('Additional condition'),
                                 type: 'condition'
                             },
-                            tableNested: {
-                                needValue: 'table',
+                            nested: {
                                 label: t('Nested Sets'),
-                                desc: t('Needs two additional fields: lft(int) and rgt(int)'),
+                                desc: t('As SQL Table: Needs two additional fields: lft(int) and rgt(int)'),
                                 type: 'checkbox',
                                 depends: {
-
-                                    tableNestedLabel: {
+                                    nestedLabel: {
                                         needValue: 1,
                                         label: t('Label field')
                                     },
-                                    tableNestedRootAsObject: {
+                                    nestedRootAsObject: {
                                         needValue: 1,
                                         label: t('Root as object (Optional)'),
                                         type: 'checkbox',
                                         depends: {
-                                            tableNestedRootObject: {
+                                            nestedRootObject: {
                                                 needValue: 1,
                                                 label: t('Object key')
                                             },
-                                            tableNestedRootObjectField: {
+                                            nestedRootObjectField: {
                                                 needValue: 1,
                                                 label: t('Foreign key'),
                                                 desc: t('Which field in the current object contains the primary value of the object above?')
                                             },
-                                            tableNestedRootObjectLabel: {
+                                            nestedRootObjectLabel: {
                                                 needValue: 1,
                                                 label: t('Label field')
                                             },
-                                            tableNestedRootObjectExtraFields: {
+                                            nestedRootObjectExtraFields: {
                                                 needValue: 1,
                                                 label: t('Extra fields (Optional)'),
                                                 desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You might use this to get more fields in the user interface classes.'),
@@ -2036,7 +2034,7 @@ var admin_system_module_edit = new Class({
                                 }
                             },
                             __chooserBrowserTree__: {
-                                againstField: 'tableNested',
+                                againstField: 'nested',
                                 type: 'label',
                                 needValue: 1,
                                 label: t('Browser UI (tree)'),

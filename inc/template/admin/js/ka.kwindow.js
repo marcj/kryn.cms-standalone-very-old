@@ -167,7 +167,7 @@ ka.kwindow = new Class({
 
             var div = new Element('div', {
                 'class': 'ka-kwindow-loader-content gradient',
-                html: pText+"<br/>"
+                html: "<br/>"+pText
             }).inject(this.loadingObj.td);
 
 
@@ -177,7 +177,7 @@ ka.kwindow = new Class({
             this.loadingObj.main.setStyles(pOffset);
             this.loadingObj.transBg.setStyles(pOffset);
 
-            this.loadingObj.img.inject(div);
+            this.loadingObj.img.inject(div, 'top');
             
             this.loadingObj.transBg.setStyle('opacity', 0.05);
             div.setStyles({
