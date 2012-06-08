@@ -14,7 +14,7 @@
 class usersAcl {
     
     public static function init(){
-        switch( getArgv(5) ){
+        switch( getArgv(4) ){
             case 'search':
                 return self::search();
             case 'loadTree':
@@ -29,8 +29,23 @@ class usersAcl {
                 return self::save();
             case 'getPageItemInfo':
             	return self::getPageItemInfo();
-
+            default:
+                return self::getAcls(getArgv('type')=='user'?2:1, getArgv('id')+0);
         }
+    }
+
+    public static function getAcls($pTargetType, $pTargetId){
+
+        $sql = "
+                SELECT code, access, sub, fields FROM %pfx%system_acl
+                WHERE ";
+
+        $sql .= "target_type = ".(($pTargetType==1)?1:2);
+        $sql .= "AND target_rsn = $pTargetId ORDER BY prio DESC";
+
+        $items = dbExFetch($sql, -1);
+
+        return $items;
     }
     
     public static function getPageItemInfo(){

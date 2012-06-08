@@ -63,6 +63,8 @@ var users_users_acl = new Class({
         this.win.setLoading(false);
 
         return;
+
+
         var bla = new ka.objectTree(this.win.content, 'node', {rootId: 1}, {win: this.win});
 
 
@@ -153,7 +155,6 @@ var users_users_acl = new Class({
             style: 'position: relative; top: -6px; padding-right: 5px;'
         }).inject(subLine);
         div.access = new ka.Select(subLine);
-
 
         div.access.add(2, 'Inherited');
         div.access.add(1, 'Allow');
@@ -279,18 +280,37 @@ var users_users_acl = new Class({
             text: t('All objects')
         }).inject(allDiv);
 
-        new Element('div', {
+        this.objectsCustomSplit = new Element('div', {
             'class': 'ka-list-combine-splititem',
             text: t('Custom')
         }).inject(this.objectConstraints);
 
+        this.objectsCustomSplitCount = new Element('span',{
+            style: 'color: gray; padding-left: 5px;',
+            text: '(0)'
+        }).inject(this.objectsCustomSplit);
 
-        new Element('div', {
+        new Element('img' ,{
+            src: _path+'inc/template/admin/images/icons/add.png',
+            style: 'cursor: pointer; position: relative; top: -1px; float: right;',
+            title: t('Add')
+        }).inject(this.objectsCustomSplit);
+
+        this.objectsExactSplit = new Element('div', {
             'class': 'ka-list-combine-splititem',
             text: t('Exact')
         }).inject(this.objectConstraints);
 
+        this.objectsExactSplitCount = new Element('span',{
+            style: 'color: gray; padding-left: 5px;',
+            text: '(0)'
+        }).inject(this.objectsExactSplit);
 
+        new Element('img' ,{
+            src: _path+'inc/template/admin/images/icons/add.png',
+            style: 'cursor: pointer; position: relative; top: -1px; float: right;',
+            title: t('Add')
+        }).inject(this.objectsExactSplit);
 
         this.objectRules = new Element('div', {
             'class': 'users-acl-object-rules'
@@ -466,7 +486,7 @@ var users_users_acl = new Class({
         if (this.lastRq)
             this.lastRq.cancel();
 
-        this.lastRq = new Request.JSON({url: _path+'admin/users/users/acl/search', noCache: 1,
+        this.lastRq = new Request.JSON({url: _path+'admin/users/acl/search', noCache: 1,
             onComplete: this.renderList.bind(this)
         }).get(req);
 
@@ -567,9 +587,30 @@ var users_users_acl = new Class({
 
         this.win.setTitle(title);
 
+        this.loadAcls(pType, pItem.rsn);
+
+    },
+
+    loadAcls: function(pType, pId){
+
+        this.win.setLoading(true, null, {left: 216});
+
+        if (this.lrAcls)
+            this.lrAcls.cancel();
+
+
+        this.lrAcls = new Request.JSON({
+            url: _path+'admin/users/acl',
+            noCache: true,
+            onComplete: this.renderAcls.bind(this)
+        }).get({type: pType, id: pId});
+
+    },
+
+    renderAcls: function(pAcls){
 
         this.tabs.show();
-
+        this.win.setLoading(false);
     }
 
 

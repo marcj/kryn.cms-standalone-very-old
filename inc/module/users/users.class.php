@@ -97,11 +97,11 @@ class users extends krynModule {
                 case 'userGroups':
                     $content = $this->userGroups();
                     break;
-                case 'acl':
-                    require( PATH_MODULE.'users/usersAcl.class.php' );
-                    return usersAcl::init();
             }
             break;
+        case 'acl':
+            require( PATH_MODULE.'users/usersAcl.class.php' );
+            return usersAcl::init();
         }
         return $content;
     }
