@@ -95,6 +95,21 @@ var users_users_acl = new Class({
         this.objectList.getElements('.ka-list-combine-item').removeClass('active');
         this.objectDivs[pObjectKey].addClass('active');
 
+        var definition = ka.getObjectDefinition(pObjectKey);
+
+        if (definition.nested){
+
+            this.lastObjectTree = new ka.objectTree(this.objectsExactContainer, pObjectKey, {
+                openFirstLevel: true,
+                rootId: 1,
+                move: false,
+                withContext: false
+            });
+
+
+        }
+
+
         this.addObjectRule(pObjectKey, {});
         //this.loadObjectRule();
 
@@ -299,6 +314,9 @@ var users_users_acl = new Class({
         this.objectsExactSplit = new Element('div', {
             'class': 'ka-list-combine-splititem',
             text: t('Exact')
+        }).inject(this.objectConstraints);
+
+        this.objectsExactContainer = new Element('div', {
         }).inject(this.objectConstraints);
 
         this.objectsExactSplitCount = new Element('span',{
@@ -554,7 +572,6 @@ var users_users_acl = new Class({
                     })
                     .addEvent('click', this.loadRules.bind(this, ['group', item]))
                     .inject(this.left);
-
 
                     this.groupDivs[item.rsn] = div;
 

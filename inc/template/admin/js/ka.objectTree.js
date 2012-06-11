@@ -10,7 +10,6 @@ ka.objectTree = new Class({
         selectObject: false,
         withContext: true,
         iconMap: false,
-        noSelection: false,
         withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
         iconAdd: 'admin/images/icons/add.png',
 
