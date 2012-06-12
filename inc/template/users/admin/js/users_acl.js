@@ -92,6 +92,10 @@ var users_users_acl = new Class({
 
         //ka.getObjectDefinition(pObjectKey);
 
+        this.btnAddExact.setStyle('display', 'none');
+
+        this.objectsExactContainer.empty();
+
         this.objectList.getElements('.ka-list-combine-item').removeClass('active');
         this.objectDivs[pObjectKey].addClass('active');
 
@@ -106,7 +110,8 @@ var users_users_acl = new Class({
                 withContext: false
             });
 
-
+        } else {
+            this.btnAddExact.setStyle('display', 'inline');
         }
 
 
@@ -184,7 +189,9 @@ var users_users_acl = new Class({
         div.tabPane = new ka.tabPane(div);
 
         var list = div.tabPane.addPane('View');
+        div.tabPane.addPane('Add');
         div.tabPane.addPane('Edit');
+        div.tabPane.addPane('Remove');
 
         div.fieldsList = this.renderObjectFields(list.pane, pObjectKey);
 
@@ -221,7 +228,7 @@ var users_users_acl = new Class({
             }).inject(tr);
 
             td = new Element('td', {
-                width: 150
+                width: 100
             }).inject(tr);
 
             td.access = new ka.Select(td);
@@ -229,9 +236,14 @@ var users_users_acl = new Class({
             td.access.add(1, 'Allow');
             td.access.add(0, 'Deny');
 
-
             td = new Element('td', {
+                text: field.type
             }).inject(tr);
+
+            if (['select', 'object', 'file', 'page'].contains(field.type)){
+
+
+            }
 
         }.bind(this));
 
@@ -324,7 +336,7 @@ var users_users_acl = new Class({
             text: '(0)'
         }).inject(this.objectsExactSplit);
 
-        new Element('img' ,{
+        this.btnAddExact = new Element('img' ,{
             src: _path+'inc/template/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')

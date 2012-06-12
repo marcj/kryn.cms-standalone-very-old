@@ -160,10 +160,12 @@ ka.Select = new Class({
             this.chooser.removeClass('ka-Select-darker');
 
         this.box.addClass('ka-Select-box-open');
+
         ka.openDialog({
             element: this.chooser,
             target: this.box,
-            onClose: this.close.bind(this)
+            onClose: this.close.bind(this),
+            offset: {y: -1}
         });
 
         this.checkChooserSize();
@@ -173,6 +175,7 @@ ka.Select = new Class({
     },
 
     checkChooserSize: function(){
+
         if (this.borderLine)
             this.borderLine.destroy();
 
