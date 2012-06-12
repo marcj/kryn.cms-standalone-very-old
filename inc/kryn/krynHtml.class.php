@@ -148,7 +148,7 @@ class krynHtml {
 
         if ($domain['resourcecompression'] != '1') {
             foreach ($myCssFiles as $css) {
-                if (strpos($css, "http://") !== false) {
+                if (strpos($css, "http://") !== false || strpos($css, "https://") !== false) {
                     $html .= '<link rel="stylesheet" type="text/css" href="' . $css . '" ' . $tagEnd . "\n";
                 } else if (file_exists(PATH . 'inc/template/' . $css) &&
                            $mtime = @filemtime(PATH . 'inc/template/' . $css)
@@ -162,7 +162,7 @@ class krynHtml {
         } else {
             $cssCode = '';
             foreach ($myCssFiles as $css) {
-                if (strpos($css, "http://") !== false) {
+                if (strpos($css, "http://") !== false || strpos($css, "https://") !== false) {
                     $html .= '<script type="text/javascript" src="' . $css . '" ></script>' . "\n";
                 } else {
                     //local
@@ -212,7 +212,7 @@ class krynHtml {
 
         if ($domain['resourcecompression'] != '1') {
             foreach ($myJsFiles as $js) {
-                if (strpos($js, "http://") !== FALSE) {
+                if (strpos($js, "http://") !== false || strpos($js, "https://") !== false) {
                     $html .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
                 } else {
                     if ($mtime = @filemtime(PATH . 'inc/template/' . $js) || $js == 'js=global.js') {
@@ -223,7 +223,7 @@ class krynHtml {
             }
         } else {
             foreach ($myJsFiles as $js) {
-                if (strpos($js, "http://") !== false) {
+                if (strpos($js, "http://") !== false || strpos($js, "https://") !== false) {
                     $html .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
                 } else {
                     //local
