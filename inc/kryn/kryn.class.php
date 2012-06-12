@@ -1047,7 +1047,10 @@ class kryn {
             if ($pUrl == '/')
                 $pUrl = '';
 
-            $pUrl = 'http://' . $domain . $path . $pUrl;
+            $http = 'http://';
+            if ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on')
+                $http = 'https://';
+            $pUrl = $http . $domain . $path . $pUrl;
         }
 
 
