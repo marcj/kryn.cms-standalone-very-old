@@ -603,7 +603,11 @@ class adminPages {
 
         $domainPath = str_replace('\\', '/', str_replace('\\\\\\\\', '\\', urldecode(getArgv('path'))));
         //        $url = 'http://'.getArgv('domain').str_replace('\\','/',str_replace('\\\\\\\\','\\',urldecode(getArgv('path'))));
-        $path = 'http://' . getArgv('domain') . $domainPath . 'inc/template/';
+        $http = 'http://';
+        if ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on')
+            $http = 'https://';
+
+        $path = $http . getArgv('domain') . $domainPath . 'inc/template/';
 
         kryn::addJs($path . 'kryn/mootools-core.js');
         kryn::addJs($path . 'kryn/mootools-more.js');
@@ -645,7 +649,7 @@ class adminPages {
 
         foreach ($css as $t) {
             kryn::addHeader(
-                '<link rel="stylesheet" type="text/css" href="' . 'http://' . getArgv('domain') . $domainPath .
+                '<link rel="stylesheet" type="text/css" href="' . $http . getArgv('domain') . $domainPath .
                 'inc/lib/mooeditable/Assets/MooEditable/' . $t . '" />');
         }
 
@@ -656,10 +660,6 @@ class adminPages {
         $domain = dbTableFetch('system_domains', 1, "rsn = '" . $page['domain_rsn'] . "'"); //.getArgv('domain',1)."'");
 
         $domainName = $domain['domain'];
-
-        $http = 'http://';
-        if ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on')
-            $http = 'https://';
 
         $port = '';
         if (($_SERVER['SERVER_PORT'] != 80 && $http == 'http://') ||
