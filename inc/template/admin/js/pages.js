@@ -858,7 +858,7 @@ var admin_pages = new Class({
             prefix = prefix + d.lang + '/';
         }
 
-        var url = 'http://' + d.domain + prefix;
+        var url = window.location.protocol + '//' + d.domain + prefix;
         return url;
     },
 
