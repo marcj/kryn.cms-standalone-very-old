@@ -16,8 +16,8 @@
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-require('inc/kryn/checkFile.php');
-require('inc/kryn/bootstrap.php');
+require('core/checkFile.php');
+require('core/bootstrap.php');
 
 
 if (getArgv(1) != 'admin') {

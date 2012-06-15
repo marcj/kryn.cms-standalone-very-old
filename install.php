@@ -13,8 +13,9 @@ header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
 define('PATH', dirname(__FILE__).'/');
-define('PATH_MODULE', dirname(__FILE__).'/inc/module/');
-define('PATH_TEMPLATE', dirname(__FILE__).'/inc/template/');
+define('PATH_CORE', PATH . 'core/');
+define('PATH_MODULE', 'module/');
+define('PATH_MEDIA', 'media/');
 
 include('inc/kryn/misc.global.php');
 include('inc/kryn/database.global.php');
@@ -105,7 +106,7 @@ if( $_REQUEST['step'] == 'checkDb' )
 
       a.button, a.button:link {
         -moz-border-radius: 4px 4px 4px 4px;
-        background-image: url(inc/template/admin/images/button-bg.png);
+        background-image: url(media/admin/images/button-bg.png);
         background-repeat: no-repeat;
         color: #222222;
         cursor: default;
@@ -121,7 +122,7 @@ if( $_REQUEST['step'] == 'checkDb' )
       }
       
       a.button span, a.button:link span {
-        background-image: url(inc/template/admin/images/button-bg.png);
+        background-image: url(media/admin/images/button-bg.png);
         background-position: right top;
         background-repeat: no-repeat;
         height: 25px;
@@ -193,7 +194,7 @@ if( $_REQUEST['step'] == 'checkDb' )
       .breaker { clear: both }
 
     </style>
-    <script type="text/javascript" src="inc/template/kryn/mootools-core.js"></script>
+    <script type="text/javascript" src="media/kryn/mootools-core.js"></script>
     <script type="text/javascript">
         window.addEvent('domready', function(){
             $$('input.text').addEvent('focus', function(){
@@ -214,7 +215,7 @@ if( $_REQUEST['step'] == 'checkDb' )
            });
         });
     </script>
-    <link rel="SHORTCUT ICON" href="inc/template/admin/images/favicon.ico" />
+    <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
   </head>
   <body>
     <div class="wrapper">
@@ -573,9 +574,9 @@ function step5(){
     
     admin::clearCache();
 
-    @mkdir( 'inc/template/trash' );
-    @mkdir( 'inc/template/css' );
-    @mkdir( 'inc/template/js' );
+    @mkdir( PATH_MEDIA.'trash' );
+    @mkdir( PATH_MEDIA.'css' );
+    @mkdir( PATH_MEDIA.'js' );
     
     @mkdir( 'data', 0777 );
     @mkdir( 'data/upload', 0777 );
@@ -670,8 +671,8 @@ The minimum requirements to work with Kryn.cms without installing extension or u
 &bull; data/<br />
 <br />
 When you want to install extensions, then you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
-&bull; inc/module/<br />
-&bull; inc/template/<br />
+&bull; module/<br />
+&bull; media/<br />
 <br />
 Sometimes, extensions comes with files which aren't in these two folders. If this the case, you need to make sure, that
 such extensions gets the right file permissions.<br />
