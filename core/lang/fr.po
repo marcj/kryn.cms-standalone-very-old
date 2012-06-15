@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"PO-Revision-Date: 2012-04-12 05:46+0200\n"
+
+
+msgid "Cache navigation html"
+msgstr ""
+
+msgid "Some templates does not support this, which is a performance increase. If you have troubles, just deactivate it."
+msgstr ""
+
+msgid "Warp drive!"
+msgstr ""
+
+msgid "Cache the whole html of a page for anonymous users, which is a huge performance increase. Some layouts/templates does not support this. If you have troubles, just deactivate it."
+msgstr ""
+
+msgid "Kryn.cms has detected an possible attack attempt. Your are banned."
+msgstr ""
+
+msgid "Error: No layout chosen for this page."
+msgstr ""
+
+msgid "Access denied. Maybe you are not logged in or have no access."
+msgstr ""
+
+msgid "Page not found %s"
+msgstr ""
+
+msgid " and "
+msgstr ""
+
+msgid "The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."
+msgstr ""
+
+msgid "You produced a endless loop. Please check your latest changed pages."
+msgstr ""
+
+msgid "asd"
+msgstr ""
+
+msgid "singular"
+msgid_plural "plural"
+msgstr[0] ""
+msgstr[1] ""
+
+msgctxt "context"
+msgid "translation"
+msgstr ""
+
+msgid "404 - Not found"
+msgstr ""
+
+msgid "The requested page cannot be found"
+msgstr ""
+
+msgid "The requested page with these arguments can not be found"
+msgstr ""
+
+msgid "Maybe you want to go to the page without arguments"
+msgstr ""
+
+msgid "Internal system error"
+msgstr ""
+
+msgid "Left"
+msgstr ""
+
+msgid "Right"
+msgstr ""
+
+msgid "Content"
+msgstr ""
+

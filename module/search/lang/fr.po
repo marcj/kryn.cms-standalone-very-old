@@ -1,0 +1,15 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"PO-Revision-Date: 2012-04-12 05:47+0200\n"
+
+
+msgid "Search"
+msgstr ""
+
+msgid "Results for"
+msgstr ""
+
+msgid "No results"
+msgstr ""
+

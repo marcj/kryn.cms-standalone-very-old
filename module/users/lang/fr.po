@@ -1,0 +1,666 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"PO-Revision-Date: 2012-04-12 05:46+0200\n"
+
+
+msgid "Current sessions"
+msgstr ""
+
+msgid "Last failed logins"
+msgstr ""
+
+msgid "Current users"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
+msgid "No cert validation"
+msgstr ""
+
+msgid "Login mapping"
+msgstr ""
+
+msgid "Regular expression are possible in the login field. The group will be attached after the first login."
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Group"
+msgstr ""
+
+msgid "Group mapping"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Auth class"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Active account"
+msgstr ""
+
+msgid "Group membership"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
+msgid "Groups"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "User and group browse dialog"
+msgstr ""
+
+msgid "Users add"
+msgstr ""
+
+msgid "Users edit"
+msgstr ""
+
+msgid "User self edit"
+msgstr ""
+
+msgid "Can edit groups"
+msgstr ""
+
+msgid "Can change username"
+msgstr ""
+
+msgid "Group edit"
+msgstr ""
+
+msgid "Group add"
+msgstr ""
+
+msgid "Access management"
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "Template logged in"
+msgstr ""
+
+msgid "Target page [after login"
+msgstr ""
+
+msgid "Target page [after logout"
+msgstr ""
+
+msgid "Which groups can login?"
+msgstr ""
+
+msgid "Registration"
+msgstr ""
+
+msgid "Which group should the new users be added to?"
+msgstr ""
+
+msgid "Thanks page"
+msgstr ""
+
+msgid "Activation"
+msgstr ""
+
+msgid "Immediately"
+msgstr ""
+
+msgid "By administrator"
+msgstr ""
+
+msgid "Activation email"
+msgstr ""
+
+msgid "Activation email and administrator"
+msgstr ""
+
+msgid "How should the account be activated?"
+msgstr ""
+
+msgid "Activation page"
+msgstr ""
+
+msgid "Email subject"
+msgstr ""
+
+msgid "Email from"
+msgstr ""
+
+msgid "Email template"
+msgstr ""
+
+msgid "Required fields"
+msgstr ""
+
+msgid "Select the fields you want to set as required for registration. Email address and password are required by default."
+msgstr ""
+
+msgid "Hidden fields"
+msgstr ""
+
+msgid "Select the fields you want to hide from registration. Email address and password can not be hidden."
+msgstr ""
+
+msgid "Email notification"
+msgstr ""
+
+msgid "Send an email to target address if an account was created"
+msgstr ""
+
+msgid "Notify email target address"
+msgstr ""
+
+msgid "Notify email subject"
+msgstr ""
+
+msgid "Notify email from address"
+msgstr ""
+
+msgid "Notify email template"
+msgstr ""
+
+msgid "Account activation"
+msgstr ""
+
+msgid "Message System inbox"
+msgstr ""
+
+msgid "Page with New-Message-Plugin"
+msgstr ""
+
+msgid "Display messages per page"
+msgstr ""
+
+msgid "Enable inplace respond"
+msgstr ""
+
+msgid "Attach response message"
+msgstr ""
+
+msgid "Send a reminder email to recipient"
+msgstr ""
+
+msgid "Reminder email subject"
+msgstr ""
+
+msgid "All required fields need to be filled"
+msgstr ""
+
+msgid "Enter a valid email address"
+msgstr ""
+
+msgid "An account with this email address already exists"
+msgstr ""
+
+msgid "Activation failed, possible cause:"
+msgstr ""
+
+msgid "The email address or activation key was entered wrongly."
+msgstr ""
+
+msgid "The account is already activated"
+msgstr ""
+
+msgid "Email address"
+msgstr ""
+
+msgid "Activation code"
+msgstr ""
+
+msgid "Activate"
+msgstr ""
+
+msgid "Activation succesfull"
+msgstr ""
+
+msgid "Thank you for activating your account."
+msgstr ""
+
+msgid "To use your account an administrator needs to activate your account"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Choose"
+msgstr ""
+
+msgid "Loading ..."
+msgstr ""
+
+msgid "with all sub areas."
+msgstr ""
+
+msgid "Click to enable access"
+msgstr ""
+
+msgid "Click to disable access"
+msgstr ""
+
+msgid "select all"
+msgstr ""
+
+msgid "deselect all"
+msgstr ""
+
+msgid "Domain"
+msgstr ""
+
+msgid "Pages"
+msgstr ""
+
+msgid "Tree"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Access"
+msgstr ""
+
+msgid "Contents"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+msgid "Properties"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Versions"
+msgstr ""
+
+msgid "Theme"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Startpage"
+msgstr ""
+
+msgid "Path"
+msgstr ""
+
+msgid "Favicon"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Language master"
+msgstr ""
+
+msgid "Theme properties"
+msgstr ""
+
+msgid "Limit selectable layouts"
+msgstr ""
+
+msgid "Alias and redirects"
+msgstr ""
+
+msgid "PHP-Locale"
+msgstr ""
+
+msgid "Robot rules"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Alternative title"
+msgstr ""
+
+msgid "URL"
+msgstr ""
+
+msgid "Metas"
+msgstr ""
+
+msgid "Visible"
+msgstr ""
+
+msgid "Access denied"
+msgstr ""
+
+msgid "Force HTTPS"
+msgstr ""
+
+msgid "Release/Hide dates"
+msgstr ""
+
+msgid "Group limitations"
+msgstr ""
+
+msgid "Can publish contents"
+msgstr ""
+
+msgid "Can change layout"
+msgstr ""
+
+msgid "Text contents"
+msgstr ""
+
+msgid "Layout element"
+msgstr ""
+
+msgid "Picture contents"
+msgstr ""
+
+msgid "Plugin contents"
+msgstr ""
+
+msgid "Pointer contents"
+msgstr ""
+
+msgid "Navigation contents"
+msgstr ""
+
+msgid "Template contents"
+msgstr ""
+
+msgid "HTML contents"
+msgstr ""
+
+msgid "PHP contents"
+msgstr ""
+
+msgid "CSS"
+msgstr ""
+
+msgid "Javascript"
+msgstr ""
+
+msgid "Set to blacklist"
+msgstr ""
+
+msgid "Exlude from search"
+msgstr ""
+
+msgid "Search words"
+msgstr ""
+
+msgid "Is this visible?"
+msgstr ""
+
+msgid "Access to this tab"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "with all sub areas and all extensions."
+msgstr ""
+
+msgid "Widgets"
+msgstr ""
+
+msgid "Backend"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Search ..."
+msgstr ""
+
+msgid "Please choose a user or a group."
+msgstr ""
+
+msgid "Add Rule"
+msgstr ""
+
+msgid "Save ..."
+msgstr ""
+
+msgid "Saved"
+msgstr ""
+
+msgid "Create a rule"
+msgstr ""
+
+msgid "No picture chosen."
+msgstr ""
+
+msgid "Resizing ..."
+msgstr ""
+
+msgid "Hello"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Login failed"
+msgstr ""
+
+msgid "You have"
+msgstr ""
+
+msgid "new message(s)"
+msgstr ""
+
+msgid "You have "
+msgstr ""
+
+msgid "There are {$count} message(s) in your inbox"
+msgstr ""
+
+msgid "from"
+msgstr ""
+
+msgid "message"
+msgstr ""
+
+msgid "recieved"
+msgstr ""
+
+msgid "show / hide this message"
+msgstr ""
+
+msgid "Respond to"
+msgstr ""
+
+msgid "Forward to"
+msgstr ""
+
+msgid "delete"
+msgstr ""
+
+msgid "mark as read"
+msgstr ""
+
+msgid "mark as unread"
+msgstr ""
+
+msgid "all selected messages"
+msgstr ""
+
+msgid "action"
+msgstr ""
+
+msgid "Page"
+msgstr ""
+
+msgid "No messages in your inbox."
+msgstr ""
+
+msgid "selected..."
+msgstr ""
+
+msgid "flag as read"
+msgstr ""
+
+msgid "flag as not read"
+msgstr ""
+
+msgid "You have {$count} message(s)"
+msgstr ""
+
+msgid "respond"
+msgstr ""
+
+msgid "forward"
+msgstr ""
+
+msgid "Respond"
+msgstr ""
+
+msgid "Send"
+msgstr ""
+
+msgid "Sending message... please wait"
+msgstr ""
+
+msgid "Your message has been sent."
+msgstr ""
+
+msgid "Error! Could not send message."
+msgstr ""
+
+msgid "You do not have any message in your inbox."
+msgstr ""
+
+msgid "Your message has been sent"
+msgstr ""
+
+msgid "Error! User unknown. "
+msgstr ""
+
+msgid "recipient"
+msgstr ""
+
+msgid "enter the user-id, email-address or the user name"
+msgstr ""
+
+msgid "Message subject"
+msgstr ""
+
+msgid "Message text"
+msgstr ""
+
+msgid "send"
+msgstr ""
+
+msgid "There are {$count} message(s) in your outbox"
+msgstr ""
+
+msgid "to"
+msgstr ""
+
+msgid "state"
+msgstr ""
+
+msgid "sent"
+msgstr ""
+
+msgid "unread"
+msgstr ""
+
+msgid "read"
+msgstr ""
+
+msgid "deleted"
+msgstr ""
+
+msgid "No messages in your outbox."
+msgstr ""
+
+msgid "First name"
+msgstr ""
+
+msgid "Last name"
+msgstr ""
+
+msgid "Street"
+msgstr ""
+
+msgid "City"
+msgstr ""
+
+msgid "Zipcode"
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Fax"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Register"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "(and the administration login)"
+msgstr ""
+
+msgid "Desktop background image"
+msgstr ""
+
+msgid "Leave empty to change nothing"
+msgstr ""
+
+msgid "Administration"
+msgstr ""
+
+msgid "Admin Language"
+msgstr ""
+
+msgid "Use CSS3 box-shadows"
+msgstr ""
+
+msgid "Can affect performance in some browsers, but activates better window feeling"
+msgstr ""
+
+msgid "Activate autocrawler"
+msgstr ""
+
+msgid "This activates the internal searchengine autocrawler, when you are working in the administration. Can affect performance, especially when you have low bandwith internet"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Also the administration login"
+msgstr ""
+
+msgid "Let it empty to change nothing"
+msgstr ""
+
