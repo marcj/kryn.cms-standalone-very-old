@@ -3,7 +3,7 @@
 <div class="header">
     <div class="wrapper">
         <div class="header-top">
-            {navigation level="1" template="th_krynDemo/navigation_top.tpl"}
+        {navigation level="1" template="th_krynDemo/navigation_top.tpl"}
         </div>
         
         <div class="header-logo">
@@ -36,6 +36,14 @@
                     <div class="content-main">
                         <div class="content-main-padding">
                             {navigation id="breadcrumb" template="th_krynDemo/navigation_breadcrumb.tpl"}
+
+<pre>
+
+category_rsn: 1 => {krynAcl::check('news', 1, ['category_rsn'=>'1'])+0}
+category_rsn: 2 => {krynAcl::check('news', 1, ['category_rsn'=>'2'])+0}
+
+</pre>
+
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>
                     </div>

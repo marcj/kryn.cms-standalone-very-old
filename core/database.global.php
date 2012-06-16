@@ -614,7 +614,6 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
  * Converts a complex structure of conditions to the SQL counterpart.
  * (Converts the array from ka.field type 'condition' to SQL)
  *
- *
  * Structure:
  *
  * array(

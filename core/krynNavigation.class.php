@@ -100,19 +100,26 @@ class krynNavigation {
     }
 
     public static function plugin($pOptions) {
-        global $user, $cfg;
 
         $pTemplate = $pOptions['template'];
         $pWithFolders = ($pOptions['folders'] == 1) ? true : false;
 
+        if (!$pTemplate){
+            return t('Navigation: No template selected.');
+        }
+
+        if(!$mtime = tModTime($pTemplate)){
+            return t('Navigation: Template does not exist:').' '.$pTemplate;
+        }
+
         $navi = false;
+
         if ($pOptions['id'] + 0 > 0) {
-            ;
             $navi =& kryn::getPage($pOptions['id'] + 0);
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $cacheKey =
-                    'systemNavigations-' . $navi['domain_rsn'] . '_' . $navi['rsn'] . '-' . md5(kryn::$canonical);
+                    'systemNavigations-' . $navi['domain_rsn'] . '_' . $navi['rsn'] . '-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
@@ -133,7 +140,7 @@ class krynNavigation {
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $cacheKey =
-                    'systemNavigations-' . $navi['domain_rsn'] . '_' . $navi['rsn'] . '-' . md5(kryn::$canonical);
+                    'systemNavigations-' . $navi['domain_rsn'] . '_' . $navi['rsn'] . '-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
@@ -144,7 +151,7 @@ class krynNavigation {
         if ($pOptions['level'] == 1) {
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
-                $cacheKey = 'systemNavigations-' . kryn::$page['domain_rsn'] . '_0-' . md5(kryn::$canonical);
+                $cacheKey = 'systemNavigations-' . kryn::$page['domain_rsn'] . '_0-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
@@ -168,10 +175,7 @@ class krynNavigation {
 
             case 'history':
             case 'hierarchy':
-
             case 'breadcrumb':
-                $tpl = (!$pTemplate) ? 'main' : $pTemplate;
-
                 return tFetch($pTemplate);
         }
     }

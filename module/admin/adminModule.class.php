@@ -751,8 +751,8 @@ class $pClassName extends $pClass {
         $db = json_decode(getArgv('tables'), true);
         $config['db'] = $db;
 
-        self::writeConfig($name, $config);
-        json(1);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
 
     public static function saveObjects() {
@@ -764,7 +764,8 @@ class $pClassName extends $pClass {
         $objects = json_decode(getArgv('objects'), true);
         $config['objects'] = $objects;
 
-        return self::writeConfig($name, $config);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
 
     public static function savePlugins() {
@@ -776,12 +777,9 @@ class $pClassName extends $pClass {
         $plugins = json_decode(getArgv('plugins'), true);
         $config['plugins'] = $plugins;
 
-        self::writeConfig($name, $config);
-        json(1);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
-
-
-
 
     public static function saveLinks() {
 
@@ -792,8 +790,8 @@ class $pClassName extends $pClass {
         $admin = json_decode(getArgv('admin'), true);
         $config['admin'] = $admin;
 
-        self::writeConfig($name, $config);
-        json(1);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
 
     public static function saveGeneral() {
@@ -815,8 +813,8 @@ class $pClassName extends $pClass {
         $config['category'] = getArgv('category');
         $config['depends'] = getArgv('depends');
 
-        self::writeConfig($name, $config);
-        json(1);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
 
     public static function saveExtras() {
@@ -830,8 +828,8 @@ class $pClassName extends $pClass {
             $config[$var] = getArgv($var);
         }
 
-        self::writeConfig($name, $config);
-        json(1);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
 
     public static function saveLayouts() {
@@ -841,15 +839,15 @@ class $pClassName extends $pClass {
 
         $config = self::loadConfig($name);
         $config['themes'] = $themes;
-        self::writeConfig($name, $config);
 
-        json(1);
+        $res = self::writeConfig($name, $config);
+        return $res === true?true:$res;
     }
 
     public static function writeConfig($pName, $pConfig) {
         $json = json_format(json_encode($pConfig));
 
-        $path = "inc/kryn/config.json";
+        $path = "core/config.json";
 
         if ($pName != 'kryn')
             $path = PATH_MODULE . "$pName/config.json";
@@ -1221,7 +1219,7 @@ class $pClassName extends $pClass {
 
     static public function loadConfig($pModuleName) {
         if ($pModuleName == 'kryn')
-            $configFile = "inc/kryn/config.json";
+            $configFile = "core/config.json";
         else
             $configFile = PATH_MODULE . "$pModuleName/config.json";
         $json = kryn::fileRead($configFile);

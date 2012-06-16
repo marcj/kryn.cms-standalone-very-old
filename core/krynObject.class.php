@@ -543,6 +543,101 @@ class krynObject {
         return $obj->move($object_id[0], $targetId, $pMode, $pTargetObjectKey);
     }
 
+    /**
+     * Checks whether the conditions in $pCondition are complied with the given object item.
+     *
+     * $pCondition is a structure as of dbConditionArrayToSql();
+     *
+     * @static
+     * @param $pObjectItem
+     * @param $pCondition
+     *
+     * @return bool
+     */
+    public static function complies(&$pObjectItem, $pCondition){
+
+        $complied = null;
+        $lastOperator = 'and';
+
+        if (is_array($pCondition) && is_string($pCondition[0])){
+            return self::checkRule($pObjectItem, $pCondition);
+        }
+
+        foreach ($pCondition as $condition){
+
+            if (is_string($condition)){
+                $lastOperator = strtolower($condition);
+                continue;
+            }
+
+            if (is_array($condition) && is_array($condition[0])){
+                //group
+                $res = self::complies($pObjectItem, $condition);
+            } else {
+                $res = self::checkRule($pObjectItem, $condition);
+            }
+
+            if (is_null($complied))
+                $complied = $res;
+            else
+                $complied = $lastOperator == 'and' ? $complied && $res : $complied || $res;
+
+        }
+
+        return $complied;
+    }
+
+    public static function checkRule(&$pObjectItem, $pCondition){
+        global $client;
+
+        $field = $pCondition[0];
+        $operator = $pCondition[1];
+        $value = $pCondition[2];
+
+        $ovalue = $pObjectItem[$field];
+
+        //'<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'
+        switch(strtoupper($operator)){
+
+            case '!=':
+                return ($ovalue != $value);
+
+            case 'LIKE':
+                $value = preg_quote($value, '/');
+                $value = str_replace('%', '.*', $value);
+                $value = str_replace('_', '.', $value);
+                return preg_match('/'.$value.'/', $ovalue);
+
+            case 'REGEXP':
+                return preg_match('/'.preg_quote($value, '/').'/', $ovalue);
+
+            case 'IN':
+                return strpos(','.$value.',', ','.$ovalue.',') !== false;
+
+            case '<';
+                return ($ovalue < $value);
+            case '>';
+                return ($ovalue > $value);
+            case '<=';
+            case '=<';
+                return ($ovalue <= $value);
+            case '>=';
+            case '=>';
+                return ($ovalue >= $value);
+
+            case '= CURRENT_USER':
+                return $ovalue == $client->user_rsn;
+
+            case '!= CURRENT_USER':
+                return $ovalue != $client->user_rsn;
+
+            case '=':
+            default:
+                return ($ovalue == $value);
+        }
+
+    }
+
 }
 
 ?>

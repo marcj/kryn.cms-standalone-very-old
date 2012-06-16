@@ -272,7 +272,7 @@ class admin {
 
 
     public static function getObjectParents($pObjectUrl){
-        return krynObject::getParents($pObjectUrl);
+        return krynObject::getParentsFromUri($pObjectUrl);
     }
 
     public static function getObjectTree($pObjectUrl, $pDepth = 1){
@@ -1245,6 +1245,7 @@ class admin {
         $inGroups = $adminClient->user['inGroups'];
         $userRsn  = $adminClient->user_rsn;
 
+        /*
         if ($loadKeys == false || in_array('acl_pages', $loadKeys)){
 
             $res['acl_pages'] = dbExfetch("
@@ -1282,6 +1283,7 @@ class admin {
                 }
             }
         }
+        */
 
 
         if ($loadKeys == false || in_array('modules', $loadKeys)){

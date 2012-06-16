@@ -44,7 +44,6 @@ function tAssignRef($pName, &$pVal) {
 }
 
 /**
- *
  * Parse and compiled specified template and return the parsed template.
  * This function also replaces all [[.*]] translation strings through kryn::translate().
  *
@@ -56,13 +55,32 @@ function tFetch($pPath) {
     tInit();
     global $tpl;
 
+    $path = tPath($pPath);
+    return kryn::translate($tpl->fetch($path));
+}
+
+/**
+ * Returns the path of given view/template file.
+ *
+ * @param $pPath
+ * @return string
+ */
+function tPath($pPath){
     $pos = strpos($pPath, '/');
     $file = substr($pPath, $pos+1);
     $module = substr($pPath, 0, $pos);
+    return (($module == 'kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'views/' . $file;
+}
 
-    $path = (($module == 'kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'views/' . $file;
-
-    return kryn::translate($tpl->fetch($path));
+/**
+ * Returns the modification timestamp of given view/template file.
+ *
+ * @param $pPath
+ * @return int
+ */
+function tModTime($pPath){
+    $path = tPath($pPath);
+    return file_exists($path) ? filemtime($path): false;
 }
 
 /**

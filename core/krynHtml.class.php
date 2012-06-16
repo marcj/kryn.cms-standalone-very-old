@@ -513,6 +513,7 @@ class krynHtml {
                     tAssign('layoutContentsIsLast', true);
                     $slot['isLast'] = true;
                 }
+
                 if ($i > 0) {
                     tAssign('layoutContentsIsFirst', false);
                     $slot['isFirst'] = false;
@@ -566,10 +567,13 @@ class krynHtml {
                 break;
             case 'navigation':
 
-                $temp = json_decode($content['content'], 1);
-                $temp['id'] = $temp['entryPoint'];
+                if ($content['content']){
+                    $temp = json_decode($content['content'], 1);
+                    $temp['id'] = $temp['entryPoint']+0;
+                    unset($temp['entryPoint']);
 
-                $content['content'] = krynNavigation::plugin($temp);
+                    $content['content'] = krynNavigation::plugin($temp);
+                }
 
                 break;
             case 'picture':

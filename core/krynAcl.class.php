@@ -31,8 +31,8 @@ class krynAcl {
 
         $pObjectKey = esc($pObjectKey);
 
-        $sql = "
-                SELECT code, access, sub, fields FROM %pfx%system_acl
+        $query = "
+                SELECT constraint_type, constraint_code, mode, access, sub, fields FROM %pfx%system_acl
                 WHERE
                 object = '$pObjectKey' AND
                 (
@@ -43,12 +43,17 @@ class krynAcl {
                 ORDER BY prio DESC
         ";
 
-        self::$cache[$pObjectKey] = dbExfetch($sql, DB_FETCH_ALL);
+        $res = dbExec($query);
+        self::$cache[$pObjectKey] = array();
 
-        foreach (self::$cache[$pObjectKey] as &$acl){
-            if ($acl['fields'] && substr($acl['fields'], 0, 1) == '{'){
-                $acl['fields'] = json_decode($acl['fields'], true);
+        while ($rule = dbFetch($res)){
+            if ($rule['fields'] && substr($rule['fields'], 0, 1) == '{'){
+                $rule['fields'] = json_decode($rule['fields'], true);
             }
+            if ($rule['constraint_type'] == 2 && substr($rule['constraint_code'], 0, 1) == '['){
+                $rule['constraint_code'] = json_decode($rule['constraint_code'], true);
+            }
+            self::$cache[$pObjectKey][] = $rule;
         }
 
         return self::$cache[$pObjectKey];
@@ -62,39 +67,46 @@ class krynAcl {
      * @param bool       $pRootHasAccess
      * @return bool
      */
-    public static function check($pObjectKey, $pCode, $pField = false, $pRootHasAccess = false) {
+    public static function check($pObjectKey, $pObjectId, $pField = false, $pRootHasAccess = false) {
 
-        self::normalizeCode($pCode);
-        $acls =& self::getRules($pObjectKey);
+        $rules =& self::getRules($pObjectKey);
 
-        if (count($acls) == 0) return true;
+        if (count($rules) == 0) return true;
 
-        if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pCode . '__' . $pField])
-            return self::$cache['checkAckl_' . $pObjectKey . '_' . $pCode . '__' . $pField];
-
+        if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pObjectId . '__' . $pField])
+            return self::$cache['checkAckl_' . $pObjectKey . '_' . $pObjectId . '__' . $pField];
 
         $access = false;
 
-        $current_code = $pCode;
+        $current_code = $pObjectId;
 
         $not_found = true;
         $parent_acl = false;
+        $objectItem = false;
 
         $codes = array();
 
-        $i = 0;
+        $depth = 0;
         while ($not_found) {
-            $i++;
+            $depth++;
 
-            if ($i > 20) {
+            if ($depth > 50) {
                 $not_found = false;
                 break;
             }
 
-            foreach ($acls as $acl){
+            foreach ($rules as $acl){
 
                 //print $acl['rsn'].', '.$acl['code'] .' == '. $current_code.'<br/>';
-                if ($acl['code'] == $current_code){
+                if ($acl['constraint_type'] == 2 &&
+                    ((!$objectItem && $objectItem = krynObject::get($pObjectKey, $pObjectId)) || $objectItem )){
+                    if (!krynObject::complies($objectItem, $acl['constraint_code'])) continue;
+                }
+
+                if (
+                    $acl['constraint_type'] != 1 ||
+                    ($acl['constraint_type'] == 1 && $acl['constraint_code'] == $current_code)
+                ){
 
                     if ($parent_acl && $acl['sub'] == 0) continue;
 
@@ -143,16 +155,14 @@ class krynAcl {
             }
 
             if (!$current_code = krynObject::getParentId($pObjectKey, $current_code)){
-                if ($pRootHasAccess)
-                    $access = true;
-                return $access;
+                return $pRootHasAccess?true:$access;
             }
 
-            //print "--parent--\n";
             $parent_acl = true;
         }
 
-        self::$cache['checkAckl_' . $pCode . '__' . $pField] = $access;
+        self::$cache['checkAckl_' . $pObjectId . '__' . $pField] = $access;
+
         return $access;
     }
 

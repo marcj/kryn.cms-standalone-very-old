@@ -1129,12 +1129,6 @@
         "DB_PRIMARY",
         true
       ],
-      "type": [
-        "boolean",
-        "",
-        "-",
-        false
-      ],
       "object": [
         "varchar",
         "64",
@@ -1153,7 +1147,19 @@
         "DB_INDEX",
         false
       ],
-      "code": [
+      "mode": [
+        "smallint",
+        "",
+        "-",
+        false
+      ],
+      "constraint_type": [
+        "smallint",
+        "",
+        "-",
+        false
+      ],
+      "constraint_code": [
         "text",
         "",
         "-",

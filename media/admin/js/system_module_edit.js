@@ -559,10 +559,12 @@ var admin_system_module_edit = new Class({
             value: pKey
         })
         .addEvent('keyup', function(){
+            var r = this.getSelectedRange();
             this.value = this.value.toLowerCase();
             this.value = this.value.replace(' ', '_');
             this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
             this.value = this.value.replace(/--+/, '-');
+            this.selectRange(r.start, r.end);
         })
         .inject( m );
 
@@ -630,9 +632,12 @@ var admin_system_module_edit = new Class({
 
             new Element('input', {'class': 'text dbTableIndex', value: pFields?pFields:"", style: 'width: 250px'})
             .addEvent('keyup', function(){
+
+                var r = this.getSelectedRange();
                 this.value = this.value.toLowerCase();
                 this.value = this.value.replace(/[^a-zA-Z0-9_\-,\s]/, '-');
                 this.value = this.value.replace(/--+/, '-');
+                this.selectRange(r.start, r.end);
             })
             .inject(li);
 
@@ -714,10 +719,13 @@ var admin_system_module_edit = new Class({
             value: pKey
         })
         .addEvent('keyup', function(){
+
+            var r = this.getSelectedRange();
             this.value = this.value.toLowerCase();
             this.value = this.value.replace(' ', '_');
             this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
             this.value = this.value.replace(/--+/, '-');
+            this.selectRange(r.start, r.end);
         })
         .inject( new Element('td').inject(tr) );
 
