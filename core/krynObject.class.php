@@ -543,6 +543,14 @@ class krynObject {
         return $obj->move($object_id[0], $targetId, $pMode, $pTargetObjectKey);
     }
 
+
+    public static function satisfyFromUri($pObjectUri, $pCondition){
+
+        $object = krynObject::getFromUri($pObjectUri);
+        return self::satisfy($object, $pCondition);
+
+    }
+
     /**
      * Checks whether the conditions in $pCondition are complied with the given object item.
      *
@@ -554,7 +562,7 @@ class krynObject {
      *
      * @return bool
      */
-    public static function complies(&$pObjectItem, $pCondition){
+    public static function satisfy(&$pObjectItem, $pCondition){
 
         $complied = null;
         $lastOperator = 'and';
@@ -572,7 +580,7 @@ class krynObject {
 
             if (is_array($condition) && is_array($condition[0])){
                 //group
-                $res = self::complies($pObjectItem, $condition);
+                $res = self::satisfy($pObjectItem, $condition);
             } else {
                 $res = self::checkRule($pObjectItem, $condition);
             }

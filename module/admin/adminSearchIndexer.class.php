@@ -3,7 +3,7 @@ class adminSearchIndexer {
 
     public static function init() {
 
-        require_once('inc/kryn/krynSearch.class.php');
+        require_once('core/krynSearch.class.php');
 
         switch (getArgv(4)) {
 
@@ -157,7 +157,9 @@ class adminSearchIndexer {
         $timeout = 2 * 60;
 
         $id = getArgv('crawlerId', 1);
-        include(PATH_MODULE . "admin/crawler.php");
+        $crawler = PATH_MODULE . "admin/crawler.php";
+        if (!file_exists($crawler)) false;
+        include($crawler);
 
         if (!$currentCrawler || $currentCrawler['id'] == $id || time() - $currentCrawler['time'] > $timeout) {
             //we the new one

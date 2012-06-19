@@ -39,6 +39,7 @@
 
 <pre>
 
+category_rsn: 1 => {krynAcl::check('news', 1, 'category_rsn')+0}
 category_rsn: 1 => {krynAcl::check('news', 1, ['category_rsn'=>'1'])+0}
 category_rsn: 2 => {krynAcl::check('news', 1, ['category_rsn'=>'2'])+0}
 

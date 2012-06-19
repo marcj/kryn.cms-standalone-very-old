@@ -24,7 +24,7 @@ if (count($argv) == 1) die("params failed.\nUse: php cli.php <module>/entry/path
 
 $_REQUEST['_kurl'] = 'admin/'.$argv[1];
 
-require('inc/kryn/bootstrap.php');
+require('core/bootstrap.php');
 
 
 @ini_set('display_errors', 1);
@@ -32,7 +32,7 @@ require('inc/kryn/bootstrap.php');
 /*
 * initialize administration controller
 */
-require('inc/kryn/adminForm.class.php');
+require('core/adminForm.class.php');
 require(PATH_MODULE . 'admin/admin.class.php');
 kryn::$modules['admin'] = new admin();
 

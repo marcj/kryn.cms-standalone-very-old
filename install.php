@@ -13,15 +13,15 @@ header("Content-Type: text/html; charset=utf-8");
 
 $GLOBALS['krynInstaller'] = true;
 define('PATH', dirname(__FILE__).'/');
-define('PATH_CORE', PATH . 'core/');
+define('PATH_CORE', 'core/');
 define('PATH_MODULE', 'module/');
 define('PATH_MEDIA', 'media/');
 
-include('inc/kryn/misc.global.php');
-include('inc/kryn/database.global.php');
-include('inc/kryn/template.global.php');
-include('inc/kryn/internal.global.php');
-include('inc/kryn/framework.global.php');
+include(PATH_CORE.'misc.global.php');
+include(PATH_CORE.'database.global.php');
+include(PATH_CORE.'template.global.php');
+include(PATH_CORE.'internal.global.php');
+include(PATH_CORE.'framework.global.php');
 $lang = 'en';
 $cfg = array();
 
@@ -222,8 +222,8 @@ if( $_REQUEST['step'] == 'checkDb' )
     <h2 class="main">Kryn.cms installation</h2>
 <?php
 
-require_once( 'inc/kryn/krynModule.class.php' );
-require( 'inc/kryn/kryn.class.php' );
+require_once( PATH_CORE.'krynModule.class.php' );
+require( PATH_CORE.'kryn.class.php' );
 require( PATH_MODULE.'admin/adminModule.class.php' );
 
 $step = 1;
@@ -275,10 +275,10 @@ function checkDb(){
 	    "db_pdo"		=> $_REQUEST['pdo']
 	);
 	
-	require_once( 'inc/kryn/krynModule.class.php' );
-	require_once( 'inc/kryn/kryn.class.php' );
-	require_once( 'inc/kryn/krynAuth.class.php' );
-    require( 'inc/kryn/database.class.php' );
+	require_once( PATH_CORE.'krynModule.class.php' );
+	require_once( PATH_CORE.'kryn.class.php' );
+	require_once( PATH_CORE.'krynAuth.class.php' );
+    require( PATH_CORE.'database.class.php' );
 	$res = array('res' => true);
 	
 	$usePdo = ($_REQUEST['pdo'] == 1) ? true : false;
@@ -327,9 +327,9 @@ function checkDb(){
         );
         $config = '<?php $cfg = '. var_export($cfg,true) .'; ?>';
 
-        $f = @fopen( 'inc/config.php', 'w+' );
+        $f = @fopen( 'config.php', 'w+' );
         if( !$f ){
-            $res['error'] = 'Can not open file inc/config.php - please change the permissions.';
+            $res['error'] = 'Can not open file config.php - please change the permissions.';
             $res['res'] = false;
         } else {
             fwrite( $f, $config ); 
@@ -379,7 +379,7 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 <tr>
     <td>Codemirror</td>
     <td><a href="http://codemirror.net/">codemirror.net</a></td>
-    <td>&raquo; <a href="inc/lib/codemirror/LICENSE">MIT-style license</a></td>
+    <td>&raquo; <a href="lib/codemirror/LICENSE">MIT-style license</a></td>
 </tr>
 
 <tr>
@@ -439,14 +439,14 @@ function step5(){
     }
     $modules[] = "admin"; //because the install() of admin should be called as latest
     
-    require( 'inc/config.php' );
+    require( 'config.php' );
     require( PATH_MODULE.'admin/adminDb.class.php' );
-    require( 'inc/kryn/database.class.php' );
-    require_once( 'inc/kryn/krynModule.class.php' );
-	require_once( 'inc/kryn/kryn.class.php' );
+    require( PATH_CORE.'database.class.php' );
+    require_once( PATH_CORE.'krynModule.class.php' );
+	require_once( PATH_CORE.'kryn.class.php' );
 	kryn::$config = $cfg;
     kryn::$config['db_error_print_sql'] = 1;
-	require_once( 'inc/kryn/krynAuth.class.php' );
+	require_once( PATH_CORE.'krynAuth.class.php' );
 
     
     @mkdir( 'cache/' );
@@ -612,7 +612,7 @@ Your installation file contains following extensions:<br />
 
 <table style="width: 98%" class="modulelist" cellpadding="4">
 <?php
-    require_once( "inc/kryn/krynModule.class.php" );
+    require_once( PATH_CORE.'krynModule.class.php' );
 
     $systemModules = array('kryn','admin','users');
     buildModInfo( $systemModules );

@@ -61,17 +61,17 @@ class krynAcl {
 
     /**
      * @static
-     * @param string     $pObjectKey
-     * @param string     $pCode
-     * @param bool|array $pField
-     * @param bool       $pRootHasAccess
+     * @param $pObjectKey
+     * @param $pObjectId
+     * @param bool|string|array $pField
+     * @param bool $pRootHasAccess
      * @return bool
      */
     public static function check($pObjectKey, $pObjectId, $pField = false, $pRootHasAccess = false) {
 
         $rules =& self::getRules($pObjectKey);
 
-        if (count($rules) == 0) return true;
+        if (count($rules) == 0) return false;
 
         if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pObjectId . '__' . $pField])
             return self::$cache['checkAckl_' . $pObjectKey . '_' . $pObjectId . '__' . $pField];
@@ -80,11 +80,25 @@ class krynAcl {
 
         $current_code = $pObjectId;
 
+        $definition =& kryn::$objects[$pObjectKey];
+        $fields =& $definition['fields'];
+
+
         $not_found = true;
         $parent_acl = false;
         $objectItem = false;
 
         $codes = array();
+
+
+        $fIsArray = is_array($pField);
+        if ($fIsArray){
+            $fCount   = count($pField);
+
+            $fKey   = key($pField);
+            $fValue = current($pField);
+        }
+
 
         $depth = 0;
         while ($not_found) {
@@ -97,6 +111,8 @@ class krynAcl {
 
             foreach ($rules as $acl){
 
+                if ($parent_acl && $acl['sub'] == 0) continue;
+
                 //print $acl['rsn'].', '.$acl['code'] .' == '. $current_code.'<br/>';
                 if ($acl['constraint_type'] == 2 &&
                     ((!$objectItem && $objectItem = krynObject::get($pObjectKey, $pObjectId)) || $objectItem )){
@@ -108,32 +124,49 @@ class krynAcl {
                     ($acl['constraint_type'] == 1 && $acl['constraint_code'] == $current_code)
                 ){
 
-                    if ($parent_acl && $acl['sub'] == 0) continue;
-
                     $fieldKey = $pField;
 
                     if ($pField){
 
-                        if (is_array($pField)){
+                        if ($fIsArray && $fCount == 1){
 
-                            if (is_array($acl['fields'][key($pField)])){
+                            if (is_string($fKey) && is_array($acl['fields'][$fKey])){
                                 //this field has limits
 
-                                if ( ($fieldAcl = $acl['fields'][key($pField)]) !== null){
-                                    if ($fieldAcl[current($pField)] !== null){
-                                        return ($fieldAcl[current($pField)] == 1) ? true : false;
+                                if ( ($fieldAcl = $acl['fields'][$fKey]) !== null){
+
+                                    if (is_array($fieldAcl[0])){
+
+                                        foreach ($fieldAcl as $fRule){
+
+                                            $uri = $fields[$fKey]['object'].'/'.$fValue;
+                                            $satisfy = krynObject::satisfyFromUri($uri, $fRule['condition']);
+                                            if ($satisfy){
+                                                return ($fRule['access'] == 1) ? true : false;
+                                            }
+                                            if ($acl['access'] != 2)
+                                                return ($acl['access'] == 1) ? true : false;
+                                            //var_dump(array($uri => $satisfy));
+
+                                        }
+
                                     } else {
-                                        //current($pField) is not exactly defined in $fieldAcl, so we set $access to $acl['access']
-                                        //
-                                        //if access = 2 then wo do not know it, cause 2 means 'inherited', so maybe
-                                        //a other rule has more detailed rule
-                                        if ($acl['access'] != 2)
-                                            return ($acl['access'] == 1) ? true : false;
+
+                                        if ($fieldAcl[$fValue] !== null){
+                                            return ($fieldAcl[$fValue] == 1) ? true : false;
+                                        } else {
+                                            //current($pField) is not exactly defined in $fieldAcl, so we set $access to $acl['access']
+                                            //
+                                            //if access = 2 then wo do not know it, cause 2 means 'inherited', so maybe
+                                            //a other rule has more detailed rule
+                                            if ($acl['access'] != 2)
+                                                return ($acl['access'] == 1) ? true : false;
+                                        }
                                     }
                                 }
                             } else {
                                 //this field has only true or false
-                                $fieldKey = key($pField);
+                                $fieldKey = $fKey;
                             }
                         }
 
@@ -154,11 +187,15 @@ class krynAcl {
                 }
             }
 
-            if (!$current_code = krynObject::getParentId($pObjectKey, $current_code)){
-                return $pRootHasAccess?true:$access;
-            }
+            if ($definition['nested'] ){
+                if (!$current_code = krynObject::getParentId($pObjectKey, $current_code)){
+                    return $pRootHasAccess?true:$access;
+                }
 
-            $parent_acl = true;
+                $parent_acl = true;
+            } else {
+                break;
+            }
         }
 
         self::$cache['checkAckl_' . $pObjectId . '__' . $pField] = $access;
