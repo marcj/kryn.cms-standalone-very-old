@@ -224,12 +224,12 @@ class usersAcl {
             );
         }
 
-        $users = krynObject::getList('user', $userFilter, array(
+        $users = krynObjects::getList('user', $userFilter, array(
             'limit' => 10,
             'fields' => 'rsn,username, email, groups, first_name, last_name'
         ));
 
-        $groups = krynObject::getList('group', $groupFilter, array(
+        $groups = krynObjects::getList('group', $groupFilter, array(
             'limit' => 10
         ));
 

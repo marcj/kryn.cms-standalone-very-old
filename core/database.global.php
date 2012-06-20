@@ -307,7 +307,7 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
 
     $sql = "SELECT $pFields FROM $table";
     if ($pWhere != false){
-        if (is_array($pWhere)) $pWhere = dbConditionArrayToSql($pWhere);
+        if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere);
         $sql .= " WHERE $pWhere";
     }
 
@@ -406,7 +406,7 @@ function dbUpdate($pTable, $pPrimary, $pFields) {
     $values = dbValuesToUpdateSql($pFields);
 
     if (is_array($pPrimary) || !$pPrimary)
-        $pPrimary = (!$pPrimary)?'1=1':dbPrimaryArrayToSql($pPrimary);
+        $pPrimary = (!$pPrimary)?'1=1':dbSimpleConditionToSql($pPrimary);
 
     $sql = "UPDATE $table SET $values WHERE $pPrimary\n";
 
@@ -535,9 +535,11 @@ function dbValuesToUpdateSql($pValues){
     return implode(', ', $values);
 }
 
+
+
 /**
  * Converts simple structure of a condition to SQL counterpart.
- * This is used in krynObject::get() second argument.
+ * This is used in krynObjects::get() second argument.
  *
  * Structure can be:
  *
@@ -557,7 +559,7 @@ function dbValuesToUpdateSql($pValues){
  * @param string|bool $pObjectKey
  * @return bool|string
  */
-function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
+function dbSimpleConditionToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
 
     $sql = '';
 
@@ -568,7 +570,7 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
     if (!$pPrimaryValue) return false;
 
     if ($pObjectKey){
-        $primaries = krynObject::getPrimaryList($pObjectKey);
+        $primaries = krynObjects::getPrimaryList($pObjectKey);
     }
 
     if (array_key_exists(0, $pPrimaryValue)){
@@ -610,11 +612,37 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
 
 }
 
+
+
 /**
- * Converts a complex structure of conditions to the SQL counterpart.
- * (Converts the array from ka.field type 'condition' to SQL)
  *
- * Structure:
+ * Condition object to SQL.
+ *
+ * $pCondition can be following structure.
+ *
+ * Quick definition:
+ * For this you need to define $pObjectKey, so that the function can map the values with the primary keys.
+ *
+ * 23 (need $pObjectKey then)=> "id = 23"
+ * array( 4 ) (need $pObjectKey then)=> "id = 4"
+ * array( 1, 3 ) (need $pObjectKey then) => "(id = 1) or (id = 3)"
+ *
+ *
+ * Normal:
+ * If your object has more than one primary key, you should use this definition.
+ *
+ * array( 'id' => 1, 'cat_id' => 3) => "id = 1 AND cat_id = 3"
+ *
+ * array(
+ *  array('id' => 1, 'cat_id' => 3),
+ *  array('id' => 1, 'cat_id' => 4)
+ * )
+ *   => "(id = 1 AND cat_id = 3) OR (id = 1 AND cat_id = 4)"
+ *
+ *
+ * Extended:
+ * Such a structure will be returned from the ka.field type 'condition'.
+ * Note: A simple array('id', '=', '2') won't work! You need to wrap a second array() around it.
  *
  * array(
  *   array('id', '=', '2'),
@@ -628,39 +656,56 @@ function dbPrimaryArrayToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
  *   )
  * )
  *
- * Structure can also be as in dbPrimaryArrayToSql. We call this function if we detect the structure of it.
  *
- * @param array  $pConditions
- * @param string $pTable Adds the table in front of the column names
+ * @param mixed   $pConditions
+ * @param string  $pTablePrefix
+ * @param string  $pObjectKey
  *
- * @return string
+ * @return bool|string
  */
-function dbConditionArrayToSql($pConditions, $pTable = ''){
+function dbConditionToSql($pConditions, $pTablePrefix = '', $pObjectKey = ''){
 
     $result = '';
 
-    if (is_array($pConditions) && !is_numeric(key($pConditions))){
-        //we have a structure like in dbPrimaryArrayToSql, so call it
-        return dbPrimaryArrayToSql($pConditions, $pTable);
+    if (!is_array($pConditions)) $pConditions = array($pConditions);
+
+    if (!is_numeric(key($pConditions))){
+        //array( 'bla' => 'hui' );
+        //we have a structure like in dbSimpleConditionToSql, so call it
+        return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
     }
 
     if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))){
-        //we have a structure like in dbPrimaryArrayToSql, so call it
-        return dbPrimaryArrayToSql($pConditions, $pTable);
+        //array( array('bla' => 'bla', ... );
+        //we have a structure like in dbSimpleConditionToSql, so call it
+        return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
     }
+
+    if (!is_array($pConditions[0])){
+        //array( 1, 2, 3 );
+        return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
+    }
+
+    return dbFullConditionToSql($pConditions, $pTablePrefix);
+
+}
+
+function dbFullConditionToSql($pConditions, $pTablePrefix){
+
+    $result = '';
 
     if (is_string($pConditions[0])){
         //only one condition, ex: array('rsn', '>', 0)
 
-        $result = dbConditionSingleField($pConditions, $pTable);
+        $result = dbFullConditionToSql($pConditions, $pTablePrefix);
 
     } else if (is_array($pConditions)){
         foreach ($pConditions as $condition){
 
             if (is_array($condition) && is_array($condition[0])){
-                $result .= ' ('.dbConditionArrayToSql($condition, $pTable).')';
+                $result .= ' ('.dbFullConditionToSql($condition, $pTablePrefix).')';
             } else if(is_array($condition)){
-                $result .= dbConditionSingleField($condition, $pTable);
+                $result .= dbConditionSingleField($condition, $pTablePrefix);
             } else if (is_string($condition)){
                 $result .= ' '.$condition.' ';
             }
@@ -672,7 +717,7 @@ function dbConditionArrayToSql($pConditions, $pTable = ''){
 }
 
 /**
- * Helper function for dbConditionArrayToSql()
+ * Helper function for dbConditionToSql()
  *
  * @internal
  * @param $pCondition

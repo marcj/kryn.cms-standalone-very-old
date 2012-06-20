@@ -109,8 +109,8 @@ class krynObjectTable extends krynObjectAbstract {
 
             $target = array( 'lft' => 0, 'rgt' => $row['rgt']+1 );
 
-            $objectRow = krynObject::get($pTargetObjectKey, $pTargetPrimaryValues);
-            $primaries = krynObject::getPrimaryList($pTargetObjectKey);
+            $objectRow = krynObjects::get($pTargetObjectKey, $pTargetPrimaryValues);
+            $primaries = krynObjects::getPrimaryList($pTargetObjectKey);
             $target[$rField] = $objectRow[$primaries[0]];
 
         } else {
@@ -354,7 +354,7 @@ class krynObjectTable extends krynObjectAbstract {
 
             if ($pParent){
 
-                $conditionSql = dbConditionArrayToSql($pParent, 'node');
+                $conditionSql = dbConditionToSql($pParent, 'node');
 
                 $eFields = '';
                 if ($rField){
@@ -471,9 +471,9 @@ class krynObjectTable extends krynObjectAbstract {
                         return false;
                     }
 
-                    $relPrimaryFields = krynObject::getPrimaries($field['object']);
+                    $relPrimaryFields = krynObjects::getPrimaries($field['object']);
 
-                    list($object_key, $object_ids, $params) = krynObject::parseUrl($pValues[$key]);
+                    list($object_key, $object_ids, $params) = krynObjects::parseUrl($pValues[$key]);
 
                     if ($field['object_relation'] != 'nToM'){
 
@@ -559,16 +559,16 @@ class krynObjectTable extends krynObjectAbstract {
             if ($oField) $fields .= ', '.$oField;
 
             if ($pParentObjectKey != $this->object_key && $this->definition['nestedRootAsObject'] && $oField){
-                $targetItem = krynObject::get($pParentObjectKey, $pParentValues);
+                $targetItem = krynObjects::get($pParentObjectKey, $pParentValues);
             } else {
-                $targetItem = krynObject::get($this->object_key, $pParentValues, array('fields' => $fields));
+                $targetItem = krynObjects::get($this->object_key, $pParentValues, array('fields' => $fields));
             }
 
             if ($pParentObjectKey != $this->object_key &&
                 $this->definition['nestedRootAsObject'] && $oField){
 
 
-                $targetPrimaries = krynObject::getPrimaryList($pParentObjectKey);
+                $targetPrimaries = krynObjects::getPrimaryList($pParentObjectKey);
                 $value = $targetItem[$targetPrimaries[0]];
 
                 $additionalWhere = dbSqlCondition($this->definition['table'], $oField, $value);
@@ -642,7 +642,7 @@ class krynObjectTable extends krynObjectAbstract {
             if ($pMode != 'into'){
                 $targetUri  = $pParentObjectKey?$pParentObjectKey:$this->object_key;
                 $targetUri .= '/'.$pParentValues;
-                krynObject::move($this->object_key.'/'.$lastId, $targetUri, $pMode);
+                krynObjects::move($this->object_key.'/'.$lastId, $targetUri, $pMode);
             }
 
         } catch(Exception $e){
@@ -671,9 +671,9 @@ class krynObjectTable extends krynObjectAbstract {
                 foreach ($pPrimaryValues as $key => $val){
                     $primary[$this->object_key.'_'.$key] = $val;
                 }
-                dbDelete($relTableName, dbPrimaryArrayToSql($primary));
+                dbDelete($relTableName, dbSimpleConditionToSql($primary));
 
-                $primaryRight = array_keys(krynObject::getPrimaries($field['object']));
+                $primaryRight = array_keys(krynObjects::getPrimaries($field['object']));
 
                 foreach ($value as $objectValue){
 
@@ -739,7 +739,7 @@ class krynObjectTable extends krynObjectAbstract {
 
         $additionalCondition = false;
         if ($this->definition['tableCondition'])
-            $additionalCondition = dbConditionArrayToSql($this->definition['tableCondition'], $this->object_key);
+            $additionalCondition = dbConditionToSql($this->definition['tableCondition'], $this->object_key);
 
         $select = array(); //columns
         $fSelect = array(); //final selects
@@ -800,7 +800,7 @@ class krynObjectTable extends krynObjectAbstract {
             $sql .= " \n".implode(" \n", $joins);
         }
 
-        $primaryCondition = dbConditionArrayToSql($pPrimaryIds, $this->object_key, $this->object_key);
+        $primaryCondition = dbConditionToSql($pPrimaryIds, $this->object_key, $this->object_key);
 
         if ($primaryCondition)
             $where .= ' AND '.$primaryCondition;
@@ -861,8 +861,8 @@ class krynObjectTable extends krynObjectAbstract {
             return false;
         }
 
-        $relPrimaryFields = krynObject::getPrimaries($pField['object']);
-        $primaryFields = krynObject::getPrimaries($pLeftObject);
+        $relPrimaryFields = krynObjects::getPrimaries($pField['object']);
+        $primaryFields = krynObjects::getPrimaries($pLeftObject);
 
         $oKey = $pKey.'_'.$pField['object_label'];
         $oLabel = $pField['object_label']?$pField['object_label']:kryn::$objects[$pField['object']]['object_label'];

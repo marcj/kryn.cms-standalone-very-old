@@ -688,16 +688,16 @@ class adminWindowList {
             }
 
             $fields = array_keys($this->columns);
-            $primaryFields = krynObject::getPrimaries($this->object);
+            $primaryFields = krynObjects::getPrimaries($this->object);
             $fields = array_merge($fields, array_keys($primaryFields));
 
-            $items = krynObject::getList($this->object, false, array(
+            $items = krynObjects::getList($this->object, false, array(
                 'offset' => $start,
                 'fields' => $fields,
                 'limit'  => $end
             ));
 
-            $results['maxItems'] = krynObject::getCount($this->object);
+            $results['maxItems'] = krynObjects::getCount($this->object);
 
             if ($results['maxItems'] > 0)
                 $results['maxPages'] = ceil($results['maxItems'] / $this->itemsPerPage);

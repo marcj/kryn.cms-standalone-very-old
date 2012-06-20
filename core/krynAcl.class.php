@@ -115,8 +115,8 @@ class krynAcl {
 
                 //print $acl['rsn'].', '.$acl['code'] .' == '. $current_code.'<br/>';
                 if ($acl['constraint_type'] == 2 &&
-                    ((!$objectItem && $objectItem = krynObject::get($pObjectKey, $pObjectId)) || $objectItem )){
-                    if (!krynObject::complies($objectItem, $acl['constraint_code'])) continue;
+                    ((!$objectItem && $objectItem = krynObjects::get($pObjectKey, $pObjectId)) || $objectItem )){
+                    if (!krynObjects::complies($objectItem, $acl['constraint_code'])) continue;
                 }
 
                 if (
@@ -140,7 +140,7 @@ class krynAcl {
                                         foreach ($fieldAcl as $fRule){
 
                                             $uri = $fields[$fKey]['object'].'/'.$fValue;
-                                            $satisfy = krynObject::satisfyFromUri($uri, $fRule['condition']);
+                                            $satisfy = krynObjects::satisfyFromUri($uri, $fRule['condition']);
                                             if ($satisfy){
                                                 return ($fRule['access'] == 1) ? true : false;
                                             }
@@ -188,7 +188,7 @@ class krynAcl {
             }
 
             if ($definition['nested'] ){
-                if (!$current_code = krynObject::getParentId($pObjectKey, $current_code)){
+                if (!$current_code = krynObjects::getParentId($pObjectKey, $current_code)){
                     return $pRootHasAccess?true:$access;
                 }
 

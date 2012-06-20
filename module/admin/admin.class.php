@@ -272,19 +272,19 @@ class admin {
 
 
     public static function getObjectParents($pObjectUrl){
-        return krynObject::getParentsFromUri($pObjectUrl);
+        return krynObjects::getParentsFromUri($pObjectUrl);
     }
 
     public static function getObjectTree($pObjectUrl, $pDepth = 1){
-        return krynObject::getTree($pObjectUrl, $pDepth);
+        return krynObjects::getTree($pObjectUrl, $pDepth);
     }
 
     public static function getObjectTreeRoot($pObjectUrl, $pRootId){
-        return krynObject::getTreeRoot($pObjectUrl, $pRootId);
+        return krynObjects::getTreeRoot($pObjectUrl, $pRootId);
     }
 
     public static function moveObject($pSourceObjectUrl, $pTargetObjectUrl, $pMode){
-        return krynObject::move($pSourceObjectUrl, $pTargetObjectUrl, $pMode);
+        return krynObjects::move($pSourceObjectUrl, $pTargetObjectUrl, $pMode);
     }
 
 
@@ -386,7 +386,7 @@ class admin {
             //compatibility
             $object_key = '';
         } else {
-            list($object_key, $object_ids, $params) = krynObject::parseUri($pUrl);
+            list($object_key, $object_ids, $params) = krynObjects::parseUri($pUrl);
         }
 
         $definition = kryn::$objects[$object_key];
@@ -407,7 +407,7 @@ class admin {
 
         } else {
 
-            $primaryKeys = krynObject::getPrimaries($object_key);
+            $primaryKeys = krynObjects::getPrimaries($object_key);
 
             $fields = array_keys($primaryKeys);
 
@@ -415,7 +415,7 @@ class admin {
                 $fields[] = $key;
             }
 
-            $items = krynObject::getList($object_key, $object_ids, array(
+            $items = krynObjects::getList($object_key, $object_ids, array(
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
@@ -442,7 +442,7 @@ class admin {
             //compatibility
             $object_key = '';
         } else {
-            list($object_key, $object_id, $params) = krynObject::parseUri($pUrl);
+            list($object_key, $object_id, $params) = krynObjects::parseUri($pUrl);
         }
 
         $definition = kryn::$objects[$object_key];
@@ -475,7 +475,7 @@ class admin {
 
             $fields[] = $definition['chooserFieldDataModelField'];
 
-            $item = krynObject::get($object_key, $object_id[0], array(
+            $item = krynObjects::get($object_key, $object_id[0], array(
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
@@ -555,7 +555,7 @@ class admin {
             }
         }
 
-        $itemsCount = krynObject::getCount($pObjectKey, $definition['chooserCondition']);
+        $itemsCount = krynObjects::getCount($pObjectKey, $definition['chooserCondition']);
         if (is_array($itemsCount) && $itemsCount['error'])
             return $itemsCount;
 
@@ -563,7 +563,7 @@ class admin {
         $start = ($itemsPerPage*$pPage)-$itemsPerPage;
         $pages = ceil($itemsCount/$itemsPerPage);
 
-        $items = krynObject::getList($pObjectKey, false, array(
+        $items = krynObjects::getList($pObjectKey, false, array(
             'fields' => implode(',', $fields),
             'limit'  => $itemsPerPage,
             'offset' => $start,
@@ -1723,7 +1723,7 @@ class admin {
 
     public function cacheDeleteSystemUrls(){
 
-        $domains = krynObject::getList('domain');
+        $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
             kryn::deleteCache('systemUrls-'.$domain['rsn']);
 
@@ -1731,7 +1731,7 @@ class admin {
 
     public function cacheDeleteSystemDomain(){
 
-        $domains = krynObject::getList('domain');
+        $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
             kryn::deleteCache('systemDomain-'.$domain['rsn']);
     }

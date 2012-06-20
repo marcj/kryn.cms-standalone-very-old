@@ -54,7 +54,7 @@ class adminWindowAdd extends adminWindowEdit {
 
         if ($this->object){
 
-            $this->last = krynObject::add($this->object, $row);
+            $this->last = krynObjects::add($this->object, $row);
 
             if (is_array($this->last)){
                 //error

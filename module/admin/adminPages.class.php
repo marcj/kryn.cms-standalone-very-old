@@ -1036,7 +1036,7 @@ class adminPages {
         if (!getArgv('parentObjectKey'))
             jsonError('no_parent_object_key');
 
-        $targetItem = krynObject::get(getArgv('parentObjectKey'), getArgv('parentId'));
+        $targetItem = krynObjects::get(getArgv('parentObjectKey'), getArgv('parentId'));
 
         if (getArgv('parentObjectKey') == 'node'){
             $domain_rsn = $targetItem['domain_rsn'];
@@ -1089,7 +1089,7 @@ class adminPages {
                 'type' => $type
             );
 
-            krynObject::add('node', $row, getArgv('parentId'), $pos, getArgv('parentObjectKey'));
+            krynObjects::add('node', $row, getArgv('parentId'), $pos, getArgv('parentObjectKey'));
 
             $c++;
         }

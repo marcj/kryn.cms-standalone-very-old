@@ -806,7 +806,6 @@ class database {
             return $res;
         } else {
 
-
             try {
 
                 $res = $this->pdo->prepare($pQuery);
@@ -847,8 +846,9 @@ class database {
 
         $this->lastError = $pErrorStr;
 
-        if (!database::$hideReporting && kryn::$config['db_exceptions_nostop'] != 1)
+        if (!database::$hideReporting && kryn::$config['db_exceptions_nostop'] != 1){
             throw new Exception($pErrorStr);
+        }
 
         return false;
     }
@@ -868,7 +868,7 @@ class database {
                 $res = pg_last_error($this->connection);
                 break;
             case 'mssql':
-                 $res = mssql_get_last_message();
+                $res = mssql_get_last_message();
                 break;
         }
         return $res;

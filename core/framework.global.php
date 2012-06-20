@@ -83,10 +83,12 @@ function jsonError($pErrorCode){
 /**
  * Return a translated message $pMsg with plural and context ability
  *
- * @param string $pMsg     message id (msgid)
- * @param string $pPlural  message id plural (msgid_plural)
- * @param int    $pCount   the count for plural
- * @param string $pContext the message id of the context (msgctxt)
+ * @param string   $pMsg     message id (msgid)
+ * @param string   $pPlural  message id plural (msgid_plural)
+ * @param int|bool $pCount   the count for plural
+ * @param string   $pContext the message id of the context (msgctxt)
+ *
+ * @return string
  */
 function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
 
@@ -118,6 +120,8 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
  *
  * @param string $pContext the message id of the context
  * @param string $pMsg     message id
+ *
+ * @return string
  */
 function tc($pContext, $pMsg) {
     return t($pMsg, null, null, $pContext);

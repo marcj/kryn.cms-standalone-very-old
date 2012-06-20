@@ -46,7 +46,6 @@ include(PATH_CORE.'template.global.php');
 include(PATH_CORE.'internal.global.php');
 include(PATH_CORE.'framework.global.php');
 
-
 # Load important classes
 include(PATH_CORE.'database.class.php');
 include(PATH_CORE.'kryn.class.php');
@@ -56,6 +55,7 @@ include(PATH_CORE.'krynObject/krynObjectAbstract.class.php');
 include(PATH_CORE.'krynCache.class.php');
 include(PATH_CORE.'krynAcl.class.php');
 include(PATH_CORE.'krynObject.class.php');
+include(PATH_CORE.'krynObjects.class.php');
 include(PATH_CORE.'krynNavigation.class.php');
 include(PATH_CORE.'krynHtml.class.php');
 include(PATH_CORE.'krynAuth.class.php');

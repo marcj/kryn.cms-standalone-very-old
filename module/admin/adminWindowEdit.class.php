@@ -487,7 +487,7 @@ class adminWindowEdit {
                     }
                 }
 
-                $res['values'] = krynObject::get($this->object, $primaryValues, array(
+                $res['values'] = krynObjects::get($this->object, $primaryValues, array(
                     'fields' => implode(',', $fields)
                 ));
 
@@ -681,9 +681,9 @@ class adminWindowEdit {
 
             if ($this->object){
 
-                $url = krynObject::toUrl($this->object, $primary);
+                $url = krynObjects::toUrl($this->object, $primary);
 
-                $this->last = krynObject::update($url, $row);
+                $this->last = krynObjects::update($url, $row);
 
                 if (is_array($this->last)){
                     //error

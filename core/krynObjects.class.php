@@ -1,6 +1,6 @@
 <?php
 
-class krynObject {
+class krynObjects {
 
 
     /**
@@ -170,9 +170,9 @@ class krynObject {
     }
 
     /**
-     * Returns the object for the given url. Same arguments as in krynObject::get() but given by a string.
+     * Returns the object for the given url. Same arguments as in krynObjects::get() but given by a string.
      *
-     * Take a look at the krynObject::parseUri() method for more information.
+     * Take a look at the krynObjects::parseUri() method for more information.
      *
      * @static
      * @param $pInternalUri
@@ -206,7 +206,7 @@ class krynObject {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pConditionValues Can be the structure of dbPrimaryArrayToSql() or dbConditionArrayToSql()
+     * @param mixed  $pConditionValues Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @return array|bool
      */
@@ -254,7 +254,7 @@ class krynObject {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pConditionValues Can be the structure of dbPrimaryArrayToSql() or dbConditionArrayToSql()
+     * @param mixed  $pConditionValues Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @return array|bool
      */
@@ -290,7 +290,7 @@ class krynObject {
      * @return bool
      * @throws Exception
      */
-    public static function getClassObject($pObjectKey){
+    public static function &getClassObject($pObjectKey){
 
         $definition =& kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -359,6 +359,10 @@ class krynObject {
 
     }
 
+    public static function test(){
+
+    }
+
     public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false){
 
         $obj = self::getClassObject($pObjectKey);
@@ -367,15 +371,23 @@ class krynObject {
 
     }
 
-    public static function update($pObjectUri, $pValues){
+
+    public static function updateFromUri($pObjectUri, $pValues){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        $obj = self::getClassObject($object_key);
-        return $obj->update($object_id, $pValues);
+        return self::update($object_key, $object_id[0], $pValues);
+    }
+
+
+    public static function update($pObjectKey, $pObjectId, $pValues){
+        $obj = self::getClassObject($pObjectKey);
+        return $obj->update($pObjectId, $pValues);
 
     }
 
-    public static function remove($pObjectUri){
+    public static function removeFromUri($pObjectUri){
+    }
 
+    public static function remove($pObjectUri){
     }
 
     public static function removeUsages($pObjectUri){
@@ -495,8 +507,6 @@ class krynObject {
     }
 
 
-
-
     public static function getParent($pObjectKey, $pObjectId){
         $obj = self::getClassObject($pObjectKey);
         return $obj->getParent($pObjectId);
@@ -509,10 +519,6 @@ class krynObject {
 
 
 
-
-
-
-
     public static function getParents($pObjectKey, $pObjectId){
         $obj = self::getClassObject($pObjectKey);
         return $obj->getParents($pObjectId);
@@ -522,8 +528,6 @@ class krynObject {
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
         return self::getParents($object_key, $object_id[0]);
     }
-
-
 
     public static function move($pSourceObjectUri, $pTargetObjectUri, $pMode){
 
@@ -546,7 +550,7 @@ class krynObject {
 
     public static function satisfyFromUri($pObjectUri, $pCondition){
 
-        $object = krynObject::getFromUri($pObjectUri);
+        $object = krynObjects::getFromUri($pObjectUri);
         return self::satisfy($object, $pCondition);
 
     }
@@ -554,7 +558,7 @@ class krynObject {
     /**
      * Checks whether the conditions in $pCondition are complied with the given object item.
      *
-     * $pCondition is a structure as of dbConditionArrayToSql();
+     * $pCondition is a structure as of dbConditionToSql();
      *
      * @static
      * @param $pObjectItem
