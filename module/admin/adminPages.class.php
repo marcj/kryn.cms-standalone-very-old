@@ -1539,8 +1539,8 @@ class adminPages {
         $pRsn = $pRsn + 0;
 
         $res = self::getPageByRsn($pRsn);
-        $res['resourcesCss'] = kryn::readFile(PATH_MEDIA."css/_pages/$pRsn.css");
-        $res['resourcesJs'] = kryn::readFile(PATH_MEDIA."js/_pages/$pRsn.js");
+        //$res['resourcesCss'] = kryn::readFile(PATH_MEDIA."css/_pages/$pRsn.css");
+        //$res['resourcesJs'] = kryn::readFile(PATH_MEDIA."js/_pages/$pRsn.js");
 
         $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pRsn AND active = 1");
         if (!$curVersion['rsn'] > 0) {

@@ -950,7 +950,7 @@ class adminFilemanager {
                     $magic = array(
                         'path'  => '/'.$folder,
                         'magic' => true,
-                        'name'  => $config['name'],
+                        'name'  => $folder,
                         'icon'  => $config['icon'],
                         'ctime' => 0,
                         'mtime' => 0,

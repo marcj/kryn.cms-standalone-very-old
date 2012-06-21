@@ -19,7 +19,7 @@ class usersAdminList extends windowList {
 
     public $primary = array('rsn');
     
-    public $itemLayout = '<b id="username"></b> (<span id="first_name"></span> <span id="last_name"></span>)';
+    public $itemLayout = '<b id="username"></b> (<span id="first_name"></span> <span id="last_name"></span>)<br/><span style="color: silver;" id="groups_name"></span>';
 
     public $columns = array(
         'last_name' => array(
@@ -50,20 +50,7 @@ class usersAdminList extends windowList {
                 '1' => 'admin/images/icons/accept.png'
             )
         ),
-        'groups' => array(
-            'label' => 'Groups',
-            'type' => 'select',
-            'relation' => 'n-n',
-            'n-n' => array(
-                'right' => 'system_groups',
-                'right_key' => 'rsn',
-                'right_label' => 'name',
-                'middle' => 'system_groupaccess',
-                'middle_keyright' => 'group_rsn',
-                'middle_keyleft' => 'user_rsn',
-                'left_key' => 'rsn'
-            )
-        ),
+        'groups',
     );
 
     function filterSql(){

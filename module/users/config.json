@@ -21,7 +21,7 @@
       "columns": [
         [
           "Date",
-          90,
+          120,
           "timestamp",
           "d M H:i:s"
         ],

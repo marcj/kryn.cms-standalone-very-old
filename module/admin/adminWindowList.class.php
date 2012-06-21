@@ -694,7 +694,8 @@ class adminWindowList {
             $items = krynObjects::getList($this->object, false, array(
                 'offset' => $start,
                 'fields' => $fields,
-                'limit'  => $end
+                'limit'  => $end,
+                'order' => $this->order
             ));
 
             $results['maxItems'] = krynObjects::getCount($this->object);

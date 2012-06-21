@@ -58,7 +58,7 @@
         [
           "Published",
           80,
-          "javascript: '<'+'img align=\"center\" src=\"'+_path+'inc\/template\/admin\/images\/icons\/'+(value==1?'accept':'bullet_black')+'.png\" \/>'"
+          "javascript: '<'+'img align=\"center\" src=\"'+_path+'media\/admin\/images\/icons\/'+(value==1?'accept':'bullet_black')+'.png\" \/>'"
         ],
         [
           "Page",

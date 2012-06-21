@@ -15,6 +15,7 @@ var admin_system_settings = new Class({
         this.tabButtons = {};
         this.tabButtons['general'] = this.tabGroup.addButton(_('General'), this.changeType.bind(this, 'general'));
         this.tabButtons['system'] = this.tabGroup.addButton(_('System'), this.changeType.bind(this, 'system'));
+        this.tabButtons['cdn'] = this.tabGroup.addButton(_('CDN'), this.changeType.bind(this, 'cdn'));
         this.tabButtons['auth'] = this.tabGroup.addButton(_('Session'), this.changeType.bind(this, 'auth'));
         this.tabButtons['database'] = this.tabGroup.addButton(_('Database'), this.changeType.bind(this, 'database'));
         this.tabButtons['caching'] = this.tabGroup.addButton(_('Caching'), this.changeType.bind(this, 'caching'));
@@ -128,6 +129,61 @@ var admin_system_settings = new Class({
         Object.each(systemFields.getFields(), function (item, id) {
             this.fields[ id ] = item;
         }.bind(this));
+
+
+        /*
+         *
+         * CDN
+         *
+         */
+
+        var p = this.panes['cdn'];
+
+        var fields = {
+            'cdn_folders': {
+                label: _('Magic folders'),
+                type: 'array',
+                asHash: true,
+                columns: [
+                    [t('Name'), 250],
+                    [t('Options')]
+                ],
+                fields: {
+
+                    name: {
+                        type: 'text'
+                    },
+
+                    options: {
+                        type: 'select',
+                        items: {
+                            bla: 'hi'
+                        },
+                        depends: {
+                            icon: {
+                                label: t('Icon file'),
+                                desc: t('Optional. Default is normal folder icon.'),
+                                type: 'file'
+                            }
+                        }
+                    }
+
+                }
+            }
+        };
+
+        var cdnFields = new ka.parse(p, fields);
+        Object.each(cdnFields.getFields(), function (item, id) {
+            this.fields[ id ] = item;
+        }.bind(this));
+
+
+
+        /**
+         *
+         * AUTH
+         *
+         */
 
 
         var p = this.panes['auth'];

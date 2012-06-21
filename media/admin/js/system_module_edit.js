@@ -2621,8 +2621,37 @@ var admin_system_module_edit = new Class({
 
                 }
 
-            }
+            },
 
+            __cdn__: {
+                type: 'childrenswitcher',
+                label: tc('extensionEditor', 'CDN driver'),
+                depends: {
+
+                    cdn_driver: {
+                        type: 'array',
+                        label: t('CDN Driver'),
+                        desc: t('Here you can define driver for the file abstraction layer. The class has to be in module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
+                        asHash: 1,
+                        columns: [
+                            {label: t('Class'), width: '150'},
+                            {label: t('Title'), width: '150'},
+                            {label: t('Properties')}
+                        ],
+                        fields: {
+                            'class': {
+                                type: 'text'
+                            },
+                            title: {
+                                type: 'text'
+                            },
+                            properties: {
+                                type: 'fieldtable'
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (this.lr) this.lr.cancel();
@@ -2633,7 +2662,7 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['extras']);
 
-        this.extraFieldsObj = new ka.parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 350});
+        this.extraFieldsObj = new ka.parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
 
         var buttonBar = new ka.buttonBar(this.panes['extras']);
         buttonBar.addButton(_('Save'), this.saveExtras.bind(this));

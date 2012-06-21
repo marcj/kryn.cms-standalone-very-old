@@ -761,7 +761,9 @@ ka.windowCombine = new Class({
 
     getItemTitle: function (pItem, pColumnId) {
 
-        var value = pItem['values'][pColumnId];
+
+        var value = pItem['values'][pColumnId]
+        if (!this.values.columns[pColumnId]) return value;
 
         var column = this.values.columns[pColumnId];
 
@@ -1305,7 +1307,7 @@ ka.windowCombine = new Class({
         }
 
         //parse
-        Object.each(this.values.columns, function (column, columnId) {
+        Object.each(pItem['values'], function (column, columnId) {
 
             if (item.getElement('*[id=' + columnId + ']')) {
 

@@ -667,7 +667,7 @@ function dbConditionToSql($pConditions, $pTablePrefix = '', $pObjectKey = ''){
 
     $result = '';
 
-    if (!is_array($pConditions)) $pConditions = array($pConditions);
+    if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
 
     if (!is_numeric(key($pConditions))){
         //array( 'bla' => 'hui' );

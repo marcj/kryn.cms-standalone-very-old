@@ -1287,6 +1287,17 @@ ka.field = new Class({
             new ka.Button(this.field.addText ? this.field.addText : t('Add')).addEvent('click', addRow).inject(actions);
         }
 
+        var first, second;
+        Object.each(this.field.fields, function(item, key){
+            if (!first){
+                first = key;
+            } else if (!second){
+                second = key;
+            }
+        });
+
+        var fieldLength = Object.getLength(this.field.fields);
+
         this.getValue = function () {
 
             var res = this.field.asHash?{}:[];
@@ -1297,6 +1308,7 @@ ka.field = new Class({
 
                 var row = {};
                 Object.each(tr.fields, function (field, field_key) {
+
                     if (ok == false) return;
 
                     if (!field.isOk()) {
@@ -1307,26 +1319,33 @@ ka.field = new Class({
 
                 }.bind(this));
 
-                if (this.field.asHash)
-                    res[row[0]] = row[1];
-                else
+                if (this.field.asHash){
+
+                    if (fieldLength > 2){
+
+                        var hash = {};
+                        var i = -1;
+
+                        Object.each(row, function(rvalue, rkey){
+                            i++;
+                            if (i == 0) return;
+                            hash[rkey] = rvalue;
+
+                        });
+
+                        res[row[first]] = hash;
+                    } else {
+                        res[row[first]] = row[second];
+                    }
+                } else {
                     res.include(row);
+                }
 
             }.bind(this));
 
             if (ok == false) return;
             return res;
-        }.bind(this)
-
-
-        var first, second;
-        Object.each(this.field.fields, function(item, key){
-            if (!first){
-                first = key;
-            } else if (!second){
-                second = key;
-            }
-        });
+        }.bind(this);
 
 
         this._setValue = function (pValue) {
@@ -1337,13 +1356,31 @@ ka.field = new Class({
             }
 
             if (this.field.asHash){
-                Object.each(pValue, function (item, idx) {
 
-                    var val = {};
-                    val[first] = idx;
-                    val[second] = item;
-                    addRow(val);
-                });
+                if (fieldLength > 2){
+
+                    Object.each(pValue, function (item, idx) {
+
+                        var val = {};
+                        val[first] = idx;
+                        Object.each(item, function(iV, iK){
+                            val[iK] = iV;
+                        });
+                        addRow(val);
+
+                    });
+
+                } else {
+
+                    Object.each(pValue, function (item, idx) {
+
+                        var val = {};
+                        val[first] = idx;
+                        val[second] = item;
+
+                        addRow(val);
+                    });
+                }
             } else {
                 Array.each(pValue, function (item) {
                     addRow(item);
