@@ -285,12 +285,17 @@ ka.fieldProperty = new Class({
         addLabel: t('Add property'),
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
-        asFrameworkSearch: false, //Remove some option fields, like visibility condition, can be empty, etc
+        asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
         allSmall: false,
         withActionsImages: true,
+
+        fieldTypes: false, //if as array defined, we only have types which are in this list
+        fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
+
+        noActAsTableField: false, //Remove the field 'Acts as a table item'
         asFrameworkFieldDefinition: false, //means for usage in ka.parse (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
@@ -305,6 +310,7 @@ ka.fieldProperty = new Class({
 
         this.setOptions(pOptions);
         this.win = pWin;
+        this.kaFields = Object.clone(this.kaFields);
 
         if (!this.options.withTableDefinition){
             delete this.kaFields.primaryKey;
@@ -316,6 +322,10 @@ ka.fieldProperty = new Class({
             delete this.kaFields.type.items.headline;
             delete this.kaFields.type.items.tab;
             delete this.kaFields.type.items.predefined;
+        }
+
+        if (this.options.noActAsTableField){
+            delete this.kaFields.__optional__.depends.tableitem;
         }
 
         if (this.options.asFrameworkFieldDefinition){
@@ -330,7 +340,8 @@ ka.fieldProperty = new Class({
         } else {
             //if not frameworkField
             delete this.kaFields.__optional__.depends.target;
-            delete this.kaFields.__optional__.depends.tableitem;
+            if (this.kaFields.__optional__.depends.tableitem)
+                delete this.kaFields.__optional__.depends.tableitem;
 
         }
 
@@ -341,7 +352,9 @@ ka.fieldProperty = new Class({
             delete this.kaFields.__optional__.depends.needValue;
             delete this.kaFields.__optional__.depends.againstField;
             delete this.kaFields.__optional__.depends.required_regexp;
-            delete this.kaFields.__optional__.depends.tableitem;
+
+            if(this.kaFields.__optional__.depends.tableitem)
+                delete this.kaFields.__optional__.depends.tableitem;
 
             delete this.kaFields.type.items.window_list;
             delete this.kaFields.type.items.childrenswitcher;
@@ -387,6 +400,20 @@ ka.fieldProperty = new Class({
 
             }
         };
+
+
+        if (typeOf(this.options.fieldTypes) == 'array'){
+            Object.each(this.kaFields.type.items, function(def, key){
+                if (!this.options.fieldTypes.contains(key))
+                    delete this.kaFields.type.items[key];
+            }.bind(this));
+        }
+
+        if (typeOf(this.options.fieldTypesBlacklist) == 'array'){
+            Array.each(this.options.fieldTypesBlacklist, function(key){
+                delete this.kaFields.type.items[key];
+            }.bind(this));
+        }
 
         if (this.kaFields.type.items.object){
             this.kaFields.type.depends.object.type = 'select';

@@ -2646,7 +2646,12 @@ var admin_system_module_edit = new Class({
                                 type: 'text'
                             },
                             properties: {
-                                type: 'fieldtable'
+                                type: 'fieldtable',
+                                options: {
+                                    withoutChildren: true,
+                                    asFrameworkFieldDefinition: true,
+                                    fieldTypesBlacklist: ['window_list', 'layoutelement']
+                                }
                             }
                         }
                     }

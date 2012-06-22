@@ -122,6 +122,7 @@ class krynObject {
      * Sets the given values as array to the object.
      *
      * @param $pValues
+     * @return krynObject Current instance
      */
     public function asArray($pValues){
         foreach ($this->objectFields as $field){

@@ -4,10 +4,19 @@ ka.fieldTable = new Class({
     options: {
         addLabel: t('Add property'),
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
-        withWidthField: false, //for column definition.
+        asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
+        asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
+        allSmall: false,
+        withActionsImages: true,
+
+        fieldTypes: false, //if as array defined, we only have types which are in this list
+        fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
+
+        noActAsTableField: false, //Remove the field 'Acts as a table item'
+        asFrameworkFieldDefinition: false, //means for usage in ka.parse (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
