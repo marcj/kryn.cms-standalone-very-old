@@ -49,6 +49,7 @@ include(PATH_CORE.'framework.global.php');
 # Load important classes
 include(PATH_CORE.'database.class.php');
 include(PATH_CORE.'kryn.class.php');
+include(PATH_CORE.'krynEvent.class.php');
 
 include(PATH_CORE.'krynModule.class.php');
 include(PATH_CORE.'krynObject/krynObjectAbstract.class.php');

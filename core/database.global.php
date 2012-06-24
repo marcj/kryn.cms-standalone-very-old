@@ -732,16 +732,13 @@ function dbConditionSingleField($pCondition, $pTable = ''){
         $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
     }
 
-    if ($pCondition[1] == 'REGEXP')
+    if (strtolower($pCondition[1]) == 'regexp')
         $result .= kryn::$config['db_type']=='mysql'?'REGEXP':'~';
     else
         $result .= $pCondition[1];
 
-    if ($pCondition[1] == 'IN'){
-        if (is_numeric($pCondition[2]))
-            $result .= ' '.$pCondition[2];
-        else
-            $result .= " '".esc($pCondition[2])."'";
+    if (strtolower($pCondition[1]) == 'in'){
+        $result .= " (".esc($pCondition[2]).")";
     } else {
         $result .= ' ' . !is_numeric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
     }

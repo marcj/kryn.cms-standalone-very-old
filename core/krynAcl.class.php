@@ -20,21 +20,23 @@ class krynAcl {
     public static $acls = array();
 
 
-    public static function &getRules($pObjectKey, $pForce = false) {
+    public static function &getRules($pObjectKey, $pMode = 1, $pForce = false) {
         global $client;
 
-        if (self::$cache[$pObjectKey] && $pForce == false)
-            return self::$cache[$pObjectKey];
+        if (self::$cache[$pObjectKey.'_'.$pMode] && $pForce == false)
+            return self::$cache[$pObjectKey.'_'.$pMode];
 
         $userRsn = $client->user_rsn;
         $inGroups = $client->user['inGroups'];
 
         $pObjectKey = esc($pObjectKey);
+        $pMode += 0;
 
         $query = "
                 SELECT constraint_type, constraint_code, mode, access, sub, fields FROM %pfx%system_acl
                 WHERE
                 object = '$pObjectKey' AND
+                mode = $pMode AND
                 (
                     ( target_type = 1 AND target_rsn IN ($inGroups))
                     OR
@@ -44,7 +46,7 @@ class krynAcl {
         ";
 
         $res = dbExec($query);
-        self::$cache[$pObjectKey] = array();
+        $rules = array();
 
         while ($rule = dbFetch($res)){
             if ($rule['fields'] && substr($rule['fields'], 0, 1) == '{'){
@@ -53,10 +55,67 @@ class krynAcl {
             if ($rule['constraint_type'] == 2 && substr($rule['constraint_code'], 0, 1) == '['){
                 $rule['constraint_code'] = json_decode($rule['constraint_code'], true);
             }
-            self::$cache[$pObjectKey][] = $rule;
+            $rules[] = $rule;
         }
 
-        return self::$cache[$pObjectKey];
+        self::$cache[$pObjectKey.'_'.$pMode] = $rules;
+        return self::$cache[$pObjectKey.'_'.$pMode];
+    }
+
+
+    public static function getListSqlCondition($pObjectKey, $pFields = '*'){
+
+
+        $rules =& self::getRules($pObjectKey, 2);
+
+        if (count($rules) == 0) return '';
+
+        if (self::$cache['sqlList_' . $pObjectKey])
+            return self::$cache['sqlList_' . $pObjectKey];
+
+
+        if ($pFields == '*'){
+            $pFields= array_keys(kryn::$objects[$pObjectKey]['fields']);
+        }
+        if (is_string($pFields)){
+            $pFields = explode(',', str_replace(' ', '', $pFields));
+        }
+
+        $fields = array();
+        $condition = '(1=1';
+
+        $primaryList = krynObjects::getPrimaryList($pObjectKey);
+        $primaryKey = current($primaryList);
+
+        print_r($rules);
+
+        foreach($rules as $rule){
+
+            var_dump($rule);
+            if ($rule['constraint_type'] == '0'){
+                $condition .= ' AND 1='.(($rule['access']==1)?'1':'2');
+                break;
+            }
+
+            if ($rule['constraint_type'] == '1' && $rule['access'] == 1){
+                $condition .= ' OR ' .dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
+            }
+
+            if ($rule['constraint_type'] == '1' && $rule['access'] == 0){
+                $condition .= ' AND ' .dbQuote($primaryKey) . ' != ' . $rule['constraint_code'];
+            }
+
+            if ($rule['constraint_type'] == '2'){
+                $condition .= ' ' . ($rule['access'] == 0?'AND NOT':'OR').' ' . dbConditionToSql($rule['constraint_code']);
+            }
+
+        }
+
+        $condition .= ')';
+
+
+        return array($fields, $condition);
+
     }
 
     /**
@@ -70,8 +129,6 @@ class krynAcl {
     public static function check($pObjectKey, $pObjectId, $pField = false, $pRootHasAccess = false) {
 
         $rules =& self::getRules($pObjectKey);
-
-        return true;
 
         if (count($rules) == 0) return false;
 

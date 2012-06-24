@@ -14,8 +14,11 @@
 /**
  * Html class
  * @author MArc Schmidt <marc@kryn.org>
+ *
+ *
+ * @events onRenderSlot
+ *
  */
-
 
 class krynHtml {
 
@@ -375,6 +378,7 @@ class krynHtml {
      */
     public static function renderPageContents($pPageRsn = false, $pSlotId = false, $pProperties = false) {
 
+
         if (kryn::$contents) {
             $oldContents = kryn::$contents;
         }
@@ -396,6 +400,9 @@ class krynHtml {
             kryn::$page = kryn::getPage($pPageRsn, true);
             kryn::$nestedLevels[] = kryn::$page;
         }
+
+        $args = array($pPageRsn, $pSlotId);
+        krynEvent::fire('onBeforeRenderPageContents', $args);
 
         kryn::addCss('css/_pages/' . $pPageRsn . '.css');
         kryn::addJs('js/_pages/' . $pPageRsn . '.js');
@@ -420,6 +427,10 @@ class krynHtml {
             array_pop(kryn::$nestedLevels);
         }
         kryn::$forceKrynContent = false;
+
+
+        $arguments = array($pPageRsn, $pSlotId, &$html);
+        krynEvent::fire('onRenderPageContents', $arguments);
 
         return $html;
     }
@@ -488,6 +499,9 @@ class krynHtml {
         }
 
         $count = count($contents);
+        /*
+         * Compatiblity
+         */
         tAssign('layoutContentsMax', $count);
         tAssign('layoutContentsIsFirst', true);
         tAssign('layoutContentsIsLast', false);
@@ -502,8 +516,9 @@ class krynHtml {
 
         $i = 0;
 
-
         //$oldContent = $tpl->getTemplateVars('content');
+        $argument = array($slot);
+        krynEvent::fire('onBeforeRenderSlot', $argument);
 
         $html = '';
 
@@ -530,6 +545,9 @@ class krynHtml {
             }
         }
 
+        $argument = array($slot, &$html);
+        krynEvent::fire('onRenderSlot', $argument);
+
         if ($pSlotProperties['assign'] != "") {
             tAssignRef($pSlotProperties['assign'], $html);
             return;
@@ -553,6 +571,11 @@ class krynHtml {
 
         tAssignRef('content', $content);
         tAssign('css', ($content['css']) ? $content['css'] : false);
+
+
+        $argument = array($pContent, $pProperties);
+        krynEvent::fire('onRenderContent', $argument);
+
 
         switch (strtolower($content['type'])) {
             case 'text':
@@ -690,20 +713,27 @@ class krynHtml {
             $unsearchable = true;
         }
 
+        $html = '';
         if ($content['template'] == '' || $content['template'] == '-') {
             if ($unsearchable)
-                return '<!--unsearchable-begin-->' . $content['content'] . '<!--unsearchable-end-->';
+                $html = '<!--unsearchable-begin-->' . $content['content'] . '<!--unsearchable-end-->';
             else
-                return $content['content'];
+                $html = $content['content'];
         } else {
 
             tAssign('content', $content);
             $template = $content['template'];
             if ($unsearchable)
-                return '<!--unsearchable-begin-->' . tFetch($template) . '<!--unsearchable-end-->';
+                $html = '<!--unsearchable-begin-->' . tFetch($template) . '<!--unsearchable-end-->';
             else
-                return tFetch($template);
+                $html = tFetch($template);
         }
+
+
+        $argument = array($pContent, $pProperties, &$html);
+        krynEvent::fire('onAfterRenderContent', $argument);
+
+        return $html;
     }
 
 
