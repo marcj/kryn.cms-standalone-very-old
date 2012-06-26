@@ -93,8 +93,8 @@ class krynAcl {
                 $condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
                 if ($isNested && $rule['sub']){
                     $sCondition = dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
-                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition)) AND ";
-                    $sub .= "(rgt < (SELECT rgt FROM $table WHERE $sCondition))";
+                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition) AND ";
+                    $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition))";
                     $condition = "($condition OR $sub)";
                 }
             }
@@ -103,8 +103,8 @@ class krynAcl {
                 $condition = dbConditionToSql($rule['constraint_code'], $pTable);
                 if ($isNested && $rule['sub']){
                     $sCondition = dbConditionToSql($rule['constraint_code']);
-                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft )) AND ";
-                    $sub .= "(rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";
+                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft ) AND ";
+                    $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";
                     $condition = "($condition OR $sub)";
                 }
             }
