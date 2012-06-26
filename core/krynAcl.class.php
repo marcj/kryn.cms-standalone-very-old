@@ -63,8 +63,7 @@ class krynAcl {
     }
 
 
-    public static function getListSqlCondition($pObjectKey, $pFields = '*'){
-
+    public static function getSqlCondition($pObjectKey, $pTable = ''){
 
         $rules =& self::getRules($pObjectKey, 2);
 
@@ -73,46 +72,74 @@ class krynAcl {
         if (self::$cache['sqlList_' . $pObjectKey])
             return self::$cache['sqlList_' . $pObjectKey];
 
-
-        if ($pFields == '*'){
-            $pFields= array_keys(kryn::$objects[$pObjectKey]['fields']);
-        }
-        if (is_string($pFields)){
-            $pFields = explode(',', str_replace(' ', '', $pFields));
-        }
-
-        $fields = array();
-        $condition = '(1=1';
+        $init = '1=2';
+        $condition = '';
+        $result = '';
 
         $primaryList = krynObjects::getPrimaryList($pObjectKey);
         $primaryKey = current($primaryList);
 
-        print_r($rules);
+        $isNested = kryn::$objects[$pObjectKey]['nested'];
+        $table = dbQuote(dbTableName(kryn::$objects[$pObjectKey]['table']));
+
+        $lastBracket = '';
+
+        $allowList = '';
+        $denyList  = '';
 
         foreach($rules as $rule){
 
-            var_dump($rule);
-            if ($rule['constraint_type'] == '0'){
-                $condition .= ' AND 1='.(($rule['access']==1)?'1':'2');
-                break;
-            }
-
-            if ($rule['constraint_type'] == '1' && $rule['access'] == 1){
-                $condition .= ' OR ' .dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
-            }
-
-            if ($rule['constraint_type'] == '1' && $rule['access'] == 0){
-                $condition .= ' AND ' .dbQuote($primaryKey) . ' != ' . $rule['constraint_code'];
+            if ($rule['constraint_type'] == '1' ){
+                $condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
+                if ($isNested && $rule['sub']){
+                    $sCondition = dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
+                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition)) AND ";
+                    $sub .= "(rgt < (SELECT rgt FROM $table WHERE $sCondition))";
+                    $condition = "($condition OR $sub)";
+                }
             }
 
             if ($rule['constraint_type'] == '2'){
-                $condition .= ' ' . ($rule['access'] == 0?'AND NOT':'OR').' ' . dbConditionToSql($rule['constraint_code']);
+                $condition = dbConditionToSql($rule['constraint_code'], $pTable);
+                if ($isNested && $rule['sub']){
+                    $sCondition = dbConditionToSql($rule['constraint_code']);
+                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft )) AND ";
+                    $sub .= "(rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";
+                    $condition = "($condition OR $sub)";
+                }
             }
+
+            if ($rule['constraint_type'] == '0')
+                $condition = ' 1=1';
+
+
+            if ($rule['access'] == 1){
+
+                if ($result) $result .= ")\n\nOR\n";
+
+                $result .= "\n(";
+
+                $result .= $condition;
+
+                if ($denyList)
+                    $result .= ' AND NOT '.$denyList;
+
+            }
+
+            if ($rule['access'] != 1){
+
+                $denyList .= ($denyList==''?'':' AND NOT ').$condition;
+                if ($rule['sub']){
+                    //$denyList .= ' AND NOT ';
+                }
+            } else
+                $allowList .= ($allowList==''?'':' OR ').$condition;
 
         }
 
-        $condition .= ')';
+        $result .= ')';
 
+        return "\n(\n$result\n)\n";
 
         return array($fields, $condition);
 

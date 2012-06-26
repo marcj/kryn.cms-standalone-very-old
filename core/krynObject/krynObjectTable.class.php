@@ -9,10 +9,15 @@ class krynObjectTable extends krynObjectAbstract {
         return $this->_getItems($pPrimaryValues, $pFields, $pResolveForeignValues, false, false, true, null, null);
     }
 
-    public function getItems ($pCondition, $pOffset = 0, $pLimit = 0, $pFields = '*',
-                              $pResolveForeignValues = '*', $pOrder){
+    public function getItems ($pCondition, $pOptions = false){
 
-        return $this->_getItems($pCondition, $pFields, $pResolveForeignValues, $pOffset, $pLimit, false, $pOrder);
+        //$pOffset = 0
+    //}, $pLimit = 0, $pFields = '*',
+    //                          $pResolveForeignValues = '*', $pOrder){
+
+
+        return $this->_getItems($pCondition, $pOptions['fields'], $pOptions['foreignKeys'], $pOptions['offset'],
+            $pOptions['limit'], false, $pOptions['order'], $pOptions['permissionCheck']);
     }
 
     public function getCount($pCondition = false){
@@ -713,9 +718,7 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     private function _getItems($pPrimaryIds = false, $pFields = '*', $pResolveForeignValues = '*', $pOffset = false, $pLimit = false,
-                                $pSingleRow = false, $pOrderBy = '', $pOrderDirection = 'asc'){
-
-        $where  = '1=1 ';
+                                $pSingleRow = false, $pOrderBy = '', $pPermissionCheck = false){
 
         $aFields = $pFields;
 
@@ -775,6 +778,8 @@ class krynObjectTable extends krynObjectAbstract {
 
         $sql = 'SELECT '.chr(13);
 
+        $fieldsSelected = '';
+
         if (count($select)>0){
 
             if ($grouped){
@@ -802,24 +807,25 @@ class krynObjectTable extends krynObjectAbstract {
 
         $primaryCondition = dbConditionToSql($pPrimaryIds, $this->object_key, $this->object_key);
 
+
+        if ($pPermissionCheck){
+            $where = krynAcl::getSqlCondition($this->object_key);
+        } else {
+            $where = '1=1';
+        }
+
         if ($primaryCondition)
             $where .= ' AND '.$primaryCondition;
 
         if ($additionalCondition)
             $where .= ' AND '.$additionalCondition;
 
+
         $sql .= " \nWHERE ".$where;
 
 
         if ($pOrderBy){
-            $direction = 'ASC';
-
-            if (strtolower($pOrderDirection) == 'desc')
-                $direction = 'DESC';
-
-            if (strpos($pOrderBy, ' ') === false) {
-                $sql .= ' ORDER BY '.dbQuote($pOrderBy).' '.$direction;
-            }
+            $sql .= dbOrderToSql($pOrderBy, $this->object_key);
         }
 
         if ($grouped){
@@ -838,6 +844,8 @@ class krynObjectTable extends krynObjectAbstract {
         if ($pOffset > 0)
             $sql .= ' OFFSET '.($pOffset+0);
 
+        print $sql;
+
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);
 
@@ -846,7 +854,6 @@ class krynObjectTable extends krynObjectAbstract {
             $res = dbExec($sql);
 
             while ($row = dbFetch($res)){
-
                 $items[] = $row;
             }
             return $items;

@@ -249,8 +249,10 @@ class krynObjects {
      *                      array('field' => 'title',    'direction' => 'asc')
      *                    )
      *
-     *  'foreignKeys'     Define which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT)
+     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
+     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
+     *
+     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
      * @static
      * @param string $pObjectKey
@@ -259,6 +261,7 @@ class krynObjects {
      * @return array|bool
      */
     public static function getList($pObjectKey, $pConditionValues = false, $pOptions = array()){
+
 
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -277,8 +280,7 @@ class krynObjects {
             $pConditionValues = array($pConditionValues);
         }
 
-        return $obj->getItems($pConditionValues, $pOptions['offset'], $pOptions['limit'], $pOptions['fields'],
-            $pOptions['foreignKeys'], $pOptions['order']);
+        return $obj->getItems($pConditionValues, $pOptions);
 
     }
 

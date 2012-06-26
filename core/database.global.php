@@ -330,7 +330,7 @@ function dbTableName($pTable){
  * Inserts the values based on pFields into the table pTable.
  *
  * @param string $pTable  The table name based on your extension table definition
- * @param array  $pFields Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
+ * @param array  $pValues Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
  *
  * @return integer The last_insert_id() (if you use auto_increment/sequences)
  */
@@ -504,6 +504,57 @@ function dbValuesToCommaSeperated($pValues){
 }
 
 /**
+ *
+ * Returns the SQL counterpart of the Order array.
+ *
+ * Structure is:
+ *
+ *      array(
+ *          array('field' => 'category', 'direction' => 'asc'),
+ *          array('field' => 'title',    'direction' => 'asc')
+ *      )
+ *
+ * or
+ *      array(
+ *         array('category' => 'asc'),
+ *         array('title' => 'desc')
+ *       )
+ * or
+ *      array('category' => 'desc')
+ *
+ *
+ * @param $pValues
+ * @param $pTable
+ *
+ * @return string SQL
+ */
+function dbOrderToSql($pValues, $pTable = ''){
+
+    $sql = ' ORDER BY ';
+
+    if (count($pValues) == 1 && !is_array($pValues[0])){
+        return $sql.dbQuote(key($pValues), $pTable).' '.((strtolower(current($pValues))=='asc')?'ASC':'DESC');
+    }
+
+
+    if (is_numeric(key($pValues[0]))){
+
+        foreach ($pValues as $order ){
+            $sql .= dbQuote($order['field'], $pTable).' '.((strtolower($order['direction'])=='asc')?'ASC':'DESC').',';
+        }
+    }
+
+    if (!is_numeric(key($pValues[0]))){
+
+        foreach ($pValues as $key => $order ){
+            $sql .= dbQuote($key, $pTable).' '.((strtolower($order)=='asc')?'ASC':'DESC').',';
+        }
+    }
+
+    return substr($sql, 0, -1);
+}
+
+/**
  * Returns a comma sperated list of $pValues to be used in UPDATE queries.
  * If a element in $pValues has a numeric key, the value will be retrieved
  * from getArgv($key). The keys will go through dbQuote()
@@ -669,7 +720,7 @@ function dbConditionToSql($pConditions, $pTablePrefix = '', $pObjectKey = ''){
 
     if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
 
-    if (!is_numeric(key($pConditions))){
+    if (is_array($pConditions) && !is_numeric(key($pConditions))){
         //array( 'bla' => 'hui' );
         //we have a structure like in dbSimpleConditionToSql, so call it
         return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
@@ -740,7 +791,7 @@ function dbConditionSingleField($pCondition, $pTable = ''){
     if (strtolower($pCondition[1]) == 'in'){
         $result .= " (".esc($pCondition[2]).")";
     } else {
-        $result .= ' ' . !is_numeric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2];
+        $result .= ' ' . (!is_numeric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2]);
     }
 
     return $result;
