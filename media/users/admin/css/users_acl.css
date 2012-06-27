@@ -103,14 +103,14 @@ input.users-acl-query {
     position: absolute;
     right: 0px;
     top: 0px;
-    left: 501px;
+    left: 500px;
     bottom: 0px;
     background-color: #FAFAFA;
 }
 
 .users-acl-object-rules-container {
     position: absolute;
-    top: 44px;
+    top: 61px;
     left: 0px;
     right: 0px;
     bottom: 0px;
@@ -119,18 +119,40 @@ input.users-acl-query {
 }
 
 .users-acl-object-rules-info {
+    position: absolute;
+    left: 11px;
+    top: 15px;
+    font-weight: normal;
+}
 
-    padding: 5px;
-    border-bottom: 1px solid silver;
-    background-color: #F4F4F4;
+.users-acl-object-rules-filter {
+    height: 60px;
+    background-color: #ddd;
+    position: relative;
+}
 
+.ka-with-desktop .users-acl-object-rules-filter {
+    -moz-border-radius-topleft: 0;
+    -webkit-border-top-left-radius: 0;
+    border-top-left-radius: 0;
+    -moz-border-radius-topright: 0;
+    -webkit-border-top-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.users-acl-object-rules-filter > .ka-tabGroup {
+    position: absolute;
+    bottom: -1px;
+    left: -4px;
 }
 
 
 .users-acl-object-rule {
     position: relative;
-    padding-left: 45px;
+    padding-left: 65px;
     color: #333;
+    overflow: hidden;
+    cursor: default;
 }
 
 
@@ -138,15 +160,30 @@ input.users-acl-query {
     color: #888;
 }
 
-.users-acl-object-rule-status {
+.users-acl-object-rule-subline img {
+    position: relative;
+    top: 1px;
+    margin-left: 1px;
+    width: 10px;
+    height: 10px;
+}
+
+.users-acl-object-rule-mover {
     position: absolute;
     left: 4px;
+    top: 5px;
+    cursor: move;
+}
+
+.users-acl-object-rule-status {
+    position: absolute;
+    left: 24px;
     top: 5px;
 }
 
 .users-acl-object-rule-mode {
     position: absolute;
-    left: 24px;
+    left: 44px;
     top: 5px;
 }
 

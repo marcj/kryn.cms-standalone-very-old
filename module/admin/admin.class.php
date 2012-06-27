@@ -130,7 +130,7 @@ class admin {
 
 
                         case 'objectGetLabel':
-                            $content = self::objectGetLabel(getArgv('url'));
+                            $content = self::objectGetLabel(getArgv('object'));
                             break;
                         case 'objectGetItems':
                             $content = self::objectGetItems(getArgv('object'));

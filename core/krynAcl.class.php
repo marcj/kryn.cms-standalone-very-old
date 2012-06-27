@@ -19,7 +19,25 @@ class krynAcl {
 
     public static $acls = array();
 
-
+    /**
+     *
+     * Mode table:
+     *
+     *  0 all
+     *  1 list
+     *  2 view
+     *  3 add
+     *  4 update
+     *  5 delete
+     *
+     *
+     * @static
+     * @param $pObjectKey
+     * @param int $pMode
+     * @param bool $pForce
+     * @return mixed
+     *
+     */
     public static function &getRules($pObjectKey, $pMode = 1, $pForce = false) {
         global $client;
 
@@ -72,7 +90,6 @@ class krynAcl {
         if (self::$cache['sqlList_' . $pObjectKey])
             return self::$cache['sqlList_' . $pObjectKey];
 
-        $init = '1=2';
         $condition = '';
         $result = '';
 
@@ -87,13 +104,11 @@ class krynAcl {
         $allowList = '';
         $denyList  = '';
 
-        $currentIsParent = false;
-
         foreach($rules as $rule){
 
             if ($rule['constraint_type'] == '1' ){
                 $condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
-                if ($currentIsParent && $isNested && $rule['sub']){
+                if ($isNested && $rule['sub']){
                     $sCondition = dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
                     $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition) AND ";
                     $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition))";
@@ -103,7 +118,7 @@ class krynAcl {
 
             if ($rule['constraint_type'] == '2'){
                 $condition = dbConditionToSql($rule['constraint_code'], $pTable);
-                if ($currentIsParent && $isNested && $rule['sub']){
+                if ($isNested && $rule['sub']){
                     $sCondition = dbConditionToSql($rule['constraint_code']);
                     $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft ) AND ";
                     $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";
@@ -147,17 +162,23 @@ class krynAcl {
 
     }
 
+    public static function checkUpdate($pObjectKey, $pObjectId, $pField = false){
+
+        return self::check($pObjectKey, $pObjectId, $pField, 3);
+    }
+
     /**
      * @static
      * @param $pObjectKey
      * @param $pObjectId
      * @param bool|string|array $pField
+     * @param int $pMode
      * @param bool $pRootHasAccess
      * @return bool
      */
-    public static function check($pObjectKey, $pObjectId, $pField = false, $pRootHasAccess = false) {
+    public static function check($pObjectKey, $pObjectId, $pField = false, $pMode = 1, $pRootHasAccess = false) {
 
-        $rules =& self::getRules($pObjectKey);
+        $rules =& self::getRules($pObjectKey, $pMode);
 
         if (count($rules) == 0) return false;
 
@@ -203,7 +224,7 @@ class krynAcl {
 
                 //print $acl['rsn'].', '.$acl['code'] .' == '. $current_code.'<br/>';
                 if ($acl['constraint_type'] == 2 &&
-                    ((!$objectItem && $objectItem = krynObjects::get($pObjectKey, $pObjectId)) || $objectItem )){
+                    ($objectItem = krynObjects::get($pObjectKey, $current_code))){
                     if (!krynObjects::complies($objectItem, $acl['constraint_code'])) continue;
                 }
 

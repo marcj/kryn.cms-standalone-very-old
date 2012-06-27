@@ -155,5 +155,13 @@ ka.buttonGroup = new Class({
         _this.rerender();
 
         return wrapper;
+    },
+
+    setPressed: function(pPressed){
+
+        this.boxWrapper.getChildren().each(function (button) {
+            button.setPressed(pPressed);
+        });
+
     }
 });

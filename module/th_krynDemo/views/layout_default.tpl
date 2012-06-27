@@ -39,12 +39,14 @@
 
 <pre>
 
-category_rsn: 1 => {krynAcl::check('news', 1, 'category_rsn')+0}
-category_rsn: 1 => {krynAcl::check('news', 1, ['category_rsn'=>'1'])+0}
-category_rsn: 2 => {krynAcl::check('news', 1, ['category_rsn'=>'2'])+0}
+title: 1 => {krynAcl::checkUpdate('news', 1, 'title')+0}
+category_rsn: 1 => {krynAcl::checkUpdate('news', 1, 'category_rsn')+0}
+category_rsn: 1 => {krynAcl::checkUpdate('news', 1, ['category_rsn'=>'1'])+0}
+category_rsn: 2 => {krynAcl::checkUpdate('news', 1, ['category_rsn'=>'2'])+0}
 
+    {*
 {krynObjects::getList('node', false, ['fields' => 'rsn, title', 'permissionCheck' => true, 'order' => ['rsn' => 'ASc']])|print_r}
-
+*}
 </pre>
 
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}

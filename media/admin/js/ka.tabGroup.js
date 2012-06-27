@@ -74,6 +74,14 @@ ka.tabGroup = new Class({
 
     },
 
+    setPressed: function(pPressed){
+
+        this.box.getChildren().each(function (button) {
+            button.setPressed(pPressed);
+        });
+
+    },
+
     setMethods: function(pButton, pOnClick){
         if (pOnClick) {
             pButton.addEvent('click', pOnClick);
