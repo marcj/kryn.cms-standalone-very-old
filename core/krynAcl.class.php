@@ -87,11 +87,13 @@ class krynAcl {
         $allowList = '';
         $denyList  = '';
 
+        $currentIsParent = false;
+
         foreach($rules as $rule){
 
             if ($rule['constraint_type'] == '1' ){
                 $condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
-                if ($isNested && $rule['sub']){
+                if ($currentIsParent && $isNested && $rule['sub']){
                     $sCondition = dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
                     $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition) AND ";
                     $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition))";
@@ -101,7 +103,7 @@ class krynAcl {
 
             if ($rule['constraint_type'] == '2'){
                 $condition = dbConditionToSql($rule['constraint_code'], $pTable);
-                if ($isNested && $rule['sub']){
+                if ($currentIsParent && $isNested && $rule['sub']){
                     $sCondition = dbConditionToSql($rule['constraint_code']);
                     $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft ) AND ";
                     $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";

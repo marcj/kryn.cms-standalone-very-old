@@ -37,7 +37,7 @@ class usersAcl {
     public static function getAcls($pTargetType, $pTargetId){
 
         $sql = "
-                SELECT constraint_code, access, sub, fields FROM %pfx%system_acl
+                SELECT * FROM %pfx%system_acl
                 WHERE ";
 
         $sql .= "target_type = ".(($pTargetType==1)?1:2);

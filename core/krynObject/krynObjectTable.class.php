@@ -821,7 +821,8 @@ class krynObjectTable extends krynObjectAbstract {
             $where .= ' AND '.$additionalCondition;
 
 
-        $sql .= " \nWHERE ".$where;
+        if ($where)
+            $sql .= " \nWHERE ".$where;
 
 
         if ($pOrderBy){
@@ -843,8 +844,6 @@ class krynObjectTable extends krynObjectAbstract {
 
         if ($pOffset > 0)
             $sql .= ' OFFSET '.($pOffset+0);
-
-        print $sql;
 
         if ($pSingleRow){
             $item = dbExfetch($sql, 1);

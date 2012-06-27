@@ -88,6 +88,14 @@ input.users-acl-query {
     bottom: 0px;
     border-right: 1px solid #bbb;
     background-color: white;
+}
+
+.users-acl-object-constraints-container {
+    position: absolute;
+    left: 0px;
+    top: 20px;
+    right: 0px;
+    bottom: 0px;
     overflow: auto;
 }
 
@@ -97,44 +105,61 @@ input.users-acl-query {
     top: 0px;
     left: 501px;
     bottom: 0px;
-    overflow: auto;
     background-color: #FAFAFA;
 }
 
+.users-acl-object-rules-container {
+    position: absolute;
+    top: 44px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: auto;
+    background-color: white;
+}
 
+.users-acl-object-rules-info {
 
-.users-acl-object-rule {
-    border: 1px solid silver;
-    background-color: #f4f4f4;
-    margin: 5px;
-    min-height: 50px;
-    position: relative;
-    padding-bottom: 4px;
+    padding: 5px;
+    border-bottom: 1px solid silver;
+    background-color: #F4F4F4;
+
 }
 
 
-.users-acl-object-rule:hover {
-    border: 1px solid gray;
-    background-color: #f8f8f8;
+.users-acl-object-rule {
+    position: relative;
+    padding-left: 45px;
+    color: #333;
+}
+
+
+.users-acl-object-rule-subline {
+    color: #888;
+}
+
+.users-acl-object-rule-status {
+    position: absolute;
+    left: 4px;
+    top: 5px;
+}
+
+.users-acl-object-rule-mode {
+    position: absolute;
+    left: 24px;
+    top: 5px;
+}
+
+.users-acl-object-rule-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
 }
 
 .users-acl-object-rule-title {
     padding: 5px;
     padding-left: 7px;
 }
-
-.users-acl-object-rule-subline {
-    padding: 5px;
-    height: 25px;
-    padding-left: 7px;
-}
-
-.users-acl-object-rule-actions {
-    position: absolute;
-    top: 8px;
-    right: 5px;
-}
-
 
 .users-acl-object-rule-actions img {
     cursor: pointer;
