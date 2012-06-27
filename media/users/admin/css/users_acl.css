@@ -73,7 +73,7 @@ input.users-acl-query {
     position: absolute;
     left: 0px;
     top: 0px;
-    width: 250px;
+    width: 170px;
     bottom: 0px;
     border-right: 1px solid #bbb;
     background-color: white;
@@ -82,18 +82,43 @@ input.users-acl-query {
 
 .users-acl-object-constraints {
     position: absolute;
-    left: 251px;
+    left: 171px;
     top: 0px;
-    width: 248px;
+    width: 200px;
     bottom: 0px;
     border-right: 1px solid #bbb;
     background-color: white;
 }
 
+.users-acl-object-constraints-title {
+
+}
+
+.users-acl-object-constraints-title {
+    height: 60px;
+    background-color: #ddd;
+    position: relative;
+}
+
+.ka-with-desktop .users-acl-object-constraints-title {
+    -moz-border-radius-topleft: 0;
+    -webkit-border-top-left-radius: 0;
+    border-top-left-radius: 0;
+    -moz-border-radius-topright: 0;
+    -webkit-border-top-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.users-acl-object-constraints-title > .ka-tabGroup {
+    position: absolute;
+    bottom: -1px;
+    left: -4px;
+}
+
 .users-acl-object-constraints-container {
     position: absolute;
     left: 0px;
-    top: 20px;
+    top: 61px;
     right: 0px;
     bottom: 0px;
     overflow: auto;
@@ -103,7 +128,7 @@ input.users-acl-query {
     position: absolute;
     right: 0px;
     top: 0px;
-    left: 500px;
+    left: 372px;
     bottom: 0px;
     background-color: #FAFAFA;
 }
@@ -129,6 +154,13 @@ input.users-acl-query {
     height: 60px;
     background-color: #ddd;
     position: relative;
+    line-height: 17px;
+}
+
+
+.users-acl-object-rules-filter .ka-Select-box {
+    /*border: 1px solid #333;*/
+    box-shadow: 0px 1px 0px #888;
 }
 
 .ka-with-desktop .users-acl-object-rules-filter {
@@ -140,10 +172,15 @@ input.users-acl-query {
     border-top-right-radius: 0;
 }
 
+.users-acl-object-rules-filter > .ka-tabGroup > .ka-tabGroup-item,
+.users-acl-object-rules-filter > .ka-tabGroup > .ka-tabGroup-item:link {
+    padding: 0px 5px;
+}
 .users-acl-object-rules-filter > .ka-tabGroup {
     position: absolute;
     bottom: -1px;
     left: -4px;
+    font-weight: normal;
 }
 
 

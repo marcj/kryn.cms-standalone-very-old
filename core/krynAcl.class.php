@@ -54,7 +54,7 @@ class krynAcl {
                 SELECT constraint_type, constraint_code, mode, access, sub, fields FROM %pfx%system_acl
                 WHERE
                 object = '$pObjectKey' AND
-                mode = $pMode AND
+                (mode = $pMode OR mode = 0) AND
                 (
                     ( target_type = 1 AND target_rsn IN ($inGroups))
                     OR
@@ -83,7 +83,7 @@ class krynAcl {
 
     public static function getSqlCondition($pObjectKey, $pTable = ''){
 
-        $rules =& self::getRules($pObjectKey, 2);
+        $rules =& self::getRules($pObjectKey, 1);
 
         if (count($rules) == 0) return '';
 

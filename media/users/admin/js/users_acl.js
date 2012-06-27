@@ -116,10 +116,16 @@ var users_users_acl = new Class({
             exact: 0
         };
 
+        var modeCounter = {
+            0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0
+        };
+
         var ruleGrouped = [true, {}, {}];
 
         Array.each(this.currentAcls, function(rule){
             if (rule.object != this.currentObject) return;
+
+            modeCounter[rule.mode]++;
 
             if (rule.constraint_type == 2){
                 ruleCounter.custom++;
@@ -138,6 +144,14 @@ var users_users_acl = new Class({
             }
 
         }.bind(this));
+
+        this.selectModes.setText(-1,  tc('usersAclModes', 'All rules')+' ('+this.currentAcls.length+')');
+        this.selectModes.setText(0,  tc('usersAclModes', 'Combined')+' ('+modeCounter[0]+')');
+        this.selectModes.setText(1,  tc('usersAclModes', 'List')+' ('+modeCounter[1]+')');
+        this.selectModes.setText(2,  tc('usersAclModes', 'View')+' ('+modeCounter[2]+')');
+        this.selectModes.setText(3,  tc('usersAclModes', 'Add')+' ('+modeCounter[3]+')');
+        this.selectModes.setText(4,  tc('usersAclModes', 'Edit')+' ('+modeCounter[4]+')');
+        this.selectModes.setText(5,  tc('usersAclModes', 'Delete')+' ('+modeCounter[5]+')');
 
         this.objectsExactContainer.empty();
         Object.each(ruleGrouped[1], function(rules, code){
@@ -220,8 +234,6 @@ var users_users_acl = new Class({
             pConstraintCode = this.lastConstraintCode;
         }
 
-        logger(pConstraintType+' => '+pConstraintCode+' => '+this.lastRulesModeFilter);
-
         this.objectRulesContainer.getChildren().each(function(child){
 
             var show = false;
@@ -303,13 +315,14 @@ var users_users_acl = new Class({
             src: _path+'media/admin/images/icons/'+status+'.png'
         }).inject(div);
 
-        var mode = 'application_view_list'; //0, list
+        var mode = 'arrow_in'; //0, combined
 
         switch(pRule.mode){
-            case '1': mode = 'application_form'; break; //view detail
-            case '2': mode = 'application_form_add'; break; //add
-            case '3': mode = 'application_form_edit'; break; //edit
-            case '4': mode = 'application_form_delete'; break; //delete
+            case '1': mode = 'application_view_list'; break; //list
+            case '2': mode = 'application_form'; break; //view detail
+            case '3': mode = 'application_form_add'; break; //add
+            case '4': mode = 'application_form_edit'; break; //edit
+            case '5': mode = 'application_form_delete'; break; //delete
         }
 
         new Element('img', {
@@ -664,13 +677,8 @@ var users_users_acl = new Class({
             this.objectDivs[objectKey] = div;
 
             var h2 = new Element('h2', {
-                text: object.label
+                text: object.label || objectKey
             }).inject(div);
-
-            new Element('span', {
-                text: ' (#'+objectKey+')',
-                style: 'color: silver'
-            }).inject(h2);
 
             if (object.desc){
                 new Element('div',{
@@ -695,6 +703,20 @@ var users_users_acl = new Class({
         })
         .inject(this.objectTab.pane);
 
+        this.objectRulesFilter = new Element('div', {
+            'class': 'kwindow-win-title users-acl-object-constraints-title',
+            text: t('Constraints')
+        }).inject(this.objectConstraints);
+
+        var div = new Element('div', {
+            style: 'padding-top: 12px;'
+        }).inject(this.objectRulesFilter);
+
+        new ka.Button(t('Deselect'))
+        .addEvent('click', this.filterRules.bind(this, [false]))
+        .inject(div);
+
+        /*
         var h3 = new Element('h3', {
             text: t('Constraints')
         }).inject(this.objectConstraints);
@@ -706,6 +728,7 @@ var users_users_acl = new Class({
         })
         .addEvent('click', this.filterRules.bind(this, [false]))
         .inject(h3);
+        */
 
         this.objectConstraintsContainer = new Element('div', {
             'class': 'users-acl-object-constraints-container'
@@ -783,16 +806,54 @@ var users_users_acl = new Class({
             text: t('Most important rule shall be on the top.')
         }).inject(this.objectRulesInfo);
 
+        var div = new Element('div', {
+            text: t('Filter modes')+': ',
+            style: 'line-height: 24px;'
+        }).inject(this.objectRulesInfo);
+
+        this.selectModes = new ka.Select(div);
+
+        document.id(this.selectModes).setStyle('width', 120);
+
+        this.selectModes.add(-1, tc('usersAclModes', 'All rules'));
+        this.selectModes.add(0,  tc('usersAclModes', 'Combined'));
+        this.selectModes.add(1,  tc('usersAclModes', 'List'));
+        this.selectModes.add(2,  tc('usersAclModes', 'View'));
+        this.selectModes.add(3,  tc('usersAclModes', 'Add'));
+        this.selectModes.add(4,  tc('usersAclModes', 'Edit'));
+        this.selectModes.add(5,  tc('usersAclModes', 'Delete'));
+
+        this.selectModes.addEvent('change', function(value){
+
+            if (value == -1)
+                this.lastRulesModeFilter = false;
+            else
+                this.lastRulesModeFilter = value;
+
+            this.filterRules();
+
+        }. bind(this));
+
+        /*
         this.btnGrpRules = new ka.tabGroup(this.objectRulesFilter);
 
         this.btnGrpRulesBtns = [];
 
         this.btnGrpRulesBtns[0] = this.btnGrpRules.addButton(tc('usersAclModes', 'All'), _path+'media/admin/images/icons/tick.png');
-        this.btnGrpRulesBtns[1] = this.btnGrpRules.addButton(tc('usersAclModes', 'List'), _path+'media/admin/images/icons/application_view_list.png');
-        this.btnGrpRulesBtns[2] = this.btnGrpRules.addButton(tc('usersAclModes', 'Detail'), _path+'media/admin/images/icons/application_form.png');
-        this.btnGrpRulesBtns[3] = this.btnGrpRules.addButton(tc('usersAclModes', 'Add'), _path+'media/admin/images/icons/application_form_add.png');
-        this.btnGrpRulesBtns[4] = this.btnGrpRules.addButton(tc('usersAclModes', 'Edit'), _path+'media/admin/images/icons/application_form_edit.png');
-        this.btnGrpRulesBtns[5] = this.btnGrpRules.addButton(tc('usersAclModes', 'Delete'), _path+'media/admin/images/icons/application_form_delete.png');
+        this.btnGrpRulesBtns[1] = this.btnGrpRules.addButton(tc('usersAclModes', 'Combined'), _path+'media/admin/images/icons/application_view_list.png');
+        this.btnGrpRulesBtns[2] = this.btnGrpRules.addButton(tc('usersAclModes', 'List'), _path+'media/admin/images/icons/application_view_list.png');
+        this.btnGrpRulesBtns[3] = this.btnGrpRules.addButton(tc('usersAclModes', 'Detail'), _path+'media/admin/images/icons/application_form.png');
+        this.btnGrpRulesBtns[4] = this.btnGrpRules.addButton(tc('usersAclModes', 'Add'), _path+'media/admin/images/icons/application_form_add.png');
+        this.btnGrpRulesBtns[5] = this.btnGrpRules.addButton(tc('usersAclModes', 'Edit'), _path+'media/admin/images/icons/application_form_edit.png');
+        this.btnGrpRulesBtns[6] = this.btnGrpRules.addButton(tc('usersAclModes', 'Delete'), _path+'media/admin/images/icons/application_form_delete.png');
+
+        this.btnGrpRulesBtns[0] = this.btnGrpRules.addButton(tc('usersAclModes', 'All'));
+        this.btnGrpRulesBtns[1] = this.btnGrpRules.addButton(tc('usersAclModes', 'Combined'));
+        this.btnGrpRulesBtns[2] = this.btnGrpRules.addButton(tc('usersAclModes', 'List'));
+        this.btnGrpRulesBtns[3] = this.btnGrpRules.addButton(tc('usersAclModes', 'Detail'));
+        this.btnGrpRulesBtns[4] = this.btnGrpRules.addButton(tc('usersAclModes', 'Add'));
+        this.btnGrpRulesBtns[5] = this.btnGrpRules.addButton(tc('usersAclModes', 'Edit'));
+        this.btnGrpRulesBtns[6] = this.btnGrpRules.addButton(tc('usersAclModes', 'Delete'));
 
         this.btnGrpRulesBtns[0].setPressed(true);
         this.lastRulesModeFilter = false;
@@ -814,6 +875,7 @@ var users_users_acl = new Class({
             }.bind(this));
 
         }.bind(this));
+ */
 
         this.objectRulesContainer = new Element('div', {
             'class': 'users-acl-object-rules-container'

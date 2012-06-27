@@ -27,7 +27,7 @@ ka.Select = new Class({
         }).inject(this.box);
 
         this.arrow = new Element('img', {
-            src: _path + this.arrow,
+            src: _path + this.arrow
         }).inject(this.arrowBox);
 
         this.chooser = new Element('div', {
@@ -63,12 +63,25 @@ ka.Select = new Class({
         }).inject(this.chooser);
     },
 
+    setText: function(pId, pLabel){
+
+        if (typeOf(this.items[ pId ]) == 'null') return;
+
+        this.items[ pId ] = pLabel;
+        this.a[pId].set('text', pLabel);
+
+        if (this.value == pId){
+            this.title.set('text', this.items[ pId ]);
+            this.box.set('title', (this.items[ pId ] + "").stripTags());
+        }
+    },
+
     add: function (pId, pLabel, pPos) {
 
         this.items[ pId ] = pLabel;
 
         this.a[pId] = new Element('a', {
-            html: pLabel,
+            text: pLabel,
             href: 'javascript:;'
         }).addEvent('click', function () {
 
@@ -84,7 +97,6 @@ ka.Select = new Class({
         } else if (this.a[pPos]) {
             this.a[pId].inject(this.a[pPos], 'after');
         }
-
 
         if (this.value == null) {
             this.setValue(pId);
@@ -111,7 +123,7 @@ ka.Select = new Class({
         if (!this.items[ pValue ]) return false;
 
         this.value = pValue;
-        this.title.set('html', this.items[ pValue ]);
+        this.title.set('text', this.items[ pValue ]);
         this.box.set('title', (this.items[ pValue ] + "").stripTags());
 
         Object.each(this.a, function (item, id) {
