@@ -856,6 +856,14 @@ var users_users_acl = new Class({
 
     },
 
+    applyEditRuleDialog: function(){
+
+        var value = this.editRuleKaObj.getValue();
+
+
+
+    },
+
     openEditRuleDialog: function(pObject, pRule){
 
         pObject = 'news';
@@ -870,8 +878,15 @@ var users_users_acl = new Class({
         this.editRuleDialog.center();
 
         //this.editRuleDialog.content
-        new ka.Button('Cancel').inject(this.editRuleDialog.bottom);
-        new ka.Button('Apply').inject(this.editRuleDialog.bottom);
+        new ka.Button('Cancel')
+        .addEvent('click', function(){
+            this.editRuleDialog.close();
+        }.bind(this))
+        .inject(this.editRuleDialog.bottom);
+
+        new ka.Button('Apply')
+        .addEvent('click', this.applyEditRuleDialog.bind(this))
+        .inject(this.editRuleDialog.bottom);
 
         new Element('h2', {
             text: t('Edit rule')
@@ -936,7 +951,7 @@ var users_users_acl = new Class({
 
         };
 
-        new ka.parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
+        this.editRuleKaObj = new ka.parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
 
     },
 
