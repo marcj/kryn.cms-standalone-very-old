@@ -819,13 +819,16 @@ class $pClassName extends $pClass {
 
     public static function saveExtras() {
 
-        $vars = array('attachEvents', 'events', 'caches', 'cacheInvalidation');
+        $vars = array('attachEvents', 'events', 'caches', 'cacheInvalidation', 'adminJavascript', 'adminCss');
 
         $name = getArgv('name', 2);
         $config = self::loadConfig($name);
 
         foreach ($vars as $var){
-            $config[$var] = getArgv($var);
+            if (getArgv($var) !== '')
+                $config[$var] = getArgv($var);
+            else
+                unset($config[$var]);
         }
 
         $res = self::writeConfig($name, $config);

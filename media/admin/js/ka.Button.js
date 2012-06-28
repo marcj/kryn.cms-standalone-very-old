@@ -10,11 +10,7 @@ ka.Button = new Class({
             title: (pTooltip) ? pTooltip : null
         });
 
-        if (typeOf(pTitle) == 'element' && pTitle.inject) {
-            pTitle.inject(this.main);
-        }
-
-        new Element('span').inject(this.main);
+        this.setText(pTitle);
 
         if (pOnClick) {
             this.main.addEvent('click', pOnClick);
@@ -22,8 +18,20 @@ ka.Button = new Class({
     },
 
     setText: function (pText) {
-        this.main.set('text', pText);
-        new Element('span').inject(this.main);
+
+        if (typeOf(pText) == 'element' && pText.inject) {
+            pText.inject(this.main);
+
+        } else if (typeOf(pText) == 'array'){
+            this.main.set('text', pText[0]);
+
+            new Element('img', {
+                src: ka.mediaPath(pText[1])
+            }).inject(this.main, 'top');
+
+        } else {
+            this.main.set('text', pText);
+        }
     },
 
     toElement: function () {

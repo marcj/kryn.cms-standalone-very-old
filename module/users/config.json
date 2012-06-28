@@ -1271,9 +1271,10 @@
     "en": "user,message,messagesystem",
     "de": ""
   },
-  "adminJavascript": [
-    "users\/admin\/js\/users_field_picture.js"
-  ],
   "writableFiles": "",
-  "depends": ""
+  "depends": "",
+  "adminJavascript": [
+    "users\/admin\/js\/users_field_picture.js",
+    "users\/admin\/js\/users_acl_rule_fields.js"
+  ]
 }

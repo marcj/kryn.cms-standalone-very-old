@@ -68,17 +68,44 @@ ka.Select = new Class({
         if (typeOf(this.items[ pId ]) == 'null') return;
 
         this.items[ pId ] = pLabel;
+
+        var img;
+        if (this.a[pId].getElement('img')){
+            img = this.a[pId].getElement('img');
+            img.dispose();
+        }
+
         this.a[pId].set('text', pLabel);
+
+        if (img){
+            img.inject(this.a[pId], 'top');
+        }
 
         if (this.value == pId){
             this.title.set('text', this.items[ pId ]);
             this.box.set('title', (this.items[ pId ] + "").stripTags());
+
+            if (this.a[pId].getElement('img')){
+                this.a[pId].getElement('img').clone().inject(this.title, 'top');
+            }
         }
     },
 
-    add: function (pId, pLabel, pPos) {
+
+    addImage: function (pId, pLabel, pImagePath, pPos) {
+
+        return this.add(pId, pLabel, pPos, pImagePath);
+    },
+
+    add: function (pId, pLabel, pPos, pImagePath) {
+
+        if (typeOf(pLabel) == 'array'){
+            pImagePath = pLabel[1];
+            pLabel = pLabel[0];
+        }
 
         this.items[ pId ] = pLabel;
+
 
         this.a[pId] = new Element('a', {
             text: pLabel,
@@ -88,7 +115,15 @@ ka.Select = new Class({
             this.setValue(pId, true);
             this.close();
 
-        }.bind(this))
+        }.bind(this));
+
+        if (pImagePath){
+
+            new Element('img', {
+                src: ka.mediaPath(pImagePath)
+            }).inject(this.a[pId], 'top');
+
+        }
 
         if (!pPos) {
             this.a[pId].inject(this.chooser);
@@ -125,6 +160,10 @@ ka.Select = new Class({
         this.value = pValue;
         this.title.set('text', this.items[ pValue ]);
         this.box.set('title', (this.items[ pValue ] + "").stripTags());
+
+        if (this.a[pValue].getElement('img')){
+            this.a[pValue].getElement('img').clone().inject(this.title, 'top');
+        }
 
         Object.each(this.a, function (item, id) {
             item.removeClass('active');

@@ -260,6 +260,19 @@ ka.urlDecode = function(pValue){
         return pValue;
     }
 
+}
+
+ka.mediaPath = function(pPath){
+
+    if (typeOf(pPath) != 'string') return pPath;
+
+    if (pPath.substr(0,1) == '/'){
+        return _path+pPath.substr(1);
+    } else if (pPath.substr(0,7) == 'http://'){
+        return pPath;
+    } else {
+        return _path+'media/'+pPath;
+    }
 
 }
 

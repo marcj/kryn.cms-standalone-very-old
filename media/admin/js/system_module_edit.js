@@ -2533,6 +2533,46 @@ var admin_system_module_edit = new Class({
 
         var extrasFields = {
 
+            __resources__: {
+                type: 'childrenswitcher',
+                label: tc('extensionEditor', 'Additional JavaScript/CSS files'),
+                depends: {
+
+                    adminJavascript: {
+
+                        label: t('Additional JavaScript files'),
+                        desc: t('Will be loaded during the login. Relativ to media/'),
+                        type: 'array',
+                        asArray: true,
+                        columns: [
+                            t('File')
+                        ],
+                        fields: {
+                            file: {
+                                type: 'text'
+                            }
+                        }
+                    },
+
+                    adminCss: {
+
+                        label: t('Additional CSS files'),
+                        desc: t('Will be loaded during the login. Relativ to media/'),
+                        type: 'array',
+                        asArray: true,
+                        columns: [
+                            t('File')
+                        ],
+                        fields: {
+                            file: {
+                                type: 'text'
+                            }
+                        }
+                    }
+                }
+            },
+
+
             __caches__: {
                 type: 'childrenswitcher',
                 label: tc('extensionEditor', 'Cache'),

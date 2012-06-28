@@ -101,6 +101,7 @@ var users_users_acl = new Class({
         this.currentConstraint = -1;
 
         this.renderObjectRules();
+        this.showRules();
 
     },
 
@@ -468,7 +469,7 @@ var users_users_acl = new Class({
         var uri = pDomObject.get('text');
         new Request.JSON({url: _path+'admin/backend/objectGetLabel', onComplete: function(pResult){
 
-            if (!pResult || pResult.error){
+            if (!pResult || pResult.error || !pResult.values){
                 pDomObject.set('text', 'Object not found. '+uri);
                 return;
             };
@@ -674,11 +675,13 @@ var users_users_acl = new Class({
             .addEvent('click', this.loadObjectRules.bind(this, objectKey))
             .inject(this.objectList);
 
-            this.objectDivs[objectKey] = div;
-
             var h2 = new Element('h2', {
                 text: object.label || objectKey
             }).inject(div);
+
+            div.count = new Element('span', {
+                style: 'font-size: normal; color: silver;'
+            }).inject(h2);
 
             if (object.desc){
                 new Element('div',{
@@ -686,6 +689,8 @@ var users_users_acl = new Class({
                     text: object.desc
                 }).inject(div);
             }
+
+            this.objectDivs[objectKey] = div;
 
         }.bind(this));
 
@@ -815,13 +820,13 @@ var users_users_acl = new Class({
 
         document.id(this.selectModes).setStyle('width', 120);
 
-        this.selectModes.add(-1, tc('usersAclModes', 'All rules'));
-        this.selectModes.add(0,  tc('usersAclModes', 'Combined'));
-        this.selectModes.add(1,  tc('usersAclModes', 'List'));
-        this.selectModes.add(2,  tc('usersAclModes', 'View'));
-        this.selectModes.add(3,  tc('usersAclModes', 'Add'));
-        this.selectModes.add(4,  tc('usersAclModes', 'Edit'));
-        this.selectModes.add(5,  tc('usersAclModes', 'Delete'));
+        this.selectModes.addImage(-1, tc('usersAclModes', 'All rules'), 'admin/images/icons/tick.png');
+        this.selectModes.addImage(0,  tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png');
+        this.selectModes.addImage(1,  tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png');
+        this.selectModes.addImage(2,  tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png');
+        this.selectModes.addImage(3,  tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png');
+        this.selectModes.addImage(4,  tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png');
+        this.selectModes.addImage(5,  tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png');
 
         this.selectModes.addEvent('change', function(value){
 
@@ -833,49 +838,6 @@ var users_users_acl = new Class({
             this.filterRules();
 
         }. bind(this));
-
-        /*
-        this.btnGrpRules = new ka.tabGroup(this.objectRulesFilter);
-
-        this.btnGrpRulesBtns = [];
-
-        this.btnGrpRulesBtns[0] = this.btnGrpRules.addButton(tc('usersAclModes', 'All'), _path+'media/admin/images/icons/tick.png');
-        this.btnGrpRulesBtns[1] = this.btnGrpRules.addButton(tc('usersAclModes', 'Combined'), _path+'media/admin/images/icons/application_view_list.png');
-        this.btnGrpRulesBtns[2] = this.btnGrpRules.addButton(tc('usersAclModes', 'List'), _path+'media/admin/images/icons/application_view_list.png');
-        this.btnGrpRulesBtns[3] = this.btnGrpRules.addButton(tc('usersAclModes', 'Detail'), _path+'media/admin/images/icons/application_form.png');
-        this.btnGrpRulesBtns[4] = this.btnGrpRules.addButton(tc('usersAclModes', 'Add'), _path+'media/admin/images/icons/application_form_add.png');
-        this.btnGrpRulesBtns[5] = this.btnGrpRules.addButton(tc('usersAclModes', 'Edit'), _path+'media/admin/images/icons/application_form_edit.png');
-        this.btnGrpRulesBtns[6] = this.btnGrpRules.addButton(tc('usersAclModes', 'Delete'), _path+'media/admin/images/icons/application_form_delete.png');
-
-        this.btnGrpRulesBtns[0] = this.btnGrpRules.addButton(tc('usersAclModes', 'All'));
-        this.btnGrpRulesBtns[1] = this.btnGrpRules.addButton(tc('usersAclModes', 'Combined'));
-        this.btnGrpRulesBtns[2] = this.btnGrpRules.addButton(tc('usersAclModes', 'List'));
-        this.btnGrpRulesBtns[3] = this.btnGrpRules.addButton(tc('usersAclModes', 'Detail'));
-        this.btnGrpRulesBtns[4] = this.btnGrpRules.addButton(tc('usersAclModes', 'Add'));
-        this.btnGrpRulesBtns[5] = this.btnGrpRules.addButton(tc('usersAclModes', 'Edit'));
-        this.btnGrpRulesBtns[6] = this.btnGrpRules.addButton(tc('usersAclModes', 'Delete'));
-
-        this.btnGrpRulesBtns[0].setPressed(true);
-        this.lastRulesModeFilter = false;
-
-        Array.each(this.btnGrpRulesBtns, function(button, key){
-
-            button.addEvent('click', function(){
-
-                this.btnGrpRules.setPressed(false);
-                button.setPressed(true);
-
-                if (key == 0)
-                    this.lastRulesModeFilter = false;
-                else
-                    this.lastRulesModeFilter = key-1;
-
-                this.filterRules();
-
-            }.bind(this));
-
-        }.bind(this));
- */
 
         this.objectRulesContainer = new Element('div', {
             'class': 'users-acl-object-rules-container'
@@ -891,6 +853,90 @@ var users_users_acl = new Class({
             this.addObjectsToList(config, extKey);
 
         }.bind(this));
+
+    },
+
+    openEditRuleDialog: function(pObject, pRule){
+
+        pObject = 'news';
+
+        this.editRuleDialog = this.win.newDialog('', true);
+
+        this.editRuleDialog.setStyles({
+            width: '90%',
+            height: '90%'
+        });
+
+        this.editRuleDialog.center();
+
+        //this.editRuleDialog.content
+        new ka.Button('Cancel').inject(this.editRuleDialog.bottom);
+        new ka.Button('Apply').inject(this.editRuleDialog.bottom);
+
+        new Element('h2', {
+            text: t('Edit rule')
+        }).inject(this.editRuleDialog.content);
+
+
+        var fields = {
+
+            constraint_type: {
+                label: t('Constraint type'),
+                type: 'select',
+                input_width: 140,
+                items: {
+                    '0': t('All objects'),
+                    '1': t('Exact object'),
+                    '2': t('Custom condition')
+                }
+            },
+
+            access: {
+                label: t('Access'),
+                type: 'select',
+                input_width: 140,
+                items: {
+                    '2': [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png'],
+                    '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
+                    '1': [t('Allow'), 'admin/images/icons/accept.png']
+                }
+
+            },
+
+            mode: {
+                label: t('Mode'),
+                type: 'select',
+                input_width: 140,
+                items: {
+                    '0': [tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png'],
+                    '1': [tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png'],
+                    '2': [tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png'],
+                    '3': [tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png'],
+                    '4': [tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png'],
+                    '5': [tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png']
+                }
+            },
+
+            __fields__: {
+                label: t('Fields'),
+                needValue: ['0','2','3','4'],
+                againstField: 'mode',
+                type: 'label'
+            },
+
+            fields: {
+                noWrapper: true,
+                needValue: ['0','2','3','4'],
+                againstField: 'mode',
+                type: 'custom',
+                'class': 'users_acl_rule_fields',
+                object: pObject,
+                rule: pRule
+            }
+
+        };
+
+        new ka.parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
 
     },
 
@@ -1163,6 +1209,18 @@ var users_users_acl = new Class({
             onComplete: this.setAcls.bind(this)
         }).get({type: pType, id: pId});
 
+        this.openEditRuleDialog();
+
+    },
+
+    hideRules: function(){
+        this.objectConstraints.setStyle('display', 'none');
+        this.objectRules.setStyle('display', 'none');
+    },
+
+    showRules: function(){
+        this.objectConstraints.setStyle('display', 'block');
+        this.objectRules.setStyle('display', 'block');
     },
 
     setAcls: function(pAcls){
@@ -1172,6 +1230,27 @@ var users_users_acl = new Class({
         this.currentAcls = pAcls;
         this.loadedAcls = Array.clone(this.currentAcls);
 
+        var counter = {};
+
+        Array.each(this.currentAcls, function(acl){
+
+            if (counter[acl.object])
+                counter[acl.object]++;
+            else
+                counter[acl.object] = 1;
+
+        }.bind(this));
+
+        Object.each(this.objectDivs, function(dom, key){
+
+            if (!counter[key]) counter[key] = 0;
+            dom.count.set('text', ' ('+counter[key]+')');
+        });
+
+
+        this.objectList.getElements('.ka-list-combine-item').removeClass('active');
+
+        this.hideRules();
         this.tabs.show();
         this.win.setLoading(false);
     }

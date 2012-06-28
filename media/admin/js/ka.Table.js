@@ -15,6 +15,7 @@ ka.Table = new Class({
     initialize: function (pColumns, pOpts) {
 
         this.setOptions(pOpts);
+
         if (this.options.absolute == false) {
             this.main = new Element('div', {
                 style: 'position: relative;'
@@ -23,6 +24,14 @@ ka.Table = new Class({
             this.main = new Element('div', {
                 style: 'position: absolute; left: 0px; right: 0px; bottom: 0px; top: 0px;'
             });
+        }
+
+        if (this.options.hover || typeOf(this.options.hover) == 'null'){
+            this.main.addClass('ka-Table-hover');
+        }
+
+        if (this.options.alignTop || typeOf(this.options.alignTop) == 'null'){
+            this.main.addClass('ka-Table-alignTop');
         }
 
         if (this.options.selectable == true){
@@ -118,7 +127,7 @@ ka.Table = new Class({
     setColumns: function (pColumns) {
         this.columns = pColumns;
 
-        if (!pColumns && $type(pColumns) != 'array') {
+        if (!pColumns && typeOf(pColumns) != 'array') {
             return;
         }
 

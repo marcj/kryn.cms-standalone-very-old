@@ -1292,7 +1292,7 @@ ka.kwindow = new Class({
             styles: {
                 opacity: 0.5,
                 position: 'absolute',
-                'background-color': '#888',
+                'background-color': '#666',
                 left: 0, right: 0, 'top': 0, bottom: 0
             }
         });

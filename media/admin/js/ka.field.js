@@ -17,6 +17,7 @@ ka.field = new Class({
     handleChildsMySelf: false, //defines whether this object handles his child visibility itself
 
     field: {},
+    refs: {},
     id: '',
     depends: {},
     childContainer: false,
@@ -42,115 +43,137 @@ ka.field = new Class({
 
         if (typeOf(pRefs) == 'object') {
             Object.each(pRefs, function (item, key) {
-                this.field[key] = item;
+                this.refs[key] = item;
             }.bind(this));
         }
 
         if (!this.field.value) this.field.value = '';
 
 
-        if (this.field.tableitem) {
-            this.tr = new Element('tr', {
-                'class': 'ka-field-main'
-            });
-            this.tr.store('ka.field', this);
+        if (this.options.noWrapper){
 
-            this.title = new Element('td', {
-                'class': 'ka-field-tdtitle',
-                width: (this.field.tableitem_title_width) ? this.field.tableitem_title_width : '40%'
-            }).inject(this.tr);
+            if (this.field.tableitem) {
+                this.tr = new Element('tr', {
+                });
+                this.tr.store('ka.field', this);
 
-            this.main = new Element('td', {
-            }).inject(this.tr);
-
-            if (!this.options.noWrapper)
+                this.main = new Element('td', {
+                    colspan: 2
+                }).inject(this.tr);
                 this.tr.inject(pContainer || document.hidden);
+            } else {
+
+                this.main = new Element('div', {
+                });
+                this.main.store('ka.field', this);
+
+                this.main.inject(pContainer || document.hidden);
+            }
+
+            this.fieldPanel = this.main;
 
         } else {
-            this.main = new Element('div', {
-                'class': 'ka-field-main'
-            });
-            this.main.store('ka.field', this);
 
-            if (this.field.panel_width) {
-                this.main.setStyle('width', this.field.panel_width);
-            } else if (!this.field.small) {
-                this.main.setStyle('width', 330);
-            }
+            if (this.field.tableitem) {
+                this.tr = new Element('tr', {
+                    'class': 'ka-field-main'
+                });
+                this.tr.store('ka.field', this);
 
-            if (this.field.type == 'headline') {
-                new Element('div', {
-                    style: 'clear: both;'
+                this.title = new Element('td', {
+                    'class': 'ka-field-tdtitle',
+                    width: (this.field.tableitem_title_width) ? this.field.tableitem_title_width : '40%'
+                }).inject(this.tr);
+
+                this.main = new Element('td', {
+                }).inject(this.tr);
+
+                this.tr.inject(pContainer || document.hidden);
+
+            } else {
+                this.main = new Element('div', {
+                    'class': 'ka-field-main'
+                });
+                this.main.store('ka.field', this);
+
+                if (this.field.panel_width) {
+                    this.main.setStyle('width', this.field.panel_width);
+                } else if (!this.field.small) {
+                    this.main.setStyle('width', 330);
+                }
+
+                if (this.field.type == 'headline') {
+                    new Element('div', {
+                        style: 'clear: both;'
+                    }).inject(this.main);
+                    new Element('h2', {
+                        'class': 'ka-field-headline',
+                        html: t(this.field.label)
+                    }).inject(this.main);
+                    return;
+                }
+
+                if (this.field.small) {
+                    this.main.set('class', 'ka-field-main ka-field-main-small');
+                }
+                this.title = new Element('div', {
+                    'class': 'ka-field-title'
                 }).inject(this.main);
-                new Element('h2', {
-                    'class': 'ka-field-headline',
-                    html: t(this.field.label)
-                }).inject(this.main);
-                return;
-            }
 
-            if (this.field.small) {
-                this.main.set('class', 'ka-field-main ka-field-main-small');
-            }
-            this.title = new Element('div', {
-                'class': 'ka-field-title'
-            }).inject(this.main);
-
-            if (!this.options.noWrapper)
                 this.main.inject(pContainer || document.hidden);
+            }
+
+
+            if (this.field.label) {
+                this.titleText = new Element('div', {
+                    'class': 'title',
+                    html: this.field.label
+                }).inject(this.title);
+            }
+
+            if (this.field.help && this.titleText) {
+                new Element('img', {
+                    src: _path + PATH_MEDIA + '/admin/images/icons/help_gray.png',
+                    width: 14,
+                    style: 'float: right; cursor: pointer; position: relative; top: -1px;',
+                    title: _('View help to this field'),
+                    styles: {
+                        opacity: 0.7
+                    }
+                }).addEvent('mouseover',
+                    function () {
+                        this.setStyle('opacity', 1);
+                    }).addEvent('mouseout',
+                    function () {
+                        this.setStyle('opacity', 0.7);
+                    }).addEvent('click',
+                    function () {
+                        ka.wm.open('admin/help', {id: this.field.help});
+                    }.bind(this)).inject(this.titleText);
+            }
+
+            if (this.field.desc) {
+                new Element('div', {
+                    'class': 'desc',
+                    html: this.field.desc
+                }).inject(this.title);
+            }
+
+            this.fieldPanel = new Element('div', {
+                'class': 'ka-field-field'
+            }).inject(this.main);
         }
+
+
 
         if (this.field.invisible == 1) {
             this.main.setStyle('display', 'none');
         }
 
-        if (this.field.win) {
-            this.win = this.field.win;
+        if (this.refs.win) {
+            this.win = this.refs.win;
         } else {
             this.findWin();
-        }
-
-        if (this.field.label) {
-            this.titleText = new Element('div', {
-                'class': 'title',
-                html: this.field.label
-            }).inject(this.title);
-        }
-
-        if (this.field.help && this.titleText) {
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/help_gray.png',
-                width: 14,
-                style: 'float: right; cursor: pointer; position: relative; top: -1px;',
-                title: _('View help to this field'),
-                styles: {
-                    opacity: 0.7
-                }
-            }).addEvent('mouseover',
-                function () {
-                    this.setStyle('opacity', 1);
-                }).addEvent('mouseout',
-                function () {
-                    this.setStyle('opacity', 0.7);
-                }).addEvent('click',
-                function () {
-                    ka.wm.open('admin/help', {id: this.field.help});
-                }.bind(this)).inject(this.titleText);
-        }
-
-        if (this.field.desc) {
-            new Element('div', {
-                'class': 'desc',
-                html: this.field.desc
-            }).inject(this.title);
-        }
-
-        this.fieldPanel = new Element('div', {
-            'class': 'ka-field-field'
-        }).inject(this.main);
-
-        if (this.options.noWrapper){
-            this.fieldPanel = new Element('div', {style: 'position: relative'}).inject(pContainer);
         }
 
         this.addEvent('change', function () {
@@ -356,7 +379,7 @@ ka.field = new Class({
             }).inject(pTarget);
 
             var table = new Element('table', {
-                style: 'width: 100%; table-layout: fixed'
+                style: 'width: 100%; table-layout: fixed; background-color: transparent;'
             }).inject(div);
 
             var tbody = new Element('tbody').inject(table);
@@ -393,7 +416,7 @@ ka.field = new Class({
 
             document.id(select).setStyle('width', '100%');
 
-            ['<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'].each(function(item){
+            ['=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'REGEXP'].each(function(item){
                 select.add(item, item);
             });
 
@@ -544,6 +567,11 @@ ka.field = new Class({
         new ka.Button(t('Add group'))
         .addEvent('click', addGroup.bind(this, con))
         .inject(this.fieldPanel);
+
+        if (this.field.startWith){
+            for(var i=0; i<this.field.startWith;i++)
+                addCondition(con);
+        }
 
         this._setValue = function(pValue){
 
@@ -1151,7 +1179,7 @@ ka.field = new Class({
 
         if (window[this.field['class']]) {
 
-            this.customObj = new window[this.field['class']](this.field, this.fieldPanel);
+            this.customObj = new window[this.field['class']](this.field, this.fieldPanel, this.refs);
 
             this.customObj.addEvent('change', function () {
                 this.fireChange();
@@ -1163,7 +1191,7 @@ ka.field = new Class({
             this.highlight = this.customObj.highlight.bind(this.customObj);
 
         } else {
-            alert(_('Custom field: ' + this.field['class'] + '. Can not find this javascript class.'));
+            alert('Custom field: ' + this.field['class'] + '. Can not find this javascript class.');
         }
     },
 
@@ -1301,12 +1329,14 @@ ka.field = new Class({
         this.getValue = function () {
 
             var res = this.field.asHash?{}:[];
+
             var ok = true;
 
             tbody.getChildren('tr').each(function (tr) {
                 if (ok == false) return;
 
-                var row = {};
+                var row = this.field.asArray?[]:{};
+
                 Object.each(tr.fields, function (field, field_key) {
 
                     if (ok == false) return;
@@ -1314,7 +1344,14 @@ ka.field = new Class({
                     if (!field.isOk()) {
                         ok = false;
                     } else {
-                        row[field_key] = field.getValue();
+
+                        if (this.field.asArray){
+                            if (fieldLength == 1)
+                                row = field.getValue();
+                            else
+                                row.push(field.getValue());
+                        } else
+                            row[field_key] = field.getValue();
                     }
 
                 }.bind(this));
@@ -1338,12 +1375,14 @@ ka.field = new Class({
                         res[row[first]] = row[second];
                     }
                 } else {
-                    res.include(row);
+
+                    res.push(row);
                 }
 
             }.bind(this));
 
             if (ok == false) return;
+
             return res;
         }.bind(this);
 
@@ -1383,8 +1422,25 @@ ka.field = new Class({
                 }
             } else {
                 Array.each(pValue, function (item) {
-                    addRow(item);
-                });
+                    if (this.field.asArray){
+                        if (fieldLength == 1){
+                            var nItem = {};
+                            nItem[first] = item;
+                            addRow(nItem);
+                        } else {
+
+                            var nItem = {};
+                            var index = 0;
+                            Object.each(this.field.fields, function(def, key){
+                                nItem[key] = item[indexx];
+                                index++;
+                            });
+                            addRow(nItem);
+                        }
+                    } else {
+                        addRow(item);
+                    }
+                }.bind(this));
             }
 
         }.bind(this);
@@ -2229,9 +2285,9 @@ ka.field = new Class({
         }
 
         if (this.field.directory) {
-            document.id(this.select).set('title', _('This list is based on files on this directory:') + ' ' + this.field.directory);
+            document.id(this.select).set('title', t('This list is based on files on this directory:') + ' ' + this.field.directory);
             new Element('div', {
-                text: _('Based on:') + ' ' + this.field.directory,
+                text: t('Based on:') + ' ' + this.field.directory,
                 style: 'font-size: 11px; color: silver'
             }).inject(this.select || this.input, 'after');
         }
@@ -2345,9 +2401,9 @@ ka.field = new Class({
         if (this.field.input_width)
             this.input.setStyle('width', this.field.input_width);
 
-        if (this.field.win) {
-            this.field.win.addEvent('resize', datePicker.updatePos.bind(datePicker));
-            this.field.win.addEvent('move', datePicker.updatePos.bind(datePicker));
+        if (this.refs.win) {
+            this.refs.win.addEvent('resize', datePicker.updatePos.bind(datePicker));
+            this.refs.win.addEvent('move', datePicker.updatePos.bind(datePicker));
         }
 
         datePicker.addEvent('change', function () {
@@ -2830,7 +2886,7 @@ ka.field = new Class({
 
     initLayoutElement: function () {
 
-        _win = this.field.win;
+        _win = this.refs.win;
 
         this.main.setStyle('width', '');
         this.main.addClass('selectable');
@@ -2869,8 +2925,8 @@ ka.field = new Class({
 
     initMultiUpload: function () {
         //need to pass the win instance seperatly otherwise the setOptions method will thrown an error 
-        _win = this.field.win;
-        this.field.win = false;
+        _win = this.refs.win;
+        this.refs.win = false;
 
 
         _this = this;

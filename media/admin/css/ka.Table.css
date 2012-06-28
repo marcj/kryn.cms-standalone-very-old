@@ -3,7 +3,7 @@
     width: 100%;
 }
 
-.ka-Table-head th {
+.ka-Table-head > tr > th {
     border-left:1px solid #DDDDDD;
     cursor:default;
     font-weight:normal;
@@ -25,7 +25,7 @@
 
 }
 
-.ka-Table-head th {
+.ka-Table-head > tr > th {
     background-color: #e5e5e5;
 }
 
@@ -46,42 +46,39 @@
     overflow-y: scroll;
 }
 
-.ka-Table-body tr td {
+.ka-Table-alignTop > div > .ka-Table-body > tr > td {
+    vertical-align: top;
+}
+.ka-Table-body > tr > td {
     padding: 3px;
     cursor: default;
     overflow-x: hidden;
     text-overflow: ellipsis;
 }
 
-.ka-Table-body tr.one td {
+.ka-Table-body > tr.one > td {
     background-color: #f4f4f4;
 }
 
-.ka-Table-body tr.two td {
+.ka-Table-body > tr.two > td {
     background-color: #e8e8e8;
 }
 
-.ka-Table-body tr.one:hover td,
-.ka-Table-body tr.two:hover td {
+.ka-Table-hover > div > .ka-Table-body > tr.one:hover > td,
+.ka-Table-hover > div > .ka-Table-body > tr.two:hover > td {
     background-color: #ccc;
 }
 
-.ka-Table-body tr.ka-filepane-file-detail-active td,
-.ka-Table-body tr.active td,
-.ka-Table-body tr.active:hover td,
-.ka-Table-body tr.ka-filepane-file-detail-active:hover td {
+.ka-Table-body > div > tr.ka-filepane-file-detail-active > td,
+.ka-Table-body > div > tr.active > td,
+.ka-Table-body > div > tr.active:hover > td,
+.ka-Table-body > div > tr.ka-filepane-file-detail-active:hover > td {
     background-color: #aaa;	
 }
 
 
-.ka-Table-body a.ka-Button,
-.ka-Table-body a.ka-Button:link {
-    top: 0px;
-}
-
-
-.ka-Table-body tr.ka-table-body-item-active td,
-.ka-Table-body tr.ka-table-body-item-active:hover td {
+.ka-Table-body > div > tr.ka-table-body-item-active > td,
+.ka-Table-body > div > tr.ka-table-body-item-active:hover > td {
     background-color: #398eba;
     color: white;
 }
