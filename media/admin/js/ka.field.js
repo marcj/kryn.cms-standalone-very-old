@@ -6,9 +6,10 @@ ka.field = new Class({
         small: 0,
         label: null,
         type: 'text',
-        tableitem: false, //use TR as parent instead of div
+        tableItem: false, //use TR as parent instead of div
         help: null,
-        startempty: false,
+        startEmpty: false,
+        fieldWidth: null,
         'default': null,
         designMode: false,
         noWrapper: false //doesnt include the ka-field wrapper, and inject the field controls directly to pContainer
@@ -22,6 +23,8 @@ ka.field = new Class({
     depends: {},
     childContainer: false,
     container: false,
+
+    children: {},
 
     initialize: function (pField, pContainer, pRefs, pFieldId) {
 
@@ -52,7 +55,7 @@ ka.field = new Class({
 
         if (this.options.noWrapper){
 
-            if (this.field.tableitem) {
+            if (this.field.tableItem) {
                 this.tr = new Element('tr', {
                 });
                 this.tr.store('ka.field', this);
@@ -74,7 +77,7 @@ ka.field = new Class({
 
         } else {
 
-            if (this.field.tableitem) {
+            if (this.field.tableItem) {
                 this.tr = new Element('tr', {
                     'class': 'ka-field-main'
                 });
@@ -164,6 +167,8 @@ ka.field = new Class({
             }).inject(this.main);
         }
 
+        if (this.options.fieldWidth)
+            this.fieldPanel.setStyle('width', this.options.fieldWidth)
 
 
         if (this.field.invisible == 1) {
@@ -206,7 +211,7 @@ ka.field = new Class({
             this.setValue(this.field['default'], true);
         }
 
-        if (!this.field.startempty && this.field.value) {
+        if (!this.field.startEmpty && this.field.value) {
             this.setValue(this.field.value, true);
         }
 
@@ -230,7 +235,7 @@ ka.field = new Class({
     },
 
     toElement: function () {
-        if (this.field.tableitem) {
+        if (this.field.tableItem) {
             return this.tr;
         } else {
             return this.main;
@@ -342,6 +347,24 @@ ka.field = new Class({
             case 'condition':
                 this.renderCondition();
                 break;
+            case 'objectcondition':
+
+                this.renderCondition({
+                    object: this.field.object
+                });
+
+                break;
+            case 'lang':
+
+                this.field.items = {}
+                Object.each(ka.settings.langs, function (lang, id) {
+                    this.field.items[id] = lang.langtitle + ' (' + lang.title + ', ' + id + ')';
+                }.bind(this));
+
+                this.renderSelect();
+
+                break;
+
             case 'text':
             default:
                 this.renderText();
@@ -359,9 +382,9 @@ ka.field = new Class({
         }
     },
 
-    renderCondition: function(){
+    renderCondition: function(pOptions){
 
-        var addCondition, addGroup, renderValues;
+        var addCondition, addGroup, renderValues, objectDefinition, backupedValues;
 
         var reRender = function(pTarget){
 
@@ -371,6 +394,8 @@ ka.field = new Class({
             if (first) first.addClass('ka-field-condition-withoutRel');
 
         }
+
+        backupedValues = {};
 
         addCondition = function(pTarget, pValues, pCondition){
 
@@ -404,11 +429,28 @@ ka.field = new Class({
 
             var td = new Element('td', {style: 'width: 25%'}).inject(tr);
 
-            div.iLeft = new Element('input', {
-                'class': 'text',
-                style: 'width: 100%',
-                value: pValues?pValues[0]:''
-            }).inject(td);
+            if (pOptions){
+                div.iLeft = new ka.Select(td, {
+                    customValue: true
+                });
+
+                document.id(div.iLeft).setStyle('width', '100%');
+
+                objectDefinition = ka.getObjectDefinition(pOptions.object);
+
+                Object.each(objectDefinition.fields, function(def, key){
+                    div.iLeft.add(key, def.label||key);
+                }.bind(this));
+
+            } else {
+                div.iLeft = new Element('input', {
+                    'class': 'text',
+                    style: 'width: 100%',
+                    value: pValues?pValues[0]:''
+                }).inject(td);
+
+                div.iLeft.getValue = function(){return this.value;};
+            }
 
             var td = new Element('td', {style: 'width: 41px; text-align: center'}).inject(tr);
             var select = new ka.Select(td);
@@ -424,12 +466,64 @@ ka.field = new Class({
                 select.setValue(pValues[1]);
 
 
-            var td = new Element('td', {style: 'width: 25%'}).inject(tr);
+            var rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
             div.iRight = new Element('input', {
                 'class': 'text',
                 style: 'width: 100%',
                 value: pValues?pValues[2]:''
-            }).inject(td);
+            }).inject(rightTd);
+            div.iRight.getValue = function(){return this.value;};
+
+
+            if (pOptions){
+                var updateRightTdField = function(){
+
+                    var chosenField = div.iLeft.getValue();
+
+                    var code = div.iMiddle.getValue()+'_'+chosenField;
+
+                    var fieldDefinition = Object.clone(objectDefinition.fields[chosenField]);
+
+                    backupedValues[div.iRight.code] = div.iRight.getValue();
+                    delete div.iRight;
+
+                    rightTd.empty();
+
+
+                    if (fieldDefinition.primaryKey){
+                        if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == '='){
+                                fieldDefinition = {
+                                    type: 'object',
+                                    object: pOptions.object
+                                };
+
+                            if (div.iMiddle.getValue() == 'IN'){
+                                fieldDefinition.multi = 1;
+                            }
+                        } else {
+                            fieldDefinition.type = 'text';
+                        }
+                    }
+
+                    fieldDefinition.noWrapper = true;
+                    fieldDefinition.fieldWidth = '100%';
+
+                    div.iRight = new ka.field(
+                        fieldDefinition, rightTd
+                    );
+
+                    div.iRight.code = div.iMiddle.getValue()+'_'+chosenField;;
+
+                    if (backupedValues[div.iRight.code])
+                        div.iRight.setValue();
+
+                };
+
+                div.iLeft.addEvent('change', updateRightTdField);
+                div.iMiddle.addEvent('change', updateRightTdField);
+
+                updateRightTdField();
+            }
 
             var actions = new Element('td', {style: 'padding-top: 3px; width: '+parseInt((16*4)+3)+'px'}).inject(tr);
 
@@ -1672,14 +1766,7 @@ ka.field = new Class({
         if (!pObjects) return;
 
         var definition = ka.getObjectDefinition(pObjects[0]);
-        if (!definition.selectable) {
 
-            new Element('div', {
-                style:'color: gray; padding :5px;',
-                text: t('Object is not selectable.')
-            }).inject(this.fieldPanel);
-            return;
-        }
         if (definition.chooserFieldJavascriptClass){
 
             if (!window[definition.chooserFieldJavascriptClass]){
@@ -1728,7 +1815,7 @@ ka.field = new Class({
 
         this.renderChooserColumns.include(["", 50]);
 
-        this.chooserTable = new ka.Table(this.renderChooserColumns, {absolute: false});
+        this.chooserTable = new ka.Table(this.renderChooserColumns, {absolute: false, selectable: true});
 
         this.chooserTable.inject(this.fieldPanel);
         this.renderObjectTableNoItems();
@@ -1915,14 +2002,25 @@ ka.field = new Class({
 
     renderChooserSingle: function(pObjects){
 
+        var table = new Element('table', {
+            style: 'width: 100%', cellpadding: 0, cellspacing: 0
+        }).inject(this.fieldPanel);
+
+        var tbody = new Element('tbody').inject(table);
+
+        var tr = new Element('tr').inject(tbody);
+        var leftTd = new Element('td').inject(tr);
+        var rightTd = new Element('td', {width: '50px'}).inject(tr);
+
         this.input = new Element('input', {
             'class': 'text chooser text-inactive',
             type: 'text',
-            disabled: true
+            disabled: true,
+            style: 'width: 100%'
         })
         .addEvent('keyup',function () {
             this.fireEvent('blur');
-        }).inject(this.fieldPanel);
+        }).inject(leftTd);
 
         if (this.field.input_width){
             this.input.setStyle('width', this.field.input_width);
@@ -1963,10 +2061,7 @@ ka.field = new Class({
             ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
 
         }.bind(this))
-        .inject(div, 'after');
-
-
-        this.pageChooserPanel = new Element('span', {style: 'color: gray;'}).inject(button, 'after');
+        .inject(rightTd);
 
         this._setValue = function (pVal, pIntern) {
 
@@ -1983,8 +2078,6 @@ ka.field = new Class({
                 pVal = 'object://'+pObjects[0]+'/'+ka.urlEncode(pVal);
             }
             this._value = pVal;
-
-            this.pageChooserPanel.empty();
 
             this.objectGetLabel(this._value, function(pLabel){
                 this.input.value = pLabel;
@@ -2027,7 +2120,7 @@ ka.field = new Class({
                 this.input.value = res.error;
             }
             this.input.fireEvent('blur');
-        }.bind(this)}).post({url: pUrl});
+        }.bind(this)}).post({object: pUrl});
 
     },
 
@@ -2792,7 +2885,7 @@ ka.field = new Class({
 
         if (this.childContainer) return;
 
-        if (this.field.tableitem) {
+        if (this.field.tableItem) {
             var tr = new Element('tr').inject(document.id(this), 'after');
             var td = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
 
@@ -2809,7 +2902,7 @@ ka.field = new Class({
     },
 
     toElement: function () {
-        return ( this.field.tableitem ) ? this.tr : this.main;
+        return ( this.field.tableItem ) ? this.tr : this.main;
     },
 
     inject: function (pTo, pP) {

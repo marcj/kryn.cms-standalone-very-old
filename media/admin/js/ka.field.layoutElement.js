@@ -6,7 +6,7 @@ ka.field_layoutElement = new Class({
 
         this.fieldObj = pFieldObj;
         this.field = this.fieldObj.field;
-        this.win = this.field.win;
+        this.win = this.fieldObj.refs.win;
 
         //todo when we have in this.field the 'width' or 'height' then we dont make 'fullscreen'
 

@@ -51,7 +51,7 @@ var users_acl_rule_fields = new Class({
         this.table = new ka.Table([
             [t('Field'), '200'],
             [t('Access'), '140'],
-            [t('More')]
+            [t('Detailed field rules')]
 
         ], {absolute: false, hover: false});
 
@@ -67,11 +67,8 @@ var users_acl_rule_fields = new Class({
             var more = '';
 
             if (def.type == 'object'){
-
                 more = this.createConditionRule(def, key);
-
             }
-
 
             this.table.addRow([
                 def.label || key,
@@ -162,9 +159,13 @@ var users_acl_rule_fields = new Class({
         select.add('2', [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png']);
 
 
+        var objectDefinition = ka.getObjectDefinition(this.field.object);
+        var fieldDefinition = objectDefinition.fields[pFieldKey];
+
         new ka.field({
             noWrapper: true,
-            type: 'condition',
+            type: 'objectCondition',
+            object: fieldDefinition.object,
             startWith: 1
         }, div, {win: this.win})
 

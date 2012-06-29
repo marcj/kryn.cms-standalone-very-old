@@ -454,7 +454,9 @@ var users_users_acl = new Class({
         new Element('img', {
             src: _path+'media/admin/images/icons/pencil.png',
             title: t('Edit rule')
-        }).inject(actions);
+        })
+        .addEvent('click', this.openEditRuleDialog.bind(this))
+        .inject(actions);
 
         new Element('img', {
             src: _path+'media/admin/images/icons/delete.png',

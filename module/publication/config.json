@@ -351,7 +351,6 @@
         },
         "category_rsn": {
           "label": "[[Category]]",
-          "multi": 0,
           "object": "news_category",
           "object_label": "title",
           "object_relation": "nTo1",
@@ -492,7 +491,6 @@
         },
         "parent_rsn": {
           "label": "[[News]]",
-          "multi": 0,
           "object": "news",
           "object_label": "title",
           "object_relation": "nTo1",
@@ -503,20 +501,39 @@
       }
     },
     "news_category": {
-      "label": "[[Article categories]]",
       "table": "publication_news_category",
-      "table_primary": "rsn",
-      "object_label": "title",
-      "desc": "",
-      "tableSync": false,
-      "class": "",
-      "plugins": "",
-      "chooserTableKey": "rsn",
-      "chooserTableLabel": "title",
-      "chooserUseOwnClass": false,
-      "selectable": false,
-      "multiLanguage": true,
-      "domainDepended": false,
+      "tableSync": 0,
+      "tableCondition": [
+        
+      ],
+      "nested": 0,
+      "multiLanguage": 1,
+      "domainDepended": 0,
+      "chooserFieldDataModelCondition": [
+        
+      ],
+      "chooserFieldDataModel": "default",
+      "chooserFieldDataModelFields": {
+        "title": {
+          "label": "[[Title]]",
+          "type": "text"
+        }
+      },
+      "chooserFieldDataModelField": "title",
+      "chooserFieldType": "default",
+      "chooserBrowserTreeRootObjectIconMapping": [
+        
+      ],
+      "chooserBrowserTreeRootObjectFixedIcon": 0,
+      "chooserBrowserAutoColumns": {
+        "title": {
+          "label": "[[Title]]",
+          "type": "text"
+        }
+      },
+      "chooserBrowserDataModel": "default",
+      "chooserBrowserType": "default",
+      "selectable": 1,
       "fields": {
         "rsn": {
           "label": "ID",
@@ -542,7 +559,8 @@
           "type": "lang",
           "empty": 1
         }
-      }
+      },
+      "label": "[[Article categories]]"
     }
   },
   "db": {

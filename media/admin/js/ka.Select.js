@@ -1,5 +1,5 @@
 ka.Select = new Class({
-    Implements: Events,
+    Implements: [Events, Options],
 
     arrow: PATH_MEDIA+'admin/images/icons/tree_minus.png',
 
@@ -10,7 +10,17 @@ ka.Select = new Class({
 
     a: {},
 
-    initialize: function (pContainer) {
+    options: {
+
+        items: false, //array or object
+        store: false, //string
+        customValue: false //boolean
+
+    },
+
+    initialize: function (pContainer, pOptions) {
+
+        this.setOptions(pOptions);
 
         this.box = new Element('div', {
             'class': 'ka-normalize ka-Select-box'
@@ -40,6 +50,20 @@ ka.Select = new Class({
 
         if (pContainer)
             this.box.inject(pContainer)
+
+        if (this.options.items){
+            if (typeOf(items) == 'object'){
+                Object.each(items, function(label, key){
+                    this.add(key, label);
+                }.bind(this))
+            }
+
+            if (typeOf(items) == 'array'){
+                Array.each(items, function(label){
+                    this.add(label, label);
+                }.bind(this))
+            }
+        }
 
     },
 

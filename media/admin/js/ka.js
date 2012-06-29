@@ -1828,6 +1828,8 @@ ka.parse = new Class({
     parseLevel: function (pLevel, pContainer, pDependField) {
         var self = this;
 
+        if (pDependField && !pDependField.children) pDependField.children = {};
+
         Object.each(pLevel, function (field, id) {
 
             var obj;
@@ -1856,7 +1858,7 @@ ka.parse = new Class({
             });
 
             if (this.options.allTableItems && field.type != 'tab')
-                field.tableitem = 1;
+                field.tableItem = 1;
 
             if (this.options.allSmall && field.type != 'tab')
                 field.small = 1;
@@ -1915,7 +1917,7 @@ ka.parse = new Class({
 
             } else {
 
-                if (field.tableitem && target.get('tag') != 'tbody'){
+                if (field.tableItem && target.get('tag') != 'tbody'){
 
                     if (!pContainer.kaFieldTBody){
                         pContainer.kaFieldTable = new Element('table', {width: '100%'}).inject(target);
@@ -1946,14 +1948,9 @@ ka.parse = new Class({
 
                     obj.addEvent('check-depends', function () {
 
-                        Object.each(this.depends, function (sub, subid) {
+                        Object.each(this.children, function (sub, subid) {
 
-                            if (sub.field.againstField) return;
-
-                            if (obj.isHidden()){
-                                sub.hide();
-                                return;
-                            }
+                            if (sub.field.againstField && sub.field.againstField != id) return;
 
                             self.setVisibility(this, sub);
 
@@ -1967,6 +1964,9 @@ ka.parse = new Class({
                 obj.fireEvent('check-depends');
             }
             this.fields[ id ] = obj;
+
+            if (pDependField)
+                pDependField.children[id] = obj;
 
         }.bind(this));
     },
@@ -2003,6 +2003,8 @@ ka.parse = new Class({
     },
 
     getVisibility: function(pField, pChild){
+
+        if (pField.isHidden()) return false;
 
         if (typeOf(pChild.field.needValue) == 'null') return true;
         if (pChild.field.needValue === '') return true;

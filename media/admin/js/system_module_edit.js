@@ -79,13 +79,11 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['plugins']);
 
-        var table = new Element('table', {
-            'class': 'ka-Table-head ka-Table-body', //
-            style: 'position: relative; top: 0px; background-color: #eee',
+        this.pluginTBody = new Element('table', {
+            'class': 'ka-Table-head ka-Table-body',
+            style: 'position: relative; top: 0px; background-color: #eee; width: 100%',
             cellpadding: 0, cellspacing: 0
         }).inject(this.pluginsPane);
-
-        this.pluginTBody = new Element('tbody').inject(table);
 
         var tr = new Element('tr').inject(this.pluginTBody);
         new Element('th', {
@@ -319,13 +317,11 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['windows']);
         this.windowsPaneItems = p;
 
-        var table = new Element('table', {
-            'class': 'ka-Table-head ka-Table-body', //
+        this.windowsTBody = new Element('table', {
+            'class': 'ka-Table-head ka-Table-body',
             style: 'position: relative; top: 0px; background-color: #eee',
             cellpadding: 0, cellspacing: 0
         }).inject(this.windowsPaneItems);
-
-        this.windowsTBody = new Element('tbody').inject(table);
 
         var tr = new Element('tr').inject(this.windowsTBody);
         new Element('th', {
@@ -362,7 +358,7 @@ var admin_system_module_edit = new Class({
         }).inject(dialog.content);
 
         var table = new Element('table').inject(d);
-        var tbody = new Element('tbody').inject(table);
+        var tbody = table;
 
         var tr = new Element('tr').inject(tbody);
 
@@ -595,7 +591,7 @@ var admin_system_module_edit = new Class({
             style: 'position: relative; top: 0px;',
             cellpadding: 0, cellspacing: 0
         }).inject(div);
-        var tbody = new Element('tbody').inject(table);
+        var tbody = table;
 
         addBtn.addEvent('click', function () {
             this._dbAddColumn('newColumn', {}, tbody);
@@ -1006,7 +1002,7 @@ var admin_system_module_edit = new Class({
     _createLayoutLinkSettings: function (pSub, pLink) {
 
         var table = new Element('table', {width: '100%'}).inject(pSub)
-        var tbody = new Element('tbody').inject(table);
+        var tbody = table;
 
         var kaFields = {
             title: {
@@ -1782,13 +1778,11 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['objects']);
 
-        var table = new Element('table', {
+        this.objectTBody = new Element('table', {
             'class': 'ka-Table-head ka-Table-body', //
             style: 'position: relative; top: 0px; background-color: #eee',
             cellpadding: 0, cellspacing: 0
         }).inject(this.pluginsPane);
-
-        this.objectTBody = new Element('tbody').inject(table);
 
         var tr = new Element('tr').inject(this.objectTBody);
         new Element('th', {
@@ -1976,241 +1970,234 @@ var admin_system_module_edit = new Class({
                 tabFullPage: true,
                 label: t('Selection'),
                 depends: {
-                    selectable: {
-                        type: 'checkbox',
-                        label: t('Selectable ?'),
-                        desc: t('Is this object selectable by other objects through a ka.field?'),
-                        depends:{
-                            chooser_icon: {
-                                needValue: 1,
-                                label: t('Chooser icon'),
-                                desc: t('Relative to media/.')
+                    chooser_icon: {
+                        needValue: 1,
+                        label: t('Chooser icon'),
+                        desc: t('Relative to media/.')
+                    },
+                    chooserFieldType: {
+                        needValue: 1,
+                        label: t('Field UI'),
+                        type: 'select',
+                        items: {
+                            'default': 'Framework',
+                            'custom': 'Custom javascript class'
+                        },
+                        depends: {
+                            'chooserFieldJavascriptClass': {
+                                needValue: 'custom',
+                                label: t('Javascript class name'),
+                                desc: t('You can inject javascript files through extension settings to make a javascript class available.')
                             },
-                            chooserFieldType: {
-                                needValue: 1,
-                                label: t('Field UI'),
+                            'chooserFieldDataModel': {
+                                needValue: 'default',
+                                label: t('Data source'),
                                 type: 'select',
                                 items: {
                                     'default': 'Framework',
-                                    'custom': 'Custom javascript class'
+                                    'custom': 'Custom class'
                                 },
                                 depends: {
-                                    'chooserFieldJavascriptClass': {
+                                    chooserFieldDataModelClass: {
+                                        label: t('PHP Class'),
                                         needValue: 'custom',
-                                        label: t('Javascript class name'),
-                                        desc: t('You can inject javascript files through extension settings to make a javascript class available.')
+                                        desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php')
                                     },
-                                    'chooserFieldDataModel': {
+                                    chooserFieldDataModelCondition: {
                                         needValue: 'default',
-                                        label: t('Data source'),
-                                        type: 'select',
-                                        items: {
-                                            'default': 'Framework',
-                                            'custom': 'Custom class'
-                                        },
-                                        depends: {
-                                            chooserFieldDataModelClass: {
-                                                label: t('PHP Class'),
-                                                needValue: 'custom',
-                                                desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php')
-                                            },
-                                            chooserFieldDataModelCondition: {
-                                                needValue: 'default',
-                                                label: t('Additional condition'),
-                                                type: 'condition'
-                                            }
-                                        }
-                                    },
-                                    chooserFieldDataModelFields: {
-                                        label: t('Columns'),
-                                        type: 'fieldTable',
-                                        needValue: 'default',
-                                        desc: t('In table mode'),
-                                        options: {
-                                            asFrameworkColumn: true,
-                                            withoutChildren: true,
-                                            tableitem_title_width: 200,
-                                            addLabel: t('Add column')
-                                        }
-                                    },
-                                    chooserFieldDataModelField: {
-                                        label: t('Label key'),
-                                        needValue: 'default',
-                                        type: 'text',
-                                        desc: t('In field mode')
+                                        label: t('Additional condition'),
+                                        type: 'condition'
                                     }
                                 }
                             },
-                            __chooserBrowserTree__: {
-                                againstField: 'nested',
-                                type: 'label',
-                                needValue: 1,
-                                label: t('Browser UI (tree)'),
-                                desc: t('Only for nested objects.'),
-                                depends: {
-                                    chooserBrowserTreeDataModel: {
-                                        needValue: 1,
-                                        label: t('Data model'),
-                                        items: {
-                                            'default': 'Framework',
-                                            'custom': 'Custom class'
-                                        },
-                                        type: 'select',
-                                        depends: {
-                                            chooserBrowserTreeDataModelClass: {
-                                                label: t('PHP Class'),
-                                                needValue: 'custom',
-                                                desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
-                                            }
-                                        }
-                                    },
-                                    chooserBrowserTreeJavascript: {
-                                        label: t('Javascript UI class'),
-                                        items: {
-                                            'default': 'Framework',
-                                            'custom': 'Custom class'
-                                        },
-                                        type: 'select',
-                                        depends: {
-                                            chooserBrowserTreeJavascriptClass: {
-                                                needValue: 'custom',
-                                                label: t('Javascript class'),
-                                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
-                                            }
-                                        }
-                                    },
-
-                                    chooserBrowserTreeRootObjectFixedIcon: {
-                                        type: 'checkbox',
-                                        needValue: 1,
-                                        againstField: 'chooserBrowserTreeRootAsObject',
-                                        label: t('Fixed root icon'),
-                                        depends: {
-                                            chooserBrowserTreeRootObjectIconPath: {
-                                                needValue: 1,
-                                                type: 'file',
-                                                label: t('Icon field')
-                                            },
-                                            chooserBrowserTreeRootObjectIcon: {
-                                                needValue: 0,
-                                                label: t('Icon field')
-                                            },
-                                            chooserBrowserTreeRootObjectIconMapping: {
-                                                label: t('Icon path mapping'),
-                                                needValue: 0,
-                                                asHash: true,
-                                                type: 'array',
-                                                columns: [
-                                                    {label: t('Value'), width: '30%'},
-                                                    {label: t('Icon path')}
-                                                ],
-                                                fields: {
-                                                    value: {
-                                                        type: 'text'
-                                                    },
-                                                    path: {
-                                                        type: 'file'
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    chooserBrowserTreeFixedIcon: {
-                                        type: 'checkbox',
-                                        label: t('Fixed icon'),
-                                        depends: {
-                                            chooserBrowserTreeIconPath: {
-                                                needValue: 1,
-                                                type: 'file',
-                                                label: t('Icon field')
-                                            },
-                                            chooserBrowserTreeIcon: {
-                                                needValue: 0,
-                                                label: t('Icon field')
-                                            },
-                                            chooserBrowserTreeIconMapping: {
-                                                label: t('Icon path mapping'),
-                                                needValue: 0,
-                                                type: 'array',
-                                                columns: [
-                                                    {label: t('Value'), width: '30%'},
-                                                    {label: t('Icon path')}
-                                                ],
-                                                fields: {
-                                                    value: {
-                                                        type: 'text'
-                                                    },
-                                                    path: {
-                                                        type: 'file'
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                            chooserFieldDataModelFields: {
+                                label: t('Columns'),
+                                type: 'fieldTable',
+                                needValue: 'default',
+                                desc: t('In table mode'),
+                                options: {
+                                    asFrameworkColumn: true,
+                                    withoutChildren: true,
+                                    tableitem_title_width: 200,
+                                    addLabel: t('Add column')
                                 }
                             },
-                            chooserBrowserType: {
+                            chooserFieldDataModelField: {
+                                label: t('Label key'),
+                                needValue: 'default',
+                                type: 'text',
+                                desc: t('In field mode')
+                            }
+                        }
+                    },
+                    __chooserBrowserTree__: {
+                        againstField: 'nested',
+                        needValue: 1,
+                        type: 'label',
+                        label: t('Browser UI (tree)'),
+                        desc: t('Only for nested objects.'),
+                        depends: {
+                            chooserBrowserTreeDataModel: {
                                 needValue: 1,
-                                label: t('Browser UI (table)'),
+                                label: t('Data model'),
                                 items: {
                                     'default': 'Framework',
-                                    'custom': 'Custom javascript class'
+                                    'custom': 'Custom class'
                                 },
                                 type: 'select',
                                 depends: {
-                                    chooserBrowserJavascriptClass: {
+                                    chooserBrowserTreeDataModelClass: {
+                                        label: t('PHP Class'),
+                                        needValue: 'custom',
+                                        desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                    }
+                                }
+                            },
+                            chooserBrowserTreeJavascript: {
+                                label: t('Javascript UI class'),
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom class'
+                                },
+                                type: 'select',
+                                depends: {
+                                    chooserBrowserTreeJavascriptClass: {
                                         needValue: 'custom',
                                         label: t('Javascript class'),
                                         desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                                    }
+                                }
+                            },
+
+                            chooserBrowserTreeRootObjectFixedIcon: {
+                                type: 'checkbox',
+                                needValue: 1,
+                                againstField: 'nestedRootAsObject',
+                                label: t('Fixed root icon'),
+                                depends: {
+                                    chooserBrowserTreeRootObjectIconPath: {
+                                        needValue: 1,
+                                        type: 'file',
+                                        label: t('Icon field')
                                     },
-                                    chooserBrowserOptions: {
-                                        label: t('UI properties'),
-                                        needValue: 'custom',
-                                        desc: t('You can allow extensions to set some properties when providing your object chooser.'),
-                                        type: 'fieldTable'
+                                    chooserBrowserTreeRootObjectIcon: {
+                                        needValue: 0,
+                                        label: t('Icon field')
                                     },
-                                    chooserBrowserAutoColumns: {
-                                        label: t('Columns in the chooser table'),
-                                        needValue: 'default',
-                                        type: 'fieldTable',
-                                        options: {
-                                            asFrameworkColumn: true,
-                                            withoutChildren: true,
-                                            tableitem_title_width: 200,
-                                            addLabel: t('Add column')
-                                        }
-                                    },
-                                    'chooserBrowserDataModel': {
-                                        type: 'select',
-                                        label: t('Data source'),
-                                        items: {
-                                            'default': 'Framework',
-                                            'custom': 'Own php class',
-                                            'none': 'None'
-                                        },
-                                        depends: {
-                                            chooserBrowserDataModelClass: {
-                                                label: t('PHP Class'),
-                                                needValue: 'custom',
-                                                desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                    chooserBrowserTreeRootObjectIconMapping: {
+                                        label: t('Icon path mapping'),
+                                        needValue: 0,
+                                        asHash: true,
+                                        type: 'array',
+                                        columns: [
+                                            {label: t('Value'), width: '30%'},
+                                            {label: t('Icon path')}
+                                        ],
+                                        fields: {
+                                            value: {
+                                                type: 'text'
                                             },
-                                            chooserBrowserDataModelCondition: {
-                                                needValue: 'default',
-                                                label: t('Additional SQL condition'),
-                                                desc: t("Without 'WHERE' and 'AND' at the beginning"),
-                                                type: 'codemirror',
-                                                codemirrorOptions: {
-                                                    mode: 'mysql'
-                                                },
-                                                input_height: 50
-                                            },
-                                            chooserBrowserDataModelFields: {
-                                                needValue: 'custom',
-                                                againstField: 'chooserBrowserType',
-                                                label: t('Object fields'),
-                                                desc: t('Comma separated. Without primary keys. (Ignore this when you use a own php class)')
+                                            path: {
+                                                type: 'file'
                                             }
                                         }
+                                    }
+                                }
+                            },
+                            chooserBrowserTreeFixedIcon: {
+                                type: 'checkbox',
+                                label: t('Fixed icon'),
+                                depends: {
+                                    chooserBrowserTreeIconPath: {
+                                        needValue: 1,
+                                        type: 'file',
+                                        label: t('Icon field')
+                                    },
+                                    chooserBrowserTreeIcon: {
+                                        needValue: 0,
+                                        label: t('Icon field')
+                                    },
+                                    chooserBrowserTreeIconMapping: {
+                                        label: t('Icon path mapping'),
+                                        needValue: 0,
+                                        type: 'array',
+                                        columns: [
+                                            {label: t('Value'), width: '30%'},
+                                            {label: t('Icon path')}
+                                        ],
+                                        fields: {
+                                            value: {
+                                                type: 'text'
+                                            },
+                                            path: {
+                                                type: 'file'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    chooserBrowserType: {
+                        needValue: 1,
+                        label: t('Browser UI (table)'),
+                        items: {
+                            'default': 'Framework',
+                            'custom': 'Custom javascript class'
+                        },
+                        type: 'select',
+                        depends: {
+                            chooserBrowserJavascriptClass: {
+                                needValue: 'custom',
+                                label: t('Javascript class'),
+                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                            },
+                            chooserBrowserOptions: {
+                                label: t('UI properties'),
+                                needValue: 'custom',
+                                desc: t('You can allow extensions to set some properties when providing your object chooser.'),
+                                type: 'fieldTable'
+                            },
+                            chooserBrowserAutoColumns: {
+                                label: t('Columns in the chooser table'),
+                                needValue: 'default',
+                                type: 'fieldTable',
+                                options: {
+                                    asFrameworkColumn: true,
+                                    withoutChildren: true,
+                                    tableitem_title_width: 200,
+                                    addLabel: t('Add column')
+                                }
+                            },
+                            'chooserBrowserDataModel': {
+                                type: 'select',
+                                label: t('Data source'),
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Own php class',
+                                    'none': 'None'
+                                },
+                                depends: {
+                                    chooserBrowserDataModelClass: {
+                                        label: t('PHP Class'),
+                                        needValue: 'custom',
+                                        desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                    },
+                                    chooserBrowserDataModelCondition: {
+                                        needValue: 'default',
+                                        label: t('Additional SQL condition'),
+                                        desc: t("Without 'WHERE' and 'AND' at the beginning"),
+                                        type: 'codemirror',
+                                        codemirrorOptions: {
+                                            mode: 'mysql'
+                                        },
+                                        input_height: 50
+                                    },
+                                    chooserBrowserDataModelFields: {
+                                        needValue: 'custom',
+                                        againstField: 'chooserBrowserType',
+                                        label: t('Object fields'),
+                                        desc: t('Comma separated. Without primary keys. (Ignore this when you use a own php class)')
                                     }
                                 }
                             }
@@ -2224,10 +2211,9 @@ var admin_system_module_edit = new Class({
 
         var definition = pTr.retrieve('definition');
 
-        var table = new Element('table', {
+        var tbody = new Element('table', {
             width: '100%'
         }).inject(this.dialog.content);
-        var tbody = new Element('tbody').inject(table);
 
         var kaParseObj = new ka.parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 180}, {win: this.win});
 
@@ -2372,10 +2358,9 @@ var admin_system_module_edit = new Class({
         this.dialog.center();
 
 
-        var table = new Element('table', {
+        var tbody = new Element('table', {
             width: '100%'
         }).inject(this.dialog.content);
-        var tbody = new Element('tbody').inject(table);
 
         var columns = [], fields = {};
         var fieldsActive = [];
