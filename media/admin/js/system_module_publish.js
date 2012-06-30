@@ -140,9 +140,9 @@ var admin_system_module_publish = new Class({
         new Element('div', {style: 'padding: 5px;', text: _('Files:')}).inject(p);
 
         var iter = function (pFiles, pTo) {
-            myfiles = ($type(pFiles) == 'array') ? pFiles : $H(pFiles);
+            myfiles = (typeOf(pFiles) == 'array') ? pFiles : $H(pFiles);
             myfiles.each(function (pitem, key) {
-                if ($type(pitem) == 'array' || $type(pitem) == 'object') {
+                if (typeOf(pitem) == 'array' || typeOf(pitem) == 'object') {
                     new Element('div', {
                         text: key
                     }).inject(pTo);

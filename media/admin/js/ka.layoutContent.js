@@ -537,22 +537,22 @@ ka.layoutContent = new Class({
             new Element('img', {
                 src: p + 'page_copy.png',
                 title: _('Copy')
-            }).addEvent('click', this.copy.bindWithEvent(this)).inject(this.optionsImg);
+            }).addEvent('click', this.copy.bind(this)).inject(this.optionsImg);
 
             new Element('img', {
                 src: p + 'page_paste.png',
                 title: _('Paste')
-            }).addEvent('click', this.pasteAfter.bindWithEvent(this)).inject(this.optionsImg);
+            }).addEvent('click', this.pasteAfter.bind(this)).inject(this.optionsImg);
 
             new Element('img', {
                 src: p + 'arrow_up.png',
                 title: _('Move up')
-            }).addEvent('click', this.toUp.bindWithEvent(this)).inject(this.optionsImg);
+            }).addEvent('click', this.toUp.bind(this)).inject(this.optionsImg);
 
             new Element('img', {
                 src: p + 'arrow_down.png',
                 title: _('Move down')
-            }).addEvent('click', this.toDown.bindWithEvent(this)).inject(this.optionsImg);
+            }).addEvent('click', this.toDown.bind(this)).inject(this.optionsImg);
 
 
             new Element('img', {
@@ -570,11 +570,11 @@ ka.layoutContent = new Class({
                 new Element('img', {
                     src: p + 'delete.png',
                     title: _('Delete')
-                }).addEvent('click', this.remove.bindWithEvent(this)).inject(this.optionsImg);
+                }).addEvent('click', this.remove.bind(this)).inject(this.optionsImg);
             }
 
             if (!this.noAccess) {
-                this.hideImg.addEvent('click', this.toggleHide.bindWithEvent(this))
+                this.hideImg.addEvent('click', this.toggleHide.bind(this))
             }
         }
     },
@@ -874,10 +874,10 @@ ka.layoutContent = new Class({
 
 
         try {
-            if ($type(_this.content.content) == 'string') {
+            if (typeOf(_this.content.content) == 'string') {
                 _this.content.content = JSON.decode(_this.content.content);
             }
-            if ($type(_this.content.content) != 'object') {
+            if (typeOf(_this.content.content) != 'object') {
                 _this.content.content = {};
             }
         } catch (e) {
@@ -1241,7 +1241,7 @@ ka.layoutContent = new Class({
             }
         }
 
-        if (this.type2PicSrc == '' && $type(this.type2PicSrc) != 'string') return;
+        if (this.type2PicSrc == '' && typeOf(this.type2PicSrc) != 'string') return;
 
         if (this.body.getElements('img.ka-type-picture').length == 0) {
 
@@ -1264,7 +1264,7 @@ ka.layoutContent = new Class({
             this.picDivContentDiv.setStyle('text-align', this.opts.align);
         }
 
-        if ($type(this.type2PicSrc) == 'string') {
+        if (typeOf(this.type2PicSrc) == 'string') {
             this.picDivContentImg.set('src', this.type2PicSrc);
         }
 
@@ -1346,12 +1346,12 @@ ka.layoutContent = new Class({
         }
 
         try {
-            if ($type(this.content.content) != 'object') {
+            if (typeOf(this.content.content) != 'object') {
                 this.content.content = JSON.decode(this.content.content);
             }
         } catch (e) {
         }
-        if ($type(this.content.content) != 'object') return;
+        if (typeOf(this.content.content) != 'object') return;
 
         this.bodyNavigationRequest = new Request.JSON({url: _path + 'admin/backend/navigationPreview/', noCache: 1, onComplete: function (html) {
             this.body.empty();
@@ -1434,7 +1434,7 @@ ka.layoutContent = new Class({
 
         switch (this.content.type) {
             case 'navigation':
-                if ($type(this.content.content) == 'object') {
+                if (typeOf(this.content.content) == 'object') {
                     this.content.content = JSON.encode(this.content.content);
                 }
                 break;

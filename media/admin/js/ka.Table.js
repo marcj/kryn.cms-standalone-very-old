@@ -200,7 +200,7 @@ ka.Table = new Class({
         this.columns.each(function (column, index) {
 
             var html = "";
-            if (($type(row[count]) == 'string' || $type(row[count]) == 'number') && !row[count].inject) {
+            if ((typeOf(row[count]) == 'string' || typeOf(row[count]) == 'number') && !row[count].inject) {
                 html = row[count];
             }
 

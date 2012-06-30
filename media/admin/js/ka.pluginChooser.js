@@ -8,7 +8,7 @@ ka.pluginChooser = new Class({
 
 
         var opts = [];
-        if ($type(pTypes) == 'string') {
+        if (typeOf(pTypes) == 'string') {
             opts = pTypes.split('::');
         }
 

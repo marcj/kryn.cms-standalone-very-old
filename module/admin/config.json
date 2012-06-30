@@ -1822,7 +1822,8 @@
     "admin\/js\/fupload.js",
     "admin\/js\/ka.crawler.js",
     "admin\/mootools-extras\/Array.sortOn.js",
-    "admin\/mootools-extras\/Stylesheet.js"
+    "admin\/mootools-extras\/Stylesheet.js",
+    "admin\/js\/ka.Textlist.js"
   ],
   "adminCss": [
     "admin\/css\/style.css",
@@ -1860,7 +1861,9 @@
     "admin\/css\/ka.layoutBox.css",
     "admin\/css\/ka.layoutContent.css",
     "admin\/css\/ka.fieldTable.css",
-    "admin\/css\/overview.css"
+    "admin\/css\/overview.css",
+    "admin\/css\/ka.Textlist.css",
+    "admin\/css\/ka.Input.css"
   ],
   "community": "1",
   "writableFiles": "",
@@ -1870,8 +1873,6 @@
     "en": ""
   },
   "depends": "",
-  "attachEvents": "",
-  "events": "",
   "caches": [
     {
       "key": "systemTablesv2",

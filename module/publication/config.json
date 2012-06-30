@@ -365,8 +365,7 @@
         },
         "lang": {
           "label": "Language",
-          "type": "text",
-          "primaryKey": 0,
+          "type": "lang",
           "empty": 1
         },
         "intro": {
@@ -378,15 +377,17 @@
           "empty": 1
         },
         "created": {
-          "type": "number",
+          "object": "user",
+          "object_relation": "nTo1",
+          "type": "object",
           "primaryKey": 0,
-          "autoIncrement": 0,
           "empty": 1
         },
         "modified": {
-          "type": "number",
+          "object": "user",
+          "object_relation": "nTo1",
+          "type": "object",
           "primaryKey": 0,
-          "autoIncrement": 0,
           "empty": 1
         },
         "releaseat": {
@@ -471,7 +472,8 @@
       "chooserFieldType": "default",
       "chooserBrowserDataModel": "default",
       "chooserBrowserType": "default",
-      "chooserFieldDataModelField": "title"
+      "chooserFieldDataModelField": "title",
+      "__dataModel__": "table"
     },
     "news_comment": {
       "label": "[[Comments]]",

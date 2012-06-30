@@ -448,7 +448,7 @@ ka._renderMiniSearchResults = function (pRes) {
 
     ka._miniSearchResults.empty();
 
-    if ($type(pRes) == 'object') {
+    if (typeOf(pRes) == 'object') {
 
         $H(pRes).each(function (subresults, subtitle) {
             var subBox = new Element('div').inject(ka._miniSearchResults);

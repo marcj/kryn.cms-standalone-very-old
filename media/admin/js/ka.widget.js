@@ -178,11 +178,11 @@ ka.widget = new Class({
         var left = 50; //todo calculate free space
 
 
-        if ($type(this.opts.left) == 'number') {
+        if (typeOf(this.opts.left) == 'number') {
             left = this.opts.left;
         }
 
-        if ($type(this.opts.top) == 'number') {
+        if (typeOf(this.opts.top) == 'number') {
             ptop = this.opts.top;
         }
 

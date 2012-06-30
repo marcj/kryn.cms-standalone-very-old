@@ -56,7 +56,7 @@ ka.field_layoutElement = new Class({
 
         var value = pValue;
 
-        if ($type(pValue) == 'string') {
+        if (typeOf(pValue) == 'string') {
             var need = '{"contents":{';
             var need2 = '{"template":"';
             if (pValue.substr(0, need.length) == need || pValue.substr(0, need2.length) == need2) {

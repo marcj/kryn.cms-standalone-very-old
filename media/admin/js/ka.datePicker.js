@@ -315,11 +315,11 @@ ka.datePicker = new Class({
         if (this.options.time == true) {
             this.time = new Element('div', {'class': 'ka-datePicker-time'}).inject(this.body);
 
-            this.timeHours = new Element('input', {'class': 'ka-datePicker-timeHours'}).addEvent('keydown', this.setTimes.bindWithEvent(this)).addEvent('keyup', this.setTimes.bindWithEvent(this)).inject(this.time);
+            this.timeHours = new Element('input', {'class': 'ka-datePicker-timeHours'}).addEvent('keydown', this.setTimes.bind(this)).addEvent('keyup', this.setTimes.bind(this)).inject(this.time);
 
             new Element('span', {text: ':'}).inject(this.time);
 
-            this.timeMinutes = new Element('input', {'class': 'ka-datePicker-timeMinutes'}).addEvent('keydown', this.setTimes.bindWithEvent(this)).addEvent('keyup', this.setTimes.bindWithEvent(this)).inject(this.time);
+            this.timeMinutes = new Element('input', {'class': 'ka-datePicker-timeMinutes'}).addEvent('keydown', this.setTimes.bind(this)).addEvent('keyup', this.setTimes.bind(this)).inject(this.time);
         }
 
 

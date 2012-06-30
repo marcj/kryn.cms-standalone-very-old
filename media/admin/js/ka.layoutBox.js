@@ -125,7 +125,7 @@ ka.layoutBox = new Class({
 
     setContents: function (pContents) {
         this.contents = [];
-        if (pContents && $type(pContents) == 'array') {
+        if (pContents && typeOf(pContents) == 'array') {
             pContents.each(function (content) {
                 delete content.noActions;
                 this.contents.include(new ka.layoutContent(content, this.contentContainer, this));

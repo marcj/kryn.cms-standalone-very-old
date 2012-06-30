@@ -68,6 +68,8 @@ var users_acl_rule_fields = new Class({
 
             if (def.type == 'object'){
                 more = this.createConditionRule(def, key);
+            } else {
+                more = this.createConditionRule(def, key, true);
             }
 
             this.table.addRow([
@@ -83,7 +85,7 @@ var users_acl_rule_fields = new Class({
 
     },
 
-    createConditionRule: function(pDefinition, pKey){
+    createConditionRule: function(pDefinition, pKey, pOnlyThisFieldCondition){
 
         var div = new Element('div');
 
@@ -93,13 +95,13 @@ var users_acl_rule_fields = new Class({
 
 
         new ka.Button([t('Add field rule'), 'admin/images/icons/add.png'])
-        .addEvent('click', this.addFieldRule.bind(this, [conditions, pKey]))
+        .addEvent('click', this.addFieldRule.bind(this, [conditions, pKey, pOnlyThisFieldCondition]))
         .inject(div);
 
         return div;
     },
 
-    addFieldRule: function(pContainer, pFieldKey){
+    addFieldRule: function(pContainer, pFieldKey, pOnlyThisFieldCondition){
 
         var div = new Element('div', {
             style: 'border: 1px solid silver; position: relative; margin-top: 15px; '+
@@ -156,18 +158,28 @@ var users_acl_rule_fields = new Class({
 
         select.add('0', [t('Deny'), 'admin/images/icons/exclamation.png']);
         select.add('1', [t('Allow'), 'admin/images/icons/accept.png']);
-        select.add('2', [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png']);
 
 
-        var objectDefinition = ka.getObjectDefinition(this.field.object);
-        var fieldDefinition = objectDefinition.fields[pFieldKey];
+        if (pOnlyThisFieldCondition){
 
-        new ka.field({
-            noWrapper: true,
-            type: 'objectCondition',
-            object: fieldDefinition.object,
-            startWith: 1
-        }, div, {win: this.win})
+            new ka.field({
+                noWrapper: true,
+                type: 'fieldCondition',
+                field: pFieldKey,
+                object: this.field.object,
+                startWith: 1
+            }, div, {win: this.win})
+        } else {
+            var objectDefinition = ka.getObjectDefinition(this.field.object);
+            var fieldDefinition = objectDefinition.fields[pFieldKey];
+
+            new ka.field({
+                noWrapper: true,
+                type: 'objectCondition',
+                object: fieldDefinition.object,
+                startWith: 1
+            }, div, {win: this.win})
+        }
 
 
         div.inject(pContainer);

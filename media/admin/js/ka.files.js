@@ -2845,7 +2845,7 @@ ka.files = new Class({
         var tbody = new Element('tbody').inject(table);
         var bg, div;
 
-        if ($type(pResult) == 'array' && pResult.length > 0) {
+        if (typeOf(pResult) == 'array' && pResult.length > 0) {
             pResult.each(function (file) {
 
                 var tr = new Element('tr').inject(tbody);

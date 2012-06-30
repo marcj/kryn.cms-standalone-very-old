@@ -88,7 +88,7 @@ ka.windowCombine = new Class({
         }).inject(this.main);
 
 
-        document.addEvent('keydown', this.leftItemsDown.bindWithEvent(this));
+        document.addEvent('keydown', this.leftItemsDown.bind(this));
     },
 
     leftItemsDown: function (pE) {
@@ -254,7 +254,7 @@ ka.windowCombine = new Class({
 
                 var mkey = key;
 
-                if ($type(key) == 'number') {
+                if (typeOf(key) == 'number') {
                     mkey = filter;
                 }
 
@@ -886,7 +886,7 @@ ka.windowCombine = new Class({
             'interruptClose'
         ], function(id){
             res[id] = this.win[id];
-            if ($type(this.win[id]) == 'function')
+            if (typeOf(this.win[id]) == 'function')
                 res[id] = this.win[id].bind(this.win);
             else
                 res[id] = this.win[id];

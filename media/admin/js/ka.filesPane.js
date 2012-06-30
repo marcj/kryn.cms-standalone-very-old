@@ -43,7 +43,7 @@ ka.filesPane = new Class({
         this.toViewMode(this.options.display, true);
         this.userFilesBtn.setPressed(this.options.onlyUserDefined);
 
-        if (this.value && this.value != "" && $type(this.value) == "string") {
+        if (this.value && this.value != "" && typeOf(this.value) == "string") {
             this.toFile(this.value);
         } else {
             this.loadFiles(this.options.path);
@@ -365,9 +365,9 @@ ka.filesPane = new Class({
 
          var file = this.detailItems4Handler[ td.retrieve('rowIndex').toInt() ];
 
-         td.addEvent('dblclick', this.dblclick.bindWithEvent(this, [file, tr] ) );
+         td.addEvent('dblclick', this.dblclick.bind(this, [file, tr] ) );
          td.addEvent('click', this.choose.bind(this, file));
-         //td.addEvent('mousedown', this.onContext.bindWithEvent(this, [tr, file]));
+         //td.addEvent('mousedown', this.onContext.bind(this, [tr, file]));
 
          }.bind(this));
          }.bind(this));
@@ -420,8 +420,8 @@ ka.filesPane = new Class({
 
 
         tr.store('oriClass', 'ka-filepane-file-detail');
-        tr.getElements('td').addEvent('click', this.click.bindWithEvent(this, [pFile, tr]));
-        tr.getElements('td').addEvent('dblclick', this.dblclick.bindWithEvent(this, [pFile, tr]));
+        tr.getElements('td').addEvent('click', this.click.bind(this, [pFile, tr]));
+        tr.getElements('td').addEvent('dblclick', this.dblclick.bind(this, [pFile, tr]));
 
 
         return tr;
@@ -452,8 +452,8 @@ ka.filesPane = new Class({
         }
 
         item.store('oriClass', 'ka-filepane-file-icon');
-        item.addEvent('click', this.click.bindWithEvent(this, [pFile, item]))
-        item.addEvent('dblclick', this.dblclick.bindWithEvent(this, [pFile, item]))
+        item.addEvent('click', this.click.bind(this, [pFile, item]))
+        item.addEvent('dblclick', this.dblclick.bind(this, [pFile, item]))
 
         new Element('span', {
             text: pFile.name
@@ -477,8 +477,8 @@ ka.filesPane = new Class({
         }).inject(this.fileContainer);
 
         item.store('oriClass', 'ka-filepane-file-icon');
-        item.addEvent('click', this.click.bindWithEvent(this, [pFile, item]))
-        item.addEvent('dblclick', this.dblclick.bindWithEvent(this, [pFile, item]))
+        item.addEvent('click', this.click.bind(this, [pFile, item]))
+        item.addEvent('dblclick', this.dblclick.bind(this, [pFile, item]))
 
         new Element('span', {
             text: pFile.name

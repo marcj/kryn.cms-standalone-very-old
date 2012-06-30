@@ -162,7 +162,7 @@ var admin_pages = new Class({
         this.win.params = {rsn: this.page.rsn, lang: d.lang};
 
         limitLayouts = false;
-        if ($type(d.layouts) == 'string') {
+        if (typeOf(d.layouts) == 'string') {
             limitLayouts = $A(JSON.decode(d.layouts));
         }
 
@@ -281,7 +281,7 @@ var admin_pages = new Class({
 
     renderAlias: function () {
         this.urlAliase.empty();
-        if ($type(this.page.alias) != 'array') return;
+        if (typeOf(this.page.alias) != 'array') return;
         if (this.page.alias.length == 0) return;
 
         new Element('div', {
@@ -2483,7 +2483,7 @@ var admin_pages = new Class({
         }
 
         var contents = this.page.contents;
-        if ($type(this.page.contents) == 'string') {
+        if (typeOf(this.page.contents) == 'string') {
             contents = new Hash(JSON.decode(this.page.contents));
         }
 

@@ -12,6 +12,10 @@ ka.field = new Class({
         fieldWidth: null,
         'default': null,
         designMode: false,
+
+        object: null,
+        field: null,
+
         noWrapper: false //doesnt include the ka-field wrapper, and inject the field controls directly to pContainer
     },
 
@@ -354,6 +358,14 @@ ka.field = new Class({
                 });
 
                 break;
+            case 'fieldcondition':
+
+                this.renderCondition({
+                    object: this.options.object,
+                    field: this.options.field
+                });
+
+                break;
             case 'lang':
 
                 this.field.items = {}
@@ -361,7 +373,10 @@ ka.field = new Class({
                     this.field.items[id] = lang.langtitle + ' (' + lang.title + ', ' + id + ')';
                 }.bind(this));
 
-                this.renderSelect();
+                if (this.options.multi)
+                    this.renderTextlist();
+                else
+                    this.renderSelect();
 
                 break;
 
@@ -385,6 +400,8 @@ ka.field = new Class({
     renderCondition: function(pOptions){
 
         var addCondition, addGroup, renderValues, objectDefinition, backupedValues;
+
+        var dateConditions = ['= NOW()', '!=  NOW()', '<  NOW()', '>  NOW()', '<=  NOW()', '>=  NOW()'];
 
         var reRender = function(pTarget){
 
@@ -438,9 +455,16 @@ ka.field = new Class({
 
                 objectDefinition = ka.getObjectDefinition(pOptions.object);
 
-                Object.each(objectDefinition.fields, function(def, key){
-                    div.iLeft.add(key, def.label||key);
-                }.bind(this));
+                if (pOptions.field){
+
+                    div.iLeft.add(pOptions.field, objectDefinition.fields[pOptions.field].label||pOptions.field);
+                    div.iLeft.setEnabled(false);
+
+                } else {
+                    Object.each(objectDefinition.fields, function(def, key){
+                        div.iLeft.add(key, def.label||key);
+                    }.bind(this));
+                }
 
             } else {
                 div.iLeft = new Element('input', {
@@ -458,7 +482,8 @@ ka.field = new Class({
 
             document.id(select).setStyle('width', '100%');
 
-            ['=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'REGEXP'].each(function(item){
+            ['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'NOT IN', 'REGEXP',
+                '= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
                 select.add(item, item);
             });
 
@@ -484,11 +509,12 @@ ka.field = new Class({
 
                     var fieldDefinition = Object.clone(objectDefinition.fields[chosenField]);
 
-                    backupedValues[div.iRight.code] = div.iRight.getValue();
+                    if (div.iRight)
+                        backupedValues[div.iRight.code] = div.iRight.getValue();
+
                     delete div.iRight;
 
                     rightTd.empty();
-
 
                     if (fieldDefinition.primaryKey){
                         if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == '='){
@@ -505,17 +531,43 @@ ka.field = new Class({
                         }
                     }
 
+                    if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == 'NOT IN'){
+                        if (fieldDefinition.type == 'select')
+                            fieldDefinition.type = 'textlist';
+                        else
+                            fieldDefinition.multi = 1;
+                    }
+
+                    if (fieldDefinition.type == 'object' && fieldDefinition.object == 'user'){
+                        ['= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
+                            div.iMiddle.showOption(item);
+                        });
+                    } else {
+                        ['= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
+                            div.iMiddle.hideOption(item);
+                        });
+                    }
+
+                    if (fieldDefinition.type == 'date'|| fieldDefinition.type == 'datetime'){
+                        dateConditions.each(function(item){div.iMiddle.add(item)});
+                    } else {
+                        dateConditions.each(function(item){div.iMiddle.remove(item)});
+                    }
+
                     fieldDefinition.noWrapper = true;
                     fieldDefinition.fieldWidth = '100%';
 
-                    div.iRight = new ka.field(
-                        fieldDefinition, rightTd
-                    );
+                    if (!dateConditions.contains(div.iMiddle.getValue())){
 
-                    div.iRight.code = div.iMiddle.getValue()+'_'+chosenField;;
+                        div.iRight = new ka.field(
+                            fieldDefinition, rightTd
+                        );
 
-                    if (backupedValues[div.iRight.code])
-                        div.iRight.setValue();
+                        div.iRight.code = div.iMiddle.getValue()+'_'+chosenField;;
+
+                        if (backupedValues[div.iRight.code])
+                            div.iRight.setValue();
+                    }
 
                 };
 
@@ -525,7 +577,7 @@ ka.field = new Class({
                 updateRightTdField();
             }
 
-            var actions = new Element('td', {style: 'padding-top: 3px; width: '+parseInt((16*4)+3)+'px'}).inject(tr);
+            var actions = new Element('td', {style: 'width: '+parseInt((16*4)+3)+'px'}).inject(tr);
 
             new Element('img', {src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_up.png'})
             .addEvent('click', function(){
@@ -862,6 +914,7 @@ ka.field = new Class({
     },
 
     renderTextlist: function () {
+
         var _this = this;
         var _searchValue;
 
@@ -1741,8 +1794,8 @@ ka.field = new Class({
 
         this._setValue = function (pValues) {
             input.empty();
-            if ($type(pValues) == 'string') pValues = JSON.decode(pValues);
-            if ($type(pValues) != 'array') return;
+            if (typeOf(pValues) == 'string') pValues = JSON.decode(pValues);
+            if (typeOf(pValues) != 'array') return;
             pValues.each(function (item) {
                 new Element('option', {
                     text: item,
@@ -2147,7 +2200,8 @@ ka.field = new Class({
 
         if (multiple) {
             this.input = new Element('select', {
-                size: this.field.size
+                size: this.field.size,
+                style: 'width: 100%'
             }).addEvent('change', function () {
                 this.fireChange();
             }.bind(this)).inject(this.fieldPanel);
@@ -2431,7 +2485,7 @@ ka.field = new Class({
             } else if (multiple) {
                 pValue.each(function (pItem) {
                     iSelOption = this.input.getElement('option[value="' + pItem + '"]');
-                    if ($defined(iSelOption) && $type(iSelOption) != 'null') {
+                    if ($defined(iSelOption) && typeOf(iSelOption) != 'null') {
 
                         iSelOption.clone().inject(this.inputVals);
                         iSelOption.set('disabled', true);
@@ -2469,6 +2523,7 @@ ka.field = new Class({
             name: this.lastId,
             value: this.field.value,
             'class': 'ka-field',
+            style: 'width: 100%',
             styles: {
                 'height': (this.field.height) ? this.field.height : 80,
                 'width': (this.field.width) ? this.field.width : ''
@@ -2486,7 +2541,7 @@ ka.field = new Class({
         this.input = new Element('input', {
             'class': 'text ka-field-dateTime',
             type: 'text',
-            style: 'width: 110px'
+            style: 'width: 100%'
         }).inject(this.fieldPanel);
 
         var datePicker = new ka.datePicker(this.input, pOptions);
@@ -2559,7 +2614,8 @@ ka.field = new Class({
         var _this = this;
         this.input = new Element('input', {
             'class': 'text gradient',
-            type: 'text'
+            type: 'text',
+            style: 'width: 100%'
         }).inject(this.fieldPanel);
 
         if (this.field.length) this.input.set('maxlength', this.field.length);
@@ -2706,16 +2762,10 @@ ka.field = new Class({
         this.input = new Element('textarea', {
             'class': 'ka-field',
             styles: {
-                'height': (this.field.height) ? this.field.height : 80,
-                'width': (this.field.width) ? this.field.width : ''
+                'height': (this.field.inputHeight) ? this.field.inputHeight : 80,
+                'width': (this.field.inputWidth) ? this.field.inputWidth : '100%'
             }
         }).inject(this.fieldPanel);
-
-        if (this.field.input_width)
-            this.input.setStyle('width', this.field.input_width);
-
-        if (this.field.input_height)
-            this.input.setStyle('height', this.field.input_height);
 
         this.input.addEvent('change', function(){
             this.fireChange();
@@ -2741,7 +2791,8 @@ ka.field = new Class({
         var _this = this;
         this.input = new Element('input', {
             'class': 'text',
-            type: 'password'
+            type: 'password',
+            style: 'width: 100%'
         }).inject(this.fieldPanel);
 
         if (this.field.length) this.input.set('maxlength', this.field.length);

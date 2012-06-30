@@ -59,7 +59,7 @@ ka.init = function () {
         ka._crawler = new ka.crawler();
     }
 
-    ka.loadStream();
+    //ka.loadStream();
 
     window.onbeforeunload = function (evt) {
 
@@ -506,7 +506,6 @@ ka.loadStream = function () {
         clearTimeout(ka._lastStreamid);
     }
 
-
     if (ka._lastStreamCounter) {
         clearTimeout(ka._lastStreamCounter);
     }
@@ -791,7 +790,6 @@ ka.createModuleMenu = function () {
     });
 
     ka.moduleItems.addEvent('mousewheel', function (e) {
-        var e = new Event(e);
 
         var newPos = ka.moduleItemsScrollSlider.step;
 
@@ -1334,7 +1332,6 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
     pLink.code = pCode;
     mlink.store('link', pLink);
     ka.linkClick(mlink);
-    //mlink.addEvent('click', ka.linkClick.bindWithEvent(mlink));
 
 
 }
@@ -1374,7 +1371,6 @@ ka.addModuleLink = function (pLinks, pModule) {
         };
 
         ka.linkClick(mlink);
-        //mlink.addEvent('click', ka.linkClick.bindWithEvent(mlink));
 
 
         var childs = $H(pLink.childs);
@@ -1489,13 +1485,12 @@ ka.linkClick = function (pLink) {
         pLink.addEvent('click', function (e) {
             ka.destroyLinkContext();
 
-            var e = new Event(e);
             if (e.rightClick) return;
             e.stopPropagation();
             e.stop();
 
             var windows = [];
-            ka.wm.windows.each(function (pwindow) {
+            Object.each(ka.wm.windows, function (pwindow) {
                 if (!pwindow) return;
                 if (pwindow.code == mlink.code && pwindow.module == mlink.module) {
                     windows.include(pwindow);
@@ -1505,7 +1500,7 @@ ka.linkClick = function (pLink) {
 
             if (windows.length == 0) {
                 //none exists, just open
-                ka.wm.openWindow(mlink.module, mlink.code);
+                ka.wm.open(mlink.module+'/'+mlink.code);
             } else if (windows.length == 1) {
                 //only one is open, bring it to front
                 windows[0].toFront();
@@ -1515,10 +1510,11 @@ ka.linkClick = function (pLink) {
                 e.stop();
                 ka._openLinkContext(link);
             }
+
+            delete windows;
         });
 
         pLink.addEvent('mouseup', function (e) {
-            var e = new Event(e);
 
             if (e.rightClick) {
                 e.stopPropagation();
@@ -1575,13 +1571,11 @@ ka._openLinkContext = function (pLink) {
         corner.setStyle('bottom', 'auto');
         corner.setStyle('top', -8);
     }
-    //}
-
 
     ka._lastLinkContextDiv = div;
 
     var windows = [];
-    ka.wm.windows.each(function (pwindow) {
+    Object.each(ka.wm.windows, function (pwindow) {
         if (!pwindow) return;
         if (pwindow.code == pLink.code && pwindow.module == pLink.module) {
             windows.include(pwindow);
@@ -1629,6 +1623,8 @@ ka._openLinkContext = function (pLink) {
             lastItem.addClass('ka-linkcontext-last');
         }
     }
+
+    delete windows;
 
 }
 

@@ -296,7 +296,7 @@ ka.list = new Class({
 
                 var mkey = key;
 
-                if ($type(key) == 'number') {
+                if (typeOf(key) == 'number') {
                     mkey = filter;
                 }
 

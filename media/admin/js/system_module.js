@@ -414,7 +414,7 @@ var admin_system_module = new Class({
 
     viewPath: function (pPath) {
         this.mainPane.empty();
-        if ($type(pPath) == false) {
+        if (typeOf(pPath) == false) {
             pPath = '';
         }
 

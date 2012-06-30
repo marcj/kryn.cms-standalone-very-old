@@ -871,7 +871,7 @@ class krynObjectTable extends krynObjectAbstract {
         $primaryFields = krynObjects::getPrimaries($pLeftObject);
 
         $oKey = $pKey.'_'.$pField['object_label'];
-        $oLabel = $pField['object_label']?$pField['object_label']:kryn::$objects[$pField['object']]['object_label'];
+        $oLabel = $pField['object_label']?$pField['object_label']:kryn::$objects[$pField['object']]['objectLabel'];
 
         if ($pField['object_relation'] != 'nToM'){
             //n to 1

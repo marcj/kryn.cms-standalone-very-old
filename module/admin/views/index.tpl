@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
-    <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core.js" ></script>
-    <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more.js" ></script>
+    <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-core-1.4.5-full-nocompat.js" ></script>
+    <script type="text/javascript" src="{$cfg.templatepath}/kryn/mootools-more-1.4.0.1-nocompat-yc.js" ></script>
 
 
     <script type="text/javascript" src="{$cfg.path}lib/mooeditable/Source/MooEditable/MooEditable.js"></script>

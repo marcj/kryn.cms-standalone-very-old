@@ -102,7 +102,7 @@ ka.buttonGroup = new Class({
             height: 14
         }).inject( imgWrapper );
 
-        if ($type(pTitle) == 'string') {
+        if (typeOf(pTitle) == 'string') {
             wrapper.set('title', pTitle);
         } else if (pTitle && pTitle.inject) {
             pTitle.inject(wrapper);

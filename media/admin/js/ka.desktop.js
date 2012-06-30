@@ -259,7 +259,7 @@ ka.desktop = new Class({
                 'background-image': 'url(' + _path + PATH_MEDIA + '/' + pIcon.icon + ')'
             }
         }).inject(this.container);
-        m.addEvent('mousedown', this.mousedown.bindWithEvent(m, this))
+        m.addEvent('mousedown', this.mousedown.bind(m, this))
 
         m.addEvent('dblclick', function () {
             ka.wm.openWindow(pIcon.module, pIcon.code, null, null, pIcon.params);

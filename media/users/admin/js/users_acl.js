@@ -285,7 +285,6 @@ var users_users_acl = new Class({
                 });
             }
 
-
         }.bind(this));
 
     },

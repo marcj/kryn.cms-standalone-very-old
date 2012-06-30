@@ -321,7 +321,7 @@ ka.windowEdit = new Class({
          value: ''
          }).inject( this.versioningSelect );*/
 
-        if ($type(this.item.versions) == 'array') {
+        if (typeOf(this.item.versions) == 'array') {
             this.item.versions.each(function (version, id) {
                 this.versioningSelect.add(version.version, version.title);
             }.bind(this));
@@ -545,7 +545,7 @@ ka.windowEdit = new Class({
         }.bind(this));
 
         if (this.values.previewPlugins) {
-            this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path + PATH_MEDIA + '/admin/images/icons/eye.png', this.preview.bindWithEvent(this));
+            this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path + PATH_MEDIA + '/admin/images/icons/eye.png', this.preview.bind(this));
         }
 
         if (this.values.versioning == true) {

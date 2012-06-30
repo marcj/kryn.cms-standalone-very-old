@@ -52,7 +52,7 @@ ka.contentBox = new Class({
         this.layoutContent.remove();
 
         var firstContent = false;
-        if (pContents && $type(pContents) == 'array') {
+        if (pContents && typeOf(pContents) == 'array') {
             pContents.each(function (content) {
                 if (firstContent == false) {
                     firstContent = content;

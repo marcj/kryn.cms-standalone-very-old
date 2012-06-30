@@ -24,20 +24,17 @@ ka.kwindow = new Class({
 
         this.active = true;
         this.isOpen = true;
+
         this.createWin();
 
-        //this.checkAccess();
         if (pModule && pWindowCode) {
-
-            (function () {
-                this.toFront();
-            }).delay(40, this);
 
             this.loadContent();
 
-            this.addHotkey('esc', false, false, function () {
-                this.close(true);
-            }.bind(this));
+            this.closeBind = this.close.bind(this, true);
+            this.addHotkey('esc', false, false, this.closeBind);
+
+            this.toFront.delay(40, this);
         }
     },
 
@@ -513,7 +510,9 @@ ka.kwindow = new Class({
 
     addHotkey: function (pKey, pControlOrMeta, pAlt, pCallback) {
 
-        document.addEvent('keydown', function (e) {
+        if (!this.hotkeyBinds) this.hotkeyBinds = [];
+
+        var bind = function (e) {
             if (this.inFront && (!this.inOverlayMode)) {
                 if (pControlOrMeta && (!e.control && !e.meta)) return;
                 if (pAlt && !e.alt) return;
@@ -526,13 +525,25 @@ ka.kwindow = new Class({
                 }
 
             }
-        }.bind(this));
+        }.bind(this);
+
+        this.hotkeyBinds.push(bind);
+
+        document.addEvent('keydown', bind);
+
+    },
+
+    removeHotkeys: function(){
+
+        Array.each(this.hotkeyBinds, function(bind){
+            document.removeEvent('keydown', bind);
+        })
 
     },
 
 
-    _highlight: function (_this) {
-        [_this.title, _this.bottom].each(function (item) {
+    _highlight: function () {
+        [this.title, this.bottom].each(function (item) {
             item.set('tween', {duration: 50, onComplete: function () {
                 item.tween('opacity', 1);
             }});
@@ -541,20 +552,21 @@ ka.kwindow = new Class({
     },
 
     highlight: function () {
-        var _this = this;
+
+
         (function () {
-            _this._highlight(_this)
-        }).delay(1);
+            this._highlight();
+        }.bind(this)).delay(1);
         (function () {
-            _this._highlight(_this)
-        }).delay(150);
+            this._highlight()
+        }.bind(this)).delay(150);
         (function () {
-            _this._highlight(_this)
-        }).delay(300);
+            this._highlight()
+        }.bind(this)).delay(300);
     },
 
     isActive: function () {
-        var _this = this;
+
         if (this.active) {
             if (ka.wm.dependExist(this.id) == true) {//abhängigkeit zu anderem fenster vorhanden
                 this.highlight();
@@ -603,7 +615,6 @@ ka.kwindow = new Class({
     },
 
     maximize: function (pDontRenew) {
-        var _this = this;
 
         if (document.body.hasClass('ka-no-desktop')) return;
 
@@ -702,19 +713,24 @@ ka.kwindow = new Class({
             }
         }
 
-        if (this.values.fixedWidth > 0 || this.values.fixedHeight > 0) {
-            if (this.values.fixedWidth > 0) {
-                this.border.setStyle('width', this.values.fixedWidth);
+        if (this.values){
+            if (this.values.fixedWidth > 0 || this.values.fixedHeight > 0) {
+                if (this.values.fixedWidth > 0) {
+                    this.border.setStyle('width', this.values.fixedWidth);
+                }
+                if (this.values.fixedHeight > 0) {
+                    this.border.setStyle('height', this.values.fixedHeight);
+                }
+                this.resizeBottomRight.destroy();
+                this.bottom.setStyle('background-image', 'none');
             }
-            if (this.values.fixedHeight > 0) {
-                this.border.setStyle('height', this.values.fixedHeight);
-            }
-            this.resizeBottomRight.destroy();
-            this.bottom.setStyle('background-image', 'none');
         }
 
-        //check dimensions if to big/small
-        this.checkDimensions();
+        if (this.values) {
+            //check dimensions if to big/small
+            this.checkDimensions();
+        }
+
     },
 
     checkDimensions: function () {
@@ -784,19 +800,19 @@ ka.kwindow = new Class({
 
     close: function (pInternal) {
 
-
         //search for dialogs
+        if (this.border){
+            var dialogs = this.border.getChildren('.ka-kwindow-prompt');
+            if (dialogs.length > 0){
 
-        var dialogs = this.border.getChildren('.ka-kwindow-prompt');
-        if (dialogs.length > 0){
+                var lastDialog = dialogs[dialogs.length-1];
 
-            var lastDialog = dialogs[dialogs.length-1];
+                if (lastDialog.canClosed === false) return;
+                lastDialog.close(true);
 
-            if (lastDialog.canClosed === false) return;
-            lastDialog.close(true);
-
-            delete lastDialog;
-            return;
+                delete lastDialog;
+                return;
+            }
         }
 
         //close main window
@@ -808,7 +824,10 @@ ka.kwindow = new Class({
             if (this.interruptClose == true) return;
         }
 
-        ka.wm.close(this);
+        if (this.onClose) {
+            this.onClose();
+        }
+
 
         //save dimension
         if (this.border) {
@@ -829,9 +848,45 @@ ka.kwindow = new Class({
 
         this.inFront = false;
 
-        if (this.onClose) {
-            this.onClose();
+        this.destroy();
+
+        ka.wm.close(this);
+    },
+
+    destroy: function(){
+
+        this.removeHotkeys();
+
+        if (window['contentCantLoaded_' + this.customId])
+            delete window['contentCantLoaded_' + this.customId];
+
+        if (window['contentLoaded_' + this.customId])
+            delete window['contentLoaded_' + this.customId];
+
+        if (this.custom)
+            delete this.custom;
+
+        if (this.title){
+            this.title.destroy();
+            delete this.title;
         }
+
+        if (this.customCssAsset){
+            this.customCssAsset.destroy();
+            delete this.customCssAsset;
+        }
+
+        if (this.customJsAsset){
+            this.customJsAsset.destroy();
+            delete this.customJsAsset;
+        }
+
+        if (this.customJsClassAsset){
+            this.customJsClassAsset.destroy();
+            delete this.customJsClassAsset;
+        }
+
+
     },
 
     loadContent: function (pVals) {
@@ -839,7 +894,6 @@ ka.kwindow = new Class({
         if (pVals) {
             this._loadContent(pVals);
         } else {
-            var _this = this;
 
             var module = this.module + '/';
             if (this.module == 'admin') {
@@ -849,22 +903,26 @@ ka.kwindow = new Class({
             this._ = new Request.JSON({url: _path + 'admin/' + module + this.code + '?cmd=getInfo', onComplete: function (res) {
 
                 if (res.error == 'access_denied') {
-                    alert(_('Access denied'));
-                    _this.close(true);
+                    alert(t('Access denied'));
+                    this.close(true);
                     return;
                 }
                 if (!res || res.error == 'param_failed') {
-                    alert(_('Admin entry point not found') + ': ' + _this.module + ' => ' + _this.code);
-                    _this.close(true);
+                    alert(t('Admin entry point not found') + ': ' + this.module + ' => ' + this.code);
+                    this.close(true);
                     return;
                 }
                 this._loadContent(res, res._path);
+
             }.bind(this)}).post();
         }
     },
 
     _loadContent: function (pVals, pPath) {
+
+
         this.values = pVals;
+
         if (this.values.multi === false || this.values.multi === 0) {
             var win = ka.wm.checkOpen(this.module, this.code, this.id);
             if (win) {
@@ -910,19 +968,16 @@ ka.kwindow = new Class({
 
         this.titleText.set('text', t(pVals.title));
 
-        var _this = this;
-
         if (pVals.type == 'iframe') {
             this.iframe = new IFrame('iframe_kwindow_' + this.id, {
                 'class': 'kwindow-iframe',
                 frameborder: 0
-            }).addEvent('load',
-                function () {
-                    _this.iframe.contentWindow.win = _this;
-                    _this.iframe.contentWindow.ka = ka;
-                    _this.iframe.contentWindow.wm = ka.wm;
-                    this.contentWindow.fireEvent('kload');
-                }).inject(this.content);
+            }).addEvent('load', function () {
+                this.iframe.contentWindow.win = this;
+                this.iframe.contentWindow.ka = ka;
+                this.iframe.contentWindow.wm = ka.wm;
+                this.iframe.contentWindow.fireEvent('kload');
+            }.bind(this)).inject(this.content);
             this.iframe.set('src', _path + pVals.src);
         } else if (pVals.type == 'custom') {
             this.renderCustom();
@@ -934,18 +989,6 @@ ka.kwindow = new Class({
             this.renderAdd();
         } else if (pVals.type == 'edit') {
             this.renderEdit();
-        }
-
-        if (this.inline) {
-            this.getOpener().inlineContainer.empty();
-            this.border.addClass('kwindow-border-inline');
-            this.border.inject(this.getOpener().inlineContainer);
-            this.updateInlinePosition();
-
-            this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
-
-        } else {
-            this.border.inject($('desktop'));
         }
 
         ka.wm.updateWindowBar();
@@ -980,7 +1023,7 @@ ka.kwindow = new Class({
         clone.inject(popup.document.body);
         popup.document.close();
 
-        $A(document.styleSheets).each(function (s, index) {
+        Array.each(document.styleSheets, function (s, index) {
             var w = new Element('link', {
                 rel: 'stylesheet',
                 type: 'text/css',
@@ -1009,7 +1052,6 @@ ka.kwindow = new Class({
 
     renderCustom: function () {
         var id = 'text';
-        var _this = this;
 
         if (this.code.substr(this.code.length - 1, 1) == '/') {
             this.code = this.code.substr(0, this.code.length - 1);
@@ -1020,28 +1062,27 @@ ka.kwindow = new Class({
         var mdate = this.values.cssmdate;
 
         if (this.module == 'admin' && mdate) {
-            new Asset.css(_path + PATH_MEDIA + '/admin/css/' + javascript + '.css?mdate=' + mdate);
+            this.customCssAsset = new Asset.css(_path + PATH_MEDIA + '/admin/css/' + javascript + '.css?mdate=' + mdate);
         } else if (mdate) {
-            new Asset.css(_path + PATH_MEDIA + this.module + '/admin/css/' + javascript + '.css?mdate=' + mdate);
+            this.customJsAsset = new Asset.css(_path + PATH_MEDIA + this.module + '/admin/css/' + javascript + '.css?mdate=' + mdate);
         }
 
-        var id = parseInt(Math.random() * 100) + parseInt(Math.random() * 100);
 
-        window['contentCantLoaded_' + id] = function (pFile) {
-            _this._alert('custom javascript file not found: ' + pFile, function () {
-                _this.close(true);
+        this.customId = parseInt(Math.random() * 100) + parseInt(Math.random() * 100);
+
+        window['contentCantLoaded_' + this.customId] = function (pFile) {
+            this._alert('custom javascript file not found: ' + pFile, function () {
+                this.close(true);
             });
-        }
-        window['contentLoaded_' + id] = function () {
-            this.custom = new window[ this.module + '_' + javascript ](this);
-            if (this.custom) {
-                this.addEvent('close', function () {
-                    delete this.custom;
-                }.bind(this));
-            }
         }.bind(this);
 
-        new Asset.javascript(_path + 'admin/backend/loadCustomJs/module:' + this.module + '/code:' + javascript + '/onLoad:' + id);
+        window['contentLoaded_' + this.customId] = function () {
+            this.custom = new window[ this.module + '_' + javascript ](this);
+        }.bind(this);
+
+        this.customJsClassAsset =
+            new Asset.javascript(_path + 'admin/backend/loadCustomJs/module:' + this.module + '/code:' + javascript +
+                '/onLoad:' + this.customId);
     },
 
     toElement: function(){
@@ -1049,13 +1090,12 @@ ka.kwindow = new Class({
     },
 
     createWin: function () {
-        var _this = this;
 
         this.border = new Element('div', {
             'class': 'kwindow-border  mooeditable-dialog-container'
         }).addEvent('mousedown', function (e) {
             if (this.mouseOnShadow != true) {
-                _this.toFront();
+                this.toFront();
             }
         }.bind(this)).inject(document.hidden).store('win', this);
 
@@ -1104,14 +1144,12 @@ ka.kwindow = new Class({
         this.title = new Element('div', {
             'class': 'kwindow-win-title'
         }).addEvent('dblclick', function () {
-
             if (document.body.hasClass('ka-no-desktop')) return;
 
-            if (_this.values && _this.values.noMaximize !== true) {
-                _this.maximize();
+            if (this.values && this.values.noMaximize !== true) {
+                this.maximize();
             }
-        }).inject(this.win);
-
+        }.bind(this)).inject(this.win);
 
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
         this.titleText = new Element('span').inject(this.titlePath);
@@ -1121,10 +1159,9 @@ ka.kwindow = new Class({
 
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
-        }).addEvent('mousedown',
-            function (e) {
-                //e.stopPropagation();
-            }).inject(this.win);
+        }).addEvent('mousedown', function (e) {
+            //e.stopPropagation();
+        }).inject(this.win);
 
         this.createTitleBar();
 
@@ -1198,8 +1235,19 @@ ka.kwindow = new Class({
 
         this.inFront = true;
 
-        //this.loadContent();
+        if (this.inline) {
+            this.getOpener().inlineContainer.empty();
+            this.border.addClass('kwindow-border-inline');
+            this.border.inject(this.getOpener().inlineContainer);
+            this.updateInlinePosition();
 
+            this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
+
+        } else {
+            this.border.inject($('desktop'));
+        }
+
+        this.loadDimensions();
     },
 
     setStatusText: function (pVal) {
@@ -1242,7 +1290,7 @@ ka.kwindow = new Class({
     },
 
     createTitleBar: function () {
-        var _this = this;
+
         this.titleBar = new Element('div', {
             'class': 'kwindow-win-titleBar'
         }).inject(this.win);
@@ -1257,22 +1305,16 @@ ka.kwindow = new Class({
         this.minimizer = new Element('img', {
             'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
             src: _path + PATH_MEDIA + '/admin/images/win-top-bar-minimize.png'
-        }).addEvent('click',function () {
-            _this.minimize();
-        }).inject(this.titleBar)
+        }).addEvent('click', this.minimize.bind(this)).inject(this.titleBar)
 
         this.maximizer = new Element('img', {
             'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
             src: _path + PATH_MEDIA + '/admin/images/win-top-bar-maximize.png'
-        }).addEvent('click',function () {
-            _this.maximize();
-        }).inject(this.titleBar);
+        }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
 
         this.closer = new Element('div', {
             'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close ka-kwindow-titleactions'
-        }).addEvent('click', function () {
-            _this.close(true);
-        }).inject(this.titleBar);
+        }).addEvent('click', this.close.bind(this)).inject(this.titleBar);
 
         this.titleBar.getElements('img').addEvents({
             'mouseover': function () {
@@ -1315,7 +1357,7 @@ ka.kwindow = new Class({
     },
 
     createResizer: function () {
-        var _this = this;
+
         this.resizeBottomRight = new Element('div', {
             styles: {
                 position: 'absolute',
@@ -1365,8 +1407,6 @@ ka.kwindow = new Class({
                 }
             }
         });
-
-        return;
     }
 
 });

@@ -4,13 +4,12 @@ window.addEvent('resize', function () {
     ka.wm.checkDimensionsAndSendResize();
 });
 
-
 ka.wm = {
 
-    windows: new Hash({}),
+    windows: {},
 
     /* depend: [was => mitWem] */
-    depend: new Hash({}),
+    depend: {},
     lastWindow: 0,
     events: {},
     zIndex: 1000,
@@ -34,20 +33,22 @@ ka.wm = {
 
     checkDimensionsAndSendResize: function () {
         if (ka.wm.goDimensionsCheck) {
-            $clear(ka.wm.goDimensionsCheck);
+            clearTimeout(ka.wm.goDimensionsCheck);
         }
 
-        ka.wm.goDimensionsCheck = (function () {
-            ka.wm._checkDimensions();
+        ka.wm.goDimensionsCheck = (function(){
+            try {
+                ka.wm._checkDimensions();
+            } catch(e){
+                logger('checkDimensions failed.');
+            }
         }).delay(300);
     },
 
     _checkDimensions: function () {
         Object.each(ka.wm.windows, function (win) {
-            if (win) {
-                win.checkDimensions();
-                win.fireEvent('resize');
-            }
+            win.checkDimensions();
+            win.fireEvent('resize');
         });
     },
 
@@ -131,9 +132,7 @@ ka.wm = {
     resizeAll: function () {
         ka.settings['user']['windows'] = {};
         Object.each(ka.wm.windows, function (win) {
-            if (win) {
-                win.loadDimensions();
-            }
+            win.loadDimensions();
         });
     },
 
@@ -155,20 +154,20 @@ ka.wm = {
     },
 
     loadWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource) {
-        var instance = ka.wm.windows.getLength() + 1;
+        var instance = Object.getLength(ka.wm.windows) + 1;
 
         if (pDependOn > 0) {
-            ka.wm.depend.include(instance, pDependOn);
+            ka.wm.depend[instance] = pDependOn;
             var w = ka.wm.windows[ pDependOn ];
             if (w) {
                 w.toDependMode(pInline);
             }
         }
 
-        var win = new ka.kwindow(pModule, pWindowCode, pLink, instance, pParams, pInline, pSource);
-        ka.wm.windows.include(instance, win);
+        logger('New Window to ');
+        logger(instance);
+        ka.wm.windows[instance] = new ka.kwindow(pModule, pWindowCode, pLink, instance, pParams, pInline, pSource);
         ka.wm.updateWindowBar();
-        return win;
     },
 
     newListBar: function (pWindow) {
@@ -209,7 +208,7 @@ ka.wm = {
             })
             .addEvent('click', function(e){
                 e.stopPropagation();
-                pWindow.close();
+                pWindow.close(true);
             })
             .inject(bar);
         }
@@ -218,16 +217,15 @@ ka.wm = {
     },
 
     close: function (pWindow) {
-        var id = pWindow.id;
 
-        var dependOn = ka.wm.depend[ id ];
+        var dependOn = ka.wm.depend[ pWindow.id ];
         if (dependOn) {
             if (ka.wm.windows[dependOn]) {
                 ka.wm.windows[dependOn].removeDependMode();
             }
         }
-        delete ka.wm.depend[ id ];
-        delete ka.wm.windows[ id ];
+        delete ka.wm.depend[ pWindow.id ];
+        delete ka.wm.windows[pWindow.id];
 
         if (dependOn) {
             if (ka.wm.windows[dependOn]) {
@@ -235,9 +233,8 @@ ka.wm = {
             }
         }
 
-        ka.wm.bringLastWindow2Front();
-
         ka.wm.updateWindowBar();
+        ka.wm.bringLastWindow2Front();
     },
 
     bringLastWindow2Front: function(){
@@ -256,7 +253,6 @@ ka.wm = {
         }
     },
 
-
     getWindowsCount: function () {
         var count = 0;
         Object.each(ka.wm.windows, function (win, winId) {
@@ -268,11 +264,12 @@ ka.wm = {
     },
 
     updateWindowBar: function () {
-        $('windowList').empty();
+
+        document.id('windowList').getChildren().destroy();
 
         var c = 0;
         Object.each(ka.wm.windows, function (win, winId) {
-            if (!win) return;
+
             if (win.inline) return;
 
             var item = ka.wm.newListBar(win);
@@ -322,25 +319,19 @@ ka.wm = {
 
     closeAll: function () {
         Object.each(ka.wm.windows, function (win) {
-            if (win) {
-                win.close();
-            }
+            win.close();
         });
     },
 
     hideContents: function () {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win) {
-                win.content.setStyle('display', 'none');
-            }
+            win.content.setStyle('display', 'none');
         });
     },
 
     showContents: function () {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win) {
-                win.content.setStyle('display', 'block');
-            }
+            win.content.setStyle('display', 'block');
         });
     }
 

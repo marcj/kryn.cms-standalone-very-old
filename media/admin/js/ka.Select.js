@@ -7,8 +7,8 @@ ka.Select = new Class({
     value: null,
 
     items: {},
-
     a: {},
+    enabled: true,
 
     options: {
 
@@ -24,13 +24,15 @@ ka.Select = new Class({
 
         this.box = new Element('div', {
             'class': 'ka-normalize ka-Select-box'
-        }).addEvent('click', this.toggle.bindWithEvent(this));
+        }).addEvent('click', this.toggle.bind(this));
 
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        }).addEvent('mousedown', function (e) {
+        })
+        .addEvent('mousedown', function (e) {
             e.preventDefault();
-        }).inject(this.box);
+        })
+        .inject(this.box);
 
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow'
@@ -44,6 +46,12 @@ ka.Select = new Class({
             'class': 'ka-Select-chooser ka-normalize'
         });
 
+/*
+        this.chooser.addEventListener('click', function (e) {
+            e.stop();
+        });
+*/
+
         this.chooser.addEvent('click', function (e) {
             e.stop();
         });
@@ -52,18 +60,26 @@ ka.Select = new Class({
             this.box.inject(pContainer)
 
         if (this.options.items){
-            if (typeOf(items) == 'object'){
-                Object.each(items, function(label, key){
+            if (typeOf(this.options.items) == 'object'){
+                Object.each(this.options.items, function(label, key){
                     this.add(key, label);
                 }.bind(this))
             }
 
-            if (typeOf(items) == 'array'){
-                Array.each(items, function(label){
+            if (typeOf(this.options.items) == 'array'){
+                Array.each(this.options.items, function(label){
                     this.add(label, label);
                 }.bind(this))
             }
         }
+
+    },
+
+    setEnabled: function(pEnabled){
+
+        this.enabled = pEnabled;
+
+        this.arrowBox.setStyle('opacity', pEnabled?1:0.4);
 
     },
 
@@ -78,6 +94,52 @@ ka.Select = new Class({
         this.box.destroy();
         this.chooser = null;
         this.box = null;
+    },
+
+    remove: function(pId){
+        if (typeOf(this.items[ pId ]) == 'null') return;
+
+        this.hideOption(pId);
+        delete this.items[pId];
+        delete this.a[pId];
+
+    },
+
+    hideOption: function(pId){
+
+        if (typeOf(this.items[ pId ]) == 'null') return;
+
+        this.a[pId].setStyle('display', 'none');
+
+        if (this.value == pId){
+
+            var found = false, before, first;
+            Object.each(this.items,function(label, id){
+                if (found) return;
+                if (!first) first = id;
+                if (before && id == pId){
+                    found = true;
+                    return;
+                }
+
+                before = id;
+            }.bind(this));
+
+            if (found){
+                this.setValue(before);
+            } else {
+                this.setValue(first);
+            }
+        }
+
+    },
+
+    showOption: function(pId){
+
+        if (typeOf(this.items[ pId ]) == 'null') return;
+
+        this.a[pId].setStyle('display');
+
     },
 
     addSplit: function (pLabel) {
@@ -128,18 +190,21 @@ ka.Select = new Class({
             pLabel = pLabel[0];
         }
 
+        if (typeOf(pLabel) != 'string')
+            pLabel = pId;
+
         this.items[ pId ] = pLabel;
 
 
         this.a[pId] = new Element('a', {
             text: pLabel,
             href: 'javascript:;'
-        }).addEvent('click', function () {
+        })/*.addEvent('click', function () {
 
             this.setValue(pId, true);
             this.close();
 
-        }.bind(this));
+        }.bind(this));*/
 
         if (pImagePath){
 
@@ -214,7 +279,6 @@ ka.Select = new Class({
     },
 
     toggle: function (e) {
-
         if (this.chooser.getParent()) {
             this.close();
         } else {
@@ -228,6 +292,8 @@ ka.Select = new Class({
     },
 
     open: function () {
+
+        if (!this.enabled) return;
 
         if (this.box.getParent('.kwindow-win-titleGroups'))
             this.chooser.addClass('ka-Select-darker');

@@ -1905,6 +1905,12 @@ var admin_system_module_edit = new Class({
                                 label: t('Additional condition'),
                                 type: 'condition'
                             },
+                            objectLabel: {
+                                needValue: 'table',
+                                label: t('Label field'),
+                                desc: t('Default field for the label.'),
+                                type: 'text'
+                            },
                             nested: {
                                 label: t('Nested Sets'),
                                 desc: t('As SQL Table: Needs two additional fields: lft(int) and rgt(int)'),

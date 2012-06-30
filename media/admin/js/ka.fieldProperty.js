@@ -129,7 +129,7 @@ ka.fieldProperty = new Class({
                 },
                 'object_label': {
                     needValue: 'object',
-                    label: t('Object label field'),
+                    label: t('Object label field (Optional)'),
                     desc: t('The key of the field which should be used as label')
                 },
 

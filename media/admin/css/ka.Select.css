@@ -151,13 +151,14 @@
 .ka-Select-chooser a,
 .ka-Select-chooser a:link {
     display: block;
-    padding: 3px 10px;
+    padding: 3px 20px 3px 25px;
     font-size: 10px;
-    padding-left: 23px;
     color: #222;
     text-decoration: none;
     line-height: 18px;
     cursor: default;
+
+    white-space: nowrap;
 }
 
 .ka-Select-box-title img,

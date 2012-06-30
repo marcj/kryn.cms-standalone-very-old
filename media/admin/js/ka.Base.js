@@ -27,7 +27,7 @@ ka.Base = new Class({
 
     mkTd: function (pVal) {
         var opts = {};
-        if ($type(pVal) == 'string') {
+        if (typeOf(pVal) == 'string') {
             opts.html = pVal;
         }
         return new Element('td', opts).inject(this.currentTr);

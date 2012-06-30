@@ -14,7 +14,7 @@ var admin_system_module_view = new Class({
             id = this.win.params.name;
         }
 
-        if ($type(this.win.params.type) == 'undefined') {
+        if (typeOf(this.win.params.type) == 'undefined') {
             this.win.params.type = 0;
         }
 

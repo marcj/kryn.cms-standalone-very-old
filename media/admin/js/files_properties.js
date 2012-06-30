@@ -54,7 +54,7 @@ var admin_files_properties = new Class({
     mkTd: function (pVal) {
         if (this.tr) {
             var td = new Element('td').inject(this.tr);
-            if ($type(pVal) == 'string') {
+            if (typeOf(pVal) == 'string') {
                 td.set('html', pVal);
             } else if (pVal) {
                 pVal.inject(td);
@@ -67,7 +67,7 @@ var admin_files_properties = new Class({
     mkTh: function (pVal) {
         if (this.tr) {
             var td = new Element('th').inject(this.tr);
-            if ($type(pVal) == 'string') {
+            if (typeOf(pVal) == 'string') {
                 td.set('html', pVal);
             } else if (pVal) {
                 pVal.inject(td);
@@ -288,7 +288,7 @@ var admin_files_properties = new Class({
 
         this.applyInternalAclBtn = new ka.Button(_('Apply')).addEvent('click', this.applyInternalAcls.bind(this)).inject(p);
 
-        if (pResult.internalAcls && $type(pResult.internalAcls) == 'array') {
+        if (pResult.internalAcls && typeOf(pResult.internalAcls) == 'array') {
             pResult.internalAcls.each(function (rule) {
 
                 new files_properties_rule(rule, this.accessTbody, this.win);

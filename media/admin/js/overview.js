@@ -152,7 +152,7 @@ admin_overview = new Class({
 
         new Request.JSON({url: _path + 'admin/widgets/getWidgets/', noCache: 1, onComplete: function (pExtensions) {
 
-            if ($type(pExtensions) == 'array') {
+            if (typeOf(pExtensions) == 'array') {
                 new Element('div', {
                     html: _('No widgets found on this system in category: %s'.replace('%s', pCategory)),
                     style: 'color: gray; text-align: center; padding: 15px;'
