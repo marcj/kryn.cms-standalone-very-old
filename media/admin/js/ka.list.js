@@ -340,7 +340,7 @@ ka.list = new Class({
 
     doSearch: function () {
         if (this.lastTimer) {
-            $clear(this.lastTimer);
+            clearTimeout(this.lastTimer);
         }
 
         var mySearch = function () {

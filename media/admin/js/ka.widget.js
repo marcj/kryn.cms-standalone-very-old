@@ -12,7 +12,7 @@ ka.widget = new Class({
         this.load();
 
         this.addEvent('close', function () {
-            if (this.lastDelayId) $clear(this.lastDelayId);
+            if (this.lastDelayId) clearTimeout(this.lastDelayId);
             if (this.lastrq) this.lastrq.cancel();
             this.closed = true;
             this.main.destroy();
@@ -304,7 +304,7 @@ ka.widget = new Class({
             this.table.loading(false);
             this.table.setValues(pRes.items);
 
-            if (this.lastDelayId) $clear(this.lastDelayId);
+            if (this.lastDelayId) clearTimeout(this.lastDelayId);
             if (this.closed) return;
 
             this.lastDelayId = this.reload.delay(this.opts.refresh, this);

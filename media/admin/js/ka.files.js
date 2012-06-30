@@ -2780,7 +2780,7 @@ ka.files = new Class({
 
     startSearch: function () {
         if (this._searchTimer) {
-            $clear(this._searchTimer);
+            clearTimeout(this._searchTimer);
         }
 
         if (this.searchInput.value == "") {

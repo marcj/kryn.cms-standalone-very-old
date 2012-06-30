@@ -430,7 +430,7 @@ ka.doMiniSearch = function () {
     ka._miniSearchResults.set('html', '');
 
 
-    if (ka._lastTimer) $clear(ka._lastTimer);
+    if (ka._lastTimer) clearTimeout(ka._lastTimer);
     ka._lastTimer = ka._miniSearch.delay(500);
 
 }

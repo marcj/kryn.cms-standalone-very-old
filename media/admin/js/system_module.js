@@ -424,7 +424,7 @@ var admin_system_module = new Class({
             this.openCategories();
         } else {
             var paths = [pPath];
-            if (pPath.indexOf('/') > 0) {
+            if (pPath && pPath.indexOf('/') > 0) {
                 paths = pPath.split('/');
             }
             this.paths = paths;

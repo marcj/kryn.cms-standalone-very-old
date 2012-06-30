@@ -113,7 +113,7 @@ ka.tooltip = new Class({
 
         this.stopped = false;
         if (this.destroyTimer) {
-            $clear(this.destroyTimer);
+            clearTimeout(this.destroyTimer);
             if (this.main) {
                 this.main.set('tween', {onComplete: $empty});
             }
