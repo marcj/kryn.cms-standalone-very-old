@@ -218,7 +218,7 @@ ka.windowEdit = new Class({
                             html: '<span style="color: gray">[' + domain.lang + ']</span> ' + page.path,
                             style: 'padding-left: 21px',
                             href: 'javascript:;'
-                        }).addEvent('click', this.doPreview.bind(this, [page_rsn, index])).inject(this.previewBox);
+                        }).addEvent('click', this.doPreview.bind(this, page_rsn, index)).inject(this.previewBox);
                     }
 
 

@@ -399,7 +399,7 @@ ka.field = new Class({
 
     renderCondition: function(pOptions){
 
-        var addCondition, addGroup, renderValues, objectDefinition, backupedValues;
+        var addCondition, addGroup, renderValues, objectDefinition;
 
         var dateConditions = ['= NOW()', '!=  NOW()', '<  NOW()', '>  NOW()', '<=  NOW()', '>=  NOW()'];
 
@@ -411,8 +411,6 @@ ka.field = new Class({
             if (first) first.addClass('ka-field-condition-withoutRel');
 
         }
-
-        backupedValues = {};
 
         addCondition = function(pTarget, pValues, pCondition){
 
@@ -505,12 +503,10 @@ ka.field = new Class({
 
                     var chosenField = div.iLeft.getValue();
 
-                    var code = div.iMiddle.getValue()+'_'+chosenField;
-
                     var fieldDefinition = Object.clone(objectDefinition.fields[chosenField]);
 
                     if (div.iRight)
-                        backupedValues[div.iRight.code] = div.iRight.getValue();
+                        var backupedValue = div.iRight.getValue();
 
                     delete div.iRight;
 
@@ -520,7 +516,8 @@ ka.field = new Class({
                         if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == '='){
                                 fieldDefinition = {
                                     type: 'object',
-                                    object: pOptions.object
+                                    object: pOptions.object,
+                                    withoutObjectWrapper: true
                                 };
 
                             if (div.iMiddle.getValue() == 'IN'){
@@ -565,8 +562,8 @@ ka.field = new Class({
 
                         div.iRight.code = div.iMiddle.getValue()+'_'+chosenField;;
 
-                        if (backupedValues[div.iRight.code])
-                            div.iRight.setValue();
+                        if (backupedValue)
+                            div.iRight.setValue(backupedValue);
                     }
 
                 };
@@ -683,6 +680,7 @@ ka.field = new Class({
         renderValues = function (pValue, pTarget, pLastRel){
             if (typeOf(pValue) == 'array'){
 
+                logger(pValue);
                 var lastRel = pLastRel || '';
 
                 Array.each(pValue, function(item){
@@ -722,6 +720,14 @@ ka.field = new Class({
         this._setValue = function(pValue){
 
             con.empty();
+
+            if (typeOf(pValue) == 'string'){
+                try {
+                    pValue = JSON.decode(pValue);
+                } catch(e){
+
+                }
+            }
 
             if(typeOf(pValue) == 'array' && typeOf(pValue[0]) == 'string')
                 pValue = [pValue];
@@ -900,6 +906,10 @@ ka.field = new Class({
         var div = new Element('div').inject(this.fieldPanel);
 
         this._setValue = function (pVal) {
+            if (!pVal){
+                div.set('text', '');
+                return;
+            }
             this.value = pVal;
             if (pStripHtml) {
                 div.set('text', pVal);
@@ -2890,7 +2900,7 @@ ka.field = new Class({
 
     setValue: function (pValue, pIntern) {
 
-        if (pValue == null && this.field['default']) {
+        if (typeOf(pValue) == 'null' && this.field['default']) {
             pValue = this.field['default'];
         }
 

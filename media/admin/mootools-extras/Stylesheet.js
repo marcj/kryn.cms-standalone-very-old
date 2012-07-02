@@ -39,7 +39,7 @@ var Stylesheet = new Class({
 			}, this);
 			return this;
 		}
-		var styles = ($type(styles) == 'string') ? styles : this.stylesToString(styles);
+		var styles = (typeOf(styles) == 'string') ? styles : this.stylesToString(styles);
 		if(!styles) return;
 		var sheet = this.sheet;
 		if(sheet.addRule){
@@ -70,7 +70,7 @@ var Stylesheet = new Class({
  
 	removeRule: function(index){
 		var sheet = this.sheet;
-		if($type(index) == 'string'){
+		if(typeOf(index) == 'string'){
 			var selector = index.trim();
 			if(selector.contains(',')){
 				var selectors = selector.split(',');
@@ -91,11 +91,11 @@ var Stylesheet = new Class({
 	},
  
 	getRule: function(selector){
-		return $type(selector) == 'string' ? this.rules[selector] : this.getRules()[selector];
+		return typeOf(selector) == 'string' ? this.rules[selector] : this.getRules()[selector];
 	},
  
 	getRules: function(){
-		return $A(this.sheet.cssRules || this.sheet.rules);
+		return Array.clone(this.sheet.cssRules || this.sheet.rules);
 	}
 	
 });

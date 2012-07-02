@@ -420,8 +420,8 @@ ka.filesPane = new Class({
 
 
         tr.store('oriClass', 'ka-filepane-file-detail');
-        tr.getElements('td').addEvent('click', this.click.bind(this, [pFile, tr]));
-        tr.getElements('td').addEvent('dblclick', this.dblclick.bind(this, [pFile, tr]));
+        tr.getElements('td').addEvent('click', function(e){this.click.call(this, e, pFile, tr)}.bind(this));
+        tr.getElements('td').addEvent('dblclick', function(e){this.dblclick.call(this, e, pFile, tr)}.bind(this));
 
 
         return tr;
@@ -452,8 +452,8 @@ ka.filesPane = new Class({
         }
 
         item.store('oriClass', 'ka-filepane-file-icon');
-        item.addEvent('click', this.click.bind(this, [pFile, item]))
-        item.addEvent('dblclick', this.dblclick.bind(this, [pFile, item]))
+        item.addEvent('click', function(e){this.click.call(this, e, pFile, item)}.bind(this))
+        item.addEvent('dblclick', function(e){this.dblclick.call(this, e, pFile, item)}.bind(this))
 
         new Element('span', {
             text: pFile.name
@@ -477,8 +477,8 @@ ka.filesPane = new Class({
         }).inject(this.fileContainer);
 
         item.store('oriClass', 'ka-filepane-file-icon');
-        item.addEvent('click', this.click.bind(this, [pFile, item]))
-        item.addEvent('dblclick', this.dblclick.bind(this, [pFile, item]))
+        item.addEvent('click', function(e){this.click.call(this, e, pFile, item)}.bind(this))
+        item.addEvent('dblclick', function(e){this.dblclick.call(this, e, pFile, item)}.bind(this))
 
         new Element('span', {
             text: pFile.name

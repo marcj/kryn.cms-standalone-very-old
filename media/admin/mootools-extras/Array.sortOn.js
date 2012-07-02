@@ -73,8 +73,8 @@ Array.NUMERIC = 16;
   
   Array.implement({
     sortOn: function(fields, options) {
-      fields = $splat(fields);
-      options = $splat(options);
+      fields = Array.from(fields);
+      options = Array.from(options);
       
       if (options.length !== fields.length) options = [];
       

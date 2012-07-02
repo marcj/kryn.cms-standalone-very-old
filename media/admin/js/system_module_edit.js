@@ -2294,7 +2294,7 @@ var admin_system_module_edit = new Class({
 
         if (pDefinition){
             new ka.Button(t('Window wizard'))
-            .addEvent('click', this.openObjectWizard.bind(this,[pKey, pDefinition]))
+            .addEvent('click', this.openObjectWizard.bind(this,pKey, pDefinition))
             .inject(actionTd);
         }
 

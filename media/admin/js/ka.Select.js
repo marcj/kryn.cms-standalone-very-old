@@ -46,18 +46,16 @@ ka.Select = new Class({
             'class': 'ka-Select-chooser ka-normalize'
         });
 
-/*
-        this.chooser.addEventListener('click', function (e) {
-            e.stop();
-        });
-*/
-
         this.chooser.addEvent('click', function (e) {
-            e.stop();
-        });
+            if (!e || !(item = e.target)) return;
+            if (!item.hasClass('ka-select-chooser-item') && !(item = item.getParent('.ka-select-chooser-item'))) return;
 
+            this.setValue(item.kaSelectId, true);
+            this.close();
+        }.bind(this));
+{
         if (pContainer)
-            this.box.inject(pContainer)
+            this.box.inject(pContainer)}
 
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
@@ -198,13 +196,11 @@ ka.Select = new Class({
 
         this.a[pId] = new Element('a', {
             text: pLabel,
+            'class': 'ka-select-chooser-item',
             href: 'javascript:;'
-        })/*.addEvent('click', function () {
+        });
 
-            this.setValue(pId, true);
-            this.close();
-
-        }.bind(this));*/
+        this.a[pId].kaSelectId = pId;
 
         if (pImagePath){
 
@@ -278,7 +274,7 @@ ka.Select = new Class({
         return this.value;
     },
 
-    toggle: function (e) {
+    toggle: function () {
         if (this.chooser.getParent()) {
             this.close();
         } else {

@@ -161,7 +161,7 @@ var users_users_acl = new Class({
                 'class': 'ka-list-combine-item'
             }).inject(this.objectsExactContainer);
 
-            div.addEvent('click', this.filterRules.bind(this, [1, code, div]));
+            div.addEvent('click', this.filterRules.bind(this, 1, code, div));
 
             var title = new Element('span', {
                 text: 'object://'+this.currentObject+'/'+code
@@ -179,7 +179,7 @@ var users_users_acl = new Class({
             var div = new Element('div', {
                 'class': 'ka-list-combine-item'
             }).inject(this.objectsCustomContainer);
-            div.addEvent('click', this.filterRules.bind(this, [2, code, div]));
+            div.addEvent('click', this.filterRules.bind(this, 2, code, div));
 
             var span = new Element('span').inject(div);
             this.humanReadableCondition(code, span);
@@ -454,7 +454,7 @@ var users_users_acl = new Class({
             src: _path+'media/admin/images/icons/pencil.png',
             title: t('Edit rule')
         })
-        .addEvent('click', this.openEditRuleDialog.bind(this))
+        .addEvent('click', this.openEditRuleDialog.bind(this, this.currentObject, div))
         .inject(actions);
 
         new Element('img', {
@@ -719,7 +719,7 @@ var users_users_acl = new Class({
         }).inject(this.objectRulesFilter);
 
         new ka.Button(t('Deselect'))
-        .addEvent('click', this.filterRules.bind(this, [false]))
+        .addEvent('click', this.filterRules.bind(this, false))
         .inject(div);
 
         /*
@@ -745,7 +745,7 @@ var users_users_acl = new Class({
             'class': 'ka-list-combine-item'
         }).inject(this.objectConstraintsContainer);
 
-        allDiv.addEvent('click', this.filterRules.bind(this, [0, null, allDiv]));
+        allDiv.addEvent('click', this.filterRules.bind(this, 0, null, allDiv));
 
         var h2 = new Element('div', {
             text: t('All objects')
@@ -865,7 +865,7 @@ var users_users_acl = new Class({
 
     },
 
-    openEditRuleDialog: function(pObject, pRule){
+    openEditRuleDialog: function(pObject, pRuleDiv){
 
         pObject = 'news';
 
@@ -907,6 +907,23 @@ var users_users_acl = new Class({
                 }
             },
 
+            constraint_code_condition: {
+                label: t('Constraint'),
+                needValue: '2',
+                againstField: 'constraint_type',
+                type: 'objectCondition',
+                object: pObject,
+                startWith: 1
+            },
+
+            constraint_code_exact: {
+                label: t('Object'),
+                needValue: '1',
+                againstField: 'constraint_type',
+                type: 'object',
+                object: pObject
+            },
+
             access: {
                 label: t('Access'),
                 type: 'select',
@@ -946,13 +963,24 @@ var users_users_acl = new Class({
                 againstField: 'mode',
                 type: 'custom',
                 'class': 'users_acl_rule_fields',
-                object: pObject,
-                rule: pRule
+                object: pObject
             }
 
         };
 
         this.editRuleKaObj = new ka.parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
+
+        var rule = Object.clone(pRuleDiv.rule || {});
+
+        if (rule.constraint_type == 2){
+            rule.constraint_code_condition = rule.constraint_code;
+        }
+        if (rule.constraint_type == 1){
+            rule.constraint_code_exact = rule.constraint_code;
+        }
+
+        logger(rule);
+        this.editRuleKaObj.setValue(rule);
 
     },
 
@@ -1132,7 +1160,7 @@ var users_users_acl = new Class({
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                    .addEvent('click', this.loadRules.bind(this, ['user', item]))
+                    .addEvent('click', this.loadRules.bind(this, 'user', item))
                     .inject(this.left);
 
                     this.userDivs[item.rsn] = div;
@@ -1174,7 +1202,7 @@ var users_users_acl = new Class({
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                    .addEvent('click', this.loadRules.bind(this, ['group', item]))
+                    .addEvent('click', this.loadRules.bind(this, 'group', item))
                     .inject(this.left);
 
                     this.groupDivs[item.rsn] = div;
@@ -1195,6 +1223,7 @@ var users_users_acl = new Class({
     loadRules: function(pType, pItem){
 
         var div = pType=='group'? this.groupDivs[pItem.rsn]:this.userDivs[pItem.rsn];
+        logger(pType);
         if (!div) return;
 
         this.left.getElements('.ka-list-combine-item').removeClass('active');
@@ -1224,8 +1253,6 @@ var users_users_acl = new Class({
             noCache: true,
             onComplete: this.setAcls.bind(this)
         }).get({type: pType, id: pId});
-
-        this.openEditRuleDialog();
 
     },
 

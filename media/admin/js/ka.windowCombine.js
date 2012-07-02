@@ -72,7 +72,7 @@ ka.windowCombine = new Class({
 
         }.bind(this)).inject(this.mainLeftDeleter);
 
-        new ka.Button(_('Remove selected')).addEvent('click', this.removeSelected.bind(this)).inject(this.mainLeftDeleter);
+        new ka.Button(t('Remove selected')).addEvent('click', this.removeSelected.bind(this)).inject(this.mainLeftDeleter);
 
         //window.addEvent('resize', this.checkScrollPosition.bind(this));
 
@@ -88,7 +88,7 @@ ka.windowCombine = new Class({
         }).inject(this.main);
 
 
-        document.addEvent('keydown', this.leftItemsDown.bind(this));
+        document.addEvent('keydown', function(e){this.leftItemsDown.call(this, e)}.bind(this));
     },
 
     leftItemsDown: function (pE) {

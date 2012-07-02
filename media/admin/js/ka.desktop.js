@@ -74,7 +74,7 @@ ka.desktop = new Class({
 
         if (!pOnWorkspace) {
             new Element('a', {
-                html: _('Open')
+                html: t('Open')
             }).addEvent('click', function () {
                 this.openSelected();
             }.bind(this)).inject(this.oldContext);
@@ -259,7 +259,11 @@ ka.desktop = new Class({
                 'background-image': 'url(' + _path + PATH_MEDIA + '/' + pIcon.icon + ')'
             }
         }).inject(this.container);
-        m.addEvent('mousedown', this.mousedown.bind(m, this))
+
+        m.addEvent('mousedown', function(e){
+            this.mousedown.call(this, e, m);
+        }.bind(this));
+
 
         m.addEvent('dblclick', function () {
             ka.wm.openWindow(pIcon.module, pIcon.code, null, null, pIcon.params);
@@ -298,34 +302,34 @@ ka.desktop = new Class({
         }).inject(m);
     },
 
-    mousedown: function (e, pThis) {
-        pThis.closeContext();
+    mousedown: function (pEvent, pElement) {
+        this.closeContext();
 
         var count = 0;
-        pThis._icons.each(function (item, id) {
+        this._icons.each(function (item, id) {
             if (item.icon && item.icon.get('class').search('-active') > 0) {
                 count++;
             }
         });
 
 
-        if (!e.control && !e.rightClick) {
-            pThis.icons.each(function (icon) {
+        if (!pEvent.control && !pEvent.rightClick) {
+            this.icons.each(function (icon) {
                 icon.set('class', 'ka-desktop-icon');
             });
         }
 
-        if (!e.rightClick && this.get('class').search('-active') > 0) {
-            this.set('class', 'ka-desktop-icon');
+        if (!pEvent.rightClick && pElement.get('class').search('-active') > 0) {
+            pElement.set('class', 'ka-desktop-icon');
         } else {
-            this.set('class', 'ka-desktop-icon ka-desktop-icon-active');
+            pElement.set('class', 'ka-desktop-icon ka-desktop-icon-active');
         }
 
-        if (e.rightClick) {
-            pThis.onContext(e);
+        if (pEvent.rightClick) {
+            this.onContext(pEvent);
         }
 
-        e.stop();
+        pEvent.stop();
         return false;
     }
 });

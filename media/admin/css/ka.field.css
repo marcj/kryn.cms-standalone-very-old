@@ -3,7 +3,7 @@
 }
 
 
-tr.ka-field-main td {
+tr.ka-field-main > td {
     border-bottom: 1px dotted #ddd;
     vertical-align: top;
 }
@@ -61,7 +61,7 @@ div.ka-field-main div.desc {
     line-height: 14px;
 }
 
-tr.ka-field-main td div.desc {
+tr.ka-field-main > td div.desc {
     padding-left: 2px;
 }
 

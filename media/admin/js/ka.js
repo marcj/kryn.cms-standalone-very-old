@@ -1913,14 +1913,13 @@ ka.parse = new Class({
 
             } else {
 
-                if (field.tableItem && target.get('tag') != 'tbody'){
+                if (field.tableItem && target.get('tag') != 'table'){
 
-                    if (!pContainer.kaFieldTBody){
+                    if (!pContainer.kaFieldTable){
                         pContainer.kaFieldTable = new Element('table', {width: '100%'}).inject(target);
-                        pContainer.kaFieldTBody = new Element('tbody').inject(pContainer.kaFieldTable);
                     }
 
-                    target = pContainer.kaFieldTBody;
+                    target = pContainer.kaFieldTable;
                 }
 
                 obj = new ka.field(field, target, this.refs, id);

@@ -95,7 +95,7 @@ var users_acl_rule_fields = new Class({
 
 
         new ka.Button([t('Add field rule'), 'admin/images/icons/add.png'])
-        .addEvent('click', this.addFieldRule.bind(this, [conditions, pKey, pOnlyThisFieldCondition]))
+        .addEvent('click', this.addFieldRule.bind(this, conditions, pKey, pOnlyThisFieldCondition))
         .inject(div);
 
         return div;
@@ -168,7 +168,8 @@ var users_acl_rule_fields = new Class({
                 field: pFieldKey,
                 object: this.field.object,
                 startWith: 1
-            }, div, {win: this.win})
+            }, div, {win: this.win});
+
         } else {
             var objectDefinition = ka.getObjectDefinition(this.field.object);
             var fieldDefinition = objectDefinition.fields[pFieldKey];
@@ -194,8 +195,9 @@ var users_acl_rule_fields = new Class({
     setValue: function( pValue ){
         if( !pValue || pValue == '' ) return;
 
-
         this.value = pValue;
+
+
 
     },
 

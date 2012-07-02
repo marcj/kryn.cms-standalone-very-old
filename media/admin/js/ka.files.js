@@ -743,23 +743,23 @@ ka.files = new Class({
         var toLeft = new Element('img', {
             src: _path + PATH_MEDIA + '/admin/images/admin-files-toLeft.png'
         });
-        boxNavi.addButton(_('Back'), _path + PATH_MEDIA + '/admin/images/admin-files-toLeft.png', function () {
+        boxNavi.addButton(t('Back'), _path + PATH_MEDIA + '/admin/images/admin-files-toLeft.png', function () {
             this.goHistory('left');
         }.bind(this));
 
-        boxNavi.addButton(_('Forward'), _path + PATH_MEDIA + '/admin/images/admin-files-toRight.png', function () {
+        boxNavi.addButton(t('Forward'), _path + PATH_MEDIA + '/admin/images/admin-files-toRight.png', function () {
             this.goHistory('right');
         }.bind(this));
 
         this.upBtn = boxNavi.addButton(_('Up'), _path + PATH_MEDIA + '/admin/images/admin-files-toUp.png', this.up.bind(this));
         this.upBtn.fileObj = this;
 
-        boxNavi.addButton(_('Refresh'), _path + PATH_MEDIA + '/admin/images/admin-files-refresh.png', this.reload.bind(this));
+        boxNavi.addButton(t('Refresh'), _path + PATH_MEDIA + '/admin/images/admin-files-refresh.png', this.reload.bind(this));
 
         var boxAction = this.addButtonGroup();
         this.boxAction = boxAction;
-        boxAction.addButton(_('New file'), _path + PATH_MEDIA + '/admin/images/admin-files-newFile.png', this.newFile.bind(this));
-        boxAction.addButton(_('New directory'), _path + PATH_MEDIA + '/admin/images/admin-files-newDir.png', this.newFolder.bind(this));
+        boxAction.addButton(t('New file'), _path + PATH_MEDIA + '/admin/images/admin-files-newFile.png', this.newFile.bind(this));
+        boxAction.addButton(t('New directory'), _path + PATH_MEDIA + '/admin/images/admin-files-newDir.png', this.newFolder.bind(this));
 
         this.newUploadBtn();
 
@@ -769,14 +769,14 @@ ka.files = new Class({
         var boxTypes = this.addButtonGroup();
         this.typeButtons = new Hash();
 
-        this.typeButtons['icon'] = boxTypes.addButton(_('Icon view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-icons.png', this.setListType.bind(this, 'icon'));
+        this.typeButtons['icon'] = boxTypes.addButton(t('Icon view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-icons.png', this.setListType.bind(this, 'icon'));
 
-        this.typeButtons['miniatur'] = boxTypes.addButton(_('Image view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-miniatur.png', this.setListType.bind(this, ['miniatur', null, 70]));
+        this.typeButtons['miniatur'] = boxTypes.addButton(t('Image view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-miniatur.png', this.setListType.bind(this, 'miniatur', null, 70));
 
         //      this.typeButtons['image']  = boxTypes.addButton( 'Bilderansicht',
         //          _path+ PATH_MEDIA + '/admin/images/admin-files-list-images.png', this.setListType.bind(this, 'image'));
 
-        this.typeButtons['detail'] = boxTypes.addButton(_('Detail view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-detail.png', this.setListType.bind(this, 'detail'));
+        this.typeButtons['detail'] = boxTypes.addButton(t('Detail view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-detail.png', this.setListType.bind(this, 'detail'));
 
         this.typeButtons.each(function (btn) {
             btn.store('oriClass', btn.get('class'));
