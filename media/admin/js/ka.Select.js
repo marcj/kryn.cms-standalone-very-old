@@ -23,8 +23,10 @@ ka.Select = new Class({
         this.setOptions(pOptions);
 
         this.box = new Element('div', {
-            'class': 'ka-normalize ka-Select-box'
+            'class': 'ka-normalize ka-Select-box ka-Select-box-active'
         }).addEvent('click', this.toggle.bind(this));
+
+        this.box.instance = this;
 
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
@@ -53,9 +55,9 @@ ka.Select = new Class({
             this.setValue(item.kaSelectId, true);
             this.close();
         }.bind(this));
-{
+
         if (pContainer)
-            this.box.inject(pContainer)}
+            this.box.inject(pContainer)
 
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
@@ -76,8 +78,12 @@ ka.Select = new Class({
     setEnabled: function(pEnabled){
 
         this.enabled = pEnabled;
-
         this.arrowBox.setStyle('opacity', pEnabled?1:0.4);
+
+        if (this.enabled) this.box.addClass('ka-Select-box-active');
+        else this.box.removeClass('ka-Select-box-active');
+
+        this.title.setStyle('opacity', pEnabled?1:0.4);
 
     },
 

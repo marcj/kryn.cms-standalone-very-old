@@ -10,9 +10,9 @@ a.ka-Button, a.ka-Button:link {
     line-height: 20px;
     font-weight: normal;
     
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    -webkit-border-radius: 2px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
     
     margin-right: 3px;
     margin-left: 4px;

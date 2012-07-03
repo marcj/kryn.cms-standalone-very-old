@@ -349,7 +349,7 @@ var users_users_acl = new Class({
             this.loadObjectLabel(title);
         }
 
-        if (pRule.mode >= 1 && pRule.mode <= 3){
+        if (pRule.mode != 1 && pRule.mode <= 3){
 
             var fieldSubline = new Element('div', {
                 'class': 'users-acl-object-rule-subline'
@@ -357,7 +357,7 @@ var users_users_acl = new Class({
 
             var comma;
 
-            if (pRule.fields){
+            if (pRule.fields && pRule.fields != ''){
 
                 var definition = ka.getObjectDefinition(this.currentObject);
 
@@ -861,11 +861,14 @@ var users_users_acl = new Class({
 
         var value = this.editRuleKaObj.getValue();
 
-
+        logger(value);
 
     },
 
     openEditRuleDialog: function(pObject, pRuleDiv){
+
+
+        this.currentRuleDiv = pRuleDiv?pRuleDiv:null;
 
         pObject = 'news';
 
@@ -919,6 +922,7 @@ var users_users_acl = new Class({
             constraint_code_exact: {
                 label: t('Object'),
                 needValue: '1',
+                fieldWidth: 250,
                 againstField: 'constraint_type',
                 type: 'object',
                 object: pObject
@@ -970,7 +974,7 @@ var users_users_acl = new Class({
 
         this.editRuleKaObj = new ka.parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
 
-        var rule = Object.clone(pRuleDiv.rule || {});
+        var rule = Object.clone(pRuleDiv ? pRuleDiv.rule : {});
 
         if (rule.constraint_type == 2){
             rule.constraint_code_condition = rule.constraint_code;
@@ -979,7 +983,6 @@ var users_users_acl = new Class({
             rule.constraint_code_exact = rule.constraint_code;
         }
 
-        logger(rule);
         this.editRuleKaObj.setValue(rule);
 
     },
@@ -1223,7 +1226,6 @@ var users_users_acl = new Class({
     loadRules: function(pType, pItem){
 
         var div = pType=='group'? this.groupDivs[pItem.rsn]:this.userDivs[pItem.rsn];
-        logger(pType);
         if (!div) return;
 
         this.left.getElements('.ka-list-combine-item').removeClass('active');

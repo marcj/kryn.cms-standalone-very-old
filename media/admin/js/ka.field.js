@@ -474,6 +474,10 @@ ka.field = new Class({
                 div.iLeft.getValue = function(){return this.value;};
             }
 
+
+            if (pValues)
+                div.iLeft.setValue(pValues[0]);
+
             var td = new Element('td', {style: 'width: 41px; text-align: center'}).inject(tr);
             var select = new ka.Select(td);
             div.iMiddle = select;
@@ -488,7 +492,6 @@ ka.field = new Class({
             if (pValues)
                 select.setValue(pValues[1]);
 
-
             var rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
             div.iRight = new Element('input', {
                 'class': 'text',
@@ -496,7 +499,6 @@ ka.field = new Class({
                 value: pValues?pValues[2]:''
             }).inject(rightTd);
             div.iRight.getValue = function(){return this.value;};
-
 
             if (pOptions){
                 var updateRightTdField = function(){
@@ -513,7 +515,7 @@ ka.field = new Class({
                     rightTd.empty();
 
                     if (fieldDefinition.primaryKey){
-                        if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == '='){
+                        if (['=', '!=', 'IN', 'NOT IN'].contains(div.iMiddle.getValue())){
                                 fieldDefinition = {
                                     type: 'object',
                                     object: pOptions.object,
@@ -533,6 +535,10 @@ ka.field = new Class({
                             fieldDefinition.type = 'textlist';
                         else
                             fieldDefinition.multi = 1;
+                    }
+
+                    if (['LIKE', 'REGEXP'].contains(div.iMiddle.getValue())){
+                        fieldDefinition = {type: 'text'};
                     }
 
                     if (fieldDefinition.type == 'object' && fieldDefinition.object == 'user'){
@@ -680,7 +686,6 @@ ka.field = new Class({
         renderValues = function (pValue, pTarget, pLastRel){
             if (typeOf(pValue) == 'array'){
 
-                logger(pValue);
                 var lastRel = pLastRel || '';
 
                 Array.each(pValue, function(item){
@@ -750,9 +755,9 @@ ka.field = new Class({
                         result.push(item.relSelect.getValue());
 
                     result.push([
-                        item.iLeft.value,
+                        item.iLeft.getValue(),
                         item.iMiddle.getValue(),
-                        item.iRight.value
+                        item.iRight.getValue()
                     ])
                 }
 

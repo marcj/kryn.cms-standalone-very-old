@@ -2,6 +2,10 @@ var users_acl_rule_fields = new Class({
 
     Implements: Events,
 
+    rows: {},
+
+    fields: {}, //backup for speed
+
     initialize: function( pField, pParent, pRefs ){
 
         this.field = pField;
@@ -40,6 +44,8 @@ var users_acl_rule_fields = new Class({
             return;
         }
 
+        this.fields = definition.fields;
+
         if (!definition.fields || Object.getLength(definition.fields) == 0){
             new Element('div', {
                 style: 'color: silver; padding: 20px; text-align: center;',
@@ -66,13 +72,9 @@ var users_acl_rule_fields = new Class({
 
             var more = '';
 
-            if (def.type == 'object'){
-                more = this.createConditionRule(def, key);
-            } else {
-                more = this.createConditionRule(def, key, true);
-            }
+            more = this.createConditionRule(def, key);
 
-            this.table.addRow([
+            this.rows[key] = this.table.addRow([
                 def.label || key,
                 select,
                 more
@@ -85,27 +87,41 @@ var users_acl_rule_fields = new Class({
 
     },
 
-    createConditionRule: function(pDefinition, pKey, pOnlyThisFieldCondition){
+    createConditionRule: function(pDefinition, pKey){
 
         var div = new Element('div');
 
         var conditions = new Element('div', {
+            'class': 'users-acl-rule-field-item-detail-rule-conditions',
             style: 'padding-left: 15px;'
         }).inject(div);
 
-
         new ka.Button([t('Add field rule'), 'admin/images/icons/add.png'])
-        .addEvent('click', this.addFieldRule.bind(this, conditions, pKey, pOnlyThisFieldCondition))
+        .addEvent('click', this.addFieldRule.bind(this, conditions, pKey, null))
         .inject(div);
 
         return div;
     },
 
-    addFieldRule: function(pContainer, pFieldKey, pOnlyThisFieldCondition){
+    checkHasFieldRules: function(pFieldKey){
+
+        if (!this.rows[pFieldKey]) return;
+
+        var selectNode = this.rows[pFieldKey].getElement('.ka-Select-box');
+
+        if (this.rows[pFieldKey].getElement('.users-acl-rule-fields-item')){
+            selectNode.instance.setEnabled(false);
+            selectNode.instance.setValue('2', true);
+        } else {
+            selectNode.instance.setEnabled(true);
+        }
+
+    },
+
+    addFieldRule: function(pContainer, pFieldKey, pValues){
 
         var div = new Element('div', {
-            style: 'border: 1px solid silver; position: relative; margin-top: 15px; '+
-            'padding-top: 15px; margin-bottom: 5px; background-color: #eee;'
+            'class': 'users-acl-rule-fields-item'
         });
 
         var actions = new Element('div', {
@@ -152,17 +168,21 @@ var users_acl_rule_fields = new Class({
             this.win._confirm(t('Really delete?'), function(a){
                 if (!a) return;
                 div.destroy();
-            })
+                this.checkHasFieldRules(pFieldKey);
+            }.bind(this))
         }.bind(this))
         .inject(imagesContainer);
 
         select.add('0', [t('Deny'), 'admin/images/icons/exclamation.png']);
         select.add('1', [t('Allow'), 'admin/images/icons/accept.png']);
 
+        if (pValues){
+            select.setValue(pValues.access, true);
+        }
 
-        if (pOnlyThisFieldCondition){
+        if (this.fields[pFieldKey].type != 'object'){
 
-            new ka.field({
+            var conditionField = new ka.field({
                 noWrapper: true,
                 type: 'fieldCondition',
                 field: pFieldKey,
@@ -174,7 +194,7 @@ var users_acl_rule_fields = new Class({
             var objectDefinition = ka.getObjectDefinition(this.field.object);
             var fieldDefinition = objectDefinition.fields[pFieldKey];
 
-            new ka.field({
+            var conditionField = new ka.field({
                 noWrapper: true,
                 type: 'objectCondition',
                 object: fieldDefinition.object,
@@ -183,21 +203,88 @@ var users_acl_rule_fields = new Class({
         }
 
 
+        if (pValues){
+            conditionField.setValue(pValues.condition);
+        }
+
+        document.id(conditionField).addClass('users-acl-rule-fields-item-conditionfield');
+        div.conditionField = conditionField;
+        div.accessField = select;
+
         div.inject(pContainer);
+
+        this.checkHasFieldRules(pFieldKey);
 
     },
 
 
     getValue: function(){
-        return this.value;
+
+        var values = {};
+
+        Object.each(this.rows, function(tr, key){
+
+
+            var selectNode = this.rows[key].getElement('.ka-Select-box');
+            var conditions = this.rows[key].getElement('.users-acl-rule-field-item-detail-rule-conditions');
+
+            if (conditions.getElement('.users-acl-rule-fields-item')){
+
+                var detailedRule = [];
+                conditions.getChildren().each(function(children){
+
+                    detailedRule.push({
+                        access: children.accessField.getValue(),
+                        condition: children.conditionField.getValue()
+                    });
+
+                });
+
+                values[key] = detailedRule;
+
+            } else if (selectNode.instance.getValue() != '2'){
+                 values[key] = selectNode.instance.getValue()+0;
+            }
+
+        }.bind(this));
+
+        this.values = values;
+        return values;
+
     },
 
     setValue: function( pValue ){
         if( !pValue || pValue == '' ) return;
 
+        if (typeOf(pValue) == 'string')
+            pValue = JSON.decode(pValue);
+
         this.value = pValue;
 
+        this.renderFieldValues();
 
+    },
+
+    renderFieldValues: function(){
+
+        Object.each(this.value, function(def, key){
+
+            if(!this.rows[key]) return;
+
+            var conditions = this.rows[key].getElement('.users-acl-rule-field-item-detail-rule-conditions');
+            conditions.getChildren().destroy();
+
+            if (typeOf(def) == 'array'){
+                Array.each(def, function(rule){
+                    this.addFieldRule(conditions, key, rule);
+                }.bind(this));
+            } else {
+                var selectNode = this.rows[key].getElement('.ka-Select-box');
+                selectNode.instance.setValue(def, true);
+            }
+            this.checkHasFieldRules(key);
+
+        }.bind(this));
 
     },
 

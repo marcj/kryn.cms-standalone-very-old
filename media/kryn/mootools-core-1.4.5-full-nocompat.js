@@ -3454,9 +3454,6 @@ Element.implement({
 	}
 
 });
-
-    var collected = {};
-
 [Element, Window, Document].invoke('implement', {
 
 	addListener: function(type, fn){
@@ -3466,9 +3463,7 @@ Element.implement({
 				self.removeListener('unload', fn);
 				old();
 			};
-		} else {
-            collected[Slick.uidOf(this)] = this;
-        }
+		}
         if (this.addEventListener) this.addEventListener(type, fn, !!arguments[2]);
 		else this.attachEvent('on' + type, fn);
 		return this;

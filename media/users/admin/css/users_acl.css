@@ -141,6 +141,7 @@ input.users-acl-query {
     bottom: 0px;
     overflow: auto;
     background-color: white;
+    overflow-x: hidden;
 }
 
 .users-acl-object-rules-info {
@@ -269,6 +270,24 @@ input.users-acl-query {
 
 
 
+.users-acl-rule-fields-item {
+    border: 1px solid silver;
+    position: relative;
+    margin: 23px 0px;
+    background-color: #eee;
+
+}
+
+.users-acl-rule-fields-item-conditionfield {
+    position: relative;
+    top: 13px;
+}
+
+.users-acl-rule-fields-item-conditionfield .ka-field-condition-container + .ka-Button,
+.users-acl-rule-fields-item-conditionfield .ka-field-condition-container + .ka-Button + .ka-Button {
+    position: relative;
+    left: 11px;
+}
 
 
 

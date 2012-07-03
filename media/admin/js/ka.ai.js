@@ -296,7 +296,7 @@ ka.getObjectId = function(pUrl){
     } else {
         if (id.indexOf(',') != -1){
             Array.each(id.split(','), function(tId){
-                rest.push(ka.urlDecode(tId));
+                res.push(ka.urlDecode(tId));
             });
             return res.substr(0, res.length-1);
         } else {

@@ -54,6 +54,7 @@
     cursor: default;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    line-height: 25px;
 }
 
 .ka-Table-body > tr.one > td {
