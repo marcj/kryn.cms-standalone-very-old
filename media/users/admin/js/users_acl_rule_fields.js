@@ -243,7 +243,7 @@ var users_acl_rule_fields = new Class({
                 values[key] = detailedRule;
 
             } else if (selectNode.instance.getValue() != '2'){
-                 values[key] = selectNode.instance.getValue()+0;
+                 values[key] = selectNode.instance.getValue();
             }
 
         }.bind(this));

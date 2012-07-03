@@ -2020,7 +2020,7 @@ var admin_system_module_edit = new Class({
                                 label: t('Columns'),
                                 type: 'fieldTable',
                                 needValue: 'default',
-                                desc: t('In table mode'),
+                                desc: t('For tables or select boxes.'),
                                 options: {
                                     asFrameworkColumn: true,
                                     withoutChildren: true,

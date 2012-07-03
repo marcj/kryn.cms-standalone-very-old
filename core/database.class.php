@@ -462,6 +462,67 @@ class database {
         return $res;
     }
 
+    public function rowCount($pStatement) {
+        if ($pStatement === false) return;
+
+        if (!$this->usePdo) {
+
+            switch ($this->type) {
+                case 'sqlite':
+                    return $pStatement->numRows();
+                    break;
+                case 'mysql':
+                    return mysql_num_rows($pStatement);
+                    break;
+                case 'mysqli':
+                    return mysqli_num_rows($pStatement);
+                    break;
+                case 'mssql':
+                    return mssql_num_rows($pStatement);
+                    break;
+                case 'postgresql':
+                    return pg_num_rows($pStatement);
+                    break;
+            }
+        } else {
+
+            return $pStatement->rowCount();
+        }
+
+        return false;
+    }
+
+
+    public function free($pStatement) {
+        if ($pStatement === false) return;
+
+        if (!$this->usePdo) {
+
+            switch ($this->type) {
+                case 'sqlite':
+                    return $pStatement->closeCursor();
+                    break;
+                case 'mysql':
+                    return mysql_free_result($pStatement);
+                    break;
+                case 'mysqli':
+                    return mysqli_free_result($pStatement);
+                    break;
+                case 'mssql':
+                    return mssql_free_result($pStatement);
+                    break;
+                case 'postgresql':
+                    return pg_free_result($pStatement);
+                    break;
+            }
+        } else {
+
+            return $pStatement->rowCount();
+        }
+
+        return false;
+    }
+
     public static function clearOptionsCache($pTable) {
         $cacheKey = 'krynDatabaseTable_' . str_replace('_', '..', $pTable);
         kryn::deleteCache($cacheKey);
@@ -876,10 +937,6 @@ class database {
 
     public function close() {
 
-    }
-
-    public function rowcount($pStatement) {
-        return $pStatement->rowCount();
     }
 
     public function exfetch($pQuery, $pRowcount = 1) {

@@ -563,6 +563,11 @@
       "tableCondition": [
         
       ],
+      "nestedLabel": "title",
+      "nestedRootObject": "domain",
+      "nestedRootObjectField": "domain_rsn",
+      "nestedRootObjectLabel": "domain",
+      "nestedRootAsObject": 1,
       "nested": 1,
       "multiLanguage": 0,
       "domainDepended": 0,
@@ -575,16 +580,10 @@
           "type": "text"
         }
       },
+      "chooserFieldDataModelField": "title",
       "chooserFieldType": "default",
-      "chooserBrowserTreeDataModel": "default",
       "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
       "chooserBrowserTreeJavascript": "custom",
-      "nestedRootObject": "domain",
-      "nestedRootObjectField": "domain_rsn",
-      "nestedRootObjectLabel": "domain",
-      "nestedRootAsObject": 1,
-      "nestedLabel": "title",
-      "nestedIcon": "type",
       "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
       "chooserBrowserTreeRootObjectFixedIcon": 1,
       "chooserBrowserTreeIconMapping": [
@@ -597,7 +596,6 @@
       ],
       "chooserBrowserDataModel": "none",
       "chooserBrowserType": "custom",
-      "selectable": 1,
       "fields": {
         "rsn": {
           "label": "[[ID]]",
@@ -739,15 +737,43 @@
       "label": "[[Node]]"
     },
     "domain": {
-      "desc": "",
-      "tableSync": false,
       "table": "system_domains",
-      "class": "",
-      "plugins": "",
-      "chooserTableKey": "rsn",
-      "chooserTableLabel": "domain",
-      "chooserUseOwnClass": false,
-      "selectable": true,
+      "tableSync": 0,
+      "tableCondition": [
+        
+      ],
+      "nested": 0,
+      "multiLanguage": 0,
+      "domainDepended": 0,
+      "chooserFieldDataModelCondition": [
+        
+      ],
+      "chooserFieldDataModel": "default",
+      "chooserFieldDataModelFields": {
+        "lang": {
+          "label": "[[Language]]",
+          "type": "lang",
+          "width": "30%"
+        },
+        "domain": {
+          "label": "[[Domain]]",
+          "type": "text"
+        }
+      },
+      "chooserFieldType": "default",
+      "chooserBrowserAutoColumns": {
+        "lang": {
+          "label": "[[Language]]",
+          "type": "lang",
+          "width": "30%"
+        },
+        "domain": {
+          "label": "[[Domain]]",
+          "type": "text"
+        }
+      },
+      "chooserBrowserDataModel": "default",
+      "chooserBrowserType": "default",
       "fields": {
         "rsn": {
           "label": "ID",
@@ -774,22 +800,7 @@
           "empty": 1
         }
       },
-      "label": "[[Domain]]",
-      "chooser_icon": "",
-      "chooseBrowserAutoColumns": {
-        "lang": {
-          "label": "[[Language]]",
-          "type": "text",
-          "width": "60",
-          "empty": true
-        },
-        "domain": {
-          "label": "[[Domain]]",
-          "type": "text",
-          "empty": true
-        }
-      },
-      "chooserAutoFilter": ""
+      "label": "[[Domain]]"
     },
     "system_entrypoint": {
       "class": "objectEntrypoint",

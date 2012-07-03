@@ -73,7 +73,7 @@ input.users-acl-query {
     position: absolute;
     left: 0px;
     top: 0px;
-    width: 170px;
+    width: 200px;
     bottom: 0px;
     border-right: 1px solid #bbb;
     background-color: white;
@@ -82,9 +82,9 @@ input.users-acl-query {
 
 .users-acl-object-constraints {
     position: absolute;
-    left: 171px;
+    left: 201px;
     top: 0px;
-    width: 200px;
+    width: 250px;
     bottom: 0px;
     border-right: 1px solid #bbb;
     background-color: white;
@@ -128,7 +128,7 @@ input.users-acl-query {
     position: absolute;
     right: 0px;
     top: 0px;
-    left: 372px;
+    left: 452px;
     bottom: 0px;
     background-color: #FAFAFA;
 }

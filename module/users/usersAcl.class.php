@@ -20,7 +20,7 @@ class usersAcl {
             case 'loadTree':
                 return self::loadTree();
             case 'load':
-                return self::load();
+                return self::load(getArgv('acl_target_type'), getArgv('acl_target_rsn'));
             case 'loadDomains':
                 return self::loadDomains();
             case 'loadPages':
@@ -180,28 +180,28 @@ class usersAcl {
         return $res;
     }
 
-    public static function load(){
-        global $modules;
+    public static function load($pType, $pId, $pAsCount){
 
-        //$type = getArgv('type');
-        //$rsn = getArgv('rsn');
+        $where = 'target_type = '.($pType+0);
+        $where .= ' AND target_rsn = '.($pId+0);
 
-        $where = 'target_type = '.(getArgv('acl_target_type')+0);
-        $where .= ' AND target_rsn = '.(getArgv('acl_target_rsn')+0);
-        //$where .= ' AND type = '.(getArgv('acl_type')+0);
-        
-        /*if( $type == 'user' ){
-            $where = 'target_type = 2';
-        } else {
-            $where = 'target_type = 1';
+        $where .= " ORDER BY prio DESC";
+
+        if (!$pAsCount)
+            return dbTableFetch( 'system_acl', DB_FETCH_ALL, $where );
+        else
+            return dbCount( 'system_acl', $where );
+
+    }
+
+    public static function setAclCount(&$pItems, $pType){
+
+        foreach ($pItems as &$item){
+
+            $item['ruleCount'] = self::load($pType, $item['rsn'], true);
+
         }
-        $where .= " AND target_rsn = $rsn ORDER BY prio DESC";*/
-        
-        $where .= " ORDER BY prio DESC"; 
 
-        $acls = dbTableFetch( 'system_acl', DB_FETCH_ALL, $where );
-
-        json( $acls );
     }
     
     public static function search(){
@@ -229,9 +229,13 @@ class usersAcl {
             'fields' => 'rsn,username, email, groups, first_name, last_name'
         ));
 
+        self::setAclCount($users, 0);
+
         $groups = krynObjects::getList('group', $groupFilter, array(
             'limit' => 10
         ));
+
+        self::setAclCount($groups, 1);
 
         json( array(
             'users' => $users,

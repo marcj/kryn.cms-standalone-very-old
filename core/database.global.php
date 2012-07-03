@@ -281,11 +281,11 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
 
 
 /**
- * Select items based on pWhere on table pTable and returns pCount items.
+ * Select items based on pWhere on, table pTable and returns pCount items.
  *
  * @param string  $pTable The table name based on your extension table definition.
  * @param integer $pCount How many items it will returns, with 1 you'll get direct the array without a list.
- * @param string  $pWhere
+ * @param string  $pWhere condition object
  * @param string  $pFields Comma separated list of the columns
  *
  * @return array
@@ -442,25 +442,57 @@ function dbDelete($pTable, $pWhere = '') {
  * @return int
  */
 function dbCount($pTable, $pWhere = false) {
-    $table = dbTableName($pTable);
-    $sql = "SELECT count(*) as count FROM $table";
-    if ($pWhere != false)
-        $sql .= " WHERE $pWhere ";
-    $row = dbExfetch($sql);
-    return $row['count'];
+
+    $table = dbQuote(dbTableName($pTable));
+
+    if (kryn::$config['db_type'] == 'postgresql'){
+
+        $columns = array_keys(database::getColumns(dbTableName($pTable)));
+        $firstColumn = $columns[0];
+
+        $sql = "SELECT $firstColumn FROM $table";
+        if ($pWhere != false)
+            $sql .= " WHERE $pWhere ";
+
+        $res = dbExec($sql);
+
+        $count = dbNumRows($res);
+
+        dbFree($res);
+
+        return $count;
+
+    } else {
+        $sql = "SELECT count(*) as ".dbQuote('counter')." FROM $table";
+        if ($pWhere != false)
+            $sql .= " WHERE $pWhere ";
+
+        $row = dbExfetch($sql);
+        return $row['counter'];
+    }
+}
+
+function dbNumRows($pStatement){
+    global $kdb;
+    return $kdb->rowCount($pStatement);
+}
+
+function dbFree($pStatement){
+    global $kdb;
+    return $kdb->free($pStatement);
 }
 
 /**
  * Fetch a row based on the specified resultset from dbExec()
  *
- * @param resultset $pRes   The result of dbExec()
- * @param int    $pCount Defines how many items the function returns
+ * @param resultset $pStatement   The result of dbExec()
+ * @param int       $pCount Defines how many items the function returns
  *
  * @return array
  */
-function dbFetch($pRes, $pCount = 1) {
+function dbFetch($pStatement, $pCount = 1) {
     global $kdb;
-    return $kdb->fetch($pRes, $pCount);
+    return $kdb->fetch($pStatement, $pCount);
 }
 
 /**

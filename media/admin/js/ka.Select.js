@@ -14,6 +14,7 @@ ka.Select = new Class({
 
         items: false, //array or object
         store: false, //string
+        object: false, //for object chooser
         customValue: false //boolean
 
     },
@@ -71,7 +72,53 @@ ka.Select = new Class({
                     this.add(label, label);
                 }.bind(this))
             }
+
+            this.fireEvent('ready');
+        } else if (this.options.object){
+
+            this.loadObjectItems();
+
         }
+
+    },
+
+    loadObjectItems: function(){
+
+        this.lastRq = new Request.JSON({url: _path+'admin/backend/objectGetItems',
+            noErrorReporting: true,
+            onComplete: function(res){
+
+                if(!res){
+                    this.add('0', t('No items.'));
+                    this.setEnabled(false);
+                    return;
+                }
+
+                if (res.error == 'no_object_access'){
+
+                    this.add('0', t('No access to this object.'));
+                    this.setEnabled(false);
+
+                } else if (res.error == 'object_not_found'){
+
+                    this.add('0', t('No access to this object.'));
+                    this.setEnabled(false);
+
+                } else {
+
+                    Object.each(res, function(value, id){
+
+                        this.add(id, Object.values(value).join(', '));
+
+                    }.bind(this));
+
+                    this.fireEvent('ready');
+                }
+
+            }.bind(this)
+        }).get({
+            object: this.options.object
+        });
 
     },
 

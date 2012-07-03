@@ -1072,6 +1072,10 @@ ka.objectTree = new Class({
         return selected?selected.retrieve('item'):false;
     },
 
+    getItem: function(pId){
+        return this.items[ pId ]?this.items[ pId ]:false;
+    },
+
     select: function (pId) {
 
         this.unselect();
