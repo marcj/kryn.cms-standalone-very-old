@@ -96,6 +96,10 @@ class usersAcl {
 
     public static function save(){
 
+        asdds();
+
+        return false;
+
         //$target_rsn = getArgv('rsn')+0;
         //$type = (getArgv('type',1) == 'user')?'users':'groups';
 
@@ -180,7 +184,7 @@ class usersAcl {
         return $res;
     }
 
-    public static function load($pType, $pId, $pAsCount){
+    public static function load($pType, $pId, $pAsCount = false){
 
         $where = 'target_type = '.($pType+0);
         $where .= ' AND target_rsn = '.($pId+0);

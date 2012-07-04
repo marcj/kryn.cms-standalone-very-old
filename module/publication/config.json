@@ -352,8 +352,8 @@
         "category_rsn": {
           "label": "[[Category]]",
           "object": "news_category",
-          "object_label": "title",
-          "object_relation": "nTo1",
+          "objectLabel": "title",
+          "objectRelation": "nTo1",
           "type": "object",
           "primaryKey": 0,
           "empty": 1
@@ -378,14 +378,14 @@
         },
         "created": {
           "object": "user",
-          "object_relation": "nTo1",
+          "objectRelation": "nTo1",
           "type": "object",
           "primaryKey": 0,
           "empty": 1
         },
         "modified": {
           "object": "user",
-          "object_relation": "nTo1",
+          "objectRelation": "nTo1",
           "type": "object",
           "primaryKey": 0,
           "empty": 1
@@ -494,8 +494,8 @@
         "parent_rsn": {
           "label": "[[News]]",
           "object": "news",
-          "object_label": "title",
-          "object_relation": "nTo1",
+          "objectLabel": "title",
+          "objectRelation": "nTo1",
           "type": "object",
           "primaryKey": 0,
           "empty": 1

@@ -33,12 +33,12 @@ class krynNavigation {
         if ($pWithoutCache == false) {
 
             $code = $pDomain;
-            $code .= '_' . $pRsn;
+            $code .= '-' . $pRsn;
 
             $navigation =& kryn::getCache('navigation-' . $code);
         }
 
-        if (true || $pWithoutCache == true || !is_array($navigation)) {
+        if ($pWithoutCache == true || !is_array($navigation)) {
 
             $query = "
             SELECT

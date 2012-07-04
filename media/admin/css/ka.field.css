@@ -54,7 +54,7 @@ h2.ka-field-headline {
     position: relative;
 }
 
-div.ka-field-main div.desc {
+div.desc {
     padding: 3px 0px 0px 20px;
     max-width: 325px;
     color: #999;
@@ -63,6 +63,7 @@ div.ka-field-main div.desc {
 
 tr.ka-field-main > td div.desc {
     padding-left: 2px;
+    line-height: 14px;
 }
 
 .ka-field-title div.title {
@@ -94,7 +95,7 @@ input.text {
     border: 1px solid #bbb;
     color: #444;
     font-size: 11px;
-    -moz-border-radius: 2px;
+    -moz-border-radius: 3px;
     background-color: white;
     margin: 2px auto;
 }
@@ -112,7 +113,7 @@ input.text {
 
 input.text,
 textarea {
-    -moz-border-radius: 2px;
+    -moz-border-radius: 3px;
     box-shadow: 0px 1px 0px #f9f9f9;
     border: 1px solid #bbb;
 

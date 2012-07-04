@@ -295,9 +295,9 @@
         "groups": {
           "label": "[[Group membership]]",
           "object": "group",
-          "object_label": "name",
-          "object_relation": "nToM",
-          "object_relation_table": "system_groupaccess",
+          "objectLabel": "name",
+          "objectRelation": "nToM",
+          "objectRelationTable": "system_groupaccess",
           "type": "object",
           "primaryKey": 0,
           "empty": 1

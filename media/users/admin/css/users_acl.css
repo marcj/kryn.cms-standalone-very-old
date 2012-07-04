@@ -26,6 +26,10 @@ input.users-acl-query {
     padding-left: 18px;
     text-indent: 0px;
     border: 1px solid #999;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 184px;
 }
 
 

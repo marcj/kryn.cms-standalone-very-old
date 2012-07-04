@@ -115,7 +115,7 @@ ka.tooltip = new Class({
         if (this.destroyTimer) {
             clearTimeout(this.destroyTimer);
             if (this.main) {
-                this.main.set('tween', {onComplete: $empty});
+                this.main.set('tween', {onComplete: function(){}});
             }
         }
         if (!this.main) this.start();

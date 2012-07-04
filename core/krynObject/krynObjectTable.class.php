@@ -763,6 +763,11 @@ class krynObjectTable extends krynObjectAbstract {
                 ($pFields == '*' || in_array($key, $aFields))
                ){
 
+                if ($field['type'] == 'lang'){
+                    $field['type'] = 'object';
+                    $field['object'] = 'language';
+                }
+
                 if ($field['type'] == 'object'){
 
                     if ($aResolveForeignValues == '*' || in_array($key, $aResolveForeignValues))
@@ -860,7 +865,7 @@ class krynObjectTable extends krynObjectAbstract {
 
     }
 
-    public function getObjectResolveSql($pLeftObject, $pKey, &$pField, &$select, &$fSelect, &$joins, &$grouped){
+    public function getObjectResolveSql($pLeftObject, $pKey, $pField, &$pSelect, &$pFSelect, &$pJoins, &$pGrouped){
 
         $foreignObjectDefinition =& kryn::$objects[$pField['object']];
         if (!$foreignObjectDefinition){
@@ -870,13 +875,13 @@ class krynObjectTable extends krynObjectAbstract {
         $relPrimaryFields = krynObjects::getPrimaries($pField['object']);
         $primaryFields = krynObjects::getPrimaries($pLeftObject);
 
-        $oKey = $pKey.'_'.$pField['object_label'];
-        $oLabel = $pField['object_label']?$pField['object_label']:kryn::$objects[$pField['object']]['objectLabel'];
+        $oLabel = $pField['objectLabel']?$pField['objectLabel']:kryn::$objects[$pField['object']]['objectLabel'];
+        $oKey = $pKey.'_'.($pField['objectLabel']?$pField['objectLabel']:$oLabel);
 
-        if ($pField['object_relation'] != 'nToM'){
+        if ($pField['objectRelation'] != 'nToM'){
             //n to 1
 
-            $select[] = dbQuote($pField['object']).'.'.dbQuote($oLabel).' AS '.dbQuote($oKey);
+            $pSelect[] = dbQuote($pField['object']).'.'.dbQuote($oLabel).' AS '.dbQuote($oKey);
 
             $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($foreignObjectDefinition['table'])).' AS '.dbQuote($pField['object']).
             ' ON ( 1=1';
@@ -891,7 +896,7 @@ class krynObjectTable extends krynObjectAbstract {
 
             } else {
 
-                $select[] = dbQuote($this->object_key).'.'.dbQuote($pKey);
+                $pSelect[] = dbQuote($this->object_key).'.'.dbQuote($pKey);
 
                 //normal foreign key through one column
                 $primaryField = '';
@@ -907,18 +912,18 @@ class krynObjectTable extends krynObjectAbstract {
 
             $join .= ')';
 
-            $joins[] = $join;
+            $pJoins[] = $join;
 
         } else {
 
             //n to m
             if (kryn::$config['db_type'] == 'postgresql')
-                $fSelect[] = 'string_agg('.dbQuote($pField['object']).'.'.dbQuote($oLabel).'||\'\', \',\') AS '.dbQuote($oKey);
+                $pFSelect[] = 'string_agg('.dbQuote($pField['object']).'.'.dbQuote($oLabel).'||\'\', \',\') AS '.dbQuote($oKey);
             else
-                $fSelect[] = 'group_concat('.dbQuote($pField['object']).'.'.dbQuote($oLabel).') AS '.dbQuote($oKey);
+                $pFSelect[] = 'group_concat('.dbQuote($pField['object']).'.'.dbQuote($oLabel).') AS '.dbQuote($oKey);
 
             $relTableNamePre = 'relation_'.$this->object_key.'_'.$pField['object'];
-            $relTableName = $pField['object_relation_table']?$pField['object_relation_table']:$relTableNamePre;
+            $relTableName = $pField['objectRelationTable']?$pField['objectRelationTable']:$relTableNamePre;
 
             $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($relTableName)).' AS '.
                 dbQuote($relTableNamePre).' ON (1=1 ';
@@ -932,7 +937,7 @@ class krynObjectTable extends krynObjectAbstract {
             }
 
             $join .= ')';
-            $joins[] = $join;
+            $pJoins[] = $join;
 
             $join = 'LEFT OUTER JOIN '.dbQuote(dbTableName($foreignObjectDefinition['table'])).' AS '.
                     dbQuote($pField['object']).' ON (1=1 ';
@@ -955,27 +960,27 @@ class krynObjectTable extends krynObjectAbstract {
                 foreach ($primaryFields as $k => $f){
 
                     if (kryn::$config['db_type'] == 'postgresql')
-                        $fSelect[] = 'string_agg('.dbQuote($pField['object']).'.'.dbQuote($k).'||\'\', \',\') AS '.dbQuote($pKey);
+                        $pFSelect[] = 'string_agg('.dbQuote($pField['object']).'.'.dbQuote($k).'||\'\', \',\') AS '.dbQuote($pKey);
                     else
-                        $fSelect[] = 'group_concat('.dbQuote($pField['object']).'.'.($k).') AS '.dbQuote($pKey);
+                        $pFSelect[] = 'group_concat('.dbQuote($pField['object']).'.'.($k).') AS '.dbQuote($pKey);
 
                 }
             } else if(count($primaryFields) > 1){
                 foreach ($primaryFields as $k => $f){
 
                     if (kryn::$config['db_type'] == 'postgresql')
-                        $fSelect[] = 'string_agg('.dbQuote($pField['object']).'.'.dbQuote($k).'||\'\', \',\') AS '.dbQuote($pKey.'_'.$k);
+                        $pFSelect[] = 'string_agg('.dbQuote($pField['object']).'.'.dbQuote($k).'||\'\', \',\') AS '.dbQuote($pKey.'_'.$k);
                     else
-                        $fSelect[] = 'group_concat('.dbQuote($pField['object']).'.'.dbQuote($k).') AS '.dbQuote($pKey.'_'.$k);
+                        $pFSelect[] = 'group_concat('.dbQuote($pField['object']).'.'.dbQuote($k).') AS '.dbQuote($pKey.'_'.$k);
 
                 }
             }
 
             $join .= ')';
 
-            $joins[] = $join;
+            $pJoins[] = $join;
 
-            $grouped = true;
+            $pGrouped = true;
         }
     }
 

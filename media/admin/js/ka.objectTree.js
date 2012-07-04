@@ -18,12 +18,12 @@ ka.objectTree = new Class({
     },
 
     items: {},
-    loadChildsRequests: {},
+    loadChildrenRequests: {},
 
     loadingDone: false,
     firstLoadDone: false,
 
-    load_object_childs: false,
+    load_object_children: false,
     need2SelectAObject: false,
     domainA: false,
     inItemsGeneration: false,
@@ -133,9 +133,9 @@ ka.objectTree = new Class({
 
         new Request.JSON({url: _path + 'admin/backend/objectParents', noCache: 1, onComplete: function (parents) {
 
-            this.load_object_childs = [];
+            this.load_object_children = [];
             Object.each(parents, function (item, id) {
-                this.load_object_childs.include(id);
+                this.load_object_children.include(id);
             }.bind(this));
 
             if (pCallback) {
@@ -251,7 +251,7 @@ ka.objectTree = new Class({
 
         a.store('item', pRes);
 
-        a.childsLoaded = true;
+        a.childrenLoaded = true;
 
         this.rootA = a;
         a.childContainer = this.paneObjects;
@@ -283,7 +283,7 @@ ka.objectTree = new Class({
         a.toggler.addEvent('click', function (e) {
             e.stopPropagation();
             window.fireEvent('click');
-            this.toggleChilds(a);
+            this.toggleChildren(a);
         }.bind(this));
 
 
@@ -294,7 +294,7 @@ ka.objectTree = new Class({
         this.loadFirstLevel();
 
         if (this.options.openFirstLevel){
-            this.openChilds(this.rootA);
+            this.openChildren(this.rootA);
         }
 
     },
@@ -332,7 +332,7 @@ ka.objectTree = new Class({
 
         }
 
-        //this.fireEvent('childsLoaded', [pDomain, this.domainA]);
+        //this.fireEvent('childrenLoaded', [pDomain, this.domainA]);
 
     },
 
@@ -391,13 +391,14 @@ ka.objectTree = new Class({
 
             if (this.options.no_domain_select != true) {
 
-                this.fireEvent('selection', [item, a])
-                this.fireEvent('domainClick', [item, a])
 
-                this.unselect();
+                this.deselect();
                 if (this.options.noActive != true) {
                     a.addClass('ka-objectTree-item-selected');
                 }
+
+                this.fireEvent('selection', [item, a])
+                this.fireEvent('domainClick', [item, a])
 
                 this.lastSelectedItem = a;
                 this.lastSelectedObject = item;
@@ -405,14 +406,14 @@ ka.objectTree = new Class({
 
         } else {
 
-            this.fireEvent('selection', [item, a])
-            this.fireEvent('click', [item, a]);
-
-            this.unselect();
+            this.deselect();
 
             if (this.options.noActive != true) {
                 a.addClass('ka-objectTree-item-selected');
             }
+
+            this.fireEvent('selection', [item, a])
+            this.fireEvent('click', [item, a]);
 
             this.lastSelectedItem = a;
             this.lastSelectedObject = item;
@@ -432,7 +433,7 @@ ka.objectTree = new Class({
         var parent = this.lastSelectedItem.getParent().getPrevious();
         if (parent && parent.hasClass('ka-objectTree-item')) {
             this.lastScrollPos = this.container.getScroll();
-            this.loadChilds(parent);
+            this.loadChildren(parent);
         }
     },
 
@@ -521,15 +522,15 @@ ka.objectTree = new Class({
             a.toggler.addEvent('click', function (e) {
                 e.stopPropagation();
                 window.fireEvent('click');
-                this.toggleChilds(a);
+                this.toggleChildren(a);
             }.bind(this));
         }
 
         a.childContainer = new Element('div', {
-            'class': 'ka-objectTree-item-childs'
+            'class': 'ka-objectTree-item-children'
         }).inject(container);
 
-        a.childsLoaded = (pItem._children) ? true : false;
+        a.childrenLoaded = (pItem._children) ? true : false;
 
         var openId = id;
 
@@ -545,17 +546,17 @@ ka.objectTree = new Class({
         }
 
         if (this.opens[openId]) {
-            this.openChilds(a);
+            this.openChildren(a);
         }
 
-        if (/*(!this.firstLoadDone || this.need2SelectAObject) && */this.load_object_childs !== false) {
+        if (/*(!this.firstLoadDone || this.need2SelectAObject) && */this.load_object_children !== false) {
 
-            if (this.load_object_childs.contains(id)) {
-                this.openChilds(a);
+            if (this.load_object_children.contains(id)) {
+                this.openChildren(a);
             }
         }
         /*else if ((!this.firstLoadDone || this.need2SelectAObject) && this.options.openFirstLevel && !this.opens[openId]) {
-            this.openChilds(a);
+            this.openChildren(a);
         }*/
 
         if (pItem._children) {
@@ -638,7 +639,7 @@ ka.objectTree = new Class({
 
         var loadingDone = true;
         if (this.inItemsGeneration == false) {
-            Object.each(this.loadChildsRequests, function (request) {
+            Object.each(this.loadChildrenRequests, function (request) {
                 if (request == true) {
                     loadingDone = false;
                 }
@@ -649,7 +650,7 @@ ka.objectTree = new Class({
 
         if (loadingDone == true) {
 
-            this.loadChildsRequests = {};
+            this.loadChildrenRequests = {};
             if (this.firstLoadDone == false) {
                 this.firstLoadDone = true;
 
@@ -678,16 +679,16 @@ ka.objectTree = new Class({
 
     },
 
-    toggleChilds: function (pA) {
+    toggleChildren: function (pA) {
 
         if (pA.childContainer.getStyle('display') != 'block') {
-            this.openChilds(pA);
+            this.openChildren(pA);
         } else {
-            this.closeChilds(pA);
+            this.closeChildren(pA);
         }
     },
 
-    closeChilds: function (pA) {
+    closeChildren: function (pA) {
         var item = pA.retrieve('item');
 
         pA.childContainer.setStyle('display', '');
@@ -698,33 +699,33 @@ ka.objectTree = new Class({
         this.saveOpens();
     },
 
-    openChilds: function (pA) {
+    openChildren: function (pA) {
 
         if (!pA.toggler) return;
 
         pA.toggler.set('src', _path + PATH_MEDIA + '/admin/images/icons/tree_minus.png');
-        if (pA.childsLoaded == true) {
+        if (pA.childrenLoaded == true) {
             pA.childContainer.setStyle('display', 'block');
             this.opens[ pA.id ] = true;
             this.saveOpens();
         } else {
-            this.loadChilds(pA, true);
+            this.loadChildren(pA, true);
         }
         this.setRootPosition();
 
     },
 
-    reloadChilds: function (pA) {
+    reloadChildren: function (pA) {
 
         if (this.rootA == pA){
             logger('go1');
             this.loadFirstLevel();
         } else {
-            this.loadChilds(pA, false);
+            this.loadChildren(pA, false);
         }
     },
 
-    removeChilds: function(pA){
+    removeChildren: function(pA){
 
         if (!pA.childContainer) return;
 
@@ -737,7 +738,7 @@ ka.objectTree = new Class({
 
     },
 
-    loadChilds: function (pA, pAndOpen) {
+    loadChildren: function (pA, pAndOpen) {
 
         var item = pA.retrieve('item');
 
@@ -745,10 +746,10 @@ ka.objectTree = new Class({
             src: _path + PATH_MEDIA + '/admin/images/loading.gif'
         }).inject(pA.span);
 
-        this.loadChildsRequests[ pA.id ] = true;
+        this.loadChildrenRequests[ pA.id ] = true;
         new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: function (pItem) {
 
-            this.removeChilds(pA);
+            this.removeChildren(pA);
 
             loader.destroy();
 
@@ -759,7 +760,7 @@ ka.objectTree = new Class({
                 this.saveOpens();
             }
 
-            pA.childsLoaded = true;
+            pA.childrenLoaded = true;
 
             if (pItem._children_count == 0) {
                 pA.toggler.setStyle('visibility', 'hidden');
@@ -772,17 +773,17 @@ ka.objectTree = new Class({
             }.bind(this));
             this.inItemsGeneration = false;
 
-            this.loadChildsRequests[ pA.id ] = false;
+            this.loadChildrenRequests[ pA.id ] = false;
             this.checkDoneState();
 
-            this.fireEvent('childsLoaded', [item, pA]);
+            this.fireEvent('childrenLoaded', [item, pA]);
             this.setRootPosition();
 
         }.bind(this)}).get({ object: this.objectKey+'/'+pA.id });
 
     },
 
-    unselect: function () {
+    deselect: function () {
 
         this.container.getElements('.ka-objectTree-item-selected').removeClass('ka-objectTree-item-selected');
 
@@ -874,7 +875,7 @@ ka.objectTree = new Class({
 
     createDropElement: function (pTarget, pPos) {
 
-        if (this.loadChildsDelay) clearTimeout(this.loadChildsDelay);
+        if (this.loadChildrenDelay) clearTimeout(this.loadChildrenDelay);
 
         if (this.dropElement) {
             this.dropElement.destroy();
@@ -957,8 +958,8 @@ ka.objectTree = new Class({
             if (canMoveInto) {
                 pTarget.addClass('ka-objectTree-item-dragOver');
             }
-            this.loadChildsDelay = function () {
-                this.openChilds(pTarget);
+            this.loadChildrenDelay = function () {
+                this.openChildren(pTarget);
             }.delay(1000, this);
         }
 
@@ -1013,7 +1014,7 @@ ka.objectTree = new Class({
 
     reloadParent: function (pA) {
         if (pA.parent) {
-            pA.objectTreeObj.reloadChilds(pA.parent);
+            pA.objectTreeObj.reloadChildren(pA.parent);
         } else {
             pA.objectTreeObj.reload();
         }
@@ -1032,14 +1033,14 @@ ka.objectTree = new Class({
             //target item this.dragNDropElement
 
             if (this.dragNDropElement.parent) {
-                this.dragNDropElement.objectTreeObj.reloadChilds(this.dragNDropElement.parent);
+                this.dragNDropElement.objectTreeObj.reloadChildren(this.dragNDropElement.parent);
             } else {
                 this.dragNDropElement.objectTreeObj.reload();
             }
 
             //origin item this.currentObjectToDrag
             if (this.currentObjectToDrag.parent && (!this.dragNDropElement.parent || this.dragNDropElement.parent != this.currentObjectToDrag.parent)) {
-                this.currentObjectToDrag.objectTreeObj.reloadChilds(this.currentObjectToDrag.parent);
+                this.currentObjectToDrag.objectTreeObj.reloadChildren(this.currentObjectToDrag.parent);
             } else if (!this.dragNDropElement.parent || this.dragNDropElement.objectTreeObj != this.currentObjectToDrag.objectTreeObj) {
                 this.currentObjectToDrag.objectTreeObj.reload();
             }
@@ -1060,7 +1061,7 @@ ka.objectTree = new Class({
         return this.firstLoadDone;
     },
 
-    hasChilds: function (pObject) {
+    hasChildren: function (pObject) {
         if (this._objectsParent.get(pObject.rsn)) {
             return true;
         }
@@ -1078,7 +1079,7 @@ ka.objectTree = new Class({
 
     select: function (pId) {
 
-        this.unselect();
+        this.deselect();
 
         if (this.items[ pId ]) {
             //has been loaded already
@@ -1092,7 +1093,7 @@ ka.objectTree = new Class({
             while(true){
                 if (parent.parent){
                     parent = parent.parent;
-                    this.openChilds(parent);
+                    this.openChildren(parent);
                 } else {
                     break;
                 }
@@ -1107,9 +1108,9 @@ ka.objectTree = new Class({
 
             this.options.selectObject = pId;
 
-            Array.each(this.load_object_childs, function (id) {
+            Array.each(this.load_object_children, function (id) {
                 if (this.items[id]) {
-                    this.openChilds(this.items[id]);
+                    this.openChildren(this.items[id]);
                 }
             }.bind(this));
 

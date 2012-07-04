@@ -1327,7 +1327,18 @@ ka.kwindow = new Class({
 
     },
 
-    createOverlay: function (pForce) {
+    setBlocked: function(pBlocked){
+
+        if (pBlocked)
+            this.blockedOverlay = this.createOverlay();
+        else if(this.blockedOverlay){
+            this.blockedOverlay.destroy();
+            delete this.blockedOverlay;
+        }
+
+    },
+
+    createOverlay: function () {
 
         var overlay = new Element('div', {
             'class': 'ka-kwindow-overlay',
@@ -1335,11 +1346,10 @@ ka.kwindow = new Class({
                 opacity: 0.5,
                 position: 'absolute',
                 'background-color': '#666',
-                left: 0, right: 0, 'top': 0, bottom: 0
+                left: 0, right: 0, 'top': 21, bottom: 0
             }
         });
 
-        //if( pForce || this.forceOverlay || (this.values && this.values.type == 'iframe') )
         overlay.inject(this.border);
 
         return overlay;
