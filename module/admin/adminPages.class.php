@@ -616,7 +616,7 @@ class adminPages {
         kryn::addJs('http://' . $domain . $domainPath . 'krynJavascriptGlobalPath.js');
         kryn::addCss($path . 'admin/css/ka.layoutBox.css');
         kryn::addCss($path . 'admin/css/inpage.css');
-        kryn::addCss($path . 'admin/css/ka.field.css');
+        kryn::addCss($path . 'admin/css/ka.Field.css');
         kryn::addCss($path . 'admin/css/ka.Button.css');
         kryn::addCss($path . 'admin/css/ka.Select.css');
         kryn::addCss($path . 'admin/css/ka.pluginChooser.css');

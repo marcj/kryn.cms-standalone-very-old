@@ -3,7 +3,7 @@ var admin_system_module_publish = new Class({
     initialize: function (pWin) {
         this.win = pWin;
         this.module = this.win.params.name;
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
         this.loader.show();
 
         this.topGroup = this.win.addButtonGroup();
@@ -32,7 +32,7 @@ var admin_system_module_publish = new Class({
             this.loader.destroy();
         }
 
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
         this.loader.show();
 
         new Request.JSON({url: _path + 'admin/system/module/getPackage', noCache: 1, onComplete: function (res) {

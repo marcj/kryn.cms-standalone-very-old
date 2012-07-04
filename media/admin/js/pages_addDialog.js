@@ -85,7 +85,7 @@ var admin_pages_addDialog = new Class({
             html: _('Step 1: Define new items')
         }).inject(leftSide);
 
-        this.type = new ka.field({
+        this.type = new ka.Field({
             label: _('Type'), type: 'select',
             items: {
                 "0": t('Page'),
@@ -95,7 +95,7 @@ var admin_pages_addDialog = new Class({
             }
         }).inject(leftSide);
 
-        this.layout = new ka.field({
+        this.layout = new ka.Field({
             label: _('Layout'), type: 'select'
         }).inject(leftSide);
 
@@ -117,7 +117,7 @@ var admin_pages_addDialog = new Class({
 
         }.bind(this));
 
-        this.visible = new ka.field({
+        this.visible = new ka.Field({
             label: _('Visible'), desc: 'Let the items be visible in frontend navigations after creating', type: 'checkbox'
         }).inject(leftSide);
 
@@ -190,7 +190,7 @@ var admin_pages_addDialog = new Class({
         var selectPage = (this.win.params) ? this.win.params.selectPage : null;
 
 
-        this.pageTree = new ka.objectTree(rightSide, 'node', {
+        this.pageTree = new ka.ObjectTree(rightSide, 'node', {
             rootId: this.win.params.domain_rsn,
             move: false,
             noSelection: true,

@@ -7,7 +7,7 @@ function krnTestSetInstallExtensionFromArray($pExtensionKey, $pConfig){
     if (!$pExtensionKey) return;
 
     @mkdirr(PATH . 'inc/module/' . $pExtensionKey);
-    @mkdirr(PATH . 'inc/template/' . $pExtensionKey);
+    @mkdirr(PATH . PATH_MEDIA . $pExtensionKey);
 
 }
 
@@ -16,7 +16,7 @@ function krynTestSetsDeinstallExtension($pExtensionKey){
     if (!$pExtensionKey) return;
 
     @rmdir(PATH . 'inc/module/' . $pExtensionKey);
-    @rmdir(PATH . 'inc/template/' . $pExtensionKey);
+    @rmdir(PATH . PATH_MEDIA . $pExtensionKey);
 
 }
 

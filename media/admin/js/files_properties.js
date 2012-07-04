@@ -543,7 +543,7 @@ var admin_files_properties = new Class({
         var val = this.accessSelect.value;
 
         this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/setPublicAccess', onComplete: function (res) {
-            ka._helpsystem.newBubble(_('File access saved'), this.file.path, 3000);
+            ka.helpsystem.newBubble(_('File access saved'), this.file.path, 3000);
 
         }.bind(this)}).post({path: this.file.path, access: val});
 
@@ -624,7 +624,7 @@ var admin_files_properties = new Class({
             this.lastSizeRq = new Request.JSON({url: _path + 'admin/files/recoverVersion', onComplete: function (res) {
 
                 this.loadVersions();
-                ka._helpsystem.newBubble(_('File recovered'), pVersion.path, 3000);
+                ka.helpsystem.newBubble(_('File recovered'), pVersion.path, 3000);
 
             }.bind(this)}).post({rsn: pVersion.rsn});
         }.bind(this));

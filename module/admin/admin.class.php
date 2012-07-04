@@ -1330,45 +1330,60 @@ class admin {
         json($res);
     }
 
+    public static function collectFiles($pArray, &$pFiles){
+
+        foreach ($pArray as $jsFile) {
+            if (strpos($jsFile, '*') !== -1){
+                $folderFiles = find(PATH_MEDIA . $jsFile, false);
+                foreach ($folderFiles as $file){
+                    if (!array_search($file, $pFiles))
+                        $pFiles[] = $file;
+                }
+            } else {
+                if (file_exists(PATH_MEDIA . $jsFile))
+                    $pFiles[] = PATH_MEDIA . $jsFile;
+            }
+        }
+
+    }
+
     public static function loadJs() {
 
         header('Content-Type: application/x-javascript');
 
         $md5Hash = '';
+        $jsFiles = array();
+
         foreach (kryn::$configs as &$config) {
-            if ($config['adminJavascript'] && is_array($config['adminJavascript'])) {
-                foreach ($config['adminJavascript'] as $jsFile) {
-                    if (file_exists(PATH_MEDIA . $jsFile)) {
-                        $md5Hash .= '.' . filemtime(PATH_MEDIA . $jsFile) . '.';
-                    }
-                }
-            }
+            if ($config['adminJavascript'])
+                self::collectFiles($config['adminJavascript'], $jsFiles);
         }
+
+        foreach ($jsFiles as $jsFile)
+            $md5Hash .= filemtime(PATH_MEDIA . $jsFile) . '.';
 
         $md5Hash = md5($md5Hash);
 
         print "/* Kryn.cms combined admin javascript file: $md5Hash */\n\n";
+
         if (file_exists('cache/media/cachedAdminJs_' . $md5Hash . '.js')) {
             readFile('cache/media/cachedAdminJs_' . $md5Hash . '.js');
         } else {
-            $content = '';
-            foreach (kryn::$configs as &$config) {
-                if ($config['adminJavascript'] && is_array($config['adminJavascript'])) {
 
-                    foreach ($config['adminJavascript'] as $jsFile) {
-                        if (file_exists(PATH_MEDIA . $jsFile)) {
-                            $content .= "\n\n/* file: $jsFile */\n\n";
-                            $content .= kryn::fileRead(PATH_MEDIA . $jsFile);
-                        }
-                    }
-                }
+            $content = '';
+            foreach ($jsFiles as $jsFile) {
+                $content .= "\n\n/* file: $jsFile */\n\n";
+                $content .= kryn::fileRead($jsFile);
             }
-            foreach (glob('cache/media/cachedAdminJs_*.js') as $cache) {
+
+            //delete old cached files
+            foreach (glob('cache/media/cachedAdminJs_*.js') as $cache)
                 @unlink($cache);
-            }
+
             kryn::fileWrite('cache/media/cachedAdminJs_' . $md5Hash . '.js', $content);
             print $content;
         }
+
         print "\n" . 'ka.ai.loaderDone(' . getArgv('id') . ');' . "\n";
         exit;
     }
@@ -1401,54 +1416,46 @@ class admin {
         );
 
         $md5Hash = '';
+        $cssFiles = array();
+
         foreach (kryn::$configs as &$config) {
-            if ($config['adminCss'] && is_array($config['adminCss'])) {
-                foreach ($config['adminCss'] as $cssFile) {
-                    if (file_exists(PATH_MEDIA . $cssFile)) {
-                        $md5Hash .= '.' . filemtime(PATH_MEDIA . $cssFile) . '.';
-                    }
-                }
-            }
+            if ($config['adminCss'])
+                self::collectFiles($config['adminCss'], $cssFiles);
         }
+
+        foreach ($cssFiles as $cssFile)
+            $md5Hash .= filemtime($cssFile) . '.';
 
         $md5Hash = md5($md5Hash);
 
         print "/* Kryn.cms combined admin css file: $md5Hash */\n\n";
+
         if (file_exists('cache/media/cachedAdminCss_' . $md5Hash . '.css')) {
             readFile('cache/media/cachedAdminCss_' . $md5Hash . '.css');
         } else {
             $content = '';
-            foreach (kryn::$configs as &$config) {
-                if ($config['adminCss'] && is_array($config['adminCss'])) {
+            foreach ($cssFiles as $cssFile) {
+                $content .= "\n\n/* file: $cssFile */\n\n";
 
-                    foreach ($config['adminCss'] as $cssFile) {
-                        if (file_exists(PATH_MEDIA . $cssFile)) {
-                            $content .= "\n\n/* file: $cssFile */\n\n";
-
-                            $h = fopen(PATH_MEDIA . $cssFile, "r");
-                            if ($h) {
-                                while (!feof($h) && $h) {
-                                    $buffer = fgets($h, 4096);
-                                    $content .= $buffer;
-                                    $newLine = str_replace($from, $toSafari, $buffer);
-                                    if ($newLine != $buffer)
-                                        $content .= $newLine;
-                                    $newLine = str_replace($from, $toCss3, $buffer);
-                                    if ($newLine != $buffer)
-                                        $content .= $newLine;
-                                }
-                                fclose($h);
-                            }
-
-
-                            //$content .= kryn::fileRead( PATH_MEDIA.$cssFile );
-                        }
+                $h = fopen($cssFile, "r");
+                if ($h) {
+                    while (!feof($h) && $h) {
+                        $buffer = fgets($h, 4096);
+                        $content .= $buffer;
+                        $newLine = str_replace($from, $toSafari, $buffer);
+                        if ($newLine != $buffer)
+                            $content .= $newLine;
+                        $newLine = str_replace($from, $toCss3, $buffer);
+                        if ($newLine != $buffer)
+                            $content .= $newLine;
                     }
+                    fclose($h);
                 }
             }
-            foreach (glob('cache/media/cachedAdminCss_*.css') as $cache) {
+
+            foreach (glob('cache/media/cachedAdminCss_*.css') as $cache)
                 @unlink($cache);
-            }
+
             kryn::fileWrite('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
             print $content;
         }
@@ -1591,8 +1598,8 @@ class admin {
     public static function addVersion($pTable, $pPrimary) {
 
         foreach ($pPrimary as $fieldName => $fieldValue) {
-            if ($fieldValue + 0 > 0)
-                $sql = " AND $fieldName = $fieldValue";
+            if ($fieldValue+0 > 0)
+                $sql = " AND $fieldName = ".($fieldValue+0);
             else
                 $sql = " AND $fieldName = '" . esc($fieldValue) . "'";
         }
@@ -1648,7 +1655,6 @@ class admin {
     * WIDGET STUFF
     *
     */
-
 
     public function widgetLastLogins($pConf) {
         $res['title'] = "Letzte Sessions";

@@ -1,0 +1,151 @@
+ka.TabGroup = new Class({
+
+    'className': 'ka-tabGroup',
+
+    initialize: function (pParent) {
+        this.box = new Element('div', {
+            'class': this.className
+        }).inject(pParent);
+    },
+
+    toElement: function(){
+        return this.box;
+    },
+
+    destroy: function () {
+        this.box.destroy();
+    },
+
+    inject: function (pTo, pWhere) {
+        this.box.inject(pTo, pWhere);
+    },
+
+    hide: function () {
+        this.box.setStyle('display', 'none');
+    },
+
+    show: function () {
+        this.box.setStyle('display', 'inline');
+    },
+
+    rerender: function (pFirst) {
+
+        var items = this.box.getElements('a');
+
+        items.removeClass('ka-tabGroup-item-first');
+        items.removeClass('ka-tabGroup-item-last');
+
+        if (items.length > 0){
+
+            var lastItem, firstItem;
+            Array.each(items, function(item){
+                if (item.getStyle('display') != 'none'){
+                    if (!firstItem) firstItem = item;
+                    lastItem = item;
+                }
+            });
+
+            if (firstItem)
+                firstItem.addClass('ka-tabGroup-item-first');
+
+            if (lastItem)
+                lastItem.addClass('ka-tabGroup-item-last');
+        }
+
+    },
+
+    addButton: function (pTitle, pButtonSrc, pOnClick) {
+
+        var button = new Element('a', {
+            'class': 'ka-tabGroup-item',
+            title: pTitle,
+            text: pTitle
+        }).inject(this.box);
+
+        if (pButtonSrc) {
+            new Element('img', {
+                src: pButtonSrc
+            }).inject(button, 'top');
+        }
+
+        this.setMethods(button, pOnClick);
+
+        return button;
+
+    },
+
+    setPressed: function(pPressed){
+
+        this.box.getChildren().each(function (button) {
+            button.setPressed(pPressed);
+        });
+
+    },
+
+    setMethods: function(pButton, pOnClick){
+        if (pOnClick) {
+            pButton.addEvent('click', pOnClick);
+        }
+
+        pButton.hide = function () {
+            pButton.store('visible', false);
+            pButton.setStyle('display', 'none');
+            this.rerender();
+
+            if (pButton.tabPane && pButton.isPressed()){
+
+                var items = this.box.getChildren('a');
+                var index = items.indexOf(pButton);
+                if (items[index+1])
+                    pButton.tabPane.to(index+1);
+                if (items[index-1])
+                    pButton.tabPane.to(index-1);
+
+
+            }
+
+
+        }.bind(this);
+
+        pButton.show = function () {
+            pButton.store('visible', true);
+            pButton.setStyle('display', 'inline');
+            this.rerender();
+        }.bind(this);
+
+        pButton.isHidden = function(){
+            return pButton.getStyle('display')=='none';
+        };
+
+        pButton.startTip = function (pText) {
+            if (!this.toolTip) {
+                this.toolTip = new ka.Tooltip(pButton, pText);
+            }
+            this.toolTip.setText(pText);
+            this.toolTip.show();
+        }
+
+        pButton.stopTip = function (pText) {
+            if (this.toolTip) {
+                this.toolTip.stop(pText);
+            }
+        }
+
+        pButton.setPressed = function (pPressed) {
+            if (pPressed) {
+                pButton.addClass('ka-tabGroup-item-active');
+                pButton.fireEvent('show');
+            } else {
+                pButton.removeClass('ka-tabGroup-item-active');
+                pButton.fireEvent('hide');
+            }
+        }
+
+        pButton.isPressed = function(){
+            return pButton.hasClass('ka-tabGroup-item-active');
+        }
+
+        pButton.store('visible', true);
+        this.rerender(true);
+    }
+});

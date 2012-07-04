@@ -33,7 +33,7 @@ var admin_system_settings = new Class({
             }).inject(this.win.content);
         }.bind(this))
 
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
 
         this.loader.show();
 
@@ -58,21 +58,21 @@ var admin_system_settings = new Class({
         this.fields = {};
 
         var p = this.panes['general'];
-        this.fields['systemtitle'] = new ka.field({
+        this.fields['systemtitle'] = new ka.Field({
             label: _('System title'), desc: 'Adds a title to the administration titel'
         }).inject(p);
 
 
-        this.fields['update finder'] = new ka.field({
+        this.fields['update finder'] = new ka.Field({
             label: _('Update finder'),
             type: 'checkbox'
         }).inject(p);
 
-        this.fields['communityEmail'] = new ka.field({
+        this.fields['communityEmail'] = new ka.Field({
             label: _('Community connect'), desc: _('If you want to publish your own extensions, layout packs or other stuff, you have to connect with the community server. Enter your community email to connect with.')
         }).inject(p);
 
-        this.fields['languages'] = new ka.field({
+        this.fields['languages'] = new ka.Field({
             label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
             type: 'textlist', store: 'admin/backend/stores/languages'
         }).inject(p);
@@ -346,7 +346,7 @@ var admin_system_settings = new Class({
 
         var p = this.panes['caching'];
 
-        this.fields['media_cache'] = new ka.field({
+        this.fields['media_cache'] = new ka.Field({
             label: _('Media cache path'), desc: 'Default is cache/media/. This folder is for caching template files, so it should be available via HTTP.'
         }).inject(p);
 

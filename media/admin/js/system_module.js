@@ -24,7 +24,7 @@ var admin_system_module = new Class({
             'class': 'admin-system-module-pane'
         }).inject(this.win.content);
 
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
 
 
         /* installed */
@@ -197,7 +197,7 @@ var admin_system_module = new Class({
             }).inject(p);
         }
 
-        var buttonBar = new ka.buttonBar(this.panes['local']);
+        var buttonBar = new ka.ButtonBar(this.panes['local']);
         buttonBar.addButton(_('Create extension'), function () {
             this.win._prompt(_('Extension code: '), '', function (res) {
                 if (!res)return;

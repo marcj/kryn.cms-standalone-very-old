@@ -77,8 +77,8 @@ class adminWindowEdit {
     /**
      * Defines the fields. (ka.fields)
      * Example: array(
-     *      'kaField1' => array( ka.field params goes here ),
-     *      'kaField2' => array( ka.field params goes here )
+     *      'kaField1' => array( ka.Field params goes here ),
+     *      'kaField2' => array( ka.Field params goes here )
      * )
      *
      * @var array
@@ -89,11 +89,11 @@ class adminWindowEdit {
      * Defines each tab and inside it the fields. (ka.fields)
      * Example content: array(
      *  'TabTitle1' => array(
-     *      'kaField1' => array( ka.field params goes here )
+     *      'kaField1' => array( ka.Field params goes here )
      *  ),
      *  'TabTitle2' => array(
-     *      'kaField2' => array( ka.field params goes here ),
-     *      'kaField3' => array( ka.field params goes here )
+     *      'kaField2' => array( ka.Field params goes here ),
+     *      'kaField3' => array( ka.Field params goes here )
      *  )
      * (
      *
@@ -681,9 +681,7 @@ class adminWindowEdit {
 
             if ($this->object){
 
-                $url = krynObjects::toUrl($this->object, $primary);
-
-                $this->last = krynObjects::update($url, $row);
+                $this->last = krynObjects::update($this->object, $primary, $row);
 
                 if (is_array($this->last)){
                     //error

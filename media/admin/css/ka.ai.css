@@ -78,7 +78,7 @@ html {
     right: 0px;
     left: 0px;
     bottom: 0px;
-    top: 28px;
+    top: 48px;
 }
 
 .ka-no-desktop #desktop {
@@ -92,8 +92,6 @@ div.header-inner {
 }
 
 div.header {
-
-    box-shadow: 0px 1px 2px #aaa;
     z-index: 110000;
     /*text-shadow: 0px 1px 0px #444;*/
 
@@ -101,22 +99,13 @@ div.header {
     left: 0px;
     right: 0px;
     text-align: left;
-    height: 30px;
+    height: 48px;
     top: 0px;
 
     color: white;
     z-index: 110000;
 
-    background: #878589; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzg3ODU4OSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2NTY0NjUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #878589 0%, #616161 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#878589), color-stop(100%,#616161)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #878589 0%, #616161 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #878589 0%,#616161 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #878589 0%,#616161 100%); /* IE10+ */
-    background: linear-gradient(top,  #878589 0%, #616161 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#878589', endColorstr='#616161',GradientType=0 ); /* IE6-8 */
+    background-image: url(../images/admin-topbar-bg.png);
 
 }
 
@@ -143,7 +132,7 @@ div.mainlinks {
 div.headRight a img,
 div.mainlinks a img {
     position: absolute;
-    top: 9px;
+    top: 17px;
     left: 8px;
     width: 14px;
     height: 14px;
@@ -156,19 +145,26 @@ div.bar-dock-menu-style a,
 div.bar-dock-menu-style a:link,
 div.ka-mainlink-additionalmenubar {
     float: left;
-    line-height: 31px;
+    line-height: 48px;
     padding: 0px 15px;
-    border-right: 1px solid #868588;
-    font-weight: bold;
+    border-right: 1px solid #313131;
     color: white;
     text-decoration: none;
     position: relative;
     display: block;
-    height: 30px;
+    height: 48px;
     cursor: pointer;
     outline: 0;
     font-size: 11px;
     color: white;
+}
+
+
+div.bar-dock-menu-style a,
+div.bar-dock-menu-style a:link,
+div.ka-mainlink-additionalmenubar {
+    line-height: 30px;
+    height: 30px;
 }
 
 a.ka-menu-item-childopener,
@@ -176,29 +172,14 @@ a.ka-menu-item-childopener:link,
 div.bar-dock-menu-style a.ka-menu-item-childopener,
 div.bar-dock-menu-style a.ka-menu-item-childopener:link {
 
-
     position: absolute;
     right: 0px;
     top: 0px;
-    height: 30px;
+    height: 48px;
     width: 18px;
     border-right: 0px;
     padding: 0px;
 
-}
-
-.mainlinks a.ka-menu-item-childopener,
-.mainlinks a.ka-menu-item-childopener:link {
-    background: #878589; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzg3ODU4OSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2NTY0NjUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #878589 0%, #616161 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#878589), color-stop(100%,#616161)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #878589 0%, #616161 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #878589 0%,#616161 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #878589 0%,#616161 100%); /* IE10+ */
-    background: linear-gradient(top,  #878589 0%, #616161 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#878589', endColorstr='#616161',GradientType=0 ); /* IE6-8 */
 }
 
 .header a.ka-menu-item-hasChilds,
@@ -221,7 +202,7 @@ div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener img,
 div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener:link img {
     position: relative;
     left: 2px;
-    top: 8px;
+    top: 17px;
 }
 
 .header .ka-mainlink-additionalmenubar,
@@ -261,12 +242,11 @@ div.ka-mainlink-additionalmenubar-container {
 div.mainlinks a.bar-dock-logo img { 
     width: 15px;
     height: auto;
-    top: 7px;
+    top: 15px;
     left: 12px;
 }
 
-div.mainlinks a.bar-dock-logo { 
-    height: 30px;
+div.mainlinks a.bar-dock-logo {
     width: 30px;
     padding-left: 5px;
     padding-right: 5px;
@@ -280,7 +260,8 @@ div.bar-dock-menu-style {
     -moz-box-shadow: 0 0 2em #656465;
     -webkit-box-shadow: 0 0 2em #656465;
     box-shadow: 0 0 2em #656465;
-    background-color: #656465;
+
+    background-color: #444;
     z-index: 104000;
     text-align: left;
     padding-bottom: 5px;
@@ -299,8 +280,7 @@ div.ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius {
 
 div.bar-dock-menu {
     left: 0px;
-    top: 26px;
-
+    top: 48px;
     z-index: 103000;
 }
 
@@ -745,11 +725,11 @@ a.ka-subnavi-main:link {
 */
 
 .iconbar-item {
-	border-left: 1px solid #777;
+	border-left: 1px solid #313131;
 	float: right;
-	padding: 0px 10px;
-    height: 30px;
-    line-height: 30px;
+	padding: 0px 15px;
+    height: 48px;
+    line-height: 48px;
     position: relative;
 }
 
@@ -805,14 +785,14 @@ input.round {
 .ka-search {
     float: right;
     margin-right: 6px;
-    padding-top: 5px;
+    padding-top: 8px;
     position: relative;
 }
 
 #ka-search-query {
     width: 119px;
     box-shadow: none;
-    height: 9px;
+    height: 16px;
     border: 1px solid #666;
     box-shadow: 0px 1px 0px #888;
     padding-left: 16px;
@@ -826,7 +806,7 @@ input.round {
     background-image:url(../images/help-icon.png);
     background-position: left top;
     position: absolute;
-    top: 5px;
+    top: 14px;
     padding: 0px;
     left: 45px;
     cursor: pointer;
@@ -841,8 +821,8 @@ div.headRight  a.ka-create-search-index-icon {
 
 .header .ka-search-query-icon {
     position: absolute;
-    right: 126px;
-    top: 9px;
+    right: 122px;
+    top: 18px;
 }
 
 .header a.ka-cache-icon {

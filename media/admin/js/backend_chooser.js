@@ -49,7 +49,7 @@ var admin_backend_chooser = new Class({
 
     _createLayout: function () {
 
-        this.tapPane = new ka.tabPane(this.win.content, true, this.win);
+        this.tapPane = new ka.TabPane(this.win.content, true, this.win);
 
         this.tapPane.addEvent('change', this.changeTab.bind(this));
         /*
@@ -212,7 +212,7 @@ var admin_backend_chooser = new Class({
                 );
             }
         } else {
-            this.objectChooserInstance[pObjectKey] = new ka.autoChooser(
+            this.objectChooserInstance[pObjectKey] = new ka.AutoChooser(
                 bundle.pane,
                 objectOptions,
                 this.win,

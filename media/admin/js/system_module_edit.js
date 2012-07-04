@@ -56,7 +56,7 @@ var admin_system_module_edit = new Class({
 
         this.lastLanguage = this.languageSelect.value;
 
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
         this.loader.hide();
 
         this.viewType('general');
@@ -105,7 +105,7 @@ var admin_system_module_edit = new Class({
             style: 'width: 80px;'
         }).inject(tr);
 
-        var buttonBar = new ka.buttonBar(this.panes['plugins']);
+        var buttonBar = new ka.ButtonBar(this.panes['plugins']);
         buttonBar.addButton(_('Add plugin'), this.addPlugin.bind(this));
         buttonBar.addButton(_('Save'), this.savePlugins.bind(this));
 
@@ -241,7 +241,7 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var fieldTable = new ka.fieldTable(propertyPanel, this.win, {
+        var fieldTable = new ka.FieldTable(propertyPanel, this.win, {
             arrayKey: true
         });
 
@@ -277,10 +277,10 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['docu']);
 
-        var buttonBar = new ka.buttonBar(this.panes['docu']);
+        var buttonBar = new ka.ButtonBar(this.panes['docu']);
         buttonBar.addButton(_('Save'), this.saveDocu.bind(this));
 
-        this.text = new ka.field({
+        this.text = new ka.Field({
             label: _('Documentation') + ' (' + this.languageSelect.value + ')', type: 'wysiwyg'}, p, {win: this.win});
         this.text.setValue(_('Loading ...'));
 
@@ -339,7 +339,7 @@ var admin_system_module_edit = new Class({
         }.bind(this));
 
 
-        var buttonBar = new ka.buttonBar(this.panes['windows']);
+        var buttonBar = new ka.ButtonBar(this.panes['windows']);
         buttonBar.addButton(t('Add window'), function(){
             this.createWindow('');
         }.bind(this));
@@ -375,7 +375,7 @@ var admin_system_module_edit = new Class({
         var tr = new Element('tr').inject(tbody);
         new Element('td', {text: t('Class:')}).inject(tr);
         var td = new Element('td').inject(tr);
-        var typeClass = new ka.field({
+        var typeClass = new ka.Field({
             type: 'select', items: {
                 adminWindowAdd: 'adminWindowAdd',
                 adminWindowEdit: 'adminWindowEdit',
@@ -531,7 +531,7 @@ var admin_system_module_edit = new Class({
             }.bind(this));
         }
 
-        var buttonBar = new ka.buttonBar(this.panes['db']);
+        var buttonBar = new ka.ButtonBar(this.panes['db']);
         buttonBar.addButton(t('Add table'), function () {
             this._dbAddTable('table_name', {});
         }.bind(this));
@@ -831,7 +831,7 @@ var admin_system_module_edit = new Class({
             this.addHelpItem(item);
         }.bind(this));
 
-        var buttonBar = new ka.buttonBar(this.panes['help']);
+        var buttonBar = new ka.ButtonBar(this.panes['help']);
         buttonBar.addButton(_('Add help'), this.addHelpItem.bind(this));
         buttonBar.addButton(_('Save'), this.saveHelp.bind(this));
 
@@ -945,7 +945,7 @@ var admin_system_module_edit = new Class({
             }.bind(this));
         }
 
-        var buttonBar = new ka.buttonBar(this.panes['links']);
+        var buttonBar = new ka.ButtonBar(this.panes['links']);
 
         buttonBar.addButton(t('Add link'), function () {
             var count = p.getChildren().length;
@@ -1278,17 +1278,17 @@ var admin_system_module_edit = new Class({
         this.generellFields = {};
 
         var title = ( pConfig.title ) ? pConfig.title[this.languageSelect.value] : '';
-        this.generellFields['title'] = new ka.field({
+        this.generellFields['title'] = new ka.Field({
             label: _('Title') + ' (' + this.languageSelect.value + ')', value: title
         }).inject(p);
 
         var desc = ( pConfig.desc ) ? pConfig.desc[this.languageSelect.value] : '';
-        this.generellFields['desc'] = new ka.field({
+        this.generellFields['desc'] = new ka.Field({
             label: _('Description') + ' (' + this.languageSelect.value + ')', value: desc, type: 'textarea'
         }).inject(p);
 
         var tags = ( pConfig.tags ) ? pConfig.tags[this.languageSelect.value] : '';
-        this.generellFields['tags'] = new ka.field({
+        this.generellFields['tags'] = new ka.Field({
             label: _('Tags') + ' (' + this.languageSelect.value + ')', value: tags, desc: _('Comma seperated values')
         }).inject(p);
 
@@ -1297,7 +1297,7 @@ var admin_system_module_edit = new Class({
             screenshotsCount = pConfig.screenshots.length;
         }
 
-        new ka.field({
+        new ka.Field({
             label: _('Screenshots'), value: screenshotsCount, desc: _('Screenshots in %s').replace('%s', this.mod + '/_screenshots/'),
             disabled: true
         }).inject(p);
@@ -1307,7 +1307,7 @@ var admin_system_module_edit = new Class({
             owner = _('No owner - local version');
         }
 
-        var owner = new ka.field({
+        var owner = new ka.Field({
             label: _('Owner'), value: owner, disabled: true
         }).inject(p);
 
@@ -1320,19 +1320,19 @@ var admin_system_module_edit = new Class({
                 }).inject(p);
         }
 
-        this.generellFields['version'] = new ka.field({
+        this.generellFields['version'] = new ka.Field({
             label: _('Version'), value: pConfig.version
         }).inject(p);
 
-        this.generellFields['depends'] = new ka.field({
+        this.generellFields['depends'] = new ka.Field({
             label: _('Dependency'), desc: _('Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4.'), help: 'extensions-dependency', value: pConfig.depends
         }).inject(p);
 
-        this.generellFields['community'] = new ka.field({
+        this.generellFields['community'] = new ka.Field({
             label: _('Visible in community'), desc: _('Is this extension searchable and accessible for others?'), value: pConfig.community, type: 'checkbox'
         }).inject(p);
 
-        this.generellFields['category'] = new ka.field({
+        this.generellFields['category'] = new ka.Field({
             label: _('Category'), desc: _('What kind of extension is this?'), value: pConfig.category, type: 'select',
             tableItems: [
                 {v: _('Information/Editorial office'), i: 1},
@@ -1355,12 +1355,12 @@ var admin_system_module_edit = new Class({
             ], table_key: 'i', table_label: 'v'
         }).inject(p);
 
-        this.generellFields['writableFiles'] = new ka.field({
+        this.generellFields['writableFiles'] = new ka.Field({
             label: _('Writable files'), desc: _('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'), value: pConfig.writableFiles, type: 'textarea'
         }).inject(p);
 
 
-        var buttonBar = new ka.buttonBar(this.panes['general']);
+        var buttonBar = new ka.ButtonBar(this.panes['general']);
         buttonBar.addButton(_('Save'), this.saveGeneral.bind(this));
 
     },
@@ -1418,7 +1418,7 @@ var admin_system_module_edit = new Class({
             }.bind(this));
         }
 
-        var buttonBar = new ka.buttonBar(this.panes['layouts']);
+        var buttonBar = new ka.ButtonBar(this.panes['layouts']);
 
         buttonBar.addButton(_('Add theme'), function () {
             this._layoutsAddTheme('Theme title', {});
@@ -1804,7 +1804,7 @@ var admin_system_module_edit = new Class({
             text: t('Actions')
         }).inject(tr);
 
-        var buttonBar = new ka.buttonBar(this.panes['objects']);
+        var buttonBar = new ka.ButtonBar(this.panes['objects']);
         buttonBar.addButton(_('Add object'), function(){
             this.addObject()
         }.bind(this));
@@ -2338,7 +2338,7 @@ var admin_system_module_edit = new Class({
 
         });
 
-        var fieldTable = new ka.fieldTable(propertyPanel, this.win, {
+        var fieldTable = new ka.FieldTable(propertyPanel, this.win, {
             addLabel: t('Add field'),
             mode: 'object',
             withTableDefinition: true,
@@ -2700,7 +2700,7 @@ var admin_system_module_edit = new Class({
 
         this.extraFieldsObj = new ka.parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
 
-        var buttonBar = new ka.buttonBar(this.panes['extras']);
+        var buttonBar = new ka.ButtonBar(this.panes['extras']);
         buttonBar.addButton(_('Save'), this.saveExtras.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {

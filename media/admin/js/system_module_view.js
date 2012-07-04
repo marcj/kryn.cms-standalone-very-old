@@ -19,7 +19,7 @@ var admin_system_module_view = new Class({
         }
 
 
-        this.loading = new ka.loader().inject(this.win.content);
+        this.loading = new ka.Loader().inject(this.win.content);
         this.loading.show();
 
         new Request.JSON({url: _path + 'admin/system/module/getInstallInfo/', noCache: 1, onComplete: function (res) {
@@ -207,7 +207,7 @@ var admin_system_module_view = new Class({
             style: 'padding: 2px; border: 0px solid #ddd; margin-bottom: 3px;'
         }).inject(this.win.content);
 
-        var tabPane = new ka.tabPane(border);
+        var tabPane = new ka.TabPane(border);
 
 
         var descPane = tabPane.addPane(_('General'));
@@ -280,7 +280,7 @@ var admin_system_module_view = new Class({
         this.win.setTitle(_('Install extension'));
         this.installMode = true;
 
-        this.loading = new ka.loader().inject(this.win.content);
+        this.loading = new ka.Loader().inject(this.win.content);
         ;
         this.loading.show();
 
@@ -324,14 +324,14 @@ var admin_system_module_view = new Class({
         this.win.content.empty();
         //this.boxNavi.destroy();
 
-        this.loading = new ka.loader().inject(this.win.content);
+        this.loading = new ka.Loader().inject(this.win.content);
         this.loading.show();
 
         new Request.JSON({url: _path + 'admin/system/module/installModule/', noCache: 1, onComplete: function (res) {
 
             if (this.currentValues && this.currentValues.module.category == 13 && this.installMode)//layout
             {
-                ka._helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000);//30sec
+                ka.helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000);//30sec
             }
 
             new Request.JSON({url: _path + 'admin/system/module/dbInit/', noCache: 1, onComplete: function (res) {
@@ -359,7 +359,7 @@ var admin_system_module_view = new Class({
 
         this.isUpdate = true;
 
-        this.loading = new ka.loader().inject(this.win.content);
+        this.loading = new ka.Loader().inject(this.win.content);
         this.loading.show();
 
         new Request.JSON({url: _path + 'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
@@ -518,7 +518,7 @@ var admin_system_module_view = new Class({
                     //li.store('needFile', true);
                     this.dependsStatus[ extKey ] = 'ok';
 
-                    this.dependFiles[extKey] = new ka.field({
+                    this.dependFiles[extKey] = new ka.Field({
                         type: 'file', empty: false, label: 'Installation package', desc: _('Kryn.cms can not fetch server information. Please choose the proper installation file')
                     }).inject(li);
                 }
@@ -550,7 +550,7 @@ var admin_system_module_view = new Class({
                     /*
                      this.dependsStatus[ extKey ] = 'needfile';
 
-                     this.dependFiles[extKey] = new ka.field({
+                     this.dependFiles[extKey] = new ka.Field({
                      type: 'file', empty: false, label: 'Installation package',
                      desc: _('Kryn.cms can not fetch the proper package with the needed version. Please choose the proper installation file')
                      }).inject( li );
@@ -779,7 +779,7 @@ var admin_system_module_view = new Class({
                     this.filesOk.erase(extKey);
                     div.set('text', _('This installation file contains not the correct version. Please select this right one.'));
 
-                    //new ka.field
+                    //new ka.Field
 
 
                 }
@@ -925,7 +925,7 @@ var admin_system_module_view = new Class({
     renderRemove: function () {
         //this.boxNavi.destroy();
         this.win.content.empty();
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
         this.loader.show();
         this._renderRemove();
     },

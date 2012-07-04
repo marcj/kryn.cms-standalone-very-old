@@ -34,7 +34,7 @@ var admin_system_languages = new Class({
 
         this.languageSelect.setValue(window._session.lang);
 
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
 
         this.loadOverview();
 

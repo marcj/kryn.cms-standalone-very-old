@@ -1,6 +1,6 @@
 var admin_system_module_editWindow = new Class({
 
-    windowEditFields: {}, //ka.field object
+    windowEditFields: {}, //ka.Field object
     windowEditTabs: {}, //addtabPane object
 
     newCode: {}, //for class methods, code after modifing
@@ -35,7 +35,7 @@ var admin_system_module_editWindow = new Class({
 
     _createLayout: function(){
 
-        this.tabPane = new ka.tabPane(this.win.content, true, this.win);
+        this.tabPane = new ka.TabPane(this.win.content, true, this.win);
 
         this.generalTab = this.tabPane.addPane(t('General'));
         this.windowTabEdit  = this.tabPane.addPane(t('Window'));
@@ -406,7 +406,7 @@ var admin_system_module_editWindow = new Class({
                         var fKey = field.retrieve('key');
                         var fField = Object.clone(field.retrieve('field'));
 
-                        kaFieldObj = field.retrieve('ka.field');
+                        kaFieldObj = field.retrieve('ka.Field');
                         if (kaFieldObj.childContainer){
                             fField.depends = {};
                             extractFields(kaFieldObj.childContainer, fField.depends);
@@ -1066,7 +1066,7 @@ var admin_system_module_editWindow = new Class({
     newWindow: function(){
 
         this.windowPane.empty();
-        var win = new ka.kwindow();
+        var win = new ka.Window();
 
         win.borderDragger.detach();
         document.id(win).inject(this.windowPane);
@@ -1419,9 +1419,9 @@ var admin_system_module_editWindow = new Class({
 
             var win = this.newWindow();
 
-            //new ka.windowEdit(win, win.content);
+            //new ka.WindowEdit(win, win.content);
 
-            this.winTabPane = new ka.tabPane(win.content, true, win);
+            this.winTabPane = new ka.TabPane(win.content, true, win);
 
             this.winTabPaneSortables = new Sortables(null, {
                 revert: { duration: 500, transition: 'elastic:out' },
@@ -1512,7 +1512,7 @@ var admin_system_module_editWindow = new Class({
 
     applyFieldProperties: function(){
 
-        if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.field)){
+        if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.Field)){
 
             var val = this.lastFieldProperty.getValue();
 
@@ -1569,7 +1569,7 @@ var admin_system_module_editWindow = new Class({
 
         if (this.lastLoadedField && this.windowEditFields[this.lastLoadedField]){
 
-            if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.field))
+            if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.Field))
                 document.id(this.windowEditFields[this.lastLoadedField]).setStyle('outline');
             else
                 document.id(this.windowEditFields[this.lastLoadedField].button).setStyle('border');
@@ -1586,7 +1586,7 @@ var admin_system_module_editWindow = new Class({
             delete this.lastFieldProperty;
         }
 
-        if (!instanceOf(field, ka.field)){
+        if (!instanceOf(field, ka.Field)){
 
             field.button.setStyle('border', '1px dashed green');
 
@@ -1633,7 +1633,7 @@ var admin_system_module_editWindow = new Class({
 
         var definition = document.id(field).retrieve('field') || {};
 
-        this.lastFieldProperty = new ka.fieldProperty(pKey, definition, this.windowInspectorContainer, {
+        this.lastFieldProperty = new ka.FieldProperty(pKey, definition, this.windowInspectorContainer, {
             arrayKey: true,
             tableitem_title_width: 200,
             allTableItems: false,
@@ -1671,7 +1671,7 @@ var admin_system_module_editWindow = new Class({
             parentContainer = pParentKey;
         }
 
-        var field = new ka.field(
+        var field = new ka.Field(
             field,
             parentContainer,
             {win: this.win}

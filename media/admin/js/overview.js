@@ -102,7 +102,7 @@ admin_overview = new Class({
             widget.extension = pExt;
             widget.code = key;
 
-            var widgetObj = new ka.widget(widget, target, true);
+            var widgetObj = new ka.Widget(widget, target, true);
 
             this._widgets.include(widgetObj);
 
@@ -208,7 +208,7 @@ admin_overview = new Class({
 
                     var target = (widget.position == 'right') ? right : left;
 
-                    var widget = new ka.widget(widget, target);
+                    var widget = new ka.Widget(widget, target);
                     widget.main.setStyle('opacity', 0.7);
                     this._widgets.include(widget);
 

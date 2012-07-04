@@ -580,7 +580,7 @@ var admin_system_backup = new Class({
     startBackup: function (pId) {
 
         var failed = function () {
-            ka._helpsystem.newBubble(_('Error during creating backup'), _('There was a error during the creating of the backup. Please check the log window to get more informations. Maybe you should consider to increase the max_execution_time of your server.'), 60000);
+            ka.helpsystem.newBubble(_('Error during creating backup'), _('There was a error during the creating of the backup. Please check the log window to get more informations. Maybe you should consider to increase the max_execution_time of your server.'), 60000);
         };
 
         new Request.JSON({url: _path + 'admin/system/backup/start',
@@ -659,7 +659,7 @@ var admin_system_backup = new Class({
         this.addGrp.hide();
         this.main.empty();
 
-        this.importFile = new ka.field({
+        this.importFile = new ka.Field({
             type: 'file', label: _('Backup file'), desc: _('Choose the backup file and press Extract.')
         }, this.main);
 
@@ -757,7 +757,7 @@ var admin_system_backup = new Class({
                     style: 'color: gray;'
                 }).inject(li);
 
-                new ka.field({
+                new ka.Field({
                     type: 'page'
                 }, li, {win: this.win})
 

@@ -26,11 +26,11 @@
     <script type="text/javascript" src="{$cfg.path}lib/codemirror/lib/util/loadmode.js"></script>
 
 
-    <script type="text/javascript" src="{$path}media/admin/js/ka.ai.js?nc=1.0" ></script>
-    <script type="text/javascript" src="{$path}media/admin/js/ka.js?nc=1.0" ></script>
-    <script type="text/javascript" src="{$path}media/admin/js/ka.Button.js" ></script>
-    <script type="text/javascript" src="{$path}media/admin/js/ka.Select.js" ></script>
-    <script type="text/javascript" src="{$path}media/admin/js/ka.Checkbox.js" ></script>
+    <script type="text/javascript" src="{$path}media/admin/js/core/ka.ai.js?nc=1.0" ></script>
+    <script type="text/javascript" src="{$path}media/admin/js/core/ka.js?nc=1.0" ></script>
+    <script type="text/javascript" src="{$path}media/admin/js/ui/ka.Button.js" ></script>
+    <script type="text/javascript" src="{$path}media/admin/js/ui/ka.Select.js" ></script>
+    <script type="text/javascript" src="{$path}media/admin/js/ui/ka.Checkbox.js" ></script>
 
     <link rel="stylesheet" type="text/css" href="{$cfg.path}lib/codemirror/lib/codemirror.css">
 

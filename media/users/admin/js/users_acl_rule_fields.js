@@ -182,7 +182,7 @@ var users_acl_rule_fields = new Class({
 
         if (this.fields[pFieldKey].type != 'object'){
 
-            var conditionField = new ka.field({
+            var conditionField = new ka.Field({
                 noWrapper: true,
                 type: 'fieldCondition',
                 field: pFieldKey,
@@ -194,7 +194,7 @@ var users_acl_rule_fields = new Class({
             var objectDefinition = ka.getObjectDefinition(this.field.object);
             var fieldDefinition = objectDefinition.fields[pFieldKey];
 
-            var conditionField = new ka.field({
+            var conditionField = new ka.Field({
                 noWrapper: true,
                 type: 'objectCondition',
                 object: fieldDefinition.object,

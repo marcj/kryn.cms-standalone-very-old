@@ -299,7 +299,7 @@ class krynAuth {
      * 'default_groups' => array(
      *    array('login' => 'LoginOrRegex', 'group' => 'group_rsn')
      * );
-     * You can perfectly use the following ka.field in your auth properties:
+     * You can perfectly use the following ka.Field in your auth properties:
      *
      *    "default_group": {
      *        "label": "Group mapping",

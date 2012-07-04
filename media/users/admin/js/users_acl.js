@@ -50,12 +50,12 @@ var users_users_acl = new Class({
         }).inject(this.win.titleGroups)
 
 
-        this.tabs = new ka.tabPane(this.right, true, this.win);
+        this.tabs = new ka.TabPane(this.right, true, this.win);
 
         this.entryPointTab = this.tabs.addPane(t('Entry points'), '');
         this.objectTab = this.tabs.addPane(t('Objects'), '');
 
-        this.actions = new ka.buttonGroup(this.win.titleGroups);
+        this.actions = new ka.ButtonGroup(this.win.titleGroups);
         this.btnSave = this.actions.addButton(t('Save'), 'admin/images/button-save.png', this.save.bind(this));
 
         this.tabs.hide();

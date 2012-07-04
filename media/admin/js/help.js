@@ -29,7 +29,7 @@ var admin_help = new Class({
 
     loadTree: function () {
         this.left.empty();
-        this.leftLoader = new ka.loader().inject(this.left);
+        this.leftLoader = new ka.Loader().inject(this.left);
 
         new Request.JSON({url: _path + 'admin/backend/help/loadTree', noCache: 1, onComplete: function (res) {
 

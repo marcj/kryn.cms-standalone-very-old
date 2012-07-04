@@ -1177,7 +1177,7 @@ var admin_pages = new Class({
          options.include({i: type, label: label})
          }.bind(this));
 
-         var newF = new ka.field({
+         var newF = new ka.Field({
          label: _('Type'),
          type: 'select',
          help: 'admin/element-type',
@@ -1412,7 +1412,7 @@ var admin_pages = new Class({
 
                 item.small = 1;
 
-                new ka.field(item).inject(this.domainExtensionsPane);
+                new ka.Field(item).inject(this.domainExtensionsPane);
 
             }.bind(this));
 
@@ -1534,26 +1534,26 @@ var admin_pages = new Class({
 
         this.domainFields = new Hash();
 
-        this.domainFields['domain'] = new ka.field({label: _('Domain'), desc: _('Please make sure, that this domains points to this Kryn.cms installation. Otherwise you are not able to manage the content under the content tab.'), type: 'text', empty: false}).inject(p);
+        this.domainFields['domain'] = new ka.Field({label: _('Domain'), desc: _('Please make sure, that this domains points to this Kryn.cms installation. Otherwise you are not able to manage the content under the content tab.'), type: 'text', empty: false}).inject(p);
 
-        this.domainFields['startpage_rsn'] = new ka.field({label: _('Startpage'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}).inject(p);
+        this.domainFields['startpage_rsn'] = new ka.Field({label: _('Startpage'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage'}).inject(p);
 
-        this.domainFields['title_format'] = new ka.field({label: _('Title'), type: 'text', desc: _("Use %title as page title or %path as breadcrumb path.") + '<br />' + _("To generate own titles you can set for example %s").replace('%s', 'myExtensionClass::myTitleFunction'), empty: false}).inject(p);
+        this.domainFields['title_format'] = new ka.Field({label: _('Title'), type: 'text', desc: _("Use %title as page title or %path as breadcrumb path.") + '<br />' + _("To generate own titles you can set for example %s").replace('%s', 'myExtensionClass::myTitleFunction'), empty: false}).inject(p);
 
-        this.domainFields['path'] = new ka.field({label: _('Path'), type: 'text', desc: _("Installation path of kryn. Default '/'")}).inject(p);
+        this.domainFields['path'] = new ka.Field({label: _('Path'), type: 'text', desc: _("Installation path of kryn. Default '/'")}).inject(p);
 
 
         var tableItems = [];
         $H(ka.settings.langs).each(function (lang, id) {
             tableItems.include({ id: id, label: lang.langtitle + ' (' + lang.title + ', ' + id + ')' });
         });
-        this.domainFields['lang'] = new ka.field({label: _('Language'), type: 'select',
+        this.domainFields['lang'] = new ka.Field({label: _('Language'), type: 'select',
             table_label: 'label', table_key: 'id',
             tableItems: tableItems
         }).inject(p);
 
 
-        this.domainFields['master'] = new ka.field({label: _('Language master'), type: 'checkbox'}).inject(p);
+        this.domainFields['master'] = new ka.Field({label: _('Language master'), type: 'checkbox'}).inject(p);
 
         this.domainMasterPane = new Element('div', {
             style: 'padding-left: 30px; color: gray;'
@@ -1572,7 +1572,7 @@ var admin_pages = new Class({
         this.domainFieldsPublicProperties = this.createPublicPropertiesBoard(_('Theme properties'));
         this.domainFieldsPublicProperties.inject(p);
 
-        this.domainFields['layouts'] = new ka.field({label: _('Limit selectable layouts'), desc: _('If you want to limit layouts to choose'),
+        this.domainFields['layouts'] = new ka.Field({label: _('Limit selectable layouts'), desc: _('If you want to limit layouts to choose'),
             type: 'select', multiple: true, size: 6}).inject(p);
 
         $H(ka.settings.layouts).each(function (la, key) {
@@ -1722,55 +1722,55 @@ var admin_pages = new Class({
         var table = new Element('table', {width: '100%'}).inject(p);
         var tbody = new Element('tbody').inject(table);
 
-        this.domainFields['favicon'] = new ka.field({
+        this.domainFields['favicon'] = new ka.Field({
             label: _('Favicon'), type: 'file', desc: _('Choose a favicon. Filetype .ico'),
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
 
-        this.domainFields['email'] = new ka.field({
+        this.domainFields['email'] = new ka.Field({
             label: _('Email sender'), desc: _('Extensions can use this email in outgoing emails as sender.'),
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
 
-        this.domainFields['alias'] = new ka.field({
+        this.domainFields['alias'] = new ka.Field({
             label: _('Alias'), type: 'text',
             desc: _("Define one or more alias for the domain above. Comma separated alias domain list to this domain."),
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
-        this.domainFields['redirect'] = new ka.field({
+        this.domainFields['redirect'] = new ka.Field({
             label: _('Redirect'), type: 'text',
             desc: _("This domains redirect to the domain defined above. Comma separated redirect domain list to this domain"),
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
 
-        this.domainFields['phplocale'] = new ka.field({
+        this.domainFields['phplocale'] = new ka.Field({
             label: 'PHP-Locale', type: 'text', desc: _('Locale LC_ALL in PHP'),
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
 
-        this.domainFields['robots'] = new ka.field({
+        this.domainFields['robots'] = new ka.Field({
             label: 'Robot rules', type: 'textarea', desc: _('Define here the rules for search engines. (robots.txt)'),
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
-        this.domainFields['resourcecompression'] = new ka.field({
+        this.domainFields['resourcecompression'] = new ka.Field({
             label: _('Css and JS compression'),
             desc: _('Merge all css files in one, same with javascript files. This improve the page render time'),
             type: 'checkbox',
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
-        this.domainFields['page404_rsn'] = new ka.field({
+        this.domainFields['page404_rsn'] = new ka.Field({
             label: _('404-Page'), type: 'pageChooser', empty: false, onlyIntern: true, cookie: 'startpage',
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
 
-        this.domainFields['page404interface'] = new ka.field({
+        this.domainFields['page404interface'] = new ka.Field({
             label: _('404-Interface'), desc: _('PHP file'), type: 'fileChooser', empty: false, cookie: 'file',
             tableitem: 1, tableitem_title_width: 250
         }, tbody);
@@ -1828,7 +1828,7 @@ var admin_pages = new Class({
                     fieldOpts.tableitem = 1;
                     fieldOpts.tableitem_title_width = 250;
 
-                    field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] = new ka.field(fieldOpts, tbody);
+                    field.domainFieldsPublicProperties[ extKey ][ tKey ][ fKey ] = new ka.Field(fieldOpts, tbody);
                 }.bind(this))
 
             }.bind(this));
@@ -1870,7 +1870,7 @@ var admin_pages = new Class({
         }).inject(this.main);
         this.generalFields = new Hash();
 
-        this.generalFields['type'] = new ka.field({label: _('Type'), type: 'imagegroup',
+        this.generalFields['type'] = new ka.Field({label: _('Type'), type: 'imagegroup',
             table_label: 'label', table_key: 'id',
             items: {
                 0: {label: _('Default'), src: _path + PATH_MEDIA + '/admin/images/icons/page_green.png'},
@@ -1882,15 +1882,15 @@ var admin_pages = new Class({
 
         this.generalFields['type'].addEvent('change', this.changeType.bind(this));
 
-        this.generalFields['title'] = new ka.field({label: _('Title (navigation)'), type: 'text', empty: false}).inject(p);
+        this.generalFields['title'] = new ka.Field({label: _('Title (navigation)'), type: 'text', empty: false}).inject(p);
 
-        this.generalFields['page_title'] = new ka.field({label: _('Alternative page title'), type: 'text'}).inject(p);
+        this.generalFields['page_title'] = new ka.Field({label: _('Alternative page title'), type: 'text'}).inject(p);
 
 
-        this.generalFields['link'] = new ka.field({label: _('Target'), desc: _('Extern links with "http://"'), type: 'chooser', empty: false, cookie: 'pageLink'}).inject(p);
+        this.generalFields['link'] = new ka.Field({label: _('Target'), desc: _('Extern links with "http://"'), type: 'chooser', empty: false, cookie: 'pageLink'}).inject(p);
 
         //targets
-        this.generalFields['target'] = new ka.field({label: _('Open in'), type: 'select',
+        this.generalFields['target'] = new ka.Field({label: _('Open in'), type: 'select',
             table_label: 'label', table_key: 'id',
             tableItems: [
                 {label: _('Same window'), id: '_self'},
@@ -1900,7 +1900,7 @@ var admin_pages = new Class({
 
 
         //URL
-        this.generalFields['url'] = new ka.field({label: _('URL'), type: 'text', empty: false, check: 'kurl', help: 'admin/url'}).inject(p);
+        this.generalFields['url'] = new ka.Field({label: _('URL'), type: 'text', empty: false, check: 'kurl', help: 'admin/url'}).inject(p);
 
         this.urlAliase = new Element('div', {
             style: 'padding: 5px; padding-left: 26px;'
@@ -1924,7 +1924,7 @@ var admin_pages = new Class({
          ka.settings.templates.each(function(template){
          tableItems.include({ id: template, label: template });
          });
-         this.generalFields['template'] = new ka.field(
+         this.generalFields['template'] = new ka.Field(
          {label: 'Template', type: 'select',
          table_label: 'label', table_key: 'id',
          tableItems: tableItems
@@ -1951,9 +1951,9 @@ var admin_pages = new Class({
             this.addMeta();
         }.bind(this)).setStyle('left', 1).setStyle('top', 3).setStyle('position', 'relative').inject(this.metaTitle);
 
-        this.generalFields['metaKeywords'] = new ka.field({label: _('Keywords'), type: 'text'}).inject(this.metas);
+        this.generalFields['metaKeywords'] = new ka.Field({label: _('Keywords'), type: 'text'}).inject(this.metas);
 
-        this.generalFields['metaDesc'] = new ka.field({label: _('Description'), type: 'textarea'}).inject(this.metas);
+        this.generalFields['metaDesc'] = new ka.Field({label: _('Description'), type: 'textarea'}).inject(this.metas);
 
 
         this.panes['general'] = p;
@@ -1964,27 +1964,27 @@ var admin_pages = new Class({
             'class': 'admin-pages-pane'
         }).inject(this.main);
 
-        this.generalFields['visible'] = new ka.field({label: _('Visible (navigation)'), type: 'checkbox'}).inject(p);
+        this.generalFields['visible'] = new ka.Field({label: _('Visible (navigation)'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['access_denied'] = new ka.field({label: _('Access denied'), type: 'checkbox'}).inject(p);
+        this.generalFields['access_denied'] = new ka.Field({label: _('Access denied'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['force_https'] = new ka.field({label: _('Force HTTPS'), type: 'checkbox'}).inject(p);
+        this.generalFields['force_https'] = new ka.Field({label: _('Force HTTPS'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['access_from'] = new ka.field({label: _('Release at'), type: 'datetime'}).inject(p);
+        this.generalFields['access_from'] = new ka.Field({label: _('Release at'), type: 'datetime'}).inject(p);
 
-        this.generalFields['access_to'] = new ka.field({label: _('Hide at'), type: 'datetime'}).inject(p);
+        this.generalFields['access_to'] = new ka.Field({label: _('Hide at'), type: 'datetime'}).inject(p);
 
-        this.generalFields['access_from_groups'] = new ka.field({label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
+        this.generalFields['access_from_groups'] = new ka.Field({label: _('Limit access to groups'), desc: ('For no restrictions let it empty'),
             type: 'textlist', panel_width: 320,
             store: 'admin/backend/stores/groups'
         }).inject(p);
 
 
-        this.generalFields['access_nohidenavi'] = new ka.field({label: _('Show in navigation by no access'), desc: _('Shows this page in the navigations also with no access'), type: 'checkbox'}).inject(p);
+        this.generalFields['access_nohidenavi'] = new ka.Field({label: _('Show in navigation by no access'), desc: _('Shows this page in the navigations also with no access'), type: 'checkbox'}).inject(p);
 
-        this.generalFields['access_redirectto'] = new ka.field({label: _('Redirect to page by no access'), desc: _('Choose a page, if you want to redirect the user to a page by no access.'), type: 'page'}).inject(p);
+        this.generalFields['access_redirectto'] = new ka.Field({label: _('Redirect to page by no access'), desc: _('Choose a page, if you want to redirect the user to a page by no access.'), type: 'page'}).inject(p);
 
-        this.generalFields['access_need_via'] = new ka.field({label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
+        this.generalFields['access_need_via'] = new ka.Field({label: _('Verify access with this service'), desc: _('Only if group limition is active'), type: 'select',
             tableItems: [
                 {rsn: 0, name: 'Kryn.cms-Session'},
                 {rsn: 1, name: 'Htaccess'}
@@ -2618,7 +2618,7 @@ var admin_pages = new Class({
      if( options.id+0 > 0 ){
      //var idRegex = /{slot.+id="(\d+)".*}/;
      //var res = idRegex.exec( pElement.get('text') );
-     this.layoutBoxes[ options.id ] = new ka.layoutBox( pElement, options.name, this.win, options.css, options['default'], this, options );
+     this.layoutBoxes[ options.id ] = new ka.LayoutBox( pElement, options.name, this.win, options.css, options['default'], this, options );
      }
 
      }
@@ -2697,12 +2697,12 @@ var admin_pages = new Class({
             'class': 'admin-pages-pane'
         }).inject(this.main);
 
-        this.generalFields['resourcesCss'] = new ka.field({label: 'CSS', type: 'textarea'}).inject(p);
+        this.generalFields['resourcesCss'] = new ka.Field({label: 'CSS', type: 'textarea'}).inject(p);
         this.generalFields['resourcesCss'].input.setStyles({
             height: 200, width: 600
         });
 
-        this.generalFields['resourcesJs'] = new ka.field({label: 'Javascript', type: 'textarea'}).inject(p);
+        this.generalFields['resourcesJs'] = new ka.Field({label: 'Javascript', type: 'textarea'}).inject(p);
         this.generalFields['resourcesJs'].input.setStyles({
             height: 200, width: 600
         });
@@ -2764,7 +2764,7 @@ var admin_pages = new Class({
                 $H(config.pageProperties).each(function (property, key) {
                     property.tableitem = 1;
                     property.tableitem_title_width = 250;
-                    extFields[key] = new ka.field(property).inject(tbody);
+                    extFields[key] = new ka.Field(property).inject(tbody);
 
                 }.bind(this));
 
@@ -2810,7 +2810,7 @@ var admin_pages = new Class({
                 $H(config.domainProperties).each(function (property, key) {
                     property.tableitem = 1;
                     property.tableitem_title_width = 250;
-                    extFields[key] = new ka.field(property, tbody);
+                    extFields[key] = new ka.Field(property, tbody);
 
                 }.bind(this));
 
@@ -2988,10 +2988,10 @@ var admin_pages = new Class({
          fieldAddToBlBtn.addEvent('click', function() { this.addPageToBlacklist(this.page.url) }.bind(this));
          */
 
-        this.generalFields['unsearchable'] = new ka.field({label: _('Exclude this page from search index'), type: 'checkbox'}).inject(p);
+        this.generalFields['unsearchable'] = new ka.Field({label: _('Exclude this page from search index'), type: 'checkbox'}).inject(p);
 
 
-        this.generalFields['search_words'] = new ka.field({label: _('Search words'), type: 'textarea'}).inject(p);
+        this.generalFields['search_words'] = new ka.Field({label: _('Search words'), type: 'textarea'}).inject(p);
 
         new Element('div', { 'class': 'title', 'text': _('Search indexes for this site')})
         .inject(new Element('div', { 'class': 'ka-field-title' })
@@ -3022,7 +3022,7 @@ var admin_pages = new Class({
             onComplete: function (pSRes) {
                 if (pSRes) {
                     nMsg = _('The URL ') + '&quot;<b>' + pUrl + '</b>&quot;' + _(' has been added successfully to your search index blacklist.')
-                    ka._helpsystem.newBubble(_('URL successfully added!'), nMsg, 10000);
+                    ka.helpsystem.newBubble(_('URL successfully added!'), nMsg, 10000);
                     this.loadSearchIndexOverview();
                 }
                 this.win.setLoading(false);
@@ -3445,7 +3445,7 @@ var admin_pages = new Class({
 
             if (domain.lang != this.language) return;
 
-            this.domainTrees[domain.rsn] = new ka.objectTree(this.treeContainer, 'node', {
+            this.domainTrees[domain.rsn] = new ka.ObjectTree(this.treeContainer, 'node', {
                 rootId: domain.rsn,
 
                 onSelection: function (pPage, pObject) {

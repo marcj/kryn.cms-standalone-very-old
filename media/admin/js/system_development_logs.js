@@ -19,7 +19,7 @@ var admin_system_development_logs = new Class({
             style: 'position: absolute; left: 0px; top: 0px; right: 0px; bottom: 31px;'
         }).inject(this.win.content);
 
-        var bottomBar = new ka.buttonBar(this.win.content);
+        var bottomBar = new ka.ButtonBar(this.win.content);
 
         this.logsTop = new Element('div', {
             style: 'position: absolute; left: 0px; top: 0px; right: 0px; height: 55px; border-bottom: 1px solid #ddd; padding: 5px;'
@@ -46,7 +46,7 @@ var admin_system_development_logs = new Class({
             text: _('Live log')
         }).inject(this.btnDiv2);
 
-        this.logsAreaSelect = new ka.field({
+        this.logsAreaSelect = new ka.Field({
             type: 'select', label: _('Area'), small: 1, tableItems: [
                 {
                     id: 'all',

@@ -724,7 +724,7 @@ function dbSimpleConditionToSql($pPrimaryValue, $pTable = '', $pObjectKey = fals
  *
  *
  * Extended:
- * Such a structure will be returned from the ka.field type 'condition'.
+ * Such a structure will be returned from the ka.Field type 'condition'.
  * Note: A simple array('id', '=', '2') won't work! You need to wrap a second array() around it.
  *
  * array(

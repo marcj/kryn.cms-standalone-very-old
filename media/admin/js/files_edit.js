@@ -87,7 +87,7 @@ var admin_files_edit = new Class({
             //var boxNavi = this.win.addButtonGroup();
             //boxNavi.hide();
 
-            this.loader = new ka.loader(true).inject(this.win.content);
+            this.loader = new ka.Loader(true).inject(this.win.content);
             this.loader.show();
             this.win.content.setStyle('overflow', 'hidden');
             //          boxNavi.addButton( scroller );
@@ -217,7 +217,7 @@ var admin_files_edit = new Class({
 
     rotate: function (pPos) {
 
-        var loader = new ka.loader(true, true).inject(this.img.getParent());
+        var loader = new ka.Loader(true, true).inject(this.img.getParent());
         loader.show();
 
         if (this.lastRotateRq) {
@@ -239,7 +239,7 @@ var admin_files_edit = new Class({
 
     resize: function (pWidth, pHeight) {
 
-        var loader = new ka.loader(true, true).inject(this.img.getParent());
+        var loader = new ka.Loader(true, true).inject(this.img.getParent());
         loader.show();
 
         if (this.lastRotateRq) {
@@ -324,7 +324,7 @@ var admin_files_edit = new Class({
 
         this.td.empty();
 
-        var loader = new ka.loader(true, true).inject(this.td);
+        var loader = new ka.Loader(true, true).inject(this.td);
         loader.show();
 
         this.win.params = {file: {path: pImage}};

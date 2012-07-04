@@ -43,7 +43,7 @@ var admin_system_layout = new Class({
 
         /* page contents end */
 
-        this.loader = new ka.loader().inject(this.win.content);
+        this.loader = new ka.Loader().inject(this.win.content);
 
         this.changeType('layouts');
 
@@ -92,7 +92,7 @@ var admin_system_layout = new Class({
         var file = pFile;
         this.right.empty();
         if (file == '') return;
-        var loader = new ka.loader().inject(this.right);
+        var loader = new ka.Loader().inject(this.right);
         loader.show();
 
         this._layoutFiles.each(function (item) {
@@ -124,11 +124,11 @@ var admin_system_layout = new Class({
             style: 'position: absolute; left: 0px; top: 0px; height: 55px; right: 0px; padding: 10px; padding-bottom: 0px;'
         }).inject(p);
 
-        new ka.field({
+        new ka.Field({
             label: _('File'), small: true, value: pFile.path, disabled: true
         }).inject(infos);
 
-        new ka.field({
+        new ka.Field({
             label: _('Title'), small: true, value: pFile.title, disabled: true
         }).inject(infos);
 
