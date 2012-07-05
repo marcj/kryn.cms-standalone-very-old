@@ -102,7 +102,7 @@ var users_users_acl = new Class({
                 field.addEvent('change', function(pValue){
                     objectTreeContainer.getChildren().destroy();
 
-                    this.lastObjectTree = new ka.objectTree(objectTreeContainer, pObjectKey, {
+                    this.lastObjectTree = new ka.ObjectTree(objectTreeContainer, pObjectKey, {
                         openFirstLevel: true,
                         rootId: pValue,
                         move: false,
@@ -123,7 +123,19 @@ var users_users_acl = new Class({
                     field.fireEvent('change', field.getValue());
                 });
             } else {
+                this.lastObjectTree = new ka.ObjectTree(this.objectsExactContainer, pObjectKey, {
+                    openFirstLevel: true,
+                    move: false,
+                    withContext: false,
+                    onReady: function(){
+                        this.renderTreeRules();
+                    }.bind(this),
+                    onChildrenLoaded: function(){
+                        this.renderTreeRules();
+                    }.bind(this)
+                });
 
+                this.mapObjectTreeEvent();
 
             }
 
@@ -1404,7 +1416,6 @@ var users_users_acl = new Class({
             this.win.setBlocked(false);
 
         }.bind(this)}).post(req);
-
 
     }
 

@@ -480,7 +480,10 @@
   },
   "objects": {
     "file": {
-      "class": "kryn\/objects\/objectFile",
+      "nestedLabel": "name",
+      "nestedRootAsObject": 0,
+      "nested": 1,
+      "class": "objectFile",
       "multiLanguage": 0,
       "domainDepended": 0,
       "chooserFieldDataModelCondition": [
@@ -495,7 +498,12 @@
       },
       "chooserFieldDataModelField": "id",
       "chooserFieldType": "default",
-      "chooserBrowserJavascriptClass": "ka.files",
+      "chooserBrowserTreeJavascript": "default",
+      "chooserBrowserTreeIconMapping": [
+        
+      ],
+      "chooserBrowserTreeFixedIcon": 0,
+      "chooserBrowserJavascriptClass": "ka.Files",
       "chooserBrowserOptions": {
         "onlyUserDefined": {
           "label": "[[Only user defined files]]",
@@ -538,7 +546,6 @@
       },
       "chooserBrowserDataModel": "default",
       "chooserBrowserType": "custom",
-      "selectable": 1,
       "fields": {
         "id": {
           "label": "[[ID]]",
@@ -550,6 +557,49 @@
         "path": {
           "label": "[[Path]]",
           "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "name": {
+          "label": "[[Name]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "ext": {
+          "label": "[[File extension]]",
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "type": {
+          "label": "[[Type]]",
+          "items": {
+            "dir": "[[Directory]]",
+            "file": "[[File]]"
+          },
+          "multi": 0,
+          "type": "select",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "size": {
+          "label": "[[Size]]",
+          "type": "number",
+          "primaryKey": 0,
+          "autoIncrement": 0,
+          "desc": "[[In bytes]]",
+          "empty": 1
+        },
+        "ctime": {
+          "label": "[[Created]]",
+          "type": "datetime",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "mtime": {
+          "label": "[[Modified]]",
+          "type": "datetime",
           "primaryKey": 0,
           "empty": 1
         }
@@ -911,7 +961,7 @@
         },
         "visible": {
           "label": "[[Visible as system language]]",
-          "type": "text",
+          "type": "checkbox",
           "primaryKey": 0,
           "empty": 1
         }
@@ -1854,13 +1904,14 @@
     }
   },
   "adminJavascript": [
-    "admin\/js\/ui/ka.objectTree.js",
-    "admin\/js\/ui/ka.tabGroup.js",
-    "admin\/js\/lib/ka.WindowEdit.js",
-    "admin\/js\/lib/ka.WindowList.js",
-    "admin\/js\/lib/ka.CustomField.js",
-    "admin\/js\/lib/*.js",
-    "admin\/js\/ui/*.js"
+    "admin\/js\/ui\/ka.ObjectTree.js",
+    "admin\/js\/ui\/ka.TabGroup.js",
+    "admin\/js\/lib\/ka.WindowEdit.js",
+    "admin\/js\/lib\/ka.WindowList.js",
+    "admin\/js\/lib\/ka.CustomField.js",
+    "admin\/js\/lib\/*.js",
+    "admin\/js\/ui\/*.js",
+    "admin\/js\/mootools-extras\/*.js"
   ],
   "adminCss": [
     "admin\/css\/*.css"

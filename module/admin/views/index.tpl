@@ -100,9 +100,7 @@
     </div>
     <div class="windowList" id="windowList"></div>
 
-    <div class="middle" id="middle">
-        <div class="content ka-desktop" id="desktop"></div>
-    </div>
+    <div class="content ka-desktop" id="desktop"></div>
 </div>
 </body>
 </html>

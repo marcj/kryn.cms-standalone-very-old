@@ -300,7 +300,7 @@ class krynObjects {
         if (!self::$instances[$pObjectKey]){
             if ($definition['class']){
 
-                $path = (substr($definition['class'], 0, 5) == 'kryn/'?PATH_CORE:PATH_MODULE.$definition['_extension'].'/').$definition['class'].'.class.php';
+                $path = PATH_MODULE.$definition['_extension'].'/'.$definition['class'].'.class.php';
 
                 if (!file_exists($path))
                     throw new Exception('Create object instance error: Class file for '.$pObjectKey.' ('.$definition['class'].', '.$path.') not found');

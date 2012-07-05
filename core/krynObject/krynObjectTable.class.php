@@ -381,14 +381,13 @@ class krynObjectTable extends krynObjectAbstract {
                 $additionalWhere = " AND $nodeLft BETWEEN $parent1Lft AND $parent1Rgt";
                 $aDepth = "(COUNT($pid) - MAX($parent1.$depth))";
 
-
             }
 
             if ($this->definition['nestedRootAsObject']){
                 //if we have nestedRootAsObject as 1 we do not allow to fetch elements without conditions
                 //since rgt and lft would overlap
 
-                if (!$pParent && !$pRootObjectId) return false;
+                if (!$pParent && !$pRootObjectId) return array('error' => 'missing_root_id');
 
                 if (!$pRootObjectId && $pParent){
                     $additionalWhere .= " AND ".dbQuote($rField, 'node').' = '.dbQuote($rField, 'parent1');
@@ -422,7 +421,6 @@ class krynObjectTable extends krynObjectAbstract {
             ORDER BY MAX($nodeLft)
             ";
 
-            //print_r($sql); exit;
             $res = dbExec($sql);
 
             if (!$res) return false;

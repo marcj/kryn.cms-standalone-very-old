@@ -1360,7 +1360,7 @@ class admin {
         }
 
         foreach ($jsFiles as $jsFile)
-            $md5Hash .= filemtime(PATH_MEDIA . $jsFile) . '.';
+            $md5Hash .= filemtime($jsFile) . '.';
 
         $md5Hash = md5($md5Hash);
 

@@ -93,7 +93,7 @@ class adminFS {
             $item['size'] = filesize($path);
             $item['ctime'] = filectime($path);
             $item['mtime'] = filemtime($path);
-            $items[$item['name']] = $item;
+            $items[] = $item;
         }
 
         return $items;

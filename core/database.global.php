@@ -344,6 +344,7 @@ function dbInsert($pTable, $pValues) {
 
     $sql = "INSERT INTO $table ($fields) VALUES ($values)";
 
+    print $sql;
     if (dbExec($sql))
         return dbLastId();
     else
@@ -426,8 +427,10 @@ function dbDelete($pTable, $pWhere = '') {
     $table = dbTableName($pTable);
 
     $sql = "DELETE FROM " . $table . "";
-    if ($pWhere)
+    if (is_string($pWhere))
         $sql .= " WHERE $pWhere ";
+    if (is_array($pWhere))
+        $sql .= " WHERE ".dbConditionToSql($pWhere);
 
     return dbExec($sql);
 }

@@ -90,6 +90,8 @@ abstract class krynObjectAbstract {
      * @param mixed $pPrimaryValues
      * @param string $pFields
      * @param string $pResolveForeignValues
+     *
+     * @return array
      */
     abstract public function getItem($pPrimaryValues, $pFields = '*', $pResolveForeignValues = '*');
 

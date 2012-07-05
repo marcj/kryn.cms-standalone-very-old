@@ -508,7 +508,7 @@ ka.ai.endLoading = function () {
 }
 
 ka.ai.startLoading = function () {
-    var co = $('middle');
+    var co = $('desktop');
     ka.ai._loader.setStyles(co.getCoordinates());
     ka.ai._loader.tween('opacity', 1);
 }

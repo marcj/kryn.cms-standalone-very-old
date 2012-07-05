@@ -831,7 +831,7 @@ class database {
 
         $queries = explode(';', $pQuery);
         foreach ($queries as $query) {
-            if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $query, $matches)) {
+            if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+"?([a-z0-9\_\-]+)"?/is', $query, $matches)) {
                 $this->lastInsertTable = $matches[1];
             }
         }

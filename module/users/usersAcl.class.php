@@ -23,8 +23,6 @@ class usersAcl {
                 return self::load(getArgv('acl_target_type'), getArgv('acl_target_rsn'));
             case 'loadDomains':
                 return self::loadDomains();
-            case 'loadPages':
-                return self::loadPages();
             case 'save':
                 return self::save();
             case 'getPageItemInfo':
@@ -76,16 +74,6 @@ class usersAcl {
     	json($res);
     }
     
-    public static function loadPages(){
-        
-        $domain = getArgv('domain')+0;
-        
-        //$res = dbExec('SELECT rsn, title FROM ');
-        //$domains = dbExfetch("SELECT rsn, domain FROM %pfx%system_domains WHERE lang = '$lang'", -1);       
-        json($domains);
-    }
-    
-    
     public static function loadDomains(){
     	
     	$lang = getArgv('lang', 2);
@@ -96,9 +84,28 @@ class usersAcl {
 
     public static function save(){
 
-        asdds();
+        $targetType = getArgv('target_type')+0;
+        $targetRsn = getArgv('target_rsn')+0;
 
-        return false;
+        dbDelete('system_acl', array(
+            'target_type' => $targetType,
+            'target_rsn' => $targetRsn
+        ));
+
+        $rules = getArgv('rules');
+        if (count($rules) == 0) return true;
+
+
+        foreach ($rules as $rule){
+
+            unset($rule['rsn']);
+            $rule['target_type'] = $targetType;
+            $rule['target_rsn'] = $targetRsn;
+            dbInsert('system_acl', $rule);
+
+        }
+
+        return true;
 
         //$target_rsn = getArgv('rsn')+0;
         //$type = (getArgv('type',1) == 'user')?'users':'groups';

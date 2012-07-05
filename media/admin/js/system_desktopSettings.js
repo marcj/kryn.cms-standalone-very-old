@@ -12,7 +12,7 @@ var admin_system_desktopSettings = new Class({
     createLayout: function () {
 
         this.actionBar = this.win.addBottomBar();
-        this.actionBar.addButton(_('Apply'), this.save.bind(this));
+        this.actionBar.addButton(t('Apply'), this.save.bind(this));
 
         this.defaultImages = new Element('div', {
             'class': 'admin-system-desktopSettings-defaultImages',
@@ -23,7 +23,7 @@ var admin_system_desktopSettings = new Class({
             style: 'margin: 15px;'
         }).inject(this.win.content);
 
-        this.fieldBg = new ka.Field({label: _('Background image'), type: 'fileChooser'}).addEvent('change', function (pValue) {
+        this.fieldBg = new ka.Field({label: t('Background image'), type: 'fileChooser'}).addEvent('change', function (pValue) {
             this.choose(pValue);
         }.bind(this)).inject(this.options);
         this.fieldBg.setValue(ka.settings.user.userBg);
@@ -40,8 +40,9 @@ var admin_system_desktopSettings = new Class({
 
         new Request.JSON({url: _path + 'admin/backend/getDefaultImages', noCache: 1, onComplete: function (pFiles) {
             pFiles.each(function (file) {
+
                 file = '/admin/images/userBgs/defaultImages/' + file;
-                bg = _path + 'admin/backend/imageThumb/?'+Object.toQueryString({path: file});
+                bg = _path + 'admin/backend/imageThumb/?' + Object.toQueryString({path: file});
 
                 var img = new Element('img', {
                     src: bg

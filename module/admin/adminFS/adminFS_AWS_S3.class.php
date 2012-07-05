@@ -221,7 +221,7 @@ class adminFS_AWS_S3 extends adminFS {
             if ($opts['prefix'])
                 $name = substr((string)$file->Key,strlen($opts['prefix']));
 
-            $items[$name] = array(
+            $items[] = array(
                 'name'  => $name,
                 'type'  => 'file',
                 'path'  => $pPath.($pPath=='/'?'':'/').$name,
@@ -235,7 +235,7 @@ class adminFS_AWS_S3 extends adminFS {
             foreach($response->body->CommonPrefixes as $file){
                 $name = substr((string)$file->Prefix,strlen($opts['prefix']),-1);
 
-                $items[$name] = array(
+                $items[] = array(
                     'name'  => $name,
                     'type'  => 'dir',
                     'path'  => $pPath.($pPath=='/'?'':'/').$name,

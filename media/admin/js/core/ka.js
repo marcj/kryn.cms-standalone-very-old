@@ -544,7 +544,7 @@ ka.startSearchCrawlerInfo = function (pHtml) {
         style: 'position: absolute; bottom: 1px; left: 4px; width: 0px; height: 1px; background-color: #444;'
     }).inject(this.startSearchCrawlerInfoMenu);
 
-    this.startSearchCrawlerInfoMenu.tween('top', 50);
+    this.startSearchCrawlerInfoMenu.tween('top', 48);
 }
 
 ka.setSearchCrawlerInfo = function (pHtml) {
@@ -698,7 +698,7 @@ ka.displayNewUpdates = function (pModules) {
         function () {
             ka.wm.open('admin/system/module', {updates: 1});
         }).inject($('border'));
-    this.newUpdatesMenu.tween('top', 50);
+    this.newUpdatesMenu.tween('top', 48);
 }
 
 ka.buildClipboardMenu = function () {

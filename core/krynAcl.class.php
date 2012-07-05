@@ -162,8 +162,19 @@ class krynAcl {
 
     }
 
-    public static function checkUpdate($pObjectKey, $pObjectId, $pField = false){
+    public static function checkList($pObjectKey, $pObjectId, $pField = false){
+        return self::check($pObjectKey, $pObjectId, $pField, 1);
+    }
 
+    public static function checkRead($pObjectKey, $pObjectId, $pField = false){
+        return self::check($pObjectKey, $pObjectId, $pField, 2);
+    }
+
+    public static function checkAdd($pObjectKey, $pObjectId, $pField = false){
+        return self::check($pObjectKey, $pObjectId, $pField, 3);
+    }
+
+    public static function checkUpdate($pObjectKey, $pObjectId, $pField = false){
         return self::check($pObjectKey, $pObjectId, $pField, 3);
     }
 

@@ -29,7 +29,7 @@ class adminFilemanager {
         $path = str_replace('//', '/', $path);
         if ($path != '/' && substr($path,-1) == '/') $path = substr($path,0,-1);
 
-        if (!krynAcl::check(3, $path, 'read', true))
+        if (!krynAcl::checkList('file', $path))
             return array('error'=>'access_denied');
 
         self::$fs = self::getFs($path);
@@ -894,100 +894,8 @@ class adminFilemanager {
         return dbTableFetch('system_acl', "type = 3 AND (code LIKE '$pPath\\\%%' OR code LIKE '$pPath\[%')", -1);
     }
 
-    public static function getTrashFiles(){
-
-        $files = array();
-        $h = opendir(PATH_MEDIA.'trash/');
-
-        while ($file = readdir($h)) {
-            if ($file == '.svn' || $file == '.' || $file == '..') continue;
-            $files[] = $file;
-        }
-
-        natcasesort($files);
-
-        $res = array();
-        foreach ($files as $file) {
-            if ($file == '.htaccess') continue;
-            $path = '/trash/' . $file;
-
-            $dbItem = dbTableFetch('system_files_log', 1, 'rsn = ' . ($file+0));
-
-            $item['name'] = basename($dbItem['path']).'-v'.$file;
-            $item['path'] = str_replace(PATH_MEDIA, '', $path);
-            $item['original_rsn'] = $dbItem['rsn'];
-            $item['original_path'] = $dbItem['path'];
-            $item['lastModified'] = $dbItem['modified'];
-            $item['mtime'] = $dbItem['modified'];
-            $item['type'] = ($dbItem['type'] == 1) ? 'dir' : 'file';
-
-            $res[] = $item;
-
-        }
-
-        return $res;
-    }
-
     public static function getFiles($pPath) {
-
-        $access = krynAcl::check(3, $pPath, 'read', true);
-        if (!$access) return false;
-
-        if ($pPath == '/trash'){
-            return self::getTrashFiles();
-        }
-
-        $items = self::$fs->getFiles(self::normalizePath($pPath));
-        if (!is_array($items)) return $items;
-
-        if (self::$fs->magicFolderName)
-            foreach ($items as &$file)
-                $file['path'] = self::$fs->magicFolderName.$file['path'];
-
-        if($pPath == '/'){
-            if (is_array(kryn::$config['magic_folder'])) {
-                foreach (kryn::$config['magic_folder'] as $folder => &$config ){
-                    $magic = array(
-                        'path'  => '/'.$folder,
-                        'magic' => true,
-                        'name'  => $folder,
-                        'icon'  => $config['icon'],
-                        'ctime' => 0,
-                        'mtime' => 0,
-                        'type' => 'dir'
-                    );
-                    $items[$magic['name']] = $magic;
-                }
-            }
-        }
-
-        uksort($items, "strnatcasecmp");
-
-        $where = array();
-        foreach($items as &$file){
-            $where[] = 'path = \''.esc($file['path']).'\'';
-        }
-        $sql = 'SELECT rsn, path FROM %pfx%system_files WHERE 1=0 OR '.implode(' OR ', $where);
-
-        $res = dbExec($sql);
-        $path2id = array();
-
-        while ($row = dbFetch($res)){
-            $path2id[$row['path']] = $row['rsn'];
-        }
-
-        foreach($items as &$file){
-            //$file['object_id'] = Object
-            if (!$path2id[$file['path']]){
-                $id = dbInsert('system_files', array('path' => $file['path']));
-                $file['object_id'] = $id;
-            } else {
-                $file['object_id'] = $path2id[$file['path']];
-            }
-            $file['writeaccess'] = krynAcl::check(3, $file['path'], 'write', true);
-        }
-
-        return $items;
+        return krynFile::getFiles($pPath);
     }
 
 }

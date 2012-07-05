@@ -79,6 +79,7 @@ html {
     left: 0px;
     bottom: 0px;
     top: 48px;
+    overflow: hidden;
 }
 
 .ka-no-desktop #desktop {
@@ -132,7 +133,7 @@ div.mainlinks {
 div.headRight a img,
 div.mainlinks a img {
     position: absolute;
-    top: 17px;
+    top: 16px;
     left: 8px;
     width: 14px;
     height: 14px;
@@ -145,18 +146,19 @@ div.bar-dock-menu-style a,
 div.bar-dock-menu-style a:link,
 div.ka-mainlink-additionalmenubar {
     float: left;
-    line-height: 48px;
+    line-height: 43px;
     padding: 0px 15px;
     border-right: 1px solid #313131;
     color: white;
     text-decoration: none;
     position: relative;
     display: block;
-    height: 48px;
+    height: 43px;
     cursor: pointer;
     outline: 0;
     font-size: 11px;
     color: white;
+    margin-top: 2px;
 }
 
 
@@ -175,7 +177,7 @@ div.bar-dock-menu-style a.ka-menu-item-childopener:link {
     position: absolute;
     right: 0px;
     top: 0px;
-    height: 48px;
+    height: 41px;
     width: 18px;
     border-right: 0px;
     padding: 0px;
@@ -202,7 +204,7 @@ div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener img,
 div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener:link img {
     position: relative;
     left: 2px;
-    top: 17px;
+    top: 14px;
 }
 
 .header .ka-mainlink-additionalmenubar,
@@ -308,17 +310,16 @@ div.ka-mainlink-additionalmenubar-container a img {
 .header a:hover,
 div.bar-dock-menu-style a:hover,
 div.ka-mainlink-additionalmenubar-container a:hover {
-
-    background: #3c9cc7; /* Old browsers */
+    background: #339ac6; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzNjOWNjNyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUyJSIgc3RvcC1jb2xvcj0iIzM4N2ViNSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUzJSIgc3RvcC1jb2xvcj0iIzMzODBhYSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyZjdlYTIiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #3c9cc7 0%, #387eb5 52%, #3380aa 53%, #2f7ea2 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3c9cc7), color-stop(52%,#387eb5), color-stop(53%,#3380aa), color-stop(100%,#2f7ea2)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #3c9cc7 0%,#387eb5 52%,#3380aa 53%,#2f7ea2 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #3c9cc7 0%,#387eb5 52%,#3380aa 53%,#2f7ea2 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #3c9cc7 0%,#387eb5 52%,#3380aa 53%,#2f7ea2 100%); /* IE10+ */
-    background: linear-gradient(top,  #3c9cc7 0%,#387eb5 52%,#3380aa 53%,#2f7ea2 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3c9cc7', endColorstr='#2f7ea2',GradientType=0 ); /* IE6-8 */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIxMyUiIHN0b3AtY29sb3I9IiMzMzlhYzYiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTQ3NzllIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
+    background: -moz-linear-gradient(top,  #339ac6 13%, #14779e 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(13%,#339ac6), color-stop(100%,#14779e)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #339ac6 13%,#14779e 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #339ac6 13%,#14779e 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #339ac6 13%,#14779e 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #339ac6 13%,#14779e 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#339ac6', endColorstr='#14779e',GradientType=0 ); /* IE6-8 */
 
     color: white;
 }
@@ -341,7 +342,7 @@ div.ka-mainlink-additionalmenubar-container a:active {
 .headRight a,
 .headRight a:link {
     border-right: 0px;
-    border-left: 1px solid #868588;
+    border-left: 1px solid #313131;
     float: right;
 }
 
@@ -494,7 +495,9 @@ div.ka-mainlink-additionalmenubar-container a:active {
     height: 24px;
     padding: 0px 0px 0px 5px;
     color: white;
-    background-image: url(../images/userInfo-bg.png);
+
+    background-color: #555;
+
     -moz-border-radius-bottomright: 7px;
     -moz-border-radius-bottomleft: 7px;
     -webkit-border-bottom-left-radius: 7px;

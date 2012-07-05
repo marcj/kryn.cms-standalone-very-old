@@ -200,9 +200,71 @@ class krynFile {
      */
     public static function getFiles($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->getFile(self::normalizePath($pPath));
 
+        //$access = krynAcl::check(3, $pPath, 'read', true);
+        //if (!$access) return false;
+
+        $fs = krynFile::getLayer($pPath);
+
+        if ($pPath == '/trash'){
+            return self::getTrashFiles();
+        }
+
+        $items = $fs->getFiles(self::normalizePath($pPath));
+        if (!is_array($items)) return $items;
+
+        if ($fs->magicFolderName)
+            foreach ($items as &$file)
+                $file['path'] = $fs->magicFolderName.$file['path'];
+
+        if($pPath == '/'){
+            if (is_array(kryn::$config['magic_folder'])) {
+                foreach (kryn::$config['magic_folder'] as $folder => &$config ){
+                    $magic = array(
+                        'path'  => '/'.$folder,
+                        'magic' => true,
+                        'name'  => $folder,
+                        'icon'  => $config['icon'],
+                        'ctime' => 0,
+                        'mtime' => 0,
+                        'type' => 'dir'
+                    );
+                    $items[] = $magic;
+                }
+            }
+        }
+
+        uksort($items, "strnatcasecmp");
+
+        $where = array();
+        foreach($items as &$file){
+            $where[] = 'path = \''.esc($file['path']).'\'';
+        }
+        $sql = 'SELECT id, path FROM %pfx%system_files WHERE 1=0 OR '.implode(' OR ', $where);
+
+        $res = dbExec($sql);
+        $path2id = array();
+
+        while ($row = dbFetch($res)){
+            $path2id[$row['path']] = $row['id'];
+        }
+
+        foreach($items as &$file){
+
+            //todo, create new option 'show hidden files' in user settings and depend in that
+            //we'll show files with a dot at the beginning.
+
+            //$file['object_id'] = Object
+            if (!$path2id[$file['path']]){
+                $id = dbInsert('system_files', array('path' => $file['path']));
+                $file['id'] = $id;
+            } else {
+                $file['id'] = $path2id[$file['path']];
+            }
+            $file['writeaccess'] = krynAcl::checkUpdate('file', $file['path']);
+        }
+
+        return $items;
     }
 
     public static function copy($pFrom, $pTo){
@@ -251,13 +313,49 @@ class krynFile {
         if (!is_numeric($pId))
             return PATH_MEDIA.$pId;
 
-
         //page bases caching here
-        $sql = 'SELECT rsn, path FROM %pfx%system_files WHERE rsn = '.($pId+0);
+        $sql = 'SELECT id, path FROM %pfx%system_files WHERE id = '.($pId+0);
         $item = dbExfetch($sql);
 
         return $item['path'];
 
+    }
+
+
+    public static function getTrashFiles(){
+
+        $files = array();
+        $h = opendir(PATH_MEDIA.'trash/');
+
+        while ($file = readdir($h)) {
+            if ($file == '.svn' || $file == '.' || $file == '..') continue;
+            $files[] = $file;
+        }
+
+        natcasesort($files);
+
+        $res = array();
+        foreach ($files as $file) {
+
+            if ($file == '.htaccess') continue;
+
+            $path = '/trash/' . $file;
+
+            $dbItem = dbTableFetch('system_files_log', 1, 'rsn = ' . ($file+0));
+
+            $item['name'] = basename($dbItem['path']).'-v'.$file;
+            $item['path'] = str_replace(PATH_MEDIA, '', $path);
+            $item['original_rsn'] = $dbItem['rsn'];
+            $item['original_path'] = $dbItem['path'];
+            $item['lastModified'] = $dbItem['modified'];
+            $item['mtime'] = $dbItem['modified'];
+            $item['type'] = ($dbItem['type'] == 1) ? 'dir' : 'file';
+
+            $res[] = $item;
+
+        }
+
+        return $res;
     }
 
 

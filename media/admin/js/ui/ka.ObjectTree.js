@@ -115,7 +115,6 @@ ka.ObjectTree = new Class({
         if (this.options.selectObject) {
             this.startupWithObjectInfo(this.options.selectObject);
         } else {
-            logger('go0');
             this.loadFirstLevel();
         }
 
@@ -141,7 +140,6 @@ ka.ObjectTree = new Class({
             if (pCallback) {
                 pCallback(parents);
             } else {
-                logger('go-111');
                 this.loadFirstLevel();
             }
 
@@ -186,6 +184,11 @@ ka.ObjectTree = new Class({
         if (this.options.rootObject && !this.rootLoaded){
             this.loadRoot();
             return;
+        } else {
+
+            this.rootA = new Element('a');
+            this.rootA.childContainer = this.paneObjects;
+
         }
         var objectUrl = this.objectKey;
 
@@ -202,6 +205,10 @@ ka.ObjectTree = new Class({
 
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
+        }
+
+        if (typeOf(this.options.rootId) == 'null' || this.options.rootId === false){
+            throw t('Missing option rootId in ka.ObjectTree. Unable to load root ob the object:'+' '+this.objectKey);
         }
 
         this.rootLoaded = false;
@@ -301,9 +308,6 @@ ka.ObjectTree = new Class({
 
     renderFirstLevel: function (pItems) {
 
-        logger('renderFirstLevel');
-        logger(pItems);
-
         this.loadingDone = false;
 
         if (!pItems && this.lastRootItems) {
@@ -331,8 +335,6 @@ ka.ObjectTree = new Class({
             }
 
         }
-
-        //this.fireEvent('childrenLoaded', [pDomain, this.domainA]);
 
     },
 
@@ -718,7 +720,6 @@ ka.ObjectTree = new Class({
     reloadChildren: function (pA) {
 
         if (this.rootA == pA){
-            logger('go1');
             this.loadFirstLevel();
         } else {
             this.loadChildren(pA, false);
@@ -768,7 +769,7 @@ ka.ObjectTree = new Class({
             }
 
             this.inItemsGeneration = true;
-            Object.each(pItem._children, function (childitem) {
+            Array.each(pItem._children, function (childitem) {
                 this.addItem(childitem, pA);
             }.bind(this));
             this.inItemsGeneration = false;
@@ -1052,7 +1053,6 @@ ka.ObjectTree = new Class({
 
     reload: function () {
         this.lastScrollPos = this.container.getScroll();
-        logger('go2');
         this.loadFirstLevel();
     },
 
