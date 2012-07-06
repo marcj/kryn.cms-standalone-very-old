@@ -344,7 +344,6 @@ function dbInsert($pTable, $pValues) {
 
     $sql = "INSERT INTO $table ($fields) VALUES ($values)";
 
-    print $sql;
     if (dbExec($sql))
         return dbLastId();
     else

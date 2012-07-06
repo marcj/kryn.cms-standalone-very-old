@@ -371,7 +371,7 @@ ka.WindowEdit = new Class({
                 this.form.set('html', this.values.layout);
             }
 
-            var parser = new ka.parse(this.form, this.values.fields, {tabsInWindowHeader: 1}, {win: this.win});
+            var parser = new ka.Parse(this.form, this.values.fields, {tabsInWindowHeader: 1}, {win: this.win});
             this.fields = parser.getFields();
 
             this._buttons = parser.getTabButtons();
@@ -405,7 +405,7 @@ ka.WindowEdit = new Class({
 
                 //this._renderFields( fields, this._panes[ title ] );
 
-                var parser = new ka.parse(this._panes[ title ], fields, {}, {win: this.win});
+                var parser = new ka.Parse(this._panes[ title ], fields, {}, {win: this.win});
                 var pfields = parser.getFields();
                 Object.append(this.fields, pfields);
 

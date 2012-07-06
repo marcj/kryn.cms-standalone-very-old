@@ -20,6 +20,10 @@
     left: 216px;
 }
 
+.users-acl-tree-childcontainer {
+    position: relative;
+}
+
 input.users-acl-query {
     margin-left: 5px;
     box-shadow: 0px 1px 0px #aaa;
@@ -37,10 +41,18 @@ input.users-acl-query {
     position: absolute;
     left: 0px;
     top: 0px;
-    width: 300px;
+    width: 400px;
     bottom: 0px;
     border-right: 1px solid #bbb;
     overflow: auto;
+}
+
+.users-acl-entrypoint-rule-container {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    left: 401px;
 }
 
 .users-acl-entrypoint-list a img {
@@ -49,8 +61,7 @@ input.users-acl-query {
     margin-right: 1px;
 }
 
-.users-acl-entrypoint-list a,
-.users-acl-entrypoint-list a:link {
+.users-acl-entrypoint-list a {
     text-decoration: none;
     padding: 2px;
     position: relative;
@@ -71,6 +82,22 @@ input.users-acl-query {
 }
 
 
+.users-acl-entrypoint-rule {
+    margin: 10px;
+    border: 1px solid silver;
+    padding: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #f3f3f3;
+}
+
+.users-acl-entrypoint-list .users-acl-entrypoint-rule-active {
+    background-color: #999;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
 
 
 .users-acl-object-list {

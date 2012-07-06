@@ -1007,6 +1007,11 @@ var users_users_acl = new Class({
 
             },
 
+            sub: {
+                type: 'checkbox',
+                label: t('With sub-items')
+            },
+
             mode: {
                 label: t('Mode'),
                 type: 'select',
@@ -1039,7 +1044,10 @@ var users_users_acl = new Class({
 
         };
 
-        this.editRuleKaObj = new ka.parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
+        if (!this.currentDefinition.nested)
+            delete fields.sub;
+
+        this.editRuleKaObj = new ka.Parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
 
         var rule = Object.clone(typeOf(pRuleDiv) == 'element'? pRuleDiv.rule : typeOf(pRuleDiv) == 'object'?pRuleDiv:{});
 
@@ -1054,18 +1062,51 @@ var users_users_acl = new Class({
 
     },
 
+    clickEntrypoint: function(pEvent){
+
+        this.entryPointList.getElements('a').removeClass('users-acl-entrypoint-rule-active');
+        this.entryPointRuleContainer.empty();
+
+        if (!pEvent.target) return;
+
+        var element = pEvent.target;
+        if (element.get('tag') != 'a'){
+            element = element.getParent('a');
+            if (!element) return;
+        }
+
+        element.addClass('users-acl-entrypoint-rule-active');
+
+        this.clickEntryPointRule(element);
+
+    },
+
     loadEntryPoints: function(){
+
+        this.currentEntrypointDoms = {};
 
         this.entryPointList = new Element('div', {
             'class': 'users-acl-entrypoint-list'
         })
         .inject(this.entryPointTab.pane);
 
-        this.addEntryPointTree(ka.settings.configs['admin'], 'admin');
+        this.entryPointListContainer = new Element('div', {
+            'style': 'padding-left: 15px;'
+        })
+        .inject(this.entryPointList);
+
+        this.entryPointListContainer.addEvent('click', this.clickEntrypoint.bind(this));
+
+        this.entryPointRuleContainer = new Element('div', {
+            'class': 'users-acl-entrypoint-rule-container'
+        })
+        .inject(this.entryPointTab.pane);
+
+        this.adminEntryPointDom = this.addEntryPointTree(ka.settings.configs['admin'], 'admin');
 
         Object.each(ka.settings.configs, function(ext, extCode){
             if( extCode != 'admin' && ext.admin ){
-                this.addEntryPointTree( ext, extCode );
+                this.addEntryPointTree( ext, 'admin/'+extCode );
             }
         }.bind(this));
     },
@@ -1143,11 +1184,12 @@ var users_users_acl = new Class({
 
     addEntryPointTree: function(pExtensionConfig, pExtensionKey){
 
-        var title = ka.getExtensionTitle(pExtensionKey);
+
+        var title = ka.getExtensionTitle( pExtensionKey=='admin'?pExtensionKey:pExtensionKey.substr(6));
 
         var target = new Element('div', {
             style: 'padding-top: 5px; margin-top: 5px; border-top: 1px dashed silver;'
-        }).inject( this.entryPointList );
+        }).inject( pExtensionKey=='admin'?this.entryPointListContainer:this.adminEntryPointDom.childContainer );
 
         var a = new Element('a', { href: 'javascript:;', text: title, title: '#'+pExtensionKey, style: 'font-weight: bold;'}).inject( target );
 
@@ -1156,10 +1198,14 @@ var users_users_acl = new Class({
         if(pExtensionKey == 'admin')
             this.extContainer = childContainer;
 
-        var path = pExtensionKey+'/';
+        var path = pExtensionKey;
 
-        a.store('path', path);
+        a.entryPath = path;
+        a.childContainer = childContainer;
+        this.currentEntrypointDoms[path] = a;
         this.loadEntryPointChildren(pExtensionConfig.admin, path, childContainer);
+
+        return a;
 
     },
 
@@ -1179,8 +1225,9 @@ var users_users_acl = new Class({
                 src: _path+this.getEntryPointIcon(item)
             }).inject(element, 'top');
 
-            var code = pCode+index+'/';
-            element.store('code', code);
+            var code = pCode+'/'+index;
+            element.entryPath = code;
+            this.currentEntrypointDoms[code] = element;
             var childContainer = new Element('div', {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject( pChildContainer );
 
             this.loadEntryPointChildren(item.childs, code, childContainer);
@@ -1303,7 +1350,7 @@ var users_users_acl = new Class({
     loadRules: function(pType, pItem, pForce){
 
         if (!pForce && typeOf(this.currentTargetType) != 'null' && this.unsavedContent){
-            this.win._alert(t('There is unsaved content. Continue?'), function(a){
+            this.win._confirm(t('There is unsaved content. Continue?'), function(a){
                 if (a)
                     this.loadRules(pType, pItem, true);
             }.bind(this));
@@ -1338,6 +1385,8 @@ var users_users_acl = new Class({
         this.currentTargetType = pType=='user'?0:1;
         this.currentTargetRsn = pId;
 
+        this.hideRules();
+
         this.lrAcls = new Request.JSON({
             url: _path+'admin/users/acl',
             noCache: true,
@@ -1349,11 +1398,169 @@ var users_users_acl = new Class({
     hideRules: function(){
         this.objectConstraints.setStyle('display', 'none');
         this.objectRules.setStyle('display', 'none');
+
+        this.entryPointList.getElements('a').removeClass('users-acl-entrypoint-rule-active');
+        this.entryPointRuleContainer.empty();
     },
 
     showRules: function(){
         this.objectConstraints.setStyle('display', 'block');
         this.objectRules.setStyle('display', 'block');
+    },
+
+    updateEntryPointRules: function(){
+
+        Object.each(this.currentEntrypointDoms, function(dom){
+            if (dom.ruleIcon) dom.ruleIcon.destroy();
+            if (dom.ruleLine) dom.ruleLine.destroy();
+            if (dom.ruleLineChildern) dom.ruleLineChildern.destroy();
+        });
+
+        Array.each(this.currentAcls, function(rule){
+
+            if (rule.object != 'system_entrypoint') return;
+
+            if (this.currentEntrypointDoms[rule.constraint_code]){
+                this.addEntryPointRuleToTree(rule);
+            }
+
+        }.bind(this));
+
+    },
+
+    clickEntryPointRule: function(pDom){
+
+        if (pDom.rule){
+
+            this.showEntrypointRule(pDom);
+
+        } else {
+
+            var rule = {
+                object: 'system_entrypoint',
+                constraint_type: 2,
+                constraint_code: pDom.entryPath,
+                access: 0,
+                target_type: this.currentTargetType,
+                target_rsn: this.currentTargetRsn
+            };
+            this.currentEntrypointDoms[pDom.entryPath] = pDom;
+            this.currentAcls.push(rule);
+            this.addEntryPointRuleToTree(rule);
+
+            this.clickEntryPointRule(pDom);
+        }
+
+    },
+
+    showEntrypointRule: function(pDom){
+
+        this.entryPointRuleContainer.empty();
+
+        var div = new Element('div', {
+            'class': 'users-acl-entrypoint-rule'
+        })
+        .inject(this.entryPointRuleContainer);
+
+        var title = new Element('div',{
+            text: pDom.get('text'),
+            style: 'line-height: 14px; font-weight: bold; padding: 2px;'
+        }).inject(div);
+
+        pDom.getElement('img').clone().setStyles({
+            position: 'relative',
+            top: 4,
+            marginRight: 1
+        }).inject(title, 'top');
+
+        var fieldContainer = new Element('div').inject(div);
+
+        var fields = {
+
+            access: {
+                label: t('Access'),
+                type: 'select',
+                input_width: 140,
+                items: {
+                    '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
+                    '1': [t('Allow'), 'admin/images/icons/accept.png']
+                }
+
+            },
+
+            sub: {
+                type: 'checkbox',
+                label: t('With sub-items')
+            }
+        };
+
+        var kaFields = new ka.Parse(fieldContainer, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
+
+        var deleteRule = new ka.Button([t('Delete rule'), 'admin/images/icons/delete.png']).inject(fieldContainer);
+
+        deleteRule.addEvent('click', this.deleteEntrypointRule.bind(this, pDom));
+
+        kaFields.addEvent('change', function(){
+
+            Array.each(this.currentAcls, function(acl, index){
+                if (acl.object != 'system_entrypoint') return;
+
+                if (acl.constraint_code != pDom.entryPath) return;
+
+                this.currentAcls[index] = Object.merge(pDom.rule, kaFields.getValue());
+                pDom.rule = this.currentAcls[index];
+            }.bind(this));
+
+            this.updateEntryPointRules();
+
+        }.bind(this));
+
+    },
+
+    deleteEntrypointRule: function(pDom){
+
+        this.entryPointList.getElements('a').removeClass('users-acl-entrypoint-rule-active');
+        this.entryPointRuleContainer.empty();
+
+        var index = this.currentAcls.indexOf(pDom.rule);
+        this.currentAcls.splice(index, 1);
+
+        this.updateEntryPointRules();
+
+    },
+
+    addEntryPointRuleToTree: function(pRule){
+
+        var dom = this.currentEntrypointDoms[pRule.constraint_code];
+
+        if (dom.ruleIcon) dom.ruleIcon.destroy();
+        if (dom.ruleLine) dom.ruleLine.destroy();
+        if (dom.ruleLineChildern) dom.ruleLineChildern.destroy();
+
+        var accessIcon = pRule.access==1?'accept':'exclamation';
+        var accessColor = pRule.access==1?'green':'red';
+
+        dom.rule = pRule;
+
+        dom.ruleIcon = new Element('img', {
+            src: _path + 'admin/images/icons/'+accessIcon+'.png',
+            style: 'position: absolute; left: -13px; top: 4px; width: 10px;'
+        }).inject(dom);
+
+        if (pRule.sub == 1){
+
+            dom.ruleLine = new Element('div', {
+                style: 'position: absolute; left: -9px; height: 4px; top: 14px; width: 1px; border-right: 1px solid '+accessColor
+            }).inject(dom);
+
+            var childContainer = dom.getNext();
+            if (!childContainer) return;
+
+            dom.ruleLineChildern = new Element('div', {
+                style: 'position: absolute; left: -4px; bottom: 0px; top: 0px; width: 1px; border-right: 1px solid '+accessColor
+            }).inject(childContainer);
+        }
+
     },
 
     updateObjectRulesCounter: function(){
@@ -1386,10 +1593,10 @@ var users_users_acl = new Class({
         this.loadedAcls = Array.clone(this.currentAcls);
 
         this.updateObjectRulesCounter();
+        this.updateEntryPointRules();
 
         this.objectList.getElements('.ka-list-combine-item').removeClass('active');
 
-        this.hideRules();
         this.tabs.show();
         this.actions.show();
         this.win.setLoading(false);

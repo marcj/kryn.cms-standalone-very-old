@@ -125,7 +125,7 @@ var admin_system_settings = new Class({
             }
         };
 
-        var systemFields = new ka.parse(p, fields);
+        var systemFields = new ka.Parse(p, fields);
         Object.each(systemFields.getFields(), function (item, id) {
             this.fields[ id ] = item;
         }.bind(this));
@@ -172,7 +172,7 @@ var admin_system_settings = new Class({
             }
         };
 
-        var cdnFields = new ka.parse(p, fields);
+        var cdnFields = new ka.Parse(p, fields);
         Object.each(cdnFields.getFields(), function (item, id) {
             this.fields[ id ] = item;
         }.bind(this));
@@ -270,7 +270,7 @@ var admin_system_settings = new Class({
             }
         }.bind(this));
 
-        this.authObj = new ka.parse(p, fields);
+        this.authObj = new ka.Parse(p, fields);
         Object.each(this.authObj.getFields(), function (item, id) {
             this.fields[ id ] = item;
         }.bind(this));
@@ -284,7 +284,7 @@ var admin_system_settings = new Class({
                         'style': 'display: none;'
                     }).inject(this.fields['auth_class'].childContainer);
 
-                    this.auth_params_objects[ id + '/' + auth_class ] = new ka.parse(this.auth_params_panes[id + '/' + auth_class], auth_fields);
+                    this.auth_params_objects[ id + '/' + auth_class ] = new ka.Parse(this.auth_params_panes[id + '/' + auth_class], auth_fields);
                 }.bind(this));
             }
         }.bind(this));
@@ -342,7 +342,7 @@ var admin_system_settings = new Class({
             }
         };
 
-        this.databaseFieldObj = new ka.parse(p, databaseFields);
+        this.databaseFieldObj = new ka.Parse(p, databaseFields);
 
         var p = this.panes['caching'];
 
@@ -354,7 +354,7 @@ var admin_system_settings = new Class({
 
         origin.cache_type['default'] = 'files';
 
-        this.cacheObj = new ka.parse(p, origin);
+        this.cacheObj = new ka.Parse(p, origin);
         Object.each(this.cacheObj.getFields(), function (item, id) {
             this.fields[ id ] = item;
         }.bind(this));

@@ -157,7 +157,7 @@ var admin_system_module_editWindow = new Class({
         var table = new Element('table', {width: '100%'}).inject(this.generalTab.pane);
         this.generalTbody = new Element('tbody').inject(table);
 
-        this.generalObj = new ka.parse(this.generalTbody, generalFields, {allTableItems:true, tableitem_title_width: 250}, {win:this.win});
+        this.generalObj = new ka.Parse(this.generalTbody, generalFields, {allTableItems:true, tableitem_title_width: 250}, {win:this.win});
 
 
         //window
@@ -638,7 +638,7 @@ var admin_system_module_editWindow = new Class({
                 }
             }
 
-            var fnDefinitionObj = new ka.parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
+            var fnDefinitionObj = new ka.Parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
 
             new ka.Button(t('Cancel'))
             .addEvent('click', function(){
@@ -828,7 +828,7 @@ var admin_system_module_editWindow = new Class({
             }
         }
 
-        var fnDefinitionObj = new ka.parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
+        var fnDefinitionObj = new ka.Parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
 
         new ka.Button(t('Cancel'))
             .addEvent('click', function(){
@@ -1369,7 +1369,7 @@ var admin_system_module_editWindow = new Class({
                 delete listFields.itemLayout;
             }
 
-            this.windowListObj = new ka.parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
+            this.windowListObj = new ka.Parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
 
 
             //compatibility
@@ -1619,7 +1619,7 @@ var admin_system_module_editWindow = new Class({
                 }
             };
 
-            this.toolbarTabItemObj = new ka.parse(this.windowInspectorContainer, this.toolbarTabItemDef);
+            this.toolbarTabItemObj = new ka.Parse(this.windowInspectorContainer, this.toolbarTabItemDef);
 
             var values = field.button.retrieve('definition');
             values.key = field.button.retrieve('key');

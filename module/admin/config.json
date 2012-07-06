@@ -873,11 +873,18 @@
       "chooserType": "default",
       "fields": {
         "path": {
+          "label": "[[Path]]",
           "type": "text",
           "primaryKey": 1,
           "empty": 1
         },
         "title": {
+          "type": "text",
+          "primaryKey": 0,
+          "empty": 1
+        },
+        "type": {
+          "label": "[[Type]]",
           "type": "text",
           "primaryKey": 0,
           "empty": 1

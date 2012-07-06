@@ -225,7 +225,7 @@ ka.LayoutContent = new Class({
 
         };
 
-        this.accessFields = new ka.parse(dialog, fields);
+        this.accessFields = new ka.Parse(dialog, fields);
 
         var groups = this.content.access_from_groups;
         if (typeOf(groups) == 'string') {

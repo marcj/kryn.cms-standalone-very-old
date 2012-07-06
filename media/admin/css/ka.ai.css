@@ -20,6 +20,24 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+    background: #ccc;
+    -webkit-border-radius: 1ex;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #666;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 0px #333;
+}
+
+::-webkit-scrollbar-corner {
+    background: #1A1A1A;
+}
+
+
 
 ::selection {
     background: transparent;
