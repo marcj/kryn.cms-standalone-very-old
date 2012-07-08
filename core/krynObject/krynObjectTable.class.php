@@ -10,12 +10,6 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     public function getItems ($pCondition, $pOptions = false){
-
-        //$pOffset = 0
-    //}, $pLimit = 0, $pFields = '*',
-    //                          $pResolveForeignValues = '*', $pOrder){
-
-
         return $this->_getItems($pCondition, $pOptions['fields'], $pOptions['foreignKeys'], $pOptions['offset'],
             $pOptions['limit'], false, $pOptions['order'], $pOptions['permissionCheck']);
     }

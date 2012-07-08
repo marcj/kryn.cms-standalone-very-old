@@ -899,6 +899,12 @@ ka.Window = new Class({
                 module = '';
             }
 
+            this.content.empty();
+            new Element('div', {
+                style: 'text-align: center; padding: 15px; color: gray',
+                text: t('Loading entry point ...')
+            }).inject(this.content);
+
             this._ = new Request.JSON({url: _path + 'admin/' + module + this.code + '?cmd=getInfo', onComplete: function (res) {
 
                 if (res.error == 'access_denied') {
@@ -966,6 +972,14 @@ ka.Window = new Class({
         }
 
         this.titleText.set('text', t(pVals.title));
+
+
+        this.content.empty();
+        new Element('div', {
+            style: 'text-align: center; padding: 15px; color: gray',
+            text: t('Loading content ...')
+        }).inject(this.content);
+
 
         if (pVals.type == 'iframe') {
             this.iframe = new IFrame('iframe_kwindow_' + this.id, {

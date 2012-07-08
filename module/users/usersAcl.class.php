@@ -95,14 +95,15 @@ class usersAcl {
         $rules = getArgv('rules');
         if (count($rules) == 0) return true;
 
-
+        $i = 1;
         foreach ($rules as $rule){
 
             unset($rule['rsn']);
+            $rule['prio'] = $i;
             $rule['target_type'] = $targetType;
             $rule['target_rsn'] = $targetRsn;
             dbInsert('system_acl', $rule);
-
+            $i++;
         }
 
         return true;
