@@ -52,13 +52,13 @@
     <![endif]-->
 
     <script type="text/javascript" >
-        window._session = new Hash();
-        window._session.user_rsn = {$user.rsn+0};
-        window._session.username = '{$user.username}';
-        window._session.sessionid = '{$client->token}';
-        window._session.tokenid = '{$client->tokenid}';
+        window._session = {};
+        window._session.user_rsn = {$adminClient->user.rsn+0};
+        window._session.username = '{$adminClient->user.username}';
+        window._session.sessionid = '{$adminClient->token}';
+        window._session.tokenid = '{$adminClient->tokenid}';
         window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
-        window._session.lastlogin = '{$user.lastlogin}';
+        window._session.lastlogin = '{$adminClient->user.lastlogin}';
         {if $noAdminAccess}
         window._session.noAdminAccess = true;
         {/if}
