@@ -181,7 +181,7 @@ ka.buildUserMenu = function(){
     xoffset -= document.id('user-username').getSize().x;
     xoffset *= -1;
 
-    ka.makeMenu(document.id('user-username'), ka.userMenu, true, {y: 48, x: xoffset+2});
+    ka.makeMenu(document.id('user-username'), ka.userMenu, true, {y: 46, x: xoffset+2});
 }
 
 ka.clearCache = function () {
