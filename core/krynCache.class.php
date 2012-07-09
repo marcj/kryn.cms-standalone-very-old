@@ -74,6 +74,7 @@ class krynCache {
      * @param bool    $pWithInvalidationChecks    activates the invalidating mechanism
      *
      * @access public
+     * @throws Exception
      */
     function __construct($pType = 'files', $pConfig = array(), $pWithInvalidationChecks = true) {
 

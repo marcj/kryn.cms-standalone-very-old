@@ -142,7 +142,7 @@ class krynHtml {
         *
         */
 
-        foreach (kryn::$cssFiles as $css => $v) {
+        foreach (kryn::$cssFiles as $css) {
             $myCssFiles[] = $css;
         }
 
@@ -211,7 +211,7 @@ class krynHtml {
         *
         */
 
-        foreach (kryn::$jsFiles as $js => $v) {
+        foreach (kryn::$jsFiles as $js) {
             $myJsFiles[] = $js;
         }
 
@@ -595,7 +595,7 @@ class krynHtml {
                     $temp['id'] = $temp['entryPoint']+0;
                     unset($temp['entryPoint']);
 
-                    $content['content'] = krynNavigation::plugin($temp);
+                    $content['content'] = krynNavigation::get($temp);
                 }
 
                 break;

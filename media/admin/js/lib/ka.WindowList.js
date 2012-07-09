@@ -8,6 +8,8 @@ ka.WindowList = new Class({
         this.options = pOptions || {};
         this.win = pWindow;
 
+        pContainer.empty();
+
         if (pContainer)
             this.container = pContainer;
         else

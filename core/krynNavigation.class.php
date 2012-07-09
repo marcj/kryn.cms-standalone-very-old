@@ -21,7 +21,7 @@
 class krynNavigation {
     public $navigations;
 
-    public static function getLinks($pRsn, $pWithFolders = false, $pDomain = false, $pWithoutCache = false) {
+    public static function getLinks($pRsn, $pWithFolders = false, $pDepth = 1, $pDomain = false, $pWithoutCache = false) {
 
         if (!is_numeric($pRsn))
             return array();
@@ -38,60 +38,48 @@ class krynNavigation {
             $navigation =& kryn::getCache('navigation-' . $code);
         }
 
-        if ($pWithoutCache == true || !is_array($navigation)) {
+        if (true||$pWithoutCache == true || !is_array($navigation)) {
 
-            $query = "
-            SELECT
-                rsn, prsn, domain_rsn, title, url, type, page_title, layout, sort, visible, access_denied,
-                access_from, access_to, access_nohidenavi, access_from_groups, properties
-            FROM
-                %pfx%system_pages
-            WHERE
-                prsn = $pRsn AND domain_rsn = $pDomain
-                AND ( type = 0 OR type = 1 OR type = 2)
+            $condition = array(
+                array('visible', '=', 1)
+            );
 
-                AND (
-                    ( type = 2 )
-                    OR
-                    (
-                        type != 2  AND visible = 1
-                    )
-                )
-                AND access_denied != '1'
-            ORDER BY sort";
-            $links = dbExfetch($query, -1);
-
-            $pages = array();
-            foreach ($links as &$page) {
-
-                if ($page['properties']) {
-                    $page['properties'] = json_decode($page['properties'], true);
-                }
-
-                $page['links'] = self::getLinks($page['rsn'], $pWithFolders, null, true);
-
-                $pages[] = $page;
+            if ($pRsn == 0) {
+                $condition[] = 'AND';
+                $condition[] = array('domain_rsn', '=', $pDomain);
             }
 
-            if (!$pWithoutCache) {
-                kryn::setCache('navigation-' . $code, $pages, 60);
+            if (!$pWithFolders){
+                $condition[] = 'AND';
+                $condition[] = array('type', 'IN', '0,1');
+            }
+
+            if ($pRsn){
+                $condition[] = 'OR';
+                $condition[] = array('rsn', '=', $pRsn);
+            }
+
+            $nodes = krynObjects::getTree('node', $pRsn, $condition, $pDepth, $pDomain, array(
+                'fields' => '*'
+            ));
+
+            if (count($nodes) > 0){
+                foreach ($nodes as &$node) {
+                    if ($node['properties']) {
+                        $node['properties'] = json_decode($node['properties'], true);
+                    }
+                }
+
+                if (!$pWithoutCache) {
+                    kryn::setCache('navigation-' . $code, $nodes, 60);
+                }
             }
 
         } else {
-            $pages =& $navigation;
+            $nodes =& $navigation;
         }
 
-        $result = array();
-        foreach ($pages as &$page) {
-
-            if (!$pWithFolders && $page['type'] == 2) continue;
-
-            if ($page['access_nohidenavi'] != 1)
-                if( kryn::checkPageAccess( $page, false ) )
-                    $result[] = $page;
-        }
-
-        return $result;
+        return $nodes;
     }
 
     public static function arrayLevel($pArray, $pLevel) {
@@ -99,7 +87,7 @@ class krynNavigation {
         return $pArray[$pLevel - 2];
     }
 
-    public static function plugin($pOptions) {
+    public static function get($pOptions) {
 
         $pTemplate = $pOptions['template'];
         $pWithFolders = ($pOptions['folders'] == 1) ? true : false;
@@ -112,19 +100,19 @@ class krynNavigation {
             return t('Navigation: Template does not exist:').' '.$pTemplate;
         }
 
-        $navi = false;
+        $navigation = false;
 
         if ($pOptions['id'] + 0 > 0) {
-            $navi =& kryn::getPage($pOptions['id'] + 0);
+            $navigation =& kryn::getPage($pOptions['id'] + 0);
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $cacheKey =
-                    'systemNavigations-' . $navi['domain_rsn'] . '_' . $navi['rsn'] . '-' . md5(kryn::$canonical.$mtime);
+                    'systemNavigations-' . $navigation['domain_rsn'] . '_' . $navigation['rsn'] . '-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
 
-            $navi['links'] = self::getLinks($navi['rsn'], $pWithFolders);
+            $navigation = self::getLinks($navigation['rsn'], $pWithFolders, $navigation['domain_rsn']);
         }
 
         if ($pOptions['level'] > 1) {
@@ -145,7 +133,7 @@ class krynNavigation {
                 if ($cache) return $cache;
             }
 
-            $navi['links'] = self::getLinks($navi['rsn'], $pWithFolders, kryn::$domain['rsn']);
+            $navigation = self::getLinks($navi['rsn'], $pWithFolders, kryn::$domain['rsn']);
         }
 
         if ($pOptions['level'] == 1) {
@@ -153,14 +141,17 @@ class krynNavigation {
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $cacheKey = 'systemNavigations-' . kryn::$page['domain_rsn'] . '_0-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
-                if ($cache) return $cache;
+                if (false && $cache) return $cache;
             }
-            $navi['links'] = self::getLinks(0, $pWithFolders, kryn::$domain['rsn']);
+
+            $navigation = array('title' => 'Root');
+            $navigation['_children'] = self::getLinks(0, $pWithFolders, kryn::$domain['rsn']);
         }
 
         if ($navi !== false) {
 
-            tAssignRef("navi", $navi);
+            tAssign("navi", $navigation);
+            tAssign("navigation", $navigation);
 
             if (kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $res = tFetch($pTemplate);

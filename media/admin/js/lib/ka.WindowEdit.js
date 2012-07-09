@@ -11,9 +11,9 @@ ka.WindowEdit = new Class({
     initialize: function (pWin, pContainer) {
         this.win = pWin;
 
-        logger(this.win.params);
-        this.winParams = Object.clone(this.win.params); //copy
+        pContainer.empty();
 
+        this.winParams = Object.clone(this.win.params); //copy
 
         if (!this.winParams.item && this.winParams.values)
             this.winParams.item = this.winParams.values; //compatibility

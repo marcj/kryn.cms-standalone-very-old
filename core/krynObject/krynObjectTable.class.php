@@ -275,15 +275,17 @@ class krynObjectTable extends krynObjectAbstract {
     }
 
     /**
-     * @param bool|array $pParent array('field_key' => 'value')
-     * @param int $pDepth  0 returns only the root. 1 returns with one level of children, 2 with two levels etc
-     * @param bool|array $pRootObjectId The primary value of the root object
-     * @param string|array $pExtraFields
+     * @param bool $pParent
+     * @param bool $pCondition
+     * @param int $pDepth
+     * @param bool $pRootObjectId
+     * @param bool $pOptions
      *
-     * @return array|bool
-     * @throws Exception
+     * @return array|bool|string
+     * @throws Exception]
      */
-    public function getTree($pParent = false, $pDepth = 1, $pRootObjectId = false, $pExtraFields = ''){
+    public function getTree($pParent = false, $pCondition = false, $pDepth = 1, $pScope = false,
+                            $pOptions = false){
 
         $start = microtime(true);
         if (!$this->definition['nested']){
@@ -296,19 +298,18 @@ class krynObjectTable extends krynObjectAbstract {
 
         $primKey = current($this->primaryKeys);
 
-        if ($pParent)
-            $idValue = $pParent[$primKey]?$pParent[$primKey]+0:'root';
-
-        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.md5($idValue.'-'.$pDepth.'-'.$pRootObjectId);
+        $cacheKey = 'systemObjectTrees_'.$this->object_key.'-'.
+            md5(serialize($pParent).'-'.serialize($pCondition).'-'.$pDepth.'-'.$pScope);
 
         if (true || !($result = kryn::getCache($cacheKey))){
 
             $condition = array();
             $pDepth += 0;
 
-            if (!is_array($pExtraFields) && $pExtraFields != '')
-                $pExtraFields = explode(',', str_replace(' ', '', trim($pExtraFields)));
-
+            if ($pOptions['fields'] && $pOptions['fields'] != '*')
+                $extraFields = explode(',', str_replace(' ', '', trim($pOptions['fields'])));
+            else if ($pOptions['fields'] == '*')
+                $extraFields = array_keys($this->definition['fields']);
 
             $title = $this->definition['nestedLabel'];
             $icon  = $this->definition['nestedIcon'];
@@ -327,13 +328,24 @@ class krynObjectTable extends krynObjectAbstract {
 
             $selects[] = '((MAX('.dbQuote('rgt', 'node').')-1-MAX('.dbQuote('lft', 'node').'))/2) AS '.dbQuote('_children_count');
 
-            if (is_array($pExtraFields) && count($pExtraFields) > 0){
-                foreach ($pExtraFields as $extraField)
-                    $selects[] = 'MAX('.dbQuote($extraField, 'node').')';
+            if (is_array($extraFields) && count($extraFields) > 0){
+                foreach ($extraFields as $extraField)
+                    $selects[] = 'MAX('.dbQuote($extraField, 'node').') as '.dbQuote($extraField);
             }
 
             $tables[] = "$table as ".dbQuote('parent');
-            $tables[] = "$table as ".dbQuote('node');
+            if ($pCondition){
+                $conditionSql = dbConditionToSql($pCondition, 'node', 'node');
+                $tables[] = "(
+                    SELECT t0.*
+                    FROM $table as t0
+                    LEFT JOIN $table as node ON t0.lft BETWEEN node.lft AND node.rgt
+                    AND NOT ($conditionSql) WHERE node.lft IS NULL
+                ) as ".dbQuote('node');
+            } else {
+                $tables[] = "$table as ".dbQuote('node');
+            }
+
             $tablesDefault = implode(', ', $tables);
 
             $aDepth = "(COUNT($pid) - 1)";
@@ -353,7 +365,7 @@ class krynObjectTable extends krynObjectAbstract {
 
             if ($pParent){
 
-                $conditionSql = dbConditionToSql($pParent, 'node');
+                $conditionSql = dbConditionToSql($pParent, 'node', 'node');
 
                 $eFields = '';
                 if ($rField){
@@ -361,7 +373,8 @@ class krynObjectTable extends krynObjectAbstract {
                     $conditionSql .= ' AND '.dbQuote($rField, 'parent').' = '.dbQuote($rField, 'node');
                 }
 
-                $tables[] = "(
+                $tables[] = "
+                (
                     SELECT
                         MAX(node.lft) as lft, MAX(node.rgt) as rgt, (COUNT($id)) AS $depth $eFields
                     FROM
@@ -370,7 +383,7 @@ class krynObjectTable extends krynObjectAbstract {
                     AND $conditionSql
                     GROUP BY $id
                     ORDER BY MAX($nodeLft)
-                  ) AS $parent1";
+                ) AS $parent1\n";
 
                 $additionalWhere = " AND $nodeLft BETWEEN $parent1Lft AND $parent1Rgt";
                 $aDepth = "(COUNT($pid) - MAX($parent1.$depth))";
@@ -381,24 +394,27 @@ class krynObjectTable extends krynObjectAbstract {
                 //if we have nestedRootAsObject as 1 we do not allow to fetch elements without conditions
                 //since rgt and lft would overlap
 
-                if (!$pParent && !$pRootObjectId) return array('error' => 'missing_root_id');
+                if (!$pParent && !$pScope) return array('error' => 'missing_scope_id');
 
-                if (!$pRootObjectId && $pParent){
+                if (!$pScope && $pParent){
                     $additionalWhere .= " AND ".dbQuote($rField, 'node').' = '.dbQuote($rField, 'parent1');
                     $additionalWhere .= " AND ".dbQuote($rField, 'parent').' = '.dbQuote($rField, 'parent1');
                 }
 
-                if ($pRootObjectId){
+                if ($pScope){
 
                     $rootObjectDefinition =& kryn::$objects[$this->definition['nestedRootObject']];
                     $table = $rootObjectDefinition['table'];
 
                     //$field = dbQuote($this->definition['nestedRootObjectField'], 'parent');
-                    $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'node');
-                    $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pRootObjectId, '=', 'parent');
+                    $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pScope, '=', 'node');
+                    $additionalWhere .= " AND ". dbSqlCondition($table, $rField, $pScope, '=', 'parent');
                 }
             }
 
+            if ($pCondition){
+                $additionalWhere .= ' AND '.dbConditionToSql($pCondition, 'parent', 'node');
+            }
 
             $selects[] = "$aDepth AS ".$depth;
 
@@ -720,6 +736,8 @@ class krynObjectTable extends krynObjectAbstract {
 
             $aFields = explode(',', $pFields);
         }
+
+        if (!$pFields) $pFields = '*';
 
         $aResolveForeignValues = $pResolveForeignValues;
 

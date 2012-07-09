@@ -61,16 +61,12 @@ var users_users_acl = new Class({
         this.tabs.hide();
         this.actions.hide();
 
-        this.win.setLoading(true);
-
         this.loadEntryPoints();
         this.loadObjects();
 
         document.id(this.tabs.buttonGroup).setStyle('margin-left', 215);
 
         this.loadList();
-
-        this.win.setLoading(false);
     },
 
     loadObjectRules: function(pObjectKey){
@@ -1377,6 +1373,30 @@ var users_users_acl = new Class({
 
     loadAcls: function(pType, pId){
 
+        if (this.lastOverlay)
+            this.lastOverlay.destroy();
+
+        this.hideRules();
+
+        if (pId == 1){
+
+            this.tabs.hide();
+            this.actions.hide();
+
+            this.lastOverlay = new Element('div', {
+                style: 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; background-color: #bbb;',
+                styles: {
+                    opacity: 0.7,
+                    paddingTop: 50,
+                    textAlign: 'center'
+                },
+                text: t('User admin and the administration group has full access to anything.')
+            }).inject(this.right);
+
+            this.win.setLoading(false);
+            return;
+        }
+
         this.win.setLoading(true, null, {left: 216});
 
         if (this.lrAcls)
@@ -1384,8 +1404,6 @@ var users_users_acl = new Class({
 
         this.currentTargetType = pType=='user'?0:1;
         this.currentTargetRsn = pId;
-
-        this.hideRules();
 
         this.lrAcls = new Request.JSON({
             url: _path+'admin/users/acl',

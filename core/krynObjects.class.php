@@ -256,12 +256,11 @@ class krynObjects {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pConditionValues Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pCondition Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function getList($pObjectKey, $pConditionValues = false, $pOptions = array()){
-
+    public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
 
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -269,18 +268,18 @@ class krynObjects {
         $obj = self::getClassObject($pObjectKey);
 
         if (!$pOptions['fields'])
-            $pOptions['fields'] = '*';
+            $pOptions['fields'] = '';
 
         $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
-        if ($pConditionValues !== false && !is_array($pConditionValues)){
-            $pConditionValues = array($pConditionValues);
+        if ($pCondition !== false && !is_array($pCondition)){
+            $pCondition = array($pCondition);
         }
 
-        return $obj->getItems($pConditionValues, $pOptions);
+        return $obj->getItems($pCondition, $pOptions);
 
     }
 
@@ -412,13 +411,46 @@ class krynObjects {
      * @param string|array $pExtraFields
      * @return array|bool
      */
-    public static function getTree($pParentObjectUri, $pDepth = 1, $pExtraFields = ''){
+    public static function getTreeFromUri($pParentObjectUri, $pDepth = 1, $pExtraFields = ''){
 
 
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
         $obj = self::getClassObject($object_key);
 
         return $obj->getTree($object_id[0], $pDepth, $params['rootId'], $pExtraFields);
+
+    }
+
+    /**
+     * @static
+     * @param string     $pObjectKey
+     * @param mixed      $pParent
+     * @param bool|array $pCondition
+     * @param int        $pDepth
+     * @param bool|int   $pScope
+     * @param bool|array $pOptions
+     * @return mixed
+     */
+    public static function getTree($pObjectKey, $pParent = false, $pCondition = false, $pDepth = 1, $pScope = false,
+                                   $pOptions = false){
+
+        $obj = self::getClassObject($pObjectKey);
+
+        if (!is_array($pOptions)) $pOptions = array();
+
+        if (!$pOptions['fields'])
+            $pOptions['fields'] = '';
+
+        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
+
+        if (!$pOptions['foreignKeys'])
+            $pOptions['foreignKeys'] = '*';
+
+        if ($pCondition !== false && !is_array($pCondition)){
+            $pCondition = array($pCondition);
+        }
+
+        return $obj->getTree($pParent, $pCondition, $pDepth, $pScope, $pOptions);
 
     }
 

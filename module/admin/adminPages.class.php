@@ -149,16 +149,15 @@ class adminPages {
         self::cleanSort($pageTo['domain_rsn'], $pageTo['prsn']);
         self::updateUrlCache($pageTo['domain_rsn']);
         self::updateMenuCache($pageTo['domain_rsn']);
-        self::updatePage2DomainCache($pageTo['domain_rsn']);
 
         $page = dbTableFetch('system_pages', 1, 'rsn = ' . (getArgv('page') + 0));
         self::cleanSort($page['domain_rsn'], $page['prsn']);
         if ($page['domain_rsn'] != $pageTo['domain_rsn']) {
             self::updateUrlCache($page['domain_rsn']);
             self::updateMenuCache($page['domain_rsn']);
-            self::updatePage2DomainCache($page['domain_rsn']);
         }
 
+        self::updatePage2DomainCache();
         kryn::deleteCache('kryn_pluginrelations');
 
         return true;
@@ -1109,7 +1108,7 @@ class adminPages {
         kryn::invalidateCache('systemNavigations-' . $domain_rsn);
         kryn::invalidateCache('systemWholePage-' . $domain_rsn);
 
-        self::updatePage2DomainCache($domain_rsn);
+        self::updatePage2DomainCache();
 
         kryn::deleteCache('kryn_pluginrelations');
         json(true);
@@ -1430,30 +1429,21 @@ class adminPages {
             $res['rsn'] = array_merge($res['rsn'], $newRes['rsn']);
             //$res['r2d'] = array_merge( $res['r2d'], $newRes['r2d'] );
         }
-        kryn::$urls = $res;
 
         $aliasRes = dbExec('SELECT to_page_rsn, url FROM %pfx%system_urlalias WHERE domain_rsn = ' . $pDomainRsn);
         while ($row = dbFetch($aliasRes)) {
             $res['alias'][$row['url']] = $row['to_page_rsn'];
         }
 
-        self::updatePage2DomainCache($pDomainRsn);
+        self::updatePage2DomainCache();
         kryn::setCache("systemUrls-$pDomainRsn", $res);
         return $res;
     }
 
-    public static function updatePage2DomainCache($pDomain = false) {
+    public static function updatePage2DomainCache() {
 
         $r2d = array();
-        $where = "";
-
-        if ($pDomain + 0 > 0){
-            $where = 'WHERE domain_rsn = ' . ($pDomain + 0);
-            $r2d = kryn::getCache('systemPages2Domain');
-            $r2d[$pDomain] = '';
-        }
-
-        $res = dbExec('SELECT rsn, domain_rsn FROM %pfx%system_pages ' . $where);
+        $res = dbExec('SELECT rsn, domain_rsn FROM %pfx%system_pages ');
 
         while ($row = dbFetch($res)) {
             $r2d[$row['domain_rsn']] .= $row['rsn'] . ',';

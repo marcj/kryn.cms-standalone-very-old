@@ -189,6 +189,8 @@ class krynAcl {
      */
     public static function check($pObjectKey, $pObjectId, $pField = false, $pMode = 1, $pRootHasAccess = false) {
 
+        if (kryn::$client->id == 1)
+
         $rules =& self::getRules($pObjectKey, $pMode);
 
         if (count($rules) == 0) return false;
@@ -207,7 +209,6 @@ class krynAcl {
         $not_found = true;
         $parent_acl = false;
         $objectItem = false;
-
         $codes = array();
 
 

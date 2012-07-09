@@ -982,6 +982,7 @@ ka.Window = new Class({
 
 
         if (pVals.type == 'iframe') {
+            this.content.empty();
             this.iframe = new IFrame('iframe_kwindow_' + this.id, {
                 'class': 'kwindow-iframe',
                 frameborder: 0
@@ -1080,16 +1081,17 @@ ka.Window = new Class({
             this.customJsAsset = new Asset.css(_path + PATH_MEDIA + this.module + '/admin/css/' + javascript + '.css?mdate=' + mdate);
         }
 
-
         this.customId = parseInt(Math.random() * 100) + parseInt(Math.random() * 100);
 
         window['contentCantLoaded_' + this.customId] = function (pFile) {
+            this.content.empty();
             this._alert('custom javascript file not found: ' + pFile, function () {
                 this.close(true);
             });
         }.bind(this);
 
         window['contentLoaded_' + this.customId] = function () {
+            this.content.empty();
             this.custom = new window[ this.module + '_' + javascript ](this);
         }.bind(this);
 

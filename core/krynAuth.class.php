@@ -33,6 +33,13 @@ class krynAuth {
     public $user_rsn = 0;
 
     /**
+     * Same value as $user_rsn or $user['rsn']
+     *
+     * @var int
+     */
+    public $id = 0;
+
+    /**
      * Some user informations from the system_user table.
      */
     public $user;
@@ -344,7 +351,7 @@ class krynAuth {
     /**
      * Clears the cache of the current user.
      *
-     * @param int $pUserRsn
+     * @param boolean $pUserRsn
      * @internal
      */
     private function clearCache($pUserRsn = false) {
@@ -359,6 +366,7 @@ class krynAuth {
 
         $this->user =& $this->getUser($pUserRsn);
         $this->user_rsn = $this->user['rsn'];
+        $this->id = $this->user['rsn'];
 
         tAssign('user', $this->user);
     }
