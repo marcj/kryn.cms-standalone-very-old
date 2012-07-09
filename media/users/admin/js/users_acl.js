@@ -100,7 +100,7 @@ var users_users_acl = new Class({
 
                     this.lastObjectTree = new ka.ObjectTree(objectTreeContainer, pObjectKey, {
                         openFirstLevel: true,
-                        rootId: pValue,
+                        scopeId: pValue,
                         move: false,
                         withContext: false,
                         onReady: function(){

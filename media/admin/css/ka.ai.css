@@ -157,12 +157,15 @@ div.mainlinks a img {
     height: 14px;
 }
 
-.header a,
-.header a:link,
-.header a:visited,
-div.bar-dock-menu-style a,
-div.bar-dock-menu-style a:link,
-div.ka-mainlink-additionalmenubar {
+div.mainlinks > a::before {
+    padding-right: 10px;
+    font-size: 12px;
+}
+
+.mainlinks > a,
+.headRight > a,
+.bar-dock-menu-style > a,
+.ka-mainlink-additionalmenubar {
     float: left;
     line-height: 43px;
     padding: 0px 15px;
@@ -325,9 +328,10 @@ div.ka-mainlink-additionalmenubar-container a img {
     border: 0px
 }
 
-.header a:hover,
-div.bar-dock-menu-style a:hover,
-div.ka-mainlink-additionalmenubar-container a:hover {
+.mainlinks > a:hover,
+.headRight > a:hover,
+div.bar-dock-menu-style > a:hover,
+div.ka-mainlink-additionalmenubar-container > a:hover {
     background: #339ac6; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIxMyUiIHN0b3AtY29sb3I9IiMzMzlhYzYiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTQ3NzllIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
@@ -342,8 +346,9 @@ div.ka-mainlink-additionalmenubar-container a:hover {
     color: white;
 }
 
-.header a:active,
-div.ka-mainlink-additionalmenubar-container a:active {
+.mainlinks > a:active,
+.headRight > a:active,
+div.ka-mainlink-additionalmenubar-container > a:active {
     background: #376aad; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzM3NmFhZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEzJSIgc3RvcC1jb2xvcj0iIzM4ODdiNyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjY3JSIgc3RvcC1jb2xvcj0iIzJmN2VhMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMzYTc1YmMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -357,8 +362,7 @@ div.ka-mainlink-additionalmenubar-container a:active {
 
 }
 
-.headRight a,
-.headRight a:link {
+.headRight > a {
     border-right: 0px;
     border-left: 1px solid #313131;
     float: right;
@@ -746,14 +750,20 @@ a.ka-subnavi-main:link {
 */
 
 .iconbar-item {
+    white-space: nowrap;
 	border-left: 1px solid #313131;
 	float: right;
-	padding: 0px 15px;
     height: 48px;
+    padding: 0px 5px;
     line-height: 48px;
     position: relative;
 }
 
+.iconbar-item > a {
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+}
 
 /* file extensions */
 .ka-files-fileContainer .dir {
@@ -819,27 +829,6 @@ input.round {
     padding-left: 16px;
 }
 
-.header a.ka-help-icon,
-.header a.ka-cache-icon,
-.header a.ka-create-search-index-icon {
-    width: 19px;
-    height: 19px;
-    background-image:url(../images/help-icon.png);
-    background-position: left top;
-    position: absolute;
-    top: 14px;
-    padding: 0px;
-    left: 45px;
-    cursor: pointer;
-}
-
-
-div.headRight  a.ka-help-icon,
-div.headRight  a.ka-cache-icon,
-div.headRight  a.ka-create-search-index-icon {
-    border-left: 0px;
-}
-
 .header .ka-search-query-icon {
     position: absolute;
     right: 122px;
@@ -849,16 +838,6 @@ div.headRight  a.ka-create-search-index-icon {
 .header a.ka-cache-icon {
     background-image:url(../images/bin-icon.png);
     left: 25px;
-}
-
-.header a.ka-help-icon:hover,
-.header a.ka-cache-icon:hover {
-    background-position: left -19px;
-}
-
-.header a.ka-help-icon:active,
-.header a.ka-cache-icon:active {
-    background-position: left -38px;
 }
 
 .header a.ka-create-search-index-icon {
@@ -879,9 +858,6 @@ a.ka-create-search-index-icon.yellow {
 a.ka-create-search-index-icon.red {
      background-position: left -57px;
 }
-
-
-
 
 
 .ka-mini-search {

@@ -1255,6 +1255,7 @@ class kryn {
 
             kryn::$adminClient->start();
             tAssignRef('adminClient', kryn::$adminClient);
+            kryn::$client = kryn::$adminClient;
         }
 
         if (getArgv(1) != 'admin') {

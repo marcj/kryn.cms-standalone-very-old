@@ -413,11 +413,10 @@ class krynObjects {
      */
     public static function getTreeFromUri($pParentObjectUri, $pDepth = 1, $pExtraFields = ''){
 
-
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
         $obj = self::getClassObject($object_key);
 
-        return $obj->getTree($object_id[0], $pDepth, $params['rootId'], $pExtraFields);
+        return $obj->getTree($object_id[0], false, $pDepth, $params['scopeId'], $pExtraFields);
 
     }
 
@@ -431,7 +430,7 @@ class krynObjects {
      * @param bool|array $pOptions
      * @return mixed
      */
-    public static function getTree($pObjectKey, $pParent = false, $pCondition = false, $pDepth = 1, $pScope = false,
+    public static function getTree($pObjectKey, $pBranch = false, $pCondition = false, $pDepth = 1, $pScope = false,
                                    $pOptions = false){
 
         $obj = self::getClassObject($pObjectKey);
@@ -450,7 +449,7 @@ class krynObjects {
             $pCondition = array($pCondition);
         }
 
-        return $obj->getTree($pParent, $pCondition, $pDepth, $pScope, $pOptions);
+        return $obj->getTree($pBranch, $pCondition, $pDepth, $pScope, $pOptions);
 
     }
 
@@ -473,7 +472,6 @@ class krynObjects {
             foreach ($extraFields as $field)
                 $fields[] = $field;
         }
-
 
         list($rootKey, $rootId, $params) = self::parseUri($definition['nestedRootObject'].'/'.$pRootId);
 

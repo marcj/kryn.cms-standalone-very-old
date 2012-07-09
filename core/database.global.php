@@ -426,7 +426,7 @@ function dbDelete($pTable, $pWhere = '') {
     $table = dbTableName($pTable);
 
     $sql = "DELETE FROM " . $table . "";
-    if (is_string($pWhere))
+    if (is_string($pWhere) && $pWhere)
         $sql .= " WHERE $pWhere ";
     if (is_array($pWhere))
         $sql .= " WHERE ".dbConditionToSql($pWhere);

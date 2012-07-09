@@ -80,19 +80,18 @@
     <div class="header gradient" id="header">
         <div class="header-inner">
             <div class="headRight" id="iconbar">
-                <a style="padding-right: 2px; width: 15px;" href="javascript: ka.openFrontend();" title="[[Frontend]]">
-                    <img src="{$path}media/admin/images/icons/eye_bw.png" width="14" /></a>
-                <a href="javascript:;" style="padding:0px 8px;" id="user-username"></a>
+                <a class="icon-eye" style="width: 15px; font-size: 20px;padding-right: 20px;" href="javascript: ka.openFrontend();" title="[[Frontend]]"></a>
+                <a class="icon-user-2" href="javascript:;" style="padding:0px 8px;" id="user-username"></a>
                 <div class="ka-search">
                     <img class="ka-search-query-icon" src="{$path}media/admin/images/icon-search-loupe.png" />
                     <input type="text" class="text" id="ka-search-query" />
                 </div>
-                <div class="iconbar-item" style="width: 48px;">
-                    <a href="javascript:;" onclick="ka.wm.open('admin/help');" class="ka-help-icon" title="[[Help]]"></a>
-                    <a href="javascript:;" onclick="ka.clearCache();" id="ka-btn-clear-cache" class="ka-cache-icon" title="[[Clear cache]]"></a>
-                    <a href="javascript:;" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="ka-create-search-index-icon" title="[[Searchengine options]]"></a>
+                <div class="iconbar-item">
+                    <a href="javascript:;" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="icon-flash" title="[[Searchengine options]]"></a>
+                    <a href="javascript:;" onclick="ka.clearCache();" id="ka-btn-clear-cache" class="icon-trashcan" title="[[Clear cache]]"></a>
+                    <a href="javascript:;" onclick="ka.wm.open('admin/help');" class="icon-info-2" title="[[Help]]"></a>
                 </div>
-                <div class="iconbar-item" id="serverTime"></div>
+                <div class="iconbar-item" id="serverTime">00:00</div>
             </div>
             <div style="clear: both"></div>
             <div class="mainlinks" id="mainLinks"></div>

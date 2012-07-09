@@ -158,7 +158,7 @@ abstract class krynObjectAbstract {
     abstract public function getCount($pCondition = false);
 
 
-    abstract public function getTree($pParent = false, $pCondition = false, $pDepth = 1, $pRootObjectId = false, $pOptions = false);
+    abstract public function getTree($pBranch = false, $pCondition = false, $pDepth = 1, $pRootObjectId = false, $pOptions = false);
 
     /**
      * Returns the parent, if exists

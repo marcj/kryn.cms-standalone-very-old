@@ -8,12 +8,12 @@ ka.WindowList = new Class({
         this.options = pOptions || {};
         this.win = pWindow;
 
-        pContainer.empty();
-
         if (pContainer)
             this.container = pContainer;
         else
             this.container = this.win.content;
+
+        this.container.empty();
 
         this.container.setStyle('overflow', 'hidden');
         this.page = 1;

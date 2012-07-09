@@ -34,16 +34,11 @@ ka.init = function () {
         ka._iconSessionCounterDiv.destroy();
     }
     ka._iconSessionCounterDiv = new Element('div', {
-        'class': 'iconbar-item',
+        'class': 'iconbar-item icon-users',
         title: t('Visitors')
     }).inject(document.id('iconbar'));
 
     ka._iconSessionCounter = new Element('span', {text: 0}).inject(ka._iconSessionCounterDiv);
-
-    new Element('img', {
-        src: _path + PATH_MEDIA + '/admin/images/icons/user_gray.png',
-        style: 'position: relative; top: 3px; margin-left: 3px; width: 14px;'
-    }).inject(ka._iconSessionCounterDiv);
 
 
     window.addEvent('resize', ka.checkMainBarWidth);
@@ -1164,10 +1159,14 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
         });
 
         if (pLink.icon) {
-            mlink.addClass('ka-mainmenubar-item-hasIcon');
-            new Element('img', {
-                src: _path + PATH_MEDIA + pLink.icon
-            }).inject(mlink);
+            if (pLink.icon.substr(0,1) == '#'){
+                mlink.addClass(pLink.icon.substr(1));
+            } else {
+                mlink.addClass('ka-mainmenubar-item-hasIcon');
+                new Element('img', {
+                    src: _path + PATH_MEDIA + pLink.icon
+                }).inject(mlink);
+            }
         }
     }
 

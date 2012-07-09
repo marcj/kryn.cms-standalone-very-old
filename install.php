@@ -387,6 +387,20 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <td><a href="http://www.famfamfam.com/lab/icons/silk/">www.famfamfam.com/lab/icons/silk/</a></td>
     <td>&raquo; <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License.</a></td>
 </tr>
+
+
+<tr>
+    <td>IcoMoon (limited)</td>
+    <td><a href="http://keyamoon.com/icomoon/">keyamoon.com/icomoon/</a></td>
+    <td>&raquo; <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></td>
+</tr>
+
+<tr>
+    <td>Entypo</td>
+    <td><a href="http://www.entypo.com/">www.entypo.com</a></td>
+    <td>&raquo; <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></td>
+</tr>
+
 <tr>
     <td>[PEAR] JSON</td>
     <td><a href="http://pear.php.net/package/Services_JSON">PEAR/Services_JSON</a></td>

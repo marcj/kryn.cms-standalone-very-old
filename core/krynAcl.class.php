@@ -39,13 +39,12 @@ class krynAcl {
      *
      */
     public static function &getRules($pObjectKey, $pMode = 1, $pForce = false) {
-        global $client;
 
         if (self::$cache[$pObjectKey.'_'.$pMode] && $pForce == false)
             return self::$cache[$pObjectKey.'_'.$pMode];
 
-        $userRsn = $client->user_rsn;
-        $inGroups = $client->user['inGroups'];
+        $userRsn = kryn::$client->user_rsn;
+        $inGroups = kryn::$client->user['inGroups'];
 
         $pObjectKey = esc($pObjectKey);
         $pMode += 0;
@@ -85,7 +84,7 @@ class krynAcl {
 
         $rules =& self::getRules($pObjectKey, 1);
 
-        if (count($rules) == 0) return '';
+        if (count($rules) == 0) return '1=0';
 
         if (self::$cache['sqlList_' . $pObjectKey])
             return self::$cache['sqlList_' . $pObjectKey];

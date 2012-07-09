@@ -11,8 +11,6 @@ ka.WindowEdit = new Class({
     initialize: function (pWin, pContainer) {
         this.win = pWin;
 
-        pContainer.empty();
-
         this.winParams = Object.clone(this.win.params); //copy
 
         if (!this.winParams.item && this.winParams.values)
@@ -25,6 +23,8 @@ ka.WindowEdit = new Class({
             this.inline = true;
             this.container = pContainer;
         }
+
+        this.container.empty();
 
         this.bCheckClose = this.checkClose.bind(this);
         this.bCheckTabFieldWidth = this.checkTabFieldWidth.bind(this);

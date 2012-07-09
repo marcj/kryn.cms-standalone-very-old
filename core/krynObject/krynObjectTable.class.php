@@ -282,7 +282,7 @@ class krynObjectTable extends krynObjectAbstract {
      * @param bool $pOptions
      *
      * @return array|bool|string
-     * @throws Exception]
+     * @throws Exception
      */
     public function getTree($pParent = false, $pCondition = false, $pDepth = 1, $pScope = false,
                             $pOptions = false){
@@ -334,8 +334,15 @@ class krynObjectTable extends krynObjectAbstract {
             }
 
             $tables[] = "$table as ".dbQuote('parent');
-            if ($pCondition){
-                $conditionSql = dbConditionToSql($pCondition, 'node', 'node');
+
+            if ($pCondition || $pOptions['permissionCheck']){
+
+                $conditionSql = '';
+                if ($pCondition)
+                    $conditionSql = dbConditionToSql($pCondition, 'node', 'node');
+                if ($pOptions['permissionCheck'] && $aclSql = krynAcl::getSqlCondition($this->object_key))
+                    $conditionSql = $aclSql.' AND '.$conditionSql;
+
                 $tables[] = "(
                     SELECT t0.*
                     FROM $table as t0

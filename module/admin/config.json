@@ -365,7 +365,7 @@
     "overview": {
       "title": "[[Dashboard]]",
       "type": "custom",
-      "icon": "admin\/images\/admin-dashboard-icon.png",
+      "icon": "#icon-home-3",
       "isLink": true,
       "multi": true,
       "childs": [
@@ -375,7 +375,7 @@
     "pages": {
       "title": "[[Pages]]",
       "type": "custom",
-      "icon": "admin\/images\/admin-pages-icon.png",
+      "icon": "#icon-screen-2",
       "isLink": true,
       "multi": true,
       "childs": {
@@ -411,7 +411,7 @@
     "files": {
       "title": "[[Files]]",
       "type": "custom",
-      "icon": "admin\/images\/admin-files-icon.png",
+      "icon": "#icon-folder",
       "isLink": true,
       "multi": true,
       "childs": {
@@ -1921,6 +1921,7 @@
     "admin\/js\/mootools-extras\/*.js"
   ],
   "adminCss": [
+    "admin\/icons\/style.css",
     "admin\/css\/*.css"
   ],
   "community": "1",

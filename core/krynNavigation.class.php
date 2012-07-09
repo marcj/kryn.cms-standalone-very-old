@@ -21,7 +21,7 @@
 class krynNavigation {
     public $navigations;
 
-    public static function getLinks($pRsn, $pWithFolders = false, $pDepth = 1, $pDomain = false, $pWithoutCache = false) {
+    public static function getLinks($pRsn, $pWithFolders = false, $pDepth = 0, $pDomain = false, $pWithoutCache = false) {
 
         if (!is_numeric($pRsn))
             return array();
@@ -33,12 +33,13 @@ class krynNavigation {
         if ($pWithoutCache == false) {
 
             $code = $pDomain;
-            $code .= '-' . $pRsn;
+            $code .= '-'.$pRsn;
+            $code .= '-'.kryn::$client->id;
 
             $navigation =& kryn::getCache('navigation-' . $code);
         }
 
-        if (true||$pWithoutCache == true || !is_array($navigation)) {
+        if ($pWithoutCache == true || !is_array($navigation)) {
 
             $condition = array(
                 array('visible', '=', 1)
@@ -60,7 +61,8 @@ class krynNavigation {
             }
 
             $nodes = krynObjects::getTree('node', $pRsn, $condition, $pDepth, $pDomain, array(
-                'fields' => '*'
+                'fields' => '*',
+                'permissionCheck' => true
             ));
 
             if (count($nodes) > 0){

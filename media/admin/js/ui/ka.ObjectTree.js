@@ -6,7 +6,7 @@ ka.ObjectTree = new Class({
     options: {
         openFirstLevel: false,
         rootObject: false,
-        rootId: false,
+        scopeId: false,
         selectObject: false,
         withContext: true,
         iconMap: false,
@@ -193,7 +193,7 @@ ka.ObjectTree = new Class({
         var objectUrl = this.objectKey;
 
         if (this.options.rootObject)
-            objectUrl += '?'+Object.toQueryString({rootId: this.options.rootId});
+            objectUrl += '?'+Object.toQueryString({scopeId: this.options.scopeId});
 
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
             object: objectUrl
@@ -207,14 +207,14 @@ ka.ObjectTree = new Class({
             this.lastFirstLevelRq.cancel();
         }
 
-        if (typeOf(this.options.rootId) == 'null' || this.options.rootId === false){
-            throw t('Missing option rootId in ka.ObjectTree. Unable to load root ob the object:'+' '+this.objectKey);
+        if (typeOf(this.options.scopeId) == 'null' || this.options.scopeId === false){
+            throw t('Missing option scopeId in ka.ObjectTree. Unable to load root ob the object:'+' '+this.objectKey);
         }
 
         this.rootLoaded = false;
 
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTreeRoot', noCache: 1, onComplete: this.renderRoot.bind(this)}).get({
-            rootId: this.options.rootId,
+            scopeId: this.options.scopeId,
             object: this.objectKey
         });
 
@@ -490,7 +490,11 @@ ka.ObjectTree = new Class({
 
 
         if (a.parent) {
-            a.setStyle('padding-left', a.parent.getStyle('padding-left').toInt() + 15);
+            var paddingLeft = 15;
+            if (a.parent.getStyle('padding-left').toInt())
+                paddingLeft += a.parent.getStyle('padding-left').toInt();
+
+            a.setStyle('padding-left', paddingLeft);
         }
 
         this.addItemIcon(pItem, a);

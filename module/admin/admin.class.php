@@ -136,7 +136,7 @@ class admin {
                             $content = self::objectGetItems(getArgv('object'));
                             break;
                         case 'objectTree':
-                            $content = self::getObjectTree(getArgv('object'), getArgv('depth')?getArgv('depth'):1);
+                            $content = self::getObjectTree(getArgv('object'), getArgv('depth')+0);
                             break;
                         case 'objectTreeRoot':
                             $content = self::getObjectTreeRoot(getArgv('object'), getArgv('rootId'));
@@ -275,8 +275,8 @@ class admin {
         return krynObjects::getParentsFromUri($pObjectUrl);
     }
 
-    public static function getObjectTree($pObjectUrl, $pDepth = 1){
-        return krynObjects::getTree($pObjectUrl, $pDepth);
+    public static function getObjectTree($pObjectUrl, $pDepth = 0){
+        return krynObjects::getTreeFromUri($pObjectUrl, $pDepth);
     }
 
     public static function getObjectTreeRoot($pObjectUrl, $pRootId){
@@ -1434,10 +1434,15 @@ class admin {
             foreach ($cssFiles as $cssFile) {
                 $content .= "\n\n/* file: $cssFile */\n\n";
 
+                $dir = '../../'.dirname($cssFile).'/';
                 $h = fopen($cssFile, "r");
                 if ($h) {
                     while (!feof($h) && $h) {
                         $buffer = fgets($h, 4096);
+
+                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\''.$dir.'$1\')', $buffer);
+                        $buffer = preg_replace('/url\(([^\/\'].*)\)/', 'url('.$dir.'$1)', $buffer);
+
                         $content .= $buffer;
                         $newLine = str_replace($from, $toSafari, $buffer);
                         if ($newLine != $buffer)

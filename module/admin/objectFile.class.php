@@ -103,15 +103,15 @@ class objectFile extends krynObjectAbstract {
         // TODO: Implement getCount() method.
     }
 
-    public function getTree($pCondition = false, $pDepth = 1, $pExtraFields = ''){
+    public function getTree($pBranch = false, $pCondition = false, $pDepth = 1, $pRootObjectId = false, $pOptions = false){
 
 
-        if (!$pCondition){
+        if (!$pBranch){
             //root
             return krynFile::getFiles('/');
         } else {
 
-            $path = $pCondition['id'];
+            $path = $pBranch['id'];
             if (is_numeric($path))
                 $path = krynFile::getPath($path);
 
