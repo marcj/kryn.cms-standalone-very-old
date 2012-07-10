@@ -6,10 +6,6 @@ class publicationNewsCatsList extends windowList {
     public $itemsPerPage = 20;
     public $orderBy = 'title';
 
-    public $iconAdd = 'add.png';
-    public $iconEdit = 'arrow_right.png';
-    public $iconDelete = 'cross.png';
-
     public $filter = array('title');
 
     public $add = true;

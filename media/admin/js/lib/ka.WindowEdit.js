@@ -540,16 +540,16 @@ ka.WindowEdit = new Class({
 
         this.actionsNavi = this.win.addButtonGroup();
 
-        this.saveBtn = this.actionsNavi.addButton(_('Save'), _path + PATH_MEDIA + '/admin/images/button-save.png', function () {
+        this.saveBtn = this.actionsNavi.addButton(t('Save'), '#icon-cd', function () {
             this._save();
         }.bind(this));
 
         if (this.values.previewPlugins) {
-            this.previewBtn = this.actionsNavi.addButton(_('Preview'), _path + PATH_MEDIA + '/admin/images/icons/eye.png', this.preview.bind(this));
+            this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
         }
 
         if (this.values.versioning == true) {
-            this.saveAndPublishBtn = this.actionsNavi.addButton(_('Save and publish'), _path + PATH_MEDIA + '/admin/images/button-save-and-publish.png', function () {
+            this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
                 _this._save(false, true);
             }.bind(this));
         }

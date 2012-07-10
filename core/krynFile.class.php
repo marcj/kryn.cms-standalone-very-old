@@ -213,6 +213,8 @@ class krynFile {
         $items = $fs->getFiles(self::normalizePath($pPath));
         if (!is_array($items)) return $items;
 
+        if (count($items) == 0) return array();
+
         if ($fs->magicFolderName)
             foreach ($items as &$file)
                 $file['path'] = $fs->magicFolderName.$file['path'];

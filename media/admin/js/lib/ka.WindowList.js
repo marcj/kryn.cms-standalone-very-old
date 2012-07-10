@@ -445,22 +445,14 @@ ka.WindowList = new Class({
 
         if (this.actionsNavi) {
             if (this.values.remove) {
-                var img = _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconDelete;
-                if (this.values.removeIcon)
-                    img = _path + PATH_MEDIA + this.values.removeIcon;
-
-                this.actionsNavi.addButton(t('Remove selected'), img, function () {
+                this.actionsNavi.addButton(t('Remove selected'), ka.mediaPath(this.values.removeIcon), function () {
                     this.removeSelected();
                 }.bind(this));
             }
 
             if (this.values.add) {
 
-                var img = _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconAdd;
-                if (this.values.addIcon)
-                    img = _path + PATH_MEDIA + this.values.addIcon;
-
-                this.actionsNavi.addButton(t('Add'), img, function () {
+                this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.values.addIcon), function () {
 
                     ka.entrypoint.open(_this.values.addEntrypoint || _this.win.module+'/'+_this.win.code + '/add', {
                         lang: (_this.languageSelect) ? _this.languageSelect.value : false
@@ -490,7 +482,7 @@ ka.WindowList = new Class({
                     customWinCode = this.values.custom.code;
                 }
 
-                this.actionsNavi.addButton(this.values.custom.name, _path + iconCustom, function () {
+                this.actionsNavi.addButton(this.values.custom.name, ka.mediaPath(iconCustom), function () {
                     ka.wm.openWindow(winModule, customWinCode, null, null, {
                         language: (_this.languageSelect) ? _this.languageSelect.value : false
                     });
@@ -807,22 +799,50 @@ ka.WindowList = new Class({
             if (this.values.itemActions && this.values.itemActions.each) {
                 this.values.itemActions.each(function (action) {
 
+                    var action = null;
                     if (typeOf(action) == 'array') {
+
+
+                        if (action[1].substr(0,1) == '#'){
+
+                            action = new Element('div', {
+                                style: 'cursor: pointer; display: inline-block; padding: 0px 1px;',
+                                'class': action[1].substr(1),
+                                title: action[0]
+                            }).inject(icon);
+
+                        } else {
+                            action = new Element('img', {
+                                src: ka.mediaPath(action[1]),
+                                title: action[0]
+                            }).inject(icon);
+                        }
+
                         //compatibility
-                        new Element('img', {
-                            src: _path + PATH_MEDIA + action[1],
-                            title: action[0]
-                        }).addEvent('click',function () {
+                        action.addEvent('click',function () {
                             ka.wm.open(action[2], {item: pItem.values, filter: action[3]});
                         }).inject(icon);
                     }
 
                     if (typeOf(action) == 'object') {
+
+                        if (action.icon.substr(0,1) == '#'){
+
+                            action = new Element('div', {
+                                style: 'cursor: pointer; display: inline-block; padding: 0px 1px;',
+                                'class': action.icon.substr(1),
+                                title: action.label
+                            }).inject(icon);
+
+                        } else {
+                            action = new Element('img', {
+                                src: ka.mediaPath(action.icon),
+                                title: action.label
+                            }).inject(icon);
+                        }
+
                         //compatibility
-                        new Element('img', {
-                            src: _path + PATH_MEDIA + action.icon,
-                            title: action.label
-                        }).addEvent('click',function () {
+                        action.addEvent('click',function () {
                             ka.entrypoint.open(action.entrypoint, {item: pItem.values}, this);
                         }).inject(icon);
                     }
@@ -834,14 +854,22 @@ ka.WindowList = new Class({
             }
 
             if (pItem.edit) {
+                var editIcon = null;
 
-                var img = _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconEdit;
-                if (this.values.editIcon)
-                    img = _path + PATH_MEDIA + this.values.editIcon;
+                if (_this.values.editIcon.substr(0,1) == '#'){
 
-                new Element('img', {
-                    src: img
-                }).addEvent('click', function () {
+                    editIcon = new Element('div', {
+                        style: 'cursor: pointer; display: inline-block; padding: 0px 1px;',
+                        'class': _this.values.editIcon.substr(1)
+                    }).inject(icon);
+
+                } else {
+                    editIcon = new Element('img', {
+                        src: ka.mediaPath(_this.values.editIcon)
+                    }).inject(icon);
+                }
+
+                editIcon.addEvent('click', function () {
 
                     if (_this.values.editEntrypoint){
                         ka.wm.open(_this.values.editEntrypoint, pItem);
@@ -862,18 +890,31 @@ ka.WindowList = new Class({
             }
             if (pItem['remove']) {
 
-                var img = _path + PATH_MEDIA + '/admin/images/icons/' + _this.values.iconDelete;
-                if (this.values.removeIcon)
-                    img = _path + PATH_MEDIA + _this.values.removeIcon;
+                var removeIcon = _this.values.removeIconItem?_this.values.removeIconItem:_this.values.removeIcon;
 
-                new Element('img', {
-                    src: img
-                }).addEvent('click', function () {
-                    _this.win._confirm(t('Really delete?'), function (res) {
-                        if (!res) return;
-                        _this.deleteItem(pItem);
+                if (typeOf(removeIcon) == 'string'){
+                    var deleteBtn = null;
+
+                    if (removeIcon.substr(0,1) == '#'){
+
+                        deleteBtn = new Element('div', {
+                            style: 'cursor: pointer; display: inline-block; padding: 0px 1px;',
+                            'class': removeIcon.substr(1)
+                        }).inject(icon);
+
+                    } else {
+                        deleteBtn = new Element('img', {
+                            src: ka.mediaPath(removeIcon)
+                        }).inject(icon);
+                    }
+
+                    deleteBtn.addEvent('click', function () {
+                        _this.win._confirm(t('Really delete?'), function (res) {
+                            if (!res) return;
+                            _this.deleteItem(pItem);
+                        });
                     });
-                }).inject(icon);
+                }
             }
         }
     }

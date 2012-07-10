@@ -267,10 +267,5 @@ class usersAdminEdit extends windowEdit {
         $pRow['passwd_salt'] = $salt;
 
     }
-    
-    function __destruct(){
-        global $client;
-        $client->getUser( getArgv('rsn')+0, true ); //refresh cache
-    }
 
 }

@@ -589,6 +589,39 @@ function dbOrderToSql($pValues, $pTable = ''){
 }
 
 /**
+ * Extracts all field names from a Order array.
+ *
+ * @param $pValues
+ * @param string $pTable
+ * @return array
+ */
+function dbExtractOrderFields($pValues, $pTable = ''){
+
+    $fields = array();
+
+    if (count($pValues) == 1 && !is_array($pValues[0])){
+        return array(dbQuote(key($pValues), $pTable));
+    }
+
+
+    if (is_numeric(key($pValues[0]))){
+
+        foreach ($pValues as $order ){
+            $fields[] = dbQuote($order['field'], $pTable);
+        }
+    }
+
+    if (!is_numeric(key($pValues[0]))){
+
+        foreach ($pValues as $key => $order ){
+            $fields[] = dbQuote($key, $pTable);
+        }
+    }
+
+    return $fields;
+}
+
+/**
  * Returns a comma sperated list of $pValues to be used in UPDATE queries.
  * If a element in $pValues has a numeric key, the value will be retrieved
  * from getArgv($key). The keys will go through dbQuote()

@@ -1,8 +1,6 @@
 ka.Select = new Class({
     Implements: [Events, Options],
 
-    arrow: PATH_MEDIA+'admin/images/icons/tree_minus.png',
-
     opened: false,
     value: null,
 
@@ -38,12 +36,8 @@ ka.Select = new Class({
         .inject(this.box);
 
         this.arrowBox = new Element('div', {
-            'class': 'ka-Select-arrow'
+            'class': 'ka-Select-arrow icon-triangle-2'
         }).inject(this.box);
-
-        this.arrow = new Element('img', {
-            src: _path + this.arrow
-        }).inject(this.arrowBox);
 
         this.chooser = new Element('div', {
             'class': 'ka-Select-chooser ka-normalize'
@@ -218,6 +212,9 @@ ka.Select = new Class({
             img.inject(this.a[pId], 'top');
         }
 
+        this.title.set('class', 'ka-Select-box-title '+this.a[pId].get('class').replace('ka-select-chooser-item', ''));
+
+
         if (this.value == pId){
             this.title.set('text', this.items[ pId ]);
             this.box.set('title', (this.items[ pId ] + "").stripTags());
@@ -228,13 +225,12 @@ ka.Select = new Class({
         }
     },
 
+    addImage: function (pId, pLabel, pIcon, pPos) {
 
-    addImage: function (pId, pLabel, pImagePath, pPos) {
-
-        return this.add(pId, pLabel, pPos, pImagePath);
+        return this.add(pId, pLabel, pPos, pIcon);
     },
 
-    add: function (pId, pLabel, pPos, pImagePath) {
+    add: function (pId, pLabel, pPos, pIcon) {
 
         if (typeOf(pLabel) == 'array'){
             pImagePath = pLabel[1];
@@ -255,12 +251,14 @@ ka.Select = new Class({
 
         this.a[pId].kaSelectId = pId;
 
-        if (pImagePath){
-
-            new Element('img', {
-                src: ka.mediaPath(pImagePath)
-            }).inject(this.a[pId], 'top');
-
+        if (pIcon && typeOf(pIcon) == 'string'){
+            if (pIcon.substr(0,1) == '#'){
+                this.a[pId].addClass(pIcon.substr(1));
+            } else {
+                new Element('img', {
+                    src: ka.mediaPath(pIcon)
+                }).inject(this.a[pId], 'top');
+            }
         }
 
         if (!pPos) {
@@ -299,6 +297,8 @@ ka.Select = new Class({
         this.title.set('text', this.items[ pValue ]);
         this.box.set('title', (this.items[ pValue ] + "").stripTags());
 
+        this.title.set('class', 'ka-Select-box-title '+this.a[pValue].get('class').replace('ka-select-chooser-item', ''));
+
         if (this.a[pValue].getElement('img')){
             this.a[pValue].getElement('img').clone().inject(this.title, 'top');
         }
@@ -309,12 +309,6 @@ ka.Select = new Class({
                 item.addClass('active');
             }
         });
-
-        //chrome rendering bug
-        this.arrowBox.setStyle('right', 3);
-        (function () {
-            this.arrowBox.setStyle('right', 2);
-        }.bind(this)).delay(10);
 
         if (pEvent) {
             this.fireEvent('change', pValue);

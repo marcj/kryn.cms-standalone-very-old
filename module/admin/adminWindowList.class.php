@@ -119,47 +119,34 @@ class adminWindowList {
      */
     public $order = array();
 
-    /**
-     * Defines the icon for the add button. Relative to media/admin/images/icons/
-     *
-     * @var string name of image
-     * @deprecated Use $addIcon instead
-     */
-    public $iconAdd = 'add.png';
-    /**
-     * Defines the icon for the edit button. Relative to media/admin/images/icons/
-     *
-     * @var string name of image
-     * @deprecated Use $editIcon instead
-     */
-    public $iconEdit = 'page_white_edit.png';
-    /**
-     * Defines the icon for the remove/delete button. Relative to media/admin/images/icons/
-     *
-     * @var string name of image
-     * @deprecated Use $removeIcon instead
-     */
-    public $iconDelete = 'delete.png';
-
 
     /**
-     * Defines the icon for the add button. Relative to media/
+     * Defines the icon for the add button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $addIcon = '';
+    public $addIcon = '#icon-plus-4';
+
     /**
-     * Defines the icon for the edit button. Relative to media/
+     * Defines the icon for the edit button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $editIcon = '';
+    public $editIcon = '#icon-pencil';
+
     /**
-     * Defines the icon for the remove/delete button. Relative to media/
+     * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $removeIcon = '';
+    public $removeIcon = '#icon-minus-4';
+
+    /**
+     * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
+     *
+     * @var string name of image
+     */
+    public $removeIconItem = '#icon-minus';
 
 
     /**
@@ -176,7 +163,6 @@ class adminWindowList {
      * @var string
      */
     public $editEntrypoint = '';
-
 
 
     /**
@@ -258,11 +244,25 @@ class adminWindowList {
             }
         }
 
+        $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'ASC' : 'DESC';
+
         if (getArgv('orderBy') != '')
             $this->customOrderBy = getArgv('orderBy', 2);
 
         if (getArgv('orderByDirection') != '')
             $this->customOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';
+
+        if (!$this->order && $this->orderBy){
+            $this->order = array($this->orderBy => $this->orderByDirection);
+        }
+
+        if ($this->customOrderBy){
+            $this->order = array($this->customOrderBy => $this->customOrderByDirection);
+        }
+
+        if (getArgv('order')){
+            $this->order = getArgv('order');
+        }
 
         $this->_fields = array();
         $this->filterFields = array();
@@ -624,7 +624,8 @@ class adminWindowList {
 
 
     /**
-     * Returns the order SQL statesment
+     * Returns the order SQL statesment.
+     * Inly in table mode
      *
      * @return string
      */
@@ -650,12 +651,6 @@ class adminWindowList {
             if ($this->orderBy && $this->orderByDirection){
                 $order .= dbTableName($this->table).'.'.$this->orderBy.' ';
                 $order .= strtolower($this->orderByDirection)=='asc'?'asc':'desc';
-                $order .= ', ';
-            }
-
-            if ($this->secondOrderBy && $this->secondOrderByDirection){
-                $order .= dbTableName($this->table).'.'.$this->secondOrderBy.' ';
-                $order .= strtolower($this->secondOrderByDirection)=='asc'?'asc':'desc';
                 $order .= ', ';
             }
 
@@ -735,7 +730,6 @@ class adminWindowList {
                 $results['maxPages'] = 0;
 
             $order = $this->getOrderSql();
-
 
             if ($_POST['getPosition']) {
 

@@ -89,7 +89,7 @@ ka.ButtonGroup = new Class({
 
     },
 
-    addButton: function (pTitle, pButtonSrc, pOnClick) {
+    addButton: function (pTitle, pIcon, pOnClick) {
 
         var wrapper = new Element('a', {
             'class': 'kwindow-win-buttonWrapper',
@@ -97,10 +97,17 @@ ka.ButtonGroup = new Class({
         }).inject(this.boxWrapper);
 
         var imgWrapper = new Element('span').inject( wrapper );
-        new Element('img', {
-            src: pButtonSrc,
-            height: 14
-        }).inject( imgWrapper );
+
+        if (typeOf(pIcon) == 'string'){
+            if (pIcon.substr(0,1) == '#'){
+                imgWrapper.addClass(pIcon.substr(1));
+            } else {
+                new Element('img', {
+                    src: pIcon,
+                    height: 14
+                }).inject( imgWrapper );
+            }
+        }
 
         if (typeOf(pTitle) == 'string') {
             wrapper.set('title', pTitle);

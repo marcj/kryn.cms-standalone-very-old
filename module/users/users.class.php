@@ -183,9 +183,6 @@ class users extends krynModule {
             'description' => 'The users'));
 
         dbDelete('system_acl');
-        dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>1,'code'=>'admin/%','access'=>1,'prio'=>11000));
-        dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>0,'code'=>'admin/%','access'=>0,'prio'=>1001));
-        dbInsert('system_acl', array('type'=>1, 'target_type'=>1,'target_rsn'=>0,'code'=>'%',      'access'=>1,'prio'=>1000));
     }
     
     

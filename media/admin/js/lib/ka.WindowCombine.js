@@ -173,25 +173,27 @@ ka.WindowCombine = new Class({
             this.actionsNavi.setStyle('margin-right', 159 + 17);
         }
 
-        if (this.values.remove) {
-            this.toggleRemoveBtn = this.actionsNavi.addButton(_('Remove'), _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconDelete, function () {
-                this.toggleRemove();
-            }.bind(this));
-        }
+        if (this.actionsNavi) {
+            if (this.values.remove) {
 
-        if (this.values.add) {
-            this.addBtn = this.actionsNavi.addButton(_('Add'), _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconAdd, this.add.bind(this));
-            /*function(){
-             ka.wm.openWindow( _this.win.module, _this.win.code+'/add', null, null, {
-             lang: (_this.languageSelect)?_this.languageSelect.value:false
-             });
-             });*/
+                var icon = this.values.removeIcon?this.values.removeIcon:'admin/images/icons/'+this.values.iconDelete;
+
+                this.toggleRemoveBtn = this.actionsNavi.addButton(t('Remove'), ka.mediaPath(icon), function () {
+                    this.toggleRemove();
+                }.bind(this));
+            }
+
+            if (this.values.add) {
+
+                var icon = this.values.addIcon?this.values.addIcon:'admin/images/icons/'+this.values.iconAdd;
+
+                this.addBtn = this.actionsNavi.addButton(t('Add'), ka.mediaPath(icon), this.add.bind(this));
+            }
         }
 
 
         this.searchIcon = new Element('div', {
-            'class': 'ka-list-combine-searchicon',
-            html: '<img src="' + _path + PATH_MEDIA + '/admin/images/search-icon.png" />'
+            'class': 'ka-list-combine-searchicon icon-search-2'
         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.mainLeftTop);
 
 
@@ -201,8 +203,8 @@ ka.WindowCombine = new Class({
 
         Object.each(this.values.columns, function (column, id) {
 
-            this.sortSelect.add(id + '______asc', [t(column.label), 'admin/images/icons/bullet_arrow_up_s.png']);
-            this.sortSelect.add(id + '______desc', [t(column.label), 'admin/images/icons/bullet_arrow_down_s.png']);
+            this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-16']);
+            this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-15']);
 
         }.bind(this));
 
@@ -756,7 +758,6 @@ ka.WindowCombine = new Class({
 
     getItemTitle: function (pItem, pColumnId) {
 
-
         var value = pItem['values'][pColumnId]
         if (!this.values.columns[pColumnId]) return value;
 
@@ -775,10 +776,10 @@ ka.WindowCombine = new Class({
             }
         }
 
-
         if (column.type == 'select') {
-            value = pItem['values'][pColumnId + '__label'];
+            value = pItem['values'][pColumnId +'_'+ column.table_label] || pItem['values'][pColumnId + '__label'];
         }
+
 
         if (column.imageMap) {
             value = '<img src="' + _path + column.imageMap[value] + '"/>';

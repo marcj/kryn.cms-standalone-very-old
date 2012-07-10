@@ -1310,11 +1310,11 @@ ka.Window = new Class({
             'class': 'kwindow-win-titleBar'
         }).inject(this.win);
 
-        this.linker = new Element('img', {
-            'class': 'ka-kwindow-titleactions',
-            style: 'position: absolute; left: 5px; top: 8px; cursor: pointer',
-            title: _('Create a shortcut to the desktop'),
-            src: _path + PATH_MEDIA + '/admin/images/win-top-bar-link.png'
+        this.linker = new Element('a', {
+            'class': 'ka-kwindow-titleactions icon-link-3',
+            style: 'position: absolute; left: 2px; top: 6px; text-decoration: none;',
+            href: 'javascript:;',
+            title: t('Create a shortcut to the desktop')
         }).addEvent('click', this.dropLink.bind(this)).inject(this.win);
 
         this.minimizer = new Element('img', {

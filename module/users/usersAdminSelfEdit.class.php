@@ -12,8 +12,7 @@ class usersAdminSelfEdit extends windowEdit {
     private static $cacheUser = false;
 
     function __construct(){
-        global $user;
-        $_REQUEST['rsn'] = $user->user_rsn;
+        $_REQUEST['rsn'] = kryn::$client->id;
     }
 
     public $tabFields = array(
@@ -183,11 +182,6 @@ class usersAdminSelfEdit extends windowEdit {
         $pRow['passwd'] = $passwd;
         $pRow['passwd_salt'] = $salt;
 
-    }
-    
-    function __destruct(){
-        global $client;
-        $client->getUser( getArgv('rsn')+0, true ); //refresh cache
     }
 
 }

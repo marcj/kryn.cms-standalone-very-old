@@ -87,7 +87,7 @@
                     <input type="text" class="text" id="ka-search-query" />
                 </div>
                 <div class="iconbar-item">
-                    <a href="javascript:;" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="icon-flash" title="[[Searchengine options]]"></a>
+                    <a href="#asd" onclick="ka.openSearchContext();" id="ka-btn-create-search-index" class="icon-search-3" title="[[Searchengine options]]"></a>
                     <a href="javascript:;" onclick="ka.clearCache();" id="ka-btn-clear-cache" class="icon-trashcan" title="[[Clear cache]]"></a>
                     <a href="javascript:;" onclick="ka.wm.open('admin/help');" class="icon-info-2" title="[[Help]]"></a>
                 </div>

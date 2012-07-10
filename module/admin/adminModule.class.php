@@ -21,7 +21,7 @@ class adminModule {
 
             /* not in use
             case 'dev-install':
-                return self::devInstall(getArgv(5));
+                return self::devInfstall(getArgv(5));
             case 'dev-update':
                 return self::devUpdate(getArgv(5));
             case 'dev-remove':
@@ -1243,7 +1243,7 @@ class $pClassName extends $pClass {
         $configFile = PATH_MODULE . "$pModuleName/config.json";
 
         if ($pModuleName == 'kryn')
-            $configFile = "inc/kryn/config.json";
+            $configFile = "core/config.json";
 
         $extract = false;
 
@@ -1260,9 +1260,9 @@ class $pClassName extends $pClass {
                 return array('notExist' => 1);
             }
 
-            if (!@file_exists('inc/upload'))
-                if (!@mkdir('inc/upload'))
-                    klog('core', _l('FATAL ERROR: Can not create folder inc/upload.'));
+            if (!@file_exists('data/upload'))
+                if (!@mkdir('data/upload'))
+                    klog('core', t('FATAL ERROR: Can not create folder data/upload.'));
 
             if (!@file_exists('data/packages/modules'))
                 if (!@mkdir('data/packages/modules'))
@@ -1298,7 +1298,7 @@ class $pClassName extends $pClass {
             $res = File_Archive::extract($zipFile, $toDir);
             $configFile = "data/packages/modules/$pModuleName/module/$pModuleName/config.json";
             if ($pModuleName == 'kryn')
-                $configFile = "data/packages/modules/kryn/inc/kryn/config.json";
+                $configFile = "data/packages/modules/kryn/core/config.json";
         }
 
         if ($configFile) {

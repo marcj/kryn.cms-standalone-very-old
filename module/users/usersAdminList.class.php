@@ -7,10 +7,6 @@ class usersAdminList extends windowList {
     public $itemsPerPage = 20;
     public $orderBy = 'username';
 
-    public $iconAdd = 'user_add.png';
-    public $iconEdit = 'user_edit.png';
-    public $iconDelete = 'user_delete.png';
-
     public $filter = array('last_name', 'first_name', 'username', 'email');
 
     public $add = true;

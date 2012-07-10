@@ -69,6 +69,10 @@
 
 }
 
+.kwindow-win-buttonWrapper span:before {
+    color: #555;
+}
+
 .kwindow-win-buttonWrapperFirst {
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-bottomleft: 7px;

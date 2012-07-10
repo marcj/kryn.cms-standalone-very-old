@@ -114,7 +114,7 @@ class adminFilemanager {
 
     public static function setContent($pPath, $pContent){
 
-        if (!krynAcl::check(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+        if (!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
 
         krynFile::setContent($pPath, $pContent);
     }
@@ -176,13 +176,13 @@ class adminFilemanager {
                 'ctime' => 0,
                 'mtime' => 0,
                 'type' => 'dir',
-                'writeaccess' => krynAcl::check(3, '/', 'write', true)
+                'writeaccess' => krynAcl::checkUpdate('file', '/')
             );
         }
         $file = self::$fs->getFile(self::normalizePath($pPath));
 
         if ($file)
-            $file['writeaccess'] = krynAcl::check(3, $pPath, 'write', true);
+            $file['writeaccess'] = krynAcl::checkWrite('file', $pPath);
 
         if (self::$fs->magicFolderName)
             $file['path'] = self::$fs->magicFolderName.''.$file['path'];
@@ -199,7 +199,7 @@ class adminFilemanager {
     public static function setInternalAcl($pFilePath, $pRules) {
         global $cfg;
 
-        if(!krynAcl::check(3, $pFilePath, 'write', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $pFilePath)) return array('error'=>'access_denied');
 
         $pFilePath = esc('/' . $pFilePath);
         if ($pFilePath == '//')
@@ -255,7 +255,7 @@ class adminFilemanager {
 
     public static function setPublicAccess($pPath, $pAccess) {
 
-        if(!krynAcl::check(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
 
         if ($pAccess == '') $pAccess = -1;
         if (strtolower($pAccess) == 'allow') $pAccess = true;
@@ -267,7 +267,7 @@ class adminFilemanager {
 
     public static function getAccess($pPath) {
 
-        $res['writeaccess'] = krynAcl::check(3, $pPath, 'write', true);
+        $res['writeaccess'] = krynAcl::checkWrite('file', $pPath);
 
         $res['public'] = self::$fs->getPublicAccess(self::normalizePath($pPath));
 
@@ -288,7 +288,7 @@ class adminFilemanager {
             return false;
         }
 
-        if(!krynAcl::check(3, $version['path'], 'write', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $version['path'])) return array('error'=>'access_denied');
 
         self::addVersion($version['path']);
 
@@ -337,7 +337,7 @@ class adminFilemanager {
             }
         }
 
-        if(!krynAcl::check(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
 
         $versionpath = kryn::toModRewrite($pPath);
 
@@ -365,7 +365,7 @@ class adminFilemanager {
 
     public static function resize($pFile, $pWidth, $pHeight) {
 
-        if(!krynAcl::check(3, $pFile, 'write', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $pFile)) return array('error'=>'access_denied');
 
 
         $content = self::$fs->getContent(self::normalizePath($pFile));
@@ -427,7 +427,7 @@ class adminFilemanager {
 
     public static function rotateFile($pFile, $pPosition) {
 
-        if(!krynAcl::check(3, $pFile, 'write', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $pFile)) return array('error'=>'access_denied');
 
         $content = self::$fs->getContent(self::normalizePath($pFile));
 
@@ -496,7 +496,7 @@ class adminFilemanager {
     public static function showImage($pPath) {
         $pPath = str_replace('..', '', $pPath);
 
-        if(!krynAcl::check(3, $pPath, 'read', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkRead('file', $pPath)) return array('error'=>'access_denied');
         $expires = 3600;
 
         self::$fs = self::getFs($pPath);
@@ -515,10 +515,10 @@ class adminFilemanager {
         exit;
     }
 
-    public static function imageThumb($pPath) {
+    public static function imageThumb($pPath, $pWidth = 120, $pHeight = 70) {
         $pPath = str_replace('..', '', $pPath);
 
-        if(!krynAcl::check(3, $pPath, 'read', true)) return array('error'=>'access_denied');
+        if(!krynAcl::checkRead('file', $pPath)) return array('error'=>'access_denied');
         $expires = 3600;
 
         self::$fs = self::getFs($pPath);
@@ -531,7 +531,9 @@ class adminFilemanager {
         header("Content-Type: image/png");
 
         $image = imagecreatefromstring($content);
-        $resizedImage = resizeImage($image, true, '120x70', true);
+        $width = $pWidth?$pWidth:120;
+        $height = $pHeight?$pHeight:70;
+        $resizedImage = resizeImage($image, true, $width.'x'.$height, true);
 
         imagepng($resizedImage);
         imagedestroy($resizedImage);
@@ -547,7 +549,7 @@ class adminFilemanager {
 
         $res = array();
 
-        if(!krynAcl::check(3, $newPath, 'write', true) ) return array('error'=>'access_denied');
+        if(!krynAcl::checkWrite('file', $newPath) ) return array('error'=>'access_denied');
 
         if ($name != $oriName) {
             $res['renamed'] = true;
@@ -621,7 +623,7 @@ class adminFilemanager {
             }
         }
 
-        if (!krynAcl::check(3, $newPath, 'write', true)) return array('error' => 'access_denied');
+        if (!krynAcl::checkWrite('file', $newPath)) return array('error' => 'access_denied');
 
         $content = kryn::fileRead($_FILES['file']['tmp_name']);
         self::$fs->setContent(self::normalizePath($newPath), $content);
@@ -632,7 +634,7 @@ class adminFilemanager {
 
     public static function createFile($pPath) {
 
-        $access = krynAcl::check(3, $pPath, 'write', true);
+        $access = krynAcl::checkWrite('file', $pPath);
 
         if (!$access) return array('error'=>'access_denied');
         if(self::$fs->fileExists(self::normalizePath($pPath)))
@@ -643,11 +645,11 @@ class adminFilemanager {
 
     public static function createFolder($pPath) {
 
-        $access = krynAcl::check(3, $pPath, 'write', true);
-
+        $access = krynAcl::checkUpdate('file', $pPath);
         if (!$access) return array('error'=>'access_denied');
+
         if(self::$fs->fileExists(self::normalizePath($pPath)))
-            return false;
+            return array('error'=>'exist_already');
 
         return self::$fs->createFolder(self::normalizePath($pPath));
     }
@@ -670,8 +672,8 @@ class adminFilemanager {
 
     public static function moveFile($pPath, $pNewPath, $pOverwrite = false) {
 
-        if (!krynAcl::check(3, $pPath, 'write', true)) return array('array'=>'access_denied');
-        if (!krynAcl::check(3, $pNewPath, 'write', true)) return array('array'=>'access_denied');
+        if (!krynAcl::checkWrite('file', $pPath)) return array('array'=>'access_denied');
+        if (!krynAcl::checkWrite('file', $pNewPath)) return array('array'=>'access_denied');
 
         $otherFs = self::getFs($pNewPath);
 
@@ -697,7 +699,7 @@ class adminFilemanager {
 
         $pNewPath = dirname($pPath).'/'.self::normalizeName($pNewName);
 
-        if (!krynAcl::check(3, $pNewPath, 'write', true)) return array('array'=>'access_denied');
+        if (!krynAcl::checkWrite('file', $pNewPath)) return array('array'=>'access_denied');
 
         if(!$pOverwrite && self::$fs->fileExists(self::normalizePath($pNewPath)))
             return array('file_exists'=>true);
@@ -714,10 +716,10 @@ class adminFilemanager {
             $nPath = str_replace(PATH_MEDIA, '', $item['path']);
             $toDir = dirname($nPath);
 
-            $access = krynAcl::check(3, '/' . $toDir, 'write', true);
+            $access = krynAcl::checkWrite('file', '/' . $toDir);
             if (!$access) json('no-access');
 
-            $access = krynAcl::check(3, '/' . $nPath, 'write', true);
+            $access = krynAcl::checkWrite('file', '/' . $nPath);
             if (!$access) json('no-access');
 
             if (krynFile::exists($item['path'])) {
@@ -735,7 +737,7 @@ class adminFilemanager {
 
     public static function deleteFile($pPath) {
 
-        if (!krynAcl::check(3, $pPath, 'write', true)) return array('error'=>'access_denied');
+        if (!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
         $path = PATH_MEDIA.$pPath;
 
         if (substr($pPath,0,7) == '/trash/') {
@@ -758,7 +760,7 @@ class adminFilemanager {
 
     public static function paste($pToPath) {
 
-        if (!krynAcl::check(3, $pToPath, 'write', true)) return array('array'=>'access_denied');
+        if (!krynAcl::checkWrite('file', $pToPath)) return array('array'=>'access_denied');
 
         $files = getArgv('files');
         $move = (getArgv('move') == 1) ? true : false;
@@ -786,14 +788,14 @@ class adminFilemanager {
                 $oldFile = str_replace('..', '', $file);
                 $oldFile = str_replace(chr(0), '', $oldFile);
 
-                if (!krynAcl::check(3, $oldFile, 'read', true)) continue;
+                if (!krynAcl::checkRead('file', $oldFile)) continue;
 
                 if ($move)
-                    if (!krynAcl::check(3, $oldFile, 'write', true)) continue;
+                    if (!krynAcl::checkWrite('file', $oldFile)) continue;
 
                 $oldFs = self::getFs($oldFile);
                 $newPath = $pToPath.'/'.basename($file);
-                if (!krynAcl::check(3, $newPath, 'write', true)) continue;
+                if (!krynAcl::checkWrite('file', $newPath)) continue;
 
                 $newFs = self::getFs($newPath);
 

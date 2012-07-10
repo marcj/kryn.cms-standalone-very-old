@@ -192,7 +192,7 @@ class admin {
                             self::sendObjectStore();
 
                         case 'imageThumb':
-                            $content = adminFilemanager::imageThumb(getArgv('path'));
+                            $content = adminFilemanager::imageThumb(getArgv('path'),getArgv('width'),getArgv('height'));
                             break;
                         case 'showImage':
                             $content = adminFilemanager::showImage(getArgv('path'));

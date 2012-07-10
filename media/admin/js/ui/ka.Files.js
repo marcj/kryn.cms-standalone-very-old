@@ -688,7 +688,7 @@ ka.Files = new Class({
 
     newUploadBtn: function () {
 
-        this.uploadBtn = this.boxAction.addButton(_('Upload file'), _path + PATH_MEDIA + '/admin/images/admin-files-uploadFile.png');
+        this.uploadBtn = this.boxAction.addButton(_('Upload file'), '#icon-upload');
 
         if (!window.FormData) {
             this.uploadBtn.addEvent('mousedown', function (e) {
@@ -742,23 +742,23 @@ ka.Files = new Class({
         var toLeft = new Element('img', {
             src: _path + PATH_MEDIA + '/admin/images/admin-files-toLeft.png'
         });
-        boxNavi.addButton(t('Back'), _path + PATH_MEDIA + '/admin/images/admin-files-toLeft.png', function () {
+        boxNavi.addButton(t('Back'),'#icon-arrow-left-6', function () {
             this.goHistory('left');
         }.bind(this));
 
-        boxNavi.addButton(t('Forward'), _path + PATH_MEDIA + '/admin/images/admin-files-toRight.png', function () {
+        boxNavi.addButton(t('Forward'), '#icon-arrow-right-6', function () {
             this.goHistory('right');
         }.bind(this));
 
-        this.upBtn = boxNavi.addButton(_('Up'), _path + PATH_MEDIA + '/admin/images/admin-files-toUp.png', this.up.bind(this));
+        this.upBtn = boxNavi.addButton(_('Up'), '#icon-arrow-up-6', this.up.bind(this));
         this.upBtn.fileObj = this;
 
-        boxNavi.addButton(t('Refresh'), _path + PATH_MEDIA + '/admin/images/admin-files-refresh.png', this.reload.bind(this));
+        boxNavi.addButton(t('Refresh'), '#icon-reload-CW', this.reload.bind(this));
 
         var boxAction = this.addButtonGroup();
         this.boxAction = boxAction;
-        boxAction.addButton(t('New file'), _path + PATH_MEDIA + '/admin/images/admin-files-newFile.png', this.newFile.bind(this));
-        boxAction.addButton(t('New directory'), _path + PATH_MEDIA + '/admin/images/admin-files-newDir.png', this.newFolder.bind(this));
+        boxAction.addButton(t('New file'), '#icon-new', this.newFile.bind(this));
+        boxAction.addButton(t('New directory'), '#icon-folder', this.newFolder.bind(this));
 
         this.newUploadBtn();
 
@@ -768,14 +768,14 @@ ka.Files = new Class({
         var boxTypes = this.addButtonGroup();
         this.typeButtons = new Hash();
 
-        this.typeButtons['icon'] = boxTypes.addButton(t('Icon view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-icons.png', this.setListType.bind(this, 'icon'));
+        this.typeButtons['icon'] = boxTypes.addButton(t('Icon view'), '#icon-grid-2', this.setListType.bind(this, 'icon', null, null));
 
-        this.typeButtons['miniatur'] = boxTypes.addButton(t('Image view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-miniatur.png', this.setListType.bind(this, 'miniatur', null, 70));
+        this.typeButtons['miniatur'] = boxTypes.addButton(t('Image view'), '#icon-images', this.setListType.bind(this, 'miniatur', null, 70));
 
         //      this.typeButtons['image']  = boxTypes.addButton( 'Bilderansicht',
         //          _path+ PATH_MEDIA + '/admin/images/admin-files-list-images.png', this.setListType.bind(this, 'image'));
 
-        this.typeButtons['detail'] = boxTypes.addButton(t('Detail view'), _path + PATH_MEDIA + '/admin/images/admin-files-list-detail.png', this.setListType.bind(this, 'detail'));
+        this.typeButtons['detail'] = boxTypes.addButton(t('Detail view'), '#icon-list-4', this.setListType.bind(this, 'detail', null, null));
 
         this.typeButtons.each(function (btn) {
             btn.store('oriClass', btn.get('class'));
@@ -844,6 +844,7 @@ ka.Files = new Class({
             this.checkMouseMove(pEvent);
         }.bind(this)).inject(this.container);
 
+        this.fileContainer.addEvent('scroll', this.loadImagesInViewPort.bind(this));
 
         if (!this.options.useWindowHeader){
             this.fileContainer.setStyle('top', 35);
@@ -1117,7 +1118,7 @@ ka.Files = new Class({
         if (!this.options.onlyUserDefined) {
 
             new Element('div', {
-                text: _('Kryn')
+                text: t('Kryn')
             }).inject(this.infos);
 
             Object.each(pFiles, function (file) {
@@ -1127,7 +1128,7 @@ ka.Files = new Class({
             }.bind(this));
 
             new Element('div', {
-                text: _('Extensions')
+                text: t('Extensions')
             }).inject(this.infos);
 
             Object.each(pFiles, function (file) {
@@ -1139,7 +1140,7 @@ ka.Files = new Class({
         }
 
         new Element('div', {
-            text: _('User defined')
+            text: t('User defined')
         }).inject(this.infos);
 
         Object.each(pFiles, function (file) {
@@ -1153,13 +1154,14 @@ ka.Files = new Class({
 
         if (pFile.type != 'dir') return;
 
+        var icon = this.getIcon(pFile);
+
         var item = new Element('a', {
             text: pFile.name,
-            'class': 'admin-files-droppables' + ((pFile.path == '/trash') ? ' admin-files-item-dir_bin' : '')
-        }).addEvent('mousedown',
-            function (e) {
-                e.stop()
-            }).addEvent('click', this.loadPath.bind(this, pFile.path)).inject(this.infos);
+            'class': 'admin-files-droppables '+icon
+        }).addEvent('mousedown', function (e) {
+            e.stop()
+        }).addEvent('click', this.loadPath.bind(this, pFile.path)).inject(this.infos);
 
         item.store('file', pFile);
         item.fileObj = this;
@@ -1274,7 +1276,7 @@ ka.Files = new Class({
 
             this.upBtn.store('file', {type: 'dir', path: this.getUpPath()});
 
-            if (pCallback) {
+            if (typeOf(pCallback) == 'function') {
                 pCallback();
             }
 
@@ -1317,10 +1319,17 @@ ka.Files = new Class({
             }
         });
         this.files2View = nfiles;
-        var items = [];
+
+        this.fileContainer.removeClass('admin-files-listtype-icon');
+        this.fileContainer.removeClass('admin-files-listtype-miniatur');
+        this.fileContainer.removeClass('admin-files-listtype-detail');
+
+
+        this.fileContainer.addClass('admin-files-listtype-'+this.listType);
+
 
         if (this.listType == 'icon' || this.listType == 'miniatur') {
-            items = this.renderIcons(this.files2View);
+            this.renderIcons(this.files2View);
         }
 
         if (this.listType == 'image') {
@@ -1330,6 +1339,50 @@ ka.Files = new Class({
         if (this.listType == 'detail') {
             this.renderDetail();
         }
+
+        this.loadImagesInViewPort();
+
+    },
+
+    loadImagesInViewPort: function(){
+
+        if (this.lastLoadImagesInViewPortTimer)
+            clearTimeout(this.lastLoadImagesInViewPortTimer);
+
+        this.lastLoadImagesInViewPortTimer = this._loadImagesInViewPort.delay(100, this);
+
+    },
+
+    _loadImagesInViewPort: function(){
+
+        //var currentTop = this.fileContainer.getScroll();
+
+        var children = this.fileContainer.getChildren('.admin-files-item');
+        containerHeight = this.fileContainer.getSize().y;
+
+        var position;
+
+        Array.each(children, function(file){
+            if (!file.readyToLoadImage) return;
+            if (file.imageLoaded) return;
+
+            position = file.getPosition(this.fileContainer);
+
+            if (position.y > 0 && position.y < containerHeight){
+
+                var image = _path+'admin/backend/imageThumb/?' + Object.toQueryString({
+                    path: file.readyToLoadImage.path,
+                    mtime: file.readyToLoadImage.mtime,
+                    width: file.imageContainer.getSize().x,
+                    height: file.imageContainer.getSize().y
+                });
+                file.imageContainer.setStyle('background-image', 'url('+image+')');
+
+                file.imageLoaded = true;
+
+            }
+
+        }.bind(this));
 
     },
 
@@ -2460,6 +2513,22 @@ ka.Files = new Class({
         return files;
     },
 
+    getIcon: function(pFile){
+        var fileIcon = 'icon-folder';
+
+        if (pFile.type == 'dir') {
+            if (pFile.path == '/trash') {
+                fileIcon = 'icon-trashcan';
+            } else {
+                if (pFile.magic)
+                    fileIcon = 'icon-network';
+            }
+        } else {
+            fileIcon = 'icon-paper';
+        }
+        return fileIcon;
+    },
+
     __buildItem: function (pFile) {
 
         var fileIcon;
@@ -2469,36 +2538,30 @@ ka.Files = new Class({
             title: pFile.object_id+'='+pFile.name
         });
 
+        var fileIconClass = null;
+        var fileIcon = null;
+
         if (pFile.path.lastIndexOf('.') && this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
 
-            fileIcon = 'admin/backend/imageThumb/?' + Object.toQueryString({path: pFile.path, mtime: pFile.mtime});
-            base.addClass('admin-files-item-image');
+            fileIcon = pFile;
 
         } else {
 
-            fileIcon = PATH_MEDIA+'admin/images/';
-
-            if (pFile.type == 'dir') {
-                if (pFile.path == '/trash') {
-                    fileIcon += 'file-icon-bin.png';
-                } else {
-                    if (pFile.magic)
-                        fileIcon += 'file-icon-magic.png';
-                    else
-                        fileIcon += 'file-icon-folder.png';
-                }
-            } else {
-                fileIcon += 'file-icon-text.png';
-            }
+            fileIconClass = this.getIcon(pFile);
 
         }
         base.fileObj = this;
 
-        new Element('img', {
-            src: _path + fileIcon
+        base.imageContainer = new Element('div', {
+            'class': 'admin-files-item-icon '+(fileIconClass?fileIconClass:'')
         }).inject(base);
 
+        if (fileIcon){
+            base.readyToLoadImage = fileIcon;
+        }
+
         new Element('div', {
+            'class': 'admin-files-item-title',
             'text': (pFile.path == '/trash') ? t('Trash') : this.escTitle(pFile.name, base.getSize().x)
         }).inject(base);
 

@@ -847,10 +847,6 @@ class krynObjectTable extends krynObjectAbstract {
             $sql .= " \nWHERE ".$where;
 
 
-        if ($pOrderBy){
-            $sql .= dbOrderToSql($pOrderBy, $this->object_key);
-        }
-
         if ($grouped){
             $prim = array();
             foreach ($this->definition['fields'] as $key => &$field){
@@ -858,7 +854,19 @@ class krynObjectTable extends krynObjectAbstract {
                     $prim[] = dbQuote($this->object_key).'.'.dbQuote($key);
                 }
             }
+
+            if ($pOrderBy){
+                $orderFields = dbExtractOrderFields($pOrderBy, $this->object_key);
+                if (count($orderFields) > 0 ){
+                    $prim = array_merge($prim, $orderFields);
+                }
+            }
+
             $sql .= ' GROUP BY '.implode(',', $prim);
+        }
+
+        if ($pOrderBy){
+            $sql .= dbOrderToSql($pOrderBy, $this->object_key);
         }
 
         if ($pLimit > 0)

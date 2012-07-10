@@ -25,9 +25,16 @@ ka.Button = new Class({
         } else if (typeOf(pText) == 'array'){
             this.main.set('text', pText[0]);
 
-            new Element('img', {
-                src: ka.mediaPath(pText[1])
-            }).inject(this.main, 'top');
+            if (typeOf(pText[1]) == 'string'){
+
+                if (pText[1].substr(0,1) == '#'){
+                    this.main.addClass(pText[1].substr(1));
+                } else {
+                    new Element('img', {
+                        src: ka.mediaPath(pText[1])
+                    }).inject(this.main, 'top');
+                }
+            }
 
         } else {
             this.main.set('text', pText);

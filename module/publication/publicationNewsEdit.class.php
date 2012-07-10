@@ -33,16 +33,7 @@ class publicationNewsEdit extends adminWindowEdit {
             'title' => array (
               'label' => 'Title',
               'type' => 'text',
-              'empty' => 0,
-              'depends' => array (
-                'test' => array (
-                  'label' => 'Test2',
-                  'type' => 'text',
-                  'empty' => 1,
-                  'needValue' => 'javascript: value!=\'\'',
-                  'tableitem' => 0,
-                ),
-              ),
+              'empty' => 0
             ),
             'category_rsn' => array (
               'label' => 'Category',

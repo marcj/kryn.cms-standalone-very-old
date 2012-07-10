@@ -67,10 +67,15 @@
 .ka-Select-arrow {
     position: absolute;
     padding-top: 1px;
-    padding-right: 0px;
-    top: 3px;
-    right: 3px;
+    padding-right: 5px;
+    top: 0px;
+    right: 0px;
     width: 12px;
+}
+
+.ka-Select-arrow:before {
+    color: #888;
+    font-size: 18px;
 }
 
 .ka-Select-chooser {
