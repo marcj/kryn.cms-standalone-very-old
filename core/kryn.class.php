@@ -269,7 +269,7 @@ class kryn {
      * @var array
      * @static
      */
-    public static $extensions;
+    public static $extensions = array();
 
     /**
      * Contains all installed themes
@@ -559,22 +559,11 @@ class kryn {
     }
 
     public static function loadActiveModules() {
-
-        $extensions =& kryn::getCache('activeModules');
-
-        if (!$extensions || is_array($extensions[0])) {
-            $extensions = array();
-            $dbMods =
-                dbExFetch('SELECT name FROM %pfx%system_modules WHERE activated = 1 AND name != \'admin\' AND name != \'users\'', -1);
-            foreach ($dbMods as &$mod) {
-                $extensions[] = $mod['name'];
-            }
-            kryn::setCache('activeModules', $extensions);
-        }
-
         $extensions[] = 'kryn';
         $extensions[] = 'admin';
         $extensions[] = 'users';
+
+        if (kryn::$config['activeExtensions']) $extensions = array_merge($extensions,kryn::$config['activeExtensions']);
         kryn::$extensions = $extensions;
     }
 

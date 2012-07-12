@@ -49,20 +49,30 @@ include(PATH_CORE.'framework.global.php');
 # Load important classes
 include(PATH_CORE.'database.class.php');
 include(PATH_CORE.'kryn.class.php');
-include(PATH_CORE.'krynEvent.class.php');
 
-include(PATH_CORE.'krynModule.class.php');
-include(PATH_CORE.'krynObject/krynObjectAbstract.class.php');
-include(PATH_CORE.'krynCache.class.php');
-include(PATH_CORE.'krynAcl.class.php');
-include(PATH_CORE.'krynObject.class.php');
-include(PATH_CORE.'krynObjects.class.php');
-include(PATH_CORE.'krynNavigation.class.php');
-include(PATH_CORE.'krynHtml.class.php');
-include(PATH_CORE.'krynAuth.class.php');
-include(PATH_CORE.'krynFile.class.php');
-include(PATH_CORE.'krynLanguage.class.php');
-include(PATH_CORE.'krynSearch.class.php');
+include('lib/propel/runtime/lib/Propel.php');
+
+spl_autoload_register(function ($class) {
+
+    if (file_exists(PATH_CORE . $class . '.class.php')){
+        include PATH_CORE . $class . '.class.php';
+        return true;
+    } else if (file_exists(PATH_CORE . '/entities/' . $class . '.class.php')){
+        include PATH_CORE . '/entities/' . $class . '.class.php';
+        return true;
+    } else if (file_exists('lib/Smarty/' . $class . '.class.php')){
+        include 'lib/Smarty/' . $class . '.class.php';
+        return true;
+    } else {
+        foreach (kryn::$extensions as $extension){
+            if (file_exists($file = PATH_MODULE . $extension.'/'.$class.'.class.php')){
+                include $file;
+                return true;
+            }
+        }
+    }
+});
+
 
 date_default_timezone_set($cfg['timezone']);
 
@@ -81,10 +91,8 @@ if ($_SERVER['SERVER_PORT'] != 80) {
 //get lang has more priority
 $_REQUEST['lang'] = ($_GET['lang']) ? $_GET['lang'] : $_POST['lang'];
 
-
 //read out the url so that we can use getArgv()
 kryn::prepareUrl();
-
 
 kryn::$admin = (getArgv(1) == 'admin');
 tAssign('admin', kryn::$admin);
