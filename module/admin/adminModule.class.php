@@ -8,7 +8,6 @@ class adminModule {
     public static function init() {
         global $cfg;
 
-
         if (!$cfg['repoServer']) {
             $cfg['repoServer'] = 'http://download.kryn.org';
         }

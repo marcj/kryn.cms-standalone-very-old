@@ -24,41 +24,24 @@
  * Depending on the current database this functions choose the proper escape
  * function.
  *
- * @param string $p
- * @param int $pEscape
+ * @param string     $pValue
+ * @param int|string $pType 1=(default) normale escape, 2=remove all except a-zA-Z0-9-_, or PDO::PARAM_*=
+ *                   PDO::PARAM_STR, PDO::PARAM_INT, etc
  *
+ * @global
  * @return string Escaped string
  */
-function esc($p, $pEscape = 1) {
-    global $kdb, $cfg;
+function esc($pValue, $pType = 1) {
 
-
-    if (is_array($p)) {
-        foreach ($p as $k => $v) {
-            $p2[$k] = esc($v);
-        }
-        return $p2;
+    if ($pType == 1){
+        $pType = is_string($pValue) ? PDO::PARAM_STR : PDO::PARAM_INT;
     }
 
-    if ($pEscape == 2) {
-        return preg_replace('/[^a-zA-Z0-9-_]/', '', $p);
+    if ($pType == 2) {
+        return preg_replace('/[^a-zA-Z0-9-_]/', '', $pValue);
     }
 
-    dbConnect();
-    if ($cfg['db_pdo'] + 0 == 1 || $cfg['db_pdo'] === '') {
-        return substr(substr($kdb->pdo->quote($p), 1), 0, -1);
-    } else {
-        switch ($cfg['db_type']) {
-            case 'sqlite':
-                return sqlite_escape_string($p);
-            case 'mysql':
-                return mysql_real_escape_string($p, $kdb->connection);
-            case 'mysqli':
-                return mysqli_real_escape_string($kdb->connection, $p);
-            case 'postgresql':
-                return pg_escape_string($kdb->connection, $p);
-        }
-    }
+    return dbConnection()->quote($pValue, $pType);
 }
 
 /**
@@ -84,39 +67,20 @@ function dbQuote($pValue, $pTable = ''){
     if ($pTable && strpos($pValue, '.') === false){
         return dbQuote($pTable).'.'.dbQuote($pValue);
     }
-    return strtolower((kryn::$config['db_type'] == 'mysql') ? '`'.$pValue.'`': '"'.$pValue.'"');
+    return $pValue;
 }
 
 /**
- * Connects to the database
+ * Get the PDO connection instance
  *
- * @param bool $pReadOnly If true, we try to connect to a slave (if defined)
+ * @param bool $pSlave
  *
  * @return mixed
  */
-function dbConnect($pReadOnly = false) {
-    global $kdb, $cfg;
-
-    if ($kdb) return;
-
-    //todo, handle $pReadOnly
-
-    $kdb = new database(
-        $cfg['db_type'],
-        $cfg['db_server'],
-        $cfg['db_user'],
-        $cfg['db_passwd'],
-        $cfg['db_name'],
-        ($cfg['db_pdo'] + 0 == 1 || $cfg['db_pdo'] === '') ? true : false,
-        ($cfg['db_forceutf8'] == '1') ? true : false
-    );
-
-    $kdb->readOnly = $pReadOnly;
-
-    if (!$kdb->isActive()) {
-        kryn::internalError('Can not connect to the database. Error: ' . $kdb->lastError());
-    }
-
+function dbConnection($pSlave = null) {
+    if ($pSlave !== null) kryn::$dbConnectionIsSlave = $pSlave;
+    kryn::$dbConnection = Propel::getConnection(null, kryn::$dbConnectionIsSlave);
+    return kryn::$dbConnection;
 }
 
 /**
@@ -216,47 +180,53 @@ function dbUnlockTables(){
     dbCommit();
 }
 
-
 /**
- * Execute a query and return the items
- * If you want to have a exact count of lines use SQL's LIMIT with $pRowCount as -1,
- * except you really know what you'r doing.
+ * Execute a query and return the item
  *
- * @param string  $pSql      The SQL
- * @param integer $pRowCount How much rows you want. Use -1 for all, with 1 you'll get direct the array without a list.
+ * @param string  $pQuery  The SQL query to execute
+ * @param array   $pParams The parameters
  *
  * @return array
  */
-function dbExFetch($pSql, $pRowCount = 1) {
-    global $kdb, $cfg;
+function dbExFetch($pQuery, $pParams = null) {
+    return dbExec($pQuery, $pParams)->fetch(PDO::FETCH_ASSOC);
+}
 
-    dbConnect();
-
-    $pSql = str_replace('%pfx%', $cfg['db_prefix'], $pSql);
-    return $kdb->exfetch($pSql, $pRowCount);
+/**
+ * Execute a query and return a list of items
+ *
+ * @param string  $pQuery  The SQL query to execute
+ * @param array   $pParams The parameters
+ *
+ * @return array
+ */
+function dbExFetchAll($pQuery, $pParams = null) {
+    return dbExec($pQuery, $pParams)->fetchAll(PDO::FETCH_ASSOC);
 }
 
 
+
 /**
- * Execute a query and return the resultSet. To retrieve the values, call dbFetch() with the result.
+ * Executes an SQL query.
  *
- * @param string $pSql
+ * If $pParams is used a prepared statement is used.
+ * If an SQLLogger is configured, the execution is logged.
  *
- * @return resultSet
+ * @param string $pQuery  The SQL query to execute
+ * @param array  $pParams The parameters to bind to the query
+ *
+ * @return PDOStatement
  */
-function dbExec($pSql) {
-    global $kdb;
-
-    dbConnect();
-
-    $pSql = str_replace('%pfx%', pfx, $pSql);
-
-    $res = $kdb->exec($pSql);
-
-    if (dbError())
-        klog('database', dbError());
-
-    return $res;
+function dbExec($pQuery, $pParams = null) {
+    $pQuery = str_replace('%pfx%', pfx, $pQuery);
+    if ($pParams !== null){
+        $sth = dbConnection()->prepare($pQuery);
+        if (!is_array($pParams)) $pParams = array($pParams);
+        $sth->execute($pParams);
+    } else {
+        $sth = dbConnection()->query($pQuery);
+    }
+    return $sth;
 }
 
 /**
@@ -330,21 +300,25 @@ function dbTableName($pTable){
  * Inserts the values based on pFields into the table pTable.
  *
  * @param string $pTable  The table name based on your extension table definition
- * @param array  $pValues Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
+ * @param array  $pData Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
  *
  * @return integer The last_insert_id() (if you use auto_increment/sequences)
  */
-function dbInsert($pTable, $pValues) {
+function dbInsert($pTable, $pData) {
 
-    $table = dbQuote(dbTableName($pTable));
-    $values = dbValuesToCommaSeperated($pValues);
+    $table = dbTableName($pTable);
+    $cols = array_keys($pData);
 
-    $fields = dbQuote($values[0]);
-    $values = $values[1];
+    foreach ($pData as $value) {
+        $values[] = '?';
+    }
 
-    $sql = "INSERT INTO $table ($fields) VALUES ($values)";
 
-    if (dbExec($sql))
+    $query = 'INSERT INTO ' . $table
+        . ' (' . implode(', ', $cols) . ')'
+        . ' VALUES (' . implode(', ', $values) . ')';
+
+    if (dbExec($query, array_values($pData)))
         return dbLastId();
     else
         return false;
@@ -368,26 +342,33 @@ function dbToKeyIndex(&$pItems, $pIndex) {
 }
 
 /**
- * Returns the last occured error if exists
+ * Fetch the SQLSTATE associated with the last operation on the database handle.
  *
+ * @global
  * @return mixed
  */
 
 function dbError() {
-    global $kdb;
-
-    return $kdb->lastError();
+    return dbConnection()->errorCode ();
 }
 
 /**
- * Returns the last_insert_id() (if you use auto_increment/sequences)
+ *  Fetch extended error information associated with the last operation on the database handle.
+ *
+ * @global
+ * @return array
+ */
+
+function dbErrorInfo() {
+    return dbConnection()->errorInfo();
+}
+/**
+ * Returns PDO::lastInsertId
  *
  * @return mixed
  */
 function dbLastId() {
-    global $kdb;
-
-    return $kdb->lastId();
+    return dbConnection()->lastInsertId ();
 }
 
 
@@ -395,22 +376,26 @@ function dbLastId() {
  * Update a row or rows with the values based on pFields into the table pTable.
  *
  * @param string       $pTable   The table name based on your extension table definition
- * @param string|array $pPrimary Define the limitation as a SQL or as a array ('field' => 'value')
- * @param array        $pFields  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
+ * @param string|array $pCondition Define the limitation as a SQL or as a array ('field' => 'value')
+ * @param array        $pData  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
  *
  * @return type
  */
-function dbUpdate($pTable, $pPrimary, $pFields) {
+function dbUpdate($pTable, $pCondition = array(), $pData = array()) {
 
-    $table = dbQuote(dbTableName($pTable));
-    $values = dbValuesToUpdateSql($pFields);
+    $table = dbTableName($pTable);
 
-    if (is_array($pPrimary) || !$pPrimary)
-        $pPrimary = (!$pPrimary)?'1=1':dbSimpleConditionToSql($pPrimary);
+    $fields = array();
+    foreach ($pData as $column => $value) {
+        $fields[] = $column.' = ?';
+    }
 
-    $sql = "UPDATE $table SET $values WHERE $pPrimary\n";
+    $data = array_merge(array_values($pData), array_values($pCondition));
 
-    return dbExec($sql)?true:false;
+    $sql  = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields)
+          .' WHERE ' . implode('=? AND ', array_keys($pCondition)) . '= ?';
+
+    return dbExec($sql, $data)?true:false;
 }
 
 /**
@@ -435,106 +420,45 @@ function dbDelete($pTable, $pWhere = '') {
 }
 
 /**
- * Returns count
+ * Returns the number of rows affected by the last SQL statement
  *
- * @param string $pTable
- * @param bool   $pWhere
- *
- *
+ * @param $pStatement
  * @return int
  */
-function dbCount($pTable, $pWhere = false) {
-
-    $table = dbQuote(dbTableName($pTable));
-
-    if (kryn::$config['db_type'] == 'postgresql'){
-
-        $columns = array_keys(database::getColumns(dbTableName($pTable)));
-        $firstColumn = $columns[0];
-
-        $sql = "SELECT $firstColumn FROM $table";
-        if ($pWhere != false)
-            $sql .= " WHERE $pWhere ";
-
-        $res = dbExec($sql);
-
-        $count = dbNumRows($res);
-
-        dbFree($res);
-
-        return $count;
-
-    } else {
-        $sql = "SELECT count(*) as ".dbQuote('counter')." FROM $table";
-        if ($pWhere != false)
-            $sql .= " WHERE $pWhere ";
-
-        $row = dbExfetch($sql);
-        return $row['counter'];
-    }
-}
-
 function dbNumRows($pStatement){
-    global $kdb;
-    return $kdb->rowCount($pStatement);
-}
-
-function dbFree($pStatement){
-    global $kdb;
-    return $kdb->free($pStatement);
+    return $pStatement->rowCount();
 }
 
 /**
- * Fetch a row based on the specified resultset from dbExec()
+ * Closes the cursor, enabling the statement to be executed again
  *
- * @param resultset $pStatement   The result of dbExec()
- * @param int       $pCount Defines how many items the function returns
+ * @param $pStatement
+ * @return bool
+ */
+function dbFree($pStatement){
+    return $pStatement->closeCursor();
+}
+
+/**
+ * Fetches the next row from a result set
+ *
+ * @param PDOStatement  $pStatement
  *
  * @return array
  */
-function dbFetch($pStatement, $pCount = 1) {
-    global $kdb;
-    return $kdb->fetch($pStatement, $pCount);
+function dbFetch($pStatement) {
+    return $pStatement->fetch(PDO::FETCH_ASSOC);
 }
 
 /**
- * Returns a array with as first element a comma sperated list of all keys and as second
- * element a comma seperated list of the values. Can be used in INSERT queries.
+ * Returns an array containing all of the result set rows
  *
- * If a element in $pValues has a numeric key, the value will be retrieved
- * from getArgv($key)
+ * @param PDOStatement  $pStatement
  *
- * Example:
- *
- * array('title' => 'Foo', 'category_rsn' => 2)
- * => returns array( "title, category_rsn", "'foo', 2" )
- *
- * @param  array $pValues
- * @return string
+ * @return array
  */
-function dbValuesToCommaSeperated($pValues){
-
-    $fields = array();
-    $values = array();
-    foreach ($pValues as $key => $field) {
-
-        if (is_numeric($key)) {
-            $fieldName = $field;
-            $val = getArgv($field);
-        } else {
-            $fieldName = $key;
-            $val = $field;
-        }
-
-        $fields[] = $fieldName;
-
-        $values[] = is_numeric($val) ? $val : "'".esc($val)."'";
-    }
-
-    return array(
-        implode(', ', $fields),
-        implode(', ', $values)
-    );
+function dbFetchAll($pStatement) {
+    return $pStatement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -588,6 +512,98 @@ function dbOrderToSql($pValues, $pTable = ''){
     return substr($sql, 0, -1);
 }
 
+/**####################################################################################################################
+   ####################################################################################################################
+ *
+ *  DEPRECATED
+ *
+ * ####################################################################################################################
+ * ####################################################################################################################
+ */
+
+
+/**
+ * Returns count
+ *
+ * @param string $pTable
+ * @param bool   $pWhere
+ *
+ *
+ * @return int
+ */
+function dbCount($pTable, $pWhere = false) {
+
+    $table = dbQuote(dbTableName($pTable));
+
+    if (kryn::$config['db_type'] == 'postgresql'){
+
+        $columns = array_keys(database::getColumns(dbTableName($pTable)));
+        $firstColumn = $columns[0];
+
+        $sql = "SELECT $firstColumn FROM $table";
+        if ($pWhere != false)
+            $sql .= " WHERE $pWhere ";
+
+        $res = dbExec($sql);
+
+        $count = dbNumRows($res);
+
+        dbFree($res);
+
+        return $count;
+
+    } else {
+        $sql = "SELECT count(*) as ".dbQuote('counter')." FROM $table";
+        if ($pWhere != false)
+            $sql .= " WHERE $pWhere ";
+
+        $row = dbExfetch($sql);
+        return $row['counter'];
+    }
+}
+
+
+
+/**
+ * Returns a array with as first element a comma sperated list of all keys and as second
+ * element a comma seperated list of the values. Can be used in INSERT queries.
+ *
+ * If a element in $pValues has a numeric key, the value will be retrieved
+ * from getArgv($key)
+ *
+ * Example:
+ *
+ * array('title' => 'Foo', 'category_rsn' => 2)
+ * => returns array( "title, category_rsn", "'foo', 2" )
+ *
+ * @param  array $pValues
+ * @return string
+ */
+function dbValuesToCommaSeperated($pValues){
+
+    $fields = array();
+    $values = array();
+    foreach ($pValues as $key => $field) {
+
+        if (is_numeric($key)) {
+            $fieldName = $field;
+            $val = getArgv($field);
+        } else {
+            $fieldName = $key;
+            $val = $field;
+        }
+
+        $fields[] = $fieldName;
+
+        $values[] = is_numeric($val) ? $val : "'".esc($val)."'";
+    }
+
+    return array(
+        implode(', ', $fields),
+        implode(', ', $values)
+    );
+}
+
 /**
  * Extracts all field names from a Order array.
  *
@@ -619,38 +635,6 @@ function dbExtractOrderFields($pValues, $pTable = ''){
     }
 
     return $fields;
-}
-
-/**
- * Returns a comma sperated list of $pValues to be used in UPDATE queries.
- * If a element in $pValues has a numeric key, the value will be retrieved
- * from getArgv($key). The keys will go through dbQuote()
- *
- * Example:
- *
- * array('title' => 'Foo', 'category_rsn' => 2)
- * => returns "`title` = 'Foo', `category_rsn` = 2"
- *
- * @param  array $pValues
- * @return string
- */
-function dbValuesToUpdateSql($pValues){
-
-    $values = array();
-
-    foreach ($pValues as $key => $field) {
-        if (is_numeric($key)) {
-            $fieldName = $field;
-            $val = getArgv($field);
-        } else {
-            $fieldName = $key;
-            $val = $field;
-        }
-
-        $values[] = dbQuote($fieldName) . ' = ' . (!is_string($val) ? $val+0 : "'".esc($val)."'");
-    }
-
-    return implode(', ', $values);
 }
 
 

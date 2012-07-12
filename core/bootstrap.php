@@ -20,7 +20,8 @@ $languages = array();
 $kcache = array();
 $_AGET = array();
 $tpl = false;
-@ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE);
+error_reporting(E_ALL ^ E_NOTICE);
+
 
 # install
 if (!file_exists('config.php')) {
@@ -47,12 +48,12 @@ include(PATH_CORE.'internal.global.php');
 include(PATH_CORE.'framework.global.php');
 
 # Load important classes
-include(PATH_CORE.'database.class.php');
+include('lib/propel/runtime/lib/Propel.php');
 include(PATH_CORE.'kryn.class.php');
 
-include('lib/propel/runtime/lib/Propel.php');
+kryn::$config = $cfg;
 
-spl_autoload_register(function ($class) {
+function krynAutoLoad($class) {
 
     if (file_exists(PATH_CORE . $class . '.class.php')){
         include PATH_CORE . $class . '.class.php';
@@ -63,6 +64,9 @@ spl_autoload_register(function ($class) {
     } else if (file_exists('lib/Smarty/' . $class . '.class.php')){
         include 'lib/Smarty/' . $class . '.class.php';
         return true;
+    } else if (kryn::$propelClassMap[$class.'.php']){
+        include kryn::$propelClassMap[$class.'.php'];
+        return true;
     } else {
         foreach (kryn::$extensions as $extension){
             if (file_exists($file = PATH_MODULE . $extension.'/'.$class.'.class.php')){
@@ -71,8 +75,21 @@ spl_autoload_register(function ($class) {
             }
         }
     }
-});
+};
 
+spl_autoload_register('krynAutoLoad');
+kryn::loadActiveModules();
+
+
+if (!file_exists($file = 'propel-config.php')){
+    propelHelper::init();
+}
+
+Propel::init($file);
+set_include_path("propel/build/classes" . PATH_SEPARATOR . get_include_path());
+
+$propelConfig = include($file);
+kryn::$propelClassMap = $propelConfig['classmap'];
 
 date_default_timezone_set($cfg['timezone']);
 
@@ -110,11 +127,6 @@ if (getArgv(1) == 'krynJavascriptGlobalPath.js') {
  */
 kryn::initConfig();
 
-
-/*
- * Load list of active modules
- */
-kryn::loadActiveModules();
 
 
 /*

@@ -485,7 +485,7 @@ class krynAuth {
                 unset($sessionExtra[$temp]);
 
             $session['extra'] = json_encode($sessionExtra);
-            dbUpdate('system_sessions', "id = '" . esc($this->token) . "'", $session);
+            dbUpdate('system_sessions', array('id' => $this->token), $session);
 
         } else {
             $expired = $this->config['session_timeout'];
@@ -632,9 +632,10 @@ class krynAuth {
      */
     public function loadSessionDatabase() {
 
-        $row = dbExfetch('SELECT * FROM %pfx%system_sessions WHERE id = \'' . esc($this->token) . '\'', 1);
+        $this->session = SessionQuery::create()->findPK($this->token);
 
-        if (!$row) return false;
+        if (!$this->session) return false;
+
         if ($row['time'] + $this->config['session_timeout'] < time()) {
             dbExec('DELETE FROM %pfx%system_sessions WHERE id = \'' . esc($this->token) . '\'');
             return false;

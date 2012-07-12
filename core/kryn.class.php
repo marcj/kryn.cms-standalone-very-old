@@ -269,7 +269,7 @@ class kryn {
      * @var array
      * @static
      */
-    public static $extensions = array();
+    public static $extensions = array('kryn', 'admin', 'users');
 
     /**
      * Contains all installed themes
@@ -277,6 +277,27 @@ class kryn {
      * @var array
      */
     public static $themes;
+
+    /**
+     * Contains the current propel pdo connection instance.
+     * @var PDO
+     * @static
+     */
+    public static $dbConnection;
+
+    /**
+     * Contains the master/slave state of the current db connection.
+     *
+     * @var bool
+     */
+    public static $dbConnectionIsSlave = Propel::CONNECTION_WRITE;
+
+    /**
+     * Cache of the propel gererated classes for the autloader.
+     *
+     * @var array
+     */
+    public static $propelClassMap = array();
 
     /**
      * Contains the system config (inc/config.php).
@@ -559,11 +580,7 @@ class kryn {
     }
 
     public static function loadActiveModules() {
-        $extensions[] = 'kryn';
-        $extensions[] = 'admin';
-        $extensions[] = 'users';
-
-        if (kryn::$config['activeExtensions']) $extensions = array_merge($extensions,kryn::$config['activeExtensions']);
+        if (kryn::$config['activeExtensions']) $extensions = array_merge(kryn::$extensions,kryn::$config['activeExtensions']);
         kryn::$extensions = $extensions;
     }
 
@@ -583,7 +600,7 @@ class kryn {
 
         $md5 = md5($md5);
 
-        kryn::$tables =& kryn::getCache('systemTablesv2');
+        //kryn::$tables =& kryn::getCache('systemTablesv2');
         kryn::$themes =& kryn::getCache('systemThemes');
         kryn::$objects =& kryn::getCache('systemObjects');
 
@@ -639,6 +656,7 @@ class kryn {
         /*
         * load tables
         */
+        /*
         if (!kryn::$tables || $md5 != kryn::$tables['__md5']){
 
             kryn::$tables = array();
@@ -671,7 +689,7 @@ class kryn {
             }
 
             kryn::setCache('systemTablesv2', kryn::$tables);
-        }
+        }*/
 
         unset(kryn::$tables['__md5']);
 
@@ -1195,7 +1213,7 @@ class kryn {
         try {
             kryn::$cache = new krynCache($cfg['cache_type'], $cfg['cache_params']);
         } catch (Exception $e){
-            kryn::internalError($e);
+            kryn::internalError(null, $e);
         }
 
         if (function_exists('apc_store'))
@@ -1208,7 +1226,7 @@ class kryn {
 
         if (!is_dir($cfg['media_cache'])) {
             if (!@mkdir($cfg['media_cache']))
-                kryn::internalError('Can not create folder for template caching: ' . $cfg['media_cache']);
+                kryn::internalError(null, 'Can not create folder for template caching: ' . $cfg['media_cache']);
         }
 
         kryn::$config =& $cfg;
@@ -1788,7 +1806,7 @@ class kryn {
 
             if (!$findDomainId) {
                 klog("system", "Domain <i>$domainName</i> not found. Language: $possibleLanguage");
-                kryn::internalError("Domain <i>$domainName</i> not found.");
+                kryn::internalError(null, "Domain <i>$domainName</i> not found.");
             }
 
             $domain = kryn::getDomain($domains[$domainName]);
@@ -2065,7 +2083,7 @@ class kryn {
             $pageRsn = kryn::$domain['startpage_rsn'];
 
             if (!$pageRsn > 0) {
-                kryn::internalError('There is no startpage for domain ' . kryn::$domain['domain']);
+                kryn::internalError(null, 'There is no startpage for domain ' . kryn::$domain['domain']);
             }
 
             kryn::$isStartpage = true;
@@ -2163,11 +2181,27 @@ class kryn {
      * Prints the kryn/internal-error.tpl template to the client and exist.
      *
      * @static
+     * @param $pTitle
      * @param $pMsg
      */
-    public static function internalError($pMsg) {
+    public static function internalError($pTitle = 'Internal system error', $pMsg) {
         tAssign('msg', $pMsg);
+        tAssign('title', $pTitle);
         print tFetch('kryn/internal-error.tpl');
+        exit;
+    }
+
+    /**
+     * Prints the kryn/internal-message.tpl template to the client and exist.
+     *
+     * @static
+     * @param $pTitle
+     * @param $pMsg
+     */
+    public static function internalMessage($pTitle, $pMsg = '') {
+        tAssign('title', $pTitle);
+        tAssign('msg', $pMsg);
+        print tFetch('kryn/internal-message.tpl');
         exit;
     }
 

@@ -528,7 +528,6 @@ class adminWindowList {
      * @return string
      */
     function getFullSql($pCountSql = false) {
-        global $kdb, $cfg, $user;
 
         $extraFields = array();
         $joins = "";

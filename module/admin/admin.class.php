@@ -716,7 +716,6 @@ class admin {
     }
 
     public static function database() {
-        global $kdb;
 
         $res = array('fetchtime' => 0);
 

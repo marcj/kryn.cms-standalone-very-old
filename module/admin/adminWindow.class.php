@@ -65,7 +65,6 @@ class adminWindow {
     }
 
     public static function loadClass() {
-        global $kdb;
 
         require(PATH_MODULE . 'admin/adminWindowList.class.php');
         require(PATH_MODULE . 'admin/adminWindowCombine.class.php');
