@@ -21,7 +21,6 @@
 
         #error > h2 {
             margin-top: 50px;
-            color: red;
         }
 
         .msg {
@@ -30,8 +29,6 @@
             overflow-x: auto;
             background-color: #f7f7f7;
             padding: 15px;
-            border-top: 3px solid red;
-            border-bottom: 3px solid red;
         }
 
     </style>
