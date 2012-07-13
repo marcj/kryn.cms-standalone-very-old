@@ -138,7 +138,7 @@ var admin_system_module_editWindow = new Class({
             multiDomain: {
                 label: t('Multi domain'),
                 type: 'checkbox',
-                desc: t("Useful, when these objects are categorized usually under domains. The windows gets then a domain chooser on the right top bar. The object or table needs a extra field 'domain_rsn' for this.")
+                desc: t("Useful, when these objects are categorized usually under domains. The windows gets then a domain chooser on the right top bar. The object or table needs a extra field 'domain_id' for this.")
             },
 
             __optional__: {

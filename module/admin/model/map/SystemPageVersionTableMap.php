@@ -3,7 +3,7 @@
 
 
 /**
- * This class defines the structure of the 'kryn_system_pagesversions' table.
+ * This class defines the structure of the 'kryn_system_page_version' table.
  *
  *
  *
@@ -14,13 +14,13 @@
  *
  * @package    propel.generator.kryn.map
  */
-class SystemPagesversionsTableMap extends TableMap
+class SystemPageVersionTableMap extends TableMap
 {
 
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'kryn.map.SystemPagesversionsTableMap';
+    const CLASS_NAME = 'kryn.map.SystemPageVersionTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -32,12 +32,12 @@ class SystemPagesversionsTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('kryn_system_pagesversions');
-        $this->setPhpName('SystemPagesversions');
-        $this->setClassname('SystemPagesversions');
+        $this->setName('kryn_system_page_version');
+        $this->setPhpName('SystemPageVersion');
+        $this->setClassname('SystemPageVersion');
         $this->setPackage('kryn');
         $this->setUseIdGenerator(true);
-        $this->setPrimaryKeyMethodInfo('kryn_system_pagesversions_id_seq');
+        $this->setPrimaryKeyMethodInfo('kryn_system_page_version_id_seq');
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('PAGE_ID', 'PageId', 'INTEGER', false, null, null);
@@ -55,4 +55,4 @@ class SystemPagesversionsTableMap extends TableMap
     {
     } // buildRelations()
 
-} // SystemPagesversionsTableMap
+} // SystemPageVersionTableMap

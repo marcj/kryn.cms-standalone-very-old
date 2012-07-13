@@ -49,7 +49,7 @@ class adminWindowAdd extends adminWindowEdit {
         }
 
         if ($this->domainDepended) {
-            $row['lang'] = getArgv('domain_rsn')+0;
+            $row['lang'] = getArgv('domain_id')+0;
         }
 
         if ($this->object){

@@ -29,37 +29,37 @@ class adminPages {
                 return self::add();
 //            return self::save( true );
             case 'getPage':
-                return self::getPage(getArgv('rsn') + 0, true);
+                return self::getPage(getArgv('id') + 0, true);
             case 'getPageInfo':
-                return self::getPageInfo(getArgv('rsn') + 0, true);
+                return self::getPageInfo(getArgv('id') + 0, true);
             case 'deletePage':
-                return self::deletePage(getArgv('rsn') + 0);
+                return self::deletePage(getArgv('id') + 0);
             case 'getNotices':
-                return self::getNotices(getArgv('rsn') + 0);
+                return self::getNotices(getArgv('id') + 0);
             case 'addNotice':
-                return self::addNotice(getArgv('rsn') + 0);
+                return self::addNotice(getArgv('id') + 0);
             case 'getIcons':
-                return json(self::getIcons(getArgv('rsn')));
+                return json(self::getIcons(getArgv('id')));
             case 'getDomains':
                 return self::getDomains(getArgv('language'));
             case 'getTree':
-                return self::getTree(getArgv('page_rsn') + 0);
+                return self::getTree(getArgv('page_id') + 0);
             case 'getTreeDomain':
-                return self::getTreeDomain(getArgv('domain_rsn') + 0);
+                return self::getTreeDomain(getArgv('domain_id') + 0);
             case 'getTemplate':
                 return self::getTemplate(getArgv('template'));
             case 'getVersions':
                 return self::getVersions();
             case 'getUrl':
-                return self::getUrl(getArgv('rsn'));
+                return self::getUrl(getArgv('id'));
             case 'getPageVersions':
-                json(self::getPageVersion(getArgv('rsn')));
+                json(self::getPageVersion(getArgv('id')));
             case 'getVersion':
-                $rsn = getArgv('rsn') + 0;
+                $id = getArgv('id') + 0;
                 $version = getArgv('version') + 0;
-                return json(self::getVersion($rsn, $version));
+                return json(self::getVersion($id, $version));
             /*case 'addVersion':
-        return self::addVersion( getArgv('rsn')+0, getArgv('name',true) );*/
+        return self::addVersion( getArgv('id')+0, getArgv('name',true) );*/
             case 'setLive':
                 return json(self::setLive(getArgv('version')));
 
@@ -67,12 +67,12 @@ class adminPages {
                 return json(self::paste());
 
             case 'setHide':
-                return json(self::setHide(getArgv('rsn'), getArgv('visible')));
+                return json(self::setHide(getArgv('id'), getArgv('visible')));
 
             case 'deleteAlias':
-                return self::deleteAlias(getArgv('rsn') + 0);
+                return self::deleteAlias(getArgv('id') + 0);
             case 'getAliases':
-                return self::getAliases(getArgv('page_rsn') + 0);
+                return self::getAliases(getArgv('page_id') + 0);
 
             default:
                 return self::itemList();
@@ -84,13 +84,13 @@ class adminPages {
         $pVisible += 0;
 
         if (kryn::checkPageAcl($pRsn, 'visible'))
-            dbUpdate('system_pages', 'rsn = ' . $pRsn, array('visible' => $pVisible));
+            dbUpdate('system_page', 'id = ' . $pRsn, array('visible' => $pVisible));
     }
 
     public static function getPageInfo($pRsn) {
 
         $pRsn += 0;
-        $page = dbTableFetch('system_pages', "rsn = $pRsn", 1);
+        $page = dbTableFetch('system_page', "id = $pRsn", 1);
         $page['_parents'] = kryn::getPageParents($pRsn);
 
         if (!$page['_parents'])
@@ -103,32 +103,32 @@ class adminPages {
     public static function getAliases($pRsn) {
         $pRsn = $pRsn + 0;
 
-        $items = dbTableFetch('system_urlalias', 'to_page_rsn = ' . $pRsn, -1);
+        $items = dbTableFetch('system_urlalias', 'to_page_id = ' . $pRsn, -1);
         json($items);
     }
 
     public static function deleteAlias($pRsn) {
         $pRsn = $pRsn + 0;
 
-        dbDelete('system_urlalias', 'rsn = ' . $pRsn);
+        dbDelete('system_urlalias', 'id = ' . $pRsn);
     }
 
     public static function setLive($pVersion) {
 
         $pVersion = $pVersion + 0;
-        $version = dbTableFetch('system_pagesversions', 1, 'rsn = ' . $pVersion);
+        $version = dbTableFetch('system_page_version', 1, 'id = ' . $pVersion);
 
-        if ($version['rsn'] > 0) {
-            $newstVersion = dbTableFetch('system_pagesversions', 1,
-                'page_rsn = ' . $version['page_rsn'] . ' ORDER BY created DESC');
+        if ($version['id'] > 0) {
+            $newstVersion = dbTableFetch('system_page_version', 1,
+                'page_id = ' . $version['page_id'] . ' ORDER BY created DESC');
 
-            if ($newstVersion['rsn'] == $pVersion)
-                dbUpdate('system_pages', array('rsn' => $version['page_rsn']), array('draft_exist' => 0));
+            if ($newstVersion['id'] == $pVersion)
+                dbUpdate('system_page', array('id' => $version['page_id']), array('draft_exist' => 0));
             else
-                dbUpdate('system_pages', array('rsn' => $version['page_rsn']), array('draft_exist' => 1));
+                dbUpdate('system_page', array('id' => $version['page_id']), array('draft_exist' => 1));
 
-            dbUpdate('system_pagesversions', array('page_rsn' => $version['page_rsn']), array('active' => 0));
-            dbUpdate('system_pagesversions', array('rsn' => $version['rsn']), array('active' => 1));
+            dbUpdate('system_page_version', array('page_id' => $version['page_id']), array('active' => 0));
+            dbUpdate('system_page_version', array('id' => $version['id']), array('active' => 1));
             return 1;
         }
         return 0;
@@ -145,16 +145,16 @@ class adminPages {
             self::copyPage(getArgv('page'), getArgv('to'), $domain, getArgv('pos'), true);
         }
 
-        $pageTo = dbTableFetch('system_pages', 1, 'rsn = ' . (getArgv('to') + 0));
-        self::cleanSort($pageTo['domain_rsn'], $pageTo['prsn']);
-        self::updateUrlCache($pageTo['domain_rsn']);
-        self::updateMenuCache($pageTo['domain_rsn']);
+        $pageTo = dbTableFetch('system_page', 1, 'id = ' . (getArgv('to') + 0));
+        self::cleanSort($pageTo['domain_id'], $pageTo['pid']);
+        self::updateUrlCache($pageTo['domain_id']);
+        self::updateMenuCache($pageTo['domain_id']);
 
-        $page = dbTableFetch('system_pages', 1, 'rsn = ' . (getArgv('page') + 0));
-        self::cleanSort($page['domain_rsn'], $page['prsn']);
-        if ($page['domain_rsn'] != $pageTo['domain_rsn']) {
-            self::updateUrlCache($page['domain_rsn']);
-            self::updateMenuCache($page['domain_rsn']);
+        $page = dbTableFetch('system_page', 1, 'id = ' . (getArgv('page') + 0));
+        self::cleanSort($page['domain_id'], $page['pid']);
+        if ($page['domain_id'] != $pageTo['domain_id']) {
+            self::updateUrlCache($page['domain_id']);
+            self::updateMenuCache($page['domain_id']);
         }
 
         self::updatePage2DomainCache();
@@ -171,18 +171,18 @@ class adminPages {
         $pTo += 0;
         $pWithoutThisPage += 0;
 
-        $fromPage = dbTableFetch('system_pages', 1, 'rsn = ' . $pFrom);
+        $fromPage = dbTableFetch('system_page', 1, 'id = ' . $pFrom);
         $newPage = $fromPage;
 
         if (!$pToDomain) {
-            $toPage = dbTableFetch('system_pages', 1, 'rsn = ' . $pTo);
-            $siblingWhere = "prsn = " . $toPage['prsn'];
-            $newPage['domain_rsn'] = $toPage['domain_rsn'];
+            $toPage = dbTableFetch('system_page', 1, 'id = ' . $pTo);
+            $siblingWhere = "pid = " . $toPage['pid'];
+            $newPage['domain_id'] = $toPage['domain_id'];
         }
 
         if ($pPos == 'down' || $pPos == 'up') {
             $newPage['sort'] = $toPage['sort'];
-            $newPage['prsn'] = $toPage['prsn'];
+            $newPage['pid'] = $toPage['pid'];
             $newPage['sort_mode'] = $pPos;
             if ($pToDomain) {
                 return false;
@@ -191,29 +191,29 @@ class adminPages {
             $newPage['sort'] = 1;
             $newPage['sort_mode'] = 'up';
             if (!$pToDomain) {
-                $siblingWhere = "prsn = " . $toPage['rsn'];
-                $newPage['prsn'] = $toPage['rsn'];
+                $siblingWhere = "pid = " . $toPage['id'];
+                $newPage['pid'] = $toPage['id'];
             } else {
-                $newPage['prsn'] = 0;
-                $newPage['domain_rsn'] = $pTo;
-                $siblingWhere = "prsn = 0 AND domain_rsn = " . $pTo;
+                $newPage['pid'] = 0;
+                $newPage['domain_id'] = $pTo;
+                $siblingWhere = "pid = 0 AND domain_id = " . $pTo;
             }
         }
         $newPage['draft_exist'] = 1;
-        unset($newPage['rsn']);
+        unset($newPage['id']);
         $newPage['visible'] = 0;
 
         if ($pWithSubpages) {
             $withoutPage = '';
             if ($pWithoutThisPage) {
-                $withoutPage = ' AND rsn != ' . $pWithoutThisPage;
+                $withoutPage = ' AND id != ' . $pWithoutThisPage;
             }
 
-            $childs = dbTableFetch('system_pages', -1, 'prsn = ' . $pFrom . $withoutPage . ' ORDER BY sort ');
+            $childs = dbTableFetch('system_page', -1, 'pid = ' . $pFrom . $withoutPage . ' ORDER BY sort ');
         }
 
         //ceck url & titles
-        $siblings = dbTableFetch('system_pages', -1, $siblingWhere);
+        $siblings = dbTableFetch('system_page', -1, $siblingWhere);
 
         if (count($siblings) > 0) {
 
@@ -271,51 +271,51 @@ class adminPages {
             }
         }
 
-        if ($newPage['prsn'] == 0) {
-            if (!kryn::checkPageAcl($newPage['domain_rsn'], 'addPages', 'd'))
+        if ($newPage['pid'] == 0) {
+            if (!kryn::checkPageAcl($newPage['domain_id'], 'addPages', 'd'))
                 json(array('error' => 'access_denied'));
             ;
         } else {
-            if (!kryn::checkPageAcl($newPage['prsn'], 'addPages'))
+            if (!kryn::checkPageAcl($newPage['pid'], 'addPages'))
                 json(array('error' => 'access_denied'));
             ;
         }
 
-        unset($newPage['rsn']);
-        $lastId = dbInsert('system_pages', $newPage);
+        unset($newPage['id']);
+        $lastId = dbInsert('system_page', $newPage);
 
         if (!$pWithoutThisPage)
             $pWithoutThisPage = $lastId;
 
-        if ($newPage['prsn'] == 0) {
-            if (!kryn::checkPageAcl($newPage['domain_rsn'], 'canPublish', 'd'))
+        if ($newPage['pid'] == 0) {
+            if (!kryn::checkPageAcl($newPage['domain_id'], 'canPublish', 'd'))
                 json(array('error' => 'access_denied'));
             ;
         } else {
-            if (!kryn::checkPageAcl($newPage['prsn'], 'canPublish'))
+            if (!kryn::checkPageAcl($newPage['pid'], 'canPublish'))
                 json(array('error' => 'access_denied'));
             ;
         }
 
         //copy contents
-        $curVersion = dbTableFetch('system_pagesversions', 1, 'active = 1 AND page_rsn = ' . $pFrom);
-        $contents = dbTableFetch('system_contents', -1, 'version_rsn = ' . $curVersion['rsn']);
+        $curVersion = dbTableFetch('system_page_version', 1, 'active = 1 AND page_id = ' . $pFrom);
+        $contents = dbTableFetch('system_contents', -1, 'version_id = ' . $curVersion['id']);
 
         if (count($contents) > 0) {
-            $newVersion = dbInsert('system_pagesversions', array(
-                'page_rsn' => $lastId,
-                'owner_rsn' => $user->user_rsn,
+            $newVersion = dbInsert('system_page_version', array(
+                'page_id' => $lastId,
+                'owner_id' => $user->user_id,
                 'created' => time(),
                 'modified' => time(),
                 'active' => 0
             ));
 
             foreach ($contents as &$content) {
-                $content['page_rsn'] = $lastId;
-                unset($content['rsn']);
+                $content['page_id'] = $lastId;
+                unset($content['id']);
                 $content['mdate'] = time();
                 $content['cdate'] = time();
-                $content['version_rsn'] = $newVersion;
+                $content['version_id'] = $newVersion;
                 dbInsert('system_contents', $content);
             }
         }
@@ -325,7 +325,7 @@ class adminPages {
         if ($pWithSubpages) {
             if (count($childs) > 0) {
                 foreach ($childs as &$child) {
-                    self::copyPage($child['rsn'], $lastId, 'into', true, $pWithoutThisPage);
+                    self::copyPage($child['id'], $lastId, 'into', true, $pWithoutThisPage);
                 }
             }
         }
@@ -349,80 +349,80 @@ class adminPages {
     }
 
     public static function getDomainMaster() {
-        $rsn = getArgv('rsn') + 0;
-        if (!kryn::checkPageAcl($rsn, 'domainLanguageMaster', 'd')) {
+        $id = getArgv('id') + 0;
+        if (!kryn::checkPageAcl($id, 'domainLanguageMaster', 'd')) {
             json(array('error' => 'access_denied'));
             ;
         }
-        $cur = dbTableFetch('system_domains', 1, "rsn = $rsn");
-        $res = dbTableFetch('system_domains', 1, "domain = '" . $cur['domain'] . "' AND master = 1");
+        $cur = dbTableFetch('system_domain', 1, "id = $id");
+        $res = dbTableFetch('system_domain', 1, "domain = '" . $cur['domain'] . "' AND master = 1");
         json($res);
     }
 
     public static function saveDomain() {
-        $rsn = getArgv('rsn') + 0;
+        $id = getArgv('id') + 0;
 
         $dbUpdate = array();
         $canChangeMaster = false;
 
 
-        if (kryn::checkPageAcl($rsn, 'domainName', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainName', 'd')) {
             $dbUpdate[] = 'domain';
         }
 
-        if (kryn::checkPageAcl($rsn, 'domainTitle', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainTitle', 'd')) {
             $dbUpdate[] = 'title_format';
         }
 
-        if (kryn::checkPageAcl($rsn, 'domainStartpage', 'd')) {
-            $dbUpdate[] = 'startpage_rsn';
+        if (kryn::checkPageAcl($id, 'domainStartpage', 'd')) {
+            $dbUpdate[] = 'startpage_id';
         }
 
-        if (kryn::checkPageAcl($rsn, 'domainPath', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainPath', 'd')) {
             $dbUpdate[] = 'path';
         }
-        if (kryn::checkPageAcl($rsn, 'domainFavicon', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainFavicon', 'd')) {
             $dbUpdate[] = 'favicon';
         }
-        if (kryn::checkPageAcl($rsn, 'domainLanguage', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainLanguage', 'd')) {
             $dbUpdate[] = 'lang';
         }
-        if (kryn::checkPageAcl($rsn, 'domainLanguageMaster', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainLanguageMaster', 'd')) {
             $canChangeMaster = true;
             $dbUpdate[] = 'master';
         }
-        if (kryn::checkPageAcl($rsn, 'domainEmail', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainEmail', 'd')) {
             $dbUpdate[] = 'email';
         }
 
 
-        if (kryn::checkPageAcl($rsn, 'themeProperties', 'd')) {
+        if (kryn::checkPageAcl($id, 'themeProperties', 'd')) {
             $dbUpdate[] = 'themeproperties';
         }
-        if (kryn::checkPageAcl($rsn, 'limitLayouts', 'd')) {
+        if (kryn::checkPageAcl($id, 'limitLayouts', 'd')) {
             $dbUpdate[] = 'layouts';
         }
-        if (kryn::checkPageAcl($rsn, 'domainProperties', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainProperties', 'd')) {
             $dbUpdate[] = 'extproperties';
         }
-        if (kryn::checkPageAcl($rsn, 'aliasRedirect', 'd')) {
+        if (kryn::checkPageAcl($id, 'aliasRedirect', 'd')) {
             $dbUpdate[] = 'alias';
             $dbUpdate[] = 'redirect';
         }
 
 
-        if (kryn::checkPageAcl($rsn, 'phpLocale', 'd')) {
+        if (kryn::checkPageAcl($id, 'phpLocale', 'd')) {
             $dbUpdate[] = 'phplocale';
         }
-        if (kryn::checkPageAcl($rsn, 'robotRules', 'd')) {
+        if (kryn::checkPageAcl($id, 'robotRules', 'd')) {
             $dbUpdate[] = 'robots';
         }
-        if (kryn::checkPageAcl($rsn, '404', 'd')) {
+        if (kryn::checkPageAcl($id, '404', 'd')) {
             $dbUpdate[] = 'page404interface';
-            $dbUpdate[] = 'page404_rsn';
+            $dbUpdate[] = 'page404_id';
         }
 
-        if (kryn::checkPageAcl($rsn, 'domainOther', 'd')) {
+        if (kryn::checkPageAcl($id, 'domainOther', 'd')) {
             $dbUpdate[] = 'resourcecompression';
         }
 
@@ -432,12 +432,12 @@ class adminPages {
         $domain = getArgv('domain', 1);
         if ($canChangeMaster) {
             if (getArgv('master') == 1) {
-                dbUpdate('system_domains', "domain = '$domain'", array('master' => 0));
+                dbUpdate('system_domain', "domain = '$domain'", array('master' => 0));
             }
         }
 
-        kryn::deleteCache('systemDomains-'.$rsn);
-        dbUpdate('system_domains', array('rsn' => $rsn), $dbUpdate);
+        kryn::deleteCache('systemDomains-'.$id);
+        dbUpdate('system_domain', array('id' => $id), $dbUpdate);
         self::updateDomainCache();
 
         json($domain);
@@ -446,18 +446,18 @@ class adminPages {
     public static function getDomain() {
 
 
-        $rsn = getArgv('rsn') + 0;
+        $id = getArgv('id') + 0;
 
-        if (!kryn::checkPageAcl($rsn, 'showDomain', 'd')) {
+        if (!kryn::checkPageAcl($id, 'showDomain', 'd')) {
             json(array('error' => 'access_denied'));
         }
 
-        $res['domain'] = dbExfetch("SELECT * FROM %pfx%system_domains WHERE rsn = $rsn");
+        $res['domain'] = dbExfetch("SELECT * FROM %pfx%system_domain WHERE id = $id");
         json($res);
     }
 
     public static function delDomain() {
-        $domain = getArgv('rsn') + 0;
+        $domain = getArgv('id') + 0;
 
 
         if (!kryn::checkPageAcl($domain, 'deleteDomain', 'd')) {
@@ -465,13 +465,13 @@ class adminPages {
             ;
         }
 
-        dbDelete('system_pages', "domain_rsn = $domain");
-        dbDelete('system_domains', "rsn = $domain");
+        dbDelete('system_page', "domain_id = $domain");
+        dbDelete('system_domain', "id = $domain");
         json(true);
     }
 
     public static function updateDomainCache() {
-        $res = dbExec('SELECT * FROM %pfx%system_domains');
+        $res = dbExec('SELECT * FROM %pfx%system_domain');
         $domains = array();
 
         while ($domain = dbFetch($res, 1)) {
@@ -483,14 +483,14 @@ class adminPages {
                 $code .= $lang;
             }
 
-            $domains[$code] = $domain['rsn'];
+            $domains[$code] = $domain['id'];
 
             $alias = explode(",", $domain['alias']);
             if (count($alias) > 0) {
                 foreach ($alias as $ad) {
                     $domainName = str_replace(' ', '', $ad);
                     if ($domainName != '') {
-                        $domains[$domainName . $lang] = $domain['rsn'];
+                        $domains[$domainName . $lang] = $domain['id'];
                     }
                 }
             }
@@ -500,11 +500,11 @@ class adminPages {
                 foreach ($redirects as $redirect) {
                     $domainName = str_replace(' ', '', $redirect);
                     if ($domainName != '')
-                        $domains['_redirects'][$domainName] = $domain['rsn'];
+                        $domains['_redirects'][$domainName] = $domain['id'];
                 }
             }
 
-            kryn::deleteCache('systemDomain-' . $domain['rsn']);
+            kryn::deleteCache('systemDomain-' . $domain['id']);
         }
         kryn::setCache('systemDomains', $domains);
         return $domains;
@@ -516,7 +516,7 @@ class adminPages {
             json(array('error' => 'access_denied'));
         ;
 
-        dbInsert('system_domains', array('domain', 'lang', 'master' => 0,
+        dbInsert('system_domain', array('domain', 'lang', 'master' => 0,
             'search_index_key' => md5(getArgv('domain') . '-' . mktime() . '-' . rand())));
         json(true);
     }
@@ -536,9 +536,9 @@ class adminPages {
             ;
         }
 
-        //$res['live'] = dbTableFetch( 'system_pages', 1, "rsn = $pRsn" );
-        $res['versions'] = dbExFetch("SELECT v.*, u.username FROM %pfx%system_user u, %pfx%system_pagesversions v
-            WHERE page_rsn = $pRsn AND u.rsn = v.owner_rsn ORDER BY created DESC", -1);
+        //$res['live'] = dbTableFetch( 'system_page', 1, "id = $pRsn" );
+        $res['versions'] = dbExFetch("SELECT v.*, u.username FROM %pfx%system_user u, %pfx%system_page_version v
+            WHERE page_id = $pRsn AND u.id = v.owner_id ORDER BY created DESC", -1);
 
         return $res;
     }
@@ -560,22 +560,22 @@ class adminPages {
 
         kryn::deleteCache('page-' . $pPage);
 
-        $page = dbExfetch("SELECT * FROM %pfx%system_pages WHERE rsn = $pPage", 1);
+        $page = dbExfetch("SELECT * FROM %pfx%system_page WHERE id = $pPage", 1);
 
-        $subpages = dbTableFetch('system_pages', 'prsn = ' . $pPage, -1);
+        $subpages = dbTableFetch('system_page', 'pid = ' . $pPage, -1);
         if (count($subpages) > 0) {
             foreach ($subpages as $page) {
-                self::deletePage($page['rsn'], true);
-                dbExec("DELETE FROM %pfx%system_pages WHERE rsn = $pPage");
+                self::deletePage($page['id'], true);
+                dbExec("DELETE FROM %pfx%system_page WHERE id = $pPage");
             }
         }
 
-        dbExec("DELETE FROM %pfx%system_pages WHERE rsn = $pPage");
+        dbExec("DELETE FROM %pfx%system_page WHERE id = $pPage");
 
         if (!$pNoCacheRefresh) {
-            self::cleanSort($page['domain_rsn'], $page['prsn']);
-            self::updateUrlCache($page['domain_rsn']);
-            self::updateMenuCache($page['domain_rsn']);
+            self::cleanSort($page['domain_id'], $page['pid']);
+            self::updateUrlCache($page['domain_id']);
+            self::updateMenuCache($page['domain_id']);
         }
     }
 
@@ -584,11 +584,11 @@ class adminPages {
         if ($pLanguage != "")
             $where = "lang = '$pLanguage'";
 
-        $res = dbTableFetch('system_domains', DB_FETCH_ALL, "$where ORDER BY domain ASC");
+        $res = dbTableFetch('system_domain', DB_FETCH_ALL, "$where ORDER BY domain ASC");
         if (count($res) > 0) {
             foreach ($res as $domain) {
 
-                if (kryn::checkPageAcl($domain['rsn'], 'showDomain', 'd')) {
+                if (kryn::checkPageAcl($domain['id'], 'showDomain', 'd')) {
                     $result[] = $domain;
                 }
             }
@@ -654,10 +654,10 @@ class adminPages {
         }
 
 
-        $rsn = getArgv('rsn') + 0;
-        $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
-        //$domain = dbTableFetch('system_domains', 1, "domain = '".getArgv('domain',1)."'");
-        $domain = dbTableFetch('system_domains', 1, "rsn = '" . $page['domain_rsn'] . "'"); //.getArgv('domain',1)."'");
+        $id = getArgv('id') + 0;
+        $page = dbTableFetch('system_page', 1, "id = $id");
+        //$domain = dbTableFetch('system_domain', 1, "domain = '".getArgv('domain',1)."'");
+        $domain = dbTableFetch('system_domain', 1, "id = '" . $page['domain_id'] . "'"); //.getArgv('domain',1)."'");
 
         $domainName = $domain['domain'];
 
@@ -706,7 +706,7 @@ class adminPages {
         }
         $conts = array();
         if ($pVersion > 0) {
-            $conts = dbTableFetch('system_contents', DB_FETCH_ALL, "page_rsn = $pPageRsn AND version_rsn = $pVersion
+            $conts = dbTableFetch('system_contents', DB_FETCH_ALL, "page_id = $pPageRsn AND version_id = $pVersion
             AND (cdate > 0 AND cdate IS NOT NULL)  ORDER BY sort");
         }
 
@@ -719,22 +719,22 @@ class adminPages {
     }
 
     public static function getVersions() {
-        $rsn = getArgv('rsn') + 0;
+        $id = getArgv('id') + 0;
 
 
-        if (!kryn::checkPageAcl($rsn, 'versions')) {
+        if (!kryn::checkPageAcl($id, 'versions')) {
             json(array('error' => 'access_denied'));
             ;
         }
 
-        $res = dbExfetch("SELECT v.*, u.username FROM %pfx%system_pagesversions v, %pfx%system_user u
-            WHERE u.rsn = v.owner_rsn AND page_rsn = $rsn ORDER BY created DESC", -1);
+        $res = dbExfetch("SELECT v.*, u.username FROM %pfx%system_page_version v, %pfx%system_user u
+            WHERE u.id = v.owner_id AND page_id = $id ORDER BY created DESC", -1);
         json($res);
     }
 
     public static function addNotice($pRsn) {
         global $user;
-        dbInsert('system_page_notices', array('page_rsn' => $pRsn, 'user_rsn' => $user->user_rsn, 'content',
+        dbInsert('system_page_notices', array('page_id' => $pRsn, 'user_id' => $user->user_id, 'content',
             'created' => time()));
         json(true);
     }
@@ -742,7 +742,7 @@ class adminPages {
     public static function getNotices($pRsn) {
         $res['notices'] = dbExfetch('SELECT n.*, u.username
             FROM %pfx%system_page_notices n, %pfx%system_user u
-            WHERE u.rsn = n.user_rsn AND page_rsn = ' . $pRsn . ' ORDER BY rsn', DB_FETCH_ALL);
+            WHERE u.id = n.user_id AND page_id = ' . $pRsn . ' ORDER BY id', DB_FETCH_ALL);
         $res['count'] = count($res['notices']);
         json($res);
     }
@@ -758,18 +758,18 @@ class adminPages {
             json(array('error' => 'access_denied'));
         }
 
-        $domain = dbTableFetch('system_domains', 1, "rsn = $pDomainRsn");
+        $domain = dbTableFetch('system_domain', 1, "id = $pDomainRsn");
         $domain['type'] = -1;
 
-        $childs = dbTableFetch('system_pages', DB_FETCH_ALL, "domain_rsn = $pDomainRsn AND prsn = 0 ORDER BY sort");
+        $childs = dbTableFetch('system_page', DB_FETCH_ALL, "domain_id = $pDomainRsn AND pid = 0 ORDER BY sort");
         $domain['childs'] = array();
 
         $cachedUrls =& kryn::getCache('systemUrls-' . $pDomainRsn);
 
         foreach ($childs as &$page) {
-            if ($viewAllPages || kryn::checkPageAcl($page['rsn'], 'showPage') == true) {
-                $page['realUrl'] = $cachedUrls['rsn']['rsn=' . $page['rsn']];
-                $page['hasChilds'] = kryn::pageHasChilds($page['rsn']);
+            if ($viewAllPages || kryn::checkPageAcl($page['id'], 'showPage') == true) {
+                $page['realUrl'] = $cachedUrls['id']['id=' . $page['id']];
+                $page['hasChilds'] = kryn::pageHasChilds($page['id']);
                 $domain['childs'][] = $page;
             }
         }
@@ -786,27 +786,27 @@ class adminPages {
         if ($viewAllPages && !kryn::checkUrlAccess('users/users/acl'))
             $viewAllPages = false;
 
-        $page = dbExfetch('SELECT prsn, domain_rsn FROM %pfx%system_pages WHERE rsn = ' . $pPageRsn);
+        $page = dbExfetch('SELECT pid, domain_id FROM %pfx%system_page WHERE id = ' . $pPageRsn);
 
-        if (!$viewAllPages && !kryn::checkPageAcl($page['domain_rsn'], 'showDomain', 'd')) {
+        if (!$viewAllPages && !kryn::checkPageAcl($page['domain_id'], 'showDomain', 'd')) {
             json(array('error' => 'access_denied'));
             ;
         }
 
-        if (!$viewAllPages && !kryn::checkPageAcl($page['rsn'], 'showPage')) {
+        if (!$viewAllPages && !kryn::checkPageAcl($page['id'], 'showPage')) {
             json(array('error' => 'access_denied'));
             ;
         }
 
-        $items = dbTableFetch('system_pages', DB_FETCH_ALL, "prsn = $pPageRsn ORDER BY sort");
+        $items = dbTableFetch('system_page', DB_FETCH_ALL, "pid = $pPageRsn ORDER BY sort");
 
-        $cachedUrls =& kryn::getCache('systemUrls-' . $page['domain_rsn']);
+        $cachedUrls =& kryn::getCache('systemUrls-' . $page['domain_id']);
 
         if (count($items) > 0) {
             foreach ($items as &$item) {
-                if ($viewAllPages || kryn::checkPageAcl($item['rsn'], 'showPage')) {
-                    $item['realUrl'] = $cachedUrls['rsn']['rsn=' . $item['rsn']];
-                    $item['hasChilds'] = kryn::pageHasChilds($item['rsn']);
+                if ($viewAllPages || kryn::checkPageAcl($item['id'], 'showPage')) {
+                    $item['realUrl'] = $cachedUrls['id']['id=' . $item['id']];
+                    $item['hasChilds'] = kryn::pageHasChilds($item['id']);
                 } else {
                     unset($item);
                 }
@@ -841,8 +841,8 @@ class adminPages {
     }
 
     public static function move() {
-        $whoId = $_REQUEST['rsn'] + 0;
-        $targetId = $_REQUEST['torsn'] + 0;
+        $whoId = $_REQUEST['id'] + 0;
+        $targetId = $_REQUEST['toid'] + 0;
         $mode = getArgv('mode', 1);
 
 
@@ -852,10 +852,10 @@ class adminPages {
 
         //check if $who is parent of $target, then cancel
         $whoIsParent = false;
-        $menus =& kryn::getCache('menus-' . $who['domain_rsn']);
+        $menus =& kryn::getCache('menus-' . $who['domain_id']);
         if (is_array($menus[$targetId])) {
             foreach ($menus[$targetId] as $parent) {
-                if ($parent['rsn'] == $whoId) {
+                if ($parent['id'] == $whoId) {
                     $whoIsParent = true;
                 }
             }
@@ -866,22 +866,22 @@ class adminPages {
         }
 
         if (getArgv('toDomain') == 1) {
-            $target['domain_rsn'] = $targetId;
+            $target['domain_id'] = $targetId;
             $targetId = 0;
             $mode = 'into';
         }
 
 
-        if ($who['domain_rsn'] != $target['domain_rsn']) {
+        if ($who['domain_id'] != $target['domain_id']) {
             $domainChanged = true;
         }
 
-        if (!kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd')) {
+        if (!kryn::checkPageAcl($target['domain_id'], 'addPages', 'd')) {
             json(array('error' => 'access_denied'));
             ;
         }
 
-        $oldRealUrl = kryn::pageUrl($whoId, $who['domain_rsn']);
+        $oldRealUrl = kryn::pageUrl($whoId, $who['domain_id']);
 
         //handle mode
         switch ($mode) {
@@ -890,45 +890,45 @@ class adminPages {
                     json(array('error' => 'access_denied'));
                     ;
                 }
-                dbExec("UPDATE %pfx%system_pages SET prsn = $targetId, domain_rsn = '" . $target['domain_rsn'] .
-                       "', sort = 1, sort_mode = 'up' WHERE rsn = $whoId");
+                dbExec("UPDATE %pfx%system_page SET pid = $targetId, domain_id = '" . $target['domain_id'] .
+                       "', sort = 1, sort_mode = 'up' WHERE id = $whoId");
                 break;
 
             case 'down':
-                if ($target['prsn'] == 0) {
-                    if (!kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd')) {
+                if ($target['pid'] == 0) {
+                    if (!kryn::checkPageAcl($target['domain_id'], 'addPages', 'd')) {
                         json(array('error' => 'access_denied'));
                         ;
                     }
                 } else {
-                    if (!kryn::checkPageAcl($target['prsn'], 'addPages')) {
+                    if (!kryn::checkPageAcl($target['pid'], 'addPages')) {
                         json(array('error' => 'access_denied'));
                         ;
                     }
                 }
 
-                dbExec("UPDATE %pfx%system_pages SET prsn = " . $target['prsn'] . ", sort = " . $target['sort'] . ",
-            sort_mode = 'down', domain_rsn = '" . $target['domain_rsn'] . "'  WHERE rsn = $whoId");
+                dbExec("UPDATE %pfx%system_page SET pid = " . $target['pid'] . ", sort = " . $target['sort'] . ",
+            sort_mode = 'down', domain_id = '" . $target['domain_id'] . "'  WHERE id = $whoId");
                 break;
             case 'up':
-                if ($target['prsn'] == 0) {
-                    if (!kryn::checkPageAcl($target['domain_rsn'], 'addPages', 'd')) {
+                if ($target['pid'] == 0) {
+                    if (!kryn::checkPageAcl($target['domain_id'], 'addPages', 'd')) {
                         json(array('error' => 'access_denied'));
                         ;
                     }
                 } else {
-                    if (!kryn::checkPageAcl($target['prsn'], 'addPages')) {
+                    if (!kryn::checkPageAcl($target['pid'], 'addPages')) {
                         json(array('error' => 'access_denied'));
                         ;
                     }
                 }
-                dbExec("UPDATE %pfx%system_pages SET prsn = " . $target['prsn'] . ", sort = " . $target['sort'] . ",
-            sort_mode = 'up', domain_rsn = '" . $target['domain_rsn'] . "' WHERE rsn = $whoId");
+                dbExec("UPDATE %pfx%system_page SET pid = " . $target['pid'] . ", sort = " . $target['sort'] . ",
+            sort_mode = 'up', domain_id = '" . $target['domain_id'] . "' WHERE id = $whoId");
                 break;
         }
 
         if (getArgv('toDomain') || $domainChanged) {
-            self::fixPageDomainRsn($whoId, $target['domain_rsn']);
+            self::fixPageDomainRsn($whoId, $target['domain_id']);
         }
 
         kryn::deleteCache('page-' . $whoId);
@@ -937,30 +937,30 @@ class adminPages {
 
         $parents = kryn::getPageParents($whoId);
         foreach ($parents as &$parent) {
-            kryn::deleteCache('page-' . $parent['rsn']);
+            kryn::deleteCache('page-' . $parent['id']);
         }
 
         $parents = kryn::getPageParents($target);
         foreach ($parents as &$parent) {
-            kryn::deleteCache('page-' . $parent['rsn']);
+            kryn::deleteCache('page-' . $parent['id']);
         }
 
-        self::cleanSort($target['domain_rsn'], 0);
-        self::updateUrlCache($target['domain_rsn']);
-        self::updateMenuCache($target['domain_rsn']);
-        kryn::invalidateCache('navigation-' . $target['domain_rsn']);
-        kryn::invalidateCache('systemNavigations-' . $target['domain_rsn']);
-        kryn::invalidateCache('systemWholePage-' . $target['domain_rsn']);
+        self::cleanSort($target['domain_id'], 0);
+        self::updateUrlCache($target['domain_id']);
+        self::updateMenuCache($target['domain_id']);
+        kryn::invalidateCache('navigation-' . $target['domain_id']);
+        kryn::invalidateCache('systemNavigations-' . $target['domain_id']);
+        kryn::invalidateCache('systemWholePage-' . $target['domain_id']);
 
         kryn::deleteCache('kryn_pluginrelations');
 
-        if ($target['domain_rsn'] != $who['domain_rsn']) {
-            self::cleanSort($who['domain_rsn'], 0);
-            self::updateUrlCache($who['domain_rsn']);
-            self::updateMenuCache($who['domain_rsn']);
-            kryn::invalidateCache('navigation-' . $who['domain_rsn']);
-            kryn::invalidateCache('systemNavigations-' . $who['domain_rsn']);
-            kryn::invalidateCache('systemWholePage-' . $who['domain_rsn']);
+        if ($target['domain_id'] != $who['domain_id']) {
+            self::cleanSort($who['domain_id'], 0);
+            self::updateUrlCache($who['domain_id']);
+            self::updateMenuCache($who['domain_id']);
+            kryn::invalidateCache('navigation-' . $who['domain_id']);
+            kryn::invalidateCache('systemNavigations-' . $who['domain_id']);
+            kryn::invalidateCache('systemWholePage-' . $who['domain_id']);
         }
 
         return true;
@@ -969,19 +969,19 @@ class adminPages {
     public static function fixPageDomainRsn($pPageRsn, $pDomainRsn) {
         $pPageRsn += 0;
 
-        dbUpdate('system_pages', 'prsn = ' . $pPageRsn, array('domain_rsn' => $pDomainRsn));
+        dbUpdate('system_page', 'pid = ' . $pPageRsn, array('domain_id' => $pDomainRsn));
 
-        $res = dbExec('SELECT rsn FROM %pfx%system_pages WHERE prsn = ' . $pPageRsn);
+        $res = dbExec('SELECT id FROM %pfx%system_page WHERE pid = ' . $pPageRsn);
         while ($row = dbFetch($res)) {
-            self::fixPageDomainRsn($row['rsn'], $pDomainRsn);
+            self::fixPageDomainRsn($row['id'], $pDomainRsn);
         }
     }
 
     public static function cleanSort($pDomain, $pParent) {
-        //$pages = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE domain_rsn = $pDomain AND prsn = $pParent AND sort_mode = '' ORDER BY sort", DB_FETCH_ALL );
+        //$pages = dbExfetch( "SELECT * FROM %pfx%system_page WHERE domain_id = $pDomain AND pid = $pParent AND sort_mode = '' ORDER BY sort", DB_FETCH_ALL );
         $pages =
-            dbExfetch("SELECT * FROM %pfx%system_pages WHERE domain_rsn = $pDomain AND prsn = $pParent ORDER BY sort, sort_mode", DB_FETCH_ALL);
-        //$cleanPage = dbExfetch( "SELECT * FROM %pfx%system_pages WHERE domain_rsn = $pDomain AND prsn = $pParent AND sort_mode != ''" );
+            dbExfetch("SELECT * FROM %pfx%system_page WHERE domain_id = $pDomain AND pid = $pParent ORDER BY sort, sort_mode", DB_FETCH_ALL);
+        //$cleanPage = dbExfetch( "SELECT * FROM %pfx%system_page WHERE domain_id = $pDomain AND pid = $pParent AND sort_mode != ''" );
 
         $count = count($pages);
         $c = 1;
@@ -991,38 +991,38 @@ class adminPages {
 
                 if ($page['sort_mode'] == 'up') {
                     if ($lastPage) {
-                        dbExec("UPDATE %pfx%system_pages SET sort = " . ($c) . " WHERE rsn = " . $lastPage['rsn']);
-                        dbExec("UPDATE %pfx%system_pages SET sort = " . ($c - 1) . " WHERE rsn = " . $page['rsn']);
+                        dbExec("UPDATE %pfx%system_page SET sort = " . ($c) . " WHERE id = " . $lastPage['id']);
+                        dbExec("UPDATE %pfx%system_page SET sort = " . ($c - 1) . " WHERE id = " . $page['id']);
                     } else {
-                        dbExec("UPDATE %pfx%system_pages SET sort = " . ($c) . " WHERE rsn = " . $page['rsn']);
+                        dbExec("UPDATE %pfx%system_page SET sort = " . ($c) . " WHERE id = " . $page['id']);
                         $c++;
                     }
                 } else {
-                    dbExec("UPDATE %pfx%system_pages SET sort = " . $c . " WHERE rsn = " . $page['rsn']);
+                    dbExec("UPDATE %pfx%system_page SET sort = " . $c . " WHERE id = " . $page['id']);
                 }
                 $c++;
 
                 if ($page['sort_mode'] == 'down') {
-                    dbExec("UPDATE %pfx%system_pages SET sort = " . ($c) . " WHERE rsn = " . $page['rsn']);
+                    dbExec("UPDATE %pfx%system_page SET sort = " . ($c) . " WHERE id = " . $page['id']);
                     $c++;
                 }
 
                 $lastPage = $page;
-                self::cleanSort($pDomain, $page['rsn']);
+                self::cleanSort($pDomain, $page['id']);
             }
 
-        dbExec("UPDATE %pfx%system_pages SET sort_mode = '' WHERE domain_rsn = $pDomain AND prsn = $pParent");
+        dbExec("UPDATE %pfx%system_page SET sort_mode = '' WHERE domain_id = $pDomain AND pid = $pParent");
     }
 
     public static function getPageByRsn($pRsn) {
-        return dbExfetch("SELECT * FROM %pfx%system_pages WHERE rsn = " . ($pRsn + 0));
+        return dbExfetch("SELECT * FROM %pfx%system_page WHERE id = " . ($pRsn + 0));
     }
 
     public static function add() {
 
         $found = (getArgv('field_1') != '') ? true : false;
         $c = 1;
-        $rsn = getArgv('rsn') + 0;
+        $id = getArgv('id') + 0;
         $pos = getArgv('pos');
         $type = getArgv('type') + 0;
 
@@ -1038,29 +1038,29 @@ class adminPages {
         $targetItem = krynObjects::get(getArgv('parentObjectKey'), getArgv('parentId'));
 
         if (getArgv('parentObjectKey') == 'node'){
-            $domain_rsn = $targetItem['domain_rsn'];
+            $domain_id = $targetItem['domain_id'];
         } else {
-            $domain_rsn = $targetItem['rsn'];
+            $domain_id = $targetItem['id'];
         }
 
         //3print_r($targetItem); exit;
 
-        //if ($rsn > 0)
-        //    $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
+        //if ($id > 0)
+        //    $page = dbTableFetch('system_page', 1, "id = $id");
 
-        //$domain_rsn = ($rsn > 0) ? $page['domain_rsn'] : getArgv('domain_rsn');
-        //$prsn = ($rsn > 0) ? $page['prsn'] : 0;
+        //$domain_id = ($id > 0) ? $page['domain_id'] : getArgv('domain_id');
+        //$pid = ($id > 0) ? $page['pid'] : 0;
 
         //todo, check ACL
 
         /*
-        if ($prsn == 0) {
-            if (!kryn::checkPageAcl($domain_rsn, 'addPages', 'd')) {
+        if ($pid == 0) {
+            if (!kryn::checkPageAcl($domain_id, 'addPages', 'd')) {
                 json(array('error' => 'access_denied'));
                 ;
             }
         } else {
-            if (!kryn::checkPageAcl($prsn, 'addPages')) {
+            if (!kryn::checkPageAcl($pid, 'addPages')) {
                 json(array('error' => 'access_denied'));
                 ;
             }
@@ -1084,7 +1084,7 @@ class adminPages {
                 'url' => kryn::toModRewrite($val),
                 'layout' => $layout,
                 'visible' => $visible,
-                'domain_rsn' => $domain_rsn,
+                'domain_id' => $domain_id,
                 'type' => $type
             );
 
@@ -1093,20 +1093,20 @@ class adminPages {
             $c++;
         }
 
-        self::updateUrlCache($domain_rsn);
-        self::updateMenuCache($domain_rsn);
+        self::updateUrlCache($domain_id);
+        self::updateMenuCache($domain_id);
 
         if (getArgv('parentObjectKey') == 'node'){
-            kryn::deleteCache('page-' . $rsn);
-            $parents = kryn::getPageParents($rsn);
+            kryn::deleteCache('page-' . $id);
+            $parents = kryn::getPageParents($id);
             foreach ($parents as &$parent) {
-                kryn::deleteCache('page-' . $parent['rsn']);
+                kryn::deleteCache('page-' . $parent['id']);
             }
         }
 
-        kryn::invalidateCache('navigation-' . $domain_rsn);
-        kryn::invalidateCache('systemNavigations-' . $domain_rsn);
-        kryn::invalidateCache('systemWholePage-' . $domain_rsn);
+        kryn::invalidateCache('navigation-' . $domain_id);
+        kryn::invalidateCache('systemNavigations-' . $domain_id);
+        kryn::invalidateCache('systemWholePage-' . $domain_id);
 
         self::updatePage2DomainCache();
 
@@ -1117,17 +1117,17 @@ class adminPages {
     public static function save() {
         global $user, $kcache;
 
-        $rsn = getArgv('rsn') + 0;
+        $id = getArgv('id') + 0;
 
-        kryn::deleteCache('page-' . $rsn);
-        kryn::deleteCache('pageContents-' . $rsn);
+        kryn::deleteCache('page-' . $id);
+        kryn::deleteCache('pageContents-' . $id);
 
-        $domain_rsn = getArgv('domain_rsn') + 0;
+        $domain_id = getArgv('domain_id') + 0;
 
         $aclCanPublish = false;
         $canSaveContents = false;
 
-        if (kryn::checkPageAcl($rsn, 'contents') && kryn::checkPageAcl($rsn, 'canPublish')) {
+        if (kryn::checkPageAcl($id, 'contents') && kryn::checkPageAcl($id, 'canPublish')) {
             $aclCanPublish = true;
         }
 
@@ -1145,21 +1145,21 @@ class adminPages {
 
         $updateArray = array();
 
-        if (kryn::checkPageAcl($rsn, 'general')) {
+        if (kryn::checkPageAcl($id, 'general')) {
 
-            if (kryn::checkPageAcl($rsn, 'title'))
+            if (kryn::checkPageAcl($id, 'title'))
                 $updateArray[] = 'title';
 
-            if (kryn::checkPageAcl($rsn, 'page_title'))
+            if (kryn::checkPageAcl($id, 'page_title'))
                 $updateArray[] = 'page_title';
 
-            if (kryn::checkPageAcl($rsn, 'type'))
+            if (kryn::checkPageAcl($id, 'type'))
                 $updateArray[] = 'type';
 
-            if (kryn::checkPageAcl($rsn, 'url'))
+            if (kryn::checkPageAcl($id, 'url'))
                 $updateArray[] = 'url';
 
-            if (kryn::checkPageAcl($rsn, 'meta'))
+            if (kryn::checkPageAcl($id, 'meta'))
                 $updateArray[] = 'meta';
 
             $updateArray[] = 'target';
@@ -1167,23 +1167,23 @@ class adminPages {
         }
 
 
-        if (kryn::checkPageAcl($rsn, 'access')) {
+        if (kryn::checkPageAcl($id, 'access')) {
 
-            if (kryn::checkPageAcl($rsn, 'visible'))
+            if (kryn::checkPageAcl($id, 'visible'))
                 $updateArray[] = 'visible';
 
-            if (kryn::checkPageAcl($rsn, 'access_denied'))
+            if (kryn::checkPageAcl($id, 'access_denied'))
                 $updateArray[] = 'access_denied';
 
-            if (kryn::checkPageAcl($rsn, 'force_https'))
+            if (kryn::checkPageAcl($id, 'force_https'))
                 $updateArray[] = 'force_https';
 
-            if (kryn::checkPageAcl($rsn, 'releaseDates')) {
+            if (kryn::checkPageAcl($id, 'releaseDates')) {
                 $updateArray[] = 'access_from';
                 $updateArray[] = 'access_to';
             }
 
-            if (kryn::checkPageAcl($rsn, 'limitation')) {
+            if (kryn::checkPageAcl($id, 'limitation')) {
                 $updateArray['access_from_groups'] = $groups;
                 $updateArray[] = 'access_need_via';
                 $updateArray[] = 'access_nohidenavi';
@@ -1191,30 +1191,30 @@ class adminPages {
             }
         }
 
-        if (kryn::checkPageAcl($rsn, 'contents')) {
+        if (kryn::checkPageAcl($id, 'contents')) {
 
             $canSaveContents = true;
 
-            if (kryn::checkPageAcl($rsn, 'canChangeLayout'))
+            if (kryn::checkPageAcl($id, 'canChangeLayout'))
                 $updateArray[] = 'layout';
 
         }
 
-        if (kryn::checkPageAcl($rsn, 'properties')) {
+        if (kryn::checkPageAcl($id, 'properties')) {
             $updateArray[] = 'properties';
         }
 
-        if (kryn::checkPageAcl($rsn, 'search')) {
+        if (kryn::checkPageAcl($id, 'search')) {
 
-            if (kryn::checkPageAcl($rsn, 'exludeSearch')) {
+            if (kryn::checkPageAcl($id, 'exludeSearch')) {
                 $updateArray[] = 'unsearchable';
 
                 if (getArgv('unsearchable', 1) + 0 > 0)
                     dbExec(
-                        "DELETE FROM %pfx%system_search WHERE page_rsn = '" . $rsn . "' AND domain_rsn=" . $domain_rsn);
+                        "DELETE FROM %pfx%system_search WHERE page_id = '" . $id . "' AND domain_id=" . $domain_id);
             }
 
-            if (kryn::checkPageAcl($rsn, 'searchKeys'))
+            if (kryn::checkPageAcl($id, 'searchKeys'))
                 $updateArray[] = 'search_words';
 
         }
@@ -1223,14 +1223,14 @@ class adminPages {
         $updateArray['mdate'] = time();
 
 
-        $oldPage = dbTableFetch("system_pages", "rsn = " . ($rsn + 0), 1);
+        $oldPage = dbTableFetch("system_page", "id = " . ($id + 0), 1);
 
-        kryn::invalidateCache('systemWholePage-' . $oldPage['domain_rsn']);
-        kryn::invalidateCache('systemNavigations-' . $oldPage['domain_rsn']);
-        kryn::invalidateCache('navigation-' . $oldPage['domain_rsn']);
+        kryn::invalidateCache('systemWholePage-' . $oldPage['domain_id']);
+        kryn::invalidateCache('systemNavigations-' . $oldPage['domain_id']);
+        kryn::invalidateCache('navigation-' . $oldPage['domain_id']);
 
-        $kcache['realUrl'] =& kryn::getCache('systemUrls-' . $oldPage['domain_rsn']);
-        $oldRealUrl = $kcache['realUrl']['rsn']['rsn=' . $rsn];
+        $kcache['realUrl'] =& kryn::getCache('systemUrls-' . $oldPage['domain_id']);
+        $oldRealUrl = $kcache['realUrl']['id']['id=' . $id];
 
         if (in_array('url', $updateArray) && $oldPage['url'] != getArgv('url') && getArgv('newAlias')) {
 
@@ -1240,30 +1240,30 @@ class adminPages {
             }
 
             $existRow = dbExfetch(
-                "SELECT rsn FROM %pfx%system_urlalias WHERE to_page_rsn=" . $page . " AND url = '" . $oldRealUrl .
+                "SELECT id FROM %pfx%system_urlalias WHERE to_page_id=" . $page . " AND url = '" . $oldRealUrl .
                 "'", 1);
 
-            if ($existRow['rsn'] + 0 == 0)
-                dbInsert('system_urlalias', array('domain_rsn' => $oldPage['domain_rsn'], 'url' => $oldRealUrl,
-                    'to_page_rsn' => $rsn));
+            if ($existRow['id'] + 0 == 0)
+                dbInsert('system_urlalias', array('domain_id' => $oldPage['domain_id'], 'url' => $oldRealUrl,
+                    'to_page_id' => $id));
 
         }
 
         if ($oldPage['url'] != getArgv('url')) {
             $indexedPages =& kryn::getCache('systemSearchIndexedPages');
 
-            $need = $rsn . '_';
+            $need = $id . '_';
             foreach ($indexedPages as $key => &$index) {
                 if (substr($key, 0, strlen($need)) == $need) {
                     unset($indexedPages[$key]);
                 }
             }
 
-            dbDelete('system_search', 'page_rsn	= ' . $rsn);
-            kryn::invalidateCache('krynSearch_' . $oldPage['rsn']);
+            dbDelete('system_search', 'page_id	= ' . $id);
+            kryn::invalidateCache('krynSearch_' . $oldPage['id']);
         }
 
-        dbUpdate('system_pages', array('rsn' => $rsn), $updateArray);
+        dbUpdate('system_page', array('id' => $id), $updateArray);
 
         //if page marked as unsearchable the delete it from index
 
@@ -1273,13 +1273,13 @@ class adminPages {
             $active = 0;
             if (getArgv('andPublish') == 1 && $aclCanPublish) {
                 $active = 1;
-                dbUpdate('system_pagesversions', array('page_rsn' => $rsn), array('active' => 0));
+                dbUpdate('system_page_version', array('page_id' => $id), array('active' => 0));
             }
 
             $time = time();
 
-            $version_rsn = dbInsert('system_pagesversions', array(
-                'page_rsn' => $rsn, 'owner_rsn' => $user->user_rsn, 'created' => $time, 'modified' => $time,
+            $version_id = dbInsert('system_page_version', array(
+                'page_id' => $id, 'owner_id' => $user->user_id, 'created' => $time, 'modified' => $time,
                 'active' => $active
             ));
 
@@ -1293,10 +1293,10 @@ class adminPages {
                         if (is_array($content['access_from_groups']))
                             $contentGroups = esc(implode(",", $content['access_from_groups']));
 
-                        if (kryn::checkPageAcl($rsn, 'content-' . $content['type'])) {
+                        if (kryn::checkPageAcl($id, 'content-' . $content['type'])) {
 
                             $contentRsn = dbInsert('system_contents', array(
-                                'page_rsn' => $rsn,
+                                'page_id' => $id,
                                 'box_id' => $boxId,
                                 'title' => $content['title'],
                                 'content' => $content['content'],
@@ -1306,7 +1306,7 @@ class adminPages {
                                 'cdate' => $time,
                                 'hide' => $content['hide'],
                                 'sort' => $sort,
-                                'version_rsn' => $version_rsn,
+                                'version_id' => $version_id,
                                 'unsearchable' => $content['unsearchable'],
                                 'access_from' => $content['access_from'],
                                 'access_to' => $content['access_to'],
@@ -1317,12 +1317,12 @@ class adminPages {
                         } else {
 
                             $oldContent = dbTableFetch('system_contents',
-                                'rsn = ' . ($content['rsn'] + 0) . ' AND page_rsn = ' . $rsn . ' AND box_id = ' .
+                                'id = ' . ($content['id'] + 0) . ' AND page_id = ' . $id . ' AND box_id = ' .
                                 $boxId, 1);
-                            if ($oldContent['rsn'] + 0 > 0 && $oldContent['type'] == $content['type']) {
+                            if ($oldContent['id'] + 0 > 0 && $oldContent['type'] == $content['type']) {
 
-                                $oldContent['version_rsn'] = $version_rsn;
-                                unset($oldContent['rsn']);
+                                $oldContent['version_id'] = $version_id;
+                                unset($oldContent['id']);
                                 dbInsert('system_contents', $oldContent);
                                 $sort++;
 
@@ -1334,7 +1334,7 @@ class adminPages {
         }
 
 
-        if (kryn::checkPageAcl($rsn, 'resources')) {
+        if (kryn::checkPageAcl($id, 'resources')) {
             if (getArgv('getType') == 0 || getArgv('getType') == 3) { //page or deposit
 
                 if (!file_exists(PATH_MEDIA.'css/_pages/')) {
@@ -1347,43 +1347,43 @@ class adminPages {
                     @mkdir(PATH_MEDIA.'js/_pages');
                 }
 
-                if (kryn::checkPageAcl($rsn, 'css')) {
+                if (kryn::checkPageAcl($id, 'css')) {
                     if (getArgv('resourcesCss') != '')
-                        kryn::fileWrite(PATH_MEDIA."css/_pages/$rsn.css", getArgv('resourcesCss'));
-                    else if (file_exists(PATH_MEDIA."css/_pages/$rsn.css"))
-                        @unlink(PATH_MEDIA."css/_pages/$rsn.css");
+                        kryn::fileWrite(PATH_MEDIA."css/_pages/$id.css", getArgv('resourcesCss'));
+                    else if (file_exists(PATH_MEDIA."css/_pages/$id.css"))
+                        @unlink(PATH_MEDIA."css/_pages/$id.css");
                 }
 
 
-                if (kryn::checkPageAcl($rsn, 'js')) {
+                if (kryn::checkPageAcl($id, 'js')) {
                     if (getArgv('resourcesJs') != '')
-                        kryn::fileWrite(PATH_MEDIA."js/_pages/$rsn.js", getArgv('resourcesJs'));
+                        kryn::fileWrite(PATH_MEDIA."js/_pages/$id.js", getArgv('resourcesJs'));
                     else
-                        @unlink(PATH_MEDIA."js/_pages/$rsn.js");
+                        @unlink(PATH_MEDIA."js/_pages/$id.js");
                 }
             }
         }
 
-        self::updateUrlCache($domain_rsn);
-        self::updateMenuCache($domain_rsn);
+        self::updateUrlCache($domain_id);
+        self::updateMenuCache($domain_id);
 
         kryn::deleteCache('kryn_pluginrelations');
 
-        $res = self::getPage($rsn);
-        $res['version_rsn'] = $version_rsn;
+        $res = self::getPage($id);
+        $res['version_id'] = $version_id;
         json($res);
     }
 
     public static function updateMenuCache($pDomainRsn) {
-        $resu = dbExec("SELECT rsn, title, url, prsn FROM %pfx%system_pages WHERE
-        				 domain_rsn = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
+        $resu = dbExec("SELECT id, title, url, pid FROM %pfx%system_page WHERE
+        				 domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
         $res = array();
         while ($page = dbFetch($resu, 1)) {
 
             if ($page['type'] == 0)
-                $res[$page['rsn']] = self::getParentMenus($page);
+                $res[$page['id']] = self::getParentMenus($page);
             else
-                $res[$page['rsn']] = self::getParentMenus($page, true);
+                $res[$page['id']] = self::getParentMenus($page, true);
 
         }
 
@@ -1394,18 +1394,18 @@ class adminPages {
     }
 
     public static function getParentMenus($pPage, $pAllParents = false) {
-        $prsn = $pPage['prsn'];
+        $pid = $pPage['pid'];
         $res = array();
-        while ($prsn != 0) {
+        while ($pid != 0) {
             $parent_page =
-                dbExfetch("SELECT rsn, title, url, prsn, type FROM %pfx%system_pages WHERE rsn = " . $prsn, 1);
+                dbExfetch("SELECT id, title, url, pid, type FROM %pfx%system_page WHERE id = " . $pid, 1);
             if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
                 //page or link or page-mount
                 array_unshift($res, $parent_page);
             } else if ($pAllParents) {
                 array_unshift($res, $parent_page);
             }
-            $prsn = $parent_page['prsn'];
+            $pid = $parent_page['pid'];
         }
         return $res;
     }
@@ -1415,24 +1415,25 @@ class adminPages {
         $pDomainRsn = $pDomainRsn + 0;
 
         $resu =
-            dbExec("SELECT rsn, title, url, type, link FROM %pfx%system_pages WHERE domain_rsn = $pDomainRsn AND prsn = 0");
-        $res = array('url' => array(), 'rsn' => array());
+            dbExec("SELECT id, title, url, type, link FROM %pfx%system_page WHERE domain_id = $pDomainRsn AND pid = 0");
+        $res = array('url' => array(), 'id' => array());
 
         $domain = kryn::getDomain($pDomainRsn);
-        while ($page = dbFetch($resu, 1)) {
 
-            kryn::deleteCache('page_' . $page['rsn']);
+        while ($page = dbFetch($resu)) {
+
+            kryn::deleteCache('page_' . $page['id']);
 
             $page = self::__pageModify($page, array('realurl' => ''));
             $newRes = self::updateUrlCacheChilds($page, $domain);
             $res['url'] = array_merge($res['url'], $newRes['url']);
-            $res['rsn'] = array_merge($res['rsn'], $newRes['rsn']);
+            $res['id'] = array_merge($res['id'], $newRes['id']);
             //$res['r2d'] = array_merge( $res['r2d'], $newRes['r2d'] );
         }
 
-        $aliasRes = dbExec('SELECT to_page_rsn, url FROM %pfx%system_urlalias WHERE domain_rsn = ' . $pDomainRsn);
+        $aliasRes = dbExec('SELECT to_page_id, url FROM %pfx%system_urlalias WHERE domain_id = ' . $pDomainRsn);
         while ($row = dbFetch($aliasRes)) {
-            $res['alias'][$row['url']] = $row['to_page_rsn'];
+            $res['alias'][$row['url']] = $row['to_page_id'];
         }
 
         self::updatePage2DomainCache();
@@ -1443,25 +1444,25 @@ class adminPages {
     public static function updatePage2DomainCache() {
 
         $r2d = array();
-        $res = dbExec('SELECT rsn, domain_rsn FROM %pfx%system_pages ');
+        $res = dbExec('SELECT id, domain_id FROM %pfx%system_page ');
 
         while ($row = dbFetch($res)) {
-            $r2d[$row['domain_rsn']] .= $row['rsn'] . ',';
+            $r2d[$row['domain_id']] .= $row['id'] . ',';
         }
         kryn::setCache('systemPages2Domain', $r2d);
         return $r2d;
     }
 
     public static function updateUrlCacheChilds($pPage, $pDomain = false) {
-        $res = array('url' => array(), 'rsn' => array(), 'r2d' => array());
+        $res = array('url' => array(), 'id' => array(), 'r2d' => array());
 
         if ($pPage['type'] == 1) { //link
             //$realUrl = $pPage['realurl'];
             //$pPage['realurl'] = $pPage['prealurl'];
         }
 
-        /*$res['r2d']['rsn='.$pPage['rsn']] = array(
-            'rsn'    => $pDomain['rsn'],
+        /*$res['r2d']['id='.$pPage['id']] = array(
+            'id'    => $pDomain['id'],
             'path'   => $pDomain['path'],
             'domain' => $pDomain['domain'],
             'master' => $pDomain['master']
@@ -1469,29 +1470,29 @@ class adminPages {
 
         if ($pPage['type'] < 2) { //page or link or folder
             if ($pPage['realurl'] != '') {
-                $res['url']['url=' . $pPage['realurl']] = $pPage['rsn'];
-                $res['rsn'] = array('rsn=' . $pPage['rsn'] => $pPage['realurl']);
+                $res['url']['url=' . $pPage['realurl']] = $pPage['id'];
+                $res['id'] = array('id=' . $pPage['id'] => $pPage['realurl']);
             } else {
-                $res['rsn'] = array('rsn=' . $pPage['rsn'] => $pPage['url']);
+                $res['id'] = array('id=' . $pPage['id'] => $pPage['url']);
             }
         }
 
-        $pages = dbExfetch("SELECT rsn, title, url, type, link
-                             FROM %pfx%system_pages
-                             WHERE prsn = " . $pPage['rsn'],
+        $pages = dbExfetch("SELECT id, title, url, type, link
+                             FROM %pfx%system_page
+                             WHERE pid = " . $pPage['id'],
             DB_FETCH_ALL);
 
         if (is_array($pages)) {
             foreach ($pages as $page) {
 
 
-                kryn::deleteCache('page_' . $page['rsn']);
+                kryn::deleteCache('page_' . $page['id']);
 
                 $page = self::__pageModify($page, $pPage);
                 $newRes = self::updateUrlCacheChilds($page);
 
                 $res['url'] = array_merge($res['url'], $newRes['url']);
-                $res['rsn'] = array_merge($res['rsn'], $newRes['rsn']);
+                $res['id'] = array_merge($res['id'], $newRes['id']);
                 $res['r2d'] = array_merge($res['r2d'], $newRes['r2d']);
 
             }
@@ -1532,26 +1533,26 @@ class adminPages {
         //$res['resourcesCss'] = kryn::readFile(PATH_MEDIA."css/_pages/$pRsn.css");
         //$res['resourcesJs'] = kryn::readFile(PATH_MEDIA."js/_pages/$pRsn.js");
 
-        $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pRsn AND active = 1");
-        if (!$curVersion['rsn'] > 0) {
-            $curVersion = dbTableFetch('system_pagesversions', 1, "page_rsn = $pRsn ORDER BY rsn DESC");
+        $curVersion = dbTableFetch('system_page_version', 1, "page_id = $pRsn AND active = 1");
+        if (!$curVersion['id'] > 0) {
+            $curVersion = dbTableFetch('system_page_version', 1, "page_id = $pRsn ORDER BY id DESC");
         }
 
-        $contents = self::getVersion($pRsn, $curVersion['rsn']);
-        $res['_activeVersion'] = $curVersion['rsn'];
+        $contents = self::getVersion($pRsn, $curVersion['id']);
+        $res['_activeVersion'] = $curVersion['id'];
 
-        $res['alias'] = dbExfetch('SELECT * FROM %pfx%system_urlalias WHERE to_page_rsn=' . $pRsn, -1);
+        $res['alias'] = dbExfetch('SELECT * FROM %pfx%system_urlalias WHERE to_page_id=' . $pRsn, -1);
 
         $domain =
-            dbExfetch("SELECT d.rsn FROM %pfx%system_domains d, %pfx%system_pages p WHERE p.domain_rsn = d.rsn AND p.rsn = $pRsn");
+            dbExfetch("SELECT d.id FROM %pfx%system_domain d, %pfx%system_page p WHERE p.domain_id = d.id AND p.id = $pRsn");
         kryn::$domain = $domain;
 
         $cachedUrls =& kryn::readCache('systemUrls');
-        $res['realUrl'] = $cachedUrls['rsn']['rsn=' . $pRsn];
+        $res['realUrl'] = $cachedUrls['id']['id=' . $pRsn];
         $res['contents'] = json_encode($contents);
 
         $res['versions'] =
-            dbExfetch("SELECT version_rsn, MAX(mdate) FROM %pfx%system_contents WHERE page_rsn = $pRsn GROUP BY version_rsn", DB_FETCH_ALL);
+            dbExfetch("SELECT version_id, MAX(mdate) FROM %pfx%system_contents WHERE page_id = $pRsn GROUP BY version_id", DB_FETCH_ALL);
 
         json($res);
     }

@@ -7,29 +7,29 @@ class publicationNews {
 
 
         $replaceTitle = $pConf['replaceTitle'] + 0 == 1;
-        $categoryRsn = $pConf['category_rsn'];
+        $categoryRsn = $pConf['category_id'];
         $allowComments = $pConf['allowComments'] + 0;
         $template = $pConf['template'];
 
 
-        $rsn = getArgv('e2') + 0;
+        $id = getArgv('e2') + 0;
 
-        if ($rsn > 0) {
+        if ($id > 0) {
 
             // Create category where clause
             $whereCategories = "";
             if (count($categoryRsn))
-                $whereCategories = "AND n.category_rsn IN (" . implode(",", $categoryRsn) . ")";
+                $whereCategories = "AND n.category_id IN (" . implode(",", $categoryRsn) . ")";
 
             if (getArgv('kryn_framework_code') == 'publication/newsDetail' &&
                 getArgv('kryn_framework_version_id') && kryn::checkUrlAccess('admin/publication/news/edit')
             ) {
 
                 $news =
-                    admin::getVersion('publication_news', array('rsn' => $rsn), getArgv('kryn_framework_version_id'));
+                    admin::getVersion('publication_news', array('id' => $id), getArgv('kryn_framework_version_id'));
 
                 if ($news) {
-                    $category = dbTableFetch('publication_news_category', 'rsn = ' . $news['category_rsn'], 1);
+                    $category = dbTableFetch('publication_news_category', 'id = ' . $news['category_id'], 1);
                     $news['categoryTitle'] = $category['title'];
                 }
             } else {
@@ -48,8 +48,8 @@ class publicationNews {
                         1=1
                         $whereCategories
                         AND n.deactivate = 0
-                        AND c.rsn = n.category_rsn
-                        AND n.rsn = $rsn
+                        AND c.id = n.category_id
+                        AND n.id = $id
                         AND (n.releaseAt = 0 OR n.releaseAt <= $now)
                 ";
 
@@ -68,13 +68,13 @@ class publicationNews {
                 // Handle comment calls
                 if ($allowComments && $news['deactivateComments'] + 0 == 0) {
                     if (getArgv('publication-add-comment') + 0) {
-                        $name = $user->user_rsn == 0 ? getArgv('name', 1) : $user->user['username'];
+                        $name = $user->user_id == 0 ? getArgv('name', 1) : $user->user['username'];
                         if ($name != "") {
                             dbInsert(
                                 'publication_comments',
                                 array(
-                                    'parent_rsn' => $rsn,
-                                    'owner_rsn' => $user->user_rsn,
+                                    'parent_id' => $id,
+                                    'owner_id' => $user->user_id,
                                     'owner_username' => $name,
                                     'created' => time(),
                                     'ip' => $_SERVER['REMOTE_ADDR'],
@@ -85,7 +85,7 @@ class publicationNews {
                                     'message'
                                 )
                             );
-                            self::updateCommentsCount($rsn);
+                            self::updateCommentsCount($id);
                             $news['commentscount']++;
                         }
                     }
@@ -113,7 +113,7 @@ class publicationNews {
                         FROM
                             %pfx%publication_comments
                         WHERE
-                            parent_rsn = $rsn
+                            parent_id = $id
                     ";
                     $countRow = dbExfetch($sqlCount, 1);
                     $count = $countRow['commentsCount'];
@@ -133,7 +133,7 @@ class publicationNews {
 
                     // Fetch comments
                     $comments =
-                        dbTableFetch('publication_comments', -1, "parent_rsn = $rsn LIMIT $itemsPerPage OFFSET $start");
+                        dbTableFetch('publication_comments', -1, "parent_id = $id LIMIT $itemsPerPage OFFSET $start");
                     if ($comments !== false)
                         tAssign('comments', $comments);
                 }
@@ -172,14 +172,14 @@ class publicationNews {
 
     public static function updateCommentsCount($pNewsRsn) {
         $comments =
-            dbExfetch('SELECT count(*) as comcount FROM %pfx%publication_comments WHERE parent_rsn = ' . $pNewsRsn);
-        dbUpdate('publication_news', array('rsn' => $pNewsRsn), array('commentscount' => $comments['comcount']));
+            dbExfetch('SELECT count(*) as comcount FROM %pfx%publication_comments WHERE parent_id = ' . $pNewsRsn);
+        dbUpdate('publication_news', array('id' => $pNewsRsn), array('commentscount' => $comments['comcount']));
     }
 
     public static function itemList($pConf) {
 
         // Get important variables from config
-        $categoryRsn = $pConf['category_rsn'];
+        $categoryRsn = $pConf['category_id'];
         $itemsPerPage = $pConf['itemsPerPage'] + 0;
         $maxPages = $pConf['maxPages'] + 0;
         $order = $pConf['order'];
@@ -189,7 +189,7 @@ class publicationNews {
         // Create category where clause
         $whereCategories = "";
         if (count($categoryRsn))
-            $whereCategories = "AND category_rsn IN (" . implode(",", $categoryRsn) . ")";
+            $whereCategories = "AND category_id IN (" . implode(",", $categoryRsn) . ")";
 
         if (getArgv('e1') == 'category') {
 
@@ -203,7 +203,7 @@ class publicationNews {
                 //compatibility
                 $categories = dbTableFetch('publication_news_category');
                 foreach ($categories as $category) {
-                    dbUpdate('publication_news_category', array('rsn' => $category['rsn']), array(
+                    dbUpdate('publication_news_category', array('id' => $category['id']), array(
                         'url' => kryn::toModRewrite($category['title'])
                     ));
                 }
@@ -233,7 +233,7 @@ class publicationNews {
         if ($order)
             $orderBy = "$order $orderDirection";
 
-        $cacheKey = 'publicationNewsList_' . kryn::$page['rsn'] . '-' .
+        $cacheKey = 'publicationNewsList_' . kryn::$page['id'] . '-' .
                     md5($template . '.' . $whereCategories . '.' . $start . '.' . $itemsPerPage . '.' . $orderBy);
 
         if (kryn::$domainProperties['publication']['cache'] == 1) {
@@ -266,7 +266,7 @@ class publicationNews {
                     1=1
                     $whereCategories
                     AND n.deactivate = 0
-                    AND c.rsn = n.category_rsn
+                    AND c.id = n.category_id
                     AND (n.releaseat = 0 OR n.releaseat <= $now)
                 ORDER BY $orderBy
                 LIMIT $itemsPerPage OFFSET $start
@@ -309,7 +309,7 @@ class publicationNews {
             //compatibility
             $categories = dbTableFetch('publication_news_category');
             foreach ($categories as $category) {
-                dbUpdate('publication_news_category', array('rsn' => $category['rsn']), array(
+                dbUpdate('publication_news_category', array('id' => $category['id']), array(
                     'url' => kryn::toModRewrite($category['title'])
                 ));
             }
@@ -366,14 +366,14 @@ class publicationNews {
 
     public static function rssList($pConf) {
         // Fetch important vars from conf var
-        $categoryRsn = $pConf['category_rsn'];
+        $categoryRsn = $pConf['category_id'];
         $itemsPerPage = $pConf['itemsPerPage'] + 0; // Make sure it's set
         $template = $pConf['rssTemplate'];
 
         // Create category where clause
         $whereCategories = "";
         if (count($categoryRsn))
-            $whereCategories = "AND n.category_rsn IN (" . implode(",", $categoryRsn) . ") ";
+            $whereCategories = "AND n.category_id IN (" . implode(",", $categoryRsn) . ") ";
 
         // Set items per page to default when not set
         if ($itemsPerPage < 1)
@@ -393,7 +393,7 @@ class publicationNews {
                     1=1
                 $whereCategories 
                 AND n.deactivate = 0
-                AND n.category_rsn = c.rsn
+                AND n.category_id = c.id
                 AND (n.releaseAt = 0 OR n.releaseAt <= $now)
             ORDER BY
                 releaseDate DESC

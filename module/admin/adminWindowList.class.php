@@ -49,7 +49,7 @@ class adminWindowList {
 
     /**
      * Defines your primary fiels as a array.
-     * Example: $primary = array('rsn');
+     * Example: $primary = array('id');
      * Example: $primary = array('id', 'name');
      *
      * Use this only if you know, what you're doing,
@@ -195,7 +195,7 @@ class adminWindowList {
 
     /**
      * Defines whether the list windows should display the domain select box.
-     * Note: Your table need a field 'domain_rsn' int. The windowList class filter by this.
+     * Note: Your table need a field 'domain_id' int. The windowList class filter by this.
      *
      * @var bool
      */
@@ -203,7 +203,7 @@ class adminWindowList {
 
     /**
      * Defines whether the workspace slider should appears or not.
-     * Needs a column workspace_rsn in the table or active workspace at object.
+     * Needs a column workspace_id in the table or active workspace at object.
      *
      * @var bool
      */

@@ -145,10 +145,10 @@
             }
           }
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Limit categories]]",
           "table": "publication_news_category",
-          "table_key": "rsn",
+          "table_key": "id",
           "table_label": "title",
           "multi": 1,
           "type": "select"
@@ -164,10 +164,10 @@
           "directory": "inc\/template\/publication\/news\/detail\/",
           "type": "files"
         },
-        "news_rsn": {
+        "news_id": {
           "label": "[[Article]]",
           "table": "publication_news",
-          "table_key": "rsn",
+          "table_key": "id",
           "table_label": "title",
           "type": "select"
         },
@@ -224,10 +224,10 @@
           "directory": "inc\/template\/publication\/news\/list\/",
           "type": "files"
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Limit categories]]",
           "table": "publication_news_category",
-          "table_key": "rsn",
+          "table_key": "id",
           "table_label": "title",
           "multi": 1,
           "type": "select"
@@ -238,7 +238,7 @@
             "title": "[[Title]]",
             "releaseat": "[[Release date]]",
             "releasedate": "[[News date]]",
-            "category_rsn": "[[Category]]"
+            "category_id": "[[Category]]"
           },
           "type": "select",
           "default": "2"
@@ -285,10 +285,10 @@
           "directory": "inc\/template\/publication\/news\/rss\/",
           "type": "files"
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Category\/s]]",
           "table": "publication_news_category",
-          "table_key": "rsn",
+          "table_key": "id",
           "table_label": "title",
           "multi": 1,
           "type": "select"
@@ -308,10 +308,10 @@
           "directory": "inc\/template\/publication\/categoryList\/",
           "type": "files"
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Limit categories]]",
           "table": "publication_news_category",
-          "table_key": "rsn",
+          "table_key": "id",
           "table_label": "title",
           "multi": 1,
           "type": "select"
@@ -324,7 +324,7 @@
       "table": "publication_comments",
       "relation": "1-n",
       "fields": {
-        "rsn": "parent_rsn"
+        "id": "parent_id"
       }
     }
   },
@@ -333,10 +333,10 @@
       "label": "[[Article]]",
       "desc": "[[Articles]]",
       "table": "publication_news",
-      "table_primary": "rsn",
+      "table_primary": "id",
       "plugins": "newsDetail, newsList",
       "fields": {
-        "rsn": {
+        "id": {
           "label": "[[Id]]",
           "type": "number",
           "primaryKey": 1,
@@ -349,7 +349,7 @@
           "primaryKey": 0,
           "empty": 1
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Category]]",
           "object": "news_category",
           "objectLabel": "title",
@@ -445,9 +445,9 @@
           "label": "[[Title]]",
           "type": "text"
         },
-        "category_rsn": {
+        "category_id": {
           "object": "news",
-          "field": "category_rsn",
+          "field": "category_id",
           "type": "predefined",
           "width": "30%"
         }
@@ -462,9 +462,9 @@
           "label": "[[Title]]",
           "type": "text"
         },
-        "category_rsn": {
+        "category_id": {
           "object": "news",
-          "field": "category_rsn",
+          "field": "category_id",
           "type": "predefined",
           "width": "30%"
         }
@@ -484,14 +484,14 @@
       "plugins": "",
       "selectable": false,
       "fields": {
-        "rsn": {
+        "id": {
           "label": "ID",
           "type": "number",
           "primaryKey": 1,
           "autoIncrement": 1,
           "empty": 1
         },
-        "parent_rsn": {
+        "parent_id": {
           "label": "[[News]]",
           "object": "news",
           "objectLabel": "title",
@@ -537,7 +537,7 @@
       "chooserBrowserType": "default",
       "selectable": 1,
       "fields": {
-        "rsn": {
+        "id": {
           "label": "ID",
           "type": "number",
           "primaryKey": 1,
@@ -567,13 +567,13 @@
   },
   "db": {
     "publication_news": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "category_rsn": [
+      "category_id": [
         "int",
         "",
         "DB_INDEX",
@@ -633,7 +633,7 @@
         "-",
         false
       ],
-      "modified_rsn": [
+      "modified_id": [
         "int",
         "",
         "-",
@@ -677,7 +677,7 @@
       ]
     },
     "publication_news_category": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -703,13 +703,13 @@
       ]
     },
     "publication_comments": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "parent_rsn": [
+      "parent_id": [
         "int",
         "",
         "DB_INDEX",
@@ -721,7 +721,7 @@
         "-",
         false
       ],
-      "owner_rsn": [
+      "owner_id": [
         "int",
         "",
         "DB_INDEX",

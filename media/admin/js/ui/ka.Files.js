@@ -2603,7 +2603,7 @@ ka.Files = new Class({
 
                 new Request.JSON({url: _path + 'admin/files/recover', noCache: 1, onComplete: function () {
                     this.reload();
-                }.bind(this)}).post({rsn: pFile.original_rsn});
+                }.bind(this)}).post({id: pFile.original_id});
 
             }
         }.bind(this));

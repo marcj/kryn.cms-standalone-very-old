@@ -63,12 +63,12 @@ class adminLayout {
 
     public static function get($pFile, $pPlain = false) {
 
-        $rsn = getArgv('rsn') + 0;
-        $page = dbTableFetch('system_pages', 1, "rsn = $rsn");
+        $id = getArgv('id') + 0;
+        $page = dbTableFetch('system_page', 1, "id = $id");
         kryn::$current_page = $page;
         kryn::$page = $page;
         tAssign('page', $page);
-        $domain = dbTableFetch('system_domains', 1, "rsn = " . $page['domain_rsn']);
+        $domain = dbTableFetch('system_domains', 1, "id = " . $page['domain_id']);
         kryn::$domain = $domain;
         kryn::loadBreadcrumb();
 

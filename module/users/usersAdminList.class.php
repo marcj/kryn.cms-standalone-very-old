@@ -13,7 +13,7 @@ class usersAdminList extends windowList {
     public $edit = true;
     public $remove = true;
 
-    public $primary = array('rsn');
+    public $primary = array('id');
     
     public $itemLayout = '<b id="username"></b> (<span id="first_name"></span> <span id="last_name"></span>)<br/><span style="color: silver;" id="groups_name"></span>';
 
@@ -52,7 +52,7 @@ class usersAdminList extends windowList {
     function filterSql(){
     	$filter = parent::filterSql();
     	
-    	$filter .= " AND %pfx%".$this->table.".rsn > 0";
+    	$filter .= " AND %pfx%".$this->table.".id > 0";
     	
     	return $filter;    	
     }
@@ -61,7 +61,7 @@ class usersAdminList extends windowList {
 
         parent::deleteItem();
 
-        $sql = "DELETE FROM `%pfx%system_groupaccess` WHERE `user_rsn` = ".($_POST['item']['rsn']+0);
+        $sql = "DELETE FROM `%pfx%system_groupaccess` WHERE `user_id` = ".($_POST['item']['id']+0);
         dbExec( $sql );
         return true;
     }
@@ -69,10 +69,10 @@ class usersAdminList extends windowList {
     function acl( $pItem ){
         $res = parent::acl( $pItem );
 
-        if( $pItem['rsn'] == '1' )
+        if( $pItem['id'] == '1' )
             $res['remove'] = false;
 
-        if( $pItem['rsn'] == '0' ){
+        if( $pItem['id'] == '0' ){
             $res['remove'] = false;
             $res['edit'] = false;
         }

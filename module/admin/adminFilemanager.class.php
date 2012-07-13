@@ -58,7 +58,7 @@ class adminFilemanager {
             case 'addVersion':
                 return self::addVersion($path);
             case 'recoverVersion':
-                return self::recoverVersion(getArgv('rsn'));
+                return self::recoverVersion(getArgv('id'));
 
             case 'setPublicAccess':
                 return self::setPublicAccess($path, getArgv('access'));
@@ -87,7 +87,7 @@ class adminFilemanager {
             case 'deleteFile':
                 return self::deleteFile($path);
             case 'recover':
-                return self::recover(getArgv('rsn'));
+                return self::recover(getArgv('id'));
 
 
             case 'prepareUpload':
@@ -281,7 +281,7 @@ class adminFilemanager {
     public static function recoverVersion($pRsn) {
 
         $pRsn = $pRsn + 0;
-        $version = dbTableFetch("system_files_versions", "rsn = " . $pRsn, 1);
+        $version = dbTableFetch("system_files_versions", "id = " . $pRsn, 1);
 
         if (!file_exists($version['versionpath'])) {
             klog('files', str_replace('%s', $version['versionpath'], _l('Can not recover the version for file %s')));
@@ -307,9 +307,9 @@ class adminFilemanager {
         	SELECT v.*, u.username
         	FROM %pfx%system_files_versions v, %pfx%system_user u
         	WHERE
-        		u.rsn = v.user_rsn AND 
+        		u.id = v.user_id AND
         		path = '" . $pPath . "'
-        	ORDER BY v.rsn DESC
+        	ORDER BY v.id DESC
         ", -1);
 
         foreach ($versions as &$version) {
@@ -350,7 +350,7 @@ class adminFilemanager {
         kryn::fileWrite($versionpath, $versionpath);
 
         $insert = array(
-            'user_rsn' => $user->user_rsn,
+            'user_id' => $user->user_id,
             'path' => $pPath,
             'created' => time(),
             'mtime' => $fileInfo['mtime'],
@@ -710,8 +710,8 @@ class adminFilemanager {
 
     public static function recover($pRsn) {
 
-        $item = dbTableFetch('system_files_log', 1, "rsn = " . ($pRsn + 0));
-        if ($item['rsn'] > 0) {
+        $item = dbTableFetch('system_files_log', 1, "id = " . ($pRsn + 0));
+        if ($item['id'] > 0) {
 
             $nPath = str_replace(PATH_MEDIA, '', $item['path']);
             $toDir = dirname($nPath);
@@ -726,10 +726,10 @@ class adminFilemanager {
                 self::addVersion($item['path']);
             }
 
-            $content = kryn::fileRead(PATH_MEDIA."/trash/" . $item['rsn']);
+            $content = kryn::fileRead(PATH_MEDIA."/trash/" . $item['id']);
             krynFile::setContent($item['path'], $content);
 
-            dbDelete('system_files_log', "rsn = " . $item['rsn']);
+            dbDelete('system_files_log', "id = " . $item['id']);
         }
         return true;
 
@@ -742,8 +742,8 @@ class adminFilemanager {
 
         if (substr($pPath,0,7) == '/trash/') {
 
-            $trashItem = dbTableFetch('system_files_log', 1, "rsn = ".basename($path)+0);
-            dbDelete('system_files_log', "rsn = " . $trashItem['rsn']);
+            $trashItem = dbTableFetch('system_files_log', 1, "id = ".basename($path)+0);
+            dbDelete('system_files_log', "id = " . $trashItem['id']);
 
             if (is_dir($path)) {
                 delDir($path);

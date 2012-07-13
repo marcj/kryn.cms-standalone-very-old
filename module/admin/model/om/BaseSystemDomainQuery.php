@@ -2,136 +2,140 @@
 
 
 /**
- * Base class that represents a query for the 'kryn_system_domains' table.
+ * Base class that represents a query for the 'kryn_system_domain' table.
  *
  * 
  *
- * @method     SystemDomainsQuery orderById($order = Criteria::ASC) Order by the id column
- * @method     SystemDomainsQuery orderByDomain($order = Criteria::ASC) Order by the domain column
- * @method     SystemDomainsQuery orderByTitleFormat($order = Criteria::ASC) Order by the title_format column
- * @method     SystemDomainsQuery orderByLang($order = Criteria::ASC) Order by the lang column
- * @method     SystemDomainsQuery orderByStartpageId($order = Criteria::ASC) Order by the startpage_id column
- * @method     SystemDomainsQuery orderByAlias($order = Criteria::ASC) Order by the alias column
- * @method     SystemDomainsQuery orderByRedirect($order = Criteria::ASC) Order by the redirect column
- * @method     SystemDomainsQuery orderByPage404id($order = Criteria::ASC) Order by the page404_id column
- * @method     SystemDomainsQuery orderByPage404interface($order = Criteria::ASC) Order by the page404interface column
- * @method     SystemDomainsQuery orderByMaster($order = Criteria::ASC) Order by the master column
- * @method     SystemDomainsQuery orderByResourcecompression($order = Criteria::ASC) Order by the resourcecompression column
- * @method     SystemDomainsQuery orderByLayouts($order = Criteria::ASC) Order by the layouts column
- * @method     SystemDomainsQuery orderByPhplocale($order = Criteria::ASC) Order by the phplocale column
- * @method     SystemDomainsQuery orderByPath($order = Criteria::ASC) Order by the path column
- * @method     SystemDomainsQuery orderByThemeproperties($order = Criteria::ASC) Order by the themeproperties column
- * @method     SystemDomainsQuery orderByExtproperties($order = Criteria::ASC) Order by the extproperties column
- * @method     SystemDomainsQuery orderByEmail($order = Criteria::ASC) Order by the email column
- * @method     SystemDomainsQuery orderBySearchIndexKey($order = Criteria::ASC) Order by the search_index_key column
- * @method     SystemDomainsQuery orderByRobots($order = Criteria::ASC) Order by the robots column
- * @method     SystemDomainsQuery orderBySession($order = Criteria::ASC) Order by the session column
- * @method     SystemDomainsQuery orderByFavicon($order = Criteria::ASC) Order by the favicon column
+ * @method     SystemDomainQuery orderById($order = Criteria::ASC) Order by the id column
+ * @method     SystemDomainQuery orderByDomain($order = Criteria::ASC) Order by the domain column
+ * @method     SystemDomainQuery orderByTitleFormat($order = Criteria::ASC) Order by the title_format column
+ * @method     SystemDomainQuery orderByLang($order = Criteria::ASC) Order by the lang column
+ * @method     SystemDomainQuery orderByStartpageId($order = Criteria::ASC) Order by the startpage_id column
+ * @method     SystemDomainQuery orderByAlias($order = Criteria::ASC) Order by the alias column
+ * @method     SystemDomainQuery orderByRedirect($order = Criteria::ASC) Order by the redirect column
+ * @method     SystemDomainQuery orderByPage404id($order = Criteria::ASC) Order by the page404_id column
+ * @method     SystemDomainQuery orderByPage404interface($order = Criteria::ASC) Order by the page404interface column
+ * @method     SystemDomainQuery orderByMaster($order = Criteria::ASC) Order by the master column
+ * @method     SystemDomainQuery orderByResourcecompression($order = Criteria::ASC) Order by the resourcecompression column
+ * @method     SystemDomainQuery orderByLayouts($order = Criteria::ASC) Order by the layouts column
+ * @method     SystemDomainQuery orderByPhplocale($order = Criteria::ASC) Order by the phplocale column
+ * @method     SystemDomainQuery orderByPath($order = Criteria::ASC) Order by the path column
+ * @method     SystemDomainQuery orderByThemeproperties($order = Criteria::ASC) Order by the themeproperties column
+ * @method     SystemDomainQuery orderByExtproperties($order = Criteria::ASC) Order by the extproperties column
+ * @method     SystemDomainQuery orderByEmail($order = Criteria::ASC) Order by the email column
+ * @method     SystemDomainQuery orderBySearchIndexKey($order = Criteria::ASC) Order by the search_index_key column
+ * @method     SystemDomainQuery orderByRobots($order = Criteria::ASC) Order by the robots column
+ * @method     SystemDomainQuery orderBySession($order = Criteria::ASC) Order by the session column
+ * @method     SystemDomainQuery orderByFavicon($order = Criteria::ASC) Order by the favicon column
  *
- * @method     SystemDomainsQuery groupById() Group by the id column
- * @method     SystemDomainsQuery groupByDomain() Group by the domain column
- * @method     SystemDomainsQuery groupByTitleFormat() Group by the title_format column
- * @method     SystemDomainsQuery groupByLang() Group by the lang column
- * @method     SystemDomainsQuery groupByStartpageId() Group by the startpage_id column
- * @method     SystemDomainsQuery groupByAlias() Group by the alias column
- * @method     SystemDomainsQuery groupByRedirect() Group by the redirect column
- * @method     SystemDomainsQuery groupByPage404id() Group by the page404_id column
- * @method     SystemDomainsQuery groupByPage404interface() Group by the page404interface column
- * @method     SystemDomainsQuery groupByMaster() Group by the master column
- * @method     SystemDomainsQuery groupByResourcecompression() Group by the resourcecompression column
- * @method     SystemDomainsQuery groupByLayouts() Group by the layouts column
- * @method     SystemDomainsQuery groupByPhplocale() Group by the phplocale column
- * @method     SystemDomainsQuery groupByPath() Group by the path column
- * @method     SystemDomainsQuery groupByThemeproperties() Group by the themeproperties column
- * @method     SystemDomainsQuery groupByExtproperties() Group by the extproperties column
- * @method     SystemDomainsQuery groupByEmail() Group by the email column
- * @method     SystemDomainsQuery groupBySearchIndexKey() Group by the search_index_key column
- * @method     SystemDomainsQuery groupByRobots() Group by the robots column
- * @method     SystemDomainsQuery groupBySession() Group by the session column
- * @method     SystemDomainsQuery groupByFavicon() Group by the favicon column
+ * @method     SystemDomainQuery groupById() Group by the id column
+ * @method     SystemDomainQuery groupByDomain() Group by the domain column
+ * @method     SystemDomainQuery groupByTitleFormat() Group by the title_format column
+ * @method     SystemDomainQuery groupByLang() Group by the lang column
+ * @method     SystemDomainQuery groupByStartpageId() Group by the startpage_id column
+ * @method     SystemDomainQuery groupByAlias() Group by the alias column
+ * @method     SystemDomainQuery groupByRedirect() Group by the redirect column
+ * @method     SystemDomainQuery groupByPage404id() Group by the page404_id column
+ * @method     SystemDomainQuery groupByPage404interface() Group by the page404interface column
+ * @method     SystemDomainQuery groupByMaster() Group by the master column
+ * @method     SystemDomainQuery groupByResourcecompression() Group by the resourcecompression column
+ * @method     SystemDomainQuery groupByLayouts() Group by the layouts column
+ * @method     SystemDomainQuery groupByPhplocale() Group by the phplocale column
+ * @method     SystemDomainQuery groupByPath() Group by the path column
+ * @method     SystemDomainQuery groupByThemeproperties() Group by the themeproperties column
+ * @method     SystemDomainQuery groupByExtproperties() Group by the extproperties column
+ * @method     SystemDomainQuery groupByEmail() Group by the email column
+ * @method     SystemDomainQuery groupBySearchIndexKey() Group by the search_index_key column
+ * @method     SystemDomainQuery groupByRobots() Group by the robots column
+ * @method     SystemDomainQuery groupBySession() Group by the session column
+ * @method     SystemDomainQuery groupByFavicon() Group by the favicon column
  *
- * @method     SystemDomainsQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
- * @method     SystemDomainsQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
- * @method     SystemDomainsQuery innerJoin($relation) Adds a INNER JOIN clause to the query
+ * @method     SystemDomainQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
+ * @method     SystemDomainQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
+ * @method     SystemDomainQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
- * @method     SystemDomains findOne(PropelPDO $con = null) Return the first SystemDomains matching the query
- * @method     SystemDomains findOneOrCreate(PropelPDO $con = null) Return the first SystemDomains matching the query, or a new SystemDomains object populated from the query conditions when no match is found
+ * @method     SystemDomainQuery leftJoinSystemPage($relationAlias = null) Adds a LEFT JOIN clause to the query using the SystemPage relation
+ * @method     SystemDomainQuery rightJoinSystemPage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SystemPage relation
+ * @method     SystemDomainQuery innerJoinSystemPage($relationAlias = null) Adds a INNER JOIN clause to the query using the SystemPage relation
  *
- * @method     SystemDomains findOneById(int $id) Return the first SystemDomains filtered by the id column
- * @method     SystemDomains findOneByDomain(string $domain) Return the first SystemDomains filtered by the domain column
- * @method     SystemDomains findOneByTitleFormat(string $title_format) Return the first SystemDomains filtered by the title_format column
- * @method     SystemDomains findOneByLang(string $lang) Return the first SystemDomains filtered by the lang column
- * @method     SystemDomains findOneByStartpageId(int $startpage_id) Return the first SystemDomains filtered by the startpage_id column
- * @method     SystemDomains findOneByAlias(string $alias) Return the first SystemDomains filtered by the alias column
- * @method     SystemDomains findOneByRedirect(string $redirect) Return the first SystemDomains filtered by the redirect column
- * @method     SystemDomains findOneByPage404id(int $page404_id) Return the first SystemDomains filtered by the page404_id column
- * @method     SystemDomains findOneByPage404interface(string $page404interface) Return the first SystemDomains filtered by the page404interface column
- * @method     SystemDomains findOneByMaster(int $master) Return the first SystemDomains filtered by the master column
- * @method     SystemDomains findOneByResourcecompression(int $resourcecompression) Return the first SystemDomains filtered by the resourcecompression column
- * @method     SystemDomains findOneByLayouts(string $layouts) Return the first SystemDomains filtered by the layouts column
- * @method     SystemDomains findOneByPhplocale(string $phplocale) Return the first SystemDomains filtered by the phplocale column
- * @method     SystemDomains findOneByPath(string $path) Return the first SystemDomains filtered by the path column
- * @method     SystemDomains findOneByThemeproperties(string $themeproperties) Return the first SystemDomains filtered by the themeproperties column
- * @method     SystemDomains findOneByExtproperties(string $extproperties) Return the first SystemDomains filtered by the extproperties column
- * @method     SystemDomains findOneByEmail(string $email) Return the first SystemDomains filtered by the email column
- * @method     SystemDomains findOneBySearchIndexKey(string $search_index_key) Return the first SystemDomains filtered by the search_index_key column
- * @method     SystemDomains findOneByRobots(string $robots) Return the first SystemDomains filtered by the robots column
- * @method     SystemDomains findOneBySession(string $session) Return the first SystemDomains filtered by the session column
- * @method     SystemDomains findOneByFavicon(string $favicon) Return the first SystemDomains filtered by the favicon column
+ * @method     SystemDomain findOne(PropelPDO $con = null) Return the first SystemDomain matching the query
+ * @method     SystemDomain findOneOrCreate(PropelPDO $con = null) Return the first SystemDomain matching the query, or a new SystemDomain object populated from the query conditions when no match is found
  *
- * @method     array findById(int $id) Return SystemDomains objects filtered by the id column
- * @method     array findByDomain(string $domain) Return SystemDomains objects filtered by the domain column
- * @method     array findByTitleFormat(string $title_format) Return SystemDomains objects filtered by the title_format column
- * @method     array findByLang(string $lang) Return SystemDomains objects filtered by the lang column
- * @method     array findByStartpageId(int $startpage_id) Return SystemDomains objects filtered by the startpage_id column
- * @method     array findByAlias(string $alias) Return SystemDomains objects filtered by the alias column
- * @method     array findByRedirect(string $redirect) Return SystemDomains objects filtered by the redirect column
- * @method     array findByPage404id(int $page404_id) Return SystemDomains objects filtered by the page404_id column
- * @method     array findByPage404interface(string $page404interface) Return SystemDomains objects filtered by the page404interface column
- * @method     array findByMaster(int $master) Return SystemDomains objects filtered by the master column
- * @method     array findByResourcecompression(int $resourcecompression) Return SystemDomains objects filtered by the resourcecompression column
- * @method     array findByLayouts(string $layouts) Return SystemDomains objects filtered by the layouts column
- * @method     array findByPhplocale(string $phplocale) Return SystemDomains objects filtered by the phplocale column
- * @method     array findByPath(string $path) Return SystemDomains objects filtered by the path column
- * @method     array findByThemeproperties(string $themeproperties) Return SystemDomains objects filtered by the themeproperties column
- * @method     array findByExtproperties(string $extproperties) Return SystemDomains objects filtered by the extproperties column
- * @method     array findByEmail(string $email) Return SystemDomains objects filtered by the email column
- * @method     array findBySearchIndexKey(string $search_index_key) Return SystemDomains objects filtered by the search_index_key column
- * @method     array findByRobots(string $robots) Return SystemDomains objects filtered by the robots column
- * @method     array findBySession(string $session) Return SystemDomains objects filtered by the session column
- * @method     array findByFavicon(string $favicon) Return SystemDomains objects filtered by the favicon column
+ * @method     SystemDomain findOneById(int $id) Return the first SystemDomain filtered by the id column
+ * @method     SystemDomain findOneByDomain(string $domain) Return the first SystemDomain filtered by the domain column
+ * @method     SystemDomain findOneByTitleFormat(string $title_format) Return the first SystemDomain filtered by the title_format column
+ * @method     SystemDomain findOneByLang(string $lang) Return the first SystemDomain filtered by the lang column
+ * @method     SystemDomain findOneByStartpageId(int $startpage_id) Return the first SystemDomain filtered by the startpage_id column
+ * @method     SystemDomain findOneByAlias(string $alias) Return the first SystemDomain filtered by the alias column
+ * @method     SystemDomain findOneByRedirect(string $redirect) Return the first SystemDomain filtered by the redirect column
+ * @method     SystemDomain findOneByPage404id(int $page404_id) Return the first SystemDomain filtered by the page404_id column
+ * @method     SystemDomain findOneByPage404interface(string $page404interface) Return the first SystemDomain filtered by the page404interface column
+ * @method     SystemDomain findOneByMaster(int $master) Return the first SystemDomain filtered by the master column
+ * @method     SystemDomain findOneByResourcecompression(int $resourcecompression) Return the first SystemDomain filtered by the resourcecompression column
+ * @method     SystemDomain findOneByLayouts(string $layouts) Return the first SystemDomain filtered by the layouts column
+ * @method     SystemDomain findOneByPhplocale(string $phplocale) Return the first SystemDomain filtered by the phplocale column
+ * @method     SystemDomain findOneByPath(string $path) Return the first SystemDomain filtered by the path column
+ * @method     SystemDomain findOneByThemeproperties(string $themeproperties) Return the first SystemDomain filtered by the themeproperties column
+ * @method     SystemDomain findOneByExtproperties(string $extproperties) Return the first SystemDomain filtered by the extproperties column
+ * @method     SystemDomain findOneByEmail(string $email) Return the first SystemDomain filtered by the email column
+ * @method     SystemDomain findOneBySearchIndexKey(string $search_index_key) Return the first SystemDomain filtered by the search_index_key column
+ * @method     SystemDomain findOneByRobots(string $robots) Return the first SystemDomain filtered by the robots column
+ * @method     SystemDomain findOneBySession(string $session) Return the first SystemDomain filtered by the session column
+ * @method     SystemDomain findOneByFavicon(string $favicon) Return the first SystemDomain filtered by the favicon column
+ *
+ * @method     array findById(int $id) Return SystemDomain objects filtered by the id column
+ * @method     array findByDomain(string $domain) Return SystemDomain objects filtered by the domain column
+ * @method     array findByTitleFormat(string $title_format) Return SystemDomain objects filtered by the title_format column
+ * @method     array findByLang(string $lang) Return SystemDomain objects filtered by the lang column
+ * @method     array findByStartpageId(int $startpage_id) Return SystemDomain objects filtered by the startpage_id column
+ * @method     array findByAlias(string $alias) Return SystemDomain objects filtered by the alias column
+ * @method     array findByRedirect(string $redirect) Return SystemDomain objects filtered by the redirect column
+ * @method     array findByPage404id(int $page404_id) Return SystemDomain objects filtered by the page404_id column
+ * @method     array findByPage404interface(string $page404interface) Return SystemDomain objects filtered by the page404interface column
+ * @method     array findByMaster(int $master) Return SystemDomain objects filtered by the master column
+ * @method     array findByResourcecompression(int $resourcecompression) Return SystemDomain objects filtered by the resourcecompression column
+ * @method     array findByLayouts(string $layouts) Return SystemDomain objects filtered by the layouts column
+ * @method     array findByPhplocale(string $phplocale) Return SystemDomain objects filtered by the phplocale column
+ * @method     array findByPath(string $path) Return SystemDomain objects filtered by the path column
+ * @method     array findByThemeproperties(string $themeproperties) Return SystemDomain objects filtered by the themeproperties column
+ * @method     array findByExtproperties(string $extproperties) Return SystemDomain objects filtered by the extproperties column
+ * @method     array findByEmail(string $email) Return SystemDomain objects filtered by the email column
+ * @method     array findBySearchIndexKey(string $search_index_key) Return SystemDomain objects filtered by the search_index_key column
+ * @method     array findByRobots(string $robots) Return SystemDomain objects filtered by the robots column
+ * @method     array findBySession(string $session) Return SystemDomain objects filtered by the session column
+ * @method     array findByFavicon(string $favicon) Return SystemDomain objects filtered by the favicon column
  *
  * @package    propel.generator.kryn.om
  */
-abstract class BaseSystemDomainsQuery extends ModelCriteria
+abstract class BaseSystemDomainQuery extends ModelCriteria
 {
     
     /**
-     * Initializes internal state of BaseSystemDomainsQuery object.
+     * Initializes internal state of BaseSystemDomainQuery object.
      *
      * @param     string $dbName The dabase name
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'SystemDomains', $modelAlias = null)
+    public function __construct($dbName = 'kryn', $modelName = 'SystemDomain', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }
 
     /**
-     * Returns a new SystemDomainsQuery object.
+     * Returns a new SystemDomainQuery object.
      *
      * @param     string $modelAlias The alias of a model in the query
-     * @param     SystemDomainsQuery|Criteria $criteria Optional Criteria to build the query from
+     * @param     SystemDomainQuery|Criteria $criteria Optional Criteria to build the query from
      *
-     * @return SystemDomainsQuery
+     * @return SystemDomainQuery
      */
     public static function create($modelAlias = null, $criteria = null)
     {
-        if ($criteria instanceof SystemDomainsQuery) {
+        if ($criteria instanceof SystemDomainQuery) {
             return $criteria;
         }
-        $query = new SystemDomainsQuery();
+        $query = new SystemDomainQuery();
         if (null !== $modelAlias) {
             $query->setModelAlias($modelAlias);
         }
@@ -154,19 +158,19 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      * @param mixed $key Primary key to use for the query 
      * @param     PropelPDO $con an optional connection object
      *
-     * @return   SystemDomains|SystemDomains[]|mixed the result, formatted by the current formatter
+     * @return   SystemDomain|SystemDomain[]|mixed the result, formatted by the current formatter
      */
     public function findPk($key, $con = null)
     {
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = SystemDomainsPeer::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = SystemDomainPeer::getInstanceFromPool((string) $key))) && !$this->formatter) {
             // the object is alredy in the instance pool
             return $obj;
         }
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
         $this->basePreSelect($con);
         if ($this->formatter || $this->modelAlias || $this->with || $this->select
@@ -185,12 +189,12 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      * @param     mixed $key Primary key to use for the query
      * @param     PropelPDO $con A connection object
      *
-     * @return   SystemDomains A model object, or null if the key is not found
+     * @return   SystemDomain A model object, or null if the key is not found
      * @throws   PropelException
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, DOMAIN, TITLE_FORMAT, LANG, STARTPAGE_ID, ALIAS, REDIRECT, PAGE404_ID, PAGE404INTERFACE, MASTER, RESOURCECOMPRESSION, LAYOUTS, PHPLOCALE, PATH, THEMEPROPERTIES, EXTPROPERTIES, EMAIL, SEARCH_INDEX_KEY, ROBOTS, SESSION, FAVICON FROM kryn_system_domains WHERE ID = :p0';
+        $sql = 'SELECT ID, DOMAIN, TITLE_FORMAT, LANG, STARTPAGE_ID, ALIAS, REDIRECT, PAGE404_ID, PAGE404INTERFACE, MASTER, RESOURCECOMPRESSION, LAYOUTS, PHPLOCALE, PATH, THEMEPROPERTIES, EXTPROPERTIES, EMAIL, SEARCH_INDEX_KEY, ROBOTS, SESSION, FAVICON FROM kryn_system_domain WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -201,9 +205,9 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
         }
         $obj = null;
         if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $obj = new SystemDomains();
+            $obj = new SystemDomain();
             $obj->hydrate($row);
-            SystemDomainsPeer::addInstanceToPool($obj, (string) $key);
+            SystemDomainPeer::addInstanceToPool($obj, (string) $key);
         }
         $stmt->closeCursor();
 
@@ -216,7 +220,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      * @param     mixed $key Primary key to use for the query
      * @param     PropelPDO $con A connection object
      *
-     * @return SystemDomains|SystemDomains[]|mixed the result, formatted by the current formatter
+     * @return SystemDomain|SystemDomain[]|mixed the result, formatted by the current formatter
      */
     protected function findPkComplex($key, $con)
     {
@@ -237,7 +241,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      * @param     array $keys Primary keys to use for the query
      * @param     PropelPDO $con an optional connection object
      *
-     * @return PropelObjectCollection|SystemDomains[]|mixed the list of results, formatted by the current formatter
+     * @return PropelObjectCollection|SystemDomain[]|mixed the list of results, formatted by the current formatter
      */
     public function findPks($keys, $con = null)
     {
@@ -258,12 +262,12 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *
      * @param     mixed $key Primary key to use for the query
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByPrimaryKey($key)
     {
 
-        return $this->addUsingAlias(SystemDomainsPeer::ID, $key, Criteria::EQUAL);
+        return $this->addUsingAlias(SystemDomainPeer::ID, $key, Criteria::EQUAL);
     }
 
     /**
@@ -271,12 +275,12 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *
      * @param     array $keys The list of primary key to use for the query
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByPrimaryKeys($keys)
     {
 
-        return $this->addUsingAlias(SystemDomainsPeer::ID, $keys, Criteria::IN);
+        return $this->addUsingAlias(SystemDomainPeer::ID, $keys, Criteria::IN);
     }
 
     /**
@@ -295,7 +299,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterById($id = null, $comparison = null)
     {
@@ -303,7 +307,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             $comparison = Criteria::IN;
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::ID, $id, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::ID, $id, $comparison);
     }
 
     /**
@@ -319,7 +323,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByDomain($domain = null, $comparison = null)
     {
@@ -332,7 +336,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::DOMAIN, $domain, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::DOMAIN, $domain, $comparison);
     }
 
     /**
@@ -348,7 +352,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByTitleFormat($titleFormat = null, $comparison = null)
     {
@@ -361,7 +365,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::TITLE_FORMAT, $titleFormat, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::TITLE_FORMAT, $titleFormat, $comparison);
     }
 
     /**
@@ -377,7 +381,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByLang($lang = null, $comparison = null)
     {
@@ -390,7 +394,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::LANG, $lang, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::LANG, $lang, $comparison);
     }
 
     /**
@@ -409,18 +413,18 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByStartpageId($startpageId = null, $comparison = null)
     {
         if (is_array($startpageId)) {
             $useMinMax = false;
             if (isset($startpageId['min'])) {
-                $this->addUsingAlias(SystemDomainsPeer::STARTPAGE_ID, $startpageId['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::STARTPAGE_ID, $startpageId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($startpageId['max'])) {
-                $this->addUsingAlias(SystemDomainsPeer::STARTPAGE_ID, $startpageId['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::STARTPAGE_ID, $startpageId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -431,7 +435,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::STARTPAGE_ID, $startpageId, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::STARTPAGE_ID, $startpageId, $comparison);
     }
 
     /**
@@ -447,7 +451,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByAlias($alias = null, $comparison = null)
     {
@@ -460,7 +464,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::ALIAS, $alias, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::ALIAS, $alias, $comparison);
     }
 
     /**
@@ -476,7 +480,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByRedirect($redirect = null, $comparison = null)
     {
@@ -489,7 +493,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::REDIRECT, $redirect, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::REDIRECT, $redirect, $comparison);
     }
 
     /**
@@ -508,18 +512,18 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByPage404id($page404id = null, $comparison = null)
     {
         if (is_array($page404id)) {
             $useMinMax = false;
             if (isset($page404id['min'])) {
-                $this->addUsingAlias(SystemDomainsPeer::PAGE404_ID, $page404id['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::PAGE404_ID, $page404id['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($page404id['max'])) {
-                $this->addUsingAlias(SystemDomainsPeer::PAGE404_ID, $page404id['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::PAGE404_ID, $page404id['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -530,7 +534,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::PAGE404_ID, $page404id, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::PAGE404_ID, $page404id, $comparison);
     }
 
     /**
@@ -546,7 +550,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByPage404interface($page404interface = null, $comparison = null)
     {
@@ -559,7 +563,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::PAGE404INTERFACE, $page404interface, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::PAGE404INTERFACE, $page404interface, $comparison);
     }
 
     /**
@@ -578,18 +582,18 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByMaster($master = null, $comparison = null)
     {
         if (is_array($master)) {
             $useMinMax = false;
             if (isset($master['min'])) {
-                $this->addUsingAlias(SystemDomainsPeer::MASTER, $master['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::MASTER, $master['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($master['max'])) {
-                $this->addUsingAlias(SystemDomainsPeer::MASTER, $master['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::MASTER, $master['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -600,7 +604,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::MASTER, $master, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::MASTER, $master, $comparison);
     }
 
     /**
@@ -619,18 +623,18 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByResourcecompression($resourcecompression = null, $comparison = null)
     {
         if (is_array($resourcecompression)) {
             $useMinMax = false;
             if (isset($resourcecompression['min'])) {
-                $this->addUsingAlias(SystemDomainsPeer::RESOURCECOMPRESSION, $resourcecompression['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::RESOURCECOMPRESSION, $resourcecompression['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($resourcecompression['max'])) {
-                $this->addUsingAlias(SystemDomainsPeer::RESOURCECOMPRESSION, $resourcecompression['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemDomainPeer::RESOURCECOMPRESSION, $resourcecompression['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -641,7 +645,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::RESOURCECOMPRESSION, $resourcecompression, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::RESOURCECOMPRESSION, $resourcecompression, $comparison);
     }
 
     /**
@@ -657,7 +661,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByLayouts($layouts = null, $comparison = null)
     {
@@ -670,7 +674,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::LAYOUTS, $layouts, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::LAYOUTS, $layouts, $comparison);
     }
 
     /**
@@ -686,7 +690,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByPhplocale($phplocale = null, $comparison = null)
     {
@@ -699,7 +703,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::PHPLOCALE, $phplocale, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::PHPLOCALE, $phplocale, $comparison);
     }
 
     /**
@@ -715,7 +719,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByPath($path = null, $comparison = null)
     {
@@ -728,7 +732,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::PATH, $path, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::PATH, $path, $comparison);
     }
 
     /**
@@ -744,7 +748,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByThemeproperties($themeproperties = null, $comparison = null)
     {
@@ -757,7 +761,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::THEMEPROPERTIES, $themeproperties, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::THEMEPROPERTIES, $themeproperties, $comparison);
     }
 
     /**
@@ -773,7 +777,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByExtproperties($extproperties = null, $comparison = null)
     {
@@ -786,7 +790,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::EXTPROPERTIES, $extproperties, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::EXTPROPERTIES, $extproperties, $comparison);
     }
 
     /**
@@ -802,7 +806,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByEmail($email = null, $comparison = null)
     {
@@ -815,7 +819,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::EMAIL, $email, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::EMAIL, $email, $comparison);
     }
 
     /**
@@ -831,7 +835,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterBySearchIndexKey($searchIndexKey = null, $comparison = null)
     {
@@ -844,7 +848,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::SEARCH_INDEX_KEY, $searchIndexKey, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::SEARCH_INDEX_KEY, $searchIndexKey, $comparison);
     }
 
     /**
@@ -860,7 +864,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByRobots($robots = null, $comparison = null)
     {
@@ -873,7 +877,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::ROBOTS, $robots, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::ROBOTS, $robots, $comparison);
     }
 
     /**
@@ -889,7 +893,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterBySession($session = null, $comparison = null)
     {
@@ -902,7 +906,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::SESSION, $session, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::SESSION, $session, $comparison);
     }
 
     /**
@@ -918,7 +922,7 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return SystemDomainQuery The current query, for fluid interface
      */
     public function filterByFavicon($favicon = null, $comparison = null)
     {
@@ -931,23 +935,97 @@ abstract class BaseSystemDomainsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemDomainsPeer::FAVICON, $favicon, $comparison);
+        return $this->addUsingAlias(SystemDomainPeer::FAVICON, $favicon, $comparison);
     }
 
     /**
-     * Exclude object from result
+     * Filter the query by a related SystemPage object
      *
-     * @param   SystemDomains $systemDomains Object to remove from the list of results
+     * @param   SystemPage|PropelObjectCollection $systemPage  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemDomainsQuery The current query, for fluid interface
+     * @return   SystemDomainQuery The current query, for fluid interface
+     * @throws   PropelException - if the provided filter is invalid.
      */
-    public function prune($systemDomains = null)
+    public function filterBySystemPage($systemPage, $comparison = null)
     {
-        if ($systemDomains) {
-            $this->addUsingAlias(SystemDomainsPeer::ID, $systemDomains->getId(), Criteria::NOT_EQUAL);
+        if ($systemPage instanceof SystemPage) {
+            return $this
+                ->addUsingAlias(SystemDomainPeer::ID, $systemPage->getDomainId(), $comparison);
+        } elseif ($systemPage instanceof PropelObjectCollection) {
+            return $this
+                ->useSystemPageQuery()
+                ->filterByPrimaryKeys($systemPage->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterBySystemPage() only accepts arguments of type SystemPage or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the SystemPage relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return SystemDomainQuery The current query, for fluid interface
+     */
+    public function joinSystemPage($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('SystemPage');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'SystemPage');
         }
 
         return $this;
     }
 
-} // BaseSystemDomainsQuery
+    /**
+     * Use the SystemPage relation SystemPage object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   SystemPageQuery A secondary query class using the current class as primary query
+     */
+    public function useSystemPageQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinSystemPage($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SystemPage', 'SystemPageQuery');
+    }
+
+    /**
+     * Exclude object from result
+     *
+     * @param   SystemDomain $systemDomain Object to remove from the list of results
+     *
+     * @return SystemDomainQuery The current query, for fluid interface
+     */
+    public function prune($systemDomain = null)
+    {
+        if ($systemDomain) {
+            $this->addUsingAlias(SystemDomainPeer::ID, $systemDomain->getId(), Criteria::NOT_EQUAL);
+        }
+
+        return $this;
+    }
+
+} // BaseSystemDomainQuery

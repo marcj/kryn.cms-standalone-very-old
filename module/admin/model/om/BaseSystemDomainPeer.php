@@ -2,25 +2,25 @@
 
 
 /**
- * Base static class for performing query and update operations on the 'kryn_system_domains' table.
+ * Base static class for performing query and update operations on the 'kryn_system_domain' table.
  *
  * 
  *
  * @package    propel.generator.kryn.om
  */
-abstract class BaseSystemDomainsPeer {
+abstract class BaseSystemDomainPeer {
 
     /** the default database name for this class */
     const DATABASE_NAME = 'kryn';
 
     /** the table name for this class */
-    const TABLE_NAME = 'kryn_system_domains';
+    const TABLE_NAME = 'kryn_system_domain';
 
     /** the related Propel class for this table */
-    const OM_CLASS = 'SystemDomains';
+    const OM_CLASS = 'SystemDomain';
 
     /** the related TableMap class for this table */
-    const TM_CLASS = 'SystemDomainsTableMap';
+    const TM_CLASS = 'SystemDomainTableMap';
 
     /** The total number of columns. */
     const NUM_COLUMNS = 21;
@@ -32,76 +32,76 @@ abstract class BaseSystemDomainsPeer {
     const NUM_HYDRATE_COLUMNS = 21;
 
     /** the column name for the ID field */
-    const ID = 'kryn_system_domains.ID';
+    const ID = 'kryn_system_domain.ID';
 
     /** the column name for the DOMAIN field */
-    const DOMAIN = 'kryn_system_domains.DOMAIN';
+    const DOMAIN = 'kryn_system_domain.DOMAIN';
 
     /** the column name for the TITLE_FORMAT field */
-    const TITLE_FORMAT = 'kryn_system_domains.TITLE_FORMAT';
+    const TITLE_FORMAT = 'kryn_system_domain.TITLE_FORMAT';
 
     /** the column name for the LANG field */
-    const LANG = 'kryn_system_domains.LANG';
+    const LANG = 'kryn_system_domain.LANG';
 
     /** the column name for the STARTPAGE_ID field */
-    const STARTPAGE_ID = 'kryn_system_domains.STARTPAGE_ID';
+    const STARTPAGE_ID = 'kryn_system_domain.STARTPAGE_ID';
 
     /** the column name for the ALIAS field */
-    const ALIAS = 'kryn_system_domains.ALIAS';
+    const ALIAS = 'kryn_system_domain.ALIAS';
 
     /** the column name for the REDIRECT field */
-    const REDIRECT = 'kryn_system_domains.REDIRECT';
+    const REDIRECT = 'kryn_system_domain.REDIRECT';
 
     /** the column name for the PAGE404_ID field */
-    const PAGE404_ID = 'kryn_system_domains.PAGE404_ID';
+    const PAGE404_ID = 'kryn_system_domain.PAGE404_ID';
 
     /** the column name for the PAGE404INTERFACE field */
-    const PAGE404INTERFACE = 'kryn_system_domains.PAGE404INTERFACE';
+    const PAGE404INTERFACE = 'kryn_system_domain.PAGE404INTERFACE';
 
     /** the column name for the MASTER field */
-    const MASTER = 'kryn_system_domains.MASTER';
+    const MASTER = 'kryn_system_domain.MASTER';
 
     /** the column name for the RESOURCECOMPRESSION field */
-    const RESOURCECOMPRESSION = 'kryn_system_domains.RESOURCECOMPRESSION';
+    const RESOURCECOMPRESSION = 'kryn_system_domain.RESOURCECOMPRESSION';
 
     /** the column name for the LAYOUTS field */
-    const LAYOUTS = 'kryn_system_domains.LAYOUTS';
+    const LAYOUTS = 'kryn_system_domain.LAYOUTS';
 
     /** the column name for the PHPLOCALE field */
-    const PHPLOCALE = 'kryn_system_domains.PHPLOCALE';
+    const PHPLOCALE = 'kryn_system_domain.PHPLOCALE';
 
     /** the column name for the PATH field */
-    const PATH = 'kryn_system_domains.PATH';
+    const PATH = 'kryn_system_domain.PATH';
 
     /** the column name for the THEMEPROPERTIES field */
-    const THEMEPROPERTIES = 'kryn_system_domains.THEMEPROPERTIES';
+    const THEMEPROPERTIES = 'kryn_system_domain.THEMEPROPERTIES';
 
     /** the column name for the EXTPROPERTIES field */
-    const EXTPROPERTIES = 'kryn_system_domains.EXTPROPERTIES';
+    const EXTPROPERTIES = 'kryn_system_domain.EXTPROPERTIES';
 
     /** the column name for the EMAIL field */
-    const EMAIL = 'kryn_system_domains.EMAIL';
+    const EMAIL = 'kryn_system_domain.EMAIL';
 
     /** the column name for the SEARCH_INDEX_KEY field */
-    const SEARCH_INDEX_KEY = 'kryn_system_domains.SEARCH_INDEX_KEY';
+    const SEARCH_INDEX_KEY = 'kryn_system_domain.SEARCH_INDEX_KEY';
 
     /** the column name for the ROBOTS field */
-    const ROBOTS = 'kryn_system_domains.ROBOTS';
+    const ROBOTS = 'kryn_system_domain.ROBOTS';
 
     /** the column name for the SESSION field */
-    const SESSION = 'kryn_system_domains.SESSION';
+    const SESSION = 'kryn_system_domain.SESSION';
 
     /** the column name for the FAVICON field */
-    const FAVICON = 'kryn_system_domains.FAVICON';
+    const FAVICON = 'kryn_system_domain.FAVICON';
 
     /** The default string format for model objects of the related table **/
     const DEFAULT_STRING_FORMAT = 'YAML';
 
     /**
-     * An identiy map to hold any loaded instances of SystemDomains objects.
+     * An identiy map to hold any loaded instances of SystemDomain objects.
      * This must be public so that other peer classes can access this when hydrating from JOIN
      * queries.
-     * @var        array SystemDomains[]
+     * @var        array SystemDomain[]
      */
     public static $instances = array();
 
@@ -110,12 +110,12 @@ abstract class BaseSystemDomainsPeer {
      * holds an array of fieldnames
      *
      * first dimension keys are the type constants
-     * e.g. SystemDomainsPeer::$fieldNames[SystemDomainsPeer::TYPE_PHPNAME][0] = 'Id'
+     * e.g. SystemDomainPeer::$fieldNames[SystemDomainPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
         BasePeer::TYPE_PHPNAME => array ('Id', 'Domain', 'TitleFormat', 'Lang', 'StartpageId', 'Alias', 'Redirect', 'Page404id', 'Page404interface', 'Master', 'Resourcecompression', 'Layouts', 'Phplocale', 'Path', 'Themeproperties', 'Extproperties', 'Email', 'SearchIndexKey', 'Robots', 'Session', 'Favicon', ),
         BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'domain', 'titleFormat', 'lang', 'startpageId', 'alias', 'redirect', 'page404id', 'page404interface', 'master', 'resourcecompression', 'layouts', 'phplocale', 'path', 'themeproperties', 'extproperties', 'email', 'searchIndexKey', 'robots', 'session', 'favicon', ),
-        BasePeer::TYPE_COLNAME => array (SystemDomainsPeer::ID, SystemDomainsPeer::DOMAIN, SystemDomainsPeer::TITLE_FORMAT, SystemDomainsPeer::LANG, SystemDomainsPeer::STARTPAGE_ID, SystemDomainsPeer::ALIAS, SystemDomainsPeer::REDIRECT, SystemDomainsPeer::PAGE404_ID, SystemDomainsPeer::PAGE404INTERFACE, SystemDomainsPeer::MASTER, SystemDomainsPeer::RESOURCECOMPRESSION, SystemDomainsPeer::LAYOUTS, SystemDomainsPeer::PHPLOCALE, SystemDomainsPeer::PATH, SystemDomainsPeer::THEMEPROPERTIES, SystemDomainsPeer::EXTPROPERTIES, SystemDomainsPeer::EMAIL, SystemDomainsPeer::SEARCH_INDEX_KEY, SystemDomainsPeer::ROBOTS, SystemDomainsPeer::SESSION, SystemDomainsPeer::FAVICON, ),
+        BasePeer::TYPE_COLNAME => array (SystemDomainPeer::ID, SystemDomainPeer::DOMAIN, SystemDomainPeer::TITLE_FORMAT, SystemDomainPeer::LANG, SystemDomainPeer::STARTPAGE_ID, SystemDomainPeer::ALIAS, SystemDomainPeer::REDIRECT, SystemDomainPeer::PAGE404_ID, SystemDomainPeer::PAGE404INTERFACE, SystemDomainPeer::MASTER, SystemDomainPeer::RESOURCECOMPRESSION, SystemDomainPeer::LAYOUTS, SystemDomainPeer::PHPLOCALE, SystemDomainPeer::PATH, SystemDomainPeer::THEMEPROPERTIES, SystemDomainPeer::EXTPROPERTIES, SystemDomainPeer::EMAIL, SystemDomainPeer::SEARCH_INDEX_KEY, SystemDomainPeer::ROBOTS, SystemDomainPeer::SESSION, SystemDomainPeer::FAVICON, ),
         BasePeer::TYPE_RAW_COLNAME => array ('ID', 'DOMAIN', 'TITLE_FORMAT', 'LANG', 'STARTPAGE_ID', 'ALIAS', 'REDIRECT', 'PAGE404_ID', 'PAGE404INTERFACE', 'MASTER', 'RESOURCECOMPRESSION', 'LAYOUTS', 'PHPLOCALE', 'PATH', 'THEMEPROPERTIES', 'EXTPROPERTIES', 'EMAIL', 'SEARCH_INDEX_KEY', 'ROBOTS', 'SESSION', 'FAVICON', ),
         BasePeer::TYPE_FIELDNAME => array ('id', 'domain', 'title_format', 'lang', 'startpage_id', 'alias', 'redirect', 'page404_id', 'page404interface', 'master', 'resourcecompression', 'layouts', 'phplocale', 'path', 'themeproperties', 'extproperties', 'email', 'search_index_key', 'robots', 'session', 'favicon', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, )
@@ -125,12 +125,12 @@ abstract class BaseSystemDomainsPeer {
      * holds an array of keys for quick access to the fieldnames array
      *
      * first dimension keys are the type constants
-     * e.g. SystemDomainsPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
+     * e.g. SystemDomainPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
         BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Domain' => 1, 'TitleFormat' => 2, 'Lang' => 3, 'StartpageId' => 4, 'Alias' => 5, 'Redirect' => 6, 'Page404id' => 7, 'Page404interface' => 8, 'Master' => 9, 'Resourcecompression' => 10, 'Layouts' => 11, 'Phplocale' => 12, 'Path' => 13, 'Themeproperties' => 14, 'Extproperties' => 15, 'Email' => 16, 'SearchIndexKey' => 17, 'Robots' => 18, 'Session' => 19, 'Favicon' => 20, ),
         BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'domain' => 1, 'titleFormat' => 2, 'lang' => 3, 'startpageId' => 4, 'alias' => 5, 'redirect' => 6, 'page404id' => 7, 'page404interface' => 8, 'master' => 9, 'resourcecompression' => 10, 'layouts' => 11, 'phplocale' => 12, 'path' => 13, 'themeproperties' => 14, 'extproperties' => 15, 'email' => 16, 'searchIndexKey' => 17, 'robots' => 18, 'session' => 19, 'favicon' => 20, ),
-        BasePeer::TYPE_COLNAME => array (SystemDomainsPeer::ID => 0, SystemDomainsPeer::DOMAIN => 1, SystemDomainsPeer::TITLE_FORMAT => 2, SystemDomainsPeer::LANG => 3, SystemDomainsPeer::STARTPAGE_ID => 4, SystemDomainsPeer::ALIAS => 5, SystemDomainsPeer::REDIRECT => 6, SystemDomainsPeer::PAGE404_ID => 7, SystemDomainsPeer::PAGE404INTERFACE => 8, SystemDomainsPeer::MASTER => 9, SystemDomainsPeer::RESOURCECOMPRESSION => 10, SystemDomainsPeer::LAYOUTS => 11, SystemDomainsPeer::PHPLOCALE => 12, SystemDomainsPeer::PATH => 13, SystemDomainsPeer::THEMEPROPERTIES => 14, SystemDomainsPeer::EXTPROPERTIES => 15, SystemDomainsPeer::EMAIL => 16, SystemDomainsPeer::SEARCH_INDEX_KEY => 17, SystemDomainsPeer::ROBOTS => 18, SystemDomainsPeer::SESSION => 19, SystemDomainsPeer::FAVICON => 20, ),
+        BasePeer::TYPE_COLNAME => array (SystemDomainPeer::ID => 0, SystemDomainPeer::DOMAIN => 1, SystemDomainPeer::TITLE_FORMAT => 2, SystemDomainPeer::LANG => 3, SystemDomainPeer::STARTPAGE_ID => 4, SystemDomainPeer::ALIAS => 5, SystemDomainPeer::REDIRECT => 6, SystemDomainPeer::PAGE404_ID => 7, SystemDomainPeer::PAGE404INTERFACE => 8, SystemDomainPeer::MASTER => 9, SystemDomainPeer::RESOURCECOMPRESSION => 10, SystemDomainPeer::LAYOUTS => 11, SystemDomainPeer::PHPLOCALE => 12, SystemDomainPeer::PATH => 13, SystemDomainPeer::THEMEPROPERTIES => 14, SystemDomainPeer::EXTPROPERTIES => 15, SystemDomainPeer::EMAIL => 16, SystemDomainPeer::SEARCH_INDEX_KEY => 17, SystemDomainPeer::ROBOTS => 18, SystemDomainPeer::SESSION => 19, SystemDomainPeer::FAVICON => 20, ),
         BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'DOMAIN' => 1, 'TITLE_FORMAT' => 2, 'LANG' => 3, 'STARTPAGE_ID' => 4, 'ALIAS' => 5, 'REDIRECT' => 6, 'PAGE404_ID' => 7, 'PAGE404INTERFACE' => 8, 'MASTER' => 9, 'RESOURCECOMPRESSION' => 10, 'LAYOUTS' => 11, 'PHPLOCALE' => 12, 'PATH' => 13, 'THEMEPROPERTIES' => 14, 'EXTPROPERTIES' => 15, 'EMAIL' => 16, 'SEARCH_INDEX_KEY' => 17, 'ROBOTS' => 18, 'SESSION' => 19, 'FAVICON' => 20, ),
         BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'domain' => 1, 'title_format' => 2, 'lang' => 3, 'startpage_id' => 4, 'alias' => 5, 'redirect' => 6, 'page404_id' => 7, 'page404interface' => 8, 'master' => 9, 'resourcecompression' => 10, 'layouts' => 11, 'phplocale' => 12, 'path' => 13, 'themeproperties' => 14, 'extproperties' => 15, 'email' => 16, 'search_index_key' => 17, 'robots' => 18, 'session' => 19, 'favicon' => 20, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, )
@@ -148,10 +148,10 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function translateFieldName($name, $fromType, $toType)
     {
-        $toNames = SystemDomainsPeer::getFieldNames($toType);
-        $key = isset(SystemDomainsPeer::$fieldKeys[$fromType][$name]) ? SystemDomainsPeer::$fieldKeys[$fromType][$name] : null;
+        $toNames = SystemDomainPeer::getFieldNames($toType);
+        $key = isset(SystemDomainPeer::$fieldKeys[$fromType][$name]) ? SystemDomainPeer::$fieldKeys[$fromType][$name] : null;
         if ($key === null) {
-            throw new PropelException("'$name' could not be found in the field names of type '$fromType'. These are: " . print_r(SystemDomainsPeer::$fieldKeys[$fromType], true));
+            throw new PropelException("'$name' could not be found in the field names of type '$fromType'. These are: " . print_r(SystemDomainPeer::$fieldKeys[$fromType], true));
         }
 
         return $toNames[$key];
@@ -168,11 +168,11 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function getFieldNames($type = BasePeer::TYPE_PHPNAME)
     {
-        if (!array_key_exists($type, SystemDomainsPeer::$fieldNames)) {
+        if (!array_key_exists($type, SystemDomainPeer::$fieldNames)) {
             throw new PropelException('Method getFieldNames() expects the parameter $type to be one of the class constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME, BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM. ' . $type . ' was given.');
         }
 
-        return SystemDomainsPeer::$fieldNames[$type];
+        return SystemDomainPeer::$fieldNames[$type];
     }
 
     /**
@@ -184,12 +184,12 @@ abstract class BaseSystemDomainsPeer {
      *		$c->addJoin(TablePeer::alias("alias1", TablePeer::PRIMARY_KEY_COLUMN), TablePeer::PRIMARY_KEY_COLUMN);
      * </code>
      * @param      string $alias The alias for the current table.
-     * @param      string $column The column name for current table. (i.e. SystemDomainsPeer::COLUMN_NAME).
+     * @param      string $column The column name for current table. (i.e. SystemDomainPeer::COLUMN_NAME).
      * @return string
      */
     public static function alias($alias, $column)
     {
-        return str_replace(SystemDomainsPeer::TABLE_NAME.'.', $alias.'.', $column);
+        return str_replace(SystemDomainPeer::TABLE_NAME.'.', $alias.'.', $column);
     }
 
     /**
@@ -207,27 +207,27 @@ abstract class BaseSystemDomainsPeer {
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(SystemDomainsPeer::ID);
-            $criteria->addSelectColumn(SystemDomainsPeer::DOMAIN);
-            $criteria->addSelectColumn(SystemDomainsPeer::TITLE_FORMAT);
-            $criteria->addSelectColumn(SystemDomainsPeer::LANG);
-            $criteria->addSelectColumn(SystemDomainsPeer::STARTPAGE_ID);
-            $criteria->addSelectColumn(SystemDomainsPeer::ALIAS);
-            $criteria->addSelectColumn(SystemDomainsPeer::REDIRECT);
-            $criteria->addSelectColumn(SystemDomainsPeer::PAGE404_ID);
-            $criteria->addSelectColumn(SystemDomainsPeer::PAGE404INTERFACE);
-            $criteria->addSelectColumn(SystemDomainsPeer::MASTER);
-            $criteria->addSelectColumn(SystemDomainsPeer::RESOURCECOMPRESSION);
-            $criteria->addSelectColumn(SystemDomainsPeer::LAYOUTS);
-            $criteria->addSelectColumn(SystemDomainsPeer::PHPLOCALE);
-            $criteria->addSelectColumn(SystemDomainsPeer::PATH);
-            $criteria->addSelectColumn(SystemDomainsPeer::THEMEPROPERTIES);
-            $criteria->addSelectColumn(SystemDomainsPeer::EXTPROPERTIES);
-            $criteria->addSelectColumn(SystemDomainsPeer::EMAIL);
-            $criteria->addSelectColumn(SystemDomainsPeer::SEARCH_INDEX_KEY);
-            $criteria->addSelectColumn(SystemDomainsPeer::ROBOTS);
-            $criteria->addSelectColumn(SystemDomainsPeer::SESSION);
-            $criteria->addSelectColumn(SystemDomainsPeer::FAVICON);
+            $criteria->addSelectColumn(SystemDomainPeer::ID);
+            $criteria->addSelectColumn(SystemDomainPeer::DOMAIN);
+            $criteria->addSelectColumn(SystemDomainPeer::TITLE_FORMAT);
+            $criteria->addSelectColumn(SystemDomainPeer::LANG);
+            $criteria->addSelectColumn(SystemDomainPeer::STARTPAGE_ID);
+            $criteria->addSelectColumn(SystemDomainPeer::ALIAS);
+            $criteria->addSelectColumn(SystemDomainPeer::REDIRECT);
+            $criteria->addSelectColumn(SystemDomainPeer::PAGE404_ID);
+            $criteria->addSelectColumn(SystemDomainPeer::PAGE404INTERFACE);
+            $criteria->addSelectColumn(SystemDomainPeer::MASTER);
+            $criteria->addSelectColumn(SystemDomainPeer::RESOURCECOMPRESSION);
+            $criteria->addSelectColumn(SystemDomainPeer::LAYOUTS);
+            $criteria->addSelectColumn(SystemDomainPeer::PHPLOCALE);
+            $criteria->addSelectColumn(SystemDomainPeer::PATH);
+            $criteria->addSelectColumn(SystemDomainPeer::THEMEPROPERTIES);
+            $criteria->addSelectColumn(SystemDomainPeer::EXTPROPERTIES);
+            $criteria->addSelectColumn(SystemDomainPeer::EMAIL);
+            $criteria->addSelectColumn(SystemDomainPeer::SEARCH_INDEX_KEY);
+            $criteria->addSelectColumn(SystemDomainPeer::ROBOTS);
+            $criteria->addSelectColumn(SystemDomainPeer::SESSION);
+            $criteria->addSelectColumn(SystemDomainPeer::FAVICON);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
             $criteria->addSelectColumn($alias . '.DOMAIN');
@@ -269,21 +269,21 @@ abstract class BaseSystemDomainsPeer {
         // We need to set the primary table name, since in the case that there are no WHERE columns
         // it will be impossible for the BasePeer::createSelectSql() method to determine which
         // tables go into the FROM clause.
-        $criteria->setPrimaryTableName(SystemDomainsPeer::TABLE_NAME);
+        $criteria->setPrimaryTableName(SystemDomainPeer::TABLE_NAME);
 
         if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
             $criteria->setDistinct();
         }
 
         if (!$criteria->hasSelectClause()) {
-            SystemDomainsPeer::addSelectColumns($criteria);
+            SystemDomainPeer::addSelectColumns($criteria);
         }
 
         $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-        $criteria->setDbName(SystemDomainsPeer::DATABASE_NAME); // Set the correct dbName
+        $criteria->setDbName(SystemDomainPeer::DATABASE_NAME); // Set the correct dbName
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
         // BasePeer returns a PDOStatement
         $stmt = BasePeer::doCount($criteria, $con);
@@ -302,7 +302,7 @@ abstract class BaseSystemDomainsPeer {
      *
      * @param      Criteria $criteria object used to create the SELECT statement.
      * @param      PropelPDO $con
-     * @return                 SystemDomains
+     * @return                 SystemDomain
      * @throws PropelException Any exceptions caught during processing will be
      *		 rethrown wrapped into a PropelException.
      */
@@ -310,7 +310,7 @@ abstract class BaseSystemDomainsPeer {
     {
         $critcopy = clone $criteria;
         $critcopy->setLimit(1);
-        $objects = SystemDomainsPeer::doSelect($critcopy, $con);
+        $objects = SystemDomainPeer::doSelect($critcopy, $con);
         if ($objects) {
             return $objects[0];
         }
@@ -328,7 +328,7 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function doSelect(Criteria $criteria, PropelPDO $con = null)
     {
-        return SystemDomainsPeer::populateObjects(SystemDomainsPeer::doSelectStmt($criteria, $con));
+        return SystemDomainPeer::populateObjects(SystemDomainPeer::doSelectStmt($criteria, $con));
     }
     /**
      * Prepares the Criteria object and uses the parent doSelect() method to execute a PDOStatement.
@@ -346,16 +346,16 @@ abstract class BaseSystemDomainsPeer {
     public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         if (!$criteria->hasSelectClause()) {
             $criteria = clone $criteria;
-            SystemDomainsPeer::addSelectColumns($criteria);
+            SystemDomainPeer::addSelectColumns($criteria);
         }
 
         // Set the correct dbName
-        $criteria->setDbName(SystemDomainsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemDomainPeer::DATABASE_NAME);
 
         // BasePeer returns a PDOStatement
         return BasePeer::doSelect($criteria, $con);
@@ -369,7 +369,7 @@ abstract class BaseSystemDomainsPeer {
      * to the cache in order to ensure that the same objects are always returned by doSelect*()
      * and retrieveByPK*() calls.
      *
-     * @param      SystemDomains $obj A SystemDomains object.
+     * @param      SystemDomain $obj A SystemDomain object.
      * @param      string $key (optional) key to use for instance map (for performance boost if key was already calculated externally).
      */
     public static function addInstanceToPool($obj, $key = null)
@@ -378,7 +378,7 @@ abstract class BaseSystemDomainsPeer {
             if ($key === null) {
                 $key = (string) $obj->getId();
             } // if key === null
-            SystemDomainsPeer::$instances[$key] = $obj;
+            SystemDomainPeer::$instances[$key] = $obj;
         }
     }
 
@@ -390,7 +390,7 @@ abstract class BaseSystemDomainsPeer {
      * methods in your stub classes -- you may need to explicitly remove objects
      * from the cache in order to prevent returning objects that no longer exist.
      *
-     * @param      mixed $value A SystemDomains object or a primary key value.
+     * @param      mixed $value A SystemDomain object or a primary key value.
      *
      * @return void
      * @throws PropelException - if the value is invalid.
@@ -398,17 +398,17 @@ abstract class BaseSystemDomainsPeer {
     public static function removeInstanceFromPool($value)
     {
         if (Propel::isInstancePoolingEnabled() && $value !== null) {
-            if (is_object($value) && $value instanceof SystemDomains) {
+            if (is_object($value) && $value instanceof SystemDomain) {
                 $key = (string) $value->getId();
             } elseif (is_scalar($value)) {
                 // assume we've been passed a primary key
                 $key = (string) $value;
             } else {
-                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or SystemDomains object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or SystemDomain object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
                 throw $e;
             }
 
-            unset(SystemDomainsPeer::$instances[$key]);
+            unset(SystemDomainPeer::$instances[$key]);
         }
     } // removeInstanceFromPool()
 
@@ -419,14 +419,14 @@ abstract class BaseSystemDomainsPeer {
      * a multi-column primary key, a serialize()d version of the primary key will be returned.
      *
      * @param      string $key The key (@see getPrimaryKeyHash()) for this instance.
-     * @return   SystemDomains Found object or NULL if 1) no instance exists for specified key or 2) instance pooling has been disabled.
+     * @return   SystemDomain Found object or NULL if 1) no instance exists for specified key or 2) instance pooling has been disabled.
      * @see        getPrimaryKeyHash()
      */
     public static function getInstanceFromPool($key)
     {
         if (Propel::isInstancePoolingEnabled()) {
-            if (isset(SystemDomainsPeer::$instances[$key])) {
-                return SystemDomainsPeer::$instances[$key];
+            if (isset(SystemDomainPeer::$instances[$key])) {
+                return SystemDomainPeer::$instances[$key];
             }
         }
 
@@ -440,15 +440,18 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function clearInstancePool()
     {
-        SystemDomainsPeer::$instances = array();
+        SystemDomainPeer::$instances = array();
     }
     
     /**
-     * Method to invalidate the instance pool of all tables related to kryn_system_domains
+     * Method to invalidate the instance pool of all tables related to kryn_system_domain
      * by a foreign key with ON DELETE CASCADE
      */
     public static function clearRelatedInstancePool()
     {
+        // Invalidate objects in SystemPagePeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        SystemPagePeer::clearInstancePool();
     }
 
     /**
@@ -498,11 +501,11 @@ abstract class BaseSystemDomainsPeer {
         $results = array();
     
         // set the class once to avoid overhead in the loop
-        $cls = SystemDomainsPeer::getOMClass();
+        $cls = SystemDomainPeer::getOMClass();
         // populate the object(s)
         while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $key = SystemDomainsPeer::getPrimaryKeyHashFromRow($row, 0);
-            if (null !== ($obj = SystemDomainsPeer::getInstanceFromPool($key))) {
+            $key = SystemDomainPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj = SystemDomainPeer::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -511,7 +514,7 @@ abstract class BaseSystemDomainsPeer {
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                SystemDomainsPeer::addInstanceToPool($obj, $key);
+                SystemDomainPeer::addInstanceToPool($obj, $key);
             } // if key exists
         }
         $stmt->closeCursor();
@@ -525,21 +528,21 @@ abstract class BaseSystemDomainsPeer {
      * @param      int $startcol The 0-based offset for reading from the resultset row.
      * @throws PropelException Any exceptions caught during processing will be
      *		 rethrown wrapped into a PropelException.
-     * @return array (SystemDomains object, last column rank)
+     * @return array (SystemDomain object, last column rank)
      */
     public static function populateObject($row, $startcol = 0)
     {
-        $key = SystemDomainsPeer::getPrimaryKeyHashFromRow($row, $startcol);
-        if (null !== ($obj = SystemDomainsPeer::getInstanceFromPool($key))) {
+        $key = SystemDomainPeer::getPrimaryKeyHashFromRow($row, $startcol);
+        if (null !== ($obj = SystemDomainPeer::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $startcol, true); // rehydrate
-            $col = $startcol + SystemDomainsPeer::NUM_HYDRATE_COLUMNS;
+            $col = $startcol + SystemDomainPeer::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = SystemDomainsPeer::OM_CLASS;
+            $cls = SystemDomainPeer::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $startcol);
-            SystemDomainsPeer::addInstanceToPool($obj, $key);
+            SystemDomainPeer::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -554,7 +557,7 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function getTableMap()
     {
-        return Propel::getDatabaseMap(SystemDomainsPeer::DATABASE_NAME)->getTable(SystemDomainsPeer::TABLE_NAME);
+        return Propel::getDatabaseMap(SystemDomainPeer::DATABASE_NAME)->getTable(SystemDomainPeer::TABLE_NAME);
     }
 
     /**
@@ -562,9 +565,9 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getDatabaseMap(BaseSystemDomainsPeer::DATABASE_NAME);
-      if (!$dbMap->hasTable(BaseSystemDomainsPeer::TABLE_NAME)) {
-        $dbMap->addTableObject(new SystemDomainsTableMap());
+      $dbMap = Propel::getDatabaseMap(BaseSystemDomainPeer::DATABASE_NAME);
+      if (!$dbMap->hasTable(BaseSystemDomainPeer::TABLE_NAME)) {
+        $dbMap->addTableObject(new SystemDomainTableMap());
       }
     }
 
@@ -576,13 +579,13 @@ abstract class BaseSystemDomainsPeer {
      */
     public static function getOMClass()
     {
-        return SystemDomainsPeer::OM_CLASS;
+        return SystemDomainPeer::OM_CLASS;
     }
 
     /**
-     * Performs an INSERT on the database, given a SystemDomains or Criteria object.
+     * Performs an INSERT on the database, given a SystemDomain or Criteria object.
      *
-     * @param      mixed $values Criteria or SystemDomains object containing data that is used to create the INSERT statement.
+     * @param      mixed $values Criteria or SystemDomain object containing data that is used to create the INSERT statement.
      * @param      PropelPDO $con the PropelPDO connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -591,22 +594,22 @@ abstract class BaseSystemDomainsPeer {
     public static function doInsert($values, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
         } else {
-            $criteria = $values->buildCriteria(); // build Criteria from SystemDomains object
+            $criteria = $values->buildCriteria(); // build Criteria from SystemDomain object
         }
 
-        if ($criteria->containsKey(SystemDomainsPeer::ID) && $criteria->keyContainsValue(SystemDomainsPeer::ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SystemDomainsPeer::ID.')');
+        if ($criteria->containsKey(SystemDomainPeer::ID) && $criteria->keyContainsValue(SystemDomainPeer::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SystemDomainPeer::ID.')');
         }
 
 
         // Set the correct dbName
-        $criteria->setDbName(SystemDomainsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemDomainPeer::DATABASE_NAME);
 
         try {
             // use transaction because $criteria could contain info
@@ -623,9 +626,9 @@ abstract class BaseSystemDomainsPeer {
     }
 
     /**
-     * Performs an UPDATE on the database, given a SystemDomains or Criteria object.
+     * Performs an UPDATE on the database, given a SystemDomain or Criteria object.
      *
-     * @param      mixed $values Criteria or SystemDomains object containing data that is used to create the UPDATE statement.
+     * @param      mixed $values Criteria or SystemDomain object containing data that is used to create the UPDATE statement.
      * @param      PropelPDO $con The connection to use (specify PropelPDO connection object to exert more control over transactions).
      * @return int             The number of affected rows (if supported by underlying database driver).
      * @throws PropelException Any exceptions caught during processing will be
@@ -634,35 +637,35 @@ abstract class BaseSystemDomainsPeer {
     public static function doUpdate($values, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
-        $selectCriteria = new Criteria(SystemDomainsPeer::DATABASE_NAME);
+        $selectCriteria = new Criteria(SystemDomainPeer::DATABASE_NAME);
 
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
 
-            $comparison = $criteria->getComparison(SystemDomainsPeer::ID);
-            $value = $criteria->remove(SystemDomainsPeer::ID);
+            $comparison = $criteria->getComparison(SystemDomainPeer::ID);
+            $value = $criteria->remove(SystemDomainPeer::ID);
             if ($value) {
-                $selectCriteria->add(SystemDomainsPeer::ID, $value, $comparison);
+                $selectCriteria->add(SystemDomainPeer::ID, $value, $comparison);
             } else {
-                $selectCriteria->setPrimaryTableName(SystemDomainsPeer::TABLE_NAME);
+                $selectCriteria->setPrimaryTableName(SystemDomainPeer::TABLE_NAME);
             }
 
-        } else { // $values is SystemDomains object
+        } else { // $values is SystemDomain object
             $criteria = $values->buildCriteria(); // gets full criteria
             $selectCriteria = $values->buildPkeyCriteria(); // gets criteria w/ primary key(s)
         }
 
         // set the correct dbName
-        $criteria->setDbName(SystemDomainsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemDomainPeer::DATABASE_NAME);
 
         return BasePeer::doUpdate($selectCriteria, $criteria, $con);
     }
 
     /**
-     * Deletes all rows from the kryn_system_domains table.
+     * Deletes all rows from the kryn_system_domain table.
      *
      * @param      PropelPDO $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).
@@ -671,19 +674,19 @@ abstract class BaseSystemDomainsPeer {
     public static function doDeleteAll(PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
         $affectedRows = 0; // initialize var to track total num of affected rows
         try {
             // use transaction because $criteria could contain info
             // for more than one table or we could emulating ON DELETE CASCADE, etc.
             $con->beginTransaction();
-            $affectedRows += BasePeer::doDeleteAll(SystemDomainsPeer::TABLE_NAME, $con, SystemDomainsPeer::DATABASE_NAME);
+            $affectedRows += BasePeer::doDeleteAll(SystemDomainPeer::TABLE_NAME, $con, SystemDomainPeer::DATABASE_NAME);
             // Because this db requires some delete cascade/set null emulation, we have to
             // clear the cached instance *after* the emulation has happened (since
             // instances get re-added by the select statement contained therein).
-            SystemDomainsPeer::clearInstancePool();
-            SystemDomainsPeer::clearRelatedInstancePool();
+            SystemDomainPeer::clearInstancePool();
+            SystemDomainPeer::clearRelatedInstancePool();
             $con->commit();
 
             return $affectedRows;
@@ -694,9 +697,9 @@ abstract class BaseSystemDomainsPeer {
     }
 
     /**
-     * Performs a DELETE on the database, given a SystemDomains or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a SystemDomain or Criteria object OR a primary key value.
      *
-     * @param      mixed $values Criteria or SystemDomains object or primary key or array of primary keys
+     * @param      mixed $values Criteria or SystemDomain object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param      PropelPDO $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -707,32 +710,32 @@ abstract class BaseSystemDomainsPeer {
      public static function doDelete($values, PropelPDO $con = null)
      {
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         if ($values instanceof Criteria) {
             // invalidate the cache for all objects of this type, since we have no
             // way of knowing (without running a query) what objects should be invalidated
             // from the cache based on this Criteria.
-            SystemDomainsPeer::clearInstancePool();
+            SystemDomainPeer::clearInstancePool();
             // rename for clarity
             $criteria = clone $values;
-        } elseif ($values instanceof SystemDomains) { // it's a model object
+        } elseif ($values instanceof SystemDomain) { // it's a model object
             // invalidate the cache for this single object
-            SystemDomainsPeer::removeInstanceFromPool($values);
+            SystemDomainPeer::removeInstanceFromPool($values);
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(SystemDomainsPeer::DATABASE_NAME);
-            $criteria->add(SystemDomainsPeer::ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(SystemDomainPeer::DATABASE_NAME);
+            $criteria->add(SystemDomainPeer::ID, (array) $values, Criteria::IN);
             // invalidate the cache for this object(s)
             foreach ((array) $values as $singleval) {
-                SystemDomainsPeer::removeInstanceFromPool($singleval);
+                SystemDomainPeer::removeInstanceFromPool($singleval);
             }
         }
 
         // Set the correct dbName
-        $criteria->setDbName(SystemDomainsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemDomainPeer::DATABASE_NAME);
 
         $affectedRows = 0; // initialize var to track total num of affected rows
 
@@ -742,7 +745,7 @@ abstract class BaseSystemDomainsPeer {
             $con->beginTransaction();
             
             $affectedRows += BasePeer::doDelete($criteria, $con);
-            SystemDomainsPeer::clearRelatedInstancePool();
+            SystemDomainPeer::clearRelatedInstancePool();
             $con->commit();
 
             return $affectedRows;
@@ -753,13 +756,13 @@ abstract class BaseSystemDomainsPeer {
     }
 
     /**
-     * Validates all modified columns of given SystemDomains object.
+     * Validates all modified columns of given SystemDomain object.
      * If parameter $columns is either a single column name or an array of column names
      * than only those columns are validated.
      *
      * NOTICE: This does not apply to primary or foreign keys for now.
      *
-     * @param      SystemDomains $obj The object to validate.
+     * @param      SystemDomain $obj The object to validate.
      * @param      mixed $cols Column name or array of column names.
      *
      * @return mixed TRUE if all columns are valid or the error message of the first invalid column.
@@ -769,8 +772,8 @@ abstract class BaseSystemDomainsPeer {
         $columns = array();
 
         if ($cols) {
-            $dbMap = Propel::getDatabaseMap(SystemDomainsPeer::DATABASE_NAME);
-            $tableMap = $dbMap->getTable(SystemDomainsPeer::TABLE_NAME);
+            $dbMap = Propel::getDatabaseMap(SystemDomainPeer::DATABASE_NAME);
+            $tableMap = $dbMap->getTable(SystemDomainPeer::TABLE_NAME);
 
             if (! is_array($cols)) {
                 $cols = array($cols);
@@ -786,7 +789,7 @@ abstract class BaseSystemDomainsPeer {
 
         }
 
-        return BasePeer::doValidate(SystemDomainsPeer::DATABASE_NAME, SystemDomainsPeer::TABLE_NAME, $columns);
+        return BasePeer::doValidate(SystemDomainPeer::DATABASE_NAME, SystemDomainPeer::TABLE_NAME, $columns);
     }
 
     /**
@@ -794,23 +797,23 @@ abstract class BaseSystemDomainsPeer {
      *
      * @param      int $pk the primary key.
      * @param      PropelPDO $con the connection to use
-     * @return SystemDomains
+     * @return SystemDomain
      */
     public static function retrieveByPK($pk, PropelPDO $con = null)
     {
 
-        if (null !== ($obj = SystemDomainsPeer::getInstanceFromPool((string) $pk))) {
+        if (null !== ($obj = SystemDomainPeer::getInstanceFromPool((string) $pk))) {
             return $obj;
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
-        $criteria = new Criteria(SystemDomainsPeer::DATABASE_NAME);
-        $criteria->add(SystemDomainsPeer::ID, $pk);
+        $criteria = new Criteria(SystemDomainPeer::DATABASE_NAME);
+        $criteria->add(SystemDomainPeer::ID, $pk);
 
-        $v = SystemDomainsPeer::doSelect($criteria, $con);
+        $v = SystemDomainPeer::doSelect($criteria, $con);
 
         return !empty($v) > 0 ? $v[0] : null;
     }
@@ -820,31 +823,31 @@ abstract class BaseSystemDomainsPeer {
      *
      * @param      array $pks List of primary keys
      * @param      PropelPDO $con the connection to use
-     * @return SystemDomains[]
+     * @return SystemDomain[]
      * @throws PropelException Any exceptions caught during processing will be
      *		 rethrown wrapped into a PropelException.
      */
     public static function retrieveByPKs($pks, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         $objs = null;
         if (empty($pks)) {
             $objs = array();
         } else {
-            $criteria = new Criteria(SystemDomainsPeer::DATABASE_NAME);
-            $criteria->add(SystemDomainsPeer::ID, $pks, Criteria::IN);
-            $objs = SystemDomainsPeer::doSelect($criteria, $con);
+            $criteria = new Criteria(SystemDomainPeer::DATABASE_NAME);
+            $criteria->add(SystemDomainPeer::ID, $pks, Criteria::IN);
+            $objs = SystemDomainPeer::doSelect($criteria, $con);
         }
 
         return $objs;
     }
 
-} // BaseSystemDomainsPeer
+} // BaseSystemDomainPeer
 
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-BaseSystemDomainsPeer::buildTableMap();
+BaseSystemDomainPeer::buildTableMap();
 

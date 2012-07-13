@@ -28,7 +28,7 @@
                 {if $currentCommentsPage == $smarty.section.commentpage.index }
                     <span>{$smarty.section.commentpage.index}</span>
                 {else}
-                    <a href="{$page|@realUrl}/{$news.title|escape:"rewrite"}/{$news.rsn}/{$smarty.section.commentpage.index}/">{$smarty.section.commentpage.index}</a>
+                    <a href="{$page|@realUrl}/{$news.title|escape:"rewrite"}/{$news.id}/{$smarty.section.commentpage.index}/">{$smarty.section.commentpage.index}</a>
                 {/if}
             {/section}
         </div>
@@ -66,7 +66,7 @@
                 
                 <tr>
                     <td>
-                        {if $user.rsn > 0 }
+                        {if $user.id > 0 }
                             <input type="text" class="text" style="width: 190px;" name="name" value="{$user.username}" disabled="disabled"/>
                         {else}
                             <input type="text" style="width: 190px;" class="text" name="name" />

@@ -4,7 +4,7 @@
 class usersAdminEdit extends windowEdit {
 
     public $object = 'user';
-    public $primary = array('rsn');
+    public $primary = array('id');
     public $versioning = false;
 
     public $loadSettingsAfterSave = true;
@@ -130,12 +130,12 @@ class usersAdminEdit extends windowEdit {
                 'relation' => 'n-n',
                 'n-n' => array(
                     'right' => 'system_groups',
-                    'right_key' => 'rsn',
+                    'right_key' => 'id',
                     'right_label' => 'name',
                     'middle' => 'system_groupaccess',
-                    'middle_keyright' => 'system_group_rsn',
-                    'middle_keyleft' => 'system_user_rsn',
-                    'left_key' => 'rsn'
+                    'middle_keyright' => 'system_group_id',
+                    'middle_keyleft' => 'system_user_id',
+                    'left_key' => 'id'
                 )
             )*/
         ),
@@ -187,21 +187,21 @@ class usersAdminEdit extends windowEdit {
 
     private static function saveSetting( $pKey, $pVal ){
         
-        $temp = dbTableFetch('system_user', 1, "rsn = ".(getArgv('rsn')+0));
+        $temp = dbTableFetch('system_user', 1, "id = ".(getArgv('id')+0));
         $settings = unserialize( $temp['settings'] );
         
         $settings[$pKey] = $pVal;
         $ssettings = serialize( $settings );
         
-        dbUpdate( 'system_user', array('rsn' => getArgv('rsn')+0), array('settings' => $ssettings) );
+        dbUpdate( 'system_user', array('id' => getArgv('id')+0), array('settings' => $ssettings) );
     }
 
     private static function getSetting( $pKey ){
         
-        $rsn = getArgv('rsn')+0;
+        $id = getArgv('id')+0;
         
         if( !self::$cacheUser )
-            self::$cacheUser = dbTableFetch('system_user', 1, "rsn = $rsn");
+            self::$cacheUser = dbTableFetch('system_user', 1, "id = $id");
             
         $settings = unserialize(self::$cacheUser['settings']);
         return $settings[$pKey];

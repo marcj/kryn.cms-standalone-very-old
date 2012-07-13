@@ -165,7 +165,7 @@ ka.buildUserMenu = function(){
         text: t('Edit me')
     })
     .addEvent('click', function(){
-        ka.wm.open('users/users/editMe', {values: {rsn: window._user_rsn}});
+        ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
     })
     .inject(ka.userMenu);
 
@@ -201,7 +201,7 @@ ka.clearCache = function () {
 ka.getDomain = function (pRsn) {
     var result = [];
     ka.settings.domains.each(function (domain) {
-        if (domain.rsn == pRsn) {
+        if (domain.id == pRsn) {
             result = domain;
         }
     })
@@ -265,7 +265,7 @@ ka.resetWindows = function () {
 }
 
 ka.check4Updates = function () {
-    if (window._session.user_rsn == 0) return;
+    if (window._session.user_id == 0) return;
     new Request.JSON({url: _path + 'admin/system/module/check4updates', noCache: 1, onComplete: function (res) {
         if (res && res.found) {
             ka.displayNewUpdates(res.modules);
@@ -319,7 +319,7 @@ ka.checkPageAccess = function (pRsn, pAction, pType) {
 
     var access = false;
 
-    var current_rsn = pRsn;
+    var current_id = pRsn;
     var current_type = pType;
     var not_found = true;
     var parent_acl = false;
@@ -328,7 +328,7 @@ ka.checkPageAccess = function (pRsn, pAction, pType) {
 
     while (not_found) {
 
-        var acl = ka._getPageAcl(current_rsn, current_type);
+        var acl = ka._getPageAcl(current_id, current_type);
         if (acl && acl.code) {
             codes = acl.code.split('[')[1].replace(']', '').split(',');
             if (ka.checkPageAccessHasCode(codes, pAction)) {
@@ -346,13 +346,13 @@ ka.checkPageAccess = function (pRsn, pAction, pType) {
 
         if (not_found == true && current_type == 'p') {
             //search and set parent
-            var parent = ka.getPageParent(current_rsn);
+            var parent = ka.getPageParent(current_id);
             if (parent.domain) {
                 //parent is domain
-                current_rsn = parent.domain_rsn;
+                current_id = parent.domain_id;
                 current_type = 'd';
             } else {
-                current_rsn = parent.rsn;
+                current_id = parent.id;
             }
             parent_acl = true;
         }
@@ -364,10 +364,10 @@ ka.checkPageAccess = function (pRsn, pAction, pType) {
 
 ka.getPageParent = function (pRsn) {
 
-    var domain_rsn = ka.getDomainOfPage(pRsn);
+    var domain_id = ka.getDomainOfPage(pRsn);
 
-    var page_tree = $H(ka.settings['menus_' + domain_rsn]).get(pRsn);
-    var result = {prsn: 0, domain_rsn: domain_rsn, domain: true};
+    var page_tree = $H(ka.settings['menus_' + domain_id]).get(pRsn);
+    var result = {pid: 0, domain_id: domain_id, domain: true};
 
     if (!page_tree) return result;
 
@@ -375,23 +375,23 @@ ka.getPageParent = function (pRsn) {
 
     if (page_tree.length >= 1 && page) {
         result = page;
-        result.domain_rsn = domain_rsn;
+        result.domain_id = domain_id;
     }
 
     return result;
 }
 
 ka.getDomainOfPage = function (pRsn) {
-    var rsn = false;
+    var id = false;
 
     pRsn = ',' + pRsn + ',';
-    Object.each(ka.settings.r2d, function (pages, domain_rsn) {
+    Object.each(ka.settings.r2d, function (pages, domain_id) {
         var pages = ',' + pages + ',';
         if (pages.indexOf(pRsn) != -1) {
-            rsn = domain_rsn;
+            id = domain_id;
         }
     });
-    return rsn;
+    return id;
 }
 
 ka._getPageAcl = function (pRsn, pType) {
@@ -400,8 +400,8 @@ ka._getPageAcl = function (pRsn, pType) {
 
         var type = item.code.substr(0, 1);
         if (pType != type) return;
-        var rsn = item.code.substr(1, item.code.length).split('[')[0].replace('%', '');
-        if (rsn == pRsn) {
+        var id = item.code.substr(1, item.code.length).split('[')[0].replace('%', '');
+        if (id == pRsn) {
             acl = item;
         }
     })
@@ -506,7 +506,7 @@ ka.loadStream = function () {
     }
 
     _lastStreamCounter = (function () {
-        if (window._session.user_rsn > 0) {
+        if (window._session.user_id > 0) {
             new Request.JSON({url: _path + 'admin/backend/stream', noCache: 1, onComplete: function (res) {
                 if (res) {
                     if (res.error == 'access_denied') {

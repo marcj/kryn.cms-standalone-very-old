@@ -37,11 +37,11 @@ abstract class BaseSystemUrlaliasPeer {
     /** the column name for the URL field */
     const URL = 'kryn_system_urlalias.URL';
 
-    /** the column name for the TO_PAGE field */
-    const TO_PAGE = 'kryn_system_urlalias.TO_PAGE';
+    /** the column name for the TO_PAGE_ID field */
+    const TO_PAGE_ID = 'kryn_system_urlalias.TO_PAGE_ID';
 
-    /** the column name for the DOMAIN field */
-    const DOMAIN = 'kryn_system_urlalias.DOMAIN';
+    /** the column name for the DOMAIN_ID field */
+    const DOMAIN_ID = 'kryn_system_urlalias.DOMAIN_ID';
 
     /** The default string format for model objects of the related table **/
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -62,11 +62,11 @@ abstract class BaseSystemUrlaliasPeer {
      * e.g. SystemUrlaliasPeer::$fieldNames[SystemUrlaliasPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'Url', 'ToPage', 'Domain', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'url', 'toPage', 'domain', ),
-        BasePeer::TYPE_COLNAME => array (SystemUrlaliasPeer::ID, SystemUrlaliasPeer::URL, SystemUrlaliasPeer::TO_PAGE, SystemUrlaliasPeer::DOMAIN, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'URL', 'TO_PAGE', 'DOMAIN', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'url', 'to_page', 'domain', ),
+        BasePeer::TYPE_PHPNAME => array ('Id', 'Url', 'ToPageId', 'DomainId', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'url', 'toPageId', 'domainId', ),
+        BasePeer::TYPE_COLNAME => array (SystemUrlaliasPeer::ID, SystemUrlaliasPeer::URL, SystemUrlaliasPeer::TO_PAGE_ID, SystemUrlaliasPeer::DOMAIN_ID, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'URL', 'TO_PAGE_ID', 'DOMAIN_ID', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'url', 'to_page_id', 'domain_id', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, )
     );
 
@@ -77,11 +77,11 @@ abstract class BaseSystemUrlaliasPeer {
      * e.g. SystemUrlaliasPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Url' => 1, 'ToPage' => 2, 'Domain' => 3, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'url' => 1, 'toPage' => 2, 'domain' => 3, ),
-        BasePeer::TYPE_COLNAME => array (SystemUrlaliasPeer::ID => 0, SystemUrlaliasPeer::URL => 1, SystemUrlaliasPeer::TO_PAGE => 2, SystemUrlaliasPeer::DOMAIN => 3, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'URL' => 1, 'TO_PAGE' => 2, 'DOMAIN' => 3, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'url' => 1, 'to_page' => 2, 'domain' => 3, ),
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Url' => 1, 'ToPageId' => 2, 'DomainId' => 3, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'url' => 1, 'toPageId' => 2, 'domainId' => 3, ),
+        BasePeer::TYPE_COLNAME => array (SystemUrlaliasPeer::ID => 0, SystemUrlaliasPeer::URL => 1, SystemUrlaliasPeer::TO_PAGE_ID => 2, SystemUrlaliasPeer::DOMAIN_ID => 3, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'URL' => 1, 'TO_PAGE_ID' => 2, 'DOMAIN_ID' => 3, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'url' => 1, 'to_page_id' => 2, 'domain_id' => 3, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, )
     );
 
@@ -158,13 +158,13 @@ abstract class BaseSystemUrlaliasPeer {
         if (null === $alias) {
             $criteria->addSelectColumn(SystemUrlaliasPeer::ID);
             $criteria->addSelectColumn(SystemUrlaliasPeer::URL);
-            $criteria->addSelectColumn(SystemUrlaliasPeer::TO_PAGE);
-            $criteria->addSelectColumn(SystemUrlaliasPeer::DOMAIN);
+            $criteria->addSelectColumn(SystemUrlaliasPeer::TO_PAGE_ID);
+            $criteria->addSelectColumn(SystemUrlaliasPeer::DOMAIN_ID);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
             $criteria->addSelectColumn($alias . '.URL');
-            $criteria->addSelectColumn($alias . '.TO_PAGE');
-            $criteria->addSelectColumn($alias . '.DOMAIN');
+            $criteria->addSelectColumn($alias . '.TO_PAGE_ID');
+            $criteria->addSelectColumn($alias . '.DOMAIN_ID');
         }
     }
 
@@ -458,6 +458,244 @@ abstract class BaseSystemUrlaliasPeer {
         }
 
         return array($obj, $col);
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related SystemPage table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinSystemPage(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(SystemUrlaliasPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            SystemUrlaliasPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(SystemUrlaliasPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(SystemUrlaliasPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(SystemUrlaliasPeer::TO_PAGE_ID, SystemPagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Selects a collection of SystemUrlalias objects pre-filled with their SystemPage objects.
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of SystemUrlalias objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinSystemPage(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(SystemUrlaliasPeer::DATABASE_NAME);
+        }
+
+        SystemUrlaliasPeer::addSelectColumns($criteria);
+        $startcol = SystemUrlaliasPeer::NUM_HYDRATE_COLUMNS;
+        SystemPagePeer::addSelectColumns($criteria);
+
+        $criteria->addJoin(SystemUrlaliasPeer::TO_PAGE_ID, SystemPagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = SystemUrlaliasPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = SystemUrlaliasPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+
+                $cls = SystemUrlaliasPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                SystemUrlaliasPeer::addInstanceToPool($obj1, $key1);
+            } // if $obj1 already loaded
+
+            $key2 = SystemPagePeer::getPrimaryKeyHashFromRow($row, $startcol);
+            if ($key2 !== null) {
+                $obj2 = SystemPagePeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = SystemPagePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol);
+                    SystemPagePeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 already loaded
+
+                // Add the $obj1 (SystemUrlalias) to $obj2 (SystemPage)
+                $obj2->addSystemUrlalias($obj1);
+
+            } // if joined row was not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining all related tables
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAll(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(SystemUrlaliasPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            SystemUrlaliasPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(SystemUrlaliasPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(SystemUrlaliasPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(SystemUrlaliasPeer::TO_PAGE_ID, SystemPagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+    /**
+     * Selects a collection of SystemUrlalias objects pre-filled with all related objects.
+     *
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of SystemUrlalias objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinAll(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(SystemUrlaliasPeer::DATABASE_NAME);
+        }
+
+        SystemUrlaliasPeer::addSelectColumns($criteria);
+        $startcol2 = SystemUrlaliasPeer::NUM_HYDRATE_COLUMNS;
+
+        SystemPagePeer::addSelectColumns($criteria);
+        $startcol3 = $startcol2 + SystemPagePeer::NUM_HYDRATE_COLUMNS;
+
+        $criteria->addJoin(SystemUrlaliasPeer::TO_PAGE_ID, SystemPagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = SystemUrlaliasPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = SystemUrlaliasPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = SystemUrlaliasPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                SystemUrlaliasPeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+            // Add objects for joined SystemPage rows
+
+            $key2 = SystemPagePeer::getPrimaryKeyHashFromRow($row, $startcol2);
+            if ($key2 !== null) {
+                $obj2 = SystemPagePeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = SystemPagePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol2);
+                    SystemPagePeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 loaded
+
+                // Add the $obj1 (SystemUrlalias) to the collection in $obj2 (SystemPage)
+                $obj2->addSystemUrlalias($obj1);
+            } // if joined row not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
     }
 
     /**

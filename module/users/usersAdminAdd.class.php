@@ -5,7 +5,7 @@ class usersAdminAdd extends windowAdd {
     public $object = 'user';
     public $checkUsage = true; //default on
 
-    public $primary = array('rsn');
+    public $primary = array('id');
     
     public $tabLayouts = array(
         'General' => '<table width="100%"><tr>
@@ -121,20 +121,20 @@ class usersAdminAdd extends windowAdd {
                 'relation' => 'n-n',
                 'n-n' => array(
                     'right' => 'system_groups',
-                    'right_key' => 'rsn',
+                    'right_key' => 'id',
                     'right_label' => 'name',
                     'middle' => 'system_groupaccess',
-                    'middle_keyright' => 'group_rsn',
-                    'middle_keyleft' => 'user_rsn',
-                    'left_key' => 'rsn'
+                    'middle_keyright' => 'group_id',
+                    'middle_keyleft' => 'user_id',
+                    'left_key' => 'id'
                 )
             )*/
         )
     );
 
     public function userBgValue($pPrimary, $pItem){
-        $rsn = $pPrimary['rsn'];
-        $user = dbTableFetch('system_user', 1, "rsn = $rsn");
+        $id = $pPrimary['id'];
+        $user = dbTableFetch('system_user', 1, "id = $id");
         $settings = unserialize($user['settings']);
         return $settings['userBg'];
     }
@@ -144,7 +144,7 @@ class usersAdminAdd extends windowAdd {
         $settings = $user->user['settings'];
         $settings['userBg'] = getArgv('userBg', 1);
         $settings = serialize( $settings );
-        dbUpdate( 'system_user', array('rsn' => $this->last), array('settings' => $settings) );
+        dbUpdate( 'system_user', array('id' => $this->last), array('settings' => $settings) );
     }
     
     public function savePasswd( &$pRow ){

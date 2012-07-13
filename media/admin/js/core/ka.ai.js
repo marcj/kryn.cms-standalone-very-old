@@ -397,7 +397,7 @@ window.addEvent('load', function () {
         parent.doLogin();
 
     } else {
-        if (_session.user_rsn > 0) {
+        if (_session.user_id > 0) {
             if (window._session.noAdminAccess){
                 ka.ai.loginFailed();
             } else {
@@ -723,7 +723,7 @@ ka.ai.reloadLogin = function () {
 ka.ai.doLogin = function () {
     ka.ai.loginMessage.set('html', _('Check Login. Please wait ...'));
     new Request.JSON({url: _path + 'admin/?admin-users-login=1&json:1', noCache: 1, onComplete: function (res) {
-        if (res.user_rsn > 0) {
+        if (res.user_id > 0) {
             ka.ai.loginSuccess(res);
         } else {
             ka.ai.loginFailed();
@@ -770,7 +770,7 @@ ka.ai.logout = function (pScreenlocker) {
 
     ka.ai.loginPw.value = '';
     ka.ai.loginPw.focus();
-    window._session.user_rsn = 0;
+    window._session.user_id = 0;
 }
 
 ka.ai.loginSuccess = function (pId, pAlready) {
@@ -795,14 +795,14 @@ ka.ai.loginSuccess = function (pId, pAlready) {
     ka.ai.loginName.value = pId.username;
     window._sid = pId.sessionid;
     window._session.sessionid = pId.sessionid;
-    window._user_rsn = pId.user_rsn
+    window._user_id = pId.user_id
 
     $('user-username').set('text', ka.ai.loginName.value);
     $('user-username').onclick = function () {
-        ka.wm.open('users/profile', {values: {rsn: pId.user_rsn}});
+        ka.wm.open('users/profile', {values: {id: pId.user_id}});
     }
 
-    window._session.user_rsn = pId.user_rsn;
+    window._session.user_id = pId.user_id;
     window._session.username = pId.username;
     window._session.lastlogin = pId.lastlogin;
 

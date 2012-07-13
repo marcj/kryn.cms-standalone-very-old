@@ -141,6 +141,8 @@ kryn::loadLanguage();
 kryn::loadModuleConfigs();
 
 
+kryn::initModules();
+
 if (getArgv(1) == 'admin') {
     /*
     * Load the whole config of all modules

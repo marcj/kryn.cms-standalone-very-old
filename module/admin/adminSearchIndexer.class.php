@@ -28,17 +28,17 @@ class adminSearchIndexer {
                 json(self::getNewUnindexedPages());
 
             case 'getSearchIndexOverview' :
-                json(krynSearch::getSearchIndexOverview(getArgv('page_rsn') + 0));
+                json(krynSearch::getSearchIndexOverview(getArgv('page_id') + 0));
                 break;
             /*    
             case 'getFullSiteIndexUrls' :
-               //krynSearch::initSearchFromBackend($_REQUEST['domain_rsn']+0);     
-                json(krynSearch::getFullSiteIndexUrls($_REQUEST['domain_rsn']+0));
+               //krynSearch::initSearchFromBackend($_REQUEST['domain_id']+0);
+                json(krynSearch::getFullSiteIndexUrls($_REQUEST['domain_id']+0));
             break;
             
             case 'getUnindexSitePercent' :
-                //krynSearch::initSearchFromBackend($_REQUEST['domain_rsn']+0);     
-                json(krynSearch::getUnindexSitePercent($_REQUEST['domain_rsn']+0));
+                //krynSearch::initSearchFromBackend($_REQUEST['domain_id']+0);
+                json(krynSearch::getUnindexSitePercent($_REQUEST['domain_id']+0));
             break;    
                 
             
@@ -73,11 +73,11 @@ class adminSearchIndexer {
     public static function getIndexedPages4AllDomains() {
 
         $items = dbExfetch('
-        	SELECT max(d.domain) as domain, max(d.lang) as lang, count(s.domain_rsn)+0 as indexedcount
+        	SELECT max(d.domain) as domain, max(d.lang) as lang, count(s.domain_id)+0 as indexedcount
         	FROM %pfx%system_domains d
-        	LEFT OUTER JOIN %pfx%system_search s ON (s.domain_rsn = d.rsn AND s.mdate > 0 AND (blacklist IS NULL OR blacklist = 0) )
+        	LEFT OUTER JOIN %pfx%system_search s ON (s.domain_id = d.id AND s.mdate > 0 AND (blacklist IS NULL OR blacklist = 0) )
         	
-        	GROUP BY d.rsn
+        	GROUP BY d.id
         ', -1);
 
         return $items;
@@ -89,8 +89,8 @@ class adminSearchIndexer {
         if ($res['access'] == false) return $res;
 
         $dres = dbExec('
-        SELECT p.rsn, p.title, p.domain_rsn FROM %pfx%system_pages p
-        WHERE p.type = 0 AND p.rsn NOT IN( SELECT page_rsn FROM %pfx%system_search )
+        SELECT p.id, p.title, p.domain_id FROM %pfx%system_page p
+        WHERE p.type = 0 AND p.id NOT IN( SELECT page_id FROM %pfx%system_search )
         AND (p.unsearchable != 1 OR p.unsearchable IS NULL)
         ');
 
@@ -104,13 +104,13 @@ class adminSearchIndexer {
             $res['pages'][] = $row;
 
 
-            $urls = kryn::getCache('systemUrls-' . $row['domain_rsn']);
+            $urls = kryn::getCache('systemUrls-' . $row['domain_id']);
             if (!$urls) {
-                $urls = adminPages::updateUrlCache($row['domain_rsn']);
+                $urls = adminPages::updateUrlCache($row['domain_id']);
             }
 
-            $row['url'] = $urls['rsn']['rsn=' . $row['rsn']];
-            krynSearch::disposePageForIndex('/' . $row['url'], $row['title'], $row['domain_rsn'], $row['rsn']);
+            $row['url'] = $urls['id']['id=' . $row['id']];
+            krynSearch::disposePageForIndex('/' . $row['url'], $row['title'], $row['domain_id'], $row['id']);
 
         }
 
@@ -125,7 +125,7 @@ class adminSearchIndexer {
 
         $res['pages'] = dbExfetch('
         	SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
-        	d.rsn = s.domain_rsn AND s.mdate = 0 AND (s.blacklist IS NULL OR  s.blacklist < ' . $blacklistTimeout . ' )'
+        	d.id = s.domain_id AND s.mdate = 0 AND (s.blacklist IS NULL OR  s.blacklist < ' . $blacklistTimeout . ' )'
             , -1);
         return $res;
     }
@@ -139,7 +139,7 @@ class adminSearchIndexer {
 
         $res['pages'] = dbExfetch('
         	SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
-        	d.rsn = s.domain_rsn AND s.mdate < ' . $nextCheckTimeout . '  AND (s.blacklist IS NULL OR  s.blacklist < ' .
+        	d.id = s.domain_id AND s.mdate < ' . $nextCheckTimeout . '  AND (s.blacklist IS NULL OR  s.blacklist < ' .
                                   $blacklistTimeout . ' )'
             , -1);
 

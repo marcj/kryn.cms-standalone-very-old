@@ -3,7 +3,7 @@
 class publicationNewsCommentsAdd extends windowAdd {
 
     public $table = 'publication_comments';
-    public $primary = array('rsn');
+    public $primary = array('id');
 
     public $fields = array(
         'owner_username' => array(
@@ -14,14 +14,14 @@ class publicationNewsCommentsAdd extends windowAdd {
             'label' => 'E-Mail',
             'type' => 'text'
         ),
-        'parent_rsn' => array(
+        'parent_id' => array(
             'label' => 'News',
             'type' => 'select',
             'multiLanguage' => true,
             'empty' => false,
             'table' => 'publication_news',
             'table_label' => 'title',
-            'table_key' => 'rsn'
+            'table_key' => 'id'
         ),
         'subject' => array(
             'label' => 'Subject',

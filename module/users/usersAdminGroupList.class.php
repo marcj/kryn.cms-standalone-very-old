@@ -12,7 +12,7 @@ class usersAdminGroupList extends windowList {
 
     public $filter = array('name');
 
-    public $primary = array('rsn');
+    public $primary = array('id');
 
     public $add = true;
     public $edit = true;
@@ -33,7 +33,7 @@ class usersAdminGroupList extends windowList {
     function acl( $pItem ){
         $res = parent::acl( $pItem );
 
-        if( $pItem['rsn'] == 1 ){
+        if( $pItem['id'] == 1 ){
             $res['remove'] = false;
             $res['edit'] = false;
         }

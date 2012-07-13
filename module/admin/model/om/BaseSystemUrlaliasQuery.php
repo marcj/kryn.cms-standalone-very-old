@@ -8,30 +8,34 @@
  *
  * @method     SystemUrlaliasQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     SystemUrlaliasQuery orderByUrl($order = Criteria::ASC) Order by the url column
- * @method     SystemUrlaliasQuery orderByToPage($order = Criteria::ASC) Order by the to_page column
- * @method     SystemUrlaliasQuery orderByDomain($order = Criteria::ASC) Order by the domain column
+ * @method     SystemUrlaliasQuery orderByToPageId($order = Criteria::ASC) Order by the to_page_id column
+ * @method     SystemUrlaliasQuery orderByDomainId($order = Criteria::ASC) Order by the domain_id column
  *
  * @method     SystemUrlaliasQuery groupById() Group by the id column
  * @method     SystemUrlaliasQuery groupByUrl() Group by the url column
- * @method     SystemUrlaliasQuery groupByToPage() Group by the to_page column
- * @method     SystemUrlaliasQuery groupByDomain() Group by the domain column
+ * @method     SystemUrlaliasQuery groupByToPageId() Group by the to_page_id column
+ * @method     SystemUrlaliasQuery groupByDomainId() Group by the domain_id column
  *
  * @method     SystemUrlaliasQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     SystemUrlaliasQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     SystemUrlaliasQuery innerJoin($relation) Adds a INNER JOIN clause to the query
+ *
+ * @method     SystemUrlaliasQuery leftJoinSystemPage($relationAlias = null) Adds a LEFT JOIN clause to the query using the SystemPage relation
+ * @method     SystemUrlaliasQuery rightJoinSystemPage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SystemPage relation
+ * @method     SystemUrlaliasQuery innerJoinSystemPage($relationAlias = null) Adds a INNER JOIN clause to the query using the SystemPage relation
  *
  * @method     SystemUrlalias findOne(PropelPDO $con = null) Return the first SystemUrlalias matching the query
  * @method     SystemUrlalias findOneOrCreate(PropelPDO $con = null) Return the first SystemUrlalias matching the query, or a new SystemUrlalias object populated from the query conditions when no match is found
  *
  * @method     SystemUrlalias findOneById(int $id) Return the first SystemUrlalias filtered by the id column
  * @method     SystemUrlalias findOneByUrl(string $url) Return the first SystemUrlalias filtered by the url column
- * @method     SystemUrlalias findOneByToPage(int $to_page) Return the first SystemUrlalias filtered by the to_page column
- * @method     SystemUrlalias findOneByDomain(int $domain) Return the first SystemUrlalias filtered by the domain column
+ * @method     SystemUrlalias findOneByToPageId(int $to_page_id) Return the first SystemUrlalias filtered by the to_page_id column
+ * @method     SystemUrlalias findOneByDomainId(int $domain_id) Return the first SystemUrlalias filtered by the domain_id column
  *
  * @method     array findById(int $id) Return SystemUrlalias objects filtered by the id column
  * @method     array findByUrl(string $url) Return SystemUrlalias objects filtered by the url column
- * @method     array findByToPage(int $to_page) Return SystemUrlalias objects filtered by the to_page column
- * @method     array findByDomain(int $domain) Return SystemUrlalias objects filtered by the domain column
+ * @method     array findByToPageId(int $to_page_id) Return SystemUrlalias objects filtered by the to_page_id column
+ * @method     array findByDomainId(int $domain_id) Return SystemUrlalias objects filtered by the domain_id column
  *
  * @package    propel.generator.kryn.om
  */
@@ -122,7 +126,7 @@ abstract class BaseSystemUrlaliasQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, URL, TO_PAGE, DOMAIN FROM kryn_system_urlalias WHERE ID = :p0';
+        $sql = 'SELECT ID, URL, TO_PAGE_ID, DOMAIN_ID FROM kryn_system_urlalias WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -268,16 +272,18 @@ abstract class BaseSystemUrlaliasQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the to_page column
+     * Filter the query on the to_page_id column
      *
      * Example usage:
      * <code>
-     * $query->filterByToPage(1234); // WHERE to_page = 1234
-     * $query->filterByToPage(array(12, 34)); // WHERE to_page IN (12, 34)
-     * $query->filterByToPage(array('min' => 12)); // WHERE to_page > 12
+     * $query->filterByToPageId(1234); // WHERE to_page_id = 1234
+     * $query->filterByToPageId(array(12, 34)); // WHERE to_page_id IN (12, 34)
+     * $query->filterByToPageId(array('min' => 12)); // WHERE to_page_id > 12
      * </code>
      *
-     * @param     mixed $toPage The value to use as filter.
+     * @see       filterBySystemPage()
+     *
+     * @param     mixed $toPageId The value to use as filter.
      *              Use scalar values for equality.
      *              Use array values for in_array() equivalent.
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
@@ -285,16 +291,16 @@ abstract class BaseSystemUrlaliasQuery extends ModelCriteria
      *
      * @return SystemUrlaliasQuery The current query, for fluid interface
      */
-    public function filterByToPage($toPage = null, $comparison = null)
+    public function filterByToPageId($toPageId = null, $comparison = null)
     {
-        if (is_array($toPage)) {
+        if (is_array($toPageId)) {
             $useMinMax = false;
-            if (isset($toPage['min'])) {
-                $this->addUsingAlias(SystemUrlaliasPeer::TO_PAGE, $toPage['min'], Criteria::GREATER_EQUAL);
+            if (isset($toPageId['min'])) {
+                $this->addUsingAlias(SystemUrlaliasPeer::TO_PAGE_ID, $toPageId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
-            if (isset($toPage['max'])) {
-                $this->addUsingAlias(SystemUrlaliasPeer::TO_PAGE, $toPage['max'], Criteria::LESS_EQUAL);
+            if (isset($toPageId['max'])) {
+                $this->addUsingAlias(SystemUrlaliasPeer::TO_PAGE_ID, $toPageId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -305,20 +311,20 @@ abstract class BaseSystemUrlaliasQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemUrlaliasPeer::TO_PAGE, $toPage, $comparison);
+        return $this->addUsingAlias(SystemUrlaliasPeer::TO_PAGE_ID, $toPageId, $comparison);
     }
 
     /**
-     * Filter the query on the domain column
+     * Filter the query on the domain_id column
      *
      * Example usage:
      * <code>
-     * $query->filterByDomain(1234); // WHERE domain = 1234
-     * $query->filterByDomain(array(12, 34)); // WHERE domain IN (12, 34)
-     * $query->filterByDomain(array('min' => 12)); // WHERE domain > 12
+     * $query->filterByDomainId(1234); // WHERE domain_id = 1234
+     * $query->filterByDomainId(array(12, 34)); // WHERE domain_id IN (12, 34)
+     * $query->filterByDomainId(array('min' => 12)); // WHERE domain_id > 12
      * </code>
      *
-     * @param     mixed $domain The value to use as filter.
+     * @param     mixed $domainId The value to use as filter.
      *              Use scalar values for equality.
      *              Use array values for in_array() equivalent.
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
@@ -326,16 +332,16 @@ abstract class BaseSystemUrlaliasQuery extends ModelCriteria
      *
      * @return SystemUrlaliasQuery The current query, for fluid interface
      */
-    public function filterByDomain($domain = null, $comparison = null)
+    public function filterByDomainId($domainId = null, $comparison = null)
     {
-        if (is_array($domain)) {
+        if (is_array($domainId)) {
             $useMinMax = false;
-            if (isset($domain['min'])) {
-                $this->addUsingAlias(SystemUrlaliasPeer::DOMAIN, $domain['min'], Criteria::GREATER_EQUAL);
+            if (isset($domainId['min'])) {
+                $this->addUsingAlias(SystemUrlaliasPeer::DOMAIN_ID, $domainId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
-            if (isset($domain['max'])) {
-                $this->addUsingAlias(SystemUrlaliasPeer::DOMAIN, $domain['max'], Criteria::LESS_EQUAL);
+            if (isset($domainId['max'])) {
+                $this->addUsingAlias(SystemUrlaliasPeer::DOMAIN_ID, $domainId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -346,7 +352,83 @@ abstract class BaseSystemUrlaliasQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemUrlaliasPeer::DOMAIN, $domain, $comparison);
+        return $this->addUsingAlias(SystemUrlaliasPeer::DOMAIN_ID, $domainId, $comparison);
+    }
+
+    /**
+     * Filter the query by a related SystemPage object
+     *
+     * @param   SystemPage|PropelObjectCollection $systemPage The related object(s) to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return   SystemUrlaliasQuery The current query, for fluid interface
+     * @throws   PropelException - if the provided filter is invalid.
+     */
+    public function filterBySystemPage($systemPage, $comparison = null)
+    {
+        if ($systemPage instanceof SystemPage) {
+            return $this
+                ->addUsingAlias(SystemUrlaliasPeer::TO_PAGE_ID, $systemPage->getId(), $comparison);
+        } elseif ($systemPage instanceof PropelObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(SystemUrlaliasPeer::TO_PAGE_ID, $systemPage->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterBySystemPage() only accepts arguments of type SystemPage or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the SystemPage relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return SystemUrlaliasQuery The current query, for fluid interface
+     */
+    public function joinSystemPage($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('SystemPage');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'SystemPage');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the SystemPage relation SystemPage object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   SystemPageQuery A secondary query class using the current class as primary query
+     */
+    public function useSystemPageQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinSystemPage($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SystemPage', 'SystemPageQuery');
     }
 
     /**

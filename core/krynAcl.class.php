@@ -43,7 +43,7 @@ class krynAcl {
         if (self::$cache[$pObjectKey.'_'.$pMode] && $pForce == false)
             return self::$cache[$pObjectKey.'_'.$pMode];
 
-        $userRsn = kryn::$client->user_rsn;
+        $userId = kryn::$client->user_id;
         $inGroups = kryn::$client->user['inGroups'];
 
         $pObjectKey = esc($pObjectKey);
@@ -55,9 +55,9 @@ class krynAcl {
                 object = '$pObjectKey' AND
                 (mode = $pMode OR mode = 0) AND
                 (
-                    ( target_type = 1 AND target_rsn IN ($inGroups))
+                    ( target_type = 1 AND target_id IN ($inGroups))
                     OR
-                    ( target_type = 2 AND target_rsn = $userRsn)
+                    ( target_type = 2 AND target_id = $userId)
                 )
                 ORDER BY prio DESC
         ";
@@ -233,7 +233,7 @@ class krynAcl {
 
                 if ($parent_acl && $acl['sub'] == 0) continue;
 
-                //print $acl['rsn'].', '.$acl['code'] .' == '. $current_code.'<br/>';
+                //print $acl['id'].', '.$acl['code'] .' == '. $current_code.'<br/>';
                 if ($acl['constraint_type'] == 2 &&
                     ($objectItem = krynObjects::get($pObjectKey, $current_code))){
                     if (!krynObjects::complies($objectItem, $acl['constraint_code'])) continue;
@@ -371,7 +371,7 @@ class krynAcl {
         $last_id = dbInsert('system_acl', array(
             'type' => $pType,
             'target_type' => $pTargetType,
-            'target_rsn' => $pTargetId,
+            'target_id' => $pTargetId,
             'code' => $pCode
         ));
 
@@ -392,7 +392,7 @@ class krynAcl {
         dbDelete('system_acl', "1=1 
          AND type = $pType
          AND target_type = $pTargetType
-         AND target_rsn = $pTargetId
+         AND target_id = $pTargetId
          AND code LIKE '$pCode%'");
 
         self::$cache[$pType] = null;

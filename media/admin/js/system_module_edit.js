@@ -1963,7 +1963,7 @@ var admin_system_module_edit = new Class({
                     domainDepended: {
                         label: t('Domain depended'),
                         type: 'checkbox',
-                        desc: t("You need then a extra field 'domain_rsn' int")
+                        desc: t("You need then a extra field 'domain_id' int")
                     },
                     plugins: {
                         label: t('Plugins (View controller)'),

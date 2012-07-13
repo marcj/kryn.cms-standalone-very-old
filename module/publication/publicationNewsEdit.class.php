@@ -22,7 +22,7 @@ class publicationNewsEdit extends adminWindowEdit {
     }
 
     public function getUrl($pItem, $pPluginValues, $pPageRsn) {
-        return kryn::toModRewrite($pItem['title']) . '/' . $pItem['rsn'];
+        return kryn::toModRewrite($pItem['title']) . '/' . $pItem['id'];
     }
 
     public $fields = array (
@@ -35,14 +35,14 @@ class publicationNewsEdit extends adminWindowEdit {
               'type' => 'text',
               'empty' => 0
             ),
-            'category_rsn' => array (
+            'category_id' => array (
               'label' => 'Category',
               'type' => 'select',
               'multiLanguage' => 'true',
               'empty' => 'false',
               'table' => 'publication_news_category',
               'table_label' => 'title',
-              'table_key' => 'rsn',
+              'table_key' => 'id',
             ),
             'tags' => array (
               'label' => 'Tags',

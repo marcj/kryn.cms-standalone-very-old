@@ -4,7 +4,7 @@ class publicationNewsCommentsEdit extends adminWindowEdit {
 
     public $table = 'publication_comments';
 
-    public $primary = 'rsn';
+    public $primary = 'id';
 
     public $multiLanguage = 0;
 
@@ -26,7 +26,7 @@ class publicationNewsCommentsEdit extends adminWindowEdit {
               'label' => 'E-Mail',
               'type' => 'text',
             ),
-            'parent_rsn' => array (
+            'parent_id' => array (
               'label' => 'News',
               'multi' => 0,
               'object' => 'news',

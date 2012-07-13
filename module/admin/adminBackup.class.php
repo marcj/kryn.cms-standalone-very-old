@@ -344,24 +344,24 @@ class adminBackup {
             $domains = dbTableFetch('system_domains', -1);
             foreach ($domains as $domain) {
                 kryn::fileWrite($path . '_step', 'domain:' . $domain['domain']);
-                self::exportWebsite($path, $domain['rsn']);
+                self::exportWebsite($path, $domain['id']);
             }
 
         } else if ($definitions['pages'] == 'choose') {
 
             foreach ($definitions['pages_domains'] as $domainRsn) {
 
-                $domain = dbTableFetch('system_domains', 'rsn = ' . $domainRsn, 1);
+                $domain = dbTableFetch('system_domains', 'id = ' . $domainRsn, 1);
                 kryn::fileWrite($path . '_step', 'domain:' . $domain['domain']);
 
                 self::exportWebsite($path, $domainRsn);
             }
 
             foreach ($definitions['pages_nodes'] as $node) {
-                $node = dbTableFetch('system_pages', ' rsn = ' . $node['rsn'], 1);
+                $node = dbTableFetch('system_page', ' id = ' . $node['id'], 1);
                 if ($node) {
                     kryn::fileWrite($path . '_step', 'node:' . $node['title']);
-                    self::exportNode($path, $node['rsn']);
+                    self::exportNode($path, $node['id']);
                 }
             }
 
@@ -633,9 +633,9 @@ class adminBackup {
     public static function exportWebsite($pPath, $pDomainRsn) {
 
         $pDomainRsn += 0;
-        $domain = dbTableFetch('system_domains', 'rsn = ' . $pDomainRsn, 1);
+        $domain = dbTableFetch('system_domains', 'id = ' . $pDomainRsn, 1);
 
-        unset($domain['rsn']);
+        unset($domain['id']);
 
         $pageCounter = 0;
 
@@ -659,7 +659,7 @@ class adminBackup {
     public static function exportNode($pPath, $pNodeRsn) {
 
         $pNodeRsn = $pNodeRsn + 0;
-        $node = dbTableFetch('system_pages', ' rsn = ' . $pNodeRsn, 1);
+        $node = dbTableFetch('system_page', ' id = ' . $pNodeRsn, 1);
 
         $pageCounter = 0;
 
@@ -679,35 +679,35 @@ class adminBackup {
     public static function exportTree($pNodeRsn, $pDomainRsn = false, $pAndAllVersions = false, &$pPageCounter) {
 
         $pNodeRsn += 0;
-        $pagesRes = dbExec("SELECT * FROM %pfx%system_pages WHERE prsn = $pNodeRsn " .
-                           ($pDomainRsn ? ' AND domain_rsn = ' . $pDomainRsn : ''));
+        $pagesRes = dbExec("SELECT * FROM %pfx%system_page WHERE pid = $pNodeRsn " .
+                           ($pDomainRsn ? ' AND domain_id = ' . $pDomainRsn : ''));
 
         $childs = array();
         while ($row = dbFetch($pagesRes)) {
 
             $pPageCounter++;
 
-            $contentRes = dbExec("SELECT c.* FROM %pfx%system_contents c, %pfx%system_pagesversions v
+            $contentRes = dbExec("SELECT c.* FROM %pfx%system_contents c, %pfx%system_page_version v
                     WHERE 
-                    c.page_rsn = " . $row['rsn'] . "
+                    c.page_id = " . $row['id'] . "
                     AND v.active = 1
-                    AND c.version_rsn = v.rsn");
+                    AND c.version_id = v.id");
 
             while ($contentRow = dbFetch($contentRes)) {
 
-                unset($contentRow['rsn']);
-                unset($contentRow['page_rsn']);
+                unset($contentRow['id']);
+                unset($contentRow['page_id']);
                 $row['contents'][] = $contentRow;
 
             }
 
             //TODO $pAndAllVersions
 
-            $row['childs'] = self::exportTree($row['rsn'], $pDomainRsn, $pAndAllVersions, $pPageCounter);
+            $row['childs'] = self::exportTree($row['id'], $pDomainRsn, $pAndAllVersions, $pPageCounter);
 
-            unset($row['rsn']);
-            unset($row['domain_rsn']);
-            unset($row['prsn']);
+            unset($row['id']);
+            unset($row['domain_id']);
+            unset($row['pid']);
 
             $childs[] = $row;
         }

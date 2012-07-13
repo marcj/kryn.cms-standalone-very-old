@@ -30,15 +30,15 @@ class krynSearch extends baseModule {
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
 
             //force could only be enabled with correct search_index_key for this domain
-            $validation = dbExFetch("SELECT rsn FROM %pfx%system_domains WHERE rsn = " . kryn::$domain['rsn'] .
+            $validation = dbExFetch("SELECT id FROM %pfx%system_domains WHERE id = " . kryn::$domain['id'] .
                 " AND search_index_key = '" . esc($_REQUEST['forceSearchIndex']) . "'", 1);
 
-            if (!empty($validation) && $validation['rsn'] == kryn::$domain['rsn'])
+            if (!empty($validation) && $validation['id'] == kryn::$domain['id'])
                 self::$forceSearchIndex = $_REQUEST['forceSearchIndex'];
 
         }
 
-        if (getArgv(1) == 'admin' || kryn::$page['rsn'] + 0 == 0) return;
+        if (getArgv(1) == 'admin' || kryn::$page['id'] + 0 == 0) return;
 
         if (kryn::$page['unsearchable'] == 1) return;
 
@@ -50,7 +50,7 @@ class krynSearch extends baseModule {
         $indexedContent = self::stripContent($pContent);
         $contentMd5 = md5($indexedContent);
 
-        $cashkey = 'krynSearch_' . kryn::$page['rsn'] . '_' . $contentMd5;
+        $cashkey = 'krynSearch_' . kryn::$page['id'] . '_' . $contentMd5;
 
         $cache = kryn::getCache($cashkey);
 
@@ -88,22 +88,22 @@ class krynSearch extends baseModule {
             'title' => kryn::$page['title'],
             'md5' => $contentMd5,
             'mdate' => time(),
-            'page_rsn' => kryn::$page['rsn'],
-            'domain_rsn' => kryn::$domain['rsn'],
+            'page_id' => kryn::$page['id'],
+            'domain_id' => kryn::$domain['id'],
             'page_content' => $indexedContent
         );
 
-        $where = array('url' => $a, 'domain_rsn' => kryn::$domain['rsn']);
+        $where = array('url' => $a, 'domain_id' => kryn::$domain['id']);
 
-        if (!$cache['rsn']) {
+        if (!$cache['id']) {
 
-            $row = dbExfetch("SELECT url FROM %pfx%system_search WHERE url='" . esc($a) . "' AND domain_rsn = " .
-                             kryn::$domain['rsn'], 1);
+            $row = dbExfetch("SELECT url FROM %pfx%system_search WHERE url='" . esc($a) . "' AND domain_id = " .
+                             kryn::$domain['id'], 1);
 
             if ($row['url']) {
                 dbUpdate('system_search', $where, $values);
             } else {
-                $rsn = dbInsert('system_search', $values);
+                $id = dbInsert('system_search', $values);
             }
         } else {
             dbUpdate('system_search', $where, $values);
@@ -192,13 +192,13 @@ class krynSearch extends baseModule {
             if (substr($value[1], -1) == '/')
                 $value[1] = substr($value[1], 0, -1);
 
-            if (!isset($arInserted[kryn::$domain['rsn'] . '_' . $value[1]]) &&
-                !isset($arInserted[kryn::$domain['rsn'] . '_' . $value[1]]) && strlen($value[1]) > 0
+            if (!isset($arInserted[kryn::$domain['id'] . '_' . $value[1]]) &&
+                !isset($arInserted[kryn::$domain['id'] . '_' . $value[1]]) && strlen($value[1]) > 0
             ) {
 
-                $arInserted[kryn::$domain['rsn'] . '_' . $value[1]] = true;
+                $arInserted[kryn::$domain['id'] . '_' . $value[1]] = true;
 
-                self::disposePageForIndex($value[1], 'LINK ' . esc($value[1]), kryn::$domain['rsn']);
+                self::disposePageForIndex($value[1], 'LINK ' . esc($value[1]), kryn::$domain['id']);
 
                 self::$jsonFoundPages[] = $value[1];
             }
@@ -206,11 +206,11 @@ class krynSearch extends baseModule {
 
     }
 
-    public static function getSearchIndexOverview($pPageRsn) {
+    public static function getSearchIndexOverview($pPageId) {
         $indexes = dbExFetch("
             SELECT url, title , mdate, md5
             FROM %pfx%system_search
-            WHERE page_rsn =" . esc($pPageRsn) . " AND mdate > 0 ORDER BY url, mdate DESC", -1);
+            WHERE page_id =" . esc($pPageId) . " AND mdate > 0 ORDER BY url, mdate DESC", -1);
 
         $arIndexes = array();
         foreach ($indexes as $page) {
@@ -222,22 +222,22 @@ class krynSearch extends baseModule {
 
 
     //insert a page into the searchtable for further indexing
-    public static function disposePageForIndex($pUrl, $pTitle, $pDomainRsn, $pPageRsn = '0') {
+    public static function disposePageForIndex($pUrl, $pTitle, $pDomainId, $pPageId = '0') {
 
         $url = esc($pUrl);
         $row =
-            dbExfetch("SELECT url FROM %pfx%system_search WHERE url = '$url' AND domain_rsn = " . ($pDomainRsn+0), 1);
+            dbExfetch("SELECT url FROM %pfx%system_search WHERE url = '$url' AND domain_id = " . ($pDomainId+0), 1);
 
         $values = array(
             'url' => $pUrl,
             'title' => $pTitle,
             'mdate' => 0,
-            'domain_rsn' => $pDomainRsn,
-            'page_rsn' => $pPageRsn
+            'domain_id' => $pDomainId,
+            'page_id' => $pPageId
         );
 
         if ($row)
-            dbUpdate('system_search', array('url' => $row['url'], 'domain_rsn' => $pDomainRsn+0 ), $values);
+            dbUpdate('system_search', array('url' => $row['url'], 'domain_id' => $pDomainId+0 ), $values);
         else
             dbInsert('system_search', $values);
 

@@ -2,7 +2,7 @@
 
 class publication extends krynModule {
     public static function newsDetailFixed($pConf) {
-        $_REQUEST['e2'] = $pConf['news_rsn'];
+        $_REQUEST['e2'] = $pConf['news_id'];
         require_once(PATH_MODULE . 'publication/publicationNews.class.php');
         return publicationNews::itemDetail($pConf);
     }
@@ -23,11 +23,11 @@ class publication extends krynModule {
 
     public function categoryList($pConf) {
 
-        $categories = implode($pConf['category_rsn'], ",");
+        $categories = implode($pConf['category_id'], ",");
         tAssign('pConf', $pConf);
 
         if (count($categories) > 0)
-            $where = " category_rsn IN ($categories) AND ";
+            $where = " category_id IN ($categories) AND ";
 
         $cacheKey = 'publicationCategoryList_' . md5($where);
 
@@ -36,11 +36,11 @@ class publication extends krynModule {
         if (!$categoryItems) {
             $sqlCount = "
                 SELECT
-                    MAX(c.rsn) as rsn, MAX(c.url) as url, 
-                    MAX(c.title) as title, count(n.rsn) as count
+                    MAX(c.id) as id, MAX(c.url) as url,
+                    MAX(c.title) as title, count(n.id) as count
                 FROM %pfx%publication_news n, %pfx%publication_news_category c
                 WHERE
-                 n.category_rsn = c.rsn AND deactivate = 0 GROUP BY category_rsn";
+                 n.category_id = c.id AND deactivate = 0 GROUP BY category_id";
             $categoryItems = dbExfetch($sqlCount, -1);
             kryn::setCache($cacheKey, $categoryItems);
         }
@@ -49,7 +49,7 @@ class publication extends krynModule {
             //compatibility
             $categories = dbTableFetch('publication_news_category');
             foreach ($categories as $category) {
-                dbUpdate('publication_news_category', array('rsn' => $category['rsn']), array(
+                dbUpdate('publication_news_category', array('id' => $category['id']), array(
                     'url' => kryn::toModRewrite($category['title'])
                 ));
             }

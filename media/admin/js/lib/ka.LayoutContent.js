@@ -54,7 +54,7 @@ ka.LayoutContent = new Class({
             plugin: _('Plugin')
         };
 
-        if (this.layoutBox.pageInst.page && !ka.checkPageAccess(this.layoutBox.pageInst.page.rsn, 'content-' + pContent.type)) {
+        if (this.layoutBox.pageInst.page && !ka.checkPageAccess(this.layoutBox.pageInst.page.id, 'content-' + pContent.type)) {
             this.noAccess = true;
         }
 
@@ -640,7 +640,7 @@ ka.LayoutContent = new Class({
         var clip = ka.getClipboard();
         content = new Hash(clip.value);
         if (clip.type == 'pageItem') {
-            content.rsn = null;
+            content.id = null;
             content['new'] = false;
             var n = new ka.LayoutContent(content, this.container, this.layoutBox);
             n.main.inject(this.main, 'after');
@@ -651,7 +651,7 @@ ka.LayoutContent = new Class({
             var arr = $A(clip.value);
             for (var i = arr.length - 1; i >= 0; i--) {
                 var content = arr[i];
-                content.rsn = null;
+                content.id = null;
                 content['new'] = false;
                 var n = new ka.LayoutContent(content, this.contentContainer, this.layoutBox);
                 n.main.inject(this.main, 'after');

@@ -3,7 +3,7 @@
 class usersAdminGroupEdit extends windowEdit {
 
     public $table = 'system_groups';
-    public $primary = array('rsn');
+    public $primary = array('id');
 
     public $fields = array(
         'name' => array(

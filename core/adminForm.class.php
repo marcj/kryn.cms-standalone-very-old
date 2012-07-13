@@ -70,18 +70,18 @@ class adminForm {
     }
 
     function formDelete(){
-        $rsn = getArgv('rsn')+0;
-        dbDelete( $this->fhTable, "rsn=$rsn" );
+        $id = getArgv('id')+0;
+        dbDelete( $this->fhTable, "id=$id" );
         kryn::redirect( $this->path );
     }
 
     function formEdit(){
-        $rsn = getArgv('rsn')+0;
+        $id = getArgv('id')+0;
         if( getArgv('save') == '1' ){
-            dbUpdate( $this->fhTable, array('rsn' =>$rsn), $this->updateItems );
+            dbUpdate( $this->fhTable, array('id' =>$id), $this->updateItems );
             kryn::redirect( $this->path );
         }
-        tAssign( 'item', dbTableFetch( $this->fhTable, 1, "rsn=$rsn" ) );
+        tAssign( 'item', dbTableFetch( $this->fhTable, 1, "id=$id" ) );
         tAssign( 'edit', $this->fhAddFields );
         return tFetch( 'kryn/formHandler/edit.tpl' );
     }

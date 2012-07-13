@@ -62,7 +62,7 @@ ka.LayoutBox = new Class({
         var clip = ka.getClipboard();
         if (clip.type == 'pageItem') {
             content = new Hash(clip.value);
-            content.rsn = null;
+            content.id = null;
             content['new'] = false;
             content['top'] = true;//inject to top
             var n = new ka.LayoutContent(content, this.contentContainer, this);
@@ -73,7 +73,7 @@ ka.LayoutBox = new Class({
             var arr = $A(clip.value);
             for (var i = arr.length - 1; i >= 0; i--) {
                 var content = arr[i];
-                content.rsn = null;
+                content.id = null;
                 content['new'] = false;
                 content['top'] = true;//inject to top
                 var n = new ka.LayoutContent(content, this.contentContainer, this);

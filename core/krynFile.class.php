@@ -343,11 +343,11 @@ class krynFile {
 
             $path = '/trash/' . $file;
 
-            $dbItem = dbTableFetch('system_files_log', 1, 'rsn = ' . ($file+0));
+            $dbItem = dbTableFetch('system_files_log', 1, 'id = ' . ($file+0));
 
             $item['name'] = basename($dbItem['path']).'-v'.$file;
             $item['path'] = str_replace(PATH_MEDIA, '', $path);
-            $item['original_rsn'] = $dbItem['rsn'];
+            $item['original_id'] = $dbItem['id'];
             $item['original_path'] = $dbItem['path'];
             $item['lastModified'] = $dbItem['modified'];
             $item['mtime'] = $dbItem['modified'];

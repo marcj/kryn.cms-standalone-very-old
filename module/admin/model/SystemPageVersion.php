@@ -3,7 +3,7 @@
 
 
 /**
- * Skeleton subclass for performing query and update operations on the 'kryn_system_domains' table.
+ * Skeleton subclass for representing a row from the 'kryn_system_page_version' table.
  *
  * 
  *
@@ -13,6 +13,6 @@
  *
  * @package    propel.generator.kryn
  */
-class SystemDomainsPeer extends BaseSystemDomainsPeer {
+class SystemPageVersion extends BaseSystemPageVersion {
 
-} // SystemDomainsPeer
+} // SystemPageVersion

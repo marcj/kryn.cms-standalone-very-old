@@ -60,7 +60,7 @@
         </index>
     </table>
 
-    <table name="system_domains" phpName="SystemDomains" idMethod="native">
+    <table name="system_domain" phpName="SystemDomain" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="domain" type="VARCHAR" size="255" required="false"/>
         <column name="title_format" type="VARCHAR" size="255" required="false"/>
@@ -82,22 +82,23 @@
         <column name="robots" type="LONGVARCHAR" required="false"/>
         <column name="session" type="LONGVARCHAR" required="false"/>
         <column name="favicon" type="VARCHAR" size="255" required="false"/>
-        <index name="system_domains_domain">
+        <index name="system_domain_domain">
             <index-column name="domain"/>
         </index>
-        <index name="system_domains_lang">
+        <index name="system_domain_lang">
             <index-column name="lang"/>
         </index>
-        <index name="system_domains_master">
+        <index name="system_domain_master">
             <index-column name="master"/>
         </index>
-        <index name="system_domains_resourcecomp">
+        <index name="system_domain_resourcecomp">
             <index-column name="resourcecompression"/>
         </index>
-        <index name="system_domains_startpage_rs">
+        <index name="system_domain_startpage_rs">
             <index-column name="startpage_id"/>
         </index>
     </table>
+
     <table name="system_files" phpName="SystemFiles" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="path" type="VARCHAR" size="255" required="false"/>
@@ -109,6 +110,7 @@
             <index-column name="path"/>
         </index>
     </table>
+
     <table name="system_files_log" phpName="SystemFilesLog" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="path" type="VARCHAR" size="255" required="false"/>
@@ -120,6 +122,7 @@
             <index-column name="path"/>
         </index>
     </table>
+
     <table name="system_files_versions" phpName="SystemFilesVersions" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="path" type="VARCHAR" size="255" required="false"/>
@@ -131,6 +134,7 @@
             <index-column name="path"/>
         </index>
     </table>
+
     <table name="system_frameworkversion" phpName="SystemFrameworkversion" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="code" type="VARCHAR" size="128" required="false"/>
@@ -142,12 +146,14 @@
             <index-column name="code"/>
         </index>
     </table>
+
     <table name="system_fs" phpName="SystemFs" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="name" type="VARCHAR" size="128" required="false"/>
         <column name="fs_class" type="VARCHAR" size="64" required="false"/>
         <column name="fs_params" type="LONGVARCHAR" required="false"/>
     </table>
+
     <table name="system_langs" phpName="SystemLangs" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="code" type="VARCHAR" size="3" required="false"/>
@@ -165,7 +171,8 @@
             <index-column name="visible"/>
         </index>
     </table>
-        <table name="system_lock" phpName="SystemLock" idMethod="native">
+
+    <table name="system_lock" phpName="SystemLock" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="type" type="VARCHAR" size="64" required="false"/>
         <column name="ckey" type="VARCHAR" size="255" required="false"/>
@@ -181,6 +188,7 @@
             <index-column name="type"/>
         </index>
     </table>
+
     <table name="system_log" phpName="SystemLog" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="date" type="INTEGER" required="false"/>
@@ -194,10 +202,14 @@
     </table>
 
 
-    <table name="system_pages" phpName="SystemPages" idMethod="native">
-        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
-        <column name="pid" type="INTEGER" required="false"/>
-        <column name="domain_id" type="INTEGER" required="false"/>
+    <table name="system_page" phpName="SystemPage" idMethod="native">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+        <column name="pid" type="INTEGER"/>
+        <column name="domain_id" type="INTEGER"/>
+        <column name="lft" type="INTEGER"/>
+        <column name="rgt" type="INTEGER"/>
+        <column name="lvl" type="INTEGER" />
+
         <column name="type" type="INTEGER" required="false"/>
         <column name="title" type="VARCHAR" size="255" required="false"/>
         <column name="page_title" type="VARCHAR" size="255" required="false"/>
@@ -224,46 +236,50 @@
         <column name="cache" type="INTEGER" required="false"/>
         <column name="search_words" type="LONGVARCHAR" required="false"/>
         <column name="unsearchable" type="INTEGER" required="false"/>
-        <column name="lft" type="INTEGER" required="false"/>
-        <column name="rgt" type="INTEGER" required="false"/>
-        <index name="system_pages_access_denied">
+        <column name="active_version_id" type="INTEGER" required="false"/>
+        <index name="system_page_access_denied">
             <index-column name="access_denied"/>
         </index>
-        <index name="system_pages_cache">
-            <index-column name="cache"/>
-        </index>
-        <index name="system_pages_domain_id">
+        <index name="system_page_domain_id">
             <index-column name="domain_id"/>
         </index>
-        <index name="system_pages_draft_exist">
-            <index-column name="draft_exist"/>
-        </index>
-        <index name="system_pages_pid">
+        <index name="system_page_pid">
             <index-column name="pid"/>
         </index>
-        <index name="system_pages_type">
+        <index name="system_page_type">
             <index-column name="type"/>
         </index>
-        <index name="system_pages_visible">
+        <index name="system_page_visible">
             <index-column name="visible"/>
         </index>
+        <behavior name="nested_set" >
+            <parameter name="left_column" value="lft" />
+            <parameter name="right_column" value="rgt" />
+            <parameter name="level_column" value="lvl" />
+            <parameter name="use_scope" value="true" />
+            <parameter name="scope_column" value="domain_id" />
+        </behavior>
+        <foreign-key foreignTable="system_domain" onDelete="cascade">
+            <reference local="domain_id" foreign="id" />
+        </foreign-key>
     </table>
 
 
-    <table name="system_pagesversions" phpName="SystemPagesversions" idMethod="native">
+    <table name="system_page_version" phpName="SystemPageVersion" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="page_id" type="INTEGER" required="false"/>
         <column name="owner_id" type="INTEGER" required="false"/>
         <column name="created" type="INTEGER" required="false"/>
         <column name="modified" type="INTEGER" required="false"/>
         <column name="active" type="INTEGER" required="false"/>
-        <index name="system_pagesversions_active">
+        <index name="system_page_version_active">
             <index-column name="active"/>
         </index>
-        <index name="system_pagesversions_page_r">
+        <index name="system_page_version_page_r">
             <index-column name="page_id"/>
         </index>
     </table>
+
     <table name="system_search" phpName="SystemSearch" idMethod="native">
         <column name="url" type="VARCHAR" size="255" primaryKey="true" required="true"/>
         <column name="title" type="VARCHAR" size="255" required="false"/>
@@ -274,6 +290,7 @@
         <column name="domain_id" type="INTEGER" primaryKey="true" required="true"/>
         <column name="page_content" type="LONGVARCHAR" required="false"/>
     </table>
+
     <table name="system_search_stats" phpName="SystemSearchStats" idMethod="native">
         <column name="word" type="VARCHAR" size="255" primaryKey="true" required="true"/>
         <column name="searchcount" type="INTEGER" required="false"/>
@@ -287,13 +304,16 @@
     <table name="system_urlalias" phpName="SystemUrlalias" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="url" type="VARCHAR" size="255" required="false"/>
-        <column name="to_page" type="INTEGER" required="false"/>
-        <column name="domain" type="INTEGER" required="false"/>
+        <column name="to_page_id" type="INTEGER" required="false"/>
+        <column name="domain_id" type="INTEGER" required="false"/>
         <index name="system_urlalias_domain_id">
-            <index-column name="domain"/>
+            <index-column name="domain_id"/>
         </index>
         <index name="system_urlalias_url">
             <index-column name="url"/>
         </index>
+        <foreign-key foreignTable="system_page">
+            <reference local="to_page_id" foreign="id"/>
+        </foreign-key>
     </table>
 </database>

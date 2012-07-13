@@ -13,7 +13,7 @@ class publicationNewsCatsList extends windowList {
     public $remove = true;
 
     public $multiLanguage = true;
-    public $primary = array('rsn');
+    public $primary = array('id');
 
     public $columns = array(
         'title' => array(

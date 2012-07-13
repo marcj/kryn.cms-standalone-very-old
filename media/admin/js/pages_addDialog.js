@@ -191,7 +191,7 @@ var admin_pages_addDialog = new Class({
 
 
         this.pageTree = new ka.ObjectTree(rightSide, 'node', {
-            rootId: this.win.params.domain_rsn,
+            rootId: this.win.params.domain_id,
             move: false,
             noSelection: true,
             openFirstLevel: true,
@@ -212,7 +212,7 @@ var admin_pages_addDialog = new Class({
                 if (this.lastContext) this.lastContext.destroy();
 
                 if (pDomObject.objectKey == 'system_domain') {
-                    if (!ka.checkPageAccess(pPage.rsn, 'addPages', 'd')) {
+                    if (!ka.checkPageAccess(pPage.id, 'addPages', 'd')) {
                         return;
                     }
                 }
@@ -281,7 +281,7 @@ var admin_pages_addDialog = new Class({
 
         /*
 
-        this.pageTree = new ka.pagesTree(rightSide, this.win.params.domain_rsn, {
+        this.pageTree = new ka.pagesTree(rightSide, this.win.params.domain_id, {
             move: false,
             noSelection: true,
             openFirstLevel: true,
@@ -302,7 +302,7 @@ var admin_pages_addDialog = new Class({
                 if (this.lastContext) this.lastContext.destroy();
 
                 if (pPage.domain) {
-                    if (!ka.checkPageAccess(pPage.rsn, 'addPages', 'd')) {
+                    if (!ka.checkPageAccess(pPage.id, 'addPages', 'd')) {
                         return;
                     }
                 }
@@ -319,7 +319,7 @@ var admin_pages_addDialog = new Class({
 
                 if (!pPage.domain) {
                     if (!parent || (
-                        (!parent.domain && ka.checkPageAccess(parent.rsn, 'addPages') ) && (parent.domain && ka.checkPageAccess(parent.rsn, 'addPages', 'd') )
+                        (!parent.domain && ka.checkPageAccess(parent.id, 'addPages') ) && (parent.domain && ka.checkPageAccess(parent.id, 'addPages', 'd') )
                         )) {
                         new Element('a', {
                             text: _('Above'),
@@ -339,7 +339,7 @@ var admin_pages_addDialog = new Class({
 
                 if (!pPage.domain) {
                     if (!parent || (
-                        (!parent.domain && ka.checkPageAccess(parent.rsn, 'addPages') ) && (parent.domain && ka.checkPageAccess(parent.rsn, 'addPages', 'd') )
+                        (!parent.domain && ka.checkPageAccess(parent.id, 'addPages') ) && (parent.domain && ka.checkPageAccess(parent.id, 'addPages', 'd') )
                         )) {
                         new Element('a', {
                             text: _('Below'),
@@ -405,7 +405,7 @@ var admin_pages_addDialog = new Class({
         new Request.JSON({url: _path + 'admin/pages/add', noCache: 1, async: false, onComplete: function () {
             ka.loadSettings(['r2d']);
             if (this.win.params.onComplete) {
-                this.win.params.onComplete(req.domain_rsn);
+                this.win.params.onComplete(req.domain_id);
             }
             this.win.close();
         }.bind(this)}).post(req);

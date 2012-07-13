@@ -2,76 +2,76 @@
 
 
 /**
- * Base class that represents a query for the 'kryn_system_pagesversions' table.
+ * Base class that represents a query for the 'kryn_system_page_version' table.
  *
  * 
  *
- * @method     SystemPagesversionsQuery orderById($order = Criteria::ASC) Order by the id column
- * @method     SystemPagesversionsQuery orderByPageId($order = Criteria::ASC) Order by the page_id column
- * @method     SystemPagesversionsQuery orderByOwnerId($order = Criteria::ASC) Order by the owner_id column
- * @method     SystemPagesversionsQuery orderByCreated($order = Criteria::ASC) Order by the created column
- * @method     SystemPagesversionsQuery orderByModified($order = Criteria::ASC) Order by the modified column
- * @method     SystemPagesversionsQuery orderByActive($order = Criteria::ASC) Order by the active column
+ * @method     SystemPageVersionQuery orderById($order = Criteria::ASC) Order by the id column
+ * @method     SystemPageVersionQuery orderByPageId($order = Criteria::ASC) Order by the page_id column
+ * @method     SystemPageVersionQuery orderByOwnerId($order = Criteria::ASC) Order by the owner_id column
+ * @method     SystemPageVersionQuery orderByCreated($order = Criteria::ASC) Order by the created column
+ * @method     SystemPageVersionQuery orderByModified($order = Criteria::ASC) Order by the modified column
+ * @method     SystemPageVersionQuery orderByActive($order = Criteria::ASC) Order by the active column
  *
- * @method     SystemPagesversionsQuery groupById() Group by the id column
- * @method     SystemPagesversionsQuery groupByPageId() Group by the page_id column
- * @method     SystemPagesversionsQuery groupByOwnerId() Group by the owner_id column
- * @method     SystemPagesversionsQuery groupByCreated() Group by the created column
- * @method     SystemPagesversionsQuery groupByModified() Group by the modified column
- * @method     SystemPagesversionsQuery groupByActive() Group by the active column
+ * @method     SystemPageVersionQuery groupById() Group by the id column
+ * @method     SystemPageVersionQuery groupByPageId() Group by the page_id column
+ * @method     SystemPageVersionQuery groupByOwnerId() Group by the owner_id column
+ * @method     SystemPageVersionQuery groupByCreated() Group by the created column
+ * @method     SystemPageVersionQuery groupByModified() Group by the modified column
+ * @method     SystemPageVersionQuery groupByActive() Group by the active column
  *
- * @method     SystemPagesversionsQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
- * @method     SystemPagesversionsQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
- * @method     SystemPagesversionsQuery innerJoin($relation) Adds a INNER JOIN clause to the query
+ * @method     SystemPageVersionQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
+ * @method     SystemPageVersionQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
+ * @method     SystemPageVersionQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
- * @method     SystemPagesversions findOne(PropelPDO $con = null) Return the first SystemPagesversions matching the query
- * @method     SystemPagesversions findOneOrCreate(PropelPDO $con = null) Return the first SystemPagesversions matching the query, or a new SystemPagesversions object populated from the query conditions when no match is found
+ * @method     SystemPageVersion findOne(PropelPDO $con = null) Return the first SystemPageVersion matching the query
+ * @method     SystemPageVersion findOneOrCreate(PropelPDO $con = null) Return the first SystemPageVersion matching the query, or a new SystemPageVersion object populated from the query conditions when no match is found
  *
- * @method     SystemPagesversions findOneById(int $id) Return the first SystemPagesversions filtered by the id column
- * @method     SystemPagesversions findOneByPageId(int $page_id) Return the first SystemPagesversions filtered by the page_id column
- * @method     SystemPagesversions findOneByOwnerId(int $owner_id) Return the first SystemPagesversions filtered by the owner_id column
- * @method     SystemPagesversions findOneByCreated(int $created) Return the first SystemPagesversions filtered by the created column
- * @method     SystemPagesversions findOneByModified(int $modified) Return the first SystemPagesversions filtered by the modified column
- * @method     SystemPagesversions findOneByActive(int $active) Return the first SystemPagesversions filtered by the active column
+ * @method     SystemPageVersion findOneById(int $id) Return the first SystemPageVersion filtered by the id column
+ * @method     SystemPageVersion findOneByPageId(int $page_id) Return the first SystemPageVersion filtered by the page_id column
+ * @method     SystemPageVersion findOneByOwnerId(int $owner_id) Return the first SystemPageVersion filtered by the owner_id column
+ * @method     SystemPageVersion findOneByCreated(int $created) Return the first SystemPageVersion filtered by the created column
+ * @method     SystemPageVersion findOneByModified(int $modified) Return the first SystemPageVersion filtered by the modified column
+ * @method     SystemPageVersion findOneByActive(int $active) Return the first SystemPageVersion filtered by the active column
  *
- * @method     array findById(int $id) Return SystemPagesversions objects filtered by the id column
- * @method     array findByPageId(int $page_id) Return SystemPagesversions objects filtered by the page_id column
- * @method     array findByOwnerId(int $owner_id) Return SystemPagesversions objects filtered by the owner_id column
- * @method     array findByCreated(int $created) Return SystemPagesversions objects filtered by the created column
- * @method     array findByModified(int $modified) Return SystemPagesversions objects filtered by the modified column
- * @method     array findByActive(int $active) Return SystemPagesversions objects filtered by the active column
+ * @method     array findById(int $id) Return SystemPageVersion objects filtered by the id column
+ * @method     array findByPageId(int $page_id) Return SystemPageVersion objects filtered by the page_id column
+ * @method     array findByOwnerId(int $owner_id) Return SystemPageVersion objects filtered by the owner_id column
+ * @method     array findByCreated(int $created) Return SystemPageVersion objects filtered by the created column
+ * @method     array findByModified(int $modified) Return SystemPageVersion objects filtered by the modified column
+ * @method     array findByActive(int $active) Return SystemPageVersion objects filtered by the active column
  *
  * @package    propel.generator.kryn.om
  */
-abstract class BaseSystemPagesversionsQuery extends ModelCriteria
+abstract class BaseSystemPageVersionQuery extends ModelCriteria
 {
     
     /**
-     * Initializes internal state of BaseSystemPagesversionsQuery object.
+     * Initializes internal state of BaseSystemPageVersionQuery object.
      *
      * @param     string $dbName The dabase name
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'SystemPagesversions', $modelAlias = null)
+    public function __construct($dbName = 'kryn', $modelName = 'SystemPageVersion', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }
 
     /**
-     * Returns a new SystemPagesversionsQuery object.
+     * Returns a new SystemPageVersionQuery object.
      *
      * @param     string $modelAlias The alias of a model in the query
-     * @param     SystemPagesversionsQuery|Criteria $criteria Optional Criteria to build the query from
+     * @param     SystemPageVersionQuery|Criteria $criteria Optional Criteria to build the query from
      *
-     * @return SystemPagesversionsQuery
+     * @return SystemPageVersionQuery
      */
     public static function create($modelAlias = null, $criteria = null)
     {
-        if ($criteria instanceof SystemPagesversionsQuery) {
+        if ($criteria instanceof SystemPageVersionQuery) {
             return $criteria;
         }
-        $query = new SystemPagesversionsQuery();
+        $query = new SystemPageVersionQuery();
         if (null !== $modelAlias) {
             $query->setModelAlias($modelAlias);
         }
@@ -94,19 +94,19 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      * @param mixed $key Primary key to use for the query 
      * @param     PropelPDO $con an optional connection object
      *
-     * @return   SystemPagesversions|SystemPagesversions[]|mixed the result, formatted by the current formatter
+     * @return   SystemPageVersion|SystemPageVersion[]|mixed the result, formatted by the current formatter
      */
     public function findPk($key, $con = null)
     {
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = SystemPagesversionsPeer::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = SystemPageVersionPeer::getInstanceFromPool((string) $key))) && !$this->formatter) {
             // the object is alredy in the instance pool
             return $obj;
         }
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
         $this->basePreSelect($con);
         if ($this->formatter || $this->modelAlias || $this->with || $this->select
@@ -125,12 +125,12 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      * @param     mixed $key Primary key to use for the query
      * @param     PropelPDO $con A connection object
      *
-     * @return   SystemPagesversions A model object, or null if the key is not found
+     * @return   SystemPageVersion A model object, or null if the key is not found
      * @throws   PropelException
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, PAGE_ID, OWNER_ID, CREATED, MODIFIED, ACTIVE FROM kryn_system_pagesversions WHERE ID = :p0';
+        $sql = 'SELECT ID, PAGE_ID, OWNER_ID, CREATED, MODIFIED, ACTIVE FROM kryn_system_page_version WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -141,9 +141,9 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
         }
         $obj = null;
         if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $obj = new SystemPagesversions();
+            $obj = new SystemPageVersion();
             $obj->hydrate($row);
-            SystemPagesversionsPeer::addInstanceToPool($obj, (string) $key);
+            SystemPageVersionPeer::addInstanceToPool($obj, (string) $key);
         }
         $stmt->closeCursor();
 
@@ -156,7 +156,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      * @param     mixed $key Primary key to use for the query
      * @param     PropelPDO $con A connection object
      *
-     * @return SystemPagesversions|SystemPagesversions[]|mixed the result, formatted by the current formatter
+     * @return SystemPageVersion|SystemPageVersion[]|mixed the result, formatted by the current formatter
      */
     protected function findPkComplex($key, $con)
     {
@@ -177,7 +177,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      * @param     array $keys Primary keys to use for the query
      * @param     PropelPDO $con an optional connection object
      *
-     * @return PropelObjectCollection|SystemPagesversions[]|mixed the list of results, formatted by the current formatter
+     * @return PropelObjectCollection|SystemPageVersion[]|mixed the list of results, formatted by the current formatter
      */
     public function findPks($keys, $con = null)
     {
@@ -198,12 +198,12 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *
      * @param     mixed $key Primary key to use for the query
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByPrimaryKey($key)
     {
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::ID, $key, Criteria::EQUAL);
+        return $this->addUsingAlias(SystemPageVersionPeer::ID, $key, Criteria::EQUAL);
     }
 
     /**
@@ -211,12 +211,12 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *
      * @param     array $keys The list of primary key to use for the query
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByPrimaryKeys($keys)
     {
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::ID, $keys, Criteria::IN);
+        return $this->addUsingAlias(SystemPageVersionPeer::ID, $keys, Criteria::IN);
     }
 
     /**
@@ -235,7 +235,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterById($id = null, $comparison = null)
     {
@@ -243,7 +243,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
             $comparison = Criteria::IN;
         }
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::ID, $id, $comparison);
+        return $this->addUsingAlias(SystemPageVersionPeer::ID, $id, $comparison);
     }
 
     /**
@@ -262,18 +262,18 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByPageId($pageId = null, $comparison = null)
     {
         if (is_array($pageId)) {
             $useMinMax = false;
             if (isset($pageId['min'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::PAGE_ID, $pageId['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::PAGE_ID, $pageId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($pageId['max'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::PAGE_ID, $pageId['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::PAGE_ID, $pageId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -284,7 +284,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::PAGE_ID, $pageId, $comparison);
+        return $this->addUsingAlias(SystemPageVersionPeer::PAGE_ID, $pageId, $comparison);
     }
 
     /**
@@ -303,18 +303,18 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByOwnerId($ownerId = null, $comparison = null)
     {
         if (is_array($ownerId)) {
             $useMinMax = false;
             if (isset($ownerId['min'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::OWNER_ID, $ownerId['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::OWNER_ID, $ownerId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($ownerId['max'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::OWNER_ID, $ownerId['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::OWNER_ID, $ownerId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -325,7 +325,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::OWNER_ID, $ownerId, $comparison);
+        return $this->addUsingAlias(SystemPageVersionPeer::OWNER_ID, $ownerId, $comparison);
     }
 
     /**
@@ -344,18 +344,18 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByCreated($created = null, $comparison = null)
     {
         if (is_array($created)) {
             $useMinMax = false;
             if (isset($created['min'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::CREATED, $created['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::CREATED, $created['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($created['max'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::CREATED, $created['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::CREATED, $created['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -366,7 +366,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::CREATED, $created, $comparison);
+        return $this->addUsingAlias(SystemPageVersionPeer::CREATED, $created, $comparison);
     }
 
     /**
@@ -385,18 +385,18 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByModified($modified = null, $comparison = null)
     {
         if (is_array($modified)) {
             $useMinMax = false;
             if (isset($modified['min'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::MODIFIED, $modified['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::MODIFIED, $modified['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($modified['max'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::MODIFIED, $modified['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::MODIFIED, $modified['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -407,7 +407,7 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::MODIFIED, $modified, $comparison);
+        return $this->addUsingAlias(SystemPageVersionPeer::MODIFIED, $modified, $comparison);
     }
 
     /**
@@ -426,18 +426,18 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
     public function filterByActive($active = null, $comparison = null)
     {
         if (is_array($active)) {
             $useMinMax = false;
             if (isset($active['min'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::ACTIVE, $active['min'], Criteria::GREATER_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::ACTIVE, $active['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
             if (isset($active['max'])) {
-                $this->addUsingAlias(SystemPagesversionsPeer::ACTIVE, $active['max'], Criteria::LESS_EQUAL);
+                $this->addUsingAlias(SystemPageVersionPeer::ACTIVE, $active['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -448,23 +448,23 @@ abstract class BaseSystemPagesversionsQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(SystemPagesversionsPeer::ACTIVE, $active, $comparison);
+        return $this->addUsingAlias(SystemPageVersionPeer::ACTIVE, $active, $comparison);
     }
 
     /**
      * Exclude object from result
      *
-     * @param   SystemPagesversions $systemPagesversions Object to remove from the list of results
+     * @param   SystemPageVersion $systemPageVersion Object to remove from the list of results
      *
-     * @return SystemPagesversionsQuery The current query, for fluid interface
+     * @return SystemPageVersionQuery The current query, for fluid interface
      */
-    public function prune($systemPagesversions = null)
+    public function prune($systemPageVersion = null)
     {
-        if ($systemPagesversions) {
-            $this->addUsingAlias(SystemPagesversionsPeer::ID, $systemPagesversions->getId(), Criteria::NOT_EQUAL);
+        if ($systemPageVersion) {
+            $this->addUsingAlias(SystemPageVersionPeer::ID, $systemPageVersion->getId(), Criteria::NOT_EQUAL);
         }
 
         return $this;
     }
 
-} // BaseSystemPagesversionsQuery
+} // BaseSystemPageVersionQuery

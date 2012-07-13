@@ -4,7 +4,7 @@ class publicationNewsCatsAdd extends windowAdd {
 
     public $table = 'publication_news_category';
 
-    public $primary = array('rsn');
+    public $primary = array('id');
 
     public $multiLanguage = true;
     public $fields = array(

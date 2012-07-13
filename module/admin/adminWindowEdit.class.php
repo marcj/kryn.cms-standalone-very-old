@@ -47,7 +47,7 @@ class adminWindowEdit {
 
     /**
      * Defines your primary fiels as a array.
-     * Example: $primary = array('rsn');
+     * Example: $primary = array('id');
      * Example: $primary = array('id', 'name');
      *
      * Use this only if you know, what you're doing,
@@ -68,7 +68,7 @@ class adminWindowEdit {
 
     /**
      * Defines whether the list windows should display the domain select box.
-     * Note: Your table need a field 'domain_rsn' int. The windowList class filter by this.
+     * Note: Your table need a field 'domain_id' int. The windowList class filter by this.
      *
      * @var bool
      */
@@ -204,7 +204,7 @@ class adminWindowEdit {
 
         $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
         if ($row['session_id'] == $user->sessionid) return true;
-        if (!$row['rsn'] > 0) return true;
+        if (!$row['id'] > 0) return true;
 
         $user = dbTableFetch('system_user');
         return false;
@@ -214,7 +214,7 @@ class adminWindowEdit {
         global $user;
 
         $row = dbTableFetch('system_lock', 1, "type = '$pType' AND key = '$pId'");
-        if ($row['rsn'] > 0) return false;
+        if ($row['id'] > 0) return false;
 
         dbInsert('system_lock', array(
             'type' => $pType,
@@ -252,9 +252,9 @@ class adminWindowEdit {
                         $pluginValue = substr($pluginValue, strpos($pluginValue, '::'));
 
                         if (method_exists($this, $urlGetter)) {
-                            $previewUrls[$moduleToUse . '/' . $pluginToUse][$page['rsn']] =
-                                kryn::pageUrl($page['rsn']) . '/' .
-                                    $this->$urlGetter($pRow, json_decode($pluginValue, true), $page['rsn']);
+                            $previewUrls[$moduleToUse . '/' . $pluginToUse][$page['id']] =
+                                kryn::pageUrl($page['id']) . '/' .
+                                    $this->$urlGetter($pRow, json_decode($pluginValue, true), $page['id']);
                         }
 
                     }
@@ -271,16 +271,16 @@ class adminWindowEdit {
     public static function cachePluginsRelations() {
 
         $res = dbExec('
-        SELECT p.domain_rsn, p.rsn, c.content, p.title
+        SELECT p.domain_id, p.id, c.content, p.title
         FROM 
             %pfx%system_contents c,
-            %pfx%system_pagesversions v,
-            %pfx%system_pages p
+            %pfx%system_page_version v,
+            %pfx%system_page p
         WHERE 1=1
             AND c.type = \'plugin\'
             AND c.hide = 0
-            AND v.rsn = c.version_rsn
-            AND p.rsn = v.page_rsn
+            AND v.id = c.version_id
+            AND p.id = v.page_id
             AND (p.access_denied = \'0\' OR p.access_denied IS NULL)
             AND v.active = 1
         ');
@@ -335,10 +335,10 @@ class adminWindowEdit {
             $pages =& $cachedPluginRelations[$moduleToUse][$pluginToUse];
             if (count($pages) > 0) {
                 foreach ($pages as &$page) {
-                    $this->previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_rsn']][$page['rsn']] =
+                    $this->previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_id']][$page['id']] =
                         array(
                             'title' => $page['title'],
-                            'path' => kryn::getPagePath($page['rsn'])
+                            'path' => kryn::getPagePath($page['id'])
                         );
                 }
             }
@@ -525,7 +525,7 @@ class adminWindowEdit {
 
             $res['versions'] = dbExfetch("
             	SELECT v.*, u.username as user_username FROM %pfx%system_frameworkversion v
-            	LEFT OUTER JOIN %pfx%system_user u ON (u.rsn = v.user_rsn)
+            	LEFT OUTER JOIN %pfx%system_user u ON (u.id = v.user_id)
             	WHERE code = '$code'
             	ORDER BY v.version DESC", -1);
 
@@ -669,7 +669,7 @@ class adminWindowEdit {
         if ($this->versioning == true && getArgv('publish') != 1) {
 
             //only save in versiontable
-            $res['version_rsn'] = admin::addVersionRow($this->table, $primary, $row);
+            $res['version_id'] = admin::addVersionRow($this->table, $primary, $row);
 
         } else {
 
@@ -696,7 +696,7 @@ class adminWindowEdit {
                 //publish - means: write in origin table
                 $res['success'] = dbUpdate($this->table, $primary, $row);
 
-                $res['version_rsn'] = '-'; //means live
+                $res['version_id'] = '-'; //means live
 
                 foreach ($this->_fields as $key => $field) {
                     if ($field['relation'] == 'n-n') {

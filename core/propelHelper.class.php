@@ -32,7 +32,6 @@ class propelHelper {
         $content = '';
 
         $content .= self::generateClasses();
-
         $content .= self::generatePropelPhpConfig();
         $content .= self::updateSchema();
 
@@ -198,9 +197,10 @@ class propelHelper {
 
         $sql = $obj->getUpSQL();
 
+        $sql = $sql['kryn'];
         unlink($lastMigrationFile);
 
-        $sql = preg_replace('/^DROP TABLE .*$/im', '', $sql['kryn']);
+        $sql = preg_replace('/^DROP TABLE .*$/im', '', $sql);
 
         return trim($sql);
 

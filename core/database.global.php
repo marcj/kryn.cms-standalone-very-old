@@ -573,8 +573,8 @@ function dbCount($pTable, $pWhere = false) {
  *
  * Example:
  *
- * array('title' => 'Foo', 'category_rsn' => 2)
- * => returns array( "title, category_rsn", "'foo', 2" )
+ * array('title' => 'Foo', 'category_id' => 2)
+ * => returns array( "title, category_id", "'foo', 2" )
  *
  * @param  array $pValues
  * @return string
@@ -797,7 +797,7 @@ function dbFullConditionToSql($pConditions, $pTablePrefix){
     $result = '';
 
     if (is_string($pConditions[0])){
-        //only one condition, ex: array('rsn', '>', 0)
+        //only one condition, ex: array('id', '>', 0)
 
         $result = dbFullConditionToSql($pConditions, $pTablePrefix);
 

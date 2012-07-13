@@ -5,7 +5,7 @@ class publicationNewsList extends adminWindowCombine {
     public $object = 'news';
 
     public $itemsPerPage = 5;
-    public $orderBy = 'category_rsn';
+    public $orderBy = 'category_id';
     public $orderByDirection = 'DESC';
 
     public $secondOrderBy = 'title'; /* optional */
@@ -14,7 +14,7 @@ class publicationNewsList extends adminWindowCombine {
     public $iconAdd = 'add.png';
     public $iconDelete = 'cross.png';
 
-    public $filter = array('title', 'category_rsn');
+    public $filter = array('title', 'category_id');
 
     public $add = true;
     public $edit = true;
@@ -22,17 +22,17 @@ class publicationNewsList extends adminWindowCombine {
 
     public $multiLanguage = true;
 
-    public $primary = array('rsn');
+    public $primary = array('id');
 
     public $columns = array(
         'title',
-        'category_rsn' => array(
+        'category_id' => array(
             'label' => 'Category',
             'type' => 'select',
             'table' => 'publication_news_category',
             'table_label' => 'title',
             'width' => 130,
-            'table_key' => 'rsn'
+            'table_key' => 'id'
         ),
         'releasedate' => array(
             'label' => 'Date',

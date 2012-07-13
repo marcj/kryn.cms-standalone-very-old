@@ -40,7 +40,7 @@
       "height": 205,
       "itemsPerPage": 7,
       "category": "overview",
-      "sql": "SELECT time, u.username, s.ip, page FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.rsn = s.user_rsn"
+      "sql": "SELECT time, u.username, s.ip, page FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id"
     },
     "lastFailedLogins": {
       "title": "[[Last failed logins]]",
@@ -87,7 +87,7 @@
       ],
       "category": "overview",
       "refresh": 60000,
-      "sql": "SELECT s.time, s.ip, u.username FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.rsn = s.user_rsn AND u.rsn > 0"
+      "sql": "SELECT s.time, s.ip, u.username FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id AND u.id > 0"
     }
   },
   "auth": {
@@ -214,7 +214,7 @@
       "title": "[[User]]",
       "table": "system_user",
       "fields": {
-        "rsn": {
+        "id": {
           "label": "ID",
           "type": "number",
           "primaryKey": 1,
@@ -320,7 +320,7 @@
       "tableSync": 1,
       "tableCondition": [
         [
-          "rsn",
+          "id",
           ">",
           "0"
         ]
@@ -344,7 +344,7 @@
       "plugins": "",
       "selectable": 1,
       "fields": {
-        "rsn": {
+        "id": {
           "label": "ID",
           "type": "number",
           "primaryKey": 1,
@@ -405,11 +405,11 @@
   "objectRelations": {
     "user_group": [
       "user",
-      "rsn",
+      "id",
       "n-n",
       "system_groupaccess",
       "group",
-      "rsn"
+      "id"
     ]
   },
   "admin": {
@@ -554,7 +554,7 @@
           "label": "[[Target page [after logout]]]",
           "type": "page"
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Groups]]",
           "store": "admin\/backend\/stores\/groups",
           "type": "textlist",
@@ -571,10 +571,10 @@
           "directory": "inc\/template\/users\/registration\/",
           "type": "files"
         },
-        "category_rsn": {
+        "category_id": {
           "label": "[[Group]]",
           "sql": "SELECT * FROM $pfx$system_groups",
-          "table_key": "rsn",
+          "table_key": "id",
           "table_label": "name",
           "type": "select",
           "desc": "[[Which group should the new users be added to?]]"
@@ -837,7 +837,7 @@
   },
   "db": {
     "users_log": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -857,7 +857,7 @@
       ]
     },
     "system_groups": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -883,13 +883,13 @@
       ]
     },
     "system_groupaccess": {
-      "group_rsn": [
+      "group_id": [
         "int",
         "",
         "DB_PRIMARY",
         false
       ],
-      "user_rsn": [
+      "user_id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -897,7 +897,7 @@
       ]
     },
     "system_user": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1055,7 +1055,7 @@
       ]
     },
     "system_sessions": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1067,7 +1067,7 @@
         "DB_INDEX",
         false
       ],
-      "user_rsn": [
+      "user_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1123,7 +1123,7 @@
       ]
     },
     "system_acl": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1141,7 +1141,7 @@
         "DB_INDEX",
         false
       ],
-      "target_rsn": [
+      "target_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1191,7 +1191,7 @@
       ]
     },
     "system_lock": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1223,19 +1223,19 @@
       ]
     },
     "user_messages": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "user_rsn_from": [
+      "user_id_from": [
         "int",
         "",
         "DB_INDEX",
         false
       ],
-      "user_rsn_to": [
+      "user_id_to": [
         "int",
         "",
         "DB_INDEX",

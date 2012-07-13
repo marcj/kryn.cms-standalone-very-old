@@ -4,13 +4,13 @@
 class adminSearchIndexList extends windowList {
     public $table = 'system_search';
     public $itemsPerPage = 20;
-    public $orderBy = 'domain_rsn';
+    public $orderBy = 'domain_id';
 
     public $iconAdd = 'add.png';
     public $iconDelete = 'cross.png';
     public $iconCustom = 'admin/images/icons/lightning_delete.png';
 
-    public $filter = array('title', 'domain_rsn', 'url');
+    public $filter = array('title', 'domain_id', 'url');
 
     public $add = false;
     public $edit = false;
@@ -19,7 +19,7 @@ class adminSearchIndexList extends windowList {
 
     public $modifier = 'addDomainLanguage';
 
-    public $primary = array('url', 'domain_rsn');
+    public $primary = array('url', 'domain_id');
 
     /*public $itemActions = array(
         array('Set this url on the blacklist', 'admin/images/icons/cross.png', 'admin/system/searchBlacklist/addPage'),
@@ -40,19 +40,19 @@ class adminSearchIndexList extends windowList {
             'width' => 110,
             'type' => 'datetime'
         ),
-        'domain_rsn' => array(
+        'domain_id' => array(
             'label' => 'Domain ( Language )',
             'type' => 'select',
             'table' => 'system_domains',
             'table_label' => 'domain',
             'width' => 210,
-            'table_key' => 'rsn'
+            'table_key' => 'id'
         )
     );
 
     public function addDomainLanguage($pItem) {
-        $pItem['values']['domain_rsn__label'] =
-            $pItem['values']['domain_rsn__label'] . " ( " . $pItem['values']['lang'] . " )";
+        $pItem['values']['domain_id__label'] =
+            $pItem['values']['domain_id__label'] . " ( " . $pItem['values']['lang'] . " )";
 
         return $pItem;
     }

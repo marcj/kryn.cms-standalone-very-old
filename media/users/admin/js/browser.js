@@ -59,21 +59,21 @@ var users_browser = new Class({
 	
 	choose: function(){
         
-		var target_rsn = this.tableUsers.selected();
+		var target_id = this.tableUsers.selected();
 		var target_type = 2; //user
 		
 		if( this.tableGroups.selected() ){
 			target_type = 1;//group
-			target_rsn = this.tableGroups.selected();
+			target_id = this.tableGroups.selected();
 		}
 		
-		if( target_rsn ){
-    		target_rsn = target_rsn.retrieve('row');
-    		target_rsn = target_rsn.rsn;
+		if( target_id ){
+    		target_id = target_id.retrieve('row');
+    		target_id = target_id.id;
 		}
 		
 		if( this.options.onChoose )
-			this.options.onChoose( target_type, target_rsn );
+			this.options.onChoose( target_type, target_id );
 		
 		this.win.close();
 		

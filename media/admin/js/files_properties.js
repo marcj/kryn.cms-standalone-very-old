@@ -602,7 +602,7 @@ var admin_files_properties = new Class({
 
             new ka.Button(_('Recover')).addEvent('click', this.recover.bind(this, version)).inject(div);
             var row = [
-                '#' + version.rsn,
+                '#' + version.id,
                 new Date(version.created * 1000).format('%d.%m.%Y, %H:%M'),
                 ka.bytesToSize(version.size),
                 version.username,
@@ -626,7 +626,7 @@ var admin_files_properties = new Class({
                 this.loadVersions();
                 ka.helpsystem.newBubble(_('File recovered'), pVersion.path, 3000);
 
-            }.bind(this)}).post({rsn: pVersion.rsn});
+            }.bind(this)}).post({id: pVersion.id});
         }.bind(this));
 
     },
@@ -684,8 +684,8 @@ var files_properties_rule = new Class({
             this.content = {};
         }
 
-        if (!this.content.target_rsn) {
-            this.content.target_rsn = '';
+        if (!this.content.target_id) {
+            this.content.target_id = '';
         }
 
         if (!this.content.target_type) {
@@ -696,7 +696,7 @@ var files_properties_rule = new Class({
             this.content.type = '';
         }
 
-        this.target_rsn = this.content.target_rsn.toInt();
+        this.target_id = this.content.target_id.toInt();
         this.target_type = this.content.target_type.toInt();
         this.type = this.content.type.toInt();
 
@@ -753,7 +753,7 @@ var files_properties_rule = new Class({
         }).addEvent('click', this.remove.bind(this)).inject(this.tdRemover);
 
 
-        if (this.target_rsn > 0) {
+        if (this.target_id > 0) {
             this.render();
         } else {
             this.newRule();
@@ -774,7 +774,7 @@ var files_properties_rule = new Class({
 
     didChooseATarget: function (pType, pValue) {
 
-        this.target_rsn = pValue;
+        this.target_id = pValue;
         this.target_type = pType;
 
         this.render();
@@ -799,7 +799,7 @@ var files_properties_rule = new Class({
                 style: 'position: relative; top: 3px; left: -1px'
             }).inject(this.tdLeft, 'top');
 
-        }.bind(this)}).post({rsn: this.target_rsn, type: this.target_type});
+        }.bind(this)}).post({id: this.target_id, type: this.target_type});
 
     },
 
@@ -836,7 +836,7 @@ var files_properties_rule = new Class({
         var res = {
             access: this.access,
             code: this.fullcode,
-            target_rsn: this.target_rsn,
+            target_id: this.target_id,
             target_type: this.target_type
         }
 

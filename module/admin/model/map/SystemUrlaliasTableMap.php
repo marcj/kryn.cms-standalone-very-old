@@ -41,8 +41,8 @@ class SystemUrlaliasTableMap extends TableMap
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('URL', 'Url', 'VARCHAR', false, 255, null);
-        $this->addColumn('TO_PAGE', 'ToPage', 'INTEGER', false, null, null);
-        $this->addColumn('DOMAIN', 'Domain', 'INTEGER', false, null, null);
+        $this->addForeignKey('TO_PAGE_ID', 'ToPageId', 'INTEGER', 'kryn_system_page', 'ID', false, null, null);
+        $this->addColumn('DOMAIN_ID', 'DomainId', 'INTEGER', false, null, null);
         // validators
     } // initialize()
 
@@ -51,6 +51,7 @@ class SystemUrlaliasTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('SystemPage', 'SystemPage', RelationMap::MANY_TO_ONE, array('to_page_id' => 'id', ), null, null);
     } // buildRelations()
 
 } // SystemUrlaliasTableMap

@@ -84,11 +84,6 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
             $pCode = preg_replace('/\W/', '-', $pCode);
             $msg = htmlspecialchars($pMsg);
 
-            if (!class_exists('database'))
-                die('Error in boot: ' . $pCode . ': ' . $pMsg . ' ' . $pFile . ':' . $pLine);
-
-
-            database::$hideReporting = true;
             if (!kryn::$tables['system_log']) return;
             dbInsert('system_log', array(
                 'date' => time(),
@@ -97,7 +92,6 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
                 'code' => $pCode,
                 'message' => htmlspecialchars($pMsg)
             ));
-            database::$hideReporting = false;
         }
     }
     $errorHandlerInside = false;

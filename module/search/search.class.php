@@ -13,22 +13,22 @@ class search extends krynModule {
         $pSearchWord = strtolower(getArgv('q',1));
         $pages = array();
         $pagePoints = array();
-        $domainRsn = kryn::$domain['rsn']+0;
+        $domainRsn = kryn::$domain['id']+0;
        
         
         if(strlen($pSearchWord) > 1) {            
             $sql = "
                 SELECT P.*, SE.title, SE.url, SE.page_content AS content
-                FROM %pfx%system_search SE, %pfx%system_pages P
+                FROM %pfx%system_search SE, %pfx%system_page P
                 WHERE
-                    P.rsn = SE.page_rsn AND
+                    P.id = SE.page_id AND
                     ( P.access_from = 0 OR P.access_from IS NULL OR P.access_from >= ".time()." ) AND
                     ( P.access_to = 0 OR P.access_to IS NULL OR P.access_to <= ".time()." ) AND                    
                     SE.mdate != 0 AND
                     (SE.blacklist IS NULL OR SE.blacklist = 0) AND
                     P.access_denied = '0' AND
                     (P.unsearchable = 0 OR P.unsearchable IS NULL) AND
-                    P.domain_rsn = $domainRsn AND (
+                    P.domain_id = $domainRsn AND (
                          LOWER(SE.page_content) LIKE '%".$pSearchWord."%' OR
                          LOWER(P.title) LIKE '%".$pSearchWord."%' OR
                          LOWER(P.search_words) LIKE '%".$pSearchWord."%' OR

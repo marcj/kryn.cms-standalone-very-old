@@ -208,17 +208,17 @@ ka.WindowEdit = new Class({
                 index = this.win.module + '/' + pluginId;
             }
 
-            Object.each(this.values.previewPluginPages[index], function (pages, domain_rsn) {
+            Object.each(this.values.previewPluginPages[index], function (pages, domain_id) {
 
-                Object.each(pages, function (page, page_rsn) {
+                Object.each(pages, function (page, page_id) {
 
-                    var domain = ka.getDomain(domain_rsn);
+                    var domain = ka.getDomain(domain_id);
                     if (domain) {
                         new Element('a', {
                             html: '<span style="color: gray">[' + domain.lang + ']</span> ' + page.path,
                             style: 'padding-left: 21px',
                             href: 'javascript:;'
-                        }).addEvent('click', this.doPreview.bind(this, page_rsn, index)).inject(this.previewBox);
+                        }).addEvent('click', this.doPreview.bind(this, page_id, index)).inject(this.previewBox);
                     }
 
 
@@ -851,8 +851,8 @@ ka.WindowEdit = new Class({
                     this.saveNoClose.stopTip(_('Done'));
                 }
 
-                if (res.version_rsn) {
-                    this.item.version = res.version_rsn;
+                if (res.version_id) {
+                    this.item.version = res.version_id;
                 }
 
                 if (this.values.loadSettingsAfterSave == true) ka.loadSettings();

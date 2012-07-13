@@ -4,7 +4,7 @@ class publicationNewsComments extends adminWindowList {
 
     public $table = 'publication_comments';
 
-    public $primary = 'rsn';
+    public $primary = 'id';
 
     public $multiLanguage = 0;
 
@@ -75,32 +75,32 @@ class publicationNewsComments extends adminWindowList {
 
     function deleteItem() {
 
-        $rsn = $_POST['item']['rsn'] + 0;
+        $id = $_POST['item']['id'] + 0;
 
-        $comment = dbExfetch('SELECT * FROM %pfx%publication_comments WHERE rsn = ' . $rsn);
+        $comment = dbExfetch('SELECT * FROM %pfx%publication_comments WHERE id = ' . $id);
 
         parent::deleteItem();
 
         $comments = dbExfetch(
-            'SELECT count(*) as comcount FROM %pfx%publication_comments WHERE parent_rsn = ' . $comment['parent_rsn']);
-        dbUpdate('publication_news', array('rsn' => $comment['parent_rsn']), array('commentscount' => $comments['comcount']));
+            'SELECT count(*) as comcount FROM %pfx%publication_comments WHERE parent_id = ' . $comment['parent_id']);
+        dbUpdate('publication_news', array('id' => $comment['parent_id']), array('commentscount' => $comments['comcount']));
     }
 
     function removeSelected() {
         // Get selected items
         $selection = json_decode(getArgv('selected'), 1);
 
-        // Make a rsn chain
-        $rsns = "";
+        // Make a id chain
+        $ids = "";
         foreach ($selection as $selected)
-            $rsns .= ", " . ($selected['rsn'] + 0);
+            $ids .= ", " . ($selected['id'] + 0);
 
-        // Get parent rsn's
+        // Get parent id's
         $sql = "
-            SELECT parent_rsn
+            SELECT parent_id
             FROM %pfx%publication_comments
-            WHERE rsn IN (" . substr($rsns, 2) . ")
-            GROUP BY parent_rsn
+            WHERE id IN (" . substr($ids, 2) . ")
+            GROUP BY parent_id
         ";
         $res = dbExfetch($sql, -1);
 
@@ -113,10 +113,10 @@ class publicationNewsComments extends adminWindowList {
         // Update each parent
         foreach ($res as $parent)
         {
-            $prsn = $parent['parent_rsn'];
+            $pid = $parent['parent_id'];
             $comments =
-                dbExfetch("SELECT COUNT(*) as commCount FROM %pfx%publication_comments WHERE parent_rsn=$prsn", 1);
-            dbUpdate('publication_news', array('rsn' => $prsn), array('commentscount' => $comments['commCount']));
+                dbExfetch("SELECT COUNT(*) as commCount FROM %pfx%publication_comments WHERE parent_id=$pid", 1);
+            dbUpdate('publication_news', array('id' => $pid), array('commentscount' => $comments['commCount']));
         }
 
         return true;

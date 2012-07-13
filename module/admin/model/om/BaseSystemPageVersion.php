@@ -2,25 +2,25 @@
 
 
 /**
- * Base class that represents a row from the 'kryn_system_pagesversions' table.
+ * Base class that represents a row from the 'kryn_system_page_version' table.
  *
  * 
  *
  * @package    propel.generator.kryn.om
  */
-abstract class BaseSystemPagesversions extends BaseObject 
+abstract class BaseSystemPageVersion extends BaseObject 
 {
 
     /**
      * Peer class name
      */
-    const PEER = 'SystemPagesversionsPeer';
+    const PEER = 'SystemPageVersionPeer';
 
     /**
      * The Peer class.
      * Instance provides a convenient way of calling static methods on a class
      * that calling code may not be able to identify.
-     * @var        SystemPagesversionsPeer
+     * @var        SystemPageVersionPeer
      */
     protected static $peer;
 
@@ -150,7 +150,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * Set the value of [id] column.
      * 
      * @param      int $v new value
-     * @return   SystemPagesversions The current object (for fluent API support)
+     * @return   SystemPageVersion The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -160,7 +160,7 @@ abstract class BaseSystemPagesversions extends BaseObject
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[] = SystemPagesversionsPeer::ID;
+            $this->modifiedColumns[] = SystemPageVersionPeer::ID;
         }
 
 
@@ -171,7 +171,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * Set the value of [page_id] column.
      * 
      * @param      int $v new value
-     * @return   SystemPagesversions The current object (for fluent API support)
+     * @return   SystemPageVersion The current object (for fluent API support)
      */
     public function setPageId($v)
     {
@@ -181,7 +181,7 @@ abstract class BaseSystemPagesversions extends BaseObject
 
         if ($this->page_id !== $v) {
             $this->page_id = $v;
-            $this->modifiedColumns[] = SystemPagesversionsPeer::PAGE_ID;
+            $this->modifiedColumns[] = SystemPageVersionPeer::PAGE_ID;
         }
 
 
@@ -192,7 +192,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * Set the value of [owner_id] column.
      * 
      * @param      int $v new value
-     * @return   SystemPagesversions The current object (for fluent API support)
+     * @return   SystemPageVersion The current object (for fluent API support)
      */
     public function setOwnerId($v)
     {
@@ -202,7 +202,7 @@ abstract class BaseSystemPagesversions extends BaseObject
 
         if ($this->owner_id !== $v) {
             $this->owner_id = $v;
-            $this->modifiedColumns[] = SystemPagesversionsPeer::OWNER_ID;
+            $this->modifiedColumns[] = SystemPageVersionPeer::OWNER_ID;
         }
 
 
@@ -213,7 +213,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * Set the value of [created] column.
      * 
      * @param      int $v new value
-     * @return   SystemPagesversions The current object (for fluent API support)
+     * @return   SystemPageVersion The current object (for fluent API support)
      */
     public function setCreated($v)
     {
@@ -223,7 +223,7 @@ abstract class BaseSystemPagesversions extends BaseObject
 
         if ($this->created !== $v) {
             $this->created = $v;
-            $this->modifiedColumns[] = SystemPagesversionsPeer::CREATED;
+            $this->modifiedColumns[] = SystemPageVersionPeer::CREATED;
         }
 
 
@@ -234,7 +234,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * Set the value of [modified] column.
      * 
      * @param      int $v new value
-     * @return   SystemPagesversions The current object (for fluent API support)
+     * @return   SystemPageVersion The current object (for fluent API support)
      */
     public function setModified($v)
     {
@@ -244,7 +244,7 @@ abstract class BaseSystemPagesversions extends BaseObject
 
         if ($this->modified !== $v) {
             $this->modified = $v;
-            $this->modifiedColumns[] = SystemPagesversionsPeer::MODIFIED;
+            $this->modifiedColumns[] = SystemPageVersionPeer::MODIFIED;
         }
 
 
@@ -255,7 +255,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * Set the value of [active] column.
      * 
      * @param      int $v new value
-     * @return   SystemPagesversions The current object (for fluent API support)
+     * @return   SystemPageVersion The current object (for fluent API support)
      */
     public function setActive($v)
     {
@@ -265,7 +265,7 @@ abstract class BaseSystemPagesversions extends BaseObject
 
         if ($this->active !== $v) {
             $this->active = $v;
-            $this->modifiedColumns[] = SystemPagesversionsPeer::ACTIVE;
+            $this->modifiedColumns[] = SystemPageVersionPeer::ACTIVE;
         }
 
 
@@ -318,10 +318,10 @@ abstract class BaseSystemPagesversions extends BaseObject
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = SystemPagesversionsPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = SystemPageVersionPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException("Error populating SystemPagesversions object", $e);
+            throw new PropelException("Error populating SystemPageVersion object", $e);
         }
     }
 
@@ -364,13 +364,13 @@ abstract class BaseSystemPagesversions extends BaseObject
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $stmt = SystemPagesversionsPeer::doSelectStmt($this->buildPkeyCriteria(), $con);
+        $stmt = SystemPageVersionPeer::doSelectStmt($this->buildPkeyCriteria(), $con);
         $row = $stmt->fetch(PDO::FETCH_NUM);
         $stmt->closeCursor();
         if (!$row) {
@@ -400,12 +400,12 @@ abstract class BaseSystemPagesversions extends BaseObject
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         $con->beginTransaction();
         try {
-            $deleteQuery = SystemPagesversionsQuery::create()
+            $deleteQuery = SystemPageVersionQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -443,7 +443,7 @@ abstract class BaseSystemPagesversions extends BaseObject
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         $con->beginTransaction();
@@ -463,7 +463,7 @@ abstract class BaseSystemPagesversions extends BaseObject
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                SystemPagesversionsPeer::addInstanceToPool($this);
+                SystemPageVersionPeer::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -524,13 +524,13 @@ abstract class BaseSystemPagesversions extends BaseObject
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[] = SystemPagesversionsPeer::ID;
+        $this->modifiedColumns[] = SystemPageVersionPeer::ID;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SystemPagesversionsPeer::ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SystemPageVersionPeer::ID . ')');
         }
         if (null === $this->id) {
             try {				
-				$stmt = $con->query("SELECT nextval('kryn_system_pagesversions_id_seq')");
+				$stmt = $con->query("SELECT nextval('kryn_system_page_version_id_seq')");
 				$row = $stmt->fetch(PDO::FETCH_NUM);
 				$this->id = $row[0];
             } catch (Exception $e) {
@@ -540,27 +540,27 @@ abstract class BaseSystemPagesversions extends BaseObject
 
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(SystemPagesversionsPeer::ID)) {
+        if ($this->isColumnModified(SystemPageVersionPeer::ID)) {
             $modifiedColumns[':p' . $index++]  = 'ID';
         }
-        if ($this->isColumnModified(SystemPagesversionsPeer::PAGE_ID)) {
+        if ($this->isColumnModified(SystemPageVersionPeer::PAGE_ID)) {
             $modifiedColumns[':p' . $index++]  = 'PAGE_ID';
         }
-        if ($this->isColumnModified(SystemPagesversionsPeer::OWNER_ID)) {
+        if ($this->isColumnModified(SystemPageVersionPeer::OWNER_ID)) {
             $modifiedColumns[':p' . $index++]  = 'OWNER_ID';
         }
-        if ($this->isColumnModified(SystemPagesversionsPeer::CREATED)) {
+        if ($this->isColumnModified(SystemPageVersionPeer::CREATED)) {
             $modifiedColumns[':p' . $index++]  = 'CREATED';
         }
-        if ($this->isColumnModified(SystemPagesversionsPeer::MODIFIED)) {
+        if ($this->isColumnModified(SystemPageVersionPeer::MODIFIED)) {
             $modifiedColumns[':p' . $index++]  = 'MODIFIED';
         }
-        if ($this->isColumnModified(SystemPagesversionsPeer::ACTIVE)) {
+        if ($this->isColumnModified(SystemPageVersionPeer::ACTIVE)) {
             $modifiedColumns[':p' . $index++]  = 'ACTIVE';
         }
 
         $sql = sprintf(
-            'INSERT INTO kryn_system_pagesversions (%s) VALUES (%s)',
+            'INSERT INTO kryn_system_page_version (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -674,7 +674,7 @@ abstract class BaseSystemPagesversions extends BaseObject
             $failureMap = array();
 
 
-            if (($retval = SystemPagesversionsPeer::doValidate($this, $columns)) !== true) {
+            if (($retval = SystemPageVersionPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
             }
 
@@ -698,7 +698,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function getByName($name, $type = BasePeer::TYPE_PHPNAME)
     {
-        $pos = SystemPagesversionsPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
+        $pos = SystemPageVersionPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -754,11 +754,11 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
     {
-        if (isset($alreadyDumpedObjects['SystemPagesversions'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['SystemPageVersion'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['SystemPagesversions'][$this->getPrimaryKey()] = true;
-        $keys = SystemPagesversionsPeer::getFieldNames($keyType);
+        $alreadyDumpedObjects['SystemPageVersion'][$this->getPrimaryKey()] = true;
+        $keys = SystemPageVersionPeer::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getPageId(),
@@ -784,7 +784,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function setByName($name, $value, $type = BasePeer::TYPE_PHPNAME)
     {
-        $pos = SystemPagesversionsPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
+        $pos = SystemPageVersionPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 
         $this->setByPosition($pos, $value);
     }
@@ -840,7 +840,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function fromArray($arr, $keyType = BasePeer::TYPE_PHPNAME)
     {
-        $keys = SystemPagesversionsPeer::getFieldNames($keyType);
+        $keys = SystemPageVersionPeer::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setPageId($arr[$keys[1]]);
@@ -857,14 +857,14 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(SystemPagesversionsPeer::DATABASE_NAME);
+        $criteria = new Criteria(SystemPageVersionPeer::DATABASE_NAME);
 
-        if ($this->isColumnModified(SystemPagesversionsPeer::ID)) $criteria->add(SystemPagesversionsPeer::ID, $this->id);
-        if ($this->isColumnModified(SystemPagesversionsPeer::PAGE_ID)) $criteria->add(SystemPagesversionsPeer::PAGE_ID, $this->page_id);
-        if ($this->isColumnModified(SystemPagesversionsPeer::OWNER_ID)) $criteria->add(SystemPagesversionsPeer::OWNER_ID, $this->owner_id);
-        if ($this->isColumnModified(SystemPagesversionsPeer::CREATED)) $criteria->add(SystemPagesversionsPeer::CREATED, $this->created);
-        if ($this->isColumnModified(SystemPagesversionsPeer::MODIFIED)) $criteria->add(SystemPagesversionsPeer::MODIFIED, $this->modified);
-        if ($this->isColumnModified(SystemPagesversionsPeer::ACTIVE)) $criteria->add(SystemPagesversionsPeer::ACTIVE, $this->active);
+        if ($this->isColumnModified(SystemPageVersionPeer::ID)) $criteria->add(SystemPageVersionPeer::ID, $this->id);
+        if ($this->isColumnModified(SystemPageVersionPeer::PAGE_ID)) $criteria->add(SystemPageVersionPeer::PAGE_ID, $this->page_id);
+        if ($this->isColumnModified(SystemPageVersionPeer::OWNER_ID)) $criteria->add(SystemPageVersionPeer::OWNER_ID, $this->owner_id);
+        if ($this->isColumnModified(SystemPageVersionPeer::CREATED)) $criteria->add(SystemPageVersionPeer::CREATED, $this->created);
+        if ($this->isColumnModified(SystemPageVersionPeer::MODIFIED)) $criteria->add(SystemPageVersionPeer::MODIFIED, $this->modified);
+        if ($this->isColumnModified(SystemPageVersionPeer::ACTIVE)) $criteria->add(SystemPageVersionPeer::ACTIVE, $this->active);
 
         return $criteria;
     }
@@ -879,8 +879,8 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function buildPkeyCriteria()
     {
-        $criteria = new Criteria(SystemPagesversionsPeer::DATABASE_NAME);
-        $criteria->add(SystemPagesversionsPeer::ID, $this->id);
+        $criteria = new Criteria(SystemPageVersionPeer::DATABASE_NAME);
+        $criteria->add(SystemPageVersionPeer::ID, $this->id);
 
         return $criteria;
     }
@@ -921,7 +921,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of SystemPagesversions (or compatible) type.
+     * @param      object $copyObj An object of SystemPageVersion (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
@@ -948,7 +948,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      * objects.
      *
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return                 SystemPagesversions Clone of current object.
+     * @return                 SystemPageVersion Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -968,12 +968,12 @@ abstract class BaseSystemPagesversions extends BaseObject
      * same instance for all member of this class. The method could therefore
      * be static, but this would prevent one from overriding the behavior.
      *
-     * @return   SystemPagesversionsPeer
+     * @return   SystemPageVersionPeer
      */
     public function getPeer()
     {
         if (self::$peer === null) {
-            self::$peer = new SystemPagesversionsPeer();
+            self::$peer = new SystemPageVersionPeer();
         }
 
         return self::$peer;
@@ -1021,7 +1021,7 @@ abstract class BaseSystemPagesversions extends BaseObject
      */
     public function __toString()
     {
-        return (string) $this->exportTo(SystemPagesversionsPeer::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(SystemPageVersionPeer::DEFAULT_STRING_FORMAT);
     }
 
     /**
@@ -1034,4 +1034,4 @@ abstract class BaseSystemPagesversions extends BaseObject
         return $this->alreadyInSave;
     }
 
-} // BaseSystemPagesversions
+} // BaseSystemPageVersion

@@ -25,11 +25,11 @@ var admin_pages_choosePage = new Class({
             if (this.lastContext) this.lastContext.destroy();
         }.bind(this));
 
-        new ka.pagesTree(this.pagesPane, this.win.params.domain_rsn, {
+        new ka.pagesTree(this.pagesPane, this.win.params.domain_id, {
             onSelection: function (pPage, pTitle, pDomain) {
                 this.page = pPage;
             }.bind(this),
-            select_rsn: this.win.params.select_rsn
+            select_id: this.win.params.select_id
         });
 
 
@@ -42,7 +42,7 @@ var admin_pages_choosePage = new Class({
         }.bind(this)).inject(this.bottom);
 
         this.saveBtn = new ka.Button('OK').setStyle('margin-left', 5).addEvent('click', function () {
-            if (this.page && this.page.rsn > 0) {
+            if (this.page && this.page.id > 0) {
                 this.win.params.onChoose(this.page);
                 this.win.close();
             } else {

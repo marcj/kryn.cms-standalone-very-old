@@ -2,25 +2,25 @@
 
 
 /**
- * Base static class for performing query and update operations on the 'kryn_system_pagesversions' table.
+ * Base static class for performing query and update operations on the 'kryn_system_page_version' table.
  *
  * 
  *
  * @package    propel.generator.kryn.om
  */
-abstract class BaseSystemPagesversionsPeer {
+abstract class BaseSystemPageVersionPeer {
 
     /** the default database name for this class */
     const DATABASE_NAME = 'kryn';
 
     /** the table name for this class */
-    const TABLE_NAME = 'kryn_system_pagesversions';
+    const TABLE_NAME = 'kryn_system_page_version';
 
     /** the related Propel class for this table */
-    const OM_CLASS = 'SystemPagesversions';
+    const OM_CLASS = 'SystemPageVersion';
 
     /** the related TableMap class for this table */
-    const TM_CLASS = 'SystemPagesversionsTableMap';
+    const TM_CLASS = 'SystemPageVersionTableMap';
 
     /** The total number of columns. */
     const NUM_COLUMNS = 6;
@@ -32,31 +32,31 @@ abstract class BaseSystemPagesversionsPeer {
     const NUM_HYDRATE_COLUMNS = 6;
 
     /** the column name for the ID field */
-    const ID = 'kryn_system_pagesversions.ID';
+    const ID = 'kryn_system_page_version.ID';
 
     /** the column name for the PAGE_ID field */
-    const PAGE_ID = 'kryn_system_pagesversions.PAGE_ID';
+    const PAGE_ID = 'kryn_system_page_version.PAGE_ID';
 
     /** the column name for the OWNER_ID field */
-    const OWNER_ID = 'kryn_system_pagesversions.OWNER_ID';
+    const OWNER_ID = 'kryn_system_page_version.OWNER_ID';
 
     /** the column name for the CREATED field */
-    const CREATED = 'kryn_system_pagesversions.CREATED';
+    const CREATED = 'kryn_system_page_version.CREATED';
 
     /** the column name for the MODIFIED field */
-    const MODIFIED = 'kryn_system_pagesversions.MODIFIED';
+    const MODIFIED = 'kryn_system_page_version.MODIFIED';
 
     /** the column name for the ACTIVE field */
-    const ACTIVE = 'kryn_system_pagesversions.ACTIVE';
+    const ACTIVE = 'kryn_system_page_version.ACTIVE';
 
     /** The default string format for model objects of the related table **/
     const DEFAULT_STRING_FORMAT = 'YAML';
 
     /**
-     * An identiy map to hold any loaded instances of SystemPagesversions objects.
+     * An identiy map to hold any loaded instances of SystemPageVersion objects.
      * This must be public so that other peer classes can access this when hydrating from JOIN
      * queries.
-     * @var        array SystemPagesversions[]
+     * @var        array SystemPageVersion[]
      */
     public static $instances = array();
 
@@ -65,12 +65,12 @@ abstract class BaseSystemPagesversionsPeer {
      * holds an array of fieldnames
      *
      * first dimension keys are the type constants
-     * e.g. SystemPagesversionsPeer::$fieldNames[SystemPagesversionsPeer::TYPE_PHPNAME][0] = 'Id'
+     * e.g. SystemPageVersionPeer::$fieldNames[SystemPageVersionPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
         BasePeer::TYPE_PHPNAME => array ('Id', 'PageId', 'OwnerId', 'Created', 'Modified', 'Active', ),
         BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pageId', 'ownerId', 'created', 'modified', 'active', ),
-        BasePeer::TYPE_COLNAME => array (SystemPagesversionsPeer::ID, SystemPagesversionsPeer::PAGE_ID, SystemPagesversionsPeer::OWNER_ID, SystemPagesversionsPeer::CREATED, SystemPagesversionsPeer::MODIFIED, SystemPagesversionsPeer::ACTIVE, ),
+        BasePeer::TYPE_COLNAME => array (SystemPageVersionPeer::ID, SystemPageVersionPeer::PAGE_ID, SystemPageVersionPeer::OWNER_ID, SystemPageVersionPeer::CREATED, SystemPageVersionPeer::MODIFIED, SystemPageVersionPeer::ACTIVE, ),
         BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PAGE_ID', 'OWNER_ID', 'CREATED', 'MODIFIED', 'ACTIVE', ),
         BasePeer::TYPE_FIELDNAME => array ('id', 'page_id', 'owner_id', 'created', 'modified', 'active', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
@@ -80,12 +80,12 @@ abstract class BaseSystemPagesversionsPeer {
      * holds an array of keys for quick access to the fieldnames array
      *
      * first dimension keys are the type constants
-     * e.g. SystemPagesversionsPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
+     * e.g. SystemPageVersionPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
         BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'PageId' => 1, 'OwnerId' => 2, 'Created' => 3, 'Modified' => 4, 'Active' => 5, ),
         BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pageId' => 1, 'ownerId' => 2, 'created' => 3, 'modified' => 4, 'active' => 5, ),
-        BasePeer::TYPE_COLNAME => array (SystemPagesversionsPeer::ID => 0, SystemPagesversionsPeer::PAGE_ID => 1, SystemPagesversionsPeer::OWNER_ID => 2, SystemPagesversionsPeer::CREATED => 3, SystemPagesversionsPeer::MODIFIED => 4, SystemPagesversionsPeer::ACTIVE => 5, ),
+        BasePeer::TYPE_COLNAME => array (SystemPageVersionPeer::ID => 0, SystemPageVersionPeer::PAGE_ID => 1, SystemPageVersionPeer::OWNER_ID => 2, SystemPageVersionPeer::CREATED => 3, SystemPageVersionPeer::MODIFIED => 4, SystemPageVersionPeer::ACTIVE => 5, ),
         BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PAGE_ID' => 1, 'OWNER_ID' => 2, 'CREATED' => 3, 'MODIFIED' => 4, 'ACTIVE' => 5, ),
         BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'page_id' => 1, 'owner_id' => 2, 'created' => 3, 'modified' => 4, 'active' => 5, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
@@ -103,10 +103,10 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function translateFieldName($name, $fromType, $toType)
     {
-        $toNames = SystemPagesversionsPeer::getFieldNames($toType);
-        $key = isset(SystemPagesversionsPeer::$fieldKeys[$fromType][$name]) ? SystemPagesversionsPeer::$fieldKeys[$fromType][$name] : null;
+        $toNames = SystemPageVersionPeer::getFieldNames($toType);
+        $key = isset(SystemPageVersionPeer::$fieldKeys[$fromType][$name]) ? SystemPageVersionPeer::$fieldKeys[$fromType][$name] : null;
         if ($key === null) {
-            throw new PropelException("'$name' could not be found in the field names of type '$fromType'. These are: " . print_r(SystemPagesversionsPeer::$fieldKeys[$fromType], true));
+            throw new PropelException("'$name' could not be found in the field names of type '$fromType'. These are: " . print_r(SystemPageVersionPeer::$fieldKeys[$fromType], true));
         }
 
         return $toNames[$key];
@@ -123,11 +123,11 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function getFieldNames($type = BasePeer::TYPE_PHPNAME)
     {
-        if (!array_key_exists($type, SystemPagesversionsPeer::$fieldNames)) {
+        if (!array_key_exists($type, SystemPageVersionPeer::$fieldNames)) {
             throw new PropelException('Method getFieldNames() expects the parameter $type to be one of the class constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME, BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM. ' . $type . ' was given.');
         }
 
-        return SystemPagesversionsPeer::$fieldNames[$type];
+        return SystemPageVersionPeer::$fieldNames[$type];
     }
 
     /**
@@ -139,12 +139,12 @@ abstract class BaseSystemPagesversionsPeer {
      *		$c->addJoin(TablePeer::alias("alias1", TablePeer::PRIMARY_KEY_COLUMN), TablePeer::PRIMARY_KEY_COLUMN);
      * </code>
      * @param      string $alias The alias for the current table.
-     * @param      string $column The column name for current table. (i.e. SystemPagesversionsPeer::COLUMN_NAME).
+     * @param      string $column The column name for current table. (i.e. SystemPageVersionPeer::COLUMN_NAME).
      * @return string
      */
     public static function alias($alias, $column)
     {
-        return str_replace(SystemPagesversionsPeer::TABLE_NAME.'.', $alias.'.', $column);
+        return str_replace(SystemPageVersionPeer::TABLE_NAME.'.', $alias.'.', $column);
     }
 
     /**
@@ -162,12 +162,12 @@ abstract class BaseSystemPagesversionsPeer {
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(SystemPagesversionsPeer::ID);
-            $criteria->addSelectColumn(SystemPagesversionsPeer::PAGE_ID);
-            $criteria->addSelectColumn(SystemPagesversionsPeer::OWNER_ID);
-            $criteria->addSelectColumn(SystemPagesversionsPeer::CREATED);
-            $criteria->addSelectColumn(SystemPagesversionsPeer::MODIFIED);
-            $criteria->addSelectColumn(SystemPagesversionsPeer::ACTIVE);
+            $criteria->addSelectColumn(SystemPageVersionPeer::ID);
+            $criteria->addSelectColumn(SystemPageVersionPeer::PAGE_ID);
+            $criteria->addSelectColumn(SystemPageVersionPeer::OWNER_ID);
+            $criteria->addSelectColumn(SystemPageVersionPeer::CREATED);
+            $criteria->addSelectColumn(SystemPageVersionPeer::MODIFIED);
+            $criteria->addSelectColumn(SystemPageVersionPeer::ACTIVE);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
             $criteria->addSelectColumn($alias . '.PAGE_ID');
@@ -194,21 +194,21 @@ abstract class BaseSystemPagesversionsPeer {
         // We need to set the primary table name, since in the case that there are no WHERE columns
         // it will be impossible for the BasePeer::createSelectSql() method to determine which
         // tables go into the FROM clause.
-        $criteria->setPrimaryTableName(SystemPagesversionsPeer::TABLE_NAME);
+        $criteria->setPrimaryTableName(SystemPageVersionPeer::TABLE_NAME);
 
         if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
             $criteria->setDistinct();
         }
 
         if (!$criteria->hasSelectClause()) {
-            SystemPagesversionsPeer::addSelectColumns($criteria);
+            SystemPageVersionPeer::addSelectColumns($criteria);
         }
 
         $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-        $criteria->setDbName(SystemPagesversionsPeer::DATABASE_NAME); // Set the correct dbName
+        $criteria->setDbName(SystemPageVersionPeer::DATABASE_NAME); // Set the correct dbName
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
         // BasePeer returns a PDOStatement
         $stmt = BasePeer::doCount($criteria, $con);
@@ -227,7 +227,7 @@ abstract class BaseSystemPagesversionsPeer {
      *
      * @param      Criteria $criteria object used to create the SELECT statement.
      * @param      PropelPDO $con
-     * @return                 SystemPagesversions
+     * @return                 SystemPageVersion
      * @throws PropelException Any exceptions caught during processing will be
      *		 rethrown wrapped into a PropelException.
      */
@@ -235,7 +235,7 @@ abstract class BaseSystemPagesversionsPeer {
     {
         $critcopy = clone $criteria;
         $critcopy->setLimit(1);
-        $objects = SystemPagesversionsPeer::doSelect($critcopy, $con);
+        $objects = SystemPageVersionPeer::doSelect($critcopy, $con);
         if ($objects) {
             return $objects[0];
         }
@@ -253,7 +253,7 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function doSelect(Criteria $criteria, PropelPDO $con = null)
     {
-        return SystemPagesversionsPeer::populateObjects(SystemPagesversionsPeer::doSelectStmt($criteria, $con));
+        return SystemPageVersionPeer::populateObjects(SystemPageVersionPeer::doSelectStmt($criteria, $con));
     }
     /**
      * Prepares the Criteria object and uses the parent doSelect() method to execute a PDOStatement.
@@ -271,16 +271,16 @@ abstract class BaseSystemPagesversionsPeer {
     public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         if (!$criteria->hasSelectClause()) {
             $criteria = clone $criteria;
-            SystemPagesversionsPeer::addSelectColumns($criteria);
+            SystemPageVersionPeer::addSelectColumns($criteria);
         }
 
         // Set the correct dbName
-        $criteria->setDbName(SystemPagesversionsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemPageVersionPeer::DATABASE_NAME);
 
         // BasePeer returns a PDOStatement
         return BasePeer::doSelect($criteria, $con);
@@ -294,7 +294,7 @@ abstract class BaseSystemPagesversionsPeer {
      * to the cache in order to ensure that the same objects are always returned by doSelect*()
      * and retrieveByPK*() calls.
      *
-     * @param      SystemPagesversions $obj A SystemPagesversions object.
+     * @param      SystemPageVersion $obj A SystemPageVersion object.
      * @param      string $key (optional) key to use for instance map (for performance boost if key was already calculated externally).
      */
     public static function addInstanceToPool($obj, $key = null)
@@ -303,7 +303,7 @@ abstract class BaseSystemPagesversionsPeer {
             if ($key === null) {
                 $key = (string) $obj->getId();
             } // if key === null
-            SystemPagesversionsPeer::$instances[$key] = $obj;
+            SystemPageVersionPeer::$instances[$key] = $obj;
         }
     }
 
@@ -315,7 +315,7 @@ abstract class BaseSystemPagesversionsPeer {
      * methods in your stub classes -- you may need to explicitly remove objects
      * from the cache in order to prevent returning objects that no longer exist.
      *
-     * @param      mixed $value A SystemPagesversions object or a primary key value.
+     * @param      mixed $value A SystemPageVersion object or a primary key value.
      *
      * @return void
      * @throws PropelException - if the value is invalid.
@@ -323,17 +323,17 @@ abstract class BaseSystemPagesversionsPeer {
     public static function removeInstanceFromPool($value)
     {
         if (Propel::isInstancePoolingEnabled() && $value !== null) {
-            if (is_object($value) && $value instanceof SystemPagesversions) {
+            if (is_object($value) && $value instanceof SystemPageVersion) {
                 $key = (string) $value->getId();
             } elseif (is_scalar($value)) {
                 // assume we've been passed a primary key
                 $key = (string) $value;
             } else {
-                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or SystemPagesversions object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or SystemPageVersion object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
                 throw $e;
             }
 
-            unset(SystemPagesversionsPeer::$instances[$key]);
+            unset(SystemPageVersionPeer::$instances[$key]);
         }
     } // removeInstanceFromPool()
 
@@ -344,14 +344,14 @@ abstract class BaseSystemPagesversionsPeer {
      * a multi-column primary key, a serialize()d version of the primary key will be returned.
      *
      * @param      string $key The key (@see getPrimaryKeyHash()) for this instance.
-     * @return   SystemPagesversions Found object or NULL if 1) no instance exists for specified key or 2) instance pooling has been disabled.
+     * @return   SystemPageVersion Found object or NULL if 1) no instance exists for specified key or 2) instance pooling has been disabled.
      * @see        getPrimaryKeyHash()
      */
     public static function getInstanceFromPool($key)
     {
         if (Propel::isInstancePoolingEnabled()) {
-            if (isset(SystemPagesversionsPeer::$instances[$key])) {
-                return SystemPagesversionsPeer::$instances[$key];
+            if (isset(SystemPageVersionPeer::$instances[$key])) {
+                return SystemPageVersionPeer::$instances[$key];
             }
         }
 
@@ -365,11 +365,11 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function clearInstancePool()
     {
-        SystemPagesversionsPeer::$instances = array();
+        SystemPageVersionPeer::$instances = array();
     }
     
     /**
-     * Method to invalidate the instance pool of all tables related to kryn_system_pagesversions
+     * Method to invalidate the instance pool of all tables related to kryn_system_page_version
      * by a foreign key with ON DELETE CASCADE
      */
     public static function clearRelatedInstancePool()
@@ -423,11 +423,11 @@ abstract class BaseSystemPagesversionsPeer {
         $results = array();
     
         // set the class once to avoid overhead in the loop
-        $cls = SystemPagesversionsPeer::getOMClass();
+        $cls = SystemPageVersionPeer::getOMClass();
         // populate the object(s)
         while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $key = SystemPagesversionsPeer::getPrimaryKeyHashFromRow($row, 0);
-            if (null !== ($obj = SystemPagesversionsPeer::getInstanceFromPool($key))) {
+            $key = SystemPageVersionPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj = SystemPageVersionPeer::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -436,7 +436,7 @@ abstract class BaseSystemPagesversionsPeer {
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                SystemPagesversionsPeer::addInstanceToPool($obj, $key);
+                SystemPageVersionPeer::addInstanceToPool($obj, $key);
             } // if key exists
         }
         $stmt->closeCursor();
@@ -450,21 +450,21 @@ abstract class BaseSystemPagesversionsPeer {
      * @param      int $startcol The 0-based offset for reading from the resultset row.
      * @throws PropelException Any exceptions caught during processing will be
      *		 rethrown wrapped into a PropelException.
-     * @return array (SystemPagesversions object, last column rank)
+     * @return array (SystemPageVersion object, last column rank)
      */
     public static function populateObject($row, $startcol = 0)
     {
-        $key = SystemPagesversionsPeer::getPrimaryKeyHashFromRow($row, $startcol);
-        if (null !== ($obj = SystemPagesversionsPeer::getInstanceFromPool($key))) {
+        $key = SystemPageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol);
+        if (null !== ($obj = SystemPageVersionPeer::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $startcol, true); // rehydrate
-            $col = $startcol + SystemPagesversionsPeer::NUM_HYDRATE_COLUMNS;
+            $col = $startcol + SystemPageVersionPeer::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = SystemPagesversionsPeer::OM_CLASS;
+            $cls = SystemPageVersionPeer::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $startcol);
-            SystemPagesversionsPeer::addInstanceToPool($obj, $key);
+            SystemPageVersionPeer::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -479,7 +479,7 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function getTableMap()
     {
-        return Propel::getDatabaseMap(SystemPagesversionsPeer::DATABASE_NAME)->getTable(SystemPagesversionsPeer::TABLE_NAME);
+        return Propel::getDatabaseMap(SystemPageVersionPeer::DATABASE_NAME)->getTable(SystemPageVersionPeer::TABLE_NAME);
     }
 
     /**
@@ -487,9 +487,9 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getDatabaseMap(BaseSystemPagesversionsPeer::DATABASE_NAME);
-      if (!$dbMap->hasTable(BaseSystemPagesversionsPeer::TABLE_NAME)) {
-        $dbMap->addTableObject(new SystemPagesversionsTableMap());
+      $dbMap = Propel::getDatabaseMap(BaseSystemPageVersionPeer::DATABASE_NAME);
+      if (!$dbMap->hasTable(BaseSystemPageVersionPeer::TABLE_NAME)) {
+        $dbMap->addTableObject(new SystemPageVersionTableMap());
       }
     }
 
@@ -501,13 +501,13 @@ abstract class BaseSystemPagesversionsPeer {
      */
     public static function getOMClass()
     {
-        return SystemPagesversionsPeer::OM_CLASS;
+        return SystemPageVersionPeer::OM_CLASS;
     }
 
     /**
-     * Performs an INSERT on the database, given a SystemPagesversions or Criteria object.
+     * Performs an INSERT on the database, given a SystemPageVersion or Criteria object.
      *
-     * @param      mixed $values Criteria or SystemPagesversions object containing data that is used to create the INSERT statement.
+     * @param      mixed $values Criteria or SystemPageVersion object containing data that is used to create the INSERT statement.
      * @param      PropelPDO $con the PropelPDO connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -516,22 +516,22 @@ abstract class BaseSystemPagesversionsPeer {
     public static function doInsert($values, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
         } else {
-            $criteria = $values->buildCriteria(); // build Criteria from SystemPagesversions object
+            $criteria = $values->buildCriteria(); // build Criteria from SystemPageVersion object
         }
 
-        if ($criteria->containsKey(SystemPagesversionsPeer::ID) && $criteria->keyContainsValue(SystemPagesversionsPeer::ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SystemPagesversionsPeer::ID.')');
+        if ($criteria->containsKey(SystemPageVersionPeer::ID) && $criteria->keyContainsValue(SystemPageVersionPeer::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SystemPageVersionPeer::ID.')');
         }
 
 
         // Set the correct dbName
-        $criteria->setDbName(SystemPagesversionsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemPageVersionPeer::DATABASE_NAME);
 
         try {
             // use transaction because $criteria could contain info
@@ -548,9 +548,9 @@ abstract class BaseSystemPagesversionsPeer {
     }
 
     /**
-     * Performs an UPDATE on the database, given a SystemPagesversions or Criteria object.
+     * Performs an UPDATE on the database, given a SystemPageVersion or Criteria object.
      *
-     * @param      mixed $values Criteria or SystemPagesversions object containing data that is used to create the UPDATE statement.
+     * @param      mixed $values Criteria or SystemPageVersion object containing data that is used to create the UPDATE statement.
      * @param      PropelPDO $con The connection to use (specify PropelPDO connection object to exert more control over transactions).
      * @return int             The number of affected rows (if supported by underlying database driver).
      * @throws PropelException Any exceptions caught during processing will be
@@ -559,35 +559,35 @@ abstract class BaseSystemPagesversionsPeer {
     public static function doUpdate($values, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
-        $selectCriteria = new Criteria(SystemPagesversionsPeer::DATABASE_NAME);
+        $selectCriteria = new Criteria(SystemPageVersionPeer::DATABASE_NAME);
 
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
 
-            $comparison = $criteria->getComparison(SystemPagesversionsPeer::ID);
-            $value = $criteria->remove(SystemPagesversionsPeer::ID);
+            $comparison = $criteria->getComparison(SystemPageVersionPeer::ID);
+            $value = $criteria->remove(SystemPageVersionPeer::ID);
             if ($value) {
-                $selectCriteria->add(SystemPagesversionsPeer::ID, $value, $comparison);
+                $selectCriteria->add(SystemPageVersionPeer::ID, $value, $comparison);
             } else {
-                $selectCriteria->setPrimaryTableName(SystemPagesversionsPeer::TABLE_NAME);
+                $selectCriteria->setPrimaryTableName(SystemPageVersionPeer::TABLE_NAME);
             }
 
-        } else { // $values is SystemPagesversions object
+        } else { // $values is SystemPageVersion object
             $criteria = $values->buildCriteria(); // gets full criteria
             $selectCriteria = $values->buildPkeyCriteria(); // gets criteria w/ primary key(s)
         }
 
         // set the correct dbName
-        $criteria->setDbName(SystemPagesversionsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemPageVersionPeer::DATABASE_NAME);
 
         return BasePeer::doUpdate($selectCriteria, $criteria, $con);
     }
 
     /**
-     * Deletes all rows from the kryn_system_pagesversions table.
+     * Deletes all rows from the kryn_system_page_version table.
      *
      * @param      PropelPDO $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).
@@ -596,19 +596,19 @@ abstract class BaseSystemPagesversionsPeer {
     public static function doDeleteAll(PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
         $affectedRows = 0; // initialize var to track total num of affected rows
         try {
             // use transaction because $criteria could contain info
             // for more than one table or we could emulating ON DELETE CASCADE, etc.
             $con->beginTransaction();
-            $affectedRows += BasePeer::doDeleteAll(SystemPagesversionsPeer::TABLE_NAME, $con, SystemPagesversionsPeer::DATABASE_NAME);
+            $affectedRows += BasePeer::doDeleteAll(SystemPageVersionPeer::TABLE_NAME, $con, SystemPageVersionPeer::DATABASE_NAME);
             // Because this db requires some delete cascade/set null emulation, we have to
             // clear the cached instance *after* the emulation has happened (since
             // instances get re-added by the select statement contained therein).
-            SystemPagesversionsPeer::clearInstancePool();
-            SystemPagesversionsPeer::clearRelatedInstancePool();
+            SystemPageVersionPeer::clearInstancePool();
+            SystemPageVersionPeer::clearRelatedInstancePool();
             $con->commit();
 
             return $affectedRows;
@@ -619,9 +619,9 @@ abstract class BaseSystemPagesversionsPeer {
     }
 
     /**
-     * Performs a DELETE on the database, given a SystemPagesversions or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a SystemPageVersion or Criteria object OR a primary key value.
      *
-     * @param      mixed $values Criteria or SystemPagesversions object or primary key or array of primary keys
+     * @param      mixed $values Criteria or SystemPageVersion object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param      PropelPDO $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -632,32 +632,32 @@ abstract class BaseSystemPagesversionsPeer {
      public static function doDelete($values, PropelPDO $con = null)
      {
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         if ($values instanceof Criteria) {
             // invalidate the cache for all objects of this type, since we have no
             // way of knowing (without running a query) what objects should be invalidated
             // from the cache based on this Criteria.
-            SystemPagesversionsPeer::clearInstancePool();
+            SystemPageVersionPeer::clearInstancePool();
             // rename for clarity
             $criteria = clone $values;
-        } elseif ($values instanceof SystemPagesversions) { // it's a model object
+        } elseif ($values instanceof SystemPageVersion) { // it's a model object
             // invalidate the cache for this single object
-            SystemPagesversionsPeer::removeInstanceFromPool($values);
+            SystemPageVersionPeer::removeInstanceFromPool($values);
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(SystemPagesversionsPeer::DATABASE_NAME);
-            $criteria->add(SystemPagesversionsPeer::ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(SystemPageVersionPeer::DATABASE_NAME);
+            $criteria->add(SystemPageVersionPeer::ID, (array) $values, Criteria::IN);
             // invalidate the cache for this object(s)
             foreach ((array) $values as $singleval) {
-                SystemPagesversionsPeer::removeInstanceFromPool($singleval);
+                SystemPageVersionPeer::removeInstanceFromPool($singleval);
             }
         }
 
         // Set the correct dbName
-        $criteria->setDbName(SystemPagesversionsPeer::DATABASE_NAME);
+        $criteria->setDbName(SystemPageVersionPeer::DATABASE_NAME);
 
         $affectedRows = 0; // initialize var to track total num of affected rows
 
@@ -667,7 +667,7 @@ abstract class BaseSystemPagesversionsPeer {
             $con->beginTransaction();
             
             $affectedRows += BasePeer::doDelete($criteria, $con);
-            SystemPagesversionsPeer::clearRelatedInstancePool();
+            SystemPageVersionPeer::clearRelatedInstancePool();
             $con->commit();
 
             return $affectedRows;
@@ -678,13 +678,13 @@ abstract class BaseSystemPagesversionsPeer {
     }
 
     /**
-     * Validates all modified columns of given SystemPagesversions object.
+     * Validates all modified columns of given SystemPageVersion object.
      * If parameter $columns is either a single column name or an array of column names
      * than only those columns are validated.
      *
      * NOTICE: This does not apply to primary or foreign keys for now.
      *
-     * @param      SystemPagesversions $obj The object to validate.
+     * @param      SystemPageVersion $obj The object to validate.
      * @param      mixed $cols Column name or array of column names.
      *
      * @return mixed TRUE if all columns are valid or the error message of the first invalid column.
@@ -694,8 +694,8 @@ abstract class BaseSystemPagesversionsPeer {
         $columns = array();
 
         if ($cols) {
-            $dbMap = Propel::getDatabaseMap(SystemPagesversionsPeer::DATABASE_NAME);
-            $tableMap = $dbMap->getTable(SystemPagesversionsPeer::TABLE_NAME);
+            $dbMap = Propel::getDatabaseMap(SystemPageVersionPeer::DATABASE_NAME);
+            $tableMap = $dbMap->getTable(SystemPageVersionPeer::TABLE_NAME);
 
             if (! is_array($cols)) {
                 $cols = array($cols);
@@ -711,7 +711,7 @@ abstract class BaseSystemPagesversionsPeer {
 
         }
 
-        return BasePeer::doValidate(SystemPagesversionsPeer::DATABASE_NAME, SystemPagesversionsPeer::TABLE_NAME, $columns);
+        return BasePeer::doValidate(SystemPageVersionPeer::DATABASE_NAME, SystemPageVersionPeer::TABLE_NAME, $columns);
     }
 
     /**
@@ -719,23 +719,23 @@ abstract class BaseSystemPagesversionsPeer {
      *
      * @param      int $pk the primary key.
      * @param      PropelPDO $con the connection to use
-     * @return SystemPagesversions
+     * @return SystemPageVersion
      */
     public static function retrieveByPK($pk, PropelPDO $con = null)
     {
 
-        if (null !== ($obj = SystemPagesversionsPeer::getInstanceFromPool((string) $pk))) {
+        if (null !== ($obj = SystemPageVersionPeer::getInstanceFromPool((string) $pk))) {
             return $obj;
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
-        $criteria = new Criteria(SystemPagesversionsPeer::DATABASE_NAME);
-        $criteria->add(SystemPagesversionsPeer::ID, $pk);
+        $criteria = new Criteria(SystemPageVersionPeer::DATABASE_NAME);
+        $criteria->add(SystemPageVersionPeer::ID, $pk);
 
-        $v = SystemPagesversionsPeer::doSelect($criteria, $con);
+        $v = SystemPageVersionPeer::doSelect($criteria, $con);
 
         return !empty($v) > 0 ? $v[0] : null;
     }
@@ -745,31 +745,31 @@ abstract class BaseSystemPagesversionsPeer {
      *
      * @param      array $pks List of primary keys
      * @param      PropelPDO $con the connection to use
-     * @return SystemPagesversions[]
+     * @return SystemPageVersion[]
      * @throws PropelException Any exceptions caught during processing will be
      *		 rethrown wrapped into a PropelException.
      */
     public static function retrieveByPKs($pks, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(SystemPagesversionsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemPageVersionPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         $objs = null;
         if (empty($pks)) {
             $objs = array();
         } else {
-            $criteria = new Criteria(SystemPagesversionsPeer::DATABASE_NAME);
-            $criteria->add(SystemPagesversionsPeer::ID, $pks, Criteria::IN);
-            $objs = SystemPagesversionsPeer::doSelect($criteria, $con);
+            $criteria = new Criteria(SystemPageVersionPeer::DATABASE_NAME);
+            $criteria->add(SystemPageVersionPeer::ID, $pks, Criteria::IN);
+            $objs = SystemPageVersionPeer::doSelect($criteria, $con);
         }
 
         return $objs;
     }
 
-} // BaseSystemPagesversionsPeer
+} // BaseSystemPageVersionPeer
 
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-BaseSystemPagesversionsPeer::buildTableMap();
+BaseSystemPageVersionPeer::buildTableMap();
 

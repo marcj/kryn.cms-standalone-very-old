@@ -427,7 +427,7 @@ ka.ObjectTree = new Class({
 
         if (!this.lastSelectedItem) return;
 
-        if (this.lastSelectedObject.domain || this.lastSelectedObject.prsn == 0) {
+        if (this.lastSelectedObject.domain || this.lastSelectedObject.pid == 0) {
             this.reload();
             return;
         }
@@ -502,7 +502,7 @@ ka.ObjectTree = new Class({
 
         /*
          if (this.lastSelectedObject && (
-         (this.lastSelectedObject.domain && pItem.domain && this.lastSelectedObject.rsn == pItem.rsn) || (!pItem.domain && !this.lastSelectedObject.domain && this.lastSelectedObject.rsn == pItem.rsn)
+         (this.lastSelectedObject.domain && pItem.domain && this.lastSelectedObject.id == pItem.id) || (!pItem.domain && !this.lastSelectedObject.domain && this.lastSelectedObject.id == pItem.id)
          )) {
 
          if (this.options.noActive != true) {
@@ -541,7 +541,7 @@ ka.ObjectTree = new Class({
         var openId = id;
 
         if ((!this.firstLoadDone || this.need2SelectAObject)) {
-            if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && !pItem.domain && pItem.rsn == this.options.selectObject)) {
+            if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && !pItem.domain && pItem.id == this.options.selectObject)) {
                 if (this.options.noActive != true) {
                     a.addClass('ka-objectTree-item-selected');
                 }
@@ -804,11 +804,11 @@ ka.ObjectTree = new Class({
         var object = pA.retrieve('item');
         /*
         if (object.domain) {
-            if (!ka.checkObjectAccess(object.rsn, 'moveObjects', 'd')) {
+            if (!ka.checkObjectAccess(object.id, 'moveObjects', 'd')) {
                 canMoveObject = false;
             }
         } else {
-            if (!ka.checkObjectAccess(object.rsn, 'moveObjects')) {
+            if (!ka.checkObjectAccess(object.id, 'moveObjects')) {
                 canMoveObject = false;
             }
         }*/
@@ -923,11 +923,11 @@ ka.ObjectTree = new Class({
         var canMoveInto = true;
         /*
         if (item.domain) {
-            if (!ka.checkObjectAccess(item.rsn, 'addObjects', 'd')) {
+            if (!ka.checkObjectAccess(item.id, 'addObjects', 'd')) {
                 canMoveInto = false;
             }
         } else {
-            if (!ka.checkObjectAccess(item.rsn, 'addObjects')) {
+            if (!ka.checkObjectAccess(item.id, 'addObjects')) {
                 canMoveInto = false;
             }
         }*/
@@ -937,11 +937,11 @@ ka.ObjectTree = new Class({
             var parentObject = pTarget.parent.retrieve('item');
             /*
             if (parentObject.domain) {
-                if (!ka.checkObjectAccess(parentObject.rsn, 'addObjects', 'd')) {
+                if (!ka.checkObjectAccess(parentObject.id, 'addObjects', 'd')) {
                     canMoveAround = false;
                 }
             } else {
-                if (!ka.checkObjectAccess(parentObject.rsn, 'addObjects')) {
+                if (!ka.checkObjectAccess(parentObject.id, 'addObjects')) {
                     canMoveAround = false;
                 }
             }*/
@@ -1066,7 +1066,7 @@ ka.ObjectTree = new Class({
     },
 
     hasChildren: function (pObject) {
-        if (this._objectsParent.get(pObject.rsn)) {
+        if (this._objectsParent.get(pObject.id)) {
             return true;
         }
         return false;
@@ -1194,11 +1194,11 @@ ka.ObjectTree = new Class({
         /* todo
 
          if (pPage.domain) {
-             if (!ka.checkPageAccess(pPage.rsn, 'addPages', 'd')) {
+             if (!ka.checkPageAccess(pPage.id, 'addPages', 'd')) {
                 canPasteInto = false;
              }
          } else {
-             if (!ka.checkPageAccess(pPage.rsn, 'addPages')) {
+             if (!ka.checkPageAccess(pPage.id, 'addPages')) {
                 canPasteInto = false;
              }
          }
@@ -1206,11 +1206,11 @@ ka.ObjectTree = new Class({
          if (pA.parent) {
             var parentPage = pA.parent.retrieve('item');
             if (parentPage.domain) {
-                if (!ka.checkPageAccess(parentPage.rsn, 'addPages', 'd')) {
+                if (!ka.checkPageAccess(parentPage.id, 'addPages', 'd')) {
                     canPasteAround = false;
                 }
             } else {
-                if (!ka.checkPageAccess(parentPage.rsn, 'addPages')) {
+                if (!ka.checkPageAccess(parentPage.id, 'addPages')) {
                     canPasteAround = false;
                 }
             }

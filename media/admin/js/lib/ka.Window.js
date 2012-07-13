@@ -221,7 +221,7 @@ ka.Window = new Class({
     },
 
     toBlockMode: function (pOpts, pCallback) {
-        if (!pOpts.rsn > 0) return;
+        if (!pOpts.id > 0) return;
 
         this.blockModeOverlay = new Element('div', {
             style: ''

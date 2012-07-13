@@ -53,7 +53,7 @@
 
     <script type="text/javascript" >
         window._session = {};
-        window._session.user_rsn = {$adminClient->user.rsn+0};
+        window._session.user_id = {$adminClient->user.id+0};
         window._session.username = '{$adminClient->user.username}';
         window._session.sessionid = '{$adminClient->token}';
         window._session.tokenid = '{$adminClient->tokenid}';

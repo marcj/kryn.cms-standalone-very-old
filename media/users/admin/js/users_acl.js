@@ -869,7 +869,7 @@ var users_users_acl = new Class({
 
         value.object = this.currentObject;
         value.target_type = this.currentTargetType;
-        value.target_rsn = this.currentTargetRsn;
+        value.target_id = this.currentTargetRsn;
 
         if (this.currentRuleDiv){
             var pos = this.currentAcls.indexOf(this.currentRuleDiv.rule);
@@ -1276,7 +1276,7 @@ var users_users_acl = new Class({
                     .addEvent('click', this.loadRules.bind(this, 'user', item, false))
                     .inject(this.left);
 
-                    this.userDivs[item.rsn] = div;
+                    this.userDivs[item.id] = div;
 
                     var h2 = new Element('h2', {
                         text: item.username
@@ -1323,7 +1323,7 @@ var users_users_acl = new Class({
                     .addEvent('click', this.loadRules.bind(this, 'group', item, false))
                     .inject(this.left);
 
-                    this.groupDivs[item.rsn] = div;
+                    this.groupDivs[item.id] = div;
 
                     var h2 = new Element('h2', {
                         text: item.name
@@ -1353,7 +1353,7 @@ var users_users_acl = new Class({
             return;
         }
 
-        var div = pType=='group'? this.groupDivs[pItem.rsn]:this.userDivs[pItem.rsn];
+        var div = pType=='group'? this.groupDivs[pItem.id]:this.userDivs[pItem.id];
         if (!div) return;
 
         this.left.getElements('.ka-list-combine-item').removeClass('active');
@@ -1367,7 +1367,7 @@ var users_users_acl = new Class({
 
         this.win.setTitle(title);
 
-        this.loadAcls(pType, pItem.rsn);
+        this.loadAcls(pType, pItem.id);
 
     },
 
@@ -1460,7 +1460,7 @@ var users_users_acl = new Class({
                 constraint_code: pDom.entryPath,
                 access: 0,
                 target_type: this.currentTargetType,
-                target_rsn: this.currentTargetRsn
+                target_id: this.currentTargetRsn
             };
             this.currentEntrypointDoms[pDom.entryPath] = pDom;
             this.currentAcls.push(rule);
@@ -1630,7 +1630,7 @@ var users_users_acl = new Class({
 
         var req = {
             target_type: this.currentTargetType,
-            target_rsn: this.currentTargetRsn,
+            target_id: this.currentTargetRsn,
             rules: this.currentAcls
         };
 

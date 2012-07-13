@@ -152,16 +152,16 @@ class adminModule {
     }
 
     /**
-     * Converts system_pages to the new nested architecture (lft, rgt columns)
+     * Converts system_page to the new nested architecture (lft, rgt columns)
      *
      * @static
      * @return bool
      */
     public static function convertPagesTo10(){
 
-        $res = dbExec('SELECT rsn FROM '.pfx.'system_domains');
+        $res = dbExec('SELECT id FROM '.pfx.'system_domains');
         while ($row = dbFetch($res)){
-            self::convertPagesTo10Domain($row['rsn']);
+            self::convertPagesTo10Domain($row['id']);
         }
 
         return true;
@@ -169,39 +169,39 @@ class adminModule {
 
     public static function convertPagesTo10Domain($pDomainRsn){
 
-        $res = dbExec('SELECT rsn, prsn FROM '.pfx.'system_pages WHERE (prsn = 0 OR prsn IS NULL) AND domain_rsn = '.($pDomainRsn+0).
+        $res = dbExec('SELECT id, pid FROM '.pfx.'system_page WHERE (pid = 0 OR pid IS NULL) AND domain_id = '.($pDomainRsn+0).
                       ' ORDER BY sort');
 
         self::$migrationCurrentPos = 0;
         while ($row = dbFetch($res)){
 
-            self::convertPagesTo10Node($row['rsn']);
+            self::convertPagesTo10Node($row['id']);
 
         }
 
     }
     public static function convertPagesTo10Node($pNodeRsn, $pDepth = 1){
 
-        $node = dbExFetch('SELECT rsn, prsn, title FROM '.pfx.'system_pages WHERE rsn = '.($pNodeRsn+0));
+        $node = dbExFetch('SELECT id, pid, title FROM '.pfx.'system_page WHERE id = '.($pNodeRsn+0));
 
         self::$migrationCurrentPos++;
         $newPosOfNode = array('lft' => self::$migrationCurrentPos);
 
-        $res = dbExec('SELECT rsn, prsn FROM '.pfx.'system_pages WHERE prsn = '.($pNodeRsn+0).' ORDER BY sort ASC');
+        $res = dbExec('SELECT id, pid FROM '.pfx.'system_page WHERE pid = '.($pNodeRsn+0).' ORDER BY sort ASC');
 
-        echo str_repeat('  ', $pDepth)."#".$node['rsn'].' - '.$node['title'].' => '.$newPosOfNode['lft']."\n";
+        echo str_repeat('  ', $pDepth)."#".$node['id'].' - '.$node['title'].' => '.$newPosOfNode['lft']."\n";
 
         if ($res){
             while ($row = dbFetch($res)){
-                $newPos = self::convertPagesTo10Node($row['rsn'], $pDepth+1);
+                $newPos = self::convertPagesTo10Node($row['id'], $pDepth+1);
             }
         }
 
         self::$migrationCurrentPos++;
         $newPosOfNode['rgt'] = self::$migrationCurrentPos;
-        echo str_repeat('  ', $pDepth)."#".$node['rsn'].' - '.$newPosOfNode['rgt']."\n";
+        echo str_repeat('  ', $pDepth)."#".$node['id'].' - '.$newPosOfNode['rgt']."\n";
 
-        dbUpdate('system_pages', array('rsn' => $pNodeRsn), array(
+        dbUpdate('system_page', array('id' => $pNodeRsn), array(
             'lft' => $newPosOfNode['lft'],
             'rgt' => $newPosOfNode['rgt']
         ));
@@ -1255,7 +1255,7 @@ class $pClassName extends $pClass {
 
             $info = json_decode($res, 1);
 
-            if (!$info['rsn'] > 0) {
+            if (!$info['id'] > 0) {
                 return array('notExist' => 1);
             }
 

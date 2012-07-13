@@ -15,10 +15,10 @@
 {foreach from=$items item=item} 
     <item>
         <title>{$item.title}</title>
-        <link>http://{$smarty.server.SERVER_NAME}/{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.rsn}/</link>
+        <link>http://{$smarty.server.SERVER_NAME}/{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.id}/</link>
         <description>{$item.intro}</description>
         <pubDate>{$item.releaseDate|date_format:"%a, %d %b %Y %H:%M:%S"} GMT</pubDate>
-        <guid>http://{$smarty.server.SERVER_NAME}/{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.rsn}/</guid>
+        <guid>http://{$smarty.server.SERVER_NAME}/{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.id}/</guid>
     </item>   
 {/foreach}
 {/if}

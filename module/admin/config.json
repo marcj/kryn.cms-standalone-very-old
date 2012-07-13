@@ -40,7 +40,7 @@
       "category": "overview",
       "withoutCountInTitle": true,
       "manipulate_row": "manipulateUnpublishedContentsRow",
-      "sql": "SELECT MAX(v.rsn) as versionrsn, u.username, p.rsn, MAX(v.modified) as modified, p.domain_rsn FROM %pfx%system_user u, %pfx%system_pages p, %pfx%system_pagesversions v WHERE draft_exist = 1 AND v.page_rsn = p.rsn AND u.rsn = v.owner_rsn AND ( p.type = 0 OR p.type = 3) GROUP BY p.rsn, u.username, p.domain_rsn ORDER BY MAX(v.modified) DESC"
+      "sql": "SELECT MAX(v.id) as versionid, u.username, p.id, MAX(v.modified) as modified, p.domain_id FROM %pfx%system_user u, %pfx%system_page p, %pfx%system_page_version v WHERE draft_exist = 1 AND v.page_id = p.id AND u.id = v.owner_id AND ( p.type = 0 OR p.type = 3) GROUP BY p.id, u.username, p.domain_id ORDER BY MAX(v.modified) DESC"
     },
     "lastPageChanges": {
       "title": "[[Last page changes]]",
@@ -77,7 +77,7 @@
       "itemsPerPage": 7,
       "withoutCountInTitle": true,
       "manipulate_row": "manipulateLastChangesRow",
-      "sql": "SELECT v.rsn, u.username, v.active, v.page_rsn, v.modified FROM  %pfx%system_pagesversions v, %pfx%system_user u, %pfx%system_pages p WHERE v.page_rsn = p.rsn AND u.rsn = v.owner_rsn ORDER BY v.created DESC"
+      "sql": "SELECT v.id, u.username, v.active, v.page_id, v.modified FROM  %pfx%system_page_version v, %pfx%system_user u, %pfx%system_page p WHERE v.page_id = p.id AND u.id = v.owner_id ORDER BY v.created DESC"
     },
     "searchStats": {
       "title": "[[Top search words with results]]",
@@ -324,7 +324,7 @@
           "isLink": false,
           "childs": {
             "groups": {
-              "table_key": "rsn",
+              "table_key": "id",
               "table_label": "name",
               "table": "system_groups",
               "type": "store",
@@ -608,14 +608,14 @@
     },
     "node": {
       "desc": "[[Pages, Links, Deposits and Navigation folder]]",
-      "table": "system_pages",
+      "table": "system_page",
       "tableSync": 1,
       "tableCondition": [
         
       ],
       "nestedLabel": "title",
       "nestedRootObject": "domain",
-      "nestedRootObjectField": "domain_rsn",
+      "nestedRootObjectField": "domain_id",
       "nestedRootObjectLabel": "domain",
       "nestedRootAsObject": 1,
       "nested": 1,
@@ -647,21 +647,21 @@
       "chooserBrowserDataModel": "none",
       "chooserBrowserType": "custom",
       "fields": {
-        "rsn": {
+        "id": {
           "label": "[[ID]]",
           "type": "number",
           "primaryKey": 1,
           "autoIncrement": 1,
           "empty": 1
         },
-        "prsn": {
+        "pid": {
           "label": "[[Parent ID]]",
           "type": "number",
           "primaryKey": 0,
           "autoIncrement": 0,
           "empty": 1
         },
-        "domain_rsn": {
+        "domain_id": {
           "label": "[[Domain ID]]",
           "type": "number",
           "primaryKey": 0,
@@ -825,7 +825,7 @@
       "chooserBrowserDataModel": "default",
       "chooserBrowserType": "default",
       "fields": {
-        "rsn": {
+        "id": {
           "label": "ID",
           "type": "number",
           "primaryKey": 1,
@@ -978,7 +978,7 @@
   },
   "db": {
     "system_workspaces": {
-      "rsn": [
+      "id": [
         "integer unsigned",
         "",
         "DB_PRIMARY",
@@ -991,20 +991,20 @@
         false
       ]
     },
-    "system_pages": {
-      "rsn": [
+    "system_page": {
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "prsn": [
+      "pid": [
         "int",
         "",
         "DB_INDEX",
         false
       ],
-      "domain_rsn": [
+      "domain_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1167,20 +1167,20 @@
         false
       ]
     },
-    "system_pagesversions": {
-      "rsn": [
+    "system_page_version": {
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "page_rsn": [
+      "page_id": [
         "int",
         "",
         "DB_INDEX",
         false
       ],
-      "owner_rsn": [
+      "owner_id": [
         "int",
         "",
         "-",
@@ -1206,19 +1206,19 @@
       ]
     },
     "system_page_notices": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "page_rsn": [
+      "page_id": [
         "int",
         "",
         "DB_INDEX",
         false
       ],
-      "user_rsn": [
+      "user_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1252,7 +1252,7 @@
       ]
     },
     "system_domains": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1276,7 +1276,7 @@
         "DB_INDEX",
         false
       ],
-      "startpage_rsn": [
+      "startpage_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1294,7 +1294,7 @@
         "-",
         false
       ],
-      "page404_rsn": [
+      "page404_id": [
         "int",
         "",
         "-",
@@ -1380,19 +1380,19 @@
       ]
     },
     "system_contents": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "page_rsn": [
+      "page_id": [
         "int",
         "",
         "DB_INDEX",
         false
       ],
-      "version_rsn": [
+      "version_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1452,7 +1452,7 @@
         "DB_INDEX",
         false
       ],
-      "owner_rsn": [
+      "owner_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1484,13 +1484,13 @@
       ]
     },
     "system_messages": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
         true
       ],
-      "user_rsn": [
+      "user_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1502,7 +1502,7 @@
         "DB_INDEX",
         false
       ],
-      "to_rsn": [
+      "to_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1528,7 +1528,7 @@
       ]
     },
     "system_langs": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1566,7 +1566,7 @@
       ]
     },
     "system_log": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1604,7 +1604,7 @@
       ]
     },
     "system_files_log": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1672,13 +1672,13 @@
         "-",
         false
       ],
-      "page_rsn": [
+      "page_id": [
         "int",
         "",
         "-",
         false
       ],
-      "domain_rsn": [
+      "domain_id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1712,7 +1712,7 @@
       ]
     },
     "system_urlalias": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1724,13 +1724,13 @@
         "DB_INDEX",
         false
       ],
-      "to_page_rsn": [
+      "to_page_id": [
         "int",
         "",
         "-",
         false
       ],
-      "domain_rsn": [
+      "domain_id": [
         "int",
         "",
         "DB_INDEX",
@@ -1738,7 +1738,7 @@
       ]
     },
     "system_files_versions": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1762,7 +1762,7 @@
         "-",
         false
       ],
-      "user_rsn": [
+      "user_id": [
         "int",
         "",
         "-",
@@ -1776,7 +1776,7 @@
       ]
     },
     "system_frameworkversion": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1806,7 +1806,7 @@
         "-",
         false
       ],
-      "user_rsn": [
+      "user_id": [
         "int",
         "",
         "-",
@@ -1814,7 +1814,7 @@
       ]
     },
     "system_files": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1834,7 +1834,7 @@
       ]
     },
     "system_fs": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1860,7 +1860,7 @@
       ]
     },
     "system_object_usage": {
-      "rsn": [
+      "id": [
         "int",
         "",
         "DB_PRIMARY",
@@ -1878,7 +1878,7 @@
         "-",
         false
       ],
-      "user_system_object_rsn": [
+      "user_system_object_id": [
         "int",
         "",
         "-",
@@ -1890,7 +1890,7 @@
         "-",
         false
       ],
-      "system_object_rsn": [
+      "system_object_id": [
         "int",
         "",
         "-",

@@ -444,7 +444,7 @@ class krynAuth {
      */
     public function removeExpiredSessions() {
         $lastTime = time() - $this->config['session_timeout'];
-        dbDelete('system_sessions', 'time < ' . $lastTime);
+        dbDelete('system_session', 'time < ' . $lastTime);
 
     }
 
@@ -485,7 +485,7 @@ class krynAuth {
                 unset($sessionExtra[$temp]);
 
             $session['extra'] = json_encode($sessionExtra);
-            dbUpdate('system_sessions', array('id' => $this->token), $session);
+            dbUpdate('system_session', array('id' => $this->token), $session);
 
         } else {
             $expired = $this->config['session_timeout'];
@@ -581,7 +581,7 @@ class krynAuth {
     public function newSessionDatabase() {
 
         $token = $this->generateSessionId();
-        $row = dbExfetch("SELECT id FROM %pfx%system_sessions WHERE id = '$token'", 1);
+        $row = dbExfetch("SELECT id FROM %pfx%system_session WHERE id = '$token'", 1);
         if ($row['id'] > 0) {
             //another session with this id exists
             return false;
@@ -597,7 +597,7 @@ class krynAuth {
             'refreshed' => 0
         );
 
-        dbInsert('system_sessions', $session);
+        dbInsert('system_session', $session);
         $this->token = $token;
         unset($session['id']);
         return $session;
@@ -637,7 +637,7 @@ class krynAuth {
         if (!$this->session) return false;
 
         if ($row['time'] + $this->config['session_timeout'] < time()) {
-            dbExec('DELETE FROM %pfx%system_sessions WHERE id = \'' . esc($this->token) . '\'');
+            dbExec('DELETE FROM %pfx%system_session WHERE id = \'' . esc($this->token) . '\'');
             return false;
         }
 

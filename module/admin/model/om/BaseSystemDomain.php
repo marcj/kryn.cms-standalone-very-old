@@ -2,25 +2,25 @@
 
 
 /**
- * Base class that represents a row from the 'kryn_system_domains' table.
+ * Base class that represents a row from the 'kryn_system_domain' table.
  *
  * 
  *
  * @package    propel.generator.kryn.om
  */
-abstract class BaseSystemDomains extends BaseObject 
+abstract class BaseSystemDomain extends BaseObject 
 {
 
     /**
      * Peer class name
      */
-    const PEER = 'SystemDomainsPeer';
+    const PEER = 'SystemDomainPeer';
 
     /**
      * The Peer class.
      * Instance provides a convenient way of calling static methods on a class
      * that calling code may not be able to identify.
-     * @var        SystemDomainsPeer
+     * @var        SystemDomainPeer
      */
     protected static $peer;
 
@@ -157,6 +157,11 @@ abstract class BaseSystemDomains extends BaseObject
     protected $favicon;
 
     /**
+     * @var        PropelObjectCollection|SystemPage[] Collection to store aggregation of SystemPage objects.
+     */
+    protected $collSystemPages;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -169,6 +174,12 @@ abstract class BaseSystemDomains extends BaseObject
      * @var        boolean
      */
     protected $alreadyInValidation = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $systemPagesScheduledForDeletion = null;
 
     /**
      * Get the [id] column value.
@@ -405,7 +416,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [id] column.
      * 
      * @param      int $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -415,7 +426,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::ID;
+            $this->modifiedColumns[] = SystemDomainPeer::ID;
         }
 
 
@@ -426,7 +437,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [domain] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setDomain($v)
     {
@@ -436,7 +447,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->domain !== $v) {
             $this->domain = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::DOMAIN;
+            $this->modifiedColumns[] = SystemDomainPeer::DOMAIN;
         }
 
 
@@ -447,7 +458,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [title_format] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setTitleFormat($v)
     {
@@ -457,7 +468,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->title_format !== $v) {
             $this->title_format = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::TITLE_FORMAT;
+            $this->modifiedColumns[] = SystemDomainPeer::TITLE_FORMAT;
         }
 
 
@@ -468,7 +479,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [lang] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setLang($v)
     {
@@ -478,7 +489,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->lang !== $v) {
             $this->lang = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::LANG;
+            $this->modifiedColumns[] = SystemDomainPeer::LANG;
         }
 
 
@@ -489,7 +500,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [startpage_id] column.
      * 
      * @param      int $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setStartpageId($v)
     {
@@ -499,7 +510,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->startpage_id !== $v) {
             $this->startpage_id = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::STARTPAGE_ID;
+            $this->modifiedColumns[] = SystemDomainPeer::STARTPAGE_ID;
         }
 
 
@@ -510,7 +521,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [alias] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setAlias($v)
     {
@@ -520,7 +531,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->alias !== $v) {
             $this->alias = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::ALIAS;
+            $this->modifiedColumns[] = SystemDomainPeer::ALIAS;
         }
 
 
@@ -531,7 +542,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [redirect] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setRedirect($v)
     {
@@ -541,7 +552,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->redirect !== $v) {
             $this->redirect = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::REDIRECT;
+            $this->modifiedColumns[] = SystemDomainPeer::REDIRECT;
         }
 
 
@@ -552,7 +563,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [page404_id] column.
      * 
      * @param      int $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setPage404id($v)
     {
@@ -562,7 +573,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->page404_id !== $v) {
             $this->page404_id = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::PAGE404_ID;
+            $this->modifiedColumns[] = SystemDomainPeer::PAGE404_ID;
         }
 
 
@@ -573,7 +584,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [page404interface] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setPage404interface($v)
     {
@@ -583,7 +594,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->page404interface !== $v) {
             $this->page404interface = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::PAGE404INTERFACE;
+            $this->modifiedColumns[] = SystemDomainPeer::PAGE404INTERFACE;
         }
 
 
@@ -594,7 +605,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [master] column.
      * 
      * @param      int $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setMaster($v)
     {
@@ -604,7 +615,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->master !== $v) {
             $this->master = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::MASTER;
+            $this->modifiedColumns[] = SystemDomainPeer::MASTER;
         }
 
 
@@ -615,7 +626,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [resourcecompression] column.
      * 
      * @param      int $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setResourcecompression($v)
     {
@@ -625,7 +636,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->resourcecompression !== $v) {
             $this->resourcecompression = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::RESOURCECOMPRESSION;
+            $this->modifiedColumns[] = SystemDomainPeer::RESOURCECOMPRESSION;
         }
 
 
@@ -636,7 +647,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [layouts] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setLayouts($v)
     {
@@ -646,7 +657,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->layouts !== $v) {
             $this->layouts = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::LAYOUTS;
+            $this->modifiedColumns[] = SystemDomainPeer::LAYOUTS;
         }
 
 
@@ -657,7 +668,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [phplocale] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setPhplocale($v)
     {
@@ -667,7 +678,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->phplocale !== $v) {
             $this->phplocale = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::PHPLOCALE;
+            $this->modifiedColumns[] = SystemDomainPeer::PHPLOCALE;
         }
 
 
@@ -678,7 +689,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [path] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setPath($v)
     {
@@ -688,7 +699,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->path !== $v) {
             $this->path = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::PATH;
+            $this->modifiedColumns[] = SystemDomainPeer::PATH;
         }
 
 
@@ -699,7 +710,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [themeproperties] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setThemeproperties($v)
     {
@@ -709,7 +720,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->themeproperties !== $v) {
             $this->themeproperties = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::THEMEPROPERTIES;
+            $this->modifiedColumns[] = SystemDomainPeer::THEMEPROPERTIES;
         }
 
 
@@ -720,7 +731,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [extproperties] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setExtproperties($v)
     {
@@ -730,7 +741,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->extproperties !== $v) {
             $this->extproperties = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::EXTPROPERTIES;
+            $this->modifiedColumns[] = SystemDomainPeer::EXTPROPERTIES;
         }
 
 
@@ -741,7 +752,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [email] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setEmail($v)
     {
@@ -751,7 +762,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->email !== $v) {
             $this->email = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::EMAIL;
+            $this->modifiedColumns[] = SystemDomainPeer::EMAIL;
         }
 
 
@@ -762,7 +773,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [search_index_key] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setSearchIndexKey($v)
     {
@@ -772,7 +783,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->search_index_key !== $v) {
             $this->search_index_key = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::SEARCH_INDEX_KEY;
+            $this->modifiedColumns[] = SystemDomainPeer::SEARCH_INDEX_KEY;
         }
 
 
@@ -783,7 +794,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [robots] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setRobots($v)
     {
@@ -793,7 +804,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->robots !== $v) {
             $this->robots = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::ROBOTS;
+            $this->modifiedColumns[] = SystemDomainPeer::ROBOTS;
         }
 
 
@@ -804,7 +815,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [session] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setSession($v)
     {
@@ -814,7 +825,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->session !== $v) {
             $this->session = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::SESSION;
+            $this->modifiedColumns[] = SystemDomainPeer::SESSION;
         }
 
 
@@ -825,7 +836,7 @@ abstract class BaseSystemDomains extends BaseObject
      * Set the value of [favicon] column.
      * 
      * @param      string $v new value
-     * @return   SystemDomains The current object (for fluent API support)
+     * @return   SystemDomain The current object (for fluent API support)
      */
     public function setFavicon($v)
     {
@@ -835,7 +846,7 @@ abstract class BaseSystemDomains extends BaseObject
 
         if ($this->favicon !== $v) {
             $this->favicon = $v;
-            $this->modifiedColumns[] = SystemDomainsPeer::FAVICON;
+            $this->modifiedColumns[] = SystemDomainPeer::FAVICON;
         }
 
 
@@ -903,10 +914,10 @@ abstract class BaseSystemDomains extends BaseObject
                 $this->ensureConsistency();
             }
 
-            return $startcol + 21; // 21 = SystemDomainsPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 21; // 21 = SystemDomainPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException("Error populating SystemDomains object", $e);
+            throw new PropelException("Error populating SystemDomain object", $e);
         }
     }
 
@@ -949,13 +960,13 @@ abstract class BaseSystemDomains extends BaseObject
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $stmt = SystemDomainsPeer::doSelectStmt($this->buildPkeyCriteria(), $con);
+        $stmt = SystemDomainPeer::doSelectStmt($this->buildPkeyCriteria(), $con);
         $row = $stmt->fetch(PDO::FETCH_NUM);
         $stmt->closeCursor();
         if (!$row) {
@@ -964,6 +975,8 @@ abstract class BaseSystemDomains extends BaseObject
         $this->hydrate($row, 0, true); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->collSystemPages = null;
 
         } // if (deep)
     }
@@ -985,12 +998,12 @@ abstract class BaseSystemDomains extends BaseObject
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         $con->beginTransaction();
         try {
-            $deleteQuery = SystemDomainsQuery::create()
+            $deleteQuery = SystemDomainQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -1028,7 +1041,7 @@ abstract class BaseSystemDomains extends BaseObject
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(SystemDomainsPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(SystemDomainPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         $con->beginTransaction();
@@ -1048,7 +1061,7 @@ abstract class BaseSystemDomains extends BaseObject
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                SystemDomainsPeer::addInstanceToPool($this);
+                SystemDomainPeer::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -1089,6 +1102,24 @@ abstract class BaseSystemDomains extends BaseObject
                 $this->resetModified();
             }
 
+            if ($this->systemPagesScheduledForDeletion !== null) {
+                if (!$this->systemPagesScheduledForDeletion->isEmpty()) {
+                    foreach ($this->systemPagesScheduledForDeletion as $systemPage) {
+                        // need to save related object because we set the relation to null
+                        $systemPage->save($con);
+                    }
+                    $this->systemPagesScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collSystemPages !== null) {
+                foreach ($this->collSystemPages as $referrerFK) {
+                    if (!$referrerFK->isDeleted()) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             $this->alreadyInSave = false;
 
         }
@@ -1109,13 +1140,13 @@ abstract class BaseSystemDomains extends BaseObject
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[] = SystemDomainsPeer::ID;
+        $this->modifiedColumns[] = SystemDomainPeer::ID;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SystemDomainsPeer::ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SystemDomainPeer::ID . ')');
         }
         if (null === $this->id) {
             try {				
-				$stmt = $con->query("SELECT nextval('kryn_system_domains_id_seq')");
+				$stmt = $con->query("SELECT nextval('kryn_system_domain_id_seq')");
 				$row = $stmt->fetch(PDO::FETCH_NUM);
 				$this->id = $row[0];
             } catch (Exception $e) {
@@ -1125,72 +1156,72 @@ abstract class BaseSystemDomains extends BaseObject
 
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(SystemDomainsPeer::ID)) {
+        if ($this->isColumnModified(SystemDomainPeer::ID)) {
             $modifiedColumns[':p' . $index++]  = 'ID';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::DOMAIN)) {
+        if ($this->isColumnModified(SystemDomainPeer::DOMAIN)) {
             $modifiedColumns[':p' . $index++]  = 'DOMAIN';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::TITLE_FORMAT)) {
+        if ($this->isColumnModified(SystemDomainPeer::TITLE_FORMAT)) {
             $modifiedColumns[':p' . $index++]  = 'TITLE_FORMAT';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::LANG)) {
+        if ($this->isColumnModified(SystemDomainPeer::LANG)) {
             $modifiedColumns[':p' . $index++]  = 'LANG';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::STARTPAGE_ID)) {
+        if ($this->isColumnModified(SystemDomainPeer::STARTPAGE_ID)) {
             $modifiedColumns[':p' . $index++]  = 'STARTPAGE_ID';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::ALIAS)) {
+        if ($this->isColumnModified(SystemDomainPeer::ALIAS)) {
             $modifiedColumns[':p' . $index++]  = 'ALIAS';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::REDIRECT)) {
+        if ($this->isColumnModified(SystemDomainPeer::REDIRECT)) {
             $modifiedColumns[':p' . $index++]  = 'REDIRECT';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::PAGE404_ID)) {
+        if ($this->isColumnModified(SystemDomainPeer::PAGE404_ID)) {
             $modifiedColumns[':p' . $index++]  = 'PAGE404_ID';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::PAGE404INTERFACE)) {
+        if ($this->isColumnModified(SystemDomainPeer::PAGE404INTERFACE)) {
             $modifiedColumns[':p' . $index++]  = 'PAGE404INTERFACE';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::MASTER)) {
+        if ($this->isColumnModified(SystemDomainPeer::MASTER)) {
             $modifiedColumns[':p' . $index++]  = 'MASTER';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::RESOURCECOMPRESSION)) {
+        if ($this->isColumnModified(SystemDomainPeer::RESOURCECOMPRESSION)) {
             $modifiedColumns[':p' . $index++]  = 'RESOURCECOMPRESSION';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::LAYOUTS)) {
+        if ($this->isColumnModified(SystemDomainPeer::LAYOUTS)) {
             $modifiedColumns[':p' . $index++]  = 'LAYOUTS';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::PHPLOCALE)) {
+        if ($this->isColumnModified(SystemDomainPeer::PHPLOCALE)) {
             $modifiedColumns[':p' . $index++]  = 'PHPLOCALE';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::PATH)) {
+        if ($this->isColumnModified(SystemDomainPeer::PATH)) {
             $modifiedColumns[':p' . $index++]  = 'PATH';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::THEMEPROPERTIES)) {
+        if ($this->isColumnModified(SystemDomainPeer::THEMEPROPERTIES)) {
             $modifiedColumns[':p' . $index++]  = 'THEMEPROPERTIES';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::EXTPROPERTIES)) {
+        if ($this->isColumnModified(SystemDomainPeer::EXTPROPERTIES)) {
             $modifiedColumns[':p' . $index++]  = 'EXTPROPERTIES';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::EMAIL)) {
+        if ($this->isColumnModified(SystemDomainPeer::EMAIL)) {
             $modifiedColumns[':p' . $index++]  = 'EMAIL';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::SEARCH_INDEX_KEY)) {
+        if ($this->isColumnModified(SystemDomainPeer::SEARCH_INDEX_KEY)) {
             $modifiedColumns[':p' . $index++]  = 'SEARCH_INDEX_KEY';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::ROBOTS)) {
+        if ($this->isColumnModified(SystemDomainPeer::ROBOTS)) {
             $modifiedColumns[':p' . $index++]  = 'ROBOTS';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::SESSION)) {
+        if ($this->isColumnModified(SystemDomainPeer::SESSION)) {
             $modifiedColumns[':p' . $index++]  = 'SESSION';
         }
-        if ($this->isColumnModified(SystemDomainsPeer::FAVICON)) {
+        if ($this->isColumnModified(SystemDomainPeer::FAVICON)) {
             $modifiedColumns[':p' . $index++]  = 'FAVICON';
         }
 
         $sql = sprintf(
-            'INSERT INTO kryn_system_domains (%s) VALUES (%s)',
+            'INSERT INTO kryn_system_domain (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -1349,10 +1380,18 @@ abstract class BaseSystemDomains extends BaseObject
             $failureMap = array();
 
 
-            if (($retval = SystemDomainsPeer::doValidate($this, $columns)) !== true) {
+            if (($retval = SystemDomainPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
             }
 
+
+                if ($this->collSystemPages !== null) {
+                    foreach ($this->collSystemPages as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
 
 
             $this->alreadyInValidation = false;
@@ -1373,7 +1412,7 @@ abstract class BaseSystemDomains extends BaseObject
      */
     public function getByName($name, $type = BasePeer::TYPE_PHPNAME)
     {
-        $pos = SystemDomainsPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
+        $pos = SystemDomainPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -1469,16 +1508,17 @@ abstract class BaseSystemDomains extends BaseObject
      *                    Defaults to BasePeer::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['SystemDomains'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['SystemDomain'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['SystemDomains'][$this->getPrimaryKey()] = true;
-        $keys = SystemDomainsPeer::getFieldNames($keyType);
+        $alreadyDumpedObjects['SystemDomain'][$this->getPrimaryKey()] = true;
+        $keys = SystemDomainPeer::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getDomain(),
@@ -1502,6 +1542,11 @@ abstract class BaseSystemDomains extends BaseObject
             $keys[19] => $this->getSession(),
             $keys[20] => $this->getFavicon(),
         );
+        if ($includeForeignObjects) {
+            if (null !== $this->collSystemPages) {
+                $result['SystemPages'] = $this->collSystemPages->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -1519,7 +1564,7 @@ abstract class BaseSystemDomains extends BaseObject
      */
     public function setByName($name, $value, $type = BasePeer::TYPE_PHPNAME)
     {
-        $pos = SystemDomainsPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
+        $pos = SystemDomainPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 
         $this->setByPosition($pos, $value);
     }
@@ -1620,7 +1665,7 @@ abstract class BaseSystemDomains extends BaseObject
      */
     public function fromArray($arr, $keyType = BasePeer::TYPE_PHPNAME)
     {
-        $keys = SystemDomainsPeer::getFieldNames($keyType);
+        $keys = SystemDomainPeer::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setDomain($arr[$keys[1]]);
@@ -1652,29 +1697,29 @@ abstract class BaseSystemDomains extends BaseObject
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(SystemDomainsPeer::DATABASE_NAME);
+        $criteria = new Criteria(SystemDomainPeer::DATABASE_NAME);
 
-        if ($this->isColumnModified(SystemDomainsPeer::ID)) $criteria->add(SystemDomainsPeer::ID, $this->id);
-        if ($this->isColumnModified(SystemDomainsPeer::DOMAIN)) $criteria->add(SystemDomainsPeer::DOMAIN, $this->domain);
-        if ($this->isColumnModified(SystemDomainsPeer::TITLE_FORMAT)) $criteria->add(SystemDomainsPeer::TITLE_FORMAT, $this->title_format);
-        if ($this->isColumnModified(SystemDomainsPeer::LANG)) $criteria->add(SystemDomainsPeer::LANG, $this->lang);
-        if ($this->isColumnModified(SystemDomainsPeer::STARTPAGE_ID)) $criteria->add(SystemDomainsPeer::STARTPAGE_ID, $this->startpage_id);
-        if ($this->isColumnModified(SystemDomainsPeer::ALIAS)) $criteria->add(SystemDomainsPeer::ALIAS, $this->alias);
-        if ($this->isColumnModified(SystemDomainsPeer::REDIRECT)) $criteria->add(SystemDomainsPeer::REDIRECT, $this->redirect);
-        if ($this->isColumnModified(SystemDomainsPeer::PAGE404_ID)) $criteria->add(SystemDomainsPeer::PAGE404_ID, $this->page404_id);
-        if ($this->isColumnModified(SystemDomainsPeer::PAGE404INTERFACE)) $criteria->add(SystemDomainsPeer::PAGE404INTERFACE, $this->page404interface);
-        if ($this->isColumnModified(SystemDomainsPeer::MASTER)) $criteria->add(SystemDomainsPeer::MASTER, $this->master);
-        if ($this->isColumnModified(SystemDomainsPeer::RESOURCECOMPRESSION)) $criteria->add(SystemDomainsPeer::RESOURCECOMPRESSION, $this->resourcecompression);
-        if ($this->isColumnModified(SystemDomainsPeer::LAYOUTS)) $criteria->add(SystemDomainsPeer::LAYOUTS, $this->layouts);
-        if ($this->isColumnModified(SystemDomainsPeer::PHPLOCALE)) $criteria->add(SystemDomainsPeer::PHPLOCALE, $this->phplocale);
-        if ($this->isColumnModified(SystemDomainsPeer::PATH)) $criteria->add(SystemDomainsPeer::PATH, $this->path);
-        if ($this->isColumnModified(SystemDomainsPeer::THEMEPROPERTIES)) $criteria->add(SystemDomainsPeer::THEMEPROPERTIES, $this->themeproperties);
-        if ($this->isColumnModified(SystemDomainsPeer::EXTPROPERTIES)) $criteria->add(SystemDomainsPeer::EXTPROPERTIES, $this->extproperties);
-        if ($this->isColumnModified(SystemDomainsPeer::EMAIL)) $criteria->add(SystemDomainsPeer::EMAIL, $this->email);
-        if ($this->isColumnModified(SystemDomainsPeer::SEARCH_INDEX_KEY)) $criteria->add(SystemDomainsPeer::SEARCH_INDEX_KEY, $this->search_index_key);
-        if ($this->isColumnModified(SystemDomainsPeer::ROBOTS)) $criteria->add(SystemDomainsPeer::ROBOTS, $this->robots);
-        if ($this->isColumnModified(SystemDomainsPeer::SESSION)) $criteria->add(SystemDomainsPeer::SESSION, $this->session);
-        if ($this->isColumnModified(SystemDomainsPeer::FAVICON)) $criteria->add(SystemDomainsPeer::FAVICON, $this->favicon);
+        if ($this->isColumnModified(SystemDomainPeer::ID)) $criteria->add(SystemDomainPeer::ID, $this->id);
+        if ($this->isColumnModified(SystemDomainPeer::DOMAIN)) $criteria->add(SystemDomainPeer::DOMAIN, $this->domain);
+        if ($this->isColumnModified(SystemDomainPeer::TITLE_FORMAT)) $criteria->add(SystemDomainPeer::TITLE_FORMAT, $this->title_format);
+        if ($this->isColumnModified(SystemDomainPeer::LANG)) $criteria->add(SystemDomainPeer::LANG, $this->lang);
+        if ($this->isColumnModified(SystemDomainPeer::STARTPAGE_ID)) $criteria->add(SystemDomainPeer::STARTPAGE_ID, $this->startpage_id);
+        if ($this->isColumnModified(SystemDomainPeer::ALIAS)) $criteria->add(SystemDomainPeer::ALIAS, $this->alias);
+        if ($this->isColumnModified(SystemDomainPeer::REDIRECT)) $criteria->add(SystemDomainPeer::REDIRECT, $this->redirect);
+        if ($this->isColumnModified(SystemDomainPeer::PAGE404_ID)) $criteria->add(SystemDomainPeer::PAGE404_ID, $this->page404_id);
+        if ($this->isColumnModified(SystemDomainPeer::PAGE404INTERFACE)) $criteria->add(SystemDomainPeer::PAGE404INTERFACE, $this->page404interface);
+        if ($this->isColumnModified(SystemDomainPeer::MASTER)) $criteria->add(SystemDomainPeer::MASTER, $this->master);
+        if ($this->isColumnModified(SystemDomainPeer::RESOURCECOMPRESSION)) $criteria->add(SystemDomainPeer::RESOURCECOMPRESSION, $this->resourcecompression);
+        if ($this->isColumnModified(SystemDomainPeer::LAYOUTS)) $criteria->add(SystemDomainPeer::LAYOUTS, $this->layouts);
+        if ($this->isColumnModified(SystemDomainPeer::PHPLOCALE)) $criteria->add(SystemDomainPeer::PHPLOCALE, $this->phplocale);
+        if ($this->isColumnModified(SystemDomainPeer::PATH)) $criteria->add(SystemDomainPeer::PATH, $this->path);
+        if ($this->isColumnModified(SystemDomainPeer::THEMEPROPERTIES)) $criteria->add(SystemDomainPeer::THEMEPROPERTIES, $this->themeproperties);
+        if ($this->isColumnModified(SystemDomainPeer::EXTPROPERTIES)) $criteria->add(SystemDomainPeer::EXTPROPERTIES, $this->extproperties);
+        if ($this->isColumnModified(SystemDomainPeer::EMAIL)) $criteria->add(SystemDomainPeer::EMAIL, $this->email);
+        if ($this->isColumnModified(SystemDomainPeer::SEARCH_INDEX_KEY)) $criteria->add(SystemDomainPeer::SEARCH_INDEX_KEY, $this->search_index_key);
+        if ($this->isColumnModified(SystemDomainPeer::ROBOTS)) $criteria->add(SystemDomainPeer::ROBOTS, $this->robots);
+        if ($this->isColumnModified(SystemDomainPeer::SESSION)) $criteria->add(SystemDomainPeer::SESSION, $this->session);
+        if ($this->isColumnModified(SystemDomainPeer::FAVICON)) $criteria->add(SystemDomainPeer::FAVICON, $this->favicon);
 
         return $criteria;
     }
@@ -1689,8 +1734,8 @@ abstract class BaseSystemDomains extends BaseObject
      */
     public function buildPkeyCriteria()
     {
-        $criteria = new Criteria(SystemDomainsPeer::DATABASE_NAME);
-        $criteria->add(SystemDomainsPeer::ID, $this->id);
+        $criteria = new Criteria(SystemDomainPeer::DATABASE_NAME);
+        $criteria->add(SystemDomainPeer::ID, $this->id);
 
         return $criteria;
     }
@@ -1731,7 +1776,7 @@ abstract class BaseSystemDomains extends BaseObject
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of SystemDomains (or compatible) type.
+     * @param      object $copyObj An object of SystemDomain (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
@@ -1758,6 +1803,24 @@ abstract class BaseSystemDomains extends BaseObject
         $copyObj->setRobots($this->getRobots());
         $copyObj->setSession($this->getSession());
         $copyObj->setFavicon($this->getFavicon());
+
+        if ($deepCopy && !$this->startCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+            // store object hash to prevent cycle
+            $this->startCopy = true;
+
+            foreach ($this->getSystemPages() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addSystemPage($relObj->copy($deepCopy));
+                }
+            }
+
+            //unflag object copy
+            $this->startCopy = false;
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1773,7 +1836,7 @@ abstract class BaseSystemDomains extends BaseObject
      * objects.
      *
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return                 SystemDomains Clone of current object.
+     * @return                 SystemDomain Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1793,15 +1856,198 @@ abstract class BaseSystemDomains extends BaseObject
      * same instance for all member of this class. The method could therefore
      * be static, but this would prevent one from overriding the behavior.
      *
-     * @return   SystemDomainsPeer
+     * @return   SystemDomainPeer
      */
     public function getPeer()
     {
         if (self::$peer === null) {
-            self::$peer = new SystemDomainsPeer();
+            self::$peer = new SystemDomainPeer();
         }
 
         return self::$peer;
+    }
+
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('SystemPage' == $relationName) {
+            $this->initSystemPages();
+        }
+    }
+
+    /**
+     * Clears out the collSystemPages collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addSystemPages()
+     */
+    public function clearSystemPages()
+    {
+        $this->collSystemPages = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collSystemPages collection.
+     *
+     * By default this just sets the collSystemPages collection to an empty array (like clearcollSystemPages());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initSystemPages($overrideExisting = true)
+    {
+        if (null !== $this->collSystemPages && !$overrideExisting) {
+            return;
+        }
+        $this->collSystemPages = new PropelObjectCollection();
+        $this->collSystemPages->setModel('SystemPage');
+    }
+
+    /**
+     * Gets an array of SystemPage objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this SystemDomain is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @return PropelObjectCollection|SystemPage[] List of SystemPage objects
+     * @throws PropelException
+     */
+    public function getSystemPages($criteria = null, PropelPDO $con = null)
+    {
+        if (null === $this->collSystemPages || null !== $criteria) {
+            if ($this->isNew() && null === $this->collSystemPages) {
+                // return empty collection
+                $this->initSystemPages();
+            } else {
+                $collSystemPages = SystemPageQuery::create(null, $criteria)
+                    ->filterBySystemDomain($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    return $collSystemPages;
+                }
+                $this->collSystemPages = $collSystemPages;
+            }
+        }
+
+        return $this->collSystemPages;
+    }
+
+    /**
+     * Sets a collection of SystemPage objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      PropelCollection $systemPages A Propel collection.
+     * @param      PropelPDO $con Optional connection object
+     */
+    public function setSystemPages(PropelCollection $systemPages, PropelPDO $con = null)
+    {
+        $this->systemPagesScheduledForDeletion = $this->getSystemPages(new Criteria(), $con)->diff($systemPages);
+
+        foreach ($this->systemPagesScheduledForDeletion as $systemPageRemoved) {
+            $systemPageRemoved->setSystemDomain(null);
+        }
+
+        $this->collSystemPages = null;
+        foreach ($systemPages as $systemPage) {
+            $this->addSystemPage($systemPage);
+        }
+
+        $this->collSystemPages = $systemPages;
+    }
+
+    /**
+     * Returns the number of related SystemPage objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      PropelPDO $con
+     * @return int             Count of related SystemPage objects.
+     * @throws PropelException
+     */
+    public function countSystemPages(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        if (null === $this->collSystemPages || null !== $criteria) {
+            if ($this->isNew() && null === $this->collSystemPages) {
+                return 0;
+            } else {
+                $query = SystemPageQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterBySystemDomain($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collSystemPages);
+        }
+    }
+
+    /**
+     * Method called to associate a SystemPage object to this object
+     * through the SystemPage foreign key attribute.
+     *
+     * @param    SystemPage $l SystemPage
+     * @return   SystemDomain The current object (for fluent API support)
+     */
+    public function addSystemPage(SystemPage $l)
+    {
+        if ($this->collSystemPages === null) {
+            $this->initSystemPages();
+        }
+        if (!$this->collSystemPages->contains($l)) { // only add it if the **same** object is not already associated
+            $this->doAddSystemPage($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param	SystemPage $systemPage The systemPage object to add.
+     */
+    protected function doAddSystemPage($systemPage)
+    {
+        $this->collSystemPages[]= $systemPage;
+        $systemPage->setSystemDomain($this);
+    }
+
+    /**
+     * @param	SystemPage $systemPage The systemPage object to remove.
+     */
+    public function removeSystemPage($systemPage)
+    {
+        if ($this->getSystemPages()->contains($systemPage)) {
+            $this->collSystemPages->remove($this->collSystemPages->search($systemPage));
+            if (null === $this->systemPagesScheduledForDeletion) {
+                $this->systemPagesScheduledForDeletion = clone $this->collSystemPages;
+                $this->systemPagesScheduledForDeletion->clear();
+            }
+            $this->systemPagesScheduledForDeletion[]= $systemPage;
+            $systemPage->setSystemDomain(null);
+        }
     }
 
     /**
@@ -1850,8 +2096,17 @@ abstract class BaseSystemDomains extends BaseObject
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collSystemPages) {
+                foreach ($this->collSystemPages as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        if ($this->collSystemPages instanceof PropelCollection) {
+            $this->collSystemPages->clearIterator();
+        }
+        $this->collSystemPages = null;
     }
 
     /**
@@ -1861,7 +2116,7 @@ abstract class BaseSystemDomains extends BaseObject
      */
     public function __toString()
     {
-        return (string) $this->exportTo(SystemDomainsPeer::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(SystemDomainPeer::DEFAULT_STRING_FORMAT);
     }
 
     /**
@@ -1874,4 +2129,4 @@ abstract class BaseSystemDomains extends BaseObject
         return $this->alreadyInSave;
     }
 
-} // BaseSystemDomains
+} // BaseSystemDomain

@@ -21,19 +21,71 @@
 class krynNavigation {
     public $navigations;
 
-    public static function getLinks($pRsn, $pWithFolders = false, $pDepth = 0, $pDomain = false, $pWithoutCache = false) {
+    /**
+     * @static
+     * @param $pId
+     * @param bool $pWithFolders
+     * @param int $pDepth
+     * @param SystemDomain $pDomain
+     * @param bool $pWithoutCache
+     * @return array|string
+     */
+    public static function getLinks($pId, $pWithFolders = false, $pDepth = 0, $pDomain = null, $pWithoutCache = false) {
 
-        if (!is_numeric($pRsn))
+        if (!is_numeric($pId))
             return array();
 
         if (!$pDomain) {
-            $pDomain = kryn::$domain['rsn'];
+            $pDomain = kryn::$domain->getId();
         }
+
+
+        $s1 = new SystemPage();
+        $s1->setDomainId(3);
+        $s1->setTitle('Root 1');
+        $s1->save();
+
+        $s2 = new SystemPage();
+        $s2->setDomainId(3);
+        $s2->setTitle('Root 2');
+
+        $sub = new SystemPage();
+        $sub->setTitle('Sub #1 of Root 2');
+        $sub->insertAsFirstChildOf($s2);
+
+        $sub = new SystemPage();
+        $sub->setTitle('Sub #2 of Root 2');
+        $sub->insertAsFirstChildOf($s2);
+
+        $s2->save();
+
+        $s3 = new SystemPage();
+        $s3->setDomainId(3);
+        $s3->setTitle('Root 3');
+
+        $s3->save();
+
+        $root = SystemPageQuery::create()->findRoot(3);
+        var_dump($root);
+        exit;
+        foreach ($root->getIterator() as $node) {
+            echo str_repeat(' ', $node->getLevel()) . $node->getTitle() . "<br/>";
+        }
+        exit;
+        $blog = SystemPageQuery::create()->findPk(1);
+
+        $nodes = SystemPageQuery::create()->findTree(1);
+
+        //print $nodes->toJSON();
+        var_dump($nodes);
+        exit;
+
+        return $nodes;
 
         if ($pWithoutCache == false) {
 
             $code = $pDomain;
-            $code .= '-'.$pRsn;
+            $code .= '-'.$pId;
             $code .= '-'.kryn::$client->id;
 
             $navigation =& kryn::getCache('navigation-' . $code);
@@ -45,9 +97,9 @@ class krynNavigation {
                 array('visible', '=', 1)
             );
 
-            if ($pRsn == 0) {
+            if ($pId == 0) {
                 $condition[] = 'AND';
-                $condition[] = array('domain_rsn', '=', $pDomain);
+                $condition[] = array('domain_id', '=', $pDomain);
             }
 
             if (!$pWithFolders){
@@ -55,15 +107,18 @@ class krynNavigation {
                 $condition[] = array('type', 'IN', '0,1');
             }
 
-            if ($pRsn){
+            if ($pId){
                 $condition[] = 'OR';
-                $condition[] = array('rsn', '=', $pRsn);
+                $condition[] = array('id', '=', $pId);
             }
 
-            $nodes = krynObjects::getTree('node', $pRsn, $condition, $pDepth, $pDomain, array(
+            $nodes = SystemPageQuery::create()->findRoot($pId);
+
+            /*
+            $nodes = krynObjects::getTree('node', $pId, $condition, $pDepth, $pDomain, array(
                 'fields' => '*',
                 'permissionCheck' => true
-            ));
+            ));*/
 
             if (count($nodes) > 0){
                 foreach ($nodes as &$node) {
@@ -109,12 +164,12 @@ class krynNavigation {
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $cacheKey =
-                    'systemNavigations-' . $navigation['domain_rsn'] . '_' . $navigation['rsn'] . '-' . md5(kryn::$canonical.$mtime);
+                    'systemNavigations-' . $navigation['domain_id'] . '_' . $navigation['id'] . '-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
 
-            $navigation = self::getLinks($navigation['rsn'], $pWithFolders, $navigation['domain_rsn']);
+            $navigation = self::getLinks($navigation['id'], $pWithFolders, $navigation['domain_id']);
         }
 
         if ($pOptions['level'] > 1) {
@@ -123,31 +178,31 @@ class krynNavigation {
 
             $page = self::arrayLevel(kryn::$breadcrumbs, $pOptions['level']);
 
-            if ($page['rsn'] > 0)
-                $navi =& kryn::getPage($page['rsn']);
+            if ($page['id'] > 0)
+                $navi =& kryn::getPage($page['id']);
             elseif ($pOptions['level'] == $currentLevel + 1)
                 $navi = kryn::$page;
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $cacheKey =
-                    'systemNavigations-' . $navi['domain_rsn'] . '_' . $navi['rsn'] . '-' . md5(kryn::$canonical.$mtime);
+                    'systemNavigations-' . $navi->getDomainId() . '_' . $navi->getId() . '-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
 
-            $navigation = self::getLinks($navi['rsn'], $pWithFolders, kryn::$domain['rsn']);
+            $navigation = self::getLinks($navi->getId(), $pWithFolders, kryn::$domain->getId());
         }
 
         if ($pOptions['level'] == 1) {
 
             if (!$pOptions['noCache'] && kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
-                $cacheKey = 'systemNavigations-' . kryn::$page['domain_rsn'] . '_0-' . md5(kryn::$canonical.$mtime);
+                $cacheKey = 'systemNavigations-' . kryn::$page->getDomainId() . '_0-' . md5(kryn::$canonical.$mtime);
                 $cache =& kryn::getCache($cacheKey);
                 if (false && $cache) return $cache;
             }
 
             $navigation = array('title' => 'Root');
-            $navigation['_children'] = self::getLinks(0, $pWithFolders, kryn::$domain['rsn']);
+            $navigation['_children'] = self::getLinks(0, $pWithFolders, kryn::$domain->getId());
         }
 
         if ($navi !== false) {

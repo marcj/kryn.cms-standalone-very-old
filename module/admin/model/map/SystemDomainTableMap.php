@@ -3,7 +3,7 @@
 
 
 /**
- * This class defines the structure of the 'kryn_system_domains' table.
+ * This class defines the structure of the 'kryn_system_domain' table.
  *
  *
  *
@@ -14,13 +14,13 @@
  *
  * @package    propel.generator.kryn.map
  */
-class SystemDomainsTableMap extends TableMap
+class SystemDomainTableMap extends TableMap
 {
 
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'kryn.map.SystemDomainsTableMap';
+    const CLASS_NAME = 'kryn.map.SystemDomainTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -32,12 +32,12 @@ class SystemDomainsTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('kryn_system_domains');
-        $this->setPhpName('SystemDomains');
-        $this->setClassname('SystemDomains');
+        $this->setName('kryn_system_domain');
+        $this->setPhpName('SystemDomain');
+        $this->setClassname('SystemDomain');
         $this->setPackage('kryn');
         $this->setUseIdGenerator(true);
-        $this->setPrimaryKeyMethodInfo('kryn_system_domains_id_seq');
+        $this->setPrimaryKeyMethodInfo('kryn_system_domain_id_seq');
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('DOMAIN', 'Domain', 'VARCHAR', false, 255, null);
@@ -68,6 +68,7 @@ class SystemDomainsTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('SystemPage', 'SystemPage', RelationMap::ONE_TO_MANY, array('id' => 'domain_id', ), 'CASCADE', null, 'SystemPages');
     } // buildRelations()
 
-} // SystemDomainsTableMap
+} // SystemDomainTableMap

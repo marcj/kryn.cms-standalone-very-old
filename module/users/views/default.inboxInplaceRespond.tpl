@@ -32,15 +32,15 @@ Template: {$pConf.template}
              {if ($smarty.foreach.messageLoop.index) % 2 == 1}
                  user-message-system-ibox-table-one-message-darker
             {/if}
-            " id="one-message-pre-{$oneMessage.rsn}">                       
+            " id="one-message-pre-{$oneMessage.id}">
                 <td rowspan="2" class="user-message-system-one-message-td-action-select">
-                    <input type="checkbox" name="one-message-action[]" value="{$oneMessage.rsn}" class="user-message-system-one-message-action-select">
+                    <input type="checkbox" name="one-message-action[]" value="{$oneMessage.id}" class="user-message-system-one-message-action-select">
                 </td>
                 <td class="one-message-left">
                     <div class="user-message-system-one-message-date">
                         {$oneMessage.send_tstamp|date_format:"%d.%m.%Y um %H:%I"}
                     </div>
-                    <div id="openMessageBtn{$oneMessage.rsn}" onclick="openMessage($('openMessageBtn{$oneMessage.rsn}'), '{$oneMessage.rsn}')" class="user-message-system-one-message-subject one-message-subject-{$oneMessage.message_state}" title="[[show / hide this message]]">
+                    <div id="openMessageBtn{$oneMessage.id}" onclick="openMessage($('openMessageBtn{$oneMessage.id}'), '{$oneMessage.id}')" class="user-message-system-one-message-subject one-message-subject-{$oneMessage.message_state}" title="[[show / hide this message]]">
                         {$oneMessage.message_subject}
                     </div>
                     <div class="user-message-system-one-message-from">
@@ -51,19 +51,19 @@ Template: {$pConf.template}
                     <div class="user-message-system-one-message-panel">
                         
                         <div class="panel-item">
-                            <a onclick="openRespondPanel({$oneMessage.rsn}); return false;" href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.rsn}" class="user-message-system-one-message-respond">
+                            <a onclick="openRespondPanel({$oneMessage.id}); return false;" href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.id}" class="user-message-system-one-message-respond">
                                 [[respond]]
                             </a>
                         </div>
                         {if $newMessagePage}
                         <div class="panel-item">                                    
-                            <a href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.rsn}&amp;type=fwd" class="user-message-system-one-message-forward">                                      
+                            <a href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.id}&amp;type=fwd" class="user-message-system-one-message-forward">
                                 [[forward]]
                             </a>
                         </div>  
                         {/if}                           
                         <div class="panel-item no-border">                                  
-                            <a id="delMsgBtn{$oneMessage.rsn}" onclick="askDelete($('delMsgBtn{$oneMessage.rsn}')); return false;" href="{$page|@realUrl}?action_select=delete&amp;one-message-action[]={$oneMessage.rsn}" class="user-message-system-one-message-forward">
+                            <a id="delMsgBtn{$oneMessage.id}" onclick="askDelete($('delMsgBtn{$oneMessage.id}')); return false;" href="{$page|@realUrl}?action_select=delete&amp;one-message-action[]={$oneMessage.id}" class="user-message-system-one-message-forward">
                                 [[delete]]
                             </a>
                         </div>
@@ -77,13 +77,13 @@ Template: {$pConf.template}
             {/if}
               no-border">                       
                 <td colspan="2">
-                    <div id="one-message-text-{$oneMessage.rsn}" style="display:none;">
+                    <div id="one-message-text-{$oneMessage.id}" style="display:none;">
                         <div class="user-message-system-one-message-text" class="one-message-message-text">                 
                             {$oneMessage.message_text|nl2br}                                                            
                         </div>
                         <b>[[Respond]]</b>
-                        <textarea id="one-message-response-textarea-{$oneMessage.rsn}" class="user-message-system-one-message-textarea"></textarea>
-                        <div id="sendMsgBtn{$oneMessage.rsn}" class="user-message-system-one-message-send-btn" onclick="sendAjReMessage({$oneMessage.rsn}, $('sendMsgBtn{$oneMessage.rsn}'))">
+                        <textarea id="one-message-response-textarea-{$oneMessage.id}" class="user-message-system-one-message-textarea"></textarea>
+                        <div id="sendMsgBtn{$oneMessage.id}" class="user-message-system-one-message-send-btn" onclick="sendAjReMessage({$oneMessage.id}, $('sendMsgBtn{$oneMessage.id}'))">
                             [[Send]]                                    
                         </div>
                         <div class="user-message-system-one-message-send-btn" style="display:none;cursor:default;">

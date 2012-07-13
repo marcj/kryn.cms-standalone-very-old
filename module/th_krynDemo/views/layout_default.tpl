@@ -41,13 +41,13 @@
 
     {*
 title: 1 => {krynAcl::checkUpdate('news', 1, 'title')+0}
-category_rsn: 1 => {krynAcl::checkUpdate('news', 1, ['category_rsn'=>'1'])+0}
-category_rsn: 2 => {krynAcl::checkUpdate('news', 1, ['category_rsn'=>'2'])+0}
-krynObjects::getList('news', false, ['fields' => 'rsn, title', 'permissionCheck' => true, 'order' => ['rsn' => 'ASc']])|print_r
+category_id: 1 => {krynAcl::checkUpdate('news', 1, ['category_id'=>'1'])+0}
+category_id: 2 => {krynAcl::checkUpdate('news', 1, ['category_id'=>'2'])+0}
+krynObjects::getList('news', false, ['fields' => 'id, title', 'permissionCheck' => true, 'order' => ['id' => 'ASc']])|print_r
 {krynObjects::getList('domain')|print_r}
 
 
-{krynObjects::getList('node', false, ['fields' => 'rsn, title', 'permissionCheck' => true, 'order' => ['rsn' => 'ASc']])|print_r}
+{krynObjects::getList('node', false, ['fields' => 'id, title', 'permissionCheck' => true, 'order' => ['id' => 'ASc']])|print_r}
 *}
 </pre>
 

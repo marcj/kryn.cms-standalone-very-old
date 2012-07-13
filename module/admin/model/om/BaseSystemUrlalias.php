@@ -43,16 +43,21 @@ abstract class BaseSystemUrlalias extends BaseObject
     protected $url;
 
     /**
-     * The value for the to_page field.
+     * The value for the to_page_id field.
      * @var        int
      */
-    protected $to_page;
+    protected $to_page_id;
 
     /**
-     * The value for the domain field.
+     * The value for the domain_id field.
      * @var        int
      */
-    protected $domain;
+    protected $domain_id;
+
+    /**
+     * @var        SystemPage
+     */
+    protected $aSystemPage;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -91,25 +96,25 @@ abstract class BaseSystemUrlalias extends BaseObject
     }
 
     /**
-     * Get the [to_page] column value.
+     * Get the [to_page_id] column value.
      * 
      * @return   int
      */
-    public function getToPage()
+    public function getToPageId()
     {
 
-        return $this->to_page;
+        return $this->to_page_id;
     }
 
     /**
-     * Get the [domain] column value.
+     * Get the [domain_id] column value.
      * 
      * @return   int
      */
-    public function getDomain()
+    public function getDomainId()
     {
 
-        return $this->domain;
+        return $this->domain_id;
     }
 
     /**
@@ -155,46 +160,50 @@ abstract class BaseSystemUrlalias extends BaseObject
     } // setUrl()
 
     /**
-     * Set the value of [to_page] column.
+     * Set the value of [to_page_id] column.
      * 
      * @param      int $v new value
      * @return   SystemUrlalias The current object (for fluent API support)
      */
-    public function setToPage($v)
+    public function setToPageId($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->to_page !== $v) {
-            $this->to_page = $v;
-            $this->modifiedColumns[] = SystemUrlaliasPeer::TO_PAGE;
+        if ($this->to_page_id !== $v) {
+            $this->to_page_id = $v;
+            $this->modifiedColumns[] = SystemUrlaliasPeer::TO_PAGE_ID;
+        }
+
+        if ($this->aSystemPage !== null && $this->aSystemPage->getId() !== $v) {
+            $this->aSystemPage = null;
         }
 
 
         return $this;
-    } // setToPage()
+    } // setToPageId()
 
     /**
-     * Set the value of [domain] column.
+     * Set the value of [domain_id] column.
      * 
      * @param      int $v new value
      * @return   SystemUrlalias The current object (for fluent API support)
      */
-    public function setDomain($v)
+    public function setDomainId($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->domain !== $v) {
-            $this->domain = $v;
-            $this->modifiedColumns[] = SystemUrlaliasPeer::DOMAIN;
+        if ($this->domain_id !== $v) {
+            $this->domain_id = $v;
+            $this->modifiedColumns[] = SystemUrlaliasPeer::DOMAIN_ID;
         }
 
 
         return $this;
-    } // setDomain()
+    } // setDomainId()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -230,8 +239,8 @@ abstract class BaseSystemUrlalias extends BaseObject
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
             $this->url = ($row[$startcol + 1] !== null) ? (string) $row[$startcol + 1] : null;
-            $this->to_page = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
-            $this->domain = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
+            $this->to_page_id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
+            $this->domain_id = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -263,6 +272,9 @@ abstract class BaseSystemUrlalias extends BaseObject
     public function ensureConsistency()
     {
 
+        if ($this->aSystemPage !== null && $this->to_page_id !== $this->aSystemPage->getId()) {
+            $this->aSystemPage = null;
+        }
     } // ensureConsistency
 
     /**
@@ -302,6 +314,7 @@ abstract class BaseSystemUrlalias extends BaseObject
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->aSystemPage = null;
         } // if (deep)
     }
 
@@ -415,6 +428,18 @@ abstract class BaseSystemUrlalias extends BaseObject
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their coresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aSystemPage !== null) {
+                if ($this->aSystemPage->isModified() || $this->aSystemPage->isNew()) {
+                    $affectedRows += $this->aSystemPage->save($con);
+                }
+                $this->setSystemPage($this->aSystemPage);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -468,11 +493,11 @@ abstract class BaseSystemUrlalias extends BaseObject
         if ($this->isColumnModified(SystemUrlaliasPeer::URL)) {
             $modifiedColumns[':p' . $index++]  = 'URL';
         }
-        if ($this->isColumnModified(SystemUrlaliasPeer::TO_PAGE)) {
-            $modifiedColumns[':p' . $index++]  = 'TO_PAGE';
+        if ($this->isColumnModified(SystemUrlaliasPeer::TO_PAGE_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'TO_PAGE_ID';
         }
-        if ($this->isColumnModified(SystemUrlaliasPeer::DOMAIN)) {
-            $modifiedColumns[':p' . $index++]  = 'DOMAIN';
+        if ($this->isColumnModified(SystemUrlaliasPeer::DOMAIN_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'DOMAIN_ID';
         }
 
         $sql = sprintf(
@@ -491,11 +516,11 @@ abstract class BaseSystemUrlalias extends BaseObject
                     case 'URL':
 						$stmt->bindValue($identifier, $this->url, PDO::PARAM_STR);
                         break;
-                    case 'TO_PAGE':
-						$stmt->bindValue($identifier, $this->to_page, PDO::PARAM_INT);
+                    case 'TO_PAGE_ID':
+						$stmt->bindValue($identifier, $this->to_page_id, PDO::PARAM_INT);
                         break;
-                    case 'DOMAIN':
-						$stmt->bindValue($identifier, $this->domain, PDO::PARAM_INT);
+                    case 'DOMAIN_ID':
+						$stmt->bindValue($identifier, $this->domain_id, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -584,6 +609,18 @@ abstract class BaseSystemUrlalias extends BaseObject
             $failureMap = array();
 
 
+            // We call the validate method on the following object(s) if they
+            // were passed to this object by their coresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aSystemPage !== null) {
+                if (!$this->aSystemPage->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aSystemPage->getValidationFailures());
+                }
+            }
+
+
             if (($retval = SystemUrlaliasPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
             }
@@ -631,10 +668,10 @@ abstract class BaseSystemUrlalias extends BaseObject
                 return $this->getUrl();
                 break;
             case 2:
-                return $this->getToPage();
+                return $this->getToPageId();
                 break;
             case 3:
-                return $this->getDomain();
+                return $this->getDomainId();
                 break;
             default:
                 return null;
@@ -653,10 +690,11 @@ abstract class BaseSystemUrlalias extends BaseObject
      *                    Defaults to BasePeer::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
         if (isset($alreadyDumpedObjects['SystemUrlalias'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
@@ -666,9 +704,14 @@ abstract class BaseSystemUrlalias extends BaseObject
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getUrl(),
-            $keys[2] => $this->getToPage(),
-            $keys[3] => $this->getDomain(),
+            $keys[2] => $this->getToPageId(),
+            $keys[3] => $this->getDomainId(),
         );
+        if ($includeForeignObjects) {
+            if (null !== $this->aSystemPage) {
+                $result['SystemPage'] = $this->aSystemPage->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+        }
 
         return $result;
     }
@@ -709,10 +752,10 @@ abstract class BaseSystemUrlalias extends BaseObject
                 $this->setUrl($value);
                 break;
             case 2:
-                $this->setToPage($value);
+                $this->setToPageId($value);
                 break;
             case 3:
-                $this->setDomain($value);
+                $this->setDomainId($value);
                 break;
         } // switch()
     }
@@ -740,8 +783,8 @@ abstract class BaseSystemUrlalias extends BaseObject
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setUrl($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setToPage($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setDomain($arr[$keys[3]]);
+        if (array_key_exists($keys[2], $arr)) $this->setToPageId($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setDomainId($arr[$keys[3]]);
     }
 
     /**
@@ -755,8 +798,8 @@ abstract class BaseSystemUrlalias extends BaseObject
 
         if ($this->isColumnModified(SystemUrlaliasPeer::ID)) $criteria->add(SystemUrlaliasPeer::ID, $this->id);
         if ($this->isColumnModified(SystemUrlaliasPeer::URL)) $criteria->add(SystemUrlaliasPeer::URL, $this->url);
-        if ($this->isColumnModified(SystemUrlaliasPeer::TO_PAGE)) $criteria->add(SystemUrlaliasPeer::TO_PAGE, $this->to_page);
-        if ($this->isColumnModified(SystemUrlaliasPeer::DOMAIN)) $criteria->add(SystemUrlaliasPeer::DOMAIN, $this->domain);
+        if ($this->isColumnModified(SystemUrlaliasPeer::TO_PAGE_ID)) $criteria->add(SystemUrlaliasPeer::TO_PAGE_ID, $this->to_page_id);
+        if ($this->isColumnModified(SystemUrlaliasPeer::DOMAIN_ID)) $criteria->add(SystemUrlaliasPeer::DOMAIN_ID, $this->domain_id);
 
         return $criteria;
     }
@@ -821,8 +864,20 @@ abstract class BaseSystemUrlalias extends BaseObject
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setUrl($this->getUrl());
-        $copyObj->setToPage($this->getToPage());
-        $copyObj->setDomain($this->getDomain());
+        $copyObj->setToPageId($this->getToPageId());
+        $copyObj->setDomainId($this->getDomainId());
+
+        if ($deepCopy && !$this->startCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+            // store object hash to prevent cycle
+            $this->startCopy = true;
+
+            //unflag object copy
+            $this->startCopy = false;
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -870,14 +925,65 @@ abstract class BaseSystemUrlalias extends BaseObject
     }
 
     /**
+     * Declares an association between this object and a SystemPage object.
+     *
+     * @param                  SystemPage $v
+     * @return                 SystemUrlalias The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setSystemPage(SystemPage $v = null)
+    {
+        if ($v === null) {
+            $this->setToPageId(NULL);
+        } else {
+            $this->setToPageId($v->getId());
+        }
+
+        $this->aSystemPage = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the SystemPage object, it will not be re-added.
+        if ($v !== null) {
+            $v->addSystemUrlalias($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated SystemPage object
+     *
+     * @param      PropelPDO $con Optional Connection object.
+     * @return                 SystemPage The associated SystemPage object.
+     * @throws PropelException
+     */
+    public function getSystemPage(PropelPDO $con = null)
+    {
+        if ($this->aSystemPage === null && ($this->to_page_id !== null)) {
+            $this->aSystemPage = SystemPageQuery::create()->findPk($this->to_page_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aSystemPage->addSystemUrlaliass($this);
+             */
+        }
+
+        return $this->aSystemPage;
+    }
+
+    /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
     {
         $this->id = null;
         $this->url = null;
-        $this->to_page = null;
-        $this->domain = null;
+        $this->to_page_id = null;
+        $this->domain_id = null;
         $this->alreadyInSave = false;
         $this->alreadyInValidation = false;
         $this->clearAllReferences();
@@ -900,6 +1006,7 @@ abstract class BaseSystemUrlalias extends BaseObject
         if ($deep) {
         } // if ($deep)
 
+        $this->aSystemPage = null;
     }
 
     /**

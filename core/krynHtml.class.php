@@ -133,7 +133,7 @@ class krynHtml {
 
 
         if (kryn::$kedit == true) {
-            $html .= '<script type="text/javascript">var kEditPageRsn = ' . kryn::$page['rsn'] . ';</script>' . "\n";
+            $html .= '<script type="text/javascript">var kEditPageId = ' . kryn::$page['id'] . ';</script>' . "\n";
         }
 
 
@@ -270,7 +270,7 @@ class krynHtml {
         //customized metas
         $metas = json_decode($page['meta'], true);
         if ($page['meta_fromParent'] == 1) {
-            $ppage = kryn::getParentPage($page['rsn']);
+            $ppage = kryn::getParentPage($page['id']);
             $pmetas = json_decode($ppage['meta'], true);
             $metas = array_merge($ppage, $pmetas);
         }
@@ -282,40 +282,36 @@ class krynHtml {
      * Returns all contents of the slot of the specified page.
      *
      * @static
-     * @param $pRsn
+     * @param $pId
      * @param bool $pBoxId
      * @param bool $pWithoutCache
      * @return array|string
      */
-    public static function &getPageContents($pRsn, $pBoxId = false, $pWithoutCache = false) {
+    public static function &getPageContents($pId, $pBoxId = false, $pWithoutCache = false) {
         global $time, $client, $kcache;
 
-        $pRsn = $pRsn + 0;
+        $pId = $pId + 0;
 
         $time = time();
-        $page = kryn::getPage($pRsn);
+        $page = kryn::getPage($pId);
 
-        if ($page['access_from'] + 0 > 0 && $page['access_from'] <= $time)
+
+        $page = kryn::checkPageAccess($page, false);
+        if (!$page)
             return array();
 
-        if ($page['access_to'] + 0 > 0 && $page['access_to'] >= $time)
-            return array();
-
-        if ($page['access_denied'] == 1)
-            return array();
-
-        $result =& kryn::getCache('pageContents-' . $pRsn);
+        $result =& kryn::getCache('pageContents-' . $pId);
         if (false && $result && !$pWithoutCache) return $result;
 
         $result = array();
 
-        $versionRsn = $page['active_version_rsn'];
+        $versionId = $page->getActiveVersionId();
 
         //todo read acl from table
         $aclCanViewOtherVersions = true;
 
-        if (kryn::$page['rsn'] == $pRsn && getArgv('kVersionId') + 0 > 0 && $aclCanViewOtherVersions) {
-            $versionRsn = getArgv('kVersionId') + 0;
+        if (kryn::$page->getId() == $pId && getArgv('kVersionId') + 0 > 0 && $aclCanViewOtherVersions) {
+            $versionId = getArgv('kVersionId') + 0;
         }
 
         $box = '';
@@ -323,17 +319,17 @@ class krynHtml {
             $box = "AND box_id = $pBoxId";
         }
 
-        if ($versionRsn > 0) {
+        if ($versionId > 0) {
 
             $res = dbExec("
             SELECT c.*
             FROM
                 %pfx%system_contents c,
-                %pfx%system_pagesversions v
+                %pfx%system_page_version v
             WHERE 
-                v.rsn = $versionRsn 
-                AND v.page_rsn = $pRsn
-                AND c.version_rsn = v.rsn
+                v.id = $versionId
+                AND v.page_id = $pId
+                AND c.version_id = v.id
                 $box
                 AND c.hide != 1
                 AND ( c.cdate > 0 AND c.cdate IS NOT NULL )
@@ -350,9 +346,9 @@ class krynHtml {
             //compatibility o old kryns <=0.7
             $result = array();
             $res = dbExec("SELECT * FROM %pfx%system_contents
-                WHERE page_rsn = $pRsn 
+                WHERE page_id = $pId
                 $box 
-                AND version_rsn = 1 
+                AND version_id = 1
                 AND hide != 1
                 ORDER BY sort");
             while ($page = dbFetch($res)) {
@@ -360,23 +356,23 @@ class krynHtml {
             }
         }
 
-        kryn::setCache('pageContents-' . $pRsn, $result);
+        kryn::setCache('pageContents-' . $pId, $result);
 
-        return kryn::getCache('pageContents-' . $pRsn);
+        return kryn::getCache('pageContents-' . $pId);
     }
 
     /**
      *
-     * Build the HTML for given page. If pPageRsn is a deposit, it returns with kryn/blankLayout.tpl as layout, otherwise
+     * Build the HTML for given page. If pPageId is a deposit, it returns with kryn/blankLayout.tpl as layout, otherwise
      * it returns the layouts with all it contents.
      *
      * @static
-     * @param bool $pPageRsn
+     * @param bool $pPageId
      * @param bool $pSlotId
      * @param bool $pProperties
      * @return mixed|string
      */
-    public static function renderPageContents($pPageRsn = false, $pSlotId = false, $pProperties = false) {
+    public static function renderPageContents($pPageId = false, $pSlotId = false, $pProperties = false) {
 
 
         if (kryn::$contents) {
@@ -385,38 +381,38 @@ class krynHtml {
         kryn::$forceKrynContent = true;
 
         $start = microtime(true);
-        if ($pPageRsn == kryn::$page['rsn']) {
+        if ($pPageId == kryn::$page->getId()) {
             //endless loop
             die(t('You produced a endless loop. Please check your latest changed pages.'));
         }
 
-        if (!$pPageRsn) {
+        if (!$pPageId) {
 
-            $pPageRsn = kryn::$page['rsn'];
+            $pPageId = kryn::$page->getId();
 
-        } else if ($pPageRsn != kryn::$page['rsn']) {
+        } else if ($pPageId != kryn::$page->getId()) {
 
             $oldPage = kryn::$page;
-            kryn::$page = kryn::getPage($pPageRsn, true);
+            kryn::$page = kryn::getPage($pPageId, true);
             kryn::$nestedLevels[] = kryn::$page;
         }
 
-        $args = array($pPageRsn, $pSlotId);
+        $args = array($pPageId, $pSlotId);
         krynEvent::fire('onBeforeRenderPageContents', $args);
 
-        kryn::addCss('css/_pages/' . $pPageRsn . '.css');
-        kryn::addJs('js/_pages/' . $pPageRsn . '.js');
+        kryn::addCss('css/_pages/' . $pPageId . '.css');
+        kryn::addJs('js/_pages/' . $pPageId . '.js');
 
-        kryn::$contents =& self::getPageContents($pPageRsn);
+        kryn::$contents =& self::getPageContents($pPageId);
 
-        if (kryn::$page['type'] == 3) { //deposit
-            kryn::$page['layout'] = 'kryn/blankLayout.tpl';
+        if (kryn::$page->getType() == 3) { //deposit
+            kryn::$page->setLayout('kryn/blankLayout.tpl');
         }
 
         if ($pSlotId) {
             $html = self::renderContents(kryn::$contents[$pSlotId], $pProperties);
         } else {
-            $html = tFetch(kryn::$page['layout']);
+            $html = tFetch(kryn::$page->getLayout());
         }
 
         if ($oldContents) {
@@ -429,7 +425,7 @@ class krynHtml {
         kryn::$forceKrynContent = false;
 
 
-        $arguments = array($pPageRsn, $pSlotId, &$html);
+        $arguments = array($pPageId, $pSlotId, &$html);
         krynEvent::fire('onRenderPageContents', $arguments);
 
         return $html;
@@ -651,7 +647,7 @@ class krynHtml {
                 break;
             case 'pointer':
 
-                if ($content['content'] + 0 > 0 && $content['content'] + 0 != kryn::$page['rsn'])
+                if ($content['content'] + 0 > 0 && $content['content'] + 0 != kryn::$page['id'])
                     $content['content'] = self::renderPageContents($content['content'] + 0, 1, $pProperties);
 
                 break;

@@ -170,10 +170,10 @@ class adminWidgets {
 
     public static function saveAll() {
         global $user;
-        $rsn = $user->user_rsn;
+        $id = $user->user_id;
         #        $widgets = json_decode( $_POST['widgets'], true );
         $widgets = $_POST['widgets'];
-        dbUpdate('system_user', "rsn=$rsn", array('widgets' => $widgets));
+        dbUpdate('system_user', "id=$id", array('widgets' => $widgets));
         json(true);
     }
 

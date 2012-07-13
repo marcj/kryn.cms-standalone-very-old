@@ -3,7 +3,7 @@
 
 
 /**
- * Skeleton subclass for representing a row from the 'kryn_system_pages' table.
+ * Skeleton subclass for performing query and update operations on the 'kryn_system_page' table.
  *
  * 
  *
@@ -13,6 +13,6 @@
  *
  * @package    propel.generator.kryn
  */
-class SystemPages extends BaseSystemPages {
+class SystemPageQuery extends BaseSystemPageQuery {
 
-} // SystemPages
+} // SystemPageQuery

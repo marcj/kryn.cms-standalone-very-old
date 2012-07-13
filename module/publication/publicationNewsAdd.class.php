@@ -5,7 +5,7 @@ class publicationNewsAdd extends windowAdd {
     //public $table = 'publication_news';
     public $object = 'news';
 
-    //public $primary = array('rsn');
+    //public $primary = array('id');
     //public $multiLanguage = true;
 
     public function saveItem() {
@@ -16,14 +16,14 @@ class publicationNewsAdd extends windowAdd {
     public $tabFields = array(
         'General' => array(
             'title',
-            'category_rsn' => array(
+            'category_id' => array(
                 'label' => 'Category',
                 'type' => 'select',
                 'multiLanguage' => true,
                 'empty' => false,
                 'table' => 'publication_news_category',
                 'table_label' => 'title',
-                'table_key' => 'rsn'
+                'table_key' => 'id'
             ),
             'tags' => array(
                 'label' => 'Tags',

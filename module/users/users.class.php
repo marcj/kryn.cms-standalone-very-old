@@ -24,7 +24,7 @@ class users extends krynModule {
             if( $pConf['logoutTarget'] ){
                 kryn::redirectToPage( $pConf['logoutTarget'] );
             } else {
-                kryn::redirectToPage( kryn::$page['rsn'] );
+                kryn::redirectToPage( kryn::$page['id'] );
             }
         }
         
@@ -34,11 +34,11 @@ class users extends krynModule {
             
             $client->login( $login, getArgv('users-passwd') );
 
-            if( $client->user_rsn > 0 ){
+            if( $client->user_id > 0 ){
                 if ($pConf['logoutTarget'])
                     kryn::redirectToPage( $pConf['logoutTarget'] );
                 else
-                    kryn::redirectToPage( kryn::$page['rsn'] );
+                    kryn::redirectToPage( kryn::$page['id'] );
             } else {
                 tAssign('loginFailed', 1);
             }
@@ -50,7 +50,7 @@ class users extends krynModule {
         if(! strpos($pConf['templateLoggedIn'], '/') > 0 )
             $pConf['templateLoggedIn'] = 'users/loggedIn/'.$pConf['templateLoggedIn'].'.tpl';
 
-        if( $client->user_rsn > 0 ){
+        if( $client->user_id > 0 ){
             return kryn::unsearchable(tFetch($pConf['templateLoggedIn']));
         } else {
             return kryn::unsearchable(tFetch($pConf['template']));
@@ -123,23 +123,23 @@ class users extends krynModule {
         
         $where = '';
         if( getArgv(4) == 'getName' ){
-            $where = 'AND rsn = '.(getArgv('rsn')+0);
+            $where = 'AND id = '.(getArgv('id')+0);
         }
         
         $type = getArgv('type', 3);
         $query = str_replace('*', '%', getArgv('query', 1));
 
         if( $type == 'users' || $type == 2 )
-            $sql = "SELECT rsn, first_name, last_name, username, username as name FROM %pfx%system_user WHERE
-            rsn > 0 AND ( 
+            $sql = "SELECT id, first_name, last_name, username, username as name FROM %pfx%system_user WHERE
+            id > 0 AND (
             	username LIKE '$query%' OR first_name LIKE '$query%' OR username LIKE '$query%'
             ) $where";
         else
-            $sql = "SELECT max(g.rsn) as rsn, max(g.name) as name, count(ga.group_rsn) as usercount FROM %pfx%system_groups g
-            LEFT OUTER JOIN  %pfx%system_groupaccess ga ON (ga.group_rsn = g.rsn) WHERE  (
+            $sql = "SELECT max(g.id) as id, max(g.name) as name, count(ga.group_id) as usercount FROM %pfx%system_groups g
+            LEFT OUTER JOIN  %pfx%system_groupaccess ga ON (ga.group_id = g.id) WHERE  (
             	g.name LIKE '$query%'
             ) $where
-            GROUP BY g.rsn";
+            GROUP BY g.id";
             
         $sql .= " LIMIT 15";
         
@@ -170,11 +170,11 @@ class users extends krynModule {
             'passwd' => $passwd, 'passwd_salt' => $salt, 'email' => 'admin@localhost', 'created' => time(),
             'activate' => 1, 'settings' => $settings, 'widgets' => '[{"title":"Current users","type":"autotable","position":"right","columns":[["Date",80],["IP",90],["User"]],"category":"overview","refresh":60000,"code":"currentAdminLogins","extension":"users","desktop":1,"width":402,"height":152,"left":975,"top":91}]'
         ));
-        dbUpdate( 'system_user', 'rsn = 1', array('rsn'=>0) );
-        dbUpdate( 'system_user', 'rsn = 2', array('rsn'=>1) );
+        dbUpdate( 'system_user', 'id = 1', array('id'=>0) );
+        dbUpdate( 'system_user', 'id = 2', array('id'=>1) );
 
         dbDelete('system_groupaccess');
-        dbInsert('system_groupaccess', array('group_rsn' => 1, 'user_rsn' => 1));
+        dbInsert('system_groupaccess', array('group_id' => 1, 'user_id' => 1));
 
         dbDelete('system_groups');
         dbInsert('system_groups', array('close' => 1, 'name' =>'Administratoren',
@@ -197,12 +197,12 @@ class users extends krynModule {
     function pluginMessageSystemInbox($pConf){
     	global $user;      	
     	//check if user is logged in
-    	if(!isset($user->user_rsn) || $user->user_rsn < 1)
+    	if(!isset($user->user_id) || $user->user_id < 1)
     		return 'not logged in';
 
     	//check if aj request to mark as read
     	if(getArgv('ajSetRead') && getArgv('ajMessageRsn')) {
-    		dbUpdate('user_messages', array('rsn'=>getArgv('ajMessageRsn', 1), 'user_rsn_to'=>$user->user_rsn), array('message_state' => '1'));
+    		dbUpdate('user_messages', array('id'=>getArgv('ajMessageRsn', 1), 'user_id_to'=>$user->user_id), array('message_state' => '1'));
     		json(1);  		
     	}
     	
@@ -216,9 +216,9 @@ class users extends krynModule {
         					FROM `%pfx%user_messages` UM 
         					JOIN `%pfx%system_user` SU 
         					WHERE 
-        						UM.user_rsn_from = SU.rsn
-        						AND UM.user_rsn_to = ".$user->user_rsn."
-        						AND UM.rsn = ".getArgv('ajMessageRsn', 1)."        						
+        						UM.user_id_from = SU.id
+        						AND UM.user_id_to = ".$user->user_id."
+        						AND UM.id = ".getArgv('ajMessageRsn', 1)."
         					ORDER BY UM.send_tstamp DESC", 1);
         	if($arOldFetch) {        	
 	        	$msgAdding = "\n\n\n------------------------\n\nFrom: ";	        		
@@ -236,8 +236,8 @@ class users extends krynModule {
     			}   		
     		
     			$lastRsn =dbInsert( 'user_messages', array( 
-            			'user_rsn_from' => $user->user_rsn, 
-            			'user_rsn_to' => $arOldFetch['user_rsn_from'],            			
+            			'user_id_from' => $user->user_id,
+            			'user_id_to' => $arOldFetch['user_id_from'],
             			'message_text' => $reText,
             			'message_state' => '0',
             			'send_tstamp' => mktime(),
@@ -247,7 +247,7 @@ class users extends krynModule {
             	// send reminder email	
         		if(isset($pConf['sendReminder']) && $pConf['sendReminder'] == 1) {            		
             			//get mail address
-            			$emailAddress = dbExFetch("SELECT email FROM `%pfx%system_user` WHERE rsn = ".$arOldFetch['user_rsn_from']." AND email LIKE '%@%' AND email LIKE '%.%'", 1);
+            			$emailAddress = dbExFetch("SELECT email FROM `%pfx%system_user` WHERE id = ".$arOldFetch['user_id_from']." AND email LIKE '%@%' AND email LIKE '%.%'", 1);
             			if($emailAddress) {
             				$emailAddress = $emailAddress['email'];            			
             			
@@ -259,7 +259,7 @@ class users extends krynModule {
             							email, 
             							first_name, 
             							last_name
-            							FROM `%pfx%system_user` WHERE rsn =".$user->user_rsn, 1);	
+            							FROM `%pfx%system_user` WHERE id =".$user->user_id, 1);
             				
             				tAssign('toUsers', $toUserDetails);
             				tAssign('sendReminder_message_text', getArgv('ajResponseText').$msgAdding);
@@ -289,22 +289,22 @@ class users extends krynModule {
         	$arMessageRsn = getArgv('one-message-action');        	
         	switch($action) {
         		case 'delete' :
-        			foreach($arMessageRsn as $rsn) {        				 
-        				 dbUpdate('user_messages', array('rsn'=>$rsn, 'user_rsn_to'=>$user->user_rsn), array('message_state' => '2' ));
+        			foreach($arMessageRsn as $id) {
+        				 dbUpdate('user_messages', array('id'=>$id, 'user_id_to'=>$user->user_id), array('message_state' => '2' ));
         				 tAssign('msg_deleted', true);
         			}
         		break;
         		
         		case 'flagRead':
-        			foreach($arMessageRsn as $rsn) {
-        				 dbUpdate('user_messages', array('rsn'=>$rsn, 'user_rsn_to'=>$user->user_rsn), array('message_state' => '1' ));
+        			foreach($arMessageRsn as $id) {
+        				 dbUpdate('user_messages', array('id'=>$id, 'user_id_to'=>$user->user_id), array('message_state' => '1' ));
         				 tAssign('msg_flagged_read', true);
         			}
         		break;
         		
         		case 'flagUnRead' :
-        			foreach($arMessageRsn as $rsn) {
-        				dbUpdate('user_messages', array('rsn'=>$rsn, 'user_rsn_to'=>$user->user_rsn), array('message_state' => '0' ));
+        			foreach($arMessageRsn as $id) {
+        				dbUpdate('user_messages', array('id'=>$id, 'user_id_to'=>$user->user_id), array('message_state' => '0' ));
         				tAssign('msg_flagged_unread', true);
         			}
         		break;        	
@@ -329,8 +329,8 @@ class users extends krynModule {
         						FROM `%pfx%user_messages` UM 
         						JOIN `%pfx%system_user` SU 
         						WHERE 
-        							UM.user_rsn_from = SU.rsn
-        							AND UM.user_rsn_to = ".$user->user_rsn." 
+        							UM.user_id_from = SU.id
+        							AND UM.user_id_to = ".$user->user_id."
         							AND UM.message_state !='2'
         						ORDER BY UM.send_tstamp DESC", 1);            
         $count = $totalResults['messageCount'];        
@@ -356,8 +356,8 @@ class users extends krynModule {
         						FROM `%pfx%user_messages` UM 
         						JOIN `%pfx%system_user` SU 
         						WHERE 
-        							UM.user_rsn_from = SU.rsn
-        							AND UM.user_rsn_to = ".$user->user_rsn." 
+        							UM.user_id_from = SU.id
+        							AND UM.user_id_to = ".$user->user_id."
         							AND UM.message_state !='2'
         						ORDER BY UM.send_tstamp DESC LIMIT ".$offset.",".$resultsPerPage, DB_FETCH_ALL);        
       
@@ -376,7 +376,7 @@ class users extends krynModule {
     function pluginMessageSystemOutbox($pConf) {
     	global $user;      	
     	//check if user is logged in
-    	if(!isset($user->user_rsn) || $user->user_rsn < 1)
+    	if(!isset($user->user_id) || $user->user_id < 1)
     		return 'not logged in';
     	
     	
@@ -400,8 +400,8 @@ class users extends krynModule {
         						FROM `%pfx%user_messages` UM 
         						JOIN `%pfx%system_user` SU 
         						WHERE 
-        							UM.user_rsn_to = SU.rsn
-        							AND UM.user_rsn_from = ".$user->user_rsn."
+        							UM.user_id_to = SU.id
+        							AND UM.user_id_from = ".$user->user_id."
         						ORDER BY UM.send_tstamp DESC", 1);            
         $count = $totalResults['messageCount'];        
         
@@ -427,8 +427,8 @@ class users extends krynModule {
         						FROM `%pfx%user_messages` UM 
         						JOIN `%pfx%system_user` SU 
         						WHERE 
-        							UM.user_rsn_to = SU.rsn
-        							AND UM.user_rsn_from = ".$user->user_rsn."         							
+        							UM.user_id_to = SU.id
+        							AND UM.user_id_from = ".$user->user_id."
         						ORDER BY UM.send_tstamp DESC LIMIT ".$offset.",".$resultsPerPage, DB_FETCH_ALL);        
       
         
@@ -446,7 +446,7 @@ class users extends krynModule {
     function pluginMessageSystemNew($pConf) {    
     	global $user;      	
     	//check if user is logged in
-    	if(!isset($user->user_rsn) || $user->user_rsn < 1)
+    	if(!isset($user->user_id) || $user->user_id < 1)
     		return 'not logged in';   
     	
     	kryn::addCss('users/messageSystem/css/'.$pConf['template'].'.css');
@@ -458,26 +458,26 @@ class users extends krynModule {
             $to = getArgv('to_user_id', 1);
             $toUserRsn = false;
             if(is_numeric($to)) {	//id
-            	$count = dbExFetch("SELECT COUNT(*) AS user_count FROM `%pfx%system_user` WHERE rsn =".$to);
+            	$count = dbExFetch("SELECT COUNT(*) AS user_count FROM `%pfx%system_user` WHERE id =".$to);
             	if($count['user_count'] == 1){
             		$toUserRsn = $to;
             	}
             }else if(strpos($to, '@') !== false && strpos($to, '.') !== false){ // email
-            $rsn = dbExFetch("SELECT rsn FROM `%pfx%system_user` WHERE email ='".$to."'", 1);
-            	if(isset($rsn['rsn'])) {
-            		$toUserRsn = $rsn['rsn'];
+            $id = dbExFetch("SELECT id FROM `%pfx%system_user` WHERE email ='".$to."'", 1);
+            	if(isset($id['id'])) {
+            		$toUserRsn = $id['id'];
             	}
             }else{ // username
-            	$rsn = dbExFetch("SELECT rsn FROM `%pfx%system_user` WHERE username ='".$to."'", 1);
-            	if(isset($rsn['rsn'])) {
-            		$toUserRsn = $rsn['rsn'];
+            	$id = dbExFetch("SELECT id FROM `%pfx%system_user` WHERE username ='".$to."'", 1);
+            	if(isset($id['id'])) {
+            		$toUserRsn = $id['id'];
             	}
             }
             
             if($toUserRsn) {
             		$lastRsn =dbInsert( 'user_messages', array( 
-            			'user_rsn_from' => $user->user_rsn, 
-            			'user_rsn_to' => $toUserRsn,            			
+            			'user_id_from' => $user->user_id,
+            			'user_id_to' => $toUserRsn,
             			'message_text' => getArgv('message_text', 1),
             			'message_state' => '0',
             			'send_tstamp' => mktime(),
@@ -488,7 +488,7 @@ class users extends krynModule {
             		//email notification
             		if($pConf['sendReminder'] == 1) {            		
             			//get mail address
-            			$emailAddress = dbExFetch("SELECT email FROM `%pfx%system_user` WHERE rsn = ".$toUserRsn." AND email LIKE '%@%' AND email LIKE '%.%'", 1);
+            			$emailAddress = dbExFetch("SELECT email FROM `%pfx%system_user` WHERE id = ".$toUserRsn." AND email LIKE '%@%' AND email LIKE '%.%'", 1);
             			if($emailAddress) {
             				$emailAddress = $emailAddress['email'];            			
             			
@@ -500,7 +500,7 @@ class users extends krynModule {
             							email, 
             							first_name, 
             							last_name
-            							FROM `%pfx%system_user` WHERE rsn =".$user->user_rsn, 1);	
+            							FROM `%pfx%system_user` WHERE id =".$user->user_id, 1);
             				
             				tAssign('toUsers', $toUserDetails);
             				tAssign('sendReminder_message_text', getArgv('message_text'));
@@ -529,9 +529,9 @@ class users extends krynModule {
                                 FROM `%pfx%user_messages` UM
                                 JOIN `%pfx%system_user` SU
                                 WHERE
-                                    UM.user_rsn_from = SU.rsn
-                                    AND UM.user_rsn_to = ".$user->user_rsn."
-                                    AND UM.rsn = ".getArgv('oldMessageRsn', 1)."
+                                    UM.user_id_from = SU.id
+                                    AND UM.user_id_to = ".$user->user_id."
+                                    AND UM.id = ".getArgv('oldMessageRsn', 1)."
                                     AND UM.message_state !='2'
                                 ORDER BY UM.send_tstamp DESC", 1);
             if($arOldFetch) {
@@ -545,7 +545,7 @@ class users extends krynModule {
 
                 // adding subject
                 $_REQUEST['message_subject'] = "Re: ".$arOldFetch['message_subject'];
-                $_REQUEST['to_user_id'] = $arOldFetch['user_rsn_from'];
+                $_REQUEST['to_user_id'] = $arOldFetch['user_id_from'];
                 //if forward
                 if(getArgv('type') == 'fwd') {
                     $_REQUEST['message_subject'] = "Fwd: ".$arOldFetch['message_subject'];
@@ -561,7 +561,7 @@ class users extends krynModule {
             if($toRsn < 1 && getArgv('e1') > 0)
                 $toRsn = getArgv('e1', 1);
 
-            $userName = dbExFetch("SELECT username FROM `%pfx%system_user` WHERE rsn = ".$toRsn);
+            $userName = dbExFetch("SELECT username FROM `%pfx%system_user` WHERE id = ".$toRsn);
             if(isset($userName['username']))
                 $_REQUEST['to_user_id'] = $userName['username'];
         }
@@ -575,11 +575,11 @@ class users extends krynModule {
     function pluginMessageSystemCountNew($pConf) {
     	global $user;
     	//check if user is logged in
-    	if(getArgv('ajGetCount') && (!isset($user->user_rsn) || $user->user_rsn < 1)) 
+    	if(getArgv('ajGetCount') && (!isset($user->user_id) || $user->user_id < 1))
     		json(0);
     	
     	
-    	if(!isset($user->user_rsn) || $user->user_rsn < 1)
+    	if(!isset($user->user_id) || $user->user_id < 1)
     		return 'not logged in';   
     	
     	kryn::addCss('users/messageSystem/css/'.$pConf['template'].'.css');
@@ -590,7 +590,7 @@ class users extends krynModule {
         						WHERE 
 
         						message_state ='0'
-        						AND user_rsn_to = ".$user->user_rsn."         							
+        						AND user_id_to = ".$user->user_id."
         						", 1);     
 		
         if(getArgv('ajGetCount')) {
@@ -750,7 +750,7 @@ class users extends krynModule {
     
     private static function emailAlreadyExists($email) {
         $email = esc($email);
-        return dbExfetch("SELECT rsn FROM %pfx%system_user WHERE email='$email'", 1) != null;
+        return dbExfetch("SELECT id FROM %pfx%system_user WHERE email='$email'", 1) != null;
     }
     
     private static function generateActKey(){
@@ -800,7 +800,7 @@ class users extends krynModule {
         {
             // Check activation key
             $sql = "
-                SELECT rsn, activate
+                SELECT id, activate
                 FROM   %pfx%system_user
                 WHERE  email = '$email' AND activationkey = '$actKey'
             ";
@@ -814,11 +814,11 @@ class users extends krynModule {
             }
             else 
             { // Email/key combo found, remove user activation key
-                $rsn = $result['rsn'];
+                $id = $result['id'];
                 $sql = "
                     UPDATE %pfx%system_user
                     SET activationkey = NULL
-                    WHERE rsn=$rsn
+                    WHERE id=$id
                 ";
                 dbExec($sql);
                 

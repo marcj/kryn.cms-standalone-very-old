@@ -4,30 +4,30 @@ function exportTree( $pParentRsn, $pDomain ){
     $pParentRsn += 0;
     $pDomain += 0;
     
-    $result['pages'] = _exportTree( array('rsn' => $pParentRsn, 'domain_rsn' => $pDomain) ); 
+    $result['pages'] = _exportTree( array('id' => $pParentRsn, 'domain_id' => $pDomain) );
     
     return $result;
 }
 
 function _exportTree( $pPage ){
 	
-	$pParentRsn = $pPage['rsn']+0;
-	$pDomain = $pPage['domain_rsn']+0;
-    $pagesRes = dbExec("SELECT * FROM %pfx%system_pages WHERE prsn = $pParentRsn AND domain_rsn = $pDomain ");
+	$pParentRsn = $pPage['id']+0;
+	$pDomain = $pPage['domain_id']+0;
+    $pagesRes = dbExec("SELECT * FROM %pfx%system_page WHERE pid = $pParentRsn AND domain_id = $pDomain ");
     
     $childs = array();
     while( $row = dbFetch($pagesRes) ){
 	     
-    	$contentRes = dbExec("SELECT c.* FROM %pfx%system_contents c, %pfx%system_pagesversions v
+    	$contentRes = dbExec("SELECT c.* FROM %pfx%system_contents c, %pfx%system_page_version v
                 WHERE 
-                c.page_rsn = ".$row['rsn']."
+                c.page_id = ".$row['id']."
                 AND v.active = 1
-                AND c.version_rsn = v.rsn");
+                AND c.version_id = v.id");
         
         while( $contentRow = dbFetch($contentRes) ){
             
-            unset($contentRow['rsn']);
-            unset($contentRow['page_rsn']);
+            unset($contentRow['id']);
+            unset($contentRow['page_id']);
             $row['contents'][] = $contentRow;
             
         }
@@ -35,9 +35,9 @@ function _exportTree( $pPage ){
         
         $row['childs'] = _exportTree($row);
         
-        unset($row['rsn']);
-        unset($row['domain_rsn']);
-        unset($row['prsn']);
+        unset($row['id']);
+        unset($row['domain_id']);
+        unset($row['pid']);
         
         $childs[] = $row;
     }
@@ -58,25 +58,25 @@ function _importTree( $pChilds, $pParent, $pDomain ){
 	if( !is_array($pChilds) || count($pChilds) == 08 ) return;
 	
 	foreach( $pChilds as $page ){
-		$page['prsn'] = $pParent;
-		$page['domain_rsn'] = $pDomain;
+		$page['pid'] = $pParent;
+		$page['domain_id'] = $pDomain;
 		
 		print "Adding page: ".$page['title']."\n";
-		$lastRsn = dbInsert('system_pages', $page);
+		$lastRsn = dbInsert('system_page', $page);
 		if( $page['contents'] ){
 			
-			$newVersion = dbInsert('system_pagesversions', array(
+			$newVersion = dbInsert('system_page_version', array(
 				'created' => time(),
 				'modified'=>time(),
-				'owner_rsn' => $user->user_rsn,
-				'page_rsn' => $lastRsn,
+				'owner_id' => $user->user_id,
+				'page_id' => $lastRsn,
 				'active' => 1
 			));
 			
 			foreach( $page['contents'] as $content ){
 				
-				$content['page_rsn'] = $lastRsn;
-				$content['version_rsn'] = $newVersion;
+				$content['page_id'] = $lastRsn;
+				$content['version_id'] = $newVersion;
 				$content['cdate'] = time();
 				dbInsert( 'system_contents', $content );
 				

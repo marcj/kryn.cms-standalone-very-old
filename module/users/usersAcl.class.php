@@ -20,7 +20,7 @@ class usersAcl {
             case 'loadTree':
                 return self::loadTree();
             case 'load':
-                return self::load(getArgv('acl_target_type'), getArgv('acl_target_rsn'));
+                return self::load(getArgv('acl_target_type'), getArgv('acl_target_id'));
             case 'loadDomains':
                 return self::loadDomains();
             case 'save':
@@ -39,7 +39,7 @@ class usersAcl {
                 WHERE ";
 
         $sql .= "target_type = ".(($pTargetType==1)?1:2);
-        $sql .= "AND target_rsn = $pTargetId ORDER BY prio DESC";
+        $sql .= "AND target_id = $pTargetId ORDER BY prio DESC";
 
         $items = dbExFetch($sql, -1);
 
@@ -53,20 +53,20 @@ class usersAcl {
     	
     	$rcode = substr( $code, 1, strlen($code) );
     	$t = explode( '[', $rcode );
-    	$rsn = $t[0]+0;
+    	$id = $t[0]+0;
     	
     	if( substr($code, 0, 1) == 'd' ){
     		//domain
 
-            $domain = dbExfetch('SELECT domain, lang FROM %pfx%system_domains WHERE rsn = '.$rsn);
+            $domain = dbExfetch('SELECT domain, lang FROM %pfx%system_domains WHERE id = '.$id);
     		$res['title'] = $domain['domain'];
     		$res['path'] = $domain['lang'];
     		
     	} else {
     		//page
-    		$page = dbExfetch('SELECT title FROM %pfx%system_pages WHERE rsn = '.$rsn);
+    		$page = dbExfetch('SELECT title FROM %pfx%system_page WHERE id = '.$id);
     		$res['title'] = $page['title'];
-    		$res['path'] = kryn::pageUrl( $rsn, false, true );
+    		$res['path'] = kryn::pageUrl( $id, false, true );
     		
     	}
     	
@@ -78,18 +78,18 @@ class usersAcl {
     	
     	$lang = getArgv('lang', 2);
     	
-    	$domains = dbExfetch("SELECT rsn, domain FROM %pfx%system_domains WHERE lang = '$lang'", -1);    	
+    	$domains = dbExfetch("SELECT id, domain FROM %pfx%system_domains WHERE lang = '$lang'", -1);
     	json($domains);
     }
 
     public static function save(){
 
         $targetType = getArgv('target_type')+0;
-        $targetRsn = getArgv('target_rsn')+0;
+        $targetRsn = getArgv('target_id')+0;
 
         dbDelete('system_acl', array(
             'target_type' => $targetType,
-            'target_rsn' => $targetRsn
+            'target_id' => $targetRsn
         ));
 
         $rules = getArgv('rules');
@@ -98,17 +98,17 @@ class usersAcl {
         $i = 1;
         foreach ($rules as $rule){
 
-            unset($rule['rsn']);
+            unset($rule['id']);
             $rule['prio'] = $i;
             $rule['target_type'] = $targetType;
-            $rule['target_rsn'] = $targetRsn;
+            $rule['target_id'] = $targetRsn;
             dbInsert('system_acl', $rule);
             $i++;
         }
 
         return true;
 
-        //$target_rsn = getArgv('rsn')+0;
+        //$target_id = getArgv('id')+0;
         //$type = (getArgv('type',1) == 'user')?'users':'groups';
 
         //$target_type = ($type=='users')?2:1;
@@ -116,15 +116,15 @@ class usersAcl {
         
         //$acl_type = getArgv('acl_type', 2)+0;
         $acl_target_type = getArgv('acl_target_type', 2)+0;
-        $acl_target_rsn = getArgv('acl_target_rsn', 2)+0;
+        $acl_target_id = getArgv('acl_target_id', 2)+0;
         
-        if( $acl_target_rsn == 0 ) json(0);
+        if( $acl_target_id == 0 ) json(0);
         
         $aclsAdmin = json_decode( getArgv('aclsadmin'), true );
         $aclsPages = json_decode( getArgv('aclspages'), true );
         
         //backend ACLs ( == post 'acls' )
-        dbDelete('system_acl', "target_type = $acl_target_type AND target_rsn = $acl_target_rsn");
+        dbDelete('system_acl', "target_type = $acl_target_type AND target_id = $acl_target_id");
         
         $row = dbExfetch('SELECT MAX(prio) as maxium FROM %pfx%system_acl');
         $prio = $row['maxium']+1+count($aclsAdmin)+count($aclsPages);
@@ -135,7 +135,7 @@ class usersAcl {
                     'type' => 1,
                     'prio' => $prio,
                     'target_type' => $acl_target_type,
-                    'target_rsn'  => $acl_target_rsn,
+                    'target_id'  => $acl_target_id,
                     'access' => $access,
                     'code' => $code
                 ));
@@ -149,7 +149,7 @@ class usersAcl {
                     'type' => 2,
                     'prio' => $prio,
                     'target_type' => $acl_target_type,
-                    'target_rsn'  => $acl_target_rsn,
+                    'target_id'  => $acl_target_id,
                     'access' => $access,
                     'code' => $code
                 ));
@@ -195,7 +195,7 @@ class usersAcl {
     public static function load($pType, $pId, $pAsCount = false){
 
         $where = 'target_type = '.($pType+0);
-        $where .= ' AND target_rsn = '.($pId+0);
+        $where .= ' AND target_id = '.($pId+0);
 
         $where .= " ORDER BY prio DESC";
 
@@ -210,7 +210,7 @@ class usersAcl {
 
         foreach ($pItems as &$item){
 
-            $item['ruleCount'] = self::load($pType, $item['rsn'], true);
+            $item['ruleCount'] = self::load($pType, $item['id'], true);
 
         }
 
@@ -238,7 +238,7 @@ class usersAcl {
 
         $users = krynObjects::getList('user', $userFilter, array(
             'limit' => 10,
-            'fields' => 'rsn,username, email, groups, first_name, last_name'
+            'fields' => 'id,username, email, groups, first_name, last_name'
         ));
 
         self::setAclCount($users, 0);

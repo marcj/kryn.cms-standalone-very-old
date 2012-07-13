@@ -18,7 +18,7 @@
 	{foreach from=$messages item=oneMessage}
 		<tr class="user-message-system-ibox-table-one-message">
 			<td>
-				<input type="checkbox" name="one-message-action[]" value="{$oneMessage.rsn}" class="user-message-system-one-message-action-select">
+				<input type="checkbox" name="one-message-action[]" value="{$oneMessage.id}" class="user-message-system-one-message-action-select">
 			</td>
 			
 			<td>
@@ -26,13 +26,13 @@
 			</td>
 			
 			<td>
-				<div onclick="openMessage(this, '{$oneMessage.rsn}')" class="user-message-system-one-message-subject one-message-subject-{$oneMessage.message_state}" title="[[show / hide this message]]">{$oneMessage.message_subject}</div>
+				<div onclick="openMessage(this, '{$oneMessage.id}')" class="user-message-system-one-message-subject one-message-subject-{$oneMessage.message_state}" title="[[show / hide this message]]">{$oneMessage.message_subject}</div>
 				<div class="user-message-system-one-message-text" style="display:none;">					
 					{$oneMessage.message_text|nl2br}
 					<div class="user-message-system-one-message-panel">
 						{if $newMessagePage}
-						<a href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.rsn}"  class="user-message-system-one-message-respond">[[Respond to]]</a>
-						<a href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.rsn}&amp;type=fwd" class="user-message-system-one-message-forward">[[Forward to]]</a>
+						<a href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.id}"  class="user-message-system-one-message-respond">[[Respond to]]</a>
+						<a href="{$newMessagePage|@realUrl}?oldMessageRsn={$oneMessage.id}&amp;type=fwd" class="user-message-system-one-message-forward">[[Forward to]]</a>
 						{/if}
 					</div>
 				</div>

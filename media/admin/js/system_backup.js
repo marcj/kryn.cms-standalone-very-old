@@ -157,7 +157,7 @@ var admin_system_backup = new Class({
                             {label: ''}
                         ],
                         fields: {
-                            rsn: {
+                            id: {
                                 type: 'page'
                             }
                         }

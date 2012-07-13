@@ -4,7 +4,7 @@
 class usersAdminSelfEdit extends windowEdit {
 
     public $table = 'system_user';
-    public $primary = array('rsn');
+    public $primary = array('id');
     public $versioning = false;
     
     public $loadSettingsAfterSave = true;
@@ -12,7 +12,7 @@ class usersAdminSelfEdit extends windowEdit {
     private static $cacheUser = false;
 
     function __construct(){
-        $_REQUEST['rsn'] = kryn::$client->id;
+        $_REQUEST['id'] = kryn::$client->id;
     }
 
     public $tabFields = array(
@@ -45,12 +45,12 @@ class usersAdminSelfEdit extends windowEdit {
                 'relation' => 'n-n',
                 'n-n' => array(
                     'right' => 'system_groups',
-                    'right_key' => 'rsn',
+                    'right_key' => 'id',
                     'right_label' => 'name',
                     'middle' => 'system_groupaccess',
-                    'middle_keyright' => 'group_rsn',
-                    'middle_keyleft' => 'user_rsn',
-                    'left_key' => 'rsn'
+                    'middle_keyright' => 'group_id',
+                    'middle_keyleft' => 'user_id',
+                    'left_key' => 'id'
                 )
             )
         ),
@@ -103,21 +103,21 @@ class usersAdminSelfEdit extends windowEdit {
     
     private static function saveSetting( $pKey, $pVal ){
         
-        $temp = dbTableFetch('system_user', 1, "rsn = ".(getArgv('rsn')+0));
+        $temp = dbTableFetch('system_user', 1, "id = ".(getArgv('id')+0));
         $settings = unserialize( $temp['settings'] );
         
         $settings[$pKey] = $pVal;
         $ssettings = serialize( $settings );
         
-        dbUpdate( 'system_user', array('rsn' => getArgv('rsn')+0), array('settings' => $ssettings) );
+        dbUpdate( 'system_user', array('id' => getArgv('id')+0), array('settings' => $ssettings) );
     }
 
     private static function getSetting( $pKey ){
     	
-        $rsn = getArgv('rsn')+0;
+        $id = getArgv('id')+0;
         
         if( !self::$cacheUser )
-            self::$cacheUser = dbTableFetch('system_user', 1, "rsn = $rsn");
+            self::$cacheUser = dbTableFetch('system_user', 1, "id = $id");
             
         $settings = unserialize(self::$cacheUser['settings']);
         return $settings[$pKey];

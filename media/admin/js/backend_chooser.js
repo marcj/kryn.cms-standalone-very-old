@@ -129,7 +129,7 @@ var admin_backend_chooser = new Class({
             this.sDomain.addEvent('change', this.changeDomain.bind(this));
 
             Object.each(ka.settings.domains, function (domain) {
-                this.sDomain.add(domain.rsn, '['+domain.lang+'] '+ domain.domain);
+                this.sDomain.add(domain.id, '['+domain.lang+'] '+ domain.domain);
             }.bind(this));
         }
 

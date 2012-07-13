@@ -328,10 +328,10 @@ class admin {
             $pages =& $cachedPluginRelations[$moduleToUse][$pluginToUse];
             if (count($pages) > 0) {
                 foreach ($pages as &$page) {
-                    $previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_rsn']][$page['rsn']] =
+                    $previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_id']][$page['id']] =
                         array(
                             'title' => $page['title'],
-                            'path' => kryn::getPagePath($page['rsn'])
+                            'path' => kryn::getPagePath($page['id'])
                         );
                 }
             }
@@ -349,16 +349,16 @@ class admin {
     private static function cachePluginsRelations() {
 
         $res = dbExec('
-        SELECT p.domain_rsn, p.rsn, c.content, p.title
+        SELECT p.domain_id, p.id, c.content, p.title
         FROM
             %pfx%system_contents c,
-            %pfx%system_pagesversions v,
-            %pfx%system_pages p
+            %pfx%system_page_version v,
+            %pfx%system_page p
         WHERE 1=1
             AND c.type = \'plugin\'
             AND c.hide = 0
-            AND v.rsn = c.version_rsn
-            AND p.rsn = v.page_rsn
+            AND v.id = c.version_id
+            AND p.id = v.page_id
             AND (p.access_denied = \'0\' OR p.access_denied IS NULL)
             AND v.active = 1
         ');
@@ -803,7 +803,7 @@ class admin {
         $res = dbExec($sql . $limit, -1);
 
         $count =
-            dbExfetch(preg_replace('/SELECT(.*)FROM/mi', 'SELECT count(rsn) as ctn FROM', str_replace("\n", " ", $sql)));
+            dbExfetch(preg_replace('/SELECT(.*)FROM/mi', 'SELECT count(id) as ctn FROM', str_replace("\n", " ", $sql)));
         $return['count'] = $count['ctn'];
 
         $maxPages = 1;
@@ -862,14 +862,14 @@ class admin {
         $lang = getArgv('lang');
 
         //pages
-        $pages = dbExfetch("SELECT p.rsn, p.title, d.lang
-            FROM %pfx%system_pages p, %pfx%system_domains d
-            WHERE d.rsn = p.domain_rsn AND p.title LIKE '%$pQuery%' LIMIT 10 OFFSET 0", -1);
+        $pages = dbExfetch("SELECT p.id, p.title, d.lang
+            FROM %pfx%system_page p, %pfx%system_domains d
+            WHERE d.id = p.domain_id AND p.title LIKE '%$pQuery%' LIMIT 10 OFFSET 0", -1);
 
         if (count($pages) > 0) {
             foreach ($pages as $page)
                 $respages[] =
-                    array($page['title'], 'admin/pages/', array('rsn' => $page['rsn'], 'lang' => $page['lang']));
+                    array($page['title'], 'admin/pages/', array('id' => $page['id'], 'lang' => $page['lang']));
             $res[_l('Pages')] = $respages;
         }
 
@@ -1043,21 +1043,21 @@ class admin {
     public static function saveDesktop($pIcons) {
 
         if (kryn::$adminClient->id > 0)
-            dbUpdate('system_user', array('rsn' => kryn::$adminClient->id), array('desktop' => $pIcons));
+            dbUpdate('system_user', array('id' => kryn::$adminClient->id), array('desktop' => $pIcons));
         json(true);
     }
 
     public static function saveWidgets($pWidgets) {
 
         if (kryn::$adminClient->id > 0)
-            dbUpdate('system_user', array('rsn' => kryn::$adminClient->id), array('widgets' => $pWidgets));
+            dbUpdate('system_user', array('id' => kryn::$adminClient->id), array('widgets' => $pWidgets));
         json(true);
     }
 
     public static function getWidgets() {
 
         if (kryn::$adminClient->id > 0) {
-            $row = dbTableFetch('system_user', 1, "rsn = " . kryn::$adminClient->id);
+            $row = dbTableFetch('system_user', 1, "id = " . kryn::$adminClient->id);
             json($row['widgets']);
         }
         json(false);
@@ -1066,7 +1066,7 @@ class admin {
     public static function getDesktop() {
 
         if (kryn::$adminClient->id > 0) {
-            $row = dbTableFetch('system_user', 1, "rsn = " . kryn::$adminClient->id);
+            $row = dbTableFetch('system_user', 1, "id = " . kryn::$adminClient->id);
             if ($row['desktop'])
                 json($row['desktop']);
         }
@@ -1088,7 +1088,7 @@ class admin {
             $settings['adminLanguage'] =kryn:: $adminClient->user['settings']['adminLanguage'];
 
         $settings = serialize($settings);
-        dbUpdate('system_user', array('rsn' => kryn::$adminClient->id), array('settings' => $settings));
+        dbUpdate('system_user', array('id' => kryn::$adminClient->id), array('settings' => $settings));
         kryn::$adminClient->getUser(kryn::$adminClient->id, true); //reload from cache
 
         json(1);
@@ -1232,14 +1232,14 @@ class admin {
             $qr = dbExec('SELECT * FROM %pfx%system_domains ORDER BY domain');
             while ($row = dbFetch($qr)) {
                 //todo
-                //if (kryn::checkPageAcl($row['rsn'], 'showDomain', 'd')) {
+                //if (kryn::checkPageAcl($row['id'], 'showDomain', 'd')) {
                 //    $res['domains'][] = $row;
                 //}
             }
         }
 
         $inGroups = kryn::$adminClient->user['inGroups'];
-        $userRsn  = kryn::$adminClient->user_rsn;
+        $userRsn  = kryn::$adminClient->user_id;
 
         /*
         if ($loadKeys == false || in_array('acl_pages', $loadKeys)){
@@ -1249,9 +1249,9 @@ class admin {
                     WHERE
                     type = 2 AND
                     (
-                        ( target_type = 1 AND target_rsn IN ($inGroups))
+                        ( target_type = 1 AND target_id IN ($inGroups))
                         OR
-                        ( target_type = 2 AND target_rsn IN ($userRsn))
+                        ( target_type = 2 AND target_id IN ($userRsn))
                     )
                     ORDER BY code DESC
             ", DB_FETCH_ALL);
@@ -1261,13 +1261,13 @@ class admin {
 
         if ($loadKeys == false || in_array('acls', $loadKeys)){
             $resAcls = dbExec("
-                    SELECT code, access, type, target_rsn, target_type FROM %pfx%system_acl
+                    SELECT code, access, type, target_id, target_type FROM %pfx%system_acl
                     WHERE
                     type > 2 AND
                     (
-                        ( target_type = 1 AND target_rsn IN ($inGroups))
+                        ( target_type = 1 AND target_id IN ($inGroups))
                         OR
-                        ( target_type = 2 AND target_rsn IN ($userRsn))
+                        ( target_type = 2 AND target_id IN ($userRsn))
                     )
                     ORDER BY code DESC
             ");
@@ -1538,12 +1538,12 @@ class admin {
 
     public static function pointerPreview($pContent) {
 
-        $page = dbExfetch('SELECT * FROM %pfx%system_pages WHERE rsn = ' . ($pContent + 0));
-        kryn::$domain['rsn'] = $page['domain_rsn'];
+        $page = dbExfetch('SELECT * FROM %pfx%system_page WHERE id = ' . ($pContent + 0));
+        kryn::$domain['id'] = $page['domain_id'];
         kryn::$realUrls =& kryn::readCache('systemUrls');
 
         $_content =
-            "$pContent: <strong>" . $page['title'] . "</strong> (" . kryn::$realUrls['rsn']["rsn=" . $pContent] . ")";
+            "$pContent: <strong>" . $page['title'] . "</strong> (" . kryn::$realUrls['id']["id=" . $pContent] . ")";
 
         json($_content);
     }
@@ -1552,10 +1552,10 @@ class admin {
 
         $page = adminPages::getPageByRsn($pContent);
 
-        kryn::$domain['rsn'] = $page['domain_rsn'];
+        kryn::$domain['id'] = $page['domain_id'];
         kryn::$realUrls =& kryn::readCache('systemUrls');
 
-        $_content = "<strong>" . $page['title'] . "</strong> (" . kryn::$realUrls['rsn']["rsn=" . $pContent] . ")";
+        $_content = "<strong>" . $page['title'] . "</strong> (" . kryn::$realUrls['id']["id=" . $pContent] . ")";
         json($_content);
         /*
         $options[ 'id' ] = $temp[0];
@@ -1575,7 +1575,7 @@ class admin {
     }
     public function install() {
 
-        dbDelete('system_pages');
+        dbDelete('system_page');
         dbDelete('system_contents');
 
 
@@ -1628,7 +1628,7 @@ class admin {
             'content' => $content,
             'version' => $version,
             'cdate' => time(),
-            'user_rsn' => kryn::$adminClient->user_rsn
+            'user_id' => kryn::$adminClient->user_id
         );
 
         dbInsert('system_frameworkversion', $new);
@@ -1661,7 +1661,7 @@ class admin {
 
         $sessions = dbExFetch('SELECT s.*, u.username
                     FROM ' . pfx . 'system_sessions s, ' . pfx . 'system_user u
-                    WHERE s.user_rsn = u.rsn AND u.rsn > 0
+                    WHERE s.user_id = u.id AND u.id > 0
                     ORDER BY time DESC
                     LIMIT 10 OFFSET 0', DB_FETCH_ALL);
         tAssign('sessions', $sessions);
@@ -1684,10 +1684,10 @@ class admin {
     public function widgetWaitingContent($pConf) {
 
         $pages = dbExFetch('SELECT u.username, p.*, v.modified
-            FROM %pfx%system_user u, %pfx%system_pages p, %pfx%system_pagesversions v
+            FROM %pfx%system_user u, %pfx%system_page p, %pfx%system_page_version v
             WHERE draft_exist = 1
-            AND v.page_rsn = p.rsn
-            AND u.rsn = v.owner_rsn
+            AND v.page_id = p.id
+            AND u.id = v.owner_id
             AND v.active = 1
             AND ( p.type = 0 OR p.type = 3)
             ', -1);
@@ -1701,7 +1701,7 @@ class admin {
                 $html .= '<td>' . $page['username'] . '</td>';
                 $html .= '<td>' . $page['title'] . '</td>';
                 $html .=
-                    '<td width="20"><a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {rsn: ' . $page['rsn'] .
+                    '<td width="20"><a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $page['id'] .
                     '});"><img src="' . kryn::$domain['path'] . 'admin/images/icons/bullet_go.png" /></a></td>';
                 $html .= '</tr>';
             }
@@ -1715,14 +1715,14 @@ class admin {
 
     public function manipulateUnpublishedContentsRow($pRow) {
         $domain = kryn::getDomain($pRow[4]);
-        $pRow[2] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {rsn: ' . $pRow[2] . '});">' .
+        $pRow[2] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $pRow[2] . '});">' .
                    kryn::getPagePath($pRow[2] + 0) . '</a>';
         return $pRow;
     }
 
     public function manipulateLastChangesRow($pRow) {
         //$domain = kryn::getDomain( $pRow[4] );
-        $pRow[3] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {rsn: ' . $pRow[3] . '});">' .
+        $pRow[3] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $pRow[3] . '});">' .
                    kryn::getPagePath($pRow[3] + 0) . '</a>';
         return $pRow;
     }
@@ -1731,7 +1731,7 @@ class admin {
 
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
-            kryn::deleteCache('systemUrls-'.$domain['rsn']);
+            kryn::deleteCache('systemUrls-'.$domain['id']);
 
     }
 
@@ -1739,7 +1739,7 @@ class admin {
 
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
-            kryn::deleteCache('systemDomain-'.$domain['rsn']);
+            kryn::deleteCache('systemDomain-'.$domain['id']);
     }
 }
 
