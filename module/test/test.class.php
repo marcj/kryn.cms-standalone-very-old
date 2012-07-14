@@ -3,6 +3,8 @@
 class test {
 
     function __construct(){
+
+        return;
 /*
         $s1 = new SystemPage();
         $s1->setDomainId(3);

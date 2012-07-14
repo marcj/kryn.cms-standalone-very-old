@@ -4,7 +4,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -14,7 +14,7 @@
 
 /**
  * Internal functions
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  * @internal
  */
 
@@ -84,7 +84,7 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
             $pCode = preg_replace('/\W/', '-', $pCode);
             $msg = htmlspecialchars($pMsg);
 
-            if (!kryn::$tables['system_log']) return;
+            if (!Kryn::$tables['system_log']) return;
             dbInsert('system_log', array(
                 'date' => time(),
                 'ip' => $ip,

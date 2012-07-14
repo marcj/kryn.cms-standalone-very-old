@@ -17,4 +17,4 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^.* - [L]
 
-RewriteRule ^(.+)$ index.php?_kurl=$1&%{query_string} [E=PORT:%{SERVER_PORT},L]
+RewriteRule ^(.+)$ index.php?__url=$1&%{query_string} [E=PORT:%{SERVER_PORT},L]

@@ -3,7 +3,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -13,7 +13,7 @@
 
 /**
  * Global important functions for working with Kryn.cms
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  */
 
 
@@ -59,14 +59,7 @@ function json($pValue) {
     if ($adminClient) $adminClient->syncStore();
     if ($client) $client->syncStore();
 
-    if (php_sapi_name() !== 'cli' )
-        print (json_encode($pValue));
-    else {
-        if ($argv[2] == "1")
-            print json_format(json_encode($pValue))."\n";
-        else
-            print_r($pValue);
-    }
+    print json_format(json_encode($pValue))."\n";
 
     exit(0);
 }
@@ -94,20 +87,20 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
 
     $id = ($pContext == '') ? $pMsg : $pContext . "\004" . $pMsg;
 
-    if (kryn::$lang[$id]) {
-        if (is_array(kryn::$lang[$id])) {
+    if (Kryn::$lang[$id]) {
+        if (is_array(Kryn::$lang[$id])) {
 
             if ($pCount){
-                $plural = intval(@call_user_func('gettext_plural_fn_' . kryn::$lang['__lang'], $pCount));
-                if ($pCount && kryn::$lang[$id][$plural])
-                    return str_replace('%d', $pCount, kryn::$lang[$id][$plural]);
+                $plural = intval(@call_user_func('gettext_plural_fn_' . Kryn::$lang['__lang'], $pCount));
+                if ($pCount && Kryn::$lang[$id][$plural])
+                    return str_replace('%d', $pCount, Kryn::$lang[$id][$plural]);
                 else
                     return (($pCount === null || $pCount === false || $pCount === 1) ? $pMsg : $pPlural);
             } else {
-                return kryn::$lang[$id][0];
+                return Kryn::$lang[$id][0];
             }
         } else {
-            return kryn::$lang[$id];
+            return Kryn::$lang[$id];
         }
     } else {
         return ($pCount === null || $pCount === false || $pCount === 1) ? $pMsg : $pPlural;

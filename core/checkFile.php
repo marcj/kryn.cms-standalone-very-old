@@ -5,7 +5,7 @@
  * tiny URLs are in Kryn URLs to media/ but without media/ in the path.
  *
  * @internal
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  */
 
 if (array_key_exists('_kurl', $_REQUEST)) {

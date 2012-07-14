@@ -22,10 +22,9 @@ if (php_sapi_name() !== 'cli') exit;
 
 if (count($argv) == 1) die("params failed.\nUse: php cli.php <module>/entry/path");
 
-$_REQUEST['_kurl'] = 'admin/'.$argv[1];
+$_GET['__url'] = 'admin/'.$argv[1];
 
 require('core/bootstrap.php');
-
 
 @ini_set('display_errors', 1);
 

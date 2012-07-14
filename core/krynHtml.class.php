@@ -3,7 +3,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -13,7 +13,7 @@
 
 /**
  * Html class
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  *
  *
  * @events onRenderSlot
@@ -54,11 +54,11 @@ class krynHtml {
         global $_start;
 
         $res = self::$docTypeMap[strtolower(self::$docType)];
-        $res .= "\n<head>" . kryn::$htmlHeadTop;
+        $res .= "\n<head>" . Kryn::$htmlHeadTop;
         $res .= self::buildHead(true);
         error_log('Kryn.cms - page generation tooks '.(microtime(true)-$_start).' seconds.');
 
-        $res .= kryn::$htmlHeadEnd . '</head><body>' . kryn::$htmlBodyTop . $pContent . "\n\n" . kryn::$htmlBodyEnd .
+        $res .= Kryn::$htmlHeadEnd . '</head><body>' . Kryn::$htmlBodyTop . $pContent . "\n\n" . Kryn::$htmlBodyEnd .
                 '</body></html>';
 
         return $res;
@@ -79,19 +79,19 @@ class krynHtml {
 
         $tagEnd = (strpos(strtolower(krynHtml::$docType), 'xhtml') !== false) ? ' />' : ' >';
 
-        if ($pContinue == false && kryn::$admin == false) {
-            return '{*kryn-header*}';
+        if ($pContinue == false && Kryn::$admin == false) {
+            return '{*Kryn-header*}';
         }
-        $page = kryn::$page;
-        $domain = kryn::$domain;
+        $page = Kryn::$page;
+        $domain = Kryn::$domain;
 
         $title = ($page['page_title']) ? $page['page_title'] : $page['title'];
 
-        if (!empty(kryn::$pageTitle))
-            $title = kryn::$pageTitle . ' ' . $title;
+        if (!empty(Kryn::$pageTitle))
+            $title = Kryn::$pageTitle . ' ' . $title;
 
         $e = explode('::', $domain['title_format']);
-        if ($e[0] && $e[1] && $e[0] != 'admin' && $e[0] != 'kryn' && method_exists($e[0], $e[1])) {
+        if ($e[0] && $e[1] && $e[0] != 'admin' && $e[0] != 'Kryn' && method_exists($e[0], $e[1])) {
             $title = call_user_func(array($e[0], $e[1]));
         } else {
 
@@ -104,17 +104,17 @@ class krynHtml {
             );
 
             if (strpos($title, '%path') !== false) {
-                $title = str_replace('%path', kryn::getBreadcrumpPath(), $title);
+                $title = str_replace('%path', Kryn::getBreadcrumpPath(), $title);
             }
         }
 
         $html = '<title>' . $title . '</title>' . "\n";
 
 
-        $html .= "<base href=\"" . kryn::$baseUrl . "\" $tagEnd\n";
+        $html .= "<base href=\"" . Kryn::$baseUrl . "\" $tagEnd\n";
         $html .= '<meta name="DC.language" content="' . $domain['lang'] . '" ' . $tagEnd . "\n";
 
-        $html .= '<link rel="canonical" href="' . kryn::$baseUrl . substr(kryn::$url, 1) . '" ' . $tagEnd . "\n";
+        $html .= '<link rel="canonical" href="' . Kryn::$baseUrl . substr(Kryn::$url, 1) . '" ' . $tagEnd . "\n";
 
         $metas = @json_decode($page['meta'], 1);
         if (count($metas) > 0)
@@ -123,7 +123,7 @@ class krynHtml {
                     $html .= '<meta name="' . str_replace('"', '\"', $meta['name']) . '" content="' .
                              str_replace('"', '\"', $meta['value']) . '" ' . $tagEnd . "\n";
 
-        if (kryn::$cfg['show_banner'] == 1) {
+        if (Kryn::$cfg['show_banner'] == 1) {
             $html .= '<meta name="generator" content="Kryn.cms" ' . $tagEnd . "\n";
         }
 
@@ -132,8 +132,8 @@ class krynHtml {
         $myJsFiles = array();
 
 
-        if (kryn::$kedit == true) {
-            $html .= '<script type="text/javascript">var kEditPageId = ' . kryn::$page['id'] . ';</script>' . "\n";
+        if (Kryn::$kedit == true) {
+            $html .= '<script type="text/javascript">var kEditPageId = ' . Kryn::$page['id'] . ';</script>' . "\n";
         }
 
 
@@ -142,7 +142,7 @@ class krynHtml {
         *
         */
 
-        foreach (kryn::$cssFiles as $css) {
+        foreach (Kryn::$cssFiles as $css) {
             $myCssFiles[] = $css;
         }
 
@@ -187,8 +187,8 @@ class krynHtml {
                     $file = PATH_MEDIA . $css;
                     if (file_exists($file)) {
                         $cssContent .= "/* $file: */\n\n";
-                        $temp = kryn::fileRead($file) . "\n\n\n";
-                        //$cssContent .= kryn::fileRead( $file )."\n\n\n"; 
+                        $temp = Kryn::fileRead($file) . "\n\n\n";
+                        //$cssContent .= Kryn::fileRead( $file )."\n\n\n";
 
                         //replace relative urls to absolute
                         $mypath = $cfg['path'] . dirname($file);
@@ -197,7 +197,7 @@ class krynHtml {
                         $cssContent .= $temp;
                     }
                 }
-                kryn::fileWrite($cssCachedFile, $cssContent);
+                Kryn::fileWrite($cssCachedFile, $cssContent);
             }
             $html .=
                 '<link rel="stylesheet" type="text/css" href="' . $cfg['path'] . $cssCachedFile . '" ' . $tagEnd . "\n";
@@ -211,7 +211,7 @@ class krynHtml {
         *
         */
 
-        foreach (kryn::$jsFiles as $js) {
+        foreach (Kryn::$jsFiles as $js) {
             $myJsFiles[] = $js;
         }
 
@@ -249,10 +249,10 @@ class krynHtml {
                     $file = PATH_MEDIA . $js;
                     if (file_exists( $file)) {
                         $jsContent .= "/* $file: */\n\n";
-                        $jsContent .= kryn::fileRead($file) . "\n\n\n";
+                        $jsContent .= Kryn::fileRead($file) . "\n\n\n";
                     }
                 }
-                kryn::fileWrite($jsCachedFile, $jsContent);
+                Kryn::fileWrite($jsCachedFile, $jsContent);
             }
 
             $html .= '<script type="text/javascript" src="' . $cfg['path'] . $jsCachedFile . '" ></script>' . "\n";
@@ -264,13 +264,13 @@ class krynHtml {
         * HEADER
         */
 
-        foreach (kryn::$header as $head)
+        foreach (Kryn::$header as $head)
             $html .= "$head\n";
 
         //customized metas
         $metas = json_decode($page['meta'], true);
         if ($page['meta_fromParent'] == 1) {
-            $ppage = kryn::getParentPage($page['id']);
+            $ppage = Kryn::getParentPage($page['id']);
             $pmetas = json_decode($ppage['meta'], true);
             $metas = array_merge($ppage, $pmetas);
         }
@@ -293,14 +293,14 @@ class krynHtml {
         $pId = $pId + 0;
 
         $time = time();
-        $page = kryn::getPage($pId);
+        $page = Kryn::getPage($pId);
 
 
-        $page = kryn::checkPageAccess($page, false);
+        $page = Kryn::checkPageAccess($page, false);
         if (!$page)
             return array();
 
-        $result =& kryn::getCache('pageContents-' . $pId);
+        $result =& Kryn::getCache('pageContents-' . $pId);
         if (false && $result && !$pWithoutCache) return $result;
 
         $result = array();
@@ -310,7 +310,7 @@ class krynHtml {
         //todo read acl from table
         $aclCanViewOtherVersions = true;
 
-        if (kryn::$page->getId() == $pId && getArgv('kVersionId') + 0 > 0 && $aclCanViewOtherVersions) {
+        if (Kryn::$page->getId() == $pId && getArgv('kVersionId') + 0 > 0 && $aclCanViewOtherVersions) {
             $versionId = getArgv('kVersionId') + 0;
         }
 
@@ -336,7 +336,7 @@ class krynHtml {
             ORDER BY c.sort");
 
             while ($content = dbFetch($res)) {
-                if (kryn::checkPageAccess($content, false) !== false){
+                if (Kryn::checkPageAccess($content, false) !== false){
                     $result[$content['box_id']][] = $content;
                 }
             }
@@ -356,14 +356,14 @@ class krynHtml {
             }
         }
 
-        kryn::setCache('pageContents-' . $pId, $result);
+        Kryn::setCache('pageContents-' . $pId, $result);
 
-        return kryn::getCache('pageContents-' . $pId);
+        return Kryn::getCache('pageContents-' . $pId);
     }
 
     /**
      *
-     * Build the HTML for given page. If pPageId is a deposit, it returns with kryn/blankLayout.tpl as layout, otherwise
+     * Build the HTML for given page. If pPageId is a deposit, it returns with Kryn/blankLayout.tpl as layout, otherwise
      * it returns the layouts with all it contents.
      *
      * @static
@@ -375,54 +375,54 @@ class krynHtml {
     public static function renderPageContents($pPageId = false, $pSlotId = false, $pProperties = false) {
 
 
-        if (kryn::$contents) {
-            $oldContents = kryn::$contents;
+        if (Kryn::$contents) {
+            $oldContents = Kryn::$contents;
         }
-        kryn::$forceKrynContent = true;
+        Kryn::$forceKrynContent = true;
 
         $start = microtime(true);
-        if ($pPageId == kryn::$page->getId()) {
+        if ($pPageId == Kryn::$page->getId()) {
             //endless loop
             die(t('You produced a endless loop. Please check your latest changed pages.'));
         }
 
         if (!$pPageId) {
 
-            $pPageId = kryn::$page->getId();
+            $pPageId = Kryn::$page->getId();
 
-        } else if ($pPageId != kryn::$page->getId()) {
+        } else if ($pPageId != Kryn::$page->getId()) {
 
-            $oldPage = kryn::$page;
-            kryn::$page = kryn::getPage($pPageId, true);
-            kryn::$nestedLevels[] = kryn::$page;
+            $oldPage = Kryn::$page;
+            Kryn::$page = Kryn::getPage($pPageId, true);
+            Kryn::$nestedLevels[] = Kryn::$page;
         }
 
         $args = array($pPageId, $pSlotId);
         krynEvent::fire('onBeforeRenderPageContents', $args);
 
-        kryn::addCss('css/_pages/' . $pPageId . '.css');
-        kryn::addJs('js/_pages/' . $pPageId . '.js');
+        Kryn::addCss('css/_pages/' . $pPageId . '.css');
+        Kryn::addJs('js/_pages/' . $pPageId . '.js');
 
-        kryn::$contents =& self::getPageContents($pPageId);
+        Kryn::$contents =& self::getPageContents($pPageId);
 
-        if (kryn::$page->getType() == 3) { //deposit
-            kryn::$page->setLayout('kryn/blankLayout.tpl');
+        if (Kryn::$page->getType() == 3) { //deposit
+            Kryn::$page->setLayout('Kryn/blankLayout.tpl');
         }
 
         if ($pSlotId) {
-            $html = self::renderContents(kryn::$contents[$pSlotId], $pProperties);
+            $html = self::renderContents(Kryn::$contents[$pSlotId], $pProperties);
         } else {
-            $html = tFetch(kryn::$page->getLayout());
+            $html = tFetch(Kryn::$page->getLayout());
         }
 
         if ($oldContents) {
-            kryn::$contents = $oldContents;
+            Kryn::$contents = $oldContents;
         }
         if ($oldPage) {
-            kryn::$page = $oldPage;
-            array_pop(kryn::$nestedLevels);
+            Kryn::$page = $oldPage;
+            array_pop(Kryn::$nestedLevels);
         }
-        kryn::$forceKrynContent = false;
+        Kryn::$forceKrynContent = false;
 
 
         $arguments = array($pPageId, $pSlotId, &$html);
@@ -535,7 +535,7 @@ class krynHtml {
                 $slot['index'] = $i;
 
                 tAssignRef('slot', $slot);
-                kryn::$slot = $slot;
+                Kryn::$slot = $slot;
                 $html .= self::renderContent($content, $slot);
 
             }
@@ -615,7 +615,7 @@ class krynHtml {
 
                     $link = '';
                     if ($opts['link'] + 0 > 0) {
-                        $link = kryn::pageUrl($opts['link']);
+                        $link = Kryn::pageUrl($opts['link']);
                     } else if ($opts['link'] != '') {
                         $link = $opts['link'];
                     }
@@ -647,19 +647,19 @@ class krynHtml {
                 break;
             case 'pointer':
 
-                if ($content['content'] + 0 > 0 && $content['content'] + 0 != kryn::$page['id'])
+                if ($content['content'] + 0 > 0 && $content['content'] + 0 != Kryn::$page['id'])
                     $content['content'] = self::renderPageContents($content['content'] + 0, 1, $pProperties);
 
                 break;
             case 'layoutelement':
 
-                $oldContents = kryn::$contents;
+                $oldContents = Kryn::$contents;
 
                 $layoutcontent = json_decode($content['content'], true);
-                kryn::$contents = $layoutcontent['contents'];
+                Kryn::$contents = $layoutcontent['contents'];
                 $content['content'] = tFetch($layoutcontent['layout']);
 
-                kryn::$contents = $oldContents;
+                Kryn::$contents = $oldContents;
 
                 break;
             case 'plugin':
@@ -670,19 +670,19 @@ class krynHtml {
 
                 $content['content'] = '<div>Plugin not found.</div>';
 
-                if (kryn::$modules[$t[0]]) {
+                if (Kryn::$modules[$t[0]]) {
 
                     $config = substr($config, strlen($t[0]) + 2 + strlen($t[1]) + 2);
                     $config = json_decode($config, true);
 
-                    if (method_exists(kryn::$modules[$t[0]], $t[1]))
-                        $content['content'] = kryn::$modules[$t[0]]->$t[1]($config);
+                    if (method_exists(Kryn::$modules[$t[0]], $t[1]))
+                        $content['content'] = Kryn::$modules[$t[0]]->$t[1]($config);
 
                     // if in seachindex mode and plugin is configured unsearchable the kill plugin output
-                    if (isset(kryn::$configs[$t[0]]['plugins'][$t[1]][3]) &&
-                        kryn::$configs[$t[0]]['plugins'][$t[1]][3] == true
+                    if (isset(Kryn::$configs[$t[0]]['plugins'][$t[1]][3]) &&
+                        Kryn::$configs[$t[0]]['plugins'][$t[1]][3] == true
                     )
-                        $content['content'] = kryn::$unsearchableBegin . $content['content'] . kryn::$unsearchableEnd;
+                        $content['content'] = Kryn::$unsearchableBegin . $content['content'] . Kryn::$unsearchableEnd;
 
                 }
 

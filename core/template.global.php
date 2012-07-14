@@ -4,7 +4,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -14,7 +14,7 @@
 
 /**
  * Global template functions
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  */
 
 /**
@@ -45,7 +45,7 @@ function tAssignRef($pName, &$pVal) {
 
 /**
  * Parse and compiled specified template and return the parsed template.
- * This function also replaces all [[.*]] translation strings through kryn::translate().
+ * This function also replaces all [[.*]] translation strings through Kryn::translate().
  *
  * @param $pPath <module>/<template_file_in_views>
  * @return mixed
@@ -56,7 +56,7 @@ function tFetch($pPath) {
     global $tpl;
 
     $path = tPath($pPath);
-    return kryn::translate($tpl->fetch($path));
+    return Kryn::translate($tpl->fetch($path));
 }
 
 /**
@@ -69,7 +69,7 @@ function tPath($pPath){
     $pos = strpos($pPath, '/');
     $file = substr($pPath, $pos+1);
     $module = substr($pPath, 0, $pos);
-    return (($module == 'kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'views/' . $file;
+    return (($module == 'Kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'views/' . $file;
 }
 
 /**

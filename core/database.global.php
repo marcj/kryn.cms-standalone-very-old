@@ -4,7 +4,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -15,7 +15,7 @@
 /**
  * Global framework functions
  *
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  */
 
 
@@ -78,9 +78,9 @@ function dbQuote($pValue, $pTable = ''){
  * @return mixed
  */
 function dbConnection($pSlave = null) {
-    if ($pSlave !== null) kryn::$dbConnectionIsSlave = $pSlave;
-    kryn::$dbConnection = Propel::getConnection(null, kryn::$dbConnectionIsSlave);
-    return kryn::$dbConnection;
+    if ($pSlave !== null) Kryn::$dbConnectionIsSlave = $pSlave;
+    Kryn::$dbConnection = Propel::getConnection(null, Kryn::$dbConnectionIsSlave);
+    return Kryn::$dbConnection;
 }
 
 /**
@@ -99,7 +99,7 @@ function dbBegin(){
  */
 function dbRollback(){
 
-    if (database::$activeLock && kryn::$config['db_type'] == 'mysql'){
+    if (database::$activeLock && Kryn::$config['db_type'] == 'mysql'){
         dbLock('UNLOCK TABLES');
         database::$activeLock = false;
     }
@@ -116,7 +116,7 @@ function dbRollback(){
  */
 function dbCommit(){
 
-    if (database::$activeLock && kryn::$config['db_type'] == 'mysql'){
+    if (database::$activeLock && Kryn::$config['db_type'] == 'mysql'){
         dbLock('UNLOCK TABLES');
         database::$activeLock = false;
     }
@@ -163,7 +163,7 @@ function dbLock($pTable, $pMode = 'read'){
 
     database::$activeLock = true;
 
-    if (kryn::$config['db_type'] != 'postgresql')
+    if (Kryn::$config['db_type'] != 'postgresql')
         dbExec('LOCK TABLE '.dbQuote(dbTableName($pTable)).' '.($pMode=='read'?'READ':'WRITE'));
     else {
         dbExec('LOCK TABLE '.dbQuote(dbTableName($pTable)).' IN '.($pMode=='read'?'ACCESS SHARE':'ROW EXCLUSIVE MODE'));
@@ -241,7 +241,7 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
     if ($_REQUEST['lang'])
         $lang = esc($_REQUEST['lang']);
     else
-        $lang = kryn::$language;
+        $lang = Kryn::$language;
     if ($pWhere)
         $pWhere = " lang = '$lang' AND " . $pWhere;
     else
@@ -300,7 +300,7 @@ function dbTableName($pTable){
  * Inserts the values based on pFields into the table pTable.
  *
  * @param string $pTable  The table name based on your extension table definition
- * @param array  $pData Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
+ * @param array  $pData Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Kryn.org/docu/developer/framework-database
  *
  * @return integer The last_insert_id() (if you use auto_increment/sequences)
  */
@@ -377,7 +377,7 @@ function dbLastId() {
  *
  * @param string       $pTable   The table name based on your extension table definition
  * @param string|array $pCondition Define the limitation as a SQL or as a array ('field' => 'value')
- * @param array        $pData  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.kryn.org/docu/developer/framework-database
+ * @param array        $pData  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Kryn.org/docu/developer/framework-database
  *
  * @return type
  */
@@ -535,7 +535,7 @@ function dbCount($pTable, $pWhere = false) {
 
     $table = dbQuote(dbTableName($pTable));
 
-    if (kryn::$config['db_type'] == 'postgresql'){
+    if (Kryn::$config['db_type'] == 'postgresql'){
 
         $columns = array_keys(database::getColumns(dbTableName($pTable)));
         $firstColumn = $columns[0];
@@ -835,7 +835,7 @@ function dbConditionSingleField($pCondition, $pTable = ''){
     }
 
     if (strtolower($pCondition[1]) == 'regexp')
-        $result .= kryn::$config['db_type']=='mysql'?'REGEXP':'~';
+        $result .= Kryn::$config['db_type']=='mysql'?'REGEXP':'~';
     else
         $result .= $pCondition[1];
 

@@ -16,14 +16,12 @@ define('PATH_MEDIA', 'media/');
 * @globals
 */
 $cfg = array();
-$languages = array();
 $kcache = array();
 $_AGET = array();
-$tpl = false;
-error_reporting(E_ALL ^ E_NOTICE);
 
-
-# install
+/**
+ * Check and loading config.php or redirect to install.php
+ */
 if (!file_exists('config.php')) {
     header("Location: install.php");
     exit;
@@ -31,55 +29,78 @@ if (!file_exists('config.php')) {
 
 include('config.php');
 
-/*if (!array_key_exists('display_errors', $cfg))
-    $cfg['display_errors'] = 0;
 
+
+
+error_reporting(E_ALL ^ E_NOTICE);
+
+if (!array_key_exists('display_errors', $cfg))
+    $cfg['display_errors'] = 0;
 
 if ($cfg['display_errors'] == 0) {
     @ini_set('display_errors', 0);
 } else {
     @ini_set('display_errors', 1);
-}*/
+}
 
+/**
+ * Define global functions.
+ */
 include(PATH_CORE.'misc.global.php');
 include(PATH_CORE.'database.global.php');
 include(PATH_CORE.'template.global.php');
 include(PATH_CORE.'internal.global.php');
 include(PATH_CORE.'framework.global.php');
 
-# Load important classes
+# Load very important classes.
 include('lib/propel/runtime/lib/Propel.php');
-include(PATH_CORE.'kryn.class.php');
+include(PATH_CORE . 'Kryn.class.php');
 
-kryn::$config = $cfg;
 
-function krynAutoLoad($class) {
+Kryn::$config = $cfg;
 
-    if (file_exists(PATH_CORE . $class . '.class.php')){
-        include PATH_CORE . $class . '.class.php';
-        return true;
-    } else if (file_exists(PATH_CORE . '/entities/' . $class . '.class.php')){
-        include PATH_CORE . '/entities/' . $class . '.class.php';
-        return true;
-    } else if (file_exists('lib/Smarty/' . $class . '.class.php')){
-        include 'lib/Smarty/' . $class . '.class.php';
-        return true;
-    } else if (kryn::$propelClassMap[$class.'.php']){
-        include kryn::$propelClassMap[$class.'.php'];
-        return true;
-    } else {
-        foreach (kryn::$extensions as $extension){
-            if (file_exists($file = PATH_MODULE . $extension.'/'.$class.'.class.php')){
-                include $file;
-                return true;
-            }
+/**
+ * Load active modules into Kryn::$extensions.
+ */
+Kryn::loadActiveModules();
+
+
+/**
+ * Register auto loader.
+ *
+ */
+//init auto-loader for module folder.
+foreach (Kryn::$extensions as $extension){
+    spl_autoload_register(function($pClass) use($extension){
+        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/'.
+            str_replace('\\', '/', substr($pClass, (($pos=strpos($pClass,'\\'))?$pos+1:0)))
+            .'.class.php')){
+
+            require_once($file);
+            return true;
         }
+    });
+}
+
+//init auto-loader for propel libs.
+spl_autoload_register(function ($pClass) {
+    if (file_exists(PATH_CORE . '/entities/' . $pClass . '.class.php')){
+        include PATH_CORE . '/entities/' . $pClass . '.class.php';
+        return true;
+    } else if (file_exists('lib/Smarty/' . $pClass . '.class.php')){
+        include 'lib/Smarty/' . $pClass . '.class.php';
+        return true;
+    } else if (Kryn::$propelClassMap[$pClass.'.php']){
+        include Kryn::$propelClassMap[$pClass.'.php'];
+        return true;
     }
-};
+});
 
-spl_autoload_register('krynAutoLoad');
-kryn::loadActiveModules();
 
+
+/**
+ * Propel orm initialisation.
+ */
 
 if (!file_exists($file = 'propel-config.php')){
     propelHelper::init();
@@ -89,7 +110,10 @@ Propel::init($file);
 set_include_path("propel/build/classes" . PATH_SEPARATOR . get_include_path());
 
 $propelConfig = include($file);
-kryn::$propelClassMap = $propelConfig['classmap'];
+Kryn::$propelClassMap = $propelConfig['classmap'];
+
+
+
 
 date_default_timezone_set($cfg['timezone']);
 
@@ -109,10 +133,10 @@ if ($_SERVER['SERVER_PORT'] != 80) {
 $_REQUEST['lang'] = ($_GET['lang']) ? $_GET['lang'] : $_POST['lang'];
 
 //read out the url so that we can use getArgv()
-kryn::prepareUrl();
+Kryn::prepareUrl();
 
-kryn::$admin = (getArgv(1) == 'admin');
-tAssign('admin', kryn::$admin);
+Kryn::$admin = (getArgv(1) == 'admin');
+tAssign('admin', Kryn::$admin);
 
 //special file /krynJavascriptGlobalPath.js
 if (getArgv(1) == 'krynJavascriptGlobalPath.js') {
@@ -125,29 +149,29 @@ if (getArgv(1) == 'krynJavascriptGlobalPath.js') {
 /*
  * Initialize the inc/config.php values. Make some vars compatible to older versions etc.
  */
-kryn::initConfig();
+Kryn::initConfig();
 
 
 
 /*
  * Load current language
  */
-kryn::loadLanguage();
+Kryn::loadLanguage();
 
 
 /*
  * Load themes, db scheme and object definitions from configs
  */
-kryn::loadModuleConfigs();
+Kryn::loadModuleConfigs();
 
 
-kryn::initModules();
+Kryn::initModules();
 
 if (getArgv(1) == 'admin') {
     /*
     * Load the whole config of all modules
     */
-    kryn::loadConfigs();
+    Kryn::loadConfigs();
 }
 
 ?>

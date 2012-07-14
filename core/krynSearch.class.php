@@ -30,17 +30,17 @@ class krynSearch extends baseModule {
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
 
             //force could only be enabled with correct search_index_key for this domain
-            $validation = dbExFetch("SELECT id FROM %pfx%system_domains WHERE id = " . kryn::$domain['id'] .
+            $validation = dbExFetch("SELECT id FROM %pfx%system_domains WHERE id = " . Kryn::$domain['id'] .
                 " AND search_index_key = '" . esc($_REQUEST['forceSearchIndex']) . "'", 1);
 
-            if (!empty($validation) && $validation['id'] == kryn::$domain['id'])
+            if (!empty($validation) && $validation['id'] == Kryn::$domain['id'])
                 self::$forceSearchIndex = $_REQUEST['forceSearchIndex'];
 
         }
 
-        if (getArgv(1) == 'admin' || kryn::$page['id'] + 0 == 0) return;
+        if (getArgv(1) == 'admin' || Kryn::$page['id'] + 0 == 0) return;
 
-        if (kryn::$page['unsearchable'] == 1) return;
+        if (Kryn::$page['unsearchable'] == 1) return;
 
         if (getArgv('kVersionId') || getArgv('kryn_framework_version_id')) {
             return 6;
@@ -50,11 +50,11 @@ class krynSearch extends baseModule {
         $indexedContent = self::stripContent($pContent);
         $contentMd5 = md5($indexedContent);
 
-        $cashkey = 'krynSearch_' . kryn::$page['id'] . '_' . $contentMd5;
+        $cashkey = 'krynSearch_' . Kryn::$page['id'] . '_' . $contentMd5;
 
-        $cache = kryn::getCache($cashkey);
+        $cache = Kryn::getCache($cashkey);
 
-        $a = '/' . kryn::getRequestPageUrl(true);
+        $a = '/' . Kryn::getRequestPageUrl(true);
         $b = $cache['url'];
 
         if ($cache && $b === "")
@@ -68,7 +68,7 @@ class krynSearch extends baseModule {
 
         //check if we have additional arguments which doesnt change the content
         if ($cache && strlen($b) < strlen($a)
-            && (strpos($b, '/' . kryn::$page['url']) === 0 || kryn::$isStartpage)
+            && (strpos($b, '/' . Kryn::$page['url']) === 0 || Kryn::$isStartpage)
             && self::$forceSearchIndex === false
         ) {
 
@@ -85,20 +85,20 @@ class krynSearch extends baseModule {
         //we now ready to index this content
         $values = array(
             'url' => self::$pageUrl,
-            'title' => kryn::$page['title'],
+            'title' => Kryn::$page['title'],
             'md5' => $contentMd5,
             'mdate' => time(),
-            'page_id' => kryn::$page['id'],
-            'domain_id' => kryn::$domain['id'],
+            'page_id' => Kryn::$page['id'],
+            'domain_id' => Kryn::$domain['id'],
             'page_content' => $indexedContent
         );
 
-        $where = array('url' => $a, 'domain_id' => kryn::$domain['id']);
+        $where = array('url' => $a, 'domain_id' => Kryn::$domain['id']);
 
         if (!$cache['id']) {
 
             $row = dbExfetch("SELECT url FROM %pfx%system_search WHERE url='" . esc($a) . "' AND domain_id = " .
-                             kryn::$domain['id'], 1);
+                             Kryn::$domain['id'], 1);
 
             if ($row['url']) {
                 dbUpdate('system_search', $where, $values);
@@ -109,7 +109,7 @@ class krynSearch extends baseModule {
             dbUpdate('system_search', $where, $values);
         }
 
-        kryn::setCache($cashkey, array(
+        Kryn::setCache($cashkey, array(
             'url' => $a
         ));
 
@@ -131,14 +131,14 @@ class krynSearch extends baseModule {
 
         );
         $pContent = preg_replace($arSearch, '', $pContent);
-        return kryn::compress(strip_tags($pContent, '<p><br><br /><h1><h2><h3><h4><h5><h6>'));
+        return Kryn::compress(strip_tags($pContent, '<p><br><br /><h1><h2><h3><h4><h5><h6>'));
     }
 
     //search for links in parsed html content
     public static function getLinksInContent($pContent) {
         global $cfg;
 
-        kryn::replacePageIds($pContent);
+        Kryn::replacePageIds($pContent);
         $searchPattern = '#<a[^>]+href[^>]*=[^>]*\"([^\"]+)\"[^>]*>(.*)<\/a>#Uis';
         preg_match_all($searchPattern, $pContent, $matches, PREG_SET_ORDER);
 
@@ -154,7 +154,7 @@ class krynSearch extends baseModule {
                 || strpos($value[1], 'javascript:') === 0 || strpos($value[1], 'downloadfile') !== false
                 || strpos($value[1], '/admin') === 0 || strpos($value[1], 'admin') === 0 ||
                 strpos($value[1], 'users-logout:') !== false
-                || (strpos($value[1], 'http://' . kryn::$domain['domain']) === false &&
+                || (strpos($value[1], 'http://' . Kryn::$domain['domain']) === false &&
                     (strpos($value[1], 'http://') === 0) || strpos($value[1], 'https://') === 0)
                 || strpos($value[1], 'user:logout') !== false
             )
@@ -163,8 +163,8 @@ class krynSearch extends baseModule {
             //restore case-sensitivity
             $value[1] = $linkBackup;
 
-            if (strpos($value[1], kryn::$domain['path']) === 0) {
-                $value[1] = substr($value[1], strlen(kryn::$domain['path']));
+            if (strpos($value[1], Kryn::$domain['path']) === 0) {
+                $value[1] = substr($value[1], strlen(Kryn::$domain['path']));
             }
 
             if ($value[1] == '')
@@ -182,8 +182,8 @@ class krynSearch extends baseModule {
 
             //if absolute link transform to relative
             if (strpos($value[1], 'http://') === 0 || strpos($value[1], 'https://') === 0) {
-                $value[1] = substr($value[1], stripos($value[1], kryn::$domain['domain'] . $cfg['path']) +
-                                              strlen(kryn::$domain['domain'] . $cfg['path']) - 1);
+                $value[1] = substr($value[1], stripos($value[1], Kryn::$domain['domain'] . $cfg['path']) +
+                                              strlen(Kryn::$domain['domain'] . $cfg['path']) - 1);
             }
 
             $value[1] = str_replace('//', '/', $value[1]);
@@ -192,13 +192,13 @@ class krynSearch extends baseModule {
             if (substr($value[1], -1) == '/')
                 $value[1] = substr($value[1], 0, -1);
 
-            if (!isset($arInserted[kryn::$domain['id'] . '_' . $value[1]]) &&
-                !isset($arInserted[kryn::$domain['id'] . '_' . $value[1]]) && strlen($value[1]) > 0
+            if (!isset($arInserted[Kryn::$domain['id'] . '_' . $value[1]]) &&
+                !isset($arInserted[Kryn::$domain['id'] . '_' . $value[1]]) && strlen($value[1]) > 0
             ) {
 
-                $arInserted[kryn::$domain['id'] . '_' . $value[1]] = true;
+                $arInserted[Kryn::$domain['id'] . '_' . $value[1]] = true;
 
-                self::disposePageForIndex($value[1], 'LINK ' . esc($value[1]), kryn::$domain['id']);
+                self::disposePageForIndex($value[1], 'LINK ' . esc($value[1]), Kryn::$domain['id']);
 
                 self::$jsonFoundPages[] = $value[1];
             }
@@ -247,7 +247,7 @@ class krynSearch extends baseModule {
     public static function clearSearchIndex() {
 
         dbDelete('system_search');
-        kryn::invalidateCache('krynSearch');
+        Kryn::invalidateCache('krynSearch');
 
         return array('state' => true);
     }

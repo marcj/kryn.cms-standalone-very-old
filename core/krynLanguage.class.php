@@ -23,7 +23,7 @@ class krynLanguage {
         $path = PATH_MODULE.''.$pModuleName.'/lang/'.$pLang.'.json';
         //load old method: json
         if( file_exists($path) ){
-            $json = kryn::fileRead( PATH_MODULE.''.$pModuleName.'/lang/'.$pLang.'.json' );
+            $json = Kryn::fileRead( PATH_MODULE.''.$pModuleName.'/lang/'.$pLang.'.json' );
             $res = json_decode($json,true);
         } else {
             $res = array();
@@ -60,7 +60,7 @@ class krynLanguage {
     public static function parsePo($pModuleName, $pLang) {
 
         $file = PATH_MODULE . $pModuleName . '/lang/' . $pLang . '.po';
-        if ($pModuleName == 'kryn')
+        if ($pModuleName == 'Kryn')
             $file = PATH_MODULE.'lang/' . $pLang . '.po';
 
 
@@ -137,9 +137,9 @@ class krynLanguage {
 
     public static function saveLanguage($pModuleName, $pLang, $pLangs) {
 
-        kryn::clearLanguageCache($pLang);
+        Kryn::clearLanguageCache($pLang);
         $file = PATH_MODULE . $pModuleName . '/lang/' . $pLang . '.po';
-        if ($pModuleName == 'kryn')
+        if ($pModuleName == 'Kryn')
             $file = PATH_CORE.'lang/' . $pLang . '.po';
 
         mkdir(dirname($file));
@@ -216,7 +216,7 @@ msgstr ""
         }
         fclose($fh);
 
-        kryn::clearLanguageCache($pLang);
+        Kryn::clearLanguageCache($pLang);
         return true;
 
     }
@@ -227,11 +227,11 @@ msgstr ""
 
         $mod = $pModuleName;
 
-        if ($pModuleName == 'kryn') {
+        if ($pModuleName == 'Kryn') {
 
-            $config = 'inc/kryn/config.json';
+            $config = 'inc/Kryn/config.json';
             self::readDirectory(PHP_CORE);
-            self::readDirectory(PATH_MEDIA.'kryn');
+            self::readDirectory(PATH_MEDIA.'Kryn');
         } else {
             self::readDirectory(PATH_MODULE . $mod);
             self::readDirectory(PATH_MEDIA . $mod);
@@ -247,7 +247,7 @@ msgstr ""
             require_once(PATH_MODULE . 'admin/adminWindowList.class.php');
             foreach ($classes as $class) {
 
-                $classPlain = kryn::fileRead($class);
+                $classPlain = Kryn::fileRead($class);
                 if (preg_match('/ extends window(Add|List|Edit)/', $classPlain)) {
                     require_once($class);
                     $className = str_replace(PATH_MODULE . '' . $mod . '/', '', $class);

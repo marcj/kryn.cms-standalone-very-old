@@ -2206,7 +2206,7 @@ msgstr ""
 msgid "You need then a extra field 'lang' varchar(2)"
 msgstr ""
 
-msgid "You need then a extra field 'domain_rsn' int"
+msgid "You need then a extra field 'domain_id' int"
 msgstr ""
 
 msgid "Admin entry points"
@@ -2650,7 +2650,7 @@ msgstr ""
 msgid "The windows gets then a language chooser on the right top bar. The object or table needs a extra field 'lang' for this."
 msgstr ""
 
-msgid "Useful, when these objects are categorized usually under domains. The windows gets then a domain chooser on the right top bar. The object or table needs a extra field 'domain_rsn' for this."
+msgid "Useful, when these objects are categorized usually under domains. The windows gets then a domain chooser on the right top bar. The object or table needs a extra field 'domain_id' for this."
 msgstr ""
 
 msgid "Window"

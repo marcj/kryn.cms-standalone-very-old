@@ -29,7 +29,7 @@
             <reference local="group_id" foreign="id"/>
         </foreign-key>
     </table>
-    
+
     <table name="system_group" phpName="Group" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="close" type="INTEGER" required="false"/>

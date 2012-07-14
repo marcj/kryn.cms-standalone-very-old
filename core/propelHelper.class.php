@@ -16,11 +16,11 @@ class propelHelper {
             $result = self::fullGenerator();
         } catch(Exception $e){
             self::cleanup();
-            kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
+            Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
         }
 
         self::cleanup();
-        kryn::internalMessage('Propel initialization', $result);
+        Kryn::internalMessage('Propel initialization', $result);
     }
 
     public static function fullGenerator(){
@@ -45,7 +45,7 @@ class propelHelper {
     public static function generateClasses(){
 
         //delete old map/om folders
-        foreach (kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension){
             delDir(PATH_MODULE.$extension.'/model/map/');
             delDir(PATH_MODULE.$extension.'/model/om');
         }
@@ -66,8 +66,8 @@ class propelHelper {
             die('self::$classDefinition is empty. Need propelHelper::moveClasses() first.');
         }
 
-        $file         = 'propel/build/conf/kryn-conf.php';
-        $classMapFile = 'propel/build/conf/classmap-kryn-conf.php';
+        $file         = 'propel/build/conf/Kryn-conf.php';
+        $classMapFile = 'propel/build/conf/classmap-Kryn-conf.php';
 
         if (!file_exists($file)){
             self::writeXmlConfig();
@@ -80,7 +80,7 @@ class propelHelper {
 
         $classDefinition = '$conf[\'classmap\'] = '.var_export(self::$classDefinition, true).";\n";
 
-        $line = '$conf[\'classmap\'] = include(dirname(__FILE__) . DIRECTORY_SEPARATOR . \'classmap-kryn-conf.php\');';
+        $line = '$conf[\'classmap\'] = include(dirname(__FILE__) . DIRECTORY_SEPARATOR . \'classmap-Kryn-conf.php\');';
         $config = str_replace($line, $classDefinition, $config);
 
         file_put_contents('propel-config.php', $config);
@@ -131,7 +131,7 @@ class propelHelper {
 
                 if (!is_dir($targetDir)) if(!mkdir($targetDir)) die('Can not create folder '.$targetDir);
 
-                $source = 'propel/build/classes/kryn/'.$file;
+                $source = 'propel/build/classes/Kryn/'.$file;
 
                 if (!file_exists($source)){
                     $content .= "[move][$extension] ERROR can not find $source.\n";
@@ -154,7 +154,7 @@ class propelHelper {
     public static function updateSchema(){
 
         if (!Propel::isInit()){
-            $file = 'propel/build/conf/kryn-conf.php';
+            $file = 'propel/build/conf/Kryn-conf.php';
             Propel::init($file);
         }
 
@@ -197,7 +197,7 @@ class propelHelper {
 
         $sql = $obj->getUpSQL();
 
-        $sql = $sql['kryn'];
+        $sql = $sql['Kryn'];
         unlink($lastMigrationFile);
 
         $sql = preg_replace('/^DROP TABLE .*$/im', '', $sql);
@@ -208,11 +208,11 @@ class propelHelper {
 
     public static function writeSchema(){
 
-        $newSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">\n     ";
+        $newSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"Kryn\" defaultIdMethod=\"native\">\n     ";
 
-        foreach (kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension){
 
-            if ($extension == 'kryn') continue;
+            if ($extension == 'Kryn') continue;
 
             if (file_exists($schema = PATH_MODULE.$extension.'/model/schema.xml')){
 
@@ -313,18 +313,18 @@ class propelHelper {
         if (!mkdirr($folder = 'propel/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = kryn::$config['db_type'];
+        $adapter = Kryn::$config['db_type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.kryn::$config['db_server'].';dbname='.kryn::$config['db_name'].';';
+        $dsn = $adapter.':host='.Kryn::$config['db_server'].';dbname='.Kryn::$config['db_name'].';';
 
         $properties = '
 propel.database = '.$adapter.'
 propel.database.url = '.$dsn.'
-propel.database.user = '.kryn::$config['db_user'].'
-propel.database.password = '.kryn::$config['db_passwd'].'
-propel.tablePrefix = '.kryn::$config['db_prefix'].'
-propel.project = kryn';
+propel.database.user = '.Kryn::$config['db_user'].'
+propel.database.password = '.Kryn::$config['db_passwd'].'
+propel.tablePrefix = '.Kryn::$config['db_prefix'].'
+propel.project = Kryn';
 
         return file_put_contents('propel/build.properties', $properties)?true:false;
     }
@@ -334,27 +334,27 @@ propel.project = kryn';
         if (!mkdirr($folder = 'propel/build/conf/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = kryn::$config['db_type'];
+        $adapter = Kryn::$config['db_type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.kryn::$config['db_server'].';dbname='.kryn::$config['db_name'].';';
+        $dsn = $adapter.':host='.Kryn::$config['db_server'].';dbname='.Kryn::$config['db_name'].';';
 
         $xml = '<?xml version="1.0"?>
 <config>
     <propel>
-        <datasources default="kryn">
-            <datasource id="kryn">
+        <datasources default="Kryn">
+            <datasource id="Kryn">
                 <adapter>'.$adapter.'</adapter>
                 <connection>
                     <classname>PropelPDO</classname>
                     <dsn>'.$dsn.'</dsn>
-                    <user>'.kryn::$config['db_user'].'</user>
-                    <password>'.kryn::$config['db_passwd'].'</password>
+                    <user>'.Kryn::$config['db_user'].'</user>
+                    <password>'.Kryn::$config['db_passwd'].'</password>
                     <options>
                         <option id="ATTR_PERSISTENT">true</option>
                     </options>';
 
-        if (kryn::$config['db_type'] == 'mysql'){
+        if (Kryn::$config['db_type'] == 'mysql'){
             $xml .= '
                     <attributes>
                         <option id="ATTR_EMULATE_PREPARES">true</option>

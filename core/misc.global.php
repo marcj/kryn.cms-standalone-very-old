@@ -4,7 +4,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -14,7 +14,7 @@
 
 /**
  * Global misc functions
- * @author MArc Schmidt <marc@kryn.org>
+ * @author MArc Schmidt <marc@Kryn.org>
  */
 
 
@@ -28,7 +28,7 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
 
     $mdate = filemtime($path);
 
-    $cachepath = $cfg['media_cache'] . '/' . kryn::toModRewrite($path) . kryn::toModRewrite($pResolution) . $mdate .
+    $cachepath = $cfg['media_cache'] . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
                  basename($pPath);
 
     if (!file_exists($cachepath)) {
@@ -266,7 +266,7 @@ function wget($pUrl, $pToFile = false, $pPostFiles = false) {
         foreach ($pPostFiles as $file) {
             $i++;
 
-            $content_file = kryn::fileRead($file);
+            $content_file = Kryn::fileRead($file);
             $content_type = mime_content_type($file);
             $data .= "
 Content-Disposition: form-data; name=\"file" . ($i) . "\"; filename=\"$file\"

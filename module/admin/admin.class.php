@@ -11,29 +11,11 @@
  *
  */
 
-class admin {
+class admin extends RestServerController {
 
-    public function activateLL() {
 
-        if (!$this) {
-            kryn::$modules->modules['admin']->activateLL();
-            return;
-        }
-        tAssign('activateLL', true);
+    public function __construct(){
 
-        if (getArgv('setActivateLLlang') != '') {
-            setcookie('activateLLlang', getArgv('setActivateLLlang'), time() + (60 * 60 * 24 * 7 * 265), '/');
-            $_COOKIE['activateLLlang'] = getArgv('setActivateLLlang');
-        }
-
-        if ($_COOKIE['activateLLlang'] != '')
-            $this->lang = $_COOKIE['activateLLlang'];
-
-        if ($this->lang == '')
-            $this->lang = 'de';
-
-        $_REQUEST['lang'] = $this->lang;
-        tAssign('activateLLlang', $this->lang);
     }
 
     public function content() {
@@ -44,65 +26,43 @@ class admin {
         if (getArgv('getLanguagePluralForm') != '')
             self::getLanguagePluralForm();
 
-
         if (getArgv('getPossibleLangs') == '1')
             self::printPossibleLangs();
 
-        header('Expires:');
-
-        require(PATH_MODULE . 'admin/adminWindow.class.php');
-        require(PATH_MODULE . 'admin/adminModule.class.php');
-        require(PATH_MODULE . 'admin/adminDb.class.php');
-        require(PATH_MODULE . 'admin/adminLayout.class.php');
-        require(PATH_MODULE . 'admin/adminPages.class.php');
-        require(PATH_MODULE . 'admin/adminSettings.class.php');
-        require(PATH_MODULE . 'admin/adminFilemanager.class.php');
-        require(PATH_MODULE . 'admin/adminSearchIndexer.class.php');
-        require(PATH_MODULE . 'admin/adminStore.class.php');
-        require(PATH_MODULE . 'admin/adminBackup.class.php');
-        require(PATH_MODULE . 'admin/adminFS.class.php');
-
-        tAssign("admin", true);
-
-        kryn::initModules();
+        @header('Expires:');
 
         $code = kryn::getRequestPath();
-        $info = self::getPathItem($code);
+        $pEntryPoint = self::getPathItem($code); //admin entry point
 
-        if (!$info) {
-            $info = self::getPathItem(substr($code, 6));
+        if (!$pEntryPoint) {
+            $pEntryPoint = self::getPathItem(substr($code, 6)); //extensions
         }
 
-        if ($info) {
-            if ($info['type'] == 'store') {
-
-                if (!$info['class']) {
-                    $obj = new adminStore();
-                } else {
-                    require_once(PATH_MODULE . '' . $info['_module'] . '/' . $info['class'] . '.class.php');
-                    $class = $info['class'];
-                    $obj = new $class();
-                }
-                json($obj->handle($info));
-            } else {
-                $adminWindows = array('edit', 'list', 'add', 'combine');
-                $obj = new adminWindow();
-
-                if ($_GET['cmd'] == 'getInfo') {
-                    json($info);
-                } else if (in_array($info['type'], $adminWindows)) {
-                    json($obj->handle($info));
-                }
-            }
-        } else if($_GET['cmd'] == 'getInfo'){
-            json(array('error'=>'param_failed'));
+        if ($pEntryPoint) {
+            adminRestEntryPoint::create('admin')->run($pEntryPoint);
         }
 
         if (kryn::$modules[getArgv(2)] && getArgv(2) != 'admin') {
 
-            json(kryn::$modules[getArgv(2)]->admin());
+            die(kryn::$modules[getArgv(2)]->admin());
 
         } else {
+
+            RestServer::create('admin/system')
+            ->addSubController('module/manager', '\Admin\Module\Manager')
+                //->addRoute('manage/([0-9]*)/([0-9]*)', 'manageInstall', array('asd'))
+                ->addRoute('install/pre', 'manageInstallPre', array('name'))
+                ->addRoute('install/extract', 'manageInstallExtract', array('name'))
+                ->addRoute('install/database', 'manageInstallDatabase', array('name'))
+                ->addRoute('install/post', 'manageInstallPost', array('name'))
+                ->done()
+            ->run();
+
+
+            //todo, rewrite all following to the new RestServer
+            exit;
+
+
             $content = null;
             switch (getArgv(2)) {
                 case 'mini-search':
@@ -228,6 +188,14 @@ class admin {
                     $content = filebrowser::init();
                     break;
                 case 'system':
+
+
+                    RestServer::create('admin/system')
+                    ->addSubController('module', 'adminModule')
+                        ->addRoute('manage/([0-9]*)/([0-9]*)', 'manageInstall', array('asd'))
+                        ->done()
+                    ->run();
+
                     switch (getArgv(3)) {
                         case 'tools':
                             switch (getArgv(4)) {
@@ -238,8 +206,11 @@ class admin {
                             }
                             break;
                         case 'module':
-                            $content = adminModule::init();
-                            break;
+
+                            RestServer::create('admin/system/module', 'adminModule')
+                            ->collectRoutes()
+                            ->run();
+
                         case 'settings':
                             $content = adminSettings::init();
                             break;
@@ -1573,15 +1544,85 @@ class admin {
             preg_replace('/{krynplugin plugin="(.*)?"}/U', "<img src=\"${path}admin/menu=pluginIcon/plugin=$1/\" class='krynPluginIcon' />", $content);
         json($res);
     }
+
+
     public function install() {
 
         dbDelete('system_page');
         dbDelete('system_contents');
 
 
-        $sqls = explode(";\n", kryn::fileRead(PATH_MODULE . 'admin/defaultData.sql'));
+        //setup pages
+
+        $domain = new Domain();
+        $domain->setDomain($_SERVER['SERVER_NAME']);
+
+        $path = dirname($_SERVER['REQUEST_URI']);
+        if( substr($path, 0, -1) != '/' ) $path .= '/';
+        $path = str_replace("//", "/", $path);
+        $path = str_replace('\\', '', $path);
+
+        $domain->setPath($path);
+        $domain->setTitleFormat('%title | Page title');
+        $domain->setMaster(1);
+        $domain->setLang('en');
+        $domain->setResourcecompression(1);
+        $domain->setSearchIndexKey(md5($_SERVER['SERVER_NAME'].'-'.@time().'-'.rand()));
+        $domain->save();
+
+        $root = new Page();
+        $root->setDomainId($domain->getId());
+        $root->makeRoot();
+        $root->setTitle('root');
+        $root->save();
+
+        $defaultLayout = 'th_krynDemo/layout_default.tpl';
+        $pages = array(
+
+            array(1, 'Blog', $defaultLayout, '',
+                array(),
+                array(
+                    array(1, 'Article', $defaultLayout, ''),
+                    array(2, 'Link')
+                )
+            )
+
+        );
+
+        /*
+         * 0: type
+         * 1: Title
+         * 2: url
+         * 3: layout
+         * 4: link target
+         * 5: contents
+         * 6: children
+         */
+        foreach ($pages as $page){
+            $oPage = new Page();
+            $oPage->setDomainId($domain->getId());
+            $oPage->setUrl($page[0]);
+            $oPage->setType($page[1]);
+            $oPage->setTitle($page[2]);
+            $oPage->setLayout($page[3]);
+            $oPage->insertAsLastChildOf($root);
+            $oPage->save();
+
+            if ($page[4])
+                $oPage->setLink($page[4]);
+
+            if ($page[5])
+                self::installPageContents($oPage, $page[5]);
+
+            if ($page[6]){
+                self::installPages($oPage, $page[6]);
+            }
+        }
+
+
+        /*$sqls = explode(";\n", kryn::fileRead(PATH_MODULE . 'admin/defaultData.sql'));
         foreach ($sqls as &$sql)
-            dbExec($sql);
+            dbExec($sql);*/
 
         dbDelete('system_langs');
         $h = fopen(PATH_MODULE . 'admin/ISO_639-1_codes.csv', 'r');
@@ -1595,6 +1636,70 @@ class admin {
 
     }
 
+    /**
+     * @static
+     * @param Page $pPage
+     * @param array $pChildren
+     */
+    public static function installPages($pPage, $pChildren){
+
+        /*
+         * 0: type
+         * 1: Title
+         * 2: url
+         * 3: layout
+         * 4: link target
+         * 5: contents
+         * 6: children
+         */
+        foreach ($pChildren as $page){
+            $oPage = new Page();
+            $oPage->setDomainId($pPage->getDomainId());
+            $oPage->setType($page[0]);
+            $oPage->setTitle($page[1]);
+            $oPage->setUrl($page[2]);
+            $oPage->setLayout($page[3]);
+            $oPage->insertAsLastChildOf($pPage);
+            $oPage->save();
+
+            if ($page[4])
+                $oPage->setLink($page[4]);
+
+            if ($page[5])
+                self::installPageContents($oPage, $page[5]);
+
+            if ($page[6]){
+                self::installPages($oPage, $page[6]);
+            }
+        }
+
+    }
+    /**
+     * @static
+     * @param Page $pPage
+     * @param array $pContents
+     */
+    public static function installPageContents($pPage, $pContents){
+
+        if (!is_array($pContents)) return;
+
+        /**
+         * 0: type
+         * 1: title
+         * 2: content
+         * 3: template
+         *
+         */
+        foreach ($pContents as $content){
+
+            $oContent = new PageContent();
+
+            $oContent->setPageId($pPage->getId());
+
+
+        }
+
+    }
 
     public static function addVersion($pTable, $pPrimary) {
 
@@ -1735,7 +1840,7 @@ class admin {
 
     }
 
-    public function cacheDeleteSystemDomain(){
+    public function cacheDeleteDomain(){
 
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)

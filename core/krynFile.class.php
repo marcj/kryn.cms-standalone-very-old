@@ -38,7 +38,7 @@ class krynFile {
                 $firstFolder = substr($pPath, 1, $sPos);
 
             //if firstFolder a magic folder?
-            if ($fs = kryn::$config['magic_folder'][$firstFolder]) {
+            if ($fs = Kryn::$config['magic_folder'][$firstFolder]) {
                 $class = $fs['class'];
                 $file = $fs['file'];
                 $params = $fs['params'];
@@ -220,8 +220,8 @@ class krynFile {
                 $file['path'] = $fs->magicFolderName.$file['path'];
 
         if($pPath == '/'){
-            if (is_array(kryn::$config['magic_folder'])) {
-                foreach (kryn::$config['magic_folder'] as $folder => &$config ){
+            if (is_array(Kryn::$config['magic_folder'])) {
+                foreach (Kryn::$config['magic_folder'] as $folder => &$config ){
                     $magic = array(
                         'path'  => '/'.$folder,
                         'magic' => true,
@@ -287,7 +287,7 @@ class krynFile {
     /**
      *
      * Returns the public URL of the file $pPath
-     * With HTTP or HTTPs, depends on kryn::$ssl.
+     * With HTTP or HTTPs, depends on Kryn::$ssl.
      *
      * @static
      * @param  string $pPath

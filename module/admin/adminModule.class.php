@@ -1,9 +1,29 @@
 <?php
 
-class adminModule {
+class adminModule extends RestServerController {
 
-
+    public static $defaultRepoServer = 'http://api.kryn.org/';
     private static $migrationCurrentPos = 0;
+
+
+    public static function manageInstall($pMethod, $pName){
+
+        $pModuleName = esc($pName, 2);
+
+        if (file_exists(PATH_MODULE . "$pName/$pName.class.php")) {
+            require_once(PATH_MODULE . "$pName/$pName.class.php");
+            if (class_exists($pName)){
+                $m = new $pName();
+                $m->install();
+            } else {
+                throw new Exception("Class $pName does not exist");
+            }
+        } else {
+            throw new Exception("Class file module/$pName/$pName.class.php does not exist");
+        }
+
+        return true;
+    }
 
     public static function init() {
         global $cfg;
@@ -13,6 +33,10 @@ class adminModule {
         }
 
         switch (getArgv(4)) {
+
+            case 'manage/install': return self::manageInstall(getArgv('module'));
+
+
             case 'deactivate':
                 return self::deactivate($_REQUEST['name']);
             case 'activate':
@@ -159,9 +183,10 @@ class adminModule {
      */
     public static function convertPagesTo10(){
 
-        $res = dbExec('SELECT id FROM '.pfx.'system_domains');
-        while ($row = dbFetch($res)){
-            self::convertPagesTo10Domain($row['id']);
+        $domains = SystemDomainQuery::create()->find();
+
+        foreach ($domains as $domain){
+            self::convertPagesTo10Domain($domain->getId());
         }
 
         return true;
@@ -172,12 +197,18 @@ class adminModule {
         $res = dbExec('SELECT id, pid FROM '.pfx.'system_page WHERE (pid = 0 OR pid IS NULL) AND domain_id = '.($pDomainRsn+0).
                       ' ORDER BY sort');
 
-        self::$migrationCurrentPos = 0;
+        self::$migrationCurrentPos = 2;
         while ($row = dbFetch($res)){
-
             self::convertPagesTo10Node($row['id']);
-
         }
+
+        dbInsert('system_page', array(
+            'title' => 'root',
+            'domain_id' => $pDomainRsn,
+            'type' => -1,
+            'lft' => 1,
+            'rgt' => self::$migrationCurrentPos
+        ));
 
     }
     public static function convertPagesTo10Node($pNodeRsn, $pDepth = 1){

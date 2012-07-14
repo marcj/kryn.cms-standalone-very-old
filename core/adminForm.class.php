@@ -3,7 +3,7 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
  * To get the full copyright and license informations, please view the
  * LICENSE file, that was distributed with this source code.
@@ -63,27 +63,27 @@ class adminForm {
     function formAdd(){
         if( getArgv('save') == '1' ){
             dbInsert( $this->fhTable, $this->updateItems );
-            kryn::redirect( $this->path );
+            Kryn::redirect( $this->path );
         }
         tAssign( 'add', $this->fhAddFields );
-        return tFetch( 'kryn/formHandler/add.tpl' );
+        return tFetch( 'Kryn/formHandler/add.tpl' );
     }
 
     function formDelete(){
         $id = getArgv('id')+0;
         dbDelete( $this->fhTable, "id=$id" );
-        kryn::redirect( $this->path );
+        Kryn::redirect( $this->path );
     }
 
     function formEdit(){
         $id = getArgv('id')+0;
         if( getArgv('save') == '1' ){
             dbUpdate( $this->fhTable, array('id' =>$id), $this->updateItems );
-            kryn::redirect( $this->path );
+            Kryn::redirect( $this->path );
         }
         tAssign( 'item', dbTableFetch( $this->fhTable, 1, "id=$id" ) );
         tAssign( 'edit', $this->fhAddFields );
-        return tFetch( 'kryn/formHandler/edit.tpl' );
+        return tFetch( 'Kryn/formHandler/edit.tpl' );
     }
 
     function formList(){
@@ -99,7 +99,7 @@ class adminForm {
         }
         tAssign( 'items', dbTableFetch( $this->fhTable, DB_FETCH_ALL, $where) );
         tAssign( 'list', $this->fhListFields );
-        return tFetch( 'kryn/formHandler/list.tpl' );
+        return tFetch( 'Kryn/formHandler/list.tpl' );
     }
 
     function loadPath(){

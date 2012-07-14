@@ -1,0 +1,497 @@
+<?php
+
+/**
+ * RestServer - A REST server class for RESTful APIs.
+ */
+
+class RestServer extends RestServerController {
+
+    /**
+     * Current routes.
+     *
+     * structure
+     *  array(
+     *    '<uri>' => array('<methodName', <requiredParams>, <optionalParams>);
+     *  )
+     *
+     * <uri> with no starting or trailing slash!
+     *
+     * array(
+     *   'book/(.*)/(.*)' => array('book') //calls book($method, $1, $2)
+     *   'house/(.*)' => array('book', array('sort')) //calls book($method, $1, getArgv('sort'))
+     *   'label/flatten' => array('getLabel', array('uri'))// Calls labelFlatten($method, getArgv('uri'))
+     *
+     *
+     *   'foo/bar' => array('getLabel', array('uri'), array('optionalSort'))
+     *   //Calls labelFlatten($method, getArgv('uri'), getArgv('optionalSort'))
+     * )
+     *
+     * @var array
+     */
+    private $routes = array();
+
+
+    /**
+     * Blacklisted http get arguments.
+     *
+     * @var array
+     */
+    private $blacklistedGetParameters = array('method', 'suppress_status_code');
+
+
+    /**
+     * Current URL that triggers the controller.
+     *
+     * @var string
+     */
+    private $triggerUrl = '';
+
+    /**
+     * List of possible methods.
+     * @var array
+     */
+    public $methods = array('get', 'post', 'put', 'delete');
+
+    /**
+     * Contains the current.
+     *
+     * Empty means $this.
+     *
+     * @var string
+     */
+    private $controllerClass = '';
+
+    /**
+     * Contains the controller object.
+     *
+     * @var string
+     */
+    private $controller = '';
+
+
+    /**
+     * List of sub controllers.
+     *
+     * @var array
+     */
+    private $controllers = array();
+
+
+    /**
+     * Parent controller.
+     *
+     * @var RestServer
+     */
+    private $parentController;
+
+    /**
+     * From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
+     * $var string
+     */
+    private $rewrittenRuleKey = '__url';
+
+
+    /**
+     * List of excluded methods.
+     *
+     * @var array|string array('methodOne', 'methodTwo') or * for all methods
+     */
+    private $collectRoutesExclude = array('__construct');
+
+
+    /**
+     * Current URL.
+     *
+     * @var string
+     */
+    private $url;
+
+
+    /**
+     * Constructor
+     *
+     * @param string $pTriggerUrl
+     * @param string $pControllerClass
+     * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
+     * @param RestServer $pParentController
+     */
+    public function __construct($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url',
+                                $pParentController = null){
+
+        $this->normalizeUrl($pTriggerUrl);
+
+        if ($pParentController){
+            $this->parentController = $pParentController;
+            $this->setClient($pParentController->getClient());
+        } else {
+            $this->setClient(new RestServerClient($this));
+        }
+
+        $this->rewrittenRuleKey = $pRewrittenRuleKey;
+        $this->setUrl($_GET[$this->rewrittenRuleKey]);
+
+        $this->setClass($pControllerClass);
+        $this->setTriggerUrl($pTriggerUrl);
+    }
+
+    /**
+     * Factory.
+     *
+     * @param string $pTriggerUrl
+     * @param string $pControllerClass
+     * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
+     *
+     * @return RestServer
+     */
+    public static function create($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
+        $clazz = get_called_class();
+        return new $clazz($pTriggerUrl, $pControllerClass, $pRewrittenRuleKey);
+    }
+
+    /**
+     * Alias for getParent()
+     *
+     * @return RestServer
+     */
+    public function done(){
+        return $this->getParent();
+    }
+
+    /**
+     * Returns the parent controller
+     *
+     * @return RestServer
+     */
+    public function getParent(){
+        return $this->parentController;
+    }
+
+    /**
+     * Set the URL that triggers the controller.
+     *
+     * @param $pTriggerUrl
+     * @return RestServer
+     */
+    public function setTriggerUrl($pTriggerUrl){
+        $this->triggerUrl = $pTriggerUrl;
+        return $this;
+    }
+
+
+    /**
+     * Gets the current trigger url.
+     *
+     * @return string
+     */
+    public function getTriggerUrl(){
+        return $this->triggerUrl;
+    }
+
+
+    /**
+     * Adds a new route.
+     *
+     * $pUri can be prefixed with the http methods to limit it:
+     *
+     *  'get:<uri>', 'post:<uri>', 'put:<uri>', 'delete:<uri>'
+     *
+     * Examples:
+     *
+     *   addRoute('get:object', 'getObject');       //calls ->getObject($method);
+     *   addRoute('post:object', 'addObject');      //calls ->addObject($method);
+     *   addRoute('put:object', 'setObject');       //calls ->setObject($method);
+     *   addRoute('delete:object', 'removeObject'); //calls ->removeObject($method);
+     *
+     *   addRoute('object', 'object', array('id'))  //calls ->object($method, $_GET['id']);
+     *   addRoute('object/([0-9]*)', 'object')      //calls ->object($method, $1);
+     *
+     *   addRoute('get:dogs', 'getDogs', null, array('limit', 'offset')
+     *                                              //calls ->getDogs($method, $_GET['limit'], $_GET['limit']);
+     *
+     *   addRoute('get:dog', 'getDog', array('id')  //calls ->getDogs($method, $_GET['id']);
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
+     * @param array  $pOptionalArguments
+     * @return RestServer
+     */
+    public function addRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
+        $this->routes[$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+        return $this;
+    }
+
+
+    /**
+     * Removes a route.
+     *
+     * @param string $pUri
+     * @return RestServer
+     */
+    public function removeRoute($pUri){
+        unset($this->routes[$pUri]);
+        return $this;
+    }
+
+
+    /**
+     * Returns the url.
+     *
+     * @return string
+     */
+    public function getUrl(){
+        return $this->url;
+    }
+
+
+    /**
+     * Set the url.
+     *
+     * @param string $pUrl
+     * @return RestServer $this
+     */
+    public function setUrl($pUrl){
+        $this->url = $pUrl;;
+        return $this;
+    }
+
+
+    /**
+     * Sets the controller class.
+     *
+     * @param $pClass
+     */
+    public function setClass($pClass){
+        $this->controllerClass = $pClass;
+        $this->createControllerClass();
+    }
+
+
+    /**
+     * Setup the controller class.
+     *
+     * @throws Exception
+     */
+    public function createControllerClass(){
+        if ($this->controllerClass != ''){
+            $clazz = $this->controllerClass;
+            try {
+                $this->controller = new $clazz();
+            } catch (Exception $e) {
+                throw new Exception('Error during initialisation of '.$clazz.': '.$e);
+            }
+        } else {
+            $this->controller = $this;
+        }
+    }
+
+    /**
+     * Constructor
+     *
+     * @param string $pTriggerUrl
+     * @param string $pControllerClass
+     * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
+     *
+     * @return RestServer new created RestServer
+     */
+    public function addSubController($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
+
+        $this->normalizeUrl($pTriggerUrl);
+
+        $controller = new RestServer($this->triggerUrl.'/'.$pTriggerUrl, $pControllerClass,
+            $pRewrittenRuleKey?$pRewrittenRuleKey:$this->rewrittenRuleKey, $this);
+
+        $this->controllers[] = $controller;
+
+        return $controller;
+    }
+
+    /**
+     * Normalize $pUrl
+     *
+     * @param $pUrl Ref
+     */
+    public function normalizeUrl(&$pUrl){
+        if (substr($pUrl, -1) == '/') $pUrl = substr($pUrl, 0, -1);
+        if (substr($pUrl, 0, 1) == '/') $pUrl = substr($pUrl, 1);
+    }
+
+
+    /**
+     * Sends data to the client with 200 http code.
+     *
+     * @param $pData
+     */
+    public function send($pData){
+        $this->getClient()->sendResponse(200, array('data' => $pData));
+    }
+
+    /**
+     * Setup automatic routes.
+     *
+     * @return RestServer
+     */
+    public function collectRoutes(){
+
+        if ($this->collectRoutesExclude == '*') return $this;
+
+        $methods = get_class_methods($this->controller);
+        foreach ($methods as $method){
+            if (in_array($method, $this->collectRoutesExclude)) continue;
+
+            $uri = strtolower(preg_replace('/([a-z])([A-Z])/', '$1/$2', $method));
+            $r = new ReflectionMethod($this->controller, $method);
+            if ($r->isPrivate()) continue;
+
+            $params = $r->getParameters();
+            $optionalArguments = array();
+            $arguments = array();
+            foreach ($params as $param){
+                $name = lcfirst(substr($param->getName(), 1));
+                if ($param->isOptional())
+                    $optionalArguments[] = $name;
+                else
+                    $arguments[] = $name;
+            }
+            $this->routes[$uri] = array(
+                $method,
+                count($arguments)==0?null:$arguments.
+                    count($optionalArguments)==0?null:$optionalArguments
+            );
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Fire the magic!
+     *
+     * Searches the method and sends the data to the client.
+     *
+     * @return mixed
+     */
+    public function run(){
+
+        //check sub controller
+        foreach ($this->controllers as $controller)
+            $controller->run();
+
+        //check if its in our area
+        if (strpos($this->getUrl(), $this->triggerUrl) !== 0) return;
+
+        $uri = substr($this->getUrl(), strlen($this->triggerUrl));
+
+        $this->normalizeUrl($uri);
+
+        $route = false;
+        $arguments = array();
+
+        //add method
+        $arguments[] = $this->getMethod();
+
+        //does the requested uri exist?
+        if (!list($route, $regexArguments) = $this->findRoute($uri)){
+            $this->sendError('method_not_found', "There is no route for '$uri''.");
+        } else {
+            $arguments = array_merge($arguments, $regexArguments);
+        }
+
+        //map required arguments
+        if (is_array($route[1])){
+            foreach ($route[1] as $argument){
+                if ($_GET[$argument] === null)
+                    $this->sendBadRequest('required_argument_not_found', "Argument '$argument' is missing.");
+
+                $arguments[] = $_GET[$argument];
+            }
+        }
+
+        //map optional arguments
+        if (is_array($route[2])){
+            foreach ($route[2] as $argument){
+
+                if ($_GET[$argument])
+                    $arguments[] = $_GET[$argument];
+            }
+        }
+
+        //fire method
+        $method = $route[0];
+        $object = $this->controller;
+        try {
+            $data = call_user_func_array(array($object, $method), $arguments);
+            $this->send($data);
+        } catch(Exception $e){
+            $this->sendError('php_error', $e);
+        }
+
+    }
+
+    /**
+     * Detect the method.
+     *
+     * @return string
+     */
+    public function getMethod(){
+
+        $method = $_SERVER['REQUEST_METHOD'];
+        if ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])
+            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+
+        if ($_GET['method'])
+            $method = $_GET['method'];
+
+        $method = strtolower($method);
+
+        if (!in_array($method, $this->methods))
+            $method = 'get';
+
+        return $method;
+
+    }
+
+    /**
+     * Find and return the route for $pUri.
+     *
+     * @param string $pUri
+     * @return array|boolean
+     */
+    public function findRoute($pUri){
+
+        $def = false;
+
+        $methods[] = '';
+        $arguments = array();
+
+        foreach ($this->methods as $method)
+            $methods[] = $method.':';
+
+        foreach ($methods as $method){
+
+            $uri = $method.$pUri;
+            if (!$this->routes[$uri]){
+
+                //maybe we have a regex uri
+                foreach ($this->routes as $routeUri => $routeDef){
+                    if (preg_match('|'.$routeUri.'|', $uri, $matches)){
+                        $def = $routeDef;
+                        array_shift($matches);
+                        foreach ($matches as $match){
+                            $arguments[] = $match;
+                        }
+                        break;
+                    }
+                }
+
+                if (!$def)
+                    $this->sendError('method_not_found', 'There is no route for '.$pUri.'.');
+            } else {
+                $def = $this->routes[$uri];
+            }
+        }
+
+        return array($def, $arguments);
+    }
+
+}
