@@ -4,6 +4,10 @@ namespace Admin\Module;
 
 class Manager extends \RestServerController {
 
+    function __construct(){
+        define('KRYN_MANAGER', true);
+    }
+
 
     /**
      * Returns if all dependencies are fine.
@@ -63,7 +67,19 @@ class Manager extends \RestServerController {
      */
     public function installDatabase($pMethod, $pName){
 
+        $file = $this->getScriptFile($pName, 'install-database');
+        if (file_exists($file)){
 
+            try {
+                require($file);
+            } catch(\Exception $e){
+                $this->sendError('execution_failed', $e);
+            }
+
+            return 'execution_successful';
+        }
+
+        $this->sendError('no_install_database_script_found', 'The extension '.$pName.' does not have a package/install-database.php script.');
 
     }
 
@@ -132,6 +148,14 @@ class Manager extends \RestServerController {
 
 
 
+
+    }
+
+
+    private function getScriptFile($pExtension, $pName){
+
+        $name = esc($pExtension, 2);
+        return PATH_MODULE . $name . '/package/' . $pName . '.php';
 
     }
 }

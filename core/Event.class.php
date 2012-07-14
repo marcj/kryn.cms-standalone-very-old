@@ -1,7 +1,8 @@
 <?php
 
+namespace Core;
 
-class krynEvent {
+class Event {
 
 
     private static $events = array();

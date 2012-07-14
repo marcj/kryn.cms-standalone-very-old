@@ -25,7 +25,7 @@
         </index>
     </table>
 
-    <table name="system_content" phpName="PageContent" idMethod="native">
+    <table name="system_page_content" phpName="PageContent" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="page_id" type="INTEGER" required="false"/>
         <column name="version_id" type="INTEGER" required="false"/>
@@ -33,8 +33,7 @@
         <column name="content" type="LONGVARCHAR" required="false"/>
         <column name="template" type="VARCHAR" size="64" required="false"/>
         <column name="type" type="VARCHAR" size="64" required="false"/>
-        <column name="mdate" type="INTEGER" required="false"/>
-        <column name="cdate" type="INTEGER" required="false"/>
+
         <column name="hide" type="INTEGER" required="false"/>
         <column name="sort" type="INTEGER" required="false"/>
         <column name="box_id" type="INTEGER" required="false"/>
@@ -43,6 +42,7 @@
         <column name="access_to" type="INTEGER" required="false"/>
         <column name="access_from_groups" type="VARCHAR" size="32" required="false"/>
         <column name="unsearchable" type="INTEGER" required="false"/>
+
         <index>
             <index-column name="box_id"/>
         </index>

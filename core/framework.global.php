@@ -87,25 +87,37 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
 
     $id = ($pContext == '') ? $pMsg : $pContext . "\004" . $pMsg;
 
-    if (Kryn::$lang[$id]) {
-        if (is_array(Kryn::$lang[$id])) {
+    if (Core\Kryn::$lang[$id]) {
+        if (is_array(Core\Kryn::$lang[$id])) {
 
             if ($pCount){
-                $plural = intval(@call_user_func('gettext_plural_fn_' . Kryn::$lang['__lang'], $pCount));
-                if ($pCount && Kryn::$lang[$id][$plural])
+                $plural = intval(@call_user_func('gettext_plural_fn_' . Core\Kryn::$lang['__lang'], $pCount));
+                if ($pCount && Core\Kryn::$lang[$id][$plural])
                     return str_replace('%d', $pCount, Kryn::$lang[$id][$plural]);
                 else
                     return (($pCount === null || $pCount === false || $pCount === 1) ? $pMsg : $pPlural);
             } else {
-                return Kryn::$lang[$id][0];
+                return Core\Kryn::$lang[$id][0];
             }
         } else {
-            return Kryn::$lang[$id];
+            return Core\Kryn::$lang[$id];
         }
     } else {
         return ($pCount === null || $pCount === false || $pCount === 1) ? $pMsg : $pPlural;
     }
 
+}
+
+/**
+ * Return a translated formatted message $pMsg with sprintf.
+ *
+ * @param string $pMsg message id (msgid)
+ * @param string $pData ...
+ *
+ * @return string
+*/
+function tf(){
+    return t(call_user_func_array('sprintf', func_get_args()));
 }
 
 /**

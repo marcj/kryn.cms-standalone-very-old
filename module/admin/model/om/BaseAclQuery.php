@@ -61,7 +61,7 @@
  * @method     array findByConstraintType(int $constraint_type) Return Acl objects filtered by the constraint_type column
  * @method     array findByConstraintCode(string $constraint_code) Return Acl objects filtered by the constraint_code column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseAclQuery extends ModelCriteria
 {
@@ -73,7 +73,7 @@ abstract class BaseAclQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Acl', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Acl', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

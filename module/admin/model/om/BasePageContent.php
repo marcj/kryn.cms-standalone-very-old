@@ -2,11 +2,11 @@
 
 
 /**
- * Base class that represents a row from the 'kryn_system_content' table.
+ * Base class that represents a row from the 'kryn_system_page_content' table.
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BasePageContent extends BaseObject 
 {
@@ -73,18 +73,6 @@ abstract class BasePageContent extends BaseObject
     protected $type;
 
     /**
-     * The value for the mdate field.
-     * @var        int
-     */
-    protected $mdate;
-
-    /**
-     * The value for the cdate field.
-     * @var        int
-     */
-    protected $cdate;
-
-    /**
      * The value for the hide field.
      * @var        int
      */
@@ -131,6 +119,16 @@ abstract class BasePageContent extends BaseObject
      * @var        int
      */
     protected $unsearchable;
+
+    /**
+     * @var        Page
+     */
+    protected $aPage;
+
+    /**
+     * @var        PageVersion
+     */
+    protected $aPageVersion;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -221,28 +219,6 @@ abstract class BasePageContent extends BaseObject
     {
 
         return $this->type;
-    }
-
-    /**
-     * Get the [mdate] column value.
-     * 
-     * @return   int
-     */
-    public function getMdate()
-    {
-
-        return $this->mdate;
-    }
-
-    /**
-     * Get the [cdate] column value.
-     * 
-     * @return   int
-     */
-    public function getCdate()
-    {
-
-        return $this->cdate;
     }
 
     /**
@@ -371,6 +347,10 @@ abstract class BasePageContent extends BaseObject
             $this->modifiedColumns[] = PageContentPeer::PAGE_ID;
         }
 
+        if ($this->aPage !== null && $this->aPage->getId() !== $v) {
+            $this->aPage = null;
+        }
+
 
         return $this;
     } // setPageId()
@@ -390,6 +370,10 @@ abstract class BasePageContent extends BaseObject
         if ($this->version_id !== $v) {
             $this->version_id = $v;
             $this->modifiedColumns[] = PageContentPeer::VERSION_ID;
+        }
+
+        if ($this->aPageVersion !== null && $this->aPageVersion->getId() !== $v) {
+            $this->aPageVersion = null;
         }
 
 
@@ -479,48 +463,6 @@ abstract class BasePageContent extends BaseObject
 
         return $this;
     } // setType()
-
-    /**
-     * Set the value of [mdate] column.
-     * 
-     * @param      int $v new value
-     * @return   PageContent The current object (for fluent API support)
-     */
-    public function setMdate($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->mdate !== $v) {
-            $this->mdate = $v;
-            $this->modifiedColumns[] = PageContentPeer::MDATE;
-        }
-
-
-        return $this;
-    } // setMdate()
-
-    /**
-     * Set the value of [cdate] column.
-     * 
-     * @param      int $v new value
-     * @return   PageContent The current object (for fluent API support)
-     */
-    public function setCdate($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->cdate !== $v) {
-            $this->cdate = $v;
-            $this->modifiedColumns[] = PageContentPeer::CDATE;
-        }
-
-
-        return $this;
-    } // setCdate()
 
     /**
      * Set the value of [hide] column.
@@ -729,16 +671,14 @@ abstract class BasePageContent extends BaseObject
             $this->content = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
             $this->template = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
             $this->type = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
-            $this->mdate = ($row[$startcol + 7] !== null) ? (int) $row[$startcol + 7] : null;
-            $this->cdate = ($row[$startcol + 8] !== null) ? (int) $row[$startcol + 8] : null;
-            $this->hide = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
-            $this->sort = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
-            $this->box_id = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
-            $this->owner_id = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
-            $this->access_from = ($row[$startcol + 13] !== null) ? (int) $row[$startcol + 13] : null;
-            $this->access_to = ($row[$startcol + 14] !== null) ? (int) $row[$startcol + 14] : null;
-            $this->access_from_groups = ($row[$startcol + 15] !== null) ? (string) $row[$startcol + 15] : null;
-            $this->unsearchable = ($row[$startcol + 16] !== null) ? (int) $row[$startcol + 16] : null;
+            $this->hide = ($row[$startcol + 7] !== null) ? (int) $row[$startcol + 7] : null;
+            $this->sort = ($row[$startcol + 8] !== null) ? (int) $row[$startcol + 8] : null;
+            $this->box_id = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
+            $this->owner_id = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
+            $this->access_from = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
+            $this->access_to = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
+            $this->access_from_groups = ($row[$startcol + 13] !== null) ? (string) $row[$startcol + 13] : null;
+            $this->unsearchable = ($row[$startcol + 14] !== null) ? (int) $row[$startcol + 14] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -747,7 +687,7 @@ abstract class BasePageContent extends BaseObject
                 $this->ensureConsistency();
             }
 
-            return $startcol + 17; // 17 = PageContentPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 15; // 15 = PageContentPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating PageContent object", $e);
@@ -770,6 +710,12 @@ abstract class BasePageContent extends BaseObject
     public function ensureConsistency()
     {
 
+        if ($this->aPage !== null && $this->page_id !== $this->aPage->getId()) {
+            $this->aPage = null;
+        }
+        if ($this->aPageVersion !== null && $this->version_id !== $this->aPageVersion->getId()) {
+            $this->aPageVersion = null;
+        }
     } // ensureConsistency
 
     /**
@@ -809,6 +755,8 @@ abstract class BasePageContent extends BaseObject
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->aPage = null;
+            $this->aPageVersion = null;
         } // if (deep)
     }
 
@@ -922,6 +870,25 @@ abstract class BasePageContent extends BaseObject
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their coresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aPage !== null) {
+                if ($this->aPage->isModified() || $this->aPage->isNew()) {
+                    $affectedRows += $this->aPage->save($con);
+                }
+                $this->setPage($this->aPage);
+            }
+
+            if ($this->aPageVersion !== null) {
+                if ($this->aPageVersion->isModified() || $this->aPageVersion->isNew()) {
+                    $affectedRows += $this->aPageVersion->save($con);
+                }
+                $this->setPageVersion($this->aPageVersion);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -959,7 +926,7 @@ abstract class BasePageContent extends BaseObject
         }
         if (null === $this->id) {
             try {				
-				$stmt = $con->query("SELECT nextval('kryn_system_content_id_seq')");
+				$stmt = $con->query("SELECT nextval('kryn_system_page_content_id_seq')");
 				$row = $stmt->fetch(PDO::FETCH_NUM);
 				$this->id = $row[0];
             } catch (Exception $e) {
@@ -990,12 +957,6 @@ abstract class BasePageContent extends BaseObject
         if ($this->isColumnModified(PageContentPeer::TYPE)) {
             $modifiedColumns[':p' . $index++]  = 'TYPE';
         }
-        if ($this->isColumnModified(PageContentPeer::MDATE)) {
-            $modifiedColumns[':p' . $index++]  = 'MDATE';
-        }
-        if ($this->isColumnModified(PageContentPeer::CDATE)) {
-            $modifiedColumns[':p' . $index++]  = 'CDATE';
-        }
         if ($this->isColumnModified(PageContentPeer::HIDE)) {
             $modifiedColumns[':p' . $index++]  = 'HIDE';
         }
@@ -1022,7 +983,7 @@ abstract class BasePageContent extends BaseObject
         }
 
         $sql = sprintf(
-            'INSERT INTO kryn_system_content (%s) VALUES (%s)',
+            'INSERT INTO kryn_system_page_content (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -1051,12 +1012,6 @@ abstract class BasePageContent extends BaseObject
                         break;
                     case 'TYPE':
 						$stmt->bindValue($identifier, $this->type, PDO::PARAM_STR);
-                        break;
-                    case 'MDATE':
-						$stmt->bindValue($identifier, $this->mdate, PDO::PARAM_INT);
-                        break;
-                    case 'CDATE':
-						$stmt->bindValue($identifier, $this->cdate, PDO::PARAM_INT);
                         break;
                     case 'HIDE':
 						$stmt->bindValue($identifier, $this->hide, PDO::PARAM_INT);
@@ -1169,6 +1124,24 @@ abstract class BasePageContent extends BaseObject
             $failureMap = array();
 
 
+            // We call the validate method on the following object(s) if they
+            // were passed to this object by their coresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aPage !== null) {
+                if (!$this->aPage->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aPage->getValidationFailures());
+                }
+            }
+
+            if ($this->aPageVersion !== null) {
+                if (!$this->aPageVersion->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aPageVersion->getValidationFailures());
+                }
+            }
+
+
             if (($retval = PageContentPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
             }
@@ -1231,33 +1204,27 @@ abstract class BasePageContent extends BaseObject
                 return $this->getType();
                 break;
             case 7:
-                return $this->getMdate();
-                break;
-            case 8:
-                return $this->getCdate();
-                break;
-            case 9:
                 return $this->getHide();
                 break;
-            case 10:
+            case 8:
                 return $this->getSort();
                 break;
-            case 11:
+            case 9:
                 return $this->getBoxId();
                 break;
-            case 12:
+            case 10:
                 return $this->getOwnerId();
                 break;
-            case 13:
+            case 11:
                 return $this->getAccessFrom();
                 break;
-            case 14:
+            case 12:
                 return $this->getAccessTo();
                 break;
-            case 15:
+            case 13:
                 return $this->getAccessFromGroups();
                 break;
-            case 16:
+            case 14:
                 return $this->getUnsearchable();
                 break;
             default:
@@ -1277,10 +1244,11 @@ abstract class BasePageContent extends BaseObject
      *                    Defaults to BasePeer::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
         if (isset($alreadyDumpedObjects['PageContent'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
@@ -1295,17 +1263,23 @@ abstract class BasePageContent extends BaseObject
             $keys[4] => $this->getContent(),
             $keys[5] => $this->getTemplate(),
             $keys[6] => $this->getType(),
-            $keys[7] => $this->getMdate(),
-            $keys[8] => $this->getCdate(),
-            $keys[9] => $this->getHide(),
-            $keys[10] => $this->getSort(),
-            $keys[11] => $this->getBoxId(),
-            $keys[12] => $this->getOwnerId(),
-            $keys[13] => $this->getAccessFrom(),
-            $keys[14] => $this->getAccessTo(),
-            $keys[15] => $this->getAccessFromGroups(),
-            $keys[16] => $this->getUnsearchable(),
+            $keys[7] => $this->getHide(),
+            $keys[8] => $this->getSort(),
+            $keys[9] => $this->getBoxId(),
+            $keys[10] => $this->getOwnerId(),
+            $keys[11] => $this->getAccessFrom(),
+            $keys[12] => $this->getAccessTo(),
+            $keys[13] => $this->getAccessFromGroups(),
+            $keys[14] => $this->getUnsearchable(),
         );
+        if ($includeForeignObjects) {
+            if (null !== $this->aPage) {
+                $result['Page'] = $this->aPage->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aPageVersion) {
+                $result['PageVersion'] = $this->aPageVersion->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+        }
 
         return $result;
     }
@@ -1361,33 +1335,27 @@ abstract class BasePageContent extends BaseObject
                 $this->setType($value);
                 break;
             case 7:
-                $this->setMdate($value);
-                break;
-            case 8:
-                $this->setCdate($value);
-                break;
-            case 9:
                 $this->setHide($value);
                 break;
-            case 10:
+            case 8:
                 $this->setSort($value);
                 break;
-            case 11:
+            case 9:
                 $this->setBoxId($value);
                 break;
-            case 12:
+            case 10:
                 $this->setOwnerId($value);
                 break;
-            case 13:
+            case 11:
                 $this->setAccessFrom($value);
                 break;
-            case 14:
+            case 12:
                 $this->setAccessTo($value);
                 break;
-            case 15:
+            case 13:
                 $this->setAccessFromGroups($value);
                 break;
-            case 16:
+            case 14:
                 $this->setUnsearchable($value);
                 break;
         } // switch()
@@ -1421,16 +1389,14 @@ abstract class BasePageContent extends BaseObject
         if (array_key_exists($keys[4], $arr)) $this->setContent($arr[$keys[4]]);
         if (array_key_exists($keys[5], $arr)) $this->setTemplate($arr[$keys[5]]);
         if (array_key_exists($keys[6], $arr)) $this->setType($arr[$keys[6]]);
-        if (array_key_exists($keys[7], $arr)) $this->setMdate($arr[$keys[7]]);
-        if (array_key_exists($keys[8], $arr)) $this->setCdate($arr[$keys[8]]);
-        if (array_key_exists($keys[9], $arr)) $this->setHide($arr[$keys[9]]);
-        if (array_key_exists($keys[10], $arr)) $this->setSort($arr[$keys[10]]);
-        if (array_key_exists($keys[11], $arr)) $this->setBoxId($arr[$keys[11]]);
-        if (array_key_exists($keys[12], $arr)) $this->setOwnerId($arr[$keys[12]]);
-        if (array_key_exists($keys[13], $arr)) $this->setAccessFrom($arr[$keys[13]]);
-        if (array_key_exists($keys[14], $arr)) $this->setAccessTo($arr[$keys[14]]);
-        if (array_key_exists($keys[15], $arr)) $this->setAccessFromGroups($arr[$keys[15]]);
-        if (array_key_exists($keys[16], $arr)) $this->setUnsearchable($arr[$keys[16]]);
+        if (array_key_exists($keys[7], $arr)) $this->setHide($arr[$keys[7]]);
+        if (array_key_exists($keys[8], $arr)) $this->setSort($arr[$keys[8]]);
+        if (array_key_exists($keys[9], $arr)) $this->setBoxId($arr[$keys[9]]);
+        if (array_key_exists($keys[10], $arr)) $this->setOwnerId($arr[$keys[10]]);
+        if (array_key_exists($keys[11], $arr)) $this->setAccessFrom($arr[$keys[11]]);
+        if (array_key_exists($keys[12], $arr)) $this->setAccessTo($arr[$keys[12]]);
+        if (array_key_exists($keys[13], $arr)) $this->setAccessFromGroups($arr[$keys[13]]);
+        if (array_key_exists($keys[14], $arr)) $this->setUnsearchable($arr[$keys[14]]);
     }
 
     /**
@@ -1449,8 +1415,6 @@ abstract class BasePageContent extends BaseObject
         if ($this->isColumnModified(PageContentPeer::CONTENT)) $criteria->add(PageContentPeer::CONTENT, $this->content);
         if ($this->isColumnModified(PageContentPeer::TEMPLATE)) $criteria->add(PageContentPeer::TEMPLATE, $this->template);
         if ($this->isColumnModified(PageContentPeer::TYPE)) $criteria->add(PageContentPeer::TYPE, $this->type);
-        if ($this->isColumnModified(PageContentPeer::MDATE)) $criteria->add(PageContentPeer::MDATE, $this->mdate);
-        if ($this->isColumnModified(PageContentPeer::CDATE)) $criteria->add(PageContentPeer::CDATE, $this->cdate);
         if ($this->isColumnModified(PageContentPeer::HIDE)) $criteria->add(PageContentPeer::HIDE, $this->hide);
         if ($this->isColumnModified(PageContentPeer::SORT)) $criteria->add(PageContentPeer::SORT, $this->sort);
         if ($this->isColumnModified(PageContentPeer::BOX_ID)) $criteria->add(PageContentPeer::BOX_ID, $this->box_id);
@@ -1528,8 +1492,6 @@ abstract class BasePageContent extends BaseObject
         $copyObj->setContent($this->getContent());
         $copyObj->setTemplate($this->getTemplate());
         $copyObj->setType($this->getType());
-        $copyObj->setMdate($this->getMdate());
-        $copyObj->setCdate($this->getCdate());
         $copyObj->setHide($this->getHide());
         $copyObj->setSort($this->getSort());
         $copyObj->setBoxId($this->getBoxId());
@@ -1538,6 +1500,18 @@ abstract class BasePageContent extends BaseObject
         $copyObj->setAccessTo($this->getAccessTo());
         $copyObj->setAccessFromGroups($this->getAccessFromGroups());
         $copyObj->setUnsearchable($this->getUnsearchable());
+
+        if ($deepCopy && !$this->startCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+            // store object hash to prevent cycle
+            $this->startCopy = true;
+
+            //unflag object copy
+            $this->startCopy = false;
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1585,6 +1559,108 @@ abstract class BasePageContent extends BaseObject
     }
 
     /**
+     * Declares an association between this object and a Page object.
+     *
+     * @param                  Page $v
+     * @return                 PageContent The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setPage(Page $v = null)
+    {
+        if ($v === null) {
+            $this->setPageId(NULL);
+        } else {
+            $this->setPageId($v->getId());
+        }
+
+        $this->aPage = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the Page object, it will not be re-added.
+        if ($v !== null) {
+            $v->addPageContent($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated Page object
+     *
+     * @param      PropelPDO $con Optional Connection object.
+     * @return                 Page The associated Page object.
+     * @throws PropelException
+     */
+    public function getPage(PropelPDO $con = null)
+    {
+        if ($this->aPage === null && ($this->page_id !== null)) {
+            $this->aPage = PageQuery::create()->findPk($this->page_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aPage->addPageContents($this);
+             */
+        }
+
+        return $this->aPage;
+    }
+
+    /**
+     * Declares an association between this object and a PageVersion object.
+     *
+     * @param                  PageVersion $v
+     * @return                 PageContent The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setPageVersion(PageVersion $v = null)
+    {
+        if ($v === null) {
+            $this->setVersionId(NULL);
+        } else {
+            $this->setVersionId($v->getId());
+        }
+
+        $this->aPageVersion = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the PageVersion object, it will not be re-added.
+        if ($v !== null) {
+            $v->addPageContent($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated PageVersion object
+     *
+     * @param      PropelPDO $con Optional Connection object.
+     * @return                 PageVersion The associated PageVersion object.
+     * @throws PropelException
+     */
+    public function getPageVersion(PropelPDO $con = null)
+    {
+        if ($this->aPageVersion === null && ($this->version_id !== null)) {
+            $this->aPageVersion = PageVersionQuery::create()->findPk($this->version_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aPageVersion->addPageContents($this);
+             */
+        }
+
+        return $this->aPageVersion;
+    }
+
+    /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
@@ -1596,8 +1672,6 @@ abstract class BasePageContent extends BaseObject
         $this->content = null;
         $this->template = null;
         $this->type = null;
-        $this->mdate = null;
-        $this->cdate = null;
         $this->hide = null;
         $this->sort = null;
         $this->box_id = null;
@@ -1628,6 +1702,8 @@ abstract class BasePageContent extends BaseObject
         if ($deep) {
         } // if ($deep)
 
+        $this->aPage = null;
+        $this->aPageVersion = null;
     }
 
     /**

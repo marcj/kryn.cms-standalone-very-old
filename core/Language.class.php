@@ -1,11 +1,22 @@
 <?php
 
+/*
+ * This file is part of Kryn.cms.
+ *
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
+ *
+ * To get the full copyright and license information, please view the
+ * LICENSE file, that was distributed with this source code.
+ *
+ */
+
+namespace Core;
 
 /**
  * krynLanguage - a class that handles .po files
-
  */
-class krynLanguage {
+
+class Language {
 
 
     public static function getLanguage($pModuleName, $pLang) {

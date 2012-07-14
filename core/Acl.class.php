@@ -10,7 +10,7 @@
  *
  */
 
-namespace Kryn;
+namespace Core;
 
 class Acl {
 

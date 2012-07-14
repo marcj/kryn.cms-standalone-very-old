@@ -37,7 +37,7 @@
  * @method     array findByUserdefined(int $userdefined) Return Langs objects filtered by the userdefined column
  * @method     array findByVisible(int $visible) Return Langs objects filtered by the visible column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseLangsQuery extends ModelCriteria
 {
@@ -49,7 +49,7 @@ abstract class BaseLangsQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Langs', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Langs', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

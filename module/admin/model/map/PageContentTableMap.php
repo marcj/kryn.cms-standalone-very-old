@@ -3,7 +3,7 @@
 
 
 /**
- * This class defines the structure of the 'kryn_system_content' table.
+ * This class defines the structure of the 'kryn_system_page_content' table.
  *
  *
  *
@@ -12,7 +12,7 @@
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    propel.generator.kryn.map
+ * @package    propel.generator.Kryn.map
  */
 class PageContentTableMap extends TableMap
 {
@@ -20,7 +20,7 @@ class PageContentTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'kryn.map.PageContentTableMap';
+    const CLASS_NAME = 'Kryn.map.PageContentTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -32,22 +32,20 @@ class PageContentTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('kryn_system_content');
+        $this->setName('kryn_system_page_content');
         $this->setPhpName('PageContent');
         $this->setClassname('PageContent');
-        $this->setPackage('kryn');
+        $this->setPackage('Kryn');
         $this->setUseIdGenerator(true);
-        $this->setPrimaryKeyMethodInfo('kryn_system_content_id_seq');
+        $this->setPrimaryKeyMethodInfo('kryn_system_page_content_id_seq');
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('PAGE_ID', 'PageId', 'INTEGER', false, null, null);
-        $this->addColumn('VERSION_ID', 'VersionId', 'INTEGER', false, null, null);
+        $this->addForeignKey('PAGE_ID', 'PageId', 'INTEGER', 'kryn_system_page', 'ID', false, null, null);
+        $this->addForeignKey('VERSION_ID', 'VersionId', 'INTEGER', 'kryn_system_page_version', 'ID', false, null, null);
         $this->addColumn('TITLE', 'Title', 'VARCHAR', false, 255, null);
         $this->addColumn('CONTENT', 'Content', 'LONGVARCHAR', false, null, null);
         $this->addColumn('TEMPLATE', 'Template', 'VARCHAR', false, 64, null);
         $this->addColumn('TYPE', 'Type', 'VARCHAR', false, 64, null);
-        $this->addColumn('MDATE', 'Mdate', 'INTEGER', false, null, null);
-        $this->addColumn('CDATE', 'Cdate', 'INTEGER', false, null, null);
         $this->addColumn('HIDE', 'Hide', 'INTEGER', false, null, null);
         $this->addColumn('SORT', 'Sort', 'INTEGER', false, null, null);
         $this->addColumn('BOX_ID', 'BoxId', 'INTEGER', false, null, null);
@@ -64,6 +62,8 @@ class PageContentTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('Page', 'Page', RelationMap::MANY_TO_ONE, array('page_id' => 'id', ), 'CASCADE', null);
+        $this->addRelation('PageVersion', 'PageVersion', RelationMap::MANY_TO_ONE, array('version_id' => 'id', ), 'CASCADE', null);
     } // buildRelations()
 
 } // PageContentTableMap

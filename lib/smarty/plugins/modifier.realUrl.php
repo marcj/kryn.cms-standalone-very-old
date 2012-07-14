@@ -12,6 +12,6 @@ function smarty_modifier_realUrl($params){
     if( is_array($params) && $params['type'] == 1  && $params['link']+0 > 0 )
         $rsn = $params['link'];
 
-    return kryn::pageUrl( $rsn );
+    return Core\Kryn::pageUrl( $rsn );
 }
 ?>

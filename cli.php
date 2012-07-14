@@ -31,7 +31,6 @@ require('core/bootstrap.php');
 /*
 * initialize administration controller
 */
-require('core/adminForm.class.php');
 require(PATH_MODULE . 'admin/admin.class.php');
 kryn::$modules['admin'] = new admin();
 

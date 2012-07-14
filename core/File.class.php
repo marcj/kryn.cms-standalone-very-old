@@ -1,12 +1,23 @@
 <?php
 
+/*
+ * This file is part of Kryn.cms.
+ *
+ * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
+ *
+ * To get the full copyright and license information, please view the
+ * LICENSE file, that was distributed with this source code.
+ *
+ */
+
+namespace Core;
+
 /**
  * krynFile - file abstraction layer
  *
- *
- *
  */
-class krynFile {
+
+class File {
 
     /**
      * Caches all objects of active file layers (magic folders)
@@ -362,6 +373,3 @@ class krynFile {
 
 
 }
-
-
-?>

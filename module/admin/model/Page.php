@@ -21,11 +21,37 @@ class Page extends BasePage {
      */
     private $fullUrl;
 
+    /**
+     * @param string $pFullUrl
+     * return \Page $this
+     */
     public function setFullUrl($pFullUrl){
         $this->fullUrl = $pFullUrl;
+        return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFullUrl(){
         return $this->fullUrl;
     }
+
+
+    public function isActive(){
+
+        if( $this->getId() == \Core\Kryn::$page->getId() ) return true;
+
+        $url = \Core\Kryn::pageUrl( \Core\Kryn::$page->getId(), false, true );
+        $purl = \Core\Kryn::pageUrl( $this->getId(), false, true );
+
+        $pos = strpos( $url, $purl );
+        if( $url == '/' || $pos != 0  || $pos === false){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
 } // SystemPage

@@ -6,7 +6,7 @@
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BasePage extends BaseObject 
 {
@@ -234,6 +234,11 @@ abstract class BasePage extends BaseObject
     protected $aDomain;
 
     /**
+     * @var        PropelObjectCollection|PageContent[] Collection to store aggregation of PageContent objects.
+     */
+    protected $collPageContents;
+
+    /**
      * @var        PropelObjectCollection|Urlalias[] Collection to store aggregation of Urlalias objects.
      */
     protected $collUrlaliass;
@@ -272,6 +277,12 @@ abstract class BasePage extends BaseObject
 	 */
 	protected $aNestedSetParent = null;
 	
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $pageContentsScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -1478,6 +1489,8 @@ abstract class BasePage extends BaseObject
         if ($deep) {  // also de-associate any related objects?
 
             $this->aDomain = null;
+            $this->collPageContents = null;
+
             $this->collUrlaliass = null;
 
         } // if (deep)
@@ -1641,6 +1654,24 @@ abstract class BasePage extends BaseObject
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->pageContentsScheduledForDeletion !== null) {
+                if (!$this->pageContentsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->pageContentsScheduledForDeletion as $pageContent) {
+                        // need to save related object because we set the relation to null
+                        $pageContent->save($con);
+                    }
+                    $this->pageContentsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collPageContents !== null) {
+                foreach ($this->collPageContents as $referrerFK) {
+                    if (!$referrerFK->isDeleted()) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             if ($this->urlaliassScheduledForDeletion !== null) {
@@ -2010,6 +2041,14 @@ abstract class BasePage extends BaseObject
             }
 
 
+                if ($this->collPageContents !== null) {
+                    foreach ($this->collPageContents as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
+
                 if ($this->collUrlaliass !== null) {
                     foreach ($this->collUrlaliass as $referrerFK) {
                         if (!$referrerFK->validate($columns)) {
@@ -2218,6 +2257,9 @@ abstract class BasePage extends BaseObject
         if ($includeForeignObjects) {
             if (null !== $this->aDomain) {
                 $result['Domain'] = $this->aDomain->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collPageContents) {
+                $result['PageContents'] = $this->collPageContents->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collUrlaliass) {
                 $result['Urlaliass'] = $this->collUrlaliass->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
@@ -2559,6 +2601,12 @@ abstract class BasePage extends BaseObject
             // store object hash to prevent cycle
             $this->startCopy = true;
 
+            foreach ($this->getPageContents() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addPageContent($relObj->copy($deepCopy));
+                }
+            }
+
             foreach ($this->getUrlaliass() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addUrlalias($relObj->copy($deepCopy));
@@ -2677,9 +2725,204 @@ abstract class BasePage extends BaseObject
      */
     public function initRelation($relationName)
     {
+        if ('PageContent' == $relationName) {
+            $this->initPageContents();
+        }
         if ('Urlalias' == $relationName) {
             $this->initUrlaliass();
         }
+    }
+
+    /**
+     * Clears out the collPageContents collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addPageContents()
+     */
+    public function clearPageContents()
+    {
+        $this->collPageContents = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collPageContents collection.
+     *
+     * By default this just sets the collPageContents collection to an empty array (like clearcollPageContents());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initPageContents($overrideExisting = true)
+    {
+        if (null !== $this->collPageContents && !$overrideExisting) {
+            return;
+        }
+        $this->collPageContents = new PropelObjectCollection();
+        $this->collPageContents->setModel('PageContent');
+    }
+
+    /**
+     * Gets an array of PageContent objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this Page is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @return PropelObjectCollection|PageContent[] List of PageContent objects
+     * @throws PropelException
+     */
+    public function getPageContents($criteria = null, PropelPDO $con = null)
+    {
+        if (null === $this->collPageContents || null !== $criteria) {
+            if ($this->isNew() && null === $this->collPageContents) {
+                // return empty collection
+                $this->initPageContents();
+            } else {
+                $collPageContents = PageContentQuery::create(null, $criteria)
+                    ->filterByPage($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    return $collPageContents;
+                }
+                $this->collPageContents = $collPageContents;
+            }
+        }
+
+        return $this->collPageContents;
+    }
+
+    /**
+     * Sets a collection of PageContent objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      PropelCollection $pageContents A Propel collection.
+     * @param      PropelPDO $con Optional connection object
+     */
+    public function setPageContents(PropelCollection $pageContents, PropelPDO $con = null)
+    {
+        $this->pageContentsScheduledForDeletion = $this->getPageContents(new Criteria(), $con)->diff($pageContents);
+
+        foreach ($this->pageContentsScheduledForDeletion as $pageContentRemoved) {
+            $pageContentRemoved->setPage(null);
+        }
+
+        $this->collPageContents = null;
+        foreach ($pageContents as $pageContent) {
+            $this->addPageContent($pageContent);
+        }
+
+        $this->collPageContents = $pageContents;
+    }
+
+    /**
+     * Returns the number of related PageContent objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      PropelPDO $con
+     * @return int             Count of related PageContent objects.
+     * @throws PropelException
+     */
+    public function countPageContents(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        if (null === $this->collPageContents || null !== $criteria) {
+            if ($this->isNew() && null === $this->collPageContents) {
+                return 0;
+            } else {
+                $query = PageContentQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByPage($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collPageContents);
+        }
+    }
+
+    /**
+     * Method called to associate a PageContent object to this object
+     * through the PageContent foreign key attribute.
+     *
+     * @param    PageContent $l PageContent
+     * @return   Page The current object (for fluent API support)
+     */
+    public function addPageContent(PageContent $l)
+    {
+        if ($this->collPageContents === null) {
+            $this->initPageContents();
+        }
+        if (!$this->collPageContents->contains($l)) { // only add it if the **same** object is not already associated
+            $this->doAddPageContent($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param	PageContent $pageContent The pageContent object to add.
+     */
+    protected function doAddPageContent($pageContent)
+    {
+        $this->collPageContents[]= $pageContent;
+        $pageContent->setPage($this);
+    }
+
+    /**
+     * @param	PageContent $pageContent The pageContent object to remove.
+     */
+    public function removePageContent($pageContent)
+    {
+        if ($this->getPageContents()->contains($pageContent)) {
+            $this->collPageContents->remove($this->collPageContents->search($pageContent));
+            if (null === $this->pageContentsScheduledForDeletion) {
+                $this->pageContentsScheduledForDeletion = clone $this->collPageContents;
+                $this->pageContentsScheduledForDeletion->clear();
+            }
+            $this->pageContentsScheduledForDeletion[]= $pageContent;
+            $pageContent->setPage(null);
+        }
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Page is new, it will return
+     * an empty collection; or if this Page has previously
+     * been saved, it will retrieve related PageContents from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Page.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return PropelObjectCollection|PageContent[] List of PageContent objects
+     */
+    public function getPageContentsJoinPageVersion($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $query = PageContentQuery::create(null, $criteria);
+        $query->joinWith('PageVersion', $join_behavior);
+
+        return $this->getPageContents($query, $con);
     }
 
     /**
@@ -2907,6 +3150,11 @@ abstract class BasePage extends BaseObject
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collPageContents) {
+                foreach ($this->collPageContents as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collUrlaliass) {
                 foreach ($this->collUrlaliass as $o) {
                     $o->clearAllReferences($deep);
@@ -2917,6 +3165,10 @@ abstract class BasePage extends BaseObject
 		// nested_set behavior
 		$this->collNestedSetChildren = null;
 		$this->aNestedSetParent = null;
+        if ($this->collPageContents instanceof PropelCollection) {
+            $this->collPageContents->clearIterator();
+        }
+        $this->collPageContents = null;
         if ($this->collUrlaliass instanceof PropelCollection) {
             $this->collUrlaliass->clearIterator();
         }

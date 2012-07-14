@@ -16,7 +16,7 @@
  * with inheritance invalidation mechanism.
  */
 
-namespace Kryn;
+namespace Core;
 
 class Cache {
 
@@ -329,7 +329,7 @@ class Cache {
                 $phpCode = "<" . "?php \n$varname = " . var_export($pValue, true) . ";\n ?" . ">";
 
                 if (class_exists('Kryn'))
-                    Kryn::fileWrite($this->config['files_path'] . $pCode . '.php', $phpCode);
+                    \Kryn::fileWrite($this->config['files_path'] . $pCode . '.php', $phpCode);
                 else
                     file_put_contents($this->config['files_path'] . $pCode . '.php', $phpCode);
 

@@ -47,10 +47,11 @@ class RestServerController {
      * Sends a 'Internal Server Error' response to the client.
      * @param $pCode
      * @param $pMessage
+     * @throws \Exception
      */
     public function sendError($pCode, $pMessage){
         $msg = array('error' => $pCode, 'message' => $pMessage);
-        if (!$this->getClient()) return $this->raiseError($pCode, $pMessage);
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
         $this->getClient()->sendResponse('500', $msg);
     }
 

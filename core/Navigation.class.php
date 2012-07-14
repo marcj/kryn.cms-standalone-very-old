@@ -10,6 +10,7 @@
  *
  */
 
+namespace Core;
 
 /**
  * Navigation class
@@ -18,27 +19,39 @@
  */
 
 
-class krynNavigation {
+class Navigation {
     public $navigations;
 
     /**
      * @static
-     * @param $pId
+     * @param \Page $pParentPage
      * @param bool $pWithFolders
-     * @param int $pDepth
-     * @param SystemDomain $pDomain
+     * @param \mDomain $pDomain
      * @param bool $pWithoutCache
-     * @return array|string
+     * @return mixed
      */
-    public static function getLinks($pId, $pWithFolders = false, $pDepth = 0, $pDomain = null, $pWithoutCache = false) {
-
-        if (!is_numeric($pId))
-            return array();
+    public static function getLinks($pParentPage = null, $pWithFolders = false, $pDomain = null, $pWithoutCache = false) {
 
         if (!$pDomain) {
-            $pDomain = Kryn::$domain->getId();
+            $pDomain = Kryn::$domain;
         }
 
+        $query = \PageQuery::create()
+            ->inTree($pDomain);
+
+        if (!$pWithFolders){
+            $query->filterByType(array(1,2));
+        }
+
+        //$query->filterByLvl(array('min' => 0));
+
+        $items = $query->find();
+
+        //var_dump($root);
+
+        exit;
+
+        return;
 
         $s1 = new SystemPage();
         $s1->setDomainId(3);
@@ -68,7 +81,7 @@ class krynNavigation {
         $root = SystemPageQuery::create()->findRoot(3);
         var_dump($root);
         exit;
-        foreach ($root->getIterator() as $node) {
+        foreach ($root->get() as $node) {
             echo str_repeat(' ', $node->getLevel()) . $node->getTitle() . "<br/>";
         }
         exit;
@@ -175,42 +188,43 @@ class krynNavigation {
         if ($pOptions['level'] > 1) {
 
             $currentLevel = count(Kryn::$breadcrumbs) + 1;
-
             $page = self::arrayLevel(Kryn::$breadcrumbs, $pOptions['level']);
 
             if ($page['id'] > 0)
-                $navi =& Kryn::getPage($page['id']);
+                $navigation =& Kryn::getPage($page['id']);
             elseif ($pOptions['level'] == $currentLevel + 1)
-                $navi = Kryn::$page;
+                $navigation = Kryn::$page;
 
             if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
                 $cacheKey =
-                    'systemNavigations-' . $navi->getDomainId() . '_' . $navi->getId() . '-' . md5(Kryn::$canonical.$mtime);
+                    'systemNavigations-' . $navigation->getDomainId() . '_' . $navigation->getId() . '-' .
+                        md5(Kryn::$canonical.$mtime);
                 $cache =& Kryn::getCache($cacheKey);
                 if ($cache) return $cache;
             }
 
-            $navigation = self::getLinks($navi->getId(), $pWithFolders, Kryn::$domain->getId());
+            //$navigation = self::getLinks($navi->getId(), $pWithFolders, Kryn::$domain->getId());
         }
 
         if ($pOptions['level'] == 1) {
 
-            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
+            /*if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
                 $cacheKey = 'systemNavigations-' . Kryn::$page->getDomainId() . '_0-' . md5(Kryn::$canonical.$mtime);
                 $cache =& Kryn::getCache($cacheKey);
                 if (false && $cache) return $cache;
-            }
+            }*/
 
-            $navigation = array('title' => 'Root');
-            $navigation['_children'] = self::getLinks(0, $pWithFolders, Kryn::$domain->getId());
+            //$page =& Kryn::$page;\
+            $navigation = \PageQuery::create()->findRoot(Kryn::$domain->getId());
+            /*$navigation = array('title' => 'Root');
+            $navigation['_children'] = self::getLinks(null, $pWithFolders, Kryn::$domain->getId());*/
         }
 
-        if ($navi !== false) {
+        if ($navigation !== false) {
 
-            tAssign("navi", $navigation);
-            tAssign("navigation", $navigation);
+            tAssign('navigation', $navigation);
 
-            if (Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
+            if (Kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $res = tFetch($pTemplate);
                 Kryn::setCache($cacheKey, $res, 10);
                 return $res;

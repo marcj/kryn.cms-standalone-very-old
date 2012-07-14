@@ -41,7 +41,7 @@
  * @method     array findByCode(string $code) Return Log objects filtered by the code column
  * @method     array findByMessage(string $message) Return Log objects filtered by the message column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseLogQuery extends ModelCriteria
 {
@@ -53,7 +53,7 @@ abstract class BaseLogQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Log', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Log', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

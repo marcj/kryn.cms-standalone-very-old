@@ -93,7 +93,7 @@
  * @method     array findByLastlogin(int $lastlogin) Return User objects filtered by the lastlogin column
  * @method     array findByActivate(boolean $activate) Return User objects filtered by the activate column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseUserQuery extends ModelCriteria
 {
@@ -105,7 +105,7 @@ abstract class BaseUserQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'User', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'User', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

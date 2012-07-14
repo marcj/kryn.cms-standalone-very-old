@@ -5,22 +5,23 @@
  *
  * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
  *
- * To get the full copyright and license informations, please view the
+ * To get the full copyright and license information, please view the
  * LICENSE file, that was distributed with this source code.
  *
  */
 
 
+namespace Core;
+
 /**
- * Html class
+ * Html render class
  * @author MArc Schmidt <marc@Kryn.org>
- *
  *
  * @events onRenderSlot
  *
  */
 
-class krynHtml {
+class Render {
 
     public static $docType = 'xhtml 1.0 transitional';
 
@@ -65,11 +66,9 @@ class krynHtml {
     }
 
     public static function printPage(&$pContent = '') {
-        global $_start;
 
         $html = self::getPage($pContent);
-
-        $html = str_replace('inc/template/', 'media/', $html);
+        $html = str_replace('inc/template/', 'media/', $html); //compatibility
 
         print $html;
     }
@@ -77,7 +76,7 @@ class krynHtml {
     public static function buildHead($pContinue = false) {
         global $cfg;
 
-        $tagEnd = (strpos(strtolower(krynHtml::$docType), 'xhtml') !== false) ? ' />' : ' >';
+        $tagEnd = (strpos(strtolower(self::$docType), 'xhtml') !== false) ? ' />' : ' >';
 
         if ($pContinue == false && Kryn::$admin == false) {
             return '{*Kryn-header*}';
@@ -85,45 +84,23 @@ class krynHtml {
         $page = Kryn::$page;
         $domain = Kryn::$domain;
 
-        $title = ($page['page_title']) ? $page['page_title'] : $page['title'];
-
-        if (!empty(Kryn::$pageTitle))
-            $title = Kryn::$pageTitle . ' ' . $title;
-
-        $e = explode('::', $domain['title_format']);
-        if ($e[0] && $e[1] && $e[0] != 'admin' && $e[0] != 'Kryn' && method_exists($e[0], $e[1])) {
-            $title = call_user_func(array($e[0], $e[1]));
-        } else {
-
-            $title = str_replace(
-                array('%title', '%domain'),
-                array(
-                    $title,
-                    $_SERVER['SERVER_NAME']),
-                $domain['title_format']
-            );
-
-            if (strpos($title, '%path') !== false) {
-                $title = str_replace('%path', Kryn::getBreadcrumpPath(), $title);
-            }
-        }
-
-        $html = '<title>' . $title . '</title>' . "\n";
-
+        $html = '<title>' . Kryn::$domain->getTitle() . '</title>' . "\n";
 
         $html .= "<base href=\"" . Kryn::$baseUrl . "\" $tagEnd\n";
-        $html .= '<meta name="DC.language" content="' . $domain['lang'] . '" ' . $tagEnd . "\n";
+        $html .= '<meta name="DC.language" content="' . Kryn::$domain->getLang(). '" ' . $tagEnd . "\n";
 
         $html .= '<link rel="canonical" href="' . Kryn::$baseUrl . substr(Kryn::$url, 1) . '" ' . $tagEnd . "\n";
 
-        $metas = @json_decode($page['meta'], 1);
+
+/*        $metas = @json_decode($page['meta'], 1);
         if (count($metas) > 0)
             foreach ($metas as $meta)
                 if ($meta['value'] != '')
                     $html .= '<meta name="' . str_replace('"', '\"', $meta['name']) . '" content="' .
-                             str_replace('"', '\"', $meta['value']) . '" ' . $tagEnd . "\n";
+                             str_replace('"', '\"', $meta['value']) . '" ' . $tagEnd . "\n";*/
 
-        if (Kryn::$cfg['show_banner'] == 1) {
+
+        if (Kryn::$config['show_banner'] == 1) {
             $html .= '<meta name="generator" content="Kryn.cms" ' . $tagEnd . "\n";
         }
 
@@ -148,7 +125,7 @@ class krynHtml {
 
         # clearstatcache();
 
-        if ($domain['resourcecompression'] != '1') {
+        if (Kryn::$domain->getResourcecompression() != '1') {
             foreach ($myCssFiles as $css) {
                 if (strpos($css, "http://") !== false) {
                     $html .= '<link rel="stylesheet" type="text/css" href="' . $css . '" ' . $tagEnd . "\n";
@@ -215,7 +192,7 @@ class krynHtml {
             $myJsFiles[] = $js;
         }
 
-        if ($domain['resourcecompression'] != '1') {
+        if (Kryn::$domain->getResourcecompression() != '1') {
             foreach ($myJsFiles as $js) {
                 if (strpos($js, "http://") !== FALSE) {
                     $html .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
@@ -268,12 +245,12 @@ class krynHtml {
             $html .= "$head\n";
 
         //customized metas
-        $metas = json_decode($page['meta'], true);
+        /*$metas = json_decode($page['meta'], true);
         if ($page['meta_fromParent'] == 1) {
             $ppage = Kryn::getParentPage($page['id']);
             $pmetas = json_decode($ppage['meta'], true);
             $metas = array_merge($ppage, $pmetas);
-        }
+        }*/
 
         return $html;
     }
@@ -288,7 +265,6 @@ class krynHtml {
      * @return array|string
      */
     public static function &getPageContents($pId, $pBoxId = false, $pWithoutCache = false) {
-        global $time, $client, $kcache;
 
         $pId = $pId + 0;
 
@@ -324,7 +300,7 @@ class krynHtml {
             $res = dbExec("
             SELECT c.*
             FROM
-                %pfx%system_contents c,
+                %pfx%system_page_content c,
                 %pfx%system_page_version v
             WHERE 
                 v.id = $versionId
@@ -345,7 +321,7 @@ class krynHtml {
 
             //compatibility o old kryns <=0.7
             $result = array();
-            $res = dbExec("SELECT * FROM %pfx%system_contents
+            $res = dbExec("SELECT * FROM %pfx%system_page_content
                 WHERE page_id = $pId
                 $box 
                 AND version_id = 1
@@ -398,7 +374,7 @@ class krynHtml {
         }
 
         $args = array($pPageId, $pSlotId);
-        krynEvent::fire('onBeforeRenderPageContents', $args);
+        Event::fire('onBeforeRenderPageContents', $args);
 
         Kryn::addCss('css/_pages/' . $pPageId . '.css');
         Kryn::addJs('js/_pages/' . $pPageId . '.js');
@@ -426,7 +402,7 @@ class krynHtml {
 
 
         $arguments = array($pPageId, $pSlotId, &$html);
-        krynEvent::fire('onRenderPageContents', $arguments);
+        Event::fire('onRenderPageContents', $arguments);
 
         return $html;
     }

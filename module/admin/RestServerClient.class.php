@@ -79,10 +79,34 @@ class RestServerClient {
      * @return string
      */
     public function asXML($pMessage){
-        $xml = new SimpleXMLElement('<response/>');
-        $pMessage = array_flip($pMessage);
-        array_walk_recursive($pMessage, array($xml, 'addChild'));
-        return $xml->asXML();
+
+        $xml = $this->toXml($pMessage);
+        $xml = "<?xml version=\"1.0\"?>\n<response>\n$xml</response>";
+        return $xml;
+
+    }
+
+    /**
+     * @param mixed $pData
+     * @param int   $pDepth
+     * @return string XML
+     */
+    public function toXml($pData, $pDepth = 1){
+
+        if (is_array($pData)){
+            $content = '';
+
+            foreach ($pData as $key => $data)
+                $content .= str_repeat('  ', $pDepth)
+                    .'<'.htmlspecialchars($key).'>'.
+                        $this->toXml($data, $pDepth+1)
+                    .'</'.htmlspecialchars($key).">\n";
+
+            return $content;
+        } else {
+            return htmlspecialchars($pData);
+        }
+
     }
 
 

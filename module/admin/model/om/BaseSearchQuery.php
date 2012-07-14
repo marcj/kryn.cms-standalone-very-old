@@ -49,7 +49,7 @@
  * @method     array findByDomainId(int $domain_id) Return Search objects filtered by the domain_id column
  * @method     array findByPageContent(string $page_content) Return Search objects filtered by the page_content column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseSearchQuery extends ModelCriteria
 {
@@ -61,7 +61,7 @@ abstract class BaseSearchQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Search', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Search', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

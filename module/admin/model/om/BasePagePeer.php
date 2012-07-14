@@ -6,12 +6,12 @@
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BasePagePeer {
 
     /** the default database name for this class */
-    const DATABASE_NAME = 'kryn';
+    const DATABASE_NAME = 'Kryn';
 
     /** the table name for this class */
     const TABLE_NAME = 'kryn_system_page';
@@ -531,6 +531,9 @@ abstract class BasePagePeer {
      */
     public static function clearRelatedInstancePool()
     {
+        // Invalidate objects in PageContentPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        PageContentPeer::clearInstancePool();
     }
 
     /**

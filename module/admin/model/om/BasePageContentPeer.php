@@ -2,19 +2,19 @@
 
 
 /**
- * Base static class for performing query and update operations on the 'kryn_system_content' table.
+ * Base static class for performing query and update operations on the 'kryn_system_page_content' table.
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BasePageContentPeer {
 
     /** the default database name for this class */
-    const DATABASE_NAME = 'kryn';
+    const DATABASE_NAME = 'Kryn';
 
     /** the table name for this class */
-    const TABLE_NAME = 'kryn_system_content';
+    const TABLE_NAME = 'kryn_system_page_content';
 
     /** the related Propel class for this table */
     const OM_CLASS = 'PageContent';
@@ -23,64 +23,58 @@ abstract class BasePageContentPeer {
     const TM_CLASS = 'PageContentTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 17;
+    const NUM_COLUMNS = 15;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 17;
+    const NUM_HYDRATE_COLUMNS = 15;
 
     /** the column name for the ID field */
-    const ID = 'kryn_system_content.ID';
+    const ID = 'kryn_system_page_content.ID';
 
     /** the column name for the PAGE_ID field */
-    const PAGE_ID = 'kryn_system_content.PAGE_ID';
+    const PAGE_ID = 'kryn_system_page_content.PAGE_ID';
 
     /** the column name for the VERSION_ID field */
-    const VERSION_ID = 'kryn_system_content.VERSION_ID';
+    const VERSION_ID = 'kryn_system_page_content.VERSION_ID';
 
     /** the column name for the TITLE field */
-    const TITLE = 'kryn_system_content.TITLE';
+    const TITLE = 'kryn_system_page_content.TITLE';
 
     /** the column name for the CONTENT field */
-    const CONTENT = 'kryn_system_content.CONTENT';
+    const CONTENT = 'kryn_system_page_content.CONTENT';
 
     /** the column name for the TEMPLATE field */
-    const TEMPLATE = 'kryn_system_content.TEMPLATE';
+    const TEMPLATE = 'kryn_system_page_content.TEMPLATE';
 
     /** the column name for the TYPE field */
-    const TYPE = 'kryn_system_content.TYPE';
-
-    /** the column name for the MDATE field */
-    const MDATE = 'kryn_system_content.MDATE';
-
-    /** the column name for the CDATE field */
-    const CDATE = 'kryn_system_content.CDATE';
+    const TYPE = 'kryn_system_page_content.TYPE';
 
     /** the column name for the HIDE field */
-    const HIDE = 'kryn_system_content.HIDE';
+    const HIDE = 'kryn_system_page_content.HIDE';
 
     /** the column name for the SORT field */
-    const SORT = 'kryn_system_content.SORT';
+    const SORT = 'kryn_system_page_content.SORT';
 
     /** the column name for the BOX_ID field */
-    const BOX_ID = 'kryn_system_content.BOX_ID';
+    const BOX_ID = 'kryn_system_page_content.BOX_ID';
 
     /** the column name for the OWNER_ID field */
-    const OWNER_ID = 'kryn_system_content.OWNER_ID';
+    const OWNER_ID = 'kryn_system_page_content.OWNER_ID';
 
     /** the column name for the ACCESS_FROM field */
-    const ACCESS_FROM = 'kryn_system_content.ACCESS_FROM';
+    const ACCESS_FROM = 'kryn_system_page_content.ACCESS_FROM';
 
     /** the column name for the ACCESS_TO field */
-    const ACCESS_TO = 'kryn_system_content.ACCESS_TO';
+    const ACCESS_TO = 'kryn_system_page_content.ACCESS_TO';
 
     /** the column name for the ACCESS_FROM_GROUPS field */
-    const ACCESS_FROM_GROUPS = 'kryn_system_content.ACCESS_FROM_GROUPS';
+    const ACCESS_FROM_GROUPS = 'kryn_system_page_content.ACCESS_FROM_GROUPS';
 
     /** the column name for the UNSEARCHABLE field */
-    const UNSEARCHABLE = 'kryn_system_content.UNSEARCHABLE';
+    const UNSEARCHABLE = 'kryn_system_page_content.UNSEARCHABLE';
 
     /** The default string format for model objects of the related table **/
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -101,12 +95,12 @@ abstract class BasePageContentPeer {
      * e.g. PageContentPeer::$fieldNames[PageContentPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'PageId', 'VersionId', 'Title', 'Content', 'Template', 'Type', 'Mdate', 'Cdate', 'Hide', 'Sort', 'BoxId', 'OwnerId', 'AccessFrom', 'AccessTo', 'AccessFromGroups', 'Unsearchable', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pageId', 'versionId', 'title', 'content', 'template', 'type', 'mdate', 'cdate', 'hide', 'sort', 'boxId', 'ownerId', 'accessFrom', 'accessTo', 'accessFromGroups', 'unsearchable', ),
-        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID, PageContentPeer::PAGE_ID, PageContentPeer::VERSION_ID, PageContentPeer::TITLE, PageContentPeer::CONTENT, PageContentPeer::TEMPLATE, PageContentPeer::TYPE, PageContentPeer::MDATE, PageContentPeer::CDATE, PageContentPeer::HIDE, PageContentPeer::SORT, PageContentPeer::BOX_ID, PageContentPeer::OWNER_ID, PageContentPeer::ACCESS_FROM, PageContentPeer::ACCESS_TO, PageContentPeer::ACCESS_FROM_GROUPS, PageContentPeer::UNSEARCHABLE, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PAGE_ID', 'VERSION_ID', 'TITLE', 'CONTENT', 'TEMPLATE', 'TYPE', 'MDATE', 'CDATE', 'HIDE', 'SORT', 'BOX_ID', 'OWNER_ID', 'ACCESS_FROM', 'ACCESS_TO', 'ACCESS_FROM_GROUPS', 'UNSEARCHABLE', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'page_id', 'version_id', 'title', 'content', 'template', 'type', 'mdate', 'cdate', 'hide', 'sort', 'box_id', 'owner_id', 'access_from', 'access_to', 'access_from_groups', 'unsearchable', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, )
+        BasePeer::TYPE_PHPNAME => array ('Id', 'PageId', 'VersionId', 'Title', 'Content', 'Template', 'Type', 'Hide', 'Sort', 'BoxId', 'OwnerId', 'AccessFrom', 'AccessTo', 'AccessFromGroups', 'Unsearchable', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pageId', 'versionId', 'title', 'content', 'template', 'type', 'hide', 'sort', 'boxId', 'ownerId', 'accessFrom', 'accessTo', 'accessFromGroups', 'unsearchable', ),
+        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID, PageContentPeer::PAGE_ID, PageContentPeer::VERSION_ID, PageContentPeer::TITLE, PageContentPeer::CONTENT, PageContentPeer::TEMPLATE, PageContentPeer::TYPE, PageContentPeer::HIDE, PageContentPeer::SORT, PageContentPeer::BOX_ID, PageContentPeer::OWNER_ID, PageContentPeer::ACCESS_FROM, PageContentPeer::ACCESS_TO, PageContentPeer::ACCESS_FROM_GROUPS, PageContentPeer::UNSEARCHABLE, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PAGE_ID', 'VERSION_ID', 'TITLE', 'CONTENT', 'TEMPLATE', 'TYPE', 'HIDE', 'SORT', 'BOX_ID', 'OWNER_ID', 'ACCESS_FROM', 'ACCESS_TO', 'ACCESS_FROM_GROUPS', 'UNSEARCHABLE', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'page_id', 'version_id', 'title', 'content', 'template', 'type', 'hide', 'sort', 'box_id', 'owner_id', 'access_from', 'access_to', 'access_from_groups', 'unsearchable', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, )
     );
 
     /**
@@ -116,12 +110,12 @@ abstract class BasePageContentPeer {
      * e.g. PageContentPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'PageId' => 1, 'VersionId' => 2, 'Title' => 3, 'Content' => 4, 'Template' => 5, 'Type' => 6, 'Mdate' => 7, 'Cdate' => 8, 'Hide' => 9, 'Sort' => 10, 'BoxId' => 11, 'OwnerId' => 12, 'AccessFrom' => 13, 'AccessTo' => 14, 'AccessFromGroups' => 15, 'Unsearchable' => 16, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pageId' => 1, 'versionId' => 2, 'title' => 3, 'content' => 4, 'template' => 5, 'type' => 6, 'mdate' => 7, 'cdate' => 8, 'hide' => 9, 'sort' => 10, 'boxId' => 11, 'ownerId' => 12, 'accessFrom' => 13, 'accessTo' => 14, 'accessFromGroups' => 15, 'unsearchable' => 16, ),
-        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID => 0, PageContentPeer::PAGE_ID => 1, PageContentPeer::VERSION_ID => 2, PageContentPeer::TITLE => 3, PageContentPeer::CONTENT => 4, PageContentPeer::TEMPLATE => 5, PageContentPeer::TYPE => 6, PageContentPeer::MDATE => 7, PageContentPeer::CDATE => 8, PageContentPeer::HIDE => 9, PageContentPeer::SORT => 10, PageContentPeer::BOX_ID => 11, PageContentPeer::OWNER_ID => 12, PageContentPeer::ACCESS_FROM => 13, PageContentPeer::ACCESS_TO => 14, PageContentPeer::ACCESS_FROM_GROUPS => 15, PageContentPeer::UNSEARCHABLE => 16, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PAGE_ID' => 1, 'VERSION_ID' => 2, 'TITLE' => 3, 'CONTENT' => 4, 'TEMPLATE' => 5, 'TYPE' => 6, 'MDATE' => 7, 'CDATE' => 8, 'HIDE' => 9, 'SORT' => 10, 'BOX_ID' => 11, 'OWNER_ID' => 12, 'ACCESS_FROM' => 13, 'ACCESS_TO' => 14, 'ACCESS_FROM_GROUPS' => 15, 'UNSEARCHABLE' => 16, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'page_id' => 1, 'version_id' => 2, 'title' => 3, 'content' => 4, 'template' => 5, 'type' => 6, 'mdate' => 7, 'cdate' => 8, 'hide' => 9, 'sort' => 10, 'box_id' => 11, 'owner_id' => 12, 'access_from' => 13, 'access_to' => 14, 'access_from_groups' => 15, 'unsearchable' => 16, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, )
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'PageId' => 1, 'VersionId' => 2, 'Title' => 3, 'Content' => 4, 'Template' => 5, 'Type' => 6, 'Hide' => 7, 'Sort' => 8, 'BoxId' => 9, 'OwnerId' => 10, 'AccessFrom' => 11, 'AccessTo' => 12, 'AccessFromGroups' => 13, 'Unsearchable' => 14, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pageId' => 1, 'versionId' => 2, 'title' => 3, 'content' => 4, 'template' => 5, 'type' => 6, 'hide' => 7, 'sort' => 8, 'boxId' => 9, 'ownerId' => 10, 'accessFrom' => 11, 'accessTo' => 12, 'accessFromGroups' => 13, 'unsearchable' => 14, ),
+        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID => 0, PageContentPeer::PAGE_ID => 1, PageContentPeer::VERSION_ID => 2, PageContentPeer::TITLE => 3, PageContentPeer::CONTENT => 4, PageContentPeer::TEMPLATE => 5, PageContentPeer::TYPE => 6, PageContentPeer::HIDE => 7, PageContentPeer::SORT => 8, PageContentPeer::BOX_ID => 9, PageContentPeer::OWNER_ID => 10, PageContentPeer::ACCESS_FROM => 11, PageContentPeer::ACCESS_TO => 12, PageContentPeer::ACCESS_FROM_GROUPS => 13, PageContentPeer::UNSEARCHABLE => 14, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PAGE_ID' => 1, 'VERSION_ID' => 2, 'TITLE' => 3, 'CONTENT' => 4, 'TEMPLATE' => 5, 'TYPE' => 6, 'HIDE' => 7, 'SORT' => 8, 'BOX_ID' => 9, 'OWNER_ID' => 10, 'ACCESS_FROM' => 11, 'ACCESS_TO' => 12, 'ACCESS_FROM_GROUPS' => 13, 'UNSEARCHABLE' => 14, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'page_id' => 1, 'version_id' => 2, 'title' => 3, 'content' => 4, 'template' => 5, 'type' => 6, 'hide' => 7, 'sort' => 8, 'box_id' => 9, 'owner_id' => 10, 'access_from' => 11, 'access_to' => 12, 'access_from_groups' => 13, 'unsearchable' => 14, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, )
     );
 
     /**
@@ -202,8 +196,6 @@ abstract class BasePageContentPeer {
             $criteria->addSelectColumn(PageContentPeer::CONTENT);
             $criteria->addSelectColumn(PageContentPeer::TEMPLATE);
             $criteria->addSelectColumn(PageContentPeer::TYPE);
-            $criteria->addSelectColumn(PageContentPeer::MDATE);
-            $criteria->addSelectColumn(PageContentPeer::CDATE);
             $criteria->addSelectColumn(PageContentPeer::HIDE);
             $criteria->addSelectColumn(PageContentPeer::SORT);
             $criteria->addSelectColumn(PageContentPeer::BOX_ID);
@@ -220,8 +212,6 @@ abstract class BasePageContentPeer {
             $criteria->addSelectColumn($alias . '.CONTENT');
             $criteria->addSelectColumn($alias . '.TEMPLATE');
             $criteria->addSelectColumn($alias . '.TYPE');
-            $criteria->addSelectColumn($alias . '.MDATE');
-            $criteria->addSelectColumn($alias . '.CDATE');
             $criteria->addSelectColumn($alias . '.HIDE');
             $criteria->addSelectColumn($alias . '.SORT');
             $criteria->addSelectColumn($alias . '.BOX_ID');
@@ -424,7 +414,7 @@ abstract class BasePageContentPeer {
     }
     
     /**
-     * Method to invalidate the instance pool of all tables related to kryn_system_content
+     * Method to invalidate the instance pool of all tables related to kryn_system_page_content
      * by a foreign key with ON DELETE CASCADE
      */
     public static function clearRelatedInstancePool()
@@ -523,6 +513,637 @@ abstract class BasePageContentPeer {
         }
 
         return array($obj, $col);
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related Page table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinPage(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PageContentPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related PageVersion table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinPageVersion(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PageContentPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Selects a collection of PageContent objects pre-filled with their Page objects.
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of PageContent objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinPage(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+        }
+
+        PageContentPeer::addSelectColumns($criteria);
+        $startcol = PageContentPeer::NUM_HYDRATE_COLUMNS;
+        PagePeer::addSelectColumns($criteria);
+
+        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+
+                $cls = PageContentPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PageContentPeer::addInstanceToPool($obj1, $key1);
+            } // if $obj1 already loaded
+
+            $key2 = PagePeer::getPrimaryKeyHashFromRow($row, $startcol);
+            if ($key2 !== null) {
+                $obj2 = PagePeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = PagePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol);
+                    PagePeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 already loaded
+
+                // Add the $obj1 (PageContent) to $obj2 (Page)
+                $obj2->addPageContent($obj1);
+
+            } // if joined row was not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Selects a collection of PageContent objects pre-filled with their PageVersion objects.
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of PageContent objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinPageVersion(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+        }
+
+        PageContentPeer::addSelectColumns($criteria);
+        $startcol = PageContentPeer::NUM_HYDRATE_COLUMNS;
+        PageVersionPeer::addSelectColumns($criteria);
+
+        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+
+                $cls = PageContentPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PageContentPeer::addInstanceToPool($obj1, $key1);
+            } // if $obj1 already loaded
+
+            $key2 = PageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol);
+            if ($key2 !== null) {
+                $obj2 = PageVersionPeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = PageVersionPeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol);
+                    PageVersionPeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 already loaded
+
+                // Add the $obj1 (PageContent) to $obj2 (PageVersion)
+                $obj2->addPageContent($obj1);
+
+            } // if joined row was not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining all related tables
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAll(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PageContentPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
+
+        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+    /**
+     * Selects a collection of PageContent objects pre-filled with all related objects.
+     *
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of PageContent objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinAll(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+        }
+
+        PageContentPeer::addSelectColumns($criteria);
+        $startcol2 = PageContentPeer::NUM_HYDRATE_COLUMNS;
+
+        PagePeer::addSelectColumns($criteria);
+        $startcol3 = $startcol2 + PagePeer::NUM_HYDRATE_COLUMNS;
+
+        PageVersionPeer::addSelectColumns($criteria);
+        $startcol4 = $startcol3 + PageVersionPeer::NUM_HYDRATE_COLUMNS;
+
+        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
+
+        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = PageContentPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PageContentPeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+            // Add objects for joined Page rows
+
+            $key2 = PagePeer::getPrimaryKeyHashFromRow($row, $startcol2);
+            if ($key2 !== null) {
+                $obj2 = PagePeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = PagePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol2);
+                    PagePeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 loaded
+
+                // Add the $obj1 (PageContent) to the collection in $obj2 (Page)
+                $obj2->addPageContent($obj1);
+            } // if joined row not null
+
+            // Add objects for joined PageVersion rows
+
+            $key3 = PageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol3);
+            if ($key3 !== null) {
+                $obj3 = PageVersionPeer::getInstanceFromPool($key3);
+                if (!$obj3) {
+
+                    $cls = PageVersionPeer::getOMClass();
+
+                    $obj3 = new $cls();
+                    $obj3->hydrate($row, $startcol3);
+                    PageVersionPeer::addInstanceToPool($obj3, $key3);
+                } // if obj3 loaded
+
+                // Add the $obj1 (PageContent) to the collection in $obj3 (PageVersion)
+                $obj3->addPageContent($obj1);
+            } // if joined row not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related Page table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAllExceptPage(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PageContentPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY should not affect count
+
+        // Set the correct dbName
+        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+    
+        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related PageVersion table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAllExceptPageVersion(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PageContentPeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY should not affect count
+
+        // Set the correct dbName
+        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+    
+        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Selects a collection of PageContent objects pre-filled with all related objects except Page.
+     *
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of PageContent objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinAllExceptPage(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        // $criteria->getDbName() will return the same object if not set to another value
+        // so == check is okay and faster
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+        }
+
+        PageContentPeer::addSelectColumns($criteria);
+        $startcol2 = PageContentPeer::NUM_HYDRATE_COLUMNS;
+
+        PageVersionPeer::addSelectColumns($criteria);
+        $startcol3 = $startcol2 + PageVersionPeer::NUM_HYDRATE_COLUMNS;
+
+        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
+
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = PageContentPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PageContentPeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+                // Add objects for joined PageVersion rows
+
+                $key2 = PageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol2);
+                if ($key2 !== null) {
+                    $obj2 = PageVersionPeer::getInstanceFromPool($key2);
+                    if (!$obj2) {
+    
+                        $cls = PageVersionPeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol2);
+                    PageVersionPeer::addInstanceToPool($obj2, $key2);
+                } // if $obj2 already loaded
+
+                // Add the $obj1 (PageContent) to the collection in $obj2 (PageVersion)
+                $obj2->addPageContent($obj1);
+
+            } // if joined row is not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Selects a collection of PageContent objects pre-filled with all related objects except PageVersion.
+     *
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of PageContent objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinAllExceptPageVersion(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        // $criteria->getDbName() will return the same object if not set to another value
+        // so == check is okay and faster
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
+        }
+
+        PageContentPeer::addSelectColumns($criteria);
+        $startcol2 = PageContentPeer::NUM_HYDRATE_COLUMNS;
+
+        PagePeer::addSelectColumns($criteria);
+        $startcol3 = $startcol2 + PagePeer::NUM_HYDRATE_COLUMNS;
+
+        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
+
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = PageContentPeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PageContentPeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+                // Add objects for joined Page rows
+
+                $key2 = PagePeer::getPrimaryKeyHashFromRow($row, $startcol2);
+                if ($key2 !== null) {
+                    $obj2 = PagePeer::getInstanceFromPool($key2);
+                    if (!$obj2) {
+    
+                        $cls = PagePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol2);
+                    PagePeer::addInstanceToPool($obj2, $key2);
+                } // if $obj2 already loaded
+
+                // Add the $obj1 (PageContent) to the collection in $obj2 (Page)
+                $obj2->addPageContent($obj1);
+
+            } // if joined row is not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
     }
 
     /**
@@ -642,7 +1263,7 @@ abstract class BasePageContentPeer {
     }
 
     /**
-     * Deletes all rows from the kryn_system_content table.
+     * Deletes all rows from the kryn_system_page_content table.
      *
      * @param      PropelPDO $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).

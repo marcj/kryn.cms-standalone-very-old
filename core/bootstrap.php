@@ -1,5 +1,7 @@
 <?php
 
+namespace Core;
+
 $time = time();
 $_start = microtime(true);
 
@@ -30,8 +32,6 @@ if (!file_exists('config.php')) {
 include('config.php');
 
 
-
-
 error_reporting(E_ALL ^ E_NOTICE);
 
 if (!array_key_exists('display_errors', $cfg))
@@ -55,7 +55,6 @@ include(PATH_CORE.'framework.global.php');
 # Load very important classes.
 include('lib/propel/runtime/lib/Propel.php');
 include(PATH_CORE . 'Kryn.class.php');
-
 
 Kryn::$config = $cfg;
 
@@ -106,7 +105,7 @@ if (!file_exists($file = 'propel-config.php')){
     propelHelper::init();
 }
 
-Propel::init($file);
+\Propel::init($file);
 set_include_path("propel/build/classes" . PATH_SEPARATOR . get_include_path());
 
 $propelConfig = include($file);

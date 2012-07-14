@@ -37,7 +37,7 @@
  * @method     array findByName(string $name) Return Group objects filtered by the name column
  * @method     array findByDescription(string $description) Return Group objects filtered by the description column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseGroupQuery extends ModelCriteria
 {
@@ -49,7 +49,7 @@ abstract class BaseGroupQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Group', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Group', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

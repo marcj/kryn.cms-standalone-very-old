@@ -277,6 +277,9 @@ class RestServer extends RestServerController {
             $clazz = $this->controllerClass;
             try {
                 $this->controller = new $clazz();
+                if (get_parent_class($this->controller) == 'RestServerController'){
+                    $this->controller->setClient($this->getClient());
+                }
             } catch (Exception $e) {
                 throw new Exception('Error during initialisation of '.$clazz.': '.$e);
             }

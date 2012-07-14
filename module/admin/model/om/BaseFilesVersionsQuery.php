@@ -41,7 +41,7 @@
  * @method     array findByUserId(int $user_id) Return FilesVersions objects filtered by the user_id column
  * @method     array findByVersionpath(string $versionpath) Return FilesVersions objects filtered by the versionpath column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseFilesVersionsQuery extends ModelCriteria
 {
@@ -53,7 +53,7 @@ abstract class BaseFilesVersionsQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'FilesVersions', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'FilesVersions', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

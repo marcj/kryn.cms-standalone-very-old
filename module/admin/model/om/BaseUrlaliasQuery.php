@@ -37,7 +37,7 @@
  * @method     array findByToPageId(int $to_page_id) Return Urlalias objects filtered by the to_page_id column
  * @method     array findByDomainId(int $domain_id) Return Urlalias objects filtered by the domain_id column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseUrlaliasQuery extends ModelCriteria
 {
@@ -49,7 +49,7 @@ abstract class BaseUrlaliasQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Urlalias', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Urlalias', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

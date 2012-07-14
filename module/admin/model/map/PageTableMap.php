@@ -12,7 +12,7 @@
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    propel.generator.kryn.map
+ * @package    propel.generator.Kryn.map
  */
 class PageTableMap extends TableMap
 {
@@ -20,7 +20,7 @@ class PageTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'kryn.map.PageTableMap';
+    const CLASS_NAME = 'Kryn.map.PageTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -35,7 +35,7 @@ class PageTableMap extends TableMap
         $this->setName('kryn_system_page');
         $this->setPhpName('Page');
         $this->setClassname('Page');
-        $this->setPackage('kryn');
+        $this->setPackage('Kryn');
         $this->setUseIdGenerator(true);
         $this->setPrimaryKeyMethodInfo('kryn_system_page_id_seq');
         // columns
@@ -81,6 +81,7 @@ class PageTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('Domain', 'Domain', RelationMap::MANY_TO_ONE, array('domain_id' => 'id', ), 'CASCADE', null);
+        $this->addRelation('PageContent', 'PageContent', RelationMap::ONE_TO_MANY, array('id' => 'page_id', ), 'CASCADE', null, 'PageContents');
         $this->addRelation('Urlalias', 'Urlalias', RelationMap::ONE_TO_MANY, array('id' => 'to_page_id', ), null, null, 'Urlaliass');
     } // buildRelations()
 

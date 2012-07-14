@@ -23,6 +23,13 @@ class Domain extends BaseDomain {
      */
     private $realDomain;
 
+    /**
+     * Full title after replace the vars in titleFormat or getting from methods.
+     *
+     * @var string
+     */
+    private $title;
+
     public function setRealDomain($pRealDomain){
         $this->realDomain = $pRealDomain;
     }
@@ -30,5 +37,22 @@ class Domain extends BaseDomain {
     public function getRealDomain(){
         return $this->realDomain;
     }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle($title) {
+        $this->title = $title;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle() {
+        return $this->title;
+    }
+
+
+
 
 } // SystemDomain

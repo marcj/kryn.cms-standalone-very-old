@@ -24,6 +24,10 @@
  * @method     PageVersionQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     PageVersionQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
+ * @method     PageVersionQuery leftJoinPageContent($relationAlias = null) Adds a LEFT JOIN clause to the query using the PageContent relation
+ * @method     PageVersionQuery rightJoinPageContent($relationAlias = null) Adds a RIGHT JOIN clause to the query using the PageContent relation
+ * @method     PageVersionQuery innerJoinPageContent($relationAlias = null) Adds a INNER JOIN clause to the query using the PageContent relation
+ *
  * @method     PageVersion findOne(PropelPDO $con = null) Return the first PageVersion matching the query
  * @method     PageVersion findOneOrCreate(PropelPDO $con = null) Return the first PageVersion matching the query, or a new PageVersion object populated from the query conditions when no match is found
  *
@@ -41,7 +45,7 @@
  * @method     array findByModified(int $modified) Return PageVersion objects filtered by the modified column
  * @method     array findByActive(int $active) Return PageVersion objects filtered by the active column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BasePageVersionQuery extends ModelCriteria
 {
@@ -53,7 +57,7 @@ abstract class BasePageVersionQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'PageVersion', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'PageVersion', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }
@@ -449,6 +453,80 @@ abstract class BasePageVersionQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(PageVersionPeer::ACTIVE, $active, $comparison);
+    }
+
+    /**
+     * Filter the query by a related PageContent object
+     *
+     * @param   PageContent|PropelObjectCollection $pageContent  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return   PageVersionQuery The current query, for fluid interface
+     * @throws   PropelException - if the provided filter is invalid.
+     */
+    public function filterByPageContent($pageContent, $comparison = null)
+    {
+        if ($pageContent instanceof PageContent) {
+            return $this
+                ->addUsingAlias(PageVersionPeer::ID, $pageContent->getVersionId(), $comparison);
+        } elseif ($pageContent instanceof PropelObjectCollection) {
+            return $this
+                ->usePageContentQuery()
+                ->filterByPrimaryKeys($pageContent->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByPageContent() only accepts arguments of type PageContent or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the PageContent relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return PageVersionQuery The current query, for fluid interface
+     */
+    public function joinPageContent($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('PageContent');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'PageContent');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the PageContent relation PageContent object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   PageContentQuery A secondary query class using the current class as primary query
+     */
+    public function usePageContentQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinPageContent($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'PageContent', 'PageContentQuery');
     }
 
     /**

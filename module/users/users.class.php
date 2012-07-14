@@ -11,7 +11,7 @@
  */
 
 
-class users extends krynModule {
+class users {
     
     function pluginLogin( $pConf ){
         global $client;

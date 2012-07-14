@@ -4,9 +4,9 @@
 /*
  * This file is part of Kryn.cms.
  *
- * (c) Kryn.labs, MArc Schmidt <marc@Kryn.org>
+ * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
  *
- * To get the full copyright and license informations, please view the
+ * To get the full copyright and license information, please view the
  * LICENSE file, that was distributed with this source code.
  *
  */
@@ -15,7 +15,7 @@
 /**
  * Global framework functions
  *
- * @author MArc Schmidt <marc@Kryn.org>
+ * @author MArc Schmidt <marc@Core\Kryn.org>
  */
 
 
@@ -25,7 +25,7 @@
  * function.
  *
  * @param string     $pValue
- * @param int|string $pType 1=(default) normale escape, 2=remove all except a-zA-Z0-9-_, or PDO::PARAM_*=
+ * @param int|string $pType 1=(default) normal escape, 2=remove all except a-zA-Z0-9-_, or PDO::PARAM_*=
  *                   PDO::PARAM_STR, PDO::PARAM_INT, etc
  *
  * @global
@@ -45,10 +45,11 @@ function esc($pValue, $pType = 1) {
 }
 
 /**
- * Quotes column or table names and return pValue with quotes surrounded and
- * lowercase (because table names and column names have to be lowercased)
+ * Quotes $pValue. Adds $pTable to the beginning if set.
  *
  * @param string|array $pValue Possible is "test, bla, blub" or just "foo". If array("foo", "bar") it returns a array again
+ * @param $pTable
+ *
  * @return mixed
  */
 function dbQuote($pValue, $pTable = ''){
@@ -75,12 +76,12 @@ function dbQuote($pValue, $pTable = ''){
  *
  * @param bool $pSlave
  *
- * @return mixed
+ * @return PDO
  */
 function dbConnection($pSlave = null) {
-    if ($pSlave !== null) Kryn::$dbConnectionIsSlave = $pSlave;
-    Kryn::$dbConnection = Propel::getConnection(null, Kryn::$dbConnectionIsSlave);
-    return Kryn::$dbConnection;
+    if ($pSlave !== null) Core\Kryn::$dbConnectionIsSlave = $pSlave;
+    Core\Kryn::$dbConnection = Propel::getConnection(null, Core\Kryn::$dbConnectionIsSlave);
+    return Core\Kryn::$dbConnection;
 }
 
 /**
@@ -88,9 +89,7 @@ function dbConnection($pSlave = null) {
  *
  */
 function dbBegin(){
-    if (database::$activeTransaction) return;
-    dbExec('BEGIN');
-    database::$activeTransaction = true;
+    dbConnection()->beginTransaction();
 }
 
 /**
@@ -99,7 +98,8 @@ function dbBegin(){
  */
 function dbRollback(){
 
-    if (database::$activeLock && Kryn::$config['db_type'] == 'mysql'){
+    dbConnection()->rollback();
+    if (database::$activeLock && Core\Kryn::$config['db_type'] == 'mysql'){
         dbLock('UNLOCK TABLES');
         database::$activeLock = false;
     }
@@ -115,69 +115,7 @@ function dbRollback(){
  *
  */
 function dbCommit(){
-
-    if (database::$activeLock && Kryn::$config['db_type'] == 'mysql'){
-        dbLock('UNLOCK TABLES');
-        database::$activeLock = false;
-    }
-
-    if (!database::$activeTransaction) return;
-
-    dbExec('COMMIT');
-    database::$activeTransaction = false;
-}
-
-/**
- * Lock a table in write mode.
- * This starts a transaction (if a transaction has not already been started) as in dbBegin() (to be postgresql compatible)
- *
- * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
- */
-function dbWriteLock($pTable){
-    dbLock($pTable, 'write');
-}
-
-/**
- * Lock a table in read mode.
- * This starts a transaction (if a transaction has not already been started) as in dbBegin() (to be postgresql compatible)
- *
- * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
- */
-function dbReadLock($pTable){
-    dbLock($pTable, 'read');
-}
-
-/**
- * Lock a table in write or read mode.
- * To be postgresql compatible, this starts a transaction (if a transaction has not already been started)
- *
- * @param $pTable Full table name (use dbTableName() before if you use table names without prefix) without quoting
- * @param $pMode read || write
- */
-function dbLock($pTable, $pMode = 'read'){
-
-    if (!database::$activeTransaction){
-        dbExec('BEGIN');
-        database::$activeTransaction = true;
-    }
-
-    database::$activeLock = true;
-
-    if (Kryn::$config['db_type'] != 'postgresql')
-        dbExec('LOCK TABLE '.dbQuote(dbTableName($pTable)).' '.($pMode=='read'?'READ':'WRITE'));
-    else {
-        dbExec('LOCK TABLE '.dbQuote(dbTableName($pTable)).' IN '.($pMode=='read'?'ACCESS SHARE':'ROW EXCLUSIVE MODE'));
-    }
-}
-
-/**
- *
- * Unlock tables.
- * To be psotgresql compatible, this fires dbCommit() and commits therefore the active transaction.
- *
- */
-function dbUnlockTables(){
-    dbCommit();
+    dbConnection()->commit();
 }
 
 /**
@@ -241,7 +179,7 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
     if ($_REQUEST['lang'])
         $lang = esc($_REQUEST['lang']);
     else
-        $lang = Kryn::$language;
+        $lang = Core\Kryn::$language;
     if ($pWhere)
         $pWhere = " lang = '$lang' AND " . $pWhere;
     else
@@ -300,7 +238,7 @@ function dbTableName($pTable){
  * Inserts the values based on pFields into the table pTable.
  *
  * @param string $pTable  The table name based on your extension table definition
- * @param array  $pData Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Kryn.org/docu/developer/framework-database
+ * @param array  $pData Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Core\Kryn.org/docu/developer/framework-database
  *
  * @return integer The last_insert_id() (if you use auto_increment/sequences)
  */
@@ -377,7 +315,7 @@ function dbLastId() {
  *
  * @param string       $pTable   The table name based on your extension table definition
  * @param string|array $pCondition Define the limitation as a SQL or as a array ('field' => 'value')
- * @param array        $pData  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Kryn.org/docu/developer/framework-database
+ * @param array        $pData  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Core\Kryn.org/docu/developer/framework-database
  *
  * @return type
  */
@@ -535,7 +473,7 @@ function dbCount($pTable, $pWhere = false) {
 
     $table = dbQuote(dbTableName($pTable));
 
-    if (Kryn::$config['db_type'] == 'postgresql'){
+    if (Core\Kryn::$config['db_type'] == 'postgresql'){
 
         $columns = array_keys(database::getColumns(dbTableName($pTable)));
         $firstColumn = $columns[0];
@@ -835,7 +773,7 @@ function dbConditionSingleField($pCondition, $pTable = ''){
     }
 
     if (strtolower($pCondition[1]) == 'regexp')
-        $result .= Kryn::$config['db_type']=='mysql'?'REGEXP':'~';
+        $result .= Core\Kryn::$config['db_type']=='mysql'?'REGEXP':'~';
     else
         $result .= $pCondition[1];
 

@@ -29,7 +29,7 @@
  * @method     array findBySearchcount(int $searchcount) Return SearchStats objects filtered by the searchcount column
  * @method     array findByFound(int $found) Return SearchStats objects filtered by the found column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseSearchStatsQuery extends ModelCriteria
 {
@@ -41,7 +41,7 @@ abstract class BaseSearchStatsQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'SearchStats', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'SearchStats', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

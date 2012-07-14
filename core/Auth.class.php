@@ -6,84 +6,57 @@
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-namespace Kryn;
+namespace Core;
 
 class Auth {
 
     /**
      * The auth token. (which is basically stored as cookie on the client side)
      */
-    public $token = false;
+    private $token = false;
 
     /**
      * The token id (the name of the cookie on the client side)
      */
-    public $tokenid = 'krynsessionid';
+    private $tokenId = 'krynsessionid';
 
 
     /**
-     * Some session informations
-     * Modified by set() and get()
-     * The system uses following items, so your should't override it:
-     *    language, time, refreshed, ip, user_id, page, useragent
+     * Current session object.
+     *
+     * @var \Session
      */
     private $session;
 
     /**
-     * For backwards compatibility the user_id from $this->user['id']
-     */
-    public $user_id = 0;
-
-    /**
-     * Same value as $user_id or $user['id']
-     *
-     * @var int
-     */
-    public $id = 0;
-
-    /**
-     * Some user informations from the system_user table.
-     */
-    public $user;
-
-    /**
-     * Defines whether set() was called and changed $session and therefore
-     * we need at the end of the script a sync to the backend (database/memcache)
-     * Idea behind this: We get more speed, when only saving the combined data at the end,
-     * instead of saving as far as it has been changed.
-     */
-    private $needSync = false;
-
-
-    /**
      * Contains the config. Items: 'session_timeout', 'session_storage', 'auth_class', 'auth_params' => array('<auth_class>' => array())
      */
-    public $config = array();
+    private $config = array();
 
     /**
      * Object of krynCache.class
      */
-    public $cache;
+    private $cache;
 
     /**
      * Defines whether processHandler() is called initially
      * @var bool
      */
-    public $autoLoginLogout = false;
+    private $autoLoginLogout = false;
 
     /**
      * The HTTP GET/POST key which triggers the login.
      * admin?users-login=1
      * @var string
      */
-    public $loginTrigger = 'users-login';
+    private $loginTrigger = 'users-login';
 
     /**
      * The HTTP GET/POST key which triggers the logout.
      * admin?users-logout=1
      * @var string
      */
-    public $logoutTrigger = 'users-logout';
+    private $logoutTrigger = 'users-logout';
 
 
     /**
@@ -100,8 +73,8 @@ class Auth {
 
         $this->config = $pConfig;
 
-        if ($pConfig['session_tokenid']) {
-            $this->tokenid = $pConfig['session_tokenid'];
+        if ($pConfig['session_tokenId']) {
+            $this->tokenId = $pConfig['session_tokenId'];
         }
 
         $this->refreshing = $pWithRefreshing;
@@ -113,14 +86,14 @@ class Auth {
             $this->config['session_timeout'] = 3600 * 12;
 
         if ($pConfig['session_storage'] != 'database') {
-            $this->cache = new krynCache($pConfig['session_storage'], $pConfig['session_storage_config']);
+            $this->cache = new Cache($pConfig['session_storage'], $pConfig['session_storage_config']);
         }
 
     }
 
     public function start() {
 
-        $this->token = $this->getToken();
+        $this->token = $this->getClientToken();
         $this->session = $this->loadSession();
 
         error_log('sessionid: '.$this->token);
@@ -148,9 +121,7 @@ class Auth {
 
         }
 
-        $this->loadUser($this->session['user_id']);
-
-        if( $this->autoLoginLogout )
+        if ($this->autoLoginLogout)
             $this->handleClientLoginLogout();
 
         if ($this->config['session_autoremove'] == 1)
@@ -162,8 +133,8 @@ class Auth {
      */
     public function updateSession() {
 
-        $this->set('time', time());
-        $this->set('refreshed', $this->get('refreshed') + 1);
+        $this->session->setTime(time());
+        $this->session->setRefreshed( $this->session->getRefreshed()+1 );
 
     }
 
@@ -222,17 +193,6 @@ class Auth {
                 json(true);
             }
         }
-    }
-
-    /**
-     * Set the current user of the session.
-     */
-    public function setUser($pUserid, $pLoadUser = true) {
-
-        $this->set('user_id', $pUserid); //will be saved at shutdown
-
-        if ($pLoadUser)
-            $this->loadUser($pUserid);
     }
 
     /**
@@ -362,80 +322,33 @@ class Auth {
     }
 
     /**
-     * @param $pUserid
-     */
-    public function loadUser($pUserid) {
-
-        $this->user =& $this->getUser($pUserid);
-        $this->user_id = $this->user['id'];
-        $this->id = $this->user['id'];
-
-        tAssign('user', $this->user);
-    }
-
-    /**
-     * Returns user information
+     * Setter for current user
      *
-     * @param int $pUserId The id of the system_user table
-     * @param bool $pForceReload to reload the cache
-     * @return array|bool returns false if not found
+     * @param int $pUserId
+     *
+     * @return \Kryn\Auth $this
+     * @throws \Exception
      */
-    public function &getUser($pUserId, $pForceReload = false) {
+    public function setUser($pUserId) {
 
-        $pUserId += 0;
+        $user = \UserQuery::create()->findPk($pUserId);
 
-        $cacheCode = 'system-users-' . $pUserId;
-        $result =& \Kryn::getCache($cacheCode);
-
-        if ($pUserId == 0){
-
-            return array(
-                'id' => 0,
-                'username' => 'Guest',
-                'groups' => array(0),
-                'inGroups' => '0'
-            );
+        if (!$user){
+            throw new \Exception('User not found '.$pUserId);
         }
 
-        if ($result == false || $pForceReload) {
-            $result = dbExfetch("SELECT * FROM %pfx%system_user WHERE id = " . $pUserId, 1);
+        $this->session->setUser($user);
 
-            if ($result['id'] <= 0) return false;
-
-            $result['settings'] = unserialize($result['settings']);
-
-            if ($result['settings']['userBg'] == '')
-                $result['settings']['userBg'] = '/admin/images/userBgs/defaultImages/1.jpg';
-
-
-            $result['groups'] = array();
-            $statement = dbExec(
-                'SELECT group_id FROM %pfx%system_groupaccess
-    		  WHERE user_id = ' . $pUserId);
-
-            while ($row = dbFetch($statement)) {
-                $result['groups'][] = $row['group_id'];
-            }
-
-            $result['inGroups'] = '0';
-            if (count($result['groups']) > 0)
-                foreach ($result['groups'] as $group)
-                    $result['inGroups'] .= ',' . $group;
-
-            \Kryn::setCache($cacheCode, $result);
-            $result =& \Kryn::getCache($cacheCode);
-
-        }
-
-        return $result;
+        return $this;
     }
+
 
     /**
      * Change the user_id in the session object. Means: is logged out then
      */
     public function logout() {
-        $this->setUser(0, true);
-        $this->syncStore(true);
+        $this->setUser(0);
+        $this->syncStore();
     }
 
     /**
@@ -451,31 +364,14 @@ class Auth {
     }
 
     /**
-     * Sets the language of the current session
+     * When the scripts ends, we need to sync the session data to the backend.
      */
-    public function setLang($pLang) {
-        if ($this->getLang() != $pLang)
-            $this->set('language', $pLang);
-    }
+    public function syncStore() {
 
-    /**
-     * Gets the language of the current session
-     */
-    public function getLang() {
-        return $this->get('language');
-    }
+        if ($this->config['session_storage']) {
 
-    /**
-     * When the scripts ends, we need to sync the stored data ($this->session, which has been changed with set())
-     * to the backend.
-     */
-    public function syncStore( $pForce = false ) {
-
-        if (!$pForce && $this->needSync != true) return;
-        $session['user_id'] = $this->user['id'];
-
-        if ($this->config['session_storage'] == 'database') {
-
+            $this->session->save();
+/*
             $session['language'] = $this->session['language'];
             $session['time'] = $this->session['time'];
             $session['refreshed'] = $this->session['refreshed'];
@@ -487,35 +383,14 @@ class Auth {
                 unset($sessionExtra[$temp]);
 
             $session['extra'] = json_encode($sessionExtra);
-            dbUpdate('system_session', array('id' => $this->token), $session);
+            dbUpdate('system_session', array('id' => $this->token), $session);*/
 
         } else {
             $expired = $this->config['session_timeout'];
-            $this->cache->set($this->tokenid . '_' . $this->token, $this->session, $expired);
+            $this->cache->set($this->tokenId . '_' . $this->token, $this->session, $expired);
 
         }
 
-    }
-
-    /**
-     * Gets values of the current session
-     * @return mixed
-     */
-    public function &get($pCode) {
-        return $this->session[$pCode];
-    }
-
-    /**
-     * Stores additional information into the current session.
-     * The system uses following codes, so your should't override it:
-     *    language, time, refreshed, ip, user_id, page, useragent
-     */
-    public function set($pCode, $pValue) {
-
-        if ($this->session[$pCode] == $pValue) return;
-
-        $this->needSync = true;
-        $this->session[$pCode] = $pValue;
     }
 
     /**
@@ -527,19 +402,21 @@ class Auth {
         $session = false;
 
         for ($i = 1; $i <= 25; $i++) {
+
             if ($this->config['session_storage'] == 'database') {
                 $session = $this->newSessionDatabase();
             } else {
                 $session = $this->newSessionCache();
             }
             if ($session) {
-                setCookie($this->tokenid, $this->token, time() + 3600 * 24 * 7, \Kryn::$config['path']); //7 Days
+                $this->token = $session->getId();
+                setCookie($this->tokenId, $this->token, time() + 3600 * 24 * 7, \Kryn::$config['path']); //7 Days
                 return $session;
             }
         }
 
         //after 25 tries, we stop and log it.
-        klog('session', _l("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
+        klog('session', t("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
         return false;
     }
 
@@ -551,28 +428,54 @@ class Auth {
 
         $token = $this->generateSessionId();
 
-        $exist = $this->cache->get($this->tokenid . '_' . $token);
+        if ($this->cache->get($this->tokenId . '_' . $token)) return false;
 
-        if ($exist !== false) {
-            return false;
-        }
-
-        $session = array(
-            'user_id' => 0,
-            'time' => time(),
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'page' => \Kryn::getRequestPageUrl(true),
-            'useragent' => $_SERVER['HTTP_USER_AGENT'],
-            'refreshed' => 0
-        );
+        $session = new \Session();
+        $session->setId($token)
+            ->setUserId(0)
+            ->setTime(time())
+            ->setIp($_SERVER['REMOTE_ADDR'])
+            ->setPage(\Kryn::getRequestPageUrl(true))
+            ->setUseragent($_SERVER['HTTP_USER_AGENT'])
+            ->setIsStoredInDatabase(false);
 
         $expired = $this->config['session_timeout'];
 
-        if (!$this->cache->set($this->tokenid . '_' . $token, $session, $expired))
+        if (!$this->cache->set($this->tokenId . '_' . $token, $session, $expired))
             return false;
 
-        $this->token = $token;
         return $session;
+    }
+
+    /**
+     * Defined whether or not the class should process the client login/logout.
+     *
+     * @param boolean $pEnabled
+     * @return \Auth $this
+     */
+    public function setAutoLoginLogout($pEnabled){
+        $this->autoLoginLogout = $pEnabled;
+        return $this;
+    }
+
+    public function getToken(){
+        return $this->token;
+    }
+
+    public function getTokenId(){
+        return $this->tokenId;
+    }
+
+
+    public function setToken($pToken){
+        $this->token = $pToken;
+        return $this;
+    }
+
+
+    public function setTokenId($pTokenId){
+        $this->tokenId = $pTokenId;
+        return $this;
     }
 
 
@@ -583,26 +486,23 @@ class Auth {
     public function newSessionDatabase() {
 
         $token = $this->generateSessionId();
-        $row = dbExfetch("SELECT id FROM %pfx%system_session WHERE id = '$token'", 1);
-        if ($row['id'] > 0) {
-            //another session with this id exists
+
+        try {
+            $session = new \Session();
+            $session->setId($token)
+                ->setUserId(0)
+                ->setTime(time())
+                ->setIp($_SERVER['REMOTE_ADDR'])
+                ->setPage(\Kryn::getRequestPageUrl(true))
+                ->setUseragent($_SERVER['HTTP_USER_AGENT']);
+
+            $session->save();
+
+            return $session;
+        } catch(Exception $e){
             return false;
         }
 
-        $session = array(
-            'id' => $token,
-            'user_id' => 0,
-            'time' => time(),
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'page' => \Kryn::getRequestPageUrl(true),
-            'useragent' => $_SERVER['HTTP_USER_AGENT'],
-            'refreshed' => 0
-        );
-
-        dbInsert('system_session', $session);
-        $this->token = $token;
-        unset($session['id']);
-        return $session;
     }
 
     /**
@@ -639,16 +539,16 @@ class Auth {
         if (!$session) return false;
 
         if ($session->getTime() + $this->config['session_timeout'] < time()) {
-            dbExec('DELETE FROM %pfx%system_session WHERE id = \'' . esc($this->token) . '\'');
+            $session->delete();
             return false;
         }
 
-        if ($session->getExtra()) {
+        /*if ($session->getExtra()) {
             $extra = @json_decode($session->getExtra(), true);
             if (is_array($extra))
                 $row = array_merge($session->asArray(), $extra);
             $this->session->setExtra($extra);
-        }
+        }*/
 
         return $session;
     }
@@ -658,10 +558,10 @@ class Auth {
      */
     public function loadSessionCache() {
 
-        $session = $this->cache->get($this->tokenid . '_' . $this->token);
+        $session = $this->cache->get($this->tokenId . '_' . $this->token);
 
         if ($session && $session['time'] + $this->config['session_timeout'] < time()) {
-            $this->cache->delete($this->tokenid . '_' . $this->token);
+            $this->cache->delete($this->tokenId . '_' . $this->token);
             return false;
         }
 
@@ -674,11 +574,11 @@ class Auth {
      * Returns the token from the client
      * @return string
      */
-    public function getToken() {
+    public function getClientToken() {
 
-        if ($_GET[$this->tokenid]) return $_GET[$this->tokenid];
-        if ($_POST[$this->tokenid]) return $_POST[$this->tokenid];
-        if ($_COOKIE[$this->tokenid]) return $_COOKIE[$this->tokenid];
+        if ($_GET[$this->tokenId]) return $_GET[$this->tokenId];
+        if ($_POST[$this->tokenId]) return $_POST[$this->tokenId];
+        if ($_COOKIE[$this->tokenId]) return $_COOKIE[$this->tokenId];
 
         return false;
     }
@@ -770,6 +670,66 @@ class Auth {
         }
 
         return $hash;
+    }
+
+    /**
+     * @param string $loginTrigger
+     * @return Auth $this
+     */
+    public function setLoginTrigger($loginTrigger){
+        $this->loginTrigger = $loginTrigger;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLoginTrigger(){
+        return $this->loginTrigger;
+    }
+
+    /**
+     * @param string $logoutTrigger
+     * @return Kryn\Auth $this
+     */
+    public function setLogoutTrigger($logoutTrigger){
+        $this->logoutTrigger = $logoutTrigger;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogoutTrigger(){
+        return $this->logoutTrigger;
+    }
+
+    /**
+     * @param \Session $session
+     */
+    public function setSession($session){
+        $this->session = $session;
+    }
+
+    /**
+     * @return \Session
+     */
+    public function getSession(){
+        return $this->session;
+    }
+
+    /**
+     * @param array $config
+     */
+    public function setConfig($config){
+        $this->config = $config;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfig(){
+        return $this->config;
     }
 }
 

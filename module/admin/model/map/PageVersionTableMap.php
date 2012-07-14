@@ -12,7 +12,7 @@
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    propel.generator.kryn.map
+ * @package    propel.generator.Kryn.map
  */
 class PageVersionTableMap extends TableMap
 {
@@ -20,7 +20,7 @@ class PageVersionTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'kryn.map.PageVersionTableMap';
+    const CLASS_NAME = 'Kryn.map.PageVersionTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -35,7 +35,7 @@ class PageVersionTableMap extends TableMap
         $this->setName('kryn_system_page_version');
         $this->setPhpName('PageVersion');
         $this->setClassname('PageVersion');
-        $this->setPackage('kryn');
+        $this->setPackage('Kryn');
         $this->setUseIdGenerator(true);
         $this->setPrimaryKeyMethodInfo('kryn_system_page_version_id_seq');
         // columns
@@ -53,6 +53,7 @@ class PageVersionTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('PageContent', 'PageContent', RelationMap::ONE_TO_MANY, array('id' => 'version_id', ), 'CASCADE', null, 'PageContents');
     } // buildRelations()
 
 } // PageVersionTableMap

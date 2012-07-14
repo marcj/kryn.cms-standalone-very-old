@@ -6,8 +6,13 @@
  * @author Kryn.labs <info@krynlabs.com>
  */
 
+namespace Core;
 
-class krynSearch extends baseModule {
+/**
+ * Search class
+ */
+
+class Search {
 
     public static $forceSearchIndex = false;
 
@@ -38,9 +43,9 @@ class krynSearch extends baseModule {
 
         }
 
-        if (getArgv(1) == 'admin' || Kryn::$page['id'] + 0 == 0) return;
+        if (getArgv(1) == 'admin' || Kryn::$page->getId() + 0 == 0) return;
 
-        if (Kryn::$page['unsearchable'] == 1) return;
+        if (Kryn::$page->getUnsearchable() == 1) return;
 
         if (getArgv('kVersionId') || getArgv('kryn_framework_version_id')) {
             return 6;
@@ -50,7 +55,7 @@ class krynSearch extends baseModule {
         $indexedContent = self::stripContent($pContent);
         $contentMd5 = md5($indexedContent);
 
-        $cashkey = 'krynSearch_' . Kryn::$page['id'] . '_' . $contentMd5;
+        $cashkey = 'krynSearch_' . Kryn::$page->getId() . '_' . $contentMd5;
 
         $cache = Kryn::getCache($cashkey);
 
@@ -85,20 +90,20 @@ class krynSearch extends baseModule {
         //we now ready to index this content
         $values = array(
             'url' => self::$pageUrl,
-            'title' => Kryn::$page['title'],
+            'title' => Kryn::$domain->getTitle(),
             'md5' => $contentMd5,
             'mdate' => time(),
-            'page_id' => Kryn::$page['id'],
-            'domain_id' => Kryn::$domain['id'],
+            'page_id' => Kryn::$page->getId(),
+            'domain_id' => Kryn::$domain->getId(),
             'page_content' => $indexedContent
         );
 
-        $where = array('url' => $a, 'domain_id' => Kryn::$domain['id']);
+        $where = array('url' => $a, 'domain_id' => Kryn::$domain->getId());
 
         if (!$cache['id']) {
 
             $row = dbExfetch("SELECT url FROM %pfx%system_search WHERE url='" . esc($a) . "' AND domain_id = " .
-                             Kryn::$domain['id'], 1);
+                             Kryn::$domain->getId(), 1);
 
             if ($row['url']) {
                 dbUpdate('system_search', $where, $values);
@@ -154,7 +159,7 @@ class krynSearch extends baseModule {
                 || strpos($value[1], 'javascript:') === 0 || strpos($value[1], 'downloadfile') !== false
                 || strpos($value[1], '/admin') === 0 || strpos($value[1], 'admin') === 0 ||
                 strpos($value[1], 'users-logout:') !== false
-                || (strpos($value[1], 'http://' . Kryn::$domain['domain']) === false &&
+                || (strpos($value[1], 'http://' . Kryn::$domain->getRealDomain()) === false &&
                     (strpos($value[1], 'http://') === 0) || strpos($value[1], 'https://') === 0)
                 || strpos($value[1], 'user:logout') !== false
             )

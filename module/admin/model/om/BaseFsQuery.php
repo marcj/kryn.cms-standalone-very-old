@@ -33,7 +33,7 @@
  * @method     array findByFsClass(string $fs_class) Return Fs objects filtered by the fs_class column
  * @method     array findByFsParams(string $fs_params) Return Fs objects filtered by the fs_params column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseFsQuery extends ModelCriteria
 {
@@ -45,7 +45,7 @@ abstract class BaseFsQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Fs', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Fs', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

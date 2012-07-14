@@ -12,7 +12,7 @@
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    propel.generator.kryn.map
+ * @package    propel.generator.Kryn.map
  */
 class GroupTableMap extends TableMap
 {
@@ -20,7 +20,7 @@ class GroupTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'kryn.map.GroupTableMap';
+    const CLASS_NAME = 'Kryn.map.GroupTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -35,7 +35,7 @@ class GroupTableMap extends TableMap
         $this->setName('kryn_system_group');
         $this->setPhpName('Group');
         $this->setClassname('Group');
-        $this->setPackage('kryn');
+        $this->setPackage('Kryn');
         $this->setUseIdGenerator(true);
         $this->setPrimaryKeyMethodInfo('kryn_system_group_id_seq');
         // columns

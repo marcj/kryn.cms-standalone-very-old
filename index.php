@@ -21,49 +21,46 @@ require('core/bootstrap.php');
 
 
 if (getArgv(1) != 'admin') {
-    kryn::searchDomain();
+    Core\Kryn::searchDomain();
 }
 
 /*
  * Initialize the krynAuth user objects for backend and frontend.
  */
-kryn::initAuth();
-
-tAssignRef("request", $_REQUEST); #compatibility
-tAssignRef("user", $user->user); #compatibility
+Core\Kryn::initAuth();
 
 
-if (kryn::$admin) {
+if (Core\Kryn::$admin) {
 
     /*
      * initialize administration controller
      */
     require(PATH_MODULE . 'admin/admin.class.php');
-    kryn::$modules['admin'] = new admin();
+    Core\Kryn::$modules['admin'] = new admin();
 
     /*
      * Check url access
      */
-    kryn::checkAccess();
+    Core\Kryn::checkAccess();
 
 }
 
 //register the shutdown function
 register_shutdown_function('kryn_shutdown');
 
-if (kryn::$admin) {
+if (Core\Kryn::$admin) {
 
     /*
      * Start backend controller
      */
-    kryn::$modules['admin']->content();
+    Core\Kryn::$modules['admin']->content();
 
 } else {
 
     /*
      * Start frontend controller
      */
-    kryn::display();
+    Core\Kryn::display();
 }
 
 ?>

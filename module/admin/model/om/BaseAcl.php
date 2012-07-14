@@ -6,7 +6,7 @@
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseAcl extends BaseObject 
 {

@@ -2,7 +2,7 @@
 
 function smarty_modifier_url($string){
 
-    return kryn::toModRewrite($string);
+    return Core\Kryn::toModRewrite($string);
 }
 
 ?>

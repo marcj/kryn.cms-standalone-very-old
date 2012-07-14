@@ -61,7 +61,7 @@
  * @method     array findByExtra(string $extra) Return Session objects filtered by the extra column
  * @method     array findByCreated(int $created) Return Session objects filtered by the created column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseSessionQuery extends ModelCriteria
 {
@@ -73,7 +73,7 @@ abstract class BaseSessionQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Session', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Session', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

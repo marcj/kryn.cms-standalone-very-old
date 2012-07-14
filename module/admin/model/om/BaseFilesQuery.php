@@ -29,7 +29,7 @@
  * @method     array findByPath(string $path) Return Files objects filtered by the path column
  * @method     array findByContenthash(string $contenthash) Return Files objects filtered by the contenthash column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseFilesQuery extends ModelCriteria
 {
@@ -41,7 +41,7 @@ abstract class BaseFilesQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Files', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Files', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

@@ -16,11 +16,11 @@ function smarty_function_addHeader( $params, &$smarty ){
             
         if($params['replaceWithClosingBrace'])
             $params['content'] = str_replace($params['replaceWithClosingBrace'], '}', $params['content']);
-            
-            
-            
-        
-        kryn::addHeader($params['content']);
+
+
+
+
+        Core\Kryn::addHeader($params['content']);
     }    
 }
 ?>

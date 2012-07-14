@@ -6,12 +6,12 @@
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseGroupPeer {
 
     /** the default database name for this class */
-    const DATABASE_NAME = 'kryn';
+    const DATABASE_NAME = 'Kryn';
 
     /** the table name for this class */
     const TABLE_NAME = 'kryn_system_group';

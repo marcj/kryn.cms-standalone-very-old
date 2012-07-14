@@ -6,7 +6,7 @@
  *
  * 
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BasePageVersion extends BaseObject 
 {
@@ -67,6 +67,11 @@ abstract class BasePageVersion extends BaseObject
     protected $active;
 
     /**
+     * @var        PropelObjectCollection|PageContent[] Collection to store aggregation of PageContent objects.
+     */
+    protected $collPageContents;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -79,6 +84,12 @@ abstract class BasePageVersion extends BaseObject
      * @var        boolean
      */
     protected $alreadyInValidation = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $pageContentsScheduledForDeletion = null;
 
     /**
      * Get the [id] column value.
@@ -380,6 +391,8 @@ abstract class BasePageVersion extends BaseObject
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->collPageContents = null;
+
         } // if (deep)
     }
 
@@ -502,6 +515,24 @@ abstract class BasePageVersion extends BaseObject
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->pageContentsScheduledForDeletion !== null) {
+                if (!$this->pageContentsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->pageContentsScheduledForDeletion as $pageContent) {
+                        // need to save related object because we set the relation to null
+                        $pageContent->save($con);
+                    }
+                    $this->pageContentsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collPageContents !== null) {
+                foreach ($this->collPageContents as $referrerFK) {
+                    if (!$referrerFK->isDeleted()) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -679,6 +710,14 @@ abstract class BasePageVersion extends BaseObject
             }
 
 
+                if ($this->collPageContents !== null) {
+                    foreach ($this->collPageContents as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
+
 
             $this->alreadyInValidation = false;
         }
@@ -749,10 +788,11 @@ abstract class BasePageVersion extends BaseObject
      *                    Defaults to BasePeer::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
         if (isset($alreadyDumpedObjects['PageVersion'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
@@ -767,6 +807,11 @@ abstract class BasePageVersion extends BaseObject
             $keys[4] => $this->getModified(),
             $keys[5] => $this->getActive(),
         );
+        if ($includeForeignObjects) {
+            if (null !== $this->collPageContents) {
+                $result['PageContents'] = $this->collPageContents->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -933,6 +978,24 @@ abstract class BasePageVersion extends BaseObject
         $copyObj->setCreated($this->getCreated());
         $copyObj->setModified($this->getModified());
         $copyObj->setActive($this->getActive());
+
+        if ($deepCopy && !$this->startCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+            // store object hash to prevent cycle
+            $this->startCopy = true;
+
+            foreach ($this->getPageContents() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addPageContent($relObj->copy($deepCopy));
+                }
+            }
+
+            //unflag object copy
+            $this->startCopy = false;
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -979,6 +1042,214 @@ abstract class BasePageVersion extends BaseObject
         return self::$peer;
     }
 
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('PageContent' == $relationName) {
+            $this->initPageContents();
+        }
+    }
+
+    /**
+     * Clears out the collPageContents collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addPageContents()
+     */
+    public function clearPageContents()
+    {
+        $this->collPageContents = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collPageContents collection.
+     *
+     * By default this just sets the collPageContents collection to an empty array (like clearcollPageContents());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initPageContents($overrideExisting = true)
+    {
+        if (null !== $this->collPageContents && !$overrideExisting) {
+            return;
+        }
+        $this->collPageContents = new PropelObjectCollection();
+        $this->collPageContents->setModel('PageContent');
+    }
+
+    /**
+     * Gets an array of PageContent objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this PageVersion is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @return PropelObjectCollection|PageContent[] List of PageContent objects
+     * @throws PropelException
+     */
+    public function getPageContents($criteria = null, PropelPDO $con = null)
+    {
+        if (null === $this->collPageContents || null !== $criteria) {
+            if ($this->isNew() && null === $this->collPageContents) {
+                // return empty collection
+                $this->initPageContents();
+            } else {
+                $collPageContents = PageContentQuery::create(null, $criteria)
+                    ->filterByPageVersion($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    return $collPageContents;
+                }
+                $this->collPageContents = $collPageContents;
+            }
+        }
+
+        return $this->collPageContents;
+    }
+
+    /**
+     * Sets a collection of PageContent objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      PropelCollection $pageContents A Propel collection.
+     * @param      PropelPDO $con Optional connection object
+     */
+    public function setPageContents(PropelCollection $pageContents, PropelPDO $con = null)
+    {
+        $this->pageContentsScheduledForDeletion = $this->getPageContents(new Criteria(), $con)->diff($pageContents);
+
+        foreach ($this->pageContentsScheduledForDeletion as $pageContentRemoved) {
+            $pageContentRemoved->setPageVersion(null);
+        }
+
+        $this->collPageContents = null;
+        foreach ($pageContents as $pageContent) {
+            $this->addPageContent($pageContent);
+        }
+
+        $this->collPageContents = $pageContents;
+    }
+
+    /**
+     * Returns the number of related PageContent objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      PropelPDO $con
+     * @return int             Count of related PageContent objects.
+     * @throws PropelException
+     */
+    public function countPageContents(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        if (null === $this->collPageContents || null !== $criteria) {
+            if ($this->isNew() && null === $this->collPageContents) {
+                return 0;
+            } else {
+                $query = PageContentQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByPageVersion($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collPageContents);
+        }
+    }
+
+    /**
+     * Method called to associate a PageContent object to this object
+     * through the PageContent foreign key attribute.
+     *
+     * @param    PageContent $l PageContent
+     * @return   PageVersion The current object (for fluent API support)
+     */
+    public function addPageContent(PageContent $l)
+    {
+        if ($this->collPageContents === null) {
+            $this->initPageContents();
+        }
+        if (!$this->collPageContents->contains($l)) { // only add it if the **same** object is not already associated
+            $this->doAddPageContent($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param	PageContent $pageContent The pageContent object to add.
+     */
+    protected function doAddPageContent($pageContent)
+    {
+        $this->collPageContents[]= $pageContent;
+        $pageContent->setPageVersion($this);
+    }
+
+    /**
+     * @param	PageContent $pageContent The pageContent object to remove.
+     */
+    public function removePageContent($pageContent)
+    {
+        if ($this->getPageContents()->contains($pageContent)) {
+            $this->collPageContents->remove($this->collPageContents->search($pageContent));
+            if (null === $this->pageContentsScheduledForDeletion) {
+                $this->pageContentsScheduledForDeletion = clone $this->collPageContents;
+                $this->pageContentsScheduledForDeletion->clear();
+            }
+            $this->pageContentsScheduledForDeletion[]= $pageContent;
+            $pageContent->setPageVersion(null);
+        }
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this PageVersion is new, it will return
+     * an empty collection; or if this PageVersion has previously
+     * been saved, it will retrieve related PageContents from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in PageVersion.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return PropelObjectCollection|PageContent[] List of PageContent objects
+     */
+    public function getPageContentsJoinPage($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $query = PageContentQuery::create(null, $criteria);
+        $query->joinWith('Page', $join_behavior);
+
+        return $this->getPageContents($query, $con);
+    }
+
     /**
      * Clears the current object and sets all attributes to their default values
      */
@@ -1010,8 +1281,17 @@ abstract class BasePageVersion extends BaseObject
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collPageContents) {
+                foreach ($this->collPageContents as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        if ($this->collPageContents instanceof PropelCollection) {
+            $this->collPageContents->clearIterator();
+        }
+        $this->collPageContents = null;
     }
 
     /**

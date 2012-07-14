@@ -37,7 +37,7 @@
  * @method     array findBySessionId(int $session_id) Return Lock objects filtered by the session_id column
  * @method     array findByTime(int $time) Return Lock objects filtered by the time column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseLockQuery extends ModelCriteria
 {
@@ -49,7 +49,7 @@ abstract class BaseLockQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'Lock', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'Lock', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

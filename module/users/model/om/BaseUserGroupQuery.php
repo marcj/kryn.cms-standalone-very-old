@@ -33,7 +33,7 @@
  * @method     array findByGroupId(int $group_id) Return UserGroup objects filtered by the group_id column
  * @method     array findByUserId(int $user_id) Return UserGroup objects filtered by the user_id column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseUserGroupQuery extends ModelCriteria
 {
@@ -45,7 +45,7 @@ abstract class BaseUserGroupQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'UserGroup', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'UserGroup', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }

@@ -41,7 +41,7 @@
  * @method     array findByType(int $type) Return FilesLog objects filtered by the type column
  * @method     array findByContent(string $content) Return FilesLog objects filtered by the content column
  *
- * @package    propel.generator.kryn.om
+ * @package    propel.generator.Kryn.om
  */
 abstract class BaseFilesLogQuery extends ModelCriteria
 {
@@ -53,7 +53,7 @@ abstract class BaseFilesLogQuery extends ModelCriteria
      * @param     string $modelName The phpName of a model, e.g. 'Book'
      * @param     string $modelAlias The alias for the model in this query, e.g. 'b'
      */
-    public function __construct($dbName = 'kryn', $modelName = 'FilesLog', $modelAlias = null)
+    public function __construct($dbName = 'Kryn', $modelName = 'FilesLog', $modelAlias = null)
     {
         parent::__construct($dbName, $modelName, $modelAlias);
     }
