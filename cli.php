@@ -32,19 +32,18 @@ require('core/bootstrap.php');
 * initialize administration controller
 */
 require(PATH_MODULE . 'admin/admin.class.php');
-kryn::$modules['admin'] = new admin();
+Core\Kryn::$modules['admin'] = new admin();
 
 //register the shutdown function
 register_shutdown_function('kryn_shutdown');
 
-kryn::$admin = (getArgv(1) == 'admin');
-tAssign('admin', kryn::$admin);
+Core\Kryn::$admin = (getArgv(1) == 'admin');
 
 
 /*
 * Start backend controller
 */
-kryn::$modules['admin']->content();
+Core\Kryn::$modules['admin']->content();
 
 
 ?>

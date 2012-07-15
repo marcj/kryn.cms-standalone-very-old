@@ -40,7 +40,7 @@ class PageTableMap extends TableMap
         $this->setPrimaryKeyMethodInfo('kryn_system_page_id_seq');
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('PID', 'Pid', 'INTEGER', false, null, null);
+        $this->addForeignKey('PARENT_ID', 'ParentId', 'INTEGER', 'kryn_system_page', 'ID', false, null, null);
         $this->addForeignKey('DOMAIN_ID', 'DomainId', 'INTEGER', 'kryn_system_domain', 'ID', false, null, null);
         $this->addColumn('LFT', 'Lft', 'INTEGER', false, null, null);
         $this->addColumn('RGT', 'Rgt', 'INTEGER', false, null, null);
@@ -49,6 +49,7 @@ class PageTableMap extends TableMap
         $this->addColumn('TITLE', 'Title', 'VARCHAR', false, 255, null);
         $this->addColumn('PAGE_TITLE', 'PageTitle', 'VARCHAR', false, 255, null);
         $this->addColumn('URL', 'Url', 'VARCHAR', false, 255, null);
+        $this->addColumn('FULL_URL', 'FullUrl', 'VARCHAR', false, 255, null);
         $this->addColumn('LINK', 'Link', 'VARCHAR', false, 255, null);
         $this->addColumn('LAYOUT', 'Layout', 'VARCHAR', false, 64, null);
         $this->addColumn('SORT', 'Sort', 'INTEGER', false, null, null);
@@ -81,7 +82,9 @@ class PageTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('Domain', 'Domain', RelationMap::MANY_TO_ONE, array('domain_id' => 'id', ), 'CASCADE', null);
+        $this->addRelation('PageRelatedByParentId', 'Page', RelationMap::MANY_TO_ONE, array('parent_id' => 'id', ), null, null);
         $this->addRelation('PageContent', 'PageContent', RelationMap::ONE_TO_MANY, array('id' => 'page_id', ), 'CASCADE', null, 'PageContents');
+        $this->addRelation('PageRelatedById', 'Page', RelationMap::ONE_TO_MANY, array('id' => 'parent_id', ), null, null, 'PagesRelatedById');
         $this->addRelation('Urlalias', 'Urlalias', RelationMap::ONE_TO_MANY, array('id' => 'to_page_id', ), null, null, 'Urlaliass');
     } // buildRelations()
 

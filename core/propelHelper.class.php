@@ -16,11 +16,11 @@ class propelHelper {
             $result = self::fullGenerator();
         } catch(Exception $e){
             self::cleanup();
-            Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
+            Core\Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
         }
 
         self::cleanup();
-        Kryn::internalMessage('Propel initialization', $result);
+        Core\Kryn::internalMessage('Propel initialization', $result);
     }
 
     public static function fullGenerator(){
@@ -45,7 +45,7 @@ class propelHelper {
     public static function generateClasses(){
 
         //delete old map/om folders
-        foreach (Kryn::$extensions as $extension){
+        foreach (Core\Kryn::$extensions as $extension){
             delDir(PATH_MODULE.$extension.'/model/map/');
             delDir(PATH_MODULE.$extension.'/model/om');
         }
@@ -210,7 +210,7 @@ class propelHelper {
 
         $newSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"Kryn\" defaultIdMethod=\"native\">\n     ";
 
-        foreach (Kryn::$extensions as $extension){
+        foreach (Core\Kryn::$extensions as $extension){
 
             if ($extension == 'Kryn') continue;
 
@@ -313,17 +313,17 @@ class propelHelper {
         if (!mkdirr($folder = 'propel/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = Kryn::$config['db_type'];
+        $adapter = Core\Kryn::$config['db_type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Kryn::$config['db_server'].';dbname='.Kryn::$config['db_name'].';';
+        $dsn = $adapter.':host='.Core\Kryn::$config['db_server'].';dbname='.Core\Kryn::$config['db_name'].';';
 
         $properties = '
 propel.database = '.$adapter.'
 propel.database.url = '.$dsn.'
-propel.database.user = '.Kryn::$config['db_user'].'
-propel.database.password = '.Kryn::$config['db_passwd'].'
-propel.tablePrefix = '.Kryn::$config['db_prefix'].'
+propel.database.user = '.Core\Kryn::$config['db_user'].'
+propel.database.password = '.Core\Kryn::$config['db_passwd'].'
+propel.tablePrefix = '.Core\Kryn::$config['db_prefix'].'
 propel.project = Kryn';
 
         return file_put_contents('propel/build.properties', $properties)?true:false;
@@ -334,10 +334,10 @@ propel.project = Kryn';
         if (!mkdirr($folder = 'propel/build/conf/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = Kryn::$config['db_type'];
+        $adapter = Core\Kryn::$config['db_type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Kryn::$config['db_server'].';dbname='.Kryn::$config['db_name'].';';
+        $dsn = $adapter.':host='.Core\Kryn::$config['db_server'].';dbname='.Core\Kryn::$config['db_name'].';';
 
         $xml = '<?xml version="1.0"?>
 <config>
@@ -348,13 +348,13 @@ propel.project = Kryn';
                 <connection>
                     <classname>PropelPDO</classname>
                     <dsn>'.$dsn.'</dsn>
-                    <user>'.Kryn::$config['db_user'].'</user>
-                    <password>'.Kryn::$config['db_passwd'].'</password>
+                    <user>'.Core\Kryn::$config['db_user'].'</user>
+                    <password>'.Core\Kryn::$config['db_passwd'].'</password>
                     <options>
                         <option id="ATTR_PERSISTENT">true</option>
                     </options>';
 
-        if (Kryn::$config['db_type'] == 'mysql'){
+        if (Core\Kryn::$config['db_type'] == 'mysql'){
             $xml .= '
                     <attributes>
                         <option id="ATTR_EMULATE_PREPARES">true</option>

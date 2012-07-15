@@ -102,7 +102,7 @@ spl_autoload_register(function ($pClass) {
  */
 
 if (!file_exists($file = 'propel-config.php')){
-    propelHelper::init();
+    \propelHelper::init();
 }
 
 \Propel::init($file);

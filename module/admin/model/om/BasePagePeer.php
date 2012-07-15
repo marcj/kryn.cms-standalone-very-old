@@ -23,19 +23,19 @@ abstract class BasePagePeer {
     const TM_CLASS = 'PageTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 33;
+    const NUM_COLUMNS = 34;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 33;
+    const NUM_HYDRATE_COLUMNS = 34;
 
     /** the column name for the ID field */
     const ID = 'kryn_system_page.ID';
 
-    /** the column name for the PID field */
-    const PID = 'kryn_system_page.PID';
+    /** the column name for the PARENT_ID field */
+    const PARENT_ID = 'kryn_system_page.PARENT_ID';
 
     /** the column name for the DOMAIN_ID field */
     const DOMAIN_ID = 'kryn_system_page.DOMAIN_ID';
@@ -60,6 +60,9 @@ abstract class BasePagePeer {
 
     /** the column name for the URL field */
     const URL = 'kryn_system_page.URL';
+
+    /** the column name for the FULL_URL field */
+    const FULL_URL = 'kryn_system_page.FULL_URL';
 
     /** the column name for the LINK field */
     const LINK = 'kryn_system_page.LINK';
@@ -171,12 +174,12 @@ abstract class BasePagePeer {
      * e.g. PagePeer::$fieldNames[PagePeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'Pid', 'DomainId', 'Lft', 'Rgt', 'Lvl', 'Type', 'Title', 'PageTitle', 'Url', 'Link', 'Layout', 'Sort', 'SortMode', 'Target', 'Visible', 'AccessDenied', 'Meta', 'Properties', 'Cdate', 'Mdate', 'DraftExist', 'ForceHttps', 'AccessFrom', 'AccessTo', 'AccessRedirectto', 'AccessNohidenavi', 'AccessNeedVia', 'AccessFromGroups', 'Cache', 'SearchWords', 'Unsearchable', 'ActiveVersionId', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pid', 'domainId', 'lft', 'rgt', 'lvl', 'type', 'title', 'pageTitle', 'url', 'link', 'layout', 'sort', 'sortMode', 'target', 'visible', 'accessDenied', 'meta', 'properties', 'cdate', 'mdate', 'draftExist', 'forceHttps', 'accessFrom', 'accessTo', 'accessRedirectto', 'accessNohidenavi', 'accessNeedVia', 'accessFromGroups', 'cache', 'searchWords', 'unsearchable', 'activeVersionId', ),
-        BasePeer::TYPE_COLNAME => array (PagePeer::ID, PagePeer::PID, PagePeer::DOMAIN_ID, PagePeer::LFT, PagePeer::RGT, PagePeer::LVL, PagePeer::TYPE, PagePeer::TITLE, PagePeer::PAGE_TITLE, PagePeer::URL, PagePeer::LINK, PagePeer::LAYOUT, PagePeer::SORT, PagePeer::SORT_MODE, PagePeer::TARGET, PagePeer::VISIBLE, PagePeer::ACCESS_DENIED, PagePeer::META, PagePeer::PROPERTIES, PagePeer::CDATE, PagePeer::MDATE, PagePeer::DRAFT_EXIST, PagePeer::FORCE_HTTPS, PagePeer::ACCESS_FROM, PagePeer::ACCESS_TO, PagePeer::ACCESS_REDIRECTTO, PagePeer::ACCESS_NOHIDENAVI, PagePeer::ACCESS_NEED_VIA, PagePeer::ACCESS_FROM_GROUPS, PagePeer::CACHE, PagePeer::SEARCH_WORDS, PagePeer::UNSEARCHABLE, PagePeer::ACTIVE_VERSION_ID, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PID', 'DOMAIN_ID', 'LFT', 'RGT', 'LVL', 'TYPE', 'TITLE', 'PAGE_TITLE', 'URL', 'LINK', 'LAYOUT', 'SORT', 'SORT_MODE', 'TARGET', 'VISIBLE', 'ACCESS_DENIED', 'META', 'PROPERTIES', 'CDATE', 'MDATE', 'DRAFT_EXIST', 'FORCE_HTTPS', 'ACCESS_FROM', 'ACCESS_TO', 'ACCESS_REDIRECTTO', 'ACCESS_NOHIDENAVI', 'ACCESS_NEED_VIA', 'ACCESS_FROM_GROUPS', 'CACHE', 'SEARCH_WORDS', 'UNSEARCHABLE', 'ACTIVE_VERSION_ID', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'pid', 'domain_id', 'lft', 'rgt', 'lvl', 'type', 'title', 'page_title', 'url', 'link', 'layout', 'sort', 'sort_mode', 'target', 'visible', 'access_denied', 'meta', 'properties', 'cdate', 'mdate', 'draft_exist', 'force_https', 'access_from', 'access_to', 'access_redirectto', 'access_nohidenavi', 'access_need_via', 'access_from_groups', 'cache', 'search_words', 'unsearchable', 'active_version_id', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, )
+        BasePeer::TYPE_PHPNAME => array ('Id', 'ParentId', 'DomainId', 'Lft', 'Rgt', 'Lvl', 'Type', 'Title', 'PageTitle', 'Url', 'FullUrl', 'Link', 'Layout', 'Sort', 'SortMode', 'Target', 'Visible', 'AccessDenied', 'Meta', 'Properties', 'Cdate', 'Mdate', 'DraftExist', 'ForceHttps', 'AccessFrom', 'AccessTo', 'AccessRedirectto', 'AccessNohidenavi', 'AccessNeedVia', 'AccessFromGroups', 'Cache', 'SearchWords', 'Unsearchable', 'ActiveVersionId', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'parentId', 'domainId', 'lft', 'rgt', 'lvl', 'type', 'title', 'pageTitle', 'url', 'fullUrl', 'link', 'layout', 'sort', 'sortMode', 'target', 'visible', 'accessDenied', 'meta', 'properties', 'cdate', 'mdate', 'draftExist', 'forceHttps', 'accessFrom', 'accessTo', 'accessRedirectto', 'accessNohidenavi', 'accessNeedVia', 'accessFromGroups', 'cache', 'searchWords', 'unsearchable', 'activeVersionId', ),
+        BasePeer::TYPE_COLNAME => array (PagePeer::ID, PagePeer::PARENT_ID, PagePeer::DOMAIN_ID, PagePeer::LFT, PagePeer::RGT, PagePeer::LVL, PagePeer::TYPE, PagePeer::TITLE, PagePeer::PAGE_TITLE, PagePeer::URL, PagePeer::FULL_URL, PagePeer::LINK, PagePeer::LAYOUT, PagePeer::SORT, PagePeer::SORT_MODE, PagePeer::TARGET, PagePeer::VISIBLE, PagePeer::ACCESS_DENIED, PagePeer::META, PagePeer::PROPERTIES, PagePeer::CDATE, PagePeer::MDATE, PagePeer::DRAFT_EXIST, PagePeer::FORCE_HTTPS, PagePeer::ACCESS_FROM, PagePeer::ACCESS_TO, PagePeer::ACCESS_REDIRECTTO, PagePeer::ACCESS_NOHIDENAVI, PagePeer::ACCESS_NEED_VIA, PagePeer::ACCESS_FROM_GROUPS, PagePeer::CACHE, PagePeer::SEARCH_WORDS, PagePeer::UNSEARCHABLE, PagePeer::ACTIVE_VERSION_ID, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PARENT_ID', 'DOMAIN_ID', 'LFT', 'RGT', 'LVL', 'TYPE', 'TITLE', 'PAGE_TITLE', 'URL', 'FULL_URL', 'LINK', 'LAYOUT', 'SORT', 'SORT_MODE', 'TARGET', 'VISIBLE', 'ACCESS_DENIED', 'META', 'PROPERTIES', 'CDATE', 'MDATE', 'DRAFT_EXIST', 'FORCE_HTTPS', 'ACCESS_FROM', 'ACCESS_TO', 'ACCESS_REDIRECTTO', 'ACCESS_NOHIDENAVI', 'ACCESS_NEED_VIA', 'ACCESS_FROM_GROUPS', 'CACHE', 'SEARCH_WORDS', 'UNSEARCHABLE', 'ACTIVE_VERSION_ID', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'parent_id', 'domain_id', 'lft', 'rgt', 'lvl', 'type', 'title', 'page_title', 'url', 'full_url', 'link', 'layout', 'sort', 'sort_mode', 'target', 'visible', 'access_denied', 'meta', 'properties', 'cdate', 'mdate', 'draft_exist', 'force_https', 'access_from', 'access_to', 'access_redirectto', 'access_nohidenavi', 'access_need_via', 'access_from_groups', 'cache', 'search_words', 'unsearchable', 'active_version_id', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, )
     );
 
     /**
@@ -186,12 +189,12 @@ abstract class BasePagePeer {
      * e.g. PagePeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Pid' => 1, 'DomainId' => 2, 'Lft' => 3, 'Rgt' => 4, 'Lvl' => 5, 'Type' => 6, 'Title' => 7, 'PageTitle' => 8, 'Url' => 9, 'Link' => 10, 'Layout' => 11, 'Sort' => 12, 'SortMode' => 13, 'Target' => 14, 'Visible' => 15, 'AccessDenied' => 16, 'Meta' => 17, 'Properties' => 18, 'Cdate' => 19, 'Mdate' => 20, 'DraftExist' => 21, 'ForceHttps' => 22, 'AccessFrom' => 23, 'AccessTo' => 24, 'AccessRedirectto' => 25, 'AccessNohidenavi' => 26, 'AccessNeedVia' => 27, 'AccessFromGroups' => 28, 'Cache' => 29, 'SearchWords' => 30, 'Unsearchable' => 31, 'ActiveVersionId' => 32, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pid' => 1, 'domainId' => 2, 'lft' => 3, 'rgt' => 4, 'lvl' => 5, 'type' => 6, 'title' => 7, 'pageTitle' => 8, 'url' => 9, 'link' => 10, 'layout' => 11, 'sort' => 12, 'sortMode' => 13, 'target' => 14, 'visible' => 15, 'accessDenied' => 16, 'meta' => 17, 'properties' => 18, 'cdate' => 19, 'mdate' => 20, 'draftExist' => 21, 'forceHttps' => 22, 'accessFrom' => 23, 'accessTo' => 24, 'accessRedirectto' => 25, 'accessNohidenavi' => 26, 'accessNeedVia' => 27, 'accessFromGroups' => 28, 'cache' => 29, 'searchWords' => 30, 'unsearchable' => 31, 'activeVersionId' => 32, ),
-        BasePeer::TYPE_COLNAME => array (PagePeer::ID => 0, PagePeer::PID => 1, PagePeer::DOMAIN_ID => 2, PagePeer::LFT => 3, PagePeer::RGT => 4, PagePeer::LVL => 5, PagePeer::TYPE => 6, PagePeer::TITLE => 7, PagePeer::PAGE_TITLE => 8, PagePeer::URL => 9, PagePeer::LINK => 10, PagePeer::LAYOUT => 11, PagePeer::SORT => 12, PagePeer::SORT_MODE => 13, PagePeer::TARGET => 14, PagePeer::VISIBLE => 15, PagePeer::ACCESS_DENIED => 16, PagePeer::META => 17, PagePeer::PROPERTIES => 18, PagePeer::CDATE => 19, PagePeer::MDATE => 20, PagePeer::DRAFT_EXIST => 21, PagePeer::FORCE_HTTPS => 22, PagePeer::ACCESS_FROM => 23, PagePeer::ACCESS_TO => 24, PagePeer::ACCESS_REDIRECTTO => 25, PagePeer::ACCESS_NOHIDENAVI => 26, PagePeer::ACCESS_NEED_VIA => 27, PagePeer::ACCESS_FROM_GROUPS => 28, PagePeer::CACHE => 29, PagePeer::SEARCH_WORDS => 30, PagePeer::UNSEARCHABLE => 31, PagePeer::ACTIVE_VERSION_ID => 32, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PID' => 1, 'DOMAIN_ID' => 2, 'LFT' => 3, 'RGT' => 4, 'LVL' => 5, 'TYPE' => 6, 'TITLE' => 7, 'PAGE_TITLE' => 8, 'URL' => 9, 'LINK' => 10, 'LAYOUT' => 11, 'SORT' => 12, 'SORT_MODE' => 13, 'TARGET' => 14, 'VISIBLE' => 15, 'ACCESS_DENIED' => 16, 'META' => 17, 'PROPERTIES' => 18, 'CDATE' => 19, 'MDATE' => 20, 'DRAFT_EXIST' => 21, 'FORCE_HTTPS' => 22, 'ACCESS_FROM' => 23, 'ACCESS_TO' => 24, 'ACCESS_REDIRECTTO' => 25, 'ACCESS_NOHIDENAVI' => 26, 'ACCESS_NEED_VIA' => 27, 'ACCESS_FROM_GROUPS' => 28, 'CACHE' => 29, 'SEARCH_WORDS' => 30, 'UNSEARCHABLE' => 31, 'ACTIVE_VERSION_ID' => 32, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'pid' => 1, 'domain_id' => 2, 'lft' => 3, 'rgt' => 4, 'lvl' => 5, 'type' => 6, 'title' => 7, 'page_title' => 8, 'url' => 9, 'link' => 10, 'layout' => 11, 'sort' => 12, 'sort_mode' => 13, 'target' => 14, 'visible' => 15, 'access_denied' => 16, 'meta' => 17, 'properties' => 18, 'cdate' => 19, 'mdate' => 20, 'draft_exist' => 21, 'force_https' => 22, 'access_from' => 23, 'access_to' => 24, 'access_redirectto' => 25, 'access_nohidenavi' => 26, 'access_need_via' => 27, 'access_from_groups' => 28, 'cache' => 29, 'search_words' => 30, 'unsearchable' => 31, 'active_version_id' => 32, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, )
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'ParentId' => 1, 'DomainId' => 2, 'Lft' => 3, 'Rgt' => 4, 'Lvl' => 5, 'Type' => 6, 'Title' => 7, 'PageTitle' => 8, 'Url' => 9, 'FullUrl' => 10, 'Link' => 11, 'Layout' => 12, 'Sort' => 13, 'SortMode' => 14, 'Target' => 15, 'Visible' => 16, 'AccessDenied' => 17, 'Meta' => 18, 'Properties' => 19, 'Cdate' => 20, 'Mdate' => 21, 'DraftExist' => 22, 'ForceHttps' => 23, 'AccessFrom' => 24, 'AccessTo' => 25, 'AccessRedirectto' => 26, 'AccessNohidenavi' => 27, 'AccessNeedVia' => 28, 'AccessFromGroups' => 29, 'Cache' => 30, 'SearchWords' => 31, 'Unsearchable' => 32, 'ActiveVersionId' => 33, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'parentId' => 1, 'domainId' => 2, 'lft' => 3, 'rgt' => 4, 'lvl' => 5, 'type' => 6, 'title' => 7, 'pageTitle' => 8, 'url' => 9, 'fullUrl' => 10, 'link' => 11, 'layout' => 12, 'sort' => 13, 'sortMode' => 14, 'target' => 15, 'visible' => 16, 'accessDenied' => 17, 'meta' => 18, 'properties' => 19, 'cdate' => 20, 'mdate' => 21, 'draftExist' => 22, 'forceHttps' => 23, 'accessFrom' => 24, 'accessTo' => 25, 'accessRedirectto' => 26, 'accessNohidenavi' => 27, 'accessNeedVia' => 28, 'accessFromGroups' => 29, 'cache' => 30, 'searchWords' => 31, 'unsearchable' => 32, 'activeVersionId' => 33, ),
+        BasePeer::TYPE_COLNAME => array (PagePeer::ID => 0, PagePeer::PARENT_ID => 1, PagePeer::DOMAIN_ID => 2, PagePeer::LFT => 3, PagePeer::RGT => 4, PagePeer::LVL => 5, PagePeer::TYPE => 6, PagePeer::TITLE => 7, PagePeer::PAGE_TITLE => 8, PagePeer::URL => 9, PagePeer::FULL_URL => 10, PagePeer::LINK => 11, PagePeer::LAYOUT => 12, PagePeer::SORT => 13, PagePeer::SORT_MODE => 14, PagePeer::TARGET => 15, PagePeer::VISIBLE => 16, PagePeer::ACCESS_DENIED => 17, PagePeer::META => 18, PagePeer::PROPERTIES => 19, PagePeer::CDATE => 20, PagePeer::MDATE => 21, PagePeer::DRAFT_EXIST => 22, PagePeer::FORCE_HTTPS => 23, PagePeer::ACCESS_FROM => 24, PagePeer::ACCESS_TO => 25, PagePeer::ACCESS_REDIRECTTO => 26, PagePeer::ACCESS_NOHIDENAVI => 27, PagePeer::ACCESS_NEED_VIA => 28, PagePeer::ACCESS_FROM_GROUPS => 29, PagePeer::CACHE => 30, PagePeer::SEARCH_WORDS => 31, PagePeer::UNSEARCHABLE => 32, PagePeer::ACTIVE_VERSION_ID => 33, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PARENT_ID' => 1, 'DOMAIN_ID' => 2, 'LFT' => 3, 'RGT' => 4, 'LVL' => 5, 'TYPE' => 6, 'TITLE' => 7, 'PAGE_TITLE' => 8, 'URL' => 9, 'FULL_URL' => 10, 'LINK' => 11, 'LAYOUT' => 12, 'SORT' => 13, 'SORT_MODE' => 14, 'TARGET' => 15, 'VISIBLE' => 16, 'ACCESS_DENIED' => 17, 'META' => 18, 'PROPERTIES' => 19, 'CDATE' => 20, 'MDATE' => 21, 'DRAFT_EXIST' => 22, 'FORCE_HTTPS' => 23, 'ACCESS_FROM' => 24, 'ACCESS_TO' => 25, 'ACCESS_REDIRECTTO' => 26, 'ACCESS_NOHIDENAVI' => 27, 'ACCESS_NEED_VIA' => 28, 'ACCESS_FROM_GROUPS' => 29, 'CACHE' => 30, 'SEARCH_WORDS' => 31, 'UNSEARCHABLE' => 32, 'ACTIVE_VERSION_ID' => 33, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'parent_id' => 1, 'domain_id' => 2, 'lft' => 3, 'rgt' => 4, 'lvl' => 5, 'type' => 6, 'title' => 7, 'page_title' => 8, 'url' => 9, 'full_url' => 10, 'link' => 11, 'layout' => 12, 'sort' => 13, 'sort_mode' => 14, 'target' => 15, 'visible' => 16, 'access_denied' => 17, 'meta' => 18, 'properties' => 19, 'cdate' => 20, 'mdate' => 21, 'draft_exist' => 22, 'force_https' => 23, 'access_from' => 24, 'access_to' => 25, 'access_redirectto' => 26, 'access_nohidenavi' => 27, 'access_need_via' => 28, 'access_from_groups' => 29, 'cache' => 30, 'search_words' => 31, 'unsearchable' => 32, 'active_version_id' => 33, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, )
     );
 
     /**
@@ -266,7 +269,7 @@ abstract class BasePagePeer {
     {
         if (null === $alias) {
             $criteria->addSelectColumn(PagePeer::ID);
-            $criteria->addSelectColumn(PagePeer::PID);
+            $criteria->addSelectColumn(PagePeer::PARENT_ID);
             $criteria->addSelectColumn(PagePeer::DOMAIN_ID);
             $criteria->addSelectColumn(PagePeer::LFT);
             $criteria->addSelectColumn(PagePeer::RGT);
@@ -275,6 +278,7 @@ abstract class BasePagePeer {
             $criteria->addSelectColumn(PagePeer::TITLE);
             $criteria->addSelectColumn(PagePeer::PAGE_TITLE);
             $criteria->addSelectColumn(PagePeer::URL);
+            $criteria->addSelectColumn(PagePeer::FULL_URL);
             $criteria->addSelectColumn(PagePeer::LINK);
             $criteria->addSelectColumn(PagePeer::LAYOUT);
             $criteria->addSelectColumn(PagePeer::SORT);
@@ -300,7 +304,7 @@ abstract class BasePagePeer {
             $criteria->addSelectColumn(PagePeer::ACTIVE_VERSION_ID);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
-            $criteria->addSelectColumn($alias . '.PID');
+            $criteria->addSelectColumn($alias . '.PARENT_ID');
             $criteria->addSelectColumn($alias . '.DOMAIN_ID');
             $criteria->addSelectColumn($alias . '.LFT');
             $criteria->addSelectColumn($alias . '.RGT');
@@ -309,6 +313,7 @@ abstract class BasePagePeer {
             $criteria->addSelectColumn($alias . '.TITLE');
             $criteria->addSelectColumn($alias . '.PAGE_TITLE');
             $criteria->addSelectColumn($alias . '.URL');
+            $criteria->addSelectColumn($alias . '.FULL_URL');
             $criteria->addSelectColumn($alias . '.LINK');
             $criteria->addSelectColumn($alias . '.LAYOUT');
             $criteria->addSelectColumn($alias . '.SORT');
@@ -860,6 +865,230 @@ abstract class BasePagePeer {
                 // Add the $obj1 (Page) to the collection in $obj2 (Domain)
                 $obj2->addPage($obj1);
             } // if joined row not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related Domain table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAllExceptDomain(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PagePeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PagePeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY should not affect count
+
+        // Set the correct dbName
+        $criteria->setDbName(PagePeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PagePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+    
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining the related PageRelatedByParentId table
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAllExceptPageRelatedByParentId(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(PagePeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            PagePeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY should not affect count
+
+        // Set the correct dbName
+        $criteria->setDbName(PagePeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(PagePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+    
+        $criteria->addJoin(PagePeer::DOMAIN_ID, DomainPeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Selects a collection of Page objects pre-filled with all related objects except Domain.
+     *
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of Page objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinAllExceptDomain(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        // $criteria->getDbName() will return the same object if not set to another value
+        // so == check is okay and faster
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PagePeer::DATABASE_NAME);
+        }
+
+        PagePeer::addSelectColumns($criteria);
+        $startcol2 = PagePeer::NUM_HYDRATE_COLUMNS;
+
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PagePeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PagePeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = PagePeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PagePeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Selects a collection of Page objects pre-filled with all related objects except PageRelatedByParentId.
+     *
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of Page objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinAllExceptPageRelatedByParentId(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        // $criteria->getDbName() will return the same object if not set to another value
+        // so == check is okay and faster
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(PagePeer::DATABASE_NAME);
+        }
+
+        PagePeer::addSelectColumns($criteria);
+        $startcol2 = PagePeer::NUM_HYDRATE_COLUMNS;
+
+        DomainPeer::addSelectColumns($criteria);
+        $startcol3 = $startcol2 + DomainPeer::NUM_HYDRATE_COLUMNS;
+
+        $criteria->addJoin(PagePeer::DOMAIN_ID, DomainPeer::ID, $join_behavior);
+
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = PagePeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = PagePeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = PagePeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                PagePeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+                // Add objects for joined Domain rows
+
+                $key2 = DomainPeer::getPrimaryKeyHashFromRow($row, $startcol2);
+                if ($key2 !== null) {
+                    $obj2 = DomainPeer::getInstanceFromPool($key2);
+                    if (!$obj2) {
+    
+                        $cls = DomainPeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol2);
+                    DomainPeer::addInstanceToPool($obj2, $key2);
+                } // if $obj2 already loaded
+
+                // Add the $obj1 (Page) to the collection in $obj2 (Domain)
+                $obj2->addPage($obj1);
+
+            } // if joined row is not null
 
             $results[] = $obj1;
         }

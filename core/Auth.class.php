@@ -326,7 +326,7 @@ class Auth {
      *
      * @param int $pUserId
      *
-     * @return \Kryn\Auth $this
+     * @return Kryn\Auth $this
      * @throws \Exception
      */
     public function setUser($pUserId) {
@@ -410,7 +410,7 @@ class Auth {
             }
             if ($session) {
                 $this->token = $session->getId();
-                setCookie($this->tokenId, $this->token, time() + 3600 * 24 * 7, \Kryn::$config['path']); //7 Days
+                setCookie($this->tokenId, $this->token, time() + 3600 * 24 * 7, Kryn::$config['path']); //7 Days
                 return $session;
             }
         }
@@ -435,7 +435,7 @@ class Auth {
             ->setUserId(0)
             ->setTime(time())
             ->setIp($_SERVER['REMOTE_ADDR'])
-            ->setPage(\Kryn::getRequestPageUrl(true))
+            ->setPage(Kryn::getRequestPageUrl(true))
             ->setUseragent($_SERVER['HTTP_USER_AGENT'])
             ->setIsStoredInDatabase(false);
 
@@ -493,7 +493,7 @@ class Auth {
                 ->setUserId(0)
                 ->setTime(time())
                 ->setIp($_SERVER['REMOTE_ADDR'])
-                ->setPage(\Kryn::getRequestPageUrl(true))
+                ->setPage(Kryn::getRequestPageUrl(true))
                 ->setUseragent($_SERVER['HTTP_USER_AGENT']);
 
             $session->save();
@@ -626,7 +626,7 @@ class Auth {
             if ($row['passwd_salt']) {
                 $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
             } else {
-                if (\Kryn::$config['passwd_hash_compatibility'] != 1) return false;
+                if (Kryn::$config['passwd_hash_compatibility'] != 1) return false;
                 //compatibility
                 $hash = md5($pPassword);
             }
@@ -664,7 +664,7 @@ class Auth {
 
         for ($i = 0; $i < 5000; $i++) {
             for ($j = 0; $j < 32; $j++) {
-                $hash[$j] = chr(ord($hash[$j]) + ord(\Kryn::$config['passwd_hash_key'][$j]));
+                $hash[$j] = chr(ord($hash[$j]) + ord(Kryn::$config['passwd_hash_key'][$j]));
             }
             $hash = md5($hash);
         }

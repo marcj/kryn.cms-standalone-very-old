@@ -192,7 +192,7 @@ class Kryn {
      * @static
      * @internal
      */
-    private static $ssl = false;
+    public static $ssl = false;
 
     /**
      * Contains the current port
@@ -1307,16 +1307,16 @@ class Kryn {
         if (!$pPageId) $pPageId = Kryn::$page->getId();
 
         $page =& Kryn::getPage($pPageId);
-        if ($page->getPid() == 0) return array();
+        if ($page->getParentId() == 0) return array();
 
         $res = array();
 
         while (true) {
-            $page =& Kryn::getPage($page->getPid());
+            $page =& Kryn::getPage($page->getParentId());
             if (!$pOnlyPages || ($pOnlyPages && $page['type'] == 0)) {
                 $res[] = $page;
             }
-            if ($page->getPid() == 0) break;
+            if ($page->getParentId() == 0) break;
         }
         rsort($res);
 
@@ -1391,8 +1391,9 @@ class Kryn {
     /**
      * Returns the URL of the specified page
      *
-     * @param integer $pId
-     * @param boolean $pAbsolute
+     * @param integer  $pId
+     * @param boolean  $pAbsolute
+     * @param bool|int $pDomainId
      *
      * @return string
      * @static
@@ -1412,8 +1413,8 @@ class Kryn {
             $cachedUrls =& Kryn::getCache('systemUrls-' . $domain_id);
 
             if (!$cachedUrls || !$cachedUrls['id']) {
-                require_once(PATH_MODULE . 'admin/adminPages.class.php');
-                $cachedUrls = adminPages::updateUrlCache($domain_id);
+                require_once(PATH_MODULE . 'admin/\adminPages.class.php');
+                $cachedUrls = \adminPages::updateUrlCache($domain_id);
             }
         }
 
@@ -1657,11 +1658,11 @@ class Kryn {
 
         if ((!Kryn::$lang || count(Kryn::$lang) == 0) || Kryn::$lang['__md5'] != $md5) {
 
-            Kryn::$lang = array('__md5' => $md5, '__plural' => Kryn\Language::getPluralForm($pLang), '__lang' => $pLang);
+            Kryn::$lang = array('__md5' => $md5, '__plural' => Language::getPluralForm($pLang), '__lang' => $pLang);
 
             foreach (Kryn::$extensions as $key) {
 
-                $po = Kryn\Language::getLanguage($key, $pLang);
+                $po = Language::getLanguage($key, $pLang);
                 Kryn::$lang = array_merge(Kryn::$lang, $po['translations']);
 
             }
@@ -1755,13 +1756,13 @@ class Kryn {
         $domains =& Kryn::getCache('systemDomains');
 
         if (!$domains || $domains['r2d']) {
-            $domains = adminPages::updateDomainCache();
+            $domains = \adminPages::updateDomainCache();
         }
 
         if ($domains['_redirects'][$domainName]) {
             header("HTTP/1.1 301 Moved Permanently");
             $redirect = Kryn::getDomain($domains['_redirects'][$domainName]);
-            header('Location: ' . kryn::$ssl?'https://':'http://' . $redirect['domain'] . $redirect['path']);
+            header('Location: ' . self::$ssl?'https://':'http://' . $redirect['domain'] . $redirect['path']);
             exit;
         }
 
@@ -1773,7 +1774,7 @@ class Kryn {
         if (!$pNoRefreshCache && !($domain = Kryn::getDomain($findDomainId))){
             //we refresh the cache and try it again one times.
 
-            adminPages::updateDomainCache();
+            \adminPages::updateDomainCache();
             return self::detectDomain(true);
         }
 
@@ -1815,9 +1816,9 @@ class Kryn {
             }
 
 
-            kryn::$domain = self::detectDomain();
+            self::$domain = self::detectDomain();
 
-            Kryn::$language = kryn::$domain->getLang();
+            Kryn::$language = self::$domain->getLang();
 
             if (Kryn::$domain->getPhplocale()) {
                 setlocale(LC_ALL, Kryn::$domain->getPhplocale());
@@ -1826,9 +1827,9 @@ class Kryn {
             Kryn::$domainProperties =& Kryn::$domain->getExtproperties();
             Kryn::$themeProperties =& Kryn::$domain->getThemeproperties();
 
-            Kryn::$baseUrl = $http . kryn::$domain->getRealDomain() . Kryn::$port . Kryn::$domain->getPath();
+            Kryn::$baseUrl = $http . self::$domain->getRealDomain() . Kryn::$port . Kryn::$domain->getPath();
             if (Kryn::$domain->getMaster() != 1 && getArgv(1) != 'admin') {
-                Kryn::$baseUrl = $http . kryn::$domain->getRealDomain() . Kryn::$port . Kryn::$domain->getPath()
+                Kryn::$baseUrl = $http . self::$domain->getRealDomain() . Kryn::$port . Kryn::$domain->getPath()
                     . Kryn::$domain->getLang(). '/';
             }
 
@@ -1959,8 +1960,8 @@ class Kryn {
         $page2Domain =& Kryn::getCache('systemPages2Domain');
 
         if (!is_array($page2Domain)) {
-            require_once(PATH_MODULE . 'admin/adminPages.class.php');
-            $page2Domain = adminPages::updatePage2DomainCache();
+            require_once(PATH_MODULE . 'admin/\adminPages.class.php');
+            $page2Domain = \adminPages::updatePage2DomainCache();
         }
 
         $pId = ',' . $pId . ',';
@@ -1991,8 +1992,8 @@ class Kryn {
         Kryn::$urls =& Kryn::readCache('systemUrls');
 
         if (!is_array(Kryn::$urls)) {
-            require_once(PATH_MODULE . 'admin/adminPages.class.php');
-            adminPages::updateUrlCache($domain);
+            require_once(PATH_MODULE . 'admin/\adminPages.class.php');
+            \adminPages::updateUrlCache($domain);
             Kryn::$urls =& Kryn::readCache('systemUrls');
         }
 
@@ -2155,7 +2156,7 @@ class Kryn {
         $msg = sprintf(t('Page not found %s'), Kryn::$domain->getDomain() . '/' . Kryn::getRequestPageUrl(true));
         klog('404', $msg);
 
-        Kryn\Event::fire('onNotFound');
+        Event::fire('onNotFound');
 
         if (Kryn::$domain->getPage404interface() != '') {
             if (strpos(Kryn::$domain->getPage404interface(), "media") !== FALSE) {
@@ -2181,7 +2182,7 @@ class Kryn {
     public static function internalError($pTitle = '', $pMsg) {
         tAssign('msg', $pMsg);
         tAssign('title', $pTitle?$pTitle:'Internal system error');
-        print tFetch('Kryn/internal-error.tpl');
+        print tFetch('kryn/internal-error.tpl');
         exit;
     }
 
@@ -2195,7 +2196,7 @@ class Kryn {
     public static function internalMessage($pTitle, $pMsg = '') {
         tAssign('title', $pTitle);
         tAssign('msg', $pMsg);
-        print tFetch('Kryn/internal-message.tpl');
+        print tFetch('kryn/internal-message.tpl');
         exit;
     }
 
@@ -2357,7 +2358,7 @@ class Kryn {
 
         header("Content-Type: text/html; charset=utf-8");
 
-        if (Kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && kryn::$client->getUser()->getId() == 0 &&
+        if (Kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && self::$client->getUser()->getId() == 0 &&
             count($_POST) == 0
         ) {
 

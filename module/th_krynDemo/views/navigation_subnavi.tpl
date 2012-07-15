@@ -1,4 +1,4 @@
-{foreach from=$navi._children item=link name="subnavi"}
-    <a class="{if $link|@active} active{/if}" title="{$link.title}" href="{$link|@realUrl}">{$link.title}</a>
+{foreach from=$navigation->getChildren() item=children  name="subnavi"}
+<a class="{if $children->isActive()} active{/if}" href="{$children->getFullUrl()}">{$children->getTitle()}  </a>
     {if !$smarty.foreach.subnavi.last}|{/if}
 {/foreach}

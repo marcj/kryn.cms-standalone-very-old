@@ -207,7 +207,7 @@
 
     <table name="system_page" phpName="Page" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
-        <column name="pid" type="INTEGER"/>
+        <column name="parent_id" type="INTEGER"/>
         <column name="domain_id" type="INTEGER"/>
         <column name="lft" type="INTEGER"/>
         <column name="rgt" type="INTEGER"/>
@@ -217,6 +217,8 @@
         <column name="title" type="VARCHAR" size="255" required="false"/>
         <column name="page_title" type="VARCHAR" size="255" required="false"/>
         <column name="url" type="VARCHAR" size="255" required="false"/>
+        <column name="full_url" type="VARCHAR" size="255" required="false"/>
+
         <column name="link" type="VARCHAR" size="255" required="false"/>
         <column name="layout" type="VARCHAR" size="64" required="false"/>
         <column name="sort" type="INTEGER" required="false"/>
@@ -262,8 +264,13 @@
             <parameter name="use_scope" value="true" />
             <parameter name="scope_column" value="domain_id" />
         </behavior>
+
         <foreign-key foreignTable="system_domain" onDelete="cascade">
             <reference local="domain_id" foreign="id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="system_page">
+            <reference local="parent_id" foreign="id" />
         </foreign-key>
     </table>
 

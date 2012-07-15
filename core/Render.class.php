@@ -324,9 +324,10 @@ class Render {
             $res = dbExec("SELECT * FROM %pfx%system_page_content
                 WHERE page_id = $pId
                 $box 
-                AND version_id = 1
-                AND hide != 1
+                AND (version_id = 1 OR version_id IS NULL)
+                AND (hide != 1 OR hide IS NULL)
                 ORDER BY sort");
+
             while ($page = dbFetch($res)) {
                 $result[$page['box_id']][] = $page;
             }
@@ -490,7 +491,7 @@ class Render {
 
         //$oldContent = $tpl->getTemplateVars('content');
         $argument = array($slot);
-        krynEvent::fire('onBeforeRenderSlot', $argument);
+        Event::fire('onBeforeRenderSlot', $argument);
 
         $html = '';
 
@@ -518,7 +519,7 @@ class Render {
         }
 
         $argument = array($slot, &$html);
-        krynEvent::fire('onRenderSlot', $argument);
+        Event::fire('onRenderSlot', $argument);
 
         if ($pSlotProperties['assign'] != "") {
             tAssignRef($pSlotProperties['assign'], $html);
@@ -545,8 +546,8 @@ class Render {
         tAssign('css', ($content['css']) ? $content['css'] : false);
 
 
-        $argument = array($pContent, $pProperties);
-        krynEvent::fire('onRenderContent', $argument);
+        $argument = array(&$content, $pProperties);
+        Event::fire('preRenderContent', $argument);
 
 
         switch (strtolower($content['type'])) {
@@ -685,6 +686,8 @@ class Render {
             $unsearchable = true;
         }
 
+        Event::fire('onRenderContent', $argument);
+
         $html = '';
         if ($content['template'] == '' || $content['template'] == '-') {
             if ($unsearchable)
@@ -703,7 +706,7 @@ class Render {
 
 
         $argument = array($pContent, $pProperties, &$html);
-        krynEvent::fire('onAfterRenderContent', $argument);
+        Event::fire('onAfterRenderContent', $argument);
 
         return $html;
     }

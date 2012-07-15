@@ -31,7 +31,7 @@ class admin extends RestServerController {
 
         @header('Expires:');
 
-        $code = kryn::getRequestPath();
+        $code = Core\Kryn::getRequestPath();
         $pEntryPoint = self::getPathItem($code); //admin entry point
 
         if (!$pEntryPoint) {
@@ -42,9 +42,9 @@ class admin extends RestServerController {
             adminRestEntryPoint::create('admin')->run($pEntryPoint);
         }
 
-        if (kryn::$modules[getArgv(2)] && getArgv(2) != 'admin') {
+        if (Core\Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin') {
 
-            die(kryn::$modules[getArgv(2)]->admin());
+            die(Core\Kryn::$modules[getArgv(2)]->admin());
 
         } else {
 
@@ -268,14 +268,14 @@ class admin extends RestServerController {
      */
     public static function getPluginElements($pObjectKey){
 
-        if (!kryn::$objects[$pObjectKey]) return array('error' => 'object_not_found');
+        if (!Core\Kryn::$objects[$pObjectKey]) return array('error' => 'object_not_found');
 
-        $definition = kryn::$objects[$pObjectKey];
+        $definition = Core\Kryn::$objects[$pObjectKey];
 
-        $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+        $cachedPluginRelations =& Core\Kryn::getCache('kryn_pluginrelations');
         if (true || !$cachedPluginRelations || count($cachedPluginRelations) == 0) {
             self::cachePluginsRelations();
-            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+            $cachedPluginRelations =& Core\Kryn::getCache('kryn_pluginrelations');
         }
 
         $module = $definition['_extension'];
@@ -302,7 +302,7 @@ class admin extends RestServerController {
                     $previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_id']][$page['id']] =
                         array(
                             'title' => $page['title'],
-                            'path' => kryn::getPagePath($page['id'])
+                            'path' => Core\Kryn::getPagePath($page['id'])
                         );
                 }
             }
@@ -335,7 +335,7 @@ class admin extends RestServerController {
         ');
 
         if (!$res) {
-            kryn::setCache('kryn_pluginrelations', array());
+            Core\Kryn::setCache('kryn_pluginrelations', array());
             return;
         }
 
@@ -347,7 +347,7 @@ class admin extends RestServerController {
             $pluginRelations[$matches[1]][$matches[2]][] = $row;
 
         }
-        kryn::setCache('kryn_pluginrelations', $pluginRelations);
+        Core\Kryn::setCache('kryn_pluginrelations', $pluginRelations);
     }
 
 
@@ -360,7 +360,7 @@ class admin extends RestServerController {
             list($object_key, $object_ids, $params) = krynObjects::parseUri($pUrl);
         }
 
-        $definition = kryn::$objects[$object_key];
+        $definition = Core\Kryn::$objects[$object_key];
         if (!$definition) return array('error' => 'object_not_found');
 
         //todo check here access
@@ -416,7 +416,7 @@ class admin extends RestServerController {
             list($object_key, $object_id, $params) = krynObjects::parseUri($pUrl);
         }
 
-        $definition = kryn::$objects[$object_key];
+        $definition = Core\Kryn::$objects[$object_key];
         if (!$definition) return array('error' => 'object_not_found');
 
         //todo check here access
@@ -469,7 +469,7 @@ class admin extends RestServerController {
 
         //todo, check permissions
 
-        $definition = kryn::$objects[$pObjectKey];
+        $definition = Core\Kryn::$objects[$pObjectKey];
 
         if ($definition['chooserBrowserDataModel'] == 'none')
             return;
@@ -561,15 +561,15 @@ class admin extends RestServerController {
 
         $codes = explode('/', $pCode);
 
-        if (kryn::$configs['admin']['admin'][$codes[1]]) {
+        if (Core\Kryn::$configs['admin']['admin'][$codes[1]]) {
             //inside admin extension
-            $adminInfo = kryn::$configs['admin']['admin'];
+            $adminInfo = Core\Kryn::$configs['admin']['admin'];
             $start = 1;
             $module = 'admin';
             $code = substr($pCode, 6);
-        } else if (kryn::$configs[$codes[1]]['admin']) {
+        } else if (Core\Kryn::$configs[$codes[1]]['admin']) {
             //inside other extension
-            $adminInfo = kryn::$configs[$codes[1]]['admin'];
+            $adminInfo = Core\Kryn::$configs[$codes[1]]['admin'];
             $start = 2;
             $module = $codes[1];
             $code = substr($pCode, 6 + strlen($codes[1]) + 1);
@@ -623,7 +623,7 @@ class admin extends RestServerController {
         tAssign('content', $content);
 
         $content['template'] = str_replace('..', '', $content['template']);
-        $tpl = kryn::fileRead(PATH_MEDIA . $content['template']);
+        $tpl = Core\Kryn::fileRead(PATH_MEDIA . $content['template']);
 
         $tpl =
             str_replace('{$content.title}', '<span class="ka-layoutelement-content-title">{$content.title}</span>', $tpl);
@@ -661,7 +661,7 @@ class admin extends RestServerController {
         $pFile = str_replace('..', '', $pFile);
 
         $found = false;
-        foreach (kryn::$configs as $config) {
+        foreach (Core\Kryn::$configs as $config) {
             if ($config['themes']) {
                 foreach ($config['themes'] as $themeTitle => $layouts) {
                     if ($layouts['layoutElement']) {
@@ -710,7 +710,7 @@ class admin extends RestServerController {
     public static function miniSearch($pQ) {
 
         $res = array();
-        foreach (kryn::$modules as &$mod) {
+        foreach (Core\Kryn::$modules as &$mod) {
             if (method_exists($mod, 'searchAdmin')) {
                 $res = array_merge($res, $mod->searchAdmin($pQ));
             }
@@ -798,26 +798,26 @@ class admin extends RestServerController {
     public static function clearCache() {
 
         clearfolder('cache/object/');
-        clearfolder(kryn::$config['media_cache']);
+        clearfolder(Core\Kryn::$config['media_cache']);
 
-        foreach (kryn::$configs as $extKey => $config){
+        foreach (Core\Kryn::$configs as $extKey => $config){
             if ($config['caches']){
                 foreach ($config['caches'] as $cache){
                     if ($m = $cache['method']){
-                        if (method_exists(kryn::$modules[$extKey], $m))
+                        if (method_exists(Core\Kryn::$modules[$extKey], $m))
                             try {
-                                kryn::$modules[$extKey]->$m();
+                                Core\Kryn::$modules[$extKey]->$m();
                             } catch (Exception $e){
                                 klog('admin', 'Error during the clearCache function: '.$e);
                             }
                     } else {
-                        kryn::deleteCache($cache['key']);
+                        Core\Kryn::deleteCache($cache['key']);
                     }
                 }
             }
             if ($config['cacheInvalidation']){
                 foreach ($config['cacheInvalidation'] as $cache){
-                    kryn::invalidateCache($cache['key']);
+                    Core\Kryn::invalidateCache($cache['key']);
                 }
             }
         }
@@ -846,12 +846,12 @@ class admin extends RestServerController {
 
         //help
         $helps = array();
-        foreach (kryn::$configs as $key => $mod) {
+        foreach (Core\Kryn::$configs as $key => $mod) {
             $helpFile = PATH_MODULE . "$key/lang/help_$lang.json";
             if (!file_exists($helpFile)) continue;
             if (count($helps) > 10) continue;
 
-            $json = json_decode(kryn::fileRead($helpFile), 1);
+            $json = json_decode(Core\Kryn::fileRead($helpFile), 1);
             if (is_array($json) && count($json) > 0) {
                 foreach ($json as $help) {
 
@@ -888,7 +888,7 @@ class admin extends RestServerController {
         $lang = getArgv('lang');
 
         $helpFile = PATH_MODULE . "$module/lang/help_$lang.json";
-        $json = kryn::fileRead($helpFile);
+        $json = Core\Kryn::fileRead($helpFile);
         $langs = json_decode($json, 1);
         $res = false;
         foreach ($langs as &$help) {
@@ -911,7 +911,7 @@ class admin extends RestServerController {
     public static function loadHelpTree($pLang = 'en') {
 
         $res = array();
-        foreach (kryn::$configs as $modCode => &$config) {
+        foreach (Core\Kryn::$configs as $modCode => &$config) {
 
             $langFile = PATH_MODULE . "$modCode/lang/help_$pLang.json";
             if (!file_exists($langFile))
@@ -921,7 +921,7 @@ class admin extends RestServerController {
 
             $modTitle = $config['title'][$pLang] ? $config['title'][$pLang] : $config['title']['en'];
 
-            $help = kryn::fileRead($langFile);
+            $help = Core\Kryn::fileRead($langFile);
             $help = json_decode($help, true);
 
             if (count($help) > 0) {
@@ -946,13 +946,13 @@ class admin extends RestServerController {
 
     public static function showLogin() {
 
-        $language = kryn::$adminClient->user['settings']['adminLanguage'] ? kryn::$adminClient->user['settings']['adminLanguage'] : 'en';
+        $language = Core\Kryn::$adminClient->user['settings']['adminLanguage'] ? Core\Kryn::$adminClient->user['settings']['adminLanguage'] : 'en';
 
         if (getArgv('setLang') != '')
             $language = getArgv('setLang', 2);
 
-        if (kryn::$adminClient->id > 0) {
-            $access = kryn::checkUrlAccess('admin/backend');
+        if (Core\Kryn::$adminClient->id > 0) {
+            $access = Core\Kryn::checkUrlAccess('admin/backend');
             tAssign('hasBackendAccess', $access + 0);
         }
 
@@ -963,7 +963,7 @@ class admin extends RestServerController {
     }
 
     public static function printPossibleLangs() {
-        $files = kryn::readFolder(PATH_MODULE . 'admin/lang/', false);
+        $files = Core\Kryn::readFolder(PATH_MODULE . 'admin/lang/', false);
         $where = "code = 'en' ";
         foreach ($files as $file)
             $where .= " OR code = '$file'";
@@ -980,7 +980,7 @@ class admin extends RestServerController {
         $lang = getArgv('getLanguagePluralForm', 2);
         header('Content-Type: text/javascript');
         print "/* Kryn plural function */\n";
-        print kryn::fileRead(kryn::$config['media_cache'].'gettext_plural_fn_'.$lang.'.js')."\n";
+        print Core\Kryn::fileRead(Core\Kryn::$config['media_cache'].'gettext_plural_fn_'.$lang.'.js')."\n";
         exit;
     }
 
@@ -988,11 +988,11 @@ class admin extends RestServerController {
 
         $lang = getArgv('getLanguage', 2);
 
-        kryn::$adminClient->setLang($lang);
-        kryn::$adminClient->syncStore();
+        Core\Kryn::$adminClient->setLang($lang);
+        Core\Kryn::$adminClient->syncStore();
 
-        kryn::loadLanguage($lang);
-        $json = json_encode(kryn::$lang);
+        Core\Kryn::loadLanguage($lang);
+        $json = json_encode(Core\Kryn::$lang);
 
         if (getArgv('js') == 1) {
             header('Content-Type: text/javascript');
@@ -1013,22 +1013,22 @@ class admin extends RestServerController {
 
     public static function saveDesktop($pIcons) {
 
-        if (kryn::$adminClient->id > 0)
-            dbUpdate('system_user', array('id' => kryn::$adminClient->id), array('desktop' => $pIcons));
+        if (Core\Kryn::$adminClient->id > 0)
+            dbUpdate('system_user', array('id' => Core\Kryn::$adminClient->id), array('desktop' => $pIcons));
         json(true);
     }
 
     public static function saveWidgets($pWidgets) {
 
-        if (kryn::$adminClient->id > 0)
-            dbUpdate('system_user', array('id' => kryn::$adminClient->id), array('widgets' => $pWidgets));
+        if (Core\Kryn::$adminClient->id > 0)
+            dbUpdate('system_user', array('id' => Core\Kryn::$adminClient->id), array('widgets' => $pWidgets));
         json(true);
     }
 
     public static function getWidgets() {
 
-        if (kryn::$adminClient->id > 0) {
-            $row = dbTableFetch('system_user', 1, "id = " . kryn::$adminClient->id);
+        if (Core\Kryn::$adminClient->id > 0) {
+            $row = dbTableFetch('system_user', 1, "id = " . Core\Kryn::$adminClient->id);
             json($row['widgets']);
         }
         json(false);
@@ -1036,8 +1036,8 @@ class admin extends RestServerController {
 
     public static function getDesktop() {
 
-        if (kryn::$adminClient->id > 0) {
-            $row = dbTableFetch('system_user', 1, "id = " . kryn::$adminClient->id);
+        if (Core\Kryn::$adminClient->id > 0) {
+            $row = dbTableFetch('system_user', 1, "id = " . Core\Kryn::$adminClient->id);
             if ($row['desktop'])
                 json($row['desktop']);
         }
@@ -1046,7 +1046,7 @@ class admin extends RestServerController {
 
     public static function getDefaultImages() {
 
-        $res = kryn::readFolder(PATH_MEDIA.'admin/images/userBgs/defaultImages', true);
+        $res = Core\Kryn::readFolder(PATH_MEDIA.'admin/images/userBgs/defaultImages', true);
 
         json($res);
     }
@@ -1056,11 +1056,11 @@ class admin extends RestServerController {
         $settings = json_decode(getArgv('settings'), true);
 
         if ($settings['adminLanguage'] == '')
-            $settings['adminLanguage'] =kryn:: $adminClient->user['settings']['adminLanguage'];
+            $settings['adminLanguage'] =Core\Kryn:: $adminClient->user['settings']['adminLanguage'];
 
         $settings = serialize($settings);
-        dbUpdate('system_user', array('id' => kryn::$adminClient->id), array('settings' => $settings));
-        kryn::$adminClient->getUser(kryn::$adminClient->id, true); //reload from cache
+        dbUpdate('system_user', array('id' => Core\Kryn::$adminClient->id), array('settings' => $settings));
+        Core\Kryn::$adminClient->getUser(Core\Kryn::$adminClient->id, true); //reload from cache
 
         json(1);
     }
@@ -1091,17 +1091,17 @@ class admin extends RestServerController {
 
         $lang = getArgv('lang', 2);
         if ($lang) {
-            kryn::$adminClient->setLang($lang);
-            kryn::$adminClient->syncStore();
+            Core\Kryn::$adminClient->setLang($lang);
+            Core\Kryn::$adminClient->syncStore();
         }
 
         $res = array();
 
         if ($loadKeys == false || in_array('modules', $loadKeys))
-            $res['modules'] = kryn::$extensions;
+            $res['modules'] = Core\Kryn::$extensions;
 
         if ($loadKeys == false || in_array('configs', $loadKeys))
-        $res['configs'] = kryn::$configs;
+        $res['configs'] = Core\Kryn::$configs;
 
 
 
@@ -1122,7 +1122,7 @@ class admin extends RestServerController {
             $loadKeys == false ||
             (in_array('modules', $loadKeys) || in_array('contents', $loadKeys) || in_array('navigations', $loadKeys))
         ){
-            foreach (kryn::$configs as $key => $config) {
+            foreach (Core\Kryn::$configs as $key => $config) {
                 if ($config['themes']) {
                     foreach ($config['themes'] as $themeTitle => $theme) {
 
@@ -1172,7 +1172,7 @@ class admin extends RestServerController {
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
-            $res['user'] = kryn::$adminClient->user['settings'];
+            $res['user'] = Core\Kryn::$adminClient->user['settings'];
             if (!$res['user'])
                 $res['user'] = array();
         }
@@ -1187,7 +1187,7 @@ class admin extends RestServerController {
 
 
         if ($loadKeys == false || in_array('r2d', $loadKeys)){
-            $res['r2d'] =& kryn::getCache("systemPages2Domain");
+            $res['r2d'] =& Core\Kryn::getCache("systemPages2Domain");
 
             if (!$res['r2d']){
                 require_once(PATH_MODULE.'admin/adminPages.class.php');
@@ -1203,14 +1203,14 @@ class admin extends RestServerController {
             $qr = dbExec('SELECT * FROM %pfx%system_domains ORDER BY domain');
             while ($row = dbFetch($qr)) {
                 //todo
-                //if (kryn::checkPageAcl($row['id'], 'showDomain', 'd')) {
+                //if (Core\Kryn::checkPageAcl($row['id'], 'showDomain', 'd')) {
                 //    $res['domains'][] = $row;
                 //}
             }
         }
 
-        $inGroups = kryn::$adminClient->user['inGroups'];
-        $userRsn  = kryn::$adminClient->user_id;
+        $inGroups = Core\Kryn::$adminClient->user['inGroups'];
+        $userRsn  = Core\Kryn::$adminClient->user_id;
 
         /*
         if ($loadKeys == false || in_array('acl_pages', $loadKeys)){
@@ -1227,7 +1227,7 @@ class admin extends RestServerController {
                     ORDER BY code DESC
             ", DB_FETCH_ALL);
 
-            $res['pageAcls'] = kryn::$pageAcls;
+            $res['pageAcls'] = Core\Kryn::$pageAcls;
         }
 
         if ($loadKeys == false || in_array('acls', $loadKeys)){
@@ -1272,7 +1272,7 @@ class admin extends RestServerController {
 
         $res['hasCrawlPermission'] = adminSearchIndexer::hasPermission();
 
-        foreach (kryn::$configs as $key => $conf) {
+        foreach (Core\Kryn::$configs as $key => $conf) {
 
             if ($conf['_corruptConfig']) {
 
@@ -1280,9 +1280,9 @@ class admin extends RestServerController {
             }
             $stream = $conf['stream'];
 
-            if ($stream && method_exists(kryn::$modules[$key], $stream)) {
+            if ($stream && method_exists(Core\Kryn::$modules[$key], $stream)) {
 
-                $res[$key] = kryn::$modules[$key]->$stream();
+                $res[$key] = Core\Kryn::$modules[$key]->$stream();
             }
         }
 
@@ -1292,7 +1292,7 @@ class admin extends RestServerController {
 
     public static function systemInfo() {
 
-        $res['version'] = kryn::$configs['kryn']['version'];
+        $res['version'] = Core\Kryn::$configs['kryn']['version'];
 
         json($res);
     }
@@ -1321,7 +1321,7 @@ class admin extends RestServerController {
         $md5Hash = '';
         $jsFiles = array();
 
-        foreach (kryn::$configs as &$config) {
+        foreach (Core\Kryn::$configs as &$config) {
             if ($config['adminJavascript'])
                 self::collectFiles($config['adminJavascript'], $jsFiles);
         }
@@ -1340,14 +1340,14 @@ class admin extends RestServerController {
             $content = '';
             foreach ($jsFiles as $jsFile) {
                 $content .= "\n\n/* file: $jsFile */\n\n";
-                $content .= kryn::fileRead($jsFile);
+                $content .= Core\Kryn::fileRead($jsFile);
             }
 
             //delete old cached files
             foreach (glob('cache/media/cachedAdminJs_*.js') as $cache)
                 @unlink($cache);
 
-            kryn::fileWrite('cache/media/cachedAdminJs_' . $md5Hash . '.js', $content);
+            Core\Kryn::fileWrite('cache/media/cachedAdminJs_' . $md5Hash . '.js', $content);
             print $content;
         }
 
@@ -1385,7 +1385,7 @@ class admin extends RestServerController {
         $md5Hash = '';
         $cssFiles = array();
 
-        foreach (kryn::$configs as &$config) {
+        foreach (Core\Kryn::$configs as &$config) {
             if ($config['adminCss'])
                 self::collectFiles($config['adminCss'], $cssFiles);
         }
@@ -1428,7 +1428,7 @@ class admin extends RestServerController {
             foreach (glob('cache/media/cachedAdminCss_*.css') as $cache)
                 @unlink($cache);
 
-            kryn::fileWrite('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
+            Core\Kryn::fileWrite('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
             print $content;
         }
         exit;
@@ -1438,7 +1438,7 @@ class admin extends RestServerController {
 
         $links = array();
 
-        foreach (kryn::$configs as $extCode => $config) {
+        foreach (Core\Kryn::$configs as $extCode => $config) {
 
             if ($config['admin']) {
                 foreach ($config['admin'] as $key => $value) {
@@ -1448,7 +1448,7 @@ class admin extends RestServerController {
                         $childs = self::getChildMenus("$extCode/$key", $value);
 
                         if (count($childs) == 0) {
-                            if (kryn::checkUrlAccess("$extCode/$key")) {
+                            if (Core\Kryn::checkUrlAccess("$extCode/$key")) {
                                 unset($value['childs']);
                                 $links[$extCode][$key] = $value;
                             }
@@ -1458,7 +1458,7 @@ class admin extends RestServerController {
                         }
 
                     } else {
-                        if (kryn::checkUrlAccess("$extCode/$key")) {
+                        if (Core\Kryn::checkUrlAccess("$extCode/$key")) {
                             $links[$extCode][$key] = $value;
                         }
                     }
@@ -1485,7 +1485,7 @@ class admin extends RestServerController {
 
                 $childs = self::getChildMenus($pCode . "/$key", $value);
                 if (count($childs) == 0) {
-                    if (kryn::checkUrlAccess($pCode . "/$key")) {
+                    if (Core\Kryn::checkUrlAccess($pCode . "/$key")) {
                         unset($value['childs']);
                         $links[$key] = $value;
                     }
@@ -1495,7 +1495,7 @@ class admin extends RestServerController {
                 }
 
             } else {
-                if (kryn::checkUrlAccess($pCode . "/$key")) {
+                if (Core\Kryn::checkUrlAccess($pCode . "/$key")) {
                     $links[$key] = $value;
                 }
             }
@@ -1540,7 +1540,7 @@ class admin extends RestServerController {
             'content' => $content,
             'version' => $version,
             'cdate' => time(),
-            'user_id' => kryn::$adminClient->user_id
+            'user_id' => Core\Kryn::$adminClient->user_id
         );
 
         dbInsert('system_frameworkversion', $new);
@@ -1584,7 +1584,7 @@ class admin extends RestServerController {
 
     public function widgetVersion() {
 
-        $res['title'] = 'Kryn ' . kryn::$configs['kryn']['version'];
+        $res['title'] = 'Kryn ' . Core\Kryn::$configs['kryn']['version'];
         $res['content'] = '
             <span style="color: green;">Sie benutzen die aktuellste Version.</span>    
         ';
@@ -1614,7 +1614,7 @@ class admin extends RestServerController {
                 $html .= '<td>' . $page['title'] . '</td>';
                 $html .=
                     '<td width="20"><a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $page['id'] .
-                    '});"><img src="' . kryn::$domain['path'] . 'admin/images/icons/bullet_go.png" /></a></td>';
+                    '});"><img src="' . Core\Kryn::$domain['path'] . 'admin/images/icons/bullet_go.png" /></a></td>';
                 $html .= '</tr>';
             }
         }
@@ -1626,16 +1626,16 @@ class admin extends RestServerController {
     }
 
     public function manipulateUnpublishedContentsRow($pRow) {
-        $domain = kryn::getDomain($pRow[4]);
+        $domain = Core\Kryn::getDomain($pRow[4]);
         $pRow[2] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $pRow[2] . '});">' .
-                   kryn::getPagePath($pRow[2] + 0) . '</a>';
+                   Core\Kryn::getPagePath($pRow[2] + 0) . '</a>';
         return $pRow;
     }
 
     public function manipulateLastChangesRow($pRow) {
-        //$domain = kryn::getDomain( $pRow[4] );
+        //$domain = Core\Kryn::getDomain( $pRow[4] );
         $pRow[3] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $pRow[3] . '});">' .
-                   kryn::getPagePath($pRow[3] + 0) . '</a>';
+                   Core\Kryn::getPagePath($pRow[3] + 0) . '</a>';
         return $pRow;
     }
 
@@ -1643,7 +1643,7 @@ class admin extends RestServerController {
 
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
-            kryn::deleteCache('systemUrls-'.$domain['id']);
+            Core\Kryn::deleteCache('systemUrls-'.$domain['id']);
 
     }
 
@@ -1651,7 +1651,7 @@ class admin extends RestServerController {
 
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
-            kryn::deleteCache('systemDomain-'.$domain['id']);
+            Core\Kryn::deleteCache('systemDomain-'.$domain['id']);
     }
 }
 

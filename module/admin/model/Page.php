@@ -16,27 +16,65 @@
 class Page extends BasePage {
 
     /**
-     * Contains the full path to the url (without domain path and domain name)
-     * @var string
+     * Updates the full url
      */
-    private $fullUrl;
+    public function updateFullUrl(){
+        if ($this->getId() && $this->getUrl() && $this->getDomainId()){
 
-    /**
-     * @param string $pFullUrl
-     * return \Page $this
-     */
-    public function setFullUrl($pFullUrl){
-        $this->fullUrl = $pFullUrl;
-        return $this;
+            $url = '';
+            $cachedUrls =& \Core\Kryn::getCache('systemUrls-' . $this->getDomainId());
+            if (!($url = $cachedUrls['id']['id=' . $this->getId()]) || !$cachedUrls || !$cachedUrls['id']) {
+                $cachedUrls = adminPages::updateUrlCache($this->getDomainId());
+            }
+
+            if ($this->getDomainId() != \Core\Kryn::$domain->getId()){
+                if ($this->getDomainId() != \Core\Kryn::$domain->getId())
+                    $domain = $this->getDomain();
+                else
+                    $domain = \Core\Kryn::$domain;
+
+                $domainName = $domain->getRealDomain();
+                if ($domain->getMaster() != 1) {
+                    $url = $domainName . $domain->getPath() . $domain->getLang() . '/' . $url;
+                } else {
+                    $url = $domainName . $domain->getPath() . $url;
+                }
+
+                $url = 'http' . (\Core\Kryn::$ssl ? 's' : '') . '://' . $url;
+            }
+
+            if (substr($url, -1) == '/')
+                $url = substr($url, 0, -1);
+
+            if ($url == '/')
+                $url = '.';
+
+            if ($url == '/')
+                $url = '.';
+
+            $this->fullUrl = $url;
+        } else {
+            $this->fullUrl = false;
+        }
     }
 
-    /**
-     * @return string
-     */
-    public function getFullUrl(){
-        return $this->fullUrl;
-    }
+    public function preSave(PropelPDO $con = null){
 
+        $url = '';
+        $parent = $this;
+        while ($parent->getParentId() > 0 && $parent = $parent->getParent()){
+
+            if ($parent->getType() < 2){//only pages and links
+                $url = $parent->getUrl().'/';
+            }
+
+        }
+
+        $url .= $this->getUrl();
+        $this->setFullUrl($url);
+
+        return true;
+    }
 
     public function isActive(){
 

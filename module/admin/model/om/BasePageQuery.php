@@ -7,7 +7,7 @@
  * 
  *
  * @method     PageQuery orderById($order = Criteria::ASC) Order by the id column
- * @method     PageQuery orderByPid($order = Criteria::ASC) Order by the pid column
+ * @method     PageQuery orderByParentId($order = Criteria::ASC) Order by the parent_id column
  * @method     PageQuery orderByDomainId($order = Criteria::ASC) Order by the domain_id column
  * @method     PageQuery orderByLft($order = Criteria::ASC) Order by the lft column
  * @method     PageQuery orderByRgt($order = Criteria::ASC) Order by the rgt column
@@ -16,6 +16,7 @@
  * @method     PageQuery orderByTitle($order = Criteria::ASC) Order by the title column
  * @method     PageQuery orderByPageTitle($order = Criteria::ASC) Order by the page_title column
  * @method     PageQuery orderByUrl($order = Criteria::ASC) Order by the url column
+ * @method     PageQuery orderByFullUrl($order = Criteria::ASC) Order by the full_url column
  * @method     PageQuery orderByLink($order = Criteria::ASC) Order by the link column
  * @method     PageQuery orderByLayout($order = Criteria::ASC) Order by the layout column
  * @method     PageQuery orderBySort($order = Criteria::ASC) Order by the sort column
@@ -41,7 +42,7 @@
  * @method     PageQuery orderByActiveVersionId($order = Criteria::ASC) Order by the active_version_id column
  *
  * @method     PageQuery groupById() Group by the id column
- * @method     PageQuery groupByPid() Group by the pid column
+ * @method     PageQuery groupByParentId() Group by the parent_id column
  * @method     PageQuery groupByDomainId() Group by the domain_id column
  * @method     PageQuery groupByLft() Group by the lft column
  * @method     PageQuery groupByRgt() Group by the rgt column
@@ -50,6 +51,7 @@
  * @method     PageQuery groupByTitle() Group by the title column
  * @method     PageQuery groupByPageTitle() Group by the page_title column
  * @method     PageQuery groupByUrl() Group by the url column
+ * @method     PageQuery groupByFullUrl() Group by the full_url column
  * @method     PageQuery groupByLink() Group by the link column
  * @method     PageQuery groupByLayout() Group by the layout column
  * @method     PageQuery groupBySort() Group by the sort column
@@ -82,9 +84,17 @@
  * @method     PageQuery rightJoinDomain($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Domain relation
  * @method     PageQuery innerJoinDomain($relationAlias = null) Adds a INNER JOIN clause to the query using the Domain relation
  *
+ * @method     PageQuery leftJoinPageRelatedByParentId($relationAlias = null) Adds a LEFT JOIN clause to the query using the PageRelatedByParentId relation
+ * @method     PageQuery rightJoinPageRelatedByParentId($relationAlias = null) Adds a RIGHT JOIN clause to the query using the PageRelatedByParentId relation
+ * @method     PageQuery innerJoinPageRelatedByParentId($relationAlias = null) Adds a INNER JOIN clause to the query using the PageRelatedByParentId relation
+ *
  * @method     PageQuery leftJoinPageContent($relationAlias = null) Adds a LEFT JOIN clause to the query using the PageContent relation
  * @method     PageQuery rightJoinPageContent($relationAlias = null) Adds a RIGHT JOIN clause to the query using the PageContent relation
  * @method     PageQuery innerJoinPageContent($relationAlias = null) Adds a INNER JOIN clause to the query using the PageContent relation
+ *
+ * @method     PageQuery leftJoinPageRelatedById($relationAlias = null) Adds a LEFT JOIN clause to the query using the PageRelatedById relation
+ * @method     PageQuery rightJoinPageRelatedById($relationAlias = null) Adds a RIGHT JOIN clause to the query using the PageRelatedById relation
+ * @method     PageQuery innerJoinPageRelatedById($relationAlias = null) Adds a INNER JOIN clause to the query using the PageRelatedById relation
  *
  * @method     PageQuery leftJoinUrlalias($relationAlias = null) Adds a LEFT JOIN clause to the query using the Urlalias relation
  * @method     PageQuery rightJoinUrlalias($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Urlalias relation
@@ -94,7 +104,7 @@
  * @method     Page findOneOrCreate(PropelPDO $con = null) Return the first Page matching the query, or a new Page object populated from the query conditions when no match is found
  *
  * @method     Page findOneById(int $id) Return the first Page filtered by the id column
- * @method     Page findOneByPid(int $pid) Return the first Page filtered by the pid column
+ * @method     Page findOneByParentId(int $parent_id) Return the first Page filtered by the parent_id column
  * @method     Page findOneByDomainId(int $domain_id) Return the first Page filtered by the domain_id column
  * @method     Page findOneByLft(int $lft) Return the first Page filtered by the lft column
  * @method     Page findOneByRgt(int $rgt) Return the first Page filtered by the rgt column
@@ -103,6 +113,7 @@
  * @method     Page findOneByTitle(string $title) Return the first Page filtered by the title column
  * @method     Page findOneByPageTitle(string $page_title) Return the first Page filtered by the page_title column
  * @method     Page findOneByUrl(string $url) Return the first Page filtered by the url column
+ * @method     Page findOneByFullUrl(string $full_url) Return the first Page filtered by the full_url column
  * @method     Page findOneByLink(string $link) Return the first Page filtered by the link column
  * @method     Page findOneByLayout(string $layout) Return the first Page filtered by the layout column
  * @method     Page findOneBySort(int $sort) Return the first Page filtered by the sort column
@@ -128,7 +139,7 @@
  * @method     Page findOneByActiveVersionId(int $active_version_id) Return the first Page filtered by the active_version_id column
  *
  * @method     array findById(int $id) Return Page objects filtered by the id column
- * @method     array findByPid(int $pid) Return Page objects filtered by the pid column
+ * @method     array findByParentId(int $parent_id) Return Page objects filtered by the parent_id column
  * @method     array findByDomainId(int $domain_id) Return Page objects filtered by the domain_id column
  * @method     array findByLft(int $lft) Return Page objects filtered by the lft column
  * @method     array findByRgt(int $rgt) Return Page objects filtered by the rgt column
@@ -137,6 +148,7 @@
  * @method     array findByTitle(string $title) Return Page objects filtered by the title column
  * @method     array findByPageTitle(string $page_title) Return Page objects filtered by the page_title column
  * @method     array findByUrl(string $url) Return Page objects filtered by the url column
+ * @method     array findByFullUrl(string $full_url) Return Page objects filtered by the full_url column
  * @method     array findByLink(string $link) Return Page objects filtered by the link column
  * @method     array findByLayout(string $layout) Return Page objects filtered by the layout column
  * @method     array findBySort(int $sort) Return Page objects filtered by the sort column
@@ -250,7 +262,7 @@ abstract class BasePageQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, PID, DOMAIN_ID, LFT, RGT, LVL, TYPE, TITLE, PAGE_TITLE, URL, LINK, LAYOUT, SORT, SORT_MODE, TARGET, VISIBLE, ACCESS_DENIED, META, PROPERTIES, CDATE, MDATE, DRAFT_EXIST, FORCE_HTTPS, ACCESS_FROM, ACCESS_TO, ACCESS_REDIRECTTO, ACCESS_NOHIDENAVI, ACCESS_NEED_VIA, ACCESS_FROM_GROUPS, CACHE, SEARCH_WORDS, UNSEARCHABLE, ACTIVE_VERSION_ID FROM kryn_system_page WHERE ID = :p0';
+        $sql = 'SELECT ID, PARENT_ID, DOMAIN_ID, LFT, RGT, LVL, TYPE, TITLE, PAGE_TITLE, URL, FULL_URL, LINK, LAYOUT, SORT, SORT_MODE, TARGET, VISIBLE, ACCESS_DENIED, META, PROPERTIES, CDATE, MDATE, DRAFT_EXIST, FORCE_HTTPS, ACCESS_FROM, ACCESS_TO, ACCESS_REDIRECTTO, ACCESS_NOHIDENAVI, ACCESS_NEED_VIA, ACCESS_FROM_GROUPS, CACHE, SEARCH_WORDS, UNSEARCHABLE, ACTIVE_VERSION_ID FROM kryn_system_page WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -367,16 +379,18 @@ abstract class BasePageQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the pid column
+     * Filter the query on the parent_id column
      *
      * Example usage:
      * <code>
-     * $query->filterByPid(1234); // WHERE pid = 1234
-     * $query->filterByPid(array(12, 34)); // WHERE pid IN (12, 34)
-     * $query->filterByPid(array('min' => 12)); // WHERE pid > 12
+     * $query->filterByParentId(1234); // WHERE parent_id = 1234
+     * $query->filterByParentId(array(12, 34)); // WHERE parent_id IN (12, 34)
+     * $query->filterByParentId(array('min' => 12)); // WHERE parent_id > 12
      * </code>
      *
-     * @param     mixed $pid The value to use as filter.
+     * @see       filterByPageRelatedByParentId()
+     *
+     * @param     mixed $parentId The value to use as filter.
      *              Use scalar values for equality.
      *              Use array values for in_array() equivalent.
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
@@ -384,16 +398,16 @@ abstract class BasePageQuery extends ModelCriteria
      *
      * @return PageQuery The current query, for fluid interface
      */
-    public function filterByPid($pid = null, $comparison = null)
+    public function filterByParentId($parentId = null, $comparison = null)
     {
-        if (is_array($pid)) {
+        if (is_array($parentId)) {
             $useMinMax = false;
-            if (isset($pid['min'])) {
-                $this->addUsingAlias(PagePeer::PID, $pid['min'], Criteria::GREATER_EQUAL);
+            if (isset($parentId['min'])) {
+                $this->addUsingAlias(PagePeer::PARENT_ID, $parentId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
-            if (isset($pid['max'])) {
-                $this->addUsingAlias(PagePeer::PID, $pid['max'], Criteria::LESS_EQUAL);
+            if (isset($parentId['max'])) {
+                $this->addUsingAlias(PagePeer::PARENT_ID, $parentId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -404,7 +418,7 @@ abstract class BasePageQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(PagePeer::PID, $pid, $comparison);
+        return $this->addUsingAlias(PagePeer::PARENT_ID, $parentId, $comparison);
     }
 
     /**
@@ -699,6 +713,35 @@ abstract class BasePageQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(PagePeer::URL, $url, $comparison);
+    }
+
+    /**
+     * Filter the query on the full_url column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByFullUrl('fooValue');   // WHERE full_url = 'fooValue'
+     * $query->filterByFullUrl('%fooValue%'); // WHERE full_url LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $fullUrl The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return PageQuery The current query, for fluid interface
+     */
+    public function filterByFullUrl($fullUrl = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($fullUrl)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $fullUrl)) {
+                $fullUrl = str_replace('*', '%', $fullUrl);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(PagePeer::FULL_URL, $fullUrl, $comparison);
     }
 
     /**
@@ -1601,6 +1644,82 @@ abstract class BasePageQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related Page object
+     *
+     * @param   Page|PropelObjectCollection $page The related object(s) to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return   PageQuery The current query, for fluid interface
+     * @throws   PropelException - if the provided filter is invalid.
+     */
+    public function filterByPageRelatedByParentId($page, $comparison = null)
+    {
+        if ($page instanceof Page) {
+            return $this
+                ->addUsingAlias(PagePeer::PARENT_ID, $page->getId(), $comparison);
+        } elseif ($page instanceof PropelObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(PagePeer::PARENT_ID, $page->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByPageRelatedByParentId() only accepts arguments of type Page or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the PageRelatedByParentId relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return PageQuery The current query, for fluid interface
+     */
+    public function joinPageRelatedByParentId($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('PageRelatedByParentId');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'PageRelatedByParentId');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the PageRelatedByParentId relation Page object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   PageQuery A secondary query class using the current class as primary query
+     */
+    public function usePageRelatedByParentIdQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinPageRelatedByParentId($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'PageRelatedByParentId', 'PageQuery');
+    }
+
+    /**
      * Filter the query by a related PageContent object
      *
      * @param   PageContent|PropelObjectCollection $pageContent  the related object to use as filter
@@ -1672,6 +1791,80 @@ abstract class BasePageQuery extends ModelCriteria
         return $this
             ->joinPageContent($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'PageContent', 'PageContentQuery');
+    }
+
+    /**
+     * Filter the query by a related Page object
+     *
+     * @param   Page|PropelObjectCollection $page  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return   PageQuery The current query, for fluid interface
+     * @throws   PropelException - if the provided filter is invalid.
+     */
+    public function filterByPageRelatedById($page, $comparison = null)
+    {
+        if ($page instanceof Page) {
+            return $this
+                ->addUsingAlias(PagePeer::ID, $page->getParentId(), $comparison);
+        } elseif ($page instanceof PropelObjectCollection) {
+            return $this
+                ->usePageRelatedByIdQuery()
+                ->filterByPrimaryKeys($page->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByPageRelatedById() only accepts arguments of type Page or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the PageRelatedById relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return PageQuery The current query, for fluid interface
+     */
+    public function joinPageRelatedById($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('PageRelatedById');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'PageRelatedById');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the PageRelatedById relation Page object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   PageQuery A secondary query class using the current class as primary query
+     */
+    public function usePageRelatedByIdQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinPageRelatedById($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'PageRelatedById', 'PageQuery');
     }
 
     /**

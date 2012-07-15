@@ -59,9 +59,9 @@ $pages = array(
             )
         ),
         array(
-            array(1, 'Kryn.cms Official Website', 'www-kryn-org', 'http://www.kryn.org/'),
-            array(1, 'Kryn.cms Documentation', 'docu-kryn-org', 'http://docu.kryn.org/'),
-            array(1, 'Kryn.cms Extensions', 'www-kryn-org-extensions', 'http://www.kryn.org/extensions')
+            array(1, 'Kryn.cms Official Website', $defaultLayout, 'www-kryn-org', 'http://www.kryn.org/'),
+            array(1, 'Kryn.cms Documentation', $defaultLayout, 'docu-kryn-org', 'http://docu.kryn.org/'),
+            array(1, 'Kryn.cms Extensions', $defaultLayout, 'www-kryn-org-extensions', 'http://www.kryn.org/extensions')
         )
     ),
 
@@ -84,7 +84,7 @@ foreach ($pages as $page){
     $oPage->setTitle($page[1]);
     $oPage->setLayout($page[2]);
     $oPage->setUrl($page[3]);
-    $oPage->setPId(0);
+    $oPage->setParentId(0);
     $oPage->insertAsLastChildOf($root);
     if ($page[7])
         $oPage->setVisible($page[7]);
@@ -142,7 +142,7 @@ function installPages($pPage, $pChildren){
         $oPage->setTitle($page[1]);
         $oPage->setLayout($page[2]);
         $oPage->setUrl($page[3]);
-        $oPage->setPId($pPage->getId());
+        $oPage->setParentId($pPage->getId());
         $oPage->insertAsLastChildOf($pPage);
 
         if ($page[7])

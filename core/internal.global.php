@@ -84,7 +84,7 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
             $pCode = preg_replace('/\W/', '-', $pCode);
             $msg = htmlspecialchars($pMsg);
 
-            if (!Kryn::$tables['system_log']) return;
+            if (!Core\Kryn::$tables['system_log']) return;
             dbInsert('system_log', array(
                 'date' => time(),
                 'ip' => $ip,

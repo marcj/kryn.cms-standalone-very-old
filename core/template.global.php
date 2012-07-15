@@ -69,7 +69,7 @@ function tPath($pPath){
     $pos = strpos($pPath, '/');
     $file = substr($pPath, $pos+1);
     $module = substr($pPath, 0, $pos);
-    return (($module == 'Core\Kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'views/' . $file;
+    return (($module == 'kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'views/' . $file;
 }
 
 /**

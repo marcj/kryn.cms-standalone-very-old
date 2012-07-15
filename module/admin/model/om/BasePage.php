@@ -37,10 +37,10 @@ abstract class BasePage extends BaseObject
     protected $id;
 
     /**
-     * The value for the pid field.
+     * The value for the parent_id field.
      * @var        int
      */
-    protected $pid;
+    protected $parent_id;
 
     /**
      * The value for the domain_id field.
@@ -89,6 +89,12 @@ abstract class BasePage extends BaseObject
      * @var        string
      */
     protected $url;
+
+    /**
+     * The value for the full_url field.
+     * @var        string
+     */
+    protected $full_url;
 
     /**
      * The value for the link field.
@@ -234,9 +240,19 @@ abstract class BasePage extends BaseObject
     protected $aDomain;
 
     /**
+     * @var        Page
+     */
+    protected $aPageRelatedByParentId;
+
+    /**
      * @var        PropelObjectCollection|PageContent[] Collection to store aggregation of PageContent objects.
      */
     protected $collPageContents;
+
+    /**
+     * @var        PropelObjectCollection|Page[] Collection to store aggregation of Page objects.
+     */
+    protected $collPagesRelatedById;
 
     /**
      * @var        PropelObjectCollection|Urlalias[] Collection to store aggregation of Urlalias objects.
@@ -288,6 +304,12 @@ abstract class BasePage extends BaseObject
      * An array of objects scheduled for deletion.
      * @var		PropelObjectCollection
      */
+    protected $pagesRelatedByIdScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
     protected $urlaliassScheduledForDeletion = null;
 
     /**
@@ -302,14 +324,14 @@ abstract class BasePage extends BaseObject
     }
 
     /**
-     * Get the [pid] column value.
+     * Get the [parent_id] column value.
      * 
      * @return   int
      */
-    public function getPid()
+    public function getParentId()
     {
 
-        return $this->pid;
+        return $this->parent_id;
     }
 
     /**
@@ -398,6 +420,17 @@ abstract class BasePage extends BaseObject
     {
 
         return $this->url;
+    }
+
+    /**
+     * Get the [full_url] column value.
+     * 
+     * @return   string
+     */
+    public function getFullUrl()
+    {
+
+        return $this->full_url;
     }
 
     /**
@@ -675,25 +708,29 @@ abstract class BasePage extends BaseObject
     } // setId()
 
     /**
-     * Set the value of [pid] column.
+     * Set the value of [parent_id] column.
      * 
      * @param      int $v new value
      * @return   Page The current object (for fluent API support)
      */
-    public function setPid($v)
+    public function setParentId($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->pid !== $v) {
-            $this->pid = $v;
-            $this->modifiedColumns[] = PagePeer::PID;
+        if ($this->parent_id !== $v) {
+            $this->parent_id = $v;
+            $this->modifiedColumns[] = PagePeer::PARENT_ID;
+        }
+
+        if ($this->aPageRelatedByParentId !== null && $this->aPageRelatedByParentId->getId() !== $v) {
+            $this->aPageRelatedByParentId = null;
         }
 
 
         return $this;
-    } // setPid()
+    } // setParentId()
 
     /**
      * Set the value of [domain_id] column.
@@ -866,6 +903,27 @@ abstract class BasePage extends BaseObject
 
         return $this;
     } // setUrl()
+
+    /**
+     * Set the value of [full_url] column.
+     * 
+     * @param      string $v new value
+     * @return   Page The current object (for fluent API support)
+     */
+    public function setFullUrl($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->full_url !== $v) {
+            $this->full_url = $v;
+            $this->modifiedColumns[] = PagePeer::FULL_URL;
+        }
+
+
+        return $this;
+    } // setFullUrl()
 
     /**
      * Set the value of [link] column.
@@ -1383,7 +1441,7 @@ abstract class BasePage extends BaseObject
         try {
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
-            $this->pid = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
+            $this->parent_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
             $this->domain_id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
             $this->lft = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
             $this->rgt = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
@@ -1392,29 +1450,30 @@ abstract class BasePage extends BaseObject
             $this->title = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
             $this->page_title = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
             $this->url = ($row[$startcol + 9] !== null) ? (string) $row[$startcol + 9] : null;
-            $this->link = ($row[$startcol + 10] !== null) ? (string) $row[$startcol + 10] : null;
-            $this->layout = ($row[$startcol + 11] !== null) ? (string) $row[$startcol + 11] : null;
-            $this->sort = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
-            $this->sort_mode = ($row[$startcol + 13] !== null) ? (string) $row[$startcol + 13] : null;
-            $this->target = ($row[$startcol + 14] !== null) ? (string) $row[$startcol + 14] : null;
-            $this->visible = ($row[$startcol + 15] !== null) ? (int) $row[$startcol + 15] : null;
-            $this->access_denied = ($row[$startcol + 16] !== null) ? (string) $row[$startcol + 16] : null;
-            $this->meta = ($row[$startcol + 17] !== null) ? (string) $row[$startcol + 17] : null;
-            $this->properties = ($row[$startcol + 18] !== null) ? (string) $row[$startcol + 18] : null;
-            $this->cdate = ($row[$startcol + 19] !== null) ? (int) $row[$startcol + 19] : null;
-            $this->mdate = ($row[$startcol + 20] !== null) ? (int) $row[$startcol + 20] : null;
-            $this->draft_exist = ($row[$startcol + 21] !== null) ? (int) $row[$startcol + 21] : null;
-            $this->force_https = ($row[$startcol + 22] !== null) ? (int) $row[$startcol + 22] : null;
-            $this->access_from = ($row[$startcol + 23] !== null) ? (int) $row[$startcol + 23] : null;
-            $this->access_to = ($row[$startcol + 24] !== null) ? (int) $row[$startcol + 24] : null;
-            $this->access_redirectto = ($row[$startcol + 25] !== null) ? (string) $row[$startcol + 25] : null;
-            $this->access_nohidenavi = ($row[$startcol + 26] !== null) ? (int) $row[$startcol + 26] : null;
-            $this->access_need_via = ($row[$startcol + 27] !== null) ? (int) $row[$startcol + 27] : null;
-            $this->access_from_groups = ($row[$startcol + 28] !== null) ? (string) $row[$startcol + 28] : null;
-            $this->cache = ($row[$startcol + 29] !== null) ? (int) $row[$startcol + 29] : null;
-            $this->search_words = ($row[$startcol + 30] !== null) ? (string) $row[$startcol + 30] : null;
-            $this->unsearchable = ($row[$startcol + 31] !== null) ? (int) $row[$startcol + 31] : null;
-            $this->active_version_id = ($row[$startcol + 32] !== null) ? (int) $row[$startcol + 32] : null;
+            $this->full_url = ($row[$startcol + 10] !== null) ? (string) $row[$startcol + 10] : null;
+            $this->link = ($row[$startcol + 11] !== null) ? (string) $row[$startcol + 11] : null;
+            $this->layout = ($row[$startcol + 12] !== null) ? (string) $row[$startcol + 12] : null;
+            $this->sort = ($row[$startcol + 13] !== null) ? (int) $row[$startcol + 13] : null;
+            $this->sort_mode = ($row[$startcol + 14] !== null) ? (string) $row[$startcol + 14] : null;
+            $this->target = ($row[$startcol + 15] !== null) ? (string) $row[$startcol + 15] : null;
+            $this->visible = ($row[$startcol + 16] !== null) ? (int) $row[$startcol + 16] : null;
+            $this->access_denied = ($row[$startcol + 17] !== null) ? (string) $row[$startcol + 17] : null;
+            $this->meta = ($row[$startcol + 18] !== null) ? (string) $row[$startcol + 18] : null;
+            $this->properties = ($row[$startcol + 19] !== null) ? (string) $row[$startcol + 19] : null;
+            $this->cdate = ($row[$startcol + 20] !== null) ? (int) $row[$startcol + 20] : null;
+            $this->mdate = ($row[$startcol + 21] !== null) ? (int) $row[$startcol + 21] : null;
+            $this->draft_exist = ($row[$startcol + 22] !== null) ? (int) $row[$startcol + 22] : null;
+            $this->force_https = ($row[$startcol + 23] !== null) ? (int) $row[$startcol + 23] : null;
+            $this->access_from = ($row[$startcol + 24] !== null) ? (int) $row[$startcol + 24] : null;
+            $this->access_to = ($row[$startcol + 25] !== null) ? (int) $row[$startcol + 25] : null;
+            $this->access_redirectto = ($row[$startcol + 26] !== null) ? (string) $row[$startcol + 26] : null;
+            $this->access_nohidenavi = ($row[$startcol + 27] !== null) ? (int) $row[$startcol + 27] : null;
+            $this->access_need_via = ($row[$startcol + 28] !== null) ? (int) $row[$startcol + 28] : null;
+            $this->access_from_groups = ($row[$startcol + 29] !== null) ? (string) $row[$startcol + 29] : null;
+            $this->cache = ($row[$startcol + 30] !== null) ? (int) $row[$startcol + 30] : null;
+            $this->search_words = ($row[$startcol + 31] !== null) ? (string) $row[$startcol + 31] : null;
+            $this->unsearchable = ($row[$startcol + 32] !== null) ? (int) $row[$startcol + 32] : null;
+            $this->active_version_id = ($row[$startcol + 33] !== null) ? (int) $row[$startcol + 33] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -1423,7 +1482,7 @@ abstract class BasePage extends BaseObject
                 $this->ensureConsistency();
             }
 
-            return $startcol + 33; // 33 = PagePeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 34; // 34 = PagePeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating Page object", $e);
@@ -1446,6 +1505,9 @@ abstract class BasePage extends BaseObject
     public function ensureConsistency()
     {
 
+        if ($this->aPageRelatedByParentId !== null && $this->parent_id !== $this->aPageRelatedByParentId->getId()) {
+            $this->aPageRelatedByParentId = null;
+        }
         if ($this->aDomain !== null && $this->domain_id !== $this->aDomain->getId()) {
             $this->aDomain = null;
         }
@@ -1489,7 +1551,10 @@ abstract class BasePage extends BaseObject
         if ($deep) {  // also de-associate any related objects?
 
             $this->aDomain = null;
+            $this->aPageRelatedByParentId = null;
             $this->collPageContents = null;
+
+            $this->collPagesRelatedById = null;
 
             $this->collUrlaliass = null;
 
@@ -1645,6 +1710,13 @@ abstract class BasePage extends BaseObject
                 $this->setDomain($this->aDomain);
             }
 
+            if ($this->aPageRelatedByParentId !== null) {
+                if ($this->aPageRelatedByParentId->isModified() || $this->aPageRelatedByParentId->isNew()) {
+                    $affectedRows += $this->aPageRelatedByParentId->save($con);
+                }
+                $this->setPageRelatedByParentId($this->aPageRelatedByParentId);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -1668,6 +1740,24 @@ abstract class BasePage extends BaseObject
 
             if ($this->collPageContents !== null) {
                 foreach ($this->collPageContents as $referrerFK) {
+                    if (!$referrerFK->isDeleted()) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->pagesRelatedByIdScheduledForDeletion !== null) {
+                if (!$this->pagesRelatedByIdScheduledForDeletion->isEmpty()) {
+                    foreach ($this->pagesRelatedByIdScheduledForDeletion as $pageRelatedById) {
+                        // need to save related object because we set the relation to null
+                        $pageRelatedById->save($con);
+                    }
+                    $this->pagesRelatedByIdScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collPagesRelatedById !== null) {
+                foreach ($this->collPagesRelatedById as $referrerFK) {
                     if (!$referrerFK->isDeleted()) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -1731,8 +1821,8 @@ abstract class BasePage extends BaseObject
         if ($this->isColumnModified(PagePeer::ID)) {
             $modifiedColumns[':p' . $index++]  = 'ID';
         }
-        if ($this->isColumnModified(PagePeer::PID)) {
-            $modifiedColumns[':p' . $index++]  = 'PID';
+        if ($this->isColumnModified(PagePeer::PARENT_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'PARENT_ID';
         }
         if ($this->isColumnModified(PagePeer::DOMAIN_ID)) {
             $modifiedColumns[':p' . $index++]  = 'DOMAIN_ID';
@@ -1757,6 +1847,9 @@ abstract class BasePage extends BaseObject
         }
         if ($this->isColumnModified(PagePeer::URL)) {
             $modifiedColumns[':p' . $index++]  = 'URL';
+        }
+        if ($this->isColumnModified(PagePeer::FULL_URL)) {
+            $modifiedColumns[':p' . $index++]  = 'FULL_URL';
         }
         if ($this->isColumnModified(PagePeer::LINK)) {
             $modifiedColumns[':p' . $index++]  = 'LINK';
@@ -1841,8 +1934,8 @@ abstract class BasePage extends BaseObject
                     case 'ID':
 						$stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case 'PID':
-						$stmt->bindValue($identifier, $this->pid, PDO::PARAM_INT);
+                    case 'PARENT_ID':
+						$stmt->bindValue($identifier, $this->parent_id, PDO::PARAM_INT);
                         break;
                     case 'DOMAIN_ID':
 						$stmt->bindValue($identifier, $this->domain_id, PDO::PARAM_INT);
@@ -1867,6 +1960,9 @@ abstract class BasePage extends BaseObject
                         break;
                     case 'URL':
 						$stmt->bindValue($identifier, $this->url, PDO::PARAM_STR);
+                        break;
+                    case 'FULL_URL':
+						$stmt->bindValue($identifier, $this->full_url, PDO::PARAM_STR);
                         break;
                     case 'LINK':
 						$stmt->bindValue($identifier, $this->link, PDO::PARAM_STR);
@@ -2035,6 +2131,12 @@ abstract class BasePage extends BaseObject
                 }
             }
 
+            if ($this->aPageRelatedByParentId !== null) {
+                if (!$this->aPageRelatedByParentId->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aPageRelatedByParentId->getValidationFailures());
+                }
+            }
+
 
             if (($retval = PagePeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
@@ -2043,6 +2145,14 @@ abstract class BasePage extends BaseObject
 
                 if ($this->collPageContents !== null) {
                     foreach ($this->collPageContents as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
+
+                if ($this->collPagesRelatedById !== null) {
+                    foreach ($this->collPagesRelatedById as $referrerFK) {
                         if (!$referrerFK->validate($columns)) {
                             $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
                         }
@@ -2096,7 +2206,7 @@ abstract class BasePage extends BaseObject
                 return $this->getId();
                 break;
             case 1:
-                return $this->getPid();
+                return $this->getParentId();
                 break;
             case 2:
                 return $this->getDomainId();
@@ -2123,72 +2233,75 @@ abstract class BasePage extends BaseObject
                 return $this->getUrl();
                 break;
             case 10:
-                return $this->getLink();
+                return $this->getFullUrl();
                 break;
             case 11:
-                return $this->getLayout();
+                return $this->getLink();
                 break;
             case 12:
-                return $this->getSort();
+                return $this->getLayout();
                 break;
             case 13:
-                return $this->getSortMode();
+                return $this->getSort();
                 break;
             case 14:
-                return $this->getTarget();
+                return $this->getSortMode();
                 break;
             case 15:
-                return $this->getVisible();
+                return $this->getTarget();
                 break;
             case 16:
-                return $this->getAccessDenied();
+                return $this->getVisible();
                 break;
             case 17:
-                return $this->getMeta();
+                return $this->getAccessDenied();
                 break;
             case 18:
-                return $this->getProperties();
+                return $this->getMeta();
                 break;
             case 19:
-                return $this->getCdate();
+                return $this->getProperties();
                 break;
             case 20:
-                return $this->getMdate();
+                return $this->getCdate();
                 break;
             case 21:
-                return $this->getDraftExist();
+                return $this->getMdate();
                 break;
             case 22:
-                return $this->getForceHttps();
+                return $this->getDraftExist();
                 break;
             case 23:
-                return $this->getAccessFrom();
+                return $this->getForceHttps();
                 break;
             case 24:
-                return $this->getAccessTo();
+                return $this->getAccessFrom();
                 break;
             case 25:
-                return $this->getAccessRedirectto();
+                return $this->getAccessTo();
                 break;
             case 26:
-                return $this->getAccessNohidenavi();
+                return $this->getAccessRedirectto();
                 break;
             case 27:
-                return $this->getAccessNeedVia();
+                return $this->getAccessNohidenavi();
                 break;
             case 28:
-                return $this->getAccessFromGroups();
+                return $this->getAccessNeedVia();
                 break;
             case 29:
-                return $this->getCache();
+                return $this->getAccessFromGroups();
                 break;
             case 30:
-                return $this->getSearchWords();
+                return $this->getCache();
                 break;
             case 31:
-                return $this->getUnsearchable();
+                return $this->getSearchWords();
                 break;
             case 32:
+                return $this->getUnsearchable();
+                break;
+            case 33:
                 return $this->getActiveVersionId();
                 break;
             default:
@@ -2221,7 +2334,7 @@ abstract class BasePage extends BaseObject
         $keys = PagePeer::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getPid(),
+            $keys[1] => $this->getParentId(),
             $keys[2] => $this->getDomainId(),
             $keys[3] => $this->getLft(),
             $keys[4] => $this->getRgt(),
@@ -2230,36 +2343,43 @@ abstract class BasePage extends BaseObject
             $keys[7] => $this->getTitle(),
             $keys[8] => $this->getPageTitle(),
             $keys[9] => $this->getUrl(),
-            $keys[10] => $this->getLink(),
-            $keys[11] => $this->getLayout(),
-            $keys[12] => $this->getSort(),
-            $keys[13] => $this->getSortMode(),
-            $keys[14] => $this->getTarget(),
-            $keys[15] => $this->getVisible(),
-            $keys[16] => $this->getAccessDenied(),
-            $keys[17] => $this->getMeta(),
-            $keys[18] => $this->getProperties(),
-            $keys[19] => $this->getCdate(),
-            $keys[20] => $this->getMdate(),
-            $keys[21] => $this->getDraftExist(),
-            $keys[22] => $this->getForceHttps(),
-            $keys[23] => $this->getAccessFrom(),
-            $keys[24] => $this->getAccessTo(),
-            $keys[25] => $this->getAccessRedirectto(),
-            $keys[26] => $this->getAccessNohidenavi(),
-            $keys[27] => $this->getAccessNeedVia(),
-            $keys[28] => $this->getAccessFromGroups(),
-            $keys[29] => $this->getCache(),
-            $keys[30] => $this->getSearchWords(),
-            $keys[31] => $this->getUnsearchable(),
-            $keys[32] => $this->getActiveVersionId(),
+            $keys[10] => $this->getFullUrl(),
+            $keys[11] => $this->getLink(),
+            $keys[12] => $this->getLayout(),
+            $keys[13] => $this->getSort(),
+            $keys[14] => $this->getSortMode(),
+            $keys[15] => $this->getTarget(),
+            $keys[16] => $this->getVisible(),
+            $keys[17] => $this->getAccessDenied(),
+            $keys[18] => $this->getMeta(),
+            $keys[19] => $this->getProperties(),
+            $keys[20] => $this->getCdate(),
+            $keys[21] => $this->getMdate(),
+            $keys[22] => $this->getDraftExist(),
+            $keys[23] => $this->getForceHttps(),
+            $keys[24] => $this->getAccessFrom(),
+            $keys[25] => $this->getAccessTo(),
+            $keys[26] => $this->getAccessRedirectto(),
+            $keys[27] => $this->getAccessNohidenavi(),
+            $keys[28] => $this->getAccessNeedVia(),
+            $keys[29] => $this->getAccessFromGroups(),
+            $keys[30] => $this->getCache(),
+            $keys[31] => $this->getSearchWords(),
+            $keys[32] => $this->getUnsearchable(),
+            $keys[33] => $this->getActiveVersionId(),
         );
         if ($includeForeignObjects) {
             if (null !== $this->aDomain) {
                 $result['Domain'] = $this->aDomain->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
+            if (null !== $this->aPageRelatedByParentId) {
+                $result['PageRelatedByParentId'] = $this->aPageRelatedByParentId->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
             if (null !== $this->collPageContents) {
                 $result['PageContents'] = $this->collPageContents->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collPagesRelatedById) {
+                $result['PagesRelatedById'] = $this->collPagesRelatedById->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collUrlaliass) {
                 $result['Urlaliass'] = $this->collUrlaliass->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
@@ -2302,7 +2422,7 @@ abstract class BasePage extends BaseObject
                 $this->setId($value);
                 break;
             case 1:
-                $this->setPid($value);
+                $this->setParentId($value);
                 break;
             case 2:
                 $this->setDomainId($value);
@@ -2329,72 +2449,75 @@ abstract class BasePage extends BaseObject
                 $this->setUrl($value);
                 break;
             case 10:
-                $this->setLink($value);
+                $this->setFullUrl($value);
                 break;
             case 11:
-                $this->setLayout($value);
+                $this->setLink($value);
                 break;
             case 12:
-                $this->setSort($value);
+                $this->setLayout($value);
                 break;
             case 13:
-                $this->setSortMode($value);
+                $this->setSort($value);
                 break;
             case 14:
-                $this->setTarget($value);
+                $this->setSortMode($value);
                 break;
             case 15:
-                $this->setVisible($value);
+                $this->setTarget($value);
                 break;
             case 16:
-                $this->setAccessDenied($value);
+                $this->setVisible($value);
                 break;
             case 17:
-                $this->setMeta($value);
+                $this->setAccessDenied($value);
                 break;
             case 18:
-                $this->setProperties($value);
+                $this->setMeta($value);
                 break;
             case 19:
-                $this->setCdate($value);
+                $this->setProperties($value);
                 break;
             case 20:
-                $this->setMdate($value);
+                $this->setCdate($value);
                 break;
             case 21:
-                $this->setDraftExist($value);
+                $this->setMdate($value);
                 break;
             case 22:
-                $this->setForceHttps($value);
+                $this->setDraftExist($value);
                 break;
             case 23:
-                $this->setAccessFrom($value);
+                $this->setForceHttps($value);
                 break;
             case 24:
-                $this->setAccessTo($value);
+                $this->setAccessFrom($value);
                 break;
             case 25:
-                $this->setAccessRedirectto($value);
+                $this->setAccessTo($value);
                 break;
             case 26:
-                $this->setAccessNohidenavi($value);
+                $this->setAccessRedirectto($value);
                 break;
             case 27:
-                $this->setAccessNeedVia($value);
+                $this->setAccessNohidenavi($value);
                 break;
             case 28:
-                $this->setAccessFromGroups($value);
+                $this->setAccessNeedVia($value);
                 break;
             case 29:
-                $this->setCache($value);
+                $this->setAccessFromGroups($value);
                 break;
             case 30:
-                $this->setSearchWords($value);
+                $this->setCache($value);
                 break;
             case 31:
-                $this->setUnsearchable($value);
+                $this->setSearchWords($value);
                 break;
             case 32:
+                $this->setUnsearchable($value);
+                break;
+            case 33:
                 $this->setActiveVersionId($value);
                 break;
         } // switch()
@@ -2422,7 +2545,7 @@ abstract class BasePage extends BaseObject
         $keys = PagePeer::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setPid($arr[$keys[1]]);
+        if (array_key_exists($keys[1], $arr)) $this->setParentId($arr[$keys[1]]);
         if (array_key_exists($keys[2], $arr)) $this->setDomainId($arr[$keys[2]]);
         if (array_key_exists($keys[3], $arr)) $this->setLft($arr[$keys[3]]);
         if (array_key_exists($keys[4], $arr)) $this->setRgt($arr[$keys[4]]);
@@ -2431,29 +2554,30 @@ abstract class BasePage extends BaseObject
         if (array_key_exists($keys[7], $arr)) $this->setTitle($arr[$keys[7]]);
         if (array_key_exists($keys[8], $arr)) $this->setPageTitle($arr[$keys[8]]);
         if (array_key_exists($keys[9], $arr)) $this->setUrl($arr[$keys[9]]);
-        if (array_key_exists($keys[10], $arr)) $this->setLink($arr[$keys[10]]);
-        if (array_key_exists($keys[11], $arr)) $this->setLayout($arr[$keys[11]]);
-        if (array_key_exists($keys[12], $arr)) $this->setSort($arr[$keys[12]]);
-        if (array_key_exists($keys[13], $arr)) $this->setSortMode($arr[$keys[13]]);
-        if (array_key_exists($keys[14], $arr)) $this->setTarget($arr[$keys[14]]);
-        if (array_key_exists($keys[15], $arr)) $this->setVisible($arr[$keys[15]]);
-        if (array_key_exists($keys[16], $arr)) $this->setAccessDenied($arr[$keys[16]]);
-        if (array_key_exists($keys[17], $arr)) $this->setMeta($arr[$keys[17]]);
-        if (array_key_exists($keys[18], $arr)) $this->setProperties($arr[$keys[18]]);
-        if (array_key_exists($keys[19], $arr)) $this->setCdate($arr[$keys[19]]);
-        if (array_key_exists($keys[20], $arr)) $this->setMdate($arr[$keys[20]]);
-        if (array_key_exists($keys[21], $arr)) $this->setDraftExist($arr[$keys[21]]);
-        if (array_key_exists($keys[22], $arr)) $this->setForceHttps($arr[$keys[22]]);
-        if (array_key_exists($keys[23], $arr)) $this->setAccessFrom($arr[$keys[23]]);
-        if (array_key_exists($keys[24], $arr)) $this->setAccessTo($arr[$keys[24]]);
-        if (array_key_exists($keys[25], $arr)) $this->setAccessRedirectto($arr[$keys[25]]);
-        if (array_key_exists($keys[26], $arr)) $this->setAccessNohidenavi($arr[$keys[26]]);
-        if (array_key_exists($keys[27], $arr)) $this->setAccessNeedVia($arr[$keys[27]]);
-        if (array_key_exists($keys[28], $arr)) $this->setAccessFromGroups($arr[$keys[28]]);
-        if (array_key_exists($keys[29], $arr)) $this->setCache($arr[$keys[29]]);
-        if (array_key_exists($keys[30], $arr)) $this->setSearchWords($arr[$keys[30]]);
-        if (array_key_exists($keys[31], $arr)) $this->setUnsearchable($arr[$keys[31]]);
-        if (array_key_exists($keys[32], $arr)) $this->setActiveVersionId($arr[$keys[32]]);
+        if (array_key_exists($keys[10], $arr)) $this->setFullUrl($arr[$keys[10]]);
+        if (array_key_exists($keys[11], $arr)) $this->setLink($arr[$keys[11]]);
+        if (array_key_exists($keys[12], $arr)) $this->setLayout($arr[$keys[12]]);
+        if (array_key_exists($keys[13], $arr)) $this->setSort($arr[$keys[13]]);
+        if (array_key_exists($keys[14], $arr)) $this->setSortMode($arr[$keys[14]]);
+        if (array_key_exists($keys[15], $arr)) $this->setTarget($arr[$keys[15]]);
+        if (array_key_exists($keys[16], $arr)) $this->setVisible($arr[$keys[16]]);
+        if (array_key_exists($keys[17], $arr)) $this->setAccessDenied($arr[$keys[17]]);
+        if (array_key_exists($keys[18], $arr)) $this->setMeta($arr[$keys[18]]);
+        if (array_key_exists($keys[19], $arr)) $this->setProperties($arr[$keys[19]]);
+        if (array_key_exists($keys[20], $arr)) $this->setCdate($arr[$keys[20]]);
+        if (array_key_exists($keys[21], $arr)) $this->setMdate($arr[$keys[21]]);
+        if (array_key_exists($keys[22], $arr)) $this->setDraftExist($arr[$keys[22]]);
+        if (array_key_exists($keys[23], $arr)) $this->setForceHttps($arr[$keys[23]]);
+        if (array_key_exists($keys[24], $arr)) $this->setAccessFrom($arr[$keys[24]]);
+        if (array_key_exists($keys[25], $arr)) $this->setAccessTo($arr[$keys[25]]);
+        if (array_key_exists($keys[26], $arr)) $this->setAccessRedirectto($arr[$keys[26]]);
+        if (array_key_exists($keys[27], $arr)) $this->setAccessNohidenavi($arr[$keys[27]]);
+        if (array_key_exists($keys[28], $arr)) $this->setAccessNeedVia($arr[$keys[28]]);
+        if (array_key_exists($keys[29], $arr)) $this->setAccessFromGroups($arr[$keys[29]]);
+        if (array_key_exists($keys[30], $arr)) $this->setCache($arr[$keys[30]]);
+        if (array_key_exists($keys[31], $arr)) $this->setSearchWords($arr[$keys[31]]);
+        if (array_key_exists($keys[32], $arr)) $this->setUnsearchable($arr[$keys[32]]);
+        if (array_key_exists($keys[33], $arr)) $this->setActiveVersionId($arr[$keys[33]]);
     }
 
     /**
@@ -2466,7 +2590,7 @@ abstract class BasePage extends BaseObject
         $criteria = new Criteria(PagePeer::DATABASE_NAME);
 
         if ($this->isColumnModified(PagePeer::ID)) $criteria->add(PagePeer::ID, $this->id);
-        if ($this->isColumnModified(PagePeer::PID)) $criteria->add(PagePeer::PID, $this->pid);
+        if ($this->isColumnModified(PagePeer::PARENT_ID)) $criteria->add(PagePeer::PARENT_ID, $this->parent_id);
         if ($this->isColumnModified(PagePeer::DOMAIN_ID)) $criteria->add(PagePeer::DOMAIN_ID, $this->domain_id);
         if ($this->isColumnModified(PagePeer::LFT)) $criteria->add(PagePeer::LFT, $this->lft);
         if ($this->isColumnModified(PagePeer::RGT)) $criteria->add(PagePeer::RGT, $this->rgt);
@@ -2475,6 +2599,7 @@ abstract class BasePage extends BaseObject
         if ($this->isColumnModified(PagePeer::TITLE)) $criteria->add(PagePeer::TITLE, $this->title);
         if ($this->isColumnModified(PagePeer::PAGE_TITLE)) $criteria->add(PagePeer::PAGE_TITLE, $this->page_title);
         if ($this->isColumnModified(PagePeer::URL)) $criteria->add(PagePeer::URL, $this->url);
+        if ($this->isColumnModified(PagePeer::FULL_URL)) $criteria->add(PagePeer::FULL_URL, $this->full_url);
         if ($this->isColumnModified(PagePeer::LINK)) $criteria->add(PagePeer::LINK, $this->link);
         if ($this->isColumnModified(PagePeer::LAYOUT)) $criteria->add(PagePeer::LAYOUT, $this->layout);
         if ($this->isColumnModified(PagePeer::SORT)) $criteria->add(PagePeer::SORT, $this->sort);
@@ -2561,7 +2686,7 @@ abstract class BasePage extends BaseObject
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setPid($this->getPid());
+        $copyObj->setParentId($this->getParentId());
         $copyObj->setDomainId($this->getDomainId());
         $copyObj->setLft($this->getLft());
         $copyObj->setRgt($this->getRgt());
@@ -2570,6 +2695,7 @@ abstract class BasePage extends BaseObject
         $copyObj->setTitle($this->getTitle());
         $copyObj->setPageTitle($this->getPageTitle());
         $copyObj->setUrl($this->getUrl());
+        $copyObj->setFullUrl($this->getFullUrl());
         $copyObj->setLink($this->getLink());
         $copyObj->setLayout($this->getLayout());
         $copyObj->setSort($this->getSort());
@@ -2604,6 +2730,12 @@ abstract class BasePage extends BaseObject
             foreach ($this->getPageContents() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addPageContent($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getPagesRelatedById() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addPageRelatedById($relObj->copy($deepCopy));
                 }
             }
 
@@ -2714,6 +2846,57 @@ abstract class BasePage extends BaseObject
         return $this->aDomain;
     }
 
+    /**
+     * Declares an association between this object and a Page object.
+     *
+     * @param                  Page $v
+     * @return                 Page The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setPageRelatedByParentId(Page $v = null)
+    {
+        if ($v === null) {
+            $this->setParentId(NULL);
+        } else {
+            $this->setParentId($v->getId());
+        }
+
+        $this->aPageRelatedByParentId = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the Page object, it will not be re-added.
+        if ($v !== null) {
+            $v->addPageRelatedById($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated Page object
+     *
+     * @param      PropelPDO $con Optional Connection object.
+     * @return                 Page The associated Page object.
+     * @throws PropelException
+     */
+    public function getPageRelatedByParentId(PropelPDO $con = null)
+    {
+        if ($this->aPageRelatedByParentId === null && ($this->parent_id !== null)) {
+            $this->aPageRelatedByParentId = PageQuery::create()->findPk($this->parent_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aPageRelatedByParentId->addPagesRelatedById($this);
+             */
+        }
+
+        return $this->aPageRelatedByParentId;
+    }
+
 
     /**
      * Initializes a collection based on the name of a relation.
@@ -2727,6 +2910,9 @@ abstract class BasePage extends BaseObject
     {
         if ('PageContent' == $relationName) {
             $this->initPageContents();
+        }
+        if ('PageRelatedById' == $relationName) {
+            $this->initPagesRelatedById();
         }
         if ('Urlalias' == $relationName) {
             $this->initUrlaliass();
@@ -2926,6 +3112,198 @@ abstract class BasePage extends BaseObject
     }
 
     /**
+     * Clears out the collPagesRelatedById collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addPagesRelatedById()
+     */
+    public function clearPagesRelatedById()
+    {
+        $this->collPagesRelatedById = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collPagesRelatedById collection.
+     *
+     * By default this just sets the collPagesRelatedById collection to an empty array (like clearcollPagesRelatedById());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initPagesRelatedById($overrideExisting = true)
+    {
+        if (null !== $this->collPagesRelatedById && !$overrideExisting) {
+            return;
+        }
+        $this->collPagesRelatedById = new PropelObjectCollection();
+        $this->collPagesRelatedById->setModel('Page');
+    }
+
+    /**
+     * Gets an array of Page objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this Page is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @return PropelObjectCollection|Page[] List of Page objects
+     * @throws PropelException
+     */
+    public function getPagesRelatedById($criteria = null, PropelPDO $con = null)
+    {
+        if (null === $this->collPagesRelatedById || null !== $criteria) {
+            if ($this->isNew() && null === $this->collPagesRelatedById) {
+                // return empty collection
+                $this->initPagesRelatedById();
+            } else {
+                $collPagesRelatedById = PageQuery::create(null, $criteria)
+                    ->filterByPageRelatedByParentId($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    return $collPagesRelatedById;
+                }
+                $this->collPagesRelatedById = $collPagesRelatedById;
+            }
+        }
+
+        return $this->collPagesRelatedById;
+    }
+
+    /**
+     * Sets a collection of PageRelatedById objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      PropelCollection $pagesRelatedById A Propel collection.
+     * @param      PropelPDO $con Optional connection object
+     */
+    public function setPagesRelatedById(PropelCollection $pagesRelatedById, PropelPDO $con = null)
+    {
+        $this->pagesRelatedByIdScheduledForDeletion = $this->getPagesRelatedById(new Criteria(), $con)->diff($pagesRelatedById);
+
+        foreach ($this->pagesRelatedByIdScheduledForDeletion as $pageRelatedByIdRemoved) {
+            $pageRelatedByIdRemoved->setPageRelatedByParentId(null);
+        }
+
+        $this->collPagesRelatedById = null;
+        foreach ($pagesRelatedById as $pageRelatedById) {
+            $this->addPageRelatedById($pageRelatedById);
+        }
+
+        $this->collPagesRelatedById = $pagesRelatedById;
+    }
+
+    /**
+     * Returns the number of related Page objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      PropelPDO $con
+     * @return int             Count of related Page objects.
+     * @throws PropelException
+     */
+    public function countPagesRelatedById(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        if (null === $this->collPagesRelatedById || null !== $criteria) {
+            if ($this->isNew() && null === $this->collPagesRelatedById) {
+                return 0;
+            } else {
+                $query = PageQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByPageRelatedByParentId($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collPagesRelatedById);
+        }
+    }
+
+    /**
+     * Method called to associate a Page object to this object
+     * through the Page foreign key attribute.
+     *
+     * @param    Page $l Page
+     * @return   Page The current object (for fluent API support)
+     */
+    public function addPageRelatedById(Page $l)
+    {
+        if ($this->collPagesRelatedById === null) {
+            $this->initPagesRelatedById();
+        }
+        if (!$this->collPagesRelatedById->contains($l)) { // only add it if the **same** object is not already associated
+            $this->doAddPageRelatedById($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param	PageRelatedById $pageRelatedById The pageRelatedById object to add.
+     */
+    protected function doAddPageRelatedById($pageRelatedById)
+    {
+        $this->collPagesRelatedById[]= $pageRelatedById;
+        $pageRelatedById->setPageRelatedByParentId($this);
+    }
+
+    /**
+     * @param	PageRelatedById $pageRelatedById The pageRelatedById object to remove.
+     */
+    public function removePageRelatedById($pageRelatedById)
+    {
+        if ($this->getPagesRelatedById()->contains($pageRelatedById)) {
+            $this->collPagesRelatedById->remove($this->collPagesRelatedById->search($pageRelatedById));
+            if (null === $this->pagesRelatedByIdScheduledForDeletion) {
+                $this->pagesRelatedByIdScheduledForDeletion = clone $this->collPagesRelatedById;
+                $this->pagesRelatedByIdScheduledForDeletion->clear();
+            }
+            $this->pagesRelatedByIdScheduledForDeletion[]= $pageRelatedById;
+            $pageRelatedById->setPageRelatedByParentId(null);
+        }
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Page is new, it will return
+     * an empty collection; or if this Page has previously
+     * been saved, it will retrieve related PagesRelatedById from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Page.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      PropelPDO $con optional connection object
+     * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return PropelObjectCollection|Page[] List of Page objects
+     */
+    public function getPagesRelatedByIdJoinDomain($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $query = PageQuery::create(null, $criteria);
+        $query->joinWith('Domain', $join_behavior);
+
+        return $this->getPagesRelatedById($query, $con);
+    }
+
+    /**
      * Clears out the collUrlaliass collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
@@ -3098,7 +3476,7 @@ abstract class BasePage extends BaseObject
     public function clear()
     {
         $this->id = null;
-        $this->pid = null;
+        $this->parent_id = null;
         $this->domain_id = null;
         $this->lft = null;
         $this->rgt = null;
@@ -3107,6 +3485,7 @@ abstract class BasePage extends BaseObject
         $this->title = null;
         $this->page_title = null;
         $this->url = null;
+        $this->full_url = null;
         $this->link = null;
         $this->layout = null;
         $this->sort = null;
@@ -3155,6 +3534,11 @@ abstract class BasePage extends BaseObject
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collPagesRelatedById) {
+                foreach ($this->collPagesRelatedById as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collUrlaliass) {
                 foreach ($this->collUrlaliass as $o) {
                     $o->clearAllReferences($deep);
@@ -3169,11 +3553,16 @@ abstract class BasePage extends BaseObject
             $this->collPageContents->clearIterator();
         }
         $this->collPageContents = null;
+        if ($this->collPagesRelatedById instanceof PropelCollection) {
+            $this->collPagesRelatedById->clearIterator();
+        }
+        $this->collPagesRelatedById = null;
         if ($this->collUrlaliass instanceof PropelCollection) {
             $this->collUrlaliass->clearIterator();
         }
         $this->collUrlaliass = null;
         $this->aDomain = null;
+        $this->aPageRelatedByParentId = null;
     }
 
     /**
