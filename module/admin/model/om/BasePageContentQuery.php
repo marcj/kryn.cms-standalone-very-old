@@ -8,35 +8,35 @@
  *
  * @method     PageContentQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     PageContentQuery orderByPageId($order = Criteria::ASC) Order by the page_id column
- * @method     PageContentQuery orderByVersionId($order = Criteria::ASC) Order by the version_id column
+ * @method     PageContentQuery orderByBoxId($order = Criteria::ASC) Order by the box_id column
+ * @method     PageContentQuery orderBySortableId($order = Criteria::ASC) Order by the sortable_id column
  * @method     PageContentQuery orderByTitle($order = Criteria::ASC) Order by the title column
  * @method     PageContentQuery orderByContent($order = Criteria::ASC) Order by the content column
  * @method     PageContentQuery orderByTemplate($order = Criteria::ASC) Order by the template column
  * @method     PageContentQuery orderByType($order = Criteria::ASC) Order by the type column
  * @method     PageContentQuery orderByHide($order = Criteria::ASC) Order by the hide column
- * @method     PageContentQuery orderBySort($order = Criteria::ASC) Order by the sort column
- * @method     PageContentQuery orderByBoxId($order = Criteria::ASC) Order by the box_id column
  * @method     PageContentQuery orderByOwnerId($order = Criteria::ASC) Order by the owner_id column
  * @method     PageContentQuery orderByAccessFrom($order = Criteria::ASC) Order by the access_from column
  * @method     PageContentQuery orderByAccessTo($order = Criteria::ASC) Order by the access_to column
  * @method     PageContentQuery orderByAccessFromGroups($order = Criteria::ASC) Order by the access_from_groups column
  * @method     PageContentQuery orderByUnsearchable($order = Criteria::ASC) Order by the unsearchable column
+ * @method     PageContentQuery orderBySortableRank($order = Criteria::ASC) Order by the sortable_rank column
  *
  * @method     PageContentQuery groupById() Group by the id column
  * @method     PageContentQuery groupByPageId() Group by the page_id column
- * @method     PageContentQuery groupByVersionId() Group by the version_id column
+ * @method     PageContentQuery groupByBoxId() Group by the box_id column
+ * @method     PageContentQuery groupBySortableId() Group by the sortable_id column
  * @method     PageContentQuery groupByTitle() Group by the title column
  * @method     PageContentQuery groupByContent() Group by the content column
  * @method     PageContentQuery groupByTemplate() Group by the template column
  * @method     PageContentQuery groupByType() Group by the type column
  * @method     PageContentQuery groupByHide() Group by the hide column
- * @method     PageContentQuery groupBySort() Group by the sort column
- * @method     PageContentQuery groupByBoxId() Group by the box_id column
  * @method     PageContentQuery groupByOwnerId() Group by the owner_id column
  * @method     PageContentQuery groupByAccessFrom() Group by the access_from column
  * @method     PageContentQuery groupByAccessTo() Group by the access_to column
  * @method     PageContentQuery groupByAccessFromGroups() Group by the access_from_groups column
  * @method     PageContentQuery groupByUnsearchable() Group by the unsearchable column
+ * @method     PageContentQuery groupBySortableRank() Group by the sortable_rank column
  *
  * @method     PageContentQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     PageContentQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -46,44 +46,40 @@
  * @method     PageContentQuery rightJoinPage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Page relation
  * @method     PageContentQuery innerJoinPage($relationAlias = null) Adds a INNER JOIN clause to the query using the Page relation
  *
- * @method     PageContentQuery leftJoinPageVersion($relationAlias = null) Adds a LEFT JOIN clause to the query using the PageVersion relation
- * @method     PageContentQuery rightJoinPageVersion($relationAlias = null) Adds a RIGHT JOIN clause to the query using the PageVersion relation
- * @method     PageContentQuery innerJoinPageVersion($relationAlias = null) Adds a INNER JOIN clause to the query using the PageVersion relation
- *
  * @method     PageContent findOne(PropelPDO $con = null) Return the first PageContent matching the query
  * @method     PageContent findOneOrCreate(PropelPDO $con = null) Return the first PageContent matching the query, or a new PageContent object populated from the query conditions when no match is found
  *
  * @method     PageContent findOneById(int $id) Return the first PageContent filtered by the id column
  * @method     PageContent findOneByPageId(int $page_id) Return the first PageContent filtered by the page_id column
- * @method     PageContent findOneByVersionId(int $version_id) Return the first PageContent filtered by the version_id column
+ * @method     PageContent findOneByBoxId(int $box_id) Return the first PageContent filtered by the box_id column
+ * @method     PageContent findOneBySortableId(string $sortable_id) Return the first PageContent filtered by the sortable_id column
  * @method     PageContent findOneByTitle(string $title) Return the first PageContent filtered by the title column
  * @method     PageContent findOneByContent(string $content) Return the first PageContent filtered by the content column
  * @method     PageContent findOneByTemplate(string $template) Return the first PageContent filtered by the template column
  * @method     PageContent findOneByType(string $type) Return the first PageContent filtered by the type column
  * @method     PageContent findOneByHide(int $hide) Return the first PageContent filtered by the hide column
- * @method     PageContent findOneBySort(int $sort) Return the first PageContent filtered by the sort column
- * @method     PageContent findOneByBoxId(int $box_id) Return the first PageContent filtered by the box_id column
  * @method     PageContent findOneByOwnerId(int $owner_id) Return the first PageContent filtered by the owner_id column
  * @method     PageContent findOneByAccessFrom(int $access_from) Return the first PageContent filtered by the access_from column
  * @method     PageContent findOneByAccessTo(int $access_to) Return the first PageContent filtered by the access_to column
  * @method     PageContent findOneByAccessFromGroups(string $access_from_groups) Return the first PageContent filtered by the access_from_groups column
  * @method     PageContent findOneByUnsearchable(int $unsearchable) Return the first PageContent filtered by the unsearchable column
+ * @method     PageContent findOneBySortableRank(int $sortable_rank) Return the first PageContent filtered by the sortable_rank column
  *
  * @method     array findById(int $id) Return PageContent objects filtered by the id column
  * @method     array findByPageId(int $page_id) Return PageContent objects filtered by the page_id column
- * @method     array findByVersionId(int $version_id) Return PageContent objects filtered by the version_id column
+ * @method     array findByBoxId(int $box_id) Return PageContent objects filtered by the box_id column
+ * @method     array findBySortableId(string $sortable_id) Return PageContent objects filtered by the sortable_id column
  * @method     array findByTitle(string $title) Return PageContent objects filtered by the title column
  * @method     array findByContent(string $content) Return PageContent objects filtered by the content column
  * @method     array findByTemplate(string $template) Return PageContent objects filtered by the template column
  * @method     array findByType(string $type) Return PageContent objects filtered by the type column
  * @method     array findByHide(int $hide) Return PageContent objects filtered by the hide column
- * @method     array findBySort(int $sort) Return PageContent objects filtered by the sort column
- * @method     array findByBoxId(int $box_id) Return PageContent objects filtered by the box_id column
  * @method     array findByOwnerId(int $owner_id) Return PageContent objects filtered by the owner_id column
  * @method     array findByAccessFrom(int $access_from) Return PageContent objects filtered by the access_from column
  * @method     array findByAccessTo(int $access_to) Return PageContent objects filtered by the access_to column
  * @method     array findByAccessFromGroups(string $access_from_groups) Return PageContent objects filtered by the access_from_groups column
  * @method     array findByUnsearchable(int $unsearchable) Return PageContent objects filtered by the unsearchable column
+ * @method     array findBySortableRank(int $sortable_rank) Return PageContent objects filtered by the sortable_rank column
  *
  * @package    propel.generator.Kryn.om
  */
@@ -174,7 +170,7 @@ abstract class BasePageContentQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, PAGE_ID, VERSION_ID, TITLE, CONTENT, TEMPLATE, TYPE, HIDE, SORT, BOX_ID, OWNER_ID, ACCESS_FROM, ACCESS_TO, ACCESS_FROM_GROUPS, UNSEARCHABLE FROM kryn_system_page_content WHERE ID = :p0';
+        $sql = 'SELECT ID, PAGE_ID, BOX_ID, SORTABLE_ID, TITLE, CONTENT, TEMPLATE, TYPE, HIDE, OWNER_ID, ACCESS_FROM, ACCESS_TO, ACCESS_FROM_GROUPS, UNSEARCHABLE, SORTABLE_RANK FROM kryn_system_page_content WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -334,18 +330,16 @@ abstract class BasePageContentQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the version_id column
+     * Filter the query on the box_id column
      *
      * Example usage:
      * <code>
-     * $query->filterByVersionId(1234); // WHERE version_id = 1234
-     * $query->filterByVersionId(array(12, 34)); // WHERE version_id IN (12, 34)
-     * $query->filterByVersionId(array('min' => 12)); // WHERE version_id > 12
+     * $query->filterByBoxId(1234); // WHERE box_id = 1234
+     * $query->filterByBoxId(array(12, 34)); // WHERE box_id IN (12, 34)
+     * $query->filterByBoxId(array('min' => 12)); // WHERE box_id > 12
      * </code>
      *
-     * @see       filterByPageVersion()
-     *
-     * @param     mixed $versionId The value to use as filter.
+     * @param     mixed $boxId The value to use as filter.
      *              Use scalar values for equality.
      *              Use array values for in_array() equivalent.
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
@@ -353,16 +347,16 @@ abstract class BasePageContentQuery extends ModelCriteria
      *
      * @return PageContentQuery The current query, for fluid interface
      */
-    public function filterByVersionId($versionId = null, $comparison = null)
+    public function filterByBoxId($boxId = null, $comparison = null)
     {
-        if (is_array($versionId)) {
+        if (is_array($boxId)) {
             $useMinMax = false;
-            if (isset($versionId['min'])) {
-                $this->addUsingAlias(PageContentPeer::VERSION_ID, $versionId['min'], Criteria::GREATER_EQUAL);
+            if (isset($boxId['min'])) {
+                $this->addUsingAlias(PageContentPeer::BOX_ID, $boxId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
-            if (isset($versionId['max'])) {
-                $this->addUsingAlias(PageContentPeer::VERSION_ID, $versionId['max'], Criteria::LESS_EQUAL);
+            if (isset($boxId['max'])) {
+                $this->addUsingAlias(PageContentPeer::BOX_ID, $boxId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -373,7 +367,36 @@ abstract class BasePageContentQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(PageContentPeer::VERSION_ID, $versionId, $comparison);
+        return $this->addUsingAlias(PageContentPeer::BOX_ID, $boxId, $comparison);
+    }
+
+    /**
+     * Filter the query on the sortable_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySortableId('fooValue');   // WHERE sortable_id = 'fooValue'
+     * $query->filterBySortableId('%fooValue%'); // WHERE sortable_id LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $sortableId The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return PageContentQuery The current query, for fluid interface
+     */
+    public function filterBySortableId($sortableId = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($sortableId)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $sortableId)) {
+                $sortableId = str_replace('*', '%', $sortableId);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(PageContentPeer::SORTABLE_ID, $sortableId, $comparison);
     }
 
     /**
@@ -531,88 +554,6 @@ abstract class BasePageContentQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(PageContentPeer::HIDE, $hide, $comparison);
-    }
-
-    /**
-     * Filter the query on the sort column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterBySort(1234); // WHERE sort = 1234
-     * $query->filterBySort(array(12, 34)); // WHERE sort IN (12, 34)
-     * $query->filterBySort(array('min' => 12)); // WHERE sort > 12
-     * </code>
-     *
-     * @param     mixed $sort The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return PageContentQuery The current query, for fluid interface
-     */
-    public function filterBySort($sort = null, $comparison = null)
-    {
-        if (is_array($sort)) {
-            $useMinMax = false;
-            if (isset($sort['min'])) {
-                $this->addUsingAlias(PageContentPeer::SORT, $sort['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($sort['max'])) {
-                $this->addUsingAlias(PageContentPeer::SORT, $sort['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(PageContentPeer::SORT, $sort, $comparison);
-    }
-
-    /**
-     * Filter the query on the box_id column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByBoxId(1234); // WHERE box_id = 1234
-     * $query->filterByBoxId(array(12, 34)); // WHERE box_id IN (12, 34)
-     * $query->filterByBoxId(array('min' => 12)); // WHERE box_id > 12
-     * </code>
-     *
-     * @param     mixed $boxId The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return PageContentQuery The current query, for fluid interface
-     */
-    public function filterByBoxId($boxId = null, $comparison = null)
-    {
-        if (is_array($boxId)) {
-            $useMinMax = false;
-            if (isset($boxId['min'])) {
-                $this->addUsingAlias(PageContentPeer::BOX_ID, $boxId['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($boxId['max'])) {
-                $this->addUsingAlias(PageContentPeer::BOX_ID, $boxId['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(PageContentPeer::BOX_ID, $boxId, $comparison);
     }
 
     /**
@@ -809,6 +750,47 @@ abstract class BasePageContentQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the sortable_rank column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySortableRank(1234); // WHERE sortable_rank = 1234
+     * $query->filterBySortableRank(array(12, 34)); // WHERE sortable_rank IN (12, 34)
+     * $query->filterBySortableRank(array('min' => 12)); // WHERE sortable_rank > 12
+     * </code>
+     *
+     * @param     mixed $sortableRank The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return PageContentQuery The current query, for fluid interface
+     */
+    public function filterBySortableRank($sortableRank = null, $comparison = null)
+    {
+        if (is_array($sortableRank)) {
+            $useMinMax = false;
+            if (isset($sortableRank['min'])) {
+                $this->addUsingAlias(PageContentPeer::SORTABLE_RANK, $sortableRank['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($sortableRank['max'])) {
+                $this->addUsingAlias(PageContentPeer::SORTABLE_RANK, $sortableRank['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(PageContentPeer::SORTABLE_RANK, $sortableRank, $comparison);
+    }
+
+    /**
      * Filter the query by a related Page object
      *
      * @param   Page|PropelObjectCollection $page The related object(s) to use as filter
@@ -885,82 +867,6 @@ abstract class BasePageContentQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related PageVersion object
-     *
-     * @param   PageVersion|PropelObjectCollection $pageVersion The related object(s) to use as filter
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return   PageContentQuery The current query, for fluid interface
-     * @throws   PropelException - if the provided filter is invalid.
-     */
-    public function filterByPageVersion($pageVersion, $comparison = null)
-    {
-        if ($pageVersion instanceof PageVersion) {
-            return $this
-                ->addUsingAlias(PageContentPeer::VERSION_ID, $pageVersion->getId(), $comparison);
-        } elseif ($pageVersion instanceof PropelObjectCollection) {
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-
-            return $this
-                ->addUsingAlias(PageContentPeer::VERSION_ID, $pageVersion->toKeyValue('PrimaryKey', 'Id'), $comparison);
-        } else {
-            throw new PropelException('filterByPageVersion() only accepts arguments of type PageVersion or PropelCollection');
-        }
-    }
-
-    /**
-     * Adds a JOIN clause to the query using the PageVersion relation
-     *
-     * @param     string $relationAlias optional alias for the relation
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return PageContentQuery The current query, for fluid interface
-     */
-    public function joinPageVersion($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
-    {
-        $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('PageVersion');
-
-        // create a ModelJoin object for this join
-        $join = new ModelJoin();
-        $join->setJoinType($joinType);
-        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-        if ($previousJoin = $this->getPreviousJoin()) {
-            $join->setPreviousJoin($previousJoin);
-        }
-
-        // add the ModelJoin to the current object
-        if ($relationAlias) {
-            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-            $this->addJoinObject($join, $relationAlias);
-        } else {
-            $this->addJoinObject($join, 'PageVersion');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Use the PageVersion relation PageVersion object
-     *
-     * @see       useQuery()
-     *
-     * @param     string $relationAlias optional alias for the relation,
-     *                                   to be used as main alias in the secondary query
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return   PageVersionQuery A secondary query class using the current class as primary query
-     */
-    public function usePageVersionQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
-    {
-        return $this
-            ->joinPageVersion($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'PageVersion', 'PageVersionQuery');
-    }
-
-    /**
      * Exclude object from result
      *
      * @param   PageContent $pageContent Object to remove from the list of results
@@ -975,5 +881,173 @@ abstract class BasePageContentQuery extends ModelCriteria
 
         return $this;
     }
+
+	// sluggable behavior
+	
+	/**
+	 * Filter the query on the slug column
+	 *
+	 * @param     string $slug The value to use as filter.
+	 *
+	 * @return    PageContentQuery The current query, for fluid interface
+	 */
+	public function filterBySlug($slug)
+	{
+	    return $this->addUsingAlias(PageContentPeer::SORTABLE_ID, $slug, Criteria::EQUAL);
+	}
+	
+	/**
+	 * Find one object based on its slug
+	 *
+	 * @param     string $slug The value to use as filter.
+	 * @param     PropelPDO $con The optional connection object
+	 *
+	 * @return    PageContent the result, formatted by the current formatter
+	 */
+	public function findOneBySlug($slug, $con = null)
+	{
+	    return $this->filterBySlug($slug)->findOne($con);
+	}
+
+	// sortable behavior
+	
+	/**
+	 * Returns the objects in a certain list, from the list scope
+	 *
+	 * @param     int $scope		Scope to determine which objects node to return
+	 *
+	 * @return    PageContentQuery The current query, for fluid interface
+	 */
+	public function inList($scope = null)
+	{
+	    return $this->addUsingAlias(PageContentPeer::SCOPE_COL, $scope, Criteria::EQUAL);
+	}
+	
+	/**
+	 * Filter the query based on a rank in the list
+	 *
+	 * @param     integer   $rank rank
+	 * @param     int $scope		Scope to determine which suite to consider
+	 *
+	 * @return    PageContentQuery The current query, for fluid interface
+	 */
+	public function filterByRank($rank, $scope = null)
+	{
+	    return $this
+	        ->inList($scope)
+	        ->addUsingAlias(PageContentPeer::RANK_COL, $rank, Criteria::EQUAL);
+	}
+	
+	/**
+	 * Order the query based on the rank in the list.
+	 * Using the default $order, returns the item with the lowest rank first
+	 *
+	 * @param     string $order either Criteria::ASC (default) or Criteria::DESC
+	 *
+	 * @return    PageContentQuery The current query, for fluid interface
+	 */
+	public function orderByRank($order = Criteria::ASC)
+	{
+	    $order = strtoupper($order);
+	    switch ($order) {
+	        case Criteria::ASC:
+	            return $this->addAscendingOrderByColumn($this->getAliasedColName(PageContentPeer::RANK_COL));
+	            break;
+	        case Criteria::DESC:
+	            return $this->addDescendingOrderByColumn($this->getAliasedColName(PageContentPeer::RANK_COL));
+	            break;
+	        default:
+	            throw new PropelException('PageContentQuery::orderBy() only accepts "asc" or "desc" as argument');
+	    }
+	}
+	
+	/**
+	 * Get an item from the list based on its rank
+	 *
+	 * @param     integer   $rank rank
+	 * @param     int $scope		Scope to determine which suite to consider
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return    PageContent
+	 */
+	public function findOneByRank($rank, $scope = null, PropelPDO $con = null)
+	{
+	    return $this
+	        ->filterByRank($rank, $scope)
+	        ->findOne($con);
+	}
+	
+	/**
+	 * Returns a list of objects
+	 *
+	 * @param      int $scope		Scope to determine which list to return
+	 * @param      PropelPDO $con	Connection to use.
+	 *
+	 * @return     mixed the list of results, formatted by the current formatter
+	 */
+	public function findList($scope = null, $con = null)
+	{
+	    return $this
+	        ->inList($scope)
+	        ->orderByRank()
+	        ->find($con);
+	}
+	
+	/**
+	 * Get the highest rank
+	 * 
+	 * @param      int $scope		Scope to determine which suite to consider
+	 * @param     PropelPDO optional connection
+	 *
+	 * @return    integer highest position
+	 */
+	public function getMaxRank($scope = null, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    // shift the objects with a position lower than the one of object
+	    $this->addSelectColumn('MAX(' . PageContentPeer::RANK_COL . ')');
+	    $this->add(PageContentPeer::SCOPE_COL, $scope, Criteria::EQUAL);
+	    $stmt = $this->doSelect($con);
+	
+	    return $stmt->fetchColumn();
+	}
+	
+	/**
+	 * Reorder a set of sortable objects based on a list of id/position
+	 * Beware that there is no check made on the positions passed
+	 * So incoherent positions will result in an incoherent list
+	 *
+	 * @param     array     $order id => rank pairs
+	 * @param     PropelPDO $con   optional connection
+	 *
+	 * @return    boolean true if the reordering took place, false if a database problem prevented it
+	 */
+	public function reorder(array $order, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	
+	    $con->beginTransaction();
+	    try {
+	        $ids = array_keys($order);
+	        $objects = $this->findPks($ids, $con);
+	        foreach ($objects as $object) {
+	            $pk = $object->getPrimaryKey();
+	            if ($object->getSortableRank() != $order[$pk]) {
+	                $object->setSortableRank($order[$pk]);
+	                $object->save($con);
+	            }
+	        }
+	        $con->commit();
+	
+	        return true;
+	    } catch (PropelException $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
 
 } // BasePageContentQuery

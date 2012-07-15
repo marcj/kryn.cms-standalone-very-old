@@ -41,19 +41,19 @@ class PageContentTableMap extends TableMap
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('PAGE_ID', 'PageId', 'INTEGER', 'kryn_system_page', 'ID', false, null, null);
-        $this->addForeignKey('VERSION_ID', 'VersionId', 'INTEGER', 'kryn_system_page_version', 'ID', false, null, null);
+        $this->addColumn('BOX_ID', 'BoxId', 'INTEGER', false, null, null);
+        $this->addColumn('SORTABLE_ID', 'SortableId', 'VARCHAR', false, 32, null);
         $this->addColumn('TITLE', 'Title', 'VARCHAR', false, 255, null);
         $this->addColumn('CONTENT', 'Content', 'LONGVARCHAR', false, null, null);
         $this->addColumn('TEMPLATE', 'Template', 'VARCHAR', false, 64, null);
         $this->addColumn('TYPE', 'Type', 'VARCHAR', false, 64, null);
         $this->addColumn('HIDE', 'Hide', 'INTEGER', false, null, null);
-        $this->addColumn('SORT', 'Sort', 'INTEGER', false, null, null);
-        $this->addColumn('BOX_ID', 'BoxId', 'INTEGER', false, null, null);
         $this->addColumn('OWNER_ID', 'OwnerId', 'INTEGER', false, null, null);
         $this->addColumn('ACCESS_FROM', 'AccessFrom', 'INTEGER', false, null, null);
         $this->addColumn('ACCESS_TO', 'AccessTo', 'INTEGER', false, null, null);
         $this->addColumn('ACCESS_FROM_GROUPS', 'AccessFromGroups', 'VARCHAR', false, 32, null);
         $this->addColumn('UNSEARCHABLE', 'Unsearchable', 'INTEGER', false, null, null);
+        $this->addColumn('SORTABLE_RANK', 'SortableRank', 'INTEGER', false, null, null);
         // validators
     } // initialize()
 
@@ -63,7 +63,20 @@ class PageContentTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('Page', 'Page', RelationMap::MANY_TO_ONE, array('page_id' => 'id', ), 'CASCADE', null);
-        $this->addRelation('PageVersion', 'PageVersion', RelationMap::MANY_TO_ONE, array('version_id' => 'id', ), 'CASCADE', null);
     } // buildRelations()
+
+    /**
+     *
+     * Gets the list of behaviors registered for this table
+     *
+     * @return array Associative array (name => parameters) of behaviors
+     */
+    public function getBehaviors()
+    {
+        return array(
+            'sluggable' => array('slug_column' => 'sortable_id', 'slug_pattern' => '{PageId}_{BoxId}', 'replace_pattern' => '/[^\w\/]+/u', 'replacement' => '-', 'separator' => '/', 'permanent' => 'false', 'scope_column' => '', ),
+            'sortable' => array('rank_column' => 'sortable_rank', 'use_scope' => 'true', 'scope_column' => 'sortable_id', ),
+        );
+    } // getBehaviors()
 
 } // PageContentTableMap

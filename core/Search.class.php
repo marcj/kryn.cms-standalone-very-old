@@ -73,7 +73,7 @@ class Search {
 
         //check if we have additional arguments which doesnt change the content
         if ($cache && strlen($b) < strlen($a)
-            && (strpos($b, '/' . Kryn::$page['url']) === 0 || Kryn::$isStartpage)
+            && (strpos($b, '/' . Kryn::$page->getUrl()) === 0 || Kryn::$isStartpage)
             && self::$forceSearchIndex === false
         ) {
 

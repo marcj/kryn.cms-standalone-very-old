@@ -26,17 +26,19 @@
     </table>
 
     <table name="system_page_content" phpName="PageContent" idMethod="native">
+
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="page_id" type="INTEGER" required="false"/>
-        <column name="version_id" type="INTEGER" required="false"/>
+        <column name="box_id" type="INTEGER" required="false"/>
+        <column name="sortable_id" type="VARCHAR" size="32" required="false"/>
+
+
         <column name="title" type="VARCHAR" size="255" required="false"/>
         <column name="content" type="LONGVARCHAR" required="false"/>
         <column name="template" type="VARCHAR" size="64" required="false"/>
         <column name="type" type="VARCHAR" size="64" required="false"/>
 
         <column name="hide" type="INTEGER" required="false"/>
-        <column name="sort" type="INTEGER" required="false"/>
-        <column name="box_id" type="INTEGER" required="false"/>
         <column name="owner_id" type="INTEGER" required="false"/>
         <column name="access_from" type="INTEGER" required="false"/>
         <column name="access_to" type="INTEGER" required="false"/>
@@ -50,21 +52,28 @@
             <index-column name="hide"/>
         </index>
         <index>
-            <index-column name="owner_id"/>
-        </index>
-        <index>
             <index-column name="page_id"/>
-        </index>
-        <index>
-            <index-column name="version_id"/>
         </index>
 
         <foreign-key foreignTable="system_page" onDelete="cascade">
             <reference local="page_id" foreign="id" />
         </foreign-key>
-        <foreign-key foreignTable="system_page_version" onDelete="cascade">
-            <reference local="version_id" foreign="id" />
-        </foreign-key>
+
+
+        <behavior name="sluggable">
+            <parameter name="slug_column" value="sortable_id" />
+            <parameter name="slug_pattern" value="{PageId}_{BoxId}" />
+            <parameter name="replace_pattern" value="/[^\w\/]+/u" />
+            <parameter name="replacement" value="-" />
+            <parameter name="separator" value="/" />
+            <parameter name="permanent" value="false" />
+        </behavior>
+
+
+        <behavior name="sortable" >
+            <parameter name="use_scope" value="true" />
+            <parameter name="scope_column" value="sortable_id" />
+        </behavior>
     </table>
 
     <table name="system_domain" phpName="Domain" idMethod="native">
@@ -249,14 +258,12 @@
             <index-column name="domain_id"/>
         </index>
         <index>
-            <index-column name="pid"/>
-        </index>
-        <index>
             <index-column name="type"/>
         </index>
         <index>
             <index-column name="visible"/>
         </index>
+
         <behavior name="nested_set" >
             <parameter name="left_column" value="lft" />
             <parameter name="right_column" value="rgt" />
@@ -269,26 +276,12 @@
             <reference local="domain_id" foreign="id" />
         </foreign-key>
 
-        <foreign-key foreignTable="system_page">
+        <foreign-key foreignTable="system_page" >
             <reference local="parent_id" foreign="id" />
         </foreign-key>
+
     </table>
 
-
-    <table name="system_page_version" phpName="PageVersion" idMethod="native">
-        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
-        <column name="page_id" type="INTEGER" required="false"/>
-        <column name="owner_id" type="INTEGER" required="false"/>
-        <column name="created" type="INTEGER" required="false"/>
-        <column name="modified" type="INTEGER" required="false"/>
-        <column name="active" type="INTEGER" required="false"/>
-        <index>
-            <index-column name="active"/>
-        </index>
-        <index>
-            <index-column name="page_id"/>
-        </index>
-    </table>
 
     <table name="system_search" phpName="Search" idMethod="native">
         <column name="url" type="VARCHAR" size="255" primaryKey="true" required="true"/>

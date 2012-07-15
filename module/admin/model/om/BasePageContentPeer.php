@@ -37,8 +37,11 @@ abstract class BasePageContentPeer {
     /** the column name for the PAGE_ID field */
     const PAGE_ID = 'kryn_system_page_content.PAGE_ID';
 
-    /** the column name for the VERSION_ID field */
-    const VERSION_ID = 'kryn_system_page_content.VERSION_ID';
+    /** the column name for the BOX_ID field */
+    const BOX_ID = 'kryn_system_page_content.BOX_ID';
+
+    /** the column name for the SORTABLE_ID field */
+    const SORTABLE_ID = 'kryn_system_page_content.SORTABLE_ID';
 
     /** the column name for the TITLE field */
     const TITLE = 'kryn_system_page_content.TITLE';
@@ -55,12 +58,6 @@ abstract class BasePageContentPeer {
     /** the column name for the HIDE field */
     const HIDE = 'kryn_system_page_content.HIDE';
 
-    /** the column name for the SORT field */
-    const SORT = 'kryn_system_page_content.SORT';
-
-    /** the column name for the BOX_ID field */
-    const BOX_ID = 'kryn_system_page_content.BOX_ID';
-
     /** the column name for the OWNER_ID field */
     const OWNER_ID = 'kryn_system_page_content.OWNER_ID';
 
@@ -76,6 +73,9 @@ abstract class BasePageContentPeer {
     /** the column name for the UNSEARCHABLE field */
     const UNSEARCHABLE = 'kryn_system_page_content.UNSEARCHABLE';
 
+    /** the column name for the SORTABLE_RANK field */
+    const SORTABLE_RANK = 'kryn_system_page_content.SORTABLE_RANK';
+
     /** The default string format for model objects of the related table **/
     const DEFAULT_STRING_FORMAT = 'YAML';
 
@@ -88,6 +88,18 @@ abstract class BasePageContentPeer {
     public static $instances = array();
 
 
+	// sortable behavior
+	
+	/**
+	 * rank column
+	 */
+	const RANK_COL = 'kryn_system_page_content.SORTABLE_RANK';
+	
+	/**
+	 * Scope column for the set
+	 */
+	const SCOPE_COL = 'kryn_system_page_content.SORTABLE_ID';
+
     /**
      * holds an array of fieldnames
      *
@@ -95,11 +107,11 @@ abstract class BasePageContentPeer {
      * e.g. PageContentPeer::$fieldNames[PageContentPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'PageId', 'VersionId', 'Title', 'Content', 'Template', 'Type', 'Hide', 'Sort', 'BoxId', 'OwnerId', 'AccessFrom', 'AccessTo', 'AccessFromGroups', 'Unsearchable', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pageId', 'versionId', 'title', 'content', 'template', 'type', 'hide', 'sort', 'boxId', 'ownerId', 'accessFrom', 'accessTo', 'accessFromGroups', 'unsearchable', ),
-        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID, PageContentPeer::PAGE_ID, PageContentPeer::VERSION_ID, PageContentPeer::TITLE, PageContentPeer::CONTENT, PageContentPeer::TEMPLATE, PageContentPeer::TYPE, PageContentPeer::HIDE, PageContentPeer::SORT, PageContentPeer::BOX_ID, PageContentPeer::OWNER_ID, PageContentPeer::ACCESS_FROM, PageContentPeer::ACCESS_TO, PageContentPeer::ACCESS_FROM_GROUPS, PageContentPeer::UNSEARCHABLE, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PAGE_ID', 'VERSION_ID', 'TITLE', 'CONTENT', 'TEMPLATE', 'TYPE', 'HIDE', 'SORT', 'BOX_ID', 'OWNER_ID', 'ACCESS_FROM', 'ACCESS_TO', 'ACCESS_FROM_GROUPS', 'UNSEARCHABLE', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'page_id', 'version_id', 'title', 'content', 'template', 'type', 'hide', 'sort', 'box_id', 'owner_id', 'access_from', 'access_to', 'access_from_groups', 'unsearchable', ),
+        BasePeer::TYPE_PHPNAME => array ('Id', 'PageId', 'BoxId', 'SortableId', 'Title', 'Content', 'Template', 'Type', 'Hide', 'OwnerId', 'AccessFrom', 'AccessTo', 'AccessFromGroups', 'Unsearchable', 'SortableRank', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pageId', 'boxId', 'sortableId', 'title', 'content', 'template', 'type', 'hide', 'ownerId', 'accessFrom', 'accessTo', 'accessFromGroups', 'unsearchable', 'sortableRank', ),
+        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID, PageContentPeer::PAGE_ID, PageContentPeer::BOX_ID, PageContentPeer::SORTABLE_ID, PageContentPeer::TITLE, PageContentPeer::CONTENT, PageContentPeer::TEMPLATE, PageContentPeer::TYPE, PageContentPeer::HIDE, PageContentPeer::OWNER_ID, PageContentPeer::ACCESS_FROM, PageContentPeer::ACCESS_TO, PageContentPeer::ACCESS_FROM_GROUPS, PageContentPeer::UNSEARCHABLE, PageContentPeer::SORTABLE_RANK, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PAGE_ID', 'BOX_ID', 'SORTABLE_ID', 'TITLE', 'CONTENT', 'TEMPLATE', 'TYPE', 'HIDE', 'OWNER_ID', 'ACCESS_FROM', 'ACCESS_TO', 'ACCESS_FROM_GROUPS', 'UNSEARCHABLE', 'SORTABLE_RANK', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'page_id', 'box_id', 'sortable_id', 'title', 'content', 'template', 'type', 'hide', 'owner_id', 'access_from', 'access_to', 'access_from_groups', 'unsearchable', 'sortable_rank', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, )
     );
 
@@ -110,11 +122,11 @@ abstract class BasePageContentPeer {
      * e.g. PageContentPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'PageId' => 1, 'VersionId' => 2, 'Title' => 3, 'Content' => 4, 'Template' => 5, 'Type' => 6, 'Hide' => 7, 'Sort' => 8, 'BoxId' => 9, 'OwnerId' => 10, 'AccessFrom' => 11, 'AccessTo' => 12, 'AccessFromGroups' => 13, 'Unsearchable' => 14, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pageId' => 1, 'versionId' => 2, 'title' => 3, 'content' => 4, 'template' => 5, 'type' => 6, 'hide' => 7, 'sort' => 8, 'boxId' => 9, 'ownerId' => 10, 'accessFrom' => 11, 'accessTo' => 12, 'accessFromGroups' => 13, 'unsearchable' => 14, ),
-        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID => 0, PageContentPeer::PAGE_ID => 1, PageContentPeer::VERSION_ID => 2, PageContentPeer::TITLE => 3, PageContentPeer::CONTENT => 4, PageContentPeer::TEMPLATE => 5, PageContentPeer::TYPE => 6, PageContentPeer::HIDE => 7, PageContentPeer::SORT => 8, PageContentPeer::BOX_ID => 9, PageContentPeer::OWNER_ID => 10, PageContentPeer::ACCESS_FROM => 11, PageContentPeer::ACCESS_TO => 12, PageContentPeer::ACCESS_FROM_GROUPS => 13, PageContentPeer::UNSEARCHABLE => 14, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PAGE_ID' => 1, 'VERSION_ID' => 2, 'TITLE' => 3, 'CONTENT' => 4, 'TEMPLATE' => 5, 'TYPE' => 6, 'HIDE' => 7, 'SORT' => 8, 'BOX_ID' => 9, 'OWNER_ID' => 10, 'ACCESS_FROM' => 11, 'ACCESS_TO' => 12, 'ACCESS_FROM_GROUPS' => 13, 'UNSEARCHABLE' => 14, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'page_id' => 1, 'version_id' => 2, 'title' => 3, 'content' => 4, 'template' => 5, 'type' => 6, 'hide' => 7, 'sort' => 8, 'box_id' => 9, 'owner_id' => 10, 'access_from' => 11, 'access_to' => 12, 'access_from_groups' => 13, 'unsearchable' => 14, ),
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'PageId' => 1, 'BoxId' => 2, 'SortableId' => 3, 'Title' => 4, 'Content' => 5, 'Template' => 6, 'Type' => 7, 'Hide' => 8, 'OwnerId' => 9, 'AccessFrom' => 10, 'AccessTo' => 11, 'AccessFromGroups' => 12, 'Unsearchable' => 13, 'SortableRank' => 14, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pageId' => 1, 'boxId' => 2, 'sortableId' => 3, 'title' => 4, 'content' => 5, 'template' => 6, 'type' => 7, 'hide' => 8, 'ownerId' => 9, 'accessFrom' => 10, 'accessTo' => 11, 'accessFromGroups' => 12, 'unsearchable' => 13, 'sortableRank' => 14, ),
+        BasePeer::TYPE_COLNAME => array (PageContentPeer::ID => 0, PageContentPeer::PAGE_ID => 1, PageContentPeer::BOX_ID => 2, PageContentPeer::SORTABLE_ID => 3, PageContentPeer::TITLE => 4, PageContentPeer::CONTENT => 5, PageContentPeer::TEMPLATE => 6, PageContentPeer::TYPE => 7, PageContentPeer::HIDE => 8, PageContentPeer::OWNER_ID => 9, PageContentPeer::ACCESS_FROM => 10, PageContentPeer::ACCESS_TO => 11, PageContentPeer::ACCESS_FROM_GROUPS => 12, PageContentPeer::UNSEARCHABLE => 13, PageContentPeer::SORTABLE_RANK => 14, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PAGE_ID' => 1, 'BOX_ID' => 2, 'SORTABLE_ID' => 3, 'TITLE' => 4, 'CONTENT' => 5, 'TEMPLATE' => 6, 'TYPE' => 7, 'HIDE' => 8, 'OWNER_ID' => 9, 'ACCESS_FROM' => 10, 'ACCESS_TO' => 11, 'ACCESS_FROM_GROUPS' => 12, 'UNSEARCHABLE' => 13, 'SORTABLE_RANK' => 14, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'page_id' => 1, 'box_id' => 2, 'sortable_id' => 3, 'title' => 4, 'content' => 5, 'template' => 6, 'type' => 7, 'hide' => 8, 'owner_id' => 9, 'access_from' => 10, 'access_to' => 11, 'access_from_groups' => 12, 'unsearchable' => 13, 'sortable_rank' => 14, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, )
     );
 
@@ -191,35 +203,35 @@ abstract class BasePageContentPeer {
         if (null === $alias) {
             $criteria->addSelectColumn(PageContentPeer::ID);
             $criteria->addSelectColumn(PageContentPeer::PAGE_ID);
-            $criteria->addSelectColumn(PageContentPeer::VERSION_ID);
+            $criteria->addSelectColumn(PageContentPeer::BOX_ID);
+            $criteria->addSelectColumn(PageContentPeer::SORTABLE_ID);
             $criteria->addSelectColumn(PageContentPeer::TITLE);
             $criteria->addSelectColumn(PageContentPeer::CONTENT);
             $criteria->addSelectColumn(PageContentPeer::TEMPLATE);
             $criteria->addSelectColumn(PageContentPeer::TYPE);
             $criteria->addSelectColumn(PageContentPeer::HIDE);
-            $criteria->addSelectColumn(PageContentPeer::SORT);
-            $criteria->addSelectColumn(PageContentPeer::BOX_ID);
             $criteria->addSelectColumn(PageContentPeer::OWNER_ID);
             $criteria->addSelectColumn(PageContentPeer::ACCESS_FROM);
             $criteria->addSelectColumn(PageContentPeer::ACCESS_TO);
             $criteria->addSelectColumn(PageContentPeer::ACCESS_FROM_GROUPS);
             $criteria->addSelectColumn(PageContentPeer::UNSEARCHABLE);
+            $criteria->addSelectColumn(PageContentPeer::SORTABLE_RANK);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
             $criteria->addSelectColumn($alias . '.PAGE_ID');
-            $criteria->addSelectColumn($alias . '.VERSION_ID');
+            $criteria->addSelectColumn($alias . '.BOX_ID');
+            $criteria->addSelectColumn($alias . '.SORTABLE_ID');
             $criteria->addSelectColumn($alias . '.TITLE');
             $criteria->addSelectColumn($alias . '.CONTENT');
             $criteria->addSelectColumn($alias . '.TEMPLATE');
             $criteria->addSelectColumn($alias . '.TYPE');
             $criteria->addSelectColumn($alias . '.HIDE');
-            $criteria->addSelectColumn($alias . '.SORT');
-            $criteria->addSelectColumn($alias . '.BOX_ID');
             $criteria->addSelectColumn($alias . '.OWNER_ID');
             $criteria->addSelectColumn($alias . '.ACCESS_FROM');
             $criteria->addSelectColumn($alias . '.ACCESS_TO');
             $criteria->addSelectColumn($alias . '.ACCESS_FROM_GROUPS');
             $criteria->addSelectColumn($alias . '.UNSEARCHABLE');
+            $criteria->addSelectColumn($alias . '.SORTABLE_RANK');
         }
     }
 
@@ -568,57 +580,6 @@ abstract class BasePageContentPeer {
 
 
     /**
-     * Returns the number of rows matching criteria, joining the related PageVersion table
-     *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-     * @param      PropelPDO $con
-     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
-     * @return int Number of matching rows.
-     */
-    public static function doCountJoinPageVersion(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        // we're going to modify criteria, so copy it first
-        $criteria = clone $criteria;
-
-        // We need to set the primary table name, since in the case that there are no WHERE columns
-        // it will be impossible for the BasePeer::createSelectSql() method to determine which
-        // tables go into the FROM clause.
-        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
-
-        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
-            $criteria->setDistinct();
-        }
-
-        if (!$criteria->hasSelectClause()) {
-            PageContentPeer::addSelectColumns($criteria);
-        }
-
-        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-
-        // Set the correct dbName
-        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
-
-        if ($con === null) {
-            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
-        }
-
-        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
-
-        $stmt = BasePeer::doCount($criteria, $con);
-
-        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $count = (int) $row[0];
-        } else {
-            $count = 0; // no rows returned; we infer that means 0 matches.
-        }
-        $stmt->closeCursor();
-
-        return $count;
-    }
-
-
-    /**
      * Selects a collection of PageContent objects pre-filled with their Page objects.
      * @param      Criteria  $criteria
      * @param      PropelPDO $con
@@ -686,73 +647,6 @@ abstract class BasePageContentPeer {
 
 
     /**
-     * Selects a collection of PageContent objects pre-filled with their PageVersion objects.
-     * @param      Criteria  $criteria
-     * @param      PropelPDO $con
-     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
-     * @return array           Array of PageContent objects.
-     * @throws PropelException Any exceptions caught during processing will be
-     *		 rethrown wrapped into a PropelException.
-     */
-    public static function doSelectJoinPageVersion(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        $criteria = clone $criteria;
-
-        // Set the correct dbName if it has not been overridden
-        if ($criteria->getDbName() == Propel::getDefaultDB()) {
-            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
-        }
-
-        PageContentPeer::addSelectColumns($criteria);
-        $startcol = PageContentPeer::NUM_HYDRATE_COLUMNS;
-        PageVersionPeer::addSelectColumns($criteria);
-
-        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
-
-        $stmt = BasePeer::doSelect($criteria, $con);
-        $results = array();
-
-        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
-            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
-                // We no longer rehydrate the object, since this can cause data loss.
-                // See http://www.propelorm.org/ticket/509
-                // $obj1->hydrate($row, 0, true); // rehydrate
-            } else {
-
-                $cls = PageContentPeer::getOMClass();
-
-                $obj1 = new $cls();
-                $obj1->hydrate($row);
-                PageContentPeer::addInstanceToPool($obj1, $key1);
-            } // if $obj1 already loaded
-
-            $key2 = PageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol);
-            if ($key2 !== null) {
-                $obj2 = PageVersionPeer::getInstanceFromPool($key2);
-                if (!$obj2) {
-
-                    $cls = PageVersionPeer::getOMClass();
-
-                    $obj2 = new $cls();
-                    $obj2->hydrate($row, $startcol);
-                    PageVersionPeer::addInstanceToPool($obj2, $key2);
-                } // if obj2 already loaded
-
-                // Add the $obj1 (PageContent) to $obj2 (PageVersion)
-                $obj2->addPageContent($obj1);
-
-            } // if joined row was not null
-
-            $results[] = $obj1;
-        }
-        $stmt->closeCursor();
-
-        return $results;
-    }
-
-
-    /**
      * Returns the number of rows matching criteria, joining all related tables
      *
      * @param      Criteria $criteria
@@ -789,8 +683,6 @@ abstract class BasePageContentPeer {
         }
 
         $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
-
-        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
 
         $stmt = BasePeer::doCount($criteria, $con);
 
@@ -829,12 +721,7 @@ abstract class BasePageContentPeer {
         PagePeer::addSelectColumns($criteria);
         $startcol3 = $startcol2 + PagePeer::NUM_HYDRATE_COLUMNS;
 
-        PageVersionPeer::addSelectColumns($criteria);
-        $startcol4 = $startcol3 + PageVersionPeer::NUM_HYDRATE_COLUMNS;
-
         $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
-
-        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
 
         $stmt = BasePeer::doSelect($criteria, $con);
         $results = array();
@@ -870,274 +757,6 @@ abstract class BasePageContentPeer {
                 // Add the $obj1 (PageContent) to the collection in $obj2 (Page)
                 $obj2->addPageContent($obj1);
             } // if joined row not null
-
-            // Add objects for joined PageVersion rows
-
-            $key3 = PageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol3);
-            if ($key3 !== null) {
-                $obj3 = PageVersionPeer::getInstanceFromPool($key3);
-                if (!$obj3) {
-
-                    $cls = PageVersionPeer::getOMClass();
-
-                    $obj3 = new $cls();
-                    $obj3->hydrate($row, $startcol3);
-                    PageVersionPeer::addInstanceToPool($obj3, $key3);
-                } // if obj3 loaded
-
-                // Add the $obj1 (PageContent) to the collection in $obj3 (PageVersion)
-                $obj3->addPageContent($obj1);
-            } // if joined row not null
-
-            $results[] = $obj1;
-        }
-        $stmt->closeCursor();
-
-        return $results;
-    }
-
-
-    /**
-     * Returns the number of rows matching criteria, joining the related Page table
-     *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-     * @param      PropelPDO $con
-     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
-     * @return int Number of matching rows.
-     */
-    public static function doCountJoinAllExceptPage(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        // we're going to modify criteria, so copy it first
-        $criteria = clone $criteria;
-
-        // We need to set the primary table name, since in the case that there are no WHERE columns
-        // it will be impossible for the BasePeer::createSelectSql() method to determine which
-        // tables go into the FROM clause.
-        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
-
-        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
-            $criteria->setDistinct();
-        }
-
-        if (!$criteria->hasSelectClause()) {
-            PageContentPeer::addSelectColumns($criteria);
-        }
-
-        $criteria->clearOrderByColumns(); // ORDER BY should not affect count
-
-        // Set the correct dbName
-        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
-
-        if ($con === null) {
-            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
-        }
-    
-        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
-
-        $stmt = BasePeer::doCount($criteria, $con);
-
-        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $count = (int) $row[0];
-        } else {
-            $count = 0; // no rows returned; we infer that means 0 matches.
-        }
-        $stmt->closeCursor();
-
-        return $count;
-    }
-
-
-    /**
-     * Returns the number of rows matching criteria, joining the related PageVersion table
-     *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-     * @param      PropelPDO $con
-     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
-     * @return int Number of matching rows.
-     */
-    public static function doCountJoinAllExceptPageVersion(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        // we're going to modify criteria, so copy it first
-        $criteria = clone $criteria;
-
-        // We need to set the primary table name, since in the case that there are no WHERE columns
-        // it will be impossible for the BasePeer::createSelectSql() method to determine which
-        // tables go into the FROM clause.
-        $criteria->setPrimaryTableName(PageContentPeer::TABLE_NAME);
-
-        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
-            $criteria->setDistinct();
-        }
-
-        if (!$criteria->hasSelectClause()) {
-            PageContentPeer::addSelectColumns($criteria);
-        }
-
-        $criteria->clearOrderByColumns(); // ORDER BY should not affect count
-
-        // Set the correct dbName
-        $criteria->setDbName(PageContentPeer::DATABASE_NAME);
-
-        if ($con === null) {
-            $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_READ);
-        }
-    
-        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
-
-        $stmt = BasePeer::doCount($criteria, $con);
-
-        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $count = (int) $row[0];
-        } else {
-            $count = 0; // no rows returned; we infer that means 0 matches.
-        }
-        $stmt->closeCursor();
-
-        return $count;
-    }
-
-
-    /**
-     * Selects a collection of PageContent objects pre-filled with all related objects except Page.
-     *
-     * @param      Criteria  $criteria
-     * @param      PropelPDO $con
-     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
-     * @return array           Array of PageContent objects.
-     * @throws PropelException Any exceptions caught during processing will be
-     *		 rethrown wrapped into a PropelException.
-     */
-    public static function doSelectJoinAllExceptPage(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        $criteria = clone $criteria;
-
-        // Set the correct dbName if it has not been overridden
-        // $criteria->getDbName() will return the same object if not set to another value
-        // so == check is okay and faster
-        if ($criteria->getDbName() == Propel::getDefaultDB()) {
-            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
-        }
-
-        PageContentPeer::addSelectColumns($criteria);
-        $startcol2 = PageContentPeer::NUM_HYDRATE_COLUMNS;
-
-        PageVersionPeer::addSelectColumns($criteria);
-        $startcol3 = $startcol2 + PageVersionPeer::NUM_HYDRATE_COLUMNS;
-
-        $criteria->addJoin(PageContentPeer::VERSION_ID, PageVersionPeer::ID, $join_behavior);
-
-
-        $stmt = BasePeer::doSelect($criteria, $con);
-        $results = array();
-
-        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
-            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
-                // We no longer rehydrate the object, since this can cause data loss.
-                // See http://www.propelorm.org/ticket/509
-                // $obj1->hydrate($row, 0, true); // rehydrate
-            } else {
-                $cls = PageContentPeer::getOMClass();
-
-                $obj1 = new $cls();
-                $obj1->hydrate($row);
-                PageContentPeer::addInstanceToPool($obj1, $key1);
-            } // if obj1 already loaded
-
-                // Add objects for joined PageVersion rows
-
-                $key2 = PageVersionPeer::getPrimaryKeyHashFromRow($row, $startcol2);
-                if ($key2 !== null) {
-                    $obj2 = PageVersionPeer::getInstanceFromPool($key2);
-                    if (!$obj2) {
-    
-                        $cls = PageVersionPeer::getOMClass();
-
-                    $obj2 = new $cls();
-                    $obj2->hydrate($row, $startcol2);
-                    PageVersionPeer::addInstanceToPool($obj2, $key2);
-                } // if $obj2 already loaded
-
-                // Add the $obj1 (PageContent) to the collection in $obj2 (PageVersion)
-                $obj2->addPageContent($obj1);
-
-            } // if joined row is not null
-
-            $results[] = $obj1;
-        }
-        $stmt->closeCursor();
-
-        return $results;
-    }
-
-
-    /**
-     * Selects a collection of PageContent objects pre-filled with all related objects except PageVersion.
-     *
-     * @param      Criteria  $criteria
-     * @param      PropelPDO $con
-     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
-     * @return array           Array of PageContent objects.
-     * @throws PropelException Any exceptions caught during processing will be
-     *		 rethrown wrapped into a PropelException.
-     */
-    public static function doSelectJoinAllExceptPageVersion(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        $criteria = clone $criteria;
-
-        // Set the correct dbName if it has not been overridden
-        // $criteria->getDbName() will return the same object if not set to another value
-        // so == check is okay and faster
-        if ($criteria->getDbName() == Propel::getDefaultDB()) {
-            $criteria->setDbName(PageContentPeer::DATABASE_NAME);
-        }
-
-        PageContentPeer::addSelectColumns($criteria);
-        $startcol2 = PageContentPeer::NUM_HYDRATE_COLUMNS;
-
-        PagePeer::addSelectColumns($criteria);
-        $startcol3 = $startcol2 + PagePeer::NUM_HYDRATE_COLUMNS;
-
-        $criteria->addJoin(PageContentPeer::PAGE_ID, PagePeer::ID, $join_behavior);
-
-
-        $stmt = BasePeer::doSelect($criteria, $con);
-        $results = array();
-
-        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $key1 = PageContentPeer::getPrimaryKeyHashFromRow($row, 0);
-            if (null !== ($obj1 = PageContentPeer::getInstanceFromPool($key1))) {
-                // We no longer rehydrate the object, since this can cause data loss.
-                // See http://www.propelorm.org/ticket/509
-                // $obj1->hydrate($row, 0, true); // rehydrate
-            } else {
-                $cls = PageContentPeer::getOMClass();
-
-                $obj1 = new $cls();
-                $obj1->hydrate($row);
-                PageContentPeer::addInstanceToPool($obj1, $key1);
-            } // if obj1 already loaded
-
-                // Add objects for joined Page rows
-
-                $key2 = PagePeer::getPrimaryKeyHashFromRow($row, $startcol2);
-                if ($key2 !== null) {
-                    $obj2 = PagePeer::getInstanceFromPool($key2);
-                    if (!$obj2) {
-    
-                        $cls = PagePeer::getOMClass();
-
-                    $obj2 = new $cls();
-                    $obj2->hydrate($row, $startcol2);
-                    PagePeer::addInstanceToPool($obj2, $key2);
-                } // if $obj2 already loaded
-
-                // Add the $obj1 (PageContent) to the collection in $obj2 (Page)
-                $obj2->addPageContent($obj1);
-
-            } // if joined row is not null
 
             $results[] = $obj1;
         }
@@ -1442,6 +1061,200 @@ abstract class BasePageContentPeer {
 
         return $objs;
     }
+
+	// sortable behavior
+	
+	/**
+	 * Get the highest rank
+	 * 
+	 * @param      int $scope		Scope to determine which suite to consider
+	 * @param     PropelPDO optional connection
+	 *
+	 * @return    integer highest position
+	 */
+	public static function getMaxRank($scope = null, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    // shift the objects with a position lower than the one of object
+	    $c = new Criteria();
+	    $c->addSelectColumn('MAX(' . PageContentPeer::RANK_COL . ')');
+	    $c->add(PageContentPeer::SCOPE_COL, $scope, Criteria::EQUAL);
+	    $stmt = PageContentPeer::doSelectStmt($c, $con);
+	
+	    return $stmt->fetchColumn();
+	}
+	
+	/**
+	 * Get an item from the list based on its rank
+	 *
+	 * @param     integer   $rank rank
+	 * @param      int $scope		Scope to determine which suite to consider
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return PageContent
+	 */
+	public static function retrieveByRank($rank, $scope = null, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	
+	    $c = new Criteria;
+	    $c->add(PageContentPeer::RANK_COL, $rank);
+	    $c->add(PageContentPeer::SCOPE_COL, $scope, Criteria::EQUAL);
+	
+	    return PageContentPeer::doSelectOne($c, $con);
+	}
+	
+	/**
+	 * Reorder a set of sortable objects based on a list of id/position
+	 * Beware that there is no check made on the positions passed
+	 * So incoherent positions will result in an incoherent list
+	 *
+	 * @param     array     $order id => rank pairs
+	 * @param     PropelPDO $con   optional connection
+	 *
+	 * @return    boolean true if the reordering took place, false if a database problem prevented it
+	 */
+	public static function reorder(array $order, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	
+	    $con->beginTransaction();
+	    try {
+	        $ids = array_keys($order);
+	        $objects = PageContentPeer::retrieveByPKs($ids);
+	        foreach ($objects as $object) {
+	            $pk = $object->getPrimaryKey();
+	            if ($object->getSortableRank() != $order[$pk]) {
+	                $object->setSortableRank($order[$pk]);
+	                $object->save($con);
+	            }
+	        }
+	        $con->commit();
+	
+	        return true;
+	    } catch (PropelException $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
+	
+	/**
+	 * Return an array of sortable objects ordered by position
+	 *
+	 * @param     Criteria  $criteria  optional criteria object
+	 * @param     string    $order     sorting order, to be chosen between Criteria::ASC (default) and Criteria::DESC
+	 * @param     PropelPDO $con       optional connection
+	 *
+	 * @return    array list of sortable objects
+	 */
+	public static function doSelectOrderByRank(Criteria $criteria = null, $order = Criteria::ASC, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	
+	    if ($criteria === null) {
+	        $criteria = new Criteria();
+	    } elseif ($criteria instanceof Criteria) {
+	        $criteria = clone $criteria;
+	    }
+	
+	    $criteria->clearOrderByColumns();
+	
+	    if ($order == Criteria::ASC) {
+	        $criteria->addAscendingOrderByColumn(PageContentPeer::RANK_COL);
+	    } else {
+	        $criteria->addDescendingOrderByColumn(PageContentPeer::RANK_COL);
+	    }
+	
+	    return PageContentPeer::doSelect($criteria, $con);
+	}
+	
+	/**
+	 * Return an array of sortable objects in the given scope ordered by position
+	 *
+	 * @param     int       $scope  the scope of the list
+	 * @param     string    $order  sorting order, to be chosen between Criteria::ASC (default) and Criteria::DESC
+	 * @param     PropelPDO $con    optional connection
+	 *
+	 * @return    array list of sortable objects
+	 */
+	public static function retrieveList($scope, $order = Criteria::ASC, PropelPDO $con = null)
+	{
+	    $c = new Criteria();
+	    $c->add(PageContentPeer::SCOPE_COL, $scope);
+	
+	    return PageContentPeer::doSelectOrderByRank($c, $order, $con);
+	}
+	
+	/**
+	 * Return the number of sortable objects in the given scope
+	 *
+	 * @param     int       $scope  the scope of the list
+	 * @param     PropelPDO $con    optional connection
+	 *
+	 * @return    array list of sortable objects
+	 */
+	public static function countList($scope, PropelPDO $con = null)
+	{
+	    $c = new Criteria();
+	    $c->add(PageContentPeer::SCOPE_COL, $scope);
+	
+	    return PageContentPeer::doCount($c, $con);
+	}
+	
+	/**
+	 * Deletes the sortable objects in the given scope
+	 *
+	 * @param     int       $scope  the scope of the list
+	 * @param     PropelPDO $con    optional connection
+	 *
+	 * @return    int number of deleted objects
+	 */
+	public static function deleteList($scope, PropelPDO $con = null)
+	{
+	    $c = new Criteria();
+	    $c->add(PageContentPeer::SCOPE_COL, $scope);
+	
+	    return PageContentPeer::doDelete($c, $con);
+	}
+	
+	/**
+	 * Adds $delta to all Rank values that are >= $first and <= $last.
+	 * '$delta' can also be negative.
+	 *
+	 * @param      int $delta Value to be shifted by, can be negative
+	 * @param      int $first First node to be shifted
+	 * @param      int $last  Last node to be shifted
+	 * @param      int $scope Scope to use for the shift
+	 * @param      PropelPDO $con Connection to use.
+	 */
+	public static function shiftRank($delta, $first, $last = null, $scope = null, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+	    }
+	
+	    $whereCriteria = new Criteria(PageContentPeer::DATABASE_NAME);
+	    $criterion = $whereCriteria->getNewCriterion(PageContentPeer::RANK_COL, $first, Criteria::GREATER_EQUAL);
+	    if (null !== $last) {
+	        $criterion->addAnd($whereCriteria->getNewCriterion(PageContentPeer::RANK_COL, $last, Criteria::LESS_EQUAL));
+	    }
+	    $whereCriteria->add($criterion);
+	    $whereCriteria->add(PageContentPeer::SCOPE_COL, $scope, Criteria::EQUAL);
+	
+	    $valuesCriteria = new Criteria(PageContentPeer::DATABASE_NAME);
+	    $valuesCriteria->add(PageContentPeer::RANK_COL, array('raw' => PageContentPeer::RANK_COL . ' + ?', 'value' => $delta), Criteria::CUSTOM_EQUAL);
+	
+	    BasePeer::doUpdate($whereCriteria, $valuesCriteria, $con);
+	    PageContentPeer::clearInstancePool();
+	}
 
 } // BasePageContentPeer
 

@@ -3086,31 +3086,6 @@ abstract class BasePage extends BaseObject
         }
     }
 
-
-    /**
-     * If this collection has already been initialized with
-     * an identical criteria, it returns the collection.
-     * Otherwise if this Page is new, it will return
-     * an empty collection; or if this Page has previously
-     * been saved, it will retrieve related PageContents from storage.
-     *
-     * This method is protected by default in order to keep the public
-     * api reasonable.  You can provide public methods for those you
-     * actually need in Page.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      PropelPDO $con optional connection object
-     * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return PropelObjectCollection|PageContent[] List of PageContent objects
-     */
-    public function getPageContentsJoinPageVersion($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        $query = PageContentQuery::create(null, $criteria);
-        $query->joinWith('PageVersion', $join_behavior);
-
-        return $this->getPageContents($query, $con);
-    }
-
     /**
      * Clears out the collPagesRelatedById collection
      *

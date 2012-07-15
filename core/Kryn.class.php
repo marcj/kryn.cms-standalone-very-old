@@ -1740,7 +1740,7 @@ class Kryn {
     /**
      * @static
      *
-     * @param bool $pRefreshCache
+     * @param bool $pNoRefreshCache
      * @return Domain
      */
     public static function detectDomain($pNoRefreshCache = false){
@@ -1991,10 +1991,9 @@ class Kryn {
         $domain = Kryn::$domain->getId();
         Kryn::$urls =& Kryn::readCache('systemUrls');
 
-        if (!is_array(Kryn::$urls)) {
+        if (!Kryn::$urls || !Kryn::$urls['url']) {
             require_once(PATH_MODULE . 'admin/\adminPages.class.php');
-            \adminPages::updateUrlCache($domain);
-            Kryn::$urls =& Kryn::readCache('systemUrls');
+            Kryn::$urls = \adminPages::updateUrlCache($domain);
         }
 
         //extract extra url attributes
@@ -2133,8 +2132,6 @@ class Kryn {
 
         $page = \PageQuery::create()->findPk($pPageId);
         if (!$page) return false;
-
-        $curVersion = \PageVersionQuery::create()->filterByPageId($pPageId)->filterByActive(1)->findOne();
 
         $page->setProperties(json_decode($page->getProperties(), true));
         $page->setFullUrl(self::pageUrl($pPageId));

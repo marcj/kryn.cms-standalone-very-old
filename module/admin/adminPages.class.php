@@ -1415,21 +1415,17 @@ class adminPages {
         $pDomainRsn = $pDomainRsn + 0;
 
         $resu =
-            dbExec("SELECT id, title, url, type, link FROM %pfx%system_page WHERE domain_id = $pDomainRsn AND parent_id = 0");
+            dbExec("SELECT id, title, url, type, link FROM %pfx%system_page WHERE domain_id = $pDomainRsn AND parent_id IS NULL");
         $res = array('url' => array(), 'id' => array());
 
         $domain = Core\Kryn::getDomain($pDomainRsn);
 
         while ($page = dbFetch($resu)) {
 
-            //error_log('~'.var_dump($page, true));
-            Core\Kryn::deleteCache('page_' . $page['id']);
-
             $page = self::__pageModify($page, array('realurl' => ''));
             $newRes = self::updateUrlCacheChilds($page, $domain);
             $res['url'] = array_merge($res['url'], $newRes['url']);
             $res['id'] = array_merge($res['id'], $newRes['id']);
-            //$res['r2d'] = array_merge( $res['r2d'], $newRes['r2d'] );
         }
 
         $aliasRes = dbExec('SELECT to_page_id, url FROM %pfx%system_urlalias WHERE domain_id = ' . $pDomainRsn);

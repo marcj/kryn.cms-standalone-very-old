@@ -321,12 +321,12 @@ class Render {
 
             //compatibility o old kryns <=0.7
             $result = array();
+
             $res = dbExec("SELECT * FROM %pfx%system_page_content
                 WHERE page_id = $pId
-                $box 
-                AND (version_id = 1 OR version_id IS NULL)
+                $box
                 AND (hide != 1 OR hide IS NULL)
-                ORDER BY sort");
+                ORDER BY sortable_rank");
 
             while ($page = dbFetch($res)) {
                 $result[$page['box_id']][] = $page;

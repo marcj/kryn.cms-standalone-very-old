@@ -15,4 +15,11 @@
  */
 class PageContent extends BasePageContent {
 
+    protected function createSlug()
+    {
+        $slug = $this->createRawSlug();
+        $slug = $this->limitSlugSize($slug);
+
+        return $slug;
+    }
 } // PageContent

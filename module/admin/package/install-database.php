@@ -6,7 +6,6 @@ if (!defined('KRYN_MANAGER')) return false;
 
 dbDelete('system_domain');
 dbDelete('system_page');
-dbDelete('system_page_version');
 dbDelete('system_page_content');
 
 //setup pages
@@ -18,10 +17,14 @@ if ($_SERVER['SERVER_NAME'])
 $domain = new Domain();
 $domain->setDomain($domainName);
 
-$path = dirname($_SERVER['REQUEST_URI']);
-if( substr($path, 0, -1) != '/' ) $path .= '/';
-$path = str_replace("//", "/", $path);
-$path = str_replace('\\', '', $path);
+if ($_SERVER['REQUEST_URI']){
+    $path = dirname($_SERVER['REQUEST_URI']);
+    if( substr($path, 0, -1) != '/' ) $path .= '/';
+    $path = str_replace("//", "/", $path);
+    $path = str_replace('\\', '', $path);
+} else {
+    $path = $_GET['path']?$_GET['path']:'/';
+}
 
 $domain->setPath($path);
 $domain->setTitleFormat('%title | Page title');
@@ -44,7 +47,11 @@ $pages = array(
     array(0, 'Blog', $defaultLayout, 'home', '',
         array(
             '1' => array(
-                array('text', 'Kryn.cms has been installed!', $defaultContentTemplate, '<p>Kryn.cms has been installed correctly.</p><p>&nbsp;</p><p><a href="http://www.kryn.org">Kryn CMS Website</a></p><p>&nbsp;</p><p>&nbsp;</p><p>Go to <a href="admin">administration</a> to manage your new website.</p><p>&nbsp;</p><p><strong>Default login:</strong></p><p><strong><br /></strong></p><p style="padding-left: 10px;">Username: admin</p><p style="padding-left: 10px;">Password: admin</p></div>')
+                array('text', 'Kryn.cms has been installed!', $defaultContentTemplate, '<p>Kryn.cms has been installed correctly.</p><p>&nbsp;</p><p><a href="http://www.kryn.org">Kryn CMS Website</a></p><p>&nbsp;</p><p>&nbsp;</p><p>Go to <a href="admin">administration</a> to manage your new website.</p><p>&nbsp;</p><p><strong>Default login:</strong></p><p><strong><br /></strong></p><p style="padding-left: 10px;">Username: admin</p><p style="padding-left: 10px;">Password: admin</p>'),
+                array('plugin', '', $defaultContentTemplate, 'publication::newsList::{"itemsPerPage":"","maxPages":"","detailPage":"16","template":"default","category_rsn":["1"]}')
+            ),
+            '2' => array(
+                array('plugin', '» CATEGORIES', $defaultContentTemplate, 'publication::categoryList::{"listPage":"1","template":"default","category_rsn":[]}'),
             )
         ),
         array(
@@ -56,6 +63,9 @@ $pages = array(
         array(
             '1' => array(
                 array('text', 'Links', $defaultContentTemplate, 'Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi.')
+            ),
+            '2' => array(
+                array('text', '» About', $defaultContentTemplate, 'hoho'),
             )
         ),
         array(
@@ -78,13 +88,14 @@ $pages = array(
 * 7: visible
 */
 foreach ($pages as $page){
+
     $oPage = new Page();
+
     $oPage->setDomainId($domain->getId());
     $oPage->setType($page[0]);
     $oPage->setTitle($page[1]);
     $oPage->setLayout($page[2]);
     $oPage->setUrl($page[3]);
-    $oPage->setParentId(0);
     $oPage->insertAsLastChildOf($root);
     if ($page[7])
         $oPage->setVisible($page[7]);

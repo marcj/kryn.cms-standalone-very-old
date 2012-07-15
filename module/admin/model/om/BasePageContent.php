@@ -43,10 +43,16 @@ abstract class BasePageContent extends BaseObject
     protected $page_id;
 
     /**
-     * The value for the version_id field.
+     * The value for the box_id field.
      * @var        int
      */
-    protected $version_id;
+    protected $box_id;
+
+    /**
+     * The value for the sortable_id field.
+     * @var        string
+     */
+    protected $sortable_id;
 
     /**
      * The value for the title field.
@@ -79,18 +85,6 @@ abstract class BasePageContent extends BaseObject
     protected $hide;
 
     /**
-     * The value for the sort field.
-     * @var        int
-     */
-    protected $sort;
-
-    /**
-     * The value for the box_id field.
-     * @var        int
-     */
-    protected $box_id;
-
-    /**
      * The value for the owner_id field.
      * @var        int
      */
@@ -121,14 +115,15 @@ abstract class BasePageContent extends BaseObject
     protected $unsearchable;
 
     /**
+     * The value for the sortable_rank field.
+     * @var        int
+     */
+    protected $sortable_rank;
+
+    /**
      * @var        Page
      */
     protected $aPage;
-
-    /**
-     * @var        PageVersion
-     */
-    protected $aPageVersion;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -143,6 +138,14 @@ abstract class BasePageContent extends BaseObject
      * @var        boolean
      */
     protected $alreadyInValidation = false;
+
+	// sortable behavior
+	
+	/**
+	 * Queries to be executed in the save transaction
+	 * @var        array
+	 */
+	protected $sortableQueries = array();
 
     /**
      * Get the [id] column value.
@@ -167,14 +170,25 @@ abstract class BasePageContent extends BaseObject
     }
 
     /**
-     * Get the [version_id] column value.
+     * Get the [box_id] column value.
      * 
      * @return   int
      */
-    public function getVersionId()
+    public function getBoxId()
     {
 
-        return $this->version_id;
+        return $this->box_id;
+    }
+
+    /**
+     * Get the [sortable_id] column value.
+     * 
+     * @return   string
+     */
+    public function getSortableId()
+    {
+
+        return $this->sortable_id;
     }
 
     /**
@@ -233,28 +247,6 @@ abstract class BasePageContent extends BaseObject
     }
 
     /**
-     * Get the [sort] column value.
-     * 
-     * @return   int
-     */
-    public function getSort()
-    {
-
-        return $this->sort;
-    }
-
-    /**
-     * Get the [box_id] column value.
-     * 
-     * @return   int
-     */
-    public function getBoxId()
-    {
-
-        return $this->box_id;
-    }
-
-    /**
      * Get the [owner_id] column value.
      * 
      * @return   int
@@ -310,6 +302,17 @@ abstract class BasePageContent extends BaseObject
     }
 
     /**
+     * Get the [sortable_rank] column value.
+     * 
+     * @return   int
+     */
+    public function getSortableRank()
+    {
+
+        return $this->sortable_rank;
+    }
+
+    /**
      * Set the value of [id] column.
      * 
      * @param      int $v new value
@@ -356,29 +359,46 @@ abstract class BasePageContent extends BaseObject
     } // setPageId()
 
     /**
-     * Set the value of [version_id] column.
+     * Set the value of [box_id] column.
      * 
      * @param      int $v new value
      * @return   PageContent The current object (for fluent API support)
      */
-    public function setVersionId($v)
+    public function setBoxId($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->version_id !== $v) {
-            $this->version_id = $v;
-            $this->modifiedColumns[] = PageContentPeer::VERSION_ID;
-        }
-
-        if ($this->aPageVersion !== null && $this->aPageVersion->getId() !== $v) {
-            $this->aPageVersion = null;
+        if ($this->box_id !== $v) {
+            $this->box_id = $v;
+            $this->modifiedColumns[] = PageContentPeer::BOX_ID;
         }
 
 
         return $this;
-    } // setVersionId()
+    } // setBoxId()
+
+    /**
+     * Set the value of [sortable_id] column.
+     * 
+     * @param      string $v new value
+     * @return   PageContent The current object (for fluent API support)
+     */
+    public function setSortableId($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->sortable_id !== $v) {
+            $this->sortable_id = $v;
+            $this->modifiedColumns[] = PageContentPeer::SORTABLE_ID;
+        }
+
+
+        return $this;
+    } // setSortableId()
 
     /**
      * Set the value of [title] column.
@@ -486,48 +506,6 @@ abstract class BasePageContent extends BaseObject
     } // setHide()
 
     /**
-     * Set the value of [sort] column.
-     * 
-     * @param      int $v new value
-     * @return   PageContent The current object (for fluent API support)
-     */
-    public function setSort($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->sort !== $v) {
-            $this->sort = $v;
-            $this->modifiedColumns[] = PageContentPeer::SORT;
-        }
-
-
-        return $this;
-    } // setSort()
-
-    /**
-     * Set the value of [box_id] column.
-     * 
-     * @param      int $v new value
-     * @return   PageContent The current object (for fluent API support)
-     */
-    public function setBoxId($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->box_id !== $v) {
-            $this->box_id = $v;
-            $this->modifiedColumns[] = PageContentPeer::BOX_ID;
-        }
-
-
-        return $this;
-    } // setBoxId()
-
-    /**
      * Set the value of [owner_id] column.
      * 
      * @param      int $v new value
@@ -633,6 +611,27 @@ abstract class BasePageContent extends BaseObject
     } // setUnsearchable()
 
     /**
+     * Set the value of [sortable_rank] column.
+     * 
+     * @param      int $v new value
+     * @return   PageContent The current object (for fluent API support)
+     */
+    public function setSortableRank($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->sortable_rank !== $v) {
+            $this->sortable_rank = $v;
+            $this->modifiedColumns[] = PageContentPeer::SORTABLE_RANK;
+        }
+
+
+        return $this;
+    } // setSortableRank()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -666,19 +665,19 @@ abstract class BasePageContent extends BaseObject
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
             $this->page_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
-            $this->version_id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
-            $this->title = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
-            $this->content = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
-            $this->template = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
-            $this->type = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
-            $this->hide = ($row[$startcol + 7] !== null) ? (int) $row[$startcol + 7] : null;
-            $this->sort = ($row[$startcol + 8] !== null) ? (int) $row[$startcol + 8] : null;
-            $this->box_id = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
-            $this->owner_id = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
-            $this->access_from = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
-            $this->access_to = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
-            $this->access_from_groups = ($row[$startcol + 13] !== null) ? (string) $row[$startcol + 13] : null;
-            $this->unsearchable = ($row[$startcol + 14] !== null) ? (int) $row[$startcol + 14] : null;
+            $this->box_id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
+            $this->sortable_id = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
+            $this->title = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->content = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
+            $this->template = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
+            $this->type = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
+            $this->hide = ($row[$startcol + 8] !== null) ? (int) $row[$startcol + 8] : null;
+            $this->owner_id = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
+            $this->access_from = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
+            $this->access_to = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
+            $this->access_from_groups = ($row[$startcol + 12] !== null) ? (string) $row[$startcol + 12] : null;
+            $this->unsearchable = ($row[$startcol + 13] !== null) ? (int) $row[$startcol + 13] : null;
+            $this->sortable_rank = ($row[$startcol + 14] !== null) ? (int) $row[$startcol + 14] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -712,9 +711,6 @@ abstract class BasePageContent extends BaseObject
 
         if ($this->aPage !== null && $this->page_id !== $this->aPage->getId()) {
             $this->aPage = null;
-        }
-        if ($this->aPageVersion !== null && $this->version_id !== $this->aPageVersion->getId()) {
-            $this->aPageVersion = null;
         }
     } // ensureConsistency
 
@@ -756,7 +752,6 @@ abstract class BasePageContent extends BaseObject
         if ($deep) {  // also de-associate any related objects?
 
             $this->aPage = null;
-            $this->aPageVersion = null;
         } // if (deep)
     }
 
@@ -785,6 +780,11 @@ abstract class BasePageContent extends BaseObject
             $deleteQuery = PageContentQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
+			// sortable behavior
+			
+			PageContentPeer::shiftRank(-1, $this->getSortableRank() + 1, null, $this->getSortableId(), $con);
+			PageContentPeer::clearInstancePool();
+
             if ($ret) {
                 $deleteQuery->delete($con);
                 $this->postDelete($con);
@@ -827,8 +827,22 @@ abstract class BasePageContent extends BaseObject
         $isInsert = $this->isNew();
         try {
             $ret = $this->preSave($con);
+			// sluggable behavior
+			
+			if ($this->isColumnModified(PageContentPeer::SORTABLE_ID) && $this->getSortableId()) {
+			    $this->setSortableId($this->makeSlugUnique($this->getSortableId()));
+			} else {
+			    $this->setSortableId($this->createSlug());
+			}
+			// sortable behavior
+			$this->processSortableQueries($con);
             if ($isInsert) {
                 $ret = $ret && $this->preInsert($con);
+				// sortable behavior
+				if (!$this->isColumnModified(PageContentPeer::RANK_COL)) {
+				    $this->setSortableRank(PageContentQuery::create()->getMaxRank($this->getSortableId(), $con) + 1);
+				}
+
             } else {
                 $ret = $ret && $this->preUpdate($con);
             }
@@ -880,13 +894,6 @@ abstract class BasePageContent extends BaseObject
                     $affectedRows += $this->aPage->save($con);
                 }
                 $this->setPage($this->aPage);
-            }
-
-            if ($this->aPageVersion !== null) {
-                if ($this->aPageVersion->isModified() || $this->aPageVersion->isNew()) {
-                    $affectedRows += $this->aPageVersion->save($con);
-                }
-                $this->setPageVersion($this->aPageVersion);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -942,8 +949,11 @@ abstract class BasePageContent extends BaseObject
         if ($this->isColumnModified(PageContentPeer::PAGE_ID)) {
             $modifiedColumns[':p' . $index++]  = 'PAGE_ID';
         }
-        if ($this->isColumnModified(PageContentPeer::VERSION_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'VERSION_ID';
+        if ($this->isColumnModified(PageContentPeer::BOX_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'BOX_ID';
+        }
+        if ($this->isColumnModified(PageContentPeer::SORTABLE_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'SORTABLE_ID';
         }
         if ($this->isColumnModified(PageContentPeer::TITLE)) {
             $modifiedColumns[':p' . $index++]  = 'TITLE';
@@ -960,12 +970,6 @@ abstract class BasePageContent extends BaseObject
         if ($this->isColumnModified(PageContentPeer::HIDE)) {
             $modifiedColumns[':p' . $index++]  = 'HIDE';
         }
-        if ($this->isColumnModified(PageContentPeer::SORT)) {
-            $modifiedColumns[':p' . $index++]  = 'SORT';
-        }
-        if ($this->isColumnModified(PageContentPeer::BOX_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'BOX_ID';
-        }
         if ($this->isColumnModified(PageContentPeer::OWNER_ID)) {
             $modifiedColumns[':p' . $index++]  = 'OWNER_ID';
         }
@@ -980,6 +984,9 @@ abstract class BasePageContent extends BaseObject
         }
         if ($this->isColumnModified(PageContentPeer::UNSEARCHABLE)) {
             $modifiedColumns[':p' . $index++]  = 'UNSEARCHABLE';
+        }
+        if ($this->isColumnModified(PageContentPeer::SORTABLE_RANK)) {
+            $modifiedColumns[':p' . $index++]  = 'SORTABLE_RANK';
         }
 
         $sql = sprintf(
@@ -998,8 +1005,11 @@ abstract class BasePageContent extends BaseObject
                     case 'PAGE_ID':
 						$stmt->bindValue($identifier, $this->page_id, PDO::PARAM_INT);
                         break;
-                    case 'VERSION_ID':
-						$stmt->bindValue($identifier, $this->version_id, PDO::PARAM_INT);
+                    case 'BOX_ID':
+						$stmt->bindValue($identifier, $this->box_id, PDO::PARAM_INT);
+                        break;
+                    case 'SORTABLE_ID':
+						$stmt->bindValue($identifier, $this->sortable_id, PDO::PARAM_STR);
                         break;
                     case 'TITLE':
 						$stmt->bindValue($identifier, $this->title, PDO::PARAM_STR);
@@ -1016,12 +1026,6 @@ abstract class BasePageContent extends BaseObject
                     case 'HIDE':
 						$stmt->bindValue($identifier, $this->hide, PDO::PARAM_INT);
                         break;
-                    case 'SORT':
-						$stmt->bindValue($identifier, $this->sort, PDO::PARAM_INT);
-                        break;
-                    case 'BOX_ID':
-						$stmt->bindValue($identifier, $this->box_id, PDO::PARAM_INT);
-                        break;
                     case 'OWNER_ID':
 						$stmt->bindValue($identifier, $this->owner_id, PDO::PARAM_INT);
                         break;
@@ -1036,6 +1040,9 @@ abstract class BasePageContent extends BaseObject
                         break;
                     case 'UNSEARCHABLE':
 						$stmt->bindValue($identifier, $this->unsearchable, PDO::PARAM_INT);
+                        break;
+                    case 'SORTABLE_RANK':
+						$stmt->bindValue($identifier, $this->sortable_rank, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -1135,12 +1142,6 @@ abstract class BasePageContent extends BaseObject
                 }
             }
 
-            if ($this->aPageVersion !== null) {
-                if (!$this->aPageVersion->validate($columns)) {
-                    $failureMap = array_merge($failureMap, $this->aPageVersion->getValidationFailures());
-                }
-            }
-
 
             if (($retval = PageContentPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
@@ -1189,43 +1190,43 @@ abstract class BasePageContent extends BaseObject
                 return $this->getPageId();
                 break;
             case 2:
-                return $this->getVersionId();
-                break;
-            case 3:
-                return $this->getTitle();
-                break;
-            case 4:
-                return $this->getContent();
-                break;
-            case 5:
-                return $this->getTemplate();
-                break;
-            case 6:
-                return $this->getType();
-                break;
-            case 7:
-                return $this->getHide();
-                break;
-            case 8:
-                return $this->getSort();
-                break;
-            case 9:
                 return $this->getBoxId();
                 break;
-            case 10:
+            case 3:
+                return $this->getSortableId();
+                break;
+            case 4:
+                return $this->getTitle();
+                break;
+            case 5:
+                return $this->getContent();
+                break;
+            case 6:
+                return $this->getTemplate();
+                break;
+            case 7:
+                return $this->getType();
+                break;
+            case 8:
+                return $this->getHide();
+                break;
+            case 9:
                 return $this->getOwnerId();
                 break;
-            case 11:
+            case 10:
                 return $this->getAccessFrom();
                 break;
-            case 12:
+            case 11:
                 return $this->getAccessTo();
                 break;
-            case 13:
+            case 12:
                 return $this->getAccessFromGroups();
                 break;
-            case 14:
+            case 13:
                 return $this->getUnsearchable();
+                break;
+            case 14:
+                return $this->getSortableRank();
                 break;
             default:
                 return null;
@@ -1258,26 +1259,23 @@ abstract class BasePageContent extends BaseObject
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getPageId(),
-            $keys[2] => $this->getVersionId(),
-            $keys[3] => $this->getTitle(),
-            $keys[4] => $this->getContent(),
-            $keys[5] => $this->getTemplate(),
-            $keys[6] => $this->getType(),
-            $keys[7] => $this->getHide(),
-            $keys[8] => $this->getSort(),
-            $keys[9] => $this->getBoxId(),
-            $keys[10] => $this->getOwnerId(),
-            $keys[11] => $this->getAccessFrom(),
-            $keys[12] => $this->getAccessTo(),
-            $keys[13] => $this->getAccessFromGroups(),
-            $keys[14] => $this->getUnsearchable(),
+            $keys[2] => $this->getBoxId(),
+            $keys[3] => $this->getSortableId(),
+            $keys[4] => $this->getTitle(),
+            $keys[5] => $this->getContent(),
+            $keys[6] => $this->getTemplate(),
+            $keys[7] => $this->getType(),
+            $keys[8] => $this->getHide(),
+            $keys[9] => $this->getOwnerId(),
+            $keys[10] => $this->getAccessFrom(),
+            $keys[11] => $this->getAccessTo(),
+            $keys[12] => $this->getAccessFromGroups(),
+            $keys[13] => $this->getUnsearchable(),
+            $keys[14] => $this->getSortableRank(),
         );
         if ($includeForeignObjects) {
             if (null !== $this->aPage) {
                 $result['Page'] = $this->aPage->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
-            }
-            if (null !== $this->aPageVersion) {
-                $result['PageVersion'] = $this->aPageVersion->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -1320,43 +1318,43 @@ abstract class BasePageContent extends BaseObject
                 $this->setPageId($value);
                 break;
             case 2:
-                $this->setVersionId($value);
-                break;
-            case 3:
-                $this->setTitle($value);
-                break;
-            case 4:
-                $this->setContent($value);
-                break;
-            case 5:
-                $this->setTemplate($value);
-                break;
-            case 6:
-                $this->setType($value);
-                break;
-            case 7:
-                $this->setHide($value);
-                break;
-            case 8:
-                $this->setSort($value);
-                break;
-            case 9:
                 $this->setBoxId($value);
                 break;
-            case 10:
+            case 3:
+                $this->setSortableId($value);
+                break;
+            case 4:
+                $this->setTitle($value);
+                break;
+            case 5:
+                $this->setContent($value);
+                break;
+            case 6:
+                $this->setTemplate($value);
+                break;
+            case 7:
+                $this->setType($value);
+                break;
+            case 8:
+                $this->setHide($value);
+                break;
+            case 9:
                 $this->setOwnerId($value);
                 break;
-            case 11:
+            case 10:
                 $this->setAccessFrom($value);
                 break;
-            case 12:
+            case 11:
                 $this->setAccessTo($value);
                 break;
-            case 13:
+            case 12:
                 $this->setAccessFromGroups($value);
                 break;
-            case 14:
+            case 13:
                 $this->setUnsearchable($value);
+                break;
+            case 14:
+                $this->setSortableRank($value);
                 break;
         } // switch()
     }
@@ -1384,19 +1382,19 @@ abstract class BasePageContent extends BaseObject
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setPageId($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setVersionId($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setTitle($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setContent($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setTemplate($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setType($arr[$keys[6]]);
-        if (array_key_exists($keys[7], $arr)) $this->setHide($arr[$keys[7]]);
-        if (array_key_exists($keys[8], $arr)) $this->setSort($arr[$keys[8]]);
-        if (array_key_exists($keys[9], $arr)) $this->setBoxId($arr[$keys[9]]);
-        if (array_key_exists($keys[10], $arr)) $this->setOwnerId($arr[$keys[10]]);
-        if (array_key_exists($keys[11], $arr)) $this->setAccessFrom($arr[$keys[11]]);
-        if (array_key_exists($keys[12], $arr)) $this->setAccessTo($arr[$keys[12]]);
-        if (array_key_exists($keys[13], $arr)) $this->setAccessFromGroups($arr[$keys[13]]);
-        if (array_key_exists($keys[14], $arr)) $this->setUnsearchable($arr[$keys[14]]);
+        if (array_key_exists($keys[2], $arr)) $this->setBoxId($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setSortableId($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setTitle($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setContent($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setTemplate($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setType($arr[$keys[7]]);
+        if (array_key_exists($keys[8], $arr)) $this->setHide($arr[$keys[8]]);
+        if (array_key_exists($keys[9], $arr)) $this->setOwnerId($arr[$keys[9]]);
+        if (array_key_exists($keys[10], $arr)) $this->setAccessFrom($arr[$keys[10]]);
+        if (array_key_exists($keys[11], $arr)) $this->setAccessTo($arr[$keys[11]]);
+        if (array_key_exists($keys[12], $arr)) $this->setAccessFromGroups($arr[$keys[12]]);
+        if (array_key_exists($keys[13], $arr)) $this->setUnsearchable($arr[$keys[13]]);
+        if (array_key_exists($keys[14], $arr)) $this->setSortableRank($arr[$keys[14]]);
     }
 
     /**
@@ -1410,19 +1408,19 @@ abstract class BasePageContent extends BaseObject
 
         if ($this->isColumnModified(PageContentPeer::ID)) $criteria->add(PageContentPeer::ID, $this->id);
         if ($this->isColumnModified(PageContentPeer::PAGE_ID)) $criteria->add(PageContentPeer::PAGE_ID, $this->page_id);
-        if ($this->isColumnModified(PageContentPeer::VERSION_ID)) $criteria->add(PageContentPeer::VERSION_ID, $this->version_id);
+        if ($this->isColumnModified(PageContentPeer::BOX_ID)) $criteria->add(PageContentPeer::BOX_ID, $this->box_id);
+        if ($this->isColumnModified(PageContentPeer::SORTABLE_ID)) $criteria->add(PageContentPeer::SORTABLE_ID, $this->sortable_id);
         if ($this->isColumnModified(PageContentPeer::TITLE)) $criteria->add(PageContentPeer::TITLE, $this->title);
         if ($this->isColumnModified(PageContentPeer::CONTENT)) $criteria->add(PageContentPeer::CONTENT, $this->content);
         if ($this->isColumnModified(PageContentPeer::TEMPLATE)) $criteria->add(PageContentPeer::TEMPLATE, $this->template);
         if ($this->isColumnModified(PageContentPeer::TYPE)) $criteria->add(PageContentPeer::TYPE, $this->type);
         if ($this->isColumnModified(PageContentPeer::HIDE)) $criteria->add(PageContentPeer::HIDE, $this->hide);
-        if ($this->isColumnModified(PageContentPeer::SORT)) $criteria->add(PageContentPeer::SORT, $this->sort);
-        if ($this->isColumnModified(PageContentPeer::BOX_ID)) $criteria->add(PageContentPeer::BOX_ID, $this->box_id);
         if ($this->isColumnModified(PageContentPeer::OWNER_ID)) $criteria->add(PageContentPeer::OWNER_ID, $this->owner_id);
         if ($this->isColumnModified(PageContentPeer::ACCESS_FROM)) $criteria->add(PageContentPeer::ACCESS_FROM, $this->access_from);
         if ($this->isColumnModified(PageContentPeer::ACCESS_TO)) $criteria->add(PageContentPeer::ACCESS_TO, $this->access_to);
         if ($this->isColumnModified(PageContentPeer::ACCESS_FROM_GROUPS)) $criteria->add(PageContentPeer::ACCESS_FROM_GROUPS, $this->access_from_groups);
         if ($this->isColumnModified(PageContentPeer::UNSEARCHABLE)) $criteria->add(PageContentPeer::UNSEARCHABLE, $this->unsearchable);
+        if ($this->isColumnModified(PageContentPeer::SORTABLE_RANK)) $criteria->add(PageContentPeer::SORTABLE_RANK, $this->sortable_rank);
 
         return $criteria;
     }
@@ -1487,19 +1485,19 @@ abstract class BasePageContent extends BaseObject
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setPageId($this->getPageId());
-        $copyObj->setVersionId($this->getVersionId());
+        $copyObj->setBoxId($this->getBoxId());
+        $copyObj->setSortableId($this->getSortableId());
         $copyObj->setTitle($this->getTitle());
         $copyObj->setContent($this->getContent());
         $copyObj->setTemplate($this->getTemplate());
         $copyObj->setType($this->getType());
         $copyObj->setHide($this->getHide());
-        $copyObj->setSort($this->getSort());
-        $copyObj->setBoxId($this->getBoxId());
         $copyObj->setOwnerId($this->getOwnerId());
         $copyObj->setAccessFrom($this->getAccessFrom());
         $copyObj->setAccessTo($this->getAccessTo());
         $copyObj->setAccessFromGroups($this->getAccessFromGroups());
         $copyObj->setUnsearchable($this->getUnsearchable());
+        $copyObj->setSortableRank($this->getSortableRank());
 
         if ($deepCopy && !$this->startCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
@@ -1610,76 +1608,25 @@ abstract class BasePageContent extends BaseObject
     }
 
     /**
-     * Declares an association between this object and a PageVersion object.
-     *
-     * @param                  PageVersion $v
-     * @return                 PageContent The current object (for fluent API support)
-     * @throws PropelException
-     */
-    public function setPageVersion(PageVersion $v = null)
-    {
-        if ($v === null) {
-            $this->setVersionId(NULL);
-        } else {
-            $this->setVersionId($v->getId());
-        }
-
-        $this->aPageVersion = $v;
-
-        // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the PageVersion object, it will not be re-added.
-        if ($v !== null) {
-            $v->addPageContent($this);
-        }
-
-
-        return $this;
-    }
-
-
-    /**
-     * Get the associated PageVersion object
-     *
-     * @param      PropelPDO $con Optional Connection object.
-     * @return                 PageVersion The associated PageVersion object.
-     * @throws PropelException
-     */
-    public function getPageVersion(PropelPDO $con = null)
-    {
-        if ($this->aPageVersion === null && ($this->version_id !== null)) {
-            $this->aPageVersion = PageVersionQuery::create()->findPk($this->version_id, $con);
-            /* The following can be used additionally to
-                guarantee the related object contains a reference
-                to this object.  This level of coupling may, however, be
-                undesirable since it could result in an only partially populated collection
-                in the referenced object.
-                $this->aPageVersion->addPageContents($this);
-             */
-        }
-
-        return $this->aPageVersion;
-    }
-
-    /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
     {
         $this->id = null;
         $this->page_id = null;
-        $this->version_id = null;
+        $this->box_id = null;
+        $this->sortable_id = null;
         $this->title = null;
         $this->content = null;
         $this->template = null;
         $this->type = null;
         $this->hide = null;
-        $this->sort = null;
-        $this->box_id = null;
         $this->owner_id = null;
         $this->access_from = null;
         $this->access_to = null;
         $this->access_from_groups = null;
         $this->unsearchable = null;
+        $this->sortable_rank = null;
         $this->alreadyInSave = false;
         $this->alreadyInValidation = false;
         $this->clearAllReferences();
@@ -1703,7 +1650,6 @@ abstract class BasePageContent extends BaseObject
         } // if ($deep)
 
         $this->aPage = null;
-        $this->aPageVersion = null;
     }
 
     /**
@@ -1725,5 +1671,499 @@ abstract class BasePageContent extends BaseObject
     {
         return $this->alreadyInSave;
     }
+
+	// sluggable behavior
+	
+	/**
+	 * Wrap the setter for slug value
+	 *
+	 * @param   string
+	 * @return  PageContent
+	 */
+	public function setSlug($v)
+	{
+	    return $this->setSortableId($v);
+	}
+	
+	/**
+	 * Wrap the getter for slug value
+	 *
+	 * @return  string
+	 */
+	public function getSlug()
+	{
+	    return $this->getSortableId();
+	}
+	
+	/**
+	 * Create a unique slug based on the object
+	 *
+	 * @return string The object slug
+	 */
+	protected function createSlug()
+	{
+	    $slug = $this->createRawSlug();
+	    $slug = $this->limitSlugSize($slug);
+	    $slug = $this->makeSlugUnique($slug);
+	
+	    return $slug;
+	}
+	
+	/**
+	 * Create the slug from the appropriate columns
+	 *
+	 * @return string
+	 */
+	protected function createRawSlug()
+	{
+	    return '' . $this->cleanupSlugPart($this->getPageId()) . '_' . $this->cleanupSlugPart($this->getBoxId()) . '';
+	}
+	
+	/**
+	 * Cleanup a string to make a slug of it
+	 * Removes special characters, replaces blanks with a separator, and trim it
+	 *
+	 * @param     string $slug        the text to slugify
+	 * @param     string $replacement the separator used by slug
+	 * @return    string               the slugified text
+	 */
+	protected static function cleanupSlugPart($slug, $replacement = '-')
+	{
+	    // transliterate
+	    if (function_exists('iconv')) {
+	        $slug = iconv('utf-8', 'us-ascii//TRANSLIT', $slug);
+	    }
+	
+	    // lowercase
+	    if (function_exists('mb_strtolower')) {
+	        $slug = mb_strtolower($slug);
+	    } else {
+	        $slug = strtolower($slug);
+	    }
+	
+	    // remove accents resulting from OSX's iconv
+	    $slug = str_replace(array('\'', '`', '^'), '', $slug);
+	
+	    // replace non letter or digits with separator
+	    $slug = preg_replace('/[^\w\/]+/u', $replacement, $slug);
+	
+	    // trim
+	    $slug = trim($slug, $replacement);
+	
+	    if (empty($slug)) {
+	        return 'n-a';
+	    }
+	
+	    return $slug;
+	}
+	
+	
+	/**
+	 * Make sure the slug is short enough to accomodate the column size
+	 *
+	 * @param	string $slug                   the slug to check
+	 * @param	int    $incrementReservedSpace the number of characters to keep empty
+	 *
+	 * @return string						the truncated slug
+	 */
+	protected static function limitSlugSize($slug, $incrementReservedSpace = 3)
+	{
+	    // check length, as suffix could put it over maximum
+	    if (strlen($slug) > (32 - $incrementReservedSpace)) {
+	        $slug = substr($slug, 0, 32 - $incrementReservedSpace);
+	    }
+	
+	    return $slug;
+	}
+	
+	
+	/**
+	 * Get the slug, ensuring its uniqueness
+	 *
+	 * @param	string $slug			the slug to check
+	 * @param	string $separator the separator used by slug
+	 * @param	int    $increment the count of occurences of the slug
+	 * @return string						the unique slug
+	 */
+	protected function makeSlugUnique($slug, $separator = '/', $increment = 0)
+	{
+	    $slug2 = empty($increment) ? $slug : $slug . $separator . $increment;
+	    $slugAlreadyExists = PageContentQuery::create()
+	        ->filterBySlug($slug2)
+	        ->prune($this)
+	        ->count();
+	    if ($slugAlreadyExists) {
+	        return $this->makeSlugUnique($slug, $separator, ++$increment);
+	    } else {
+	        return $slug2;
+	    }
+	}
+
+	// sortable behavior
+	
+	/**
+	 * Wrap the getter for rank value
+	 *
+	 * @return    int
+	 */
+	public function getRank()
+	{
+	    return $this->sortable_rank;
+	}
+	
+	/**
+	 * Wrap the setter for rank value
+	 *
+	 * @param     int
+	 * @return    PageContent
+	 */
+	public function setRank($v)
+	{
+	    return $this->setSortableRank($v);
+	}
+	
+	/**
+	 * Wrap the getter for scope value
+	 *
+	 * @return    int
+	 */
+	public function getScopeValue()
+	{
+	    return $this->sortable_id;
+	}
+	
+	/**
+	 * Wrap the setter for scope value
+	 *
+	 * @param     int
+	 * @return    PageContent
+	 */
+	public function setScopeValue($v)
+	{
+	    return $this->setSortableId($v);
+	}
+	
+	/**
+	 * Check if the object is first in the list, i.e. if it has 1 for rank
+	 *
+	 * @return    boolean
+	 */
+	public function isFirst()
+	{
+	    return $this->getSortableRank() == 1;
+	}
+	
+	/**
+	 * Check if the object is last in the list, i.e. if its rank is the highest rank
+	 *
+	 * @param     PropelPDO  $con      optional connection
+	 *
+	 * @return    boolean
+	 */
+	public function isLast(PropelPDO $con = null)
+	{
+	    return $this->getSortableRank() == PageContentQuery::create()->getMaxRank($this->getSortableId(), $con);
+	}
+	
+	/**
+	 * Get the next item in the list, i.e. the one for which rank is immediately higher
+	 *
+	 * @param     PropelPDO  $con      optional connection
+	 *
+	 * @return    PageContent
+	 */
+	public function getNext(PropelPDO $con = null)
+	{
+	
+	    return PageContentQuery::create()->findOneByRank($this->getSortableRank() + 1, $this->getSortableId(), $con);
+	}
+	
+	/**
+	 * Get the previous item in the list, i.e. the one for which rank is immediately lower
+	 *
+	 * @param     PropelPDO  $con      optional connection
+	 *
+	 * @return    PageContent
+	 */
+	public function getPrevious(PropelPDO $con = null)
+	{
+	
+	    return PageContentQuery::create()->findOneByRank($this->getSortableRank() - 1, $this->getSortableId(), $con);
+	}
+	
+	/**
+	 * Insert at specified rank
+	 * The modifications are not persisted until the object is saved.
+	 *
+	 * @param     integer    $rank rank value
+	 * @param     PropelPDO  $con      optional connection
+	 *
+	 * @return    PageContent the current object
+	 *
+	 * @throws    PropelException
+	 */
+	public function insertAtRank($rank, PropelPDO $con = null)
+	{
+	    if (null === $this->getSortableId()) {
+	        throw new PropelException('The scope must be defined before inserting an object in a suite');
+	    }
+	    $maxRank = PageContentQuery::create()->getMaxRank($this->getSortableId(), $con);
+	    if ($rank < 1 || $rank > $maxRank + 1) {
+	        throw new PropelException('Invalid rank ' . $rank);
+	    }
+	    // move the object in the list, at the given rank
+	    $this->setSortableRank($rank);
+	    if ($rank != $maxRank + 1) {
+	        // Keep the list modification query for the save() transaction
+	        $this->sortableQueries []= array(
+	            'callable'  => array(self::PEER, 'shiftRank'),
+	            'arguments' => array(1, $rank, null, $this->getSortableId())
+	        );
+	    }
+	
+	    return $this;
+	}
+	
+	/**
+	 * Insert in the last rank
+	 * The modifications are not persisted until the object is saved.
+	 *
+	 * @param PropelPDO $con optional connection
+	 *
+	 * @return    PageContent the current object
+	 *
+	 * @throws    PropelException
+	 */
+	public function insertAtBottom(PropelPDO $con = null)
+	{
+	    if (null === $this->getSortableId()) {
+	        throw new PropelException('The scope must be defined before inserting an object in a suite');
+	    }
+	    $this->setSortableRank(PageContentQuery::create()->getMaxRank($this->getSortableId(), $con) + 1);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Insert in the first rank
+	 * The modifications are not persisted until the object is saved.
+	 *
+	 * @return    PageContent the current object
+	 */
+	public function insertAtTop()
+	{
+	    return $this->insertAtRank(1);
+	}
+	
+	/**
+	 * Move the object to a new rank, and shifts the rank
+	 * Of the objects inbetween the old and new rank accordingly
+	 *
+	 * @param     integer   $newRank rank value
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return    PageContent the current object
+	 *
+	 * @throws    PropelException
+	 */
+	public function moveToRank($newRank, PropelPDO $con = null)
+	{
+	    if ($this->isNew()) {
+	        throw new PropelException('New objects cannot be moved. Please use insertAtRank() instead');
+	    }
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    if ($newRank < 1 || $newRank > PageContentQuery::create()->getMaxRank($this->getSortableId(), $con)) {
+	        throw new PropelException('Invalid rank ' . $newRank);
+	    }
+	
+	    $oldRank = $this->getSortableRank();
+	    if ($oldRank == $newRank) {
+	        return $this;
+	    }
+	
+	    $con->beginTransaction();
+	    try {
+	        // shift the objects between the old and the new rank
+	        $delta = ($oldRank < $newRank) ? -1 : 1;
+	        PageContentPeer::shiftRank($delta, min($oldRank, $newRank), max($oldRank, $newRank), $this->getSortableId(), $con);
+	
+	        // move the object to its new rank
+	        $this->setSortableRank($newRank);
+	        $this->save($con);
+	
+	        $con->commit();
+	
+	        return $this;
+	    } catch (Exception $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
+	
+	/**
+	 * Exchange the rank of the object with the one passed as argument, and saves both objects
+	 *
+	 * @param     PageContent $object
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return    PageContent the current object
+	 *
+	 * @throws Exception if the database cannot execute the two updates
+	 */
+	public function swapWith($object, PropelPDO $con = null)
+	{
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    $con->beginTransaction();
+	    try {
+	        $oldRank = $this->getSortableRank();
+	        $newRank = $object->getSortableRank();
+	        $this->setSortableRank($newRank);
+	        $this->save($con);
+	        $object->setSortableRank($oldRank);
+	        $object->save($con);
+	        $con->commit();
+	
+	        return $this;
+	    } catch (Exception $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
+	
+	/**
+	 * Move the object higher in the list, i.e. exchanges its rank with the one of the previous object
+	 *
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return    PageContent the current object
+	 */
+	public function moveUp(PropelPDO $con = null)
+	{
+	    if ($this->isFirst()) {
+	        return $this;
+	    }
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    $con->beginTransaction();
+	    try {
+	        $prev = $this->getPrevious($con);
+	        $this->swapWith($prev, $con);
+	        $con->commit();
+	
+	        return $this;
+	    } catch (Exception $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
+	
+	/**
+	 * Move the object higher in the list, i.e. exchanges its rank with the one of the next object
+	 *
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return    PageContent the current object
+	 */
+	public function moveDown(PropelPDO $con = null)
+	{
+	    if ($this->isLast($con)) {
+	        return $this;
+	    }
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    $con->beginTransaction();
+	    try {
+	        $next = $this->getNext($con);
+	        $this->swapWith($next, $con);
+	        $con->commit();
+	
+	        return $this;
+	    } catch (Exception $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
+	
+	/**
+	 * Move the object to the top of the list
+	 *
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return    PageContent the current object
+	 */
+	public function moveToTop(PropelPDO $con = null)
+	{
+	    if ($this->isFirst()) {
+	        return $this;
+	    }
+	
+	    return $this->moveToRank(1, $con);
+	}
+	
+	/**
+	 * Move the object to the bottom of the list
+	 *
+	 * @param     PropelPDO $con optional connection
+	 *
+	 * @return integer the old object's rank
+	 */
+	public function moveToBottom(PropelPDO $con = null)
+	{
+	    if ($this->isLast($con)) {
+	        return false;
+	    }
+	    if ($con === null) {
+	        $con = Propel::getConnection(PageContentPeer::DATABASE_NAME);
+	    }
+	    $con->beginTransaction();
+	    try {
+	        $bottom = PageContentQuery::create()->getMaxRank($this->getSortableId(), $con);
+	        $res = $this->moveToRank($bottom, $con);
+	        $con->commit();
+	
+	        return $res;
+	    } catch (Exception $e) {
+	        $con->rollback();
+	        throw $e;
+	    }
+	}
+	
+	/**
+	 * Removes the current object from the list.
+	 * The modifications are not persisted until the object is saved.
+	 *
+	 * @return    PageContent the current object
+	 */
+	public function removeFromList()
+	{
+	    // Keep the list modification query for the save() transaction
+	    $this->sortableQueries []= array(
+	        'callable'  => array(self::PEER, 'shiftRank'),
+	        'arguments' => array(-1, $this->getSortableRank() + 1, null, $this->getSortableId())
+	    );
+	    // remove the object from the list
+	    $this->setSortableRank(null);
+	    $this->setSortableId(null);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Execute queries that were saved to be run inside the save transaction
+	 */
+	protected function processSortableQueries($con)
+	{
+	    foreach ($this->sortableQueries as $query) {
+	        $query['arguments'][]= $con;
+	        call_user_func_array($query['callable'], $query['arguments']);
+	    }
+	    $this->sortableQueries = array();
+	}
 
 } // BasePageContent
