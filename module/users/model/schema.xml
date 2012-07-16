@@ -20,7 +20,7 @@
     </table>
 
 
-    <table name="system_user_group" phpName="UserGroup" idMethod="native">
+    <table name="system_user_group" phpName="UserGroup" isCrossRef="true">
         <column name="group_id" type="INTEGER" primaryKey="true" required="true"/>
         <column name="user_id" type="INTEGER" primaryKey="true" required="true"/>
         <foreign-key foreignTable="system_user">
@@ -49,8 +49,7 @@
         <column name="email" type="VARCHAR" size="255" required="false"/>
         <column name="desktop" type="LONGVARCHAR" required="false"/>
         <column name="settings" type="LONGVARCHAR" required="false"/>
-        <column name="created" type="INTEGER" required="true"/>
-        <column name="modified" type="INTEGER" required="false"/>
+
         <column name="first_name" type="VARCHAR" size="255" required="false"/>
         <column name="last_name" type="VARCHAR" size="255" required="false"/>
         <column name="sex" type="INTEGER" required="false"/>

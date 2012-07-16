@@ -55,14 +55,14 @@ abstract class BaseDomainPeer {
     /** the column name for the PAGE404_ID field */
     const PAGE404_ID = 'kryn_system_domain.PAGE404_ID';
 
-    /** the column name for the PAGE404INTERFACE field */
-    const PAGE404INTERFACE = 'kryn_system_domain.PAGE404INTERFACE';
+    /** the column name for the PAGE404_INTERFACE field */
+    const PAGE404_INTERFACE = 'kryn_system_domain.PAGE404_INTERFACE';
 
     /** the column name for the MASTER field */
     const MASTER = 'kryn_system_domain.MASTER';
 
-    /** the column name for the RESOURCECOMPRESSION field */
-    const RESOURCECOMPRESSION = 'kryn_system_domain.RESOURCECOMPRESSION';
+    /** the column name for the RESOURCE_COMPRESSION field */
+    const RESOURCE_COMPRESSION = 'kryn_system_domain.RESOURCE_COMPRESSION';
 
     /** the column name for the LAYOUTS field */
     const LAYOUTS = 'kryn_system_domain.LAYOUTS';
@@ -73,11 +73,14 @@ abstract class BaseDomainPeer {
     /** the column name for the PATH field */
     const PATH = 'kryn_system_domain.PATH';
 
-    /** the column name for the THEMEPROPERTIES field */
-    const THEMEPROPERTIES = 'kryn_system_domain.THEMEPROPERTIES';
+    /** the column name for the THEME_PROPERTIES field */
+    const THEME_PROPERTIES = 'kryn_system_domain.THEME_PROPERTIES';
 
-    /** the column name for the EXTPROPERTIES field */
-    const EXTPROPERTIES = 'kryn_system_domain.EXTPROPERTIES';
+    /** the column name for the EXTENSION_PROPERTIES field */
+    const EXTENSION_PROPERTIES = 'kryn_system_domain.EXTENSION_PROPERTIES';
+
+    /** the column name for the SESSION_PROPERTIES field */
+    const SESSION_PROPERTIES = 'kryn_system_domain.SESSION_PROPERTIES';
 
     /** the column name for the EMAIL field */
     const EMAIL = 'kryn_system_domain.EMAIL';
@@ -87,9 +90,6 @@ abstract class BaseDomainPeer {
 
     /** the column name for the ROBOTS field */
     const ROBOTS = 'kryn_system_domain.ROBOTS';
-
-    /** the column name for the SESSION field */
-    const SESSION = 'kryn_system_domain.SESSION';
 
     /** the column name for the FAVICON field */
     const FAVICON = 'kryn_system_domain.FAVICON';
@@ -113,11 +113,11 @@ abstract class BaseDomainPeer {
      * e.g. DomainPeer::$fieldNames[DomainPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'Domain', 'TitleFormat', 'Lang', 'StartpageId', 'Alias', 'Redirect', 'Page404id', 'Page404interface', 'Master', 'Resourcecompression', 'Layouts', 'Phplocale', 'Path', 'Themeproperties', 'Extproperties', 'Email', 'SearchIndexKey', 'Robots', 'Session', 'Favicon', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'domain', 'titleFormat', 'lang', 'startpageId', 'alias', 'redirect', 'page404id', 'page404interface', 'master', 'resourcecompression', 'layouts', 'phplocale', 'path', 'themeproperties', 'extproperties', 'email', 'searchIndexKey', 'robots', 'session', 'favicon', ),
-        BasePeer::TYPE_COLNAME => array (DomainPeer::ID, DomainPeer::DOMAIN, DomainPeer::TITLE_FORMAT, DomainPeer::LANG, DomainPeer::STARTPAGE_ID, DomainPeer::ALIAS, DomainPeer::REDIRECT, DomainPeer::PAGE404_ID, DomainPeer::PAGE404INTERFACE, DomainPeer::MASTER, DomainPeer::RESOURCECOMPRESSION, DomainPeer::LAYOUTS, DomainPeer::PHPLOCALE, DomainPeer::PATH, DomainPeer::THEMEPROPERTIES, DomainPeer::EXTPROPERTIES, DomainPeer::EMAIL, DomainPeer::SEARCH_INDEX_KEY, DomainPeer::ROBOTS, DomainPeer::SESSION, DomainPeer::FAVICON, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'DOMAIN', 'TITLE_FORMAT', 'LANG', 'STARTPAGE_ID', 'ALIAS', 'REDIRECT', 'PAGE404_ID', 'PAGE404INTERFACE', 'MASTER', 'RESOURCECOMPRESSION', 'LAYOUTS', 'PHPLOCALE', 'PATH', 'THEMEPROPERTIES', 'EXTPROPERTIES', 'EMAIL', 'SEARCH_INDEX_KEY', 'ROBOTS', 'SESSION', 'FAVICON', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'domain', 'title_format', 'lang', 'startpage_id', 'alias', 'redirect', 'page404_id', 'page404interface', 'master', 'resourcecompression', 'layouts', 'phplocale', 'path', 'themeproperties', 'extproperties', 'email', 'search_index_key', 'robots', 'session', 'favicon', ),
+        BasePeer::TYPE_PHPNAME => array ('Id', 'Domain', 'TitleFormat', 'Lang', 'StartpageId', 'Alias', 'Redirect', 'Page404id', 'Page404interface', 'Master', 'ResourceCompression', 'Layouts', 'Phplocale', 'Path', 'ThemeProperties', 'ExtensionProperties', 'SessionProperties', 'Email', 'SearchIndexKey', 'Robots', 'Favicon', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'domain', 'titleFormat', 'lang', 'startpageId', 'alias', 'redirect', 'page404id', 'page404interface', 'master', 'resourceCompression', 'layouts', 'phplocale', 'path', 'themeProperties', 'extensionProperties', 'sessionProperties', 'email', 'searchIndexKey', 'robots', 'favicon', ),
+        BasePeer::TYPE_COLNAME => array (DomainPeer::ID, DomainPeer::DOMAIN, DomainPeer::TITLE_FORMAT, DomainPeer::LANG, DomainPeer::STARTPAGE_ID, DomainPeer::ALIAS, DomainPeer::REDIRECT, DomainPeer::PAGE404_ID, DomainPeer::PAGE404_INTERFACE, DomainPeer::MASTER, DomainPeer::RESOURCE_COMPRESSION, DomainPeer::LAYOUTS, DomainPeer::PHPLOCALE, DomainPeer::PATH, DomainPeer::THEME_PROPERTIES, DomainPeer::EXTENSION_PROPERTIES, DomainPeer::SESSION_PROPERTIES, DomainPeer::EMAIL, DomainPeer::SEARCH_INDEX_KEY, DomainPeer::ROBOTS, DomainPeer::FAVICON, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'DOMAIN', 'TITLE_FORMAT', 'LANG', 'STARTPAGE_ID', 'ALIAS', 'REDIRECT', 'PAGE404_ID', 'PAGE404_INTERFACE', 'MASTER', 'RESOURCE_COMPRESSION', 'LAYOUTS', 'PHPLOCALE', 'PATH', 'THEME_PROPERTIES', 'EXTENSION_PROPERTIES', 'SESSION_PROPERTIES', 'EMAIL', 'SEARCH_INDEX_KEY', 'ROBOTS', 'FAVICON', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'domain', 'title_format', 'lang', 'startpage_id', 'alias', 'redirect', 'page404_id', 'page404_interface', 'master', 'resource_compression', 'layouts', 'phplocale', 'path', 'theme_properties', 'extension_properties', 'session_properties', 'email', 'search_index_key', 'robots', 'favicon', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, )
     );
 
@@ -128,11 +128,11 @@ abstract class BaseDomainPeer {
      * e.g. DomainPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Domain' => 1, 'TitleFormat' => 2, 'Lang' => 3, 'StartpageId' => 4, 'Alias' => 5, 'Redirect' => 6, 'Page404id' => 7, 'Page404interface' => 8, 'Master' => 9, 'Resourcecompression' => 10, 'Layouts' => 11, 'Phplocale' => 12, 'Path' => 13, 'Themeproperties' => 14, 'Extproperties' => 15, 'Email' => 16, 'SearchIndexKey' => 17, 'Robots' => 18, 'Session' => 19, 'Favicon' => 20, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'domain' => 1, 'titleFormat' => 2, 'lang' => 3, 'startpageId' => 4, 'alias' => 5, 'redirect' => 6, 'page404id' => 7, 'page404interface' => 8, 'master' => 9, 'resourcecompression' => 10, 'layouts' => 11, 'phplocale' => 12, 'path' => 13, 'themeproperties' => 14, 'extproperties' => 15, 'email' => 16, 'searchIndexKey' => 17, 'robots' => 18, 'session' => 19, 'favicon' => 20, ),
-        BasePeer::TYPE_COLNAME => array (DomainPeer::ID => 0, DomainPeer::DOMAIN => 1, DomainPeer::TITLE_FORMAT => 2, DomainPeer::LANG => 3, DomainPeer::STARTPAGE_ID => 4, DomainPeer::ALIAS => 5, DomainPeer::REDIRECT => 6, DomainPeer::PAGE404_ID => 7, DomainPeer::PAGE404INTERFACE => 8, DomainPeer::MASTER => 9, DomainPeer::RESOURCECOMPRESSION => 10, DomainPeer::LAYOUTS => 11, DomainPeer::PHPLOCALE => 12, DomainPeer::PATH => 13, DomainPeer::THEMEPROPERTIES => 14, DomainPeer::EXTPROPERTIES => 15, DomainPeer::EMAIL => 16, DomainPeer::SEARCH_INDEX_KEY => 17, DomainPeer::ROBOTS => 18, DomainPeer::SESSION => 19, DomainPeer::FAVICON => 20, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'DOMAIN' => 1, 'TITLE_FORMAT' => 2, 'LANG' => 3, 'STARTPAGE_ID' => 4, 'ALIAS' => 5, 'REDIRECT' => 6, 'PAGE404_ID' => 7, 'PAGE404INTERFACE' => 8, 'MASTER' => 9, 'RESOURCECOMPRESSION' => 10, 'LAYOUTS' => 11, 'PHPLOCALE' => 12, 'PATH' => 13, 'THEMEPROPERTIES' => 14, 'EXTPROPERTIES' => 15, 'EMAIL' => 16, 'SEARCH_INDEX_KEY' => 17, 'ROBOTS' => 18, 'SESSION' => 19, 'FAVICON' => 20, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'domain' => 1, 'title_format' => 2, 'lang' => 3, 'startpage_id' => 4, 'alias' => 5, 'redirect' => 6, 'page404_id' => 7, 'page404interface' => 8, 'master' => 9, 'resourcecompression' => 10, 'layouts' => 11, 'phplocale' => 12, 'path' => 13, 'themeproperties' => 14, 'extproperties' => 15, 'email' => 16, 'search_index_key' => 17, 'robots' => 18, 'session' => 19, 'favicon' => 20, ),
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Domain' => 1, 'TitleFormat' => 2, 'Lang' => 3, 'StartpageId' => 4, 'Alias' => 5, 'Redirect' => 6, 'Page404id' => 7, 'Page404interface' => 8, 'Master' => 9, 'ResourceCompression' => 10, 'Layouts' => 11, 'Phplocale' => 12, 'Path' => 13, 'ThemeProperties' => 14, 'ExtensionProperties' => 15, 'SessionProperties' => 16, 'Email' => 17, 'SearchIndexKey' => 18, 'Robots' => 19, 'Favicon' => 20, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'domain' => 1, 'titleFormat' => 2, 'lang' => 3, 'startpageId' => 4, 'alias' => 5, 'redirect' => 6, 'page404id' => 7, 'page404interface' => 8, 'master' => 9, 'resourceCompression' => 10, 'layouts' => 11, 'phplocale' => 12, 'path' => 13, 'themeProperties' => 14, 'extensionProperties' => 15, 'sessionProperties' => 16, 'email' => 17, 'searchIndexKey' => 18, 'robots' => 19, 'favicon' => 20, ),
+        BasePeer::TYPE_COLNAME => array (DomainPeer::ID => 0, DomainPeer::DOMAIN => 1, DomainPeer::TITLE_FORMAT => 2, DomainPeer::LANG => 3, DomainPeer::STARTPAGE_ID => 4, DomainPeer::ALIAS => 5, DomainPeer::REDIRECT => 6, DomainPeer::PAGE404_ID => 7, DomainPeer::PAGE404_INTERFACE => 8, DomainPeer::MASTER => 9, DomainPeer::RESOURCE_COMPRESSION => 10, DomainPeer::LAYOUTS => 11, DomainPeer::PHPLOCALE => 12, DomainPeer::PATH => 13, DomainPeer::THEME_PROPERTIES => 14, DomainPeer::EXTENSION_PROPERTIES => 15, DomainPeer::SESSION_PROPERTIES => 16, DomainPeer::EMAIL => 17, DomainPeer::SEARCH_INDEX_KEY => 18, DomainPeer::ROBOTS => 19, DomainPeer::FAVICON => 20, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'DOMAIN' => 1, 'TITLE_FORMAT' => 2, 'LANG' => 3, 'STARTPAGE_ID' => 4, 'ALIAS' => 5, 'REDIRECT' => 6, 'PAGE404_ID' => 7, 'PAGE404_INTERFACE' => 8, 'MASTER' => 9, 'RESOURCE_COMPRESSION' => 10, 'LAYOUTS' => 11, 'PHPLOCALE' => 12, 'PATH' => 13, 'THEME_PROPERTIES' => 14, 'EXTENSION_PROPERTIES' => 15, 'SESSION_PROPERTIES' => 16, 'EMAIL' => 17, 'SEARCH_INDEX_KEY' => 18, 'ROBOTS' => 19, 'FAVICON' => 20, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'domain' => 1, 'title_format' => 2, 'lang' => 3, 'startpage_id' => 4, 'alias' => 5, 'redirect' => 6, 'page404_id' => 7, 'page404_interface' => 8, 'master' => 9, 'resource_compression' => 10, 'layouts' => 11, 'phplocale' => 12, 'path' => 13, 'theme_properties' => 14, 'extension_properties' => 15, 'session_properties' => 16, 'email' => 17, 'search_index_key' => 18, 'robots' => 19, 'favicon' => 20, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, )
     );
 
@@ -215,18 +215,18 @@ abstract class BaseDomainPeer {
             $criteria->addSelectColumn(DomainPeer::ALIAS);
             $criteria->addSelectColumn(DomainPeer::REDIRECT);
             $criteria->addSelectColumn(DomainPeer::PAGE404_ID);
-            $criteria->addSelectColumn(DomainPeer::PAGE404INTERFACE);
+            $criteria->addSelectColumn(DomainPeer::PAGE404_INTERFACE);
             $criteria->addSelectColumn(DomainPeer::MASTER);
-            $criteria->addSelectColumn(DomainPeer::RESOURCECOMPRESSION);
+            $criteria->addSelectColumn(DomainPeer::RESOURCE_COMPRESSION);
             $criteria->addSelectColumn(DomainPeer::LAYOUTS);
             $criteria->addSelectColumn(DomainPeer::PHPLOCALE);
             $criteria->addSelectColumn(DomainPeer::PATH);
-            $criteria->addSelectColumn(DomainPeer::THEMEPROPERTIES);
-            $criteria->addSelectColumn(DomainPeer::EXTPROPERTIES);
+            $criteria->addSelectColumn(DomainPeer::THEME_PROPERTIES);
+            $criteria->addSelectColumn(DomainPeer::EXTENSION_PROPERTIES);
+            $criteria->addSelectColumn(DomainPeer::SESSION_PROPERTIES);
             $criteria->addSelectColumn(DomainPeer::EMAIL);
             $criteria->addSelectColumn(DomainPeer::SEARCH_INDEX_KEY);
             $criteria->addSelectColumn(DomainPeer::ROBOTS);
-            $criteria->addSelectColumn(DomainPeer::SESSION);
             $criteria->addSelectColumn(DomainPeer::FAVICON);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
@@ -237,18 +237,18 @@ abstract class BaseDomainPeer {
             $criteria->addSelectColumn($alias . '.ALIAS');
             $criteria->addSelectColumn($alias . '.REDIRECT');
             $criteria->addSelectColumn($alias . '.PAGE404_ID');
-            $criteria->addSelectColumn($alias . '.PAGE404INTERFACE');
+            $criteria->addSelectColumn($alias . '.PAGE404_INTERFACE');
             $criteria->addSelectColumn($alias . '.MASTER');
-            $criteria->addSelectColumn($alias . '.RESOURCECOMPRESSION');
+            $criteria->addSelectColumn($alias . '.RESOURCE_COMPRESSION');
             $criteria->addSelectColumn($alias . '.LAYOUTS');
             $criteria->addSelectColumn($alias . '.PHPLOCALE');
             $criteria->addSelectColumn($alias . '.PATH');
-            $criteria->addSelectColumn($alias . '.THEMEPROPERTIES');
-            $criteria->addSelectColumn($alias . '.EXTPROPERTIES');
+            $criteria->addSelectColumn($alias . '.THEME_PROPERTIES');
+            $criteria->addSelectColumn($alias . '.EXTENSION_PROPERTIES');
+            $criteria->addSelectColumn($alias . '.SESSION_PROPERTIES');
             $criteria->addSelectColumn($alias . '.EMAIL');
             $criteria->addSelectColumn($alias . '.SEARCH_INDEX_KEY');
             $criteria->addSelectColumn($alias . '.ROBOTS');
-            $criteria->addSelectColumn($alias . '.SESSION');
             $criteria->addSelectColumn($alias . '.FAVICON');
         }
     }

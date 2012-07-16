@@ -47,18 +47,18 @@ class DomainTableMap extends TableMap
         $this->addColumn('ALIAS', 'Alias', 'VARCHAR', false, 255, null);
         $this->addColumn('REDIRECT', 'Redirect', 'VARCHAR', false, 255, null);
         $this->addColumn('PAGE404_ID', 'Page404id', 'INTEGER', false, null, null);
-        $this->addColumn('PAGE404INTERFACE', 'Page404interface', 'VARCHAR', false, 128, null);
+        $this->addColumn('PAGE404_INTERFACE', 'Page404interface', 'VARCHAR', false, 128, null);
         $this->addColumn('MASTER', 'Master', 'INTEGER', false, null, null);
-        $this->addColumn('RESOURCECOMPRESSION', 'Resourcecompression', 'INTEGER', false, null, null);
+        $this->addColumn('RESOURCE_COMPRESSION', 'ResourceCompression', 'INTEGER', false, null, null);
         $this->addColumn('LAYOUTS', 'Layouts', 'LONGVARCHAR', false, null, null);
         $this->addColumn('PHPLOCALE', 'Phplocale', 'VARCHAR', false, 128, null);
         $this->addColumn('PATH', 'Path', 'VARCHAR', false, 64, null);
-        $this->addColumn('THEMEPROPERTIES', 'Themeproperties', 'LONGVARCHAR', false, null, null);
-        $this->addColumn('EXTPROPERTIES', 'Extproperties', 'LONGVARCHAR', false, null, null);
+        $this->addColumn('THEME_PROPERTIES', 'ThemeProperties', 'OBJECT', false, null, null);
+        $this->addColumn('EXTENSION_PROPERTIES', 'ExtensionProperties', 'OBJECT', false, null, null);
+        $this->addColumn('SESSION_PROPERTIES', 'SessionProperties', 'OBJECT', false, null, null);
         $this->addColumn('EMAIL', 'Email', 'VARCHAR', false, 64, null);
         $this->addColumn('SEARCH_INDEX_KEY', 'SearchIndexKey', 'VARCHAR', false, 255, null);
         $this->addColumn('ROBOTS', 'Robots', 'LONGVARCHAR', false, null, null);
-        $this->addColumn('SESSION', 'Session', 'LONGVARCHAR', false, null, null);
         $this->addColumn('FAVICON', 'Favicon', 'VARCHAR', false, 255, null);
         // validators
     } // initialize()

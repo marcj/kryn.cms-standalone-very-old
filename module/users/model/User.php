@@ -15,4 +15,22 @@
  */
 class User extends BaseUser {
 
+    /**
+     * Converts $pPassword in a hash and save it.
+     * If no salt is already generated, this generates one.
+     *
+     * @param string $pPassword plain password
+     *
+     */
+    public function setPassword($pPassword){
+
+        if (!$this->getPasswdSalt()){
+            $this->setPasswdSalt(Core\Auth::getSalt());
+        }
+
+        $passwd = Core\Auth::getHashedPassword( $pPassword, $this->getPasswdSalt() );
+
+        $this->setPasswd($passwd);
+    }
+
 } // User

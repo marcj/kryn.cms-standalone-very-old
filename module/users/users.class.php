@@ -148,43 +148,6 @@ class users {
         else
             return dbExfetch($sql, -1);
     }
-    /**
-     * Setup the initial user guest and administration and setup some permissions during the installation
-     */
-    function install(){
-        
-        dbDelete('system_user');
-        dbInsert('system_user', array( 'username' => 'Guest', 'created' => time(),
-            'activate' => 1 ));
-
-        $settings = serialize(array(
-            'userBg' => '/admin/images/userBgs/defaultImages/2.jpg',
-            'adminLanguage' => 'en'
-        ));
-
-        
-        $salt = krynAuth::getSalt();
-        $passwd = krynAuth::getHashedPassword( 'admin', $salt );
-    
-        dbInsert('system_user', array( 'username' => 'admin', 'first_name' => 'Admini', 'last_name' => 'trator',
-            'passwd' => $passwd, 'passwd_salt' => $salt, 'email' => 'admin@localhost', 'created' => time(),
-            'activate' => 1, 'settings' => $settings, 'widgets' => '[{"title":"Current users","type":"autotable","position":"right","columns":[["Date",80],["IP",90],["User"]],"category":"overview","refresh":60000,"code":"currentAdminLogins","extension":"users","desktop":1,"width":402,"height":152,"left":975,"top":91}]'
-        ));
-        dbUpdate( 'system_user', 'id = 1', array('id'=>0) );
-        dbUpdate( 'system_user', 'id = 2', array('id'=>1) );
-
-        dbDelete('system_groupaccess');
-        dbInsert('system_groupaccess', array('group_id' => 1, 'user_id' => 1));
-
-        dbDelete('system_groups');
-        dbInsert('system_groups', array('close' => 1, 'name' =>'Administratoren',
-            'description' => 'The administrators'));
-        dbInsert('system_groups', array('close' => 1, 'name' =>'Users',
-            'description' => 'The users'));
-
-        dbDelete('system_acl');
-    }
-    
     
 	function cleanMsgs($pMsg) {
         	

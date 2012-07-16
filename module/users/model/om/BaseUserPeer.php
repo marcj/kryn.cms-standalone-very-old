@@ -23,13 +23,13 @@ abstract class BaseUserPeer {
     const TM_CLASS = 'UserTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 17;
+    const NUM_COLUMNS = 15;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 17;
+    const NUM_HYDRATE_COLUMNS = 15;
 
     /** the column name for the ID field */
     const ID = 'kryn_system_user.ID';
@@ -57,12 +57,6 @@ abstract class BaseUserPeer {
 
     /** the column name for the SETTINGS field */
     const SETTINGS = 'kryn_system_user.SETTINGS';
-
-    /** the column name for the CREATED field */
-    const CREATED = 'kryn_system_user.CREATED';
-
-    /** the column name for the MODIFIED field */
-    const MODIFIED = 'kryn_system_user.MODIFIED';
 
     /** the column name for the FIRST_NAME field */
     const FIRST_NAME = 'kryn_system_user.FIRST_NAME';
@@ -101,12 +95,12 @@ abstract class BaseUserPeer {
      * e.g. UserPeer::$fieldNames[UserPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'Username', 'AuthClass', 'Passwd', 'PasswdSalt', 'Activationkey', 'Email', 'Desktop', 'Settings', 'Created', 'Modified', 'FirstName', 'LastName', 'Sex', 'Logins', 'Lastlogin', 'Activate', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'username', 'authClass', 'passwd', 'passwdSalt', 'activationkey', 'email', 'desktop', 'settings', 'created', 'modified', 'firstName', 'lastName', 'sex', 'logins', 'lastlogin', 'activate', ),
-        BasePeer::TYPE_COLNAME => array (UserPeer::ID, UserPeer::USERNAME, UserPeer::AUTH_CLASS, UserPeer::PASSWD, UserPeer::PASSWD_SALT, UserPeer::ACTIVATIONKEY, UserPeer::EMAIL, UserPeer::DESKTOP, UserPeer::SETTINGS, UserPeer::CREATED, UserPeer::MODIFIED, UserPeer::FIRST_NAME, UserPeer::LAST_NAME, UserPeer::SEX, UserPeer::LOGINS, UserPeer::LASTLOGIN, UserPeer::ACTIVATE, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'USERNAME', 'AUTH_CLASS', 'PASSWD', 'PASSWD_SALT', 'ACTIVATIONKEY', 'EMAIL', 'DESKTOP', 'SETTINGS', 'CREATED', 'MODIFIED', 'FIRST_NAME', 'LAST_NAME', 'SEX', 'LOGINS', 'LASTLOGIN', 'ACTIVATE', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'username', 'auth_class', 'passwd', 'passwd_salt', 'activationkey', 'email', 'desktop', 'settings', 'created', 'modified', 'first_name', 'last_name', 'sex', 'logins', 'lastlogin', 'activate', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, )
+        BasePeer::TYPE_PHPNAME => array ('Id', 'Username', 'AuthClass', 'Passwd', 'PasswdSalt', 'Activationkey', 'Email', 'Desktop', 'Settings', 'FirstName', 'LastName', 'Sex', 'Logins', 'Lastlogin', 'Activate', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'username', 'authClass', 'passwd', 'passwdSalt', 'activationkey', 'email', 'desktop', 'settings', 'firstName', 'lastName', 'sex', 'logins', 'lastlogin', 'activate', ),
+        BasePeer::TYPE_COLNAME => array (UserPeer::ID, UserPeer::USERNAME, UserPeer::AUTH_CLASS, UserPeer::PASSWD, UserPeer::PASSWD_SALT, UserPeer::ACTIVATIONKEY, UserPeer::EMAIL, UserPeer::DESKTOP, UserPeer::SETTINGS, UserPeer::FIRST_NAME, UserPeer::LAST_NAME, UserPeer::SEX, UserPeer::LOGINS, UserPeer::LASTLOGIN, UserPeer::ACTIVATE, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'USERNAME', 'AUTH_CLASS', 'PASSWD', 'PASSWD_SALT', 'ACTIVATIONKEY', 'EMAIL', 'DESKTOP', 'SETTINGS', 'FIRST_NAME', 'LAST_NAME', 'SEX', 'LOGINS', 'LASTLOGIN', 'ACTIVATE', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'username', 'auth_class', 'passwd', 'passwd_salt', 'activationkey', 'email', 'desktop', 'settings', 'first_name', 'last_name', 'sex', 'logins', 'lastlogin', 'activate', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, )
     );
 
     /**
@@ -116,12 +110,12 @@ abstract class BaseUserPeer {
      * e.g. UserPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Username' => 1, 'AuthClass' => 2, 'Passwd' => 3, 'PasswdSalt' => 4, 'Activationkey' => 5, 'Email' => 6, 'Desktop' => 7, 'Settings' => 8, 'Created' => 9, 'Modified' => 10, 'FirstName' => 11, 'LastName' => 12, 'Sex' => 13, 'Logins' => 14, 'Lastlogin' => 15, 'Activate' => 16, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'username' => 1, 'authClass' => 2, 'passwd' => 3, 'passwdSalt' => 4, 'activationkey' => 5, 'email' => 6, 'desktop' => 7, 'settings' => 8, 'created' => 9, 'modified' => 10, 'firstName' => 11, 'lastName' => 12, 'sex' => 13, 'logins' => 14, 'lastlogin' => 15, 'activate' => 16, ),
-        BasePeer::TYPE_COLNAME => array (UserPeer::ID => 0, UserPeer::USERNAME => 1, UserPeer::AUTH_CLASS => 2, UserPeer::PASSWD => 3, UserPeer::PASSWD_SALT => 4, UserPeer::ACTIVATIONKEY => 5, UserPeer::EMAIL => 6, UserPeer::DESKTOP => 7, UserPeer::SETTINGS => 8, UserPeer::CREATED => 9, UserPeer::MODIFIED => 10, UserPeer::FIRST_NAME => 11, UserPeer::LAST_NAME => 12, UserPeer::SEX => 13, UserPeer::LOGINS => 14, UserPeer::LASTLOGIN => 15, UserPeer::ACTIVATE => 16, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'USERNAME' => 1, 'AUTH_CLASS' => 2, 'PASSWD' => 3, 'PASSWD_SALT' => 4, 'ACTIVATIONKEY' => 5, 'EMAIL' => 6, 'DESKTOP' => 7, 'SETTINGS' => 8, 'CREATED' => 9, 'MODIFIED' => 10, 'FIRST_NAME' => 11, 'LAST_NAME' => 12, 'SEX' => 13, 'LOGINS' => 14, 'LASTLOGIN' => 15, 'ACTIVATE' => 16, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'username' => 1, 'auth_class' => 2, 'passwd' => 3, 'passwd_salt' => 4, 'activationkey' => 5, 'email' => 6, 'desktop' => 7, 'settings' => 8, 'created' => 9, 'modified' => 10, 'first_name' => 11, 'last_name' => 12, 'sex' => 13, 'logins' => 14, 'lastlogin' => 15, 'activate' => 16, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, )
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Username' => 1, 'AuthClass' => 2, 'Passwd' => 3, 'PasswdSalt' => 4, 'Activationkey' => 5, 'Email' => 6, 'Desktop' => 7, 'Settings' => 8, 'FirstName' => 9, 'LastName' => 10, 'Sex' => 11, 'Logins' => 12, 'Lastlogin' => 13, 'Activate' => 14, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'username' => 1, 'authClass' => 2, 'passwd' => 3, 'passwdSalt' => 4, 'activationkey' => 5, 'email' => 6, 'desktop' => 7, 'settings' => 8, 'firstName' => 9, 'lastName' => 10, 'sex' => 11, 'logins' => 12, 'lastlogin' => 13, 'activate' => 14, ),
+        BasePeer::TYPE_COLNAME => array (UserPeer::ID => 0, UserPeer::USERNAME => 1, UserPeer::AUTH_CLASS => 2, UserPeer::PASSWD => 3, UserPeer::PASSWD_SALT => 4, UserPeer::ACTIVATIONKEY => 5, UserPeer::EMAIL => 6, UserPeer::DESKTOP => 7, UserPeer::SETTINGS => 8, UserPeer::FIRST_NAME => 9, UserPeer::LAST_NAME => 10, UserPeer::SEX => 11, UserPeer::LOGINS => 12, UserPeer::LASTLOGIN => 13, UserPeer::ACTIVATE => 14, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'USERNAME' => 1, 'AUTH_CLASS' => 2, 'PASSWD' => 3, 'PASSWD_SALT' => 4, 'ACTIVATIONKEY' => 5, 'EMAIL' => 6, 'DESKTOP' => 7, 'SETTINGS' => 8, 'FIRST_NAME' => 9, 'LAST_NAME' => 10, 'SEX' => 11, 'LOGINS' => 12, 'LASTLOGIN' => 13, 'ACTIVATE' => 14, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'username' => 1, 'auth_class' => 2, 'passwd' => 3, 'passwd_salt' => 4, 'activationkey' => 5, 'email' => 6, 'desktop' => 7, 'settings' => 8, 'first_name' => 9, 'last_name' => 10, 'sex' => 11, 'logins' => 12, 'lastlogin' => 13, 'activate' => 14, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, )
     );
 
     /**
@@ -204,8 +198,6 @@ abstract class BaseUserPeer {
             $criteria->addSelectColumn(UserPeer::EMAIL);
             $criteria->addSelectColumn(UserPeer::DESKTOP);
             $criteria->addSelectColumn(UserPeer::SETTINGS);
-            $criteria->addSelectColumn(UserPeer::CREATED);
-            $criteria->addSelectColumn(UserPeer::MODIFIED);
             $criteria->addSelectColumn(UserPeer::FIRST_NAME);
             $criteria->addSelectColumn(UserPeer::LAST_NAME);
             $criteria->addSelectColumn(UserPeer::SEX);
@@ -222,8 +214,6 @@ abstract class BaseUserPeer {
             $criteria->addSelectColumn($alias . '.EMAIL');
             $criteria->addSelectColumn($alias . '.DESKTOP');
             $criteria->addSelectColumn($alias . '.SETTINGS');
-            $criteria->addSelectColumn($alias . '.CREATED');
-            $criteria->addSelectColumn($alias . '.MODIFIED');
             $criteria->addSelectColumn($alias . '.FIRST_NAME');
             $criteria->addSelectColumn($alias . '.LAST_NAME');
             $criteria->addSelectColumn($alias . '.SEX');

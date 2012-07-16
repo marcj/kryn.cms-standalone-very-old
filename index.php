@@ -19,7 +19,6 @@
 require('core/checkFile.php');
 require('core/bootstrap.php');
 
-
 if (getArgv(1) != 'admin') {
     Core\Kryn::searchDomain();
 }

@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>[[404 - Not found]]</title>
-        <base href="{$baseUrl}" />
+        <base href="{Kryn::getBaseUrl()}" />
         <style type="text/css">
             body {
                 color: #444;

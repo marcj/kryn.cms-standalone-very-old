@@ -48,8 +48,6 @@ class UserTableMap extends TableMap
         $this->addColumn('EMAIL', 'Email', 'VARCHAR', false, 255, null);
         $this->addColumn('DESKTOP', 'Desktop', 'LONGVARCHAR', false, null, null);
         $this->addColumn('SETTINGS', 'Settings', 'LONGVARCHAR', false, null, null);
-        $this->addColumn('CREATED', 'Created', 'INTEGER', true, null, null);
-        $this->addColumn('MODIFIED', 'Modified', 'INTEGER', false, null, null);
         $this->addColumn('FIRST_NAME', 'FirstName', 'VARCHAR', false, 255, null);
         $this->addColumn('LAST_NAME', 'LastName', 'VARCHAR', false, 255, null);
         $this->addColumn('SEX', 'Sex', 'INTEGER', false, null, null);
@@ -66,6 +64,7 @@ class UserTableMap extends TableMap
     {
         $this->addRelation('Session', 'Session', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null, 'Sessions');
         $this->addRelation('UserGroup', 'UserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null, 'UserGroups');
+        $this->addRelation('Group', 'Group', RelationMap::MANY_TO_MANY, array(), null, null, 'Groups');
     } // buildRelations()
 
 } // UserTableMap

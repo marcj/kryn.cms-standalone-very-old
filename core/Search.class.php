@@ -59,7 +59,7 @@ class Search {
 
         $cache = Kryn::getCache($cashkey);
 
-        $a = '/' . Kryn::getRequestPageUrl(true);
+        $a = '/' . Kryn::getRequestedPath(true);
         $b = $cache['url'];
 
         if ($cache && $b === "")

@@ -112,7 +112,7 @@ class Auth {
                 $ip = $this->get('ip');
 
                 if ($ip != $_SERVER['REMOTE_ADDR']) {
-                    $this->setUser(0); //force down to guest
+                    $this->setUser(); //force down to guest
                 }
             }
 
@@ -135,7 +135,9 @@ class Auth {
 
         $this->session->setTime(time());
         $this->session->setRefreshed( $this->session->getRefreshed()+1 );
+        $this->session->setPage(Kryn::getRequestedPath(true));
 
+        $this->session->save();
     }
 
     /**
@@ -329,15 +331,19 @@ class Auth {
      * @return Kryn\Auth $this
      * @throws \Exception
      */
-    public function setUser($pUserId) {
+    public function setUser($pUserId = null) {
 
-        $user = \UserQuery::create()->findPk($pUserId);
+        if ($pUserId){
+            $user = \UserQuery::create()->findPk($pUserId);
 
-        if (!$user){
-            throw new \Exception('User not found '.$pUserId);
+            if (!$user){
+                throw new \Exception('User not found '.$pUserId);
+            }
+
+            $this->session->setUser($user);
+        } else {
+            $this->session->setUserId(null);
         }
-
-        $this->session->setUser($user);
 
         return $this;
     }
@@ -347,7 +353,7 @@ class Auth {
      * Change the user_id in the session object. Means: is logged out then
      */
     public function logout() {
-        $this->setUser(0);
+        $this->setUser();
         $this->syncStore();
     }
 
@@ -432,10 +438,9 @@ class Auth {
 
         $session = new \Session();
         $session->setId($token)
-            ->setUserId(0)
             ->setTime(time())
             ->setIp($_SERVER['REMOTE_ADDR'])
-            ->setPage(Kryn::getRequestPageUrl(true))
+            ->setPage(Kryn::getRequestedPath(true))
             ->setUseragent($_SERVER['HTTP_USER_AGENT'])
             ->setIsStoredInDatabase(false);
 
@@ -490,10 +495,9 @@ class Auth {
         try {
             $session = new \Session();
             $session->setId($token)
-                ->setUserId(0)
                 ->setTime(time())
                 ->setIp($_SERVER['REMOTE_ADDR'])
-                ->setPage(Kryn::getRequestPageUrl(true))
+                ->setPage(Kryn::getRequestedPath(true))
                 ->setUseragent($_SERVER['HTTP_USER_AGENT']);
 
             $session->save();
@@ -598,6 +602,10 @@ class Auth {
 
     /**
      * Checks the given credentials in the database
+     *
+     * @param $pLogin
+     * @param $pPassword
+     * @return bool
      */
     protected function checkCredentialsDatabase($pLogin, $pPassword) {
 
@@ -621,7 +629,7 @@ class Auth {
                 AND (auth_class IS NULL OR auth_class = 'kryn')",
             1);
 
-        if ($row['id'] > 0) {
+        if ($row->getId() > 0) {
 
             if ($row['passwd_salt']) {
                 $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
@@ -733,4 +741,3 @@ class Auth {
     }
 }
 
-?>

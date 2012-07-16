@@ -27,6 +27,25 @@ class File {
     public static $fsObjects = array();
 
 
+    public static $dirMask = 0775;
+
+    public static $fileMask = 0660;
+
+    public static function fixMask($pPath){
+
+        if (is_dir($pPath)){
+            $sub = find($pPath.'/*', false);
+            if (is_array($sub)){
+                foreach ($sub as $path){
+                    self::fixMask($path);
+                }
+            }
+        } else if (is_file($pPath)){
+            chmod($pPath, self::$fileMask);
+        }
+
+    }
+
     /**
      *
      * Returns the instance of the file layer class for the given path

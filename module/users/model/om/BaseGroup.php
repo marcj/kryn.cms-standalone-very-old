@@ -60,6 +60,11 @@ abstract class BaseGroup extends BaseObject
     protected $collUserGroups;
 
     /**
+     * @var        PropelObjectCollection|User[] Collection to store aggregation of User objects.
+     */
+    protected $collUsers;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -72,6 +77,12 @@ abstract class BaseGroup extends BaseObject
      * @var        boolean
      */
     protected $alreadyInValidation = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $usersScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -315,6 +326,7 @@ abstract class BaseGroup extends BaseObject
 
             $this->collUserGroups = null;
 
+            $this->collUsers = null;
         } // if (deep)
     }
 
@@ -437,6 +449,26 @@ abstract class BaseGroup extends BaseObject
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->usersScheduledForDeletion !== null) {
+                if (!$this->usersScheduledForDeletion->isEmpty()) {
+                    $pks = array();
+                    $pk = $this->getPrimaryKey();
+                    foreach ($this->usersScheduledForDeletion->getPrimaryKeys(false) as $remotePk) {
+                        $pks[] = array($remotePk, $pk);
+                    }
+                    UserGroupQuery::create()
+                        ->filterByPrimaryKeys($pks)
+                        ->delete($con);
+                    $this->usersScheduledForDeletion = null;
+                }
+
+                foreach ($this->getUsers() as $user) {
+                    if ($user->isModified()) {
+                        $user->save($con);
+                    }
+                }
             }
 
             if ($this->userGroupsScheduledForDeletion !== null) {
@@ -1140,6 +1172,173 @@ abstract class BaseGroup extends BaseObject
     }
 
     /**
+     * Clears out the collUsers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUsers()
+     */
+    public function clearUsers()
+    {
+        $this->collUsers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collUsers collection.
+     *
+     * By default this just sets the collUsers collection to an empty collection (like clearUsers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @return void
+     */
+    public function initUsers()
+    {
+        $this->collUsers = new PropelObjectCollection();
+        $this->collUsers->setModel('User');
+    }
+
+    /**
+     * Gets a collection of User objects related by a many-to-many relationship
+     * to the current object by way of the kryn_system_user_group cross-reference table.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this Group is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      PropelPDO $con Optional connection object
+     *
+     * @return PropelObjectCollection|User[] List of User objects
+     */
+    public function getUsers($criteria = null, PropelPDO $con = null)
+    {
+        if (null === $this->collUsers || null !== $criteria) {
+            if ($this->isNew() && null === $this->collUsers) {
+                // return empty collection
+                $this->initUsers();
+            } else {
+                $collUsers = UserQuery::create(null, $criteria)
+                    ->filterByGroup($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    return $collUsers;
+                }
+                $this->collUsers = $collUsers;
+            }
+        }
+
+        return $this->collUsers;
+    }
+
+    /**
+     * Sets a collection of User objects related by a many-to-many relationship
+     * to the current object by way of the kryn_system_user_group cross-reference table.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      PropelCollection $users A Propel collection.
+     * @param      PropelPDO $con Optional connection object
+     */
+    public function setUsers(PropelCollection $users, PropelPDO $con = null)
+    {
+        $this->clearUsers();
+        $currentUsers = $this->getUsers();
+
+        $this->usersScheduledForDeletion = $currentUsers->diff($users);
+
+        foreach ($users as $user) {
+            if (!$currentUsers->contains($user)) {
+                $this->doAddUser($user);
+            }
+        }
+
+        $this->collUsers = $users;
+    }
+
+    /**
+     * Gets the number of User objects related by a many-to-many relationship
+     * to the current object by way of the kryn_system_user_group cross-reference table.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      boolean $distinct Set to true to force count distinct
+     * @param      PropelPDO $con Optional connection object
+     *
+     * @return int the number of related User objects
+     */
+    public function countUsers($criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        if (null === $this->collUsers || null !== $criteria) {
+            if ($this->isNew() && null === $this->collUsers) {
+                return 0;
+            } else {
+                $query = UserQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByGroup($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collUsers);
+        }
+    }
+
+    /**
+     * Associate a User object to this object
+     * through the kryn_system_user_group cross reference table.
+     *
+     * @param  User $user The UserGroup object to relate
+     * @return void
+     */
+    public function addUser(User $user)
+    {
+        if ($this->collUsers === null) {
+            $this->initUsers();
+        }
+        if (!$this->collUsers->contains($user)) { // only add it if the **same** object is not already associated
+            $this->doAddUser($user);
+
+            $this->collUsers[]= $user;
+        }
+    }
+
+    /**
+     * @param	User $user The user object to add.
+     */
+    protected function doAddUser($user)
+    {
+        $userGroup = new UserGroup();
+        $userGroup->setUser($user);
+        $this->addUserGroup($userGroup);
+    }
+
+    /**
+     * Remove a User object to this object
+     * through the kryn_system_user_group cross reference table.
+     *
+     * @param      User $user The UserGroup object to relate
+     * @return void
+     */
+    public function removeUser(User $user)
+    {
+        if ($this->getUsers()->contains($user)) {
+            $this->collUsers->remove($this->collUsers->search($user));
+            if (null === $this->usersScheduledForDeletion) {
+                $this->usersScheduledForDeletion = clone $this->collUsers;
+                $this->usersScheduledForDeletion->clear();
+            }
+            $this->usersScheduledForDeletion[]= $user;
+        }
+    }
+
+    /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
@@ -1173,12 +1372,21 @@ abstract class BaseGroup extends BaseObject
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collUsers) {
+                foreach ($this->collUsers as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
         if ($this->collUserGroups instanceof PropelCollection) {
             $this->collUserGroups->clearIterator();
         }
         $this->collUserGroups = null;
+        if ($this->collUsers instanceof PropelCollection) {
+            $this->collUsers->clearIterator();
+        }
+        $this->collUsers = null;
     }
 
     /**

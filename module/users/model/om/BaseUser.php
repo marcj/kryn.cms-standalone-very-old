@@ -85,18 +85,6 @@ abstract class BaseUser extends BaseObject
     protected $settings;
 
     /**
-     * The value for the created field.
-     * @var        int
-     */
-    protected $created;
-
-    /**
-     * The value for the modified field.
-     * @var        int
-     */
-    protected $modified;
-
-    /**
      * The value for the first_name field.
      * @var        string
      */
@@ -143,6 +131,11 @@ abstract class BaseUser extends BaseObject
     protected $collUserGroups;
 
     /**
+     * @var        PropelObjectCollection|Group[] Collection to store aggregation of Group objects.
+     */
+    protected $collGroups;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -155,6 +148,12 @@ abstract class BaseUser extends BaseObject
      * @var        boolean
      */
     protected $alreadyInValidation = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $groupsScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -265,28 +264,6 @@ abstract class BaseUser extends BaseObject
     {
 
         return $this->settings;
-    }
-
-    /**
-     * Get the [created] column value.
-     * 
-     * @return   int
-     */
-    public function getCreated()
-    {
-
-        return $this->created;
-    }
-
-    /**
-     * Get the [modified] column value.
-     * 
-     * @return   int
-     */
-    public function getModified()
-    {
-
-        return $this->modified;
     }
 
     /**
@@ -545,48 +522,6 @@ abstract class BaseUser extends BaseObject
     } // setSettings()
 
     /**
-     * Set the value of [created] column.
-     * 
-     * @param      int $v new value
-     * @return   User The current object (for fluent API support)
-     */
-    public function setCreated($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->created !== $v) {
-            $this->created = $v;
-            $this->modifiedColumns[] = UserPeer::CREATED;
-        }
-
-
-        return $this;
-    } // setCreated()
-
-    /**
-     * Set the value of [modified] column.
-     * 
-     * @param      int $v new value
-     * @return   User The current object (for fluent API support)
-     */
-    public function setModified($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->modified !== $v) {
-            $this->modified = $v;
-            $this->modifiedColumns[] = UserPeer::MODIFIED;
-        }
-
-
-        return $this;
-    } // setModified()
-
-    /**
      * Set the value of [first_name] column.
      * 
      * @param      string $v new value
@@ -761,14 +696,12 @@ abstract class BaseUser extends BaseObject
             $this->email = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
             $this->desktop = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
             $this->settings = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
-            $this->created = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
-            $this->modified = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
-            $this->first_name = ($row[$startcol + 11] !== null) ? (string) $row[$startcol + 11] : null;
-            $this->last_name = ($row[$startcol + 12] !== null) ? (string) $row[$startcol + 12] : null;
-            $this->sex = ($row[$startcol + 13] !== null) ? (int) $row[$startcol + 13] : null;
-            $this->logins = ($row[$startcol + 14] !== null) ? (int) $row[$startcol + 14] : null;
-            $this->lastlogin = ($row[$startcol + 15] !== null) ? (int) $row[$startcol + 15] : null;
-            $this->activate = ($row[$startcol + 16] !== null) ? (boolean) $row[$startcol + 16] : null;
+            $this->first_name = ($row[$startcol + 9] !== null) ? (string) $row[$startcol + 9] : null;
+            $this->last_name = ($row[$startcol + 10] !== null) ? (string) $row[$startcol + 10] : null;
+            $this->sex = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
+            $this->logins = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
+            $this->lastlogin = ($row[$startcol + 13] !== null) ? (int) $row[$startcol + 13] : null;
+            $this->activate = ($row[$startcol + 14] !== null) ? (boolean) $row[$startcol + 14] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -777,7 +710,7 @@ abstract class BaseUser extends BaseObject
                 $this->ensureConsistency();
             }
 
-            return $startcol + 17; // 17 = UserPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 15; // 15 = UserPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating User object", $e);
@@ -843,6 +776,7 @@ abstract class BaseUser extends BaseObject
 
             $this->collUserGroups = null;
 
+            $this->collGroups = null;
         } // if (deep)
     }
 
@@ -967,6 +901,26 @@ abstract class BaseUser extends BaseObject
                 $this->resetModified();
             }
 
+            if ($this->groupsScheduledForDeletion !== null) {
+                if (!$this->groupsScheduledForDeletion->isEmpty()) {
+                    $pks = array();
+                    $pk = $this->getPrimaryKey();
+                    foreach ($this->groupsScheduledForDeletion->getPrimaryKeys(false) as $remotePk) {
+                        $pks[] = array($pk, $remotePk);
+                    }
+                    UserGroupQuery::create()
+                        ->filterByPrimaryKeys($pks)
+                        ->delete($con);
+                    $this->groupsScheduledForDeletion = null;
+                }
+
+                foreach ($this->getGroups() as $group) {
+                    if ($group->isModified()) {
+                        $group->save($con);
+                    }
+                }
+            }
+
             if ($this->sessionsScheduledForDeletion !== null) {
                 if (!$this->sessionsScheduledForDeletion->isEmpty()) {
                     foreach ($this->sessionsScheduledForDeletion as $session) {
@@ -1065,12 +1019,6 @@ abstract class BaseUser extends BaseObject
         if ($this->isColumnModified(UserPeer::SETTINGS)) {
             $modifiedColumns[':p' . $index++]  = 'SETTINGS';
         }
-        if ($this->isColumnModified(UserPeer::CREATED)) {
-            $modifiedColumns[':p' . $index++]  = 'CREATED';
-        }
-        if ($this->isColumnModified(UserPeer::MODIFIED)) {
-            $modifiedColumns[':p' . $index++]  = 'MODIFIED';
-        }
         if ($this->isColumnModified(UserPeer::FIRST_NAME)) {
             $modifiedColumns[':p' . $index++]  = 'FIRST_NAME';
         }
@@ -1126,12 +1074,6 @@ abstract class BaseUser extends BaseObject
                         break;
                     case 'SETTINGS':
 						$stmt->bindValue($identifier, $this->settings, PDO::PARAM_STR);
-                        break;
-                    case 'CREATED':
-						$stmt->bindValue($identifier, $this->created, PDO::PARAM_INT);
-                        break;
-                    case 'MODIFIED':
-						$stmt->bindValue($identifier, $this->modified, PDO::PARAM_INT);
                         break;
                     case 'FIRST_NAME':
 						$stmt->bindValue($identifier, $this->first_name, PDO::PARAM_STR);
@@ -1322,27 +1264,21 @@ abstract class BaseUser extends BaseObject
                 return $this->getSettings();
                 break;
             case 9:
-                return $this->getCreated();
-                break;
-            case 10:
-                return $this->getModified();
-                break;
-            case 11:
                 return $this->getFirstName();
                 break;
-            case 12:
+            case 10:
                 return $this->getLastName();
                 break;
-            case 13:
+            case 11:
                 return $this->getSex();
                 break;
-            case 14:
+            case 12:
                 return $this->getLogins();
                 break;
-            case 15:
+            case 13:
                 return $this->getLastlogin();
                 break;
-            case 16:
+            case 14:
                 return $this->getActivate();
                 break;
             default:
@@ -1383,14 +1319,12 @@ abstract class BaseUser extends BaseObject
             $keys[6] => $this->getEmail(),
             $keys[7] => $this->getDesktop(),
             $keys[8] => $this->getSettings(),
-            $keys[9] => $this->getCreated(),
-            $keys[10] => $this->getModified(),
-            $keys[11] => $this->getFirstName(),
-            $keys[12] => $this->getLastName(),
-            $keys[13] => $this->getSex(),
-            $keys[14] => $this->getLogins(),
-            $keys[15] => $this->getLastlogin(),
-            $keys[16] => $this->getActivate(),
+            $keys[9] => $this->getFirstName(),
+            $keys[10] => $this->getLastName(),
+            $keys[11] => $this->getSex(),
+            $keys[12] => $this->getLogins(),
+            $keys[13] => $this->getLastlogin(),
+            $keys[14] => $this->getActivate(),
         );
         if ($includeForeignObjects) {
             if (null !== $this->collSessions) {
@@ -1461,27 +1395,21 @@ abstract class BaseUser extends BaseObject
                 $this->setSettings($value);
                 break;
             case 9:
-                $this->setCreated($value);
-                break;
-            case 10:
-                $this->setModified($value);
-                break;
-            case 11:
                 $this->setFirstName($value);
                 break;
-            case 12:
+            case 10:
                 $this->setLastName($value);
                 break;
-            case 13:
+            case 11:
                 $this->setSex($value);
                 break;
-            case 14:
+            case 12:
                 $this->setLogins($value);
                 break;
-            case 15:
+            case 13:
                 $this->setLastlogin($value);
                 break;
-            case 16:
+            case 14:
                 $this->setActivate($value);
                 break;
         } // switch()
@@ -1517,14 +1445,12 @@ abstract class BaseUser extends BaseObject
         if (array_key_exists($keys[6], $arr)) $this->setEmail($arr[$keys[6]]);
         if (array_key_exists($keys[7], $arr)) $this->setDesktop($arr[$keys[7]]);
         if (array_key_exists($keys[8], $arr)) $this->setSettings($arr[$keys[8]]);
-        if (array_key_exists($keys[9], $arr)) $this->setCreated($arr[$keys[9]]);
-        if (array_key_exists($keys[10], $arr)) $this->setModified($arr[$keys[10]]);
-        if (array_key_exists($keys[11], $arr)) $this->setFirstName($arr[$keys[11]]);
-        if (array_key_exists($keys[12], $arr)) $this->setLastName($arr[$keys[12]]);
-        if (array_key_exists($keys[13], $arr)) $this->setSex($arr[$keys[13]]);
-        if (array_key_exists($keys[14], $arr)) $this->setLogins($arr[$keys[14]]);
-        if (array_key_exists($keys[15], $arr)) $this->setLastlogin($arr[$keys[15]]);
-        if (array_key_exists($keys[16], $arr)) $this->setActivate($arr[$keys[16]]);
+        if (array_key_exists($keys[9], $arr)) $this->setFirstName($arr[$keys[9]]);
+        if (array_key_exists($keys[10], $arr)) $this->setLastName($arr[$keys[10]]);
+        if (array_key_exists($keys[11], $arr)) $this->setSex($arr[$keys[11]]);
+        if (array_key_exists($keys[12], $arr)) $this->setLogins($arr[$keys[12]]);
+        if (array_key_exists($keys[13], $arr)) $this->setLastlogin($arr[$keys[13]]);
+        if (array_key_exists($keys[14], $arr)) $this->setActivate($arr[$keys[14]]);
     }
 
     /**
@@ -1545,8 +1471,6 @@ abstract class BaseUser extends BaseObject
         if ($this->isColumnModified(UserPeer::EMAIL)) $criteria->add(UserPeer::EMAIL, $this->email);
         if ($this->isColumnModified(UserPeer::DESKTOP)) $criteria->add(UserPeer::DESKTOP, $this->desktop);
         if ($this->isColumnModified(UserPeer::SETTINGS)) $criteria->add(UserPeer::SETTINGS, $this->settings);
-        if ($this->isColumnModified(UserPeer::CREATED)) $criteria->add(UserPeer::CREATED, $this->created);
-        if ($this->isColumnModified(UserPeer::MODIFIED)) $criteria->add(UserPeer::MODIFIED, $this->modified);
         if ($this->isColumnModified(UserPeer::FIRST_NAME)) $criteria->add(UserPeer::FIRST_NAME, $this->first_name);
         if ($this->isColumnModified(UserPeer::LAST_NAME)) $criteria->add(UserPeer::LAST_NAME, $this->last_name);
         if ($this->isColumnModified(UserPeer::SEX)) $criteria->add(UserPeer::SEX, $this->sex);
@@ -1624,8 +1548,6 @@ abstract class BaseUser extends BaseObject
         $copyObj->setEmail($this->getEmail());
         $copyObj->setDesktop($this->getDesktop());
         $copyObj->setSettings($this->getSettings());
-        $copyObj->setCreated($this->getCreated());
-        $copyObj->setModified($this->getModified());
         $copyObj->setFirstName($this->getFirstName());
         $copyObj->setLastName($this->getLastName());
         $copyObj->setSex($this->getSex());
@@ -2081,6 +2003,173 @@ abstract class BaseUser extends BaseObject
     }
 
     /**
+     * Clears out the collGroups collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addGroups()
+     */
+    public function clearGroups()
+    {
+        $this->collGroups = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collGroups collection.
+     *
+     * By default this just sets the collGroups collection to an empty collection (like clearGroups());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @return void
+     */
+    public function initGroups()
+    {
+        $this->collGroups = new PropelObjectCollection();
+        $this->collGroups->setModel('Group');
+    }
+
+    /**
+     * Gets a collection of Group objects related by a many-to-many relationship
+     * to the current object by way of the kryn_system_user_group cross-reference table.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this User is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      PropelPDO $con Optional connection object
+     *
+     * @return PropelObjectCollection|Group[] List of Group objects
+     */
+    public function getGroups($criteria = null, PropelPDO $con = null)
+    {
+        if (null === $this->collGroups || null !== $criteria) {
+            if ($this->isNew() && null === $this->collGroups) {
+                // return empty collection
+                $this->initGroups();
+            } else {
+                $collGroups = GroupQuery::create(null, $criteria)
+                    ->filterByUser($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    return $collGroups;
+                }
+                $this->collGroups = $collGroups;
+            }
+        }
+
+        return $this->collGroups;
+    }
+
+    /**
+     * Sets a collection of Group objects related by a many-to-many relationship
+     * to the current object by way of the kryn_system_user_group cross-reference table.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      PropelCollection $groups A Propel collection.
+     * @param      PropelPDO $con Optional connection object
+     */
+    public function setGroups(PropelCollection $groups, PropelPDO $con = null)
+    {
+        $this->clearGroups();
+        $currentGroups = $this->getGroups();
+
+        $this->groupsScheduledForDeletion = $currentGroups->diff($groups);
+
+        foreach ($groups as $group) {
+            if (!$currentGroups->contains($group)) {
+                $this->doAddGroup($group);
+            }
+        }
+
+        $this->collGroups = $groups;
+    }
+
+    /**
+     * Gets the number of Group objects related by a many-to-many relationship
+     * to the current object by way of the kryn_system_user_group cross-reference table.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      boolean $distinct Set to true to force count distinct
+     * @param      PropelPDO $con Optional connection object
+     *
+     * @return int the number of related Group objects
+     */
+    public function countGroups($criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        if (null === $this->collGroups || null !== $criteria) {
+            if ($this->isNew() && null === $this->collGroups) {
+                return 0;
+            } else {
+                $query = GroupQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByUser($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collGroups);
+        }
+    }
+
+    /**
+     * Associate a Group object to this object
+     * through the kryn_system_user_group cross reference table.
+     *
+     * @param  Group $group The UserGroup object to relate
+     * @return void
+     */
+    public function addGroup(Group $group)
+    {
+        if ($this->collGroups === null) {
+            $this->initGroups();
+        }
+        if (!$this->collGroups->contains($group)) { // only add it if the **same** object is not already associated
+            $this->doAddGroup($group);
+
+            $this->collGroups[]= $group;
+        }
+    }
+
+    /**
+     * @param	Group $group The group object to add.
+     */
+    protected function doAddGroup($group)
+    {
+        $userGroup = new UserGroup();
+        $userGroup->setGroup($group);
+        $this->addUserGroup($userGroup);
+    }
+
+    /**
+     * Remove a Group object to this object
+     * through the kryn_system_user_group cross reference table.
+     *
+     * @param      Group $group The UserGroup object to relate
+     * @return void
+     */
+    public function removeGroup(Group $group)
+    {
+        if ($this->getGroups()->contains($group)) {
+            $this->collGroups->remove($this->collGroups->search($group));
+            if (null === $this->groupsScheduledForDeletion) {
+                $this->groupsScheduledForDeletion = clone $this->collGroups;
+                $this->groupsScheduledForDeletion->clear();
+            }
+            $this->groupsScheduledForDeletion[]= $group;
+        }
+    }
+
+    /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
@@ -2094,8 +2183,6 @@ abstract class BaseUser extends BaseObject
         $this->email = null;
         $this->desktop = null;
         $this->settings = null;
-        $this->created = null;
-        $this->modified = null;
         $this->first_name = null;
         $this->last_name = null;
         $this->sex = null;
@@ -2132,6 +2219,11 @@ abstract class BaseUser extends BaseObject
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collGroups) {
+                foreach ($this->collGroups as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
         if ($this->collSessions instanceof PropelCollection) {
@@ -2142,6 +2234,10 @@ abstract class BaseUser extends BaseObject
             $this->collUserGroups->clearIterator();
         }
         $this->collUserGroups = null;
+        if ($this->collGroups instanceof PropelCollection) {
+            $this->collGroups->clearIterator();
+        }
+        $this->collGroups = null;
     }
 
     /**

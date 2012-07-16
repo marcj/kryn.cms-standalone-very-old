@@ -85,18 +85,20 @@
         <column name="alias" type="VARCHAR" size="255" required="false"/>
         <column name="redirect" type="VARCHAR" size="255" required="false"/>
         <column name="page404_id" phpName="Page404id" type="INTEGER" required="false"/>
-        <column name="page404interface" phpName="Page404interface" type="VARCHAR" size="128" required="false"/>
+        <column name="page404_interface" phpName="Page404interface" type="VARCHAR" size="128" required="false"/>
         <column name="master" type="INTEGER" required="false"/>
-        <column name="resourcecompression" type="INTEGER" required="false"/>
+        <column name="resource_compression" type="INTEGER" required="false"/>
         <column name="layouts" type="LONGVARCHAR" required="false"/>
         <column name="phplocale" type="VARCHAR" size="128" required="false"/>
         <column name="path" type="VARCHAR" size="64" required="false"/>
-        <column name="themeproperties" type="LONGVARCHAR" required="false"/>
-        <column name="extproperties" type="LONGVARCHAR" required="false"/>
+
+        <column name="theme_properties" type="OBJECT" phpType="Properties" required="false"/>
+        <column name="extension_properties" type="OBJECT" phpType="Properties" required="false"/>
+        <column name="session_properties" type="OBJECT" phpType="Properties" required="false"/>
+
         <column name="email" type="VARCHAR" size="64" required="false"/>
         <column name="search_index_key" type="VARCHAR" size="255" required="false"/>
         <column name="robots" type="LONGVARCHAR" required="false"/>
-        <column name="session" type="LONGVARCHAR" required="false"/>
         <column name="favicon" type="VARCHAR" size="255" required="false"/>
         <index>
             <index-column name="domain"/>
@@ -106,9 +108,6 @@
         </index>
         <index>
             <index-column name="master"/>
-        </index>
-        <index>
-            <index-column name="resourcecompression"/>
         </index>
         <index>
             <index-column name="startpage_id"/>

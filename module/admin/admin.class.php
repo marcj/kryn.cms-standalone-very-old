@@ -31,7 +31,7 @@ class admin extends RestServerController {
 
         @header('Expires:');
 
-        $code = Core\Kryn::getRequestPath();
+        $code = Core\Kryn::getRequestedPath();
         $pEntryPoint = self::getPathItem($code); //admin entry point
 
         if (!$pEntryPoint) {

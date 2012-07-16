@@ -15,8 +15,6 @@
  * @method     UserQuery orderByEmail($order = Criteria::ASC) Order by the email column
  * @method     UserQuery orderByDesktop($order = Criteria::ASC) Order by the desktop column
  * @method     UserQuery orderBySettings($order = Criteria::ASC) Order by the settings column
- * @method     UserQuery orderByCreated($order = Criteria::ASC) Order by the created column
- * @method     UserQuery orderByModified($order = Criteria::ASC) Order by the modified column
  * @method     UserQuery orderByFirstName($order = Criteria::ASC) Order by the first_name column
  * @method     UserQuery orderByLastName($order = Criteria::ASC) Order by the last_name column
  * @method     UserQuery orderBySex($order = Criteria::ASC) Order by the sex column
@@ -33,8 +31,6 @@
  * @method     UserQuery groupByEmail() Group by the email column
  * @method     UserQuery groupByDesktop() Group by the desktop column
  * @method     UserQuery groupBySettings() Group by the settings column
- * @method     UserQuery groupByCreated() Group by the created column
- * @method     UserQuery groupByModified() Group by the modified column
  * @method     UserQuery groupByFirstName() Group by the first_name column
  * @method     UserQuery groupByLastName() Group by the last_name column
  * @method     UserQuery groupBySex() Group by the sex column
@@ -66,8 +62,6 @@
  * @method     User findOneByEmail(string $email) Return the first User filtered by the email column
  * @method     User findOneByDesktop(string $desktop) Return the first User filtered by the desktop column
  * @method     User findOneBySettings(string $settings) Return the first User filtered by the settings column
- * @method     User findOneByCreated(int $created) Return the first User filtered by the created column
- * @method     User findOneByModified(int $modified) Return the first User filtered by the modified column
  * @method     User findOneByFirstName(string $first_name) Return the first User filtered by the first_name column
  * @method     User findOneByLastName(string $last_name) Return the first User filtered by the last_name column
  * @method     User findOneBySex(int $sex) Return the first User filtered by the sex column
@@ -84,8 +78,6 @@
  * @method     array findByEmail(string $email) Return User objects filtered by the email column
  * @method     array findByDesktop(string $desktop) Return User objects filtered by the desktop column
  * @method     array findBySettings(string $settings) Return User objects filtered by the settings column
- * @method     array findByCreated(int $created) Return User objects filtered by the created column
- * @method     array findByModified(int $modified) Return User objects filtered by the modified column
  * @method     array findByFirstName(string $first_name) Return User objects filtered by the first_name column
  * @method     array findByLastName(string $last_name) Return User objects filtered by the last_name column
  * @method     array findBySex(int $sex) Return User objects filtered by the sex column
@@ -182,7 +174,7 @@ abstract class BaseUserQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, USERNAME, AUTH_CLASS, PASSWD, PASSWD_SALT, ACTIVATIONKEY, EMAIL, DESKTOP, SETTINGS, CREATED, MODIFIED, FIRST_NAME, LAST_NAME, SEX, LOGINS, LASTLOGIN, ACTIVATE FROM kryn_system_user WHERE ID = :p0';
+        $sql = 'SELECT ID, USERNAME, AUTH_CLASS, PASSWD, PASSWD_SALT, ACTIVATIONKEY, EMAIL, DESKTOP, SETTINGS, FIRST_NAME, LAST_NAME, SEX, LOGINS, LASTLOGIN, ACTIVATE FROM kryn_system_user WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -528,88 +520,6 @@ abstract class BaseUserQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(UserPeer::SETTINGS, $settings, $comparison);
-    }
-
-    /**
-     * Filter the query on the created column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByCreated(1234); // WHERE created = 1234
-     * $query->filterByCreated(array(12, 34)); // WHERE created IN (12, 34)
-     * $query->filterByCreated(array('min' => 12)); // WHERE created > 12
-     * </code>
-     *
-     * @param     mixed $created The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return UserQuery The current query, for fluid interface
-     */
-    public function filterByCreated($created = null, $comparison = null)
-    {
-        if (is_array($created)) {
-            $useMinMax = false;
-            if (isset($created['min'])) {
-                $this->addUsingAlias(UserPeer::CREATED, $created['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($created['max'])) {
-                $this->addUsingAlias(UserPeer::CREATED, $created['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(UserPeer::CREATED, $created, $comparison);
-    }
-
-    /**
-     * Filter the query on the modified column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByModified(1234); // WHERE modified = 1234
-     * $query->filterByModified(array(12, 34)); // WHERE modified IN (12, 34)
-     * $query->filterByModified(array('min' => 12)); // WHERE modified > 12
-     * </code>
-     *
-     * @param     mixed $modified The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return UserQuery The current query, for fluid interface
-     */
-    public function filterByModified($modified = null, $comparison = null)
-    {
-        if (is_array($modified)) {
-            $useMinMax = false;
-            if (isset($modified['min'])) {
-                $this->addUsingAlias(UserPeer::MODIFIED, $modified['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($modified['max'])) {
-                $this->addUsingAlias(UserPeer::MODIFIED, $modified['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(UserPeer::MODIFIED, $modified, $comparison);
     }
 
     /**
@@ -966,6 +876,23 @@ abstract class BaseUserQuery extends ModelCriteria
         return $this
             ->joinUserGroup($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'UserGroup', 'UserGroupQuery');
+    }
+
+    /**
+     * Filter the query by a related Group object
+     * using the kryn_system_user_group table as cross reference
+     *
+     * @param   Group $group the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return   UserQuery The current query, for fluid interface
+     */
+    public function filterByGroup($group, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useUserGroupQuery()
+            ->filterByGroup($group, $comparison)
+            ->endUse();
     }
 
     /**

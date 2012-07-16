@@ -79,10 +79,10 @@ abstract class BaseDomain extends BaseObject
     protected $page404_id;
 
     /**
-     * The value for the page404interface field.
+     * The value for the page404_interface field.
      * @var        string
      */
-    protected $page404interface;
+    protected $page404_interface;
 
     /**
      * The value for the master field.
@@ -91,10 +91,10 @@ abstract class BaseDomain extends BaseObject
     protected $master;
 
     /**
-     * The value for the resourcecompression field.
+     * The value for the resource_compression field.
      * @var        int
      */
-    protected $resourcecompression;
+    protected $resource_compression;
 
     /**
      * The value for the layouts field.
@@ -115,16 +115,43 @@ abstract class BaseDomain extends BaseObject
     protected $path;
 
     /**
-     * The value for the themeproperties field.
-     * @var        string
+     * The value for the theme_properties field.
+     * @var        Properties
      */
-    protected $themeproperties;
+    protected $theme_properties;
 
     /**
-     * The value for the extproperties field.
-     * @var        string
+     * The unserialized $theme_properties value - i.e. the persisted object.
+     * This is necessary to avoid repeated calls to unserialize() at runtime.
+     * @var        object
      */
-    protected $extproperties;
+    protected $theme_properties_unserialized;
+
+    /**
+     * The value for the extension_properties field.
+     * @var        Properties
+     */
+    protected $extension_properties;
+
+    /**
+     * The unserialized $extension_properties value - i.e. the persisted object.
+     * This is necessary to avoid repeated calls to unserialize() at runtime.
+     * @var        object
+     */
+    protected $extension_properties_unserialized;
+
+    /**
+     * The value for the session_properties field.
+     * @var        Properties
+     */
+    protected $session_properties;
+
+    /**
+     * The unserialized $session_properties value - i.e. the persisted object.
+     * This is necessary to avoid repeated calls to unserialize() at runtime.
+     * @var        object
+     */
+    protected $session_properties_unserialized;
 
     /**
      * The value for the email field.
@@ -143,12 +170,6 @@ abstract class BaseDomain extends BaseObject
      * @var        string
      */
     protected $robots;
-
-    /**
-     * The value for the session field.
-     * @var        string
-     */
-    protected $session;
 
     /**
      * The value for the favicon field.
@@ -270,14 +291,14 @@ abstract class BaseDomain extends BaseObject
     }
 
     /**
-     * Get the [page404interface] column value.
+     * Get the [page404_interface] column value.
      * 
      * @return   string
      */
     public function getPage404interface()
     {
 
-        return $this->page404interface;
+        return $this->page404_interface;
     }
 
     /**
@@ -292,14 +313,14 @@ abstract class BaseDomain extends BaseObject
     }
 
     /**
-     * Get the [resourcecompression] column value.
+     * Get the [resource_compression] column value.
      * 
      * @return   int
      */
-    public function getResourcecompression()
+    public function getResourceCompression()
     {
 
-        return $this->resourcecompression;
+        return $this->resource_compression;
     }
 
     /**
@@ -336,25 +357,45 @@ abstract class BaseDomain extends BaseObject
     }
 
     /**
-     * Get the [themeproperties] column value.
+     * Get the [theme_properties] column value.
      * 
-     * @return   string
+     * @return   Properties
      */
-    public function getThemeproperties()
+    public function getThemeProperties()
     {
+        if (null == $this->theme_properties_unserialized && null !== $this->theme_properties) {
+            $this->theme_properties_unserialized = unserialize($this->theme_properties);
+        }
 
-        return $this->themeproperties;
+        return $this->theme_properties_unserialized;
     }
 
     /**
-     * Get the [extproperties] column value.
+     * Get the [extension_properties] column value.
      * 
-     * @return   string
+     * @return   Properties
      */
-    public function getExtproperties()
+    public function getExtensionProperties()
     {
+        if (null == $this->extension_properties_unserialized && null !== $this->extension_properties) {
+            $this->extension_properties_unserialized = unserialize($this->extension_properties);
+        }
 
-        return $this->extproperties;
+        return $this->extension_properties_unserialized;
+    }
+
+    /**
+     * Get the [session_properties] column value.
+     * 
+     * @return   Properties
+     */
+    public function getSessionProperties()
+    {
+        if (null == $this->session_properties_unserialized && null !== $this->session_properties) {
+            $this->session_properties_unserialized = unserialize($this->session_properties);
+        }
+
+        return $this->session_properties_unserialized;
     }
 
     /**
@@ -388,17 +429,6 @@ abstract class BaseDomain extends BaseObject
     {
 
         return $this->robots;
-    }
-
-    /**
-     * Get the [session] column value.
-     * 
-     * @return   string
-     */
-    public function getSession()
-    {
-
-        return $this->session;
     }
 
     /**
@@ -581,7 +611,7 @@ abstract class BaseDomain extends BaseObject
     } // setPage404id()
 
     /**
-     * Set the value of [page404interface] column.
+     * Set the value of [page404_interface] column.
      * 
      * @param      string $v new value
      * @return   Domain The current object (for fluent API support)
@@ -592,9 +622,9 @@ abstract class BaseDomain extends BaseObject
             $v = (string) $v;
         }
 
-        if ($this->page404interface !== $v) {
-            $this->page404interface = $v;
-            $this->modifiedColumns[] = DomainPeer::PAGE404INTERFACE;
+        if ($this->page404_interface !== $v) {
+            $this->page404_interface = $v;
+            $this->modifiedColumns[] = DomainPeer::PAGE404_INTERFACE;
         }
 
 
@@ -623,25 +653,25 @@ abstract class BaseDomain extends BaseObject
     } // setMaster()
 
     /**
-     * Set the value of [resourcecompression] column.
+     * Set the value of [resource_compression] column.
      * 
      * @param      int $v new value
      * @return   Domain The current object (for fluent API support)
      */
-    public function setResourcecompression($v)
+    public function setResourceCompression($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->resourcecompression !== $v) {
-            $this->resourcecompression = $v;
-            $this->modifiedColumns[] = DomainPeer::RESOURCECOMPRESSION;
+        if ($this->resource_compression !== $v) {
+            $this->resource_compression = $v;
+            $this->modifiedColumns[] = DomainPeer::RESOURCE_COMPRESSION;
         }
 
 
         return $this;
-    } // setResourcecompression()
+    } // setResourceCompression()
 
     /**
      * Set the value of [layouts] column.
@@ -707,46 +737,58 @@ abstract class BaseDomain extends BaseObject
     } // setPath()
 
     /**
-     * Set the value of [themeproperties] column.
+     * Set the value of [theme_properties] column.
      * 
-     * @param      string $v new value
+     * @param      Properties $v new value
      * @return   Domain The current object (for fluent API support)
      */
-    public function setThemeproperties($v)
+    public function setThemeProperties($v)
     {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->themeproperties !== $v) {
-            $this->themeproperties = $v;
-            $this->modifiedColumns[] = DomainPeer::THEMEPROPERTIES;
+        if ($this->theme_properties_unserialized !== $v) {
+            $this->theme_properties_unserialized = $v;
+            $this->theme_properties = serialize($v);
+            $this->modifiedColumns[] = DomainPeer::THEME_PROPERTIES;
         }
 
 
         return $this;
-    } // setThemeproperties()
+    } // setThemeProperties()
 
     /**
-     * Set the value of [extproperties] column.
+     * Set the value of [extension_properties] column.
      * 
-     * @param      string $v new value
+     * @param      Properties $v new value
      * @return   Domain The current object (for fluent API support)
      */
-    public function setExtproperties($v)
+    public function setExtensionProperties($v)
     {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->extproperties !== $v) {
-            $this->extproperties = $v;
-            $this->modifiedColumns[] = DomainPeer::EXTPROPERTIES;
+        if ($this->extension_properties_unserialized !== $v) {
+            $this->extension_properties_unserialized = $v;
+            $this->extension_properties = serialize($v);
+            $this->modifiedColumns[] = DomainPeer::EXTENSION_PROPERTIES;
         }
 
 
         return $this;
-    } // setExtproperties()
+    } // setExtensionProperties()
+
+    /**
+     * Set the value of [session_properties] column.
+     * 
+     * @param      Properties $v new value
+     * @return   Domain The current object (for fluent API support)
+     */
+    public function setSessionProperties($v)
+    {
+        if ($this->session_properties_unserialized !== $v) {
+            $this->session_properties_unserialized = $v;
+            $this->session_properties = serialize($v);
+            $this->modifiedColumns[] = DomainPeer::SESSION_PROPERTIES;
+        }
+
+
+        return $this;
+    } // setSessionProperties()
 
     /**
      * Set the value of [email] column.
@@ -812,27 +854,6 @@ abstract class BaseDomain extends BaseObject
     } // setRobots()
 
     /**
-     * Set the value of [session] column.
-     * 
-     * @param      string $v new value
-     * @return   Domain The current object (for fluent API support)
-     */
-    public function setSession($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->session !== $v) {
-            $this->session = $v;
-            $this->modifiedColumns[] = DomainPeer::SESSION;
-        }
-
-
-        return $this;
-    } // setSession()
-
-    /**
      * Set the value of [favicon] column.
      * 
      * @param      string $v new value
@@ -893,18 +914,18 @@ abstract class BaseDomain extends BaseObject
             $this->alias = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
             $this->redirect = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
             $this->page404_id = ($row[$startcol + 7] !== null) ? (int) $row[$startcol + 7] : null;
-            $this->page404interface = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
+            $this->page404_interface = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
             $this->master = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
-            $this->resourcecompression = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
+            $this->resource_compression = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
             $this->layouts = ($row[$startcol + 11] !== null) ? (string) $row[$startcol + 11] : null;
             $this->phplocale = ($row[$startcol + 12] !== null) ? (string) $row[$startcol + 12] : null;
             $this->path = ($row[$startcol + 13] !== null) ? (string) $row[$startcol + 13] : null;
-            $this->themeproperties = ($row[$startcol + 14] !== null) ? (string) $row[$startcol + 14] : null;
-            $this->extproperties = ($row[$startcol + 15] !== null) ? (string) $row[$startcol + 15] : null;
-            $this->email = ($row[$startcol + 16] !== null) ? (string) $row[$startcol + 16] : null;
-            $this->search_index_key = ($row[$startcol + 17] !== null) ? (string) $row[$startcol + 17] : null;
-            $this->robots = ($row[$startcol + 18] !== null) ? (string) $row[$startcol + 18] : null;
-            $this->session = ($row[$startcol + 19] !== null) ? (string) $row[$startcol + 19] : null;
+            $this->theme_properties = $row[$startcol + 14];
+            $this->extension_properties = $row[$startcol + 15];
+            $this->session_properties = $row[$startcol + 16];
+            $this->email = ($row[$startcol + 17] !== null) ? (string) $row[$startcol + 17] : null;
+            $this->search_index_key = ($row[$startcol + 18] !== null) ? (string) $row[$startcol + 18] : null;
+            $this->robots = ($row[$startcol + 19] !== null) ? (string) $row[$startcol + 19] : null;
             $this->favicon = ($row[$startcol + 20] !== null) ? (string) $row[$startcol + 20] : null;
             $this->resetModified();
 
@@ -1180,14 +1201,14 @@ abstract class BaseDomain extends BaseObject
         if ($this->isColumnModified(DomainPeer::PAGE404_ID)) {
             $modifiedColumns[':p' . $index++]  = 'PAGE404_ID';
         }
-        if ($this->isColumnModified(DomainPeer::PAGE404INTERFACE)) {
-            $modifiedColumns[':p' . $index++]  = 'PAGE404INTERFACE';
+        if ($this->isColumnModified(DomainPeer::PAGE404_INTERFACE)) {
+            $modifiedColumns[':p' . $index++]  = 'PAGE404_INTERFACE';
         }
         if ($this->isColumnModified(DomainPeer::MASTER)) {
             $modifiedColumns[':p' . $index++]  = 'MASTER';
         }
-        if ($this->isColumnModified(DomainPeer::RESOURCECOMPRESSION)) {
-            $modifiedColumns[':p' . $index++]  = 'RESOURCECOMPRESSION';
+        if ($this->isColumnModified(DomainPeer::RESOURCE_COMPRESSION)) {
+            $modifiedColumns[':p' . $index++]  = 'RESOURCE_COMPRESSION';
         }
         if ($this->isColumnModified(DomainPeer::LAYOUTS)) {
             $modifiedColumns[':p' . $index++]  = 'LAYOUTS';
@@ -1198,11 +1219,14 @@ abstract class BaseDomain extends BaseObject
         if ($this->isColumnModified(DomainPeer::PATH)) {
             $modifiedColumns[':p' . $index++]  = 'PATH';
         }
-        if ($this->isColumnModified(DomainPeer::THEMEPROPERTIES)) {
-            $modifiedColumns[':p' . $index++]  = 'THEMEPROPERTIES';
+        if ($this->isColumnModified(DomainPeer::THEME_PROPERTIES)) {
+            $modifiedColumns[':p' . $index++]  = 'THEME_PROPERTIES';
         }
-        if ($this->isColumnModified(DomainPeer::EXTPROPERTIES)) {
-            $modifiedColumns[':p' . $index++]  = 'EXTPROPERTIES';
+        if ($this->isColumnModified(DomainPeer::EXTENSION_PROPERTIES)) {
+            $modifiedColumns[':p' . $index++]  = 'EXTENSION_PROPERTIES';
+        }
+        if ($this->isColumnModified(DomainPeer::SESSION_PROPERTIES)) {
+            $modifiedColumns[':p' . $index++]  = 'SESSION_PROPERTIES';
         }
         if ($this->isColumnModified(DomainPeer::EMAIL)) {
             $modifiedColumns[':p' . $index++]  = 'EMAIL';
@@ -1212,9 +1236,6 @@ abstract class BaseDomain extends BaseObject
         }
         if ($this->isColumnModified(DomainPeer::ROBOTS)) {
             $modifiedColumns[':p' . $index++]  = 'ROBOTS';
-        }
-        if ($this->isColumnModified(DomainPeer::SESSION)) {
-            $modifiedColumns[':p' . $index++]  = 'SESSION';
         }
         if ($this->isColumnModified(DomainPeer::FAVICON)) {
             $modifiedColumns[':p' . $index++]  = 'FAVICON';
@@ -1254,14 +1275,14 @@ abstract class BaseDomain extends BaseObject
                     case 'PAGE404_ID':
 						$stmt->bindValue($identifier, $this->page404_id, PDO::PARAM_INT);
                         break;
-                    case 'PAGE404INTERFACE':
-						$stmt->bindValue($identifier, $this->page404interface, PDO::PARAM_STR);
+                    case 'PAGE404_INTERFACE':
+						$stmt->bindValue($identifier, $this->page404_interface, PDO::PARAM_STR);
                         break;
                     case 'MASTER':
 						$stmt->bindValue($identifier, $this->master, PDO::PARAM_INT);
                         break;
-                    case 'RESOURCECOMPRESSION':
-						$stmt->bindValue($identifier, $this->resourcecompression, PDO::PARAM_INT);
+                    case 'RESOURCE_COMPRESSION':
+						$stmt->bindValue($identifier, $this->resource_compression, PDO::PARAM_INT);
                         break;
                     case 'LAYOUTS':
 						$stmt->bindValue($identifier, $this->layouts, PDO::PARAM_STR);
@@ -1272,11 +1293,14 @@ abstract class BaseDomain extends BaseObject
                     case 'PATH':
 						$stmt->bindValue($identifier, $this->path, PDO::PARAM_STR);
                         break;
-                    case 'THEMEPROPERTIES':
-						$stmt->bindValue($identifier, $this->themeproperties, PDO::PARAM_STR);
+                    case 'THEME_PROPERTIES':
+						$stmt->bindValue($identifier, $this->theme_properties, PDO::PARAM_STR);
                         break;
-                    case 'EXTPROPERTIES':
-						$stmt->bindValue($identifier, $this->extproperties, PDO::PARAM_STR);
+                    case 'EXTENSION_PROPERTIES':
+						$stmt->bindValue($identifier, $this->extension_properties, PDO::PARAM_STR);
+                        break;
+                    case 'SESSION_PROPERTIES':
+						$stmt->bindValue($identifier, $this->session_properties, PDO::PARAM_STR);
                         break;
                     case 'EMAIL':
 						$stmt->bindValue($identifier, $this->email, PDO::PARAM_STR);
@@ -1286,9 +1310,6 @@ abstract class BaseDomain extends BaseObject
                         break;
                     case 'ROBOTS':
 						$stmt->bindValue($identifier, $this->robots, PDO::PARAM_STR);
-                        break;
-                    case 'SESSION':
-						$stmt->bindValue($identifier, $this->session, PDO::PARAM_STR);
                         break;
                     case 'FAVICON':
 						$stmt->bindValue($identifier, $this->favicon, PDO::PARAM_STR);
@@ -1459,7 +1480,7 @@ abstract class BaseDomain extends BaseObject
                 return $this->getMaster();
                 break;
             case 10:
-                return $this->getResourcecompression();
+                return $this->getResourceCompression();
                 break;
             case 11:
                 return $this->getLayouts();
@@ -1471,22 +1492,22 @@ abstract class BaseDomain extends BaseObject
                 return $this->getPath();
                 break;
             case 14:
-                return $this->getThemeproperties();
+                return $this->getThemeProperties();
                 break;
             case 15:
-                return $this->getExtproperties();
+                return $this->getExtensionProperties();
                 break;
             case 16:
-                return $this->getEmail();
+                return $this->getSessionProperties();
                 break;
             case 17:
-                return $this->getSearchIndexKey();
+                return $this->getEmail();
                 break;
             case 18:
-                return $this->getRobots();
+                return $this->getSearchIndexKey();
                 break;
             case 19:
-                return $this->getSession();
+                return $this->getRobots();
                 break;
             case 20:
                 return $this->getFavicon();
@@ -1530,16 +1551,16 @@ abstract class BaseDomain extends BaseObject
             $keys[7] => $this->getPage404id(),
             $keys[8] => $this->getPage404interface(),
             $keys[9] => $this->getMaster(),
-            $keys[10] => $this->getResourcecompression(),
+            $keys[10] => $this->getResourceCompression(),
             $keys[11] => $this->getLayouts(),
             $keys[12] => $this->getPhplocale(),
             $keys[13] => $this->getPath(),
-            $keys[14] => $this->getThemeproperties(),
-            $keys[15] => $this->getExtproperties(),
-            $keys[16] => $this->getEmail(),
-            $keys[17] => $this->getSearchIndexKey(),
-            $keys[18] => $this->getRobots(),
-            $keys[19] => $this->getSession(),
+            $keys[14] => $this->getThemeProperties(),
+            $keys[15] => $this->getExtensionProperties(),
+            $keys[16] => $this->getSessionProperties(),
+            $keys[17] => $this->getEmail(),
+            $keys[18] => $this->getSearchIndexKey(),
+            $keys[19] => $this->getRobots(),
             $keys[20] => $this->getFavicon(),
         );
         if ($includeForeignObjects) {
@@ -1611,7 +1632,7 @@ abstract class BaseDomain extends BaseObject
                 $this->setMaster($value);
                 break;
             case 10:
-                $this->setResourcecompression($value);
+                $this->setResourceCompression($value);
                 break;
             case 11:
                 $this->setLayouts($value);
@@ -1623,22 +1644,22 @@ abstract class BaseDomain extends BaseObject
                 $this->setPath($value);
                 break;
             case 14:
-                $this->setThemeproperties($value);
+                $this->setThemeProperties($value);
                 break;
             case 15:
-                $this->setExtproperties($value);
+                $this->setExtensionProperties($value);
                 break;
             case 16:
-                $this->setEmail($value);
+                $this->setSessionProperties($value);
                 break;
             case 17:
-                $this->setSearchIndexKey($value);
+                $this->setEmail($value);
                 break;
             case 18:
-                $this->setRobots($value);
+                $this->setSearchIndexKey($value);
                 break;
             case 19:
-                $this->setSession($value);
+                $this->setRobots($value);
                 break;
             case 20:
                 $this->setFavicon($value);
@@ -1677,16 +1698,16 @@ abstract class BaseDomain extends BaseObject
         if (array_key_exists($keys[7], $arr)) $this->setPage404id($arr[$keys[7]]);
         if (array_key_exists($keys[8], $arr)) $this->setPage404interface($arr[$keys[8]]);
         if (array_key_exists($keys[9], $arr)) $this->setMaster($arr[$keys[9]]);
-        if (array_key_exists($keys[10], $arr)) $this->setResourcecompression($arr[$keys[10]]);
+        if (array_key_exists($keys[10], $arr)) $this->setResourceCompression($arr[$keys[10]]);
         if (array_key_exists($keys[11], $arr)) $this->setLayouts($arr[$keys[11]]);
         if (array_key_exists($keys[12], $arr)) $this->setPhplocale($arr[$keys[12]]);
         if (array_key_exists($keys[13], $arr)) $this->setPath($arr[$keys[13]]);
-        if (array_key_exists($keys[14], $arr)) $this->setThemeproperties($arr[$keys[14]]);
-        if (array_key_exists($keys[15], $arr)) $this->setExtproperties($arr[$keys[15]]);
-        if (array_key_exists($keys[16], $arr)) $this->setEmail($arr[$keys[16]]);
-        if (array_key_exists($keys[17], $arr)) $this->setSearchIndexKey($arr[$keys[17]]);
-        if (array_key_exists($keys[18], $arr)) $this->setRobots($arr[$keys[18]]);
-        if (array_key_exists($keys[19], $arr)) $this->setSession($arr[$keys[19]]);
+        if (array_key_exists($keys[14], $arr)) $this->setThemeProperties($arr[$keys[14]]);
+        if (array_key_exists($keys[15], $arr)) $this->setExtensionProperties($arr[$keys[15]]);
+        if (array_key_exists($keys[16], $arr)) $this->setSessionProperties($arr[$keys[16]]);
+        if (array_key_exists($keys[17], $arr)) $this->setEmail($arr[$keys[17]]);
+        if (array_key_exists($keys[18], $arr)) $this->setSearchIndexKey($arr[$keys[18]]);
+        if (array_key_exists($keys[19], $arr)) $this->setRobots($arr[$keys[19]]);
         if (array_key_exists($keys[20], $arr)) $this->setFavicon($arr[$keys[20]]);
     }
 
@@ -1707,18 +1728,18 @@ abstract class BaseDomain extends BaseObject
         if ($this->isColumnModified(DomainPeer::ALIAS)) $criteria->add(DomainPeer::ALIAS, $this->alias);
         if ($this->isColumnModified(DomainPeer::REDIRECT)) $criteria->add(DomainPeer::REDIRECT, $this->redirect);
         if ($this->isColumnModified(DomainPeer::PAGE404_ID)) $criteria->add(DomainPeer::PAGE404_ID, $this->page404_id);
-        if ($this->isColumnModified(DomainPeer::PAGE404INTERFACE)) $criteria->add(DomainPeer::PAGE404INTERFACE, $this->page404interface);
+        if ($this->isColumnModified(DomainPeer::PAGE404_INTERFACE)) $criteria->add(DomainPeer::PAGE404_INTERFACE, $this->page404_interface);
         if ($this->isColumnModified(DomainPeer::MASTER)) $criteria->add(DomainPeer::MASTER, $this->master);
-        if ($this->isColumnModified(DomainPeer::RESOURCECOMPRESSION)) $criteria->add(DomainPeer::RESOURCECOMPRESSION, $this->resourcecompression);
+        if ($this->isColumnModified(DomainPeer::RESOURCE_COMPRESSION)) $criteria->add(DomainPeer::RESOURCE_COMPRESSION, $this->resource_compression);
         if ($this->isColumnModified(DomainPeer::LAYOUTS)) $criteria->add(DomainPeer::LAYOUTS, $this->layouts);
         if ($this->isColumnModified(DomainPeer::PHPLOCALE)) $criteria->add(DomainPeer::PHPLOCALE, $this->phplocale);
         if ($this->isColumnModified(DomainPeer::PATH)) $criteria->add(DomainPeer::PATH, $this->path);
-        if ($this->isColumnModified(DomainPeer::THEMEPROPERTIES)) $criteria->add(DomainPeer::THEMEPROPERTIES, $this->themeproperties);
-        if ($this->isColumnModified(DomainPeer::EXTPROPERTIES)) $criteria->add(DomainPeer::EXTPROPERTIES, $this->extproperties);
+        if ($this->isColumnModified(DomainPeer::THEME_PROPERTIES)) $criteria->add(DomainPeer::THEME_PROPERTIES, $this->theme_properties);
+        if ($this->isColumnModified(DomainPeer::EXTENSION_PROPERTIES)) $criteria->add(DomainPeer::EXTENSION_PROPERTIES, $this->extension_properties);
+        if ($this->isColumnModified(DomainPeer::SESSION_PROPERTIES)) $criteria->add(DomainPeer::SESSION_PROPERTIES, $this->session_properties);
         if ($this->isColumnModified(DomainPeer::EMAIL)) $criteria->add(DomainPeer::EMAIL, $this->email);
         if ($this->isColumnModified(DomainPeer::SEARCH_INDEX_KEY)) $criteria->add(DomainPeer::SEARCH_INDEX_KEY, $this->search_index_key);
         if ($this->isColumnModified(DomainPeer::ROBOTS)) $criteria->add(DomainPeer::ROBOTS, $this->robots);
-        if ($this->isColumnModified(DomainPeer::SESSION)) $criteria->add(DomainPeer::SESSION, $this->session);
         if ($this->isColumnModified(DomainPeer::FAVICON)) $criteria->add(DomainPeer::FAVICON, $this->favicon);
 
         return $criteria;
@@ -1792,16 +1813,16 @@ abstract class BaseDomain extends BaseObject
         $copyObj->setPage404id($this->getPage404id());
         $copyObj->setPage404interface($this->getPage404interface());
         $copyObj->setMaster($this->getMaster());
-        $copyObj->setResourcecompression($this->getResourcecompression());
+        $copyObj->setResourceCompression($this->getResourceCompression());
         $copyObj->setLayouts($this->getLayouts());
         $copyObj->setPhplocale($this->getPhplocale());
         $copyObj->setPath($this->getPath());
-        $copyObj->setThemeproperties($this->getThemeproperties());
-        $copyObj->setExtproperties($this->getExtproperties());
+        $copyObj->setThemeProperties($this->getThemeProperties());
+        $copyObj->setExtensionProperties($this->getExtensionProperties());
+        $copyObj->setSessionProperties($this->getSessionProperties());
         $copyObj->setEmail($this->getEmail());
         $copyObj->setSearchIndexKey($this->getSearchIndexKey());
         $copyObj->setRobots($this->getRobots());
-        $copyObj->setSession($this->getSession());
         $copyObj->setFavicon($this->getFavicon());
 
         if ($deepCopy && !$this->startCopy) {
@@ -2088,18 +2109,21 @@ abstract class BaseDomain extends BaseObject
         $this->alias = null;
         $this->redirect = null;
         $this->page404_id = null;
-        $this->page404interface = null;
+        $this->page404_interface = null;
         $this->master = null;
-        $this->resourcecompression = null;
+        $this->resource_compression = null;
         $this->layouts = null;
         $this->phplocale = null;
         $this->path = null;
-        $this->themeproperties = null;
-        $this->extproperties = null;
+        $this->theme_properties = null;
+        $this->theme_properties_unserialized = null;
+        $this->extension_properties = null;
+        $this->extension_properties_unserialized = null;
+        $this->session_properties = null;
+        $this->session_properties_unserialized = null;
         $this->email = null;
         $this->search_index_key = null;
         $this->robots = null;
-        $this->session = null;
         $this->favicon = null;
         $this->alreadyInSave = false;
         $this->alreadyInValidation = false;

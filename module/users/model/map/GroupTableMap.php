@@ -52,6 +52,7 @@ class GroupTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('UserGroup', 'UserGroup', RelationMap::ONE_TO_MANY, array('id' => 'group_id', ), null, null, 'UserGroups');
+        $this->addRelation('User', 'User', RelationMap::MANY_TO_MANY, array(), null, null, 'Users');
     } // buildRelations()
 
 } // GroupTableMap

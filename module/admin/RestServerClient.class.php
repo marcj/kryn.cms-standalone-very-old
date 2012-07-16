@@ -55,7 +55,7 @@ class RestServerClient {
         }
 
         $method = $this->outputFormats[$this->outputFormat];
-        print $this->$method($pMessage);
+        print $this->$method($pMessage)."\n";
         exit;
 
     }

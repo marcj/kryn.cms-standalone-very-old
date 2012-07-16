@@ -37,6 +37,7 @@ class UserGroupTableMap extends TableMap
         $this->setClassname('UserGroup');
         $this->setPackage('Kryn');
         $this->setUseIdGenerator(false);
+        $this->setIsCrossRef(true);
         // columns
         $this->addForeignPrimaryKey('GROUP_ID', 'GroupId', 'INTEGER' , 'kryn_system_group', 'ID', true, null, null);
         $this->addForeignPrimaryKey('USER_ID', 'UserId', 'INTEGER' , 'kryn_system_user', 'ID', true, null, null);

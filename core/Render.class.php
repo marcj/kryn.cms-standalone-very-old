@@ -271,6 +271,7 @@ class Render {
         $time = time();
         $page = Kryn::getPage($pId);
 
+        if (!$page) return 'page_not_found';
 
         $page = Kryn::checkPageAccess($page, false);
         if (!$page)
@@ -355,6 +356,7 @@ class Render {
         if (Kryn::$contents) {
             $oldContents = Kryn::$contents;
         }
+
         Kryn::$forceKrynContent = true;
 
         $start = microtime(true);
@@ -371,11 +373,17 @@ class Render {
 
             $oldPage = Kryn::$page;
             Kryn::$page = Kryn::getPage($pPageId, true);
+
+            if (!Kryn::$page){
+                Kryn::$page = $oldPage;
+                return 'page_not_found';
+            }
+
             Kryn::$nestedLevels[] = Kryn::$page;
         }
 
         $args = array($pPageId, $pSlotId);
-        Event::fire('onBeforeRenderPageContents', $args);
+        Event::fire('preRenderPageContents', $args);
 
         Kryn::addCss('css/_pages/' . $pPageId . '.css');
         Kryn::addJs('js/_pages/' . $pPageId . '.js');

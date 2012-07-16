@@ -14,18 +14,18 @@
  * @method     DomainQuery orderByAlias($order = Criteria::ASC) Order by the alias column
  * @method     DomainQuery orderByRedirect($order = Criteria::ASC) Order by the redirect column
  * @method     DomainQuery orderByPage404id($order = Criteria::ASC) Order by the page404_id column
- * @method     DomainQuery orderByPage404interface($order = Criteria::ASC) Order by the page404interface column
+ * @method     DomainQuery orderByPage404interface($order = Criteria::ASC) Order by the page404_interface column
  * @method     DomainQuery orderByMaster($order = Criteria::ASC) Order by the master column
- * @method     DomainQuery orderByResourcecompression($order = Criteria::ASC) Order by the resourcecompression column
+ * @method     DomainQuery orderByResourceCompression($order = Criteria::ASC) Order by the resource_compression column
  * @method     DomainQuery orderByLayouts($order = Criteria::ASC) Order by the layouts column
  * @method     DomainQuery orderByPhplocale($order = Criteria::ASC) Order by the phplocale column
  * @method     DomainQuery orderByPath($order = Criteria::ASC) Order by the path column
- * @method     DomainQuery orderByThemeproperties($order = Criteria::ASC) Order by the themeproperties column
- * @method     DomainQuery orderByExtproperties($order = Criteria::ASC) Order by the extproperties column
+ * @method     DomainQuery orderByThemeProperties($order = Criteria::ASC) Order by the theme_properties column
+ * @method     DomainQuery orderByExtensionProperties($order = Criteria::ASC) Order by the extension_properties column
+ * @method     DomainQuery orderBySessionProperties($order = Criteria::ASC) Order by the session_properties column
  * @method     DomainQuery orderByEmail($order = Criteria::ASC) Order by the email column
  * @method     DomainQuery orderBySearchIndexKey($order = Criteria::ASC) Order by the search_index_key column
  * @method     DomainQuery orderByRobots($order = Criteria::ASC) Order by the robots column
- * @method     DomainQuery orderBySession($order = Criteria::ASC) Order by the session column
  * @method     DomainQuery orderByFavicon($order = Criteria::ASC) Order by the favicon column
  *
  * @method     DomainQuery groupById() Group by the id column
@@ -36,18 +36,18 @@
  * @method     DomainQuery groupByAlias() Group by the alias column
  * @method     DomainQuery groupByRedirect() Group by the redirect column
  * @method     DomainQuery groupByPage404id() Group by the page404_id column
- * @method     DomainQuery groupByPage404interface() Group by the page404interface column
+ * @method     DomainQuery groupByPage404interface() Group by the page404_interface column
  * @method     DomainQuery groupByMaster() Group by the master column
- * @method     DomainQuery groupByResourcecompression() Group by the resourcecompression column
+ * @method     DomainQuery groupByResourceCompression() Group by the resource_compression column
  * @method     DomainQuery groupByLayouts() Group by the layouts column
  * @method     DomainQuery groupByPhplocale() Group by the phplocale column
  * @method     DomainQuery groupByPath() Group by the path column
- * @method     DomainQuery groupByThemeproperties() Group by the themeproperties column
- * @method     DomainQuery groupByExtproperties() Group by the extproperties column
+ * @method     DomainQuery groupByThemeProperties() Group by the theme_properties column
+ * @method     DomainQuery groupByExtensionProperties() Group by the extension_properties column
+ * @method     DomainQuery groupBySessionProperties() Group by the session_properties column
  * @method     DomainQuery groupByEmail() Group by the email column
  * @method     DomainQuery groupBySearchIndexKey() Group by the search_index_key column
  * @method     DomainQuery groupByRobots() Group by the robots column
- * @method     DomainQuery groupBySession() Group by the session column
  * @method     DomainQuery groupByFavicon() Group by the favicon column
  *
  * @method     DomainQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
@@ -69,18 +69,18 @@
  * @method     Domain findOneByAlias(string $alias) Return the first Domain filtered by the alias column
  * @method     Domain findOneByRedirect(string $redirect) Return the first Domain filtered by the redirect column
  * @method     Domain findOneByPage404id(int $page404_id) Return the first Domain filtered by the page404_id column
- * @method     Domain findOneByPage404interface(string $page404interface) Return the first Domain filtered by the page404interface column
+ * @method     Domain findOneByPage404interface(string $page404_interface) Return the first Domain filtered by the page404_interface column
  * @method     Domain findOneByMaster(int $master) Return the first Domain filtered by the master column
- * @method     Domain findOneByResourcecompression(int $resourcecompression) Return the first Domain filtered by the resourcecompression column
+ * @method     Domain findOneByResourceCompression(int $resource_compression) Return the first Domain filtered by the resource_compression column
  * @method     Domain findOneByLayouts(string $layouts) Return the first Domain filtered by the layouts column
  * @method     Domain findOneByPhplocale(string $phplocale) Return the first Domain filtered by the phplocale column
  * @method     Domain findOneByPath(string $path) Return the first Domain filtered by the path column
- * @method     Domain findOneByThemeproperties(string $themeproperties) Return the first Domain filtered by the themeproperties column
- * @method     Domain findOneByExtproperties(string $extproperties) Return the first Domain filtered by the extproperties column
+ * @method     Domain findOneByThemeProperties(Properties $theme_properties) Return the first Domain filtered by the theme_properties column
+ * @method     Domain findOneByExtensionProperties(Properties $extension_properties) Return the first Domain filtered by the extension_properties column
+ * @method     Domain findOneBySessionProperties(Properties $session_properties) Return the first Domain filtered by the session_properties column
  * @method     Domain findOneByEmail(string $email) Return the first Domain filtered by the email column
  * @method     Domain findOneBySearchIndexKey(string $search_index_key) Return the first Domain filtered by the search_index_key column
  * @method     Domain findOneByRobots(string $robots) Return the first Domain filtered by the robots column
- * @method     Domain findOneBySession(string $session) Return the first Domain filtered by the session column
  * @method     Domain findOneByFavicon(string $favicon) Return the first Domain filtered by the favicon column
  *
  * @method     array findById(int $id) Return Domain objects filtered by the id column
@@ -91,18 +91,18 @@
  * @method     array findByAlias(string $alias) Return Domain objects filtered by the alias column
  * @method     array findByRedirect(string $redirect) Return Domain objects filtered by the redirect column
  * @method     array findByPage404id(int $page404_id) Return Domain objects filtered by the page404_id column
- * @method     array findByPage404interface(string $page404interface) Return Domain objects filtered by the page404interface column
+ * @method     array findByPage404interface(string $page404_interface) Return Domain objects filtered by the page404_interface column
  * @method     array findByMaster(int $master) Return Domain objects filtered by the master column
- * @method     array findByResourcecompression(int $resourcecompression) Return Domain objects filtered by the resourcecompression column
+ * @method     array findByResourceCompression(int $resource_compression) Return Domain objects filtered by the resource_compression column
  * @method     array findByLayouts(string $layouts) Return Domain objects filtered by the layouts column
  * @method     array findByPhplocale(string $phplocale) Return Domain objects filtered by the phplocale column
  * @method     array findByPath(string $path) Return Domain objects filtered by the path column
- * @method     array findByThemeproperties(string $themeproperties) Return Domain objects filtered by the themeproperties column
- * @method     array findByExtproperties(string $extproperties) Return Domain objects filtered by the extproperties column
+ * @method     array findByThemeProperties(Properties $theme_properties) Return Domain objects filtered by the theme_properties column
+ * @method     array findByExtensionProperties(Properties $extension_properties) Return Domain objects filtered by the extension_properties column
+ * @method     array findBySessionProperties(Properties $session_properties) Return Domain objects filtered by the session_properties column
  * @method     array findByEmail(string $email) Return Domain objects filtered by the email column
  * @method     array findBySearchIndexKey(string $search_index_key) Return Domain objects filtered by the search_index_key column
  * @method     array findByRobots(string $robots) Return Domain objects filtered by the robots column
- * @method     array findBySession(string $session) Return Domain objects filtered by the session column
  * @method     array findByFavicon(string $favicon) Return Domain objects filtered by the favicon column
  *
  * @package    propel.generator.Kryn.om
@@ -194,7 +194,7 @@ abstract class BaseDomainQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, DOMAIN, TITLE_FORMAT, LANG, STARTPAGE_ID, ALIAS, REDIRECT, PAGE404_ID, PAGE404INTERFACE, MASTER, RESOURCECOMPRESSION, LAYOUTS, PHPLOCALE, PATH, THEMEPROPERTIES, EXTPROPERTIES, EMAIL, SEARCH_INDEX_KEY, ROBOTS, SESSION, FAVICON FROM kryn_system_domain WHERE ID = :p0';
+        $sql = 'SELECT ID, DOMAIN, TITLE_FORMAT, LANG, STARTPAGE_ID, ALIAS, REDIRECT, PAGE404_ID, PAGE404_INTERFACE, MASTER, RESOURCE_COMPRESSION, LAYOUTS, PHPLOCALE, PATH, THEME_PROPERTIES, EXTENSION_PROPERTIES, SESSION_PROPERTIES, EMAIL, SEARCH_INDEX_KEY, ROBOTS, FAVICON FROM kryn_system_domain WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
 			$stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -538,12 +538,12 @@ abstract class BaseDomainQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the page404interface column
+     * Filter the query on the page404_interface column
      *
      * Example usage:
      * <code>
-     * $query->filterByPage404interface('fooValue');   // WHERE page404interface = 'fooValue'
-     * $query->filterByPage404interface('%fooValue%'); // WHERE page404interface LIKE '%fooValue%'
+     * $query->filterByPage404interface('fooValue');   // WHERE page404_interface = 'fooValue'
+     * $query->filterByPage404interface('%fooValue%'); // WHERE page404_interface LIKE '%fooValue%'
      * </code>
      *
      * @param     string $page404interface The value to use as filter.
@@ -563,7 +563,7 @@ abstract class BaseDomainQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(DomainPeer::PAGE404INTERFACE, $page404interface, $comparison);
+        return $this->addUsingAlias(DomainPeer::PAGE404_INTERFACE, $page404interface, $comparison);
     }
 
     /**
@@ -608,16 +608,16 @@ abstract class BaseDomainQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the resourcecompression column
+     * Filter the query on the resource_compression column
      *
      * Example usage:
      * <code>
-     * $query->filterByResourcecompression(1234); // WHERE resourcecompression = 1234
-     * $query->filterByResourcecompression(array(12, 34)); // WHERE resourcecompression IN (12, 34)
-     * $query->filterByResourcecompression(array('min' => 12)); // WHERE resourcecompression > 12
+     * $query->filterByResourceCompression(1234); // WHERE resource_compression = 1234
+     * $query->filterByResourceCompression(array(12, 34)); // WHERE resource_compression IN (12, 34)
+     * $query->filterByResourceCompression(array('min' => 12)); // WHERE resource_compression > 12
      * </code>
      *
-     * @param     mixed $resourcecompression The value to use as filter.
+     * @param     mixed $resourceCompression The value to use as filter.
      *              Use scalar values for equality.
      *              Use array values for in_array() equivalent.
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
@@ -625,16 +625,16 @@ abstract class BaseDomainQuery extends ModelCriteria
      *
      * @return DomainQuery The current query, for fluid interface
      */
-    public function filterByResourcecompression($resourcecompression = null, $comparison = null)
+    public function filterByResourceCompression($resourceCompression = null, $comparison = null)
     {
-        if (is_array($resourcecompression)) {
+        if (is_array($resourceCompression)) {
             $useMinMax = false;
-            if (isset($resourcecompression['min'])) {
-                $this->addUsingAlias(DomainPeer::RESOURCECOMPRESSION, $resourcecompression['min'], Criteria::GREATER_EQUAL);
+            if (isset($resourceCompression['min'])) {
+                $this->addUsingAlias(DomainPeer::RESOURCE_COMPRESSION, $resourceCompression['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
-            if (isset($resourcecompression['max'])) {
-                $this->addUsingAlias(DomainPeer::RESOURCECOMPRESSION, $resourcecompression['max'], Criteria::LESS_EQUAL);
+            if (isset($resourceCompression['max'])) {
+                $this->addUsingAlias(DomainPeer::RESOURCE_COMPRESSION, $resourceCompression['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -645,7 +645,7 @@ abstract class BaseDomainQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(DomainPeer::RESOURCECOMPRESSION, $resourcecompression, $comparison);
+        return $this->addUsingAlias(DomainPeer::RESOURCE_COMPRESSION, $resourceCompression, $comparison);
     }
 
     /**
@@ -736,61 +736,54 @@ abstract class BaseDomainQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the themeproperties column
+     * Filter the query on the theme_properties column
      *
-     * Example usage:
-     * <code>
-     * $query->filterByThemeproperties('fooValue');   // WHERE themeproperties = 'fooValue'
-     * $query->filterByThemeproperties('%fooValue%'); // WHERE themeproperties LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $themeproperties The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     mixed $themeProperties The value to use as filter
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return DomainQuery The current query, for fluid interface
      */
-    public function filterByThemeproperties($themeproperties = null, $comparison = null)
+    public function filterByThemeProperties($themeProperties = null, $comparison = null)
     {
-        if (null === $comparison) {
-            if (is_array($themeproperties)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $themeproperties)) {
-                $themeproperties = str_replace('*', '%', $themeproperties);
-                $comparison = Criteria::LIKE;
-            }
+        if (is_object($themeProperties)) {
+            $themeProperties = serialize($themeProperties);
         }
 
-        return $this->addUsingAlias(DomainPeer::THEMEPROPERTIES, $themeproperties, $comparison);
+        return $this->addUsingAlias(DomainPeer::THEME_PROPERTIES, $themeProperties, $comparison);
     }
 
     /**
-     * Filter the query on the extproperties column
+     * Filter the query on the extension_properties column
      *
-     * Example usage:
-     * <code>
-     * $query->filterByExtproperties('fooValue');   // WHERE extproperties = 'fooValue'
-     * $query->filterByExtproperties('%fooValue%'); // WHERE extproperties LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $extproperties The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     mixed $extensionProperties The value to use as filter
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return DomainQuery The current query, for fluid interface
      */
-    public function filterByExtproperties($extproperties = null, $comparison = null)
+    public function filterByExtensionProperties($extensionProperties = null, $comparison = null)
     {
-        if (null === $comparison) {
-            if (is_array($extproperties)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $extproperties)) {
-                $extproperties = str_replace('*', '%', $extproperties);
-                $comparison = Criteria::LIKE;
-            }
+        if (is_object($extensionProperties)) {
+            $extensionProperties = serialize($extensionProperties);
         }
 
-        return $this->addUsingAlias(DomainPeer::EXTPROPERTIES, $extproperties, $comparison);
+        return $this->addUsingAlias(DomainPeer::EXTENSION_PROPERTIES, $extensionProperties, $comparison);
+    }
+
+    /**
+     * Filter the query on the session_properties column
+     *
+     * @param     mixed $sessionProperties The value to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return DomainQuery The current query, for fluid interface
+     */
+    public function filterBySessionProperties($sessionProperties = null, $comparison = null)
+    {
+        if (is_object($sessionProperties)) {
+            $sessionProperties = serialize($sessionProperties);
+        }
+
+        return $this->addUsingAlias(DomainPeer::SESSION_PROPERTIES, $sessionProperties, $comparison);
     }
 
     /**
@@ -878,35 +871,6 @@ abstract class BaseDomainQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(DomainPeer::ROBOTS, $robots, $comparison);
-    }
-
-    /**
-     * Filter the query on the session column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterBySession('fooValue');   // WHERE session = 'fooValue'
-     * $query->filterBySession('%fooValue%'); // WHERE session LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $session The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return DomainQuery The current query, for fluid interface
-     */
-    public function filterBySession($session = null, $comparison = null)
-    {
-        if (null === $comparison) {
-            if (is_array($session)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $session)) {
-                $session = str_replace('*', '%', $session);
-                $comparison = Criteria::LIKE;
-            }
-        }
-
-        return $this->addUsingAlias(DomainPeer::SESSION, $session, $comparison);
     }
 
     /**

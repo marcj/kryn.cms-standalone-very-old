@@ -90,6 +90,9 @@ class propelHelper {
 
     public static function cleanup(){
 
+        Core\File::fixMask('propel');
+        Core\File::fixMask('propel-config.php');
+
         delDir('propel');
 
     }
@@ -158,9 +161,15 @@ class propelHelper {
             Propel::init($file);
         }
 
-        $sql = self::getSqlDiff()."\n";
+        $sql = self::getSqlDiff();
 
-        $sql = explode(";\n", $sql);
+        if (!$sql){
+            return "\nSchema up 2 date.\n";
+        }
+
+
+
+        $sql = explode(";\n", $sql)."\n";
 
         $result = '';
 
@@ -182,15 +191,15 @@ class propelHelper {
         $files = find('propel/build/migrations/PropelMigration_*.php');
         if ($files[0]) unlink($files[0]);
 
-        $content = self::execute('diff');
+        self::execute('diff');
 
         $files = find('propel/build/migrations/PropelMigration_*.php');
         $lastMigrationFile = $files[0];
 
+        if (!$lastMigrationFile) return '';
+
         preg_match('/(.*)\/PropelMigration_([0-9]*)\.php/', $lastMigrationFile, $matches);
         $clazz = 'PropelMigration_'.$matches[2];
-
-        if (!$lastMigrationFile) return $content;
 
         require($lastMigrationFile);
         $obj = new $clazz;
@@ -373,7 +382,9 @@ propel.project = Kryn';
 </config>';
 
         file_put_contents('propel/runtime-conf.xml', $xml);
+        chmod('propel/runtime-conf.xml', 0660);
         file_put_contents('propel/buildtime-conf.xml', $xml);
+        chmod('propel/buildtime-conf.xml', 0660);
         return true;
     }
 

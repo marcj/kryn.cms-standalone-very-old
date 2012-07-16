@@ -16,64 +16,51 @@
 class Page extends BasePage {
 
     /**
-     * Updates the full url
+     * Generates the full url pasend on all parents.
+     *
+     * @param null|PropelPDO $con
+     * @return string
      */
-    public function updateFullUrl(){
-        if ($this->getId() && $this->getUrl() && $this->getDomainId()){
-
-            $url = '';
-            $cachedUrls =& \Core\Kryn::getCache('systemUrls-' . $this->getDomainId());
-            if (!($url = $cachedUrls['id']['id=' . $this->getId()]) || !$cachedUrls || !$cachedUrls['id']) {
-                $cachedUrls = adminPages::updateUrlCache($this->getDomainId());
-            }
-
-            if ($this->getDomainId() != \Core\Kryn::$domain->getId()){
-                if ($this->getDomainId() != \Core\Kryn::$domain->getId())
-                    $domain = $this->getDomain();
-                else
-                    $domain = \Core\Kryn::$domain;
-
-                $domainName = $domain->getRealDomain();
-                if ($domain->getMaster() != 1) {
-                    $url = $domainName . $domain->getPath() . $domain->getLang() . '/' . $url;
-                } else {
-                    $url = $domainName . $domain->getPath() . $url;
-                }
-
-                $url = 'http' . (\Core\Kryn::$ssl ? 's' : '') . '://' . $url;
-            }
-
-            if (substr($url, -1) == '/')
-                $url = substr($url, 0, -1);
-
-            if ($url == '/')
-                $url = '.';
-
-            if ($url == '/')
-                $url = '.';
-
-            $this->fullUrl = $url;
-        } else {
-            $this->fullUrl = false;
-        }
-    }
-
-    public function preSave(PropelPDO $con = null){
+    public function generateFullUrl(PropelPDO $con = null){
 
         $url = '';
-        $parent = $this;
-        while ($parent->getParentId() > 0 && $parent = $parent->getParent()){
 
-            if ($parent->getType() < 2){//only pages and links
-                $url = $parent->getUrl().'/';
+        $parents = $this->getAncestors();
+        foreach ($parents as $parent){
+
+            if ($parent->getUrl() && $parent->getType() !== null && $parent->getType() < 2){ //only pages and links
+                $url .= $parent->getUrl().'/';
             }
 
         }
 
         $url .= $this->getUrl();
-        $this->setFullUrl($url);
+        return $url;
 
-        return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullUrl(){
+
+        if (!$this->full_url && $this->getId()){
+
+            $this->full_url = $this->generateFullUrl();
+
+            //we save the result in the database
+            $c1 = new Criteria();
+            $c1->add(PagePeer::ID, $this->getId());
+
+            $c2 = new Criteria();
+            $c2->add(PagePeer::FULL_URL, $this->full_url);
+
+            BasePeer::doUpdate($c1, $c2, Propel::getConnection());
+
+        }
+
+        return $this->full_url;
+
     }
 
     public function isActive(){

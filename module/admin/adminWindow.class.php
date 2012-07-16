@@ -49,7 +49,7 @@ class adminWindow {
     }
 
     public static function getModule() {
-        $url = kryn::getRequestPath();
+        $url = kryn::getRequestedPath();
         //admin/ = 6
         $url = substr($url, 6);
         $firstSlash = strpos($url, '/');
@@ -57,7 +57,7 @@ class adminWindow {
     }
 
     public static function getCode() {
-        $url = kryn::getRequestPath();
+        $url = kryn::getRequestedPath();
         //admin/ = 6
         $url = substr($url, 6);
         $firstSlash = strpos($url, '/');
@@ -71,7 +71,7 @@ class adminWindow {
         require(PATH_MODULE . 'admin/adminWindowEdit.class.php');
         require(PATH_MODULE . 'admin/adminWindowAdd.class.php');
 
-        $info = admin::getPathItem(kryn::getRequestPath());
+        $info = admin::getPathItem(kryn::getRequestedPath());
         $class = $info['class'];
 
         $module2LoadClass = $info['_module'];

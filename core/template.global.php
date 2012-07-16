@@ -25,9 +25,8 @@
  * @param type $pVal
  */
 function tAssign($pName, $pVal) {
-    global $tpl;
     tInit();
-    $tpl->assign($pName, $pVal);
+    Core\Kryn::$smarty->assign($pName, $pVal);
 }
 
 /**
@@ -38,9 +37,8 @@ function tAssign($pName, $pVal) {
  * @param type $pVal
  */
 function tAssignRef($pName, &$pVal) {
-    global $tpl;
     tInit();
-    $tpl->assignByRef($pName, $pVal);
+    Core\Kryn::$smarty->assignByRef($pName, $pVal);
 }
 
 /**
@@ -53,10 +51,9 @@ function tAssignRef($pName, &$pVal) {
 function tFetch($pPath) {
 
     tInit();
-    global $tpl;
 
     $path = tPath($pPath);
-    return Core\Kryn::translate($tpl->fetch($path));
+    return Core\Kryn::translate(Core\Kryn::$smarty->fetch($path));
 }
 
 /**
@@ -87,15 +84,15 @@ function tModTime($pPath){
  * Initialize the Smarty object to $tpl
  */
 function tInit(){
-    global $tpl;
 
-    if (!$tpl){
+    if (!Core\Kryn::$smarty){
 
         include('lib/smarty/Smarty.class.php');
 
-        $tpl = new Smarty();
-        $tpl->template_dir = './';
-        $tpl->compile_dir = 'cache/smarty_compile/';
+        Core\Kryn::$smarty = new Smarty();
+        Core\Kryn::$smarty->template_dir = './';
+        Core\Kryn::$smarty->registerClass('Kryn', 'Core\Kryn');
+        Core\Kryn::$smarty->compile_dir = 'cache/smarty_compile/';
     }
 }
 

@@ -10,7 +10,7 @@ dbDelete('system_page_content');
 
 //setup pages
 
-$domainName = '127.0.0.1';
+$domainName = $path = $_GET['domain']?$_GET['domain']:'127.0.0.1';
 if ($_SERVER['SERVER_NAME'])
     $domainName = $_SERVER['SERVER_NAME'];
 
@@ -32,6 +32,8 @@ $domain->setMaster(1);
 $domain->setLang('en');
 $domain->setResourcecompression(1);
 $domain->setSearchIndexKey(md5($_SERVER['SERVER_NAME'].'-'.@time().'-'.rand()));
+$domainThemeProperties = new Core\Properties('{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"5","search_page":"12","footer_navi":"13"}}}');
+$domain->setThemeProperties($domainThemeProperties);
 $domain->save();
 
 $root = new Page();
@@ -156,13 +158,13 @@ function installPages($pPage, $pChildren){
         $oPage->setParentId($pPage->getId());
         $oPage->insertAsLastChildOf($pPage);
 
+        if ($page[4])
+            $oPage->setLink($page[4]);
+
         if ($page[7])
             $oPage->setVisible($page[7]);
 
         $oPage->save();
-
-        if ($page[4])
-            $oPage->setLink($page[4]);
 
         if ($page[5])
             self::installPageContents($oPage, $page[5]);
@@ -208,3 +210,15 @@ function installPageContents($pPage, $pBoxedContents){
     }
 
 }
+
+
+
+
+
+$article = PageQuery::create()->findOneByTitle('Article');
+
+$parents = $article->getAncestors();
+
+foreach ($parents as $parent)
+    var_dump($parent->getId());
+exit;
