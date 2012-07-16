@@ -2219,7 +2219,6 @@ class Kryn {
 
         if (Kryn::$page->getType() == 1) { //is link
             $to = Kryn::$page->getLink();
-            die($to);
             if (!$to) {
                 Kryn::internalError(t('Redirect failed'), tf('Current page with title %s has no target link.', Kryn::$page->getTitle()));
             }
