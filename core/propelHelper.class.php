@@ -169,7 +169,7 @@ class propelHelper {
 
 
 
-        $sql = explode(";\n", $sql)."\n";
+        $sql = explode(";\n", $sql."\n");
 
         $result = '';
 

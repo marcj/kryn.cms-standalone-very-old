@@ -8,7 +8,7 @@ class RestServerClient {
      *
      * @var string
      */
-    private $outputFormat = 'xml';
+    private $outputFormat = 'json';
 
 
     /**
@@ -55,7 +55,7 @@ class RestServerClient {
         }
 
         $method = $this->outputFormats[$this->outputFormat];
-        print $this->$method($pMessage)."\n";
+        $this->$method($pMessage)."\n";
         exit;
 
     }
@@ -68,7 +68,11 @@ class RestServerClient {
      * @return string
      */
     public function asJSON($pMessage){
-        return json_format(json_encode($pMessage));
+
+        if (php_sapi_name() !== 'cli' )
+            header('Content-Type: application/json; charset=utf-8');
+
+        print json_format(json_encode($pMessage));
     }
 
 
@@ -82,7 +86,7 @@ class RestServerClient {
 
         $xml = $this->toXml($pMessage);
         $xml = "<?xml version=\"1.0\"?>\n<response>\n$xml</response>";
-        return $xml;
+        print $xml;
 
     }
 
@@ -145,16 +149,19 @@ class RestServerClient {
     public function setupFormats(){
 
         //through HTTP_ACCEPT
-        foreach ($this->outputFormats as $formatCode => $formatMethod){
-            if (strpos($_SERVER['HTTP_ACCEPT'], $formatCode) !== false){
-                $this->outputFormat = $formatCode;
-                break;
+        if (strpos($_SERVER['HTTP_ACCEPT'], '*/*') === false){
+            foreach ($this->outputFormats as $formatCode => $formatMethod){
+                if (strpos($_SERVER['HTTP_ACCEPT'], $formatCode) !== false){
+                    $this->outputFormat = $formatCode;
+                    break;
+                }
             }
         }
 
         //through uri suffix
         if (preg_match('/\.(\w+)$/i', $this->getController()->getUrl(), $matches)) {
-            $this->outputFormat = $matches[1];
+            if ($this->outputFormats[$matches[1]])
+                $this->outputFormat = $matches[1];
         }
 
         return $this;

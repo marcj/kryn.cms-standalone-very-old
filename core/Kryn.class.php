@@ -324,8 +324,8 @@ class Kryn {
     public static $cfg;
 
     /**
-     * The krynAuth user object of the backend user.
-     * @var krynAuth
+     * The Auth user object of the backend user.
+     * @var Auth
      * @static
      */
     public static $adminClient;
@@ -754,9 +754,13 @@ class Kryn {
         }
     }
 
+
     /**
      * Returns the current language for the client
      * based on the domain or current session language (in administration)
+     *
+     * @static
+     * @return array|string
      */
     public static function getLanguage() {
 
@@ -765,19 +769,22 @@ class Kryn {
         } else if ( getArgv(1) == 'admin' && getArgv('lang', 2)) {
             return getArgv('lang', 2);
         } else if (Kryn::$adminClient) {
-            return Kryn::$adminClient->getLang();
+            return Kryn::$adminClient->getSession()->getLanguage();
         }
         return 'en';
 
     }
 
+
     /**
      * Returns the config hash of the specified extension.
      *
-     * @param string $pModule
+     * @static
+     * @param $pModule
+     * @param bool $pLang
+     * @param bool $pNoCache
      *
      * @return array All config values from the config.json
-     * @static
      */
     public static function getModuleConfig($pModule, $pLang = false, $pNoCache = false ) {
 
@@ -1248,7 +1255,7 @@ class Kryn {
         ) {
 
             if (!Kryn::$config['auth_class'] || Kryn::$config['auth_class'] == 'Kryn\Auth'
-                || Kryn::$config['auth_class'] == 'krynAuth') {
+                || Kryn::$config['auth_class'] == 'kryn') {
 
                 Kryn::$adminClient = new Auth(Kryn::$config);
 
@@ -1264,6 +1271,7 @@ class Kryn {
                 }
 
             }
+
             Kryn::$adminClient->setAutoLoginLogout(true)
                               ->setLoginTrigger('admin-users-login')
                               ->setLogoutTrigger('admin-users-logout')
@@ -2007,7 +2015,7 @@ class Kryn {
                 array(
                     $title,
                     $_SERVER['SERVER_NAME']),
-                $domain['title_format']
+                    kryn::$domain->getTitleFormat()
             );
 
             if (strpos($title, '%path') !== false) {

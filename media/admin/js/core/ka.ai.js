@@ -55,11 +55,13 @@ Request.JSON = new Class({
             delete ka.kastRequestBubble;
         }
 
-        ka.kastRequestBubble = ka.helpsystem.newBubble(
-            t('Request error'),
-            t('There has been a error occured during the last request. Either you lost your internet connection or the server has serious troubles.')+
-                "<br/>"+'URI: %s'.replace('%s', this.options.url),
-            15000);
+        if (ka.helpsystem){
+            ka.kastRequestBubble = ka.helpsystem.newBubble(
+                t('Request error'),
+                t('There has been a error occured during the last request. Either you lost your internet connection or the server has serious troubles.')+
+                    "<br/>"+'URI: %s'.replace('%s', this.options.url),
+                15000);
+        }
 
     },
 
@@ -74,20 +76,24 @@ Request.JSON = new Class({
 
             if (pResult.error == "access_denied"){
 
-                ka.kastRequestBubble = ka.helpsystem.newBubble(
-                    t('Access denied'),
-                    t('You started a secured action or requested a secured information.')+
-                        "<br/>"+'URI: %s'.replace('%s', this.options.url),
-                    15000);
+                if (ka.helpsystem){
+                    ka.kastRequestBubble = ka.helpsystem.newBubble(
+                        t('Access denied'),
+                        t('You started a secured action or requested a secured information.')+
+                            "<br/>"+'URI: %s'.replace('%s', this.options.url),
+                        15000);
+                }
 
             } else {
 
-                ka.kastRequestBubble = ka.helpsystem.newBubble(
-                t('Request error'),
-                t('There has been a error occured during the last request. It looks like the server has currently some troubles. Please try it again.')+
-                    "<br/><br/>"+t('Error code: %s').replace('%s', pResult.error)+
-                    "<br/>"+'URI: %s'.replace('%s', this.options.url),
-                15000);
+                if (ka.helpsystem){
+                    ka.kastRequestBubble = ka.helpsystem.newBubble(
+                    t('Request error'),
+                    t('There has been a error occured during the last request. It looks like the server has currently some troubles. Please try it again.')+
+                        "<br/><br/>"+t('Error code: %s').replace('%s', pResult.error)+
+                        "<br/>"+'URI: %s'.replace('%s', this.options.url),
+                    15000);
+                }
             }
         }
 

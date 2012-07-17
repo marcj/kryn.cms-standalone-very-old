@@ -130,7 +130,7 @@ function json_format($json) {
             case '{':
             case '[':
                 if (!$in_string) {
-                    $new_json .= $char . "\n" . str_repeat($tab, $indent_level + 1);
+                    $new_json .= $char;
                     $indent_level++;
                 }
                 else
@@ -142,7 +142,7 @@ function json_format($json) {
             case ']':
                 if (!$in_string) {
                     $indent_level--;
-                    $new_json .= "\n" . str_repeat($tab, $indent_level) . $char;
+                    $new_json .= $char;
                 }
                 else
                 {
@@ -160,7 +160,7 @@ function json_format($json) {
                 break;
             case ':':
                 if (!$in_string) {
-                    $new_json .= ": ";
+                    $new_json .= ":";
                 }
                 else
                 {

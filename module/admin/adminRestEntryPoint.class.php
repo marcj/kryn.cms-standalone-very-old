@@ -4,7 +4,7 @@
  * RestController for the entry points which are from type store or framework window.
  *
  */
-class adminRestEntryPoint extends RestServerController {
+class adminRestEntryPoint extends RestServer {
 
     public function run($pEntryPoint){
 
@@ -13,9 +13,9 @@ class adminRestEntryPoint extends RestServerController {
             if (!$pEntryPoint['class']) {
                 $obj = new adminStore();
             } else {
-                require_once(PATH_MODULE . '' . $pEntryPoint['_module'] . '/' . $info['class'] . '.class.php');
-                $class = $info['class'];
-                $obj = new $class();
+                require_once(PATH_MODULE . '' . $pEntryPoint['_module'] . '/' . $pEntryPoint['class'] . '.class.php');
+                $clazz = $pEntryPoint['class'];
+                $obj = new $clazz();
             }
 
             try {

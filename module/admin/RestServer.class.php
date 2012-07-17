@@ -52,14 +52,7 @@ class RestServer extends RestServerController {
      */
     public $methods = array('get', 'post', 'put', 'delete');
 
-    /**
-     * Contains the current.
-     *
-     * Empty means $this.
-     *
-     * @var string
-     */
-    private $controllerClass = '';
+
 
     /**
      * Contains the controller object.
@@ -110,12 +103,12 @@ class RestServer extends RestServerController {
     /**
      * Constructor
      *
-     * @param string $pTriggerUrl
-     * @param string $pControllerClass
-     * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
+     * @param string        $pTriggerUrl
+     * @param string|object $pControllerClass
+     * @param string        $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      * @param RestServer $pParentController
      */
-    public function __construct($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url',
+    public function __construct($pTriggerUrl, $pControllerClass = null, $pRewrittenRuleKey = '__url',
                                 $pParentController = null){
 
         $this->normalizeUrl($pTriggerUrl);
@@ -259,29 +252,34 @@ class RestServer extends RestServerController {
     /**
      * Sets the controller class.
      *
-     * @param $pClass
+     * @param string|object $pClass
      */
     public function setClass($pClass){
-        $this->controllerClass = $pClass;
-        $this->createControllerClass();
+        if (is_string($pClass)){
+            $this->createControllerClass($pClass);
+        } else if(is_object($pClass)){
+            $this->controller = $pClass;
+        } else {
+            $this->controller = $this;
+        }
     }
 
 
     /**
      * Setup the controller class.
      *
+     * @param string $pClassName
      * @throws Exception
      */
-    public function createControllerClass(){
-        if ($this->controllerClass != ''){
-            $clazz = $this->controllerClass;
+    public function createControllerClass($pClassName){
+        if ($pClassName != ''){
             try {
-                $this->controller = new $clazz();
+                $this->controller = new $pClassName();
                 if (get_parent_class($this->controller) == 'RestServerController'){
                     $this->controller->setClient($this->getClient());
                 }
             } catch (Exception $e) {
-                throw new Exception('Error during initialisation of '.$clazz.': '.$e);
+                throw new Exception('Error during initialisation of '.$pClassName.': '.$e);
             }
         } else {
             $this->controller = $this;

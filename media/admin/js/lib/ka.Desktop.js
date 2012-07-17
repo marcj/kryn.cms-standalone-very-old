@@ -178,12 +178,12 @@ ka.Desktop = new Class({
 
         this.clear();
 
-        this.lastLoad = new Request.JSON({url: _path + 'admin/backend/getDesktop', noCache: 1, onComplete: function (pRes) {
-            this.loadIcons(JSON.decode(pRes));
+        this.lastLoad = new Request.JSON({url: _path + 'admin/backend/desktop', noCache: 1, onComplete: function (pRes) {
+            this.loadIcons(pRes.data);
         }.bind(this)}).post();
 
-        this.lastWLoad = new Request.JSON({url: _path + 'admin/backend/getWidgets', noCache: 1, onComplete: function (pRes) {
-            this.loadWidgets(JSON.decode(pRes));
+        this.lastWLoad = new Request.JSON({url: _path + 'admin/backend/widgets', noCache: 1, onComplete: function (pRes) {
+            this.loadWidgets(pRes.data);
         }.bind(this)}).post();
     },
 

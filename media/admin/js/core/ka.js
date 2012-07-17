@@ -30,6 +30,7 @@ ka.init = function () {
     if (!ka.helpsystem)
         ka.helpsystem = new ka.Helpsystem(document.id('desktop'));
 
+
     if (ka._iconSessionCounterDiv) {
         ka._iconSessionCounterDiv.destroy();
     }
@@ -96,7 +97,7 @@ window.addEvent('stream', function (res) {
 window.addEvent('stream', function (res) {
     if (res.corruptJson) {
         Array.each(res.corruptJson, function (item) {
-            ka.helpsystem.newBubble(_('Extension config Syntax Error'), _('There is an error in your inc/module/%s/config.json').replace('%s', item), 4000);
+            ka.helpsystem.newBubble(t('Extension config Syntax Error'), _('There is an error in your inc/module/%s/config.json').replace('%s', item), 4000);
         });
     }
 });
@@ -211,14 +212,22 @@ ka.getDomain = function (pRsn) {
 ka.loadSettings = function (pOnlyThisKeys) {
     if (!ka.settings) ka.settings = {};
 
-    new Request.JSON({url: _path + 'admin/backend/getSettings', noCache: 1, async: false, onComplete: function (res) {
+    new Request.JSON({url: _path + 'admin/backend/settings', noCache: 1, async: false, onComplete: function (res) {
         if (res.error == 'access_denied') return;
 
-        Object.each(res, function(val,key){
+        Object.each(res.data, function(val,key){
             ka.settings[key] = val;
         })
 
         ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
+
+        if (!ka.settings.user)
+            ka.settings.user = {};
+
+        logger(ka.settings['user']);
+
+        if (!ka.settings['user']['windows'])
+            ka.settings['user']['windows'] = {};
 
         if (ka.settings.user && ka.settings.user.userBg) {
             document.id(document.body).setStyle('background-image', 'url(' + _path + PATH_MEDIA + ka.settings.user.userBg + ')');
@@ -237,9 +246,9 @@ ka.loadLanguage = function (pLang) {
 
     Cookie.write('kryn_language', pLang);
 
-    Asset.javascript(_path + 'admin/getLanguagePluralForm:' + pLang);
+    Asset.javascript(_path + 'admin/ui/languagePluralForm?lang=' + pLang);
 
-    new Request.JSON({url: _path + 'admin/getLanguage:' + pLang, async: false, noCache: 1, onComplete: function (res) {
+    new Request.JSON({url: _path + 'admin/ui/language?lang=' + pLang, async: false, noCache: 1, onComplete: function (res) {
         ka.lang = res;
         Locale.define('en-US', 'Date', res.mootools);
     }}).get();
@@ -912,7 +921,7 @@ ka.loadMenu = function () {
 
     if (ka.lastLoadMenuReq) ka.lastLoadMenuReq.cancel();
 
-    ka.lastLoadMenuReq = new Request.JSON({url: _path + 'admin/backend/getMenus/', noCache: true, onComplete: function (res) {
+    ka.lastLoadMenuReq = new Request.JSON({url: _path + 'admin/backend/menus', noCache: true, onComplete: function (res) {
 
         //ka.createModuleMenu();
         //ka.moduleItems.empty();
@@ -926,7 +935,7 @@ ka.loadMenu = function () {
         ka.removedMainMenuItems = [];
         delete ka.mainMenuItems;
 
-        var mlinks = res;
+        var mlinks = res.data;
 
         Object.each(mlinks['admin'], function (item, pCode) {
             ka.addAdminLink(item, pCode, 'admin');

@@ -36,6 +36,12 @@ function klog($pArea, $pMsg) {
  * @return string|array
  */
 function getArgv($pVal, $pEscape = false) {
+
+    if (is_numeric($pVal)){
+        $exploded = explode('/', $_GET['__url']);
+        return $exploded[$pVal-1];
+    }
+
     $_REQUEST[$pVal] = str_replace(chr(0), '', $_REQUEST[$pVal]);
     if ($pEscape == false) return $_REQUEST[$pVal];
     return esc($_REQUEST[$pVal], $pEscape);
@@ -54,12 +60,12 @@ function json($pValue) {
     ob_clean();
 
     if (php_sapi_name() !== 'cli' )
-        header('Content-Type: text/javascript; charset=utf-8');
+        header('Content-Type: application/json; charset=utf-8');
 
     if ($adminClient) $adminClient->syncStore();
     if ($client) $client->syncStore();
 
-    print json_format(json_encode($pValue))."\n";
+    print json_format(json_encode($pValue));
 
     exit(0);
 }

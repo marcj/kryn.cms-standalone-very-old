@@ -18,9 +18,9 @@
     <script type="text/javascript" src="{$cfg.path}lib/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
 
     <script type="text/javascript" src="{$cfg.path}krynJavascriptGlobalPath.js?noCache={$time}" ></script>
-    <script type="text/javascript" src="{$cfg.path}admin/getPossibleLangs:1/?noCache={$time}" ></script>
-    <script type="text/javascript" src="{$cfg.path}admin/getLanguage:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
-    <script type="text/javascript" src="{$cfg.path}admin/getLanguagePluralForm:{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}/js:1/" ></script>
+    <script type="text/javascript" src="{$cfg.path}admin/ui/possibleLangs?noCache={$time}" ></script>
+    <script type="text/javascript" src="{$cfg.path}admin/ui/language?lang={if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}&javascript=1" ></script>
+    <script type="text/javascript" src="{$cfg.path}admin/ui/languagePluralForm?lang={if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}" ></script>
 
     <script type="text/javascript" src="{$cfg.path}lib/codemirror/lib/codemirror.js"></script>
     <script type="text/javascript" src="{$cfg.path}lib/codemirror/lib/util/loadmode.js"></script>
@@ -53,12 +53,12 @@
 
     <script type="text/javascript" >
         window._session = {};
-        window._session.user_id = {$adminClient->user.id+0};
-        window._session.username = '{$adminClient->user.username}';
-        window._session.sessionid = '{$adminClient->token}';
-        window._session.tokenid = '{$adminClient->tokenid}';
+        window._session.user_id = {$adminClient->getSession()->getUser()->getId()+0};
+        window._session.username = '{$adminClient->getSession()->getUser()->getUsername()}';
+        window._session.sessionid = '{$adminClient->getToken()}';
+        window._session.tokenid = '{$adminClient->getTokenId()}';
         window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
-        window._session.lastlogin = '{$adminClient->user.lastlogin}';
+        window._session.lastlogin = '{$adminClient->getSession()->getUser()->getLastlogin()}';
         {if $noAdminAccess}
         window._session.noAdminAccess = true;
         {/if}

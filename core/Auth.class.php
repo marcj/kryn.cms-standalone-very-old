@@ -154,9 +154,9 @@ class Auth {
 
             $passwd = getArgv('passwd') ? getArgv('passwd') : getArgv('password');
 
-            $user = $this->login($login, $passwd);
+            $userId = $this->login($login, $passwd);
 
-            if (!$user) {
+            if (!$userId) {
 
                 klog('authentication', str_replace("%s", getArgv('username'), "SECURITY Login failed for '%s'"));
                 if (getArgv(1) == 'admin') {
@@ -165,24 +165,20 @@ class Auth {
 
             } else {
 
-                $this->user = $user;
-                $this->user_id = $user['id'];
-
                 if (getArgv(1) == 'admin') {
 
                     if (!Kryn::checkUrlAccess('admin/backend/', $this)) {
                         json(0);
                     }
 
-                    klog('authentication', 'Successfully login to administration for user ' . $this->user['username']);
+                    klog('authentication', 'Successfully login to administration for user ' . $this->getSession()->getUser()->getUsername());
 
-                    if ($user['id'] > 0) {
-                        dbUpdate('system_user', 'id = ' . $user['id'], array('lastlogin' => time()));
-                        $this->clearCache();
+                    if ($userId > 0) {
+                        $this->getSession()->getUser()->setLastlogin(time());
+                        $this->getSession()->getUser()->save();
                     }
-                    json(array('user_id' => $this->user_id, 'sessionid' => $this->token,
-                        'username' => getArgv('username'), 'lastlogin' => $this->user['lastlogin'],
-                        'lang' => $this->user['settings']['adminLanguage']));
+                    json(array('user_id' => $userId, 'sessionid' => $this->token,
+                        'username' => getArgv('username'), 'lastlogin' => $this->getSession()->getUser()->getLastlogin()));
                 }
 
             }
@@ -219,12 +215,10 @@ class Auth {
             return false;
         }
 
-        //Search user in the system_user table. If not exist, create it
-        $user = $this->getOrCreateUser($pLogin);
-        $this->setUser($user['id']);
+        $this->setUser($state);
         $this->syncStore();
 
-        return $user;
+        return true;
     }
 
     /**
@@ -304,7 +298,6 @@ class Auth {
                         'group_id' => $item['group'],
                         'user_id' => $pUser['id']
                     ));
-                    $this->clearCache($pUser['id']);
                 }
 
             }
@@ -312,16 +305,6 @@ class Auth {
 
     }
 
-    /**
-     * Clears the cache of the current user.
-     *
-     * @param boolean $pUserid
-     * @internal
-     */
-    private function clearCache($pUserid = false) {
-        if (!$pUserid) $this->user_id;
-        $this->getUser($this->user_id, true);
-    }
 
     /**
      * Setter for current user
@@ -377,19 +360,6 @@ class Auth {
         if ($this->config['session_storage']) {
 
             $this->session->save();
-/*
-            $session['language'] = $this->session['language'];
-            $session['time'] = $this->session['time'];
-            $session['refreshed'] = $this->session['refreshed'];
-            $session['ip'] = $this->session['ip'];
-
-            $sessionExtra = $this->session;
-            $notInExtra = array('language', 'time', 'refreshed', 'ip', 'user_id', 'page', 'useragent', 'extra');
-            foreach ($notInExtra as $temp)
-                unset($sessionExtra[$temp]);
-
-            $session['extra'] = json_encode($sessionExtra);
-            dbUpdate('system_session', array('id' => $this->token), $session);*/
 
         } else {
             $expired = $this->config['session_timeout'];
@@ -609,27 +579,23 @@ class Auth {
      */
     protected function checkCredentialsDatabase($pLogin, $pPassword) {
 
-        $login = esc($pLogin);
+        $login = $pLogin;
 
         $userColumn = 'username';
+
         if ($this->config['auth_params']['email_login'] && strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false)
             $userColumn = 'email';
 
-        $saltField = ', passwd_salt';
-        $columns = database::getOptions('system_user');
-        if (!$columns['passwd_salt'])
-            $saltField = '';
-
         $row = dbExfetch("
-            SELECT id, passwd $saltField
+            SELECT id, passwd, passwd_salt
             FROM %pfx%system_user
             WHERE 
                     id > 0
-                AND $userColumn = '$login'
+                AND $userColumn = ?
                 AND (auth_class IS NULL OR auth_class = 'kryn')",
-            1);
+            $login);
 
-        if ($row->getId() > 0) {
+        if ($row['id'] > 0) {
 
             if ($row['passwd_salt']) {
                 $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
@@ -641,8 +607,8 @@ class Auth {
 
             if ($hash != $row['passwd']) return false;
 
-            $this->credentials_row = $row;
-            return true;
+
+            return $row['id'];
         }
         return false;
     }

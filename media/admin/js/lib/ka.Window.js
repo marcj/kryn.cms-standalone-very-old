@@ -912,12 +912,12 @@ ka.Window = new Class({
                     this.close(true);
                     return;
                 }
-                if (!res || res.error == 'param_failed') {
-                    alert(t('Admin entry point not found') + ': ' + this.module + ' => ' + this.code);
+                if (res.error == 'param_failed') {
+                    alert(t('Admin entry point not found') + ': ' + this.data.module + ' => ' + this.data.code);
                     this.close(true);
                     return;
                 }
-                this._loadContent(res, res._path);
+                this._loadContent(res.data, res.data._path);
 
             }.bind(this)}).post();
         }
@@ -1096,8 +1096,8 @@ ka.Window = new Class({
         }.bind(this);
 
         this.customJsClassAsset =
-            new Asset.javascript(_path + 'admin/backend/loadCustomJs/module:' + this.module + '/code:' + javascript +
-                '/onLoad:' + this.customId);
+            new Asset.javascript(_path + 'admin/backend/customJs?module=' + this.module + '&code=' + javascript +
+                '&onLoad=' + this.customId);
     },
 
     toElement: function(){

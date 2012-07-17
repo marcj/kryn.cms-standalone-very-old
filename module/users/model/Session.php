@@ -45,4 +45,22 @@ class Session extends BaseSession {
         }
     }
 
+    /**
+     *
+     *
+     * @return User
+     */
+    public function getUser(){
+        if ($this->getUserId() === null){
+
+            if (!$this->user_guest){
+                $this->user_guest = new User();
+                $this->user_guest->setUsername('Guest');
+            }
+
+            return $this->user_guest;
+        }
+        return parent::getUser();
+    }
+
 } // Session
