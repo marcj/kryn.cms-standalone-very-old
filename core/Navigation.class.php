@@ -153,7 +153,6 @@ class Navigation {
     }
 
     public static function arrayLevel($pArray, $pLevel) {
-        $page = $pArray;
         return $pArray[$pLevel - 2];
     }
 
@@ -192,8 +191,8 @@ class Navigation {
             $currentLevel = count(Kryn::$breadcrumbs) + 1;
             $page = self::arrayLevel(Kryn::$breadcrumbs, $pOptions['level']);
 
-            if ($page['id'] > 0)
-                $navigation =& Kryn::getPage($page['id']);
+            if ($page && $page->getId() > 0)
+                $navigation =& Kryn::getPage($page->getId());
             elseif ($pOptions['level'] == $currentLevel + 1)
                 $navigation = Kryn::$page;
 //

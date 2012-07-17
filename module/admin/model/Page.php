@@ -40,9 +40,96 @@ class Page extends BasePage {
     }
 
     /**
+     * Same as getChildren but returns only visible pages and non-folder nodes
+     *
+     * @return array
+     */
+    public function getLinks(){
+
+        if ($this->collNestedGetLinks === null){
+            $this->collNestedGetLinks = PageQuery::create()
+                ->childrenOf($this)
+                ->filterByVisible(1)
+                ->orderByBranch()
+                ->find();
+        }
+        return $this->collNestedGetLinks;
+    }
+
+
+    /**
+     * Does the current node has (valid) sub links?
+     *
+     * @return bool
+     */
+    public function hasLinks(){
+
+        $links = $this->getLinks();
+        return count($links)!==0;
+
+    }
+
+    /**
+     * Returns all parents.
+     *
+     * @return mixed
+     */
+    public function getParents(){
+
+        if (!$this->parents_cached){
+
+            $this->parents_cached = array();
+
+            $ancestors = $this->getAncestors();
+            foreach ($ancestors as $parent){
+
+                if ($parent->getType() !== null){ //exclude root node
+                    $this->parents_cached[] = $parent;
+                }
+
+            }
+        }
+
+        return $this->parents_cached;
+    }
+
+
+    /**
+     * Generates a path to the current page.
+     *
+     * level 1 -> level 2 -> page
+     *
+     * where ' -> ' is a $pDelimiter
+     *
+     * @param string $pDelimiter
+     *
      * @return string
      */
-    public function getFullUrl(){
+    public function getPath($pDelimiter = ' » '){
+
+        $parents = $this->getParents();
+
+        $path = $this->getDomain()->getDomain();
+        foreach ($parents as &$parent) {
+            $path .= $pDelimiter . $parent->getTitle();
+        }
+
+        $path .= $pDelimiter . $this->getTitle();
+
+        return $path;
+    }
+
+    /**
+     * Returns the full url to the given page object.
+     *
+     * If the page belongs to another domain than the current,
+     * then the url contains http://<otherDomain>/<fullUrl>
+     *
+     * @param bool $pWithoutContextCheck Does or does not check whether the page belongs to the current domain and
+     *                                   therefore add the domain name.
+     * @return string
+     */
+    public function getFullUrl($pWithoutContextCheck = false){
 
         if (!$this->full_url && $this->getId()){
 
@@ -59,16 +146,29 @@ class Page extends BasePage {
 
         }
 
-        return $this->full_url;
+        if (!$pWithoutContextCheck)
+            return $this->full_url;
+
+        if (!$this->full_url_context){
+            $this->full_url_context = Core\Kryn::fullUrl($this);
+        }
+
+        return $this->full_url_context;
 
     }
 
+    /**
+     * If this page is the current page or one of the parents of the current.
+     * Useful for navigation highlighting.
+     *
+     * @return bool
+     */
     public function isActive(){
 
         if( $this->getId() == \Core\Kryn::$page->getId() ) return true;
 
-        $url = \Core\Kryn::pageUrl( \Core\Kryn::$page->getId(), false, true );
-        $purl = \Core\Kryn::pageUrl( $this->getId(), false, true );
+        $url = \Core\Kryn::$page->getFullUrl();
+        $purl = $this->getFullUrl();
 
         $pos = strpos( $url, $purl );
         if( $url == '/' || $pos != 0  || $pos === false){

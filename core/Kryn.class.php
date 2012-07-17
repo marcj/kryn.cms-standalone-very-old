@@ -461,15 +461,14 @@ class Kryn {
     /**
      * Adds a new crumb to the breadcrumb array.
      *
-     * @param string $pName
-     * @param string $pUrl
+     * @param \Page $pPage
      *
      * @static
      */
-    public static function addBreadcrumb($pName, $pUrl = "") {
+    public static function addBreadcrumb($pPage) {
 
-        Kryn::$breadcrumbs[] = array("title" => $pName, "realUrl" => $pUrl);
-        tAssignRef("breadmcrumbs", Kryn::$breadcrumbs);
+        Kryn::$breadcrumbs[] = $pPage;
+        tAssignRef("breadcrumbs", Kryn::$breadcrumbs);
     }
 
     /**
@@ -1300,99 +1299,36 @@ class Kryn {
     }
 
     /**
-     * Return all parents as array
+     * If $pPage belongs to another domain than
+     * the current, we add the domain name plus http(s)://
+     * to the fullUrl and return it. If $pPage belongs
+     * to the current domain, we change nothing, since
+     * the baseUrl is already defined in the html header.
      *
-     * @param int|boolean $pPageId
-     * @param boolean     $pOnlyPages
-     *
-     * @return array
      * @static
-
+     * @param \Page $pPage
+     *
+     * @return string
      */
-    public static function getPageParents($pPageId = false, $pOnlyPages = true) {
+    public static function fullUrl($pPage){
 
-        if (!$pPageId) $pPageId = Kryn::$page->getId();
+        $url = $pPage->getFullUrl(true);
 
-        $page =& Kryn::getPage($pPageId);
-        if ($page->getParentId() == 0) return array();
+        if ($pPage->getDomainId() != Kryn::$domain->getId()){
 
-        $res = array();
+            $domain = Kryn::getDomain($pPage->getDomainId());
 
-        while (true) {
-            $page =& Kryn::getPage($page->getParentId());
-            if (!$pOnlyPages || ($pOnlyPages && $page['type'] == 0)) {
-                $res[] = $page;
+            $domainName = $domain->getRealDomain();
+            if ($domain->getMaster() != 1) {
+                $url = $domainName . $domain->getPath() . $domain->getLang() . '/' . $url;
+            } else {
+                $url = $domainName . $domain->getPath() . $url;
             }
-            if ($page->getParentId() == 0) break;
+
+            return 'http' . (Kryn::$ssl ? 's' : '') . '://' . $url;
+        } else {
+            return $url;
         }
-        rsort($res);
-
-        return $res;
-    }
-
-    /**
-     * Returns the full human readable path to given pageId delimited
-     * with $pDelimiter
-     *
-     * @param int    $pPageId
-     * @param string $pDelimiter Default ' » '
-     *
-     * @static
-     * @return string
-     */
-    public static function getPagePath($pPageId, $pDelimiter = ' » ' ) {
-
-        $parents = Kryn::getPageParents($pPageId);
-        $page =& Kryn::getPage($pPageId);
-        $domain = Kryn::getDomain($page->getDomainId());
-
-        $path = '';
-        if ($domain['master'] != 1)
-            $path = '[' . $domain['lang'] . '] ';
-        $path .= $domain['domain'];
-
-        foreach ($parents as &$parent) {
-            $path .= $pDelimiter . $parent['title'];
-        }
-
-        $path .= $pDelimiter . $page->getTitle();
-
-        return $path;
-
-    }
-
-    /**
-     * Returns the full human readable path from the current $breadcrumb items
-     * delimited with $pDelimiter
-     *
-     * @param string $pDelimiter Default ' » '
-     *
-     * @static
-     * @return string
-     */
-    public static function getBreadcrumpPath($pDelimiter = ' » ') {
-
-        $path = '';
-        foreach (Kryn::$breadcrumbs as $item) {
-            $path .= ($path == '' ? '' : $pDelimiter) . $item['title'];
-        }
-
-        return $path;
-
-    }
-
-    /**
-     * Returns whether the given page has childs or not
-     * $param integer $pId
-     * @return bool
-     * @static
-     */
-    public static function pageHasChilds($pId) {
-        $pId += 0;
-
-        $page =& self::getPage($pId);
-
-        return $page['hasChilds'] ? true : false;
     }
 
     /**
@@ -2087,12 +2023,13 @@ class Kryn {
 
     /**
      * Initialize the breadcrumb list.
-     * Loads current parents and publish the Kryn::$breadcrumbs to template.
-     * After this, we can add new menu items to the b
+     *
+     * Loads current parents and publish the Kryn::$breadcrumbs to the template engine.
+     *
      * @internal
      */
     public static function loadBreadcrumb() {
-        Kryn::$breadcrumbs = Kryn::getPageParents();
+        Kryn::$breadcrumbs = Kryn::$page->getParents();
         tAssignRef('breadcrumbs', Kryn::$breadcrumbs);
     }
 
@@ -2267,13 +2204,9 @@ class Kryn {
         }
 
 
-
         Kryn::loadBreadcrumb();
 
-        Kryn::$breadcrumbs[] = array(
-            'id' => Kryn::$page->getId(),
-            'title' => (Kryn::$page->getPageTitle() != '' ? Kryn::$page->getPageTitle() : Kryn::$page->getTitle())
-        );
+        Kryn::$breadcrumbs[] = Kryn::$page;
 
 
         if (!Kryn::$page->getLayout()) {

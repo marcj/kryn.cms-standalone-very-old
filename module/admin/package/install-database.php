@@ -57,7 +57,7 @@ $pages = array(
             )
         ),
         array(
-            array(1, 'Article', $defaultLayout, 'article', array(), array(), 0)
+            array(1, 'Article', $defaultLayout, 'article', '', array(), array(), 0)
         )
     ),
 
@@ -74,6 +74,27 @@ $pages = array(
             array(1, 'Kryn.cms Official Website', $defaultLayout, 'www-kryn-org', 'http://www.kryn.org/'),
             array(1, 'Kryn.cms Documentation', $defaultLayout, 'docu-kryn-org', 'http://docu.kryn.org/'),
             array(1, 'Kryn.cms Extensions', $defaultLayout, 'www-kryn-org-extensions', 'http://www.kryn.org/extensions')
+        )
+    ),
+
+    array(0, 'About me', $defaultLayout, 'about-me', '',
+        array(
+            '1' => array(
+                array('text', 'About me', $defaultContentTemplate, 'Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi.')
+            ),
+            '2' => array(
+                array('text', 'Hi, my Name is', $defaultContentTemplate, 'John Doe and I\'m a creative dude living in Springfield. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt...'  ),
+            )
+        ),
+        array(
+            array(0, 'Sublink 1', $defaultLayout, 'sublink-1', '', array(
+                '1' => array(
+                    array('text', 'Sublink 1', $defaultContentTemplate, 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.')                )
+            )),
+            array(0, 'Sublink 2', $defaultLayout, 'sublink-2', '', array(
+                '1' => array(
+                    array('text', 'Sublink 1', $defaultContentTemplate, 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br/><br/><h3>Lorem ...</h3>ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.')                )
+            )),
         )
     ),
 
@@ -99,8 +120,11 @@ foreach ($pages as $page){
     $oPage->setLayout($page[2]);
     $oPage->setUrl($page[3]);
     $oPage->insertAsLastChildOf($root);
-    if ($page[7])
+    if ($page[7] !== null)
         $oPage->setVisible($page[7]);
+    else
+        $oPage->setVisible(1);
+
     $oPage->save();
 
     if ($page[4])
@@ -161,16 +185,18 @@ function installPages($pPage, $pChildren){
         if ($page[4])
             $oPage->setLink($page[4]);
 
-        if ($page[7])
+        if ($page[7] !== null)
             $oPage->setVisible($page[7]);
+        else
+            $oPage->setVisible(1);
 
         $oPage->save();
 
         if ($page[5])
-            self::installPageContents($oPage, $page[5]);
+            installPageContents($oPage, $page[5]);
 
         if ($page[6]){
-            self::installPages($oPage, $page[6]);
+            installPages($oPage, $page[6]);
         }
     }
 
@@ -187,7 +213,7 @@ function installPageContents($pPage, $pBoxedContents){
     if (!is_array($pBoxedContents)) return;
 
     /**
-     * 0: type
+     * 0: type74
      * 1: title
      * 2: template
      * 3: content
@@ -210,15 +236,3 @@ function installPageContents($pPage, $pBoxedContents){
     }
 
 }
-
-
-
-
-
-$article = PageQuery::create()->findOneByTitle('Article');
-
-$parents = $article->getAncestors();
-
-foreach ($parents as $parent)
-    var_dump($parent->getId());
-exit;

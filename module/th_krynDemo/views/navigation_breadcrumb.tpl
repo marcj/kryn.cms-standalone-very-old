@@ -1,5 +1,5 @@
-<a href="{Kryn::getBaseUrl()}">{Kryn::$domain->getDomain()}</a>
+<a href="{Kryn::$domain->getUrl()}">{Kryn::$domain->getDomain()}</a>
 
 {foreach from=$breadcrumbs item=crumb}
-    » <a href="{$crumb|@realUrl}">{$crumb.title}</a>
+    » <a href="{$crumb->getFullUrl()}">{$crumb->getTitle()}</a>
 {/foreach}

@@ -52,5 +52,22 @@ class Domain extends BaseDomain {
         return $this->title;
     }
 
+    public function getUrl($pSSL = null){
+
+        if ($pSSL === null)
+            $pSSL = Core\Kryn::$ssl;
+
+        $url = $pSSL?'https://':'http://';
+
+        if ($domain = $this->getRealDomain())
+            $url .= $domain;
+        else
+            $url .= $this->getDomain();
+
+        if ($this->getMaster() != 1)
+            $url .= '/'/$this->getLang();
+
+        return $url.'/';
+    }
 
 } // SystemDomain
