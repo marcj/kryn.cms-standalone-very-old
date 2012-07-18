@@ -15,6 +15,7 @@
 /**
  * Global template functions
  * @author MArc Schmidt <marc@kryn.org>
+ * @author Ferdi van der Werf <ferdi@slashdev.nl>
  */
 
 /**
