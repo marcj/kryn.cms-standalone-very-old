@@ -15,6 +15,7 @@
 /**
  * Global template functions
  * @author MArc Schmidt <marc@kryn.org>
+ * @author Ferdi van der Werf <ferdi@slashdev.nl>
  */
 
 /**
@@ -39,6 +40,17 @@ function tAssign($pName, $pVal) {
 function tAssignRef($pName, &$pVal) {
     tInit();
     Core\Kryn::$smarty->assignByRef($pName, $pVal);
+}
+
+/**
+ * Returns true if the specified name has a value assigned to it
+ *
+ * @param $pName
+ * @return bool
+ */
+function tAssigned($pName) {
+    tInit();
+    return Core\Kryn::$smarty->getTemplateVars($pName) !== null;
 }
 
 /**
