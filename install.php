@@ -26,6 +26,8 @@ $lang = 'en';
 $cfg = array();
 
 
+include('core/bootstrap.autoloading.php');
+
 @ini_set('display_errors', 1);
 @ini_set('error_reporting', E_ALL & ~E_NOTICE);
 
@@ -37,7 +39,9 @@ if( $_REQUEST['step'] == 'checkDb' )
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de" dir="ltr">
   <head>
     <title>Kryn.cms installation</title>
-    <style type="text/css">
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css"  />
+
+      <style type="text/css">
       h1 {
         margin: 0px 0px 10px 0px;
         border-bottom: 1px solid #00273c;
@@ -102,51 +106,6 @@ if( $_REQUEST['step'] == 'checkDb' )
         background-color: #f6f6f6;
         position: relative;
         color: #333;
-      }
-
-      a.button, a.button:link {
-        -moz-border-radius: 4px 4px 4px 4px;
-        background-image: url(media/admin/images/button-bg.png);
-        background-repeat: no-repeat;
-        color: #222222;
-        cursor: default;
-        font-weight: normal;
-        line-height: 22px;
-        margin: 0 3px;
-        outline: 0 none;
-        padding: 5px 5px 6px 10px;
-        position: relative;
-        text-decoration: none;
-        top: 2px;
-        cursor: pointer;
-      }
-      
-      a.button span, a.button:link span {
-        background-image: url(media/admin/images/button-bg.png);
-        background-position: right top;
-        background-repeat: no-repeat;
-        height: 25px;
-        position: absolute;
-        right: -4px;
-        top: 0;
-        width: 6px;
-	  }		
-	  
-	  a.button:hover {
-        background-position: left -27px;
-        color: white;
-      }
-
-      a.button:hover span {
-        background-position: right -27px;
-      }
-      
-      a.button:active span {
-        background-position: right -53px;
-      }
-      a.button:active {
-        background-position: left -53px;
-        color: white;
       }
 
       .step a, .step a:link {
@@ -221,10 +180,6 @@ if( $_REQUEST['step'] == 'checkDb' )
     <div class="wrapper">
     <h2 class="main">Kryn.cms installation</h2>
 <?php
-
-require_once( PATH_CORE.'krynModule.class.php' );
-require( PATH_CORE.'kryn.class.php' );
-require( PATH_MODULE.'admin/adminModule.class.php' );
 
 $step = 1;
 if( !empty($_REQUEST['step']) )
@@ -390,18 +345,6 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 
 
 <tr>
-    <td>IcoMoon (limited)</td>
-    <td><a href="http://keyamoon.com/icomoon/">keyamoon.com/icomoon/</a></td>
-    <td>&raquo; <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></td>
-</tr>
-
-<tr>
-    <td>Entypo</td>
-    <td><a href="http://www.entypo.com/">www.entypo.com</a></td>
-    <td>&raquo; <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></td>
-</tr>
-
-<tr>
     <td>[PEAR] JSON</td>
     <td><a href="http://pear.php.net/package/Services_JSON">PEAR/Services_JSON</a></td>
     <td>&raquo; <a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a></td>
@@ -429,8 +372,19 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <td  width="250"><a href="http://mifjs.net">Anton Samoylov</a></td>
     <td>&raquo; <a href="http://mifjs.net/license.txt">MIT-Style License</a></td>
 </tr>
+
+
+<tr>
+    <td colspan="3">IconSet:
+    </td>
+</tr>
+<tr>
+    <td colspan="3" style="white-space: pre; background-color: white;"><?php print file_get_contents('media/admin/icons/license.txt'); ?>
+    </td>
+</tr>
+
 </table>
-<a href="?step=2" class="button" >Accept</a>
+<a href="?step=2" class="ka-Button" >Accept</a>
 
 <?php
 }
@@ -644,8 +598,8 @@ Your installation file contains following extensions:<br />
 </table>
 </form>
 <b style="color: red;">All database tables we install will be dropped in the next step!</b><br /><br/>
-<a href="?step=3" class="button" >Back</a>
-<a href="javascript: $('form.modules').submit();" class="button" >Install!</a>
+<a href="?step=3" class="ka-Button" >Back</a>
+<a href="javascript: $('form.modules').submit();" class="ka-Button" >Install!</a>
 <?php
 }
 
@@ -681,20 +635,18 @@ function step2(){
 <h2>Checking file permissions</h2>
 <br />
 The minimum requirements to work with Kryn.cms without installing extension or updates is with write access to following folders:<br />
+&bull; ./<br />
 &bull; cache/<br />
 &bull; data/<br />
+&bull; media/<br />
 <br />
 When you want to install extensions, then you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
 &bull; module/<br />
-&bull; media/<br />
 <br />
-Sometimes, extensions comes with files which aren't in these two folders. If this the case, you need to make sure, that
-such extensions gets the right file permissions.<br />
+Sometimes, extensions comes with files which aren't in these two folders. If this is the case then you need to make sure, that
+such extensions gets the correct file permissions.<br />
 <br />
 <b>Important:</b> To install Kryn.cms core updates, you need to make sure, that <b>all</b> files are writable.<br />
-<br />
-To install now this Kryn.cms version, we need firstly write permission to all files.<br />You can revoke this permissions
-after this installation, but keep the information above in your mind.<br />
 <br />
 <br />
 <div style="border-top: 1px solid silver;"></div>
@@ -750,7 +702,7 @@ after this installation, but keep the information above in your mind.<br />
     
     $files = checkDir( "." );
     if( $files != "" ){
-        print 'Following files are not writeable. Please set write permissions to webserver or to anonymous:<br/>
+        print '<b>Following files are not writeable.</b><br/><br/>Please set write permissions to webserver or to everyone:<br/>
                <br />
                Use your FTP client to adjust the permissions or directly through ssh:
                <div style="border: 1px solid silver;  font-family: monospace; background-color: white; padding: 5px; margin: 5px;">
@@ -764,13 +716,13 @@ after this installation, but keep the information above in your mind.<br />
 
     ?>
     <br />
-    <a href="?step=1" class="button" >Back</a>
+    <a href="?step=1" class="ka-Button" >Back</a>
     <?php
 
     if( $filesOk && $versionOk ){
-        print '<a href="?step=3" class="button" >Next</a>'; 
+        print '<a href="?step=3" class="ka-Button" >Next</a>'; 
     } else {
-        print '<a href="?step=2" class="button" >Re-Check</a>';
+        print '<a href="?step=2" class="ka-Button" >Re-Check</a>';
     }
     
     echo $step2;
@@ -867,8 +819,8 @@ Please enter your database credentials.<br />
 <div id="status" style="padding: 4px;"></div>
 <br />
 <br />
-<a href="?step=2" class="button" >Back</a>
-<a href="javascript: checkDBEntries();" class="button" >Next</a>
+<a href="?step=2" class="ka-Button" >Back</a>
+<a href="javascript: checkDBEntries();" class="ka-Button" >Next</a>
 
 <?php
 }
