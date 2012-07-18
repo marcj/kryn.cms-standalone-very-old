@@ -42,6 +42,17 @@ function tAssignRef($pName, &$pVal) {
 }
 
 /**
+ * Returns true if the specified name has a value assigned to it
+ *
+ * @param $pName
+ * @return bool
+ */
+function tAssigned($pName) {
+    global $tpl;
+    return $tpl->getTemplateVars($pName) !== null;
+}
+
+/**
  * Parse and compiled specified template and return the parsed template.
  * Path pFile is relative to inc/template/
  *
