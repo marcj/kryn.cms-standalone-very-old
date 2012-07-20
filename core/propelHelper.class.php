@@ -180,8 +180,17 @@ class propelHelper {
 
     public static function updateSchema(){
 
+        $file = 'propel/build/conf/kryn-conf.php';
+
+        if (!file_exists($file)){
+            self::writeXmlConfig();
+            self::writeBuildPorperties();
+            self::writeSchema();
+            self::generateClasses();
+            self::generatePropelPhpConfig();
+        }
+
         if (!Propel::isInit()){
-            $file = 'propel/build/conf/kryn-conf.php';
             Propel::init($file);
         }
 
@@ -190,8 +199,6 @@ class propelHelper {
         if (!$sql){
             return "\nSchema up 2 date.\n";
         }
-
-
 
         $sql = explode(";\n", $sql."\n");
 
@@ -206,7 +213,7 @@ class propelHelper {
             }
         }
 
-        return $result;
+        return $result?$result:'ok';
     }
 
     public static function getSqlDiff(){
