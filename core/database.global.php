@@ -156,7 +156,8 @@ function dbExFetchAll($pQuery, $pParams = null) {
  * @return PDOStatement
  */
 function dbExec($pQuery, $pParams = null) {
-    $pQuery = str_replace('%pfx%', pfx, $pQuery);
+    $pQuery = str_replace('%pfx%', Core\Kryn::$config['db_prefix'], $pQuery);
+
     if ($pParams !== null){
         $sth = dbConnection()->prepare($pQuery);
         if (!is_array($pParams)) $pParams = array($pParams);
@@ -231,7 +232,7 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
  * @return string
  */
 function dbTableName($pTable){
-    return strtolower((substr($pTable,0,1) == '/')?$pTable:pfx.$pTable);
+    return strtolower((substr($pTable,0,1) == '/')?$pTable:Core\Kryn::$config['db_prefix'].$pTable);
 }
 
 /**

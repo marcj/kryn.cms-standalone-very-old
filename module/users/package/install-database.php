@@ -41,4 +41,3 @@ $settings = serialize(array(
 
 $admin->setSettings($settings);
 $admin->save();
-

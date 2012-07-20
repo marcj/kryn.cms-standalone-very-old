@@ -55,7 +55,7 @@ class Domain extends BaseDomain {
     public function getUrl($pSSL = null){
 
         if ($pSSL === null)
-            $pSSL = Core\Kryn::$ssl;
+            $pSSL = \Core\Kryn::$ssl;
 
         $url = $pSSL?'https://':'http://';
 
@@ -69,5 +69,4 @@ class Domain extends BaseDomain {
 
         return $url.'/';
     }
-
-} // SystemDomain
+} // Domain

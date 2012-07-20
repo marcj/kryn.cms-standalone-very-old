@@ -176,14 +176,16 @@ class Navigation {
 
             if (!$navigation) return 'page_not_found';
 
-            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
-                $cacheKey =
-                    'systemNavigations-' . $navigation['domain_id'] . '_' . $navigation['id'] . '-' . md5(Kryn::$canonical.$mtime);
-                $cache =& Kryn::getCache($cacheKey);
-                if ($cache) return $cache;
-            }
 
-            $navigation = self::getLinks($navigation['id'], $pWithFolders, $navigation['domain_id']);
+//            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
+//                $cacheKey =
+//                    'systemNavigations-' . $navigation->getDomainId() . '_' . $navigation->getId() . '-'
+//                        . md5(Kryn::$canonical.$mtime);
+//                $cache =& Kryn::getCache($cacheKey);
+//                if ($cache) return $cache;
+//            }
+
+            //$navigation = self::getLinks($navigation->getId(), $pWithFolders, $navigation->getDomainId());
         }
 
         if ($pOptions['level'] > 1) {

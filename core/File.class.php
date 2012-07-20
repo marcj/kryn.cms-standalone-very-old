@@ -41,7 +41,7 @@ class File {
                 }
             }
         } else if (is_file($pPath)){
-            chmod($pPath, self::$fileMask);
+            @chmod($pPath, self::$fileMask);
         }
 
     }

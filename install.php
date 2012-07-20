@@ -5,7 +5,7 @@
 *
 * (c) Kryn.labs, MArc Schmidt <marc@kryn.org>
 *
-* To get the full copyright and license informations, please view the
+* To get the full copyright and license information, please view the
 * LICENSE file, that was distributed with this source code.
 */
 
@@ -17,6 +17,14 @@ define('PATH_CORE', 'core/');
 define('PATH_MODULE', 'module/');
 define('PATH_MEDIA', 'media/');
 
+@set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
+
+# Load very important classes.
+include(PATH_CORE . 'Kryn.class.php');
+include('lib/propel/runtime/lib/Propel.php');
+
+require('core/bootstrap.autoloading.php');
+
 include(PATH_CORE.'misc.global.php');
 include(PATH_CORE.'database.global.php');
 include(PATH_CORE.'template.global.php');
@@ -26,13 +34,15 @@ $lang = 'en';
 $cfg = array();
 
 
-include('core/bootstrap.autoloading.php');
-
 @ini_set('display_errors', 1);
-@ini_set('error_reporting', E_ALL & ~E_NOTICE);
+error_reporting(E_ALL ^ E_NOTICE);
 
 if( $_REQUEST['step'] == 'checkDb' )
     checkDb();
+
+if( $_REQUEST['step'] == '5' ){
+    step5Init();
+}
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -42,6 +52,22 @@ if( $_REQUEST['step'] == 'checkDb' )
       <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css"  />
 
       <style type="text/css">
+      body {
+          line-height: 150%;
+          font-size: 13px;
+          margin: 0px;
+          font-family: Verdana, Sans;
+          background-color: #22628d;
+          padding: 0px;
+      }
+
+      .logo {
+          position: relative;
+          left: -240px;
+          margin-bottom: 25px;
+          margin-top: 10px;
+      }
+
       h1 {
         margin: 0px 0px 10px 0px;
         border-bottom: 1px solid #00273c;
@@ -99,7 +125,6 @@ if( $_REQUEST['step'] == 'checkDb' )
         margin: auto;
         width: 700px;
         left: 60px;
-        border: 1px solid silver;
         -moz-border-radius: 10px;
         -webkit-border-radius: 10px;
         padding: 45px 35px;
@@ -112,29 +137,26 @@ if( $_REQUEST['step'] == 'checkDb' )
         display: block;
         text-align: left;
         padding: 12px 5px 12px 15px;
-        -moz-border-radius: 10px;
-        -webkit-border-radius: 10px;
       }
 
       .step a.active {
         color: black;
-        background-color: #e8e8e8;
         font-weight: bold;
       } 
 
       .step {
-        border: 1px solid silver;
         border-right: 0px;
         -moz-border-radius-topleft: 10px;
         -moz-border-radius-bottomleft: 10px;
-        -webkit-border-top-right-radius: 10px;
-        -webkit-border-bottom-right-radius: 10px;
-        border-radius: 3px;
+        -webkit-border-top-left-radius: 10px;
+        -webkit-border-bottom-left-radius: 10px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
         position: absolute;
-        top: 20px;
-        left: -151px;
+        top: 27px;
+        left: -150px;
         width: 150px;
-        background-color: #f2f2f2;
+        background-color: #f6f6f6;
         margin-bottom: 15px;
       }
       
@@ -150,35 +172,50 @@ if( $_REQUEST['step'] == 'checkDb' )
       	color: gray;
       }
 
+      #progressBar {
+          -moz-border-radius: 2px;
+          -webkit-border-radius: 2px;
+          border-radius: 2px;
+          background-color: #22628d;
+          height: 25px;
+          text-align: center;
+          color: white;
+          line-height: 25px;
+          font-weight: bold;
+          position: relative;
+      }
+
+      #progressError {
+          white-space: pre;
+          background-color: white;
+          padding: 15px;
+          border: 1px solid red;
+      }
+
+      #progressBarText {
+          position: relative;
+      }
+      #progressBarIn {
+          -moz-border-radius: 2px;
+          -webkit-border-radius: 2px;
+          border-radius: 2px;
+          background-color: #22518e;
+          height: 25px;
+          position: absolute;
+          top: 0px;
+          left: 0px;
+      }
+
       .breaker { clear: both }
 
     </style>
     <script type="text/javascript" src="media/kryn/mootools-core.js"></script>
-    <script type="text/javascript">
-        window.addEvent('domready', function(){
-            $$('input.text').addEvent('focus', function(){
-                this.setStyles({
-                    border: '1px solid gray',
-                    'background-color': '#feffc0'
-                });
-            });
-            $$('input.text').addEvent('blur', function(){
-                this.setStyles({
-                    border: '1px solid silver',
-                    'background-color': 'white'
-                });
-            });
-           $$('a.button').each(function(a){
-               if( !a.getElement('span') )
-                   new Element('span').inject(a); 
-           });
-        });
-    </script>
     <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
   </head>
   <body>
+    <img class="logo" src="media/kryn/images/logo_white.png" />
     <div class="wrapper">
-    <h2 class="main">Kryn.cms installation</h2>
+    <h2 class="main">Installation</h2>
 <?php
 
 $step = 1;
@@ -188,7 +225,7 @@ if( !empty($_REQUEST['step']) )
 
 <div class="step">
     <a href="javascript:;" <?php if( $step == 1 ) echo 'class="active"'; ?>>1. Start</a>
-    <a href="javascript:;" <?php if( $step == 2 ) echo 'class="active"'; ?>>2. Filecheck</a>
+    <a href="javascript:;" <?php if( $step == 2 ) echo 'class="active"'; ?>>2. Requirements</a>
     <a href="javascript:;" <?php if( $step == 3 ) echo 'class="active"'; ?>>3. Database</a>
     <a href="javascript:;" <?php if( $step == 4 ) echo 'class="active"'; ?>>4. Package</a>
     <a href="javascript:;" <?php if( $step == 5 ) echo 'class="active"'; ?>>5. Installation</a>
@@ -217,7 +254,6 @@ case '1':
 function checkDb(){
 	global $cfg;
 	
-	
 	$type = $_REQUEST['type'];
 	
 	$cfg = array(
@@ -229,22 +265,9 @@ function checkDb(){
 	    "db_type"		=> $_REQUEST['type'],
 	    "db_pdo"		=> $_REQUEST['pdo']
 	);
-	
-	require_once( PATH_CORE.'krynModule.class.php' );
-	require_once( PATH_CORE.'kryn.class.php' );
-	require_once( PATH_CORE.'krynAuth.class.php' );
-    require( PATH_CORE.'database.class.php' );
+
 	$res = array('res' => true);
-	
-	$usePdo = ($_REQUEST['pdo'] == 1) ? true : false;
-	$forceutf8 = ($_REQUEST['forceutf8'] == 1) ? true : false;
-	
-    $kdb = new database($cfg['db_type'], $cfg['db_server'], $cfg['db_user'], $cfg['db_passwd'], $cfg['db_name'], $usePdo, $forceutf8);
-    
-    if( !$kdb->connected() ){
-        $res['error'] = $kdb->lastError();
-        $res['res'] = false;
-    }
+
 
     $path = dirname($_SERVER['REQUEST_URI']);
     if( $path == '\\' ) $path = '/';
@@ -256,6 +279,14 @@ function checkDb(){
     if( !$timezone )
         $timezone = 'Europe/Berlin';
 
+    $dsn = $cfg['db_type'].':dbname='.$cfg['db_name'].';host='.$cfg['db_server'];
+
+    try {
+        $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_passwd']);
+    } catch (PDOException $e) {
+        $res['res'] = false;
+        $res['error'] = $e->getMessage();
+    }
 
     if( $res['res'] == true ){
         $cfg = array(
@@ -266,8 +297,6 @@ function checkDb(){
             'db_name'   => $_REQUEST['db'],
             'db_prefix' => $_REQUEST['prefix'],
             'db_type'   => $_REQUEST['type'],
-            'db_pdo'    => $_REQUEST['pdo'],
-            'db_forceutf8'   => $_REQUEST['forceutf8'],
             "cache_type"   => "files",
             "media_cache"    => "cache/media/",
             "display_errors" => "0",
@@ -277,7 +306,7 @@ function checkDb(){
             "locale"         => "de_DE.UTF-8",
             "path"			 => $path,
             "passwd_hash_compatibility" => "0",
-            "passwd_hash_key"           => krynAuth::getSalt(32),
+            "passwd_hash_key"           => Core\Auth::getSalt(32),
             "timezone"       => $timezone
         );
         $config = '<?php $cfg = '. var_export($cfg,true) .'; ?>';
@@ -296,7 +325,7 @@ function checkDb(){
 function welcome(){
 ?>
 
-<h2>Thank you for choosing Kryn.cms!</h2>
+<h2>Thanks for choosing Kryn.cms!</h2>
 <br />
 Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?></strong>
 <br />
@@ -307,7 +336,7 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <?php $f = fopen("LICENSE", "r"); if($f) while (!feof($f)) print fgets($f, 4096) ?>
 </div>
 <br /><br />
-<b style="color: gray">Kryn.core comes with amazing additional third party software.</b><br />
+<b style="color: gray">Kryn.cms comes with amazing additional third party software.</b><br />
       Please respect all of their licenses too:<br />
 <br />
 <table style="width: 100%" cellpadding="3">
@@ -389,158 +418,216 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 <?php
 }
 
+function step5Failed($pError){
+    $msg = array('error' => $pError);
+    print json_encode($msg);
+    exit;
+}
+
+function step5Done($pMsg){
+    $msg = array('data' => $pMsg);
+    print json_encode($msg);
+    exit;
+}
+
+
+    //fire pre scripts
+    function step5_1(){
+        global $modules;
+
+        $manager = new Admin\Module\Manager;
+
+        foreach ($modules as $module){
+            try {
+                $manager->installPre($module);
+            } catch (Exception $e){
+                step5Failed($e->getMessage());
+            } catch (RestException $e){
+                step5Failed($e->getMessage());
+            } catch (PDOException $e){
+                step5Failed($e->getMessage());
+            }
+        }
+        step5Done(true);
+    }
+
+    //fire extract scripts
+    function step5_2(){
+        global $modules;
+        $manager = new Admin\Module\Manager;
+
+        //fire extract scripts, since we've already all files at place
+        foreach ($modules as $module){
+            try {
+                $manager->installPre($module);
+            } catch (Exception $e){
+                step5Failed($e->getMessage());
+            } catch (RestException $e){
+                step5Failed($e->getMessage());
+            } catch (PDOException $e){
+                step5Failed($e->getMessage());
+            }
+        }
+        step5Done(true);
+    }
+
+    //write propel build environment
+    function step5_3(){
+
+        try {
+            //create the propel config
+            propelHelper::writeXmlConfig();
+            propelHelper::writeBuildPorperties();
+            propelHelper::writeSchema();
+        } catch (Exception $e){
+            step5Failed($e);
+        }
+        step5Done(true);
+    }
+
+
+    //Write propel model classes
+    function step5_4(){
+
+        try {
+            $res = propelHelper::generateClasses();
+        } catch (Exception $e){
+            step5Failed($e);
+        }
+        step5Done($res);
+    }
+
+
+    //Write main ./propel-config.php
+    function step5_5(){
+        try {
+            $res = propelHelper::generatePropelPhpConfig();
+        } catch (Exception $e){
+            step5Failed($e);
+        }
+        step5Done($res);
+    }
+
+    //Update database schema
+    function step5_6(){
+
+        try {
+            $res = propelHelper::updateSchema();
+        } catch (Exception $e){
+            step5Failed($e);
+        }
+        step5Done($res);
+    }
+
+    //Fire package-database scripts
+    function step5_7(){
+        global $modules;
+
+        $manager = new Admin\Module\Manager;
+
+        foreach ($modules as $module){
+            try {
+                $manager->installDatabase($module);
+            } catch (Exception $e){
+                step5Failed($e->getMessage());
+            } catch (RestException $e){
+                step5Failed($e->getMessage());
+            } catch (PDOException $e){
+                step5Failed($e->getMessage());
+            }
+        }
+        step5Done(true);
+    }
+
+    //Fire package-post scripts
+    function step5_8(){
+        global $modules;
+
+        $manager = new Admin\Module\Manager;
+
+        foreach ($modules as $module){
+            try {
+                $manager->installPost($module);
+            } catch (Exception $e){
+                step5Failed($e->getMessage());
+            } catch (RestException $e){
+                step5Failed($e->getMessage());
+            } catch (PDOException $e){
+                step5Failed($e->getMessage());
+            }
+        }
+        step5Done(true);
+    }
+
+    //cleanup
+    function step5_9(){
+
+        propelHelper::cleanup();
+        step5Done(true);
+    }
+
+    function step5Init(){
+
+        global $cfg, $modules;
+
+        $subStep = $_GET['substep']+0;
+        require( 'config.php' );
+
+        if ($subStep == 0){
+            $dir = opendir( PATH_MODULE );
+            if(! $dir ) return;
+            while (($file = readdir($dir)) !== false){
+                if( $file != '..' && $file != '.' && $file != '.svn' && $file != 'admin' ){
+                    $modules[] = $file;
+                }
+            }
+            $modules[] = "admin"; //because the install() of admin should be called as latest
+
+            $cfg['activeExtensions'] = $modules;
+            file_put_contents('config.php', "<?php\n\$cfg = ".var_export($cfg, true).";\n?>");
+        } else {
+            $modules = $cfg['activeExtensions'];
+        }
+
+        Core\Kryn::$config = $cfg;
+        Core\Kryn::$config['db_error_print_sql'] = 1;
+
+        if (file_exists($file = 'propel-config.php')){
+            $propelConfig = include($file);
+            Core\Kryn::$propelClassMap = $propelConfig['classmap'];
+        }
+
+        if ($subStep > 6){
+
+            $file = 'propel-config.php';
+            \Propel::init($file);
+
+            $propelConfig = include($file);
+            Core\Kryn::$propelClassMap = $propelConfig['classmap'];
+        }
+
+        if ($subStep > 0){
+            $fn = 'step5_'.$subStep;
+            $fn();
+            exit;
+        }
+
+    }
+
+
 function step5(){
 ?>
 
 <br />
-<h2>Installation in progress:</h2>
-<br />
+<h2>Installation</h2>
 <?php
-    global $kdb, $cfg;
 
-    $dir = opendir( PATH_MODULE."" );
-    if(! $dir ) return;
-    while (($file = readdir($dir)) !== false){
-        if( $file != '..' && $file != '.' && $file != '.svn' && $file != 'admin' ){
-            $modules[] = $file;
-        }
-    }
-    $modules[] = "admin"; //because the install() of admin should be called as latest
-    
-    require( 'config.php' );
-    require( PATH_MODULE.'admin/adminDb.class.php' );
-    require( PATH_CORE.'database.class.php' );
-    require_once( PATH_CORE.'krynModule.class.php' );
-	require_once( PATH_CORE.'kryn.class.php' );
-	kryn::$config = $cfg;
-    kryn::$config['db_error_print_sql'] = 1;
-	require_once( PATH_CORE.'krynAuth.class.php' );
-
-    
     @mkdir( 'cache/' );
     @mkdir( 'cache/media' );
     @mkdir( 'cache/object' );
     @mkdir( 'cache/smarty_compile' );
-    
-    define('pfx', $cfg['db_prefix']);
-    $kdb = new database(
-                 $cfg['db_type'],
-                 $cfg['db_server'],
-                 $cfg['db_user'],
-                 $cfg['db_passwd'],
-                 $cfg['db_name'],
-                 ($cfg['db_pdo']+0 == 1 || $cfg['db_pdo'] === '' )?true:false,
-                 ($cfg['db_forceutf8']=='1')?true:false
-    );
-    kryn::$configs = array();
-    
-    foreach( $modules as $module ){
-        if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
-            kryn::$configs[$module] = adminModule::loadInfo( $module );
-        }
-    }
-    
 
-    foreach( kryn::$configs as $extension => $config ){
-                            
-        if( is_array($config['extendConfig']) ){
-            foreach( $config['extendConfig'] as $extendModule => &$extendConfig ){
-                if( kryn::$configs[$extendModule] ){
-                    kryn::$configs[$extendModule] = 
-                        array_merge_recursive_distinct(kryn::$configs[$extendModule], $extendConfig);
-                }
-            }
-        }
-    }
-
-    foreach( kryn::$configs as $extension => $config ){
-
-        if( $config['db'] ){
-            foreach( $config['db'] as $key => &$table ){
-                if( kryn::$tables[$key] )
-                   kryn::$tables[$key] = array_merge(kryn::$tables[$key], $table);
-                else
-                   kryn::$tables[$key] = $table;
-            }
-        }
-
-        if ($config['objects'] && is_array($config['objects'])){
-
-            foreach ($config['objects'] as $objectId => $objectDefinition){
-                $objectDefinition['_extension'] = $extension; //caching
-                if (kryn::$objects[$objectId]){
-                    kryn::$objects[$objectId] = array_merge(kryn::$objects[$objectId], $objectDefinition);
-                } else {
-                    kryn::$objects[$objectId] = $objectDefinition;
-                }
-            }
-        }
-
-    }
-            
-    foreach( kryn::$configs as $module => $config ){
-        print "Install <b>$module</b>:<br />
-        <div style='padding-left: 15px; margin-bottom: 4px; color: #999; white-space: pre; font-family: monospace;'>";
-
-        $removedTables = adminDb::remove($config);
-
-        if (is_array($removedTables) && count($removedTables) > 0){
-            foreach ($removedTables as $table){
-                print "\t[-] $table removed.\n";
-            }
-        }
-
-        $installedTables = adminDb::sync($config);
-        if (is_array($installedTables) && count($installedTables) > 0){
-            foreach ($installedTables as $table => $status){
-                print "\t".($status?"[+] $table installed":"[#] $table updated").".\n";
-            }
-        } else {
-            print "\tno tables to install.\n";
-        }
-        print "</div>";
-        flush();
-    }
-
-    dbDelete( 'system_domains' );
-
-    $path = dirname($_SERVER['REQUEST_URI']);
-    if( substr($path, 0, -1) != '/' )
-        $path .= '/';
-    $path = str_replace("//", "/", $path);
-    $path = str_replace('\\', '', $path);
-
-    dbInsert( 'system_domains', array(
-        'domain' => $_SERVER['SERVER_NAME'], 'title_format' => '%title | Pagetitle', 'master' => 1, 'lang' => 'en',
-        'startpage_rsn'=>1, 'resourcecompression' => 1, 'path' => $path,
-        'search_index_key' => md5($_SERVER['SERVER_NAME'].'-'.@time().'-'.rand())
-    ));
-    
-    
-    dbDelete( 'system_modules' );
-    foreach( $modules as $module ){
-        if( $_REQUEST['modules'][$module] == '1' || $module == 'admin' || $module == 'users') {
-            if( $module != "kryn" ){
-                if( file_exists(PATH_MODULE."$module/$module.class.php") ){
-                    require_once( PATH_MODULE."$module/$module.class.php" );
-                    $m = new $module();
-                    $m->install();
-                }
-            }
-            if( $module != '' ){
-            	dbInsert( 'system_modules', array('name' => $module, 'activated' => 1) );
-            }
-        }
-    }
-
-    require( PATH_MODULE.'admin/adminPages.class.php' );
-    
-    foreach( kryn::$configs as $config ){
-        if( $config && $config['db'] )
-            $kdb->updateSequences( $config['db'] );
-    }
-    
-    admin::clearCache();
+    delDir('propel');
 
     @mkdir( PATH_MEDIA.'trash' );
     @mkdir( PATH_MEDIA.'css' );
@@ -552,20 +639,104 @@ function step5(){
     @mkdir( 'data/upload/modules', 0777 );
 
     
-    if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
-        print '<div style="margin: 25px; border: 2px solid red; padding: 10px; padding-left: 25px;">
-        	Can not rename install.php - please remove or rename the file for security reasons!
-        	</div>';
-    }
+//    if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
+//        print '<div style="margin: 25px; border: 2px solid red; padding: 10px; padding-left: 25px;">
+//        	Can not rename install.php - please remove or rename the file for security reasons!
+//        	</div>';
+//    }
 ?>
-<br />
-<div style="margin: 25px; border: 1px solid green; padding: 10px; padding-left: 25px;">
-    <b>Installation successful.</b><br /><br />
-    <b>Your login</b><br />
-    Username: admin<br />
-    Password: admin<br />
-    <a href="./admin">Click here to go to Administration.</a><br />
-</div>
+    <div id="progress">
+        <div id="progressMessage">Pending ...</div>
+        <div id="progressBar">
+            <div id="progressBarIn" style="width: 0px"></div>
+            <div id="progressBarText">0%</div>
+        </div>
+        <div id="progressError" style="display: none;"></div>
+    </div>
+    <div id="installDone" style="display: none;">
+        <h3 style="color: green;">Installation successful.</h3>
+        Login: admin<br/>
+        Password: admin<br/>
+        <br/>
+        Please change your password as fast as possible!<br />
+        <br/>
+        Go to:
+        <a href="./">Frontend</a> |
+        <a href="./admin">Administration</a>
+    </div>
+
+    <script type="text/javascript">
+        window.addEvent('domready', function(){
+
+            var steps = [
+                'Execute module pre-scripts ...',
+                'Execute module extract-scripts ...',
+                'Write propel build environment ...',
+                'Write propel model classes ...',
+                'Write main ./propel-config.php ...',
+                'Update database schema ...',
+                'Execute module database-scripts ...',
+                'Execute module post-scripts ...',
+                'Cleanup ...'
+            ];
+
+            var currentStep = 0;
+            var handleNextStep;
+
+            document.id('progressBarIn').set('tween', {duration: 300});
+
+            handleNextStep = function(){
+                currentStep++;
+
+                document.id('progressMessage').set('text', steps[currentStep-1]);
+
+                new Request.JSON({
+                    url: 'install.php?step=5&substep='+currentStep,
+                    noCache: 1,
+                    onComplete: function(pResult){
+
+                        if (pResult.error){
+                            document.id('progressError').setStyle('display', 'block');
+                            document.id('progressError').set('html', pResult.error);
+                            new Element('h2', {
+                                style: 'color: red',
+                                text: 'Error'
+                            }).inject(document.id('progressError'), 'top');
+                        } else {
+
+                            width = (currentStep / (steps.length/700));
+                            percent = (currentStep / (steps.length/100));
+                            document.id('progressBarText').set('text', percent.toFixed(0)+'%');
+                            document.id('progressBarIn').tween('width', width);
+
+                            if (steps.length == currentStep){
+                                document.id('progress').setStyle('display', 'none');
+                                document.id('installDone').setStyle('display', 'block');
+                            } else {
+                                handleNextStep.delay(500);
+                            }
+                        }
+                    },
+                    onError: function(pResult){
+
+                        document.id('progressError').setStyle('display', 'block');
+                        document.id('progressError').set('html', pResult);
+                        new Element('h2', {
+                            style: 'color: red',
+                            text: 'Error'
+                        }).inject(document.id('progressError'), 'top');
+                    }
+                }).get();
+
+            }
+
+            handleNextStep();
+
+
+        });
+    </script>
+
+
 <?php
 }
 
@@ -580,7 +751,6 @@ Your installation file contains following extensions:<br />
 
 <table style="width: 98%" class="modulelist" cellpadding="4">
 <?php
-    require_once( PATH_CORE.'krynModule.class.php' );
 
     $systemModules = array('kryn','admin','users');
     buildModInfo( $systemModules );
@@ -630,57 +800,73 @@ function buildModInfo( $modules ) {
 }
 
 function step2(){
+    $anyThingOk = true;
 ?>
 
-<h2>Checking file permissions</h2>
+<h2>Checking requirements</h2>
 <br />
-The minimum requirements to work with Kryn.cms without installing extension or updates is with write access to following folders:<br />
-&bull; ./<br />
-&bull; cache/<br />
-&bull; data/<br />
-&bull; media/<br />
-<br />
-When you want to install extensions, then you need to make sure, that Kryn.cms can modify or add files in following folders:<br />
-&bull; module/<br />
-<br />
-Sometimes, extensions comes with files which aren't in these two folders. If this is the case then you need to make sure, that
-such extensions gets the correct file permissions.<br />
-<br />
-<b>Important:</b> To install Kryn.cms core updates, you need to make sure, that <b>all</b> files are writable.<br />
-<br />
-<br />
-<div style="border-top: 1px solid silver;"></div>
-<br />
+<ol>
+
+    <li><b>PHP Version</b>
+    <?php
+
+        $t = explode("-", PHP_VERSION);
+        $v = ( $t[0] ) ? $t[0] : PHP_VERSION;
+        if(! version_compare($v, "5.3.0") < 0 ){
+            print '<div style="color: red">PHP version tot old.<br />';
+            print "You need PHP version 5.3.0 or greater.<br />";
+            print "Installed version: $v (".PHP_VERSION.")<br/></div>";
+            $anyThingOk = false;
+        } else {
+            print '<div style="color: green">OK</div>';
+        }
+        ?>
+    </li>
+
+    <li><b>Database PDO driver</b>
+        <?php
+
+        $drivers = array('mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite', 'sqlsrv' => 'MSSQL');
+
+        $oneFound = false;
+        foreach ($drivers as $driver => $label){
+            $color = extension_loaded('pdo_'.$driver)?'green':'red';
+            if ($color == 'green')
+                $oneFound = true;
+            print '<div style="color: '.$color.'">'.$label.'</div>';
+        }
+        if (!$oneFound){
+            print '<br /><div>There is not available pdo driver.</div>';
+            $anyThingOk = false;
+        }
+
+?>
+    </li>
+
+
+    <li><b>File permissions</b><br/>
 <?php
 
-    $t = explode("-", PHP_VERSION);
-    $v = ( $t[0] ) ? $t[0] : PHP_VERSION;
-
-    if(! version_compare($v, "5.2.0", "ge") ){
-        print "<b>PHP version tot old.</b><br />";
-        print "You need PHP version 5.2.0 or greater.<br />";
-        print "Installed version: $v (".PHP_VERSION.")<br/><br/>";
-    } else {
-        $versionOk = true;
-    }
-
-    $step2 = "";
+    global $count;
+    $count = 0;
 
     function checkFile( $pDir, $pFile ){
-        global $step2;
+        global $count;
 
         $res = '';
-        $file = $pDir.'/'.$pFile;
-        if(! is_dir( $file ) ) {
+        $file = $pDir . ($pFile?'/'.$pFile:'');
+        if (!is_dir($file)) {
             $fh = @fopen( $file, 'a+' );
             if( !$fh ){
-                $step2 .= "#";
                 $res .=  "<br />$file";
+                $count++;
             }
-        } elseif( opendir($file) === FALSE ) {
-            $res .= "<br />$file";
-        }
-        if( is_dir($file) === TRUE ){
+        } else {
+            //folder
+            if (!is_writeable($file) || opendir($file) === false){
+                $res .= "<br />$file";
+                $count++;
+            }
             $res .= checkDir( $file );
         }
         return $res;
@@ -690,42 +876,59 @@ such extensions gets the correct file permissions.<br />
         $pDir .= "";
         $res = '';
         $dir = opendir( $pDir );
-        if(! $dir ) return;
+        if (!$dir) return;
         while (($file = readdir($dir)) !== false){
-            if( substr($file, 0, 1 ) != '.' || $file == '.htaccess' ){
+            if( $file != '..' && $file != '.' && $file != '.git' ){
                 $res .= checkFile($pDir, $file);
             }
         }
         return $res;
     }
 
-    
-    $files = checkDir( "." );
-    if( $files != "" ){
-        print '<b>Following files are not writeable.</b><br/><br/>Please set write permissions to webserver or to everyone:<br/>
+    $id = posix_getuid();
+    $gid = posix_getegid();
+    $info = posix_getpwuid($id);
+    $ginfo = posix_getgrgid($id);
+    $user = $info['name'];
+    $group = $ginfo['name'];
+
+    $filesLocked = '';
+    $files = array('core', 'data', 'lib', 'media', 'module', 'scripts', '.htaccess', 'index.php', 'install.php');
+    if (!is_writeable('.') || opendir('.') === false){
+        $filesLocked .= "<br />./";
+        $count++;
+    }
+    foreach ($files as $file){
+        $filesLocked  .= checkFile('.', $file);
+    }
+
+    if( $filesLocked != "" ){
+        $anyThingOk = false;
+        print '<div style="color: red;">'.tpf('%s file', '%s files', $count).' are not writeable.</div>Please set write permissions to owner of the web-server or to everyone.<br/>
                <br />
-               Use your FTP client to adjust the permissions or directly through ssh:
+               Use your FTP client to adjust these permissions or directly through ssh:
                <div style="border: 1px solid silver;  font-family: monospace; background-color: white; padding: 5px; margin: 5px;">
-               chown -R <i>WebserverOwner</i> '.getcwd().'; <b>or</b><br />
-               chmod -R 777 '.getcwd().'</div>';
-        print '<div style="border: 1px solid silver; overflow: auto; font-family: monospace; height: 350px; overflow: auto;  background-color: white; margin: 5px;">'.$files.'</div>';
+               chown -R <i>'.$user.'</i> '.getcwd().'; <br /><b>or</b><br />
+               chown -R <i>:'.$group.'</i> '.getcwd().'; <br /<br />
+               chmod -R g+w '.getcwd().'; <br /><b>or</b><br />
+               chmod -R 777 '.getcwd().' (strongly not recommended)</div>';
+        print '<div style="border: 1px solid silver; overflow: auto; font-family: monospace; height: 150px; overflow: auto;  background-color: white; margin: 5px;">'.$filesLocked.'</div>';
     } else {
-        print '<b style="color: green;">OK</b>';
-        $filesOk = true;
+        print '<div style="color: green;">OK</div>';
     }
 
     ?>
+    </li>
+</ol>
     <br />
     <a href="?step=1" class="ka-Button" >Back</a>
     <?php
 
-    if( $filesOk && $versionOk ){
+    if ($anyThingOk) {
         print '<a href="?step=3" class="ka-Button" >Next</a>'; 
     } else {
         print '<a href="?step=2" class="ka-Button" >Re-Check</a>';
     }
-    
-    echo $step2;
 
 }
 
@@ -736,7 +939,7 @@ function step3(){
 
 Please enter your database credentials.<br />
 <br/>
-    Please note: All tables which already exists will be deleted!
+    Please note: All tables that already exists will be deleted!
 <br/>
 <script type="text/javascript">
     window.checkDBEntries = function(){
@@ -772,13 +975,17 @@ Please enter your database credentials.<br />
 <form id="db_form">
 <table style="width: 100%" cellpadding="3">
  	<tr>
-        <td width="250">Database driver</td>
+        <td width="250">Database PDO driver</td>
         <td><select name="db_type" id="db_type">
-        	<option value="mysql">MySQL</option>
-        	<option value="mysqli">MySQLi</option>
-        	<option value="postgresql">PostgreSQL</option>
-        	<option value="oracle">Oracle (experimental)</option> 
-        	<option value="oracle">MSSql (experimental, no pdo)</option>
+<?php
+
+            $drivers = array('mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite', 'sqlsrv' => 'MSSQL');
+
+            foreach ($drivers as $driver => $label){
+                $enabled = extension_loaded('pdo_'.$driver)?'':'disabled="disabled"';
+                print "<option $enabled value=\"$driver\">$label</option>";
+            }
+?>
         </select></td>
     </tr>
     <!--<td>PDO driver</td>
@@ -826,6 +1033,7 @@ Please enter your database credentials.<br />
 }
 
 ?>
+    <script type="text/javascript" src="media/kryn/js/bgNoise.js"></script>
     </div>
   </body>
 </html>

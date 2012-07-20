@@ -31,7 +31,6 @@ if (!file_exists('config.php')) {
 
 include('config.php');
 
-
 error_reporting(E_ALL ^ E_NOTICE);
 
 if (!array_key_exists('display_errors', $cfg))
@@ -53,8 +52,8 @@ include(PATH_CORE.'internal.global.php');
 include(PATH_CORE.'framework.global.php');
 
 # Load very important classes.
-include('lib/propel/runtime/lib/Propel.php');
 include(PATH_CORE . 'Kryn.class.php');
+include('lib/propel/runtime/lib/Propel.php');
 
 Kryn::$config = $cfg;
 
@@ -70,7 +69,6 @@ if (!file_exists($file = 'propel-config.php')){
 }
 
 \Propel::init($file);
-set_include_path("propel/build/classes" . PATH_SEPARATOR . get_include_path());
 
 $propelConfig = include($file);
 Kryn::$propelClassMap = $propelConfig['classmap'];
@@ -126,7 +124,6 @@ Kryn::loadLanguage();
  * Load themes, db scheme and object definitions from configs
  */
 Kryn::loadModuleConfigs();
-
 
 Kryn::initModules();
 

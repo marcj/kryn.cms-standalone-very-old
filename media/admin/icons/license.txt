@@ -16,7 +16,7 @@ License:	GPL V3 -- http://www.gnu.org/copyleft/gpl.html
 
 Icon Set:	Broccolidry -- http://dribbble.com/shots/587469-Free-16px-Broccolidryiconsaniconsetitisfullof-icons
 License:	Aribitrary -- http://licence.visualidiot.com/
-copy of license text: media/admin/icons/http://licence.visualidiot.com/
+copy of license text: media/admin/icons/licence.visualidiot.com
 
 
 Icon Set:	IcoMoon (limited) -- http://keyamoon.com/icomoon/

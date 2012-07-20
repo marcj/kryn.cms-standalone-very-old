@@ -62,12 +62,10 @@ class propelHelper {
 
     public static function generatePropelPhpConfig(){
 
-        if (!self::$classDefinition){
-            die('self::$classDefinition is empty. Need propelHelper::moveClasses() first.');
-        }
+        self::collectClassDefinition();
 
-        $file         = 'propel/build/conf/Kryn-conf.php';
-        $classMapFile = 'propel/build/conf/classmap-Kryn-conf.php';
+        $file = 'propel/build/conf/kryn-conf.php';
+
 
         if (!file_exists($file)){
             self::writeXmlConfig();
@@ -80,7 +78,7 @@ class propelHelper {
 
         $classDefinition = '$conf[\'classmap\'] = '.var_export(self::$classDefinition, true).";\n";
 
-        $line = '$conf[\'classmap\'] = include(dirname(__FILE__) . DIRECTORY_SEPARATOR . \'classmap-Kryn-conf.php\');';
+        $line = '$conf[\'classmap\'] = include(dirname(__FILE__) . DIRECTORY_SEPARATOR . \'classmap-kryn-conf.php\');';
         $config = str_replace($line, $classDefinition, $config);
 
         file_put_contents('propel-config.php', $config);
@@ -97,11 +95,37 @@ class propelHelper {
 
     }
 
+    public static function collectClassDefinition(){
+
+        self::collectObjectToExtension();
+
+        foreach (self::$objectsToExtension as $name => $extension){
+
+            if (!$name) continue;
+
+            $files = array(
+                'om/Base'.$name.'Peer.php',
+                'om/Base'.$name.'.php',
+                'map/'.$name.'TableMap.php',
+                'om/Base'.$name.'Query.php',
+                'x' => $name.'.php',
+                'y' => $name.'Peer.php',
+                'z' => $name.'Query.php'
+            );
+
+            foreach ($files as $key => $file){
+                $target    = PATH_MODULE.$extension.'/model/'.$file;
+                $targetDir = dirname(PATH_MODULE.$extension.'/model/'.$file);
+                self::$classDefinition[basename($file)] = $target;
+            }
+
+        }
+
+    }
+
     public static function moveClasses(){
 
-        if (!self::$objectsToExtension){
-            die('self::$objectsToExtension is empty. Need propelHelper::writeSchema() first.');
-        }
+        self::collectObjectToExtension();
 
         $content = "\nMove class files<div style='color: gray;'>";
 
@@ -132,9 +156,9 @@ class propelHelper {
                 }
 
 
-                if (!is_dir($targetDir)) if(!mkdir($targetDir)) die('Can not create folder '.$targetDir);
+                if (!is_dir($targetDir)) if(!mkdirr($targetDir)) die('Can not create folder '.$targetDir);
 
-                $source = 'propel/build/classes/Kryn/'.$file;
+                $source = 'propel/build/classes/kryn/'.$file;
 
                 if (!file_exists($source)){
                     $content .= "[move][$extension] ERROR can not find $source.\n";
@@ -157,7 +181,7 @@ class propelHelper {
     public static function updateSchema(){
 
         if (!Propel::isInit()){
-            $file = 'propel/build/conf/Kryn-conf.php';
+            $file = 'propel/build/conf/kryn-conf.php';
             Propel::init($file);
         }
 
@@ -206,22 +230,21 @@ class propelHelper {
 
         $sql = $obj->getUpSQL();
 
-        $sql = $sql['Kryn'];
+        $sql = $sql['kryn'];
         unlink($lastMigrationFile);
 
         $sql = preg_replace('/^DROP TABLE .*$/im', '', $sql);
+        $sql = preg_replace('/^#.*$/im', '', $sql);
 
         return trim($sql);
 
     }
 
-    public static function writeSchema(){
-
-        $newSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"Kryn\" defaultIdMethod=\"native\">\n     ";
+    public static function collectObjectToExtension(){
 
         foreach (Core\Kryn::$extensions as $extension){
 
-            if ($extension == 'Kryn') continue;
+            if ($extension == 'kryn') continue;
 
             if (file_exists($schema = PATH_MODULE.$extension.'/model/schema.xml')){
 
@@ -229,8 +252,31 @@ class propelHelper {
 
                 foreach ($tables->table as $table){
                     $attributes = $table->attributes();
+                    $clazz = (string)$attributes['phpName'];
 
-                    self::$objectsToExtension[(string)$attributes['phpName']] = $extension;
+                    self::$objectsToExtension[$clazz] = $extension;
+
+                }
+
+            }
+        }
+    }
+
+    public static function writeSchema(){
+
+        $newSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">\n     ";
+
+        foreach (Core\Kryn::$extensions as $extension){
+
+            if ($extension == 'kryn') continue;
+
+            if (file_exists($schema = PATH_MODULE.$extension.'/model/schema.xml')){
+
+                $tables = simplexml_load_file ($schema);
+
+                foreach ($tables->table as $table){
+                    $attributes = $table->attributes();
+                    $clazz = (string)$attributes['phpName'];
 
                     $newSchema .= $table->asXML()."\n    ";
 
@@ -333,7 +379,7 @@ propel.database.url = '.$dsn.'
 propel.database.user = '.Core\Kryn::$config['db_user'].'
 propel.database.password = '.Core\Kryn::$config['db_passwd'].'
 propel.tablePrefix = '.Core\Kryn::$config['db_prefix'].'
-propel.project = Kryn';
+propel.project = kryn';
 
         return file_put_contents('propel/build.properties', $properties)?true:false;
     }
@@ -346,13 +392,13 @@ propel.project = Kryn';
         $adapter = Core\Kryn::$config['db_type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Core\Kryn::$config['db_server'].';dbname='.Core\Kryn::$config['db_name'].';';
+        $dsn = $adapter.':host='.Core\Kryn::$config['db_server'].';dbname='.Core\Kryn::$config['db_name'];
 
         $xml = '<?xml version="1.0"?>
 <config>
     <propel>
-        <datasources default="Kryn">
-            <datasource id="Kryn">
+        <datasources default="kryn">
+            <datasource id="kryn">
                 <adapter>'.$adapter.'</adapter>
                 <connection>
                     <classname>PropelPDO</classname>

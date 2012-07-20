@@ -27,7 +27,20 @@ class RestServerController {
      * @return RestServerClient
      */
     public function getClient(){
-        return $this->client;
+        return $this->client?$this->client:$this;
+    }
+
+    /**
+     * Throws the given arguments/error codes as exception,
+     * if no real client has been set.
+     *
+     * @param $pCode
+     * @param $pMessage
+     * @throws \Exception
+     *
+     */
+    public function sendResponse($pCode, $pMessage){
+        throw new Exception($pCode.': '.print_r($pMessage, true));
     }
 
     /**
@@ -35,10 +48,11 @@ class RestServerController {
      *
      * @param $pCode
      * @param $pMessage
+     * @throws \Exception
      */
     public function sendBadRequest($pCode, $pMessage){
         $msg = array('error' => $pCode, 'message' => $pMessage);
-        if (!$this->getClient()) return $this->raiseError($pCode, $pMessage);
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
         $this->getClient()->sendResponse('400', $msg);
     }
 

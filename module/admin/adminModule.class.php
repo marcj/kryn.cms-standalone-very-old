@@ -385,7 +385,7 @@ class $pClassName extends $pClass {
 
 ?>";
 
-        kryn::fileWrite($path, $content);
+        Core\Kryn::fileWrite($path, $content);
 
         return true;
     }
@@ -471,7 +471,7 @@ class $pClassName extends $pClass {
 
         $php .= "}\n ?>";
 
-        return kryn::fileWrite($path, $php);
+        return Core\Kryn::fileWrite($path, $php);
 
     }
 
@@ -496,7 +496,7 @@ class $pClassName extends $pClass {
         require_once(PATH_MODULE.'admin/adminWindowList.class.php');
         require_once(PATH_MODULE.'admin/adminWindowCombine.class.php');
 
-        $content = explode("\n", kryn::fileRead($path));
+        $content = explode("\n", Core\Kryn::fileRead($path));
 
         if (!file_exists($path)) return array('error' => 'class_file_not_found');
 
@@ -571,7 +571,7 @@ class $pClassName extends $pClass {
             }
         }
 
-        $parentContent = explode("\n",kryn::fileRead($parentPath));
+        $parentContent = explode("\n",Core\Kryn::fileRead($parentPath));
         $parentReflection = new ReflectionClass($pParentClass);
 
         $methods = $parentReflection->getMethods();
@@ -621,7 +621,7 @@ class $pClassName extends $pClass {
 
         foreach ($classes as $class){
 
-            $content = kryn::fileRead($class);
+            $content = Core\Kryn::fileRead($class);
 
             if (preg_match('/class ([a-zA-Z0-9_]*) extends (admin|)([a-zA-Z0-9_]*)\s*{/', $content, $matches)){
                 if (in_array(strtolower($matches[3]), $whiteList))
@@ -657,7 +657,7 @@ class $pClassName extends $pClass {
             $info = self::loadInfo($pName, $pFile);
             if (!$info['noConfig'] && $info['extensionCode'] == getArgv('name')) {
 
-                if (kryn::compareVersion($info['version'], $del, $needVersion)) {
+                if (Core\Kryn::compareVersion($info['version'], $del, $needVersion)) {
 
                     $res = array('ok' => true);
 
@@ -707,7 +707,7 @@ class $pClassName extends $pClass {
         if (!file_exists($helpFile))
             json($res);
         else {
-            $json = kryn::fileRead($helpFile);
+            $json = Core\Kryn::fileRead($helpFile);
             $help = json_decode($json, 1);
             json($help);
         }
@@ -716,14 +716,14 @@ class $pClassName extends $pClass {
     public static function saveHelp($pName, $pLang, $pHelp) {
         $helpFile = PATH_MODULE . "$pName/lang/help_$pLang.json";
         $json = json_format($pHelp);
-        kryn::fileWrite($helpFile, $json);
+        Core\Kryn::fileWrite($helpFile, $json);
         json(1);
     }
 
     public static function getDocu() {
         $lang = getArgv('lang', 2);
         $name = getArgv('name', 2);
-        $text = kryn::fileRead(PATH_MODULE . "$name/docu/$lang.html");
+        $text = Core\Kryn::fileRead(PATH_MODULE . "$name/docu/$lang.html");
         json($text);
     }
 
@@ -733,7 +733,7 @@ class $pClassName extends $pClass {
         $name = getArgv('name', 2);
         if (!is_dir(PATH_MODULE . "$name/docu/"))
             mkdir(PATH_MODULE . "$name/docu/");
-        kryn::fileWrite(PATH_MODULE . "$name/docu/$lang.html", $text);
+        Core\Kryn::fileWrite(PATH_MODULE . "$name/docu/$lang.html", $text);
         json(1);
     }
 
@@ -889,7 +889,7 @@ class $pClassName extends $pClass {
             return array('error' => 'file_not_writeable');
         }
 
-        return kryn::fileWrite(PATH_MODULE . "$pName/config.json", $json);
+        return Core\Kryn::fileWrite(PATH_MODULE . "$pName/config.json", $json);
     }
 
     public static function removeModule($pModuleName) {
@@ -946,10 +946,10 @@ class $pClassName extends $pClass {
 
 
         delDir("data/packages/modules/removeMod/$id/");
-        adminDb::remove(kryn::$configs[$pModuleName]);
+        adminDb::remove(Core\Kryn::$configs[$pModuleName]);
         dbDelete('system_modules', "name = '$pModuleName'");
 
-        kryn::clearLanguageCache();
+        Core\Kryn::clearLanguageCache();
         return true;
     }
 
@@ -959,7 +959,7 @@ class $pClassName extends $pClass {
         $res['modifiedFiles'] = array();
 
         $pModuleName = str_replace("..", "", $pModuleName);
-        $config = kryn::getModuleConfig($pModuleName);
+        $config = Core\Kryn::getModuleConfig($pModuleName);
         $writableFiles = explode("\n", $config['writableFiles']);
 
         if (is_array($writableFiles)) {
@@ -977,7 +977,7 @@ class $pClassName extends $pClass {
             foreach ($md5s as $file => $md5) {
                 foreach ($writableFiles as $path) {
                     if ($path != "" && preg_match('/' . str_replace('/', '\/', $path) . '/', $file) != 0) {
-                        if (file_exists($file) && $md5 != md5(kryn::fileRead($file)))
+                        if (file_exists($file) && $md5 != md5(Core\Kryn::fileRead($file)))
                             $res['modifiedFiles'][] = $file;
                     }
                 }
@@ -1057,7 +1057,7 @@ class $pClassName extends $pClass {
 
             } else if (!is_dir($temp . $file) && strpos($file, 'files.md5') === false) {
                 $file = substr($file, 2);
-                $md5s .= $file . ' ' . md5(kryn::fileRead($temp . $file)) . "\n";
+                $md5s .= $file . ' ' . md5(Core\Kryn::fileRead($temp . $file)) . "\n";
 
                 if (!class_exists('ZipArchive')){
                     $reads[] = File_Archive::read($file, $file);
@@ -1070,7 +1070,7 @@ class $pClassName extends $pClass {
         else
             $md5File = PATH_MODULE . $pModuleName . '/files.md5';
 
-        kryn::fileWrite($temp . $md5File, $md5s);
+        Core\Kryn::fileWrite($temp . $md5File, $md5s);
 
         $archive = "data/packages/modules/$pModuleName-" . $config['version'] . '_' . date("ymdhis") . ".zip";
 
@@ -1117,7 +1117,7 @@ class $pClassName extends $pClass {
 
             $res = (php_sapi_name() === 'cli' )?"Remove all tables from all extensions\n\n":array();
 
-            foreach (kryn::$configs as $key => $config){
+            foreach (Core\Kryn::$configs as $key => $config){
                 if (php_sapi_name() === 'cli' ){
                     $res .= self::dbRemove($key)."\n";
                 } else {
@@ -1130,7 +1130,7 @@ class $pClassName extends $pClass {
 
         $res = 'Remove tables in extension '.$pName.":\n\n";
 
-        $config = kryn::getModuleConfig($pName);
+        $config = Core\Kryn::getModuleConfig($pName);
         $removedTables = adminDb::remove($config);
 
         if (php_sapi_name() === 'cli' ){
@@ -1153,7 +1153,7 @@ class $pClassName extends $pClass {
 
             $res = (php_sapi_name() === 'cli')?"Sync all tables from all extensions\n\n":array();
 
-            foreach (kryn::$configs as $key => $config){
+            foreach (Core\Kryn::$configs as $key => $config){
                 if (php_sapi_name() === 'cli' ){
                     $res .= self::dbInit($key)."\n";
                 } else {
@@ -1166,7 +1166,7 @@ class $pClassName extends $pClass {
 
         $res = 'Sync tables in extension '.$pName.":\n\n";
 
-        $config = kryn::getModuleConfig($pName);
+        $config = Core\Kryn::getModuleConfig($pName);
         $installedTables = adminDb::sync($config);
 
         if (php_sapi_name() === 'cli'){
@@ -1184,7 +1184,7 @@ class $pClassName extends $pClass {
     }
 
     public static function getPublishInfo($pName) {
-        $config = kryn::getModuleConfig($pName);
+        $config = Core\Kryn::getModuleConfig($pName);
         $res['config'] = $config;
         $res['serverVersion'] = self::getVersion($pName);
 
@@ -1217,7 +1217,7 @@ class $pClassName extends $pClass {
         foreach ($installed as $mod) {
             $config = self::loadInfo($mod);
             $res[$mod] = $config;
-            $res[$mod]['activated'] = (kryn::$configs[$mod]) ? 1 : 0;
+            $res[$mod]['activated'] = (Core\Kryn::$configs[$mod]) ? 1 : 0;
             $res[$mod]['serverVersion'] = wget($cfg['repoServer'] . "/?version=" . $mod);
             $res[$mod]['serverCompare'] =
                 self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
@@ -1228,7 +1228,7 @@ class $pClassName extends $pClass {
 
     static public function loadLocal() {
 
-        $modules = kryn::readFolder(PATH_MODULE);
+        $modules = Core\Kryn::readFolder(PATH_MODULE);
         $modules[] = 'kryn';
         $res = array();
 
@@ -1243,7 +1243,7 @@ class $pClassName extends $pClass {
             unset($config['adminJavascript']);
             unset($config['adminCss']);
             $res[$module] = $config;
-            $res[$module]['activated'] = (kryn::$configs[$module]) ? 1 : 0;
+            $res[$module]['activated'] = (Core\Kryn::$configs[$module]) ? 1 : 0;
         }
 
         json($res);
@@ -1255,7 +1255,7 @@ class $pClassName extends $pClass {
             $configFile = "core/config.json";
         else
             $configFile = PATH_MODULE . "$pModuleName/config.json";
-        $json = kryn::fileRead($configFile);
+        $json = Core\Kryn::fileRead($configFile);
         $config = json_decode($json, true);
         return $config;
     }
@@ -1335,7 +1335,7 @@ class $pClassName extends $pClass {
             if (!file_exists($configFile)) {
                 return array('noConfig' => 1);
             }
-            $json = kryn::fileRead($configFile);
+            $json = Core\Kryn::fileRead($configFile);
             $config = json_decode($json, true);
 
             if (!$pExtract) {
@@ -1346,18 +1346,18 @@ class $pClassName extends $pClass {
             //if locale
             if ($pType == false) {
                 if (is_dir(PATH_MEDIA."$pModuleName/_screenshots")) {
-                    $config['screenshots'] = kryn::readFolder(PATH_MEDIA."$pModuleName/_screenshots");
+                    $config['screenshots'] = Core\Kryn::readFolder(PATH_MEDIA."$pModuleName/_screenshots");
                 }
             }
 
             $config['__path'] = dirname($configFile);
-            if (is_array(kryn::$configs) && array_key_exists($pModuleName, kryn::$configs))
+            if (is_array(Core\Kryn::$configs) && array_key_exists($pModuleName, Core\Kryn::$configs))
                 $config['installed'] = true;
 
             $config['extensionCode'] = $pModuleName;
 
-            if (kryn::$configs)
-                foreach (kryn::$configs as $extender => &$modConfig) {
+            if (Core\Kryn::$configs)
+                foreach (Core\Kryn::$configs as $extender => &$modConfig) {
                     if (is_array($modConfig['extendConfig'])) {
                         foreach ($modConfig['extendConfig'] as $extendModule => $extendConfig) {
                             if ($extendModule == $pModuleName) {
@@ -1392,7 +1392,7 @@ class $pClassName extends $pClass {
             foreach ($md5s as $file => $md5) {
                 foreach ($writableFiles as $path) {
                     if ($path != "" && preg_match('/' . str_replace('/', '\/', $path) . '/', $file) != 0) {
-                        if (file_exists($file) && $md5 != md5(kryn::fileRead($file)))
+                        if (file_exists($file) && $md5 != md5(Core\Kryn::fileRead($file)))
                             $modFiles[] = $file;
                     }
                 }
@@ -1436,17 +1436,17 @@ class $pClassName extends $pClass {
                 $res['depends_ext'][$dependKey]['installed'] = false;
                 $res['depends_ext'][$dependKey]['needVersion'] = $del . $dependInfo[1];
 
-                if (!kryn::$configs[$dependInfo[0]]) {
+                if (!Core\Kryn::$configs[$dependInfo[0]]) {
 
                     $res['needPackages'] = true;
 
                 } else {
 
-                    $dependConfig = kryn::$configs[$dependInfo[0]];
+                    $dependConfig = Core\Kryn::$configs[$dependInfo[0]];
                     $res['depends_ext'][$dependKey]['installedVersion'] = $dependConfig['version'];
                     $res['depends_ext'][$dependKey]['toVersion'] = $dependInfo[1];
 
-                    if (kryn::compareVersion($dependConfig['version'], $del, $dependInfo[1])) {
+                    if (Core\Kryn::compareVersion($dependConfig['version'], $del, $dependInfo[1])) {
                         $res['depends_ext'][$dependKey]['installed'] = true;
                     } else {
                         $res['depends_ext'][$dependKey]['needUpdate'] = true;
@@ -1466,7 +1466,7 @@ class $pClassName extends $pClass {
                     $serverRes = wget($cfg['repoServer'] . '/?version=' . $dependKey);
                     if ($serverRes && $serverRes != '') {
                         $res['depends_ext'][$dependKey]['server_version'] = true;
-                        if (!kryn::compareVersion($serverRes, $del, $dependInfo[1])) {
+                        if (!Core\Kryn::compareVersion($serverRes, $del, $dependInfo[1])) {
                             $res['depends_ext'][$dependKey]['server_version_not_ok_version'] = $serverRes;
                             $res['depends_ext'][$dependKey]['server_version_not_ok'] = true;
                         }
@@ -1525,10 +1525,10 @@ class $pClassName extends $pClass {
         $res['module'] = $info;
         $res['serverCompare'] = self::versionCompareToServer($info['version'], $res['serverVersion']);
 
-        if (kryn::$configs[$pModuleName] || $pModuleName == 'kryn-core') {
+        if (Core\Kryn::$configs[$pModuleName] || $pModuleName == 'kryn-core') {
             $res['installed'] = true;
             $res['installedModule'] = self::loadInfo($pModuleName); //fetch local installed module infos
-            $res['activated'] = (kryn::$configs[$pModuleName]) ? 1 : 0;
+            $res['activated'] = (Core\Kryn::$configs[$pModuleName]) ? 1 : 0;
         }
         json($res);
     }
@@ -1601,7 +1601,7 @@ class $pClassName extends $pClass {
 
         $lang = $user->user['settings']['adminLanguage'] ? $user->user['settings']['adminLanguage'] : 'en';
 
-        foreach (kryn::$configs as $key => $config) {
+        foreach (Core\Kryn::$configs as $key => $config) {
             if (!$config['plugins']) continue;
             $config['title'] = $config['title'][$lang] ? $config['title'][$lang] : $config['title']['en'];
             $config['name'] = $key;
@@ -1618,7 +1618,7 @@ class $pClassName extends $pClass {
         $res['found'] = false;
 
         # add kryn-core
-        $tmodules = kryn::$configs;
+        $tmodules = Core\Kryn::$configs;
 
         foreach ($tmodules as $key => $config) {
             $version = '0';
@@ -1659,13 +1659,13 @@ class $pClassName extends $pClass {
 
     public static function deactivate($pName) {
         dbUpdate('system_modules', array('name' => $pName), array('activated' => 0));
-        kryn::clearLanguageCache();
-        kryn::deleteCache('activeModules');
+        Core\Kryn::clearLanguageCache();
+        Core\Kryn::deleteCache('activeModules');
         json(1);
     }
 
     public static function exists($pModule) {
-        if (kryn::$configs[$pModule])
+        if (Core\Kryn::$configs[$pModule])
             return true;
         return false;
     }
@@ -1678,8 +1678,8 @@ class $pClassName extends $pClass {
         else
             dbUpdate('system_modules', array('name' => $pName), array('activated' => 1));
 
-        kryn::clearLanguageCache();
-        kryn::deleteCache('activeModules');
+        Core\Kryn::clearLanguageCache();
+        Core\Kryn::deleteCache('activeModules');
         json(1);
     }
 

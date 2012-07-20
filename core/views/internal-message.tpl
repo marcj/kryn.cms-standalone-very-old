@@ -35,11 +35,11 @@
 </head>
 <body>
 <div id="error">
-    <img src="media/Kryn/images/logo_white.png" />
+    <img src="media/kryn/images/logo_white.png" />
     <h2>{$title}</h2>
     <div class="msg">{$msg}
     </div>
 </div>
-<script type="text/javascript" src="media/Kryn/js/bgNoise.js"></script>
+<script type="text/javascript" src="media/kryn/js/bgNoise.js"></script>
 </body>
 </html>

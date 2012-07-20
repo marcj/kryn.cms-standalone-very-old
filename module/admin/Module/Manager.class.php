@@ -8,16 +8,19 @@ class Manager extends \RestServerController {
         define('KRYN_MANAGER', true);
     }
 
+    function __destruct(){
+        define('KRYN_MANAGER', false);
+    }
+
 
     /**
      * Returns if all dependencies are fine.
      *
-     * @param $pMethod
      * @param $pName
      *
      * @return boolean
      */
-    public function dependenciesCheck($pMethod, $pName){
+    public function dependenciesCheck($pName){
 
 
 
@@ -26,10 +29,9 @@ class Manager extends \RestServerController {
     /**
      * Returns a list of open dependencies.
      *
-     * @param $pMethod
      * @param $pName
      */
-    public function dependenciesOpen($pMethod, $pName){
+    public function dependenciesOpen($pName){
 
 
 
@@ -39,35 +41,12 @@ class Manager extends \RestServerController {
      * Executes the installation pre-script.
      * Pre some database content, backup some files or stuff like that.
      *
-     * @param $pMethod
      * @param $pName
+     * @return string
      */
-    public function installPre($pMethod, $pName){
+    public function installPre($pName){
 
-
-    }
-
-    /**
-     * Executes the installation file extraction.
-     *
-     * @param $pMethod
-     * @param $pName
-     */
-    public function installExtract($pMethod, $pName){
-
-
-
-    }
-
-    /**
-     * Executes the installation database schema synchronisation.
-     *
-     * @param $pMethod
-     * @param $pName
-     */
-    public function installDatabase($pMethod, $pName){
-
-        $file = $this->getScriptFile($pName, 'install-database');
+        $file = $this->getScriptFile($pName, 'install-pre');
         if (file_exists($file)){
 
             try {
@@ -78,8 +57,65 @@ class Manager extends \RestServerController {
 
             return 'execution_successful';
         }
+        return false;
 
-        $this->sendError('no_install_database_script_found', 'The extension '.$pName.' does not have a package/install-database.php script.');
+    }
+
+    /**
+     * Executes the install-extract.php-script.
+     * Maybe fore some file adjustments.
+     *
+     * @param $pName
+     * @return string
+     */
+    public function installFireExtract($pName){
+
+        $file = $this->getScriptFile($pName, 'install-extract');
+        if (file_exists($file)){
+
+            try {
+                require($file);
+            } catch(\Exception $e){
+                $this->sendError('execution_failed', $e);
+            }
+
+            return 'execution_successful';
+        }
+        return false;
+
+    }
+
+    /**
+     * Extract the files and fires the the install-extract.php script..
+     *
+     * @param $pName
+     */
+    public function installExtract($pName){
+
+
+
+    }
+
+    /**
+     * Executes the installation database schema synchronisation.
+     *
+     * @param $pName
+     * @return string
+     */
+    public function installDatabase($pName){
+
+        $file = $this->getScriptFile($pName, 'install-database');
+        if (file_exists($file)){
+
+            try {
+                include($file);
+            } catch(\Exception $e){
+                $this->sendError('execution_failed', $e);
+            }
+
+            return 'execution_successful';
+        }
+        return false;
 
     }
 
@@ -88,10 +124,9 @@ class Manager extends \RestServerController {
      * Executes the installation post-script.
      * Insert database values, convert some content etc.
      *
-     * @param $pMethod
      * @param $pName
      */
-    public function installPost($pMethod, $pName){
+    public function installPost($pName){
 
 
 
@@ -103,10 +138,9 @@ class Manager extends \RestServerController {
      * Executes the update pre-script.
      * Pre some database content, backup some files or stuff like that.
      *
-     * @param $pMethod
      * @param $pName
      */
-    public function updatePre($pMethod, $pName){
+    public function updatePre($pName){
 
 
     }
@@ -114,10 +148,9 @@ class Manager extends \RestServerController {
     /**
      * Executes the update database schema synchronisation.
      *
-     * @param $pMethod
      * @param $pName
      */
-    public function updateDatabase($pMethod, $pName){
+    public function updateDatabase($pName){
 
 
 
@@ -127,10 +160,9 @@ class Manager extends \RestServerController {
     /**
      * Executes the update file extraction.
      *
-     * @param $pMethod
      * @param $pName
      */
-    public function updateExtract($pMethod, $pName){
+    public function updateExtract($pName){
 
 
 
@@ -141,10 +173,9 @@ class Manager extends \RestServerController {
      * Executes the update post-script.
      * Insert database values, convert some content etc.
      *
-     * @param $pMethod
      * @param $pName
      */
-    public function updatePost($pMethod, $pName){
+    public function updatePost($pName){
 
 
 

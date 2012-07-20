@@ -115,6 +115,30 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
 }
 
 /**
+ * Returns a plural message formatted with sprintf.
+ *
+ * $pCount is the first data argument for sprintf.
+ *
+ * @param string $pSingular
+ * @param string $pPlural
+ * @param int    $pCount
+ * @param mixed  $strings,... Unlimited optional strings
+ *
+ * @return string
+ */
+function tpf(){
+    $arguments = func_get_args();
+    $first  = array_shift($arguments);
+    $second = array_shift($arguments);
+    $count  = array_shift($arguments);
+    $translated = t($first, $second, $count);
+    $sprintf[] = $translated;
+    $sprintf[] = $count;
+    $sprintf = array_merge($sprintf, $arguments);
+    return t(call_user_func_array('sprintf', $sprintf));
+}
+
+/**
  * Return a translated formatted message $pMsg with sprintf.
  *
  * @param string $pMsg message id (msgid)

@@ -1,5 +1,7 @@
 <?php
 
+namespace Core;
+
 /**
  * Load active modules into Kryn::$extensions.
  */
