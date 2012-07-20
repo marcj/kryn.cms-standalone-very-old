@@ -15,10 +15,20 @@ Kryn::loadActiveModules();
 //init auto-loader for module folder.
 foreach (Kryn::$extensions as $extension){
     spl_autoload_register(function($pClass) use($extension){
-        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/'.
-            str_replace('\\', '/', substr($pClass, (($pos=strpos($pClass,'\\'))?$pos+1:0)))
-            .'.class.php')){
 
+        $clazz = str_replace('\\', '/', substr($pClass, (($pos=strpos($pClass,'\\'))?$pos+1:0))).'.class.php';
+
+        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
+            require_once($file);
+            return true;
+        }
+
+        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)){
+            require_once($file);
+            return true;
+        }
+
+        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)){
             require_once($file);
             return true;
         }

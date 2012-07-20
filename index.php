@@ -34,7 +34,6 @@ if (Core\Kryn::$admin) {
     /*
      * initialize administration controller
      */
-    require(PATH_MODULE . 'admin/admin.class.php');
     Core\Kryn::$modules['admin'] = new admin();
 
     /*

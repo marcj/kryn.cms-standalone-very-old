@@ -253,7 +253,7 @@ class propelHelper {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = PATH_MODULE.$extension.'/model/schema.xml')){
+            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
 
                 $tables = simplexml_load_file ($schema);
 
@@ -277,13 +277,11 @@ class propelHelper {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = PATH_MODULE.$extension.'/model/schema.xml')){
+            if (file_exists($schema = PATH_MODULE.$extension.'/mdoel.xml')){
 
                 $tables = simplexml_load_file ($schema);
 
                 foreach ($tables->table as $table){
-                    $attributes = $table->attributes();
-                    $clazz = (string)$attributes['phpName'];
 
                     $newSchema .= $table->asXML()."\n    ";
 

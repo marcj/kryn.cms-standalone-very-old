@@ -834,16 +834,12 @@ class Kryn {
      */
     public static function initModules() {
 
-        include_once(PATH_MODULE . "users/users.class.php");
         Kryn::$modules['users'] = new \users();
 
         foreach (Kryn::$extensions as $mod) {
-            $classFile = PATH_MODULE . '' . $mod . '/' . $mod . '.class.php';
-            if ($mod != 'admin' && $mod != 'users') {
-                if (file_exists($classFile)) {
-                    include_once($classFile);
+            if ($mod != 'kryn' && $mod != 'admin' && $mod != 'users') {
+                if (class_exists($mod))
                     Kryn::$modules[$mod] = new $mod();
-                }
             }
         }
     }
