@@ -49,7 +49,8 @@ class Language {
     public static function getPluralForm($pLang) {
         //csv based on (c) http://translate.sourceforge.net/wiki/l10n/pluralforms
 
-        $fh = fopen(PATH_MODULE . 'admin/gettext-plural-forms.csv', 'r');
+        $fh = fopen(PATH_MODULE . 'admin/package/gettext-plural-forms.csv', 'r');
+        if (!$fh) return false;
 
         while (($buffer = fgetcsv($fh, 1000)) !== false) {
             if ($buffer[0] == $pLang) {

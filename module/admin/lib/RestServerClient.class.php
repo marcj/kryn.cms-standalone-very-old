@@ -42,9 +42,7 @@ class RestServerClient {
      */
     public function sendResponse($pHttpCode = '200', $pMessage){
 
-        if ($_GET['suppress_status_code'] || php_sapi_name() === 'cli'){
-            $pMessage['status'] = $pHttpCode;
-        } else {
+        if (!$_GET['suppress_status_code'] && php_sapi_name() !== 'cli'){
             $httpMap = array(
                 '200' => '200 OK',
                 '500' => '500 Internal Server Error',
@@ -53,6 +51,7 @@ class RestServerClient {
             );
             header('HTTP/1.0 '.$httpMap[$pHttpCode]?$httpMap[$pHttpCode]:$pHttpCode);
         }
+        $pMessage['status'] = $pHttpCode;
 
         $method = $this->outputFormats[$this->outputFormat];
         $this->$method($pMessage)."\n";

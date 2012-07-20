@@ -24,9 +24,10 @@ $groupAdmin = new Group();
 $groupAdmin->setName('Admin');
 $groupAdmin->setDescription('Super user');
 $groupAdmin->save();
-
 $id = $groupAdmin->getId(0);
 dbUpdate('system_group', array('id' => $id), array('id' => 1));
+$groupAdmin->setId(1);
+
 
 $admin = new User();
 $admin->setUsername('admin');
@@ -35,7 +36,6 @@ $admin->setLastName('strator');
 $admin->setEmail('admin@localhost');
 $admin->setActivate(1);
 $admin->setPassword('admin');
-$admin->addGroup($groupAdmin);
 
 
 $settings = serialize(array(
@@ -45,5 +45,10 @@ $settings = serialize(array(
 
 $admin->setSettings($settings);
 $admin->save();
+
 $id = $admin->getId(0);
 dbUpdate('system_user', array('id' => $id), array('id' => 1));
+$admin->setId(1);
+
+$admin->addGroup($groupAdmin);
+$admin->save();

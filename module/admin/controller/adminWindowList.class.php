@@ -19,7 +19,7 @@
  */
 
 
-class adminWindowList {
+class adminWindowList extends RestServerController {
 
     /**
      * Defines the table which should be accessed.
@@ -217,7 +217,7 @@ class adminWindowList {
 
 
         if ($this->object){
-            $this->objectDefinition = kryn::$objects[$this->object];
+            $this->objectDefinition = Core\Kryn::$objects[$this->object];
             if (!$this->objectDefinition){
                 throw new Exception("Can not find object '".$this->object."'");
             }
@@ -337,7 +337,7 @@ class adminWindowList {
                 }
             }
         } else {
-            if ($pFields['needAccess'] && !kryn::checkUrlAccess($pFields['needAccess'])) {
+            if ($pFields['needAccess'] && !Core\Kryn::checkUrlAccess($pFields['needAccess'])) {
                 $pFields = null;
                 return;
             }
@@ -371,7 +371,7 @@ class adminWindowList {
                         break;
                     case 'files':
 
-                        $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
+                        $files = Core\Kryn::readFolder($pFields['directory'], $pFields['withExtension']);
                         if (count($files) > 0) {
                             foreach ($files as $file) {
                                 $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
@@ -567,7 +567,7 @@ class adminWindowList {
                     $joins .= "LEFT OUTER JOIN " . $exTable . " ON " . $exTable . "." . $column['table_key'] .
                               " = $table.$key\n";
                 }
-                if (kryn::$config['db_type'] != 'postgresql' && $column['type'] == 'select' &&
+                if (Core\Kryn::$config['db_type'] != 'postgresql' && $column['type'] == 'select' &&
                     $column['relation'] == 'n-n'
                 ) {
                     $extraFields[] =
@@ -681,9 +681,34 @@ class adminWindowList {
                 $end = getArgv('max') + 0;
             }
 
-            $fields = array_keys($this->columns);
-            $primaryFields = krynObjects::getPrimaries($this->object);
-            $fields = array_merge($fields, array_keys($primaryFields));
+
+            $clazz = ucfirst($this->object).'Query';
+            if (!class_exists($clazz)) $this->sendBadRequest('missing_class', tf('The class %s does not exist.', $clazz));
+
+            $query = $clazz::create();
+
+            foreach ($this->order as $field => $order){
+                $query->orderBy($field, $order);
+            }
+
+            $fields = array();
+            foreach ($this->columns as $field => $column){
+                if (is_numeric($field)){
+                    $query->joinWith('Groups');
+                } else {
+                    $fields[] = $field;
+                }
+            }
+
+            $query->select($fields);
+
+            $query->limit($end);
+            $query->offset($start);
+
+            $results['items'] = $query->find();
+
+
+            var_dump($results); exit;
 
             $items = krynObjects::getList($this->object, false, array(
                 'offset' => $start,
@@ -807,7 +832,7 @@ class adminWindowList {
             while ($item = dbFetch($res)) {
 
                 foreach ($this->columns as $key => $column) {
-                    if (kryn::$config['db_type'] == 'postgresql') {
+                    if (Core\Kryn::$config['db_type'] == 'postgresql') {
                         if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
                             $tempRow = dbExfetch("
                                 SELECT group_concat(" .dbTableName($column['n-n']['right']) . "." . $column['n-n']['right_label'] .

@@ -275,7 +275,7 @@ ka.resetWindows = function () {
 
 ka.check4Updates = function () {
     if (window._session.user_id == 0) return;
-    new Request.JSON({url: _path + 'admin/system/module/check4updates', noCache: 1, onComplete: function (res) {
+    new Request.JSON({url: _path + 'admin/system/module/manager/check4updates', noCache: 1, onComplete: function (res) {
         if (res && res.found) {
             ka.displayNewUpdates(res.modules);
         }

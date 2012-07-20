@@ -49,7 +49,7 @@ class adminWindow {
     }
 
     public static function getModule() {
-        $url = kryn::getRequestedPath();
+        $url = Core\Kryn::getRequestedPath();
         //admin/ = 6
         $url = substr($url, 6);
         $firstSlash = strpos($url, '/');
@@ -57,7 +57,7 @@ class adminWindow {
     }
 
     public static function getCode() {
-        $url = kryn::getRequestedPath();
+        $url = Core\Kryn::getRequestedPath();
         //admin/ = 6
         $url = substr($url, 6);
         $firstSlash = strpos($url, '/');
@@ -66,12 +66,7 @@ class adminWindow {
 
     public static function loadClass() {
 
-        require(PATH_MODULE . 'admin/adminWindowList.class.php');
-        require(PATH_MODULE . 'admin/adminWindowCombine.class.php');
-        require(PATH_MODULE . 'admin/adminWindowEdit.class.php');
-        require(PATH_MODULE . 'admin/adminWindowAdd.class.php');
-
-        $info = admin::getPathItem(kryn::getRequestedPath());
+        $info = admin::getPathItem(Core\Kryn::getRequestedPath());
         $class = $info['class'];
 
         $module2LoadClass = $info['_module'];
@@ -82,10 +77,10 @@ class adminWindow {
             $class = $t[1];
         }
 
-        if (file_exists(PATH_MODULE . "$module2LoadClass/$class.class.php")) {
-            require_once(PATH_MODULE . "$module2LoadClass/$class.class.php");
+        if (class_exists($class)){
             $obj = new $class($info, getArgv('cmd'));
         }
+
 
         switch (getArgv('cmd')) {
             case 'getItems':

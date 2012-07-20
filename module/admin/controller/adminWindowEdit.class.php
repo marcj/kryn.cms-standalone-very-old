@@ -129,7 +129,7 @@ class adminWindowEdit {
         $this->entryPathItem = $pEntryPathItem;
 
         if ($this->object){
-            $this->objectDefinition = kryn::$objects[$this->object];
+            $this->objectDefinition = Core\Kryn::$objects[$this->object];
             $this->table = $this->objectDefinition['table'];
             foreach ($this->objectDefinition['fields'] as $key => &$field){
                 if($field['primaryKey']){
@@ -230,7 +230,7 @@ class adminWindowEdit {
 
         if ($this->previewPlugins) {
 
-            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+            $cachedPluginRelations =& Core\Kryn::getCache('kryn_pluginrelations');
             $module = $this->module;
 
             foreach ($this->previewPlugins as $plugin => $urlGetter) {
@@ -253,7 +253,7 @@ class adminWindowEdit {
 
                         if (method_exists($this, $urlGetter)) {
                             $previewUrls[$moduleToUse . '/' . $pluginToUse][$page['id']] =
-                                kryn::pageUrl($page['id']) . '/' .
+                                Core\Kryn::pageUrl($page['id']) . '/' .
                                     $this->$urlGetter($pRow, json_decode($pluginValue, true), $page['id']);
                         }
 
@@ -286,7 +286,7 @@ class adminWindowEdit {
         ');
 
         if (!$res) {
-            kryn::setCache('kryn_pluginrelations', array());
+            Core\Kryn::setCache('kryn_pluginrelations', array());
             return;
         }
 
@@ -298,7 +298,7 @@ class adminWindowEdit {
             $pluginRelations[$matches[1]][$matches[2]][] = $row;
 
         }
-        kryn::setCache('kryn_pluginrelations', $pluginRelations);
+        Core\Kryn::setCache('kryn_pluginrelations', $pluginRelations);
     }
 
 
@@ -311,10 +311,10 @@ class adminWindowEdit {
         if (!$this->previewPlugins)
             return;
 
-        $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+        $cachedPluginRelations =& Core\Kryn::getCache('kryn_pluginrelations');
         if (true || !$cachedPluginRelations || count($cachedPluginRelations) == 0) {
             self::cachePluginsRelations();
-            $cachedPluginRelations =& kryn::getCache('kryn_pluginrelations');
+            $cachedPluginRelations =& Core\Kryn::getCache('kryn_pluginrelations');
         }
 
         $module = $this->module;
@@ -338,7 +338,7 @@ class adminWindowEdit {
                     $this->previewPluginPages[$moduleToUse . '/' . $pluginToUse][$page['domain_id']][$page['id']] =
                         array(
                             'title' => $page['title'],
-                            'path' => kryn::getPagePath($page['id'])
+                            'path' => Core\Kryn::getPagePath($page['id'])
                         );
                 }
             }
@@ -365,7 +365,7 @@ class adminWindowEdit {
                 }
             }
         } else {
-            if ($pFields['needAccess'] && !kryn::checkUrlAccess($pFields['needAccess'])) {
+            if ($pFields['needAccess'] && !Core\Kryn::checkUrlAccess($pFields['needAccess'])) {
                 return false;
             }
 
@@ -398,7 +398,7 @@ class adminWindowEdit {
                             break;
                         case 'files':
 
-                            $files = kryn::readFolder($pFields['directory'], $pFields['withExtension']);
+                            $files = Core\Kryn::readFolder($pFields['directory'], $pFields['withExtension']);
                             if (count($files) > 0) {
                                 foreach ($files as $file) {
                                     $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
@@ -468,7 +468,7 @@ class adminWindowEdit {
                 $fields = array();
                 $explodeGrouped = array();
 
-                $definition = kryn::$objects[$this->object];
+                $definition = Core\Kryn::$objects[$this->object];
                 foreach ($definition['fields'] as $key=>$field){
                     if ($field['primaryKey']){
                         $fields[] = $key;

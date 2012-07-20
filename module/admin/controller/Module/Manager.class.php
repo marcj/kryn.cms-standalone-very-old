@@ -2,6 +2,8 @@
 
 namespace Admin\Module;
 
+use \Core\Kryn;
+
 class Manager extends \RestServerController {
 
     function __construct(){
@@ -12,6 +14,33 @@ class Manager extends \RestServerController {
         define('KRYN_MANAGER', false);
     }
 
+
+    public function check4Updates(){
+
+
+        global $cfg;
+
+        $res['found'] = false;
+
+        # add kryn-core
+        $tmodules = Kryn::$configs;
+
+        foreach ($tmodules as $key => $config) {
+            $version = '0';
+            $name = $key;
+            $version = wget($cfg['repoServer'] . "/?version=$name");
+            if ($version && $version != '' && self::versionCompareToServer($config['version'], $version) == '<') {
+                $res['found'] = true;
+                $temp = array();
+                $temp['newVersion'] = $version;
+                $temp['name'] = $name;
+                $res['modules'][] = $temp;
+            }
+        }
+
+        json($res);
+
+    }
 
     /**
      * Returns if all dependencies are fine.

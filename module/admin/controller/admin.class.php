@@ -62,17 +62,29 @@ class admin extends RestServerController {
 
 
                 //admin/system
+                ->addSubController('object', '\Admin\Object')
+                    ->addRoute('get:([a-zA-Z-_]+)/([0-9]+)', 'getItem', null, array(
+                        'fields'
+                    ))
+                    ->addRoute('get:([a-zA-Z-_]+)', 'getItems', null, array(
+                        'fields'
+                    ))
+                ->done()
+
                 ->addSubController('system', '\Admin\System')
 
                     //admin/system/module/manager
                     ->addSubController('module/manager', '\Admin\Module\Manager')
                         //->addRoute('manage/([0-9]*)/([0-9]*)', 'manageInstall', array('asd'))
-                        ->addRoute('install/pre', 'installPre', array('name'))
-                        ->addRoute('install/extract', 'installExtract', array('name'))
-                        ->addRoute('install/database', 'installDatabase', array('name'))
-                        ->addRoute('install/post', 'installPost', array('name'))
+                        ->addRoute('get:install/pre', 'installPre', array('name'))
+                        ->addRoute('get:install/extract', 'installExtract', array('name'))
+                        ->addRoute('get:install/database', 'installDatabase', array('name'))
+                        ->addRoute('get:install/post', 'installPost', array('name'))
+                        ->addRoute('get:check4updates', 'check4updates')
                     ->done()
                 ->done()
+
+                //->addSubController('file', '\Admin\File')
 
             ->run();
 

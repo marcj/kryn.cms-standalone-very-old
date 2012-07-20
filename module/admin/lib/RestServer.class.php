@@ -379,7 +379,7 @@ class RestServer extends RestServerController {
             $controller->run();
 
         //check if its in our area
-        if (strpos($this->getUrl(), $this->triggerUrl) !== 0) return;
+        if (strpos($this->getUrl().'/', $this->triggerUrl.'/') !== 0) return;
 
         $uri = substr($this->getUrl(), strlen($this->triggerUrl));
 
@@ -392,9 +392,16 @@ class RestServer extends RestServerController {
         $arguments[] = $this->getMethod();
 
         //does the requested uri exist?
-        if (!list($route, $regexArguments) = $this->findRoute($uri)){
-            $this->sendError('method_not_found', "There is no route for '$uri''.");
+        if (!list($route, $regexArguments, $trigger) = $this->findRoute($uri)){
+            if (!$this->getParent()){
+                $this->sendError('method_not_found', "There is no route for '$uri'.");
+            } else {
+                return false;
+            }
+
         } else {
+            if (substr($trigger, 3, 1) == ':' && array_search(substr($trigger, 0, 3), $this->methods) !== false)
+                array_shift($arguments);
             $arguments = array_merge($arguments, $regexArguments);
         }
 
@@ -420,6 +427,7 @@ class RestServer extends RestServerController {
         //fire method
         $method = $route[0];
         $object = $this->controller;
+
         try {
             $data = call_user_func_array(array($object, $method), $arguments);
             $this->send($data);
@@ -481,18 +489,18 @@ class RestServer extends RestServerController {
                         foreach ($matches as $match){
                             $arguments[] = $match;
                         }
+                        return array($def, $arguments, $routeUri);
                         break;
                     }
                 }
 
-                if (!$def)
-                    $this->sendError('method_not_found', 'There is no route for '.$pUri.'.');
             } else {
                 $def = $this->routes[$uri];
+                return array($def, $arguments, $uri);
             }
         }
 
-        return array($def, $arguments);
+        return false;
     }
 
 }

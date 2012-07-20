@@ -1,6 +1,6 @@
 <?php
 
-class usersAdminList extends windowList {
+class usersAdminList extends adminWindowList {
 
     public $object = 'user';
 
@@ -18,25 +18,25 @@ class usersAdminList extends windowList {
     public $itemLayout = '<b id="username"></b> (<span id="first_name"></span> <span id="last_name"></span>)<br/><span style="color: silver;" id="groups_name"></span>';
 
     public $columns = array(
-        'last_name' => array(
+        'LastName' => array(
             'label' => 'Last name',
             'type' => 'text'
         ),
-        'first_name' => array(
+        'FirstName' => array(
             'label' => 'First name',
             'type' => 'text'
         ),
-        'username' => array(
+        'Username' => array(
             'label' => 'Username',
             'type' => 'text',
             'width' => 100
         ),
-        'email' => array(
+        'Email' => array(
             'label' => 'Email',
             'width' => '140',
             'type' => 'text'
         ),
-        'activate' => array(
+        'Activate' => array(
             'label' => 'Active',
             'width' => '35',
             'type' => 'imagemap',
@@ -46,7 +46,7 @@ class usersAdminList extends windowList {
                 '1' => 'admin/images/icons/accept.png'
             )
         ),
-        'groups',
+        'Groups',
     );
 
     function filterSql(){

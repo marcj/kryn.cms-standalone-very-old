@@ -60,5 +60,6 @@
         <column name="lastlogin" type="INTEGER" required="false"/>
         <column name="activate" type="BOOLEAN" required="false"/>
         <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
+
     </table>
 </database>

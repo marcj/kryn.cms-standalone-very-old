@@ -195,6 +195,9 @@ class propelHelper {
         }
 
         $sql = self::getSqlDiff();
+        if (is_array($sql)){
+            throw new Exception("Propel generateClasses failed: \n". $sql[0]);
+        }
 
         if (!$sql){
             return "\nSchema up 2 date.\n";
@@ -222,7 +225,8 @@ class propelHelper {
         $files = find('propel/build/migrations/PropelMigration_*.php');
         if ($files[0]) unlink($files[0]);
 
-        self::execute('diff');
+        $content = self::execute('diff');
+        if (is_array($content)) return $content;
 
         $files = find('propel/build/migrations/PropelMigration_*.php');
         $lastMigrationFile = $files[0];
@@ -277,7 +281,7 @@ class propelHelper {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = PATH_MODULE.$extension.'/mdoel.xml')){
+            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
 
                 $tables = simplexml_load_file ($schema);
 

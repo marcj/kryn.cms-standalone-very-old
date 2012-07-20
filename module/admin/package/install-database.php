@@ -173,7 +173,7 @@ $domain->save();
 dbExec("SET NAMES 'utf8'");
 
 dbDelete('system_langs');
-$h = fopen(PATH_MODULE . 'admin/ISO_639-1_codes.csv', 'r');
+$h = fopen(PATH_MODULE . 'admin/package/ISO_639-1_codes.csv', 'r');
 if ($h) {
     while (($data = fgetcsv($h, 1000, ",")) !== FALSE) {
         dbInsert('system_langs', array('code' => $data[0], 'title' => $data[1], 'langtitle' => $data[2]));
