@@ -428,7 +428,7 @@
       "title": "[[Users]]",
       "class": "usersAdminList",
       "type": "combine",
-      "icon": "#icon-user-3",
+      "icon": "#icon-user-6",
       "isLink": true,
       "multi": false,
       "minWidth": 850,

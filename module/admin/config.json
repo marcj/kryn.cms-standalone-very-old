@@ -365,7 +365,7 @@
     "overview": {
       "title": "[[Dashboard]]",
       "type": "custom",
-      "icon": "#icon-home-3",
+      "icon": "#icon-home-5",
       "isLink": true,
       "multi": true,
       "childs": [

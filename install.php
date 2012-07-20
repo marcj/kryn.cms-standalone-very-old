@@ -41,6 +41,7 @@ if( $_REQUEST['step'] == 'checkDb' )
     checkDb();
 
 if( $_REQUEST['step'] == '5' ){
+    $modules = array('admin', 'users');
     step5Init();
 }
 
@@ -577,16 +578,19 @@ function step5Done($pMsg){
             $dir = opendir( PATH_MODULE );
             if(! $dir ) return;
             while (($file = readdir($dir)) !== false){
-                if( $file != '..' && $file != '.' && $file != '.svn' && $file != 'admin' ){
-                    $modules[] = $file;
+                if( $file != '..' && $file != '.' && $file != '.svn' && $file != 'admin' && $file != 'users' ){
+                    if ($_POST['modules'][$file])
+                        $modules[] = $file;
                 }
             }
-            $modules[] = "admin"; //because the install() of admin should be called as latest
 
             $cfg['activeExtensions'] = $modules;
+            array_shift($cfg['activeExtensions']);//admin
+            array_shift($cfg['activeExtensions']);//users
             file_put_contents('config.php', "<?php\n\$cfg = ".var_export($cfg, true).";\n?>");
         } else {
-            $modules = $cfg['activeExtensions'];
+            if ($cfg['activeExtensions'])
+                $modules = array_merge($modules, $cfg['activeExtensions']);
         }
 
         Core\Kryn::$config = $cfg;

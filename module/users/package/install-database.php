@@ -35,7 +35,7 @@ $admin->addGroup($groupAdmin);
 
 
 $settings = serialize(array(
-    'userBg' => '/admin/images/userBgs/defaultImages/2.jpg',
+    'userBg' => '/admin/images/userBgs/defaultImages/color-blue.jpg',
     'adminLanguage' => 'en'
 ));
 

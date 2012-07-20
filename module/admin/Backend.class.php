@@ -125,13 +125,15 @@ class Backend extends \RestServerController {
         }
 
         if ($loadKeys == false || in_array('groups', $loadKeys))
-            $res['groups'] = dbTableFetch('system_groups', DB_FETCH_ALL);
+            $res['groups'] = dbTableFetch('system_group', DB_FETCH_ALL);
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
             $res['user'] = Kryn::$adminClient->getSession()->getUser()->getSettings();
             if (!$res['user'])
                 $res['user'] = array();
+            if (!is_array($res['user']))
+                $res['user'] = unserialize($res['user']);
         }
 
 
