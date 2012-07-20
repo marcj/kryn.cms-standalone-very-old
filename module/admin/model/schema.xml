@@ -23,6 +23,7 @@
         <index>
             <index-column name="target_type"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_page_content" phpName="PageContent" idMethod="native">
@@ -74,6 +75,7 @@
             <parameter name="use_scope" value="true" />
             <parameter name="scope_column" value="sortable_id" />
         </behavior>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_domain" phpName="Domain" idMethod="native">
@@ -112,6 +114,7 @@
         <index>
             <index-column name="startpage_id"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_files" phpName="Files" idMethod="native">
@@ -124,6 +127,7 @@
         <index>
             <index-column name="path"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_files_log" phpName="FilesLog" idMethod="native">
@@ -136,6 +140,7 @@
         <index>
             <index-column name="path"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_files_versions" phpName="FilesVersions" idMethod="native">
@@ -148,6 +153,7 @@
         <index>
             <index-column name="path"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_frameworkversion" phpName="Frameworkversion" idMethod="native">
@@ -160,6 +166,7 @@
         <index>
             <index-column name="code"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_fs" phpName="Fs" idMethod="native">
@@ -167,6 +174,7 @@
         <column name="name" type="VARCHAR" size="128" required="false"/>
         <column name="fs_class" type="VARCHAR" size="64" required="false"/>
         <column name="fs_params" type="LONGVARCHAR" required="false"/>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_langs" phpName="Langs" idMethod="native">
@@ -181,6 +189,8 @@
         <index>
             <index-column name="visible"/>
         </index>
+
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_lock" phpName="Lock" idMethod="native">
@@ -198,6 +208,7 @@
         <index>
             <index-column name="type"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_log" phpName="Log" idMethod="native">
@@ -210,6 +221,7 @@
         <index>
             <index-column name="code"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
 
@@ -279,6 +291,7 @@
             <reference local="parent_id" foreign="id" />
         </foreign-key>
 
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
 
@@ -291,6 +304,7 @@
         <column name="page_id" type="INTEGER" required="false"/>
         <column name="domain_id" type="INTEGER" primaryKey="true" required="true"/>
         <column name="page_content" type="LONGVARCHAR" required="false"/>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_search_stats" phpName="SearchStats" idMethod="native">
@@ -300,6 +314,7 @@
         <index>
             <index-column name="searchcount"/>
         </index>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
 
@@ -317,5 +332,6 @@
         <foreign-key foreignTable="system_page">
             <reference local="to_page_id" foreign="id"/>
         </foreign-key>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 </database>

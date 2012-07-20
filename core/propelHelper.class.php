@@ -386,6 +386,7 @@ propel.database.url = '.$dsn.'
 propel.database.user = '.Core\Kryn::$config['db_user'].'
 propel.database.password = '.Core\Kryn::$config['db_passwd'].'
 propel.tablePrefix = '.Core\Kryn::$config['db_prefix'].'
+propel.database.encoding = utf8
 propel.project = kryn';
 
         return file_put_contents('propel/build.properties', $properties)?true:false;
@@ -413,7 +414,7 @@ propel.project = kryn';
                     <user>'.Core\Kryn::$config['db_user'].'</user>
                     <password>'.Core\Kryn::$config['db_passwd'].'</password>
                     <options>
-                        <option id="ATTR_PERSISTENT">true</option>
+                        <option id="ATTR_PERSISTENT">false</option>
                     </options>';
 
         if (Core\Kryn::$config['db_type'] == 'mysql'){

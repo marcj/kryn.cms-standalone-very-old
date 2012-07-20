@@ -17,6 +17,7 @@
             <reference local="user_id" foreign="id"/>
         </foreign-key>
 
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
 
@@ -29,6 +30,7 @@
         <foreign-key foreignTable="system_group">
             <reference local="group_id" foreign="id"/>
         </foreign-key>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
     <table name="system_group" phpName="Group" idMethod="native">
@@ -36,6 +38,7 @@
         <column name="close" type="INTEGER" required="false"/>
         <column name="name" type="VARCHAR" size="255" required="false"/>
         <column name="description" type="LONGVARCHAR" required="false"/>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
 
@@ -56,5 +59,6 @@
         <column name="logins" type="INTEGER" required="false"/>
         <column name="lastlogin" type="INTEGER" required="false"/>
         <column name="activate" type="BOOLEAN" required="false"/>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 </database>

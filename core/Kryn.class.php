@@ -600,7 +600,7 @@ class Kryn {
 
         $md5 = '';
         foreach (Kryn::$extensions as $extension) {
-            $path = ($extension == 'kryn') ? 'inc/Kryn/config.json' : PATH_MODULE . '' . $extension . '/config.json';
+            $path = ($extension == 'kryn') ? 'core/config.json' : PATH_MODULE . '' . $extension . '/config.json';
             if (file_exists($path)) {
                 $md5 .= '.' . filemtime($path);
             }
@@ -609,11 +609,11 @@ class Kryn {
         $md5 = md5($md5);
 
         //Kryn::$tables =& Kryn::getCache('systemTablesv2');
-        Kryn::$themes =& Kryn::getCache('systemThemes');
-        Kryn::$objects =& Kryn::getCache('systemObjects');
+        Kryn::$themes =& Kryn::getFastCache('systemThemes');
+        Kryn::$objects =& Kryn::getFastCache('systemObjects');
 
         //check if we need to load all config objects and do the extendConfig part
-        if (!Kryn::$tables || $md5 != Kryn::$tables['__md5'] ||
+        if (/*!Kryn::$tables || $md5 != Kryn::$tables['__md5'] ||*/
             !Kryn::$themes || $md5 != Kryn::$themes['__md5'] ||
             !Kryn::$objects || $md5 != Kryn::$objects['__md5']
             ) {
@@ -657,7 +657,7 @@ class Kryn {
                 }
 
             }
-            Kryn::setCache('systemObjects', Kryn::$objects);
+            Kryn::setFastCache('systemObjects', Kryn::$objects);
         }
         unset(Kryn::$objects['__md5']);
 
@@ -715,7 +715,7 @@ class Kryn {
                 if ($config['themes'])
                     Kryn::$themes[$extension] = $config['themes'];
             }
-            Kryn::setCache('systemThemes', Kryn::$themes);
+            Kryn::setFastCache('systemThemes', Kryn::$themes);
         }
         unset(Kryn::$themes['__md5']);
 
@@ -965,7 +965,7 @@ class Kryn {
      */
     public static function replacePageIds(&$pContent) {
         $pContent = preg_replace_callback(
-            '/href="(\d*)"/',
+            '/href="(\d+)"/',
             create_function(
                 '$pP',
                 '

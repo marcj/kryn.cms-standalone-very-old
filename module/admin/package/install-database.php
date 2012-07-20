@@ -32,8 +32,6 @@ $domain->setMaster(1);
 $domain->setLang('en');
 $domain->setResourcecompression(1);
 $domain->setSearchIndexKey(md5($_SERVER['SERVER_NAME'].'-'.@time().'-'.rand()));
-$domainThemeProperties = new Core\Properties('{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"5","search_page":"12","footer_navi":"13"}}}');
-$domain->setThemeProperties($domainThemeProperties);
 $domain->save();
 
 $root = new Page();
@@ -98,6 +96,36 @@ $pages = array(
         )
     ),
 
+    array(2, 'Footer Navigation', '', '', '',
+        array(),
+        array(
+            array(0, 'Sitemap', $defaultLayout, 'sitemap', '', array(
+                '1' => array(
+                    array('plugin', 'Sitemap', $defaultContentTemplate, 'todo')
+                )
+            )),
+            array(0, 'Contact', $defaultLayout, 'contact', '', array(
+                '1' => array(
+                    array('plugin', 'Contact form', $defaultContentTemplate, 'todo')
+                )
+            )),
+            array(0, 'Impress', $defaultLayout, 'impress', '', array(
+                '1' => array(
+                    array('text', 'Impress', $defaultContentTemplate, 'Owner: <b>Name</b><br/>Street, Nr<br/>Country<br/>')
+                )
+            )),
+        )
+    ),
+
+    array(3, 'Footer text', '', '', '',
+        array(
+            '1' => array(
+                array('text', '', $defaultContentTemplate, '<p>&copy; my page | <a href="http://www.kryn.org/">CMS</a> powered by Kryn.cms - simply different</p>')
+            )
+        ),
+        array()
+    ),
+
 );
 
 /*
@@ -141,6 +169,8 @@ foreach ($pages as $page){
 $startPage = PageQuery::create()->filterByDomainId($domain->getId())->findOneByLft(2);
 $domain->setStartpageId($startPage->getId());
 $domain->save();
+
+dbExec("SET NAMES 'utf8'");
 
 dbDelete('system_langs');
 $h = fopen(PATH_MODULE . 'admin/ISO_639-1_codes.csv', 'r');
@@ -236,3 +266,12 @@ function installPageContents($pPage, $pBoxedContents){
     }
 
 }
+
+
+//search footer id
+$footerNavi = PageQuery::create()->findOneByTitle('Footer Navigation');
+$footerText = PageQuery::create()->findOneByTitle('Footer text');
+
+$domainThemeProperties = new Core\Properties('{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"'.$footerText->getId().'","search_page":"12","footer_navi":"'.$footerNavi->getId().'"}}}');
+$domain->setThemeProperties($domainThemeProperties);
+$domain->save();

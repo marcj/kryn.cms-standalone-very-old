@@ -481,7 +481,7 @@ function step5Done($pMsg){
             propelHelper::writeBuildPorperties();
             propelHelper::writeSchema();
         } catch (Exception $e){
-            step5Failed($e);
+            step5Failed($e->getMessage());
         }
         step5Done(true);
     }
@@ -493,7 +493,7 @@ function step5Done($pMsg){
         try {
             $res = propelHelper::generateClasses();
         } catch (Exception $e){
-            step5Failed($e);
+            step5Failed($e->getMessage());
         }
         step5Done($res);
     }
@@ -504,7 +504,7 @@ function step5Done($pMsg){
         try {
             $res = propelHelper::generatePropelPhpConfig();
         } catch (Exception $e){
-            step5Failed($e);
+            step5Failed($e->getMessage());
         }
         step5Done($res);
     }
@@ -515,7 +515,7 @@ function step5Done($pMsg){
         try {
             $res = propelHelper::updateSchema();
         } catch (Exception $e){
-            step5Failed($e);
+            step5Failed($e->getMessage());
         }
         step5Done($res);
     }
@@ -574,7 +574,8 @@ function step5Done($pMsg){
         $subStep = $_GET['substep']+0;
         require( 'config.php' );
 
-        if ($subStep == 0){
+        if ($subStep == 0 && !$cfg['activeExtensions']){
+
             $dir = opendir( PATH_MODULE );
             if(! $dir ) return;
             while (($file = readdir($dir)) !== false){
@@ -687,7 +688,7 @@ function step5(){
             var currentStep = 0;
             var handleNextStep;
 
-            document.id('progressBarIn').set('tween', {duration: 300});
+            document.id('progressBarIn').set('tween', {duration: 250});
 
             handleNextStep = function(){
                 currentStep++;
@@ -717,7 +718,7 @@ function step5(){
                                 document.id('progress').setStyle('display', 'none');
                                 document.id('installDone').setStyle('display', 'block');
                             } else {
-                                handleNextStep.delay(500);
+                                handleNextStep.delay(250);
                             }
                         }
                     },

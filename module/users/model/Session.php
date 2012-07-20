@@ -51,7 +51,8 @@ class Session extends BaseSession {
      * @return User
      */
     public function getUser(){
-        if ($this->getUserId() === null){
+        $user = parent::getUser();
+        if (!$user){
 
             if (!$this->user_guest){
                 $this->user_guest = new User();
@@ -60,7 +61,8 @@ class Session extends BaseSession {
 
             return $this->user_guest;
         }
-        return parent::getUser();
+
+        return $user;
     }
 
 } // Session

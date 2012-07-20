@@ -362,7 +362,7 @@ class Render {
         $start = microtime(true);
         if ($pPageId == Kryn::$page->getId()) {
             //endless loop
-            die(t('You produced a endless loop. Please check your latest changed pages.'));
+            return 'You produced a endless loop. Please check your latest changed pages.';
         }
 
         if (!$pPageId) {
@@ -391,7 +391,7 @@ class Render {
         Kryn::$contents =& self::getPageContents($pPageId);
 
         if (Kryn::$page->getType() == 3) { //deposit
-            Kryn::$page->setLayout('Kryn/blankLayout.tpl');
+            Kryn::$page->setLayout('core/blankLayout.tpl');
         }
 
         if ($pSlotId) {

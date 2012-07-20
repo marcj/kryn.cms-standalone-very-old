@@ -50,6 +50,7 @@ class Page extends BasePage {
             $this->collNestedGetLinks = PageQuery::create()
                 ->childrenOf($this)
                 ->filterByVisible(1)
+                ->filterByType(array(0,1))
                 ->orderByBranch()
                 ->find();
         }
@@ -83,7 +84,7 @@ class Page extends BasePage {
             $ancestors = $this->getAncestors();
             foreach ($ancestors as $parent){
 
-                if ($parent->getType() !== null){ //exclude root node
+                if ($parent->getType() !== null && $parent->getType() < 2){ //exclude root node
                     $this->parents_cached[] = $parent;
                 }
 
@@ -170,12 +171,15 @@ class Page extends BasePage {
         $url = \Core\Kryn::$page->getFullUrl();
         $purl = $this->getFullUrl();
 
-        $pos = strpos( $url, $purl );
-        if( $url == '/' || $pos != 0  || $pos === false){
-            return false;
-        } else {
-            return true;
+        if ($url && $purl){
+            $pos = strpos( $url, $purl );
+            if( $url == '/' || $pos != 0  || $pos === false){
+                return false;
+            } else {
+                return true;
+            }
         }
+        return false;
     }
 
 
