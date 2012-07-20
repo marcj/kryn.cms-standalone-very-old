@@ -38,7 +38,7 @@
 </head>
 <body>
 <div id="error">
-    <img src="media/lryn/images/logo_white.png" />
+    <img src="media/kryn/images/logo_white.png" />
     <h2>{$title}</h2>
     <div class="msg">{$msg}
     </div>
