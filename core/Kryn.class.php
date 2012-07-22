@@ -391,7 +391,7 @@ class Kryn {
     /**
      * Contains the Kryn\Cache object
      *
-     * @var Kryn\Cache
+     * @var Cache
      * @static
      */
     public static $cache;
@@ -401,7 +401,7 @@ class Kryn {
      * See Kryn::setFastCache for more informations.
      *
      * @static
-     * @var Kryn\Cache
+     * @var Cache
      */
     public static $cacheFast;
 
@@ -2214,7 +2214,7 @@ class Kryn {
 
 
         if (!Kryn::$page->getLayout()) {
-            Kryn::$pageHtml = t("Error: No layout chosen for this page.");
+            Kryn::$pageHtml = self::internalError(t('No layout'), tf('No layout chosen for the page %s.', Kryn::$page->getTitle()));
         } else {
             Kryn::$pageHtml = Render::renderPageContents();
         }

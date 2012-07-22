@@ -564,6 +564,11 @@ function step5Done($pMsg){
     function step5_9(){
 
         propelHelper::cleanup();
+
+        //load all configs
+        \Core\Kryn::loadConfigs();
+
+        admin::clearCache();
         step5Done(true);
     }
 
