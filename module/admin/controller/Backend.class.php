@@ -19,6 +19,23 @@ class Backend extends \RestServerController {
     }
 
 
+    public static function saveUserSettings() {
+
+        $settings = json_decode(getArgv('settings'), true);
+
+        if (!$settings) return false;
+
+        $settings = serialize($settings);
+
+        $user = Kryn::$adminClient->getUser();
+
+        $user->setSettings($settings);
+        $user->save();
+
+        return true;
+    }
+
+
     public function getCustomJs() {
 
         $module = getArgv('module', 2);

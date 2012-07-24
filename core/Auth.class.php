@@ -194,15 +194,32 @@ class Auth {
     }
 
     /**
+     * Returns the user from current session.
+     *
+     * @return \User
+     */
+    public function getUser(){
+        return $this->getSession()->getUser();
+    }
+
+    /**
      * Auth against the internal user table.
+     *
+     * @param $pLogin
+     * @param $pPassword
+     * @return bool
      */
     protected function internalLogin($pLogin, $pPassword) {
         $state = $this->checkCredentialsDatabase($pLogin, $pPassword);
         return $state;
     }
 
+
     /**
-     * Do the authentication against the defined backend and return the new user if login was sucessful
+     * Do the authentication against the defined backend and return the new user if login was successful
+     * @param $pLogin
+     * @param $pPassword
+     * @return bool
      */
     public function &login($pLogin, $pPassword) {
 
@@ -223,6 +240,8 @@ class Auth {
 
     /**
      * Checks whether a valid logins exists in our system_user database.
+     * @param $pLogin
+     * @return \User
      */
     public function &getOrCreateUser($pLogin) {
 

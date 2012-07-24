@@ -11,6 +11,8 @@
  *
  */
 
+use \Core\Kryn;
+
 class admin extends RestServerController {
 
 
@@ -45,19 +47,20 @@ class admin extends RestServerController {
 
             RestServer::create('admin', $this)
 
-                ->addRoute('loadCss/style.css', 'loadCss')
-                ->addRoute('ui/possibleLangs', 'getPossibleLangs')
-                ->addRoute('ui/languagePluralForm', 'getLanguagePluralForm', array('lang'))
-                ->addRoute('ui/language', 'getLanguage', array('lang'))
+                ->addRoute('get:loadCss/style.css', 'loadCss')
+                ->addRoute('get:ui/possibleLangs', 'getPossibleLangs')
+                ->addRoute('get:ui/languagePluralForm', 'getLanguagePluralForm', array('lang'))
+                ->addRoute('get:ui/language', 'getLanguage', array('lang'))
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
-                    ->addRoute('loadJs/script.js', 'loadJs')
-                    ->addRoute('settings', 'getSettings')
-                    ->addRoute('desktop', 'getDesktop')
-                    ->addRoute('widgets', 'getDesktop')
-                    ->addRoute('menus', 'getMenus')
-                    ->addRoute('customJs', 'getCustomJs')
+                    ->addRoute('get:loadJs/script.js', 'loadJs')
+                    ->addRoute('get:settings', 'getSettings')
+                    ->addRoute('get:desktop', 'getDesktop')
+                    ->addRoute('get:widgets', 'getDesktop')
+                    ->addRoute('get:menus', 'getMenus')
+                    ->addRoute('get:customJs', 'getCustomJs')
+                    ->addRoute('post:userSettings', 'saveUserSettings')
                 ->done()
 
 
@@ -81,6 +84,7 @@ class admin extends RestServerController {
                         ->addRoute('get:install/database', 'installDatabase', array('name'))
                         ->addRoute('get:install/post', 'installPost', array('name'))
                         ->addRoute('get:check4updates', 'check4updates')
+                        ->addRoute('get:local', 'getLocal')
                     ->done()
                 ->done()
 
@@ -972,7 +976,7 @@ class admin extends RestServerController {
         exit;
     }
 
-    public function getLanguagePluralForm($method, $pLang){
+    public function getLanguagePluralForm($pLang){
 
         $lang = esc($pLang, 2);
         header('Content-Type: text/javascript');
@@ -981,7 +985,7 @@ class admin extends RestServerController {
         exit;
     }
 
-    public function getLanguage($method, $pLang) {
+    public function getLanguage($pLang) {
 
         $lang = esc($pLang, 2);
 
@@ -1025,20 +1029,6 @@ class admin extends RestServerController {
         $res = Core\Kryn::readFolder(PATH_MEDIA.'admin/images/userBgs/defaultImages', true);
 
         json($res);
-    }
-
-    public static function saveUserSettings() {
-
-        $settings = json_decode(getArgv('settings'), true);
-
-        if ($settings['adminLanguage'] == '')
-            $settings['adminLanguage'] =Core\Kryn:: $adminClient->user['settings']['adminLanguage'];
-
-        $settings = serialize($settings);
-        dbUpdate('system_user', array('id' => Core\Kryn::$adminClient->id), array('settings' => $settings));
-        Core\Kryn::$adminClient->getUser(Core\Kryn::$adminClient->id, true); //reload from cache
-
-        json(1);
     }
 
 

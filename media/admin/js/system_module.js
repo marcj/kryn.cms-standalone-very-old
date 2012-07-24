@@ -165,7 +165,7 @@ var admin_system_module = new Class({
 
             this.tableInstalled.setValues(values);
             this.loader.hide();
-        }.bind(this)}).post();
+        }.bind(this)}).get();
     },
 
 
@@ -175,10 +175,10 @@ var admin_system_module = new Class({
         }
         this.loader.show();
 
-        this.lc = new Request.JSON({url: _path + 'admin/system/module/loadLocal', noCache: 1, onComplete: function (res) {
+        this.lc = new Request.JSON({url: _path + 'admin/system/module/manager/local', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-            this.renderLocal(res);
-        }.bind(this)}).post();
+            this.renderLocal(res.data);
+        }.bind(this)}).get();
     },
 
     renderLocal: function (pMods) {
@@ -223,8 +223,8 @@ var admin_system_module = new Class({
                 [_('Activated'), 50],
                 [_('Version'), 50],
                 [_('Server v.'), 50],
-                [_('Status'), 100],
-                [_('Action'), 250]
+                [_('Status'), 130],
+                [_('Action'), 350]
             ], {absolute: false}).inject(tableMyDiv);
         }
 
@@ -238,8 +238,8 @@ var admin_system_module = new Class({
             [_('Activated'), 50],
             [_('Version'), 50],
             [_('Server v.'), 50],
-            [_('Status'), 100],
-            [_('Action'), 250]
+            [_('Status'), 130],
+            [_('Action'), 350]
         ], {absolute: false}).inject(tableLocalDiv);
 
         var lang = ka.settings['user']['adminLanguage'];
@@ -463,7 +463,7 @@ var admin_system_module = new Class({
                     this.viewPath();
                 }.bind(this)).inject(this.mainPane);
             }
-        }.bind(this)}).post({q: q});
+        }.bind(this)}).get({q: q});
 
     },
 
@@ -491,7 +491,7 @@ var admin_system_module = new Class({
                 }.bind(this));
             }
 
-        }.bind(this)}).post({category: pId, lang: window._session.lang});
+        }.bind(this)}).get({category: pId, lang: window._session.lang});
 
     },
 
@@ -574,7 +574,7 @@ var admin_system_module = new Class({
                         content.set('html', res.html);
                     }
                 }
-            }.bind(this)}).post({code: opts.code});
+            }.bind(this)}).get({code: opts.code});
 
         }.bind(this));
 

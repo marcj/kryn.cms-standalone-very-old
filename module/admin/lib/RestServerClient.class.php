@@ -21,6 +21,14 @@ class RestServerClient {
         'xml' => 'asXML'
     );
 
+
+    /**
+     * List of possible methods.
+     * @var array
+     */
+    public $methods = array('get', 'post', 'put', 'delete');
+
+
     /**
      * @var RestServerController
      *
@@ -56,6 +64,30 @@ class RestServerClient {
         $method = $this->outputFormats[$this->outputFormat];
         $this->$method($pMessage)."\n";
         exit;
+
+    }
+
+
+    /**
+     * Detect the method.
+     *
+     * @return string
+     */
+    public function getMethod(){
+
+        $method = $_SERVER['REQUEST_METHOD'];
+        if ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])
+            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+
+        if ($_GET['method'])
+            $method = $_GET['method'];
+
+        $method = strtolower($method);
+
+        if (!in_array($method, $this->methods))
+            $method = 'get';
+
+        return $method;
 
     }
 

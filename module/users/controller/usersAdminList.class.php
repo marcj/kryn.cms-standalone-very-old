@@ -15,7 +15,7 @@ class usersAdminList extends adminWindowList {
 
     public $primary = array('id');
     
-    public $itemLayout = '<b id="username"></b> (<span id="first_name"></span> <span id="last_name"></span>)<br/><span style="color: silver;" id="groups_name"></span>';
+    public $itemLayout = '<b id="Username"></b> (<span id="FirstName"></span> <span id="LastName"></span>)<br/><span style="color: silver;" id="GroupsName"></span>';
 
     public $columns = array(
         'LastName' => array(

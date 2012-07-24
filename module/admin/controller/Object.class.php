@@ -4,11 +4,6 @@ namespace Admin;
 
 class Object extends  \RestServerController {
 
-    public function getItem($pObject){
-
-        var_dump('ho'); exit;
-    }
-
     /**
      * @param $pObject
      * @return Object
@@ -23,7 +18,19 @@ class Object extends  \RestServerController {
         return $clazz::create();
     }
 
-    public function getItems($pObject, $pFields = null){
+
+
+    public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null, $pOrder = null){
+
+
+        $options = array(
+            'fields' => $pFields,
+            'limit'  => $pLimit,
+            'offset' => $pOffset,
+            'order'  => $pOrder
+        );
+
+        return \Core\Object::getList($pObject, null, $options);
 
         $query = $this->getQueryClass($pObject);
 
@@ -35,7 +42,7 @@ class Object extends  \RestServerController {
 
         $items = \UserQuery::create()
             ->leftJoinUserGroup()
-            ->addJoin(\UserGroupPeer::GROUP_ID, \GroupPeer::ID)
+            ->addJoin(\UserGroupPeer::GROUP_ID, \GroupPeer::ID, \Criteria::LEFT_JOIN)
 
             //mysql
             //->withColumn('group_concat('.\GroupPeer::NAME.')', 'groups')
@@ -45,7 +52,7 @@ class Object extends  \RestServerController {
 
             ->select(array('Id', 'Username', 'groups'))
             ->groupBy('Id')
-            ->find();
+            ->findOne();
 //        select(
 //            array('Id', 'Username', 'group_concat(UserGroup.UserId) AS bla')
 //        )

@@ -46,13 +46,6 @@ class RestServer extends RestServerController {
      */
     private $triggerUrl = '';
 
-    /**
-     * List of possible methods.
-     * @var array
-     */
-    public $methods = array('get', 'post', 'put', 'delete');
-
-
 
     /**
      * Contains the controller object.
@@ -98,6 +91,13 @@ class RestServer extends RestServerController {
      * @var string
      */
     private $url;
+
+
+    /**
+     * List of possible methods.
+     * @var array
+     */
+    public $methods = array('get', 'post', 'put', 'delete');
 
 
     /**
@@ -389,7 +389,7 @@ class RestServer extends RestServerController {
         $arguments = array();
 
         //add method
-        $arguments[] = $this->getMethod();
+        $arguments[] = $this->getClient()->getMethod();
 
         //does the requested uri exist?
         if (!list($route, $regexArguments, $trigger) = $this->findRoute($uri)){
@@ -438,29 +438,6 @@ class RestServer extends RestServerController {
     }
 
     /**
-     * Detect the method.
-     *
-     * @return string
-     */
-    public function getMethod(){
-
-        $method = $_SERVER['REQUEST_METHOD'];
-        if ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])
-            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
-
-        if ($_GET['method'])
-            $method = $_GET['method'];
-
-        $method = strtolower($method);
-
-        if (!in_array($method, $this->methods))
-            $method = 'get';
-
-        return $method;
-
-    }
-
-    /**
      * Find and return the route for $pUri.
      *
      * @param string $pUri
@@ -473,8 +450,7 @@ class RestServer extends RestServerController {
         $methods[] = '';
         $arguments = array();
 
-        foreach ($this->methods as $method)
-            $methods[] = $method.':';
+        $methods[] = $this->getClient()->getMethod().':';
 
         foreach ($methods as $method){
 
@@ -483,7 +459,7 @@ class RestServer extends RestServerController {
 
                 //maybe we have a regex uri
                 foreach ($this->routes as $routeUri => $routeDef){
-                    if (preg_match('|'.$routeUri.'|', $uri, $matches)){
+                    if (preg_match('|^'.$routeUri.'$|', $uri, $matches)){
                         $def = $routeDef;
                         array_shift($matches);
                         foreach ($matches as $match){

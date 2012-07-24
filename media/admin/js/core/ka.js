@@ -263,7 +263,7 @@ ka.saveUserSettings = function () {
 
     ka.settings.user = new Hash(ka.settings.user);
 
-    ka.lastSaveUserSettings = new Request.JSON({url: _path + 'admin/backend/saveUserSettings', noCache: 1, onComplete: function (res) {
+    ka.lastSaveUserSettings = new Request.JSON({url: _path + 'admin/backend/userSettings', noCache: 1, onComplete: function (res) {
     }}).post({ settings: JSON.encode(ka.settings.user) });
 }
 
