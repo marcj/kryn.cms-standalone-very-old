@@ -56,11 +56,16 @@ class admin extends RestServerController {
                 ->addSubController('backend', '\Admin\Backend')
                     ->addRoute('get:loadJs/script.js', 'loadJs')
                     ->addRoute('get:settings', 'getSettings')
+
                     ->addRoute('get:desktop', 'getDesktop')
-                    ->addRoute('get:widgets', 'getDesktop')
+                    ->addRoute('post:desktop', 'saveDesktop', array('icons'))
+
+                    ->addRoute('get:widgets', 'getWidgets')
+                    ->addRoute('post:widgets', 'saveWidgets', array('widgets'))
+
                     ->addRoute('get:menus', 'getMenus')
                     ->addRoute('get:customJs', 'getCustomJs')
-                    ->addRoute('post:userSettings', 'saveUserSettings')
+                    ->addRoute('post:userSettings', 'saveUserSettings', array('settings'))
                 ->done()
 
 
@@ -85,6 +90,7 @@ class admin extends RestServerController {
                         ->addRoute('get:install/post', 'installPost', array('name'))
                         ->addRoute('get:check4updates', 'check4updates')
                         ->addRoute('get:local', 'getLocal')
+                        ->addRoute('get:installed', 'getInstalled')
                     ->done()
                 ->done()
 
@@ -164,10 +170,7 @@ class admin extends RestServerController {
                             return self::fixDb();
                         case 'saveDesktop':
                             self::saveDesktop(getArgv('icons'));
-                        case 'saveWidgets':
-                            self::saveWidgets(getArgv('widgets'));
-                        case 'getWidgets':
-                            self::getWidgets();
+
                         case 'getMenus':
                             return admin::getMenus();
                         case 'saveUserSettings':
@@ -1008,20 +1011,6 @@ class admin extends RestServerController {
         }
 
         exit;
-    }
-
-    public static function saveDesktop($pIcons) {
-
-        if (Core\Kryn::$adminClient->id > 0)
-            dbUpdate('system_user', array('id' => Core\Kryn::$adminClient->id), array('desktop' => $pIcons));
-        json(true);
-    }
-
-    public static function saveWidgets($pWidgets) {
-
-        if (Core\Kryn::$adminClient->id > 0)
-            dbUpdate('system_user', array('id' => Core\Kryn::$adminClient->id), array('widgets' => $pWidgets));
-        json(true);
     }
 
     public static function getDefaultImages() {

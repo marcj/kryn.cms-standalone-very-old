@@ -265,8 +265,8 @@
 
 .kwindow-win-titleBar {
     position: absolute;
-    top: 3px;
-    right: 4px;
+    top: 7px;
+    right: 3px;
     height: 16px;
 }
 
@@ -274,21 +274,17 @@
     margin-left: 4px;
     width: 16px;
     height: 16px;
+    float: left;
     background-repeat: no-repeat;
 }
 
-.kwindow-win-titleBarIcon-close {
-    background-image: url(../images/win-top-bar-close.png);
-    background-position: left top;
-    float: right;
+.kwindow-win-titleBarIcon:hover {
+    color: #eee;
 }
 
-.kwindow-win-titleBarIcon-close:hover {
-    background-position: left -16px;
-}
 
-.kwindow-win-titleBarIcon-close:active {
-    background-position: left -32px;
+.kwindow-win-titleBarIcon:active {
+    color: #ddd;
 }
 
 .ka-kwindow-prompt {

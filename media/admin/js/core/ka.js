@@ -224,7 +224,8 @@ ka.loadSettings = function (pOnlyThisKeys) {
         if (!ka.settings.user)
             ka.settings.user = {};
 
-        logger(ka.settings['user']);
+        if (typeOf(ka.settings.user) != 'object')
+            ka.settings.user = {};
 
         if (!ka.settings['user']['windows'])
             ka.settings['user']['windows'] = {};
@@ -280,7 +281,7 @@ ka.check4Updates = function () {
             ka.displayNewUpdates(res.modules);
         }
         ka.check4Updates.delay(10 * (60 * 1000));
-    }}).post();
+    }}).get();
 }
 
 ka.checkPageAccessHasCode = function (pCodes, pAction) {

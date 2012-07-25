@@ -56,6 +56,7 @@ class Session extends BaseSession {
 
             if (!$this->user_guest){
                 $this->user_guest = new User();
+                $this->user_guest->setId(0);
                 $this->user_guest->setUsername('Guest');
             }
 

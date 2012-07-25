@@ -8,10 +8,43 @@ class Manager extends \RestServerController {
 
     public function __construct(){
         define('KRYN_MANAGER', true);
+        if (!Kryn::$config['repoServer']) {
+            Kryn::$config['repoServer'] = 'http://download.kryn.org';
+        }
     }
 
     public function __destruct(){
         define('KRYN_MANAGER', false);
+    }
+
+    public static function getInstalled() {
+
+        foreach (Kryn::$extensions as $mod) {
+            $config = self::loadInfo($mod);
+            $res[$mod] = $config;
+            $res[$mod]['activated'] = (Kryn::$configs[$mod]) ? 1 : 0;
+            $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
+            $res[$mod]['serverCompare'] =
+                self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
+        }
+
+        return $res;
+    }
+
+
+    private static function versionCompareToServer($local, $server) {
+        list($major, $minor, $patch) = explode(".", $local);
+        $lversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
+
+        list($major, $minor, $patch) = explode(".", $server);
+        $sversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
+
+        if ($lversion == $sversion)
+            return '='; // Same version
+        else if ($lversion < $sversion)
+            return '<'; // Local older
+        else
+            return '>'; // Local newer
     }
 
     public function getLocal(){

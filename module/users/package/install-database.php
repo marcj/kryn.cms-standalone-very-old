@@ -2,6 +2,7 @@
 
 if (!defined('KRYN_MANAGER')) return false;
 
+SessionQuery::create()->deleteAll();
 UserGroupQuery::create()->deleteAll();
 UserQuery::create()->deleteAll();
 GroupQuery::create()->deleteAll();
@@ -38,7 +39,7 @@ $admin->setActivate(1);
 $admin->setPassword('admin');
 
 
-$settings = serialize(array(
+$settings = new \Core\Properties(array(
     'userBg' => '/admin/images/userBgs/defaultImages/color-blue.jpg',
     'adminLanguage' => 'en'
 ));

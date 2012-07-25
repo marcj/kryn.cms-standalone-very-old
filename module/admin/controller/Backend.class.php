@@ -10,29 +10,47 @@ class Backend extends \RestServerController {
 
     public static function getDesktop() {
 
-        return Kryn::$adminClient->getSession()->getUser()->getDesktop();
+        if ($desktop = Kryn::$adminClient->getUser()->getDesktop())
+            return $desktop->toArray();
+        else return false;
+    }
+
+    public static function saveDesktop($pIcons) {
+
+        $properties = new \Core\Properties($pIcons);
+        Kryn::$adminClient->getUser()->setDesktop($properties);
+        Kryn::$adminClient->getUser()->save();
+
+        return true;
     }
 
     public static function getWidgets() {
 
-        //return Kryn::$adminClient->getSession()->getUser()->getWidgets();
+        if ($widgets = Kryn::$adminClient->getUser()->getWidgets())
+            return $widgets->toArray();
+        else return false;
+
+    }
+
+    public static function saveWidgets($pWidgets) {
+
+        $properties = new \Core\Properties($pWidgets);
+        Kryn::$adminClient->getUser()->setWidgets($properties);
+        Kryn::$adminClient->getUser()->save();
+
+        return true;
     }
 
 
-    public static function saveUserSettings() {
+    public static function saveUserSettings($pSettings) {
 
-        $settings = json_decode(getArgv('settings'), true);
+        $properties = new \Core\Properties($pSettings);
 
-        if (!$settings) return false;
+        Kryn::$adminClient->getUser()->setSettings($properties);
+        Kryn::$adminClient->getUser()->save();
 
-        $settings = serialize($settings);
-
-        $user = Kryn::$adminClient->getUser();
-
-        $user->setSettings($settings);
-        $user->save();
-
-        return true;
+        return
+            Kryn::$adminClient->getUser()->getSettings();
     }
 
 
@@ -146,11 +164,11 @@ class Backend extends \RestServerController {
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
-            $res['user'] = Kryn::$adminClient->getSession()->getUser()->getSettings();
+            if ($settings = Kryn::$adminClient->getSession()->getUser()->getSettings())
+                $res['user'] = $settings->toArray();
+
             if (!$res['user'])
                 $res['user'] = array();
-            if (!is_array($res['user']))
-                $res['user'] = unserialize($res['user']);
         }
 
 
@@ -166,7 +184,6 @@ class Backend extends \RestServerController {
             $res['r2d'] =& Kryn::getCache("systemPages2Domain");
 
             if (!$res['r2d']){
-                require_once(PATH_MODULE.'admin/adminPages.class.php');
                 $res['r2d'] = adminPages::updatePage2DomainCache();
             }
 

@@ -15,8 +15,12 @@
  */
 class User extends BaseUser {
 
+    public function preSave(){
+        return $this->getId() !== 0;
+    }
+
     /**
-     * Converts $pPassword in a hash and save it.
+     * Converts $pPassword in a hash and set it.
      * If no salt is already generated, this generates one.
      *
      * @param string $pPassword plain password

@@ -50,8 +50,10 @@
         <column name="passwd_salt" type="VARCHAR" size="255" required="false"/>
         <column name="activationkey" type="VARCHAR" size="255" required="false"/>
         <column name="email" type="VARCHAR" size="255" required="false"/>
-        <column name="desktop" type="LONGVARCHAR" required="false"/>
-        <column name="settings" type="LONGVARCHAR" required="false"/>
+
+        <column name="desktop" type="OBJECT" required="false"/>
+        <column name="settings" type="OBJECT" required="false"/>
+        <column name="widgets" type="OBJECT" required="false"/>
 
         <column name="first_name" type="VARCHAR" size="255" required="false"/>
         <column name="last_name" type="VARCHAR" size="255" required="false"/>

@@ -623,7 +623,7 @@ ka.Window = new Class({
             this.borderDragger.attach();
 
             this.border.setStyles(this.oldDimension);
-            this.maximizer.set('src', _path + PATH_MEDIA + '/admin/images/win-top-bar-maximize.png');
+            this.maximizer.removeClass('icon-shrink');
             this.maximized = false;
             this.border.removeClass('kwindow-border-maximized');
 
@@ -642,7 +642,7 @@ ka.Window = new Class({
                 left: 0,
                 top: 0
             });
-            this.maximizer.set('src', _path + PATH_MEDIA + '/admin/images/win-top-bar-maximize-1.png');
+            this.maximizer.addClass('icon-shrink');
             this.maximized = true;
 
             if (this.resizeBottomRight)
@@ -1311,34 +1311,25 @@ ka.Window = new Class({
         }).inject(this.win);
 
         this.linker = new Element('a', {
-            'class': 'ka-kwindow-titleactions icon-link-3',
+            'class': 'ka-kwindow-titleactions icon-link-5',
             style: 'position: absolute; left: 2px; top: 6px; text-decoration: none;',
             href: 'javascript:;',
             title: t('Create a shortcut to the desktop')
         }).addEvent('click', this.dropLink.bind(this)).inject(this.win);
 
-        this.minimizer = new Element('img', {
-            'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
-            src: _path + PATH_MEDIA + '/admin/images/win-top-bar-minimize.png'
-        }).addEvent('click', this.minimize.bind(this)).inject(this.titleBar)
+//        this.minimizer = new Element('img', {
+//            'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
+//        }).addEvent('click', this.minimize.bind(this)).inject(this.titleBar)
 
-        this.maximizer = new Element('img', {
-            'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
-            src: _path + PATH_MEDIA + '/admin/images/win-top-bar-maximize.png'
+        this.maximizer = new Element('div', {
+            'class': 'kwindow-win-titleBarIcon icon-expand-2'
         }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
+        //icon-views
+        //icon-shrink
 
         this.closer = new Element('div', {
-            'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close ka-kwindow-titleactions'
+            'class': 'kwindow-win-titleBarIcon icon-cancel'
         }).addEvent('click', this.close.bind(this)).inject(this.titleBar);
-
-        this.titleBar.getElements('img').addEvents({
-            'mouseover': function () {
-                this.setStyle('opacity', 0.5);
-            },
-            'mouseout': function () {
-                this.setStyle('opacity', 1);
-            }
-        });
 
     },
 

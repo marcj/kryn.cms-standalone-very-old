@@ -17,7 +17,7 @@ ka.Desktop = new Class({
 
             if (this.icons) {
                 this.icons.each(function (icon) {
-                    icon.set('class', 'ka-desktop-icon');
+                    icon.removeClass('ka-desktop-icon-active');
                 });
             }
 
@@ -134,7 +134,7 @@ ka.Desktop = new Class({
         var name = prompt(_('Name:'), myitem.title);
         if (!name) return;
         myitem.title = name;
-        myitem.icon.getElement('div[class=ka-desktop-icon-title]').set('text', name);
+        myitem.icon.getElement('div.ka-desktop-icon-title').set('text', name);
         this.save();
     },
 
@@ -180,11 +180,11 @@ ka.Desktop = new Class({
 
         this.lastLoad = new Request.JSON({url: _path + 'admin/backend/desktop', noCache: 1, onComplete: function (pRes) {
             this.loadIcons(pRes.data);
-        }.bind(this)}).post();
+        }.bind(this)}).get();
 
         this.lastWLoad = new Request.JSON({url: _path + 'admin/backend/widgets', noCache: 1, onComplete: function (pRes) {
             this.loadWidgets(pRes.data);
-        }.bind(this)}).post();
+        }.bind(this)}).get();
     },
 
     loadWidgets: function (pWidgets) {
@@ -208,7 +208,7 @@ ka.Desktop = new Class({
             widgets.include(item.getValue());
         });
 
-        this.lastWSave = new Request.JSON({url: _path + 'admin/backend/saveWidgets', noCache: 1, onComplete: function () {
+        this.lastWSave = new Request.JSON({url: _path + 'admin/backend/widgets', noCache: 1, onComplete: function () {
 
         }}).post({widgets: JSON.encode(widgets)});
     },
@@ -233,7 +233,7 @@ ka.Desktop = new Class({
 
         var icons = JSON.encode(nIcons);
 
-        this.lastSave = new Request.JSON({url: _path + 'admin/backend/saveDesktop', noCache: 1, onComplete: function () {
+        this.lastSave = new Request.JSON({url: _path + 'admin/backend/desktop', noCache: 1, onComplete: function () {
 
         }}).post({icons: icons});
     },
@@ -245,10 +245,7 @@ ka.Desktop = new Class({
         pIcon.icon = 'admin/images/icon-default.png';
 
         var m = new Element('div', {
-            'class': 'ka-desktop-icon',
-            styles: {
-                'background-image': 'url(' + _path + PATH_MEDIA + '/' + pIcon.icon + ')'
-            }
+            'class': 'ka-desktop-icon icon-link-5'
         }).inject(this.container);
 
         m.addEvent('mousedown', function(e){
@@ -298,7 +295,7 @@ ka.Desktop = new Class({
 
         var count = 0;
         this._icons.each(function (item, id) {
-            if (item.icon && item.icon.get('class').search('-active') > 0) {
+            if (item.icon && item.icon.hasClass('ka-desktop-icon-active')) {
                 count++;
             }
         });
@@ -306,14 +303,14 @@ ka.Desktop = new Class({
 
         if (!pEvent.control && !pEvent.rightClick) {
             this.icons.each(function (icon) {
-                icon.set('class', 'ka-desktop-icon');
+                icon.removeClass('ka-desktop-icon-active');
             });
         }
 
-        if (!pEvent.rightClick && pElement.get('class').search('-active') > 0) {
-            pElement.set('class', 'ka-desktop-icon');
+        if (!pEvent.rightClick && pElement.hasClass('ka-desktop-icon-active')) {
+            pElement.removeClass('ka-desktop-icon-active');
         } else {
-            pElement.set('class', 'ka-desktop-icon ka-desktop-icon-active');
+            pElement.addClass('ka-desktop-icon-active');
         }
 
         if (pEvent.rightClick) {

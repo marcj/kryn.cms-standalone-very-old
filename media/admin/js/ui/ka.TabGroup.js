@@ -54,7 +54,7 @@ ka.TabGroup = new Class({
 
     },
 
-    addButton: function (pTitle, pButtonSrc, pOnClick) {
+    addButton: function (pTitle, pIcon, pOnClick) {
 
         var button = new Element('a', {
             'class': 'ka-tabGroup-item',
@@ -62,10 +62,15 @@ ka.TabGroup = new Class({
             text: pTitle
         }).inject(this.box);
 
-        if (pButtonSrc) {
-            new Element('img', {
-                src: pButtonSrc
-            }).inject(button, 'top');
+        if (typeOf(pIcon) == 'string'){
+            if (pIcon.substr(0,1) == '#'){
+                button.addClass(pIcon.substr(1));
+            } else {
+                new Element('img', {
+                    src: ka.mediaPath(pIcon),
+                    height: 14
+                }).inject(button, 'top');
+            }
         }
 
         this.setMethods(button, pOnClick);

@@ -8,9 +8,9 @@ var admin_system_module = new Class({
 
         this.tabButtons = {};
 
-        this.tabButtons['install'] = this.tabGroup.addButton(_('New extension'), _path + PATH_MEDIA + '/admin/images/icons/plugin_add.png', this.changeType.bind(this, 'install'));
-        this.tabButtons['installed'] = this.tabGroup.addButton(_('Installed'), _path + PATH_MEDIA + '/admin/images/icons/plugin.png', this.changeType.bind(this, 'installed'));
-        this.tabButtons['local'] = this.tabGroup.addButton(_('Development'), _path + PATH_MEDIA + '/admin/images/icons/plugin_go.png', this.changeType.bind(this, 'local'));
+        this.tabButtons['install'] = this.tabGroup.addButton(_('New extension'), '#icon-download-7', this.changeType.bind(this, 'install'));
+        this.tabButtons['installed'] = this.tabGroup.addButton(_('Installed'), '#icon-checkmark-2', this.changeType.bind(this, 'installed'));
+        this.tabButtons['local'] = this.tabGroup.addButton(_('Development'), '#icon-console', this.changeType.bind(this, 'local'));
 
         this.panes = {};
         this.panes['installed'] = new Element('div', {
@@ -103,7 +103,10 @@ var admin_system_module = new Class({
 
         var lang = ka.settings['user']['adminLanguage'];
 
-        this.llir = new Request.JSON({url: _path + 'admin/system/module/loadInstalled', noCache: 1, onComplete: function (res) {
+        this.llir = new Request.JSON({url: _path + 'admin/system/module/manager/installed', noCache: 1,
+        onComplete: function (pResult) {
+
+            var res = pResult.data;
 
             var values = [];
             Object.each(res, function (item, key) {
@@ -348,10 +351,7 @@ var admin_system_module = new Class({
             }
         }.bind(this)).inject(this.searchLeftPane);
 
-        this.searchBtn = new ka.Button(_('Search')).setStyles({
-            position: 'relative',
-            top: -1
-        }).addEvent('click', function () {
+        this.searchBtn = new ka.Button(_('Search')).addEvent('click', function () {
             if (this.searchInput.value == '') {
                 return this.searchInput.highlight();
             }
@@ -371,10 +371,7 @@ var admin_system_module = new Class({
         var _this = this;
         var chooserWin;
 
-        new ka.Button(_('Choose')).setStyles({
-            position: 'relative',
-            top: -1
-        }).addEvent('click',
+        new ka.Button(_('Choose')).addEvent('click',
             function () {
                 chooserWin = ka.wm.openWindow('admin', 'backend/chooser', null, -1, {onChoose: function (pValue) {
                     _this.directInput.value = pValue;
@@ -384,10 +381,7 @@ var admin_system_module = new Class({
                 });
             }).inject(this.searchPane);
 
-        this.directBtn = new ka.Button(_('Install')).setStyles({
-            position: 'relative',
-            top: -1
-        }).addEvent('click', function () {
+        this.directBtn = new ka.Button(_('Install')).addEvent('click', function () {
             if (this.directInput.value == '') {
                 return this.directInput.highlight();
             }

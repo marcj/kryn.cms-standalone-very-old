@@ -400,18 +400,19 @@ class RestServer extends RestServerController {
             }
 
         } else {
-            if (substr($trigger, 3, 1) == ':' && array_search(substr($trigger, 0, 3), $this->methods) !== false)
-                array_shift($arguments);
+            if ($pos = strpos($trigger, ':'))
+                if (array_search(substr($trigger, 0, $pos), $this->methods) !== false)
+                    array_shift($arguments);
             $arguments = array_merge($arguments, $regexArguments);
         }
 
         //map required arguments
         if (is_array($route[1])){
             foreach ($route[1] as $argument){
-                if ($_GET[$argument] === null)
+                if ($_REQUEST[$argument] === null)
                     $this->sendBadRequest('required_argument_not_found', "Argument '$argument' is missing.");
 
-                $arguments[] = $_GET[$argument];
+                $arguments[] = $_REQUEST[$argument];
             }
         }
 

@@ -1,23 +1,23 @@
 .ka-desktop-icon {
     position: absolute;
-    width: 90px;
+    max-width: 100px;
     height: 55px;
-    background-repeat: no-repeat;
-    background-position: center center;
-    margin: 15px;
-    margin-bottom: 30px;
     text-align: center;
 }
 
+.ka-desktop-icon:before {
+    color: white;
+    font-size: 36px;
+    padding-top: 5px;
+}
+
 .ka-desktop-icon-title {
-    position: absolute;
-    top: 50px;
-    width: 100%;
     padding: 2px;
     color: white;
     text-shadow: 0px 0px 2px black;
     font-size: 11px;
     cursor: default;
+    white-space: normal;
     font-weight: bold;
 }
 

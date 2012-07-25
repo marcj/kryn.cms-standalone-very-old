@@ -27,6 +27,15 @@ class Properties {
     }
 
     /**
+     * Returns the data as array.
+     *
+     * @return array
+     */
+    public function toArray(){
+        return $this->data;
+    }
+
+    /**
      * Gets the value of $pPath
      *
      * @param string $pPath slash delimited string
