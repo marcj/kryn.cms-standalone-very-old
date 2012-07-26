@@ -281,7 +281,7 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(_('Save'), this.saveDocu.bind(this));
 
         this.text = new ka.Field({
-            label: _('Documentation') + ' (' + this.languageSelect.value + ')', type: 'wysiwyg'}, p, {win: this.win});
+            label: t('Documentation') + ' (' + this.languageSelect.value + ')', type: 'wysiwyg'}, p, {win: this.win});
         this.text.setValue(_('Loading ...'));
 
         this.text.input.setStyle('height', '100%');
@@ -300,10 +300,11 @@ var admin_system_module_edit = new Class({
 
     loadWindows: function () {
         if (this.lr) this.lr.cancel();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getWindows', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/windows', noCache: 1,
+        onComplete: function (pResult) {
             this.loader.hide();
-            this._renderWindows(res);
-        }.bind(this)}).post({name: this.mod});
+            this._renderWindows(pResult.data);
+        }.bind(this)}).get({name: this.mod});
     },
 
 
@@ -453,7 +454,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: _('Delete form'),
+            title: t('Delete form'),
             style: 'cursor: pointer; position: relative; top: 3px;'
         }).addEvent('click', function () {
             //delete
@@ -470,10 +471,10 @@ var admin_system_module_edit = new Class({
      */
     loadDb: function () {
         if (this.lr) this.lr.cancel();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-            this._renderDb(res);
-        }.bind(this)}).post({name: this.mod});
+            this._renderDb(res.data);
+        }.bind(this)}).get({name: this.mod});
     },
 
     saveDb: function () {
@@ -566,7 +567,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: _('Delete table'),
+            title: t('Delete table'),
             style: 'cursor: pointer; position: relative; top: 3px;'
         }).addEvent('click', function () {
             this.win._confirm(_('Really delete?'), function (res) {
@@ -577,7 +578,7 @@ var admin_system_module_edit = new Class({
 
         var addBtn = new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add column'),
+            title: t('Add column'),
             style: 'cursor: pointer; position: relative; top: 3px;'
         }).inject(m);
 
@@ -775,7 +776,7 @@ var admin_system_module_edit = new Class({
         /* actions */
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: _('Delete column'),
+            title: t('Delete column'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
             this.win._confirm(t('Really delete'), function(ok){
@@ -786,7 +787,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/arrow_up.png',
-            title: _('Move up'),
+            title: t('Move up'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
             if (m.getPrevious()) {
@@ -796,7 +797,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/arrow_down.png',
-            title: _('Column down'),
+            title: t('Column down'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
             if (m.getNext()) {
@@ -869,26 +870,26 @@ var admin_system_module_edit = new Class({
             style: 'padding: 5px; border-bottom: 1px solid #ddd; margin: 5px;'
         }).inject(this.helpPane);
 
-        new Element('span', {html: _('Title'), style: 'padding-right: 3px;'}).inject(main);
+        new Element('span', {html: t('Title'), style: 'padding-right: 3px;'}).inject(main);
         new Element('input', {
             'class': 'text',
             style: 'width: 200px;',
             value: pItem.title
         }).inject(main);
 
-        new Element('span', {html: _('Tags'), style: 'padding: 0px 3px;'}).inject(main);
+        new Element('span', {html: t('Tags'), style: 'padding: 0px 3px;'}).inject(main);
         new Element('input', {
             'class': 'text',
             value: pItem.tags
         }).inject(main);
 
-        new Element('span', {html: _('ID'), style: 'padding: 0px 3px;'}).inject(main);
+        new Element('span', {html: t('ID'), style: 'padding: 0px 3px;'}).inject(main);
         new Element('input', {
             'class': 'text',
             value: pItem.id
         }).inject(main);
 
-        new Element('span', {html: _('FAQ?'), style: 'padding: 0px 3px;'}).inject(main);
+        new Element('span', {html: t('FAQ?'), style: 'padding: 0px 3px;'}).inject(main);
         new Element('input', {
             type: 'checkbox',
             value: 1,
@@ -913,10 +914,10 @@ var admin_system_module_edit = new Class({
     loadLinks: function () {
         if (this.lr) this.lr.cancel();
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-            this._renderLinks(res);
-        }.bind(this)}).post({name: this.mod});
+            this._renderLinks(res.data);
+        }.bind(this)}).get({name: this.mod});
     },
 
     _renderLinks: function (pConfig) {
@@ -1182,7 +1183,7 @@ var admin_system_module_edit = new Class({
 
         var subDelBtn = new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: _('Delete Link'),
+            title: t('Delete Link'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
             this.win._confirm(_('Delete?'), function (res) {
@@ -1193,7 +1194,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/arrow_up.png',
-            title: _('Link up'),
+            title: t('Link up'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
             if (lvl1.getPrevious()) {
@@ -1203,7 +1204,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/arrow_down.png',
-            title: _('Link down'),
+            title: t('Link down'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
             if (lvl1.getNext()) {
@@ -1245,7 +1246,7 @@ var admin_system_module_edit = new Class({
         /*
         var subAddBtn = new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add Link'),
+            title: t('Add Link'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
             this._linksAddNewLevel('mykey', {}, childs);
@@ -1270,6 +1271,7 @@ var admin_system_module_edit = new Class({
 
     _loadGeneral: function (pConfig) {
         this.panes['general'].empty();
+
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
             style: 'bottom: 31px;'
@@ -1277,19 +1279,19 @@ var admin_system_module_edit = new Class({
 
         this.generellFields = {};
 
-        var title = ( pConfig.title ) ? pConfig.title[this.languageSelect.value] : '';
+        var title = ( pConfig.title ) ? pConfig.title : '';
         this.generellFields['title'] = new ka.Field({
-            label: _('Title') + ' (' + this.languageSelect.value + ')', value: title
+            label: t('Title'), value: title
         }).inject(p);
 
-        var desc = ( pConfig.desc ) ? pConfig.desc[this.languageSelect.value] : '';
+        var desc = pConfig.desc ? pConfig.desc : '';
         this.generellFields['desc'] = new ka.Field({
-            label: _('Description') + ' (' + this.languageSelect.value + ')', value: desc, type: 'textarea'
+            label: t('Description'), value: desc, type: 'textarea'
         }).inject(p);
 
-        var tags = ( pConfig.tags ) ? pConfig.tags[this.languageSelect.value] : '';
+        var tags = ( pConfig.tags ) ? pConfig.tags : '';
         this.generellFields['tags'] = new ka.Field({
-            label: _('Tags') + ' (' + this.languageSelect.value + ')', value: tags, desc: _('Comma seperated values')
+            label: t('Tags'), value: tags, desc: t('Comma separated values')
         }).inject(p);
 
         var screenshotsCount = 'No Screenshots found';
@@ -1298,65 +1300,65 @@ var admin_system_module_edit = new Class({
         }
 
         new ka.Field({
-            label: _('Screenshots'), value: screenshotsCount, desc: _('Screenshots in %s').replace('%s', this.mod + '/_screenshots/'),
+            label: t('Screenshots'), value: screenshotsCount, desc: t('Screenshots in %s').replace('%s', 'media/'+this.mod + '/_screenshots/'),
             disabled: true
         }).inject(p);
 
         var owner = ka.settings.system.communityEmail;
         if (pConfig.owner == "" || !pConfig.owner) {
-            owner = _('No owner - local version');
+            owner = t('No owner - local version');
         }
 
         var owner = new ka.Field({
-            label: _('Owner'), value: owner, disabled: true
+            label: t('Owner'), value: owner, disabled: true
         }).inject(p);
 
         var _this = this;
         if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
-            new ka.Button(_('Set to my extension: ' + ka.settings.system.communityEmail)).setStyle('position', 'relative').setStyle('left', '25px').addEvent('click',
-                function () {
-                    _this.setToMyExtension = ka.settings.system.communityId;
-                    owner.setValue(ka.settings.system.communityEmail);
-                }).inject(p);
+            new ka.Button(t('Set to my extension: ' + ka.settings.system.communityEmail))
+            .setStyle('position', 'relative').setStyle('left', '25px').addEvent('click', function () {
+                this.setToMyExtension = ka.settings.system.communityId;
+                owner.setValue(ka.settings.system.communityEmail);
+            }.bind(this)).inject(p);
         }
 
         this.generellFields['version'] = new ka.Field({
-            label: _('Version'), value: pConfig.version
+            label: t('Version'), value: pConfig.version
         }).inject(p);
 
         this.generellFields['depends'] = new ka.Field({
-            label: _('Dependency'), desc: _('Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4.'), help: 'extensions-dependency', value: pConfig.depends
+            label: t('Dependency'), desc: t('Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4.'), help: 'extensions-dependency', value: pConfig.depends
         }).inject(p);
 
         this.generellFields['community'] = new ka.Field({
-            label: _('Visible in community'), desc: _('Is this extension searchable and accessible for others?'), value: pConfig.community, type: 'checkbox'
+            label: t('Visible in community'), desc: t('Is this extension searchable and accessible for others?'), value: pConfig.community, type: 'checkbox'
         }).inject(p);
 
         this.generellFields['category'] = new ka.Field({
-            label: _('Category'), desc: _('What kind of extension is this?'), value: pConfig.category, type: 'select',
+            label: t('Category'), desc: t('What kind of extension is this?'), value: pConfig.category, type: 'select',
             tableItems: [
-                {v: _('Information/Editorial office'), i: 1},
-                {v: _('Multimedia'), i: 2},
-                {v: _('SEO'), i: 3},
-                {v: _('Widget'), i: 4},
-                {v: _('Statistic'), i: 5},
-                {v: _('Community'), i: 6},
-                {v: _('Interface'), i: 7},
-                {v: _('System'), i: 8},
-                {v: _('Advertisement'), i: 9},
-                {v: _('Security'), i: 10},
-                {v: _('ECommerce'), i: 11},
-                {v: _('Download & Documents'), i: 12},
-                {v: _('Theme / Layouts'), i: 13},
-                {v: _('Language package'), i: 14},
-                {v: _('Data acquisition'), i: 19},
-                {v: _('Collaboration'), i: 18},
-                {v: _('Other'), i: 16}
+                {v: t('Information/Editorial office'), i: 1},
+                {v: t('Multimedia'), i: 2},
+                {v: t('SEO'), i: 3},
+                {v: t('Widget'), i: 4},
+                {v: t('Statistic'), i: 5},
+                {v: t('Community'), i: 6},
+                {v: t('Interface'), i: 7},
+                {v: t('System'), i: 8},
+                {v: t('Advertisement'), i: 9},
+                {v: t('Security'), i: 10},
+                {v: t('ECommerce'), i: 11},
+                {v: t('Download & Documents'), i: 12},
+                {v: t('Theme / Layouts'), i: 13},
+                {v: t('Language package'), i: 14},
+                {v: t('Data acquisition'), i: 19},
+                {v: t('Collaboration'), i: 18},
+                {v: t('Other'), i: 16}
             ], table_key: 'i', table_label: 'v'
         }).inject(p);
 
         this.generellFields['writableFiles'] = new ka.Field({
-            label: _('Writable files'), desc: _('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'), value: pConfig.writableFiles, type: 'textarea'
+            label: t('Writable files'), desc: t('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'), value: pConfig.writableFiles, type: 'textarea'
         }).inject(p);
 
 
@@ -1388,19 +1390,19 @@ var admin_system_module_edit = new Class({
     loadGeneral: function () {
         this.loader.show();
         if (this.lr) this.lr.cancel();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (pConfig) {
-            this._loadGeneral(pConfig);
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
+            this._loadGeneral(pResult.data);
             this.loader.hide();
-        }.bind(this)}).post({name: this.mod});
+        }.bind(this)}).get({name: this.mod});
     },
 
     loadLayouts: function () {
         this.loader.show();
         if (this.lr) this.lr.cancel();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (pConfig) {
-            this._loadLayouts(pConfig);
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
+            this._loadLayouts(pResult.data);
             this.loader.hide();
-        }.bind(this)}).post({name: this.mod});
+        }.bind(this)}).get({name: this.mod});
     },
 
     _loadLayouts: function (pConfig) {
@@ -1469,7 +1471,7 @@ var admin_system_module_edit = new Class({
         new Element('input', {
             'class': 'text',
             style: 'width: 110px',
-            value: (pKey) ? pKey : _('propertie_key')
+            value: (pKey) ? pKey : t('propertie_key')
         }).inject(li).focus();
 
         new Element('span', {
@@ -1479,7 +1481,7 @@ var admin_system_module_edit = new Class({
         new Element('input', {
             'class': 'text',
             style: 'width: 140px;',
-            value: (pTitle) ? pTitle : _('Propertie title')
+            value: (pTitle) ? pTitle : t('Propertie title')
         }).inject(li);
 
         new Element('span', {
@@ -1509,7 +1511,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: _('Delete theme property'),
+            title: t('Delete theme property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
             this.win._confirm(t('Really delete'), function(ok){
@@ -1524,7 +1526,7 @@ var admin_system_module_edit = new Class({
 
         new Element('input', {
             'class': 'text',
-            value: (pKey) ? pKey : _('propertie_key')
+            value: (pKey) ? pKey : t('propertie_key')
         }).inject(li).focus();
 
         new Element('span', {
@@ -1534,12 +1536,12 @@ var admin_system_module_edit = new Class({
         new Element('input', {
             'class': 'text',
             style: 'width: 200px;',
-            value: (pValue) ? pValue : _('Propertie value')
+            value: (pValue) ? pValue : t('Propertie value')
         }).inject(li);
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: _('Delete theme property'),
+            title: t('Delete theme property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
 
@@ -1562,7 +1564,7 @@ var admin_system_module_edit = new Class({
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
             style: 'position: relative; top: 3px; cursor: pointer;',
-            title: _('Delete Theme')
+            title: t('Delete Theme')
         }).addEvent('click', function () {
             this.win._confirm(_('Really delete this theme ?'), function (res) {
                 if (!res) return;
@@ -1587,7 +1589,7 @@ var admin_system_module_edit = new Class({
             new Element('img', {
                 'src': _path + PATH_MEDIA + '/admin/images/icons/layout_edit.png',
                 style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
-                title: _('Open template')
+                title: t('Open template')
             }).addEvent('click',
                 function () {
                     ka.wm.open('admin/files/edit', {file: {path: '/' + file.value}});
@@ -1595,7 +1597,7 @@ var admin_system_module_edit = new Class({
             new Element('img', {
                 'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
                 style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
-                title: _('Delete template')
+                title: t('Delete template')
             }).addEvent('click', function () {
                 this.win._confirm(_('Really delete this template ?'), function (res) {
                     if (!res) return;
@@ -1618,7 +1620,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add public property'),
+            title: t('Add public property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
             this._addPublicProperty(olpp);
@@ -1644,7 +1646,7 @@ var admin_system_module_edit = new Class({
 
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add property'),
+            title: t('Add property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
             this._addThemeProperty(ol);
@@ -1659,7 +1661,7 @@ var admin_system_module_edit = new Class({
 
         /// layouts 
         var title = new Element('h3', {
-            html: _('Layout templates')
+            html: t('Layout templates')
         }).inject(p);
 
         this.layoutsLayoutContainer = new Element('ol', {
@@ -1667,7 +1669,7 @@ var admin_system_module_edit = new Class({
         }).inject(p);
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add layout template'),
+            title: t('Add layout template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
         }).addEvent('click', function () {
             addTemplate('My title', this.mod + '/layout_mytitle.tpl', this.layoutsLayoutContainer);
@@ -1683,7 +1685,7 @@ var admin_system_module_edit = new Class({
         /// contents
 
         var title = new Element('h3', {
-            html: _('Element templates')
+            html: t('Element templates')
         }).inject(p);
 
         this.layoutsContentContainer = new Element('ol', {
@@ -1691,7 +1693,7 @@ var admin_system_module_edit = new Class({
         }).inject(p);
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add element template'),
+            title: t('Add element template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
         }).addEvent('click', function () {
             addTemplate('My title', this.mod + '/content_mytitle.tpl', this.layoutsContentContainer);
@@ -1705,7 +1707,7 @@ var admin_system_module_edit = new Class({
 
         /// navigations
         title = new Element('h3', {
-            html: _('Navigation templates')
+            html: t('Navigation templates')
         }).inject(p);
 
         this.layoutsNavigationContainer = new Element('ol', {
@@ -1713,7 +1715,7 @@ var admin_system_module_edit = new Class({
         }).inject(p);
         new Element('img', {
             'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: _('Add navigation template'),
+            title: t('Add navigation template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
         }).addEvent('click', function () {
             addTemplate('My title', this.mod + '/navigation_mytitle.tpl', this.layoutsNavigationContainer);
@@ -1796,35 +1798,35 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         new Element('th', {
-            text: t('Fields'),
-            style: 'width: 100px;'
-        }).inject(tr);
-
-        new Element('th', {
             text: t('Actions')
         }).inject(tr);
 
         var buttonBar = new ka.ButtonBar(this.panes['objects']);
-        buttonBar.addButton(_('Add object'), function(){
+        buttonBar.addButton(t('Add object'), function(){
             this.addObject()
         }.bind(this));
 
-        buttonBar.addButton(t('DB-Update'), function () {
-            ka.wm.open('admin/system/module/dbInit', {name: this.mod});
-        }.bind(this));
+        buttonBar.addButton(t('Write model'), this.writeObjectModel.bind(this));
 
-        buttonBar.addButton(_('Save'), this.saveObjects.bind(this));
+        buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getObjects', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1,
+        onComplete: function (pResult) {
 
-            if (res) {
-                Object.each(res, function (item, key) {
+            if (pResult.data) {
+                Object.each(pResult.data, function (item, key) {
                     this.addObject(item, key)
                 }.bind(this));
             }
+
             this.loader.hide();
 
-        }.bind(this)}).post({name: this.mod});
+        }.bind(this)}).get({name: this.mod});
+    },
+
+    writeObjectModel: function(){
+
+
     },
 
     saveObjects: function(){
@@ -1833,7 +1835,7 @@ var admin_system_module_edit = new Class({
 
         this.objectTBody.getChildren('.object').each(function(object){
 
-            var definition = object.retrieve('definition');
+            var definition = object.definition;
             var iKey = object.getElements('input')[0];
             var iLabel = object.getElements('input')[1];
 
@@ -1883,37 +1885,29 @@ var admin_system_module_edit = new Class({
                     },
                     __dataModel__: {
                         type: 'select',
-                        label: t('Data source'),
+                        label: t('Class'),
                         items: {
-                            'table': t('SQL Table'),
+                            'propel': t('Propel ORM'),
                             'custom': t('Custom class')
                         },
                         desc: t('Define a table or a own object class'),
                         depends: {
                             table: {
-                                needValue: 'table',
+                                needValue: 'propel',
                                 label: t('Table name')
                             },
-                            tableSync: {
-                                needValue: 'table',
-                                label: t('Table synchronisation'),
-                                desc: t('Keep the field definition in sync with the columns of the defined table.'),
-                                type: 'checkbox'
-                            },
-                            tableCondition: {
-                                needValue: 'table',
-                                label: t('Additional condition'),
-                                type: 'condition'
+                            phpClass: {
+                                needValue: 'propel',
+                                label: t('PHP class')
                             },
                             objectLabel: {
-                                needValue: 'table',
                                 label: t('Label field'),
                                 desc: t('Default field for the label.'),
                                 type: 'text'
                             },
                             nested: {
                                 label: t('Nested Sets'),
-                                desc: t('As SQL Table: Needs two additional fields: lft(int) and rgt(int)'),
+                                desc: t('Adds fields: lvl(int), lft(int) and rgt(int)'),
                                 type: 'checkbox',
                                 depends: {
                                     nestedLabel: {
@@ -1932,7 +1926,7 @@ var admin_system_module_edit = new Class({
                                             nestedRootObjectField: {
                                                 needValue: 1,
                                                 label: t('Foreign key'),
-                                                desc: t('Which field in the current object contains the primary value of the object above?')
+                                                desc: t('Which field in the current object contains the primary value of the parent object?')
                                             },
                                             nestedRootObjectLabel: {
                                                 needValue: 1,
@@ -1941,7 +1935,7 @@ var admin_system_module_edit = new Class({
                                             nestedRootObjectExtraFields: {
                                                 needValue: 1,
                                                 label: t('Extra fields (Optional)'),
-                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You might use this to get more fields in the user interface classes.'),
+                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.'),
                                                 empty: true
                                             }
                                         }
@@ -1951,7 +1945,7 @@ var admin_system_module_edit = new Class({
                             'class': {
                                 needValue: 'custom',
                                 label: t('Class name'),
-                                desc: t('You need then a file under module/&lt;extKey&gt;/&lt;className&gt;.class.php')
+                                desc: t('Class file should be under module/&lt;extKey&gt;/model/&lt;className&gt;.class.php')
                             }
                         }
                     },
@@ -2215,7 +2209,7 @@ var admin_system_module_edit = new Class({
 
 
 
-        var definition = pTr.retrieve('definition');
+        var definition = pTr.definition;
 
         var tbody = new Element('table', {
             width: '100%'
@@ -2227,11 +2221,15 @@ var admin_system_module_edit = new Class({
 
         new ka.Button(t('Apply')).addEvent('click', function(){
 
+            var fields = Object.clone(pTr.definition);
             var values = kaParseObj.getValue();
 
-            pTr.store('definition', values);
+            pTr.definition = values;
+            pTr.definition.fields = fields;
 
+            logger(pTr.definition);
             this.cancelObjectSettings();
+
         }.bind(this)).inject(this.dialog.bottom);
 
 
@@ -2260,11 +2258,10 @@ var admin_system_module_edit = new Class({
             'class': 'object'
         }).inject(this.objectTBody);
 
-        tr.store('definition', pDefinition||{});
+        tr.definition = pDefinition || {};
 
         var leftTd = new Element('td').inject(tr);
         var rightTd = new Element('td').inject(tr);
-        var right2Td = new Element('td').inject(tr);
         var actionTd = new Element('td').inject(tr);
 
         var tr2 = new Element('tr').inject(this.objectTBody);
@@ -2287,6 +2284,8 @@ var admin_system_module_edit = new Class({
         new Element('input', {'class': 'text', style: 'width: 250px;', value:pDefinition?pDefinition['label']:''}).inject(rightTd);
 
         tr.store('key', iKey);
+
+        var fieldsBtn = new ka.Button(t('Fields')).inject(actionTd);
 
         new ka.Button(t('Settings'))
         .addEvent('click', this.openObjectSettings.bind(this,tr))
@@ -2312,44 +2311,62 @@ var admin_system_module_edit = new Class({
         }.bind(this))
         .inject(actionTd);
 
-        var a = new Element('a', {
-            text: t('Fields'),
-            style: 'display: block; padding: 2px; cursor: pointer'
-        }).inject(right2Td);
+//        var a = new Element('a', {
+//            text: t('Fields'),
+//            style: 'display: block; padding: 2px; cursor: pointer'
+//        }).inject(right2Td);
+//
+//        new Element('img', {
+//            src: _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png',
+//            style: 'margin-left: 3px; margin-right: 3px;'
+//        }).inject(a, 'top');
+//
+//        var propertyPanel = new Element('div', {
+//            style: 'display: none; margin: 15px; margin-top: 5px; border: 1px solid silver; background-color: #e7e7e7;',
+//            'class': 'ka-extmanager-plugins-properties-panel'
+//        }).inject(bottomTd);
+//
+//        a.addEvent('click', function(){
+//            if (propertyPanel.getStyle('display') == 'block'){
+//                propertyPanel.setStyle('display', 'none');
+//                this.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png');
+//            } else {
+//                propertyPanel.setStyle('display', 'block');
+//                this.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_minus.png');
+//            }
+//
+//        });
 
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png',
-            style: 'margin-left: 3px; margin-right: 3px;'
-        }).inject(a, 'top');
+        fieldsBtn.addEvent('click', function(){
 
-        var propertyPanel = new Element('div', {
-            style: 'display: none; margin: 15px; margin-top: 5px; border: 1px solid silver; background-color: #e7e7e7;',
-            'class': 'ka-extmanager-plugins-properties-panel'
-        }).inject(bottomTd);
+            var dialog = this.win.newDialog('', true);
+            dialog.setStyles({
+                width: '80%',
+                height: '80%'
+            });
+            dialog.center();
 
-        a.addEvent('click', function(){
-            if (propertyPanel.getStyle('display') == 'block'){
-                propertyPanel.setStyle('display', 'none');
-                this.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png');
-            } else {
-                propertyPanel.setStyle('display', 'block');
-                this.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_minus.png');
-            }
+            new ka.Button(t('Cancel')).addEvent('click', function(){dialog.close();}).inject(dialog.bottom);
 
-        });
+            var fieldTable = new ka.FieldTable(dialog.content, this.win, {
+                addLabel: t('Add field'),
+                mode: 'object',
+                withTableDefinition: true,
+                withoutChildren: true
+            });
 
-        var fieldTable = new ka.FieldTable(propertyPanel, this.win, {
-            addLabel: t('Add field'),
-            mode: 'object',
-            withTableDefinition: true,
-            withoutChildren: true
-        });
+            if (tr.definition.fields)
+                fieldTable.setValue(tr.definition.fields);
 
-        tr.store('fieldTable', fieldTable);
+            new ka.Button(t('Apply')).addEvent('click', function(){
 
-        if (pDefinition)
-            fieldTable.setValue(pDefinition['fields']);
+                tr.definition.fields = fieldTable.getValue();
+                dialog.close();
 
+            }).inject(dialog.bottom);
+
+
+        }.bind(this));
     },
 
     openObjectWizard: function(pKey, pDefinition){
@@ -2532,12 +2549,13 @@ var admin_system_module_edit = new Class({
                     adminJavascript: {
 
                         label: t('Additional JavaScript files'),
-                        desc: t('Will be loaded during the login. Relativ to media/'),
+                        desc: t('Will be loaded during the login. Relative to media/'),
                         type: 'array',
                         asArray: true,
                         columns: [
                             t('File')
                         ],
+                        withOrder: true,
                         fields: {
                             file: {
                                 type: 'text'
@@ -2548,9 +2566,10 @@ var admin_system_module_edit = new Class({
                     adminCss: {
 
                         label: t('Additional CSS files'),
-                        desc: t('Will be loaded during the login. Relativ to media/'),
+                        desc: t('Will be loaded during the login. Relative to media/'),
                         type: 'array',
                         asArray: true,
+                        withOrder: true,
                         columns: [
                             t('File')
                         ],
@@ -2703,14 +2722,15 @@ var admin_system_module_edit = new Class({
         var buttonBar = new ka.ButtonBar(this.panes['extras']);
         buttonBar.addButton(_('Save'), this.saveExtras.bind(this));
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getConfig', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1,
+        onComplete: function (pResult) {
 
-            if (res) {
-                this.extraFieldsObj.setValue(res);
+            if (pResult.data) {
+                this.extraFieldsObj.setValue(pResult.data);
             }
             this.loader.hide();
 
-        }.bind(this)}).post({name: this.mod});
+        }.bind(this)}).get({name: this.mod});
 
 
     },

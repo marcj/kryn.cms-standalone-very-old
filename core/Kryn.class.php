@@ -310,7 +310,7 @@ class Kryn {
     public static $smarty = array();
 
     /**
-     * Contains the system config (inc/config.php).
+     * Contains the system config (config.php).
      * @var array
      * @static
      */
@@ -730,7 +730,7 @@ class Kryn {
 
         Kryn::$configs = array();
 
-        foreach (Kryn::$extensions as &$extension) {
+        foreach (Kryn::$extensions as $extension) {
             Kryn::$configs[$extension] = Kryn::getModuleConfig($extension);
         }
 
@@ -791,7 +791,7 @@ class Kryn {
         $pModule = str_replace('.', '', $pModule);
 
         if ($pModule == 'kryn')
-            $config = "inc/Kryn/config.json";
+            $config = "core/config.json";
         else
             $config = PATH_MODULE . "$pModule/config.json";
 
@@ -1204,13 +1204,13 @@ class Kryn {
 
         if (!$cfg['cronjob_key']) {
             $cfg['cronjob_key'] = dechex(time() / mt_rand(100, 500));
-            Kryn::fileWrite('inc/config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
+            Kryn::fileWrite('config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
         }
 
         if (!$cfg['passwd_hash_key']) {
             $cfg['passwd_hash_compatibility'] = 1;
             $cfg['passwd_hash_key'] = krynAuth::getSalt(32);
-            Kryn::fileWrite('inc/config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
+            Kryn::fileWrite('config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
         }
 
         if ($cfg['cache_type'] == 'files') {

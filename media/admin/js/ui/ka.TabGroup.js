@@ -62,7 +62,7 @@ ka.TabGroup = new Class({
             text: pTitle
         }).inject(this.box);
 
-        if (typeOf(pIcon) == 'string'){
+        if (typeOf(pIcon) == 'string' && pIcon){
             if (pIcon.substr(0,1) == '#'){
                 button.addClass(pIcon.substr(1));
             } else {
@@ -71,6 +71,7 @@ ka.TabGroup = new Class({
                     height: 14
                 }).inject(button, 'top');
             }
+            button.addClass('ka-tabGroup-item-with-image');
         }
 
         this.setMethods(button, pOnClick);

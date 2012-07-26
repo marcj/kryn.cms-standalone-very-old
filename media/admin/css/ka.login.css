@@ -134,6 +134,7 @@
     text-align: center;
     z-index: 200101;
     color: white;
+    overflow: hidden;
 }
 
 .ka-login .ka-Select-box-title {

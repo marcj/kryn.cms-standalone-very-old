@@ -17,6 +17,16 @@ class Manager extends \RestServerController {
         define('KRYN_MANAGER', false);
     }
 
+    /**
+     * Filters any special char out of the name.
+     *
+     * @static
+     * @param $pName Reference
+     */
+    public static function prepareName(&$pName){
+        $pName = preg_replace('/[^a-zA-Z0-9-_]/', '', $pName);
+    }
+
     public static function getInstalled() {
 
         foreach (Kryn::$extensions as $mod) {
@@ -54,7 +64,7 @@ class Manager extends \RestServerController {
         $res = array();
 
         foreach ($modules as $module) {
-            $config = $this->loadInfo($module);
+            $config = self::loadInfo($module);
             unset($config['db']);
             unset($config['admin']);
             unset($config['objects']);
@@ -71,8 +81,7 @@ class Manager extends \RestServerController {
     }
 
 
-    public function loadInfo($pModuleName, $pType = false, $pExtract = false) {
-        global $cfg;
+    public static function loadInfo($pModuleName, $pType = false, $pExtract = false) {
 
         /*
         * pType: false => load from local (dev) PATH_MODULE/$pModuleName
@@ -91,7 +100,7 @@ class Manager extends \RestServerController {
         // inet
         if ($pType === true || $pType == 1) {
 
-            $res = wget($cfg['repoServer'] . "/?install=$pModuleName");
+            $res = wget(Kryn::$config['repoServer'] . "/?install=$pModuleName");
             if ($res === false)
                 return array('cannotConnect' => 1);
 
@@ -111,11 +120,11 @@ class Manager extends \RestServerController {
 
             $configFile = "data/packages/modules/$pModuleName.config.json";
             @unlink($configFile);
-            wget($cfg['repoServer'] . "/modules/$pModuleName/config.json", $configFile);
+            wget(Kryn::$config['repoServer'] . "/modules/$pModuleName/config.json", $configFile);
             if ($pExtract) {
                 $extract = true;
                 $zipFile = 'data/packages/modules/' . $info['filename'];
-                wget($cfg['repoServer'] . "/modules/$pModuleName/" . $info['filename'], $zipFile);
+                wget(Kryn::$config['repoServer'] . "/modules/$pModuleName/" . $info['filename'], $zipFile);
             }
         }
 
@@ -186,9 +195,6 @@ class Manager extends \RestServerController {
 
     public function check4Updates(){
 
-
-        global $cfg;
-
         $res['found'] = false;
 
         # add kryn-core
@@ -197,7 +203,7 @@ class Manager extends \RestServerController {
         foreach ($tmodules as $key => $config) {
             $version = '0';
             $name = $key;
-            $version = wget($cfg['repoServer'] . "/?version=$name");
+            $version = wget(Kryn::$config['repoServer'] . "/?version=$name");
             if ($version && $version != '' && self::versionCompareToServer($config['version'], $version) == '<') {
                 $res['found'] = true;
                 $temp = array();

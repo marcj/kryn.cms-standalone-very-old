@@ -1381,19 +1381,23 @@ ka.Field = new Class({
 
 
         var tr = new Element('tr').inject(thead);
-        Array.each(this.field.columns, function (col, colid) {
+        Array.each(this.field.columns, function (col) {
+
             var td = new Element('th', {
                 valign: 'top',
-                text: t(col.label)
+                text: typeOf(col) == 'object'?col.label:col
             }).inject(tr);
-            if (col.desc){
-                new Element('div', {
-                    'class': 'ka-field-array-column-desc',
-                    text: col.desc
-                }).inject(td);
-            }
-            if (col.width) {
-                td.set('width', col.width);
+
+            if (typeOf(col) == 'object'){
+                if (col.desc){
+                    new Element('div', {
+                        'class': 'ka-field-array-column-desc',
+                        text: col.desc
+                    }).inject(td);
+                }
+                if (col.width) {
+                    td.set('width', col.width);
+                }
             }
         });
         var td = new Element('th', {
@@ -1474,7 +1478,7 @@ ka.Field = new Class({
         }.bind(this);
 
         if (!this.field.withoutAdd){
-            new ka.Button(this.field.addText ? this.field.addText : t('Add')).addEvent('click', addRow).inject(actions);
+            new ka.Button(this.field.addText ? this.field.addText : [t('Add'), '#icon-plus-alt']).addEvent('click', addRow).inject(actions);
         }
 
         var first, second;

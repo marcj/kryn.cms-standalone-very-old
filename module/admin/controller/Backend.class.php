@@ -49,8 +49,7 @@ class Backend extends \RestServerController {
         Kryn::$adminClient->getUser()->setSettings($properties);
         Kryn::$adminClient->getUser()->save();
 
-        return
-            Kryn::$adminClient->getUser()->getSettings();
+        return true;
     }
 
 

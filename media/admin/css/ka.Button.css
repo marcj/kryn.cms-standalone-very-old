@@ -1,7 +1,7 @@
 a.ka-Button, a.ka-Button:link {
 
     white-space: nowrap;
-    padding: 0px 9px;
+    padding: 0px 8px;
     margin: 2px auto;
 
     cursor: default;
@@ -15,7 +15,7 @@ a.ka-Button, a.ka-Button:link {
     -webkit-border-radius: 3px;
     
     margin-right: 3px;
-    margin-left: 4px;
+    margin-left: 3px;
     
     text-decoration: none;
     outline: 0;
@@ -35,6 +35,11 @@ a.ka-Button, a.ka-Button:link {
     background: linear-gradient(to bottom,  #f8f8f8 4%,#efefef 9%,#dddddd 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8f8f8', endColorstr='#dddddd',GradientType=0 ); /* IE6-8 */
 
+}
+
+.ka-Button:before {
+    padding-right: 5px;
+    padding-left: 0px;
 }
 
 a.ka-Button:hover {

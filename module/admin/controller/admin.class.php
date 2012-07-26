@@ -81,9 +81,10 @@ class admin extends RestServerController {
 
                 ->addSubController('system', '\Admin\System')
 
+                    ->addRoute('get:', 'getSystemInformation')
+
                     //admin/system/module/manager
                     ->addSubController('module/manager', '\Admin\Module\Manager')
-                        //->addRoute('manage/([0-9]*)/([0-9]*)', 'manageInstall', array('asd'))
                         ->addRoute('get:install/pre', 'installPre', array('name'))
                         ->addRoute('get:install/extract', 'installExtract', array('name'))
                         ->addRoute('get:install/database', 'installDatabase', array('name'))
@@ -92,6 +93,16 @@ class admin extends RestServerController {
                         ->addRoute('get:local', 'getLocal')
                         ->addRoute('get:installed', 'getInstalled')
                     ->done()
+
+                    //admin/system/module/manager
+                    ->addSubController('module/editor', '\Admin\Module\Editor')
+                        ->addRoute('get:config', 'getConfig', array('name'))
+
+                        ->addRoute('get:windows', 'getWindows', array('name'))
+
+                        ->addRoute('get:objects', 'getObjects', array('name'))
+                    ->done()
+
                 ->done()
 
                 //->addSubController('file', '\Admin\File')
@@ -220,12 +231,6 @@ class admin extends RestServerController {
                     break;
                 case 'system':
 
-
-                    RestServer::create('admin/system')
-                    ->addSubController('module', 'adminModule')
-                        ->addRoute('manage/([0-9]*)/([0-9]*)', 'manageInstall', array('asd'))
-                        ->done()
-                    ->run();
 
                     switch (getArgv(3)) {
                         case 'tools':
@@ -1012,14 +1017,6 @@ class admin extends RestServerController {
 
         exit;
     }
-
-    public static function getDefaultImages() {
-
-        $res = Core\Kryn::readFolder(PATH_MEDIA.'admin/images/userBgs/defaultImages', true);
-
-        json($res);
-    }
-
 
     public static function stream() {
 

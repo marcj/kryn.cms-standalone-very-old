@@ -384,8 +384,6 @@ ka.Window = new Class({
             'class': 'ka-kwindow-prompt-bottom'
         }).inject(main);
 
-        this.lastDialog = main;
-
         main.center();
 
         return main;
