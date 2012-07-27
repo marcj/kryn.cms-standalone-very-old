@@ -101,6 +101,7 @@ class admin extends RestServerController {
                         ->addRoute('get:windows', 'getWindows', array('name'))
 
                         ->addRoute('get:objects', 'getObjects', array('name'))
+                        ->addRoute('post:objects', 'saveObjects', array('name'))
                     ->done()
 
                 ->done()

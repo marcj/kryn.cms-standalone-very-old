@@ -1839,12 +1839,6 @@ var admin_system_module_edit = new Class({
             var iKey = object.getElements('input')[0];
             var iLabel = object.getElements('input')[1];
 
-            var fieldTable = object.retrieve('fieldTable');
-
-            var fields = fieldTable.getValue();
-            if (Object.getLength(fields) > 0)
-                definition.fields = fields;
-
             definition.label = iLabel.value;
             objects[iKey.value] = definition;
 
@@ -1857,7 +1851,7 @@ var admin_system_module_edit = new Class({
         req.objects = JSON.encode(objects);
         req.name = this.mod;
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveObjects', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             ka.loadSettings();
         }.bind(this)}).post(req);
@@ -2227,7 +2221,6 @@ var admin_system_module_edit = new Class({
             pTr.definition = values;
             pTr.definition.fields = fields;
 
-            logger(pTr.definition);
             this.cancelObjectSettings();
 
         }.bind(this)).inject(this.dialog.bottom);

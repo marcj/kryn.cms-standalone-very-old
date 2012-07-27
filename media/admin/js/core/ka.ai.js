@@ -91,6 +91,7 @@ Request.JSON = new Class({
                     t('Request error'),
                     t('There has been a error occured during the last request. It looks like the server has currently some troubles. Please try it again.')+
                         "<br/><br/>"+t('Error code: %s').replace('%s', pResult.error)+
+                        "<br/>"+t('Error message: %s').replace('%s', pResult.message)+
                         "<br/>"+'URI: %s'.replace('%s', this.options.url),
                     15000);
                 }
