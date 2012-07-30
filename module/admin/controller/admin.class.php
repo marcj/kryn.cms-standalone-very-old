@@ -66,19 +66,29 @@ class admin extends RestServerController {
                     ->addRoute('get:menus', 'getMenus')
                     ->addRoute('get:customJs', 'getCustomJs')
                     ->addRoute('post:userSettings', 'saveUserSettings', array('settings'))
-                ->done()
 
+
+
+
+                    //admin/backend/object
+                    ->addSubController('object', '\Admin\Object')
+                        ->addRoute('get:([a-zA-Z-_]+)/(.+)', 'getItem', null, array(
+                            'fields'
+                        ))
+                        ->addRoute('get:([a-zA-Z-_]+)', 'getItems', null, array(
+                            'fields', 'limit', 'offset', 'order'
+                        ))
+                    ->done()
+
+                    ->addSubController('objectLabel', '\Admin\Object')
+                        ->addRoute('get:([a-zA-Z-_]+)/(.*)', 'getItemLabel', null, array(
+                            'fields'
+                        ))
+                    ->done()
+
+                ->done()
 
                 //admin/system
-                ->addSubController('object', '\Admin\Object')
-                    ->addRoute('get:([a-zA-Z-_]+)/([0-9]+)', 'getItem', null, array(
-                        'fields'
-                    ))
-                    ->addRoute('get:([a-zA-Z-_]+)', 'getItems', null, array(
-                        'fields'
-                    ))
-                ->done()
-
                 ->addSubController('system', '\Admin\System')
 
                     ->addRoute('get:', 'getSystemInformation')
@@ -102,6 +112,9 @@ class admin extends RestServerController {
 
                         ->addRoute('get:objects', 'getObjects', array('name'))
                         ->addRoute('post:objects', 'saveObjects', array('name'))
+
+                        ->addRoute('post:model', 'saveModel', array('name', 'model'))
+                        ->addRoute('get:model', 'getModel', array('name'))
                     ->done()
 
                 ->done()

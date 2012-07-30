@@ -480,10 +480,12 @@
   },
   "objects": {
     "file": {
+      "objectLabel": "path",
       "nestedLabel": "name",
       "nestedRootAsObject": 0,
       "nested": 1,
       "class": "objectFile",
+      "dataModel": "custom",
       "multiLanguage": 0,
       "domainDepended": 0,
       "chooserFieldDataModelCondition": [
@@ -491,12 +493,16 @@
       ],
       "chooserFieldDataModel": "default",
       "chooserFieldDataModelFields": {
-        "id": {
+        "path": {
           "label": "[[Path]]",
           "type": "text"
+        },
+        "name": {
+          "type": "text",
+          "width": "30%"
         }
       },
-      "chooserFieldDataModelField": "id",
+      "chooserFieldDataModelField": "name",
       "chooserFieldType": "default",
       "chooserBrowserTreeJavascript": "default",
       "chooserBrowserTreeIconMapping": [
@@ -1969,5 +1975,8 @@
     {
       "key": "systemObjectTrees"
     }
-  ]
+  ],
+  "__path": "module\/admin",
+  "installed": true,
+  "extensionCode": "admin"
 }

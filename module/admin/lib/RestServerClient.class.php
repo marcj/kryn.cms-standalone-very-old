@@ -30,13 +30,26 @@ class RestServerClient {
 
 
     /**
+     * Current URL.
+     *
+     * @var string
+     */
+    private $url;
+
+
+    /**
      * @var RestServerController
      *
      */
     private $controller;
 
+    /**
+     * @param RestServer $pRestServerController
+     */
     public function __construct($pRestServerController){
         $this->controller = $pRestServerController;
+
+        $this->setUrl($_GET[$this->controller->getRewrittenRuleKey()]);
 
         $this->setupFormats();
     }
@@ -169,13 +182,32 @@ class RestServerClient {
         return $this;
     }
 
-    public function getController(){
-        return $this->controller;
+
+    /**
+     * Returns the url.
+     *
+     * @return string
+     */
+    public function getUrl(){
+        return $this->url;
     }
 
 
     /**
+     * Set the url.
+     *
+     * @param string $pUrl
+     * @return RestServer $this
+     */
+    public function setUrl($pUrl){
+        $this->url = $pUrl;
+        return $this;
+    }
+
+    /**
      * Setup formats.
+     *
+     * @return RestServerClient
      */
     public function setupFormats(){
 
@@ -190,9 +222,12 @@ class RestServerClient {
         }
 
         //through uri suffix
-        if (preg_match('/\.(\w+)$/i', $this->getController()->getUrl(), $matches)) {
-            if ($this->outputFormats[$matches[1]])
+        if (preg_match('/\.(\w+)$/i', $this->getUrl(), $matches)) {
+            if ($this->outputFormats[$matches[1]]){
                 $this->outputFormat = $matches[1];
+                $url = $this->getUrl();
+                $this->setUrl(substr($url, 0, (strlen($this->outputFormat)*-1)-1));
+            }
         }
 
         return $this;

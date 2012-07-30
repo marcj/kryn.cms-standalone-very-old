@@ -18,6 +18,7 @@ class RestServerController {
     public function setClient($pClient){
         $this->client = $pClient;
         $this->client->setupFormats();
+
         return $this;
     }
 

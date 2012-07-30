@@ -50,6 +50,7 @@ include(PATH_CORE.'database.global.php');
 include(PATH_CORE.'template.global.php');
 include(PATH_CORE.'internal.global.php');
 include(PATH_CORE.'framework.global.php');
+include(PATH_CORE.'exceptions.global.php');
 
 # Load very important classes.
 include(PATH_CORE . 'Kryn.class.php');

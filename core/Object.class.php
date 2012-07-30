@@ -77,29 +77,29 @@ class Object {
      * 1. object://news/1
      *   => returns the object news with primary value equal 1
      *
-     * 2. object://news/rsn=1
+     * 2. object://news/id=1
      *   => equal as 1.
      *
      * 3. object://news/1/2
      *   => returns a list of the objects with primary value equal 1 or 2
      *
-     * 4. object://news/rsn=1/rsn=2
+     * 4. object://news/id=1/id=2
      *   => equal as 3.
      *
      * 5. object://object_with_multiple_primary/2,54
-     *   => returns the object with the first primary field equal 2 and second priamry field equal 54
+     *   => returns the object with the first primary field equal 2 and second primary field equal 54
      *
      * 6. object://object_with_multiple_primary/2,54/34,55
      *   => returns a list of the objects
      *
-     * 7. object://object_with_multiple_primary/rsn=2,parent_rsn=54/rsn=34,parent_rsn=55
-     *   => equal as 6 if the first defined primary is 'rsn' and the second 'parent_rsn'
+     * 7. object://object_with_multiple_primary/id=2,parent_id=54/id=34,parent_id=55
+     *   => equal as 6 if the first defined primary is 'id' and the second 'parent_id'
      *
      * 8. object://news/1?fields=title
      *   => equal as 1. but returns only the field title
      *
-     * 9. object://news/1?fields=title,category_rsn
-     *   => equal as 1. but returns only the field title and category_rsn
+     * 9. object://news/1?fields=title,category_id
+     *   => equal as 1. but returns only the field title and category_id
      *
      * 10. object://news?fields=title
      *   => returns all objects from type news
@@ -109,7 +109,7 @@ class Object {
      *
      *
      * @static
-     * @param $pInternalUri
+     * @param string $pInternalUri
      * @return array [object_key, object_id/s, queryParams]
      */
     public static function parseUri($pInternalUri){
@@ -140,7 +140,6 @@ class Object {
                 $list
             );
         }
-
         if ($pos === false && $questionPos != false)
             $object_key = substr($pInternalUri, 0, $questionPos);
         else
@@ -157,9 +156,7 @@ class Object {
         } else if ($pos !== false)
             $object_id = substr($pInternalUri, $pos+1);
 
-        $obj = self::getClassObject($object_key);
-
-        $object_id = $obj->primaryStringToArray($object_id);
+        $object_id = self::parsePk($object_key, $object_id);
 
         if ($params && $params['condition']){
             $params['condition'] = json_decode($params['condition'], true);
@@ -173,6 +170,38 @@ class Object {
         );
     }
 
+    /**
+     * Converts the primary key statement of a uri to better structure.
+     * Generates a array for the usage of Core\Object:get()
+     *
+     * 1/2/3 => array(1,2,3)
+     * 1 => 1
+     * idFooBar => idFooBar
+     * idFoo/Bar => array(idFoo, Bar)
+     *
+     *
+     * @static
+     * @param string $pObjectKey
+     * @param string $pPrimaryKey
+     * @return array|mixed
+     */
+    public static function parsePk($pObjectKey, $pPrimaryKey){
+
+        $obj = self::getClassObject($pObjectKey);
+
+        $object_id = $obj->primaryStringToArray($pPrimaryKey);
+
+        return $object_id;
+    }
+
+    /**
+     * Converts given params to the internal uri.
+     *
+     * @static
+     * @param string $pObjectKey
+     * @param mixed $pPrimaryValues
+     * @return string
+     */
     public static function toUri($pObjectKey, $pPrimaryValues){
         $url = 'object://'.$pObjectKey.'/';
         if (is_array($pPrimaryValues)){
@@ -222,11 +251,11 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pConditionValues Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pPk Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pConditionValues = false, $pOptions = array()){
+    public static function get($pObjectKey, $pPk = false, $pOptions = array()){
 
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -236,16 +265,12 @@ class Object {
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
-        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
+        $pOptions['fields'] = $obj->getFields($pOptions['fields']);
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
-        if ($pConditionValues !== false && !is_array($pConditionValues)){
-            $pConditionValues = array($pConditionValues);
-        }
-
-        return $obj->getItem($pConditionValues, $pOptions['fields'], $pOptions['foreignKeys']);
+        return $obj->getItem($pPk, $pOptions['fields'], $pOptions['foreignKeys']);
 
     }
 
@@ -279,14 +304,13 @@ class Object {
     public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
 
         $definition = kryn::$objects[$pObjectKey];
-        if (!$definition) return false;
+        if (!$definition) throw new \ObjectNotFoundException(tf("The object '%s' does not exist.", $pObjectKey));
 
-        //$obj = self::getClassObject($pObjectKey);
+        $obj = self::getClassObject($pObjectKey);
 
-        if (!$pOptions['fields'])
-            $pOptions['fields'] = '*';
+        if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
-        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
+        $pOptions['fields'] = $obj->getFields($pOptions['fields']);
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
@@ -295,30 +319,7 @@ class Object {
             $pCondition = array($pCondition);
         }
 
-        $query    = self::getQueryClass($pObjectKey);
-        $peerName = self::getPeerClassName($pObjectKey);
-
-        $peerFields = $peerName::getFieldNames();
-
-
-        if ($pOptions['fields'] == '*')
-            $fields = $peerFields;
-
-        else if (is_array($pOptions['fields']))
-            $fields = $pOptions['fields'];
-
-        else if (is_string($pOptions['fields'])){
-            $fields = explode(',', $pOptions['fields']);
-        }
-
-        //$query->select(implode(',',$fields));
-
-        $items = $query->find();
-
-        var_dump($items->toArray()); exit;
-
-
-        //return $obj->getItems($pCondition, $pOptions);
+        return $obj->getItems($pCondition, $pOptions);
 
     }
 
@@ -336,12 +337,19 @@ class Object {
         if (!$definition) return false;
 
         if (!self::$instances[$pObjectKey]){
-            if ($definition['class']){
 
-                $path = PATH_MODULE.$definition['_extension'].'/'.$definition['class'].'.class.php';
+            if ($definition['dataModel'] != 'custom'){
+                //propel
+
+                self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
+
+            } else {
+                //custom
+
+                $path = PATH_MODULE.$definition['_extension'].'/model/'.$definition['class'].'.class.php';
 
                 if (!file_exists($path))
-                    throw new Exception('Create object instance error: Class file for '.$pObjectKey.' ('.$definition['class'].', '.$path.') not found');
+                    throw new \Exception('Create object instance error: Class file for '.$pObjectKey.' ('.$definition['class'].', '.$path.') not found');
 
                 require_once($path);
 
@@ -352,13 +360,6 @@ class Object {
                     self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
                 } else throw new Exception('Create object instance error: Class '.$className.' not found');
 
-            } else if ($definition['table']){
-
-                require_once('core/krynObject/krynObjectTable.class.php');
-                self::$instances[$pObjectKey] = new krynObjectTable($pObjectKey, $definition);
-            } else {
-                klog('krynObject', 'No class or table defined for object '.$pObjectKey);
-                throw new Exception('No class or table defined for object '.$pObjectKey);
             }
         }
 
@@ -709,10 +710,10 @@ class Object {
                 return ($ovalue >= $value);
 
             case '= CURRENT_USER':
-                return $ovalue == $client->user_rsn;
+                return $ovalue == $client->user_id;
 
             case '!= CURRENT_USER':
-                return $ovalue != $client->user_rsn;
+                return $ovalue != $client->user_id;
 
             case '=':
             default:

@@ -72,7 +72,7 @@ class RestServer extends RestServerController {
 
     /**
      * From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
-     * $var string
+     * @var string
      */
     private $rewrittenRuleKey = '__url';
 
@@ -83,14 +83,6 @@ class RestServer extends RestServerController {
      * @var array|string array('methodOne', 'methodTwo') or * for all methods
      */
     private $collectRoutesExclude = array('__construct');
-
-
-    /**
-     * Current URL.
-     *
-     * @var string
-     */
-    private $url;
 
 
     /**
@@ -112,6 +104,7 @@ class RestServer extends RestServerController {
                                 $pParentController = null){
 
         $this->normalizeUrl($pTriggerUrl);
+        $this->setRewrittenRuleKey($pRewrittenRuleKey);
 
         if ($pParentController){
             $this->parentController = $pParentController;
@@ -119,9 +112,6 @@ class RestServer extends RestServerController {
         } else {
             $this->setClient(new RestServerClient($this));
         }
-
-        $this->rewrittenRuleKey = $pRewrittenRuleKey;
-        $this->setUrl($_GET[$this->rewrittenRuleKey]);
 
         $this->setClass($pControllerClass);
         $this->setTriggerUrl($pTriggerUrl);
@@ -139,6 +129,26 @@ class RestServer extends RestServerController {
     public static function create($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
         $clazz = get_called_class();
         return new $clazz($pTriggerUrl, $pControllerClass, $pRewrittenRuleKey);
+    }
+
+    /**
+     * Returns the rewritten rule key.
+     *
+     * @return string
+     */
+    public function getRewrittenRuleKey(){
+        return $this->rewrittenRuleKey;
+    }
+
+    /**
+     * Sets the rewritten rule key.
+     * @param string $pRewrittenRuleKey
+     *
+     * @return RestServer
+     */
+    public function setRewrittenRuleKey($pRewrittenRuleKey){
+        $this->rewrittenRuleKey = $pRewrittenRuleKey;
+        return $this;
     }
 
     /**
@@ -223,28 +233,6 @@ class RestServer extends RestServerController {
      */
     public function removeRoute($pUri){
         unset($this->routes[$pUri]);
-        return $this;
-    }
-
-
-    /**
-     * Returns the url.
-     *
-     * @return string
-     */
-    public function getUrl(){
-        return $this->url;
-    }
-
-
-    /**
-     * Set the url.
-     *
-     * @param string $pUrl
-     * @return RestServer $this
-     */
-    public function setUrl($pUrl){
-        $this->url = $pUrl;;
         return $this;
     }
 
@@ -379,9 +367,9 @@ class RestServer extends RestServerController {
             $controller->run();
 
         //check if its in our area
-        if (strpos($this->getUrl().'/', $this->triggerUrl.'/') !== 0) return;
+        if (strpos($this->getClient()->getUrl().'/', $this->triggerUrl.'/') !== 0) return;
 
-        $uri = substr($this->getUrl(), strlen($this->triggerUrl));
+        $uri = substr($this->getClient()->getUrl(), strlen($this->triggerUrl));
 
         $this->normalizeUrl($uri);
 
@@ -433,7 +421,7 @@ class RestServer extends RestServerController {
             $data = call_user_func_array(array($object, $method), $arguments);
             $this->send($data);
         } catch(Exception $e){
-            $this->sendError('php_error', $e);
+            $this->sendError(get_class($e), $e);
         }
 
     }

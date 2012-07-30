@@ -211,8 +211,27 @@
   },
   "objects": {
     "user": {
-      "title": "[[User]]",
       "table": "system_user",
+      "phpClass": "User",
+      "objectLabel": "username",
+      "nested": 0,
+      "dataModel": "propel",
+      "multiLanguage": 0,
+      "domainDepended": 0,
+      "limitSelection": "id, username",
+      "chooserFieldDataModelCondition": [
+        
+      ],
+      "chooserFieldDataModel": "default",
+      "chooserFieldDataModelFields": [
+        
+      ],
+      "chooserFieldType": "default",
+      "chooserBrowserAutoColumns": [
+        
+      ],
+      "chooserBrowserDataModel": "default",
+      "chooserBrowserType": "default",
       "fields": {
         "id": {
           "label": "ID",
@@ -315,22 +334,7 @@
           "empty": 1
         }
       },
-      "label": "[[Users]]",
-      "desc": "",
-      "tableSync": 1,
-      "tableCondition": [
-        [
-          "id",
-          ">",
-          "0"
-        ]
-      ],
-      "class": "",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "plugins": "",
-      "selectable": 0,
-      "__dataModel__": "table"
+      "label": "[[Users]]"
     },
     "group": {
       "title": "[[Group]]",
@@ -1056,12 +1060,6 @@
     },
     "system_sessions": {
       "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "id": [
         "varchar",
         "32",
         "DB_INDEX",
@@ -1276,5 +1274,8 @@
   "adminJavascript": [
     "users\/admin\/js\/users_field_picture.js",
     "users\/admin\/js\/users_acl_rule_fields.js"
-  ]
+  ],
+  "__path": "module\/users",
+  "installed": true,
+  "extensionCode": "users"
 }

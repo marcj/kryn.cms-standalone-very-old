@@ -26,7 +26,7 @@ class Editor extends \RestServerController {
             $this->sendError('file_not_writable', tf('The config file %s for %s is not writeable.', $path ,$pName));
         }
 
-        return Core\Kryn::fileWrite($path, $json);
+        return Kryn::fileWrite($path, $json);
     }
 
     public static function getWindows($pName) {
@@ -65,6 +65,20 @@ class Editor extends \RestServerController {
         $config['objects'] = $objects;
 
         return $this->setConfig($pName, $config);
+    }
+
+
+    public function getModel($pName){
+        Manager::prepareName($pName);
+
+        $path = PATH_MODULE . "$pName/model.xml";
+
+        if (!file_exists($path)){
+            throw new \FileNotExistException(tf('The config file %s for %s is not writeable.', $path ,$pName));
+        }
+
+        return file_get_contents($path);
+
     }
 
 

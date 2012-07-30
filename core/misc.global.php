@@ -150,6 +150,8 @@ function json_format($json) {
             for ($j=0; $j<$pos; $j++) {
                 $result .= $indentStr;
             }
+        } else if ($char == ':' && $outOfQuotes){
+            $char .= ' ';
         }
 
         // Add the character to the result string.
