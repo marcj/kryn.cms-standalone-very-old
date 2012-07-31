@@ -145,7 +145,6 @@ class adminModule extends RestServerController {
             case 'getPlugins':
                 return self::getPlugins(getArgv('name', 2));
 
-
             case 'getObjects':
                 return self::getObjects(getArgv('name', 2));
             case 'saveObjects':

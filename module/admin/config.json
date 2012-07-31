@@ -557,20 +557,17 @@
           "label": "[[ID]]",
           "type": "number",
           "primaryKey": 1,
-          "autoIncrement": 1,
-          "empty": 1
+          "autoIncrement": 1
         },
         "path": {
           "label": "[[Path]]",
           "type": "text",
-          "primaryKey": 0,
-          "empty": 1
+          "primaryKey": 0
         },
         "name": {
           "label": "[[Name]]",
           "type": "text",
-          "primaryKey": 0,
-          "empty": 1
+          "primaryKey": 0
         },
         "ext": {
           "label": "[[File extension]]",

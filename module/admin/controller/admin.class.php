@@ -113,8 +113,14 @@ class admin extends RestServerController {
                         ->addRoute('get:objects', 'getObjects', array('name'))
                         ->addRoute('post:objects', 'saveObjects', array('name'))
 
+                        ->addRoute('post:model/fromObject', 'setModelFromObject', array('name', 'object'))
+
                         ->addRoute('post:model', 'saveModel', array('name', 'model'))
                         ->addRoute('get:model', 'getModel', array('name'))
+
+                        ->addRoute('post:general', 'saveGeneral', array('name'))
+
+
                     ->done()
 
                 ->done()

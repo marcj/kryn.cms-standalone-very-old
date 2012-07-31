@@ -125,6 +125,8 @@ function find($pPath, $pRecursive = true) {
  */
 function json_format($json) {
 
+    if (!is_string($json)) $json = json_encode($json);
+
     $result      = '';
     $pos         = 0;
     $strLen      = strlen($json);

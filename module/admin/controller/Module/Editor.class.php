@@ -23,7 +23,7 @@ class Editor extends \RestServerController {
             $path = PATH_MODULE . "$pName/config.json";
 
         if (!is_writeable($path)){
-            $this->sendError('file_not_writable', tf('The config file %s for %s is not writeable.', $path ,$pName));
+            throw new \FileNotWritableException(tf('The config file %s for %s is not writeable.', $path ,$pName));
         }
 
         return Kryn::fileWrite($path, $json);
@@ -74,12 +74,151 @@ class Editor extends \RestServerController {
         $path = PATH_MODULE . "$pName/model.xml";
 
         if (!file_exists($path)){
-            throw new \FileNotExistException(tf('The config file %s for %s is not writeable.', $path ,$pName));
+            throw new \FileNotExistException(tf('The config file %s for %s does not exist.', $path ,$pName));
         }
 
         return file_get_contents($path);
 
     }
 
+    public function saveModel($pName, $pModel){
+        Manager::prepareName($pName);
+
+        $path = PATH_MODULE . "$pName/model.xml";
+
+        if (!is_writable($path)){
+            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
+        }
+
+        if (!@file_put_contents($path, $pModel)){
+            throw new \FileIOErrorException(tf('Can not write model file %s for %s.', $path ,$pName));
+        }
+
+        return true;
+
+    }
+
+    public function setModelFromObject($pName, $pObject){
+
+        Manager::prepareName($pName);
+        $config = $this->getConfig($pName);
+
+        if (!$object = $config['objects'][$pObject])
+            throw new \Exception(tf('Object %s in %s does not exist.', $pObject, $pName));
+
+        $path = PATH_MODULE . "$pName/model.xml";
+
+        if (!is_writable($path)){
+            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
+        }
+
+        if (file_exists($path)){
+            $xml = @simplexml_load_file($path);
+
+            if ($xml === false){
+                $errors = libxml_get_errors();
+                throw new \Exception(tf('Parse error in %s: %s', $path, json_format($errors)));
+            }
+        } else {
+            $xml = simplexml_load_string('<database></database>');
+        }
+
+        //search if we've already the table defined.
+        $tables = $xml->xpath('table[@name=\''.$object['table'].'\']');
+
+        if (!$tables) $objectTable = $xml->addChild('table');
+        else $objectTable = current($tables);
+
+        $objectTable['name'] = $object['table'];
+        $objectTable['phpName'] = $object['phpClass'];
+
+        $columnsDefined = array();
+
+        foreach ($object['fields'] as $fieldKey => $field){
+
+            //column exist?
+            $columns = $objectTable->xpath('column[@name =\''.$fieldKey.'\']');
+
+            if ($columns) {
+
+                $column = current($columns);
+                if ($column['custom'] == true) continue;
+
+            } else $column = $objectTable->addChild('column');
+
+            $column['name'] = $fieldKey;
+            $columnsDefined[] = $fieldKey;
+
+            switch($field['type']){
+
+                case 'textarea':
+
+                    $column['type'] = 'LONGVARCHAR';
+                    break;
+
+                case 'text':
+                case 'password':
+
+                    $column['type'] = 'VARCHAR';
+
+                    if ($field['maxlength'])$column['size'] = $field['maxlength'];
+                    break;
+
+                case 'number':
+
+                    $column['type'] = 'INTEGER';
+
+                    if ($field['maxlength']) $column['size'] = $field['maxlength'];
+                    break;
+
+                case 'checkbox':
+
+                    $column['type'] = '';
+                    break;
+
+                case 'date':
+                case 'datetime':
+
+                    if ($field['asUnixTimestamp'] === false)
+                        $column['type'] = $field['type'] == 'date'? 'DATE':'TIMESTAMP';
+
+                    $column['type'] = 'BIGINT';
+
+
+            }
+
+            $column['required'] = !$field['empty'];
+
+            if ($field['primaryKey']) $column['primaryKey'] = true;
+            if ($field['autoIncrement']) $column['autoIncrement'] = true;
+
+
+        }
+
+
+
+    }
+
+
+    public function saveGeneral($pName) {
+        Manager::prepareName($pName);
+
+        $config = $this->getConfig($pName);
+
+        if (getArgv('owner') > 0)
+            $config['owner'] = getArgv('owner');
+
+        $config['title'] = getArgv('title');
+        $config['desc'] = getArgv('desc');
+        $config['tags'] = getArgv('tags');
+
+        $config['version'] = getArgv('version');
+        $config['community'] = getArgv('community');
+        $config['writableFiles'] = getArgv('writableFiles');
+        $config['category'] = getArgv('category');
+        $config['depends'] = getArgv('depends');
+
+        return $this->setConfig($pName, $config);
+    }
 
 }

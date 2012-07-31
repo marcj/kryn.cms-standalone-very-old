@@ -382,7 +382,7 @@ class RestServer extends RestServerController {
         //does the requested uri exist?
         if (!list($route, $regexArguments, $trigger) = $this->findRoute($uri)){
             if (!$this->getParent()){
-                $this->sendError('method_not_found', "There is no route for '$uri'.");
+                $this->sendError('rest_method_not_found', "There is no route for '$uri'.");
             } else {
                 return false;
             }
@@ -398,7 +398,7 @@ class RestServer extends RestServerController {
         if (is_array($route[1])){
             foreach ($route[1] as $argument){
                 if ($_REQUEST[$argument] === null)
-                    $this->sendBadRequest('required_argument_not_found', "Argument '$argument' is missing.");
+                    $this->sendBadRequest('rest_required_argument_not_found', "Argument '$argument' is missing.");
 
                 $arguments[] = $_REQUEST[$argument];
             }

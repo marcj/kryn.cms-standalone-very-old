@@ -120,7 +120,7 @@ ka.tryLock = function (pWin, pKey, pForce) {
 
 ka.alreadyLocked = function (pWin, pResult) {
 
-    pWin._alert(_('Currently, a other user has this content open.'));
+    pWin._alert(t('Currently, a other user has this content open.'));
 
 }
 

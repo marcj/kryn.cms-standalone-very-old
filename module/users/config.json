@@ -1,12 +1,6 @@
 {
-  "title": {
-    "de": "",
-    "en": "Kryn.cms users"
-  },
-  "desc": {
-    "de": "",
-    "en": "Create, edit users and groups. Manage rights(ACLs) and let users communicates via the build-in messaging system."
-  },
+  "title": "Kryn.cms User",
+  "desc": "Users, Groups, Permission Management, Internal Messaging System, Chat.",
   "system": true,
   "version": "0.10.0",
   "owner": "1",
@@ -432,7 +426,7 @@
       "title": "[[Users]]",
       "class": "usersAdminList",
       "type": "combine",
-      "icon": "#icon-user-6",
+      "icon": "#icon-users-2",
       "isLink": true,
       "multi": false,
       "minWidth": 850,
@@ -1265,10 +1259,7 @@
       ]
     }
   },
-  "tags": {
-    "en": "user,message,messagesystem",
-    "de": ""
-  },
+  "tags": "users, chat, acl, groups",
   "writableFiles": "",
   "depends": "",
   "adminJavascript": [

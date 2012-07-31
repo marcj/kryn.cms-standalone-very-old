@@ -52,6 +52,7 @@ class RestServerController {
      * @throws \Exception
      */
     public function sendBadRequest($pCode, $pMessage){
+        if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
         $msg = array('error' => $pCode, 'message' => $pMessage);
         if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
         $this->getClient()->sendResponse('400', $msg);
@@ -65,6 +66,7 @@ class RestServerController {
      * @throws \Exception
      */
     public function sendError($pCode, $pMessage){
+        if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
         $msg = array('error' => $pCode, 'message' => $pMessage);
         if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
         $this->getClient()->sendResponse('500', $msg);

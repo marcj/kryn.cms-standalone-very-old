@@ -11,17 +11,20 @@ var admin_system_module_edit = new Class({
 
         this.topNavi = this.win.addTabGroup();
         this.buttons = {};
-        this.buttons['general'] = this.topNavi.addButton(_('General'), '', this.viewType.bind(this, 'general'));
-        this.buttons['extras'] = this.topNavi.addButton(_('Extras'), '', this.viewType.bind(this, 'extras'));
+        this.buttons['general'] = this.topNavi.addButton(t('General'), '', this.viewType.bind(this, 'general'));
+        this.buttons['extras'] = this.topNavi.addButton(t('Extras'), '', this.viewType.bind(this, 'extras'));
         this.buttons['links'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'links'));
-        this.buttons['db'] = this.topNavi.addButton(_('Database'), '', this.viewType.bind(this, 'db'));
-        this.buttons['windows'] = this.topNavi.addButton(_('Windows'), '', this.viewType.bind(this, 'windows'));
-        this.buttons['objects'] = this.topNavi.addButton(_('Objects'), '', this.viewType.bind(this, 'objects'));
-        this.buttons['plugins'] = this.topNavi.addButton(_('Plugins'), '', this.viewType.bind(this, 'plugins'));
-        this.buttons['docu'] = this.topNavi.addButton(_('Docu'), '', this.viewType.bind(this, 'docu'));
-        this.buttons['help'] = this.topNavi.addButton(_('Help'), '', this.viewType.bind(this, 'help'));
-        this.buttons['layouts'] = this.topNavi.addButton(_('Themes'), '', this.viewType.bind(this, 'layouts'));
-        this.buttons['language'] = this.topNavi.addButton(_('Language'), '', this.viewType.bind(this, 'language'));
+
+        this.buttons['objects'] = this.topNavi.addButton(t('Objects'), '', this.viewType.bind(this, 'objects'));
+        this.buttons['db'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'db'));
+
+        this.buttons['windows'] = this.topNavi.addButton(t('Backend Views'), '', this.viewType.bind(this, 'windows'));
+        this.buttons['plugins'] = this.topNavi.addButton(t('Frontend Views'), '', this.viewType.bind(this, 'plugins'));
+
+        this.buttons['docu'] = this.topNavi.addButton(t('Docu'), '', this.viewType.bind(this, 'docu'));
+        this.buttons['help'] = this.topNavi.addButton(t('Help'), '', this.viewType.bind(this, 'help'));
+        this.buttons['layouts'] = this.topNavi.addButton(t('Themes'), '', this.viewType.bind(this, 'layouts'));
+        this.buttons['language'] = this.topNavi.addButton(t('Language'), '', this.viewType.bind(this, 'language'));
 
         this.panes = {};
         Object.each(this.buttons, function (button, id) {
@@ -29,32 +32,6 @@ var admin_system_module_edit = new Class({
                 'class': 'admin-system-modules-edit-pane'
             }).inject(this.win.content);
         }.bind(this));
-
-        this.languageSelect = new Element('select', {
-            'style': 'margin-left: 7px;'
-        }).addEvent('mousedown',
-            function (e) {
-                e.stopPropagation();
-            }).addEvent('change', function () {
-            var _this = this;
-            this.win._confirm(_('Really change language? Unsaved information will be lost.'), function (go) {
-                if (go) {
-                    _this.lastLanguage = _this.languageSelect.value;
-                    _this.viewType(_this.lastType);
-                } else {
-                    _this.languageSelect.value = _this.lastLanguage;
-                }
-            });
-        }.bind(this)).inject(this.win.titleGroups);
-
-        Object.each(ka.settings.langs, function (lang, id) {
-            new Element('option', {
-                text: lang.langtitle + ' (' + lang.title + ', ' + id + ')',
-                value: id
-            }).inject(this.languageSelect);
-        }.bind(this));
-
-        this.lastLanguage = this.languageSelect.value;
 
         this.loader = new ka.Loader().inject(this.win.content);
         this.loader.hide();
@@ -106,8 +83,8 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         var buttonBar = new ka.ButtonBar(this.panes['plugins']);
-        buttonBar.addButton(_('Add plugin'), this.addPlugin.bind(this));
-        buttonBar.addButton(_('Save'), this.savePlugins.bind(this));
+        buttonBar.addButton(t('Add plugin'), this.addPlugin.bind(this));
+        buttonBar.addButton(t('Save'), this.savePlugins.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getPlugins', noCache: 1, onComplete: function (res) {
 
@@ -265,7 +242,7 @@ var admin_system_module_edit = new Class({
         this.loader.show();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveDocu', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-        }.bind(this)}).post({text: this.text.getValue(), lang: this.languageSelect.value, name: this.mod});
+        }.bind(this)}).post({text: this.text.getValue(), /*lang: this.languageSelect.value, */name: this.mod});
     },
 
     loadDocu: function () {
@@ -278,18 +255,18 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['docu']);
 
         var buttonBar = new ka.ButtonBar(this.panes['docu']);
-        buttonBar.addButton(_('Save'), this.saveDocu.bind(this));
+        buttonBar.addButton(t('Save'), this.saveDocu.bind(this));
 
         this.text = new ka.Field({
-            label: t('Documentation') + ' (' + this.languageSelect.value + ')', type: 'wysiwyg'}, p, {win: this.win});
-        this.text.setValue(_('Loading ...'));
+            label: t('Documentation'), type: 'wysiwyg'}, p, {win: this.win});
+        this.text.setValue(t('Loading ...'));
 
         this.text.input.setStyle('height', '100%');
         this.text.input.setStyle('width', '100%');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getDocu', noCache: 1, onComplete: function (res) {
             this.text.setValue(res);
-        }.bind(this)}).post({lang: this.languageSelect.value, name: this.mod});
+        }.bind(this)}).post({/*lang: this.languageSelect.value, */name: this.mod});
 
         this.loader.hide();
     },
@@ -508,9 +485,29 @@ var admin_system_module_edit = new Class({
         this.dbEditor.setValue(pModel);
 
         var buttonBar = new ka.ButtonBar(this.panes['db']);
+
+        var info = new Element('div', {
+            style: 'position: absolute; left: 5px; top: 7px; color: gray;',
+            text: 'module/'+this.mod+'/model.xml, '
+        }).inject(document.id(buttonBar));
+
+        new Element('a', {
+            text: t('XML Schema'),
+            target: '_blank',
+            href: 'http://www.propelorm.org/reference/schema.html'
+        }).inject(info);
+
+        new Element('span', {text: ', '}).inject(info);
+
+        new Element('a', {
+            text: t('Propel Basics'),
+            target: '_blank',
+            href: 'http://www.propelorm.org/documentation/02-buildtime.html'
+        }).inject(info);
+
         buttonBar.addButton(t('Save'), this.saveDb.bind(this));
         buttonBar.addButton(t('ORM update'), function () {
-            ka.wm.open('admin/system/module/manager/orm-update');
+            ka.wm.open('admin/system/module/manager/orm-tools', {doUpdate: 1});
         }.bind(this));
 
     },
@@ -526,7 +523,8 @@ var admin_system_module_edit = new Class({
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getHelp', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             this._renderHelp(res);
-        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.value});
+
+        }.bind(this)}).post({name: this.mod/*, lang: this.languageSelect.value*/});
     },
 
     _renderHelp: function (pHelp) {
@@ -542,8 +540,8 @@ var admin_system_module_edit = new Class({
         }.bind(this));
 
         var buttonBar = new ka.ButtonBar(this.panes['help']);
-        buttonBar.addButton(_('Add help'), this.addHelpItem.bind(this));
-        buttonBar.addButton(_('Save'), this.saveHelp.bind(this));
+        buttonBar.addButton(t('Add help'), this.addHelpItem.bind(this));
+        buttonBar.addButton(t('Save'), this.saveHelp.bind(this));
 
     },
 
@@ -562,7 +560,7 @@ var admin_system_module_edit = new Class({
 
         }.bind(this));
 
-        req.lang = this.languageSelect.value;
+//        req.lang = this.languageSelect.value;
         req.name = this.mod;
         req.help = JSON.encode(items);
         this.loader.show();
@@ -895,7 +893,7 @@ var admin_system_module_edit = new Class({
             title: t('Delete Link'),
             style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
         }).addEvent('click', function () {
-            this.win._confirm(_('Delete?'), function (res) {
+            this.win._confirm(t('Delete?'), function (res) {
                 if (!res)return;
                 lvl1.destroy();
             });
@@ -1072,7 +1070,7 @@ var admin_system_module_edit = new Class({
 
 
         var buttonBar = new ka.ButtonBar(this.panes['general']);
-        buttonBar.addButton(_('Save'), this.saveGeneral.bind(this));
+        buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
 
     },
 
@@ -1087,11 +1085,11 @@ var admin_system_module_edit = new Class({
             req[id] = field.getValue();
         });
 
-        req.lang = this.languageSelect.value;
+//      req.lang = this.languageSelect.value;
         req.name = this.mod;
 
         this.loader.show();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveGeneral', noCache: 1, onComplete: function () {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/general', noCache: 1, onComplete: function () {
             this.loader.hide();
         }.bind(this)}).post(req);
     },
@@ -1131,10 +1129,10 @@ var admin_system_module_edit = new Class({
 
         var buttonBar = new ka.ButtonBar(this.panes['layouts']);
 
-        buttonBar.addButton(_('Add theme'), function () {
+        buttonBar.addButton(t('Add theme'), function () {
             this._layoutsAddTheme('Theme title', {});
         }.bind(this));
-        buttonBar.addButton(_('Save'), this.saveLayouts.bind(this));
+        buttonBar.addButton(t('Save'), this.saveLayouts.bind(this));
     },
 
     saveLayouts: function () {
@@ -1275,7 +1273,7 @@ var admin_system_module_edit = new Class({
             style: 'position: relative; top: 3px; cursor: pointer;',
             title: t('Delete Theme')
         }).addEvent('click', function () {
-            this.win._confirm(_('Really delete this theme ?'), function (res) {
+            this.win._confirm(t('Really delete this theme ?'), function (res) {
                 if (!res) return;
                 myp.destroy();
             }.bind(this))
@@ -1308,7 +1306,7 @@ var admin_system_module_edit = new Class({
                 style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
                 title: t('Delete template')
             }).addEvent('click', function () {
-                this.win._confirm(_('Really delete this template ?'), function (res) {
+                this.win._confirm(t('Really delete this template ?'), function (res) {
                     if (!res) return;
                     li.destroy();
                 }.bind(this))
@@ -1451,13 +1449,13 @@ var admin_system_module_edit = new Class({
         }).inject(div);
 
         var left = new Element('div', {style: 'position: absolute; left: 5px; top: 50px; right: 90px;'}).inject( div );
-        this.langProgressBars = new ka.Progress(_('Extracting ...'), true);
+        this.langProgressBars = new ka.Progress(t('Extracting ...'), true);
         this.langProgressBars.inject( left );
 
         var right = new Element('div', {style: 'position: absolute; right: 10px; top: 50px;'}).inject( div )
-        this.langTranslateBtn = new ka.Button(_('Translate')).inject( right );
+        this.langTranslateBtn = new ka.Button(t('Translate')).inject( right );
         this.langTranslateBtn.addEvent('click', function(){
-            ka.wm.open('admin/system/languages/edit', {lang: this.languageSelect.value, module: this.mod});
+            ka.wm.open('admin/system/languages/edit', {/*lang: this.languageSelect.value, */module: this.mod});
         }.bind(this));
         this.langTranslateBtn.deactivate();
 
@@ -1474,7 +1472,7 @@ var admin_system_module_edit = new Class({
                 );
 
                 this.langTranslateBtn.activate();
-        }.bind(this)}).post({module: this.mod, lang: this.languageSelect.value});
+        }.bind(this)}).post({module: this.mod/*, lang: this.languageSelect.value*/});
 
     },
 
@@ -1535,15 +1533,11 @@ var admin_system_module_edit = new Class({
 
         this.win.setLoading(true, t('Write model to model.xml'));
 
-        new Request.JSON({url: _path+'admin/system/module/editor/model', onComplete: function(pResult){
-
-
-
+        new Request.JSON({url: _path+'admin/system/module/editor/model/fromObject', onComplete: function(pResult){
 
             this.win.setLoading(false);
 
-        }}).post({name: this.mod, object: pObjectKey});
-
+        }.bind(this)}).post({name: this.mod, object: pObjectKey});
 
 
     },
@@ -2000,7 +1994,7 @@ var admin_system_module_edit = new Class({
 
 
         if (pDefinition && pDefinition.dataModel != 'custom'){
-            new ka.Button(t('Write DB model'), this.writeObjectModel.bind(this))
+            new ka.Button(t('Write model'), this.writeObjectModel.bind(this, pKey))
             .inject(actionTd);
         }
 
@@ -2434,7 +2428,7 @@ var admin_system_module_edit = new Class({
         this.extraFieldsObj = new ka.Parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
 
         var buttonBar = new ka.ButtonBar(this.panes['extras']);
-        buttonBar.addButton(_('Save'), this.saveExtras.bind(this));
+        buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1,
         onComplete: function (pResult) {

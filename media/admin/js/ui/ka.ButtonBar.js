@@ -10,6 +10,10 @@ ka.ButtonBar = new Class({
         this.box.destroy();
     },
 
+    toElement: function(){
+        return this.box;
+    },
+
     inject: function (pTo, pWhere) {
         this.box.inject(pTo, pWhere);
         return this;
