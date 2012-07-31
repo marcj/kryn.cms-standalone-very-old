@@ -104,6 +104,7 @@ class admin extends RestServerController {
                         ->addRoute('get:installed', 'getInstalled')
                     ->done()
 
+
                     //admin/system/module/manager
                     ->addSubController('module/editor', '\Admin\Module\Editor')
                         ->addRoute('get:config', 'getConfig', array('name'))

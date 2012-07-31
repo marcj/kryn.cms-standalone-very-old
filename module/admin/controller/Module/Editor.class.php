@@ -136,22 +136,16 @@ class Editor extends \RestServerController {
 
         foreach ($object['fields'] as $fieldKey => $field){
 
-            //column exist?
-            $columns = $objectTable->xpath('column[@name =\''.$fieldKey.'\']');
-
-            if ($columns) {
-
-                $column = current($columns);
-                if ($column['custom'] == true) continue;
-
-            } else $column = $objectTable->addChild('column');
-
-            $column['name'] = $fieldKey;
-            $columnsDefined[] = $fieldKey;
+            $column = array();
 
             switch($field['type']){
 
                 case 'textarea':
+                case 'wysiwyg':
+                case 'codemirror':
+                case 'textlist':
+                case 'filelist':
+                case 'layoutelement':
 
                     $column['type'] = 'LONGVARCHAR';
                     break;
@@ -161,14 +155,23 @@ class Editor extends \RestServerController {
 
                     $column['type'] = 'VARCHAR';
 
-                    if ($field['maxlength'])$column['size'] = $field['maxlength'];
+                    if ($field['maxlength']) $column['size'] = $field['maxlength'];
                     break;
+
+                case 'lang':
+
+                    $column['type'] = 'VARCHAR';
+                    $column['size'] = 3;
 
                 case 'number':
 
                     $column['type'] = 'INTEGER';
 
                     if ($field['maxlength']) $column['size'] = $field['maxlength'];
+
+                    if ($field['number_type'])
+                        $column['type'] = $field['number_type'];
+
                     break;
 
                 case 'checkbox':
@@ -184,6 +187,18 @@ class Editor extends \RestServerController {
 
                     $column['type'] = 'BIGINT';
 
+                case 'object':
+
+                    //asd
+                    $foreignObject = kryn::$objects[$field['object']];
+                    if (!$foreignObject) continue;
+
+                    $primaries = \Core\Object::getPrimaryKeys();
+
+                    break;
+
+                default:
+                    continue;
 
             }
 
@@ -192,6 +207,22 @@ class Editor extends \RestServerController {
             if ($field['primaryKey']) $column['primaryKey'] = true;
             if ($field['autoIncrement']) $column['autoIncrement'] = true;
 
+            //column exist?
+            $columns = $objectTable->xpath('column[@name =\''.$fieldKey.'\']');
+
+            if ($columns) {
+
+                $newCol = current($columns);
+                if ($newCol['custom'] == true) continue;
+
+            } else $newCol = $objectTable->addChild('column');
+
+            $newCol['name'] = $fieldKey;
+            $columnsDefined[] = $fieldKey;
+
+            foreach ($column as $k => $v){
+                $newCol[$k] = $v;
+            }
 
         }
 
