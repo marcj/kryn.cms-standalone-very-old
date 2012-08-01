@@ -45,7 +45,7 @@
             {if $error eq 'invalid-arguments'}
             &raquo; [[The requested page with these arguments can not be found]].
                 <div class="desc">[[Maybe you want to go to the page without arguments]]:
-                    <a href="{$page|realUrl}">{$page.title}</a>
+                    <a href="{$page->getFullUrl()}">{$page->getTitle()}</a>
                 </div>
             {/if}
             

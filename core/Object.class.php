@@ -233,7 +233,6 @@ class Object {
 
     /**
      * Returns the single row of a object.
-
      * $pOptions is a array which can contain following options. All options are optional.
      *
      *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)

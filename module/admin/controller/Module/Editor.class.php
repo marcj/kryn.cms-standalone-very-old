@@ -98,6 +98,173 @@ class Editor extends \RestServerController {
 
     }
 
+    public function getColumnFromField($pObject, $pFieldKey, $pField, &$pTable, &$pDatabase, &$pRefColumn = null){
+
+        $columns = array();
+        $column  = array();
+        if ($pRefColumn)
+            $column =& $pRefColumn;
+
+
+        switch($pField['type']){
+
+            case 'textarea':
+            case 'wysiwyg':
+            case 'codemirror':
+            case 'textlist':
+            case 'filelist':
+            case 'layoutelement':
+
+                $column['type'] = 'LONGVARCHAR';
+                break;
+
+            case 'text':
+            case 'password':
+
+                $column['type'] = 'VARCHAR';
+
+                if ($pField['maxlength']) $column['size'] = $pField['maxlength'];
+                break;
+
+            case 'lang':
+
+                $column['type'] = 'VARCHAR';
+                $column['size'] = 3;
+
+            case 'number':
+
+                $column['type'] = 'INTEGER';
+
+                if ($pField['maxlength']) $column['size'] = $pField['maxlength'];
+
+                if ($pField['number_type'])
+                    $column['type'] = $pField['number_type'];
+
+                break;
+
+            case 'checkbox':
+
+                $column['type'] = '';
+                break;
+
+            case 'date':
+            case 'datetime':
+
+                if ($pField['asUnixTimestamp'] === false)
+                    $column['type'] = $pField['type'] == 'date'? 'DATE':'TIMESTAMP';
+
+                $column['type'] = 'BIGINT';
+
+            case 'object':
+
+                $foreignObject = kryn::$objects[$pField['object']];
+                if (!$foreignObject) continue;
+
+                if ($pField['objectRelation'] == 'n-1'){
+
+                    $primaries = \Core\Object::getPrimaries($pField['object']);
+                    if (count(primaries) > 1){
+                        //define extra columns
+                        foreach ($primaries as $key => $primary){
+                            $columnId = $pFieldKey.'_'.$key;
+                            $columns[$columnId] = $pField;
+
+                            $this->getColumnFromField($columnId, $primary, $pTable, $pDatabase, $columns[$columnId]);
+
+                        }
+                        
+                        return $columns;
+
+                    } else if(count(primaries) == 1){
+                        $this->getColumnFromField($pObject, key($primaries), current($primaries), $pTable, $pDatabase, $column);
+                    }
+
+                } else {
+
+                    //n-n, we need a extra table
+                                        
+                    $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.$pField['object'];
+
+                    //search if we've already the table defined.
+                    $tables = $pDatabase->xpath('table[@name=\''.$tableName.'\']');
+                    $object = kryn::$objects[$pObject];
+
+                    if (!$tables) {
+
+                        $relationTable = $pDatabase->addChild('table');
+                        $relationTable['name'] = $tableName;
+                        $relationTable['isCrossRef'] = "true";
+
+                        if ($pField['objectRelationPhpName'])
+                            $relationTable['phpName'] = $pField['objectRelationPhpName'];
+
+                        $foreignKeys = array();
+
+                        //left columns
+                        $leftPrimaries = \Core\Object::getPrimaries($pObject);
+                        foreach ($leftPrimaries as $key => $primary){
+                            $col = $relationTable->addChild('column');
+
+                            $col['name'] = $pObject.'_'.$key;
+                            $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
+                            unset($col['autoIncrement']);
+                            $col['required'] = "true";
+
+                            $foreignKeys[$object['table']][$key] = $col['name'];
+
+                        }
+
+
+                        //right columns
+                        $leftPrimaries = \Core\Object::getPrimaries($pField['object']);
+                        foreach ($leftPrimaries as $key => $primary){
+                            $col = $relationTable->addChild('column');
+
+                            $col['name'] = $pField['object'].'_'.$key;
+                            $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
+                            unset($col['autoIncrement']);
+                            $col['required'] = "true";
+
+                            $foreignKeys[$foreignObject['table']][$key] = $col['name'];
+
+                        }
+
+                        foreach ($foreignKeys as $table => $keys){
+                            $foreignKey = $relationTable->addChild('foreign-key');
+                            $foreignKey['foreignTable'] = $table;
+                            foreach ($keys as $k => $v){
+                                $reference = $foreignKey->addChild('reference');
+                                $reference['local'] = $v;
+                                $reference['foreign'] = $k;
+                            }
+                        }
+                        
+                        //$relationTable->addChild('<vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>');
+
+                    }
+
+                    return false;
+
+                }
+
+                break;
+
+            default:
+                return false;
+
+        }
+
+        if ($pField['empty'] === 0 || $pField['empty'] === false)
+            $column['required'] = "true";
+
+        if ($pField['primaryKey']) $column['primaryKey'] = "true";
+        if ($pField['autoIncrement']) $column['autoIncrement'] = "true";
+
+        $columns[$pFieldKey] = $column;
+
+        return $columns;
+    }
+
     public function setModelFromObject($pName, $pObject){
 
         Manager::prepareName($pName);
@@ -136,97 +303,39 @@ class Editor extends \RestServerController {
 
         foreach ($object['fields'] as $fieldKey => $field){
 
-            $column = array();
+            $columns = $this->getColumnFromField($pObject, $fieldKey, $field, $objectTable, $xml);
 
-            switch($field['type']){
+            if (!$columns) continue;
 
-                case 'textarea':
-                case 'wysiwyg':
-                case 'codemirror':
-                case 'textlist':
-                case 'filelist':
-                case 'layoutelement':
+            foreach ($columns as $key => $column){
+                //column exist?
+                $eColumns = $objectTable->xpath('column[@name =\''.$key.'\']');
 
-                    $column['type'] = 'LONGVARCHAR';
-                    break;
+                if ($eColumns) {
 
-                case 'text':
-                case 'password':
+                    $newCol = current($eColumns);
+                    if ($newCol['custom'] == true) continue;
 
-                    $column['type'] = 'VARCHAR';
+                } else $newCol = $objectTable->addChild('column');
 
-                    if ($field['maxlength']) $column['size'] = $field['maxlength'];
-                    break;
+                $newCol['name'] = $key;
+                $columnsDefined[] = $key;
 
-                case 'lang':
-
-                    $column['type'] = 'VARCHAR';
-                    $column['size'] = 3;
-
-                case 'number':
-
-                    $column['type'] = 'INTEGER';
-
-                    if ($field['maxlength']) $column['size'] = $field['maxlength'];
-
-                    if ($field['number_type'])
-                        $column['type'] = $field['number_type'];
-
-                    break;
-
-                case 'checkbox':
-
-                    $column['type'] = '';
-                    break;
-
-                case 'date':
-                case 'datetime':
-
-                    if ($field['asUnixTimestamp'] === false)
-                        $column['type'] = $field['type'] == 'date'? 'DATE':'TIMESTAMP';
-
-                    $column['type'] = 'BIGINT';
-
-                case 'object':
-
-                    //asd
-                    $foreignObject = kryn::$objects[$field['object']];
-                    if (!$foreignObject) continue;
-
-                    $primaries = \Core\Object::getPrimaryKeys();
-
-                    break;
-
-                default:
-                    continue;
-
-            }
-
-            $column['required'] = !$field['empty'];
-
-            if ($field['primaryKey']) $column['primaryKey'] = true;
-            if ($field['autoIncrement']) $column['autoIncrement'] = true;
-
-            //column exist?
-            $columns = $objectTable->xpath('column[@name =\''.$fieldKey.'\']');
-
-            if ($columns) {
-
-                $newCol = current($columns);
-                if ($newCol['custom'] == true) continue;
-
-            } else $newCol = $objectTable->addChild('column');
-
-            $newCol['name'] = $fieldKey;
-            $columnsDefined[] = $fieldKey;
-
-            foreach ($column as $k => $v){
-                $newCol[$k] = $v;
+                foreach ($column as $k => $v){
+                    $newCol[$k] = $v;
+                }
             }
 
         }
 
 
+        $dom = new \DOMDocument;
+        $dom->preserveWhiteSpace = false;
+        $dom->loadXML($xml->asXML());
+        $dom->formatOutput = true;
+        echo $dom->saveXml();
+
+        exit;
 
     }
 
