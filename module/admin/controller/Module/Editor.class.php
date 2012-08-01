@@ -229,6 +229,7 @@ class Editor extends \RestServerController {
 
                         }
 
+                        //foreign keys
                         foreach ($foreignKeys as $table => $keys){
                             $foreignKey = $relationTable->addChild('foreign-key');
                             $foreignKey['foreignTable'] = $table;

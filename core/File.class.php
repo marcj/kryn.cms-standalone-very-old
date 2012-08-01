@@ -27,23 +27,75 @@ class File {
     public static $fsObjects = array();
 
 
-    public static $dirMask = 0775;
+    public static $dirMode  = 0700;
 
-    public static $fileMask = 0660;
+    public static $fileMode = 0600;
 
-    public static function fixMask($pPath){
+
+    public static $fileOwner = '';
+    public static $fileGroup = '';
+
+    /**
+     * Fixes file permissions on file/folder recursivly.
+     * 
+     * @param  string $pPath the path
+     */
+    public static function fixFiles($pPath){
 
         if (is_dir($pPath)){
+            
+            @chmod($pPath, self::$dirMode);
+
             $sub = find($pPath.'/*', false);
             if (is_array($sub)){
                 foreach ($sub as $path){
-                    self::fixMask($path);
+                    self::fixFiles($path);
                 }
             }
         } else if (is_file($pPath)){
-            @chmod($pPath, self::$fileMask);
+            @chmod($pPath, self::$fileMode);
         }
 
+    }
+
+    /**
+     * Fixes file permissions a file/folder.
+     * 
+     * @param  string $pPath the path
+     */
+    public static function fixFile($pPath){
+
+        if (is_dir($pPath)){
+            @chmod($pPath, self::$dirMode);
+        } else if (is_file($pPath)){
+            @chmod($pPath, self::$fileMode);
+        }
+
+    }
+
+    public static function loadConfig(){
+
+        self::$fileMode = 600;
+        self::$dirMode  = 700;
+
+        if (kryn::$config['fileGroupPermission'] == 'rw'){
+            self::$fileMode += 60;
+            self::$dirMode  += 70;
+        } else if (kryn::$config['fileGroupPermission'] == 'r'){
+            self::$fileMode += 40;
+            self::$dirMode  += 50;
+        }
+
+        if (kryn::$config['fileEveryonePermission'] == 'rw'){
+            self::$fileMode += 6;
+            self::$dirMode  += 7;
+        } else if (kryn::$config['fileEveryonePermission'] == 'r'){
+            self::$fileMode += 4;
+            self::$dirMode  += 5;
+        }
+
+        self::$fileMode = octdec(self::$fileMode);
+        self::$dirMode  = octdec(self::$dirMode);
     }
 
     /**

@@ -255,10 +255,12 @@ case '1':
 function checkConfig(){
 	global $cfg;
 	
-	$type = $_REQUEST['type'];
+	$type = $_REQUEST['db_type'];
 
 
-  if (!is_writable('config.php')){
+  if ((file_exists('config.php') && !is_writable('config.php'))
+      || !file_exists('config.php') && !is_writable('.')
+     ){
       $res['res'] = false;
       $res['error'] = './config.php is not writable.';
       die(json_encode($res));
@@ -270,7 +272,7 @@ function checkConfig(){
 	    "db_passwd"   => $_REQUEST['passwd'],
 	    "db_name"     => $_REQUEST['db'],
 	    "db_prefix"   => $_REQUEST['prefix'],
-	    "db_type"     => $_REQUEST['type'],
+	    "db_type"     => $_REQUEST['db_type'],
 	    "db_pdo"      => $_REQUEST['pdo']
 	);
 
@@ -282,7 +284,7 @@ function checkConfig(){
       $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_passwd']);
   } catch (PDOException $e) {
       $res['res'] = false;
-      $res['error'] = $e->getMessage();
+      $res['error'] = $dsn.': '.$e->getMessage();
   }
 
   if ($res['res'] == true){
@@ -301,10 +303,9 @@ function checkConfig(){
           'db_passwd' => $_REQUEST['passwd'],
           'db_name'   => $_REQUEST['db'],
           'db_prefix' => $_REQUEST['prefix'],
-          'db_type'   => $_REQUEST['type'],
+          'db_type'   => $_REQUEST['db_type'],
 
-          'fileUserName'             => $_REQUEST['fileUserName'],
-          'fileGroupName'            => $_REQUEST['fileGroupName'],
+
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
           'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
 
@@ -326,6 +327,12 @@ function checkConfig(){
           $res['res'] = false;
       } else {
           fwrite( $f, $config ); 
+          fclose($f);
+
+          \Core\Kryn::$config = $cfg;
+          \Core\File::loadConfig();
+
+          \Core\File::fixFile('config.php');
       }
   }
 
@@ -587,8 +594,10 @@ function step5Done($pMsg){
 
         $subStep = $_GET['substep']+0;
         require( 'config.php' );
+        \Core\Kryn::$config = $cfg;
+        \Core\File::loadConfig();
 
-        if ($subStep == 0 && !$cfg['activeExtensions']){
+        if ($subStep == 0 && $_POST['modules']){
 
             $dir = opendir( PATH_MODULE );
             if(! $dir ) return;
@@ -600,13 +609,16 @@ function step5Done($pMsg){
             }
 
             $cfg['activeExtensions'] = $modules;
+            
             array_shift($cfg['activeExtensions']);//admin
             array_shift($cfg['activeExtensions']);//users
             file_put_contents('config.php', "<?php\n\$cfg = ".var_export($cfg, true).";\n?>");
-        } else {
-            if ($cfg['activeExtensions'])
-                $modules = array_merge($modules, $cfg['activeExtensions']);
+            \Core\File::fixFile('config.php');
         }
+
+        if ($cfg['activeExtensions'])
+          $modules = array_merge($modules, $cfg['activeExtensions']);
+
 
         Core\Kryn::$config = $cfg;
         Core\Kryn::$config['db_error_print_sql'] = 1;
@@ -1023,24 +1035,12 @@ function step3(){
 
 <table style="width: 100%" cellpadding="3">
     <tr>
-        <td width="250">User</td>
-        <td>
-            <input type="text" name="fileUserName" value="<?php echo $user; ?>">
-        </td>
-    </tr>
-    <tr>
-        <td width="250">Group</td>
-        <td>
-            <input type="text" name="fileGroupName" value="<?php echo $group; ?>">
-        </td>
-    </tr>
-    <tr>
         <td width="250">Default group permission</td>
         <td>
             <select name="fileGroupPermission">
-                <option name="rw">Read and Write</option>
-                <option name="r">Read</option>
-                <option name="-">None</option>
+                <option value="rw">Read and Write</option>
+                <option value="r">Read</option>
+                <option value="-">None</option>
             </select>
         </td>
     </tr>
@@ -1048,9 +1048,9 @@ function step3(){
         <td width="250">Default everyone permission</td>
         <td>
             <select name="fileEveryonePermission">
-                <option name="-">None</option>
-                <option name="r">Read</option>
-                <option name="rw">Read and Write</option>
+                <option value="-">None</option>
+                <option value="r">Read</option>
+                <option value="rw">Read and Write</option>
             </select>
         </td>
     </tr>

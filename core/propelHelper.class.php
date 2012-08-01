@@ -82,14 +82,12 @@ class propelHelper {
         $config = str_replace($line, $classDefinition, $config);
 
         file_put_contents('propel-config.php', $config);
+        Core\File::fixFile('propel-config.php');
 
         return $content;
     }
 
     public static function cleanup(){
-
-        Core\File::fixMask('propel');
-        Core\File::fixMask('propel-config.php');
 
         delDir('propel');
 
