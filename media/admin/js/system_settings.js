@@ -201,7 +201,7 @@ var admin_system_settings = new Class({
                 type: 'text',
                 'default': '3600'
             },
-            'passwd_hash_compatibility': {
+            'passwd_hash_compat': {
                 'type': 'checkbox',
                 'label': _('Activate the compatibility in the authentication with older Kryn.cms'),
                 'default': 1,

@@ -619,7 +619,7 @@ class Auth {
             if ($row['passwd_salt']) {
                 $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
             } else {
-                if (Kryn::$config['passwd_hash_compatibility'] != 1) return false;
+                if (Kryn::$config['passwd_hash_compat'] != 1) return false;
                 //compatibility
                 $hash = md5($pPassword);
             }

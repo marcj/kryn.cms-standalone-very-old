@@ -37,8 +37,8 @@ $cfg = array();
 @ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);
 
-if( $_REQUEST['step'] == 'checkDb' )
-    checkDb();
+if( $_REQUEST['step'] == 'checkConfig' )
+    checkConfig();
 
 if( $_REQUEST['step'] == '5' ){
     $modules = array('admin', 'users');
@@ -51,6 +51,7 @@ if( $_REQUEST['step'] == '5' ){
   <head>
     <title>Kryn.cms installation</title>
       <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Input.css"  />
 
       <style type="text/css">
       body {
@@ -115,10 +116,8 @@ if( $_REQUEST['step'] == '5' ){
       	border-bottom: 1px solid #eee;
       }
 
-      input.text {
-        border: 1px solid silver;
-        width: 250px;
-        text-indent: 4px;
+      select {
+        width: 152px;
       }
 
       .wrapper {
@@ -129,7 +128,7 @@ if( $_REQUEST['step'] == '5' ){
         -moz-border-radius: 10px;
         -webkit-border-radius: 10px;
         padding: 45px 35px;
-        background-color: #f6f6f6;
+        background-color: #f1f1f1;
         position: relative;
         color: #333;
       }
@@ -157,7 +156,7 @@ if( $_REQUEST['step'] == '5' ){
         top: 27px;
         left: -150px;
         width: 150px;
-        background-color: #f6f6f6;
+        background-color: #f1f1f1;
         margin-bottom: 15px;
       }
       
@@ -211,6 +210,7 @@ if( $_REQUEST['step'] == '5' ){
 
     </style>
     <script type="text/javascript" src="media/kryn/mootools-core.js"></script>
+    <script type="text/javascript" src="media/kryn/mootools-more.js"></script>
     <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
   </head>
   <body>
@@ -227,7 +227,7 @@ if( !empty($_REQUEST['step']) )
 <div class="step">
     <a href="javascript:;" <?php if( $step == 1 ) echo 'class="active"'; ?>>1. Start</a>
     <a href="javascript:;" <?php if( $step == 2 ) echo 'class="active"'; ?>>2. Requirements</a>
-    <a href="javascript:;" <?php if( $step == 3 ) echo 'class="active"'; ?>>3. Database</a>
+    <a href="javascript:;" <?php if( $step == 3 ) echo 'class="active"'; ?>>3. Configuration</a>
     <a href="javascript:;" <?php if( $step == 4 ) echo 'class="active"'; ?>>4. Package</a>
     <a href="javascript:;" <?php if( $step == 5 ) echo 'class="active"'; ?>>5. Installation</a>
     <div class="breaker"></div>
@@ -252,75 +252,84 @@ case '1':
     welcome();
 }
 
-function checkDb(){
+function checkConfig(){
 	global $cfg;
 	
 	$type = $_REQUEST['type'];
+
+
+  if (!is_writable('config.php')){
+      $res['res'] = false;
+      $res['error'] = './config.php is not writable.';
+      die(json_encode($res));
+  }
 	
 	$cfg = array(
-		"db_server"		=> $_REQUEST['server'],
-	    "db_user"		=> $_REQUEST['username'],
-	    "db_passwd"		=> $_REQUEST['passwd'],
-	    "db_name"		=> $_REQUEST['db'],
-	    "db_prefix"		=> $_REQUEST['prefix'],
-	    "db_type"		=> $_REQUEST['type'],
-	    "db_pdo"		=> $_REQUEST['pdo']
+		  "db_server"	  => $_REQUEST['server'],
+	    "db_user"		  => $_REQUEST['username'],
+	    "db_passwd"   => $_REQUEST['passwd'],
+	    "db_name"     => $_REQUEST['db'],
+	    "db_prefix"   => $_REQUEST['prefix'],
+	    "db_type"     => $_REQUEST['type'],
+	    "db_pdo"      => $_REQUEST['pdo']
 	);
 
 	$res = array('res' => true);
 
+  $dsn = $cfg['db_type'].':dbname='.$cfg['db_name'].';host='.$cfg['db_server'];
 
-    $path = dirname($_SERVER['REQUEST_URI']);
-    if( $path == '\\' ) $path = '/';
-    if( substr($path, 0, -1) != '/' )
-        $path .= '/';
-    $path = str_replace('//', '/', $path);
+  try {
+      $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_passwd']);
+  } catch (PDOException $e) {
+      $res['res'] = false;
+      $res['error'] = $e->getMessage();
+  }
 
-    $timezone = @date_default_timezone_get();
-    if( !$timezone )
-        $timezone = 'Europe/Berlin';
+  if ($res['res'] == true){
 
-    $dsn = $cfg['db_type'].':dbname='.$cfg['db_name'].';host='.$cfg['db_server'];
 
-    try {
-        $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_passwd']);
-    } catch (PDOException $e) {
-        $res['res'] = false;
-        $res['error'] = $e->getMessage();
-    }
+      $timezone = $_REQUEST['timezone'];
+      if (!$timezone) $timezone = 'Europe/Berlin';
 
-    if( $res['res'] == true ){
-        $cfg = array(
-        
-            'db_server' => $_REQUEST['server'],
-            'db_user'   => $_REQUEST['username'],
-            'db_passwd' => $_REQUEST['passwd'],
-            'db_name'   => $_REQUEST['db'],
-            'db_prefix' => $_REQUEST['prefix'],
-            'db_type'   => $_REQUEST['type'],
-            "cache_type"   => "files",
-            "media_cache"    => "cache/media/",
-            "display_errors" => "0",
-            "log_errors"     => "0",
-            "systemtitle"    => "Fresh install",
-            "rewrite"        => false,
-            "locale"         => "de_DE.UTF-8",
-            "path"			 => $path,
-            "passwd_hash_compatibility" => "0",
-            "passwd_hash_key"           => Core\Auth::getSalt(32),
-            "timezone"       => $timezone
-        );
-        $config = '<?php $cfg = '. var_export($cfg,true) .'; ?>';
+      $systemTitle = $_REQUEST['systemTitle'];
+      if (!$systemTitle) $systemTitle = "Fresh install";
 
-        $f = @fopen( 'config.php', 'w+' );
-        if( !$f ){
-            $res['error'] = 'Can not open file config.php - please change the permissions.';
-            $res['res'] = false;
-        } else {
-            fwrite( $f, $config ); 
-        }
-    }
-    die(json_encode($res));
+      $cfg = array(
+      
+          'db_server' => $_REQUEST['server'],
+          'db_user'   => $_REQUEST['username'],
+          'db_passwd' => $_REQUEST['passwd'],
+          'db_name'   => $_REQUEST['db'],
+          'db_prefix' => $_REQUEST['prefix'],
+          'db_type'   => $_REQUEST['type'],
+
+          'fileUserName'             => $_REQUEST['fileUserName'],
+          'fileGroupName'            => $_REQUEST['fileGroupName'],
+          'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
+          'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
+
+
+          "cache_type"          => "files",
+          "media_cache"         => "cache/media/",
+          "display_errors"      => "0",
+          "log_errors"          => "0",
+          "systemtitle"         => $systemTitle,
+          "passwd_hash_compat"  => "0",
+          "passwd_hash_key"     => Core\Auth::getSalt(32),
+          "timezone"            => $timezone
+      );
+      $config = '<?php $cfg = '. var_export($cfg,true) .'; ?>';
+
+      $f = @fopen( 'config.php', 'w+' );
+      if (!$f){
+          $res['error'] = 'Can not open file config.php - please change the permissions.';
+          $res['res'] = false;
+      } else {
+          fwrite( $f, $config ); 
+      }
+  }
+
+  die(json_encode($res));
 }
 
 function welcome(){
@@ -779,7 +788,7 @@ Your installation file contains following extensions:<br />
 </form>
 <b style="color: red;">All database tables we install will be dropped in the next step!</b><br /><br/>
 <a href="?step=3" class="ka-Button" >Back</a>
-<a href="javascript: $('form.modules').submit();" class="ka-Button" >Install!</a>
+<a href="javascript: document.id('form.modules').submit();" class="ka-Button" >Install!</a>
 <?php
 }
 
@@ -898,7 +907,7 @@ function step2(){
     $id = posix_getuid();
     $gid = posix_getegid();
     $info = posix_getpwuid($id);
-    $ginfo = posix_getgrgid($id);
+    $ginfo = posix_getgrgid($gid);
     $user = $info['name'];
     $group = $ginfo['name'];
 
@@ -944,45 +953,110 @@ function step2(){
 
 function step3(){
 
+    $id = posix_getuid();
+    $gid = posix_getegid();
+    $info = posix_getpwuid($id);
+    $ginfo = posix_getgrgid($gid);
+    $user = $info['name'];
+    $group = $ginfo['name'];
+
     
     ?>
 
-Please enter your database credentials.<br />
-<br/>
-    Please note: All tables that already exists will be deleted!
-<br/>
+<form id="db_form">
+
 <script type="text/javascript">
-    window.checkDBEntries = function(){
+    window.checkConfigEntries = function(){
         var ok = true;
         
-        if( $('db_server').value == '' ){ $('db_server').highlight(); ok = false; }
-        if( $('db_prefix').value == '' ){ $('db_prefix').highlight(); ok = false; }
-        if( ok ){
-            $( 'status' ).set('html', '<span style="color:green;">Check data ...</span>');
-            var req = {};
-            req.type = $('db_type').value;
-            req.server = $('db_server').value;
-            req.db = $('db_db').value;
-            req.prefix = $('db_prefix').value;
-            req.username = $('db_username').value;
-            req.passwd = $('db_passwd').value;
-            //req.pdo = $('db_pdo').checked?1:0;
+        if( document.id('db_server').value == '' ){ document.id('db_server').highlight(); ok = false; }
+        if( document.id('db_prefix').value == '' ){ document.id('db_prefix').highlight(); ok = false; }
 
-            new Request.JSON({url: 'install.php?step=checkDb', onComplete: function(stat){
+        if( ok ){
+            document.id( 'status' ).set('html', '<span style="color:green;">Check data ...</span>');
+            var req = document.id('db_form').toQueryString().parseQueryString();
+
+            if (window.lcer) window.lcer.cancel();
+
+            window.lcer = new Request.JSON({url: 'install.php?step=checkConfig', onComplete: function(stat){
                 if( stat != null && stat.res == true )
                    location = '?step=4';
                 else if( stat != null )
-                    $( 'status' ).set('html', '<span style="color:red;">Login failed:<br />'+stat.error+'</span>');
+                    document.id('status').set('html', '<span style="color:red;">Failed:<br />'+stat.error+'</span>');
                 else
-                    $( 'status' ).set('html', '<span style="color:red;">Fatal Error. Please take a look in server logs.</span>');
+                    document.id('status').set('html', '<span style="color:red;">Fatal Error. Please take a look in server logs.</span>');
             },
             onError: function(res){
-                $( 'status' ).set('html', '<span style="color:red;">Fatal Error. Please take a look in server logs.</span> Maybe this helps: <br />'+res);
+                document.id('status').set('html', '<span style="color:red;">Fatal Error. Please take a look in server logs.</span> Maybe this helps: <br />'+res);
             }}).post(req);
         }
     }
 </script>
-<form id="db_form">
+
+<h3>System</h3>
+
+
+<table style="width: 100%" cellpadding="3">
+    <tr>
+        <td width="250">Title</td>
+        <td>
+            <input type="text" name="systemTitle" value="Fresh installation">
+        </td>
+    </tr>
+    <tr>
+        <td width="250">Timezone</td>
+        <td>
+            <select name="timezone">
+                <?php
+                    $zones = timezone_identifiers_list();
+                    foreach ($zones as $zone){
+                        echo "<option ".($zone=='Europe/Berlin'?'selected="selected"':'').">$zone</option>"; 
+                    }
+                ?>
+            </select>
+        </td>
+    </tr>
+</table>
+
+
+<h3>Local Filesystem</h3>
+
+<table style="width: 100%" cellpadding="3">
+    <tr>
+        <td width="250">User</td>
+        <td>
+            <input type="text" name="fileUserName" value="<?php echo $user; ?>">
+        </td>
+    </tr>
+    <tr>
+        <td width="250">Group</td>
+        <td>
+            <input type="text" name="fileGroupName" value="<?php echo $group; ?>">
+        </td>
+    </tr>
+    <tr>
+        <td width="250">Default group permission</td>
+        <td>
+            <select name="fileGroupPermission">
+                <option name="rw">Read and Write</option>
+                <option name="r">Read</option>
+                <option name="-">None</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td width="250">Default everyone permission</td>
+        <td>
+            <select name="fileEveryonePermission">
+                <option name="-">None</option>
+                <option name="r">Read</option>
+                <option name="rw">Read and Write</option>
+            </select>
+        </td>
+    </tr>
+</table>
+
+<h3>Database</h3>
 <table style="width: 100%" cellpadding="3">
  	<tr>
         <td width="250">Database PDO driver</td>
@@ -998,38 +1072,32 @@ Please enter your database credentials.<br />
 ?>
         </select></td>
     </tr>
-    <!--<td>PDO driver</td>
-    <td>
-        <input type="checkbox" id="db_pdo" />
-    </td>
-    </tr>
-    -->
     <tr>
         <td>
         	Host
         </td>
-        <td><input class="text" type="text" name="server" id="db_server" value="localhost" /></td>
+        <td><input type="text" name="server" id="db_server" value="localhost" /></td>
     </tr>
     <tr id="ui_username">
         <td>Username</td>
-        <td><input class="text" type="text" name="username" id="db_username" /></td>
+        <td><input type="text" name="username" id="db_username" /></td>
     </tr>
     <tr id="ui_passwd">
         <td>Password</td>
-        <td><input class="text" type="password" name="passwd" id="db_passwd" /></td>
+        <td><input type="password" name="passwd" id="db_passwd" /></td>
     </tr>
     <tr id="ui_db">
         <td>
         	Database name
         </td>
-        <td><input class="text" type="text" name="db" id="db_db" /></td>
+        <td><input type="text" name="db" id="db_db" /></td>
     </tr>
     <tr>
         <td>Prefix
 	        <div style="color: silver">
 	        	Please use only a lowercase string.
 	        </div></td>
-        <td><input class="text" type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
+        <td><input type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
 </table>
 </form>
@@ -1037,7 +1105,7 @@ Please enter your database credentials.<br />
 <br />
 <br />
 <a href="?step=2" class="ka-Button" >Back</a>
-<a href="javascript: checkDBEntries();" class="ka-Button" >Next</a>
+<a href="javascript: checkConfigEntries();" class="ka-Button" >Next</a>
 
 <?php
 }
