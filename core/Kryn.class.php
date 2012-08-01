@@ -1208,7 +1208,7 @@ class Kryn {
         }
 
         if (!$cfg['passwd_hash_key']) {
-            $cfg['passwd_hash_compatibility'] = 1;
+            $cfg['passwd_hash_compat'] = 1;
             $cfg['passwd_hash_key'] = krynAuth::getSalt(32);
             Kryn::fileWrite('config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
         }
