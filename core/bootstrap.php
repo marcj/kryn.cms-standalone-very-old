@@ -45,12 +45,12 @@ if ($cfg['display_errors'] == 0) {
 /**
  * Define global functions.
  */
-include(PATH_CORE.'misc.global.php');
-include(PATH_CORE.'database.global.php');
-include(PATH_CORE.'template.global.php');
-include(PATH_CORE.'internal.global.php');
-include(PATH_CORE.'framework.global.php');
-include(PATH_CORE.'exceptions.global.php');
+include(PATH_CORE.'global/misc.global.php');
+include(PATH_CORE.'global/database.global.php');
+include(PATH_CORE.'global/template.global.php');
+include(PATH_CORE.'global/internal.global.php');
+include(PATH_CORE.'global/framework.global.php');
+include(PATH_CORE.'global/exceptions.global.php');
 
 # Load very important classes.
 include(PATH_CORE . 'Kryn.class.php');

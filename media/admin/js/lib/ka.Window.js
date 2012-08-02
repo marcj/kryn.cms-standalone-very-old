@@ -718,7 +718,7 @@ ka.Window = new Class({
                 if (this.values.fixedHeight > 0) {
                     this.border.setStyle('height', this.values.fixedHeight);
                 }
-                this.resizeBottomRight.destroy();
+                this.resizeBottomRight.setStyle('display', 'none');
                 this.bottom.setStyle('background-image', 'none');
             }
         }
@@ -1295,7 +1295,9 @@ ka.Window = new Class({
         }).inject(this.resizeBottomRight, 'before');
 
         this.bottomBar.addButton = function (pTitle, pOnClick) {
-            return new ka.Button(pTitle).addEvent('click', pOnClick).inject(this.bottomBar);
+            var button = new ka.Button(pTitle).inject(this.bottomBar);
+            if (pOnClick) button.addEvent('click', pOnClick);
+            return button;
         }.bind(this);
 
         this.content.setStyle('bottom', 31);

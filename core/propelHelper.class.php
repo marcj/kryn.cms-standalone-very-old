@@ -23,16 +23,56 @@ class propelHelper {
         Core\Kryn::internalMessage('Propel initialization', $result);
     }
 
+    public static function callGen($pCmd){
+
+        $errors = self::checkModelXml();
+        if ($errors)
+            return array('errors' => $errors);
+        
+        self::writeXmlConfig();
+        self::writeBuildPorperties();
+        self::writeSchema();
+
+        switch($pCmd){
+            case 'models':
+                $result = self::generateClasses();
+            case 'update':
+                $result = self::updateSchema();
+            case 'environment': return true;
+        }
+        
+
+        self::cleanup();
+
+        return $result;
+    }
+
+    public static function checkModelXml(){
+        foreach (Core\Kryn::$extensions as $extension){
+
+            if ($extension == 'kryn') continue;
+
+            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
+
+                simplexml_load_file($schema);
+                if ($errors = libxml_get_errors())
+                    $errors[$schema] = $errors;
+
+            }
+        }
+
+        return $errors;
+    }
     public static function fullGenerator(){
 
         self::writeXmlConfig();
         self::writeBuildPorperties();
         self::writeSchema();
+        self::generatePropelPhpConfig();
 
         $content = '';
 
         $content .= self::generateClasses();
-        $content .= self::generatePropelPhpConfig();
         $content .= self::updateSchema();
 
         self::cleanup();
@@ -45,10 +85,6 @@ class propelHelper {
     public static function generateClasses(){
 
         //delete old map/om folders
-        foreach (Core\Kryn::$extensions as $extension){
-            delDir(PATH_MODULE.$extension.'/model/map/');
-            delDir(PATH_MODULE.$extension.'/model/om');
-        }
 
         $content  = self::execute('om');
 
@@ -71,7 +107,7 @@ class propelHelper {
             self::writeXmlConfig();
             $content = self::execute('convert-conf');
             if (is_array($content))
-                throw new Exception("Propel generateClasses failed: \n". $content[0]);;
+                throw new Exception("Propel generatePropelPhpConfig failed: \n". $content[0]);;
         }
 
         $config   = file_get_contents($file);
@@ -124,6 +160,12 @@ class propelHelper {
     public static function moveClasses(){
 
         self::collectObjectToExtension();
+
+        
+        foreach (Core\Kryn::$extensions as $extension){
+            delDir(PATH_MODULE.$extension.'/model/map/');
+            delDir(PATH_MODULE.$extension.'/model/om');
+        }
 
         $content = "\nMove class files<div style='color: gray;'>";
 
@@ -184,7 +226,6 @@ class propelHelper {
             self::writeXmlConfig();
             self::writeBuildPorperties();
             self::writeSchema();
-            self::generateClasses();
             self::generatePropelPhpConfig();
         }
 
@@ -194,7 +235,7 @@ class propelHelper {
 
         $sql = self::getSqlDiff();
         if (is_array($sql)){
-            throw new Exception("Propel generateClasses failed: \n". $sql[0]);
+            throw new Exception("Propel updateSchema failed: \n". $sql[0]);
         }
 
         if (!$sql){

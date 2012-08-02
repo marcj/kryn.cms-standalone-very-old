@@ -45,9 +45,9 @@ class Local extends FALAbstract {
      */
     public function createFile($pPath, $pContent = false) {
 
-        if (!file_exists(dirname($this->getRoot().$pPath))){
+        if (!file_exists(dirname($this->getRoot().$pPath)))
             $this->createFolder(dirname($pPath));
-        }
+
 
         if (!file_exists($this->getRoot().$pPath)){
             if (!$pContent)

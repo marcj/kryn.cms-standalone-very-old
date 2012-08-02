@@ -4,7 +4,7 @@
  * RestServer - A REST server class for RESTful APIs.
  */
 
-class RestServer extends RestServerController {
+class RestServer {
 
     /**
      * Current routes.
@@ -70,6 +70,15 @@ class RestServer extends RestServerController {
      */
     private $parentController;
 
+
+    /**
+     * The client
+     *
+     * @var RestServerClient
+     */
+    private $client;
+
+
     /**
      * From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      * @var string
@@ -117,6 +126,7 @@ class RestServer extends RestServerController {
         $this->setTriggerUrl($pTriggerUrl);
     }
 
+
     /**
      * Factory.
      *
@@ -131,6 +141,7 @@ class RestServer extends RestServerController {
         return new $clazz($pTriggerUrl, $pControllerClass, $pRewrittenRuleKey);
     }
 
+
     /**
      * Returns the rewritten rule key.
      *
@@ -139,6 +150,7 @@ class RestServer extends RestServerController {
     public function getRewrittenRuleKey(){
         return $this->rewrittenRuleKey;
     }
+
 
     /**
      * Sets the rewritten rule key.
@@ -151,6 +163,7 @@ class RestServer extends RestServerController {
         return $this;
     }
 
+
     /**
      * Alias for getParent()
      *
@@ -160,6 +173,7 @@ class RestServer extends RestServerController {
         return $this->getParent();
     }
 
+
     /**
      * Returns the parent controller
      *
@@ -168,6 +182,7 @@ class RestServer extends RestServerController {
     public function getParent(){
         return $this->parentController;
     }
+
 
     /**
      * Set the URL that triggers the controller.
@@ -188,6 +203,73 @@ class RestServer extends RestServerController {
      */
     public function getTriggerUrl(){
         return $this->triggerUrl;
+    }
+
+
+    /**
+     * Sets the client.
+     *
+     * @param RestServerClient $pClient
+     * @return RestServer $this
+     */
+    public function setClient($pClient){
+        $this->client = $pClient;
+        $this->client->setupFormats();
+
+        return $this;
+    }
+
+
+    /**
+     * Get the current client.
+     *
+     * @return RestServerClient
+     */
+    public function getClient(){
+        return $this->client?$this->client:$this;
+    }
+
+
+    /**
+     * Throws the given arguments/error codes as exception,
+     * if no real client has been set.
+     *
+     * @param $pCode
+     * @param $pMessage
+     * @throws \Exception
+     *
+     */
+    public function sendResponse($pCode, $pMessage){
+        throw new Exception($pCode.': '.print_r($pMessage, true));
+    }
+
+
+    /**
+     * Sends a 'Bad Request' response to the client.
+     *
+     * @param $pCode
+     * @param $pMessage
+     * @throws \Exception
+     */
+    public function sendBadRequest($pCode, $pMessage){
+        if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
+        $msg = array('error' => $pCode, 'message' => $pMessage);
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
+        $this->getClient()->sendResponse('400', $msg);
+    }
+
+
+    /**
+     * Sends a 'Internal Server Error' response to the client.
+     * @param $pCode
+     * @param $pMessage
+     * @throws \Exception
+     */
+    public function sendError($pCode, $pMessage){
+        if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
+        $msg = array('error' => $pCode, 'message' => $pMessage);
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
+        $this->getClient()->sendResponse('500', $msg);
     }
 
 

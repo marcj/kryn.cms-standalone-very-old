@@ -1,6 +1,6 @@
 ka.Button = new Class({
 
-    events: {},
+    $eventsBackuper: false,
 
     initialize: function (pTitle, pOnClick, pTooltip) {
         this.main = new Element('a', {
@@ -40,60 +40,41 @@ ka.Button = new Class({
         }
     },
 
+
+    setEnabled: function(pEnabled){
+
+        this.enabled = pEnabled;
+
+        if (this.enabled){
+            
+            //add back all events
+            if (this.$eventsBackuper)
+                this.main.cloneEvents(this.$eventsBackuper);
+            
+            this.main.removeClass('ka-Button-deactivate');
+        } else {
+
+            this.$eventsBackuper = new Element('span');
+            //backup all events and remove'm.
+            this.$eventsBackuper.cloneEvents(this.main);
+            this.main.removeEvents();
+
+            this.main.addClass('ka-Button-deactivate');
+        }
+
+    },
+
     toElement: function () {
         return this.main;
     },
 
-    setStyle: function (p1, p2) {
-        this.main.setStyle(p1, p2);
+    inject: function(pTarget, pWhere){
+        this.main.inject(pTarget, pWhere);
         return this;
     },
 
-    setStyles: function (p1) {
-        this.main.setStyles(p1);
-        return this;
-    },
-
-    inject: function (p1, p2) {
-        this.main.inject(p1, p2);
-        return this;
-    },
-
-    addEvent: function (p1, p2) {
-        if( !this.events[p1] ){
-            this.events[p1] = [];
-        }
-        this.events[p1].include( p2 );
-
-        this.main.addEvent(p1, p2);
-        return this;
-    },
-
-    removeEvent: function (p1, p2) {
-        if( this.events[p1] ){
-            this.events[p1].erase(p2);
-        }
-
-        this.main.removeEvent(p1, p2);
-        return this;
-    },
-
-    fireEvent: function (p1) {
-        this.main.fireEvent(p1);
-        return this;
-    },
-
-    getParent: function (p1) {
-        this.main.getParent(p1);
-        return this;
-    },
-
-    removeEvents: function (p1) {
-        this.main.removeEvents(p1);
-    },
-
-    set: function (p1, p2) {
-        this.main.set(p1, p2);
+    addEvent: function(pType, pFn){
+        this.main.addEvent(pType, pFn);
         return this;
     },
 
@@ -127,18 +108,10 @@ ka.Button = new Class({
     },
 
     activate: function () {
-        Object.each(this.events, function(events,id){
-            Array.each(events, function(event){
-
-                this.main.addEvent(id, event);
-
-            }.bind(this));
-        }.bind(this));
-        this.main.removeClass('ka-Button-deactivate');
+        this.setEnabled(true);
     },
 
     deactivate: function () {
-        this.main.removeEvents();
-        this.main.addClass('ka-Button-deactivate');
+        this.setEnabled(false);
     }
 });

@@ -507,7 +507,7 @@ var admin_system_module_edit = new Class({
 
         buttonBar.addButton(t('Save'), this.saveDb.bind(this));
         buttonBar.addButton(t('ORM update'), function () {
-            ka.wm.open('admin/system/module/manager/orm-tools', {doUpdate: 1});
+            ka.wm.open('admin/system/development/orm', {doUpdate: 1});
         }.bind(this));
 
     },
@@ -675,10 +675,10 @@ var admin_system_module_edit = new Class({
 
         var req = {};
         req.name = this.mod;
-        req.admin = JSON.encode(admin);
+        req.entryPoints = JSON.encode(admin);
         this.loader.show();
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLinks', noCache: 1, onComplete: function () {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/entryPoints', noCache: 1, onComplete: function () {
             this.loader.hide();
             ka.loadSettings();
             ka.loadMenu();
@@ -1514,6 +1514,10 @@ var admin_system_module_edit = new Class({
         }.bind(this));
 
         buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
+        
+        buttonBar.addButton(t('ORM update'), function () {
+            ka.wm.open('admin/system/development/orm', {doUpdate: 1});
+        }.bind(this));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1,
         onComplete: function (pResult) {

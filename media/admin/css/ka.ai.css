@@ -37,7 +37,8 @@ body {
     background: #1A1A1A;
 }
 
-
+/* ie9 hack for gradients */
+:root div, :root span, :root a { filter:none \0/IE9; }
 
 ::selection {
     background: transparent;

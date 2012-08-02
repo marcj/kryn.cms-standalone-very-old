@@ -2,7 +2,7 @@
 
 namespace Admin;
 
-class Object extends \RestServerController {
+class Object {
 
 
     public function getItemLabel($pObject, $pPk){

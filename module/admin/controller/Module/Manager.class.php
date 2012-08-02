@@ -4,7 +4,7 @@ namespace Admin\Module;
 
 use Core\Kryn;
 
-class Manager extends \RestServerController {
+class Manager {
 
     public function __construct(){
         define('KRYN_MANAGER', true);
@@ -253,11 +253,7 @@ class Manager extends \RestServerController {
         $file = $this->getScriptFile($pName, 'install-pre');
         if (file_exists($file)){
 
-            try {
-                require($file);
-            } catch(\Exception $e){
-                $this->sendError('execution_failed', $e);
-            }
+            require($file);
 
             return 'execution_successful';
         }
@@ -277,11 +273,7 @@ class Manager extends \RestServerController {
         $file = $this->getScriptFile($pName, 'install-extract');
         if (file_exists($file)){
 
-            try {
-                require($file);
-            } catch(\Exception $e){
-                $this->sendError('execution_failed', $e);
-            }
+            require($file);
 
             return 'execution_successful';
         }
@@ -311,11 +303,7 @@ class Manager extends \RestServerController {
         $file = $this->getScriptFile($pName, 'install-database');
         if (file_exists($file)){
 
-            try {
-                include($file);
-            } catch(\Exception $e){
-                $this->sendError('execution_failed', $e);
-            }
+            include($file);
 
             return 'execution_successful';
         }

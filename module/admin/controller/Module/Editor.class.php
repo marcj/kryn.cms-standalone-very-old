@@ -7,7 +7,7 @@ use Core\Kryn;
 use Core\SystemFile;
 use Admin\Module\Manager;
 
-class Editor extends \RestServerController {
+class Editor {
 
     public function getConfig($pName){
         return Manager::loadInfo($pName);
@@ -432,4 +432,13 @@ class Editor extends \RestServerController {
         return $this->setConfig($pName, $config);
     }
 
+
+    public function saveEntryPoints($pName, $pEntryPoints){
+        Manager::prepareName($pName);
+
+        $config = $this->getConfig($pName);
+        $config['admin'] = json_decode($pEntryPoints, true);
+
+        return $this->setConfig($pName, $config);
+    }
 }

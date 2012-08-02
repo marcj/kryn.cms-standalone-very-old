@@ -19,7 +19,7 @@
  */
 
 
-class adminWindowList extends RestServerController {
+class adminWindowList {
 
     /**
      * Defines the table which should be accessed.
@@ -683,7 +683,7 @@ class adminWindowList extends RestServerController {
 
 
             $clazz = ucfirst($this->object).'Query';
-            if (!class_exists($clazz)) $this->sendBadRequest('missing_class', tf('The class %s does not exist.', $clazz));
+            if (!class_exists($clazz)) throw new MissingClassException(tf('The class %s does not exist.', $clazz));
 
             $query = $clazz::create();
 

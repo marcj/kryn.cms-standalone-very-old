@@ -2,7 +2,7 @@
 
 namespace Admin;
 
-class File extends \RestServerController {
+class File {
 
 
 

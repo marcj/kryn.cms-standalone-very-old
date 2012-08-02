@@ -13,7 +13,7 @@
 
 use \Core\Kryn;
 
-class admin extends RestServerController {
+class admin {
 
 
     public function __construct(){
@@ -105,6 +105,14 @@ class admin extends RestServerController {
                     ->done()
 
 
+                    //admin/system/orm
+                    ->addSubController('orm', '\Admin\ORM')
+                        ->addRoute('get:environment', 'buildEnvironment')
+                        ->addRoute('get:models', 'writeModels')
+                        ->addRoute('get:update', 'updateScheme')
+                        ->addRoute('get:check', 'checkScheme')
+                    ->done()
+
                     //admin/system/module/manager
                     ->addSubController('module/editor', '\Admin\Module\Editor')
                         ->addRoute('get:config', 'getConfig', array('name'))
@@ -120,6 +128,7 @@ class admin extends RestServerController {
                         ->addRoute('get:model', 'getModel', array('name'))
 
                         ->addRoute('post:general', 'saveGeneral', array('name'))
+                        ->addRoute('post:entryPoints', 'saveEntryPoints', array('name', 'entryPoints'))
 
 
                     ->done()

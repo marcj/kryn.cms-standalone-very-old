@@ -3464,7 +3464,7 @@ Element.implement({
 				old();
 			};
 		}
-        if (this.addEventListener) this.addEventListener(type, fn, !!arguments[2]);
+		if (this.addEventListener) this.addEventListener(type, fn, !!arguments[2]);
 		else this.attachEvent('on' + type, fn);
 		return this;
 	},
@@ -3476,7 +3476,7 @@ Element.implement({
 	},
 
 	retrieve: function(property, dflt){
-        if (!this.storage) this.storage = {};
+		if (!this.storage) this.storage = {};
 		var prop = this.storage[property];
 		if (dflt != null && prop == null) prop = this.storage[property] = dflt;
 		return prop != null ? prop : null;
@@ -3488,9 +3488,9 @@ Element.implement({
 		return this;
 	},
 
-	eliminate: function(propferty){
-        if (this.storage)
-            delete this.storage[property];
+	eliminate: function(property){
+		if (this.storage && this.storage[property])
+			delete this.storage[property];
 		return this;
 	}
 

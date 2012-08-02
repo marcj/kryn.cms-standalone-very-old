@@ -5,7 +5,7 @@ namespace Admin;
 
 use \Core\Kryn;
 
-class Backend extends \RestServerController {
+class Backend {
 
 
     public static function getDesktop() {

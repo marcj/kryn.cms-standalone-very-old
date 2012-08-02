@@ -16,7 +16,7 @@
  * are defined from the links in your extension.
  *
  * @author MArc Schmidt <marc@kryn.org>
-
+ *
  */
 
 class adminWindowEdit {

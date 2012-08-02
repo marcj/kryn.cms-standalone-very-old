@@ -1,6 +1,6 @@
 <?php
 
-class adminModule extends RestServerController {
+class adminModule {
 
     public static $defaultRepoServer = 'http://api.kryn.org/';
     private static $migrationCurrentPos = 0;
