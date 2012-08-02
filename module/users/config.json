@@ -310,7 +310,8 @@
           "object": "group",
           "objectLabel": "name",
           "objectRelation": "nToM",
-          "objectRelationTable": "system_groupaccess",
+          "objectRelationTable": "system_user_group",
+          "objectRelationPhpName": "UserGroup",
           "type": "object",
           "primaryKey": 0,
           "empty": 1
@@ -328,19 +329,35 @@
           "empty": 1
         }
       },
-      "label": "[[Users]]"
+      "label": "[[Users]]",
+      "__dataModel__": "table"
     },
     "group": {
-      "title": "[[Group]]",
-      "table": "system_groups",
-      "label": "[[Groups]]",
-      "desc": "",
-      "table_sync": 1,
-      "class": "",
+      "table": "system_group",
+      "nested": 0,
+      "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,
-      "plugins": "",
-      "selectable": 1,
+      "chooserFieldDataModelCondition": [
+        
+      ],
+      "chooserFieldDataModel": "default",
+      "chooserFieldDataModelFields": {
+        "name": {
+          "label": "[[Name]]",
+          "type": "text"
+        }
+      },
+      "chooserFieldDataModelField": "name",
+      "chooserFieldType": "default",
+      "chooserBrowserAutoColumns": {
+        "name": {
+          "label": "[[Name]]",
+          "type": "text"
+        }
+      },
+      "chooserBrowserDataModel": "default",
+      "chooserBrowserType": "default",
       "fields": {
         "id": {
           "label": "ID",
@@ -362,42 +379,7 @@
           "empty": 1
         }
       },
-      "chooser_icon": "",
-      "chooserAutoColumns": {
-        "name": {
-          "label": "[[Name]]",
-          "type": "text"
-        }
-      },
-      "chooserAutoFilter": "",
-      "chooserUseOwnClass": false,
-      "chooser": "name",
-      "chooserFieldType": "default",
-      "chooserType": "default",
-      "chooserFields": "name",
-      "chooserModel": "0",
-      "chooserFieldDataModelField": "name",
-      "chooserFieldDataModel": "default",
-      "chooserBrowserCondition": "",
-      "chooserBrowserDataModel": "default",
-      "chooserFieldDataModelFields": {
-        "name": {
-          "label": "[[Name]]",
-          "type": "text"
-        }
-      },
-      "__dataModel__": "table",
-      "tableSync": 0,
-      "tableCondition": [
-        
-      ],
-      "chooserBrowserAutoColumns": {
-        "name": {
-          "label": "[[Name]]",
-          "type": "text"
-        }
-      },
-      "chooserBrowserType": "default"
+      "label": "[[Groups]]"
     }
   },
   "objectRelations": {

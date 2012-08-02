@@ -4,6 +4,7 @@
 namespace Admin\Module;
 
 use Core\Kryn;
+use Core\SystemFile;
 use Admin\Module\Manager;
 
 class Editor extends \RestServerController {
@@ -106,7 +107,7 @@ class Editor extends \RestServerController {
             $column =& $pRefColumn;
 
 
-        switch($pField['type']){
+        switch(strtolower($pField['type'])){
 
             case 'textarea':
             case 'wysiwyg':
@@ -114,17 +115,48 @@ class Editor extends \RestServerController {
             case 'textlist':
             case 'filelist':
             case 'layoutelement':
+            case 'textlist':
+            case 'array':
+            case 'fieldtable':
+            case 'fieldcondition':
+            case 'objectcondition':
+            case 'filelist':
 
                 $column['type'] = 'LONGVARCHAR';
                 break;
 
             case 'text':
             case 'password':
+            case 'files':
 
                 $column['type'] = 'VARCHAR';
 
                 if ($pField['maxlength']) $column['size'] = $pField['maxlength'];
                 break;
+
+            case 'page':
+                $column['type'] = 'INTEGER';
+                break;
+
+            case 'file':
+            case 'folder':
+
+                $column['type'] = 'VARCHAR';
+                $column['size'] = 255;
+                break;
+
+            case 'properties':
+                $column['type'] = 'OBJECT';
+
+            case 'select':
+
+                if ($pField['multi']){
+                    $column['type'] = 'LONGVARCHAR';
+                } else {
+                    $column['type'] = 'VARCHAR';
+                    $column['size'] = 255;
+                }
+
 
             case 'lang':
 
@@ -145,6 +177,16 @@ class Editor extends \RestServerController {
             case 'checkbox':
 
                 $column['type'] = '';
+                break;
+
+            case 'custom':
+
+                if ($pField['column']){
+                    foreach ($pField['column'] as $k => $v){
+                        $column[$k] = $v;
+                    }
+                }
+
                 break;
 
             case 'date':
@@ -190,59 +232,86 @@ class Editor extends \RestServerController {
                     $object = kryn::$objects[$pObject];
 
                     if (!$tables) {
-
                         $relationTable = $pDatabase->addChild('table');
                         $relationTable['name'] = $tableName;
                         $relationTable['isCrossRef'] = "true";
+                    } else {
+                        $relationTable = current($tables);
+                    }
 
-                        if ($pField['objectRelationPhpName'])
-                            $relationTable['phpName'] = $pField['objectRelationPhpName'];
+                    if ($pField['objectRelationPhpName'])
+                        $relationTable['phpName'] = $pField['objectRelationPhpName'];
 
-                        $foreignKeys = array();
+                    $foreignKeys = array();
 
-                        //left columns
-                        $leftPrimaries = \Core\Object::getPrimaries($pObject);
-                        foreach ($leftPrimaries as $key => $primary){
-                            $col = $relationTable->addChild('column');
+                    //left columns
+                    $leftPrimaries = \Core\Object::getPrimaries($pObject);
+                    foreach ($leftPrimaries as $key => $primary){
 
-                            $col['name'] = $pObject.'_'.$key;
-                            $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
-                            unset($col['autoIncrement']);
-                            $col['required'] = "true";
+                        $name = $pObject.'_'.$key;
+                        $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
+                        if ($cols) continue;
 
-                            $foreignKeys[$object['table']][$key] = $col['name'];
+                        $col = $relationTable->addChild('column');
+                        $col['name'] = $name;
+                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
+                        unset($col['autoIncrement']);
+                        $col['required'] = "true";
 
-                        }
-
-
-                        //right columns
-                        $leftPrimaries = \Core\Object::getPrimaries($pField['object']);
-                        foreach ($leftPrimaries as $key => $primary){
-                            $col = $relationTable->addChild('column');
-
-                            $col['name'] = $pField['object'].'_'.$key;
-                            $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
-                            unset($col['autoIncrement']);
-                            $col['required'] = "true";
-
-                            $foreignKeys[$foreignObject['table']][$key] = $col['name'];
-
-                        }
-
-                        //foreign keys
-                        foreach ($foreignKeys as $table => $keys){
-                            $foreignKey = $relationTable->addChild('foreign-key');
-                            $foreignKey['foreignTable'] = $table;
-                            foreach ($keys as $k => $v){
-                                $reference = $foreignKey->addChild('reference');
-                                $reference['local'] = $v;
-                                $reference['foreign'] = $k;
-                            }
-                        }
-                        
-                        //$relationTable->addChild('<vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>');
+                        $foreignKeys[$object['table']][$key] = $col['name'];
 
                     }
+
+                    //right columns
+                    $leftPrimaries = \Core\Object::getPrimaries($pField['object']);
+                    foreach ($leftPrimaries as $key => $primary){
+
+                        $name = $pField['object'].'_'.$key;
+                        $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
+                        if ($cols) continue;
+
+                        $col = $relationTable->addChild('column');
+                        $col['name'] = $name;
+                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
+                        unset($col['autoIncrement']);
+                        $col['required'] = "true";
+
+                        $foreignKeys[$foreignObject['table']][$key] = $col['name'];
+
+                    }
+
+                    //foreign keys
+                    foreach ($foreignKeys as $table => $keys){
+
+                        $foreigns = $relationTable->xpath('foreign-key[@foreignTable=\''.$table.'\']');
+                        if ($foreigns) $foreignKey = current($foreigns);
+                        else $foreignKey = $relationTable->addChild('foreign-key');
+
+                        $foreignKey['foreignTable'] = $table;
+
+                        foreach ($keys as $k => $v){
+
+                            $references = $foreignKey->xpath('reference[@local=\''.$v.'\']');
+                            if ($references) $reference = current($references);
+                            else $reference = $foreignKey->addChild('reference');
+
+                            $reference['local'] = $v;
+                            $reference['foreign'] = $k;
+
+                        }
+                    }
+                    
+                    $vendors = $relationTable->xpath('vendor[@type=\'mysql\']');
+                    if ($vendors) $vendor = current($vendors);
+                    else $vendor = $relationTable->addChild('vendor');
+
+
+                    $params = $vendor->xpath('parameter[@name=\'Charset\']');
+                    if ($params) $param = current($params);
+                    else $param = $vendor->addChild('parameter');
+
+                    $param['name'] = 'Charset';
+                    $param['value'] = 'utf8';
 
                     return false;
 
@@ -297,6 +366,8 @@ class Editor extends \RestServerController {
         if (!$tables) $objectTable = $xml->addChild('table');
         else $objectTable = current($tables);
 
+        if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
+
         $objectTable['name'] = $object['table'];
         $objectTable['phpName'] = $object['phpClass'];
 
@@ -329,14 +400,13 @@ class Editor extends \RestServerController {
 
         }
 
-
         $dom = new \DOMDocument;
         $dom->preserveWhiteSpace = false;
         $dom->loadXML($xml->asXML());
         $dom->formatOutput = true;
-        echo $dom->saveXml();
+        SystemFile::setContent($path, $dom->saveXml());
 
-        exit;
+        return true;
 
     }
 

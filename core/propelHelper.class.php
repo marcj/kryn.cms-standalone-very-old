@@ -82,7 +82,7 @@ class propelHelper {
         $config = str_replace($line, $classDefinition, $config);
 
         file_put_contents('propel-config.php', $config);
-        Core\File::fixFile('propel-config.php');
+        Core\File::setPermission('propel-config.php');
 
         return $content;
     }

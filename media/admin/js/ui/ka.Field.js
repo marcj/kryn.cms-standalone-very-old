@@ -339,7 +339,7 @@ ka.Field = new Class({
             case 'checkboxgroup':
                 this.renderCheckboxGroup();
                 break;
-            case 'window_list':
+            case 'windowlist':
                 this.renderWindowList();
                 break;
             case 'fieldtable':

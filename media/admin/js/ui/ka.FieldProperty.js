@@ -15,34 +15,50 @@ ka.FieldProperty = new Class({
                 text: t('Text'),
                 password: t('Password'),
                 number: t('Number'),
+
                 checkbox: t('Checkbox'),
+                imagegroup: t('Imagegroup'),
+                checkboxgroup: t('Checkboxgroup'),
+
                 page: t('Page'),
                 file: t('File'),
                 folder: t('Folder'),
-                select: t('Select'),
                 object: t('Object'),
-                predefined: t('Predefined'),
-                tab: t('Tab'),
-                lang: t('Language select'),
+
+                select: t('Select'),
                 textlist: t('Textlist'),
+                lang: t('Language select'),
+
+                predefined: t('Predefined'),
+
+                array: t('Ka.Field Array'),
+                properties: t('Properties (multi array class)'),
+                fieldtable: t('Ka.Field table'),
+                
+                fieldcondition: t('Field Condition'),
+                objectcondition: t('Object Condition'),
+
                 textarea: t('Textarea'),
-                array: t('Array'),
                 wysiwyg: t('Wysiwyg'),
+                layoutelement: t('Layout element'),
                 codemirror: t('CodeMirror (sourcecode editor)'),
+
                 date: t('Date'),
                 datetime: t('Datetime'),
+
                 files: t('File select from folder'),
                 filelist: t('File list (Attachments)'),
-                layoutelement: t('Layout element'),
+
+
+                tab: t('Tab'),
                 headline: t('Headline'),
                 info: t('Info'),
                 label: t('Label'),
                 html: t('Html'),
-                imagegroup: t('Imagegroup'),
-                checkboxgroup: t('Checkboxgroup'),
-                custom: t('Custom'),
                 childrenswitcher: t('Children switcher'),
-                window_list: t('Framework windowList')
+
+                custom: t('Custom'),
+                windowlist: t('Framework windowList')
             },
             'depends': {
 
@@ -118,22 +134,22 @@ ka.FieldProperty = new Class({
 
                 //object
                 'object': {
-                    needValue: ['object', 'predefined'],
+                    needValue: ['object', 'predefined', 'fieldcondition', 'objectcondition'],
                     label: t('Objecy key'),
                     desc: t('The key of the object')
                 },
                 'field': {
-                    needValue: 'predefined',
+                    needValue: ['predefined', 'fieldcondition'],
                     label: t('Field key'),
                     desc: t('The key of the field')
                 },
-                'object_label': {
+                'objectLabel': {
                     needValue: 'object',
                     label: t('Object label field (Optional)'),
                     desc: t('The key of the field which should be used as label')
                 },
 
-                'object_relation': {
+                'objectRelation': {
                     label: t('Relation'),
                     desc: t('For n-m the table synchronisation will not create a column in the database table for this field.'),
                     needValue: 'object',
@@ -144,22 +160,17 @@ ka.FieldProperty = new Class({
                     }
                 },
 
-                'object_relation_table': {
+                'objectRelationTable': {
                     needValue: 'nToM',
                     againstField: 'object_relation',
                     label :t('Relation table name (Optional)'),
-                    desc: t('Will also be created during the table synchronisation. The columns of this table are based on the primary keys of left and right table. Default is relation_&lt;leftObjectKEy&gt;_&lt;rightObjectKey&gt;')
+                    desc: t('Will also be created through the ORM update. The columns of this table are based on the primary keys of left and right table. Default is relation_&lt;leftObjectKey&gt;_&lt;rightObjectKey&gt;')
                 },
 
-                object_relation_table_left: {
+                'objectRelationPhpName': {
                     needValue: 'nToM',
                     againstField: 'object_relation',
-                    label: t('Relation table left column (optional)')
-                },
-                object_relation_table_right: {
-                    needValue: 'nToM',
-                    againstField: 'object_relation',
-                    label: t('Relation table right column (optional)')
+                    label :t('Relation table php name (Optional)')
                 },
 
                 //tab
@@ -180,7 +191,7 @@ ka.FieldProperty = new Class({
                 'store': {
                     needValue: ['select', 'textlist'],
                     label: t('Store path'),
-                    desc: t('<extKey>/<EntryPath>, Example: publication/stores/news.')
+                    desc: t('&lt;extKey&gt;/&lt;EntryPath&gt;, Example: publication/stores/news.')
                 },
 
                 //files
@@ -190,6 +201,7 @@ ka.FieldProperty = new Class({
                     label: t('File names without extensions'),
                     'default': 1
                 },
+                
                 directory: {
                     needValue: 'files',
                     label: t('List files from this folder'),

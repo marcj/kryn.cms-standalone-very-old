@@ -13,11 +13,16 @@
 namespace Core;
 
 /**
- * krynFile - file abstraction layer
+ * File
+ *
+ * Class to proxy the file functions to the appropriate file layer.
+ * Use this class, if you want to modify files inside media/.
+ *
+ * This class resolves all mount points inside media/.
  *
  */
-
 class File {
+
 
     /**
      * Caches all objects of active file layers (magic folders)
@@ -27,20 +32,26 @@ class File {
     public static $fsObjects = array();
 
 
+    /**
+     * Default permission modes for directories.
+     * @var integer
+     */
     public static $dirMode  = 0700;
 
+
+    /**
+     * Default permission modes for files.
+     * @var integer
+     */
     public static $fileMode = 0600;
 
 
-    public static $fileOwner = '';
-    public static $fileGroup = '';
-
     /**
-     * Fixes file permissions on file/folder recursivly.
+     * Sets file permissions on file/folder recursivly.
      * 
      * @param  string $pPath the path
      */
-    public static function fixFiles($pPath){
+    public static function setPermission($pPath){
 
         if (is_dir($pPath)){
             
@@ -58,21 +69,12 @@ class File {
 
     }
 
+
     /**
-     * Fixes file permissions a file/folder.
+     * Loads and converts the configuration in Core\Kryn::$config (./config.php)
+     * to appropriate modes.
      * 
-     * @param  string $pPath the path
      */
-    public static function fixFile($pPath){
-
-        if (is_dir($pPath)){
-            @chmod($pPath, self::$dirMode);
-        } else if (is_file($pPath)){
-            @chmod($pPath, self::$fileMode);
-        }
-
-    }
-
     public static function loadConfig(){
 
         self::$fileMode = 600;
@@ -98,9 +100,10 @@ class File {
         self::$dirMode  = octdec(self::$dirMode);
     }
 
+
     /**
      *
-     * Returns the instance of the file layer class for the given path
+     * Returns the instance of the file layer object for the given path.
      *
      * @static
      * @param  string $pPath
@@ -108,8 +111,9 @@ class File {
      */
     public static function getLayer($pPath){
 
-        $class = 'adminFs';
-        $file = false;
+        $class = '\Core\FAL\Local';
+        $params['root'] = PATH_MEDIA;
+        $entryPoint = '';
 
         if ($pPath != '/') {
 
@@ -119,36 +123,31 @@ class File {
             else
                 $firstFolder = substr($pPath, 1, $sPos);
 
-            //if firstFolder a magic folder?
-            if ($fs = Kryn::$config['magic_folder'][$firstFolder]) {
+            //if firstFolder a mounted folder?
+            if ($fs = Kryn::$config['mounts'][$firstFolder]) {
                 $class = $fs['class'];
-                $file = $fs['file'];
                 $params = $fs['params'];
-                $prefix = '/'.$firstFolder;
+                $entryPoint = $firstFolder;
             }
         }
 
         if (self::$fsObjects[$class]) return self::$fsObjects[$class];
 
-        if ($file)
-            require_once($file);
-
         if (class_exists($class))
-            self::$fsObjects[$class] = new $class($params);
+            self::$fsObjects[$class] = new $class($entryPoint, $params);
         else
             return false;
-
-        self::$fsObjects[$class]->magicFolderName = $prefix;
 
         return self::$fsObjects[$class];
 
     }
 
+
     /**
-     * Removes the magicFolderName from the file layer instance in the path,
-     * also remove '..' and replace '//' => '/'
+     * Removes the name of the mount point from the proper layer.
+     * Also removes '..' and replaces '//' => '/'
      *
-     * This is needed because the file layer gets the path under his own root.
+     * This is needed because the file layer gets the relative path under his own root.
      *
      * @param  string $pPath
      * @return string
@@ -156,42 +155,41 @@ class File {
     public static function normalizePath($pPath){
 
         $fs = self::getLayer($pPath);
-        $pPath = substr($pPath, strlen($fs->magicFolderName));
+        $pPath = substr($pPath, strlen($fs->getMountPoint()));
 
         $pPath = str_replace('..', '', $pPath);
         $pPath = str_replace('//', '/', $pPath);
 
-        if (substr($pPath, 0, 1) != '/')
-            $pPath = '/'.$pPath;
+        if (substr($pPath, 0, 1) == '/')
+            $pPath = substr($pPath, 1);
 
         return $pPath;
     }
 
+
     /**
-     * Removes unusual chars in file names, also lowercase it
+     * Removes unusual chars in file names.
      *
      * @static
      * @param  string $pName
      * @return string
      */
     public static function normalizeName($pName){
-        $name = @str_replace('ä', "ae", strtolower($pName));
-        $name = str_replace('..', '', $name);
-        $name = @str_replace('ö', "oe", $name);
-        $name = @str_replace('ü', "ue", $name);
-        $name = @str_replace('ß', "ss", $name);
+        $s = array('ä', 'ö', 'ü', 'ß');
+        $r = array('ae', 'oe', 'ue', 'ss');
+        $name = @str_replace($s, $r, $pName);
         $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
         $name = @preg_replace('/--+/', '-', $name);
         return $name;
     }
 
+
     /**
-     * Reads entire file into a string
+     * Gets the content of a file.
      *
      * @static
-     * @param  string $pPath
-     *
-     * @return string
+     * @param string $pPath
+     * @return bool|string
      */
     public static function getContent($pPath){
 
@@ -202,12 +200,14 @@ class File {
 
 
     /**
-     * Write a string to a file
+     * Sets the content of a file.
      *
+     * Creates the file if not exist. Created also the full folder path if
+     * the they doesnt exist.
+     * 
      * @static
      * @param string $pPath
      * @param string $pContent
-     *
      * @return bool
      */
     public static function setContent($pPath, $pContent){
@@ -217,11 +217,12 @@ class File {
 
     }
 
+
     /**
-     * Checks whether a file or directory exists
+     * Checks if a file exists.
      *
      * @static
-     * @param  string $pPath
+     * @param string $pPath
      * @return bool
      */
     public static function exists($pPath){
@@ -231,11 +232,13 @@ class File {
 
     }
 
+
     /**
-     * Creates a file
-     *
+     * Creates a file with default permissions.
+     * Creates also the full folder path if the they doesnt exist.
+     * 
      * @static
-     * @param  string $pPath
+     * @param string $pPath
      * @return bool
      */
     public static function createFile($pPath, $pContent){
@@ -245,11 +248,13 @@ class File {
 
     }
 
+
     /**
-     * Creates a folder
-     *
+     * Creates a folder with default permissions.
+     * Creates also the full folder path if the they doesnt exist.
+     * 
      * @static
-     * @param  string $pPath
+     * @param string $pPath
      * @return bool
      */
     public static function createFolder($pPath){
@@ -259,12 +264,28 @@ class File {
 
     }
 
+ 
     /**
-     * Gets the basic information of the file
+     * Return information for a file/folder.
+     *
+     * The result contains following information:
+     *  [path(relative), name, type(dir|file), ctime(unixtimestamp), mtime(unixtimestamp), size(bytes)]
+     *  
+     *  array(
+     *    path => path to this file/folder for usage in the administration and modules. Not the full http path. No trailing slash!
+     *    name => basename(path)
+     *    ctime => as unix timestamps
+     *    mtime => as unix timestamps
+     *    size => filesize in bytes (not for folders)
+     *    type => 'dir' or 'file'
+     *  )
      *
      * @static
-     * @param  string $pPath
-     * @return array
+     * @param string $pPath
+     * 
+     * @return int|bool|array Return false if the file doenst exist,
+     *                        return 2 if the webserver does not have access
+     *                        or return array with the information.
      */
     public static function getFile($pPath){
 
@@ -273,12 +294,30 @@ class File {
 
     }
 
+
     /**
-     * Gets the basic information of all files inside the folder
+     * List directory contents.
+     * 
+     * Same as in getFile() but in a list.
+     * 
+     *  array(
+     *    array(
+     *      path => path to the file/folder for usage in the administration and modules. Not the full http path. No trailing slash!
+     *      name => basename(path)
+     *      ctime => as unix timestamps
+     *      mtime => as unix timestamps
+     *      size => filesize in bytes (not for folders)
+     *      type => 'file' | 'dir'
+     *      mount => boolean (if the folder is a mount point)
+     *    )
+     *  )
      *
      * @static
-     * @param  string $pPath
-     * @return array
+     * @param string $pPath
+     * 
+     * @return int|bool|array Return false if the file doenst exist,
+     *                        return 2 if the webserver does not have access
+     *                        or return array with the information.
      */
     public static function getFiles($pPath){
 
@@ -297,16 +336,16 @@ class File {
 
         if (count($items) == 0) return array();
 
-        if ($fs->magicFolderName)
+        if ($fs->getEntryPoint())
             foreach ($items as &$file)
-                $file['path'] = $fs->magicFolderName.$file['path'];
+                $file['path'] = $fs->getEntryPoint().$file['path'];
 
         if($pPath == '/'){
             if (is_array(Kryn::$config['magic_folder'])) {
                 foreach (Kryn::$config['magic_folder'] as $folder => &$config ){
                     $magic = array(
                         'path'  => '/'.$folder,
-                        'magic' => true,
+                        'mount' => true,
                         'name'  => $folder,
                         'icon'  => $config['icon'],
                         'ctime' => 0,
@@ -351,25 +390,56 @@ class File {
         return $items;
     }
 
+
+    /**
+     * Copies a file to a destination.
+     * If the source is a folder, it copies recursivly.
+     *
+     * @static
+     * @param string $pPathSource
+     * @param string $pPathTarget
+     * @return bool
+     */
     public static function copy($pFrom, $pTo){
         //TODO, move the code from adminFilemanager::paste() to here
 
     }
 
+
+    /**
+     * Moves a file to new destinaton.
+     *
+     * @static
+     * @param string $pPathSource
+     * @param string $pPathTarget
+     * @return bool
+     */
     public static function move($pFrom, $pTo){
         //TODO, move the code from adminFilemanager::paste() to here
 
     }
 
+
+    /**
+     * Searchs files in a path by a regex pattern.
+     * 
+     * @static
+     * @param  string  $pPath
+     * @param  string  $pPattern      Preg regex
+     * @param  integer $pDepth        Maximum depth. -1 for unlimited.
+     * @param  integer $pCurrentDepth Internal
+     * @return array                  Files array
+     */
     public static function search($pFrom, $pTo){
         //TODO, move the code from adminFilemanager::search() to here
 
     }
 
+
     /**
      *
      * Returns the public URL of the file $pPath
-     * With HTTP or HTTPs, depends on Kryn::$ssl.
+     * With HTTP or HTTPs, depends on Core\Kryn::$ssl.
      *
      * @static
      * @param  string $pPath
@@ -380,9 +450,12 @@ class File {
         $url = $fs->getPublicUrl(self::normalizePath($pPath));
 
         //TODO, check if $url contains http(s)://, and then decide if we need to add it
+        if (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0)
+            return $url;
 
-        return $url;
+        return 'http' . (Core\Kryn::$ssl?'s':'') . '://'.$url;
     }
+
 
     /**
      * Translates the internal id to the real path.
@@ -406,6 +479,30 @@ class File {
     }
 
 
+    /**
+     * List trash contents.
+     * 
+     * 
+     *  array(
+     *    array(
+     *      path => path to the file/folder
+     *      name => basename(path)
+     *      ctime => as unix timestamps
+     *      mtime => as unix timestamps
+     *      size => filesize in bytes (not for folders)
+     *      type => 'file' | 'dir'
+     *      original_id => trash id
+     *      original_path => original path before the deletion
+     *    )
+     *  )
+     * 
+     * @static
+     * @param string $pPath
+     * 
+     * @return int|bool|array Return false if the file doenst exist,
+     *                        return 2 if the webserver does not have access
+     *                        or return array with the information.
+     */
     public static function getTrashFiles(){
 
         $files = array();
@@ -431,8 +528,8 @@ class File {
             $item['path'] = str_replace(PATH_MEDIA, '', $path);
             $item['original_id'] = $dbItem['id'];
             $item['original_path'] = $dbItem['path'];
-            $item['lastModified'] = $dbItem['modified'];
             $item['mtime'] = $dbItem['modified'];
+            $item['ctime'] = $dbItem['created'];
             $item['type'] = ($dbItem['type'] == 1) ? 'dir' : 'file';
 
             $res[] = $item;
