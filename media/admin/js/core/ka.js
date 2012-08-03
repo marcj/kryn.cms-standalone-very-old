@@ -264,7 +264,7 @@ ka.saveUserSettings = function () {
 
     ka.settings.user = new Hash(ka.settings.user);
 
-    ka.lastSaveUserSettings = new Request.JSON({url: _path + 'admin/backend/userSettings', noCache: 1, onComplete: function (res) {
+    ka.lastSaveUserSettings = new Request.JSON({url: _path + 'admin/backend/user-settings', noCache: 1, onComplete: function (res) {
     }}).post({ settings: JSON.encode(ka.settings.user) });
 }
 
@@ -276,7 +276,7 @@ ka.resetWindows = function () {
 
 ka.check4Updates = function () {
     if (window._session.user_id == 0) return;
-    new Request.JSON({url: _path + 'admin/system/module/manager/check4updates', noCache: 1, onComplete: function (res) {
+    new Request.JSON({url: _path + 'admin/system/module/manager/check-updates', noCache: 1, onComplete: function (res) {
         if (res && res.found) {
             ka.displayNewUpdates(res.modules);
         }

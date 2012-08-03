@@ -2,7 +2,7 @@
 
 namespace Core\ORM;
 
-class Propel extends \Core\ORM\Proxy {
+class Propel extends \Core\ORM\ORMAbstract {
 
     /**
      * Returns the query class.
@@ -74,12 +74,19 @@ class Propel extends \Core\ORM\Proxy {
      * @return mixed
      *
      */
-    public function getItems($pCondition, $pOptions = false){
+    public function getItems($pCondition, $pOptions = array()){
         $qClazz = self::getQueryClass($this->object_key);
 
-        $fields = $this->getFields($pOptions['fields']);
+        $fields = $pOptions['fields'];
 
-        $items = $qClazz->select($fields)->find()->toArray();
+        if ($pCondition){
+            $where = dbConditionToSql($pCondition);
+            $qClazz->where($where);
+        }
+
+        $qClazz->select($fields);
+
+        $items = $qClazz->find()->toArray();
 
         return $items;
     }

@@ -77,7 +77,6 @@ class Backend {
     }
 
 
-
     public function getSettings() {
         global $cfg;
 
@@ -163,8 +162,9 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
-            if ($settings = Kryn::$adminClient->getSession()->getUser()->getSettings())
-                $res['user'] = $settings->toArray();
+            if ($settings = Kryn::$adminClient->getUser()->getSettings())
+                if ($settings instanceof \Core\Properties)
+                    $res['user'] = $settings->toArray();
 
             if (!$res['user'])
                 $res['user'] = array();

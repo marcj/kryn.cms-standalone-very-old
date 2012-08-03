@@ -69,12 +69,14 @@ if (!file_exists($file = 'propel-config.php')){
     \propelHelper::init();
 }
 
+if (!is_readable($file)){
+    die("./propel-config.php exists, but is not readable. Please fix the permissions.\n");
+}
 \Propel::init($file);
 
 $propelConfig = include($file);
+
 Kryn::$propelClassMap = $propelConfig['classmap'];
-
-
 
 
 date_default_timezone_set($cfg['timezone']);
@@ -128,7 +130,7 @@ Kryn::loadModuleConfigs();
 
 Kryn::initModules();
 
-if (getArgv(1) == 'admin') {
+if (Kryn::$admin) {
     /*
     * Load the whole config of all modules
     */

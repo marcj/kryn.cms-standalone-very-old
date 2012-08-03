@@ -304,6 +304,7 @@ class Editor {
                     $vendors = $relationTable->xpath('vendor[@type=\'mysql\']');
                     if ($vendors) $vendor = current($vendors);
                     else $vendor = $relationTable->addChild('vendor');
+                    $vendor['type'] = 'mysql';
 
 
                     $params = $vendor->xpath('parameter[@name=\'Charset\']');

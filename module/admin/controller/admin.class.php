@@ -64,8 +64,8 @@ class admin {
                     ->addRoute('post:widgets', 'saveWidgets', array('widgets'))
 
                     ->addRoute('get:menus', 'getMenus')
-                    ->addRoute('get:customJs', 'getCustomJs')
-                    ->addRoute('post:userSettings', 'saveUserSettings', array('settings'))
+                    ->addRoute('get:custom-js', 'getCustomJs')
+                    ->addRoute('post:user-settings', 'saveUserSettings', array('settings'))
 
 
 
@@ -80,12 +80,10 @@ class admin {
                         ))
                     ->done()
 
-                    ->addSubController('objectLabel', '\Admin\Object')
-                        ->addRoute('get:([a-zA-Z-_]+)/(.*)', 'getItemLabel', null, array(
-                            'fields'
-                        ))
-                    ->done()
+                ->done()
 
+                ->addSubController('backend', '\Admin\Object')
+                    ->addRoute('get:objects', 'getItemsByUri', array('uri'))
                 ->done()
 
                 //admin/system
@@ -99,7 +97,7 @@ class admin {
                         ->addRoute('get:install/extract', 'installExtract', array('name'))
                         ->addRoute('get:install/database', 'installDatabase', array('name'))
                         ->addRoute('get:install/post', 'installPost', array('name'))
-                        ->addRoute('get:check4updates', 'check4updates')
+                        ->addRoute('get:check-updates', 'check4updates')
                         ->addRoute('get:local', 'getLocal')
                         ->addRoute('get:installed', 'getInstalled')
                     ->done()

@@ -1,83 +1,138 @@
 var admin_system_development_orm = new Class({
 
 
-	initialize: function(pWin){
-		this.win = pWin;
-		this._createLayout();
-	},
+    initialize: function(pWin){
+        this.win = pWin;
+        this._createLayout();
 
-	_createLayout: function(){
+        if (this.win.params && this.win.params.doUpdate){
 
-		this.win.content.empty();
+        }
+    },
 
-		this.buttonBar = this.win.addBottomBar();
+    _createLayout: function(){
 
-		this.btnEnv  = this.buttonBar.addButton('Propel Build Environment', this.callPropelGen.bind(this, 'environment'));
-		this.btnCheck  = this.buttonBar.addButton('Check model.xml', this.callPropelGen.bind(this, 'check'));
-		this.btnModel  = this.buttonBar.addButton('Write Model', this.callPropelGen.bind(this, 'models'));
-		this.btnUpdate = this.buttonBar.addButton('Update Database', this.callPropelGen.bind(this, 'update'));
+        this.win.content.empty();
 
-	},
+        this.buttonBar = this.win.addBottomBar();
 
-	callPropelGen: function(pCmd){
+        this.btnEnv  = this.buttonBar.addButton('Propel Build Environment', this.callPropelGen.bind(this, 'environment'));
+        this.btnCheck  = this.buttonBar.addButton('Check model.xml', this.callPropelGen.bind(this, 'check'));
+        this.btnModel  = this.buttonBar.addButton('Write Model', this.callPropelGen.bind(this, 'models'));
+        this.btnUpdate = this.buttonBar.addButton('Update Database', this.callPropelGen.bind(this, 'update'));
+        this.btnAll = this.buttonBar.addButton('Do all', this.doAll.bind(this));
 
-		//prepare gui
-		[this.btnEnv, this.btnCheck, this.btnModel, this.btnUpdate].invoke('setEnabled', false);
-		this.win.content.empty();
+    },
 
-		this.progressBar = new ka.Progress(t('Wait for action.'));
-		this.progressBar.inject(this.win.content);
+    doAll: function(){
+        this.callPropelGen(['check', 'models', 'update']);
 
-		this.resultContainer = new Element('div', {
-			style: 'position: absolute; left: 5px; right: 5px; top: 25px; bottom: 5px;'
-				 + 'border: 1px solid silver; background-color: white; white-space: pre; padding: 5px; overflow: auto'
-		}).inject(this.win.content);
+    },
 
-		this._callGen(pCmd);
+    callPropelGen: function(pCmd, pCb){
 
-	},
+        //prepare gui
+        [this.btnEnv, this.btnCheck, this.btnModel, this.btnUpdate].invoke('setEnabled', false);
+        this.win.content.empty();
 
-	done: function(){
+        this.progressBar = new ka.Progress(t('Wait for action.'));
+        this.progressBar.inject(this.win.content);
 
-		//activate gui
-		[this.btnEnv, this.btnCheck, this.btnModel, this.btnUpdate].invoke('setEnabled', true);
+        this.resultContainer = new Element('div', {
+            'class': 'selectable',
+            style: 'position: absolute; left: 5px; right: 5px; top: 25px; bottom: 5px;'
+                 + 'border: 1px solid silver; background-color: white; white-space: pre; padding: 5px; overflow: auto;'
+        }).inject(this.win.content);
 
-	},
+        this._callGen(typeOf(pCmd)=='array'?pCmd:[pCmd], pCb);
 
-	requestCompleted: function(pResult){
+    },
 
-		if (pResult.error){
-			new Element('h2', {style: 'color: red', text: 'Failed'}).inject(this.resultContainer);
-		new Element('div', {text: pResult.message}).inject(this.resultContainer);
+    done: function(){
 
-		} else {
-			new Element('h2', {style: 'color: green', text: 'Success'}).inject(this.resultContainer);
-			new Element('div', {text: pResult.data}).inject(this.resultContainer);
+        //activate gui
+        [this.btnEnv, this.btnCheck, this.btnModel, this.btnUpdate].invoke('setEnabled', true);
 
-		}
+    },
 
-		this.progressBar.setText(t('Done.'));
+    requestCompleted: function(pResult, pCb){
 
-		this.displayWaitForAction = (function(){
-			this.progressBar.setText(t('Wait for action.'));
-		}).delay(2000, this);
+        var div = new Element('div').inject(this.resultContainer, 'top');
 
-		this.done();
-	},
+        new Element('div', {
+            text: 'Command: '+this.lastCmd
+        }).inject(div);
 
-	_callGen: function(pCmd){
+        var success = false;
 
-		if (this.displayWaitForAction)
-			clearTimeout(this.displayWaitForAction);
+        if (pResult.error){
+            new Element('h2', {style: 'color: red', text: 'Failed '+pResult.error}).inject(div);
+            new Element('div', {html: pResult.message}).inject(div);
 
-		this.resultContainer.set('text', '');
+        } else if (typeOf(pResult.data) == 'array'){
+            new Element('h2', {style: 'color: red', text: 'Failed'}).inject(div);
+            new Element('div', {html: pResult.data.join('<br/>')}).inject(div);
 
-		this.progressBar.setText(t('Requesting ...'));
+        } else {
+            success = true;
+            new Element('h2', {style: 'color: green', text: 'Success'}).inject(div);
+            new Element('div', {html: pResult.data}).inject(div);
+        }
 
-		this.lr = new Request.JSON({url: _path+'admin/system/orm/'+pCmd, noCache: 1,
-			onComplete: this.requestCompleted.bind(this)}).get();
 
-	}
+        new Element('hr').inject(div);
+
+        this.progressBar.setText(t('Done.'));
+        this.progressBar.setValue(100);
+
+        this.done();
+        if (typeOf(this.lastCb) == 'function'){
+            this.lastCb(success);
+        }
+
+        this._callGenNext();
+    },
+
+    _callGenNext: function(pCb){
+        if (this.q.length == this.qi) return;
+
+
+        var cmds = {
+            'environment': 'Build environment',
+            'check': 'Check model.xml',
+            'models': 'Build models',
+            'update': 'Update database'
+        };
+
+        var cmd = this.q[this.qi++];
+        this.progressBar.setText(cmds[cmd]+' ...');
+        this.progressBar.setValue((this.qi-1)/this.q.length*100);
+        this._callGen(cmd, pCb);
+    },
+
+    _callGen: function(pCmd, pCb){
+
+        if (this.displayWaitForAction)
+            clearTimeout(this.displayWaitForAction);
+
+        if (typeOf(pCmd) == 'array'){
+
+            this.resultContainer.empty();
+            this.progressBar.setText(t('Pending ...'));
+            this.progressBar.setValue(0);
+            this.q = pCmd;
+            this.qi = 0;
+            this._callGenNext(pCb);
+            return;
+        }
+
+        this.lastCmd = pCmd;
+        this.lastCb = pCb;
+
+        this.lr = new Request.JSON({url: _path+'admin/system/orm/'+pCmd, noCache: 1,
+            onComplete: this.requestCompleted.bind(this)}).get();
+
+    }
 
 
 });

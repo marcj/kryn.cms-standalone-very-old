@@ -129,7 +129,7 @@ class RestServerClient {
     public function asXML($pMessage){
 
         $xml = $this->toXml($pMessage);
-        $xml = "<?xml version=\"1.0\"?>\n<response>\n$xml</response>";
+        $xml = "<?xml version=\"1.0\"?>\n<response>\n$xml</response>\n";
         print $xml;
 
     }

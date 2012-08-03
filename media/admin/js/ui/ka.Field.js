@@ -1940,7 +1940,6 @@ ka.Field = new Class({
             if (!this._value) this._value = [];
             if (typeOf(this._value) != 'array') this._value = [this._value];
 
-            logger(this._value);
             this.renderObjectTable();
 
         }.bind(this);
@@ -2027,7 +2026,7 @@ ka.Field = new Class({
         if (this.lastRq)
             this.lastRq.cancel();
 
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/objectGetItems',
+        this.lastRq = new Request.JSON({url: _path+'admin/backend/objects',
         noErrorReporting: true,
         onComplete: function(res){
 
@@ -2067,7 +2066,7 @@ ka.Field = new Class({
 
 
         }.bind(this)}).get({
-            object: url
+            uri: url
         });
 
     },
@@ -2175,7 +2174,7 @@ ka.Field = new Class({
             this.lastPageChooserGetUrlRequest.cancel();
         }
 
-        this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/objectGetLabel', noCache: 1, onComplete: function (res) {
+        this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/object-label', noCache: 1, onComplete: function (res) {
             if (!res.error){
 
                 if (res.values){

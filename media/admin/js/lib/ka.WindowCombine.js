@@ -415,7 +415,9 @@ ka.WindowCombine = new Class({
             this.loader.show();
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (res) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (response) {
+
+            var res = response.data;
 
             if (!res.items && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
@@ -1061,7 +1063,9 @@ ka.WindowCombine = new Class({
             this.lastRequest.cancel();
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (res) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (response) {
+
+            var res = response.data;
 
             if (res > 0) {
                 var range = (this.values.itemsPerPage) ? this.values.itemsPerPage : 5;
@@ -1153,7 +1157,9 @@ ka.WindowCombine = new Class({
                 }
 
                 this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems',
-                    noCache: true, onComplete: function (res) {
+                    noCache: true, onComplete: function (response) {
+
+                        var res = response.data;
 
                         var newItem = this.addItem(res.items[0]);
                         newItem.inject(target, 'before');

@@ -960,7 +960,7 @@ var admin_system_module_edit = new Class({
         }.bind(this)).inject(sub);
         */
 
-        new ka.Button('Add children')
+        document.id(new ka.Button('Add children'))
         .addEvent('click', function(){
             var count = childs.getChildren().length+1;
             this._linksAddNewLevel('path_key_'+count, {}, childs);

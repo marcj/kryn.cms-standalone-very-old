@@ -307,6 +307,7 @@ class Object {
 
         $obj = self::getClassObject($pObjectKey);
 
+
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
         $pOptions['fields'] = $obj->getFields($pOptions['fields']);
@@ -332,8 +333,9 @@ class Object {
      */
     public static function &getClassObject($pObjectKey){
 
-        $definition =& kryn::$objects[$pObjectKey];
-        if (!$definition) return false;
+        $definition =& \Core\Kryn::$objects[$pObjectKey];
+        if (!$definition) throw new \ObjectNotFoundException(tf('Can not get class for object %s'), $pObjectKey);
+
 
         if (!self::$instances[$pObjectKey]){
 

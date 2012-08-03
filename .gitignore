@@ -1,5 +1,5 @@
 
-inc/config.php
+config.php
 
 cache/
 
@@ -28,3 +28,13 @@ data/fileversions/
 inc/config_backups.php
 
 .idea
+
+propel-config.php
+
+module/admin/model/map/
+
+module/admin/model/om/
+
+module/users/model/map/
+
+module/users/model/om/

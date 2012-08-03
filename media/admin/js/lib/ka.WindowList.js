@@ -52,7 +52,10 @@ ka.WindowList = new Class({
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
         new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getClassDefinition', noCache: true, onComplete: function (res) {
-            this.render(res);
+
+            if (res.error) return false;
+
+            this.render(res.data);
             this.classLoaded = true;
             this.fireEvent('render');
         }.bind(this)}).get();
@@ -61,6 +64,8 @@ ka.WindowList = new Class({
     deleteItem: function (pItem) {
         var _this = this;
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=deleteItem', noCache: true, onComplete: function (res) {
+
+            //todo, handle errors
             this.win.softReload();
             this._deleteSuccess();
             this.reload();
@@ -529,6 +534,7 @@ ka.WindowList = new Class({
 
                 new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
 
+                    //todo, handle errors
                     if (this.loader) {
                         this.loader.hide();
                     }
@@ -661,7 +667,8 @@ ka.WindowList = new Class({
         this.relation_params_filtered = params;
 
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems', noCache: true, onComplete: function (res) {
-            this.renderItems(res);
+            //todo, handle errors
+            this.renderItems(res.data);
         }.bind(this)}).post({
             page: pPage,
             orderBy: _this.sortField,

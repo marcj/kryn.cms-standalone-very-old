@@ -68,7 +68,7 @@ function dbQuote($pValue, $pTable = ''){
     if ($pTable && strpos($pValue, '.') === false){
         return dbQuote($pTable).'.'.dbQuote($pValue);
     }
-    return $pValue;
+    return preg_replace('/[^a-zA-Z0-9-_]/', '', $pValue);;
 }
 
 /**

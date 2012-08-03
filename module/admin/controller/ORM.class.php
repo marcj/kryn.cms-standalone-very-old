@@ -18,7 +18,7 @@ class ORM {
 	}
 
 	public function checkScheme(){
-		return ($errors)?$error:false;
+		return ($errors)?$error:true;
 	}
 
 }

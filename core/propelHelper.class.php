@@ -28,23 +28,31 @@ class propelHelper {
         $errors = self::checkModelXml();
         if ($errors)
             return array('errors' => $errors);
-        
+
         self::writeXmlConfig();
         self::writeBuildPorperties();
-        self::writeSchema();
+        self::collectSchemas();
+        self::generatePropelPhpConfig();
 
         switch($pCmd){
             case 'models':
-                $result = self::generateClasses();
+                $result = self::generateClasses(); break;
             case 'update':
-                $result = self::updateSchema();
+                $result = self::updateSchema(); break;
             case 'environment': return true;
         }
-        
 
         self::cleanup();
 
         return $result;
+    }
+
+    
+
+    public static function cleanup(){
+
+        delDir('propel');
+
     }
 
     public static function checkModelXml(){
@@ -67,7 +75,7 @@ class propelHelper {
 
         self::writeXmlConfig();
         self::writeBuildPorperties();
-        self::writeSchema();
+        self::collectSchemas();
         self::generatePropelPhpConfig();
 
         $content = '';
@@ -123,12 +131,6 @@ class propelHelper {
         return $content;
     }
 
-    public static function cleanup(){
-
-        delDir('propel');
-
-    }
-
     public static function collectClassDefinition(){
 
         self::collectObjectToExtension();
@@ -160,7 +162,6 @@ class propelHelper {
     public static function moveClasses(){
 
         self::collectObjectToExtension();
-
         
         foreach (Core\Kryn::$extensions as $extension){
             delDir(PATH_MODULE.$extension.'/model/map/');
@@ -225,7 +226,7 @@ class propelHelper {
         if (!file_exists($file)){
             self::writeXmlConfig();
             self::writeBuildPorperties();
-            self::writeSchema();
+            self::collectSchemas();
             self::generatePropelPhpConfig();
         }
 
@@ -239,7 +240,7 @@ class propelHelper {
         }
 
         if (!$sql){
-            return "\nSchema up 2 date.\n";
+            return "Schema up 2 date.";
         }
 
         $sql = explode(";\n", $sql."\n");
@@ -312,9 +313,9 @@ class propelHelper {
         }
     }
 
-    public static function writeSchema(){
+    public static function collectSchemas(){
 
-        $newSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">\n     ";
+        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">";
 
         foreach (Core\Kryn::$extensions as $extension){
 
@@ -322,21 +323,20 @@ class propelHelper {
 
             if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
 
-                $tables = simplexml_load_file ($schema);
+                $tables = simplexml_load_file($schema);
+                $newSchema = $schemeData;
 
-                foreach ($tables->table as $table){
-
+                foreach ($tables->table as $table){ 
                     $newSchema .= $table->asXML()."\n    ";
-
                 }
 
+                $newSchema .= "</database>";
+
+                $file = $extension.'.schema.xml';
+                \Core\SystemFile::setContent('propel/'.$file, $newSchema);
             }
 
         }
-
-        $newSchema .= "\n</database>";
-
-        file_put_contents('propel/schema.xml', $newSchema);
 
         return true;
     }

@@ -77,7 +77,7 @@ abstract class ORMAbstract {
             $fields = explode(',', str_replace(' ', '', trim($fields)));
         }
 
-        $fields = is_array($fields)?array_merge($this->primaryKeys,$fields):$this->primaryKeys;
+        $fields = array_unique(is_array($fields)?array_merge($this->primaryKeys, $fields):$this->primaryKeys);
 
         if ($this->definition['limitSelection']){
 
