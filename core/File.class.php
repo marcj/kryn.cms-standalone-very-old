@@ -360,12 +360,14 @@ class File {
         uksort($items, "strnatcasecmp");
 
         $where = array();
+        $vals  = array();
         foreach($items as &$file){
-            $where[] = 'path = \''.esc($file['path']).'\'';
+            $vals[]  = $file['path'];
+            $where[] = 'path = ?';
         }
         $sql = 'SELECT id, path FROM %pfx%system_files WHERE 1=0 OR '.implode(' OR ', $where);
 
-        $res = dbExec($sql);
+        $res = dbExec($sql, $vals);
         $path2id = array();
 
         while ($row = dbFetch($res)){

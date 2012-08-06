@@ -19,7 +19,7 @@
  */
 
 /**
- * Defines a value to the specified name in the template engine
+ * Assigns a global value to the specified name in the template engine.
  * Accessible in template engine {$<$pName>}
  *
  * @param type $pName
@@ -31,7 +31,7 @@ function tAssign($pName, $pVal) {
 }
 
 /**
- * Defines a value by reference to the specified name in the template engine
+ * Assigns a global value by reference to the specified name in the template engine.
  * Accessible in template engine {$<$pName>}
  *
  * @param type $pName
@@ -43,7 +43,7 @@ function tAssignRef($pName, &$pVal) {
 }
 
 /**
- * Returns true if the specified name has a value assigned to it
+ * Returns true if the specified name has a value assigned in global scope.
  *
  * @param $pName
  * @return bool

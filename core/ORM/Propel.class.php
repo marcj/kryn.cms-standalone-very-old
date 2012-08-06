@@ -2,13 +2,99 @@
 
 namespace Core\ORM;
 
-class Propel extends \Core\ORM\ORMAbstract {
+use \Core\Kryn;
+
+/**
+ * Propel ORM Wrapper.
+ */
+class Propel extends ORMAbstract {
+
 
     /**
-     * Returns the query class.
+     * Object definition
      *
-     * @param $pObject
-     * @return Object
+     * @var array
+     */
+    public $definition = array();
+
+
+    /**
+     * The key of the object
+     *
+     * @var string
+     */
+    public $object_key = '';
+
+    /**
+     * Constructor
+     *
+     * @param string $pObjectKey
+     * @param array  $pDefinition
+     */
+    function __construct($pObjectKey, $pDefinition){
+        $this->object_key = $pObjectKey;
+        $this->definition = $pDefinition;
+
+        //cache primaryKey fields
+        if (is_array($this->definition['fields'])){
+            foreach ($this->definition['fields'] as $key => $field){
+                if ($field['primaryKey'])
+                    $this->primaryKeys[] = $key;
+            }
+        }
+    }
+
+
+    /**
+     * Filters $pFields by allowed fields.
+     * If '*' we return all allowed fields.
+     *
+     * @param array|string $pFields
+     * @return array
+     */
+    public function getFields($pFields){
+
+        $fields = array();
+
+        if ($pFields === '*'){
+            if ($this->definition['limitSelection']){
+                $fields = $this->definition['limitSelection'];
+            } else {
+                foreach ($this->definition['fields'] as $key => $field){
+                    $fields[] = $key;
+                }
+                return $fields;
+            }
+        } else if (is_array($pFields)){
+            $fields = $pFields;
+        }
+
+        if (is_string($fields)){
+            $fields = explode(',', str_replace(' ', '', trim($fields)));
+        }
+
+        $fields = array_unique(is_array($fields)?array_merge($this->primaryKeys, $fields):$this->primaryKeys);
+
+        if ($this->definition['limitSelection']){
+
+            $allowedFields = strtolower(','.str_replace(' ', '', trim($this->definition['limitSelection'])).',');
+
+            $filteredFields = array();
+            foreach ($fields as $idx => $name){
+                if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
+                    $filteredFields[] = $name;
+                }
+            }
+            return $filteredFields;
+        } else return $fields;
+
+    }
+
+    /**
+     * Returns a new query class.
+     *
+     * @param string $pObject
+     * @return Object The query class object.
      */
     public static function getQueryClass($pObject){
 
@@ -35,6 +121,7 @@ class Propel extends \Core\ORM\ORMAbstract {
         $qClazz = self::getQueryClass($this->object_key);
 
         //since the core provide the pk as array('id' => 123) and not as array(123) we have to convert it
+        //for propel orm.
         $pPk = array_values($pPk);
         if (count($pPk) == 1) $pPk = $pPk[0];
 
@@ -75,16 +162,50 @@ class Propel extends \Core\ORM\ORMAbstract {
      *
      */
     public function getItems($pCondition, $pOptions = array()){
+
         $qClazz = self::getQueryClass($this->object_key);
 
-        $fields = $pOptions['fields'];
+        $fields = $this->getFields($pOptions['fields']);
 
         if ($pCondition){
             $where = dbConditionToSql($pCondition);
             $qClazz->where($where);
         }
 
-        $qClazz->select($fields);
+        $select = array();
+
+        foreach ($fields as $fieldKey){
+            $field = $this->getField($fieldKey);
+
+            if ($field['type'] == 'object'){
+                if ($field['objectRelation'] == 'nToM'){
+
+                    $foreignObject =& Kryn::$objects[$field['object']];
+
+                    if ($foreignObject['dataModel'] == 'propel'){
+
+                        $qClazz->leftJoin($field['objectRelationPhpName']);
+                        $primaryList = Object::getPrimaryList($field['object']);
+
+                        foreach ($primaryList as $pField){
+                            $qClazz->addJoin(\UserGroupPeer::GROUP_ID, \GroupPeer::ID);
+
+                            if (Kryn::$config['db_type'] == 'mysql'){
+                                $qClazz->withColumn('group_concat('.\GroupPeer::ID.')', 'groups');
+                                $qClazz->withColumn('group_concat('.\GroupPeer::NAME.')', 'groupsLabel');
+                                $qClazz->groupBy('Id');
+                            } else {
+                                //$qClazz->withColumn('string_agg('.\GroupPeer::NAME.', \',\')', 'groups')
+                            }
+                        }
+                    }
+                }
+            } else {
+                $select[] = $fieldKey;
+            }
+        }
+
+        $qClazz->select($select);
 
         $items = $qClazz->find()->toArray();
 
@@ -130,8 +251,11 @@ class Propel extends \Core\ORM\ORMAbstract {
         // TODO: Implement getCount() method.
     }
 
-    public function getTree($pBranch = false, $pCondition = false, $pDepth = 1, $pRootObjectId = false, $pOptions = false){
+    public function getBranch($pParent = false, $pCondition = false, $pDepth = 1, $pScopeId = false,
+        $pOptions = false){
+
         // TODO: Implement getTree() method.
+        // 
     }
 
 

@@ -608,16 +608,16 @@ function step5Done($pMsg){
                 }
             }
 
-            $cfg['activeExtensions'] = $modules;
+            $cfg['activeModules'] = $modules;
             
-            array_shift($cfg['activeExtensions']);//admin
-            array_shift($cfg['activeExtensions']);//users
+            array_shift($cfg['activeModules']);//admin
+            array_shift($cfg['activeModules']);//users
             file_put_contents('config.php', "<?php\n\$cfg = ".var_export($cfg, true).";\n?>");
             \Core\File::fixFile('config.php');
         }
 
-        if ($cfg['activeExtensions'])
-          $modules = array_merge($modules, $cfg['activeExtensions']);
+        if ($cfg['activeModules'])
+          $modules = array_merge($modules, $cfg['activeModules']);
 
 
         Core\Kryn::$config = $cfg;

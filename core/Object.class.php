@@ -310,8 +310,6 @@ class Object {
 
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
-        $pOptions['fields'] = $obj->getFields($pOptions['fields']);
-
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 

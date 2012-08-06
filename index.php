@@ -34,7 +34,7 @@ if (Core\Kryn::$admin) {
     /*
      * initialize administration controller
      */
-    Core\Kryn::$modules['admin'] = new admin();
+    Core\Kryn::$modules['admin'] = new Admin\Controller();
 
     /*
      * Check url access
@@ -51,7 +51,7 @@ if (Core\Kryn::$admin) {
     /*
      * Start backend controller
      */
-    Core\Kryn::$modules['admin']->content();
+    Core\Kryn::$modules['admin']->admin();
 
 } else {
 

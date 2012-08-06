@@ -2,95 +2,60 @@
 
 namespace Core\ORM;
 
+/**
+ * ORM Abstract class for objects.
+ *
+ * 
+ * $pPk is an array with following format
+ *
+ *  array(
+ *      '<keyName>'  => <value>
+ *      '<keyName2>' => <value2>
+ *  )
+ *  
+ */
 abstract class ORMAbstract {
 
 
     /**
-     * Object definition
-     *
-     * @var array
-     */
-    public $definition = array();
-
-
-    /**
-     * The key of the object
-     *
-     * @var string
-     */
-    public $object_key = '';
-
-
-    /**
-     * Cached primary key order
-     * Only keys
+     * Cached primary key order.
+     * Only keys.
      *
      * @var array
      */
     public $primaryKeys = array();
 
+    public function setPrimaryKeys($pPrimaryKeys){
+        $this->primaryKeys = $pPrimaryKeys;
+    }
 
     /**
-     * Constructor
+     * Returns a field definition.
      *
-     * @param string $pObjectKey
-     * @param array  $pDefinition
+     * @param string $pFieldKey
+     * @return array
      */
-    function __construct($pObjectKey, $pDefinition){
-        $this->object_key = $pObjectKey;
-        $this->definition = $pDefinition;
+    public function &getField($pFieldKey){
+        return $this->definition['fields'][strtolower($pFieldKey)];
+    }
 
-        if (is_array($this->definition['fields'])){
-            foreach ($this->definition['fields'] as $key => $field){
-                if ($field['primaryKey'])
-                    $this->primaryKeys[] = $key;
-            }
-        }
+    /**
+     * Returns the primary keys as array.
+     * 
+     * @return array [key1, key2, key3]
+     */
+    public function getPrimaryKeys(){
+        return $this->primaryKeys;
     }
 
 
     /**
-     * Filters $pFields by allowed fields.
-     * If '*' we return all allowed fields.
-     *
-     * @param array|string $pFields
-     * @return array
+     * Returns the object key.
+     * 
+     * @return string
      */
-    public function getFields($pFields){
-
-        $fields = array();
-
-        if ($pFields === '*'){
-            if ($this->definition['limitSelection']){
-                $fields = $this->definition['limitSelection'];
-            } else {
-                foreach ($this->definition['fields'] as $key => $field){
-                    $fields[] = $key;
-                }
-                return $fields;
-            }
-        } else if (is_array($pFields)){
-            $fields = $pFields;
-        }
-
-        if (is_string($fields)){
-            $fields = explode(',', str_replace(' ', '', trim($fields)));
-        }
-
-        $fields = array_unique(is_array($fields)?array_merge($this->primaryKeys, $fields):$this->primaryKeys);
-
-        if ($this->definition['limitSelection']){
-
-            $allowedFields = strtolower(','.str_replace(' ', '', trim($this->definition['limitSelection'])).',');
-
-            foreach ($fields as $idx => $name){
-                if (strpos($allowedFields, strtolower(','.$name.',')) === false){
-                    array_splice($fields, $idx, 1);
-                }
-            }
-            return $fields;
-        } else return $fields;
-
+    public function getObjectKey(){
+        return $this->object_key;
     }
 
 
@@ -147,6 +112,7 @@ abstract class ORMAbstract {
      */
     abstract public function getItem($pPk, $pFields = '*', $pResolveForeignValues = '*');
 
+
     /**
      *
      * $pOptions is a array which can contain following options. All options are optional.
@@ -169,14 +135,15 @@ abstract class ORMAbstract {
      *
      *
      * @abstract
-     * @param bool|array  $pPk
+     * @param bool|array  $pCondition
      * @param bool|array  $pOptions
      */
-    abstract public function getItems($pPk, $pOptions = false);
+    abstract public function getItems($pCondition, $pOptions = false);
 
     /**
+     * 
      * @abstract
-     * @param $pPk
+     * @param array $pPk
      *
      */
     abstract public function remove($pPk);
@@ -210,7 +177,8 @@ abstract class ORMAbstract {
     abstract public function getCount($pCondition = false);
 
 
-    abstract public function getTree($pBranch = false, $pCondition = false, $pDepth = 1, $pRootObjectId = false, $pOptions = false);
+    abstract public function getBranch($pParent = false, $pCondition = false, $pDepth = 1, $pScopeId = false,
+        $pOptions = false);
 
     /**
      * Returns the parent, if exists

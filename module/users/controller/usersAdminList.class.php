@@ -1,6 +1,6 @@
 <?php
 
-class usersAdminList extends adminWindowList {
+class usersAdminList extends \Admin\Window\Combine {
 
     public $object = 'user';
 
@@ -17,7 +17,7 @@ class usersAdminList extends adminWindowList {
     
     public $itemLayout = '<b id="Username"></b> (<span id="FirstName"></span> <span id="LastName"></span>)<br/><span style="color: silver;" id="GroupsName"></span>';
 
-    public $columns = array(
+    public $fields = array(
         'LastName' => array(
             'label' => 'Last name',
             'type' => 'text'

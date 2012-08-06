@@ -499,11 +499,15 @@ class RestServer {
         $method = $route[0];
         $object = $this->controller;
 
+        if (!method_exists($object, $method)){
+            $this->sendError('method_not_found', tf('Method %s in class %s not found.', $method, get_class($object)));
+        }
+
         try {
             $data = call_user_func_array(array($object, $method), $arguments);
             $this->send($data);
         } catch(Exception $e){
-            $this->sendError(get_class($e), $e);
+            $this->sendError(get_class($e), $e->getMessage());
         }
 
     }

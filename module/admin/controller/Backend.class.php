@@ -238,7 +238,7 @@ class Backend {
 
         foreach (Kryn::$configs as &$config) {
             if ($config['adminJavascript'])
-                \Admin::collectFiles($config['adminJavascript'], $jsFiles);
+                Controller::collectFiles($config['adminJavascript'], $jsFiles);
         }
 
         foreach ($jsFiles as $jsFile)

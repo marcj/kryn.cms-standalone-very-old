@@ -31,7 +31,7 @@ require('core/bootstrap.php');
 /*
 * initialize administration controller
 */
-Core\Kryn::$modules['admin'] = new admin();
+Core\Kryn::$modules['admin'] = new Admin\Controller();
 
 //register the shutdown function
 register_shutdown_function('kryn_shutdown');

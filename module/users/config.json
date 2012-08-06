@@ -212,7 +212,7 @@
       "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,
-      "limitSelection": "id, username",
+      "limitSelection__": "id, username",
       "chooserFieldDataModelCondition": [
         
       ],
@@ -329,8 +329,7 @@
           "empty": 1
         }
       },
-      "label": "[[Users]]",
-      "__dataModel__": "table"
+      "label": "[[Users]]"
     },
     "group": {
       "table": "system_group",
