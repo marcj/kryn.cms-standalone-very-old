@@ -9,21 +9,29 @@ class RestServer {
     /**
      * Current routes.
      *
-     * structure
+     * structure:
      *  array(
-     *    '<uri>' => array('<methodName', <requiredParams>, <optionalParams>);
+     *    '<uri>' => array('<methodName>', array(<requiredParams>), array(<optionalParams>));
      *  )
      *
      * <uri> with no starting or trailing slash!
      *
      * array(
-     *   'book/(.*)/(.*)' => array('book') //calls book($method, $1, $2)
-     *   'house/(.*)' => array('book', array('sort')) //calls book($method, $1, getArgv('sort'))
-     *   'label/flatten' => array('getLabel', array('uri'))// Calls labelFlatten($method, getArgv('uri'))
+     *   'book/(.*)/(.*)' => array('book')
+     *   //calls book($method, $1, $2)
+     *   
+     *   'house/(.*)' => array('book', array('sort'))
+     *   //calls book($method, $1, getArgv('sort'))
+     *   
+     *   'label/flatten' => array('getLabel', array('uri'))
+     *   //Calls getLabel($method, getArgv('uri'))
      *
      *
-     *   'foo/bar' => array('getLabel', array('uri'), array('optionalSort'))
-     *   //Calls labelFlatten($method, getArgv('uri'), getArgv('optionalSort'))
+     *   'get:foo/bar' => array('getLabel', array('uri'), array('optionalSort'))
+     *   //Calls getLabel(getArgv('uri'), getArgv('optionalSort'))
+     *   
+     *   'post:foo/bar' => array('saveLabel', array('uri'))
+     *   //Calls saveLabel(getArgv('uri'), getArgv('optionalSort'))
      * )
      *
      * @var array
@@ -308,6 +316,66 @@ class RestServer {
 
 
     /**
+     * Same as addRoute, but limits to GET.
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
+     * @param array  $pOptionalArguments
+     * @return RestServer
+     */
+    public function addGetRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
+        $this->routes['get:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+        return $this;
+    }
+
+
+    /**
+     * Same as addRoute, but limits to POST.
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
+     * @param array  $pOptionalArguments
+     * @return RestServer
+     */
+    public function addPostRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
+        $this->routes['post:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+        return $this;
+    }
+
+
+    /**
+     * Same as addRoute, but limits to PUT.
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
+     * @param array  $pOptionalArguments
+     * @return RestServer
+     */
+    public function addPutRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
+        $this->routes['put:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+        return $this;
+    }
+
+
+    /**
+     * Same as addRoute, but limits to DELETE.
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
+     * @param array  $pOptionalArguments
+     * @return RestServer
+     */
+    public function addDeleteRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
+        $this->routes['delete:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+        return $this;
+    }
+
+
+    /**
      * Removes a route.
      *
      * @param string $pUri
@@ -464,7 +532,7 @@ class RestServer {
         //does the requested uri exist?
         if (!list($route, $regexArguments, $trigger) = $this->findRoute($uri)){
             if (!$this->getParent()){
-                $this->sendError('rest_method_not_found', "There is no route for '$uri'.");
+                $this->sendError('rest_route_not_found', "There is no route for '$uri'.");
             } else {
                 return false;
             }
@@ -500,7 +568,7 @@ class RestServer {
         $object = $this->controller;
 
         if (!method_exists($object, $method)){
-            $this->sendError('method_not_found', tf('Method %s in class %s not found.', $method, get_class($object)));
+            $this->sendError('rest_method_not_found', tf('Method %s in class %s not found.', $method, get_class($object)));
         }
 
         try {

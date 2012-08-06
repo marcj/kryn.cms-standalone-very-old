@@ -16,6 +16,15 @@ class SQL extends ORMAbstract {
 
 	public $rowModifier = '';
 
+    public function __construct($pProperties){
+        if (is_array($pProperties)){
+            foreach ($pProperties as $k => $v){
+                $this[$k] = $v;
+            }
+        }
+
+    }
+
 	public function remove($pPk){
 
 		$res = dbDelete($this->table, $pPk);

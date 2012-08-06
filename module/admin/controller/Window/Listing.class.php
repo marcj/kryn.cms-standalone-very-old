@@ -446,8 +446,8 @@ class Listing {
         foreach ($this->columns as $key => $column) {
             if ($column['type'] == 'select' && $column['relation'] == 'n-n') {
                 $sql = "DELETE FROM " . dbTableName($column['n-n']['middle']) . " WHERE " . $column['n-n']['middle_keyleft'] .
-                       " = " . $pVal[$column['n-n']['left_key']];
-                dbExec($sql);
+                       " = ?";
+                dbExec($sql, array($pVal[$column['n-n']['left_key']]));
             }
         }
     }

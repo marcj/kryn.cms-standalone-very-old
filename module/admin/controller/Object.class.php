@@ -8,7 +8,12 @@ class Object {
     public function getItemLabel($pObject, $pPk){
 
 
+    }
 
+    public function handleItem($pMethod, $pObject, $pPk){
+        switch($pMethod){
+            case 'get': return $this->getItem($pObject, $pPk);
+        }
     }
 
 
@@ -29,7 +34,6 @@ class Object {
 
     public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null, $pOrder = null){
 
-
         $options = array(
             'fields' => $pFields,
             'limit'  => $pLimit,
@@ -38,6 +42,11 @@ class Object {
         );
 
         return \Core\Object::getList($pObject, null, $options);
+    }
+
+    public function getCount($pObject){
+
+        return \Core\Object::getCount($pObject);
     }
 
     public function getItemsByUri($pUrl){

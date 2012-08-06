@@ -57,8 +57,7 @@ class Controller {
     public function getItems(){
 
         $obj = $this->getClass();
-        return $obj->getItems(getArgv('page') ? getArgv('page') : false);
-
+        return $obj->getItems(1);
 
         $condition = null;
         $options   = array();
@@ -66,9 +65,21 @@ class Controller {
         return $obj->getItems($condition, $options);
     }
 
+    public function getBranch(){
+
+        $obj = $this->getClass();
+        return $obj->getBranch();
+
+    }
+
     public function getClass(){
 
         $clazz = $this->entryPoint['class'];
+
+        if (!$clazz && $this->entryPoint['object']){
+            //we use normal ORM wrapper
+            return \Core\Object::getClassObject($this->entryPoint['object']);
+        }
 
         if (class_exists($clazz)){
             $obj = new $clazz($this->entryPoint);
@@ -79,10 +90,6 @@ class Controller {
         return $obj;
 
     }
-
-
-
-
 
 
 

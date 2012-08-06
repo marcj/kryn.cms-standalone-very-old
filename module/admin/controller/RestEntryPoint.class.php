@@ -23,7 +23,7 @@ class RestEntryPoint extends \RestServer {
             try {
                 $this->send($obj->handle($pEntryPoint));
             } catch (Exception $e){
-                $this->sendError('admin_store', array('exception' => $e, 'entrypoint' => $pEntryPoint));
+                $this->sendError('admin_store', array('exception' => $e->getMessage(), 'entrypoint' => $pEntryPoint));
             }
         } else {
             $adminWindows = array('edit', 'list', 'add', 'combine');
@@ -41,10 +41,10 @@ class RestEntryPoint extends \RestServer {
 
                     //add routes
                     $this->addSubController($pEntryPoint['_module'].'/'.$pEntryPoint['_code'], $windowController)
-                        ->addRoute('get:', 'getItems')
-                        ->addRoute('post:', 'saveItem')
-                        ->addRoute('put:', 'addItem')
-                        ->addRoute('delete:', 'removeItem');
+                        ->addGetRoute('', 'getItems')
+                        ->addPostRoute('', 'saveItem')
+                        ->addPutRoute('', 'addItem')
+                        ->addDeleteRoute('', 'removeItem');
 
                     //run parent
                     parent::run();

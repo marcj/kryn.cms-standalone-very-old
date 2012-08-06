@@ -150,14 +150,14 @@ abstract class ORMAbstract {
 
     /**
      * @abstract
-     * @param $pValues
-     * @param $pParentPk
-     * @param $pMode
-     * @param $pParentObjectKey
+     * @param array  $pValues
+     * @param mixed  $pBranchPk If nested set
+     * @param string $pMode  If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
+     * @param int  $pScope If nested set with scope
      *
-     * @return inserted primary key. (last_insert_id() for SQL backend)
+     * @return mixed inserted primary key/s. If the object has multiple PKs, it returns a array.
      */
-    abstract public function add($pValues, $pParentPk = false, $pMode = 'into', $pParentObjectKey = false);
+    abstract public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0);
 
     /**
      * Updates an object
@@ -176,20 +176,32 @@ abstract class ORMAbstract {
      */
     abstract public function getCount($pCondition = false);
 
-
-    abstract public function getBranch($pParent = false, $pCondition = false, $pDepth = 1, $pScopeId = false,
+    /**
+     * Returns a branch if the object is a nested set.
+     *
+     * @param  mixed $pPk
+     * @param  mixed $pCondition
+     * @param  int   $pDepth
+     * @param  int   $pScope
+     * @abstract
+     *
+     * @return  array|bool
+     */
+    abstract public function getBranch($pPk = false, $pCondition = false, $pDepth = 1, $pScope = 0,
         $pOptions = false);
 
+
     /**
-     * Returns the parent, if exists
+     * Returns the parent if exists otherwise false.
      *
      * @param  $pPk
-     * @return bool
+     * @return mixed
      */
     public function getParent($pPk){
 
         return false;
     }
+
 
     /**
      * Returns parent's id, if exists

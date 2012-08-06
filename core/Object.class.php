@@ -4,21 +4,6 @@ namespace Core;
 
 class Object {
 
-
-    public static function getQueryClassName($pObject){
-        return '\\'.ucfirst($pObject).'Query';
-    }
-
-    public static function getPeerClassName($pObject){
-        return '\\'.ucfirst($pObject).'Peer';
-    }
-
-    public static function getQueryClass($pObject){
-
-        $clazz = self::getQueryClassName($pObject);
-        return $clazz::create();
-    }
-
     /**
      * Array of instances of the object classes
      *
@@ -30,6 +15,7 @@ class Object {
      * @var array
      */
     public static $cache = array();
+
 
     /**
      * Translates the internal url to the real path.
@@ -307,13 +293,12 @@ class Object {
 
         $obj = self::getClassObject($pObjectKey);
 
-
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
-        if ($pCondition !== false && !is_array($pCondition)){
+        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
             $pCondition = array($pCondition);
         }
 
@@ -343,21 +328,12 @@ class Object {
                 self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
 
             } else {
+
                 //custom
+                if (class_exists($className = $definition['class']))
+                    throw new \Exception(tf('Class for %s (%s) not found.', $pObjectKey. $definition['class']));
 
-                $path = PATH_MODULE.$definition['_extension'].'/model/'.$definition['class'].'.class.php';
-
-                if (!file_exists($path))
-                    throw new \Exception('Create object instance error: Class file for '.$pObjectKey.' ('.$definition['class'].', '.$path.') not found');
-
-                require_once($path);
-
-                $p = explode('/', $definition['class']);
-                $className = $p[count($p)-1];
-
-                if ($className && class_exists($className)){
-                    self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
-                } else throw new Exception('Create object instance error: Class '.$className.' not found');
+                self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
 
             }
         }

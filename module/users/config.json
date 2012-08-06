@@ -334,6 +334,7 @@
     "group": {
       "table": "system_group",
       "nested": 0,
+      "phpClass": "Group",
       "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,

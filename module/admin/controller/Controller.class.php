@@ -45,86 +45,100 @@ class Controller {
 
             \RestServer::create('admin', $this)
 
-                ->addRoute('get:loadCss/style.css', 'loadCss')
-                ->addRoute('get:ui/possibleLangs', 'getPossibleLangs')
-                ->addRoute('get:ui/languagePluralForm', 'getLanguagePluralForm', array('lang'))
-                ->addRoute('get:ui/language', 'getLanguage', array('lang'))
+                ->addGetRoute('loadCss/style.css', 'loadCss')
+                ->addGetRoute('ui/possibleLangs', 'getPossibleLangs')
+                ->addGetRoute('ui/languagePluralForm', 'getLanguagePluralForm', array('lang'))
+                ->addGetRoute('ui/language', 'getLanguage', array('lang'))
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
-                    ->addRoute('get:loadJs/script.js', 'loadJs')
-                    ->addRoute('get:settings', 'getSettings')
+                    ->addGetRoute('loadJs/script.js', 'loadJs')
+                    ->addGetRoute('settings', 'getSettings')
 
-                    ->addRoute('get:desktop', 'getDesktop')
-                    ->addRoute('post:desktop', 'saveDesktop', array('icons'))
+                    ->addGetRoute('desktop', 'getDesktop')
+                    ->addPostRoute('desktop', 'saveDesktop', array('icons'))
 
-                    ->addRoute('get:widgets', 'getWidgets')
-                    ->addRoute('post:widgets', 'saveWidgets', array('widgets'))
+                    ->addGetRoute('widgets', 'getWidgets')
+                    ->addPostRoute('widgets', 'saveWidgets', array('widgets'))
 
-                    ->addRoute('get:menus', 'getMenus')
-                    ->addRoute('get:custom-js', 'getCustomJs')
-                    ->addRoute('post:user-settings', 'saveUserSettings', array('settings'))
-
-
+                    ->addGetRoute('menus', 'getMenus')
+                    ->addGetRoute('custom-js', 'getCustomJs')
+                    ->addPostRoute('user-settings', 'saveUserSettings', array('settings'))
 
 
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object')
-                        ->addRoute('get:([a-zA-Z-_]+)/(.+)', 'getItem', null, array(
+                        ->addRoute('([a-zA-Z-_]+)/(.+)', 'handleItem', null, array(
                             'fields'
                         ))
-                        ->addRoute('get:([a-zA-Z-_]+)', 'getItems', null, array(
-                            'fields', 'limit', 'offset', 'order'
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getItems', null, array(
+                            'fields', 'limit', 'offset', 'order', 'query'
                         ))
                     ->done()
+
+                    //admin/backend/object-branch
+                    ->addSubController('object-branch', '\Admin\Object')
+                        ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch', null, array(
+                            'fields', 'order', 'depth'
+                        ))
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getRootBranch', null, array(
+                            'fields', 'order', 'depth'
+                        ))
+                    ->done()
+
+                    //admin/backend/object-count
+                    ->addSubController('object-count', '\Admin\Object')
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getCount', null, array('query'))
+                    ->done()
+
 
                 ->done()
 
                 ->addSubController('backend', '\Admin\Object')
-                    ->addRoute('get:objects', 'getItemsByUri', array('uri'))
+                    ->addGetRoute('objects', 'getItemsByUri', array('uri'))
                 ->done()
 
                 //admin/system
                 ->addSubController('system', '\Admin\System')
 
-                    ->addRoute('get:', 'getSystemInformation')
+                    ->addGetRoute('', 'getSystemInformation')
 
                     //admin/system/module/manager
                     ->addSubController('module/manager', '\Admin\Module\Manager')
-                        ->addRoute('get:install/pre', 'installPre', array('name'))
-                        ->addRoute('get:install/extract', 'installExtract', array('name'))
-                        ->addRoute('get:install/database', 'installDatabase', array('name'))
-                        ->addRoute('get:install/post', 'installPost', array('name'))
-                        ->addRoute('get:check-updates', 'check4updates')
-                        ->addRoute('get:local', 'getLocal')
-                        ->addRoute('get:installed', 'getInstalled')
+                        ->addGetRoute('install/pre', 'installPre', array('name'))
+                        ->addGetRoute('install/extract', 'installExtract', array('name'))
+                        ->addGetRoute('install/database', 'installDatabase', array('name'))
+                        ->addGetRoute('install/post', 'installPost', array('name'))
+                        ->addGetRoute('check-updates', 'check4updates')
+                        ->addGetRoute('local', 'getLocal')
+                        ->addGetRoute('installed', 'getInstalled')
                     ->done()
 
 
                     //admin/system/orm
                     ->addSubController('orm', '\Admin\ORM')
-                        ->addRoute('get:environment', 'buildEnvironment')
-                        ->addRoute('get:models', 'writeModels')
-                        ->addRoute('get:update', 'updateScheme')
-                        ->addRoute('get:check', 'checkScheme')
+                        ->addGetRoute('environment', 'buildEnvironment')
+                        ->addGetRoute('models', 'writeModels')
+                        ->addGetRoute('update', 'updateScheme')
+                        ->addGetRoute('check', 'checkScheme')
                     ->done()
 
                     //admin/system/module/manager
                     ->addSubController('module/editor', '\Admin\Module\Editor')
-                        ->addRoute('get:config', 'getConfig', array('name'))
+                        ->addGetRoute('config', 'getConfig', array('name'))
 
-                        ->addRoute('get:windows', 'getWindows', array('name'))
+                        ->addGetRoute('windows', 'getWindows', array('name'))
 
-                        ->addRoute('get:objects', 'getObjects', array('name'))
-                        ->addRoute('post:objects', 'saveObjects', array('name'))
+                        ->addGetRoute('objects', 'getObjects', array('name'))
+                        ->addPostRoute('objects', 'saveObjects', array('name'))
 
-                        ->addRoute('post:model/fromObject', 'setModelFromObject', array('name', 'object'))
+                        ->addPostRoute('model/fromObject', 'setModelFromObject', array('name', 'object'))
 
-                        ->addRoute('post:model', 'saveModel', array('name', 'model'))
-                        ->addRoute('get:model', 'getModel', array('name'))
+                        ->addPostRoute('model', 'saveModel', array('name', 'model'))
+                        ->addGetRoute('model', 'getModel', array('name'))
 
-                        ->addRoute('post:general', 'saveGeneral', array('name'))
-                        ->addRoute('post:entryPoints', 'saveEntryPoints', array('name', 'entryPoints'))
+                        ->addPostRoute('general', 'saveGeneral', array('name'))
+                        ->addPostRoute('entryPoints', 'saveEntryPoints', array('name', 'entryPoints'))
 
 
                     ->done()

@@ -72,7 +72,10 @@ class RestServerClient {
             );
             header('HTTP/1.0 '.$httpMap[$pHttpCode]?$httpMap[$pHttpCode]:$pHttpCode);
         }
+
+        $pMessage = array_reverse($pMessage, true); 
         $pMessage['status'] = $pHttpCode;
+        $pMessage = array_reverse($pMessage, true);
 
         $method = $this->outputFormats[$this->outputFormat];
         $this->$method($pMessage)."\n";

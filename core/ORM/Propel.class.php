@@ -3,6 +3,7 @@
 namespace Core\ORM;
 
 use \Core\Kryn;
+use \Core\Object;
 
 /**
  * Propel ORM Wrapper.
@@ -34,14 +35,36 @@ class Propel extends ORMAbstract {
     function __construct($pObjectKey, $pDefinition){
         $this->object_key = $pObjectKey;
         $this->definition = $pDefinition;
+        $peer = $this->getPeerName();
 
         //cache primaryKey fields
         if (is_array($this->definition['fields'])){
             foreach ($this->definition['fields'] as $key => $field){
                 if ($field['primaryKey'])
-                    $this->primaryKeys[] = $key;
+                    $this->primaryKeys[] = $peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
             }
         }
+    }
+
+
+    /**
+     * Returns primary key list in propel format. (PHPNAMES)
+     * 
+     * @param  string $pObjectKey
+     * @return array  array(key1, key2, key3, ...)
+     */
+    public function getPrimaryList($pObjectKey){
+
+        $peer = Kryn::$objects[$pObjectKey]['phpClass'].'Peer';
+
+        //cache primaryKey fields
+        if ($fields = Kryn::$objects[$pObjectKey]['fields']){
+            foreach ($fields as $key => $field){
+                if ($field['primaryKey'])
+                    $result[] = $peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+            }
+        }
+        return $result;
     }
 
 
@@ -54,15 +77,22 @@ class Propel extends ORMAbstract {
      */
     public function getFields($pFields){
 
-        $fields = array();
+        $fields = $pFields;
+        $peer = $this->getPeerName();
 
         if ($pFields === '*'){
+            $fields = array();
             if ($this->definition['limitSelection']){
                 $fields = $this->definition['limitSelection'];
             } else {
                 foreach ($this->definition['fields'] as $key => $field){
-                    $fields[] = $key;
+                    try {
+                        $fields[] = $peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+                    } catch(\PropelException $e){
+                        $fields[] = $key;
+                    }
                 }
+
                 return $fields;
             }
         } else if (is_array($pFields)){
@@ -93,17 +123,56 @@ class Propel extends ORMAbstract {
     /**
      * Returns a new query class.
      *
-     * @param string $pObject
      * @return Object The query class object.
      */
-    public static function getQueryClass($pObject){
+    public function getQueryClass(){
+        $objectKey = $this->getPhpName();
 
-        $clazz = '\\'.ucfirst($pObject).'Query';
+        $clazz = '\\'.ucfirst($objectKey).'Query';
         if (!class_exists($clazz)){
-            throw new \ObjectNotFoundException(tf('The object query %s of %s does not exist.', $clazz, $pObject));
+            throw new \ObjectNotFoundException(tf('The object query %s of %s does not exist.', $clazz, $objectKey));
         }
 
         return $clazz::create();
+    }
+
+    /**
+     * Returns the peer name.
+     *
+     * @return string
+     */
+    public function getPeerName(){
+        $objectKey = $this->getPhpName();
+
+        $clazz = '\\'.ucfirst($objectKey).'Peer';
+        if (!class_exists($clazz)){
+            throw new \ObjectNotFoundException(tf('The object query %s of %s does not exist.', $clazz, $objectKey));
+        }
+
+        return $clazz;
+    }
+
+
+    /**
+     * Returns PHPclass name.
+     * @return string
+     */
+    public function getPhpName(){
+        return $this->definition['phpClass'];
+    }
+
+
+    /**
+     * Since the core provide the pk as array('id' => 123) and not as array(123) we have to convert it for propel orm.
+     * 
+     * @param  array $pPk
+     * @return mixed Propel PK
+     */
+    public function getPropelPk($pPk){
+        
+        $pPk = array_values($pPk);
+        if (count($pPk) == 1) $pPk = $pPk[0];
+        return $pPk;
     }
 
 
@@ -118,14 +187,10 @@ class Propel extends ORMAbstract {
      */
     public function getItem($pPk, $pFields = array(), $pResolveForeignValues = '*'){
 
-        $qClazz = self::getQueryClass($this->object_key);
+        $pQuery = $this->getQueryClass();
 
-        //since the core provide the pk as array('id' => 123) and not as array(123) we have to convert it
-        //for propel orm.
-        $pPk = array_values($pPk);
-        if (count($pPk) == 1) $pPk = $pPk[0];
-
-        $item = $qClazz->select($pFields)->findPk($pPk);
+        $pPk = $this->getPropelPk($pPk);
+        $item = $pQuery->select($pFields)->findPk($pPk);
 
         if (!$item){
             throw new \ObjectItemNotFoundException(tf("The object '%s' in '%s' can not be found.", $pPk, $this->object_key));
@@ -163,18 +228,38 @@ class Propel extends ORMAbstract {
      */
     public function getItems($pCondition, $pOptions = array()){
 
-        $qClazz = self::getQueryClass($this->object_key);
+        $pQuery = $this->getQueryClass();
 
         $fields = $this->getFields($pOptions['fields']);
 
         if ($pCondition){
             $where = dbConditionToSql($pCondition);
-            $qClazz->where($where);
+            $pQuery->where($where);
         }
 
         $select = array();
 
-        foreach ($fields as $fieldKey){
+        $this->mapSelect($pQuery, $fields);
+
+        $items = $pQuery->find()->toArray();
+
+        return $items;
+    }
+
+    /**
+     * Maps fields to SELECT. May add foreign tables, if a fields is a object.
+     * 
+     * @param  [type] $pQuery  [description]
+     * @param  [type] $pFields [description]
+     * @return [type]          [description]
+     */
+    public function mapSelect($pQuery, $pFields){
+
+        $peer = $this->getPeerName();
+        $pQuery->clearSelectColumns();
+        $pQuery->select($this->primaryKeys);
+
+        foreach ($pFields as $fieldKey){
             $field = $this->getField($fieldKey);
 
             if ($field['type'] == 'object'){
@@ -184,75 +269,156 @@ class Propel extends ORMAbstract {
 
                     if ($foreignObject['dataModel'] == 'propel'){
 
-                        $qClazz->leftJoin($field['objectRelationPhpName']);
-                        $primaryList = Object::getPrimaryList($field['object']);
+                        $primaryList = $this->getPrimaryList($field['object']);
 
-                        foreach ($primaryList as $pField){
-                            $qClazz->addJoin(\UserGroupPeer::GROUP_ID, \GroupPeer::ID);
+                        $label = $field['objectLabel'] ? $field['objectLabel'] : $foreignObject['objectLabel'];
 
-                            if (Kryn::$config['db_type'] == 'mysql'){
-                                $qClazz->withColumn('group_concat('.\GroupPeer::ID.')', 'groups');
-                                $qClazz->withColumn('group_concat('.\GroupPeer::NAME.')', 'groupsLabel');
-                                $qClazz->groupBy('Id');
+                        $pQuery->leftJoin($this->getPhpName().'.'.$field['objectRelationPhpName']);
+                        $pQuery->leftJoin($field['objectRelationPhpName'].'.'.$foreignObject['phpClass']);
+
+                        if (count($primaryList) == 1){
+                                $key = current($primaryList);
+
+                                if (Kryn::$config['db_type'] != 'pgsql'){
+                                    $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$key.')', $fieldKey);
+                                    if ($label)
+                                        $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$label.')', $fieldKey.'Label');
+                                } else {
+                                    $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$key.'||\'\', \',\')', $fieldKey);
+                                    if ($label)
+                                        $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$label.'||\'\', \',\')', $fieldKey.'Label');
+                                }
+                        } else {
+                            foreach ($primaryList as $pField){
+                                if (Kryn::$config['db_type'] != 'pgsql'){
+                                    $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$pField.')', $fieldKey.ucfirst($pField));
+                                } else {
+                                    $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$pField.'||\'\', \',\')', $fieldKey.ucfirst($pField));
+                                }
+                            }
+
+                            if (Kryn::$config['db_type'] != 'pgsql'){
+                                if ($label)
+                                    $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$label.')', $fieldKey.'Label');
                             } else {
-                                //$qClazz->withColumn('string_agg('.\GroupPeer::NAME.', \',\')', 'groups')
+                                if ($label)
+                                    $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$label.'||\'\', \',\')', $fieldKey.'Label');
                             }
                         }
+                        $pQuery->groupBy('Id');
                     }
                 }
             } else {
-                $select[] = $fieldKey;
+                
+                //$select[] = $fieldKey;
+                if (strpos($fieldKey, '.') !== false){
+                    //$pQuery->withColumn($fieldKey);
+                } else {
+                    $pQuery->withColumn($this->getPhpName().'.'.$fieldKey, lcfirst($fieldKey));
+                }
+                //$select[] = $fieldKey;
+
+                // try {
+                //     $select[] = $peer::translateFieldName($fieldKey, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+                // } catch (\PropelException $e){
+                //     $select[] = $fieldKey;
+                // }
             }
         }
 
-        $qClazz->select($select);
-
-        $items = $qClazz->find()->toArray();
-
-        return $items;
+        //$pQuery->select($select);
     }
 
     /**
-     * @param $pPrimaryValues
-     *
+     * {@inheritdoc}
      */
-    public function remove($pPrimaryValues){
-        // TODO: Implement remove() method.
+    public function remove($pPk){
+        $peer = $this->getPeerName();
+        return $peer::doDelete($pPk);
     }
 
+
     /**
-     * @param $pValues
-     * @param $pParentValues
-     * @param $pMode
-     * @param $pParentObjectKey
-     *
-     * @return inserted primary key. (last_insert_id() for SQL backend)
+     * {@inheritdoc}
      */
-    public function add($pValues, $pParentValues = false, $pMode = 'into', $pParentObjectKey = false){
-        // TODO: Implement add() method.
+    public function add($pValues, $pBranchPk = false, $pMode = 'first', $pScope = 0){
+        $clazz = $this->getPhpName();
+        $obj = new $clazz();
+        $obj->fromArray($pValues);
+
+        if ($this->definition['nested']){
+
+            $query = $this->getQueryClass();
+            if ($pBranchPk)
+                $branch = $query->findPk($this->getPropelPk($pBranchPk));
+            else {
+                $branch = $query->findRoot($pScope);
+                $root = true;
+            }
+
+            switch (strtolower($pMode)){
+                case 'first': $obj->insertAsFirstChildOf($branch); break;
+                case 'last':  $obj->insertAsLastChildOf($branch); break;
+                case 'prev':  if (!$root) $obj->insertAsPrevSiblingOf($branch); break;
+                case 'next':  if (!$root) $obj->insertAsNextSiblingOf($branch); break;
+            }
+
+            if ($pScope){
+                $obj->setScopeValue($pScope);
+            }
+        }
+
+        $obj->save();
+
+        return $obj->getPrimaryKey();
     }
 
+
     /**
-     * Updates an object
-     *
-     * @param $pPrimaryValues
-     * @param $pValues
+     * {@inheritdoc}
      */
-    public function update($pPrimaryValues, $pValues){
-        // TODO: Implement update() method.
+    public function update($pPk, $pValues){
+        
+        $query = $this->getQueryClass();
+        $item  = $query->findPk($this->getPropelPk($pPk));
+
+        $item->fromArray($pValues);
+        return $item->save();
     }
 
+
     /**
-     * @param bool|string $pCondition
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function getCount($pCondition = false){
-        // TODO: Implement getCount() method.
+
+        $pQuery = $this->getQueryClass();
+
+        if ($pCondition){
+            $where = dbConditionToSql($pCondition);
+            $pQuery->where($where);
+        }
+
+        return $pQuery->count();
     }
 
-    public function getBranch($pParent = false, $pCondition = false, $pDepth = 1, $pScopeId = false,
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBranch($pPk = false, $pCondition = false, $pDepth = 1, $pScope = 0,
         $pOptions = false){
+
+
+        $pQuery = $this->getQueryClass();
+
+        if ($pCondition){
+            $where = dbConditionToSql($pCondition);
+            $pQuery->where($where);
+        }
+
+
+        return 'hi';
 
         // TODO: Implement getTree() method.
         // 
