@@ -3,7 +3,13 @@
 
 namespace Core\ORM;
 
-
+/**
+ * SQL ORM abstraction, for data access through direct SQL.
+ * For the old way of Admin Windows works.
+ * 
+ * @deprecated Use Propel instead
+ * 
+ */
 class SQL extends ORMAbstract {
 
 	/**
@@ -259,7 +265,7 @@ class SQL extends ORMAbstract {
      * @return inserted primary key. (last_insert_id() for SQL backend)
      */
     public function add($pValues, $pParentPk = false, $pMode = 'into', $pParentObjectKey = false){
-
+        
     }
 
     /**
