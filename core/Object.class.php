@@ -236,11 +236,11 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pPk Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pCondition Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pPk = false, $pOptions = array()){
+    public static function get($pObjectKey, $pCondition = false, $pOptions = array()){
 
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition) return false;
@@ -255,7 +255,16 @@ class Object {
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
-        return $obj->getItem($pPk, $pOptions['fields'], $pOptions['foreignKeys']);
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition){
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            } else {
+                $pCondition = $aclCondition;
+            }
+        }
+
+        return $obj->getItem($pCondition, $pOptions);
 
     }
 
@@ -280,10 +289,13 @@ class Object {
      *
      *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
+     *  'rawSQL'          Array of custom SQL clauses (Without WHERE/AND/OR at the beginning). 
+     *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pCondition Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
+     * @see \dbConditionToSql
      * @return array|bool
      */
     public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
@@ -300,6 +312,13 @@ class Object {
 
         if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
             $pCondition = array($pCondition);
+        }
+
+        if ($pOptions['permissionCheck']){
+            if ($pCondition)
+                $pCondition = $pCondition + \Core\Acl::getListingCondition($pObjectKey);
+            else
+                $pCondition = \Core\Acl::getListingCondition($pObjectKey);
         }
 
         return $obj->getItems($pCondition, $pOptions);

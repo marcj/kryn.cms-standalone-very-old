@@ -69,7 +69,7 @@ abstract class ORMAbstract {
      */
     public function primaryStringToArray($pPk){
 
-        if (!$pPk) return false;
+        if ($pPk === '') return false;
         $groups = explode('/', $pPk);
 
         $result = array();
@@ -104,13 +104,12 @@ abstract class ORMAbstract {
      * Returns a object item as array.
      *
      * @abstract
-     * @param mixed  $pPk
-     * @param string $pFields
-     * @param string $pResolveForeignValues
+     * @param bool|array  $pCondition
+     * @param bool|array  $pOptions
      *
      * @return array
      */
-    abstract public function getItem($pPk, $pFields = '*', $pResolveForeignValues = '*');
+    abstract public function getItem($pCondition, $pOptions = false);
 
 
     /**

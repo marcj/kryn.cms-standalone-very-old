@@ -86,11 +86,11 @@ class Propel extends ORMAbstract {
                 $fields = $this->definition['limitSelection'];
             } else {
                 foreach ($this->definition['fields'] as $key => $field){
-                    try {
-                        $fields[] = $peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
-                    } catch(\PropelException $e){
-                        $fields[] = $key;
-                    }
+                    //try {
+                        $fields[] = $key; //$peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+                    //} catch(\PropelException $e){
+                    //    $fields[] = $key;
+                    //}
                 }
 
                 return $fields;
@@ -177,26 +177,25 @@ class Propel extends ORMAbstract {
 
 
     /**
-     * @param $pPk
-     * @param array $pFields
-     * @param string $pResolveForeignValues
-     *
+     * 
+     * 
+     * @param bool|array   $pCondition
+     * @param bool|array   $pOptions
+     * @see  getItems
      * @return mixed
      *
      * @throws \ObjectItemNotFoundException
      */
-    public function getItem($pPk, $pFields = array(), $pResolveForeignValues = '*'){
+    public function getItem($pCondition, $pOptions = array()){
 
-        $pQuery = $this->getQueryClass();
+        $query = $this->getQueryClass();
 
-        $pPk = $this->getPropelPk($pPk);
-        $item = $pQuery->select($pFields)->findPk($pPk);
+        $fields = $this->getFields($pOptions['fields']);
 
-        if (!$item){
-            throw new \ObjectItemNotFoundException(tf("The object '%s' in '%s' can not be found.", $pPk, $this->object_key));
-        }
+        $this->mapSelect($query, $fields);
+        $stm = $this->getStm($query, $pCondition);
 
-        return $item;
+        return dbFetch($stm);
     }
 
     /**
@@ -228,22 +227,43 @@ class Propel extends ORMAbstract {
      */
     public function getItems($pCondition, $pOptions = array()){
 
-        $pQuery = $this->getQueryClass();
+        $query = $this->getQueryClass();
 
         $fields = $this->getFields($pOptions['fields']);
 
-        if ($pCondition){
-            $where = dbConditionToSql($pCondition);
-            $pQuery->where($where);
+        $this->mapSelect($query, $fields);
+        $stm = $this->getStm($query, $pCondition);
+
+        return dbFetchAll($stm);
+    }
+
+    public function getStm($pQuery, $pCondition){
+
+        if (!$pCondition) return $pQuery->find()->toArray();
+
+        //we have a condition, so extract the SQL and append our custom condition object
+        $params = array();
+
+        $id = (hexdec(uniqid())/mt_rand())+mt_rand();
+        $pQuery->where('1 != '.$id);
+
+        $con = \Propel::getConnection($pQuery->getDbName());
+        
+        try {
+            $pQuery->PreSelect($con);
+        } catch (\PropelException $e){}
+
+        if (!$pQuery->hasSelectQueries()) {
+            $pQuery->setPrimaryTableName(constant($this->getPeerName() . '::TABLE_NAME'));
         }
 
-        $select = array();
+        $sql = \BasePeer::createSelectSql($pQuery, $params);
 
-        $this->mapSelect($pQuery, $fields);
+        $data = array();
+        $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
+        $sql = str_replace('1 != '.$id, $condition, $sql); 
 
-        $items = $pQuery->find()->toArray();
-
-        return $items;
+        return dbExec($sql, $data);
     }
 
     /**
@@ -257,7 +277,12 @@ class Propel extends ORMAbstract {
 
         $peer = $this->getPeerName();
         $pQuery->clearSelectColumns();
-        $pQuery->select($this->primaryKeys);
+
+        foreach ($this->primaryKeys as $columnName){
+            $column = $pQuery->getColumnFromName($columnName);
+            // always put quotes around the columnName to be safe, we strip them in the formatter
+            $pQuery->addAsColumn('"' . lcfirst($columnName) . '"', $column[1]);
+        }
 
         foreach ($pFields as $fieldKey){
             $field = $this->getField($fieldKey);
@@ -310,23 +335,12 @@ class Propel extends ORMAbstract {
                 }
             } else {
                 
-                //$select[] = $fieldKey;
-                if (strpos($fieldKey, '.') !== false){
-                    //$pQuery->withColumn($fieldKey);
-                } else {
-                    $pQuery->withColumn($this->getPhpName().'.'.$fieldKey, lcfirst($fieldKey));
-                }
-                //$select[] = $fieldKey;
+                $column = $pQuery->getColumnFromName(strtoupper($fieldKey));
+                // always put quotes around the columnName to be safe, we strip them in the formatter
+                $pQuery->addAsColumn('"' . lcfirst($column[0]->getPhpName()) . '"', $column[1]);
 
-                // try {
-                //     $select[] = $peer::translateFieldName($fieldKey, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
-                // } catch (\PropelException $e){
-                //     $select[] = $fieldKey;
-                // }
             }
         }
-
-        //$pQuery->select($select);
     }
 
     /**

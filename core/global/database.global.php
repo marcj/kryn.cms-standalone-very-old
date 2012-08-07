@@ -579,7 +579,7 @@ function dbExtractOrderFields($pValues, $pTable = ''){
 
 
 /**
- * Converts simple structure of a condition to SQL counterpart.
+ * Converts simple structure of a condition to normal (complex) condition object used in dbConition().
  * This is used in krynObjects::get() second argument.
  *
  * Structure can be:
@@ -600,23 +600,25 @@ function dbExtractOrderFields($pValues, $pTable = ''){
  * @param string|bool $pObjectKey
  * @return bool|string
  */
-function dbSimpleConditionToSql($pPrimaryValue, $pTable = '', $pObjectKey = false){
+function dbSimpleCondition($pCondition, $pTable = '', $pObjectKey = false){
 
     $sql = '';
+    $result = array();
 
-    if (!is_array($pPrimaryValue)){
+    if (!is_array($pCondition)){
         return false;
     }
 
-    if (!$pPrimaryValue) return false;
+    if (!$pCondition) return false;
 
     if ($pObjectKey){
-        $primaries = krynObjects::getPrimaryList($pObjectKey);
+        $primaries = \Core\Object::getPrimaryList($pObjectKey);
     }
 
-    if (array_key_exists(0, $pPrimaryValue)){
-        foreach ($pPrimaryValue as $idx => $group){
-            $sql .= ' (';
+    if (array_key_exists(0, $pCondition)){
+        foreach ($pCondition as $idx => $group){
+            $cGroup = array();
+
             if (is_array($group)){
 
                 foreach ($group as $primKey => $primValue){
@@ -624,32 +626,33 @@ function dbSimpleConditionToSql($pPrimaryValue, $pTable = '', $pObjectKey = fals
                     if (!is_string($primKey))
                         $primKey = $primaries[$primKey];
 
-                    $val = is_numeric($primValue) ? $primValue+0 : "'".esc($primValue)."'";
-                    $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = $val AND ";
+                    if ($cGroup) $cGroup[] = 'and';
+                    $cGroup[] = array(dbQuote($primKey, $pTable), '=', $primValue);
                 }
             } else {
+
                 if (!is_string($idx))
                     $primKey = $primaries[0];
 
-                $val = is_numeric($group) ? $group+0 : "'".esc($group)."'";
-                $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = $val AND ";
+                if ($cGroup) $cGroup[] = 'and';
+                $cGroup[] = array(dbQuote($primKey, $pTable), '=', $group);
             }
-            $sql = substr($sql, 0, -5).') OR ';
+            if ($result) $result[] = 'or';
+            $result[] = $cGroup;
         }
-
-        $sql = substr($sql, 0, -3);
 
     } else {
         //we only have to select one row
-        $sql .= ' (';
-        foreach ($pPrimaryValue as $primKey => $primValue){
-            $val = is_numeric($primValue) ? $primValue+0 : "'".esc($primValue)."'";
-            $sql .= ($pTable?dbQuote($pTable).".":'').dbQuote($primKey)." = $val AND ";
+        $group = array();
+
+        foreach ($pCondition as $primKey => $primValue){
+            if ($group) $group[] = 'and';
+            $group[] = array(dbQuote($primKey, $pTable), '=', $primValue);
         }
-        $sql = substr($sql, 0, -5).')';
+        $result[] = $group;
     }
 
-    return $sql;
+    return $result;
 
 }
 
@@ -699,59 +702,58 @@ function dbSimpleConditionToSql($pPrimaryValue, $pTable = '', $pObjectKey = fals
  *
  *
  * @param mixed   $pConditions
+ * @param array   &$pData The data for prepared statement.
  * @param string  $pTablePrefix
  * @param string  $pObjectKey
  *
  * @return bool|string
  */
-function dbConditionToSql($pConditions, $pTablePrefix = '', $pObjectKey = ''){
+function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = ''){
 
     $result = '';
-
     if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
 
     if (is_array($pConditions) && !is_numeric(key($pConditions))){
         //array( 'bla' => 'hui' );
         //we have a structure like in dbSimpleConditionToSql, so call it
-        return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbSimpleCondition($pConditions, null, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
     }
 
     if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))){
         //array( array('bla' => 'bla', ... );
         //we have a structure like in dbSimpleConditionToSql, so call it
-        return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbSimpleCondition($pConditions, null, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
     }
 
     if (!is_array($pConditions[0])){
         //array( 1, 2, 3 );
-        return dbSimpleConditionToSql($pConditions, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbSimpleCondition($pConditions, null, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
     }
 
-    return dbFullConditionToSql($pConditions, $pTablePrefix);
+    return dbFullConditionToSql($pConditions, $pData, $pTablePrefix);
 
 }
 
-function dbFullConditionToSql($pConditions, $pTablePrefix){
+function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix){
 
     $result = '';
 
-    if (is_string($pConditions[0])){
-        //only one condition, ex: array('id', '>', 0)
-
-        $result = dbFullConditionToSql($pConditions, $pTablePrefix);
-
-    } else if (is_array($pConditions)){
+    if (is_array($pConditions)){
         foreach ($pConditions as $condition){
 
             if (is_array($condition) && is_array($condition[0])){
-                $result .= ' ('.dbFullConditionToSql($condition, $pTablePrefix).')';
+                $result .= ' ('.dbFullConditionToSql($condition, $pData, $pTablePrefix).')';
             } else if(is_array($condition)){
-                $result .= dbConditionSingleField($condition, $pTablePrefix);
+                $result .= dbConditionSingleField($condition, $pData, $pTablePrefix);
             } else if (is_string($condition)){
                 $result .= ' '.$condition.' ';
             }
 
         }
+    } else {
+        //only one condition, ex: array('id', '>', 0)
+        $result = dbFullConditionToSql($pConditions, $pData, $pTablePrefix);
+
     }
 
     return $result;
@@ -761,16 +763,21 @@ function dbFullConditionToSql($pConditions, $pTablePrefix){
  * Helper function for dbConditionToSql()
  *
  * @internal
- * @param $pCondition
+ * @param array $pCondition
+ * @param array &$pData
  * @param string $pTable
  * @return string
  */
-function dbConditionSingleField($pCondition, $pTable = ''){
+function dbConditionSingleField($pCondition, &$pData, $pTable = ''){
 
-    if (($pos = strpos($pCondition[0], '.')) === false){
-        $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
+    if (!is_numeric($pCondition[0])){
+        if (($pos = strpos($pCondition[0], '.')) === false){
+            $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
+        } else {
+            $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
+        }
     } else {
-        $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
+        $result = ($pCondition[0]+0);
     }
 
     if (strtolower($pCondition[1]) == 'regexp')
@@ -778,38 +785,18 @@ function dbConditionSingleField($pCondition, $pTable = ''){
     else
         $result .= $pCondition[1];
 
-    if (strtolower($pCondition[1]) == 'in'){
-        $result .= " (".esc($pCondition[2]).")";
+    if (!is_numeric($pCondition[0])){
+        $pData[] = $pCondition[2];
+        if (strtolower($pCondition[1]) == 'in'){
+            $result .= " (?)";
+        } else {
+            $result .= ' ?';
+        }
     } else {
-        $result .= ' ' . (!is_numeric($pCondition[2]) ? "'".esc($pCondition[2])."'" :$pCondition[2]);
+        $result .= ' '.($pCondition[0]+0);
     }
 
     return $result;
-}
-
-/**
- *
- * Generates a safe SQL condition
- *
- * @param string      $pTable
- * @param string      $pField
- * @param mixed       $pValue
- * @param string      $pSign
- * @param string|bool $pTableAlias
- *
- * @return string
- */
-function dbSqlCondition($pTable, $pField, $pValue, $pSign = '=', $pTableAlias = false){
-
-    $columns = database::getOptions($pTable);
-
-    if ($columns[$pField]['escape'] == 'int')
-        $value = $pValue+0;
-    else
-        $value = "'".esc($pValue)."'";
-
-    return dbQuote($pField, $pTableAlias)." $pSign $value";
-
 }
 
 

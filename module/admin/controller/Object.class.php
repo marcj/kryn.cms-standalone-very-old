@@ -19,14 +19,18 @@ class Object {
 
     public function getItem($pObject, $pPk){
 
-        $pPk = \Core\Object::parsePk($pObject, $pPk);
+        $conditions = \Core\Object::parsePk($pObject, $pPk);
 
-        if (count($pPk) == 1)
-            return \Core\Object::get($pObject, $pPk[0]);
+        $options = array(
+            'permissionCheck' => true
+        );
+
+        if (count($condition) == 1)
+            return \Core\Object::get($pObject, dbSimpleCondition($conditions[0]), $options);
         else {
-            $items = array();
-            foreach ($pPk as $pk){
-                $items[] = \Core\Object::get($pObject, $pk);
+            foreach ($conditions as $condition){
+                if ($item = \Core\Object::get($pObject, dbSimpleCondition($condition), $options))
+                $items[] = $item;
             }
             return $items;
         }
@@ -38,7 +42,8 @@ class Object {
             'fields' => $pFields,
             'limit'  => $pLimit,
             'offset' => $pOffset,
-            'order'  => $pOrder
+            'order'  => $pOrder,
+            'permissionCheck' => true
         );
 
         return \Core\Object::getList($pObject, null, $options);

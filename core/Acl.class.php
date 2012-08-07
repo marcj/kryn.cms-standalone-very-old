@@ -47,6 +47,9 @@ class Acl {
         $userId = Kryn::$client->user_id;
         $inGroups = Kryn::$client->user['inGroups'];
 
+        if (!$inGroups) $inGroups = '0';
+        if (!$userId) $userId = '0';
+
         $pObjectKey = esc($pObjectKey);
         $pMode += 0;
 
@@ -81,11 +84,18 @@ class Acl {
     }
 
 
-    public static function getSqlCondition($pObjectKey, $pTable = ''){
+    /**
+     * Get a condition object for item listings.
+     * 
+     * @param  string $pObjectKey
+     * @param  string $pTable
+     * @return array
+     */
+    public static function getListingCondition($pObjectKey, $pTable = ''){
 
         $rules =& self::getRules($pObjectKey, 1);
 
-        if (count($rules) == 0) return '1=0';
+        if (count($rules) == 0) return false;
 
         if (self::$cache['sqlList_' . $pObjectKey])
             return self::$cache['sqlList_' . $pObjectKey];
@@ -93,7 +103,7 @@ class Acl {
         $condition = '';
         $result = '';
 
-        $primaryList = krynObjects::getPrimaryList($pObjectKey);
+        $primaryList = Object::getPrimaryList($pObjectKey);
         $primaryKey = current($primaryList);
 
         $isNested = Kryn::$objects[$pObjectKey]['nested'];
@@ -101,60 +111,88 @@ class Acl {
 
         $lastBracket = '';
 
-        $allowList = '';
-        $denyList  = '';
+        $allowList = array();
+        $denyList  = array();
+
+        $conditionObject = array();
 
         foreach($rules as $rule){
 
             if ($rule['constraint_type'] == '1' ){
-                $condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
+                //todo, check for multiple primarykey
+                $condition = array(dbQuote($primaryKey, $pTable), '=', $rule['constraint_code']);
+
+                //$condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
+                /*
                 if ($isNested && $rule['sub']){
                     $sCondition = dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
                     $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition) AND ";
                     $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition))";
                     $condition = "($condition OR $sub)";
-                }
+                }*/
             }
 
             if ($rule['constraint_type'] == '2'){
-                $condition = dbConditionToSql($rule['constraint_code'], $pTable);
+                $condition = $rule['constraint_code'];
+                //$condition = dbConditionToSql($rule['constraint_code'], $pTable);
+                /*var_dump($condition);
                 if ($isNested && $rule['sub']){
                     $sCondition = dbConditionToSql($rule['constraint_code']);
                     $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft ) AND ";
                     $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";
                     $condition = "($condition OR $sub)";
-                }
+                }*/
             }
 
             if ($rule['constraint_type'] == '0')
-                $condition = ' 1=1';
+                $condition = array('1', '=', '1');
 
 
             if ($rule['access'] == 1){
 
                 if ($result) $result .= ")\n\nOR\n";
 
-                $result .= "\n(";
 
-                $result .= $condition;
+                if ($conditionObject)
+                    $conditionObject[] = 'OR';
+                
+                $conditionObject[] = $condition;
 
-                if ($denyList)
-                    $result .= ' AND NOT '.$denyList;
+                //$result .= $condition;
+
+                if ($denyList){
+                    $conditionObject[] = 'AND NOT';
+                    $conditionObject[] = $denyList;
+                }
 
             }
 
             if ($rule['access'] != 1){
 
-                $denyList .= ($denyList==''?'':' AND NOT ').$condition;
+                if ($denyList)
+                    $denyList[] = 'AND NOT';
+                
+                $denyList[] = $condition;
+
+                //$denyList .= ($denyList==''?'':' AND NOT ').$condition;
+                //
                 if ($rule['sub']){
                     //$denyList .= ' AND NOT ';
                 }
-            } else
-                $allowList .= ($allowList==''?'':' OR ').$condition;
+            } else {
+                /*
+                if (count($allowList) > 0)
+                    $allowList[] = 'OR';
+                $allowList[] = $condition;
+                 */
+                //$allowList .= ($allowList==''?'':' OR ').$condition;
+            }
 
         }
 
-        $result .= ')';
+        //$result .= ')';
+        //
+        return $conditionObject;
 
         return "\n(\n$result\n)\n";
 
