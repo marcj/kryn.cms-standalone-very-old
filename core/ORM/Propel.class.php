@@ -123,10 +123,11 @@ class Propel extends ORMAbstract {
     /**
      * Returns a new query class.
      *
+     * @param string $pName
      * @return Object The query class object.
      */
-    public function getQueryClass(){
-        $objectKey = $this->getPhpName();
+    public function getQueryClass($pName = null){
+        $objectKey = $pName?$pName:$this->getPhpName();
 
         $clazz = '\\'.ucfirst($objectKey).'Query';
         if (!class_exists($clazz)){
@@ -139,10 +140,11 @@ class Propel extends ORMAbstract {
     /**
      * Returns the peer name.
      *
+     * @param string $pName
      * @return string
      */
-    public function getPeerName(){
-        $objectKey = $this->getPhpName();
+    public function getPeerName($pName = null){
+        $objectKey = $pName?$pName:$this->getPhpName();
 
         $clazz = '\\'.ucfirst($objectKey).'Peer';
         if (!class_exists($clazz)){
@@ -155,10 +157,12 @@ class Propel extends ORMAbstract {
 
     /**
      * Returns PHPclass name.
+     *
+     * @param string $pName
      * @return string
      */
-    public function getPhpName(){
-        return $this->definition['phpClass'];
+    public function getPhpName($pName = null){
+        return $pName ? Kryn::$objects[$pName]['phpClass'] : $this->definition['phpClass'];
     }
 
 
@@ -199,39 +203,86 @@ class Propel extends ORMAbstract {
     }
 
     /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *  'offset'          Offset of the result set (in SQL OFFSET)
-     *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('field' => 'category', 'direction' => 'asc'),
-     *                      array('field' => 'title',    'direction' => 'asc')
-     *                    )
-     *
-     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     *
-     * @param bool|array   $pCondition
-     * @param bool|array   $pOptions
-     *
-     * @return mixed
-     *
+     * {@inheritDoc}
      */
-    public function getItems($pCondition, $pOptions = array()){
+    public function getItems($pCondition = null, $pOptions = null){
 
         $query = $this->getQueryClass();
 
         $fields = $this->getFields($pOptions['fields']);
 
+        $this->selectPrimary($query);
         $this->mapSelect($query, $fields);
+
+        $this->mapOptions($query, $pOptions);
+
+        $stm = $this->getStm($query, $pCondition);
+
+        return dbFetchAll($stm);
+    }
+
+    public function mapOptions($pQuery, $pOptions = array()){
+
+        if ($pOptions['limit'])
+            $pQuery->limit($pOptions['limit']);
+
+        if ($pOptions['offset'])
+            $pQuery->offset($pOptions['offset']);
+
+        if (is_array($pOptions['order'])){
+            foreach ($pOptions['order'] as $field => $direction){
+                if ($column = $pQuery->getColumnFromName(strtoupper($field))){
+                    if (!$column[0])
+                        throw new \FieldNotFoundException(tf('Field %s in object %s not found', $field, $this->object_key));
+                    
+                    $pQuery->orderBy($column[1], $direction);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRelatedItems($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array()){
+
+        $query = $this->getQueryClass($pRelatedObject);
+
+        //convert kryn pk to propel pk
+        $pRelatedPk = array_values($pRelatedPk);
+        if (count($pRelatedPk) == 1) $pRelatedPk = $pRelatedPk[0];
+
+        $relatedItem = $query->findPk($pRelatedPk);
+
+        if (!$relatedItem) return false;
+
+        $query = $this->getQueryClass();
+        $query->filterByGroup($relatedItem);
+
+        $fields = $this->getFields($pOptions['fields']);
+
+        $this->selectPrimary($query);
+        $this->mapSelect($query, $fields);
+        $this->mapOptions($query, $pOptions);
+
+        $stm = $this->getStm($query, $pConditon);
+        return dbFetchAll($stm);
+
+        $stm = $this->getStm($query, $pRelatedCondition);
+        $thisItem = dbFetch($stm);
+
+        $fields = $this->getFields($pOptions['fields']);
+
+        $this->mapSelect($query, $fields);
+
+  //->joinAuthor()
+  //->addJoinCondition('Author', 'Author.LastName <> ?', 'Austen')
+
+        $rel =  $this->getPhpName().'.'.ucfirst($pRelatedObject);
+        print $rel;
+        $query->join($rel);
+
         $stm = $this->getStm($query, $pCondition);
 
         return dbFetchAll($stm);
@@ -239,16 +290,17 @@ class Propel extends ORMAbstract {
 
     public function getStm($pQuery, $pCondition){
 
-        if (!$pCondition) return $pQuery->find()->toArray();
-
         //we have a condition, so extract the SQL and append our custom condition object
         $params = array();
 
         $id = (hexdec(uniqid())/mt_rand())+mt_rand();
-        $pQuery->where('1 != '.$id);
 
         $con = \Propel::getConnection($pQuery->getDbName());
         
+        if ($pCondition){
+            $pQuery->where($id.' != '.$id);
+        }
+
         try {
             $pQuery->PreSelect($con);
         } catch (\PropelException $e){}
@@ -257,15 +309,43 @@ class Propel extends ORMAbstract {
             $pQuery->setPrimaryTableName(constant($this->getPeerName() . '::TABLE_NAME'));
         }
 
+        $params = array();
+
+        $db = \Propel::getDB($pQuery->getDbName());
+        $dbMap = \Propel::getDatabaseMap($pQuery->getDbName());
+
         $sql = \BasePeer::createSelectSql($pQuery, $params);
 
-        $data = array();
-        $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
-        $sql = str_replace('1 != '.$id, $condition, $sql); 
+        if ($pCondition){
+            $data = $params;
+            $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
+            $sql = str_replace($id.' != '.$id, $condition, $sql);
+        }
 
-        return dbExec($sql, $data);
+        $stmt = $con->prepare($sql);
+
+        $db->bindValues($stmt, $params, $dbMap);
+
+        if ($data){
+            foreach ($data as $idx => $v){
+                if (!is_array($v)){ //propel uses arrays as bind values, we with dbConditionToSql not.
+                    $stmt->bindValue(':p'.($idx+1), $v);
+                }
+            }
+        }
+
+        $stmt->execute();
+        return $stmt;
     }
 
+
+    public function selectPrimary($pQuery){
+        foreach ($this->primaryKeys as $columnName){
+            $column = $pQuery->getColumnFromName($columnName);
+            // always put quotes around the columnName to be safe, we strip them in the formatter
+            $pQuery->addAsColumn('"' . lcfirst($columnName) . '"', $column[1]);
+        }
+    }
     /**
      * Maps fields to SELECT. May add foreign tables, if a fields is a object.
      * 
@@ -273,19 +353,12 @@ class Propel extends ORMAbstract {
      * @param  [type] $pFields [description]
      * @return [type]          [description]
      */
-    public function mapSelect($pQuery, $pFields){
+    public function mapSelect($pQuery, $pFields, $pObjectName = null){
 
-        $peer = $this->getPeerName();
-        $pQuery->clearSelectColumns();
-
-        foreach ($this->primaryKeys as $columnName){
-            $column = $pQuery->getColumnFromName($columnName);
-            // always put quotes around the columnName to be safe, we strip them in the formatter
-            $pQuery->addAsColumn('"' . lcfirst($columnName) . '"', $column[1]);
-        }
+        $peer = $this->getPeerName($pObjectName);
 
         foreach ($pFields as $fieldKey){
-            $field = $this->getField($fieldKey);
+            $field = $this->getField($fieldKey, $pObjectName);
 
             if ($field['type'] == 'object'){
                 if ($field['objectRelation'] == 'nToM'){
@@ -335,9 +408,13 @@ class Propel extends ORMAbstract {
                 }
             } else {
                 
-                $column = $pQuery->getColumnFromName(strtoupper($fieldKey));
-                // always put quotes around the columnName to be safe, we strip them in the formatter
-                $pQuery->addAsColumn('"' . lcfirst($column[0]->getPhpName()) . '"', $column[1]);
+                if ($column = $pQuery->getColumnFromName(strtoupper($fieldKey))){
+                    if (!$column[0])
+                        throw new \FieldNotFoundException(tf('Field %s in object %s not found', $fieldKey, $this->object_key));
+
+                    //always put quotes around the columnName to be safe, we strip them in the formatter
+                    $pQuery->addAsColumn('"' . lcfirst($column[0]->getPhpName()) . '"', $column[1]);
+                }
 
             }
         }

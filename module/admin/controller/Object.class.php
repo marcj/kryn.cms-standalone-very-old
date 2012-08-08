@@ -10,9 +10,46 @@ class Object {
 
     }
 
-    public function handleItem($pMethod, $pObject, $pPk){
+    public function handleItem($pMethod, $pObject, $pPk, $pFields = null){
+
+        $options['fields'] = $pFields;
+
+        switch($pMethod){
+            case 'get': return $this->getItem($pObject, $pPk, $options);
+            //todo, implement post,put,delete
+        }
+    }
+
+    /**
+     * Bla
+     * 
+     * @param  sring $pMethod
+     * @param  string $pObject
+     * @param  string $pPk
+     * @return mixed
+     */
+    public function handleRelatedItems($pMethod, $pRelatedObject, $pPk, $pObject, $pFields = null,
+                                       $pLimit = null, $pOffset = null, $pOrder = null, $pFilter = null){
+
+
+        $conditions = \Core\Object::parsePk($pObject, $pPk);
+
+        $options = array(
+            'fields' => $pFields,
+            'limit'  => $pLimit,
+            'offset' => $pOffset,
+            'order'  => $pOrder,
+            'permissionCheck' => true
+        );
+
+        $filterCondition = $this->buildFilter($pFilter);
+
+        return \Core\Object::getRelatedList($pObject, $filterCondition, $pRelatedObject, $conditions[0], $options);
+
+        return $pRelatedUri;
         switch($pMethod){
             case 'get': return $this->getItem($pObject, $pPk);
+            //todo, implement post,put,delete
         }
     }
 
@@ -36,7 +73,8 @@ class Object {
         }
     }
 
-    public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null, $pOrder = null){
+    public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null,
+                             $pOrder = null, $pFilter = null){
 
         $options = array(
             'fields' => $pFields,
@@ -46,7 +84,24 @@ class Object {
             'permissionCheck' => true
         );
 
-        return \Core\Object::getList($pObject, null, $options);
+        $condition = $this->buildFilter($pFilter);
+
+        return \Core\Object::getList($pObject, $condition, $options);
+    }
+
+    public function buildFilter($pFilter){
+        $condition = null;
+
+        if (is_array($pFilter)){
+            //build condition query
+            $condition = array();
+            foreach ($pFilter as $k => $v){
+                if ($condition) $condition[] = 'and';
+
+                $condition[] = array($k, '=', $v);
+            }
+        }
+        return $condition;
     }
 
     public function getCount($pObject){

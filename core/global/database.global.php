@@ -386,7 +386,7 @@ function dbFree($pStatement){
  * @return array
  */
 function dbFetch($pStatement) {
-    return $pStatement->fetch(PDO::FETCH_ASSOC);
+    return !$pStatement?false:$pStatement->fetch(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -397,7 +397,7 @@ function dbFetch($pStatement) {
  * @return array
  */
 function dbFetchAll($pStatement) {
-    return $pStatement->fetchAll(PDO::FETCH_ASSOC);
+    return !$pStatement?false:$pStatement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -787,10 +787,11 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = ''){
 
     if (!is_numeric($pCondition[0])){
         $pData[] = $pCondition[2];
+        $p = ':p'.count($pData);
         if (strtolower($pCondition[1]) == 'in'){
-            $result .= " (?)";
+            $result .= " ($p)";
         } else {
-            $result .= ' ?';
+            $result .= ' '.$p;
         }
     } else {
         $result .= ' '.($pCondition[0]+0);

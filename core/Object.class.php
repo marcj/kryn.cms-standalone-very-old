@@ -314,14 +314,83 @@ class Object {
             $pCondition = array($pCondition);
         }
 
-        if ($pOptions['permissionCheck']){
-            if ($pCondition)
-                $pCondition = $pCondition + \Core\Acl::getListingCondition($pObjectKey);
-            else
-                $pCondition = \Core\Acl::getListingCondition($pObjectKey);
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition){
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            } else {
+                $pCondition = $aclCondition;
+            }
         }
 
         return $obj->getItems($pCondition, $pOptions);
+
+    }
+
+    /**
+     * Returns the list of objects.
+     *
+     *
+     * $pOptions is a array which can contain following options. All options are optional.
+     *
+     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
+     *                    If empty all columns will be selected.
+     *  'offset'          Offset of the result set (in SQL OFFSET)
+     *  'limit'           Limits the result set (in SQL LIMIT)
+     *  'order'           The column to order. Example:
+     *                    array(
+     *                      array('field' => 'category', 'direction' => 'asc'),
+     *                      array('field' => 'title',    'direction' => 'asc')
+     *                    )
+     *
+     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
+     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
+     *
+     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
+     *
+     *  'rawSQL'          Array of custom SQL clauses (Without WHERE/AND/OR at the beginning). 
+     *
+     * @static
+     * @param string $pObjectKey
+     * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param array  $pOptions
+     * @see \dbConditionToSql
+     * @return array|bool
+     */
+    public static function getRelatedList($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
+                                          $pOptions = array()){
+
+        $definition = kryn::$objects[$pObjectKey];
+        if (!$definition) throw new \ObjectNotFoundException(tf("The object '%s' does not exist.", $pObjectKey));
+
+        $obj = self::getClassObject($pObjectKey);
+
+        if (!$pOptions['fields']) $pOptions['fields'] = '*';
+
+        if (!$pOptions['foreignKeys'])
+            $pOptions['foreignKeys'] = '*';
+
+        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
+            $pCondition = array($pCondition);
+        }
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition){
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            } else {
+                $pCondition = $aclCondition;
+            }
+        }
+
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pRelatedObject)){
+            if ($pReleatedCondition){
+                $pReleatedCondition = array($aclCondition, 'AND', $pReleatedCondition);
+            } else {
+                $pReleatedCondition = $aclCondition;
+            }
+        }
+
+        return $obj->getRelatedItems($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
 
     }
 

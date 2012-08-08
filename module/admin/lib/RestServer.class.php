@@ -544,24 +544,9 @@ class RestServer {
             $arguments = array_merge($arguments, $regexArguments);
         }
 
-        //map required arguments
-        if (is_array($route[1])){
-            foreach ($route[1] as $argument){
-                if ($_REQUEST[$argument] === null)
-                    $this->sendBadRequest('rest_required_argument_not_found', "Argument '$argument' is missing.");
+        $this->collectArguments($arguments, $route[1], true);//required
 
-                $arguments[] = $_REQUEST[$argument];
-            }
-        }
-
-        //map optional arguments
-        if (is_array($route[2])){
-            foreach ($route[2] as $argument){
-
-                if ($_GET[$argument])
-                    $arguments[] = $_GET[$argument];
-            }
-        }
+        $this->collectArguments($arguments, $route[2], false);//optional
 
         //fire method
         $method = $route[0];
@@ -578,6 +563,31 @@ class RestServer {
             $this->sendError(get_class($e), $e->getMessage());
         }
 
+    }
+
+    public function collectArguments(&$pArguments, $pNeedArguments, $pRequired){
+
+        if (is_array($pNeedArguments)){
+            $black = $this->getRewrittenRuleKey();
+
+            foreach ($pNeedArguments as $argument){
+                if ($_REQUEST[$argument] === null && $pRequired)
+                    $this->sendBadRequest('rest_required_argument_not_found', "Argument '$argument' is missing.");
+
+                if ($argument == '_'){
+                    //we collect all arguments that begins with _
+                    $arguments = array();
+                    foreach ($_REQUEST as $k => $v){
+                        if ($black != $k && substr($k, 0, 1) == '_'){
+                            $arguments[substr($k, 1)] = $v; 
+                        }
+                    }
+                    $pArguments[] = $arguments;
+                } else {
+                    $pArguments[] = $_REQUEST[$argument];
+                }
+            }
+        }
     }
 
     /**

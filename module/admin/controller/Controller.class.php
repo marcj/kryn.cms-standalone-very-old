@@ -68,11 +68,14 @@ class Controller {
 
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object')
-                        ->addRoute('([a-zA-Z-_]+)/(.+)', 'handleItem', null, array(
+                        ->addRoute('([a-zA-Z-_]+)/([^/]+)', 'handleItem', null, array(
                             'fields'
                         ))
+                        ->addRoute('([a-zA-Z-_]+)/([^/]+)/(.+)', 'handleRelatedItems', null, array(
+                            'fields', 'limit', 'offset', 'order', '_'
+                        ))
                         ->addGetRoute('([a-zA-Z-_]+)', 'getItems', null, array(
-                            'fields', 'limit', 'offset', 'order', 'query'
+                            'fields', 'limit', 'offset', 'order', '_'
                         ))
                     ->done()
 
@@ -81,7 +84,7 @@ class Controller {
                         ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch', null, array(
                             'fields', 'order', 'depth'
                         ))
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getRootBranch', null, array(
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getRootBranches', null, array(
                             'fields', 'order', 'depth'
                         ))
                     ->done()
