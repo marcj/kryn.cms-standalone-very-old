@@ -56,7 +56,7 @@
     <foreign-key foreignTable="system_user">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
-    <foreign-key foreignTable="system_group">
+    <foreign-key foreignTable="system_group" phpName="Group">
       <reference local="group_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">

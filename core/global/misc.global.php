@@ -39,6 +39,17 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
 }
 
 
+function underscore2Camelcase($pValue){
+  $ex = explode('_', $pValue);
+
+  $return = '';
+  foreach ($ex as $str) {
+    $return .= ucfirst($str);
+  }
+
+  return $return;
+}
+
 /**
  * Replaces escaped ' back
  *

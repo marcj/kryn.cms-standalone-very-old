@@ -123,6 +123,7 @@ class Editor {
             case 'filelist':
 
                 $column['type'] = 'LONGVARCHAR';
+                unset($column['size']);
                 break;
 
             case 'text':
@@ -136,6 +137,7 @@ class Editor {
 
             case 'page':
                 $column['type'] = 'INTEGER';
+                unset($column['size']);
                 break;
 
             case 'file':
@@ -147,6 +149,8 @@ class Editor {
 
             case 'properties':
                 $column['type'] = 'OBJECT';
+                unset($column['size']);
+                break;
 
             case 'select':
 
@@ -250,6 +254,7 @@ class Editor {
 
                         $name = $pObject.'_'.$key;
                         $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
+                        $foreignKeys[$object['table']][$key] = $name;
                         if ($cols) continue;
 
                         $col = $relationTable->addChild('column');
@@ -258,7 +263,6 @@ class Editor {
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
-                        $foreignKeys[$object['table']][$key] = $col['name'];
 
                     }
 
@@ -267,6 +271,7 @@ class Editor {
                     foreach ($leftPrimaries as $key => $primary){
 
                         $name = $pField['object'].'_'.$key;
+                        $foreignKeys[$foreignObject['table']][$key] = $name;
                         $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
                         if ($cols) continue;
 
@@ -276,7 +281,6 @@ class Editor {
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
-                        $foreignKeys[$foreignObject['table']][$key] = $col['name'];
 
                     }
 
@@ -288,6 +292,11 @@ class Editor {
                         else $foreignKey = $relationTable->addChild('foreign-key');
 
                         $foreignKey['foreignTable'] = $table;
+
+                        if ($table == $foreignObject['table']){
+                            //add our field name as phpName for the foreignKey to the right table
+                            $foreignKey['phpName'] = underscore2Camelcase($pFieldKey);
+                        }
 
                         foreach ($keys as $k => $v){
 

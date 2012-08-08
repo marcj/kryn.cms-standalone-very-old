@@ -70,14 +70,14 @@ abstract class ORMAbstract {
     public function primaryStringToArray($pPk){
 
         if ($pPk === '') return false;
-        $groups = explode('/', $pPk);
+        $groups = explode(',', $pPk);
 
         $result = array();
 
         foreach ($groups as $group){
 
             $item = array();
-            $primaryGroups = explode(',', $group);
+            $primaryGroups = explode('-', $group);
 
             foreach ($primaryGroups as $pos => $value){
 
@@ -167,6 +167,22 @@ abstract class ORMAbstract {
      * @param array  $pOptions
      */
     abstract public function getRelatedItems($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
+
+
+    /**
+     *
+     * $pOptions is a array which can contain following options. All options are optional.
+     *
+     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
+     *
+     * @abstract
+     * @param array  $pPk
+     * @param array  $pRelatedObject
+     * @param array  $pRelatedCondition
+     * @param array  $pOptions
+     * 
+     */
+    abstract public function getRelatedCount($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
 
     /**
      * 

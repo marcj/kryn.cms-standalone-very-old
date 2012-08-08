@@ -270,11 +270,11 @@
           "required_regexp": "\/^[^@]+@[^@]{3,}.[^.@0-9]{2,}$\/"
         },
         "desktop": {
-          "type": "textarea",
+          "type": "properties",
           "empty": 1
         },
         "settings": {
-          "type": "textarea",
+          "type": "properties",
           "empty": 1
         },
         "activate": {
@@ -305,7 +305,7 @@
           "primaryKey": 0,
           "empty": 1
         },
-        "groups": {
+        "group": {
           "label": "[[Group membership]]",
           "object": "group",
           "objectLabel": "name",

@@ -208,8 +208,8 @@ class Acl {
         return self::check($pObjectKey, $pObjectId, $pField, 2);
     }
 
-    public static function checkAdd($pObjectKey, $pObjectId, $pField = false){
-        return self::check($pObjectKey, $pObjectId, $pField, 3);
+    public static function checkAdd($pObjectKey, $pParentId, $pField = false){
+        return self::check($pObjectKey, $pParentId, $pField, 3, false, true);
     }
 
     public static function checkUpdate($pObjectKey, $pObjectId, $pField = false){
@@ -225,9 +225,9 @@ class Acl {
      * @param bool $pRootHasAccess
      * @return bool
      */
-    public static function check($pObjectKey, $pObjectId, $pField = false, $pMode = 1, $pRootHasAccess = false) {
+    public static function check($pObjectKey, $pObjectId, $pField = false, $pMode = 1, $pRootHasAccess = false, $pAsParent = false) {
 
-        if (Kryn::$client->id == 1)
+        if (Kryn::$client->id == 1) return true;
 
         $rules =& self::getRules($pObjectKey, $pMode);
 
@@ -245,7 +245,7 @@ class Acl {
 
 
         $not_found = true;
-        $parent_acl = false;
+        $parent_acl = $pAsParent;
         $objectItem = false;
         $codes = array();
 
@@ -274,8 +274,8 @@ class Acl {
 
                 //print $acl['id'].', '.$acl['code'] .' == '. $current_code.'<br/>';
                 if ($acl['constraint_type'] == 2 &&
-                    ($objectItem = krynObjects::get($pObjectKey, $current_code))){
-                    if (!krynObjects::complies($objectItem, $acl['constraint_code'])) continue;
+                    ($objectItem = Object::get($pObjectKey, $current_code))){
+                    if (!Object::satisfy($objectItem, $acl['constraint_code'])) continue;
                 }
 
                 if (
@@ -299,7 +299,7 @@ class Acl {
                                         foreach ($fieldAcl as $fRule){
 
                                             $uri = $fields[$fKey]['object'].'/'.$fValue;
-                                            $satisfy = krynObjects::satisfyFromUri($uri, $fRule['condition']);
+                                            $satisfy = Object::satisfyFromUri($uri, $fRule['condition']);
                                             if ($satisfy){
                                                 return ($fRule['access'] == 1) ? true : false;
                                             }

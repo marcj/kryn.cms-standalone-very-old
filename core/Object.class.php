@@ -180,6 +180,13 @@ class Object {
         return $object_id;
     }
 
+
+    public static function checkField($pObjectKey, $pField){
+        if (!Kryn::$objects[$pObjectKey]['fields'][$pField])
+            throw new \FieldNotFoundException(tf('Field %s in object %s not found.', $pField, $pObjectKey));
+        return true;
+    }
+
     /**
      * Converts given params to the internal uri.
      *
@@ -234,6 +241,8 @@ class Object {
      *  'foreignKeys'     Define which column should be resolved. If empty all columns will be resolved.
      *                    Use a array or a comma separated list (like in SQL SELECT)
      *
+     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
+     *
      * @static
      * @param string $pObjectKey
      * @param mixed  $pCondition Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
@@ -242,19 +251,21 @@ class Object {
      */
     public static function get($pObjectKey, $pCondition = false, $pOptions = array()){
 
-        $definition = kryn::$objects[$pObjectKey];
-        if (!$definition) return false;
-
         $obj = self::getClassObject($pObjectKey);
+
+        $pCondition = dbSimpleCondition($pCondition);
 
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
         $pOptions['fields'] = $obj->getFields($pOptions['fields']);
 
+        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
+            $pCondition = array($pCondition);
+        }
+
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
-
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
             if ($pCondition){
@@ -289,8 +300,6 @@ class Object {
      *
      *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
-     *  'rawSQL'          Array of custom SQL clauses (Without WHERE/AND/OR at the beginning). 
-     *
      * @static
      * @param string $pObjectKey
      * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
@@ -299,9 +308,6 @@ class Object {
      * @return array|bool
      */
     public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
-
-        $definition = kryn::$objects[$pObjectKey];
-        if (!$definition) throw new \ObjectNotFoundException(tf("The object '%s' does not exist.", $pObjectKey));
 
         $obj = self::getClassObject($pObjectKey);
 
@@ -347,8 +353,6 @@ class Object {
      *
      *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
-     *  'rawSQL'          Array of custom SQL clauses (Without WHERE/AND/OR at the beginning). 
-     *
      * @static
      * @param string $pObjectKey
      * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
@@ -359,15 +363,57 @@ class Object {
     public static function getRelatedList($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
                                           $pOptions = array()){
 
-        $definition = kryn::$objects[$pObjectKey];
-        if (!$definition) throw new \ObjectNotFoundException(tf("The object '%s' does not exist.", $pObjectKey));
-
         $obj = self::getClassObject($pObjectKey);
 
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
+
+        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
+            $pCondition = array($pCondition);
+        }
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition){
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            } else {
+                $pCondition = $aclCondition;
+            }
+        }
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pRelatedObject)){
+            if ($pReleatedCondition){
+                $pReleatedCondition = array($aclCondition, 'AND', $pReleatedCondition);
+            } else {
+                $pReleatedCondition = $aclCondition;
+            }
+        }
+
+        return $obj->getRelatedItems($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
+
+    }
+
+
+    /**
+     * Returns the count of related items.
+     *
+     *
+     * $pOptions is a array which can contain following options. All options are optional.
+     *
+     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
+     *
+     * @static
+     * @param string $pObjectKey
+     * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param array  $pOptions
+     * @see \dbConditionToSql
+     * @return array|bool
+     */
+    public static function getRelatedCount($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
+                                          $pOptions = array()){
+
+        $obj = self::getClassObject($pObjectKey);
 
         if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
             $pCondition = array($pCondition);
@@ -390,7 +436,7 @@ class Object {
             }
         }
 
-        return $obj->getRelatedItems($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
+        return $obj->getRelatedCount($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
 
     }
 
@@ -405,8 +451,7 @@ class Object {
     public static function &getClassObject($pObjectKey){
 
         $definition =& \Core\Kryn::$objects[$pObjectKey];
-        if (!$definition) throw new \ObjectNotFoundException(tf('Can not get class for object %s'), $pObjectKey);
-
+        if (!$definition) throw new \ObjectNotFoundException(tf('Can not get class for object %s', $pObjectKey));
 
         if (!self::$instances[$pObjectKey]){
 
@@ -470,6 +515,14 @@ class Object {
     public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false){
 
         $obj = self::getClassObject($pObjectKey);
+    
+        if ($pOptions['permissionCheck']){
+            foreach ($pValues as $fieldName => $value){
+                if (!Acl::checkAdd($pObjectKey, $pPk, $fieldName)){
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
+                }
+            }
+        }
 
         return $obj->add($pValues, $pParentId, $pPosition, $pParentObjectKey);
 
@@ -482,10 +535,18 @@ class Object {
     }
 
 
-    public static function update($pObjectKey, $pObjectId, $pValues){
-        $obj = self::getClassObject($pObjectKey);
-        return $obj->update($pObjectId, $pValues);
+    public static function update($pObjectKey, $pPk, $pValues, $pOptions){
 
+        if ($pOptions['permissionCheck']){
+            foreach ($pValues as $fieldName => $value){
+                if (!Acl::checkUpdate($pObjectKey, $pPk, $fieldName)){
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
+                }
+            }
+        }
+
+        $obj = self::getClassObject($pObjectKey);
+        return $obj->update($pPk, $pValues);
     }
 
     public static function removeFromUri($pObjectUri){

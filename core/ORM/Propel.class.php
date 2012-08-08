@@ -41,7 +41,7 @@ class Propel extends ORMAbstract {
         if (is_array($this->definition['fields'])){
             foreach ($this->definition['fields'] as $key => $field){
                 if ($field['primaryKey'])
-                    $this->primaryKeys[] = $peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+                    $this->primaryKeys[] = $key; //$peer::translateFieldName($key, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
             }
         }
     }
@@ -180,15 +180,9 @@ class Propel extends ORMAbstract {
     }
 
 
+
     /**
-     * 
-     * 
-     * @param bool|array   $pCondition
-     * @param bool|array   $pOptions
-     * @see  getItems
-     * @return mixed
-     *
-     * @throws \ObjectItemNotFoundException
+     * {@inheritDoc}
      */
     public function getItem($pCondition, $pOptions = array()){
 
@@ -239,8 +233,30 @@ class Propel extends ORMAbstract {
                 }
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRelatedCount($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array()){
+
+        $query = $this->getQueryClass($pRelatedObject);
+
+        //convert kryn pk to propel pk
+        $pRelatedPk = $this->getPropelPk($pRelatedPk);
+
+        $relatedItem = $query->findPk($pRelatedPk);
+
+        if (!$relatedItem) throw new \ObjectItemNotFoundException(tf('The item %s can not be found.', $pRelatedPk));
+
+        $query = $this->getQueryClass();
+        $filterBy = 'filterBy'.$this->getPhpName($pRelatedObject);
+        $query->$filterBy($relatedItem);
+
+        return $query->count();
 
     }
+
 
     /**
      * {@inheritDoc}
@@ -250,15 +266,15 @@ class Propel extends ORMAbstract {
         $query = $this->getQueryClass($pRelatedObject);
 
         //convert kryn pk to propel pk
-        $pRelatedPk = array_values($pRelatedPk);
-        if (count($pRelatedPk) == 1) $pRelatedPk = $pRelatedPk[0];
+        $pRelatedPk = $this->getPropelPk($pRelatedPk);
 
         $relatedItem = $query->findPk($pRelatedPk);
 
-        if (!$relatedItem) return false;
+        if (!$relatedItem) throw new \ObjectItemNotFoundException(tf('The item %s can not be found.', $pRelatedPk));
 
         $query = $this->getQueryClass();
-        $query->filterByGroup($relatedItem);
+        $filterBy = 'filterBy'.$this->getPhpName($pRelatedObject);
+        $query->$filterBy($relatedItem);
 
         $fields = $this->getFields($pOptions['fields']);
 
@@ -267,24 +283,6 @@ class Propel extends ORMAbstract {
         $this->mapOptions($query, $pOptions);
 
         $stm = $this->getStm($query, $pConditon);
-        return dbFetchAll($stm);
-
-        $stm = $this->getStm($query, $pRelatedCondition);
-        $thisItem = dbFetch($stm);
-
-        $fields = $this->getFields($pOptions['fields']);
-
-        $this->mapSelect($query, $fields);
-
-  //->joinAuthor()
-  //->addJoinCondition('Author', 'Author.LastName <> ?', 'Austen')
-
-        $rel =  $this->getPhpName().'.'.ucfirst($pRelatedObject);
-        print $rel;
-        $query->join($rel);
-
-        $stm = $this->getStm($query, $pCondition);
-
         return dbFetchAll($stm);
     }
 
@@ -353,12 +351,12 @@ class Propel extends ORMAbstract {
      * @param  [type] $pFields [description]
      * @return [type]          [description]
      */
-    public function mapSelect($pQuery, $pFields, $pObjectName = null){
+    public function mapSelect($pQuery, $pFields){
 
         $peer = $this->getPeerName($pObjectName);
 
         foreach ($pFields as $fieldKey){
-            $field = $this->getField($fieldKey, $pObjectName);
+            $field = $this->getField($fieldKey);
 
             if ($field['type'] == 'object'){
                 if ($field['objectRelation'] == 'nToM'){
@@ -372,35 +370,37 @@ class Propel extends ORMAbstract {
                         $label = $field['objectLabel'] ? $field['objectLabel'] : $foreignObject['objectLabel'];
 
                         $pQuery->leftJoin($this->getPhpName().'.'.$field['objectRelationPhpName']);
-                        $pQuery->leftJoin($field['objectRelationPhpName'].'.'.$foreignObject['phpClass']);
 
+                        $foreignKeyName = underscore2Camelcase($fieldKey);
+
+                        $pQuery->leftJoin($field['objectRelationPhpName'].'.'.$foreignKeyName);
                         if (count($primaryList) == 1){
                                 $key = current($primaryList);
 
                                 if (Kryn::$config['db_type'] != 'pgsql'){
-                                    $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$key.')', $fieldKey);
+                                    $pQuery->withColumn('group_concat('.$foreignKeyName.'.'.$key.')', $fieldKey);
                                     if ($label)
-                                        $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$label.')', $fieldKey.'Label');
+                                        $pQuery->withColumn('group_concat('.$foreignKeyName.'.'.$label.')', $fieldKey.'Label');
                                 } else {
-                                    $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$key.'||\'\', \',\')', $fieldKey);
+                                    $pQuery->withColumn('string_agg('.$foreignKeyName.'.'.$key.'||\'\', \',\')', $fieldKey);
                                     if ($label)
-                                        $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$label.'||\'\', \',\')', $fieldKey.'Label');
+                                        $pQuery->withColumn('string_agg('.$foreignKeyName.'.'.$label.'||\'\', \',\')', $fieldKey.'Label');
                                 }
                         } else {
                             foreach ($primaryList as $pField){
                                 if (Kryn::$config['db_type'] != 'pgsql'){
-                                    $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$pField.')', $fieldKey.ucfirst($pField));
+                                    $pQuery->withColumn('group_concat('.$foreignKeyName.'.'.$pField.')', $fieldKey.ucfirst($pField));
                                 } else {
-                                    $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$pField.'||\'\', \',\')', $fieldKey.ucfirst($pField));
+                                    $pQuery->withColumn('string_agg('.$foreignKeyName.'.'.$pField.'||\'\', \',\')', $fieldKey.ucfirst($pField));
                                 }
                             }
 
                             if (Kryn::$config['db_type'] != 'pgsql'){
                                 if ($label)
-                                    $pQuery->withColumn('group_concat('.$foreignObject['phpClass'].'.'.$label.')', $fieldKey.'Label');
+                                    $pQuery->withColumn('group_concat('.$foreignKeyName.'.'.$label.')', $fieldKey.'Label');
                             } else {
                                 if ($label)
-                                    $pQuery->withColumn('string_agg('.$foreignObject['phpClass'].'.'.$label.'||\'\', \',\')', $fieldKey.'Label');
+                                    $pQuery->withColumn('string_agg('.$foreignKeyName.'.'.$label.'||\'\', \',\')', $fieldKey.'Label');
                             }
                         }
                         $pQuery->groupBy('Id');
@@ -435,7 +435,6 @@ class Propel extends ORMAbstract {
     public function add($pValues, $pBranchPk = false, $pMode = 'first', $pScope = 0){
         $clazz = $this->getPhpName();
         $obj = new $clazz();
-        $obj->fromArray($pValues);
 
         if ($this->definition['nested']){
 
@@ -459,9 +458,9 @@ class Propel extends ORMAbstract {
             }
         }
 
-        $obj->save();
+        $this->mapValues($obj, $pValues);
 
-        return $obj->getPrimaryKey();
+        return ($obj->save())? $obj->getPrimaryKey() : false;
     }
 
 
@@ -469,15 +468,57 @@ class Propel extends ORMAbstract {
      * {@inheritdoc}
      */
     public function update($pPk, $pValues){
-        
-        $query = $this->getQueryClass();
         $item  = $query->findPk($this->getPropelPk($pPk));
 
-        $item->fromArray($pValues);
-        return $item->save();
+        $this->mapValues($item, $pValues);
+
+        return $item->save()?true:false;
     }
 
 
+    public function mapValues($pItem, $pValues){
+
+        $query = $this->getQueryClass();
+
+        foreach ($pValues as $fieldName => $fieldValue){
+
+            $field = $this->getField($fieldName);
+
+            if ($field['type'] == 'object'){
+
+                $primaryKeys = \Core\Object::parsePk($field['object'], $fieldValue);
+
+                if ($field['objectRelation'] == 'nToM'){
+
+                    $setItems = 'set'.underscore2Camelcase($fieldName).'s';
+
+                    $foreignQuery = $this->getQueryClass($field['object']);
+
+                    foreach ($primaryKeys as $primaryKey){
+                        $propelPks[] = $this->getPropelPk($primaryKey);
+                    }
+
+                    $collItems = $foreignQuery
+                        ->findPks($propelPks);
+
+                    $pItem->$setItems($collItems);
+                    continue;
+                }
+            }
+
+            if ($column = $query->getColumnFromName(strtoupper($fieldName))){
+                if (!$column[0])
+                    throw new \FieldNotFoundException(tf('Field %s in object %s not found', $fieldName, $this->object_key));
+
+                $set = 'set'.$column[0]->getPhpName();
+
+                $pItem->$set($fieldValue);
+            }
+
+
+        }
+
+    }
     /**
      * {@inheritdoc}
      */

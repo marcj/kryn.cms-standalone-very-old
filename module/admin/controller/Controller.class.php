@@ -34,7 +34,7 @@ class Controller {
             $epc->run($pEntryPoint);
         }
 
-        if (Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin') {
+        if (Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin'){
 
             die(Kryn::$modules[getArgv(2)]->admin());
 
@@ -69,12 +69,12 @@ class Controller {
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object')
                         ->addRoute('([a-zA-Z-_]+)/([^/]+)', 'handleItem', null, array(
-                            'fields'
+                            'fields', '_'
                         ))
                         ->addRoute('([a-zA-Z-_]+)/([^/]+)/(.+)', 'handleRelatedItems', null, array(
                             'fields', 'limit', 'offset', 'order', '_'
                         ))
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getItems', null, array(
+                        ->addRoute('([a-zA-Z-_]+)', 'handleItems', null, array(
                             'fields', 'limit', 'offset', 'order', '_'
                         ))
                     ->done()
@@ -92,6 +92,11 @@ class Controller {
                     //admin/backend/object-count
                     ->addSubController('object-count', '\Admin\Object')
                         ->addGetRoute('([a-zA-Z-_]+)', 'getCount', null, array('query'))
+                    ->done()
+
+                    //admin/backend/object-count
+                    ->addSubController('object-count', '\Admin\Object')
+                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)/(.+)', 'getRelatedCount', null, array('_'))
                     ->done()
 
 

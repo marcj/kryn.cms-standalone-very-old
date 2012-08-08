@@ -134,6 +134,10 @@ function tpf(){
     $translated = t($first, $second, $count);
     $sprintf[] = $translated;
     $sprintf[] = $count;
+
+    foreach ($arguments as &$arg)
+        if (is_array($arg)) $arg = json_encode($arg);
+
     $sprintf = array_merge($sprintf, $arguments);
     return t(call_user_func_array('sprintf', $sprintf));
 }
@@ -147,7 +151,10 @@ function tpf(){
  * @return string
 */
 function tf(){
-    return t(call_user_func_array('sprintf', func_get_args()));
+    $arguments = func_get_args();
+    foreach ($arguments as &$arg)
+        if (is_array($arg)) $arg = json_encode($arg);
+    return t(call_user_func_array('sprintf', $arguments));
 }
 
 /**
