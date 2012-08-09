@@ -245,15 +245,16 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pCondition Can be the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pPk
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pCondition = false, $pOptions = array()){
+    public static function get($pObjectKey, $pPk = false, $pOptions = array()){
 
         $obj = self::getClassObject($pObjectKey);
 
-        $pCondition = dbSimpleCondition($pCondition);
+        //convert primarykey to condition
+        $condition = dbPrimaryKeyToCondition($pPk);
 
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
@@ -268,14 +269,14 @@ class Object {
             $pOptions['foreignKeys'] = '*';
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($pCondition){
-                $pCondition = array($aclCondition, 'AND', $pCondition);
+            if ($condition){
+                $condition = array($aclCondition, 'AND', $condition);
             } else {
-                $pCondition = $aclCondition;
+                $condition = $aclCondition;
             }
         }
 
-        return $obj->getItem($pCondition, $pOptions);
+        return $obj->getItem($condition, $pOptions);
 
     }
 
@@ -302,7 +303,7 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pCondition Condition object from the structure of dbPrimaryKeyToConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @see \dbConditionToSql
      * @return array|bool
@@ -355,12 +356,14 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pPk
+     * @param mixed  $pField
+     * @param mixed  $pForeignCondition
      * @param array  $pOptions
      * @see \dbConditionToSql
      * @return array|bool
      */
-    public static function getRelatedList($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
+    public static function getForeignItems($pObjectKey, $pPk, $pField, $pForeignCondition = null, 
                                           $pOptions = array()){
 
         $obj = self::getClassObject($pObjectKey);
@@ -370,27 +373,34 @@ class Object {
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
-        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
+        $condition = dbPrimaryKeyToCondition($pPk);
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($pCondition){
-                $pCondition = array($aclCondition, 'AND', $pCondition);
+            if ($condition){
+                $condition = array($aclCondition, 'AND', $$condition);
             } else {
-                $pCondition = $aclCondition;
+                $$condition = $aclCondition;
             }
         }
 
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pRelatedObject)){
-            if ($pReleatedCondition){
-                $pReleatedCondition = array($aclCondition, 'AND', $pReleatedCondition);
+        $relatedField = $obj->getField($pField);
+
+        if (!$relatedField)
+            throw new \FieldNotFoundException(tf('The field %s can not be found in object %', $pField, $pObjectKey));
+
+        if ($relatedField['type'] != 'object')
+            throw new \FieldNotFoundException(tf('The field %s is not from type object (%s)', $pField, $relatedField['type']));
+
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($relatedField['object'])){
+            if ($pForeignCondition){
+                $pForeignCondition = array($aclCondition, 'AND', $pForeignCondition);
             } else {
-                $pReleatedCondition = $aclCondition;
+                $pForeignCondition = $aclCondition;
             }
         }
 
-        return $obj->getRelatedItems($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
+        return $obj->getForeignItems($condition, $pField, $pForeignCondition, $pOptions);
 
     }
 
@@ -405,7 +415,7 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pCondition Condition object from the structure of dbSimpleConditionToSql() or dbConditionToSql()
+     * @param mixed  $pCondition Condition object from the structure of dbPrimaryKeyToConditionToSql() or dbConditionToSql()
      * @param array  $pOptions
      * @see \dbConditionToSql
      * @return array|bool
@@ -512,7 +522,8 @@ class Object {
 
     }
 
-    public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false){
+    public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false,
+                               $pOptions = array()){
 
         $obj = self::getClassObject($pObjectKey);
     

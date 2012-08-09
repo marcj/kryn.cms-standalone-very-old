@@ -579,37 +579,40 @@ function dbExtractOrderFields($pValues, $pTable = ''){
 
 
 /**
- * Converts simple structure of a condition to normal (complex) condition object used in dbConition().
- * This is used in krynObjects::get() second argument.
+ * Converts primarykey to normal (complex) condition object used in dbCondition().
  *
- * Structure can be:
- *
- * array( 'id' => 1, 'cat_id' => 3) => "id = 1 AND cat_id = 3"
- * array( array(1,3) ) (need $pObjectKey then)=> "id = 1 AND cat_id = 3"
- *
- * array( 1,3 ) (need $pObjectKey then) => "(id = 1) or (id = 3)"
- * array( array(1,3), array(2,3) ) (need $pObjectKey then) => "(id = 1 AND cat_id = 3) OR (id = 2 AND cat_id = 3)"
- *
- * array(
- *  array('id' => 1, 'cat_id' => 3,
- *  array('id' => 1, 'cat_id' => 4
- * )) => "(id = 1 AND cat_id = 3) OR (id = 1 AND cat_id = 4)"
- *
+ * 
+ * @see PrimaryKeys
+ * 
  * @param array       $pPrimaryValue
  * @param string      $pTable Adds the table name in front of the field names. ($pTable.<column>)
  * @param string|bool $pObjectKey
  * @return bool|string
  */
-function dbSimpleCondition($pCondition, $pTable = '', $pObjectKey = false){
+function dbPrimaryKeyToCondition($pCondition, $pObjectKey = false, $pTable = ''){
 
     $sql = '';
     $result = array();
 
-    if (!is_array($pCondition)){
-        return false;
+    // 
+    // condition: 
+    // [
+    //   ["bla", "=", 1], "and"
+    // 
+    // ]
+    // 
+    // pk:
+    //  1
+    // 
+    // pk: 
+    // ["bla" => 2, "hosa" => 1]
+    // 
+    // pk: 
+    // [ ["bla" => 1], ["bla" => 2] ]
+    if (is_array($pCondition) && is_array($pCondition[0]) && is_numeric(key($pCondition)) && is_numeric(key($pCondition[0]))){
+        //its already a condition object
+        return $pCondition;
     }
-
-    if (!$pCondition) return false;
 
     if ($pObjectKey){
         $primaries = \Core\Object::getPrimaryList($pObjectKey);
@@ -715,19 +718,19 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
 
     if (is_array($pConditions) && !is_numeric(key($pConditions))){
         //array( 'bla' => 'hui' );
-        //we have a structure like in dbSimpleConditionToSql, so call it
-        return dbConditionToSql(dbSimpleCondition($pConditions, null, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
+        //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
+        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
     }
 
     if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))){
         //array( array('bla' => 'bla', ... );
-        //we have a structure like in dbSimpleConditionToSql, so call it
-        return dbConditionToSql(dbSimpleCondition($pConditions, null, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
+        //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
+        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
     }
 
     if (!is_array($pConditions[0])){
         //array( 1, 2, 3 );
-        return dbConditionToSql(dbSimpleCondition($pConditions, null, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
     }
 
     return dbFullConditionToSql($pConditions, $pData, $pTablePrefix);

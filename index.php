@@ -22,7 +22,6 @@ require('core/bootstrap.php');
 if (getArgv(1) != 'admin') {
     Core\Kryn::searchDomain();
 }
-
 /*
  * Initialize the krynAuth user objects for backend and frontend.
  */

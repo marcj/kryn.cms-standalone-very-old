@@ -68,13 +68,19 @@ class Controller {
 
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object')
-                        ->addRoute('([a-zA-Z-_]+)/([^/]+)', 'handleItem', null, array(
+                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getItem', null, array(
                             'fields', '_'
                         ))
-                        ->addRoute('([a-zA-Z-_]+)/([^/]+)/(.+)', 'handleRelatedItems', null, array(
+                        ->addPostRoute('([a-zA-Z-_]+)/([^/]+)', 'postItem', null, array(
+                            'fields', '_'
+                        ))
+                        ->addPutRoute('([a-zA-Z-_]+)', 'putItem', null, array(
+                            '_'
+                        ))
+                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)/([a-zA-Z-_]+)', 'getForeignItems', null, array(
                             'fields', 'limit', 'offset', 'order', '_'
                         ))
-                        ->addRoute('([a-zA-Z-_]+)', 'handleItems', null, array(
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getItems', null, array(
                             'fields', 'limit', 'offset', 'order', '_'
                         ))
                     ->done()
@@ -131,7 +137,7 @@ class Controller {
                         ->addGetRoute('check', 'checkScheme')
                     ->done()
 
-                    //admin/system/module/manager
+                    //admin/system/module/editor
                     ->addSubController('module/editor', '\Admin\Module\Editor')
                         ->addGetRoute('config', 'getConfig', array('name'))
 
@@ -140,7 +146,7 @@ class Controller {
                         ->addGetRoute('objects', 'getObjects', array('name'))
                         ->addPostRoute('objects', 'saveObjects', array('name'))
 
-                        ->addPostRoute('model/fromObject', 'setModelFromObject', array('name', 'object'))
+                        ->addPostRoute('model/from-object', 'setModelFromObject', array('name', 'object'))
 
                         ->addPostRoute('model', 'saveModel', array('name', 'model'))
                         ->addGetRoute('model', 'getModel', array('name'))

@@ -107,6 +107,9 @@ class Editor {
             $column =& $pRefColumn;
 
 
+        $object =& kryn::$objects[$pObject];
+
+
         switch(strtolower($pField['type'])){
 
             case 'textarea':
@@ -215,7 +218,7 @@ class Editor {
                             $columnId = $pFieldKey.'_'.$key;
                             $columns[$columnId] = $pField;
 
-                            $this->getColumnFromField($columnId, $primary, $pTable, $pDatabase, $columns[$columnId]);
+                            $this->getColumnFromField($pObject, $columnId, $primary, $pTable, $pDatabase, $columns[$columnId]);
 
                         }
                         
@@ -231,9 +234,12 @@ class Editor {
                                         
                     $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.$pField['object'];
 
+                    $tablePhpName = underscore2Camelcase($tableName);
+                    if ($pField['objectRelationPhpName'])
+                        $tablePhpName = $pField['objectRelationPhpName'];
+
                     //search if we've already the table defined.
                     $tables = $pDatabase->xpath('table[@name=\''.$tableName.'\']');
-                    $object = kryn::$objects[$pObject];
 
                     if (!$tables) {
                         $relationTable = $pDatabase->addChild('table');
@@ -243,8 +249,7 @@ class Editor {
                         $relationTable = current($tables);
                     }
 
-                    if ($pField['objectRelationPhpName'])
-                        $relationTable['phpName'] = $pField['objectRelationPhpName'];
+                    $relationTable['phpName'] = $tablePhpName;
 
                     $foreignKeys = array();
 
@@ -294,8 +299,9 @@ class Editor {
                         $foreignKey['foreignTable'] = $table;
 
                         if ($table == $foreignObject['table']){
-                            //add our field name as phpName for the foreignKey to the right table
-                            $foreignKey['phpName'] = underscore2Camelcase($pFieldKey);
+                            $foreignKey['phpName'] = underscore2Camelcase($pFieldKey).'_'.$foreignObject['phpName'];
+                        } else {
+                            $foreignKey['phpName'] = underscore2Camelcase($pFieldKey).'_'.$object['phpName'];
                         }
 
                         foreach ($keys as $k => $v){
@@ -379,7 +385,7 @@ class Editor {
         if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
 
         $objectTable['name'] = $object['table'];
-        $objectTable['phpName'] = $object['phpClass'];
+        $objectTable['phpName'] = $object['phpName'];
 
         $columnsDefined = array();
 

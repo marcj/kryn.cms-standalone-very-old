@@ -1327,6 +1327,42 @@ class ModelCriteria extends Criteria
         return $stmt;
     }
 
+
+
+    public function getSql()
+    {
+
+        // check that the columns of the main class are already added (if this is the primary ModelCriteria)
+        if (!$this->hasSelectClause() && !$this->getPrimaryCriteria()) {
+            $this->addSelfSelectColumns();
+        }
+        $this->configureSelectColumns();
+
+        $params = array();
+        $sql = BasePeer::createSelectSql($this, $params);
+
+        return array($sql, $params);
+    }
+
+    public function bindValues($sql, $params){
+
+        $con = Propel::getConnection($this->getDbName(), Propel::CONNECTION_READ);
+
+        $dbMap = Propel::getDatabaseMap($this->getDbName());
+        $db = Propel::getDB($this->getDbName());
+
+        try {
+            $stmt = $con->prepare($sql);
+            $db->bindValues($stmt, $params, $dbMap);
+        } catch (Exception $e) {
+            Propel::log($e->getMessage(), Propel::LOG_ERR);
+            throw new PropelException(sprintf('Unable to bind statement [%s]', $sql), $e);
+        }
+
+        return $stmt;
+
+    }
+
     /**
      * Apply a condition on a column and issues the SELECT query
      *
@@ -1960,7 +1996,7 @@ class ModelCriteria extends Criteria
      *
      * @throws PropelException
      */
-    public function getColumnFromName($phpName, $failSilently = true)
+    protected function getColumnFromName($phpName, $failSilently = true)
     {
         if (strpos($phpName, '.') === false) {
             $prefix = $this->getModelAliasOrName();

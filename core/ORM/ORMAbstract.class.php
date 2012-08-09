@@ -166,7 +166,7 @@ abstract class ORMAbstract {
      * @param array  $pRelatedCondition
      * @param array  $pOptions
      */
-    abstract public function getRelatedItems($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
+    //abstract public function getRelatedItems($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
 
 
     /**
@@ -182,7 +182,7 @@ abstract class ORMAbstract {
      * @param array  $pOptions
      * 
      */
-    abstract public function getRelatedCount($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
+    //abstract public function getRelatedCount($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
 
     /**
      * 

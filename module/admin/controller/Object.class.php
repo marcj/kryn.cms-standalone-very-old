@@ -10,35 +10,36 @@ class Object {
 
     }
 
-    public function handleItem($pMethod, $pObject, $pPk, $pFields = null, $pSetFields = null){
+    public function postItem($pObject, $pPk, $pSetFields){
+
+        if (!count($pSetFields))
+            throw new \ArgumentMissingException(tf('At least one argument with starting _ is missing.'));
 
         $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
 
-        $options['fields'] = $pFields;
-        $options['permissionCheck'] = true;
+        $options = array(
+            'permissionCheck' => true
+        );
 
-        if ($pMethod == 'post' || $pPost == 'put'){
-            if (!count($pSetFields))
-                throw new \ArgumentMissingException(tf('At least one argument with starting _ is missing.'));
-        }
+        return \Core\Object::update($pObject, $primaryKeys[0], $pSetFields, $options);
+    }
 
-        switch($pMethod){
-            case 'get': return \Core\Object::get($pObject, $primaryKeys[0], $options);
-            
-            case 'post': 
-                return \Core\Object::update($pObject, $primaryKeys[0], $pSetFields, $options);
 
-            case 'put': 
-                return \Core\Object::add($pObject, $pSetFields, $options);
-            
+    public function putItem($pObject, $pSetFields){
 
-            //todo, implement post,put,delete
-        }
+        if (!count($pSetFields))
+            throw new \ArgumentMissingException(tf('At least one argument with starting _ is missing.'));
+
+        $options = array(
+            'permissionCheck' => true
+        );
+
+        return \Core\Object::add($pObject, $pSetFields, $options);
     }
 
     public function getRelatedCount($pRelatedObject, $pPk, $pObject, $pFilter){
 
-        $conditions = \Core\Object::parsePk($pObject, $pPk);
+        $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
 
         $options = array(
             'permissionCheck' => true
@@ -46,7 +47,7 @@ class Object {
 
         $filterCondition = $this->buildFilter($pFilter);
 
-        return \Core\Object::getRelatedCount($pObject, $filterCondition, $pRelatedObject, $conditions[0], $options);
+        return \Core\Object::getRelatedCount($pObject, $filterCondition, $pRelatedObject, $primaryKeys[0], $options);
     }
 
     /**
@@ -57,74 +58,59 @@ class Object {
      * @param  string $pPk
      * @return mixed
      */
-    public function handleRelatedItems($pMethod, $pRelatedObject, $pPk, $pObject, $pFields = null,
-                                       $pLimit = null, $pOffset = null, $pOrder = null, $pFilter = null){
+    public function getForeignItems($pObject, $pPk, $pField, $pFields = null,
+                                    $pLimit = null, $pOffset = null, $pOrder = null, $pFilter = null){
 
         $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
 
+        if ($pFilter)
+            $filterCondition = $this->buildFilter($pFilter);
+
         $options = array(
-            'permissionCheck' => true
-        );
-
-        $filterCondition = $this->buildFilter($pFilter);
-
-        if ($pMethod == 'get'){
-
-            $options  = array_merge(array(
+            'permissionCheck' => true,
             'fields' => $pFields,
             'limit'  => $pLimit,
             'offset' => $pOffset,
-            'order'  => $pOrder), $options);
+            'order'  => $pOrder
+        );
 
-            return \Core\Object::getRelatedList($pObject, $filterCondition, $pRelatedObject, $primaryKeys[0], $options);
-        }
-
-        return $pRelatedUri;
-        switch($pMethod){
-            case 'get': return $this->getItem($pObject, $pPk);
-            //todo, implement post,put,delete
-        }
+        return \Core\Object::getForeignItems($pObject, $primaryKeys[0], $pField, $filterCondition, $options);
     }
 
 
-    public function getItem($pObject, $pPk){
+    public function getItem($pObject, $pPk, $pFields){
 
-        $conditions = \Core\Object::parsePk($pObject, $pPk);
+        $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
 
-        $options = array(
-            'permissionCheck' => true
-        );
+        $options['fields'] = $pFields;
+        $options['permissionCheck'] = true;
 
-        if (count($condition) == 1)
-            return \Core\Object::get($pObject, dbSimpleCondition($conditions[0]), $options);
+        if (count($primaryKeys) == 1)
+            return \Core\Object::get($pObject, $primaryKeys[0], $options);
         else {
-            foreach ($conditions as $condition){
-                if ($item = \Core\Object::get($pObject, dbSimpleCondition($condition), $options))
+            foreach ($primaryKeys as $primaryKey){
+                if ($item = \Core\Object::get($pObject, $primaryKey, $options))
                 $items[] = $item;
             }
             return $items;
         }
     }
 
-    public function handleItems($pMethod, $pObject, $pFields = null, $pLimit = null, $pOffset = null,
-                             $pOrder = null, $pFilter = null){
+    public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null,
+                             $pOrder = null, $pUnderscoreFields = null){
 
         $options = array(
-            'permissionCheck' => true
+            'permissionCheck' => true,
+            'fields' => $pFields,
+            'limit'  => $pLimit,
+            'offset' => $pOffset,
+            'order'  => $pOrder
         );
 
+        $condition = $this->buildFilter($pUnderscoreFields);
 
-        if ($pMethod == 'get'){
-            $options  = array_merge(array(
-                'fields' => $pFields,
-                'limit'  => $pLimit,
-                'offset' => $pOffset,
-                'order'  => $pOrder), $options);
-
-            $condition = $this->buildFilter($pFilter);
-
-            return \Core\Object::getList($pObject, $condition, $options);
-        }
+        return \Core\Object::getList($pObject, $condition, $options);
+        
     }
 
     public function buildFilter($pFilter){

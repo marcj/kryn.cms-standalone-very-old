@@ -206,7 +206,7 @@
   "objects": {
     "user": {
       "table": "system_user",
-      "phpClass": "User",
+      "phpName": "User",
       "objectLabel": "username",
       "nested": 0,
       "dataModel": "propel",
@@ -305,7 +305,7 @@
           "primaryKey": 0,
           "empty": 1
         },
-        "group": {
+        "membership": {
           "label": "[[Group membership]]",
           "object": "group",
           "objectLabel": "name",
@@ -334,7 +334,7 @@
     "group": {
       "table": "system_group",
       "nested": 0,
-      "phpClass": "Group",
+      "phpName": "Group",
       "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,
@@ -381,16 +381,6 @@
       },
       "label": "[[Groups]]"
     }
-  },
-  "objectRelations": {
-    "user_group": [
-      "user",
-      "id",
-      "n-n",
-      "system_groupaccess",
-      "group",
-      "id"
-    ]
   },
   "admin": {
     "browser": {

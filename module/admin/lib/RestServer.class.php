@@ -280,6 +280,28 @@ class RestServer {
         $this->getClient()->sendResponse('500', $msg);
     }
 
+    /**
+     * Sends a exception response to the client.
+     * @param $pCode
+     * @param $pMessage
+     * @throws \Exception
+     */
+    public function sendException($pException){
+        $message = $pException->getMessage();
+
+        if (is_object($message) && $message->xdebug_message) $message = $message->xdebug_message;
+
+        $msg = array('error' => get_class($pException), 'message' => $message);
+
+        if (true || $debugMode){
+            $msg['file'] = $pException->getFile();
+            $msg['line'] = $pException->getLine();
+            $msg['trace'] = $pException->getTraceAsString();
+        }
+
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
+        $this->getClient()->sendResponse('500', $msg);
+    }
 
     /**
      * Adds a new route.
@@ -560,7 +582,7 @@ class RestServer {
             $data = call_user_func_array(array($object, $method), $arguments);
             $this->send($data);
         } catch(Exception $e){
-            $this->sendError(get_class($e), $e->getMessage());
+            $this->sendException($e);
         }
 
     }
