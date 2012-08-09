@@ -168,22 +168,6 @@ abstract class ORMAbstract {
      */
     //abstract public function getRelatedItems($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
 
-
-    /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     * @abstract
-     * @param array  $pPk
-     * @param array  $pRelatedObject
-     * @param array  $pRelatedCondition
-     * @param array  $pOptions
-     * 
-     */
-    //abstract public function getRelatedCount($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
-
     /**
      * 
      * @abstract

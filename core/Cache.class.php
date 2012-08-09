@@ -55,7 +55,6 @@ class Cache {
      *          => checks 'workspace' for invalidating (getInvalidate('workspace'))
      *          => if 'workspace' was flagged as invalidate (invalidate('workspace')), return false
      * So you can invalidate multiple keys with just one call.
-
      */
     public $withInvalidationChecks = true;
 

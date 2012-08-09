@@ -130,14 +130,15 @@ class Auth {
 
     /**
      * Updates the time and refreshed-counter of a session.
+     * 
+     * 
      */
     public function updateSession() {
 
         $this->session->setTime(time());
         $this->session->setRefreshed( $this->session->getRefreshed()+1 );
         $this->session->setPage(Kryn::getRequestedPath(true));
-
-        $this->session->save();
+        
     }
 
     /**
@@ -553,7 +554,7 @@ class Auth {
 
         $session = $this->cache->get($this->tokenId . '_' . $this->token);
 
-        if ($session && $session['time'] + $this->config['session_timeout'] < time()) {
+        if ($session && $session->getTime() + $this->config['session_timeout'] < time()) {
             $this->cache->delete($this->tokenId . '_' . $this->token);
             return false;
         }

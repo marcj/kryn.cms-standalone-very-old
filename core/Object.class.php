@@ -309,7 +309,6 @@ class Object {
      * @return array|bool
      */
     public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
-
         $obj = self::getClassObject($pObjectKey);
 
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
@@ -329,7 +328,19 @@ class Object {
             }
         }
 
-        return $obj->getItems($pCondition, $pOptions);
+        if (!$pCondition['noCache']){
+            $cacheId = 'ObjectGetList_'.md5($pObjectKey.'-'.json_encode($pCondition).json_encode($pOptions));
+            if ($items = Kryn::getCache($cacheId))
+                return $items;
+        
+        }
+        
+        if ($pCondition['noCache']) return $obj->getItems($pCondition, $pOptions);
+        
+        $items = $obj->getItems($pCondition, $pOptions);
+        Kryn::setCache($cacheId, $items);
+        return $items;
+        
 
     }
 
@@ -467,7 +478,6 @@ class Object {
 
             if ($definition['dataModel'] != 'custom'){
                 //propel
-
                 self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
 
             } else {
