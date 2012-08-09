@@ -320,6 +320,21 @@ abstract class BaseObject
         return Propel::log(get_class($this) . ': ' . $msg, $priority);
     }
 
+    public function hydrateFromNames($row, $fromType){
+
+        $numrow = array();
+
+        $peer = constant(get_called_class().'::PEER');
+
+        foreach ($row as $k => $v){
+            if (strpos($k, '.') === false)
+                $numrow[$peer::translateFieldName($k, $fromType, BasePeer::TYPE_NUM)] = $v;
+        }
+
+        $this->hydrate($numrow);
+
+    }
+
     /**
      * Populate the current object from a string, using a given parser format
      * <code>

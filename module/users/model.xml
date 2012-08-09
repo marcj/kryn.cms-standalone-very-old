@@ -23,9 +23,11 @@
     <column name="close" type="INTEGER" required="false"/>
     <column name="name" type="VARCHAR" size="255" required="false"/>
     <column name="description" type="LONGVARCHAR" required="false"/>
+
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
+
   </table>
   <table name="system_user" phpName="User" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
@@ -43,13 +45,26 @@
     <column name="sex" type="INTEGER" required="false"/>
     <column name="logins" type="INTEGER" required="false"/>
     <column name="lastlogin" type="INTEGER" required="false"/>
-    <column name="activate" type="" required="false"/>
+    <column name="activate" type="BOOLEAN" required="false"/>
+
+    <column name="primary_group" type="INTEGER" required="false"/>
+    <column name="second_group" type="INTEGER" required="false"/>
+
+    <foreign-key foreignTable="system_group">
+      <reference local="primary_group" foreign="id"/>
+    </foreign-key>
+
+    <foreign-key foreignTable="system_group">
+      <reference local="second_group" foreign="id"/>
+    </foreign-key>
+
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
     <column name="created" type="BIGINT"/>
     <column name="modified" type="BIGINT"/>
   </table>
+
   <table name="system_user_group" isCrossRef="true" phpName="UserGroup">
     <column name="user_id" type="INTEGER" primaryKey="true" required="true"/>
     <column name="group_id" type="INTEGER" primaryKey="true" required="true"/>

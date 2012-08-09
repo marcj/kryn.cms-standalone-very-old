@@ -78,55 +78,94 @@ class Propel extends ORMAbstract {
      */
     public function getFields($pFields){
 
-        $fields = $pFields;
-        $peer = $this->getPeerName();
+        if ($pFields != '*' && is_string($pFields))
+            $pFields = explode(',', str_replace(' ', '', trim($pFields)));
+
 
         $query = $this->getQueryClass();
         $tableMap = $query->getTableMap();
 
-        if ($pFields === '*' || !$pFields){
-            $fields = array();
-            if ($this->definition['limitSelection']){
-                $fields = $this->definition['limitSelection'];
-            } else {
+        $fields = array();
+        $relations = array();
+        $relationFields = array();
 
-                $columns = $tableMap->getColumns();
+        foreach ($this->primaryKeys as $primaryKey){
+            $fields[$primaryKey->getPhpName()] = $primaryKey;
+        }
 
-                $fields = array();
-                foreach ($columns as $column){
-                    $fields[] = $column->getPhpName();
-                }
+        if ($pFields == '*'){
 
-                //add relations
-                $relationMap = $tableMap->getRelations();
 
-                $relations = array();
-                foreach ($relationMap as $key => $relation){
-                    $relations[] = $relation->getName();
-                }
-
-                return array($fields, $relations);
+            $columns = $tableMap->getColumns();
+            foreach ($columns as $key => $column){
+                $fields[$column->getPhpName()] = $column;
             }
-        } else if (is_array($pFields)){
-            $fields = $pFields;
-        }
 
-        if (is_string($fields)){
-            $fields = explode(',', str_replace(' ', '', trim($fields)));
-        }
+            //add relations
+            $relationMap = $tableMap->getRelations();
 
+            foreach ($relationMap as $key => $relation){
+                if (!$relations[$key])
+                    $relations[$key] = $relation;
+            }
+
+
+        } else {
+            foreach ($pFields as $field){
+
+                if ( ($pos = strpos($field, '.')) !== false){
+                    $relationName = substr($field, 0, $pos);
+                    $field = substr($field, $pos+1);
+
+                    if ($tableMap->hasRelation(ucfirst($relationName)) && $relation = $tableMap->getRelation(ucfirst($relationName))){
+                        if ($localColumns = $relation->getLocalColumns()){
+                            foreach ($localColumns as $col)
+                                $fields[$col->getPhpName()] = $col;
+                        }
+                        $relations[ucfirst($field)] = $relation;
+
+                        //todo, check if field exists
+                        $relationFields[ucfirst($relationName)][] = ucfirst($field);
+                    }
+                }
+
+                if ($tableMap->hasColumnByPhpName(ucfirst($field)) && $column = $tableMap->getColumnByPhpName(ucfirst($field))){
+                    $fields[$column->getPhpName()] = $column;
+                }
+                if ($tableMap->hasRelation(ucfirst($field)) && $relation = $tableMap->getRelation(ucfirst($field))){
+                    if ($localColumns = $relation->getLocalColumns()){
+                        foreach ($localColumns as $col)
+                            $fields[$col->getPhpName()] = $col;
+                    }
+                    $relations[ucfirst($field)] = $relation;
+                }
+
+            }
+        }
+        
+        //todo, check for selects in joined column
+
+        //filter
         if ($this->definition['limitSelection']){
 
             $allowedFields = strtolower(','.str_replace(' ', '', trim($this->definition['limitSelection'])).',');
 
             $filteredFields = array();
-            foreach ($fields as $idx => $name){
+            foreach ($fields as $name){
                 if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
                     $filteredFields[] = $name;
                 }
             }
-            return $filteredFields;
-        } else return $fields;
+            $filteredRelations = array();
+            foreach ($fields as $name){
+                if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
+                    $filteredRelations[] = $name;
+                }
+            }
+            return array($filteredFields, $filteredRelations);
+        }
+
+        return array($fields, $relations, $relationFields);
 
     }
 
@@ -209,7 +248,7 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public function getItems($pCondition = null, $pOptions = null){
+    public function getItemsss($pCondition = null, $pOptions = null){
 
         $query = $this->getQueryClass();
 
@@ -217,8 +256,10 @@ class Propel extends ORMAbstract {
 
         //$query->select(array('id', 'username'));
         $this->selectPrimary($query);
-        $this->mapSelect($query, $fields);
-        $this->mapOptions($query, $pOptions);
+        //$this->mapSelect($query, $fields);
+        //$this->mapOptions($query, $pOptions);
+
+        return $query->find()->toArray();
         $stm = $this->getStm($query, $pCondition);
 
         $return = array();
@@ -466,11 +507,186 @@ class Propel extends ORMAbstract {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getItems($pCondition = null, $pOptions = null){
+
+        $query = $this->getQueryClass();
+        $peer  = $this->getPeerName();
+
+        list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
+
+        $selects = array_keys($fields);
+        var_dump($relationFields); exit;
+        $query->select($selects);
+        //$query->select(array('Id', 'Username', 'membership_Group.Description'));
+
+
+        $hasSelectedRelations = count($relations);
+
+        if ($hasSelectedRelations){
+            foreach ($relations as $name => $relation){
+                if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY){
+                    $query->{'join'.$name}($name);
+                }
+            }
+        }
+        
+        //$this->selectPrimary($query);
+        //$this->mapSelect($query, array_keys($fields));
+        
+        //$query->select(array_keys($fields));
+        //$query->select(array_keys($fields));
+
+        $query->setFormatter('PropelStatementFormatter');
+
+        $stmt = $query->find();
+
+        $clazz = $this->getPhpName();
+
+        while ($row = dbFetch($stmt)){
+
+            $item = new $clazz();
+            $item->hydrateFromNames($row, \BasePeer::TYPE_PHPNAME);
+
+            $newRow = array();
+            foreach ($selects as $select){
+                $newRow[lcfirst($select)] = $item->{'get'.$select}();
+            }
+
+            if ($hasSelectedRelations){
+                foreach ($relations as $name => $relation){
+
+                    $get = 'get'.$name;
+                    if ($relation->getType() == \RelationMap::MANY_TO_MANY || $relation->getType() == \RelationMap::ONE_TO_MANY)
+                        $get .= 's';
+
+                    $sItems = $item->$get();
+                    if ($sItems){
+                        if ($sItems instanceof \PropelObjectCollection)
+                            $newRow[lcfirst($name)] = $sItems->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME) ?: null;
+                        else
+                            $newRow[lcfirst($name)] = $sItems->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
+                    } else
+                        $newRow[lcfirst($name)] = null;
+                }
+            }
+
+            $result[] = $newRow;
+        }
+
+        return $result;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        exit;
+        $stmt = $query->find();
+
+        $items = $peer::populateObjects($stmt);
+
+        foreach ($items as &$item){
+
+            //$result[] = $item->getSetting$item->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
+        }
+
+        return $result;
+
+        //$this->mapSelect($query, $fields);
+        //$this->mapOptions($query, $pOptions);
+
+        foreach ($relations as $key => $relation){
+            if ($relation->getType() != \RelationMap::MANY_TO_MANY){
+                $join = 'join'.$key;
+                $query->$join();
+                var_dump($join);
+            }
+        }  
+        
+        $items = $query->find();
+        return $items;
+        var_dump($items);
+
+        $result = array();
+        foreach ($items as $item){
+            $row = $item;
+        }
+
+        return $result;
+        
+        $items = $query->find();
+
+        return $items;
+
+        foreach ($items as &$item){
+
+
+        }
+
+        return $items;
+        //->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+
+        print_r($items); exit;
+
+        $clazz = $this->getPhpName();
+
+        $return = array();
+
+        while ($row = dbFetch($stmt)){
+            $item = new $clazz();
+            $item->fromArray($row, \BasePeer::TYPE_RAW_COLNAME);
+
+            $itemData = $item->toArray(\BasePeer::TYPE_STUDLYPHPNAME, null, null, true);
+
+
+
+            // foreach ($relations as $key => $relation){
+
+            //     $get = 'get'.$relationName.'s'; 
+            //     $relationData = $item->$get();
+
+            //     if ($relationData instanceof \PropelObjectCollection)
+            //         $row[lcfirst($relationName)] = $relationData->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+            //     else
+            //         $row[lcfirst($relationName)] = $relationData->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
+            // }
+
+            $return[] = $row;
+        }
+
+        return $return;
+
+
+        return;
+
+        //return $query->find();->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+        
+        return $items->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+        $stm = $this->getStm($query, $pCondition);
+
+        $return = array();
+
+        $clazz = $this->getPhpName();
+    }
+
+
     public function selectPrimary($pQuery){
         $select = array();
 
         foreach ($this->primaryKeys as $column){
-            $pQuery->addSelectColumn($column->getName());
+            $pQuery->addSelectColumn($column->getFullyQualifiedName());
             //$pQuery->addAsColumn('"' . lcfirst($column->getPhpName()) . '"', $column->getFullyQualifiedName());
         }
 
@@ -490,7 +706,7 @@ class Propel extends ORMAbstract {
             if ($this->tableMap->hasColumnByPhpName($fieldKey) &&
                 $column = $this->tableMap->getColumnByPhpName($fieldKey)){ 
             
-                $pQuery->addSelectColumn($column->getName());
+                $pQuery->addSelectColumn($column->getFullyQualifiedName());
 
                 //$pQuery->addAsColumn('"' . lcfirst($column->getPhpName()) . '"', $column->getFullyQualifiedName());
 
