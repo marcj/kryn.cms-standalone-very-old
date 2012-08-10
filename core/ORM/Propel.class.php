@@ -249,94 +249,6 @@ class Propel extends ORMAbstract {
         return dbFetch($stm);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getItemsss($pCondition = null, $pOptions = null){
-
-        $query = $this->getQueryClass();
-
-        list($fields, $relations) = $this->getFields($pOptions['fields']);
-
-        //$query->select(array('id', 'username'));
-        $this->selectPrimary($query);
-        //$this->mapSelect($query, $fields);
-        //$this->mapOptions($query, $pOptions);
-
-        return $query->find()->toArray();
-        $stm = $this->getStm($query, $pCondition);
-
-        $return = array();
-
-        $clazz = $this->getPhpName();
-
-        //$items = $query->getFormatter()->init($query)->format($stm);
-        
-
-        while ($row = dbFetch($stm)){
-
-            $item = new $clazz();
-            $item->fromArray($row, \BasePeer::TYPE_RAW_COLNAME);
-
-            $row = $item->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
-
-            foreach ($relations as $relationName){
-                $get = 'get'.$relationName.'s'; 
-                $relationData = $item->$get();
-
-                if ($relationData instanceof \PropelObjectCollection)
-                    $row[lcfirst($relationName)] = $relationData->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
-                else
-                    $row[lcfirst($relationName)] = $relationData->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
-            }
-
-            $return[] = $row;
-        }
-
-        return $return;
-
-        
-        $items = $query->find();
-
-        if (count($relations) == 0){
-            return $items->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
-        }
-
-        $clazz = $this->getPhpName();
-
-        $result = array();
-
-        foreach ($items as $item){
-
-            if (get_class($item) != $clazz){
-                $obj = new $clazz();
-                $obj->fromArray($item);
-            } else {
-                $obj = $item;
-            }
-
-            $item = $obj->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
-
-            foreach ($relations as $relation){
-                $get = 'get'.$relation.'s';
-                $item[$relation] = $obj->$get();
-
-                if ($item[$relation] instanceof \PropelObjectCollection)
-                    $item[$relation] = $item[$relation]->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
-                else
-                    $item[$relation] = $item[$relation]->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
-            }
-
-            $result[] = $item;
-        }
-        return $result;
-        exit;
-
-        $stm = $this->getStm($query, $pCondition);
-
-        return dbFetchAll($stm);
-    }
-
     public function mapOptions($pQuery, $pOptions = array()){
 
         if ($pOptions['limit'])
@@ -356,80 +268,6 @@ class Propel extends ORMAbstract {
             }
         }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getForeignItems($pConditon = null, $pField, $pForeignCondition, $pOptions = array()){
-
-        $item = $this->getItem($pConditon);
-        if (!$item) throw new \ObjectItemNotFoundException(tf('The item %s can not be found.', $pConditon));
-
-        $clazz = $this->getPhpName();
-        $obj  = new $clazz();
-        $obj->fromArray($item, \BasePeer::TYPE_FIELDNAME);
-
-        $field = $this->getField($pField);
-
-        if (!$field)
-            throw new \FieldNotFoundException(tf('The field %s can not be found in object %', $pField, $pObjectKey));
-
-        if ($field['type'] != 'object')
-            throw new \InvalidFieldException(tf('The field %s is not from type object (%s)', $pField, $field['type']));
-
-        if (!$field['object'])
-            throw new \InvalidFieldException(tf('The field %s is from type object but has no object set.', $pField));
-
-        if (!$definition = Kryn::$objects[$field['object']])
-            throw new \ObjectNotFoundException(tf('The object %s in field %s does not exist.', $field['object'], $pField));
-
-
-        $clazz = get_class($this);
-        $ormObject = new $clazz($field['object'], $definition);
-
-        $query = $ormObject->getQueryClass($field['object']);
-
-        //filter by field
-        $foreignKey = underscore2Camelcase($pField).'_'.$this->getPhpName();
-        $filterBy   = 'filterBy'.$foreignKey;
-        $query->$filterBy($obj);
-
-        $fields = $ormObject->getFields($pOptions['fields']);
-
-        $ormObject->selectPrimary($query);
-        $ormObject->mapSelect($query, $fields);
-
-        $ormObject->mapOptions($query, $pOptions);
-
-        $stm = $ormObject->getStm($query, $pCondition);
-
-        return dbFetchAll($stm);
-        
-        var_dump($obj); exit;
-
-        $query = $this->getQueryClass();
-
-        var_dump($this->objectKey);
-
-        $tableMap = $query->getTableMap();
-        $relationMap = $tableMap->getRelation(underscore2Camelcase($pForeignKey));
-
-        var_dump($relationMap); exit;
-        $foreignObjectKey = '';
-
-        $query = $this->getQueryClass($foreignObjectKey);
-
-        $relatedItem = $query->findPk($pRelatedPk);
-
-        if (!$relatedItem) throw new \ObjectItemNotFoundException(tf('The item %s can not be found.', $pRelatedPk));
-
-        $filterBy = 'filterBy'.underscore2Camelcase($pForeignKey);
-        $query->$filterBy($relatedItem);
-
-        return $query->count();
-
-    }
-
 
     public function getStm($pQuery, $pCondition){
 
@@ -466,6 +304,113 @@ class Propel extends ORMAbstract {
         return $stmt;
     }
 
+    public function mapToManyRelationFields($pQuery, $pRelations, $pRelationFields){
+
+        if ($pRelations){
+            foreach ($pRelations as $name => $relation){
+                if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY){
+
+                    $pQuery->{'join'.$name}($name);
+                    $pQuery->with($name);
+
+                    if ($pRelationFields[$name]){
+                        foreach ($pRelationFields[$name] as $col){
+                            $pQuery->addAsColumn('"'.$name.".".$col.'"', $name.".".$col);
+                        }
+                    }
+
+                    //todo, add ACL condition for object $relation->getForeignTable()->getPhpName()
+                    //var_dump($relation->getForeignTable()->getPhpName()); exit;
+                }
+            }
+        }
+
+    }
+
+    public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields){
+
+        $item = new $pClazz();
+        $item->hydrateFromNames($pRow, \BasePeer::TYPE_PHPNAME);
+
+        $newRow = array();
+        foreach ($pSelects as $select){
+            $newRow[lcfirst($select)] = $item->{'get'.$select}();
+        }
+
+        if ($pRelations){
+            foreach ($pRelations as $name => $relation){
+
+                if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY){
+                    if (is_array($pRelationFields[$name])){
+                        
+                        $foreignClazz = $relation->getForeignTable()->getPhpName();
+                        $foreignObj = new $foreignClazz();
+                        $foreignRow = array();
+                        $allNull = true;
+
+                        foreach ($pRelationFields[$name] as $col){
+                            if ($pRow[$name.".".$col] !== null){
+                                $foreignRow[$col] = $pRow[$name.".".$col];
+                                $allNull = false;
+                            }
+                        }
+
+                        if ($allNull){
+                            $newRow[lcfirst($name)] = null;
+                        } else {
+                            $foreignObj->hydrateFromNames($foreignRow, \BasePeer::TYPE_PHPNAME);
+
+                            $foreignRow = array();
+                            foreach ($pRelationFields[$name] as $col){
+                                $foreignRow[lcfirst($col)] = $foreignObj->{'get'.$col}();
+                            }
+                            $newRow[lcfirst($name)] = $foreignRow;
+                        }
+                    }
+                } else {
+                    //*-to-many, we need a extra query
+                    if (is_array($pRelationFields[$name])){
+                        $sClazz    = $relation->getRightTable()->getPhpName();
+                        $queryName = $sClazz.'Query';
+                        $filterBy  = 'filterBy'.$relation->getSymmetricalRelation()->getName();
+
+                        $sStmt = $queryName::create()
+                            ->setFormatter('PropelStatementFormatter')
+                            ->select($pRelationFields[$name])
+                            ->$filterBy($item)
+                            ->find($con);
+
+                        $sItems = array();
+                        while ($subRow = dbFetch($sStmt)){
+
+                            $sItem = new $sClazz();
+                            $sItem->hydrateFromNames($subRow, \BasePeer::TYPE_PHPNAME);
+
+                            $temp = array();
+                            foreach ($pRelationFields[$name] as $select){
+                                $temp[lcfirst($select)] = $sItem->{'get'.$select}();
+                            }
+                            $sItems[] = $temp;
+                        }
+                    } else {
+                        $get = 'get'.$relation->getPluralName();
+                        $sItems = $item->$get();
+                    }
+
+                    if ($sItems instanceof \PropelObjectCollection)
+                        $newRow[lcfirst($name)] = $sItems->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME) ?: null;
+                    else if (is_array($sItems) && $sItems)
+                        $newRow[lcfirst($name)] = $sItems;
+                    else
+                        $newRow[lcfirst($name)] = null;
+                }
+            }
+        }
+
+        return $newRow;
+
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -473,33 +418,14 @@ class Propel extends ORMAbstract {
 
         $this->init();
         $query = $this->getQueryClass();
-        $peer  = $this->getPeerName();
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
-
         $selects = array_keys($fields);
         $query->select($selects);
 
         $this->mapOptions($query, $pOptions);
 
-
-        $hasSelectedRelations = count($relations);
-
-        if ($hasSelectedRelations){
-            foreach ($relations as $name => $relation){
-                if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY){
-
-                    $query->{'join'.$name}($name);
-                    $query->with($name);
-
-                    if ($relationFields[$name]){
-                        foreach ($relationFields[$name] as $col){
-                            $query->addAsColumn('"'.$name.".".$col.'"', $name.".".$col);
-                        }
-                    }
-                }
-            }
-        }
+        $this->mapToManyRelationFields($query, $relations, $relationFields);
 
         $query->setFormatter('PropelStatementFormatter');
 
@@ -509,60 +435,7 @@ class Propel extends ORMAbstract {
 
         while ($row = dbFetch($stmt)){
 
-            $item = new $clazz();
-            $item->hydrateFromNames($row, \BasePeer::TYPE_PHPNAME);
-
-            $newRow = array();
-            foreach ($selects as $select){
-                $newRow[lcfirst($select)] = $item->{'get'.$select}();
-            }
-
-            if ($hasSelectedRelations){
-                foreach ($relations as $name => $relation){
-
-                    if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY){
-                        if (is_array($relationFields[$name])){
-                            
-                            $foreignClazz = $relation->getForeignTable()->getPhpName();
-                            $foreignObj = new $foreignClazz();
-                            $foreignRow = array();
-                            $allNull = true;
-
-                            foreach ($relationFields[$name] as $col){
-                                if ($row[$name.".".$col] !== null){
-                                    $foreignRow[$col] = $row[$name.".".$col];
-                                    $allNull = false;
-                                }
-                            }
-
-                            if ($allNull){
-                                $newRow[lcfirst($name)] = null;
-                            } else {
-                                $foreignObj->hydrateFromNames($foreignRow, \BasePeer::TYPE_PHPNAME);
-
-                                $foreignRow = array();
-                                foreach ($relationFields[$name] as $col){
-                                    $foreignRow[lcfirst($col)] = $foreignObj->{'get'.$col}();
-                                }
-                                $newRow[lcfirst($name)] = $foreignRow;
-                            }
-                        }
-                    } else {
-                        //*-to-many, we need a extra query
-                        //
-                        //todo, fire the Query ourself and select fields in $relationFields
-                        $get = 'get'.$relation->getPluralName();
-
-                        $sItems = $item->$get();
-                        if ($sItems instanceof \PropelObjectCollection)
-                            $newRow[lcfirst($name)] = $sItems->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME) ?: null;
-                        else
-                            $newRow[lcfirst($name)] = null;
-                    }
-                }
-            }
-
-            $result[] = $newRow;
+            $result[] = $this->populateRow($clazz, $row, $selects, $relations, $relationFields);
         }
 
         return $result;

@@ -309,6 +309,7 @@ class Object {
      * @return array|bool
      */
     public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
+
         $obj = self::getClassObject($pObjectKey);
 
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
