@@ -327,15 +327,17 @@ class Object {
                 $pCondition = $aclCondition;
             }
         }
+ 
+        return $obj->getItems($pCondition, $pOptions);
 
-        if (!$pCondition['noCache']){
-            $cacheId = 'ObjectGetList_'.md5($pObjectKey.'-'.json_encode($pCondition).json_encode($pOptions));
-            if ($items = Kryn::getCache($cacheId))
-                return $items;
-        
+        if ($pCondition['noCache']) return $obj->getItems($pCondition, $pOptions);
+
+        $cacheId = 'ObjectGetList_'.md5($pObjectKey.'-'.json_encode($pCondition).json_encode($pOptions));
+        if ($items = Kryn::getCache($cacheId)){
+            var_dump($items);
+            return $items;
         }
         
-        if ($pCondition['noCache']) return $obj->getItems($pCondition, $pOptions);
         
         $items = $obj->getItems($pCondition, $pOptions);
         Kryn::setCache($cacheId, $items);

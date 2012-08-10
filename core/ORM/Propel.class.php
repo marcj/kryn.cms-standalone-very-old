@@ -123,9 +123,11 @@ class Propel extends ORMAbstract {
                     $relations[ucfirst($relationName)] = $relation;
 
                     //add foreignKeys in main table.
-                    if ($localColumns = $relation->getLocalColumns()){
-                        foreach ($localColumns as $col)
-                            $fields[$col->getPhpName()] = $col;
+                    if ($relation->getType == \RelationMap::ONE_TO_ONE || $relation->getType == \RelationMap::MANY_TO_ONE){
+                        if ($localColumns = $relation->getLocalColumns()){
+                            foreach ($localColumns as $col)
+                                $fields[$col->getPhpName()] = $col;
+                        }
                     }
 
                     //select at least pks of the foreign table
@@ -547,13 +549,14 @@ class Propel extends ORMAbstract {
                         }
                     } else {
                         //*-to-many, we need a extra query
-                         $get = 'get'.$name.'s';
+                        //
+                        //todo, fire the Query ourself and select fields in $relationFields
+                        $get = 'get'.$relation->getPluralName();
 
                         $sItems = $item->$get();
-                        if ($sItems){
-                            if ($sItems instanceof \PropelObjectCollection)
-                                $newRow[lcfirst($name)] = $sItems->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME) ?: null;
-                        } else
+                        if ($sItems instanceof \PropelObjectCollection)
+                            $newRow[lcfirst($name)] = $sItems->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME) ?: null;
+                        else
                             $newRow[lcfirst($name)] = null;
                     }
                 }
