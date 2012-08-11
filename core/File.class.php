@@ -264,6 +264,21 @@ class File {
 
     }
 
+    /**
+     * Deletes a file/folder.
+     * 
+     * @static
+     * @param string $pPath
+     * 
+     * @return bool
+     */
+    public static function delete($pPath){
+
+        $fs = self::getLayer($pPath);
+        return $fs->delete(self::normalizePath($pPath));
+
+    }
+
  
     /**
      * Return information for a file/folder.

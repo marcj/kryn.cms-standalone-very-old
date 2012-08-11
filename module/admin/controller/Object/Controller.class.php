@@ -1,8 +1,8 @@
 <?php
 
-namespace Admin;
+namespace Admin\Object;
 
-class Object {
+class Controller {
 
 
     public function getItemLabel($pObject, $pPk){
@@ -108,6 +108,8 @@ class Object {
         );
 
         $condition = $this->buildFilter($pUnderscoreFields);
+
+        debugStop();
 
         return \Core\Object::getList($pObject, $condition, $options);
         

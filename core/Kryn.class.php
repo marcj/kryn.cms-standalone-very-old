@@ -125,7 +125,6 @@ class Kryn {
      */
     public static $pageHtml;
 
-
     /**
      * Contains the current requested URL without http://, urlencoded
      * use urldecode(htmlspecialchars(Kryn::$url)) to display it in your page.
@@ -152,14 +151,6 @@ class Kryn {
     /**
      * Contains the values of the properties from current theme.
      * @var array
-     * @deprecated Use $themeProperties instead.
-     * @static
-     */
-    public static $publicProperties = array();
-
-    /**
-     * Contains the values of the properties from current theme.
-     * @var array
      * @static
      */
     public static $themeProperties = array();
@@ -177,15 +168,6 @@ class Kryn {
      * @static
      */
     public static $pageProperties = array();
-
-
-    /**
-     * Defines whether the frontend editor is enabled or not.
-     * @var bool
-     * @static
-     * @internal
-     */
-    public static $kedit = false;
 
     /**
      * Defines whether force-ssl is enabled or not.
@@ -450,13 +432,6 @@ class Kryn {
      */
     public static $htmlBodyEnd;
 
-    /**
-     * Defines whether this version can compare or not.
-     * @var bool
-     * @internal
-     */
-    public static $canCompare = true;
-
 
     /**
      * Adds a new crumb to the breadcrumb array.
@@ -589,18 +564,19 @@ class Kryn {
 
     public static function loadActiveModules() {
         if (Kryn::$config['activeModules'])
-            Kryn::$extensions = array_merge(Kryn::$extensions,Kryn::$config['activeModules']);
+            Kryn::$extensions = array_merge(Kryn::$extensions, Kryn::$config['activeModules']);
     }
 
     /**
      * Loads all activated extension configs and tables
+     * 
      * @internal
      */
     public static function loadModuleConfigs() {
 
         $md5 = '';
         foreach (Kryn::$extensions as $extension) {
-            $path = ($extension == 'kryn') ? 'core/config.json' : PATH_MODULE . '' . $extension . '/config.json';
+            $path = ($extension == 'kryn') ? 'core/config.json' : PATH_MODULE . $extension . '/config.json';
             if (file_exists($path)) {
                 $md5 .= '.' . filemtime($path);
             }
@@ -660,46 +636,6 @@ class Kryn {
             Kryn::setFastCache('systemObjects', Kryn::$objects);
         }
         unset(Kryn::$objects['__md5']);
-
-        /*
-        * load tables
-        */
-        /*
-        if (!Kryn::$tables || $md5 != Kryn::$tables['__md5']){
-
-            Kryn::$tables = array();
-            Kryn::$tables['__md5'] = $md5;
-
-            foreach (Kryn::$configs as $extension => $config) {
-
-                if ($config['db']) {
-                    foreach ($config['db'] as $key => &$table) {
-                        if (Kryn::$tables[strtolower($key)])
-                            Kryn::$tables[strtolower($key)] = array_merge(Kryn::$tables[strtolower($key)], $table);
-                        else
-                            Kryn::$tables[strtolower($key)] = $table;
-                    }
-                }
-                if ($config['objects']){
-                    foreach ($config['objects'] as $key => &$definition) {
-                        $tables = database::getTablesFromObject($key);
-                        if ($tables){
-                            foreach ($tables as $tKey => $tDef){
-                                if (Kryn::$tables[strtolower($tKey)])
-                                    Kryn::$tables[strtolower($tKey)] = array_merge(Kryn::$tables[strtolower($tKey)], $tDef);
-                                else
-                                    Kryn::$tables[strtolower($tKey)] = $tDef;
-                            }
-                        }
-                    }
-                }
-
-            }
-
-            Kryn::setCache('systemTablesv2', Kryn::$tables);
-        }*/
-
-        unset(Kryn::$tables['__md5']);
 
         /*
          * load themes
@@ -893,71 +829,6 @@ class Kryn {
         return $res;
     }
 
-
-    /**
-     * Function to compate two versions with a operator.
-     * Max Version: 999.999.999
-     * Min Version: 0.0.1
-     *
-     * @param string $pModuleVersion extension key or a version
-     * @param string $pOp            <,<=,>,>=,=
-     * @param string $pVersion
-     *
-     * @return bool
-     * @static
-     */
-    public static function compareVersion($pModuleVersion, $pOp, $pVersion) {
-
-        if (Kryn::$configs[$pModuleVersion])
-            $pModuleVersion = Kryn::$configs[$pModuleVersion]['version'];
-
-        $versions = explode(".", $pModuleVersion);
-
-        $major = $versions[0];
-        $minor = $versions[1];
-        $patch = $versions[2];
-
-
-        $tversions = explode(".", $pVersion);
-        $tmajor = $tversions[0];
-        $tminor = $tversions[1];
-        $tpatch = $tversions[2];
-
-        //100 000 000
-        $bversion = $major * 1000 * 1000;
-        $bversion += $minor * 1000;
-        $bversion += $patch;
-
-
-        //100 000 000
-        $tversion = $tmajor * 1000 * 1000;
-        $tversion += $tminor * 1000;
-        $tversion += $tpatch;
-
-        if ($pOp == '<' && $bversion < $tversion)
-            return true;
-
-        if ($pOp == '<=' && $bversion <= $tversion)
-            return true;
-
-        if ($pOp == '=<' && $bversion <= $tversion)
-            return true;
-
-        if ($pOp == '=' && $bversion == $tversion)
-            return true;
-
-        if ($pOp == '>=' && $bversion >= $tversion)
-            return true;
-
-        if ($pOp == '=>' && $bversion >= $tversion)
-            return true;
-
-        if ($pOp == '>' && $bversion > $tversion)
-            return true;
-
-        return false;
-    }
-
     /**
      * Replaces all page links within the builded HTML to their full URL.
      *
@@ -1010,7 +881,6 @@ class Kryn {
      * @static
      */
     public static function redirect($pUrl = '') {
-
 
         if (strpos($pUrl, 'http') === false && Kryn::$domain) {
 
@@ -1178,76 +1048,27 @@ class Kryn {
      * @internal
      */
     public static function initConfig() {
-        global $cfg;
 
-        $cfg['path'] = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+        if (!self::$config['client'])
+            throw new \Exception('There is not client handling configured. Please run the installer.');
 
-        $cfg['templatepath'] = $cfg['path'] . 'media';
+        if (!self::$config['cache'])
+            self::$config['cache']['class'] = '\Core\Cache\Files';
 
-        if (!$cfg['sessiontime'] && !$cfg['session_timeout'])
-            $cfg['session_timeout'] = 3600;
+        //global normal cache 
+        Kryn::$cache = new Cache\Controller(self::$config['cache']['class'], self::$config['cache_params']);
 
-        if ($cfg['sessiontime'] && !$cfg['session_timeout'])
-            $cfg['session_timeout'] = $cfg['sessiontime'];
+        $fastestCacheClass = Cache\Controller::getFastestCacheClass();
+        Kryn::$cacheFast   = new Cache\Controller($fastestCacheClass);
 
-        if (!$cfg['session_tokenid']) {
-            $cfg['session_tokenid'] = 'krynsessionid_ba';
-        }
+        /*
+        if (!self::$config['media_cache'])
+            self::$config['media_cache'] = 'cache/media/';
 
-        if (!$cfg['auth_class'])
-            $cfg['auth_class'] = 'kryn';
-
-        if (!$cfg['show_banner'])
-            $cfg['show_banner'] = 1;
-
-        if (!$cfg['session_storage'])
-            $cfg['session_storage'] = 'database';
-
-        if (!$cfg['cache_type'])
-            $cfg['cache_type'] = 'files';
-
-        tAssignRef('path', $cfg['path']);
-        tAssignRef("cfg", $cfg);
-
-        if (!$cfg['cronjob_key']) {
-            $cfg['cronjob_key'] = dechex(time() / mt_rand(100, 500));
-            Kryn::fileWrite('config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
-        }
-
-        if (!$cfg['passwd_hash_key']) {
-            $cfg['passwd_hash_compat'] = 1;
-            $cfg['passwd_hash_key'] = krynAuth::getSalt(32);
-            Kryn::fileWrite('config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
-        }
-
-        if ($cfg['cache_type'] == 'files') {
-
-            if (!$cfg['cache_params'] || $cfg['cache_params']['files_path'] == '') {
-                $cfg['cache_params']['files_path'] = 'cache/object/';
-            }
-        }
-
-        try {
-            Kryn::$cache = new Cache($cfg['cache_type'], $cfg['cache_params']);
-        } catch (Exception $e){
-            Kryn::internalError(null, $e);
-        }
-
-        if (function_exists('apc_store'))
-            Kryn::$cacheFast = new Cache('apc');
-        else
-            Kryn::$cacheFast = new Cache('files', array('files_path' => 'cache/object/'));
-
-        if (!$cfg['media_cache'])
-            $cfg['media_cache'] = 'cache/media/';
-
-        if (!is_dir($cfg['media_cache'])) {
-            if (!@mkdir($cfg['media_cache']))
-                Kryn::internalError(null, 'Can not create folder for template caching: ' . $cfg['media_cache']);
-        }
-
-        Kryn::$config =& $cfg;
-        Kryn::$cfg =& $cfg;
+        if (!is_dir(self::$config['media_cache'])) {
+            if (!@mkdir(self::$config['media_cache']))
+                Kryn::internalError(null, 'Can not create folder for template caching: ' . self::$config['media_cache']);
+        }*/
     }
 
     public static function initAuth() {
@@ -2368,6 +2189,8 @@ class Kryn {
 
     /**
      * Sets a content to the specified cache-key.
+     * 
+     * If you want to save php class objects, you should serialize it before.
      *
      * @param string  $pCode
      * @param string  $pValue
@@ -2412,6 +2235,9 @@ class Kryn {
      * Sets a content to the specified cache-key.
      * This function saves the value in a generated php file
      * as php code or via apc_store.
+     *
+     * If you want to save php class objects, you should serialize it before.
+     * 
      * The idea behind this: If the server has active apc or
      * other optcode caching, then this method is way
      * faster then tcp caching-server.

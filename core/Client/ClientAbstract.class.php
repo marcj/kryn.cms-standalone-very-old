@@ -6,9 +6,15 @@
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-namespace Core;
+namespace Core\Client;
 
-class Auth {
+/**
+ * Client class.
+ *
+ * Handles authentification and sessions.
+ * 
+ */
+abstract class ClientAbstract {
 
     /**
      * The auth token. (which is basically stored as cookie on the client side)
@@ -16,78 +22,52 @@ class Auth {
     private $token = false;
 
     /**
-     * The token id (the name of the cookie on the client side)
-     */
-    private $tokenId = 'krynsessionid';
-
-
-    /**
-     * Current session object.
+     * Current session instance.
      *
      * @var \Session
      */
     private $session;
 
     /**
-     * Contains the config. Items: 'session_timeout', 'session_storage', 'auth_class', 'auth_params' => array('<auth_class>' => array())
+     * Contains the config.
+     *
+     * items:
+     *   passwdHashCompat = false,
+     *   passwdHashKey = <diggets>
+     *   tokenId = "cookieName"
+     *   timeout = <seconds>
+     *   autoLoginLogout = false
+     *   loginTrigger = auth-login
+     *   logoutTrigger = auth-logout
+     *   refreshing = false
+     *   ipCheck = false
+     *   garbageCollector = false
+     *   store = array(
+     *       class  = "\Core\Cache\Files",
+     *       config = array(
+     *       )
+     *   )
      */
     private $config = array();
 
     /**
-     * Object of krynCache.class
+     * Instance of Cache class
      */
     private $cache;
 
     /**
-     * Defines whether processHandler() is called initially
-     * @var bool
-     */
-    private $autoLoginLogout = false;
-
-    /**
-     * The HTTP GET/POST key which triggers the login.
-     * admin?users-login=1
-     * @var string
-     */
-    private $loginTrigger = 'users-login';
-
-    /**
-     * The HTTP GET/POST key which triggers the logout.
-     * admin?users-logout=1
-     * @var string
-     */
-    private $logoutTrigger = 'users-logout';
-
-
-    /**
-     * Increases for each valid request the 'refreshed' value in session values
-     *
-     * @var bool
-     */
-    public $refreshing = true;
-
-    /**
      * Constructor
+     *
+     * @see $config
      */
-    function __construct($pConfig, $pWithRefreshing = true) {
+    function __construct($pConfig) {
 
+        if (!$pConfig['store']['class'])
+            throw new \Exception('The storage class has not been defined.');
+    
         $this->config = $pConfig;
 
-        if ($pConfig['session_tokenId']) {
-            $this->tokenId = $pConfig['session_tokenId'];
-        }
-
-        $this->refreshing = $pWithRefreshing;
-
-        if (!$this->config['session_storage'])
-            $this->config['session_storage'] = 'database';
-
-        if (!$this->config['session_timeout'])
-            $this->config['session_timeout'] = 3600 * 12;
-
-        if ($pConfig['session_storage'] != 'database') {
-            $this->cache = new Cache($pConfig['session_storage'], $pConfig['session_storage_config']);
-        }
+        $this->cache = new Cache($pConfig['store']['class'], $pConfig['store']['config']);    
 
     }
 
@@ -98,8 +78,6 @@ class Auth {
 
         error_log('sessionid: '.$this->token);
 
-        $this->startSession = $this->session;
-
         if (!$this->session) {
 
             //no session found, create new one
@@ -108,11 +86,11 @@ class Auth {
         } else {
 
             //maybe we wanna check the ip ?
-            if ($this->config['session_ipcheck'] == 1) {
+            if ($this->config['ipCheck']) {
                 $ip = $this->get('ip');
 
                 if ($ip != $_SERVER['REMOTE_ADDR']) {
-                    $this->setUser(); //force down to guest
+                    $this->logout(); //force down to guest
                 }
             }
 
@@ -121,10 +99,10 @@ class Auth {
 
         }
 
-        if ($this->autoLoginLogout)
+        if ($this->config['gautoLoginLogout'])
             $this->handleClientLoginLogout();
 
-        if ($this->config['session_autoremove'] == 1)
+        if ($this->config['garbageCollector'] )
             $this->removeExpiredSessions();
     }
 
@@ -146,7 +124,7 @@ class Auth {
      */
     public function handleClientLoginLogout() {
 
-        if (getArgv($this->loginTrigger)) {
+        if (getArgv($this->config['loginTrigger'])) {
 
             $login = getArgv('username');
 
@@ -172,20 +150,22 @@ class Auth {
                         json(0);
                     }
 
-                    klog('authentication', 'Successfully login to administration for user ' . $this->getSession()->getUser()->getUsername());
+                    klog('authentication', 'Successfully login to administration for user ' .
+                        $this->getSession()->getUser()->getUsername());
 
+                    $lastLogin = $this->getSession()->getUser()->getLastlogin();
                     if ($userId > 0) {
                         $this->getSession()->getUser()->setLastlogin(time());
                         $this->getSession()->getUser()->save();
                     }
                     json(array('user_id' => $userId, 'sessionid' => $this->token,
-                        'username' => getArgv('username'), 'lastlogin' => $this->getSession()->getUser()->getLastlogin()));
+                        'username' => getArgv('username'), 'lastlogin' => $lastLogin));
                 }
 
             }
         }
 
-        if (getArgv($this->logoutTrigger)) {
+        if (getArgv($this->config['logoutTrigger'])) {
             $this->logout();
             $this->syncStore();
             if (getArgv(1) == 'admin') {
@@ -204,6 +184,15 @@ class Auth {
     }
 
     /**
+     * Returns the user from current session.
+     *
+     * @return \User
+     */
+    public function getUserId(){
+        return $this->getSession()->getUser()->getId();
+    }
+
+    /**
      * Auth against the internal user table.
      *
      * @param $pLogin
@@ -215,14 +204,13 @@ class Auth {
         return $state;
     }
 
-
     /**
      * Do the authentication against the defined backend and return the new user if login was successful
      * @param $pLogin
      * @param $pPassword
      * @return bool
      */
-    public function &login($pLogin, $pPassword) {
+    public function login($pLogin, $pPassword) {
 
         if ($pLogin == 'admin')
             $state = $this->internalLogin($pLogin, $pPassword);
@@ -281,12 +269,14 @@ class Auth {
      *
      * The default of this function searches 'default_group' in the auth_params
      * and maps the user automatically to the defined groups.
-     * 'default_groups' => array(
+     * 
+     * 'defaultGroups' => array(
      *    array('login' => 'LoginOrRegex', 'group' => 'group_id')
      * );
-     * You can perfectly use the following ka.Field in your auth properties:
+     * 
+     * You can perfectly use the following ka.Field definition in your client properties:
      *
-     *    "default_group": {
+     *    "defaultGroup": {
      *        "label": "Group mapping",
      *        "desc": "Regular expression are possible in the login field. The group will be attached after the first login.",
      *        "type": "array",
@@ -305,16 +295,17 @@ class Auth {
      *            }
      *        }
      *    }
+     *    
      *
-     * @param array $pUser The newly created user (scheme as in system_user table)
+     * @param \User $pUser The newly created user.
      */
     public function firstLogin($pUser) {
 
-        if (is_array($this->config['default_group'])) {
-            foreach ($this->config['default_group'] as $item) {
+        if (is_array($this->config['defaultGroup'])) {
+            foreach ($this->config['defaultGroup'] as $item) {
 
                 if (preg_match('/' . $item['login'] . '/', $pUser['username']) == 1) {
-                    dbInsert('system_groupaccess', array(
+                    dbInsert('system_user_group', array(
                         'group_id' => $item['group'],
                         'user_id' => $pUser['id']
                     ));
@@ -412,7 +403,8 @@ class Auth {
         }
 
         //after 25 tries, we stop and log it.
-        klog('session', t("The system just tried to create a session 25 times, but can't generate a new free session id. Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
+        klog('session', t("The system just tried to create a session 25 times, but can't generate a new free session id.'.
+            'Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
         return false;
     }
 

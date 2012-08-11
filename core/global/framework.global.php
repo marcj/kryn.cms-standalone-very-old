@@ -26,6 +26,25 @@ function klog($pArea, $pMsg) {
     errorHandler($pArea, $pMsg);
 }
 
+function convertSize($pSize){
+    $units = array('b','kb','mb','gb','tb','pb');
+    return @round($pSize / pow(1024, ($i=floor(log($pSize,1024)))),2).$units[$i];
+}
+
+function debugStop(){
+    debugPrint(true);
+}
+
+function debugPrint($pAndStop){
+    global $_start, $_lastDebugPoint;
+    $timeUsed = round((microtime(true)-$_start)*1000, 2);
+    $bytes = convertSize(memory_get_usage(true));
+    $last = $_lastDebugPoint ? '('.round((microtime(true)-$_lastDebugPoint)*1000, 2).'ms)' : '';
+    print "$bytes\t{$timeUsed}ms\t$last\n";
+    $_lastDebugPoint = microtime(true);
+    if ($pAndStop) exit;
+}
+
 /**
  * Returns the value in $_REQUEST[$pVal] but with the possibility to escape the
  * value with pEscape.

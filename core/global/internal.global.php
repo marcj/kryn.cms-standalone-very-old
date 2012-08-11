@@ -68,9 +68,9 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
         return;
     }
 
-    if ($cfg['log_errors'] == '1') {
+    if ($cfg['logErrors'] == '1') {
 
-        @error_log($msg, 3, $cfg['log_errors_file']);
+        @error_log($msg, 3, $cfg['logErrorsFile']);
 
     } else {
 

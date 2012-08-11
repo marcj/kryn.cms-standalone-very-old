@@ -53,7 +53,7 @@ class SystemFile extends File {
         throw new \Exception(t('getUrl on SystemFile is not possible. Use Core\File::getUrl'));
     }
 
-    public static function getTrashFiles($pPath){
+    public static function getTrashFiles(){
         throw new \Exception(t('getTrashFiles on SystemFile is not possible. Use Core\File::getTrashFiles'));
     }
 

@@ -737,6 +737,25 @@ class adminFilemanager {
 
     public static function deleteFile($pPath) {
 
+
+
+/*
+        //this filesystem layer moves the files to trash instead of real removing
+        //the class above '\Core\' handles the deletions in the trash folder
+        $path = $this->getRoot().$pPath;
+        if (!file_exists($path)) return false;
+
+        $newTrashId = dbInsert('system_files_log', array(
+            'path' => $path,
+            'modified' => filemtime($path),
+            'created' => time(),
+            'type' => (is_dir($path)) ? 1 : 0
+        ));
+
+        $target = $this->getRoot().'trash/'.$newTrashId;
+            */
+
+
         if (!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
         $path = PATH_MEDIA.$pPath;
 

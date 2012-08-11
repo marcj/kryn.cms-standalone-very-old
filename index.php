@@ -10,6 +10,8 @@
  *
  */
 
+$_SERVER['SERVER_NAME'] = 'ilee';
+
 /**
  * Index.php
  *
@@ -18,6 +20,9 @@
 
 require('core/bootstrap.checkFile.php');
 require('core/bootstrap.php');
+
+
+debugStop();
 
 if (getArgv(1) != 'admin') {
     Core\Kryn::searchDomain();
@@ -33,7 +38,7 @@ if (Core\Kryn::$admin) {
     /*
      * initialize administration controller
      */
-    Core\Kryn::$modules['admin'] = new Admin\Controller();
+    Core\Kryn::$modules['admin'] = new Admin\AdminController();
 
     /*
      * Check url access
@@ -50,7 +55,7 @@ if (Core\Kryn::$admin) {
     /*
      * Start backend controller
      */
-    Core\Kryn::$modules['admin']->admin();
+    Core\Kryn::$modules['admin']->run();
 
 } else {
 

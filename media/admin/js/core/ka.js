@@ -234,8 +234,8 @@ ka.loadSettings = function (pOnlyThisKeys) {
             document.id(document.body).setStyle('background-image', 'url(' + _path + PATH_MEDIA + ka.settings.user.userBg + ')');
         }
 
-        if (ka.settings.system && ka.settings.system.systemtitle) {
-            document.title = ka.settings.system.systemtitle + t(' | Kryn.cms Administration');
+        if (ka.settings.system && ka.settings.system.systemTitle) {
+            document.title = ka.settings.system.systemTitle + t(' | Kryn.cms Administration');
         }
 
     }.bind(this)}).get({lang: window._session.lang, keys: pOnlyThisKeys});

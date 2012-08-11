@@ -280,27 +280,11 @@ class Local extends FALAbstract {
     /**
      * {@inheritDoc} 
      */
-    public function deleteFile($pPath){
-
-        //this filesystem layer moves the files to trash instead of real removing
-        //the class above 'adminFilemanager' handles the deletions in the trash folder
-        $path = $this->getRoot().$pPath;
-        if (!file_exists($path)) return false;
-
-        $newTrashId = dbInsert('system_files_log', array(
-            'path' => $path,
-            'modified' => filemtime($path),
-            'created' => time(),
-            'type' => (is_dir($path)) ? 1 : 0
-        ));
-
-        $target = $this->getRoot().'trash/'.$newTrashId;
+    public function delete($pPath){
 
         if (is_dir($path)) {
-            copyr($path, $target);
             delDir($path);
         } else {
-            copy($path, $target);
             unlink($path);
         }
 

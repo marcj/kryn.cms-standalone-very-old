@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\ORM;
+namespace Admin\Object;
 
 use \Core\Kryn;
 use \Core\Object;

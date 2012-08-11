@@ -58,7 +58,7 @@ var admin_system_settings = new Class({
         this.fields = {};
 
         var p = this.panes['general'];
-        this.fields['systemtitle'] = new ka.Field({
+        this.fields['systemTitle'] = new ka.Field({
             label: _('System title'), desc: 'Adds a title to the administration titel'
         }).inject(p);
 
@@ -82,21 +82,17 @@ var admin_system_settings = new Class({
         var p = this.panes['system'];
 
         var fields = {
-            'cronjob_key': {
-                label: _('Cronjob key'),
-                type: 'label'
-            },
-            'display_errors': {
+            'displayErrors': {
                 label: _('Display errors'),
                 desc: _('Prints errors to the frontend clients. You should deactivate this in productive systems'),
                 type: 'checkbox'
             },
-            'log_errors': {
+            'logErrors': {
                 label: _('Save debug informations into a file'),
                 desc: _('Stores the debug logs (klog()) into a file. Deactivates the log viewer.'),
                 type: 'checkbox',
                 depends: {
-                    'log_errors_file': {
+                    'logErrorsFile': {
                         needValue: 1,
                         label: _('Log file'),
                         desc: _('Example: inc/kryn.log')
@@ -306,7 +302,7 @@ var admin_system_settings = new Class({
         var p = this.panes['database'];
 
         var databaseFields = {
-            db_type: {
+            type: {
                 label: t('Database type'),
                 empty: false,
                 type: 'select',
@@ -317,27 +313,27 @@ var admin_system_settings = new Class({
                     mssql: 'MSSQL'
                 }
             },
-            db_server: {
+            server: {
                 label: t('Database server'),
                 desc: t('Example: localhost. For SQLite enter the path'),
                 empty: false
             },
-            db_user: {
+            user: {
                 needValue: ['postgresql', 'mysql', 'mssql'],
                 againstField: 'db_type',
                 label: t('Database login'), empty: false
             },
-            db_passwd: {
+            passwd: {
                 needValue: ['postgresql', 'mysql', 'mssql'],
                 againstField: 'db_type',
                 label: t('Database password'), type: 'password'
             },
-            db_name: {
+            name: {
                 needValue: ['postgresql', 'mysql', 'mssql'],
                 againstField: 'db_type',
                 label: t('Database name'), empty: false
             },
-            db_prefix: {
+            prefix: {
                 label: t('Database prefix'), empty: false
             }
         };
@@ -446,9 +442,11 @@ var admin_system_settings = new Class({
             return;
         }
 
+        req['database'] = {};
+
         var values = this.databaseFieldObj.getValue();
         Object.each(values, function(val, key){
-            req[key] = val;
+            req['database'][key] = val;
         })
 
 

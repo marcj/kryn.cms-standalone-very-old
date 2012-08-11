@@ -297,29 +297,39 @@ function checkConfig(){
       if (!$systemTitle) $systemTitle = "Fresh install";
 
       $cfg = array(
-      
-          'db_server' => $_REQUEST['server'],
-          'db_user'   => $_REQUEST['username'],
-          'db_passwd' => $_REQUEST['passwd'],
-          'db_name'   => $_REQUEST['db'],
-          'db_prefix' => $_REQUEST['prefix'],
-          'db_type'   => $_REQUEST['db_type'],
-
+          'database' => array(
+            'server' => $_REQUEST['server'],
+            'user'   => $_REQUEST['username'],
+            'passwd' => $_REQUEST['passwd'],
+            'name'   => $_REQUEST['db'],
+            'prefix' => $_REQUEST['prefix'],
+            'type'   => $_REQUEST['db_type'],
+          ),
 
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
           'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
 
+          'cache' => array(
+            'class' => '\Core\Cache\Files'
+          ),
 
-          "cache_type"          => "files",
-          "media_cache"         => "cache/media/",
-          "display_errors"      => "0",
-          "log_errors"          => "0",
-          "systemtitle"         => $systemTitle,
-          "passwd_hash_compat"  => "0",
-          "passwd_hash_key"     => Core\Auth::getSalt(32),
+          "displayErrors"        => 0,
+          "logErrors"            => 0,
+          "systemTitle"          => $systemTitle,
+          "auth"                 => array(
+            "class"              => "\Core\Auth\Base",
+            "config"             => array(
+              "passwdHashCompat" => 0,
+              "passwdHashKey"    => Core\Auth::getSalt(32),
+              "store"            => array(
+                "class"          => "\Core\Cache\Database",
+                "config"         => array()
+              )
+            )
+          ),
           "timezone"            => $timezone
       );
-      $config = '<?php $cfg = '. var_export($cfg,true) .'; ?>';
+      $config = '<?php return '. var_export($cfg,true) .'; ?>';
 
       $f = @fopen( 'config.php', 'w+' );
       if (!$f){
