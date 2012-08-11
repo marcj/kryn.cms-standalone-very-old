@@ -1,40 +1,24 @@
 
-config.php
+/config.php
 
-cache/
-
-inc/module/admin/crawler.php
-
-inc/mooeditable
+/cache/
 
 .DS_Store
 
-nbproject/project.xml
-
-nbproject/project.properties
-
-nbproject/private/private.properties
-
-inc/kryn.log
-
 install.log
-
-inc/template/Test
 
 data/packages/modules/
 
 data/fileversions/
 
-inc/config_backups.php
-
 .idea
 
-propel-config.php
+/propel-config.php
 
-module/admin/model/map/
+/module/admin/model/map/
 
-module/admin/model/om/
+/module/admin/model/om/
 
-module/users/model/map/
+/module/users/model/map/
 
-module/users/model/om/
+/module/users/model/om/
