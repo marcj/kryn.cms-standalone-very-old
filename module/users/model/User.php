@@ -29,10 +29,10 @@ class User extends BaseUser {
     public function setPassword($pPassword){
 
         if (!$this->getPasswdSalt()){
-            $this->setPasswdSalt(Core\Auth::getSalt());
+            $this->setPasswdSalt(Core\Client\ClientAbstract::getSalt());
         }
 
-        $passwd = Core\Auth::getHashedPassword( $pPassword, $this->getPasswdSalt() );
+        $passwd = Core\Client\ClientAbstract::getHashedPassword( $pPassword, $this->getPasswdSalt() );
 
         $this->setPasswd($passwd);
     }

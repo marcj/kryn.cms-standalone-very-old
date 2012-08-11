@@ -1,14 +1,8 @@
 {
   "version": "1.0.0",
   "owner": "1",
-  "title": {
-    "en": "Kryn.cms",
-    "de": "Kryn.cms"
-  },
-  "desc": {
-    "en": "Kryn.cms",
-    "de": "Kryn.cms"
-  },
+  "title": "Kryn.cms",
+  "desc": "Administration scripts",
   "system": true,
   "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
   "widgets": {

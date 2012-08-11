@@ -1,5 +1,6 @@
 <?php
 
+use Core\SystemFile;
 
 class propelHelper {
 
@@ -416,17 +417,17 @@ class propelHelper {
         if (!mkdirr($folder = 'propel/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = Core\Kryn::$config['db_type'];
+        $adapter = Core\Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Core\Kryn::$config['db_server'].';dbname='.Core\Kryn::$config['db_name'].';';
+        $dsn = $adapter.':host='.Core\Kryn::$config['database']['server'].';dbname='.Core\Kryn::$config['database']['name'].';';
 
         $properties = '
 propel.database = '.$adapter.'
 propel.database.url = '.$dsn.'
-propel.database.user = '.Core\Kryn::$config['db_user'].'
-propel.database.password = '.Core\Kryn::$config['db_passwd'].'
-propel.tablePrefix = '.Core\Kryn::$config['db_prefix'].'
+propel.database.user = '.Core\Kryn::$config['database']['user'].'
+propel.database.password = '.Core\Kryn::$config['database']['passwd'].'
+propel.tablePrefix = '.Core\Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
 propel.project = kryn';
 
@@ -438,10 +439,10 @@ propel.project = kryn';
         if (!mkdirr($folder = 'propel/build/conf/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = Core\Kryn::$config['db_type'];
+        $adapter = Core\Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Core\Kryn::$config['db_server'].';dbname='.Core\Kryn::$config['db_name'];
+        $dsn = $adapter.':host='.Core\Kryn::$config['database']['server'].';dbname='.Core\Kryn::$config['database']['name'];
 
         $xml = '<?xml version="1.0"?>
 <config>
@@ -452,13 +453,13 @@ propel.project = kryn';
                 <connection>
                     <classname>PropelPDO</classname>
                     <dsn>'.$dsn.'</dsn>
-                    <user>'.Core\Kryn::$config['db_user'].'</user>
-                    <password>'.Core\Kryn::$config['db_passwd'].'</password>
+                    <user>'.Core\Kryn::$config['database']['user'].'</user>
+                    <password>'.Core\Kryn::$config['database']['passwd'].'</password>
                     <options>
                         <option id="ATTR_PERSISTENT">false</option>
                     </options>';
 
-        if (Core\Kryn::$config['db_type'] == 'mysql'){
+        if (Core\Kryn::$config['database']['type'] == 'mysql'){
             $xml .= '
                     <attributes>
                         <option id="ATTR_EMULATE_PREPARES">true</option>
@@ -476,10 +477,8 @@ propel.project = kryn';
     </propel>
 </config>';
 
-        file_put_contents('propel/runtime-conf.xml', $xml);
-        chmod('propel/runtime-conf.xml', 0660);
-        file_put_contents('propel/buildtime-conf.xml', $xml);
-        chmod('propel/buildtime-conf.xml', 0660);
+        SystemFile::setContent('propel/runtime-conf.xml', $xml);
+        SystemFile::setContent('propel/buildtime-conf.xml', $xml);
         return true;
     }
 

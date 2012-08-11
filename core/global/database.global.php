@@ -99,7 +99,7 @@ function dbBegin(){
 function dbRollback(){
 
     dbConnection()->rollback();
-    if (database::$activeLock && Core\Kryn::$config['db_type'] == 'mysql'){
+    if (database::$activeLock && Core\Kryn::$config['database']['type'] == 'mysql'){
         dbLock('UNLOCK TABLES');
         database::$activeLock = false;
     }
@@ -156,7 +156,7 @@ function dbExFetchAll($pQuery, $pParams = null) {
  * @return PDOStatement
  */
 function dbExec($pQuery, $pParams = null) {
-    $pQuery = str_replace('%pfx%', Core\Kryn::$config['db_prefix'], $pQuery);
+    $pQuery = str_replace('%pfx%', Core\Kryn::$config['database']['prefix'], $pQuery);
 
     if ($pParams !== null){
         $sth = dbConnection()->prepare($pQuery);
@@ -232,7 +232,7 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
  * @return string
  */
 function dbTableName($pTable){
-    return strtolower((substr($pTable,0,1) == '/')?$pTable:Core\Kryn::$config['db_prefix'].$pTable);
+    return strtolower((substr($pTable,0,1) == '/')?$pTable:Core\Kryn::$config['database']['prefix'].$pTable);
 }
 
 /**
@@ -474,7 +474,7 @@ function dbCount($pTable, $pWhere = false) {
 
     $table = dbQuote(dbTableName($pTable));
 
-    if (Core\Kryn::$config['db_type'] == 'postgresql'){
+    if (Core\Kryn::$config['database']['type'] == 'pgsql'){
 
         $columns = array_keys(database::getColumns(dbTableName($pTable)));
         $firstColumn = $columns[0];
@@ -784,7 +784,7 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = ''){
     }
 
     if (strtolower($pCondition[1]) == 'regexp')
-        $result .= Core\Kryn::$config['db_type']=='mysql'?'REGEXP':'~';
+        $result .= Core\Kryn::$config['database']['type']=='mysql'?'REGEXP':'~';
     else
         $result .= $pCondition[1];
 

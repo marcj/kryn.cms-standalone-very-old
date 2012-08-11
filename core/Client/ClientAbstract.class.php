@@ -8,6 +8,8 @@
 
 namespace Core\Client;
 
+use Core\Kryn;
+
 /**
  * Client class.
  *
@@ -67,7 +69,10 @@ abstract class ClientAbstract {
     
         $this->config = $pConfig;
 
-        $this->cache = new Cache($pConfig['store']['class'], $pConfig['store']['config']);    
+        if (!$this->config['timeout'])
+            $this->config['timeout'] = 3600;
+
+        $this->store = new Cache\Controller($pConfig['store']['class'], $pConfig['store']['config']);    
 
     }
 
@@ -99,7 +104,7 @@ abstract class ClientAbstract {
 
         }
 
-        if ($this->config['gautoLoginLogout'])
+        if ($this->config['autoLoginLogout'])
             $this->handleClientLoginLogout();
 
         if ($this->config['garbageCollector'] )
@@ -108,7 +113,6 @@ abstract class ClientAbstract {
 
     /**
      * Updates the time and refreshed-counter of a session.
-     * 
      * 
      */
     public function updateSession() {
@@ -205,10 +209,11 @@ abstract class ClientAbstract {
     }
 
     /**
-     * Do the authentication against the defined backend and return the new user if login was successful
-     * @param $pLogin
-     * @param $pPassword
-     * @return bool
+     * Check credentials and set user_id to the session.
+     * 
+     * @param string $pLogin
+     * @param string $pPassword
+     * @return bool returns false, if someting went wrong.
      */
     public function login($pLogin, $pPassword) {
 
@@ -228,43 +233,9 @@ abstract class ClientAbstract {
     }
 
     /**
-     * Checks whether a valid logins exists in our system_user database.
-     * @param $pLogin
-     * @return \User
-     */
-    public function &getOrCreateUser($pLogin) {
-
-
-        if ($this->credentials_row) {
-            //since we have already the data with checkCredentialsDatabase we just use this
-            //information instead of fetching it new
-            $user =& $this->credentials_row;
-        } else {
-            $where = "username = '" . esc($pLogin) . "'";
-            if (!$this->config['auth_class'] || $this->config['auth_class'] == 'Kryn')
-                $where .= " AND (auth_class IS NULL OR auth_class = 'Kryn')";
-            else
-                $where .= " AND auth_class = '" . $this->config['auth_class'] . "'";
-
-            $user = dbExfetch('
-            SELECT id FROM %pfx%system_user
-            WHERE ' . $where,
-                1);
-        }
-
-        if (!$user) {
-            $id = dbInsert('system_user', array('username' => $pLogin, 'auth_class' => $this->config['auth_class']));
-            $user = dbTableFetch('system_user', 'id = ' . $id, 1);
-            $this->firstLogin($user);
-        }
-
-        return $this->getUser($user['id']);
-    }
-
-
-    /**
-     * If the user was not found in the system_user table, we've created it and
-     * maybe the auth class want to map some groups to this new user.
+     * If the user has not been found in the system_user table, we've created it and
+     * maybe this class want to map some groups to this new user.
+     * 
      * Don't forget to clear the cache after updating.
      *
      * The default of this function searches 'default_group' in the auth_params
@@ -310,7 +281,6 @@ abstract class ClientAbstract {
                         'user_id' => $pUser['id']
                     ));
                 }
-
             }
         }
 
@@ -322,7 +292,7 @@ abstract class ClientAbstract {
      *
      * @param int $pUserId
      *
-     * @return Kryn\Auth $this
+     * @return \Core\Client\ClientAbstract $this
      * @throws \Exception
      */
     public function setUser($pUserId = null) {
@@ -344,7 +314,7 @@ abstract class ClientAbstract {
 
 
     /**
-     * Change the user_id in the session object. Means: is logged out then
+     * Change the user_id in the session object to 0. Means: is logged out then
      */
     public function logout() {
         $this->setUser();
@@ -353,51 +323,42 @@ abstract class ClientAbstract {
 
     /**
      * Removes all expired sessions.
-     * If the user configured no 'session_autoremove', then this method
-     * is called through a cronjob. Last method is basically better regarding
-     * the performance.
+     * 
+     * Some backend stores need to remove invalide session own it own (like database store)
+     * For this, the backend (class from Core\Cache\CacheInterface) can have a method called
+     * 'removeExpiredSessions' to removeit.
+     *
      */
     public function removeExpiredSessions() {
-        $lastTime = time() - $this->config['session_timeout'];
-        dbDelete('system_session', 'time < ' . $lastTime);
-
+        if (method_exists($this->store, 'removeExpiredSessions'))
+            $this->store->removeExpiredSessions();
     }
 
     /**
      * When the scripts ends, we need to sync the session data to the backend.
+     * 
      */
     public function syncStore() {
 
-        if ($this->config['session_storage']) {
-
-            $this->session->save();
-
-        } else {
-            $expired = $this->config['session_timeout'];
-            $this->cache->set($this->tokenId . '_' . $this->token, $this->session, $expired);
-
-        }
-
+        $this->store->set($this->tokenId . '_' . $this->token, $this->getSession(), $this->config['timeout']);
     }
 
     /**
-     * Creates a new token and session in the backend
-     * @return array The session object
+     * Create new session in the backend and stores the newly created session id
+     * into $this->token. 
+     * 
+     * @return bool|\Session The session object
      */
-    public function newSession() {
+    public function createSession() {
 
         $session = false;
 
         for ($i = 1; $i <= 25; $i++) {
 
-            if ($this->config['session_storage'] == 'database') {
-                $session = $this->newSessionDatabase();
-            } else {
-                $session = $this->newSessionCache();
-            }
+            $session = $this->createSessionById($this->generateSessionId());
+
             if ($session) {
                 $this->token = $session->getId();
-                setCookie($this->tokenId, $this->token, time() + 3600 * 24 * 7, Kryn::$config['path']); //7 Days
                 return $session;
             }
         }
@@ -405,7 +366,18 @@ abstract class ClientAbstract {
         //after 25 tries, we stop and log it.
         klog('session', t("The system just tried to create a session 25 times, but can't generate a new free session id.'.
             'Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
+
         return false;
+    }
+
+    /**
+     * Creates a \Session object and store it in the current backend.
+     * 
+     * @param  string $pId
+     * @return bool|\Session Returns false, if something went wrong otherwise a \Session object.
+     */
+    public function createSessionById($pId){
+        throw new \Exceptiont('You have to override the method createSessionById in '.get_called_class());
     }
 
 
@@ -500,13 +472,15 @@ abstract class ClientAbstract {
     }
 
     /**
-     * Loads the session based on the given token from the client
+     * Fetch the session.
      *
-     * @return array Session object
+     * @return bool|\Session false if the session does not exist, and Session object, if found.
      */
-    public function loadSession() {
+    public function fetchSession() {
 
         if (!$this->token) return false;
+
+        $this->store->get();
 
         if ($this->config['session_storage'] == 'database')
             return $this->loadSessionDatabase();
@@ -558,6 +532,7 @@ abstract class ClientAbstract {
 
     /**
      * Returns the token from the client
+     *
      * @return string
      */
     public function getClientToken() {
@@ -572,66 +547,22 @@ abstract class ClientAbstract {
     /**
      * Checks the given credentials.
      *
-     * @param $pLogin    string
-     * @param $pPassword string
+     * @param string $pLogin
+     * @param string $pPassword
      *
-     * @return bool
+     * @return bool|integer Returns false if credentials are wrong and returns the user id, if credentials are correct.
      */
-    public function checkCredentials($pLogin, $pPassword) {
+    abstract public function checkCredentials($pLogin, $pPassword);
 
-        return $this->checkCredentialsDatabase($pLogin, $pPassword);
-    }
 
     /**
-     * Checks the given credentials in the database
-     *
-     * @param $pLogin
-     * @param $pPassword
-     * @return bool
-     */
-    protected function checkCredentialsDatabase($pLogin, $pPassword) {
-
-        $login = $pLogin;
-
-        $userColumn = 'username';
-
-        if ($this->config['auth_params']['email_login'] && strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false)
-            $userColumn = 'email';
-
-        $row = dbExfetch("
-            SELECT id, passwd, passwd_salt
-            FROM %pfx%system_user
-            WHERE 
-                    id > 0
-                AND $userColumn = ?
-                AND (auth_class IS NULL OR auth_class = 'kryn')",
-            $login);
-
-        if ($row['id'] > 0) {
-
-            if ($row['passwd_salt']) {
-                $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
-            } else {
-                if (Kryn::$config['passwd_hash_compat'] != 1) return false;
-                //compatibility
-                $hash = md5($pPassword);
-            }
-
-            if ($hash != $row['passwd']) return false;
-
-
-            return $row['id'];
-        }
-        return false;
-    }
-
-    /**
-     *
      * Generates a salt for a hashed password
+     *
+     * @param int $pLenth
      */
     public static function getSalt($pLength = 12) {
 
-        $salt = 'a';
+        $salt = '';
 
         for ($i = 0; $i < $pLength; $i++) {
             $salt[$i] = chr(mt_rand(33, 122));
@@ -641,7 +572,6 @@ abstract class ClientAbstract {
     }
 
     /**
-     *
      * Returns a hashed password with salt through some rounds.
      */
     public static function getHashedPassword($pPassword, $pSalt) {

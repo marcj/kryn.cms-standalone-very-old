@@ -282,9 +282,11 @@ class Local extends FALAbstract {
      */
     public function delete($pPath){
 
+        $path = $this->getRoot().$pPath;
+
         if (is_dir($path)) {
             delDir($path);
-        } else {
+        } else if (is_file($path)){
             unlink($path);
         }
 

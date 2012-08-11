@@ -9,8 +9,9 @@
 * LICENSE file, that was distributed with this source code.
 */
 
-header("Content-Type: text/html; charset=utf-8");
-
+use Core\Kryn;
+use Core\File;
+use Core\SystemFile;
 $GLOBALS['krynInstaller'] = true;
 define('PATH', dirname(__FILE__).'/');
 define('PATH_CORE', 'core/');
@@ -25,11 +26,11 @@ include('lib/propel/runtime/lib/Propel.php');
 
 require('core/bootstrap.autoloading.php');
 
-include(PATH_CORE.'misc.global.php');
-include(PATH_CORE.'database.global.php');
-include(PATH_CORE.'template.global.php');
-include(PATH_CORE.'internal.global.php');
-include(PATH_CORE.'framework.global.php');
+include(PATH_CORE.'global/misc.global.php');
+include(PATH_CORE.'global/database.global.php');
+include(PATH_CORE.'global/template.global.php');
+include(PATH_CORE.'global/internal.global.php');
+include(PATH_CORE.'global/framework.global.php');
 $lang = 'en';
 $cfg = array();
 
@@ -44,6 +45,9 @@ if( $_REQUEST['step'] == '5' ){
     $modules = array('admin', 'users');
     step5Init();
 }
+
+header("Content-Type: text/html; charset=utf-8");
+
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -316,13 +320,13 @@ function checkConfig(){
           "displayErrors"        => 0,
           "logErrors"            => 0,
           "systemTitle"          => $systemTitle,
-          "auth"                 => array(
-            "class"              => "\Core\Auth\Base",
+          "client"                 => array(
+            "class"              => "\Core\Client\KrynUsers",
             "config"             => array(
               "passwdHashCompat" => 0,
-              "passwdHashKey"    => Core\Auth::getSalt(32),
+              "passwdHashKey"    => Core\Client\ClientAbstract::getSalt(32),
               "store"            => array(
-                "class"          => "\Core\Cache\Database",
+                "class"          => "\Core\Client\DatabaseStore",
                 "config"         => array()
               )
             )
@@ -331,18 +335,11 @@ function checkConfig(){
       );
       $config = '<?php return '. var_export($cfg,true) .'; ?>';
 
-      $f = @fopen( 'config.php', 'w+' );
+      $f = \Core\SystemFile::setContent('config.php', $config);
+
       if (!$f){
           $res['error'] = 'Can not open file config.php - please change the permissions.';
           $res['res'] = false;
-      } else {
-          fwrite( $f, $config ); 
-          fclose($f);
-
-          \Core\Kryn::$config = $cfg;
-          \Core\File::loadConfig();
-
-          \Core\File::fixFile('config.php');
       }
   }
 
@@ -501,11 +498,13 @@ function step5Done($pMsg){
     //write propel build environment
     function step5_3(){
 
+        \Core\SystemFile::delete('propel');
+
         try {
             //create the propel config
             propelHelper::writeXmlConfig();
             propelHelper::writeBuildPorperties();
-            propelHelper::writeSchema();
+            propelHelper::collectSchemas();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -594,18 +593,18 @@ function step5Done($pMsg){
         //load all configs
         \Core\Kryn::loadConfigs();
 
-        admin::clearCache();
+        \Admin\Utils::clearCache();
         step5Done(true);
     }
 
     function step5Init(){
 
-        global $cfg, $modules;
-
         $subStep = $_GET['substep']+0;
-        require( 'config.php' );
-        \Core\Kryn::$config = $cfg;
-        \Core\File::loadConfig();
+        Kryn::$config = require( 'config.php' );
+
+        define('pfx', Kryn::$config['database']['prefix']);
+        File::loadConfig();
+        SystemFile::loadConfig();
 
         if ($subStep == 0 && $_POST['modules']){
 
@@ -618,20 +617,16 @@ function step5Done($pMsg){
                 }
             }
 
-            $cfg['activeModules'] = $modules;
+            Kryn::$config['activeModules'] = $modules;
             
-            array_shift($cfg['activeModules']);//admin
-            array_shift($cfg['activeModules']);//users
-            file_put_contents('config.php', "<?php\n\$cfg = ".var_export($cfg, true).";\n?>");
-            \Core\File::fixFile('config.php');
+            array_shift(Kryn::$config['activeModules']);//admin
+            array_shift(Kryn::$config['activeModules']);//users
+            \Core\SystemFile::setContent('config.php', "<?php\nreturn ".var_export(Kryn::$config, true).";\n?>");
         }
 
         if ($cfg['activeModules'])
           $modules = array_merge($modules, $cfg['activeModules']);
 
-
-        Core\Kryn::$config = $cfg;
-        Core\Kryn::$config['db_error_print_sql'] = 1;
 
         if (file_exists($file = 'propel-config.php')){
             $propelConfig = include($file);
@@ -663,21 +658,21 @@ function step5(){
 <h2>Installation</h2>
 <?php
 
-    @mkdir( 'cache/' );
-    @mkdir( 'cache/media' );
-    @mkdir( 'cache/object' );
-    @mkdir( 'cache/smarty_compile' );
+    SystemFile::createFolder( 'cache/' );
+    SystemFile::createFolder( 'cache/media' );
+    SystemFile::createFolder( 'cache/object' );
+    SystemFile::createFolder( 'cache/smarty_compile' );
 
-    delDir('propel');
+    SystemFile::delete('propel');
 
-    @mkdir( PATH_MEDIA.'trash' );
-    @mkdir( PATH_MEDIA.'css' );
-    @mkdir( PATH_MEDIA.'js' );
+    SystemFile::createFolder( PATH_MEDIA.'trash' );
+    SystemFile::createFolder( PATH_MEDIA.'css' );
+    SystemFile::createFolder( PATH_MEDIA.'js' );
     
-    @mkdir( 'data', 0777 );
-    @mkdir( 'data/upload', 0777 );
-    @mkdir( 'data/packages', 0777 );
-    @mkdir( 'data/upload/modules', 0777 );
+    SystemFile::createFolder( 'data' );
+    SystemFile::createFolder( 'data/upload' );
+    SystemFile::createFolder( 'data/packages' );
+    SystemFile::createFolder( 'data/upload/modules' );
 
     
 //    if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
@@ -819,8 +814,8 @@ function buildModInfo( $modules ) {
     foreach( $modules as $module ){
          $config = adminModule::loadInfo( $module );
          $version = $config['version'];
-         $title = $config['title'][$lang];
-         $desc = $config['desc'][$lang];
+         $title = $config['title'];
+         $desc = $config['desc'];
 
          $checkbox = '<input name="modules['.$module.']" checked type="checkbox" value="1" />';
          if( $config['system'] == "1"){

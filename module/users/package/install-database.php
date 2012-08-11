@@ -51,5 +51,5 @@ $id = $admin->getId(0);
 dbUpdate('system_user', array('id' => $id), array('id' => 1));
 $admin->setId(1);
 
-$admin->addGroup($groupAdmin);
+$admin->addGroupMembership($groupAdmin);
 $admin->save();

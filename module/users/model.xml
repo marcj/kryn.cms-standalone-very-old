@@ -47,17 +47,6 @@
     <column name="lastlogin" type="INTEGER" required="false"/>
     <column name="activate" type="BOOLEAN" required="false"/>
 
-    <column name="primary_group" type="INTEGER" required="false"/>
-    <column name="second_group" type="INTEGER" required="false"/>
-
-    <foreign-key foreignTable="system_group">
-      <reference local="primary_group" foreign="id"/>
-    </foreign-key>
-
-    <foreign-key foreignTable="system_group">
-      <reference local="second_group" foreign="id"/>
-    </foreign-key>
-
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
@@ -68,10 +57,11 @@
   <table name="system_user_group" isCrossRef="true" phpName="UserGroup">
     <column name="user_id" type="INTEGER" primaryKey="true" required="true"/>
     <column name="group_id" type="INTEGER" primaryKey="true" required="true"/>
-    <foreign-key foreignTable="system_user" phpName="Membership_User">
+
+    <foreign-key foreignTable="system_user">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
-    <foreign-key foreignTable="system_group" phpName="Membership_Group">
+    <foreign-key foreignTable="system_group" phpName="GroupMembership">
       <reference local="group_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">
