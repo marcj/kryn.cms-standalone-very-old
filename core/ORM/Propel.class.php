@@ -1,6 +1,6 @@
 <?php
 
-namespace Admin\Object;
+namespace Core\ORM;
 
 use \Core\Kryn;
 use \Core\Object;
@@ -30,6 +30,8 @@ class Propel extends ORMAbstract {
 
     public $tableMap;
 
+    public $propelPrimaryKeys;
+
     /**
      * Constructor
      *
@@ -39,13 +41,23 @@ class Propel extends ORMAbstract {
     function __construct($pObjectKey, $pDefinition){
         $this->objectKey = $pObjectKey;
         $this->definition = $pDefinition;
-        $peer = $this->getPeerName();
     }
 
     public function init(){
+        if ($this->primaryKeys) return;
+
         $this->query = $this->getQueryClass();
         $this->tableMap = $this->query->getTableMap();
-        $this->primaryKeys = $this->tableMap->getPrimaryKeys();
+        $this->propelPrimaryKeys = $this->tableMap->getPrimaryKeys();
+
+        $this->primaryKeys = array();
+        foreach ($this->propelPrimaryKeys as $k)
+            $this->primaryKeys[] = lcfirst($k->getPhpName());
+    }
+
+    public function primaryStringToArray($pPk){
+        $this->init(); //load pks
+        return parent::primaryStringToArray($pPk);
     }
 
 
@@ -57,6 +69,7 @@ class Propel extends ORMAbstract {
      * @return array
      */
     public function getFields($pFields){
+        $this->init();
 
         if ($pFields != '*' && is_string($pFields))
             $pFields = explode(',', str_replace(' ', '', trim($pFields)));
@@ -68,12 +81,11 @@ class Propel extends ORMAbstract {
         $relations = array();
         $relationFields = array();
 
-        foreach ($this->primaryKeys as $primaryKey){
+        foreach ($this->propelPrimaryKeys as $primaryKey){
             $fields[$primaryKey->getPhpName()] = $primaryKey;
         }
 
         if ($pFields == '*'){
-
 
             $columns = $tableMap->getColumns();
             foreach ($columns as $column){
@@ -141,13 +153,29 @@ class Propel extends ORMAbstract {
                     continue;
                 }
 
-                if ($tableMap->hasColumnByPhpName(ucfirst($field)) && $column = $tableMap->getColumnByPhpName(ucfirst($field))){
+                if ($tableMap->hasColumnByPhpName(ucfirst($field)) &&
+                    $column = $tableMap->getColumnByPhpName(ucfirst($field))){
                     $fields[$column->getPhpName()] = $column;
                 }
             }
         }
-        
-        //todo, check for selects in joined column
+
+        //filer relation fields
+        foreach ($relationFields as $relation => &$objectFields){
+            $objectName = $relations[$relation]->getRightTable()->getPhpName();
+            $limit = Kryn::$objects[lcfirst($objectName)]['limitSelection'];
+            if (!$limit) continue;
+            $allowedFields = strtolower(','.str_replace(' ', '', trim($limit)).',');
+
+            $filteredFields = array();
+            foreach ($objectFields as $name){
+                if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
+                    $filteredFields[] = $name;
+                }
+            }
+            $objectFields = $filteredFields;
+
+        }
 
         //filter
         if ($this->definition['limitSelection']){
@@ -239,14 +267,25 @@ class Propel extends ORMAbstract {
      */
     public function getItem($pCondition, $pOptions = array()){
 
+        $this->init();
         $query = $this->getQueryClass();
+        $query->limit(1);
 
-        $fields = $this->getFields($pOptions['fields']);
+        list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
+        $selects = array_keys($fields);
 
-        $this->mapSelect($query, $fields);
-        $stm = $this->getStm($query, $pCondition);
+        $query->select($selects);
 
-        return dbFetch($stm);
+        $this->mapOptions($query, $pOptions);
+
+        $this->mapToManyRelationFields($query, $relations, $relationFields);
+
+        $stmt = $this->getStm($query, $pCondition);
+
+        $clazz = $this->getPhpName();
+
+        $row = dbFetch($stmt);
+        return $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
     }
 
     public function mapOptions($pQuery, $pOptions = array()){
@@ -327,7 +366,7 @@ class Propel extends ORMAbstract {
 
     }
 
-    public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields){
+    public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields, $pPermissionCheck = false){
 
         $item = new $pClazz();
         $item->hydrateFromNames($pRow, \BasePeer::TYPE_PHPNAME);
@@ -374,11 +413,15 @@ class Propel extends ORMAbstract {
                         $queryName = $sClazz.'Query';
                         $filterBy  = 'filterBy'.$relation->getSymmetricalRelation()->getName();
 
-                        $sStmt = $queryName::create()
-                            ->setFormatter('PropelStatementFormatter')
+                        $sQuery = $queryName::create()
                             ->select($pRelationFields[$name])
-                            ->$filterBy($item)
-                            ->find($con);
+                            ->$filterBy($item);
+
+                        $condition = array();
+                        if ($pPermissionCheck){
+                            $condition = \Core\Acl::getListingCondition(lcfirst($sClazz));
+                        }
+                        $sStmt = $this->getStm($sQuery, $condition);
 
                         $sItems = array();
                         while ($subRow = dbFetch($sStmt)){
@@ -427,15 +470,12 @@ class Propel extends ORMAbstract {
 
         $this->mapToManyRelationFields($query, $relations, $relationFields);
 
-        $query->setFormatter('PropelStatementFormatter');
-
-        $stmt = $query->find();
+        $stmt = $this->getStm($query, $pCondition);
 
         $clazz = $this->getPhpName();
 
         while ($row = dbFetch($stmt)){
-
-            $result[] = $this->populateRow($clazz, $row, $selects, $relations, $relationFields);
+            $result[] = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
         }
 
         return $result;

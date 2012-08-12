@@ -21,10 +21,10 @@ class AdminController {
         @header('Expires:');
 
         $code = Kryn::getRequestedPath();
-        $pEntryPoint = self::getPathItem($code); //admin entry point
+        $pEntryPoint = Utils::getPathItem($code); //admin entry point
 
         if (!$pEntryPoint) {
-            $pEntryPoint = self::getPathItem(substr($code, 6)); //extensions
+            $pEntryPoint = Utils::getPathItem(substr($code, 6)); //extensions
         }
 
         if ($pEntryPoint) {
@@ -76,9 +76,6 @@ class AdminController {
                         ))
                         ->addPutRoute('([a-zA-Z-_]+)', 'putItem', null, array(
                             '_'
-                        ))
-                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)/([a-zA-Z-_]+)', 'getForeignItems', null, array(
-                            'fields', 'limit', 'offset', 'order', '_'
                         ))
                         ->addGetRoute('([a-zA-Z-_]+)', 'getItems', null, array(
                             'fields', 'limit', 'offset', 'order', '_'

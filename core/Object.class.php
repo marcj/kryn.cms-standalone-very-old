@@ -259,8 +259,6 @@ class Object {
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
-        $pOptions['fields'] = $obj->getFields($pOptions['fields']);
-
         if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
             $pCondition = array($pCondition);
         }

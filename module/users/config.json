@@ -212,7 +212,7 @@
       "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,
-      "limitSelection__": "id, username",
+      "limitSelection": "id, username",
       "chooserFieldDataModelCondition": [
         
       ],

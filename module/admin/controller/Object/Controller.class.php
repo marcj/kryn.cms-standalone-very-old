@@ -6,8 +6,7 @@ class Controller {
 
 
     public function getItemLabel($pObject, $pPk){
-
-
+        
     }
 
     public function postItem($pObject, $pPk, $pSetFields){
@@ -37,51 +36,10 @@ class Controller {
         return \Core\Object::add($pObject, $pSetFields, $options);
     }
 
-    public function getRelatedCount($pRelatedObject, $pPk, $pObject, $pFilter){
-
-        $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
-
-        $options = array(
-            'permissionCheck' => true
-        );
-
-        $filterCondition = $this->buildFilter($pFilter);
-
-        return \Core\Object::getRelatedCount($pObject, $filterCondition, $pRelatedObject, $primaryKeys[0], $options);
-    }
-
-    /**
-     * Bla
-     * 
-     * @param  sring $pMethod
-     * @param  string $pObject
-     * @param  string $pPk
-     * @return mixed
-     */
-    public function getForeignItems($pObject, $pPk, $pField, $pFields = null,
-                                    $pLimit = null, $pOffset = null, $pOrder = null, $pFilter = null){
-
-        $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
-
-        if ($pFilter)
-            $filterCondition = $this->buildFilter($pFilter);
-
-        $options = array(
-            'permissionCheck' => true,
-            'fields' => $pFields,
-            'limit'  => $pLimit,
-            'offset' => $pOffset,
-            'order'  => $pOrder
-        );
-
-        return \Core\Object::getForeignItems($pObject, $primaryKeys[0], $pField, $filterCondition, $options);
-    }
-
 
     public function getItem($pObject, $pPk, $pFields){
 
         $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
-
         $options['fields'] = $pFields;
         $options['permissionCheck'] = true;
 
@@ -108,8 +66,6 @@ class Controller {
         );
 
         $condition = $this->buildFilter($pUnderscoreFields);
-
-        debugStop();
 
         return \Core\Object::getList($pObject, $condition, $options);
         
