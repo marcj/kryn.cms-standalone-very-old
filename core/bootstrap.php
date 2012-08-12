@@ -9,6 +9,7 @@ define('PATH', realpath(dirname(__FILE__).'/../') . '/');
 define('PATH_CORE', 'core/');
 define('PATH_MODULE', 'module/');
 define('PATH_MEDIA', 'media/');
+define('PATH_PUBLIC_CACHE', 'media/cache/');
 
 @set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 

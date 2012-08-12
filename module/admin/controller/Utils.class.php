@@ -9,7 +9,7 @@ class Utils {
 	public static function clearCache(){
 
         clearfolder('cache/object/');
-        clearfolder(Kryn::$config['media_cache']);
+        clearfolder(PATH_PUBLIC_CACHE);
 
         foreach (Kryn::$configs as $extKey => $config){
             if ($config['caches']){

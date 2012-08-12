@@ -35,7 +35,7 @@ function debugStop(){
     debugPrint(true);
 }
 
-function debugPrint($pAndStop){
+function debugPrint($pAndStop = null){
     global $_start, $_lastDebugPoint;
     $timeUsed = round((microtime(true)-$_start)*1000, 2);
     $bytes = convertSize(memory_get_usage(true));

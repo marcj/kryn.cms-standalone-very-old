@@ -38,7 +38,6 @@ $admin->setEmail('admin@localhost');
 $admin->setActivate(1);
 $admin->setPassword('admin');
 
-
 $settings = new \Core\Properties(array(
     'userBg' => '/admin/images/userBgs/defaultImages/color-blue.jpg',
     'adminLanguage' => 'en'

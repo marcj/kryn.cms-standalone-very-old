@@ -1061,73 +1061,63 @@ class Kryn {
         $fastestCacheClass = Cache\Controller::getFastestCacheClass();
         Kryn::$cacheFast   = new Cache\Controller($fastestCacheClass);
 
-        /*
-        if (!self::$config['media_cache'])
-            self::$config['media_cache'] = 'cache/media/';
-
-        if (!is_dir(self::$config['media_cache'])) {
-            if (!@mkdir(self::$config['media_cache']))
-                Kryn::internalError(null, 'Can not create folder for template caching: ' . self::$config['media_cache']);
-        }*/
     }
 
-    public static function initAuth() {
+    public static function initClient() {
 
 
-        if (($_COOKIE[Kryn::$config['session_tokenid']] || $_GET[Kryn::$config['session_tokenid']] || $_POST[Kryn::$config['session_tokenid']])
-            || getArgv(1) == 'admin'
-        ) {
+        $defaultClientClass = Kryn::$config['client']['class'];
+        $defaultClientConfig = Kryn::$config['client']['config'];
 
-            if (!Kryn::$config['auth_class'] || Kryn::$config['auth_class'] == 'Kryn\Auth'
-                || Kryn::$config['auth_class'] == 'kryn') {
-
-                Kryn::$adminClient = new Auth(Kryn::$config);
-
-            } else {
-
-                $ex = explode('/', Kryn::$config['auth_class']);
-                $class = PATH_MODULE . "" . $ex[0] . "/" . $ex[1] . ".class.php";
-
-                if (file_exists($class)) {
-                    require_once($class);
-                    $authClass = $ex[1];
-                    Kryn::$adminClient = new $authClass(Kryn::$config);
-                }
-
-            }
+        if (Kryn::$admin) {
+            
+            Kryn::$adminClient = new $defaultClientClass($defaultClientConfig);
 
             Kryn::$adminClient->setAutoLoginLogout(true)
                               ->setLoginTrigger('admin-users-login')
                               ->setLogoutTrigger('admin-users-logout')
                               ->start();
 
-            tAssignRef('adminClient', Kryn::$adminClient);
             Kryn::$client = Kryn::$adminClient;
         }
 
-        if (getArgv(1) != 'admin') {
+        if (!Kryn::$admin) {
 
-            $sessionDefinition = Kryn::$domain->getSessionProperties();
+            $sessionProperties = Kryn::getDomain() ? Kryn::getDomain()->getSessionProperties() : array();
 
-            $sessionDefinition['session_tokenid'] =
-                ($sessionDefinition['session_tokenid']) ? $sessionDefinition['session_tokenid'] : 'krynsessionid';
+            $frontClientClass = $defaultClientClass;
+            $frontClientConfig = $defaultClientConfig;
 
-            if ($sessionDefinition['auth_class'] == 'kryn' || !$sessionDefinition['auth_class']) {
-                Kryn::$client = new Auth($sessionDefinition);
-            } else {
-                $ex = explode('/', $sessionDefinition['auth_class']);
-                $class = PATH_MODULE . "" . $ex[0] . "/" . $ex[1] . ".class.php";
-                if (file_exists($class)) {
-                    require_once($class);
-                    $authClass = $ex[1];
-                    Kryn::$client = new $authClass($sessionDefinition);
-                }
+            if ($sessionProperties['class']){
+                $frontClientClass = $sessionProperties['class'];
+                $frontClientConfig = $sessionProperties['config'];
             }
 
+            Kryn::$client = new $frontClientClass($frontClientConfig);
             Kryn::$client->start();
         }
 
         tAssignRef('client', Kryn::$client);
+    }
+
+    /**
+     * Returns current client instance.
+     * If we are in the administration area, then this return the admin client (same as getAdminClient())
+     * 
+     * @return \Core\Client\ClientAbstract
+     */
+    public static function getClient(){
+        return self::$client;
+    }
+
+    /**
+     * Returns current admin client instance.
+     * Only available if the call is in admin area. (Kryn::isAdmin())
+     * 
+     * @return \Core\Client\ClientAbstract
+     */
+    public static function getAdminClient(){
+        return self::$adminClient;
     }
 
     /**
@@ -1310,21 +1300,6 @@ class Kryn {
             if ($f == false) $f = true;
         }
 
-        //small security check for third party modules
-        /*
-        if( getArgv(1) != 'admin' ){
-            $blacklist = array(' union ', 'system_user', 'http://', 'https://');
-            foreach( $_GET as $id => &$req ){
-                foreach( $blacklist as $key ){
-                    if( stripos($req, $key) !== false ){
-                        klog('Security', 'Possible attack to your system over attributes! '.$id.': '.$req);
-                        Kryn::bannUser();
-                        die(_l("Kryn.cms has detected an possible attack attempt. Your are banned."));
-                    }
-                }
-            }
-        }*/
-
     }
 
     /**
@@ -1416,8 +1391,8 @@ class Kryn {
             Kryn::setFastCache($code, Kryn::$lang);
         }
 
-        if (!file_exists(Kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.php') ||
-            !file_exists(Kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.js')) {
+        if (!file_exists(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.php') ||
+            !file_exists(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.js')) {
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(Kryn::$lang['__plural'], 'plural=');
             $pluralForm = substr(Kryn::$lang['__plural'], $pos + 7);
@@ -1425,16 +1400,16 @@ class Kryn {
             $code = "<?php \nfunction gettext_plural_fn_$pLang(\$n){\n";
             $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
             $code .= "}\n?>";
-            Kryn::fileWrite(Kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.php', $code);
+            Kryn::fileWrite(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.php', $code);
 
 
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
-            Kryn::fileWrite(Kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.js', $code);
+            Kryn::fileWrite(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.js', $code);
         }
 
-        include_once(Kryn::$config['media_cache'].'gettext_plural_fn_' . $pLang . '.php');
+        include_once(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.php');
     }
 
     /**
@@ -1442,14 +1417,13 @@ class Kryn {
      *
      * @param int $pDomainId
      *
-     * @return Domain
+     * @return \Domain If not defined, it returns the current domain.
      * @static
      */
-    public static function getDomain($pDomainId) {
+    public static function getDomain($pDomainId = null) {
 
         //todo cache
-
-        if (!$pDomainId) return;
+        if (!$pDomainId) return self::$domain;
 
         $domain = \DomainQuery::create()->findPk($pDomainId);
         if (!$domain){

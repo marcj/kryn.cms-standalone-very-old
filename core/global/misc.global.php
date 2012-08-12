@@ -28,7 +28,7 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
 
     $mdate = filemtime($path);
 
-    $cachepath = $cfg['media_cache'] . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
+    $cachepath = PATH_PUBLIC_CACHE . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
                  basename($pPath);
 
     if (!file_exists($cachepath)) {

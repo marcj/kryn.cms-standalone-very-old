@@ -17,6 +17,7 @@ define('PATH', dirname(__FILE__).'/');
 define('PATH_CORE', 'core/');
 define('PATH_MODULE', 'module/');
 define('PATH_MEDIA', 'media/');
+define('PATH_PUBLIC_CACHE', 'media/cache/');
 
 @set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 
@@ -33,7 +34,6 @@ include(PATH_CORE.'global/internal.global.php');
 include(PATH_CORE.'global/framework.global.php');
 $lang = 'en';
 $cfg = array();
-
 
 @ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);
@@ -294,6 +294,25 @@ function checkConfig(){
   if ($res['res'] == true){
 
 
+      SystemFile::createFolder( 'cache/' );
+      SystemFile::createFolder( 'cache/object' );
+      SystemFile::createFolder( 'cache/lock' );
+      SystemFile::createFolder( 'cache/smarty_compile' );
+
+      SystemFile::delete('propel');
+
+      SystemFile::createFolder( PATH_MEDIA.'trash' );
+      SystemFile::createFolder( PATH_MEDIA.'css' );
+      SystemFile::createFolder( PATH_MEDIA.'js' );
+      
+      SystemFile::createFolder( 'data' );
+      SystemFile::createFolder( 'data/upload' );
+      SystemFile::createFolder( 'data/packages' );
+      SystemFile::createFolder( 'data/upload/modules' );
+
+
+      SystemFile::createFolder( PATH_PUBLIC_CACHE );
+
       $timezone = $_REQUEST['timezone'];
       if (!$timezone) $timezone = 'Europe/Berlin';
 
@@ -317,18 +336,21 @@ function checkConfig(){
             'class' => '\Core\Cache\Files'
           ),
 
+          "passwdHashCompat" => 0,
+          "passwdHashKey"    => Core\Client\ClientAbstract::getSalt(32),
+
           "displayErrors"        => 0,
           "logErrors"            => 0,
           "systemTitle"          => $systemTitle,
           "client"                 => array(
             "class"              => "\Core\Client\KrynUsers",
             "config"             => array(
-              "passwdHashCompat" => 0,
-              "passwdHashKey"    => Core\Client\ClientAbstract::getSalt(32),
+              "emailLogin"       => false,
               "store"            => array(
-                "class"          => "\Core\Client\DatabaseStore",
+                "class"          => "database",
                 "config"         => array()
               )
+
             )
           ),
           "timezone"            => $timezone
@@ -657,23 +679,6 @@ function step5(){
 <br />
 <h2>Installation</h2>
 <?php
-
-    SystemFile::createFolder( 'cache/' );
-    SystemFile::createFolder( 'cache/media' );
-    SystemFile::createFolder( 'cache/object' );
-    SystemFile::createFolder( 'cache/smarty_compile' );
-
-    SystemFile::delete('propel');
-
-    SystemFile::createFolder( PATH_MEDIA.'trash' );
-    SystemFile::createFolder( PATH_MEDIA.'css' );
-    SystemFile::createFolder( PATH_MEDIA.'js' );
-    
-    SystemFile::createFolder( 'data' );
-    SystemFile::createFolder( 'data/upload' );
-    SystemFile::createFolder( 'data/packages' );
-    SystemFile::createFolder( 'data/upload/modules' );
-
     
 //    if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
 //        print '<div style="margin: 25px; border: 2px solid red; padding: 10px; padding-left: 25px;">
@@ -848,7 +853,8 @@ function step2(){
 
         $t = explode("-", PHP_VERSION);
         $v = ( $t[0] ) ? $t[0] : PHP_VERSION;
-        if(! version_compare($v, "5.3.0") < 0 ){
+        //5.3.2 because flock()
+        if(! version_compare($v, "5.3.2") < 0 ){
             print '<div style="color: red">PHP version tot old.<br />';
             print "You need PHP version 5.3.0 or greater.<br />";
             print "Installed version: $v (".PHP_VERSION.")<br/></div>";
@@ -969,15 +975,6 @@ function step2(){
 }
 
 function step3(){
-
-    $id = posix_getuid();
-    $gid = posix_getegid();
-    $info = posix_getpwuid($id);
-    $ginfo = posix_getgrgid($gid);
-    $user = $info['name'];
-    $group = $ginfo['name'];
-
-    
     ?>
 
 <form id="db_form">

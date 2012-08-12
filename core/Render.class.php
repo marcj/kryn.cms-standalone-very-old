@@ -74,8 +74,6 @@ class Render {
     }
 
     public static function buildHead($pContinue = false) {
-        global $cfg;
-
         $tagEnd = (strpos(strtolower(self::$docType), 'xhtml') !== false) ? ' />' : ' >';
 
         if ($pContinue == false && Kryn::$admin == false) {
@@ -109,9 +107,9 @@ class Render {
         $myJsFiles = array();
 
 
-        if (Kryn::$kedit == true) {
-            $html .= '<script type="text/javascript">var kEditPageId = ' . Kryn::$page['id'] . ';</script>' . "\n";
-        }
+        // if (Kryn::$kedit == true) {
+        //     $html .= '<script type="text/javascript">var kEditPageId = ' . Kryn::$page['id'] . ';</script>' . "\n";
+        // }
 
 
         /*
@@ -134,7 +132,7 @@ class Render {
                 ) {
                     $css .= '?c=' . $mtime;
                     $html .=
-                        '<link rel="stylesheet" type="text/css" href="' . $cfg['path'] . PATH_MEDIA . $css . '" ' .
+                        '<link rel="stylesheet" type="text/css" href="' . Kryn::$baseUrl . PATH_MEDIA . $css . '" ' .
                         $tagEnd . "\n";
                 }
             }
@@ -154,7 +152,7 @@ class Render {
 
             $cssmd5 = md5($cssCode);
 
-            $cssCachedFile = $cfg['media_cache'] . 'cachedCss_' . $cssmd5 . '.css';
+            $cssCachedFile = PATH_PUBLIC_CACHE . 'cachedCss_' . $cssmd5 . '.css';
 
 
             $cssContent = '';
@@ -168,7 +166,7 @@ class Render {
                         //$cssContent .= Kryn::fileRead( $file )."\n\n\n";
 
                         //replace relative urls to absolute
-                        $mypath = $cfg['path'] . dirname($file);
+                        $mypath = Kryn::$baseUrl . dirname($file);
                         $temp = preg_replace('/url\(/', 'url(' . $mypath . '/', $temp);
 
                         $cssContent .= $temp;
@@ -177,7 +175,7 @@ class Render {
                 Kryn::fileWrite($cssCachedFile, $cssContent);
             }
             $html .=
-                '<link rel="stylesheet" type="text/css" href="' . $cfg['path'] . $cssCachedFile . '" ' . $tagEnd . "\n";
+                '<link rel="stylesheet" type="text/css" href="' . Kryn::$baseUrl . $cssCachedFile . '" ' . $tagEnd . "\n";
 
             $jsCode = '';
         }
@@ -217,7 +215,7 @@ class Render {
                 }
             }
             $jsmd5 = md5($jsCode);
-            $jsCachedFile = $cfg['media_cache'] . 'cachedJs_' . $jsmd5 . '.js';
+            $jsCachedFile = PATH_PUBLIC_CACHE . 'cachedJs_' . $jsmd5 . '.js';
             $jsContent = '';
 
             if (!file_exists(PATH . $jsCachedFile)) {

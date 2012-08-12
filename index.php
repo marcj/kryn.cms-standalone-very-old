@@ -21,16 +21,13 @@ $_SERVER['SERVER_NAME'] = 'ilee';
 require('core/bootstrap.checkFile.php');
 require('core/bootstrap.php');
 
-
-debugStop();
-
 if (getArgv(1) != 'admin') {
     Core\Kryn::searchDomain();
 }
 /*
- * Initialize the krynAuth user objects for backend and frontend.
+ * Initialize the client objects for backend and frontend.
  */
-Core\Kryn::initAuth();
+Core\Kryn::initClient();
 
 
 if (Core\Kryn::$admin) {

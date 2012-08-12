@@ -211,6 +211,11 @@
         <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
+    <table name="system_app_lock" phpName="AppLock" idMethod="native">
+        <column name="id" type="INTEGER" primaryKey="true" required="true"/>
+        <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
+    </table>
+
     <table name="system_log" phpName="Log" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="date" type="INTEGER" required="false"/>
