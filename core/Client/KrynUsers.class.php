@@ -30,20 +30,16 @@ class KrynUsers extends ClientAbstract {
             WHERE 
                 id > 0
                 AND $userColumn = ?
+                AND passwd IS NOT NULL AND passwd != ''
+                AND passwd_salt IS NOT NULL AND passwd_salt != ''
                 AND (auth_class IS NULL OR auth_class = 'kryn')",
             $login);
 
         if ($row['id'] > 0) {
 
-            if ($row['passwd_salt']) {
-                $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
-            } else {
-                if (Kryn::$config['passwdHashCombat'] != 1) return false;
-                //compatibility
-                $hash = md5($pPassword);
-            }
+            $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
 
-            if ($hash != $row['passwd']) return false;
+            if (!$hash || $hash != $row['passwd']) return false;
 
             return $row['id'];
         }

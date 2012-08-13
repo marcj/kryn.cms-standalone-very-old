@@ -294,25 +294,6 @@ function checkConfig(){
   if ($res['res'] == true){
 
 
-      SystemFile::createFolder( 'cache/' );
-      SystemFile::createFolder( 'cache/object' );
-      SystemFile::createFolder( 'cache/lock' );
-      SystemFile::createFolder( 'cache/smarty_compile' );
-
-      SystemFile::delete('propel');
-
-      SystemFile::createFolder( PATH_MEDIA.'trash' );
-      SystemFile::createFolder( PATH_MEDIA.'css' );
-      SystemFile::createFolder( PATH_MEDIA.'js' );
-      
-      SystemFile::createFolder( 'data' );
-      SystemFile::createFolder( 'data/upload' );
-      SystemFile::createFolder( 'data/packages' );
-      SystemFile::createFolder( 'data/upload/modules' );
-
-
-      SystemFile::createFolder( PATH_MEDIA_CACHE );
-
       $timezone = $_REQUEST['timezone'];
       if (!$timezone) $timezone = 'Europe/Berlin';
 
@@ -356,6 +337,29 @@ function checkConfig(){
           "timezone"            => $timezone
       );
       $config = '<?php return '. var_export($cfg,true) .'; ?>';
+
+      Kryn::$config = $cfg;
+
+      SystemFile::loadConfig();
+
+      SystemFile::createFolder( 'cache/' );
+      SystemFile::createFolder( 'cache/object' );
+      SystemFile::createFolder( 'cache/lock' );
+      SystemFile::createFolder( 'cache/smarty_compile' );
+
+      SystemFile::delete('propel');
+
+      SystemFile::createFolder( PATH_MEDIA.'trash' );
+      SystemFile::createFolder( PATH_MEDIA.'css' );
+      SystemFile::createFolder( PATH_MEDIA.'js' );
+      
+      SystemFile::createFolder( 'data' );
+      SystemFile::createFolder( 'data/upload' );
+      SystemFile::createFolder( 'data/packages' );
+      SystemFile::createFolder( 'data/upload/modules' );
+
+      error_log(PATH_MEDIA_CACHE);
+      SystemFile::createFolder( PATH_MEDIA_CACHE );
 
       $f = \Core\SystemFile::setContent('config.php', $config);
 
@@ -864,6 +868,23 @@ function step2(){
         }
         ?>
     </li>
+
+<?php
+/*
+    <li><b>PHP Extensions</b>
+    <?php
+
+        if($algos = function_exists('hash_algos')){
+            $anyThingOk = false;
+            print '<div style="color: red">PECL hash >= 1.1 required</div>';
+        } else {
+            print '<div style="color: green">OK</div>';
+        }
+
+        ?>
+    </li>
+ */
+?>
 
     <li><b>Database PDO driver</b>
         <?php

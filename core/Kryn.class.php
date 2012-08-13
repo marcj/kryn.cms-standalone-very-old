@@ -989,6 +989,7 @@ class Kryn {
 
     /**
      * Checks the access to the administration URLs and redirect to administration login if no access.
+     * 
      * @internal
      * @static
      */
@@ -1026,23 +1027,6 @@ class Kryn {
         }
     }
 
-
-    /**
-     * Escape ' to \\' to use string in queries which uses ' as string delimiter.
-     *
-     * @param string $pString
-     *
-     * @return string Filtered string
-     * @deprecated Use the global esc() instead
-     * @static
-     */
-    public static function esc($pString) {
-
-        $search = array("\\", "\0", "\n", "\r", "\x1a", "'", '"');
-        $replace = array("\\\\", "\\0", "\\n", "\\r", "\Z", "\'", '\"');
-        return str_replace($search, $replace, $pString);
-    }
-
     /**
      * Initialize config. Establish connections.
      * @internal
@@ -1050,7 +1034,7 @@ class Kryn {
     public static function initConfig() {
 
         if (!self::$config['client'])
-            throw new \Exception('There is not client handling configured. Please run the installer.');
+            self::internalError('Client configuration', 'There is no client handling class configured. Please run the installer.');
 
         if (!self::$config['cache'])
             self::$config['cache']['class'] = '\Core\Cache\Files';

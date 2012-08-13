@@ -238,7 +238,7 @@ abstract class ClientAbstract {
     public function login($pLogin, $pPassword) {
 
         if (!$this->config['noDelay']){
-            sleep(1);
+            //sleep(1);
         }
 
         if ($pLogin == 'admin')
@@ -587,29 +587,34 @@ abstract class ClientAbstract {
      *
      * @param int $pLenth
      */
-    public static function getSalt($pLength = 12) {
+    public static function getSalt($pLength = 64) {
 
-        $salt = 'a';
+        $salt = str_repeat('0', $pLength);
 
         for ($i = 0; $i < $pLength; $i++) {
-            $salt[$i] = chr(mt_rand(33, 122));
+            $salt[$i] = chr(mt_rand(32, 127));
         }
 
         return $salt;
     }
 
     /**
-     * Returns a hashed password with salt through some rounds.
+     * Returns a hashed password with salt.
+     * 
      */
     public static function getHashedPassword($pPassword, $pSalt) {
 
-        $hash = md5(($pPassword . $pSalt) . $pSalt);
+        $hash = hash('sha512', ($pPassword . $pSalt) . $pSalt).hash('sha512', $pSalt.($pPassword . $pSalt.$pPassword));
 
-        for ($i = 0; $i < 5000; $i++) {
-            for ($j = 0; $j < 32; $j++) {
-                $hash[$j] = chr(ord($hash[$j]) + ord(Kryn::$config['passwdHashKey'][$j]));
+        for ($i = 0; $i < 1000; $i++) {
+            for ($j = 0; $j < 128; $j++) {
+                $hash[$j] = ((int)(ord($hash[$j])/2)) + ord(Kryn::$config['passwdHashKey'][$j]);
+                if ($hash[$j] > 127){
+                    $hash[$j] -= (127-32);
+                }
             }
-            $hash = md5($hash);
+            $hash = hash('sha512', $hash.$pSalt.$pPassword.$hash.$pSalt).
+                    hash('sha512', $hash.$pPassword.$pSalt.$pPassword);
         }
 
         return $hash;

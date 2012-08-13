@@ -32,7 +32,7 @@ class User extends BaseUser {
             $this->setPasswdSalt(Core\Client\ClientAbstract::getSalt());
         }
 
-        $passwd = Core\Client\ClientAbstract::getHashedPassword( $pPassword, $this->getPasswdSalt() );
+        $passwd = Core\Client\ClientAbstract::getHashedPassword($pPassword, $this->getPasswdSalt());
 
         $this->setPasswd($passwd);
     }
