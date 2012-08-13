@@ -9,7 +9,7 @@ define('PATH', realpath(dirname(__FILE__).'/../') . '/');
 define('PATH_CORE', 'core/');
 define('PATH_MODULE', 'module/');
 define('PATH_MEDIA', 'media/');
-define('PATH_PUBLIC_CACHE', 'media/cache/');
+define('PATH_MEDIA_CACHE', 'media/cache/');
 
 @set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 
@@ -49,6 +49,7 @@ include(PATH_CORE . 'Kryn.class.php');
 include('lib/propel/runtime/lib/Propel.php');
 
 Kryn::$config = $cfg;
+Kryn::setBaseUrl(str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
 
 include('core/bootstrap.autoloading.php');
 
@@ -130,15 +131,6 @@ define('pfx', $cfg['database']['prefix']);
 Kryn::prepareUrl();
 
 Kryn::$admin = (getArgv(1) == 'admin');
-
-//special file /krynJavascriptGlobalPath.js
-if (getArgv(1) == 'krynJavascriptGlobalPath.js') {
-    $cfg['path'] = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
-    header("Content-type: text/javascript");
-    die("var path = '" . $cfg['path'] . "'; var _path = '" . $cfg['path'] . "'; var _baseUrl = 'http://" .
-        $_SERVER['SERVER_NAME'] . ($cfg['port'] ? ':' . $cfg['port'] : '') . $cfg['path'] . "'");
-}
-
 /*
  * Initialize the config.php values. Make some vars compatible to older versions etc.
  */

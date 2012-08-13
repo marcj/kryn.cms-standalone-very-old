@@ -49,6 +49,7 @@ abstract class ClientAbstract {
      *   autoLoginLogout = false
      *   loginTrigger = auth-login
      *   logoutTrigger = auth-logout
+     *   noDelay = false
      *   refreshing = false
      *   ipCheck = false
      *   garbageCollector = false
@@ -70,12 +71,13 @@ abstract class ClientAbstract {
      *
      * @see $config
      */
-    function __construct($pConfig) {
+    function __construct($pConfig = array()) {
 
         if (!$pConfig['store']['class'])
             throw new \Exception('The storage class has not been defined.');
     
-        $this->config = $pConfig;
+        $this->config = array_merge($this->config, $pConfig);
+
         if ($this->config['tokenId'])
             $this->tokenId = $this->config['tokenId'];
 
@@ -220,7 +222,9 @@ abstract class ClientAbstract {
      * @return bool
      */
     protected function internalLogin($pLogin, $pPassword) {
-        $state = $this->checkCredentialsDatabase($pLogin, $pPassword);
+        $krynUsers = new \Core\Client\KrynUsers(array('store' => array('class' => 'database')));
+
+        $state = $krynUsers->checkCredentials($pLogin, $pPassword);
         return $state;
     }
 
@@ -232,6 +236,10 @@ abstract class ClientAbstract {
      * @return bool returns false, if someting went wrong.
      */
     public function login($pLogin, $pPassword) {
+
+        if (!$this->config['noDelay']){
+            sleep(1);
+        }
 
         if ($pLogin == 'admin')
             $state = $this->internalLogin($pLogin, $pPassword);
@@ -450,7 +458,7 @@ abstract class ClientAbstract {
      * @return ClientAbstract $this
      */
     public function setAutoLoginLogout($pEnabled){
-        $this->autoLoginLogout = $pEnabled;
+        $this->confg['autoLoginLogout'] = $pEnabled;
         return $this;
     }
 
@@ -612,7 +620,7 @@ abstract class ClientAbstract {
      * @return Auth $this
      */
     public function setLoginTrigger($loginTrigger){
-        $this->loginTrigger = $loginTrigger;
+        $this->config['loginTrigger'] = $loginTrigger;
         return $this;
     }
 
@@ -620,7 +628,7 @@ abstract class ClientAbstract {
      * @return string
      */
     public function getLoginTrigger(){
-        return $this->loginTrigger;
+        return $this->config['loginTrigger'];
     }
 
     /**
@@ -628,7 +636,7 @@ abstract class ClientAbstract {
      * @return Kryn\Auth $this
      */
     public function setLogoutTrigger($logoutTrigger){
-        $this->logoutTrigger = $logoutTrigger;
+        $this->config['logoutTrigger'] = $logoutTrigger;
         return $this;
     }
 
@@ -636,7 +644,7 @@ abstract class ClientAbstract {
      * @return string
      */
     public function getLogoutTrigger(){
-        return $this->logoutTrigger;
+        return $this->config['logoutTrigger'];
     }
 
     /**

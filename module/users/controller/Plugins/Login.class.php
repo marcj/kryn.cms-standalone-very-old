@@ -26,7 +26,7 @@ class Login extends \Controller{
             
             Kryn::getClient()->login( $login, getArgv('users-passwd') );
 
-            if( $client->user_id > 0 ){
+            if( Kryn::getClient()->getUserId() > 0 ){
                 if ($pPluginProperties['logoutTarget'])
                     Kryn::redirectToPage( $pPluginProperties['logoutTarget'] );
                 else

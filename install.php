@@ -17,7 +17,7 @@ define('PATH', dirname(__FILE__).'/');
 define('PATH_CORE', 'core/');
 define('PATH_MODULE', 'module/');
 define('PATH_MEDIA', 'media/');
-define('PATH_PUBLIC_CACHE', 'media/cache/');
+define('PATH_MEDIA_CACHE', 'media/cache/');
 
 @set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 
@@ -311,7 +311,7 @@ function checkConfig(){
       SystemFile::createFolder( 'data/upload/modules' );
 
 
-      SystemFile::createFolder( PATH_PUBLIC_CACHE );
+      SystemFile::createFolder( PATH_MEDIA_CACHE );
 
       $timezone = $_REQUEST['timezone'];
       if (!$timezone) $timezone = 'Europe/Berlin';

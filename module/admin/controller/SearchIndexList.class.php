@@ -1,7 +1,8 @@
 <?php
 
+namespace Admin;
 
-class adminSearchIndexList extends windowList {
+class SearchIndexList extends windowList {
     public $table = 'system_search';
     public $itemsPerPage = 20;
     public $orderBy = 'domain_id';

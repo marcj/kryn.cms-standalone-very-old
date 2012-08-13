@@ -24,11 +24,12 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
     $pathPrefix = PATH_MEDIA;
     if(strpos($pPath, '/') === 0)
         $pathPrefix = '';
+
     $path = str_replace('..', '', $pathPrefix . $pPath);
 
     $mdate = filemtime($path);
 
-    $cachepath = PATH_PUBLIC_CACHE . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
+    $cachepath = PATH_MEDIA_CACHE . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
                  basename($pPath);
 
     if (!file_exists($cachepath)) {

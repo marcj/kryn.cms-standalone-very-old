@@ -41,14 +41,18 @@ class AdminController {
             if (php_sapi_name() !== 'cli' && !getArgv(2))
                 self::showLogin();
 
-
-
             \RestServer::create('admin', $this)
 
                 ->addGetRoute('loadCss/style.css', 'loadCss')
-                ->addGetRoute('ui/possibleLangs', 'getPossibleLangs')
-                ->addGetRoute('ui/languagePluralForm', 'getLanguagePluralForm', array('lang'))
-                ->addGetRoute('ui/language', 'getLanguage', array('lang'))
+                ->addGetRoute('login', 'loginUser', array('username', 'password'))
+                ->addGetRoute('logout', 'logoutUser')
+
+
+                ->addSubController('ui', '\Admin\UIAssets')
+                    ->addGetRoute('possibleLangs', 'getPossibleLangs')
+                    ->addGetRoute('languagePluralForm', 'getLanguagePluralForm', array('lang'))
+                    ->addGetRoute('language', 'getLanguage', array('lang'))
+                ->done()
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
@@ -155,10 +159,37 @@ class AdminController {
 
             ->run();
 
-            //todo, rewrite all following to the new RestServer
             exit;
 
         }
+    }
+
+    public function loginUser($pUsername, $pPassword){
+        return Kryn::getAdminClient()->login($pUsername, $pPassword);
+    }
+
+    public function logoutUser(){
+        Kryn::getClient()->logout();
+        return true;
+    }
+
+
+    public function loadCss() {
+        return Utils::loadCss();
+    }
+
+    public static function showLogin() {
+
+        $language = Kryn::$adminClient->getSession()->getLanguage();
+        if (!$language) $language = 'en';
+
+        if (getArgv('setLang') != '')
+            $language = getArgv('setLang', 2);
+
+        tAssign('adminLanguage', $language);
+
+        print tFetch('admin/index.tpl');
+        exit;
     }
 
 }

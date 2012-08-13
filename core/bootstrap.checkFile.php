@@ -8,8 +8,8 @@
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-if (array_key_exists('_kurl', $_REQUEST)) {
-    $pfile = preg_replace('/\.\.+/', '.', trim($_REQUEST['_kurl']));
+if ($_REQUEST['__url']){
+    $pfile = preg_replace('/\.\.+/', '.', trim($_REQUEST['__url']));
     $temp = 'media/';
     $file = false;
 

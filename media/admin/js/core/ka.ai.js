@@ -704,7 +704,7 @@ ka.ai.renderLogin = function () {
             styles: {
                 opacity: 0.01
             }
-        }).inject(ka.ai.login)
+        }).inject(ka.ai.login);
     }
 
 
@@ -722,20 +722,23 @@ ka.ai.renderLogin = function () {
 
 ka.ai.reloadLogin = function () {
     ka.ai.loginDesktopModeText.set('text', t('Desktop mode'));
+
     if (ka.ai.loginName.value == '' || ka.ai.loginName.retrieve('value') == ka.ai.loginName.value)
         ka.ai.loginName.value = t('Username');
     ka.ai.loginName.store('value', t('Username'));
 }
 
 ka.ai.doLogin = function () {
+    //todo, lock GUI
+
     ka.ai.loginMessage.set('html', _('Check Login. Please wait ...'));
-    new Request.JSON({url: _path + 'admin/?admin-users-login=1&json:1', noCache: 1, onComplete: function (res) {
+    new Request.JSON({url: _path + 'admin/login', noCache: 1, onComplete: function (res) {
         if (res.user_id > 0) {
             ka.ai.loginSuccess(res);
         } else {
             ka.ai.loginFailed();
         }
-    }}).post({ username: ka.ai.loginName.value, passwd: ka.ai.loginPw.value });
+    }}).get({username: ka.ai.loginName.value, password: ka.ai.loginPw.value});
 }
 
 ka.ai.logout = function (pScreenlocker) {

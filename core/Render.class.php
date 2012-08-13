@@ -152,7 +152,7 @@ class Render {
 
             $cssmd5 = md5($cssCode);
 
-            $cssCachedFile = PATH_PUBLIC_CACHE . 'cachedCss_' . $cssmd5 . '.css';
+            $cssCachedFile = PATH_MEDIA_CACHE . 'cachedCss_' . $cssmd5 . '.css';
 
 
             $cssContent = '';
@@ -215,7 +215,7 @@ class Render {
                 }
             }
             $jsmd5 = md5($jsCode);
-            $jsCachedFile = PATH_PUBLIC_CACHE . 'cachedJs_' . $jsmd5 . '.js';
+            $jsCachedFile = PATH_MEDIA_CACHE . 'cachedJs_' . $jsmd5 . '.js';
             $jsContent = '';
 
             if (!file_exists(PATH . $jsCachedFile)) {

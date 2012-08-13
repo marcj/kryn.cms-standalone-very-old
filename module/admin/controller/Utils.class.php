@@ -9,7 +9,7 @@ class Utils {
 	public static function clearCache(){
 
         clearfolder('cache/object/');
-        clearfolder(PATH_PUBLIC_CACHE);
+        clearfolder(PATH_MEDIA_CACHE);
 
         foreach (Kryn::$configs as $extKey => $config){
             if ($config['caches']){
@@ -36,6 +36,104 @@ class Utils {
 
         return true;
 	}
+
+    public static function loadCss() {
+
+        header('Content-Type: text/css');
+
+        $from = array(
+            "-moz-border-radius-topleft",
+            "-moz-border-radius-topright",
+            "-moz-border-radius-bottomleft",
+            "-moz-border-radius-bottomright",
+            "-moz-border-radius",
+        );
+
+        $toSafari = array(
+            "-webkit-border-top-left-radius",
+            "-webkit-border-top-right-radius",
+            "-webkit-border-bottom-left-radius",
+            "-webkit-border-bottom-right-radius",
+            "-webkit-border-radius",
+        );
+        $toCss3 = array(
+            "border-top-left-radius",
+            "border-top-right-radius",
+            "border-bottom-left-radius",
+            "border-bottom-right-radius",
+            "border-radius",
+        );
+
+        $md5Hash = '';
+        $cssFiles = array();
+
+        foreach (Kryn::$configs as &$config) {
+            if ($config['adminCss'])
+                self::collectFiles($config['adminCss'], $cssFiles);
+        }
+
+        foreach ($cssFiles as $cssFile)
+            $md5Hash .= filemtime($cssFile) . '.';
+
+        $md5Hash = md5($md5Hash);
+
+        print "/* Kryn.cms combined admin css file: $md5Hash */\n\n";
+
+        if (file_exists('cache/media/cachedAdminCss_' . $md5Hash . '.css')) {
+            readFile('cache/media/cachedAdminCss_' . $md5Hash . '.css');
+        } else {
+            $content = '';
+            foreach ($cssFiles as $cssFile) {
+                $content .= "\n\n/* file: $cssFile */\n\n";
+
+                $dir = '../../'.dirname($cssFile).'/';
+                $h = fopen($cssFile, "r");
+                if ($h) {
+                    while (!feof($h) && $h) {
+                        $buffer = fgets($h, 4096);
+
+                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\''.$dir.'$1\')', $buffer);
+                        $buffer = preg_replace('/url\(([^\/\'].*)\)/', 'url('.$dir.'$1)', $buffer);
+
+                        $content .= $buffer;
+                        $newLine = str_replace($from, $toSafari, $buffer);
+                        if ($newLine != $buffer)
+                            $content .= $newLine;
+                        $newLine = str_replace($from, $toCss3, $buffer);
+                        if ($newLine != $buffer)
+                            $content .= $newLine;
+                    }
+                    fclose($h);
+                }
+            }
+
+            foreach (glob('cache/media/cachedAdminCss_*.css') as $cache)
+                @unlink($cache);
+
+            Kryn::fileWrite('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
+            print $content;
+        }
+        exit;
+    }
+
+
+    
+    public static function collectFiles($pArray, &$pFiles){
+
+        foreach ($pArray as $jsFile) {
+            if (strpos($jsFile, '*') !== -1){
+                $folderFiles = find(PATH_MEDIA . $jsFile, false);
+                foreach ($folderFiles as $file){
+                    if (!array_search($file, $pFiles))
+                        $pFiles[] = $file;
+                }
+            } else {
+                if (file_exists(PATH_MEDIA . $jsFile))
+                    $pFiles[] = PATH_MEDIA . $jsFile;
+            }
+        }
+
+    }
 
     
     /**

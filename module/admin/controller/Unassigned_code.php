@@ -632,37 +632,6 @@
         return $return;
     }
 
-    public static function clearCache() {
-
-        clearfolder('cache/object/');
-        clearfolder(Kryn::$config['media_cache']);
-
-        foreach (Kryn::$configs as $extKey => $config){
-            if ($config['caches']){
-                foreach ($config['caches'] as $cache){
-                    if ($m = $cache['method']){
-                        if (method_exists(Kryn::$modules[$extKey], $m))
-                            try {
-                                Kryn::$modules[$extKey]->$m();
-                            } catch (Exception $e){
-                                klog('admin', 'Error during the clearCache function: '.$e);
-                            }
-                    } else {
-                        Kryn::deleteCache($cache['key']);
-                    }
-                }
-            }
-            if ($config['cacheInvalidation']){
-                foreach ($config['cacheInvalidation'] as $cache){
-                    Kryn::invalidateCache($cache['key']);
-                }
-            }
-        }
-
-
-        return true;
-    }
-
     public function searchAdmin($pQuery) {
 
         $res = array();
@@ -781,67 +750,6 @@
 
     }
 
-    public static function showLogin() {
-
-        $language = Kryn::$adminClient->getSession()->getLanguage();
-        if (!$language) $language = 'en';
-
-        if (getArgv('setLang') != '')
-            $language = getArgv('setLang', 2);
-
-        tAssign('adminLanguage', $language);
-
-        print tFetch('admin/index.tpl');
-        exit;
-    }
-
-    public function getPossibleLangs() {
-
-        $files = Kryn::readFolder(PATH_MODULE . 'admin/lang/', false);
-        $where = "code = 'en' ";
-        foreach ($files as $file)
-            $where .= " OR code = '$file'";
-        $langs = dbExFetchAll("SELECT * FROM %pfx%system_langs WHERE $where");
-
-        $json = json_encode($langs);
-        header('Content-Type: text/javascript');
-        print "if( typeof(ka)=='undefined') window.ka = {}; ka.possibleLangs = " . $json;
-        exit;
-    }
-
-    public function getLanguagePluralForm($pLang){
-
-        $lang = esc($pLang, 2);
-        header('Content-Type: text/javascript');
-        print "/* Kryn plural function */\n";
-        print Kryn::fileRead(Kryn::$config['media_cache'].'gettext_plural_fn_'.$lang.'.js')."\n";
-        exit;
-    }
-
-    public function getLanguage($pLang) {
-
-        $lang = esc($pLang, 2);
-
-        Kryn::$adminClient->getSession()->setLanguage($lang);
-        Kryn::$adminClient->syncStore();
-
-        Kryn::loadLanguage($lang);
-        $json = json_encode(Kryn::$lang);
-
-        if (getArgv('javascript') == 1) {
-            header('Content-Type: text/javascript');
-            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . $json;
-            if (!$json) {
-                print "\nLocale.define('en-US', 'Date', " . tFetch('admin/mootools-locale.tpl') . ");";
-            }
-        } else {
-            $json = json_decode($json, true);
-            $json['mootools'] = json_decode(tFetch('admin/mootools-locale.tpl'), true);
-            json($json);
-        }
-
-        exit;
-    }
 
     public static function stream() {
 
@@ -876,102 +784,6 @@
         $res['version'] = Kryn::$configs['kryn']['version'];
 
         json($res);
-    }
-
-    public static function collectFiles($pArray, &$pFiles){
-
-        foreach ($pArray as $jsFile) {
-            if (strpos($jsFile, '*') !== -1){
-                $folderFiles = find(PATH_MEDIA . $jsFile, false);
-                foreach ($folderFiles as $file){
-                    if (!array_search($file, $pFiles))
-                        $pFiles[] = $file;
-                }
-            } else {
-                if (file_exists(PATH_MEDIA . $jsFile))
-                    $pFiles[] = PATH_MEDIA . $jsFile;
-            }
-        }
-
-    }
-
-    public static function loadCss() {
-
-        header('Content-Type: text/css');
-
-        $from = array(
-            "-moz-border-radius-topleft",
-            "-moz-border-radius-topright",
-            "-moz-border-radius-bottomleft",
-            "-moz-border-radius-bottomright",
-            "-moz-border-radius",
-        );
-
-        $toSafari = array(
-            "-webkit-border-top-left-radius",
-            "-webkit-border-top-right-radius",
-            "-webkit-border-bottom-left-radius",
-            "-webkit-border-bottom-right-radius",
-            "-webkit-border-radius",
-        );
-        $toCss3 = array(
-            "border-top-left-radius",
-            "border-top-right-radius",
-            "border-bottom-left-radius",
-            "border-bottom-right-radius",
-            "border-radius",
-        );
-
-        $md5Hash = '';
-        $cssFiles = array();
-
-        foreach (Kryn::$configs as &$config) {
-            if ($config['adminCss'])
-                self::collectFiles($config['adminCss'], $cssFiles);
-        }
-
-        foreach ($cssFiles as $cssFile)
-            $md5Hash .= filemtime($cssFile) . '.';
-
-        $md5Hash = md5($md5Hash);
-
-        print "/* Kryn.cms combined admin css file: $md5Hash */\n\n";
-
-        if (file_exists('cache/media/cachedAdminCss_' . $md5Hash . '.css')) {
-            readFile('cache/media/cachedAdminCss_' . $md5Hash . '.css');
-        } else {
-            $content = '';
-            foreach ($cssFiles as $cssFile) {
-                $content .= "\n\n/* file: $cssFile */\n\n";
-
-                $dir = '../../'.dirname($cssFile).'/';
-                $h = fopen($cssFile, "r");
-                if ($h) {
-                    while (!feof($h) && $h) {
-                        $buffer = fgets($h, 4096);
-
-                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\''.$dir.'$1\')', $buffer);
-                        $buffer = preg_replace('/url\(([^\/\'].*)\)/', 'url('.$dir.'$1)', $buffer);
-
-                        $content .= $buffer;
-                        $newLine = str_replace($from, $toSafari, $buffer);
-                        if ($newLine != $buffer)
-                            $content .= $newLine;
-                        $newLine = str_replace($from, $toCss3, $buffer);
-                        if ($newLine != $buffer)
-                            $content .= $newLine;
-                    }
-                    fclose($h);
-                }
-            }
-
-            foreach (glob('cache/media/cachedAdminCss_*.css') as $cache)
-                @unlink($cache);
-
-            Kryn::fileWrite('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
-            print $content;
-        }
-        exit;
     }
 
 

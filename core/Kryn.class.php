@@ -1073,10 +1073,7 @@ class Kryn {
             
             Kryn::$adminClient = new $defaultClientClass($defaultClientConfig);
 
-            Kryn::$adminClient->setAutoLoginLogout(true)
-                              ->setLoginTrigger('admin-users-login')
-                              ->setLogoutTrigger('admin-users-logout')
-                              ->start();
+            Kryn::$adminClient->start();
 
             Kryn::$client = Kryn::$adminClient;
         }
@@ -1391,8 +1388,8 @@ class Kryn {
             Kryn::setFastCache($code, Kryn::$lang);
         }
 
-        if (!file_exists(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.php') ||
-            !file_exists(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.js')) {
+        if (!file_exists(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.php') ||
+            !file_exists(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.js')) {
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(Kryn::$lang['__plural'], 'plural=');
             $pluralForm = substr(Kryn::$lang['__plural'], $pos + 7);
@@ -1400,16 +1397,16 @@ class Kryn {
             $code = "<?php \nfunction gettext_plural_fn_$pLang(\$n){\n";
             $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
             $code .= "}\n?>";
-            Kryn::fileWrite(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.php', $code);
+            Kryn::fileWrite(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.php', $code);
 
 
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
-            Kryn::fileWrite(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.js', $code);
+            Kryn::fileWrite(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.js', $code);
         }
 
-        include_once(PATH_PUBLIC_CACHE.'gettext_plural_fn_' . $pLang . '.php');
+        include_once(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.php');
     }
 
     /**
@@ -1587,6 +1584,17 @@ class Kryn {
         return Kryn::$baseUrl;
     }
 
+
+    /**
+     * @static
+     */
+    public static function setBaseUrl($pBaseUrl){
+        Kryn::$baseUrl = $pBaseUrl;
+    }
+
+    public static function isAdmin(){
+        return self::$admin;
+    }
 
     /**
      * Checks the specified page.

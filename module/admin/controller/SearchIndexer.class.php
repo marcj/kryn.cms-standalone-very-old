@@ -1,5 +1,8 @@
 <?php
-class adminSearchIndexer {
+
+namespace Admin;
+
+class SearchIndexer {
 
     public static function init() {
 
