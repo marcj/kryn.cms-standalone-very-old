@@ -8,6 +8,7 @@
 * To get the full copyright and license information, please view the
 * LICENSE file, that was distributed with this source code.
 */
+mb_internal_encoding("UTF-8");
 
 use Core\Kryn;
 use Core\File;
@@ -307,7 +308,8 @@ function checkConfig(){
             'passwd' => $_REQUEST['passwd'],
             'name'   => $_REQUEST['db'],
             'prefix' => $_REQUEST['prefix'],
-            'type'   => $_REQUEST['db_type'],
+            'type'   => $_REQUEST['type'],
+            'persistent'   => $_REQUEST['persistent'],
           ),
 
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
@@ -1083,7 +1085,7 @@ function step3(){
 <table style="width: 100%" cellpadding="3">
  	<tr>
         <td width="250">Database PDO driver</td>
-        <td><select name="db_type" id="db_type">
+        <td><select name="type" id="db_type">
 <?php
 
             $drivers = array('mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite', 'sqlsrv' => 'MSSQL');
@@ -1097,9 +1099,15 @@ function step3(){
     </tr>
     <tr>
         <td>
-        	Host
+          Host
         </td>
         <td><input type="text" name="server" id="db_server" value="localhost" /></td>
+    </tr>
+    <tr>
+        <td>
+          Persistent connections
+        </td>
+        <td><input type="checkbox" checked="checked" name="persistent" value="1" /></td>
     </tr>
     <tr id="ui_username">
         <td>Username</td>
@@ -1128,7 +1136,7 @@ function step3(){
 <br />
 <br />
 <a href="?step=2" class="ka-Button" >Back</a>
-<a href="javascript: checkConfigEntries();" class="ka-Button" >Next</a>
+<a href="javascript: checkConfigEntries();" class="ka-Button" >Write config.php and continue</a>
 
 <?php
 }

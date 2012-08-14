@@ -10,13 +10,15 @@
  *
  */
 
-$_SERVER['SERVER_NAME'] = 'ilee';
-
 /**
  * Index.php
  *
  * @author MArc Schmidt <marc@kryn.org>
  */
+
+$_SERVER['SERVER_NAME'] = 'ilee';
+
+mb_internal_encoding("UTF-8");
 
 require('core/bootstrap.checkFile.php');
 require('core/bootstrap.php');

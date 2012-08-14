@@ -8,7 +8,7 @@
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-if ($_REQUEST['__url']){
+if (array_key_exists('__url', $_GET)){
     $pfile = preg_replace('/\.\.+/', '.', trim($_REQUEST['__url']));
     $temp = 'media/';
     $file = false;

@@ -66,58 +66,9 @@ if (!is_readable($file)){
 }
 \Propel::init($file);
 
-/*$config = \Propel::getConfiguration(\PropelConfiguration::TYPE_OBJECT);
-$config->setParameter('debugpdo.logging.details.method.enabled', true);
-$config->setParameter('debugpdo.logging.details.time.enabled', true);
-$config->setParameter('debugpdo.logging.details.mem.enabled', true);
-
-class propelLogger implements \BasicLogger{
-    public function alert($message)
-    {
-        $this->log($message, 'alert');
-    }
-
-    public function crit($message)
-    {
-        $this->log($message, 'crit');
-    }
-
-    public function err($message)
-    {
-        $this->log($message, 'err');
-    }
-
-    public function warning($message)
-    {
-        $this->log($message, 'warning');
-    }
-
-    public function notice($message)
-    {
-        $this->log($message, 'notice');
-    }
-    public function info($message)
-    {
-        $this->log($message, 'info');
-    }
-
-    public function debug($message)
-    {
-        $this->log($message, 'debug');
-    }
-
-    public function log($message, $severity = null){
-        error_log('['.$severity.'] '.$message);
-    }
-}
-
-\Propel::setLogger(new propelLogger());
- */
-
 $propelConfig = include($file);
 
 Kryn::$propelClassMap = $propelConfig['classmap'];
-
 
 if ($cfg['timezone'])
     date_default_timezone_set($cfg['timezone']);

@@ -444,6 +444,8 @@ propel.project = kryn';
 
         $dsn = $adapter.':host='.Core\Kryn::$config['database']['server'].';dbname='.Core\Kryn::$config['database']['name'];
 
+        $persistent = Core\Kryn::$config['database']['persistent'] ? true:false;
+
         $xml = '<?xml version="1.0"?>
 <config>
     <propel>
@@ -456,7 +458,7 @@ propel.project = kryn';
                     <user>'.Core\Kryn::$config['database']['user'].'</user>
                     <password>'.Core\Kryn::$config['database']['passwd'].'</password>
                     <options>
-                        <option id="ATTR_PERSISTENT">false</option>
+                        <option id="ATTR_PERSISTENT">'.$persistent.'</option>
                     </options>';
 
         if (Core\Kryn::$config['database']['type'] == 'mysql'){

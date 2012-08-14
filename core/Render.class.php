@@ -87,10 +87,10 @@ class Render {
         $html .= "<base href=\"" . Kryn::$baseUrl . "\" $tagEnd\n";
         $html .= '<meta name="DC.language" content="' . Kryn::$domain->getLang(). '" ' . $tagEnd . "\n";
 
-        $html .= '<link rel="canonical" href="' . Kryn::$baseUrl . substr(Kryn::$url, 1) . '" ' . $tagEnd . "\n";
+        $html .= '<link rel="canonical" href="' . Kryn::$canonical . '" ' . $tagEnd . "\n";
 
 
-/*        $metas = @json_decode($page['meta'], 1);
+/*      $metas = @json_decode($page['meta'], 1);
         if (count($metas) > 0)
             foreach ($metas as $meta)
                 if ($meta['value'] != '')
@@ -98,18 +98,13 @@ class Render {
                              str_replace('"', '\"', $meta['value']) . '" ' . $tagEnd . "\n";*/
 
 
-        if (Kryn::$config['show_banner'] == 1) {
+        if (Kryn::$config['showBanner'] == 1) {
             $html .= '<meta name="generator" content="Kryn.cms" ' . $tagEnd . "\n";
         }
 
 
         $myCssFiles = array();
         $myJsFiles = array();
-
-
-        // if (Kryn::$kedit == true) {
-        //     $html .= '<script type="text/javascript">var kEditPageId = ' . Kryn::$page['id'] . ';</script>' . "\n";
-        // }
 
 
         /*

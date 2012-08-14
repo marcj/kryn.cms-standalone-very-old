@@ -518,7 +518,7 @@ abstract class ClientAbstract {
      */
     protected function loadSessionDatabase($pToken) {
 
-        $session = \SessionQuery::create()->findPK($pToken);
+        $session = Kryn::getPropelCachedObject('Session', $pToken);
 
         if (!$session) return false;
 
@@ -586,6 +586,7 @@ abstract class ClientAbstract {
      * Generates a salt for a hashed password
      *
      * @param int $pLenth
+     * @return tring ascii
      */
     public static function getSalt($pLength = 64) {
 
@@ -599,6 +600,27 @@ abstract class ClientAbstract {
     }
 
     /**
+     * Injects the passwd hash from config.php into $pString
+     *
+     * @param  string $pString
+     * @return binary
+     */
+    public static function injectConfigPasswdHash($pString){
+        $result = '';
+        $len  = mb_strlen($pString);
+        $clen = mb_strlen(Kryn::$config['passwdHashKey']);
+
+        for($i = 0; $i < $len; $i++){
+            $s = hexdec(bin2hex(mb_substr($pString, $i, 1)));
+            $j = $i;
+            while ($j > $clen) $j -= $clen; //CR
+            $c = hexdec(bin2hex(mb_substr(Kryn::$config['passwdHashKey'], $j, 1)));
+            $result .= pack("H*", $s+$c);
+        }
+        return $result;
+    }
+
+    /**
      * Returns a hashed password with salt.
      * 
      */
@@ -606,15 +628,10 @@ abstract class ClientAbstract {
 
         $hash = hash('sha512', ($pPassword . $pSalt) . $pSalt).hash('sha512', $pSalt.($pPassword . $pSalt.$pPassword));
 
-        for ($i = 0; $i < 1000; $i++) {
-            for ($j = 0; $j < 128; $j++) {
-                $hash[$j] = ((int)(ord($hash[$j])/2)) + ord(Kryn::$config['passwdHashKey'][$j]);
-                if ($hash[$j] > 127){
-                    $hash[$j] -= (127-32);
-                }
-            }
-            $hash = hash('sha512', $hash.$pSalt.$pPassword.$hash.$pSalt).
-                    hash('sha512', $hash.$pPassword.$pSalt.$pPassword);
+        for ($i = 0; $i < 501; $i++) {
+            $hash = self::injectConfigPasswdHash($hash);
+            $hash = hash('sha512', $i%2 ? $hash.$pSalt.$pPassword.$hash.$pSalt:$pSalt.$pPassword.$hash.$pPassword.$hash.$pPassword.$hash).
+                    hash('sha512', $pPassword.$hash.$pSalt.$pPassword);
         }
 
         return $hash;
