@@ -871,22 +871,19 @@ function step2(){
         ?>
     </li>
 
-<?php
-/*
+
     <li><b>PHP Extensions</b>
     <?php
 
-        if($algos = function_exists('hash_algos')){
+        if(!extension_loaded('mbstring')){
             $anyThingOk = false;
-            print '<div style="color: red">PECL hash >= 1.1 required</div>';
+            print '<div style="color: red">mbstring required.</div>';
         } else {
             print '<div style="color: green">OK</div>';
         }
 
         ?>
     </li>
- */
-?>
 
     <li><b>Database PDO driver</b>
         <?php
