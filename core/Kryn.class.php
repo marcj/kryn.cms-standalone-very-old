@@ -1044,8 +1044,6 @@ class Kryn {
         if (!self::$config['cache'])
             self::$config['cache']['class'] = '\Core\Cache\Files';
 
-        //set media cache folder
-        if (self::)
 
         //global normal cache 
         Kryn::$cache = new Cache\Controller(self::$config['cache']['class'], self::$config['cache_params']);
