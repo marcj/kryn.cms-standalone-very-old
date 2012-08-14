@@ -1,10 +1,12 @@
 <?php
 
+namespace RestService;
+
 /**
- * RestServer - A REST server class for RESTful APIs.
+ * RestService\Server - A REST server class for RESTful APIs.
  */
 
-class RestServer {
+class Server {
 
     /**
      * Current routes.
@@ -74,7 +76,7 @@ class RestServer {
     /**
      * Parent controller.
      *
-     * @var RestServer
+     * @var RestService\Server
      */
     private $parentController;
 
@@ -82,7 +84,7 @@ class RestServer {
     /**
      * The client
      *
-     * @var RestServerClient
+     * @var RestService\Server
      */
     private $client;
 
@@ -115,7 +117,7 @@ class RestServer {
      * @param string        $pTriggerUrl
      * @param string|object $pControllerClass
      * @param string        $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
-     * @param RestServer $pParentController
+     * @param RestService\Server $pParentController
      */
     public function __construct($pTriggerUrl, $pControllerClass = null, $pRewrittenRuleKey = '__url',
                                 $pParentController = null){
@@ -127,7 +129,7 @@ class RestServer {
             $this->parentController = $pParentController;
             $this->setClient($pParentController->getClient());
         } else {
-            $this->setClient(new RestServerClient($this));
+            $this->setClient(new Client($this));
         }
 
         $this->setClass($pControllerClass);
@@ -142,7 +144,7 @@ class RestServer {
      * @param string $pControllerClass
      * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      *
-     * @return RestServer
+     * @return RestService\Server
      */
     public static function create($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
         $clazz = get_called_class();
@@ -164,7 +166,7 @@ class RestServer {
      * Sets the rewritten rule key.
      * @param string $pRewrittenRuleKey
      *
-     * @return RestServer
+     * @return RestService\Server
      */
     public function setRewrittenRuleKey($pRewrittenRuleKey){
         $this->rewrittenRuleKey = $pRewrittenRuleKey;
@@ -175,7 +177,7 @@ class RestServer {
     /**
      * Alias for getParent()
      *
-     * @return RestServer
+     * @return Server
      */
     public function done(){
         return $this->getParent();
@@ -185,7 +187,7 @@ class RestServer {
     /**
      * Returns the parent controller
      *
-     * @return RestServer
+     * @return Server
      */
     public function getParent(){
         return $this->parentController;
@@ -196,7 +198,7 @@ class RestServer {
      * Set the URL that triggers the controller.
      *
      * @param $pTriggerUrl
-     * @return RestServer
+     * @return Server
      */
     public function setTriggerUrl($pTriggerUrl){
         $this->triggerUrl = $pTriggerUrl;
@@ -217,8 +219,8 @@ class RestServer {
     /**
      * Sets the client.
      *
-     * @param RestServerClient $pClient
-     * @return RestServer $this
+     * @param Client $pClient
+     * @return Server $this
      */
     public function setClient($pClient){
         $this->client = $pClient;
@@ -231,7 +233,7 @@ class RestServer {
     /**
      * Get the current client.
      *
-     * @return RestServerClient
+     * @return Client
      */
     public function getClient(){
         return $this->client?$this->client:$this;
@@ -262,7 +264,7 @@ class RestServer {
     public function sendBadRequest($pCode, $pMessage){
         if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
         $msg = array('error' => $pCode, 'message' => $pMessage);
-        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_ServerController');
         $this->getClient()->sendResponse('400', $msg);
     }
 
@@ -276,7 +278,7 @@ class RestServer {
     public function sendError($pCode, $pMessage){
         if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
         $msg = array('error' => $pCode, 'message' => $pMessage);
-        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_ServerController');
         $this->getClient()->sendResponse('500', $msg);
     }
 
@@ -299,7 +301,7 @@ class RestServer {
             $msg['trace'] = $pException->getTraceAsString();
         }
 
-        if (!$this->getClient()) throw new \Exception('client_not_found_in_RestServerController');
+        if (!$this->getClient()) throw new \Exception('client_not_found_in_ServerController');
         $this->getClient()->sendResponse('500', $msg);
     }
 
@@ -329,7 +331,7 @@ class RestServer {
      * @param string $pMethod
      * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
      * @param array  $pOptionalArguments
-     * @return RestServer
+     * @return Server
      */
     public function addRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
         $this->routes[$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
@@ -344,7 +346,7 @@ class RestServer {
      * @param string $pMethod
      * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
      * @param array  $pOptionalArguments
-     * @return RestServer
+     * @return Server
      */
     public function addGetRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
         $this->routes['get:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
@@ -359,7 +361,7 @@ class RestServer {
      * @param string $pMethod
      * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
      * @param array  $pOptionalArguments
-     * @return RestServer
+     * @return Server
      */
     public function addPostRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
         $this->routes['post:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
@@ -374,7 +376,7 @@ class RestServer {
      * @param string $pMethod
      * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
      * @param array  $pOptionalArguments
-     * @return RestServer
+     * @return Server
      */
     public function addPutRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
         $this->routes['put:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
@@ -389,7 +391,7 @@ class RestServer {
      * @param string $pMethod
      * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
      * @param array  $pOptionalArguments
-     * @return RestServer
+     * @return Server
      */
     public function addDeleteRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
         $this->routes['delete:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
@@ -401,7 +403,7 @@ class RestServer {
      * Removes a route.
      *
      * @param string $pUri
-     * @return RestServer
+     * @return Server
      */
     public function removeRoute($pUri){
         unset($this->routes[$pUri]);
@@ -435,7 +437,7 @@ class RestServer {
         if ($pClassName != ''){
             try {
                 $this->controller = new $pClassName();
-                if (get_parent_class($this->controller) == 'RestServerController'){
+                if (get_parent_class($this->controller) == 'RestService\Server'){
                     $this->controller->setClient($this->getClient());
                 }
             } catch (Exception $e) {
@@ -453,13 +455,13 @@ class RestServer {
      * @param string $pControllerClass
      * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      *
-     * @return RestServer new created RestServer
+     * @return Server new created Server
      */
     public function addSubController($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
 
         $this->normalizeUrl($pTriggerUrl);
 
-        $controller = new RestServer($this->triggerUrl.'/'.$pTriggerUrl, $pControllerClass,
+        $controller = new Server($this->triggerUrl.'/'.$pTriggerUrl, $pControllerClass,
             $pRewrittenRuleKey?$pRewrittenRuleKey:$this->rewrittenRuleKey, $this);
 
         $this->controllers[] = $controller;
@@ -490,7 +492,7 @@ class RestServer {
     /**
      * Setup automatic routes.
      *
-     * @return RestServer
+     * @return Server
      */
     public function collectRoutes(){
 

@@ -26,24 +26,32 @@ spl_autoload_register(function ($pClass) {
  *
  */
 //init auto-loader for module folder.
-foreach (Kryn::$extensions as $extension){
-    spl_autoload_register(function($pClass) use($extension){
+spl_autoload_register(function($pClass){
 
-        $clazz = str_replace('\\', '/', substr($pClass, (($pos=strpos($pClass,'\\'))?$pos+1:0))).'.class.php';
+    $extension = strtolower(substr($pClass, 0, strpos($pClass, '\\')));
+    $fullClazz = str_replace('\\', '/', $pClass).'.class.php';
 
-        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
-            include($file);
-            return true;
-        }
+    $clazz = substr($fullClazz, strlen($extension)+1);
 
-        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)){
-            include($file);
-            return true;
-        }
+    if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
+        include($file);
+        return true;
+    }
 
-        if (file_exists($file = (($extension == 'kryn')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)){
-            include($file);
-            return true;
-        }
-    });
-}
+    if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)){
+        include($file);
+        return true;
+    }
+
+    if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)){
+        include($file);
+        return true;
+    }
+
+    if (file_exists($file = 'lib/'.$fullClazz)){
+        include($file);
+        return true;
+    }
+
+
+});

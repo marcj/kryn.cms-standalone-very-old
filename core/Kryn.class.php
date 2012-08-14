@@ -1053,6 +1053,11 @@ class Kryn {
 
     }
 
+    /**
+     * Init admin and frontend client.
+     * 
+     * @return [type] [description]
+     */
     public static function initClient() {
 
 
@@ -1064,7 +1069,6 @@ class Kryn {
             Kryn::$adminClient = new $defaultClientClass($defaultClientConfig);
 
             Kryn::$adminClient->start();
-
             Kryn::$client = Kryn::$adminClient;
         }
 
@@ -1449,6 +1453,14 @@ class Kryn {
 
         return $object;
 
+    }
+
+    public static function clearPropelCacheObject($pObjectClassName, $pObjectPk = null){
+        if ($pObjectPk){
+            self::setCache('Object-'.$pObjectClassName.'_'.$pObjectPk, null);
+        } else {
+            self::invalidateCache('Object-'.$pObjectClassName);
+        }
     }
 
 

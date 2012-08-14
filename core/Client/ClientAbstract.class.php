@@ -238,7 +238,7 @@ abstract class ClientAbstract {
     public function login($pLogin, $pPassword) {
 
         if (!$this->config['noDelay']){
-            //sleep(1);
+            sleep(1);
         }
 
         if ($pLogin == 'admin')

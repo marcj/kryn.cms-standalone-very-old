@@ -733,7 +733,7 @@ ka.ai.doLogin = function () {
 
     ka.ai.loginMessage.set('html', _('Check Login. Please wait ...'));
     new Request.JSON({url: _path + 'admin/login', noCache: 1, onComplete: function (res) {
-        if (res.user_id > 0) {
+        if (res.data) {
             ka.ai.loginSuccess(res);
         } else {
             ka.ai.loginFailed();

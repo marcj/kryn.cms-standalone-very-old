@@ -41,7 +41,7 @@ class AdminController {
             if (php_sapi_name() !== 'cli' && !getArgv(2))
                 self::showLogin();
 
-            \RestServer::create('admin', $this)
+            \RestService\Server::create('admin', $this)
 
                 ->addGetRoute('loadCss/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser', array('username', 'password'))

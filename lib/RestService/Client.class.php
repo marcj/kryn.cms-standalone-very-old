@@ -1,7 +1,8 @@
 <?php
 
+namespace RestService;
 
-class RestServerClient {
+class Client {
 
     /**
      * Current output format.
@@ -38,16 +39,16 @@ class RestServerClient {
 
 
     /**
-     * @var RestServerController
+     * @var Server
      *
      */
     private $controller;
 
     /**
-     * @param RestServer $pRestServerController
+     * @param Server $pServerController
      */
-    public function __construct($pRestServerController){
-        $this->controller = $pRestServerController;
+    public function __construct($pServerController){
+        $this->controller = $pServerController;
 
         $this->setUrl($_GET[$this->controller->getRewrittenRuleKey()]);
 
@@ -166,7 +167,7 @@ class RestServerClient {
      *
      * @param string $pCode
      * @param string $pMethod
-     * @return RestServerClient $this
+     * @return ServerClient $this
      */
     public function addOutputFormat($pCode, $pMethod){
         $this->outputFormats[$pCode] = $pMethod;
@@ -200,7 +201,7 @@ class RestServerClient {
      * Set the url.
      *
      * @param string $pUrl
-     * @return RestServer $this
+     * @return Server $this
      */
     public function setUrl($pUrl){
         $this->url = $pUrl;
@@ -210,7 +211,7 @@ class RestServerClient {
     /**
      * Setup formats.
      *
-     * @return RestServerClient
+     * @return ServerClient
      */
     public function setupFormats(){
 
