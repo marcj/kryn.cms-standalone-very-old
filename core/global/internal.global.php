@@ -39,8 +39,13 @@ function kryn_shutdown() {
 function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine){
     \Core\Utils::errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine);
 }
+
 function coreUtilsExceptionHandler($pException){
     \Core\Utils::exceptionHandler($pException);
+}
+
+function coreUtilsShutdownHandler(){
+    \Core\Utils::shutdownHandler();
 }
 
 /**

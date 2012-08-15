@@ -238,7 +238,7 @@ abstract class ClientAbstract {
     public function login($pLogin, $pPassword) {
 
         if (!$this->config['noDelay']){
-            sleep(1);
+            // sleep(1);
         }
 
         if ($pLogin == 'admin')
@@ -321,7 +321,7 @@ abstract class ClientAbstract {
      */
     public function setUser($pUserId = null) {
 
-        if ($pUserId){
+        if ($pUserId !== null){
             $user = \UserQuery::create()->findPk($pUserId);
 
             if (!$user){
@@ -365,6 +365,8 @@ abstract class ClientAbstract {
         } else {
             $this->cache->set($this->tokenId . '_' . $this->token, serialize($this->getSession()), $this->config['timeout']);
         }
+
+        Kryn::removePropelCacheObject('Session', $this->getSession()->getId());
     }
 
     /**
@@ -518,7 +520,7 @@ abstract class ClientAbstract {
      */
     protected function loadSessionDatabase($pToken) {
 
-        $session = Kryn::getPropelCachedObject('Session', $pToken);
+        $session = Kryn::getPropelCacheObject('Session', $pToken);
 
         if (!$session) return false;
 

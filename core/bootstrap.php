@@ -23,7 +23,7 @@ if (!file_exists('config.php')) {
 
 $cfg = include('config.php');
 
-error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR);
 
 @ini_set('display_errors', 0);
 
@@ -39,11 +39,13 @@ include(PATH_CORE.'global/exceptions.global.php');
 
 # Load very important classes.
 include(PATH_CORE . 'Kryn.class.php');
+include(PATH_CORE . 'Utils.class.php');
 include('lib/propel/runtime/lib/Propel.php');
 
 if ($cfg['displayErrors']){
-    set_error_handler("coreUtilsErrorHandler", E_ALL ^ E_NOTICE);
+    set_error_handler("coreUtilsErrorHandler", E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
     set_exception_handler("coreUtilsExceptionHandler");
+    register_shutdown_function('coreUtilsShutdownHandler');
 }
 
 Kryn::$config = $cfg;

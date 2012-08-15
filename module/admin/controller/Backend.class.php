@@ -76,9 +76,7 @@ class Backend {
         die($content);
     }
 
-
-    public function getSettings() {
-        global $cfg;
+    public function getSettings($peter) {
 
         $loadKeys = false;
         if (getArgv('keys')){
@@ -92,8 +90,6 @@ class Backend {
 
         if ($loadKeys == false || in_array('configs', $loadKeys))
             $res['configs'] = Kryn::$configs;
-
-
 
         if ($loadKeys == false || in_array('layouts', $loadKeys))
             $res['layouts'] = array();
@@ -172,12 +168,11 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('system', $loadKeys)){
-            $res['system'] = $cfg;
+            $res['system'] = Kryn::$config;
             $res['system']['db_name'] = '';
             $res['system']['db_user'] = '';
             $res['system']['db_passwd'] = '';
         }
-
 
         if ($loadKeys == false || in_array('r2d', $loadKeys)){
             $res['r2d'] =& Kryn::getCache("systemPages2Domain");

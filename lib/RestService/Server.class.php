@@ -108,7 +108,41 @@ class Server {
      * List of possible methods.
      * @var array
      */
-    public $methods = array('get', 'post', 'put', 'delete');
+    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options');
+
+
+    /**
+     * Check access function/method. Will be fired after the route has been found.
+     * Arguments: (url, route)
+     * 
+     * @var callable
+     */
+    private $checkAccessFn;
+
+    /**
+     * Send exception function/method. Will be fired if a route-method throws a exception.
+     * Please die/exit in your function then.
+     * Arguments: (exception)
+     * 
+     * @var callable
+     */
+    private $sendExceptionFn;
+
+    /**
+     * If this is true, we send file, line and backtrace if an exception has been thrown.
+     * 
+     * @var boolean
+     */
+    private $debugMode = false;
+
+
+    /**
+     * Sets whether the service should serve route descriptions
+     * through the OPTIONS method.
+     * 
+     * @var boolean
+     */
+    private $describeRoutes = true;
 
 
     /**
@@ -128,6 +162,19 @@ class Server {
         if ($pParentController){
             $this->parentController = $pParentController;
             $this->setClient($pParentController->getClient());
+
+            if ($pParentController->getCheckAccess())
+                $this->setCheckAccess($pParentController->getCheckAccess());
+
+            if ($pParentController->getExceptionHandler())
+                $this->setExceptionHandler($pParentController->getExceptionHandler());
+
+            if ($pParentController->getDebugMode())
+                $this->setDebugMode($pParentController->getDebugMode());
+
+            if ($pParentController->getDescribeRoutes())
+                $this->setDescribeRoutes($pParentController->getDescribeRoutes());
+
         } else {
             $this->setClient(new Client($this));
         }
@@ -144,7 +191,7 @@ class Server {
      * @param string $pControllerClass
      * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      *
-     * @return RestService\Server
+     * @return Server $this
      */
     public static function create($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
         $clazz = get_called_class();
@@ -166,11 +213,92 @@ class Server {
      * Sets the rewritten rule key.
      * @param string $pRewrittenRuleKey
      *
-     * @return RestService\Server
+     * @return Server $this
      */
     public function setRewrittenRuleKey($pRewrittenRuleKey){
         $this->rewrittenRuleKey = $pRewrittenRuleKey;
         return $this;
+    }
+
+    /**
+     * Set the check access function/method.
+     * Will fired with arguments: (url, route)
+     * 
+     * @param callable $pFn 
+     * @return Server $this
+     */
+    public function setCheckAccess($pFn){
+        $this->checkAccessFn = $pFn;
+        return $this;
+    }
+
+    /**
+     * Getter for checkAccess
+     * @return callable
+     */
+    public function getCheckAccess(){
+        return $this->checkAccessFn;
+    }
+
+
+    /**
+     * Sets whether the service should serve route descriptions
+     * through the OPTIONS method.
+     * 
+     * @param boolean $pDescribeRoutes 
+     * @return Server $this
+     */
+    public function setDescribeRoutes($pDescribeRoutes){
+        $this->describeRoutes = $pDescribeRoutes;
+    }
+
+    /**
+     * Getter for describeRoutes.
+     * 
+     * @return boolean
+     */
+    public function getDescribeRoutes($pFn){
+        return $this->describeRoutes;
+    }
+
+    /**
+     * Send exception function/method. Will be fired if a route-method throws a exception.
+     * Please die/exit in your function then.
+     * Arguments: (exception)
+     * 
+     * @param callable $pFn 
+     * @return Server $this
+     */
+    public function setExceptionHandler($pFn){
+        $this->sendExceptionFn = $pFn;
+        return $this;
+    }
+
+    /**
+     * Getter for checkAccess
+     * @return callable
+     */
+    public function getExceptionHandler(){
+        return $this->sendExceptionFn;
+    }
+
+    /**
+     * If this is true, we send file, line and backtrace if an exception has been thrown.
+     * 
+     * @param boolean $pDebugMode 
+     * @return Server $this
+     */
+    public function setDebugMode($pDebugMode){
+        $this->debugMode = $pDebugMode;
+        return $this;
+    }
+
+    /**
+     * Getter for checkAccess
+     * @return boolean
+     */
+    public function getDebugMode(){
+        return $this->debugMode;
     }
 
 
@@ -187,7 +315,7 @@ class Server {
     /**
      * Returns the parent controller
      *
-     * @return Server
+     * @return Server $this
      */
     public function getParent(){
         return $this->parentController;
@@ -289,13 +417,17 @@ class Server {
      * @throws \Exception
      */
     public function sendException($pException){
-        $message = $pException->getMessage();
 
+        if ($this->sendExceptionFn){
+            call_user_func_array($this->sendExceptionFn, array($pException));
+        }
+        
+        $message = $pException->getMessage();
         if (is_object($message) && $message->xdebug_message) $message = $message->xdebug_message;
 
         $msg = array('error' => get_class($pException), 'message' => $message);
 
-        if (true || $debugMode){
+        if ($this->debugMode){
             $msg['file'] = $pException->getFile();
             $msg['line'] = $pException->getLine();
             $msg['trace'] = $pException->getTraceAsString();
@@ -303,6 +435,7 @@ class Server {
 
         if (!$this->getClient()) throw new \Exception('client_not_found_in_ServerController');
         $this->getClient()->sendResponse('500', $msg);
+    
     }
 
     /**
@@ -329,12 +462,10 @@ class Server {
      *
      * @param string $pUri
      * @param string $pMethod
-     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
-     * @param array  $pOptionalArguments
      * @return Server
      */
-    public function addRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
-        $this->routes[$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+    public function addRoute($pUri, $pMethod, $pHttpMethod = '_all_'){
+        $this->routes[$pUri][ $pHttpMethod ] = $pMethod;
         return $this;
     }
 
@@ -344,12 +475,10 @@ class Server {
      *
      * @param string $pUri
      * @param string $pMethod
-     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
-     * @param array  $pOptionalArguments
      * @return Server
      */
-    public function addGetRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
-        $this->routes['get:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+    public function addGetRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'get');
         return $this;
     }
 
@@ -359,12 +488,10 @@ class Server {
      *
      * @param string $pUri
      * @param string $pMethod
-     * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
-     * @param array  $pOptionalArguments
      * @return Server
      */
-    public function addPostRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
-        $this->routes['post:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+    public function addPostRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'post');
         return $this;
     }
 
@@ -374,12 +501,37 @@ class Server {
      *
      * @param string $pUri
      * @param string $pMethod
+     * @return Server
+     */
+    public function addPutRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'put');
+        return $this;
+    }
+
+    /**
+     * Same as addRoute, but limits to HEAD.
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @return Server
+     */
+    public function addHeadRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'head');
+        return $this;
+    }
+
+
+    /**
+     * Same as addRoute, but limits to OPTIONS.
+     *
+     * @param string $pUri
+     * @param string $pMethod
      * @param array  $pArguments Required arguments. Throws an exception if one of these is missing.
      * @param array  $pOptionalArguments
      * @return Server
      */
-    public function addPutRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
-        $this->routes['put:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+    public function addOptionsRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'options');
         return $this;
     }
 
@@ -393,8 +545,8 @@ class Server {
      * @param array  $pOptionalArguments
      * @return Server
      */
-    public function addDeleteRoute($pUri, $pMethod, $pArguments = array(), $pOptionalArguments = array()){
-        $this->routes['delete:'.$pUri] = array($pMethod, $pArguments, $pOptionalArguments);
+    public function addDeleteRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'delete');
         return $this;
     }
 
@@ -433,7 +585,7 @@ class Server {
      * @param string $pClassName
      * @throws Exception
      */
-    public function createControllerClass($pClassName){
+    private function createControllerClass($pClassName){
         if ($pClassName != ''){
             try {
                 $this->controller = new $pClassName();
@@ -550,27 +702,54 @@ class Server {
         $route = false;
         $arguments = array();
 
-        //add method
-        $arguments[] = $this->getClient()->getMethod();
-
         //does the requested uri exist?
-        if (!list($route, $regexArguments, $trigger) = $this->findRoute($uri)){
+        list($methodName, $regexArguments, $trigger, $method) = $this->findRoute($uri, $this->getClient()->getMethod());
+
+        if (!$methodName){
             if (!$this->getParent()){
-                $this->sendError('rest_route_not_found', "There is no route for '$uri'.");
+                $this->sendBadRequest('rest_route_not_found', "There is no route for '$uri'.");
             } else {
                 return false;
             }
+        }
 
-        } else {
-            if ($pos = strpos($trigger, ':'))
-                if (array_search(substr($trigger, 0, $pos), $this->methods) !== false)
-                    array_shift($arguments);
+        if ($method != '_all_'){
+            $arguments[] = $method;
+
+        }
+
+        if (is_array($regexArguments)){
             $arguments = array_merge($arguments, $regexArguments);
         }
 
-        $this->collectArguments($arguments, $route[1], true);//required
 
-        $this->collectArguments($arguments, $route[2], false);//optional
+        //open class and scan method
+        $ref = new \ReflectionClass($this->controller);
+        $method = $ref->getMethod($methodName);
+        $params = $method->getParameters();
+
+        if ($method == '_all_'){
+            //first parameter is $pMethod
+            array_shift($params);
+        }
+
+        foreach ($params as $param){
+            if (!$param->isOptional() && $_REQUEST[$param->getName()] === null){
+                $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $param->getName()));
+            }
+        }
+        var_dump('ok'); exit;
+
+        if ($this->checkAccessFn){
+            $args[] = $this->getClient()->getUrl();
+            $args[] = $route;
+            $args[] = $arguments;
+            try {
+                call_user_func_array($this->checkAccessFn, $args);
+            } catch(\Exception $e){
+                $this->sendException($e);
+            }
+        }
 
         //fire method
         $method = $route[0];
@@ -583,7 +762,7 @@ class Server {
         try {
             $data = call_user_func_array(array($object, $method), $arguments);
             $this->send($data);
-        } catch(Exception $e){
+        } catch(\Exception $e){
             $this->sendException($e);
         }
 
@@ -618,40 +797,36 @@ class Server {
      * Find and return the route for $pUri.
      *
      * @param string $pUri
+     * @param string $pMethod limit to method
      * @return array|boolean
      */
-    public function findRoute($pUri){
+    public function findRoute($pUri, $pMethod = '_all_'){
 
-        $def = false;
+        if ($method = $this->routes[$pUri][$pMethod]){
+            return array($method, null, $pUri, $pMethod);
+        } else if ($pMethod != '_all_' && $method = $this->routes[$pUri]['_all_']){
+            return array($method, null, $pUri, $pMethod);
+        } else {
 
-        $methods[] = '';
-        $arguments = array();
+            //maybe we have a regex uri
+            foreach ($this->routes as $routeUri => $routeMethods){
 
-        $methods[] = $this->getClient()->getMethod().':';
+                if (preg_match('|^'.$routeUri.'$|', $pUri, $matches)){
 
-        foreach ($methods as $method){
-
-            $uri = $method.$pUri;
-            if (!$this->routes[$uri]){
-
-                //maybe we have a regex uri
-                foreach ($this->routes as $routeUri => $routeDef){
-                    if (preg_match('|^'.$routeUri.'$|', $uri, $matches)){
-                        $def = $routeDef;
-                        array_shift($matches);
-                        foreach ($matches as $match){
-                            $arguments[] = $match;
-                        }
-                        return array($def, $arguments, $routeUri);
-                        break;
+                    if ($routeMethod != $routeMethods[$pMethod]){
+                        if ($routeMethod != $routeMethods['_all_'])
+                            continue;
                     }
+                    array_shift($matches);
+                    foreach ($matches as $match){
+                        $arguments[] = $match;
+                    }
+
+                    return array($routeMethod, $arguments, $pUri, $pMethod);
                 }
 
-            } else {
-                $def = $this->routes[$uri];
-                return array($def, $arguments, $uri);
             }
-        }
+            }
 
         return false;
     }

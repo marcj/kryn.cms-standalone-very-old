@@ -14,10 +14,13 @@
     <foreign-key foreignTable="system_user">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
+
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
   </table>
+
+
   <table name="system_group" phpName="Group" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="close" type="INTEGER" required="false"/>
@@ -29,6 +32,8 @@
     </vendor>
 
   </table>
+
+
   <table name="system_user" phpName="User" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="username" type="VARCHAR" size="255" required="true"/>
@@ -61,9 +66,11 @@
     <foreign-key foreignTable="system_user">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
+
     <foreign-key foreignTable="system_group" phpName="GroupMembership">
       <reference local="group_id" foreign="id"/>
     </foreign-key>
+
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>

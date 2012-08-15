@@ -323,6 +323,7 @@ function checkConfig(){
           "passwdHashKey"    => Core\Client\ClientAbstract::getSalt(32),
 
           "displayErrors"        => 0,
+          "displayRestErrors"    => 0,
           "logErrors"            => 0,
           "systemTitle"          => $systemTitle,
           "client"                 => array(

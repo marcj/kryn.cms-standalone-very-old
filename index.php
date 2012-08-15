@@ -16,8 +16,6 @@
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-$_SERVER['SERVER_NAME'] = 'ilee';
-
 mb_internal_encoding("UTF-8");
 
 require('core/bootstrap.checkFile.php');
@@ -38,11 +36,6 @@ if (Core\Kryn::$admin) {
      * initialize administration controller
      */
     Core\Kryn::$modules['admin'] = new Admin\AdminController();
-
-    /*
-     * Check url access
-     */
-    Core\Kryn::checkAccess();
 
 }
 

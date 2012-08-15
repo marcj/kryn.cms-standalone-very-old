@@ -16,6 +16,34 @@ use \Core\Kryn;
 
 class AdminController {
 
+    /**
+     * Checks the access to the administration URLs and redirect to administration login if no access.
+     * 
+     * @internal
+     * @static
+     */
+    public static function checkAccess($pUrl, $pRoute) {
+
+        return true;
+
+        if (substr($pUrl, 0, 9) == 'admin/ui/'){
+            return true;
+        }
+
+        if ($pUrl == 'admin/login'){
+            return true;
+        }
+
+        if (Kryn::checkUrlAccess($pUrl))
+            throw new \AccessDeniedException(tf('Access denied.'));
+    }
+
+    public function exceptionHandler($pException){
+        if (get_class($pException) != 'AccessDeniedException')
+            \Core\Utils::exceptionHandler($pException);
+    }
+
+
     public function run() {
 
         @header('Expires:');
@@ -41,18 +69,25 @@ class AdminController {
             if (php_sapi_name() !== 'cli' && !getArgv(2))
                 self::showLogin();
 
+            if (Kryn::$config['displayRestErrors']){
+                $exceptionHandler = array($this, 'exceptionHandler');
+            }
+
             \RestService\Server::create('admin', $this)
+
+                ->setCheckAccess(array($this, 'checkAccess'))
+                ->setExceptionHandler($exceptionHandler)
 
                 ->addGetRoute('loadCss/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser', array('username', 'password'))
                 ->addGetRoute('logout', 'logoutUser')
-
 
                 ->addSubController('ui', '\Admin\UIAssets')
                     ->addGetRoute('possibleLangs', 'getPossibleLangs')
                     ->addGetRoute('languagePluralForm', 'getLanguagePluralForm', array('lang'))
                     ->addGetRoute('language', 'getLanguage', array('lang'))
                 ->done()
+
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
@@ -76,6 +111,9 @@ class AdminController {
                             'fields', '_'
                         ))
                         ->addPostRoute('([a-zA-Z-_]+)/([^/]+)', 'postItem', null, array(
+                            'fields', '_'
+                        ))
+                        ->addDeleteRoute('([a-zA-Z-_]+)/([^/]+)', 'deleteItem', null, array(
                             'fields', '_'
                         ))
                         ->addPutRoute('([a-zA-Z-_]+)', 'putItem', null, array(

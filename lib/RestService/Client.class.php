@@ -27,7 +27,7 @@ class Client {
      * List of possible methods.
      * @var array
      */
-    public $methods = array('get', 'post', 'put', 'delete');
+    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options');
 
 
     /**
@@ -83,7 +83,6 @@ class Client {
         exit;
 
     }
-
 
     /**
      * Detect the method.
@@ -143,17 +142,18 @@ class Client {
      * @param int   $pDepth
      * @return string XML
      */
-    public function toXml($pData, $pDepth = 1){
+    public function toXml($pData, $pParentTagName = '', $pDepth = 1){
 
         if (is_array($pData)){
             $content = '';
 
-            foreach ($pData as $key => $data)
+            foreach ($pData as $key => $data){
+                $key = is_numeric($key) ? $pParentTagName.'-item' : $key;
                 $content .= str_repeat('  ', $pDepth)
                     .'<'.htmlspecialchars($key).'>'.
-                        $this->toXml($data, $pDepth+1)
+                        $this->toXml($data, $key, $pDepth+1)
                     .'</'.htmlspecialchars($key).">\n";
-
+            }
             return $content;
         } else {
             return htmlspecialchars($pData);

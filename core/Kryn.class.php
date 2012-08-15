@@ -993,46 +993,6 @@ class Kryn {
     }
 
     /**
-     * Checks the access to the administration URLs and redirect to administration login if no access.
-     * 
-     * @internal
-     * @static
-     */
-    public static function checkAccess() {
-        return true;
-
-        $bypass = array('loadJs', 'loadCss');
-        if (in_array(getArgv(2), $bypass))
-            return true;
-
-        $url = Kryn::getRequestedPath();
-
-        if (getArgv(1) == 'admin' && !Kryn::checkUrlAccess($url)) {
-
-            if (getArgv('getLanguage') != '')
-                admin::printLanguage();
-
-            if (getArgv('getPossibleLangs') == '1')
-                admin::printPossibleLangs();
-
-            if (getArgv('getLanguagePluralForm'))
-                admin::getLanguagePluralForm();
-
-
-
-            if (!getArgv(2)) {
-                if (Kryn::$adminClient->user_id > 0){
-                    tAssign('noAdminAccess', true);
-                }
-                admin::showLogin();
-                exit;
-            } else {
-                json(array('error' => 'access_denied'));
-            }
-        }
-    }
-
-    /**
      * Initialize config. Establish connections.
      * @internal
      */
@@ -1436,7 +1396,7 @@ class Kryn {
      * @return \Page
      * @static
      */
-    public static function getPropelCachedObject($pObjectClassName, $pObjectPk = null) {
+    public static function getPropelCacheObject($pObjectClassName, $pObjectPk = null) {
 
         $cacheKey = 'Object-'.$pObjectClassName.'_'.$pObjectPk;
         if ($serialized = self::getCache($cacheKey)){
@@ -1456,9 +1416,9 @@ class Kryn {
 
     }
 
-    public static function clearPropelCacheObject($pObjectClassName, $pObjectPk = null){
+    public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null){
         if ($pObjectPk){
-            self::setCache('Object-'.$pObjectClassName.'_'.$pObjectPk, null);
+            self::deleteCache('Object-'.$pObjectClassName.'_'.$pObjectPk, null);
         } else {
             self::invalidateCache('Object-'.$pObjectClassName);
         }
@@ -1947,11 +1907,12 @@ class Kryn {
      * @param $pTitle
      * @param $pMsg
      */
-    public static function internalError($pTitle = '', $pMsg) {
+    public static function internalError($pTitle = '', $pMsg, $pExit = true) {
         tAssign('msg', $pMsg);
         tAssign('title', $pTitle?$pTitle:'Internal system error');
         print tFetch('kryn/internal-error.tpl');
-        exit;
+        if ($pExit)
+            exit;
     }
 
     /**

@@ -4,38 +4,83 @@ namespace Core;
 
 class Utils {
 
+    private $inErrorHandler = false;
+
     public static function exceptionHandler($pException){
+        $exceptionArray = array(
+            'type' => $pException->getCode(),
+            'message' => $pException->getMessage(),
+            'file' => $pException->getFile(),
+            'line' => $pException->getLine(),
+        );
         self::errorHandler(get_class($pException).' ['.$pException->getCode().']',
             $pException->getMessage(), $pException->getFile(), $pException->getLine(),
-            $pException->getTrace());
+            array_merge(array($exceptionArray), $pException->getTrace()));
     }
 
+    public static function shutdownHandler(){
+        chdir(PATH);
+        $error = error_get_last();
+        if($error['type'] == 1){
+            self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], array(
+                $error
+            ));
+        }
+    }
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
 
-        if (!is_string($pErrorCode) && $pErrorCode != E_USER_ERROR) return;
+        if ($inErrorHandler === true){
+            print $pErrorCode.', '.$pErrorStr.' in '.$pFile.' at '.$pLine;
+            if ($pBacktrace)
+                print_r($pBacktrace);
+            else 
+                print_r(debug_backtrace());
+            exit;
+        }
+
+        $inErrorHandler = true;
+
+        if (is_numeric($pErrorCode)){
+            $errorCodes = array(
+                E_ERROR => 'E_ERROR',
+                E_WARNING => 'E_WARNING',
+                E_PARSE => 'E_PARSE',
+                E_NOTICE => 'E_NOTICE',
+                E_CORE_ERROR => 'E_CORE_ERROR',
+                E_CORE_WARNING => 'E_CORE_WARNING',
+                E_STRICT => 'E_STRICT',
+                E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+                E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+                E_USER_ERROR => 'E_USER_ERROR',
+                E_USER_WARNING => 'E_USER_WARNING',
+                E_USER_NOTICE => 'E_USER_NOTICE',
+            );
+            if ($errorCodes[$pErrorCode]){
+                $pErrorCode = $errorCodes[$pErrorCode];
+            }
+        }
 
         $msg = '<div style="margin-bottom: 15px; background-color: white; padding: 5px;">'.$pErrorStr.'</div>';
 
         $backtrace = $pBacktrace;
-        if (!$backtrace)
+        if (!$backtrace){
             $backtrace = debug_backtrace();
+        }
 
         tAssign('loadCodemirror', true);
-
-        //remove first two items, since its errorHandler and coreUtilsErrorHandler call
-        if ($pErrorCode === E_USER_ERROR){
-            array_shift($backtrace);
-            array_shift($backtrace);
-        }
 
         $traces = array();
         $count = count($backtrace);
         foreach ($backtrace as $trace){
+
             $trace['file'] = substr($trace['file'], strlen(PATH));
-            $trace['code'] = self::getFileContent($trace['file'], $trace['line'], 5);
-            $trace['relLine'] = $trace['line']-4;
-            $trace['args_string'] = implode(', ', $trace['args']);
             $trace['id'] = $count--;
+            // if ($trace['file'] == 'core/bootstrap.php' && $trace['line'] == 74) continue;
+            if ($trace['file'] == 'core/global/internal.global.php' && $trace['line'] == 40) continue;
+
+            $trace['code'] = self::getFileContent($trace['file'], $trace['line'], 5);
+            $trace['relLine'] = $trace['line']-5;
+            //$trace['args_string'] = implode(', ', $trace['args']);
             $traces[] = $trace;
         }
 
@@ -46,7 +91,12 @@ class Utils {
         //$msg .= self::getHighlightedFile($pFile, $pLine);
 
 
-        kryn::internalError('Error: '.$pErrorCode, $msg);
+        kryn::internalError($pErrorCode, $msg, false);
+
+        $inErrorHandler = true;
+
+        exit;
+
     }
 
     public static function getFileContent($pFile, $pLine, $pOffset = 10){
