@@ -23,7 +23,7 @@
  * @subpackage Log
  */
 function klog($pArea, $pMsg) {
-    errorHandler($pArea, $pMsg);
+    errorDbHandler($pArea, $pMsg);
 }
 
 function convertSize($pSize){

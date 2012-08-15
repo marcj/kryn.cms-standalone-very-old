@@ -35,6 +35,13 @@ function kryn_shutdown() {
 
 }
 
+/** proxie */
+function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine){
+    \Core\Utils::errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine);
+}
+function coreUtilsExceptionHandler($pException){
+    \Core\Utils::exceptionHandler($pException);
+}
 
 /**
  * Deactivate magic quotes
@@ -49,7 +56,16 @@ if (get_magic_quotes_gpc()) {
 }
 
 
-function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
+/**
+ * Handles errors and store it to database log.
+ * 
+ * @param  [type]  $pCode [description]
+ * @param  [type]  $pMsg  [description]
+ * @param  boolean $pFile [description]
+ * @param  boolean $pLine [description]
+ * @return [type]         [description]
+ */
+function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
     global $errorHandlerInside, $client, $cfg;
 
     if ($errorHandlerInside) return;
@@ -98,15 +114,6 @@ function errorHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
 
 }
 
-
-/**
- * Kryn exception handler
- * @internal
- */
-function kExceptionHandler($pException) {
-    if ($pException)
-        klog('php exception', $pException);
-}
 
 
 ?>

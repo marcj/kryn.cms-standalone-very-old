@@ -25,14 +25,7 @@ $cfg = include('config.php');
 
 error_reporting(E_ALL ^ E_NOTICE);
 
-if (!array_key_exists('displayErrors', $cfg))
-    $cfg['displayErrors'] = 0;
-
-if ($cfg['displayErrors'] == 0) {
-    @ini_set('display_errors', 0);
-} else {
-    @ini_set('display_errors', 1);
-}
+@ini_set('display_errors', 0);
 
 /**
  * Define global functions.
@@ -47,6 +40,11 @@ include(PATH_CORE.'global/exceptions.global.php');
 # Load very important classes.
 include(PATH_CORE . 'Kryn.class.php');
 include('lib/propel/runtime/lib/Propel.php');
+
+if ($cfg['displayErrors']){
+    set_error_handler("coreUtilsErrorHandler", E_ALL ^ E_NOTICE);
+    set_exception_handler("coreUtilsExceptionHandler");
+}
 
 Kryn::$config = $cfg;
 Kryn::setBaseUrl(str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));

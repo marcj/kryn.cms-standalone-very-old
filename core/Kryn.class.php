@@ -1357,6 +1357,7 @@ class Kryn {
         Kryn::$lang =& Kryn::getFastCache($code);
 
         $md5 = '';
+        //<div
         foreach (Kryn::$extensions as $key) {
             if ($key == 'kryn')
                 $md5 .= @filemtime(PATH_CORE.'lang/' . $pLang . '.po');
@@ -1532,7 +1533,7 @@ class Kryn {
         $domains =& Kryn::getCache('systemDomains');
 
         if (!$domains || $domains['r2d']) {
-            $domains = \adminPages::updateDomainCache();
+            $domains = \Admin\Pages::updateDomainCache();
         }
 
         if ($domains['_redirects'][$domainName]) {
@@ -1779,7 +1780,7 @@ class Kryn {
         Kryn::$urls =& Kryn::readCache('systemUrls');
 
         if (!Kryn::$urls || !Kryn::$urls['url']) {
-            Kryn::$urls = \adminPages::updateUrlCache($domain);
+            Kryn::$urls = \Admin\Pages::updateUrlCache($domain);
         }
 
         //extract extra url attributes

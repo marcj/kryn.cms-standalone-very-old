@@ -3,6 +3,14 @@
 <head>
     <title>[[404 - Not found]]</title>
     <base href="{Kryn::getBaseUrl()}" />
+
+    {if $backtrace}
+        <script type="text/javascript" src="lib/codemirror/lib/codemirror.js"></script>
+        <script type="text/javascript" src="lib/codemirror/lib/util/loadmode.js"></script>
+        <script type="text/javascript" src="lib/codemirror/lib/util/runmode.js"></script>
+        <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css"  />
+    {/if}
+
     <style type="text/css">
         body {
             color: white;
@@ -26,12 +34,21 @@
 
         .msg {
             color: #444;
-            white-space: pre;
             overflow-x: auto;
             background-color: #f7f7f7;
             padding: 15px;
             border-top: 3px solid red;
             border-bottom: 3px solid red;
+        }
+
+        .CodeMirror-scroll {
+          height: auto;
+          overflow-y: hidden;
+          overflow-x: auto;
+        }
+
+        .CodeMirror .highlightedLine {
+            background-color: #ddd;
         }
 
     </style>
@@ -40,9 +57,51 @@
 <div id="error">
     <img src="media/kryn/images/logo_white.png" />
     <h2>{$title}</h2>
-    <div class="msg">{$msg}
+    <div class="msg"><pre>{$msg}</pre>
+
+    {if $backtrace}
+        Backtrace:<br/>
+
+        {foreach from=$backtrace item=trace name=trace}
+            <div style="border-bottom: 1px solid silver; padding: 5px; margin-bottom: 5px;">
+               <div>#{$trace.id} <span style="color: gray;">{$trace.function}({$trace.args_string})</span></div>
+               <div>=> <span style="color: gray;">{$trace.file}+{$trace.line}</span></div>
+               <div relline="{$trace.relLine}" style="white-space: pre; border: 1px solid gray;" class="cm-s-default" id="codemirror_{$smarty.foreach.trace.index}">{$trace.code|escape:"html"}</div>
+            </div>
+        {/foreach}
+    {/if}
     </div>
 </div>
 <script type="text/javascript" src="media/kryn/js/bgNoise.js"></script>
+{if $backtrace}
+{literal}
+    <script type="text/javascript">
+        var id = 0;
+        CodeMirror.modeURL = "lib/codemirror/mode/%N/%N.js"
+        CodeMirror.requireMode('php', function() {
+            while(true){
+                var el = document.getElementById('codemirror_'+id);
+                if (!el) break;
+
+                var value = el.innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+                el.innerHTML = '';
+                var relLine = parseInt(el.getAttribute('relline'));
+                var editor = CodeMirror(el, {
+                    lineNumbers: true,
+                    readOnly: true,
+                    firstLineNumber: relLine,
+                    onHighlightComplete: function(pEditor){
+                        console.log(pEditor);
+                        pEditor.setLineClass(5, '', 'highlightedLine');
+                    }
+                });
+                editor.setOption('mode', 'text/x-php');
+                editor.setValue(value);
+                id++;
+            }
+        });
+    </script>
+{/literal}
+{/if}
 </body>
 </html>

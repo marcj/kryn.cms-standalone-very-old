@@ -4,6 +4,74 @@ namespace Core;
 
 class Utils {
 
+    public static function exceptionHandler($pException){
+        self::errorHandler(get_class($pException).' ['.$pException->getCode().']',
+            $pException->getMessage(), $pException->getFile(), $pException->getLine(),
+            $pException->getTrace());
+    }
+
+    public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
+
+        if (!is_string($pErrorCode) && $pErrorCode != E_USER_ERROR) return;
+
+        $msg = '<div style="margin-bottom: 15px; background-color: white; padding: 5px;">'.$pErrorStr.'</div>';
+
+        $backtrace = $pBacktrace;
+        if (!$backtrace)
+            $backtrace = debug_backtrace();
+
+        tAssign('loadCodemirror', true);
+
+        //remove first two items, since its errorHandler and coreUtilsErrorHandler call
+        if ($pErrorCode === E_USER_ERROR){
+            array_shift($backtrace);
+            array_shift($backtrace);
+        }
+
+        $traces = array();
+        $count = count($backtrace);
+        foreach ($backtrace as $trace){
+            $trace['file'] = substr($trace['file'], strlen(PATH));
+            $trace['code'] = self::getFileContent($trace['file'], $trace['line'], 5);
+            $trace['relLine'] = $trace['line']-4;
+            $trace['args_string'] = implode(', ', $trace['args']);
+            $trace['id'] = $count--;
+            $traces[] = $trace;
+        }
+
+        tAssign('backtrace', $traces);
+        //backtrace
+        //$msg .= '<div style="padding: 5px; white-space: pre;">'..'</div>';
+
+        //$msg .= self::getHighlightedFile($pFile, $pLine);
+
+
+        kryn::internalError('Error: '.$pErrorCode, $msg);
+    }
+
+    public static function getFileContent($pFile, $pLine, $pOffset = 10){
+
+        $fh = fopen($pFile, 'r');
+
+        if ($fh){
+            $line = 1;
+            $code = '';
+            while (($buffer = fgets($fh, 4096)) !== false) {
+                
+                if ($line >= ($pLine-$pOffset) && $line <= ($pLine+$pOffset))
+                    $code .= $buffer;
+
+                if ($line == $pLine)
+                    $highlightLine = $line;
+
+                $line++;
+            }
+            return $code;
+        }
+        return '';
+    }
+
+
     /**
      * Stores all locked keys, so that we can release all,
      * on process terminating.
