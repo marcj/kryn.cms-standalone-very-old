@@ -536,9 +536,9 @@ function step5Done($pMsg){
 
         try {
             //create the propel config
-            propelHelper::writeXmlConfig();
-            propelHelper::writeBuildPorperties();
-            propelHelper::collectSchemas();
+            \Core\propelHelper::writeXmlConfig();
+            \Core\propelHelper::writeBuildPorperties();
+            \Core\propelHelper::collectSchemas();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -550,7 +550,7 @@ function step5Done($pMsg){
     function step5_4(){
 
         try {
-            $res = propelHelper::generateClasses();
+            $res = \Core\propelHelper::generateClasses();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -561,7 +561,7 @@ function step5Done($pMsg){
     //Write main ./propel-config.php
     function step5_5(){
         try {
-            $res = propelHelper::generatePropelPhpConfig();
+            $res = \Core\propelHelper::generatePropelPhpConfig();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -572,7 +572,7 @@ function step5Done($pMsg){
     function step5_6(){
 
         try {
-            $res = propelHelper::updateSchema();
+            $res = \Core\propelHelper::updateSchema();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -583,7 +583,7 @@ function step5Done($pMsg){
     function step5_7(){
         global $modules;
 
-        $manager = new Admin\Module\Manager;
+        $manager = new \Admin\Module\Manager;
 
         foreach ($modules as $module){
             try {
@@ -603,7 +603,7 @@ function step5Done($pMsg){
     function step5_8(){
         global $modules;
 
-        $manager = new Admin\Module\Manager;
+        $manager = new \Admin\Module\Manager;
 
         foreach ($modules as $module){
             try {
@@ -622,7 +622,7 @@ function step5Done($pMsg){
     //cleanup
     function step5_9(){
 
-        propelHelper::cleanup();
+        \Core\propelHelper::cleanup();
 
         //load all configs
         \Core\Kryn::loadConfigs();
@@ -829,7 +829,7 @@ Your installation file contains following extensions:<br />
 function buildModInfo( $modules ) {
     global $lang;
     foreach( $modules as $module ){
-         $config = adminModule::loadInfo( $module );
+         $config = \Admin\Module\Manager::loadInfo( $module );
          $version = $config['version'];
          $title = $config['title'];
          $desc = $config['desc'];

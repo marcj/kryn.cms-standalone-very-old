@@ -2,6 +2,8 @@
 
 
 class ObjectNotFoundException extends Exception {}
+class ModuleNotFoundException extends Exception {}
+
 class ObjectItemNotFoundException extends Exception {}
 
 class FieldNotFoundException extends Exception {}

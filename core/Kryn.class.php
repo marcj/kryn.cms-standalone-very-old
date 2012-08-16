@@ -1392,19 +1392,50 @@ class Kryn {
     /**
      * Returns cached propel object.
      * 
-     * @param  int $pPageId If not defined, it returns the current page.
-     * @return \Page
+     * @param  int   $pObjectClassName If not defined, it returns the current page.
+     * @param  mixed $pPk Propel PK for $pObjectClassName int, string or array
+     * @return \BaseObject Propel object
      * @static
      */
-    public static function getPropelCacheObject($pObjectClassName, $pObjectPk = null) {
+    public static function getPropelCacheObject($pObjectClassName, $pObjectPk) {
 
         $cacheKey = 'Object-'.$pObjectClassName.'_'.$pObjectPk;
         if ($serialized = self::getCache($cacheKey)){
             return unserialize($serialized);
         }
 
+        return self::setPropelCacheObject($pObjectClassName, $pObjectPk);
+    } 
+
+    /**
+     * Returns propel object and cache it.
+     * @param  int   $pObjectClassName If not defined, it returns the current page.
+     * @param  mixed $pPk Propel PK for $pObjectClassName int, string or array
+     * @param  mixed $pObject Pass the object, if you'd already fetch it.
+     * @return \BaseObject Propel object
+     */
+    public static function setPropelCacheObject($pObjectClassName, $pObjectPk, $pObject = false) {
+
+        $pk = $pObjectPk;
+        if ($pk === null){
+            $pk = $pObject->getPrimaryKey();
+        }
+
+        if (is_array($pk)){
+            $npk = '';
+            foreach ($pk as $k){
+                $npk .= urlencode($k).'_';
+            }
+        } else {
+            $pk = urlencode($pk);
+        }
+
+        $cacheKey = 'Object-'.$pObjectClassName.'_'.$pk;
+
         $clazz = $pObjectClassName.'Query';
-        $object = $clazz::create()->findPk($pObjectPk);
+        $object = $pObject;
+        if (!$object)
+            $object = $clazz::create()->findPk($pObjectPk);
 
         if (!$object){
             return false;
@@ -1416,6 +1447,11 @@ class Kryn {
 
     }
 
+    /**
+     * [removePropelCacheObject description]
+     * @param  int   $pObjectClassName If not defined, it returns the current page.
+     * @param  mixed $pPk Propel PK for $pObjectClassName int, string or array
+     */
     public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null){
         if ($pObjectPk){
             self::deleteCache('Object-'.$pObjectClassName.'_'.$pObjectPk, null);

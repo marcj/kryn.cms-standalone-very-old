@@ -75,7 +75,7 @@ class AdminController {
                 ->setCheckAccess(array($this, 'checkAccess'))
                 ->setExceptionHandler($exceptionHandler)
 
-                ->setFallbackMethod('showLogin')
+                ->addGetRoute('', 'showLogin')
 
                 ->addGetRoute('loadCss/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser', array('username', 'password'))
@@ -86,7 +86,6 @@ class AdminController {
                     ->addGetRoute('languagePluralForm', 'getLanguagePluralForm', array('lang'))
                     ->addGetRoute('language', 'getLanguage', array('lang'))
                 ->done()
-
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
@@ -178,6 +177,9 @@ class AdminController {
 
                         ->addGetRoute('objects', 'getObjects', array('name'))
                         ->addPostRoute('objects', 'saveObjects', array('name'))
+
+                        ->addGetRoute('plugins', 'getPlugins', array('name'))
+                        ->addPostRoute('plugins', 'savePlugins', array('name'))
 
                         ->addPostRoute('model/from-object', 'setModelFromObject', array('name', 'object'))
 

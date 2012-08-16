@@ -725,6 +725,8 @@ class Server {
 
         $uri = substr($this->getClient()->getUrl(), strlen($this->triggerUrl));
 
+        if (!$uri) $uri = '';
+
         $this->normalizeUrl($uri);
 
         $route = false;
@@ -919,6 +921,7 @@ class Server {
         }
 
         $phpDoc = $this->parsePhpDoc($phpDoc);
+
         
         $refParams = $pMethod->getParameters();
         $params = array();
@@ -938,6 +941,9 @@ class Server {
 
         $parameters = array();
 
+        if (is_string(key($phpDoc['param'])))
+            $phpDoc['param'] = array($phpDoc['param']);
+
         $c = 0;
         foreach ($phpDoc['param'] as $phpDocParam){
 
@@ -954,7 +960,7 @@ class Server {
             $parameter['required'] = !$param->isOptional();
             
             if ($param->isDefaultValueAvailable()){
-                $parameter['default'] = $param->getDefaultValue();
+                $parameter['default'] = str_replace(array("\n", ' '), '', var_export($param->getDefaultValue(), true));
             }
             $parameters[$this->argumentName($phpDocParam['name'])] = $parameter;
             $c++;

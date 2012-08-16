@@ -362,6 +362,7 @@ abstract class ClientAbstract {
     public function syncStore() {
         if ($this->config['store']['class'] == 'database'){
             $this->getSession()->save();
+            Kryn::setPropelCacheObject('Session', null, $this->getSession());
         } else {
             $this->cache->set($this->tokenId . '_' . $this->token, serialize($this->getSession()), $this->config['timeout']);
         }
@@ -525,16 +526,10 @@ abstract class ClientAbstract {
         if (!$session) return false;
 
         if ($session->getTime() + $this->config['timeout'] < time()) {
+            Kryn::removePropelCacheObject('Session', $pToken);
             $session->delete();
             return false;
         }
-
-        /*if ($session->getExtra()) {
-            $extra = @json_decode($session->getExtra(), true);
-            if (is_array($extra))
-                $row = array_merge($session->asArray(), $extra);
-            $this->session->setExtra($extra);
-        }*/
 
         return $session;
     }

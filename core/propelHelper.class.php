@@ -1,6 +1,6 @@
 <?php
 
-use Core\SystemFile;
+namespace Core;
 
 class propelHelper {
 
@@ -17,11 +17,11 @@ class propelHelper {
             $result = self::fullGenerator();
         } catch(Exception $e){
             self::cleanup();
-            Core\Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
+            Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
         }
 
         self::cleanup();
-        Core\Kryn::internalMessage('Propel initialization', $result);
+        Kryn::internalMessage('Propel initialization', $result);
     }
 
     public static function callGen($pCmd){
@@ -57,7 +57,7 @@ class propelHelper {
     }
 
     public static function checkModelXml(){
-        foreach (Core\Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension){
 
             if ($extension == 'kryn') continue;
 
@@ -127,7 +127,7 @@ class propelHelper {
         $config = str_replace($line, $classDefinition, $config);
 
         file_put_contents('propel-config.php', $config);
-        Core\File::setPermission('propel-config.php');
+        File::setPermission('propel-config.php');
 
         return $content;
     }
@@ -164,7 +164,7 @@ class propelHelper {
 
         self::collectObjectToExtension();
         
-        foreach (Core\Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension){
             delDir(PATH_MODULE.$extension.'/model/map/');
             delDir(PATH_MODULE.$extension.'/model/om');
         }
@@ -231,8 +231,8 @@ class propelHelper {
             self::generatePropelPhpConfig();
         }
 
-        if (!Propel::isInit()){
-            Propel::init($file);
+        if (!\Propel::isInit()){
+            \Propel::init($file);
         }
 
         $sql = self::getSqlDiff();
@@ -294,7 +294,7 @@ class propelHelper {
 
     public static function collectObjectToExtension(){
 
-        foreach (Core\Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension){
 
             if ($extension == 'kryn') continue;
 
@@ -318,7 +318,7 @@ class propelHelper {
 
         $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">";
 
-        foreach (Core\Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension){
 
             if ($extension == 'kryn') continue;
 
@@ -334,7 +334,7 @@ class propelHelper {
                 $newSchema .= "</database>";
 
                 $file = $extension.'.schema.xml';
-                \Core\SystemFile::setContent('propel/'.$file, $newSchema);
+                SystemFile::setContent('propel/'.$file, $newSchema);
             }
 
         }
@@ -361,32 +361,32 @@ class propelHelper {
         require_once 'phing/Phing.php';
 
         $outStreamS = fopen("php://memory", "w+");
-        $outStream = new OutputStream($outStreamS);
+        $outStream = new \OutputStream($outStreamS);
         $cmd = implode(' ', $argv);
         $outStream->write("\n\nExecute command: ".$cmd."\n\n");
 
 
         try {
             /* Setup Phing environment */
-            Phing::startup();
+            \Phing::startup();
 
             error_reporting(E_ALL ^ E_NOTICE);
 
-            Phing::setOutputStream($outStream);
-            Phing::setErrorStream($outStream);
+            \Phing::setOutputStream($outStream);
+            \Phing::setErrorStream($outStream);
 
             // Set phing.home property to the value from environment
             // (this may be NULL, but that's not a big problem.)
-            Phing::setProperty('phing.home', getenv('PHING_HOME'));
+            \Phing::setProperty('phing.home', getenv('PHING_HOME'));
 
             // Grab and clean up the CLI arguments
             $args = isset($argv) ? $argv : $_SERVER['argv']; // $_SERVER['argv'] seems to not work (sometimes?) when argv is registered
             array_shift($args); // 1st arg is script name, so drop it
             // Invoke the commandline entry point
-            Phing::fire($args);
+            \Phing::fire($args);
 
             // Invoke any shutdown routines.
-            Phing::shutdown();
+            \Phing::shutdown();
         } catch (Exception $x) {
             chdir($chdir);
             set_include_path($oldIncludePath);
@@ -417,17 +417,17 @@ class propelHelper {
         if (!mkdirr($folder = 'propel/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = Core\Kryn::$config['database']['type'];
+        $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Core\Kryn::$config['database']['server'].';dbname='.Core\Kryn::$config['database']['name'].';';
+        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'].';';
 
         $properties = '
 propel.database = '.$adapter.'
 propel.database.url = '.$dsn.'
-propel.database.user = '.Core\Kryn::$config['database']['user'].'
-propel.database.password = '.Core\Kryn::$config['database']['passwd'].'
-propel.tablePrefix = '.Core\Kryn::$config['database']['prefix'].'
+propel.database.user = '.Kryn::$config['database']['user'].'
+propel.database.password = '.Kryn::$config['database']['passwd'].'
+propel.tablePrefix = '.Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
 propel.project = kryn';
 
@@ -439,12 +439,12 @@ propel.project = kryn';
         if (!mkdirr($folder = 'propel/build/conf/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
-        $adapter = Core\Kryn::$config['database']['type'];
+        $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Core\Kryn::$config['database']['server'].';dbname='.Core\Kryn::$config['database']['name'];
+        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
 
-        $persistent = Core\Kryn::$config['database']['persistent'] ? true:false;
+        $persistent = Kryn::$config['database']['persistent'] ? true:false;
 
         $xml = '<?xml version="1.0"?>
 <config>
@@ -455,13 +455,13 @@ propel.project = kryn';
                 <connection>
                     <classname>PropelPDO</classname>
                     <dsn>'.$dsn.'</dsn>
-                    <user>'.Core\Kryn::$config['database']['user'].'</user>
-                    <password>'.Core\Kryn::$config['database']['passwd'].'</password>
+                    <user>'.Kryn::$config['database']['user'].'</user>
+                    <password>'.Kryn::$config['database']['passwd'].'</password>
                     <options>
                         <option id="ATTR_PERSISTENT">'.$persistent.'</option>
                     </options>';
 
-        if (Core\Kryn::$config['database']['type'] == 'mysql'){
+        if (Kryn::$config['database']['type'] == 'mysql'){
             $xml .= '
                     <attributes>
                         <option id="ATTR_EMULATE_PREPARES">true</option>

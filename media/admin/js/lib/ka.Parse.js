@@ -67,7 +67,7 @@ ka.Parse = new Class({
                         }.bind(this));
                         this.fields[obj.field.againstField].fireEvent('check-depends');
                     } else {
-                        logger('ka.Field "againstField" does not exist: '+obj.field.againstField);
+                        //logger('ka.Field "againstField" does not exist: '+obj.field.againstField);
                     }
                 }
             }

@@ -6,7 +6,7 @@ namespace Admin;
  * RestController for the entry points which are from type store or framework window.
  *
  */
-class RestEntryPoint extends \RestServer {
+class RestEntryPoint extends \RestService\Server {
 
     public function run($pEntryPoint){
 

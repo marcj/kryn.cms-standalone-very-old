@@ -51,6 +51,30 @@ class Editor {
         return $windows;
     }
 
+
+    public function getPlugins($pName) {
+        Manager::prepareName($pName);
+
+        $config = $this->getConfig($pName);
+        if ($config['noConfig'])
+            throw new \ModuleNotFoundException(tf('Module %s not found.', $pName));
+
+        return $config['plugins'];
+    }
+
+    public function savePlugins($pName) {
+        Manager::prepareName($pName);
+
+        $config = $this->getConfig($pName);
+
+        $plugins = json_decode(getArgv('plugins'), true);
+        $config['plugins'] = $plugins;
+
+        return $this->setConfig($pName, $config);
+    }
+
+
+
     public function getObjects($pName) {
         Manager::prepareName($pName);
         $config = $this->getConfig($pName);

@@ -86,16 +86,16 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(t('Add plugin'), this.addPlugin.bind(this));
         buttonBar.addButton(t('Save'), this.savePlugins.bind(this));
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getPlugins', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/plugins', noCache: 1, onComplete: function (res) {
 
             if (res) {
-                Object.each(res, function (item, key) {
+                Object.each(res.data, function (item, key) {
                     this.addPlugin(item, key)
                 }.bind(this));
             }
             this.loader.hide();
 
-        }.bind(this)}).post({name: this.mod});
+        }.bind(this)}).get({name: this.mod});
     },
 
     savePlugins: function () {

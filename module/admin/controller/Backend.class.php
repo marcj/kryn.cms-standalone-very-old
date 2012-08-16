@@ -77,19 +77,31 @@ class Backend {
     }
 
     /**
-     *  ** asdad
-     * Peter sd @asdasd
-     * sadasd
-     * @param  array    $keys  very long awesome
-     *                       descroption yeah!
-     * @param  string $peter [description]
-     * @return [type]        [description]
+     * Returns a huge array with settings.
+     *
+     * items: 
+     *
+     *  modules
+     *  configs
+     *  layouts
+     *  contents
+     *  navigations
+     *  themes
+     *  themeProperties
+     *  user
+     *  groups
+     *  langs
+     *
+     *  Example: settings?keys[]=modules&keys[]=layouts
+     * 
+     * @param  array $keys Limits the result.
+     * @return array
      */
-    public function getSettings(array $keys, $peter = 'hhu'){
+    public function getSettings($keys = array()){
 
-        $loadKeys = false;
-        if (getArgv('keys')){
-            $loadKeys = getArgv('keys');
+        $loadKeys = $keys;
+        if (!$loadKeys){
+            $loadKeys = false;
         }
 
         $res = array();
@@ -187,7 +199,7 @@ class Backend {
             $res['r2d'] =& Kryn::getCache("systemPages2Domain");
 
             if (!$res['r2d']){
-                $res['r2d'] = adminPages::updatePage2DomainCache();
+                $res['r2d'] = \Admin\Pages::updatePage2DomainCache();
             }
 
             if (!$res['r2d'])
@@ -206,7 +218,7 @@ class Backend {
         }
 
 
-        if ($loadKeys == false || in_array('modules', $loadKeys)){
+        if ($loadKeys == false || in_array('langs', $loadKeys)){
             $tlangs = \LangsQuery::create()->filterByVisible(1)->find();
             $langs = dbToKeyIndex($tlangs->toArray(), 'code');
             $res['langs'] = $langs;

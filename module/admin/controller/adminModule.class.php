@@ -668,17 +668,6 @@ class $pClassName extends $pClass {
 
         return $res;
     }
-
-    public static function getPlugins($pName) {
-        $config = self::loadConfig($pName);
-        return $config['plugins'];
-    }
-
-    public static function getObjects($pName) {
-        $config = self::loadConfig($pName);
-        return $config['objects'];
-    }
-
     public static function getCategoryItems($pId, $pLang) {
         global $cfg;
         $res = wget($cfg['repoServer'] . "/?exGetCategoryList=1&id=$pId&lang=" . $pLang);
@@ -779,32 +768,6 @@ class $pClassName extends $pClass {
 
         $db = json_decode(getArgv('tables'), true);
         $config['db'] = $db;
-
-        $res = self::writeConfig($name, $config);
-        return $res === true?true:$res;
-    }
-
-    public static function saveObjects() {
-
-        $name = getArgv('name', 2);
-
-        $config = self::loadConfig($name);
-
-        $objects = json_decode(getArgv('objects'), true);
-        $config['objects'] = $objects;
-
-        $res = self::writeConfig($name, $config);
-        return $res === true?true:$res;
-    }
-
-    public static function savePlugins() {
-
-        $name = getArgv('name', 2);
-
-        $config = self::loadConfig($name);
-
-        $plugins = json_decode(getArgv('plugins'), true);
-        $config['plugins'] = $plugins;
 
         $res = self::writeConfig($name, $config);
         return $res === true?true:$res;
