@@ -146,6 +146,14 @@ class Server {
 
 
     /**
+     * If this controller can not find a route,
+     * we fire this method and send the result.
+     * 
+     * @var string
+     */
+    private $fallbackMethod = '';
+
+    /**
      * Constructor
      *
      * @param string        $pTriggerUrl
@@ -238,6 +246,26 @@ class Server {
      */
     public function getCheckAccess(){
         return $this->checkAccessFn;
+    }
+
+    /**
+     * If this controller can not find a route,
+     * we fire this method and send the result.
+     * 
+     * @param string $pFn Methodname of current attached class
+     * @return Server $this
+     */
+    public function setFallbackMethod($pFn){
+        $this->fallbackMethod = $pFn;
+        return $this;
+    }
+
+    /**
+     * Getter for fallbackMethod
+     * @return string
+     */
+    public function fallbackMethod(){
+        return $this->fallbackMethod;
     }
 
 
@@ -701,27 +729,35 @@ class Server {
 
         $route = false;
         $arguments = array();
+        $requiredMethod = $this->getClient()->getMethod();
 
         //does the requested uri exist?
-        list($methodName, $regexArguments, $trigger, $method) = $this->findRoute($uri, $this->getClient()->getMethod());
+        list($methodName, $regexArguments, $method, $routeUri) = $this->findRoute($uri, $requiredMethod);
+
+        if ((!$methodName || $method != 'options') && $requiredMethod == 'options'){
+            $description = $this->describe($uri);
+            $this->send($description);
+        }
 
         if (!$methodName){
             if (!$this->getParent()){
-                $this->sendBadRequest('rest_route_not_found', "There is no route for '$uri'.");
+                if ($this->fallbackMethod){
+                    $m = $this->fallbackMethod;
+                    $this->send($this->controller->$m());
+                } else {
+                    $this->sendBadRequest('route_not_found', "There is no route for '$uri'.");
+                }
             } else {
                 return false;
             }
         }
 
-        if ($method != '_all_'){
+        if ($method == '_all_')
             $arguments[] = $method;
-
-        }
 
         if (is_array($regexArguments)){
             $arguments = array_merge($arguments, $regexArguments);
         }
-
 
         //open class and scan method
         $ref = new \ReflectionClass($this->controller);
@@ -734,11 +770,14 @@ class Server {
         }
 
         foreach ($params as $param){
-            if (!$param->isOptional() && $_REQUEST[$param->getName()] === null){
-                $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $param->getName()));
+            $name = $this->argumentName($param->getName());
+
+            if (!$param->isOptional() && $_REQUEST[$name] === null){
+                $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $name));
             }
+
+            $arguments[] = $_REQUEST[$name];
         }
-        var_dump('ok'); exit;
 
         if ($this->checkAccessFn){
             $args[] = $this->getClient()->getUrl();
@@ -752,81 +791,306 @@ class Server {
         }
 
         //fire method
-        $method = $route[0];
         $object = $this->controller;
 
-        if (!method_exists($object, $method)){
-            $this->sendError('rest_method_not_found', tf('Method %s in class %s not found.', $method, get_class($object)));
+        if (!method_exists($object, $methodName)){
+            $this->sendError('rest_method_not_found', tf('Method %s in class %s not found.', $methodName, get_class($object)));
         }
 
         try {
-            $data = call_user_func_array(array($object, $method), $arguments);
+            $data = call_user_func_array(array($object, $methodName), $arguments);
             $this->send($data);
         } catch(\Exception $e){
             $this->sendException($e);
         }
-
     }
 
-    public function collectArguments(&$pArguments, $pNeedArguments, $pRequired){
+    /**
+     * Describe a route or the whole controller with all routes.
+     * 
+     * @param  string $pUri
+     * @return array
+     */
+    public function describe($pUri = null, $pOnlyRoutes = false){
 
-        if (is_array($pNeedArguments)){
-            $black = $this->getRewrittenRuleKey();
+        $definition = array();
 
-            foreach ($pNeedArguments as $argument){
-                if ($_REQUEST[$argument] === null && $pRequired)
-                    $this->sendBadRequest('rest_required_argument_not_found', "Argument '$argument' is missing.");
+        if (!$pOnlyRoutes){
+            $definition['parameters'] = array(
+                'method' => array('description' => 'Can be used as HTTP METHOD if the client does not support HTTP methods.', 'type' => 'string',
+                            'values' => 'GET, POST, PUT, DELETE, HEAD, OPTIONS'),
+                'suppress_status_code' => array('description' => 'Suppress the HTTP status code.', 'type' => 'boolean', 'values' => '1, 0')
+            );
+        }
 
-                if ($argument == '_'){
-                    //we collect all arguments that begins with _
-                    $arguments = array();
-                    foreach ($_REQUEST as $k => $v){
-                        if ($black != $k && substr($k, 0, 1) == '_'){
-                            $arguments[substr($k, 1)] = $v; 
-                        }
-                    }
-                    $pArguments[] = $arguments;
-                } else {
-                    $pArguments[] = $_REQUEST[$argument];
+        $definition['controller'] = array(
+            'entryPoint' => $this->getTriggerUrl()
+        );
+
+        foreach ($this->routes as $routeUri => $routeMethods){
+
+            if (!$pUri || ($pUri && preg_match('|^'.$routeUri.'$|', $pUri, $matches))){
+
+                if ($matches){
+                    array_shift($matches);
+                }
+                $def = array();
+                $def['uri'] = $this->getTriggerUrl().'/'.$routeUri;
+                
+                foreach ($routeMethods as $method => $phpMethod){
+    
+                    $ref = new \ReflectionClass($this->controller);
+                    $refMethod = $ref->getMethod($phpMethod);
+
+                    $def['methods'][strtoupper($method)] = $this->getMethodMetaData($refMethod, $matches);
+                    
+                }
+                $definition['controller']['routes'][$routeUri] = $def;
+            }
+        }
+
+        if (!$pUri){
+            foreach ($this->controllers as $controller){
+                $definition['subController'][$controller->getTriggerUrl()] = $controller->describe(false, true);
+            }
+        } 
+
+        return $definition; 
+    }
+
+    /**
+     * Fetches all meta data informations as params, return type etc.
+     * 
+     * @param  \ReflectionMethod $pMethod
+     * @param  array             $pRegMatches
+     * @return array
+     */
+    public function getMethodMetaData(\ReflectionMethod $pMethod, $pRegMatches){
+
+        $file = $pMethod->getFileName();
+        $startLine = $pMethod->getStartLine();
+
+        $fh = fopen($file, 'r');
+        if (!$fh) return false;
+
+        $lineNr = 1;
+        $lines = array();
+        while (($buffer = fgets($fh)) !== false) {
+            if ($lineNr == $startLine) break;
+            $lines[$lineNr] = $buffer;
+            $lineNr++;
+        }
+        fclose($fh);
+
+        $phpDoc = '';
+        $blockStarted = false;
+        while($line = array_pop($lines)){
+
+
+            if ($blockStarted){
+                $phpDoc = $line.$phpDoc;
+
+                //if start comment block: /*
+                if (preg_match('/\s*\t*\/\*/', $line)){
+                    break;
+                }
+                continue;
+            } else {
+                //we are not in a comment block.
+                //if class def, array def or close bracked from fn comes above
+                //then we dont have phpdoc
+                if (preg_match('/^\s*\t*[a-zA-Z_&\s]*(\$|{|})/', $line)){
+                    break;
+                } 
+            }
+
+            $trimmed = trim($line);
+            if ($trimmed == '') continue;            
+
+            //if end comment block: */
+            if (preg_match('/\*\//', $line)){
+                $phpDoc = $line.$phpDoc;
+                $blockStarted = true;
+                //one line php doc?
+                if (preg_match('/\s*\t*\/\*/', $line)){
+                    break;
                 }
             }
         }
+
+        $phpDoc = $this->parsePhpDoc($phpDoc);
+        
+        $refParams = $pMethod->getParameters();
+        $params = array();
+
+        if (!$phpDoc['param'])
+            $fillPhpDocParam = true;
+
+        foreach ($refParams as $param){
+            $params[$param->getName()] = $param;
+            if ($fillPhpDocParam){
+                $phpDoc['param'][] = array(
+                    'name' => $param->getName(),
+                    'type' => $param->isArray()?'array':'mixed'
+                );
+            }
+        }
+
+        $parameters = array();
+
+        $c = 0;
+        foreach ($phpDoc['param'] as $phpDocParam){
+
+            $param = $params[$phpDocParam['name']];
+            if (!$param) continue;
+            $parameter = array(
+                'type' => $phpDocParam['type']
+            );
+
+            if (is_array($pRegMatches) && $pRegMatches[$c]){
+                $parameter['fromRegex'] = '$'.($c+1);
+            }
+
+            $parameter['required'] = !$param->isOptional();
+            
+            if ($param->isDefaultValueAvailable()){
+                $parameter['default'] = $param->getDefaultValue();
+            }
+            $parameters[$this->argumentName($phpDocParam['name'])] = $parameter;
+            $c++;
+        }
+
+        if (!$phpDoc['return'])
+            $phpDoc['return'] = array('type' => 'mixed');
+
+        return array(
+            'description' => $phpDoc['description'],
+            'parameters' => $parameters,
+            'return' => $phpDoc['return']
+        );
+    }
+
+    /**
+     * Parse phpDoc string and returns an array.
+     * 
+     * @param  string $pString
+     * @return array
+     */
+    public function parsePhpDoc($pString){
+
+        preg_match('#^/\*\*(.*)\*/#s', trim($pString), $comment);
+
+        $comment = trim($comment[1]);
+
+        preg_match_all('/^\s*\*(.*)/m', $comment, $lines);
+        $lines = $lines[1];
+
+        $tags = array();
+        $currentTag = '';
+        $currentData = '';
+
+        foreach ($lines as $line){
+            $line = trim($line);
+
+            if (substr($line, 0, 1) == '@'){
+
+                if ($currentTag)
+                    $tags[$currentTag][] = $currentData;
+                else
+                    $tags['description'] = $currentData;
+
+                $currentData = '';
+                preg_match('/@([a-zA-Z_]*)/', $line, $match);
+                $currentTag = $match[1];
+            }
+
+            $currentData = trim($currentData.' '.$line);
+
+        }
+        if ($currentTag)
+            $tags[$currentTag][] = $currentData;
+        else
+            $tags['description'] = $currentData;
+
+
+        //parse tags
+        $regex = array(
+            'param' => array('/^@param\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*\$([a-zA-Z_]*)\s*\t*(.*)/', array('type', 'name', 'description')),
+            'return' => array('/^@return\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*(.*)/', array('type', 'description')),
+        );
+        foreach ($tags as $tag => &$data){
+            if ($tag == 'description') continue;
+            foreach ($data as &$item){
+                if ($regex[$tag]){
+                    preg_match($regex[$tag][0], $item, $match);
+                    $item = array();
+                    $c = count($match);
+                    for($i =1; $i < $c; $i++){
+                        if ($regex[$tag][1][$i-1]){
+                            $item[$regex[$tag][1][$i-1]] = $match[$i];
+
+                        }
+                    }
+                }
+            }
+            if (count($data) == 1)
+                $data = $data[0];
+
+        }
+        
+        return $tags;
+    }
+
+    /**
+     * If the name is a camelcased one whereas the first char is lowercased,
+     * then we remove the first char and set first char to lower case.
+     * 
+     * @param  string $pName
+     * @return string
+     */
+    public function argumentName($pName){
+        if (ctype_lower(substr($pName, 0, 1)) && ctype_upper(substr($pName, 1, 1))){
+            return strtolower(substr($pName, 1, 1)).substr($pName, 2);
+        } return $pName;
     }
 
     /**
      * Find and return the route for $pUri.
      *
      * @param string $pUri
-     * @param string $pMethod limit to method
+     * @param string $pMethod limit to method.
      * @return array|boolean
      */
     public function findRoute($pUri, $pMethod = '_all_'){
 
         if ($method = $this->routes[$pUri][$pMethod]){
-            return array($method, null, $pUri, $pMethod);
+            return array($method, null, $pMethod, $oUri);
         } else if ($pMethod != '_all_' && $method = $this->routes[$pUri]['_all_']){
-            return array($method, null, $pUri, $pMethod);
+            return array($method, null, $pMethod, $pUri);
         } else {
-
             //maybe we have a regex uri
+
             foreach ($this->routes as $routeUri => $routeMethods){
 
                 if (preg_match('|^'.$routeUri.'$|', $pUri, $matches)){
 
-                    if ($routeMethod != $routeMethods[$pMethod]){
-                        if ($routeMethod != $routeMethods['_all_'])
+                    if (!$routeMethods[$pMethod]){
+                        if ($routeMethods['_all_'])
+                            $pMethod = '_all_';
+                        else
                             continue;
                     }
+
                     array_shift($matches);
                     foreach ($matches as $match){
                         $arguments[] = $match;
                     }
 
-                    return array($routeMethod, $arguments, $pUri, $pMethod);
+                    return array($routeMethod, $arguments, $pMethod, $routeUri);
                 }
 
             }
-            }
+        }
 
         return false;
     }

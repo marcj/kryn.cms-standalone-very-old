@@ -418,6 +418,11 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <td><a href="http://codemirror.net/">codemirror.net</a></td>
     <td>&raquo; <a href="lib/codemirror/LICENSE">MIT-style license</a></td>
 </tr>
+<tr>
+    <td>Doqumentator TODO</td>
+    <td><a href="http://codemirror.net/">codemirror.net</a></td>
+    <td>&raquo; <a href="lib/codemirror/LICENSE">MIT-style license</a></td>
+</tr>
 
 <tr>
     <td>Silk icon set 1.3</td>

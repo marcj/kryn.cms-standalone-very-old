@@ -24,6 +24,9 @@ class Controller {
     }
 
 
+    public function deleteItem($pObject, $pPk){
+    }
+
     public function putItem($pObject, $pSetFields){
 
         if (!count($pSetFields))
@@ -36,8 +39,14 @@ class Controller {
         return \Core\Object::add($pObject, $pSetFields, $options);
     }
 
-
-    public function getItem($pObject, $pPk, $pFields){
+    /**
+     * asd 
+     * @param  [type] $pObject [description]
+     * @param  [type] $pPk     [description]
+     * @param  [type] $pFields [description]
+     * @return [type]          [description]
+     */
+    public function getItem($pObject, $pPk, $pFields = null){
 
         $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
         $options['fields'] = $pFields;

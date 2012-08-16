@@ -30,6 +30,7 @@ spl_autoload_register(function($pClass){
 
     $extension = strtolower(substr($pClass, 0, strpos($pClass, '\\')));
     $fullClazz = str_replace('\\', '/', $pClass).'.class.php';
+    $fullClazzWC = str_replace('\\', '/', $pClass).'.php';
 
     $clazz = substr($fullClazz, strlen($extension)+1);
 
@@ -49,6 +50,11 @@ spl_autoload_register(function($pClass){
     }
 
     if (file_exists($file = 'lib/'.$fullClazz)){
+        include($file);
+        return true;
+    }
+
+    if (file_exists($file = 'lib/'.$fullClazzWC)){
         include($file);
         return true;
     }

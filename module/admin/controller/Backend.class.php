@@ -76,7 +76,16 @@ class Backend {
         die($content);
     }
 
-    public function getSettings($peter) {
+    /**
+     *  ** asdad
+     * Peter sd @asdasd
+     * sadasd
+     * @param  array    $keys  very long awesome
+     *                       descroption yeah!
+     * @param  string $peter [description]
+     * @return [type]        [description]
+     */
+    public function getSettings(array $keys, $peter = 'hhu'){
 
         $loadKeys = false;
         if (getArgv('keys')){

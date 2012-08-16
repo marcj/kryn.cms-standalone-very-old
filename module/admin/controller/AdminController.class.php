@@ -66,9 +66,6 @@ class AdminController {
 
         } else {
 
-            if (php_sapi_name() !== 'cli' && !getArgv(2))
-                self::showLogin();
-
             if (Kryn::$config['displayRestErrors']){
                 $exceptionHandler = array($this, 'exceptionHandler');
             }
@@ -77,6 +74,8 @@ class AdminController {
 
                 ->setCheckAccess(array($this, 'checkAccess'))
                 ->setExceptionHandler($exceptionHandler)
+
+                ->setFallbackMethod('showLogin')
 
                 ->addGetRoute('loadCss/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser', array('username', 'password'))
@@ -125,14 +124,14 @@ class AdminController {
                     ->done()
 
                     //admin/backend/object-branch
-                    ->addSubController('object-branch', '\Admin\Object\Controller')
+                    /*->addSubController('object-branch', '\Admin\Object\Controller')
                         ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch', null, array(
                             'fields', 'order', 'depth'
                         ))
                         ->addGetRoute('([a-zA-Z-_]+)', 'getRootBranches', null, array(
                             'fields', 'order', 'depth'
                         ))
-                    ->done()
+                    ->done()*/
 
                     //admin/backend/object-count
                     ->addSubController('object-count', '\Admin\Object\Controller')

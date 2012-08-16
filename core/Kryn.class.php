@@ -1131,7 +1131,7 @@ class Kryn {
             $cachedUrls =& Kryn::getCache('systemUrls-' . $domain_id);
 
             if (!$cachedUrls || !$cachedUrls['id']) {
-                $cachedUrls = \adminPages::updateUrlCache($domain_id);
+                $cachedUrls = \Admin\Pages::updateUrlCache($domain_id);
             }
         }
 
@@ -1514,7 +1514,7 @@ class Kryn {
         if (!$domain && !$pNoRefreshCache){
             //we refresh the cache and try it again one times.
 
-            \adminPages::updateDomainCache();
+            \Admin\Pages::updateDomainCache();
             return self::detectDomain(true);
         }
 
@@ -1708,7 +1708,7 @@ class Kryn {
         $page2Domain =& Kryn::getCache('systemPages2Domain');
 
         if (!is_array($page2Domain)) {
-            $page2Domain = \adminPages::updatePage2DomainCache();
+            $page2Domain = \Admin\Pages::updatePage2DomainCache();
         }
 
         $pId = ',' . $pId . ',';

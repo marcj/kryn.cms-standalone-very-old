@@ -142,7 +142,7 @@ function json_format($json) {
     $result      = '';
     $pos         = 0;
     $strLen      = strlen($json);
-    $indentStr   = '  ';
+    $indentStr   = '    ';
     $newLine     = "\n";
     $prevChar    = '';
     $outOfQuotes = true;
