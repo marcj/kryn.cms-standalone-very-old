@@ -1,14 +1,8 @@
 {
   "owner": "1",
   "version": "0.6.0",
-  "desc": {
-    "en": "Publication is a small news\/blog system, where you can manage and display news.",
-    "de": "Ein Blog und News-System mit Kommentarfunktion und dem Grundsatz an Backendfunktionalitaet"
-  },
-  "title": {
-    "en": "Articles and Blogs",
-    "de": "Artikel und Blogs"
-  },
+  "desc": "Publication is a small news and blog system.",
+  "title": "Articles and Blogs",
   "category": "1",
   "community": "1",
   "writableFiles": "inc\/template\/publication\/*",

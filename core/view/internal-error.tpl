@@ -55,7 +55,7 @@
 </head>
 <body>
 <div id="error">
-    <img src="media/kryn/images/logo_white.png" />
+    <img src="media/core/images/logo_white.png" />
     <h2>{$title}</h2>
     <div class="msg"><pre>{$msg}</pre>
 
@@ -72,7 +72,7 @@
     {/if}
     </div>
 </div>
-<script type="text/javascript" src="media/kryn/js/bgNoise.js"></script>
+<script type="text/javascript" src="media/core/js/bgNoise.js"></script>
 {if $backtrace}
 {literal}
     <script type="text/javascript">

@@ -214,12 +214,12 @@ header("Content-Type: text/html; charset=utf-8");
       .breaker { clear: both }
 
     </style>
-    <script type="text/javascript" src="media/kryn/mootools-core.js"></script>
-    <script type="text/javascript" src="media/kryn/mootools-more.js"></script>
+    <script type="text/javascript" src="media/core/mootools-core.js"></script>
+    <script type="text/javascript" src="media/core/mootools-more.js"></script>
     <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
   </head>
   <body>
-    <img class="logo" src="media/kryn/images/logo_white.png" />
+    <img class="logo" src="media/core/images/logo_white.png" />
     <div class="wrapper">
     <h2 class="main">Installation</h2>
 <?php
@@ -277,7 +277,7 @@ function checkConfig(){
 	    "db_passwd"   => $_REQUEST['passwd'],
 	    "db_name"     => $_REQUEST['db'],
 	    "db_prefix"   => $_REQUEST['prefix'],
-	    "db_type"     => $_REQUEST['db_type'],
+	    "db_type"     => $_REQUEST['type'],
 	    "db_pdo"      => $_REQUEST['pdo']
 	);
 
@@ -536,9 +536,9 @@ function step5Done($pMsg){
 
         try {
             //create the propel config
-            \Core\propelHelper::writeXmlConfig();
-            \Core\propelHelper::writeBuildPorperties();
-            \Core\propelHelper::collectSchemas();
+            \Core\PropelHelper::writeXmlConfig();
+            \Core\PropelHelper::writeBuildPorperties();
+            \Core\PropelHelper::collectSchemas();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -550,7 +550,7 @@ function step5Done($pMsg){
     function step5_4(){
 
         try {
-            $res = \Core\propelHelper::generateClasses();
+            $res = \Core\PropelHelper::generateClasses();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -561,7 +561,7 @@ function step5Done($pMsg){
     //Write main ./propel-config.php
     function step5_5(){
         try {
-            $res = \Core\propelHelper::generatePropelPhpConfig();
+            $res = \Core\PropelHelper::generatePropelPhpConfig();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -572,7 +572,7 @@ function step5Done($pMsg){
     function step5_6(){
 
         try {
-            $res = \Core\propelHelper::updateSchema();
+            $res = \Core\PropelHelper::updateSchema();
         } catch (Exception $e){
             step5Failed($e->getMessage());
         }
@@ -622,7 +622,7 @@ function step5Done($pMsg){
     //cleanup
     function step5_9(){
 
-        \Core\propelHelper::cleanup();
+        \Core\PropelHelper::cleanup();
 
         //load all configs
         \Core\Kryn::loadConfigs();
@@ -1145,7 +1145,7 @@ function step3(){
 }
 
 ?>
-    <script type="text/javascript" src="media/kryn/js/bgNoise.js"></script>
+    <script type="text/javascript" src="media/core/js/bgNoise.js"></script>
     </div>
   </body>
 </html>

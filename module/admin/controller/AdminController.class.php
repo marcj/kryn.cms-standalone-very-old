@@ -77,7 +77,7 @@ class AdminController {
 
                 ->addGetRoute('', 'showLogin')
 
-                ->addGetRoute('loadCss/style.css', 'loadCss')
+                ->addGetRoute('css/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser', array('username', 'password'))
                 ->addGetRoute('logout', 'logoutUser')
 
@@ -89,7 +89,7 @@ class AdminController {
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
-                    ->addGetRoute('loadJs/script.js', 'loadJs')
+                    ->addGetRoute('js/script.js', 'loadJs')
                     ->addGetRoute('settings', 'getSettings')
 
                     ->addGetRoute('desktop', 'getDesktop')
@@ -105,21 +105,11 @@ class AdminController {
 
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getItem', null, array(
-                            'fields', '_'
-                        ))
-                        ->addPostRoute('([a-zA-Z-_]+)/([^/]+)', 'postItem', null, array(
-                            'fields', '_'
-                        ))
-                        ->addDeleteRoute('([a-zA-Z-_]+)/([^/]+)', 'deleteItem', null, array(
-                            'fields', '_'
-                        ))
-                        ->addPutRoute('([a-zA-Z-_]+)', 'putItem', null, array(
-                            '_'
-                        ))
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getItems', null, array(
-                            'fields', 'limit', 'offset', 'order', '_'
-                        ))
+                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getItem')
+                        ->addPostRoute('([a-zA-Z-_]+)/([^/]+)', 'postItem')
+                        ->addDeleteRoute('([a-zA-Z-_]+)/([^/]+)', 'deleteItem')
+                        ->addPutRoute('([a-zA-Z-_]+)', 'putItem')
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getItems')
                     ->done()
 
                     //admin/backend/object-branch
@@ -180,6 +170,10 @@ class AdminController {
 
                         ->addGetRoute('plugins', 'getPlugins', array('name'))
                         ->addPostRoute('plugins', 'savePlugins', array('name'))
+
+                        //
+                        ->addPostRoute('new-window', 'newWindow')
+
 
                         ->addPostRoute('model/from-object', 'setModelFromObject', array('name', 'object'))
 

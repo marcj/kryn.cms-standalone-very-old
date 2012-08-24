@@ -629,13 +629,13 @@ class Server {
     }
 
     /**
-     * Constructor
+     * Attach a sub controller.
      *
      * @param string $pTriggerUrl
-     * @param string $pControllerClass
-     * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
+     * @param mixed $pControllerClass A class name (autoloader required) or a instance of a class.
+     * @param string $pRewrittenRuleKey From the rewrite rule: for __url it's 'RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}'
      *
-     * @return Server new created Server
+     * @return Server new created Server. Use done() to switch the context back to the parent.
      */
     public function addSubController($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
 
@@ -771,14 +771,29 @@ class Server {
             array_shift($params);
         }
 
+        //remove regex arguments
+        for ($i=0; $i<count($regexArguments); $i++){
+            array_shift($params);
+        }
+
         foreach ($params as $param){
             $name = $this->argumentName($param->getName());
 
-            if (!$param->isOptional() && $_REQUEST[$name] === null){
-                $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $name));
-            }
+            if ($name == '_'){
+                $thisArgs = array();
+                foreach ($_REQUEST as $k => $v){
+                    if (substr($k, 0, 1) == '_' && $k != $this->getRewrittenRuleKey())
+                        $thisArgs[$k] = $v;
+                }
+                $arguments[] = $thisArgs;
+            } else {
 
-            $arguments[] = $_REQUEST[$name];
+                if (!$param->isOptional() && $_REQUEST[$name] === null){
+                    $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $name));
+                }
+
+                $arguments[] = $_REQUEST[$name];
+            }
         }
 
         if ($this->checkAccessFn){
@@ -794,14 +809,18 @@ class Server {
 
         //fire method
         $object = $this->controller;
+        $this->fireMethod($object, $methodName, $arguments);
 
-        if (!method_exists($object, $methodName)){
+    }
+
+    public function fireMethod($pObject, $pMethod, $pArguments){
+
+        if (!method_exists($pObject, $pMethod)){
             $this->sendError('rest_method_not_found', tf('Method %s in class %s not found.', $methodName, get_class($object)));
         }
 
         try {
-            $data = call_user_func_array(array($object, $methodName), $arguments);
-            $this->send($data);
+            $this->send(call_user_func_array(array($pObject, $pMethod), $pArguments));
         } catch(\Exception $e){
             $this->sendException($e);
         }
@@ -1075,7 +1094,6 @@ class Server {
             return array($method, null, $pMethod, $pUri);
         } else {
             //maybe we have a regex uri
-
             foreach ($this->routes as $routeUri => $routeMethods){
 
                 if (preg_match('|^'.$routeUri.'$|', $pUri, $matches)){
@@ -1092,7 +1110,7 @@ class Server {
                         $arguments[] = $match;
                     }
 
-                    return array($routeMethod, $arguments, $pMethod, $routeUri);
+                    return array($routeMethods[$pMethod], $arguments, $pMethod, $routeUri);
                 }
 
             }

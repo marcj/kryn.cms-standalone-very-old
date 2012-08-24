@@ -8,8 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
-    <script type="text/javascript" src="media/kryn/mootools-core-1.4.5-full-nocompat.js" ></script>
-    <script type="text/javascript" src="media/kryn/mootools-more-1.4.0.1-nocompat-yc.js" ></script>
+    <script type="text/javascript" src="media/core/mootools-core-1.4.5-full-nocompat.js" ></script>
+    <script type="text/javascript" src="media/core/mootools-more-1.4.0.1-nocompat-yc.js" ></script>
     <script type="text/javascript">
         window._path = window._baseUrl = '{Kryn::getBaseUrl()}';
     </script>

@@ -2,19 +2,21 @@
 
 namespace Admin;
 
+use Core\PropelHelper;
+
 class ORM {
 
 
 	public function buildEnvironment(){
-		return \propelHelper::callGen('environment');
+		return PropelHelper::callGen('environment');
 	}
 
 	public function writeModels(){
-		return \propelHelper::callGen('models');
+		return PropelHelper::callGen('models');
 	}
 
 	public function updateScheme(){
-		return \propelHelper::callGen('update');
+		return PropelHelper::callGen('update');
 	}
 
 	public function checkScheme(){

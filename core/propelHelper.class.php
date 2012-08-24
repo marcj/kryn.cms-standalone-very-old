@@ -2,7 +2,7 @@
 
 namespace Core;
 
-class propelHelper {
+class PropelHelper {
 
     public static $defaultOpts = array(
         '-Dproject.dir=../../../propel/'

@@ -120,7 +120,7 @@ var admin_system_module_edit = new Class({
 
         req.plugins = JSON.encode(req.plugins);
         req.name = this.mod;
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/savePlugins', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/plugins', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             ka.loadSettings();
         }.bind(this)}).post(req);
@@ -240,7 +240,7 @@ var admin_system_module_edit = new Class({
     saveDocu: function () {
         if (this.lr) this.lr.cancel();
         this.loader.show();
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveDocu', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
             this.loader.hide();
         }.bind(this)}).post({text: this.text.getValue(), /*lang: this.languageSelect.value, */name: this.mod});
     },
@@ -264,9 +264,9 @@ var admin_system_module_edit = new Class({
         this.text.input.setStyle('height', '100%');
         this.text.input.setStyle('width', '100%');
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getDocu', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
             this.text.setValue(res);
-        }.bind(this)}).post({/*lang: this.languageSelect.value, */name: this.mod});
+        }.bind(this)}).get({/*lang: this.languageSelect.value, */name: this.mod});
 
         this.loader.hide();
     },
@@ -384,7 +384,7 @@ var admin_system_module_edit = new Class({
             this.newWindowDialogApplyBtn.deactivate();
             this.newWindowDialogApplyBtn.startTip(t('Please wait ...'));
 
-            new Request.JSON({url: _path+'admin/system/module/newWindow', noCache: 1, onComplete: function(res){
+            new Request.JSON({url: _path+'admin/system/module/editor/new-window', noCache: 1, onComplete: function(res){
 
                 this.newWindowDialogApplyBtn.stopTip();
                 dialog.close();

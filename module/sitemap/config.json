@@ -1,11 +1,7 @@
 {
   "owner": "1",
-  "title": {
-    "en": "Sitemap"
-  },
-  "desc": {
-    "en": "Display a simple Sitemap"
-  },
+  "title": "Sitemap",
+  "desc": "Display a simple Sitemap",
   "tags": {
     "en": "sitemap"
   },

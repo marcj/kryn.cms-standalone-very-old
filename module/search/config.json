@@ -3,14 +3,8 @@
   "owner": "1",
   "community": "1",
   "category": "8",
-  "title": {
-    "en": "Search engine",
-    "de": "Suche"
-  },
-  "desc": {
-    "en": "Frontend plugin for the integrated kryn core search.",
-    "de": "Liefert die frontend Plugins, um die integriete Suchengine zu nutzen."
-  },
+  "title": "Search engine",
+  "desc": "Frontend plugin for the integrated kryn core search.",
   "writableFiles": "inc\/template\/search\/*",
   "plugins": {
     "searchForm": [

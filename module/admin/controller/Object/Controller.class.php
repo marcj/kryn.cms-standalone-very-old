@@ -64,7 +64,7 @@ class Controller {
     }
 
     public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null,
-                             $pOrder = null, $pUnderscoreFields = null){
+                             $pOrder = null, $_ = null){
 
         $options = array(
             'permissionCheck' => true,
@@ -74,7 +74,7 @@ class Controller {
             'order'  => $pOrder
         );
 
-        $condition = $this->buildFilter($pUnderscoreFields);
+        $condition = $this->buildFilter($_);
 
         return \Core\Object::getList($pObject, $condition, $options);
         

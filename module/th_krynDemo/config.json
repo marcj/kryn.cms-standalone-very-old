@@ -3,14 +3,8 @@
   "owner": "1",
   "community": "1",
   "category": "13",
-  "title": {
-    "en": "Kryn.cms Demo Theme",
-    "de": ""
-  },
-  "desc": {
-    "en": "This is the default kryn themes.",
-    "de": ""
-  },
+  "title": "Kryn.cms Demo Theme",
+  "desc": "This is the default kryn themes.",
   "themes": {
     "Kryn Demo": {
       "layouts": {

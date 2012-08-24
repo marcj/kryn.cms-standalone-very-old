@@ -61,7 +61,7 @@ include('core/bootstrap.autoloading.php');
  */
 
 if (!file_exists($file = 'propel-config.php')){
-    \propelHelper::init();
+    Core\PropelHelper::init();
 }
 
 if (!is_readable($file)){

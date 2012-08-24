@@ -894,8 +894,8 @@ ka.ai.loadBackend = function () {
 
         //ka.ai.loaderTimer = ka.ai.loaderAni.periodical(1800);
 
-        new Asset.css(_path + 'admin/loadCss/style.css');
-        new Asset.javascript(_path + 'admin/backend/loadJs/script.js');
+        new Asset.css(_path + 'admin/css/style.css');
+        new Asset.javascript(_path + 'admin/backend/js/script.js');
     }).delay(500);
 }
 

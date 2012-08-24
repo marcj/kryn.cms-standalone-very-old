@@ -32,7 +32,7 @@ class Manager {
         foreach (Kryn::$extensions as $mod) {
             $config = self::loadInfo($mod);
             $res[$mod] = $config;
-            $res[$mod]['activated'] = (Kryn::$configs[$mod]) ? 1 : 0;
+            $res[$mod]['activated'] = array_search($mod, Kryn::$config['activeModules']) !== false?1:0;
             $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
             $res[$mod]['serverCompare'] =
                 self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
@@ -60,7 +60,7 @@ class Manager {
     public function getLocal(){
 
         $modules = Kryn::readFolder(PATH_MODULE);
-        $modules[] = 'kryn';
+        $modules = array_merge(array('core'), $modules);
         $res = array();
 
         foreach ($modules as $module) {
@@ -74,7 +74,7 @@ class Manager {
             unset($config['adminJavascript']);
             unset($config['adminCss']);
             $res[$module] = $config;
-            $res[$module]['activated'] = (Kryn::$configs[$module]) ? 1 : 0;
+            $res[$module]['activated'] = array_search($module, Kryn::$config['activeModules']) !== false?1:0;
         }
 
         return $res;
@@ -92,7 +92,7 @@ class Manager {
         $pModuleName = str_replace(".", "", $pModuleName);
         $configFile = PATH_MODULE . "$pModuleName/config.json";
 
-        if ($pModuleName == 'kryn')
+        if ($pModuleName == 'core')
             $configFile = "core/config.json";
 
         $extract = false;
@@ -147,7 +147,7 @@ class Manager {
             $zipFile .= "/";
             $res = File_Archive::extract($zipFile, $toDir);
             $configFile = "data/packages/modules/$pModuleName/module/$pModuleName/config.json";
-            if ($pModuleName == 'kryn')
+            if ($pModuleName == 'core')
                 $configFile = "data/packages/modules/kryn/core/config.json";
         }
 

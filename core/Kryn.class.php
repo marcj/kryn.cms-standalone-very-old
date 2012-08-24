@@ -254,11 +254,11 @@ class Kryn {
 
     /**
      * Contains all installed extensions
-     * Example: array('kryn', 'admin', 'users', 'sitemap', 'publication');
+     * Example: array('core', 'admin', 'users', 'sitemap', 'publication');
      * @var array
      * @static
      */
-    public static $extensions = array('kryn', 'admin', 'users');
+    public static $extensions = array('core', 'admin', 'users');
 
     /**
      * Contains all installed themes
@@ -581,7 +581,7 @@ class Kryn {
 
         $md5 = '';
         foreach (Kryn::$extensions as $extension) {
-            $path = ($extension == 'kryn') ? 'core/config.json' : PATH_MODULE . $extension . '/config.json';
+            $path = ($extension == 'core') ? 'core/config.json' : PATH_MODULE . $extension . '/config.json';
             if (file_exists($path)) {
                 $md5 .= '.' . filemtime($path);
             }
@@ -731,7 +731,7 @@ class Kryn {
 
         $pModule = str_replace('.', '', $pModule);
 
-        if ($pModule == 'kryn')
+        if ($pModule == 'core')
             $config = "core/config.json";
         else
             $config = PATH_MODULE . "$pModule/config.json";
@@ -778,7 +778,7 @@ class Kryn {
         Kryn::$modules['users'] = new \Users\Controller();
 
         foreach (Kryn::$extensions as $mod) {
-            if ($mod != 'kryn' && $mod != 'admin' && $mod != 'users') {
+            if ($mod != 'core' && $mod != 'admin' && $mod != 'users') {
                 $clazz = '\\'.ucfirst($mod).'\\Controller';
                 if (class_exists($clazz))
                     Kryn::$modules[$mod] = new $mod();
@@ -1004,6 +1004,9 @@ class Kryn {
         if (!self::$config['cache'])
             self::$config['cache']['class'] = '\Core\Cache\Files';
 
+        Kryn::$config['activeModules'][] = 'core';
+        Kryn::$config['activeModules'][] = 'admin';
+        Kryn::$config['activeModules'][] = 'users';
 
         //global normal cache 
         Kryn::$cache = new Cache\Controller(self::$config['cache']['class'], self::$config['cache_params']);
@@ -1319,7 +1322,7 @@ class Kryn {
         $md5 = '';
         //<div
         foreach (Kryn::$extensions as $key) {
-            if ($key == 'kryn')
+            if ($key == 'core')
                 $md5 .= @filemtime(PATH_CORE.'lang/' . $pLang . '.po');
             else
                 $md5 .= @filemtime(PATH_MODULE . $key . '/lang/' . $pLang . '.po');
@@ -1999,7 +2002,7 @@ class Kryn {
         $pageCacheKey =
             'systemWholePage-' . Kryn::$domain->getId() . '_' . Kryn::$page->getId() . '-' . md5(Kryn::$canonical);
 
-        if (Kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && Kryn::$client->user['id'] == 0 &&
+        if (Kryn::$domainProperties['core']['cachePagesForAnons'] == 1 && Kryn::$client->user['id'] == 0 &&
             count($_POST) == 0
         ) {
 
@@ -2099,7 +2102,7 @@ class Kryn {
 
         header("Content-Type: text/html; charset=utf-8");
 
-        if (Kryn::$domainProperties['kryn']['cachePagesForAnons'] == 1 && self::$client->getUser()->getId() == 0 &&
+        if (Kryn::$domainProperties['core']['cachePagesForAnons'] == 1 && self::$client->getUser()->getId() == 0 &&
             count($_POST) == 0
         ) {
 

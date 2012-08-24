@@ -110,16 +110,16 @@ var admin_system_module = new Class({
 
             var values = [];
             Object.each(res, function (item, key) {
-                var title = "config parse error: " + key;
-                if (item.noConfig) {
+
+                var title = item['title'];
+
+                if (!item)
+                    title = "config parse error: " + key;
+                if (item.noConfig)
                     title = "config not found: " + key;
-                }
-                if (item.title) {
-                    title = item['title'][lang] ? item['title'][lang] : item['title']['en'];
-                }
+                
 
                 var icon = (item.activated == 1) ? 'accept' : 'delete';
-
 
                 var _title = '';
                 var actions = new Element('div');
@@ -129,7 +129,7 @@ var admin_system_module = new Class({
                     ka.wm.open('admin/system/module/view', {name: key, type: 0});
                 }.bind(this)).inject(actions);
 
-                if (!['kryn', 'admin', 'users'].contains(key)) {
+                if (!['core', 'admin', 'users'].contains(key)) {
                     if (item.installed) {
                         _title = _('Activated');
                         new ka.Button(_('Deactivate')).addEvent('click', function () {
@@ -254,20 +254,19 @@ var admin_system_module = new Class({
                 table = 'local';
             }
 
-            var title = "config parse error: " + key;
-            if (item.noConfig) {
+            var title = item['title'];
+
+            if (!item)
+                title = "config parse error: " + key;
+            if (item.noConfig)
                 title = "config not found: " + key;
-            }
-            if (item.title) {
-                title = item['title'][lang] ? item['title'][lang] : item['title']['en'];
-            }
 
             var icon = (item.activated == 1) ? 'accept' : 'delete';
             var _title = '';
 
             var actions = new Element('div');
             var bActions = new Element('div');
-            if (!['kryn', 'admin', 'users'].contains(key)) {
+            if (!['core', 'admin', 'users'].contains(key)) {
                 if (item.installed) {
                     new ka.Button(_('Deactivate')).addEvent('click', function () {
                         new Request.JSON({url: _path + 'admin/system/module/deactivate/', noCache: 1, onComplete: function () {
