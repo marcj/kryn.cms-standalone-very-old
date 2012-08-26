@@ -1,3 +1,0 @@
-BaseConfig:
-  WebContent: /public
-  AdminEmail: admin@example.com
