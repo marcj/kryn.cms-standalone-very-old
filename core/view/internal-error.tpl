@@ -57,7 +57,7 @@
 <div id="error">
     <img src="media/core/images/logo_white.png" />
     <h2>{$title}</h2>
-    <div class="msg"><pre>{$msg}</pre>
+    <div class="msg"><pre style="white-space: pre-wrap;">{$msg}</pre>
 
     {if $backtrace}
         Backtrace:<br/>

@@ -8,18 +8,30 @@ namespace Core;
 Kryn::loadActiveModules();
 
 
-
+$propelClasses = Kryn::getTempFolder().'propel-classes/';
 //init auto-loader for propel libs.
-spl_autoload_register(function ($pClass) {
-    if (Kryn::$propelClassMap[$pClass.'.php']){
-        include Kryn::$propelClassMap[$pClass.'.php'];
+spl_autoload_register(function ($pClass) use ($propelClasses) {
+
+    if (file_exists($propelClasses.$pClass.'.php')){
+        include $propelClasses.$pClass.'.php';
         return true;
     }
+
     if ($pClass == 'Smarty'){
         include 'lib/Smarty/Smarty.class.php';
         return true;
     }
 });
+
+//init auto-loader for propel module models.
+foreach (Kryn::$extensions as $extension){
+    spl_autoload_register(function ($pClass) use ($extension) {
+        if (file_exists($clazz = 'module/'.$extension.'/model/'.$pClass.'.php')){
+            include $clazz;
+            return true;
+        }
+    });
+}
 
 /**
  * Register auto loader.

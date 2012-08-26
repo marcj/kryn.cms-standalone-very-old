@@ -34,7 +34,9 @@ class TempFile extends File {
     public static function getLayer($pPath = null){
 
         $class = '\Core\FAL\Local';
-        $params['root'] = Kryn::getTempFolder(); 
+        $params['root'] = Kryn::getTempFolder();
+
+        mkdirr($params['root']);
 
         if (self::$fsObjects[$class]) return self::$fsObjects[$class];
 

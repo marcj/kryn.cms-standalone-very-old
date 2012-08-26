@@ -456,7 +456,7 @@ class Pages {
             json(array('error' => 'access_denied'));
         }
 
-        $res['domain'] = dbExfetch("SELECT * FROM %pfx%system_domain WHERE id = $id");
+        $res['domain'] = dbExfetch("SELECT * FROM ".pfx."system_domain WHERE id = $id");
         json($res);
     }
 
@@ -475,7 +475,7 @@ class Pages {
     }
 
     public static function updateDomainCache() {
-        $res = dbExec('SELECT * FROM %pfx%system_domain');
+        $res = dbExec('SELECT * FROM '.pfx.'system_domain');
         $domains = array();
 
         while ($domain = dbFetch($res, 1)) {
@@ -541,7 +541,7 @@ class Pages {
         }
 
         //$res['live'] = dbTableFetch( 'system_page', 1, "id = $pRsn" );
-        $res['versions'] = dbExFetch("SELECT v.*, u.username FROM %pfx%system_user u, %pfx%system_page_version v
+        $res['versions'] = dbExFetch("SELECT v.*, u.username FROM ".pfx."system_user u, ".pfx."system_page_version v
             WHERE page_id = $pRsn AND u.id = v.owner_id ORDER BY created DESC", -1);
 
         return $res;
@@ -564,17 +564,17 @@ class Pages {
 
         Kryn::deleteCache('page-' . $pPage);
 
-        $page = dbExfetch("SELECT * FROM %pfx%system_page WHERE id = $pPage", 1);
+        $page = dbExfetch("SELECT * FROM ".pfx."system_page WHERE id = $pPage", 1);
 
         $subpages = dbTableFetch('system_page', 'pid = ' . $pPage, -1);
         if (count($subpages) > 0) {
             foreach ($subpages as $page) {
                 self::deletePage($page['id'], true);
-                dbExec("DELETE FROM %pfx%system_page WHERE id = $pPage");
+                dbExec("DELETE FROM ".pfx."system_page WHERE id = $pPage");
             }
         }
 
-        dbExec("DELETE FROM %pfx%system_page WHERE id = $pPage");
+        dbExec("DELETE FROM ".pfx."system_page WHERE id = $pPage");
 
         if (!$pNoCacheRefresh) {
             self::cleanSort($page['domain_id'], $page['parent_id']);
@@ -731,7 +731,7 @@ class Pages {
             ;
         }
 
-        $res = dbExfetch("SELECT v.*, u.username FROM %pfx%system_page_version v, %pfx%system_user u
+        $res = dbExfetch("SELECT v.*, u.username FROM ".pfx."system_page_version v, ".pfx."system_user u
             WHERE u.id = v.owner_id AND page_id = $id ORDER BY created DESC", -1);
         json($res);
     }
@@ -745,7 +745,7 @@ class Pages {
 
     public static function getNotices($pRsn) {
         $res['notices'] = dbExfetch('SELECT n.*, u.username
-            FROM %pfx%system_page_notices n, %pfx%system_user u
+            FROM '.pfx.'system_page_notices n, '.pfx.'system_user u
             WHERE u.id = n.user_id AND page_id = ' . $pRsn . ' ORDER BY id', DB_FETCH_ALL);
         $res['count'] = count($res['notices']);
         json($res);
@@ -790,7 +790,7 @@ class Pages {
         if ($viewAllPages && !Kryn::checkUrlAccess('users/users/acl'))
             $viewAllPages = false;
 
-        $page = dbExfetch('SELECT pid, domain_id FROM %pfx%system_page WHERE id = ' . $pPageRsn);
+        $page = dbExfetch('SELECT pid, domain_id FROM '.pfx.'system_page WHERE id = ' . $pPageRsn);
 
         if (!$viewAllPages && !Kryn::checkPageAcl($page['domain_id'], 'showDomain', 'd')) {
             json(array('error' => 'access_denied'));
@@ -894,7 +894,7 @@ class Pages {
                     json(array('error' => 'access_denied'));
                     ;
                 }
-                dbExec("UPDATE %pfx%system_page SET pid = $targetId, domain_id = '" . $target['domain_id'] .
+                dbExec("UPDATE ".pfx."system_page SET pid = $targetId, domain_id = '" . $target['domain_id'] .
                        "', sort = 1, sort_mode = 'up' WHERE id = $whoId");
                 break;
 
@@ -911,7 +911,7 @@ class Pages {
                     }
                 }
 
-                dbExec("UPDATE %pfx%system_page SET pid = " . $target['parent_id'] . ", sort = " . $target['sort'] . ",
+                dbExec("UPDATE ".pfx."system_page SET pid = " . $target['parent_id'] . ", sort = " . $target['sort'] . ",
             sort_mode = 'down', domain_id = '" . $target['domain_id'] . "'  WHERE id = $whoId");
                 break;
             case 'up':
@@ -926,7 +926,7 @@ class Pages {
                         ;
                     }
                 }
-                dbExec("UPDATE %pfx%system_page SET pid = " . $target['parent_id'] . ", sort = " . $target['sort'] . ",
+                dbExec("UPDATE ".pfx."system_page SET pid = " . $target['parent_id'] . ", sort = " . $target['sort'] . ",
             sort_mode = 'up', domain_id = '" . $target['domain_id'] . "' WHERE id = $whoId");
                 break;
         }
@@ -975,7 +975,7 @@ class Pages {
 
         dbUpdate('system_page', 'pid = ' . $pPageRsn, array('domain_id' => $pDomainRsn));
 
-        $res = dbExec('SELECT id FROM %pfx%system_page WHERE pid = ' . $pPageRsn);
+        $res = dbExec('SELECT id FROM '.pfx.'system_page WHERE pid = ' . $pPageRsn);
         while ($row = dbFetch($res)) {
             self::fixPageDomainRsn($row['id'], $pDomainRsn);
         }
@@ -984,7 +984,7 @@ class Pages {
     public static function cleanSort($pDomain, $pParent) {
         //$pages = dbExfetch( "SELECT * FROM %pfx%system_page WHERE domain_id = $pDomain AND pid = $pParent AND sort_mode = '' ORDER BY sort", DB_FETCH_ALL );
         $pages =
-            dbExfetch("SELECT * FROM %pfx%system_page WHERE domain_id = $pDomain AND pid = $pParent ORDER BY sort, sort_mode", DB_FETCH_ALL);
+            dbExfetch("SELECT * FROM ".pfx."system_page WHERE domain_id = $pDomain AND pid = $pParent ORDER BY sort, sort_mode", DB_FETCH_ALL);
         //$cleanPage = dbExfetch( "SELECT * FROM %pfx%system_page WHERE domain_id = $pDomain AND pid = $pParent AND sort_mode != ''" );
 
         $count = count($pages);
@@ -995,19 +995,19 @@ class Pages {
 
                 if ($page['sort_mode'] == 'up') {
                     if ($lastPage) {
-                        dbExec("UPDATE %pfx%system_page SET sort = " . ($c) . " WHERE id = " . $lastPage['id']);
-                        dbExec("UPDATE %pfx%system_page SET sort = " . ($c - 1) . " WHERE id = " . $page['id']);
+                        dbExec("UPDATE ".pfx."system_page SET sort = " . ($c) . " WHERE id = " . $lastPage['id']);
+                        dbExec("UPDATE ".pfx."system_page SET sort = " . ($c - 1) . " WHERE id = " . $page['id']);
                     } else {
-                        dbExec("UPDATE %pfx%system_page SET sort = " . ($c) . " WHERE id = " . $page['id']);
+                        dbExec("UPDATE ".pfx."system_page SET sort = " . ($c) . " WHERE id = " . $page['id']);
                         $c++;
                     }
                 } else {
-                    dbExec("UPDATE %pfx%system_page SET sort = " . $c . " WHERE id = " . $page['id']);
+                    dbExec("UPDATE ".pfx."system_page SET sort = " . $c . " WHERE id = " . $page['id']);
                 }
                 $c++;
 
                 if ($page['sort_mode'] == 'down') {
-                    dbExec("UPDATE %pfx%system_page SET sort = " . ($c) . " WHERE id = " . $page['id']);
+                    dbExec("UPDATE ".pfx."system_page SET sort = " . ($c) . " WHERE id = " . $page['id']);
                     $c++;
                 }
 
@@ -1015,12 +1015,9 @@ class Pages {
                 self::cleanSort($pDomain, $page['id']);
             }
 
-        dbExec("UPDATE %pfx%system_page SET sort_mode = '' WHERE domain_id = $pDomain AND pid = $pParent");
+        dbExec("UPDATE ".pfx."system_page SET sort_mode = '' WHERE domain_id = $pDomain AND pid = $pParent");
     }
 
-    public static function getPageByRsn($pRsn) {
-        return dbExfetch("SELECT * FROM %pfx%system_page WHERE id = " . ($pRsn + 0));
-    }
 
     public static function add() {
 
@@ -1215,7 +1212,7 @@ class Pages {
 
                 if (getArgv('unsearchable', 1) + 0 > 0)
                     dbExec(
-                        "DELETE FROM %pfx%system_search WHERE page_id = '" . $id . "' AND domain_id=" . $domain_id);
+                        "DELETE FROM ".pfx."system_search WHERE page_id = '" . $id . "' AND domain_id=" . $domain_id);
             }
 
             if (Kryn::checkPageAcl($id, 'searchKeys'))
@@ -1244,7 +1241,7 @@ class Pages {
             }
 
             $existRow = dbExfetch(
-                "SELECT id FROM %pfx%system_urlalias WHERE to_page_id=" . $page . " AND url = '" . $oldRealUrl .
+                "SELECT id FROM ".pfx."system_urlalias WHERE to_page_id=" . $page . " AND url = '" . $oldRealUrl .
                 "'", 1);
 
             if ($existRow['id'] + 0 == 0)
@@ -1379,7 +1376,7 @@ class Pages {
     }
 
     public static function updateMenuCache($pDomainRsn) {
-        $resu = dbExec("SELECT id, title, url, pid FROM %pfx%system_page WHERE
+        $resu = dbExec("SELECT id, title, url, pid FROM ".pfx."system_page WHERE
         				 domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
         $res = array();
         while ($page = dbFetch($resu, 1)) {
@@ -1402,7 +1399,7 @@ class Pages {
         $res = array();
         while ($pid != 0) {
             $parent_page =
-                dbExfetch("SELECT id, title, url, pid, type FROM %pfx%system_page WHERE id = " . $pid, 1);
+                dbExfetch("SELECT id, title, url, pid, type FROM ".pfx."system_page WHERE id = " . $pid, 1);
             if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
                 //page or link or page-mount
                 array_unshift($res, $parent_page);
@@ -1418,8 +1415,7 @@ class Pages {
 
         $pDomainRsn = $pDomainRsn + 0;
 
-        $resu =
-            dbExec("SELECT id, title, url, type, link FROM %pfx%system_page WHERE domain_id = $pDomainRsn AND parent_id IS NULL");
+        $resu = dbExec("SELECT id, title, url, type, link FROM ".pfx."system_page WHERE domain_id = $pDomainRsn AND parent_id IS NULL");
         $res = array('url' => array(), 'id' => array());
 
         $domain = Kryn::getDomain($pDomainRsn);
@@ -1432,7 +1428,7 @@ class Pages {
             $res['id'] = array_merge($res['id'], $newRes['id']);
         }
 
-        $aliasRes = dbExec('SELECT to_page_id, url FROM %pfx%system_urlalias WHERE domain_id = ' . $pDomainRsn);
+        $aliasRes = dbExec('SELECT to_page_id, url FROM '.pfx.'system_urlalias WHERE domain_id = ' . $pDomainRsn);
         while ($row = dbFetch($aliasRes)) {
             $res['alias'][$row['url']] = $row['to_page_id'];
         }
@@ -1445,7 +1441,7 @@ class Pages {
     public static function updatePage2DomainCache() {
 
         $r2d = array();
-        $res = dbExec('SELECT id, domain_id FROM %pfx%system_page ');
+        $res = dbExec('SELECT id, domain_id FROM '.pfx.'system_page ');
 
         while ($row = dbFetch($res)) {
             $r2d[$row['domain_id']] .= $row['id'] . ',';
@@ -1457,8 +1453,6 @@ class Pages {
     public static function updateUrlCacheChilds($pPage, $pDomain = false) {
         $res = array('url' => array(), 'id' => array(), 'r2d' => array());
 
-        error_log('+ '.print_r($pPage, true));
-
         if ($pPage['type'] < 2) { //page or link or folder
             if ($pPage['realurl'] != '') {
                 $res['url']['url=' . $pPage['realurl']] = $pPage['id'];
@@ -1469,7 +1463,7 @@ class Pages {
         }
 
         $pages = dbExfetchAll("SELECT id, title, url, type, link
-                             FROM %pfx%system_page
+                             FROM ".pfx."system_page
                              WHERE parent_id = " . $pPage['id']);
 
         if (is_array($pages)) {
@@ -1531,10 +1525,10 @@ class Pages {
         $contents = self::getVersion($pRsn, $curVersion['id']);
         $res['_activeVersion'] = $curVersion['id'];
 
-        $res['alias'] = dbExfetch('SELECT * FROM %pfx%system_urlalias WHERE to_page_id=' . $pRsn, -1);
+        $res['alias'] = dbExfetch('SELECT * FROM '.pfx.'system_urlalias WHERE to_page_id=' . $pRsn, -1);
 
         $domain =
-            dbExfetch("SELECT d.id FROM %pfx%system_domain d, %pfx%system_page p WHERE p.domain_id = d.id AND p.id = $pRsn");
+            dbExfetch("SELECT d.id FROM ".pfx."system_domain d, ".pfx."system_page p WHERE p.domain_id = d.id AND p.id = $pRsn");
         Kryn::$domain = $domain;
 
         $cachedUrls =& Kryn::readCache('systemUrls');
@@ -1542,7 +1536,7 @@ class Pages {
         $res['contents'] = json_encode($contents);
 
         $res['versions'] =
-            dbExfetch("SELECT version_id, MAX(mdate) FROM %pfx%system_contents WHERE page_id = $pRsn GROUP BY version_id", DB_FETCH_ALL);
+            dbExfetch("SELECT version_id, MAX(mdate) FROM ".pfx."system_contents WHERE page_id = $pRsn GROUP BY version_id", DB_FETCH_ALL);
 
         json($res);
     }

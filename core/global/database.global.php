@@ -156,9 +156,9 @@ function dbExFetchAll($pQuery, $pParams = null) {
  * @return PDOStatement
  */
 function dbExec($pQuery, $pParams = null) {
-    $pQuery = str_replace('%pfx%', Core\Kryn::$config['database']['prefix'], $pQuery);
 
     if ($pParams !== null){
+        var_dump($pQuery);
         $sth = dbConnection()->prepare($pQuery);
         if (!is_array($pParams)) $pParams = array($pParams);
         $sth->execute($pParams);

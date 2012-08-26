@@ -43,6 +43,17 @@ if( $_REQUEST['step'] == 'checkConfig' )
     checkConfig();
 
 if( $_REQUEST['step'] == '5' ){
+
+    
+
+    spl_autoload_register(function ($pClass) {
+      foreach (Kryn::$extensions as $extension){
+        if (file_exists($clazz = 'module/'.$extension.'/model/'.$pClass.'.php')){
+            include $clazz;
+            return true;
+        }
+      }
+    });
     $modules = array('admin', 'users');
     step5Init();
 }
@@ -55,6 +66,7 @@ header("Content-Type: text/html; charset=utf-8");
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de" dir="ltr">
   <head>
     <title>Kryn.cms installation</title>
+      <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
       <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css"  />
       <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Input.css"  />
 
@@ -274,7 +286,7 @@ function checkConfig(){
 	$cfg = array(
 		  "db_server"	  => $_REQUEST['server'],
 	    "db_user"		  => $_REQUEST['username'],
-	    "db_passwd"   => $_REQUEST['passwd'],
+	    "db_password"   => $_REQUEST['password'],
 	    "db_name"     => $_REQUEST['db'],
 	    "db_prefix"   => $_REQUEST['prefix'],
 	    "db_type"     => $_REQUEST['type'],
@@ -286,7 +298,7 @@ function checkConfig(){
   $dsn = $cfg['db_type'].':dbname='.$cfg['db_name'].';host='.$cfg['db_server'];
 
   try {
-      $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_passwd']);
+      $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_password']);
   } catch (PDOException $e) {
       $res['res'] = false;
       $res['error'] = $dsn.': '.$e->getMessage();
@@ -302,10 +314,11 @@ function checkConfig(){
       if (!$systemTitle) $systemTitle = "Fresh install";
 
       $cfg = array(
+          'id' => $_REQUEST['id'],
           'database' => array(
             'server' => $_REQUEST['server'],
             'user'   => $_REQUEST['username'],
-            'passwd' => $_REQUEST['passwd'],
+            'password' => $_REQUEST['password'],
             'name'   => $_REQUEST['db'],
             'prefix' => $_REQUEST['prefix'],
             'type'   => $_REQUEST['type'],
@@ -319,8 +332,8 @@ function checkConfig(){
             'class' => '\Core\Cache\Files'
           ),
 
-          "passwdHashCompat" => 0,
-          "passwdHashKey"    => Core\Client\ClientAbstract::getSalt(32),
+          "passwordHashCompat" => 0,
+          "passwordHashKey"    => Core\Client\ClientAbstract::getSalt(32),
 
           "displayErrors"        => 0,
           "displayRestErrors"    => 0,
@@ -345,12 +358,7 @@ function checkConfig(){
 
       SystemFile::loadConfig();
 
-      SystemFile::createFolder( 'cache/' );
-      SystemFile::createFolder( 'cache/object' );
-      SystemFile::createFolder( 'cache/lock' );
-      SystemFile::createFolder( 'cache/smarty_compile' );
-
-      SystemFile::delete('propel');
+      SystemFile::delete(Kryn::getTempFolder().'propel');
 
       SystemFile::createFolder( PATH_MEDIA.'trash' );
       SystemFile::createFolder( PATH_MEDIA.'css' );
@@ -361,7 +369,6 @@ function checkConfig(){
       SystemFile::createFolder( 'data/packages' );
       SystemFile::createFolder( 'data/upload/modules' );
 
-      error_log(PATH_MEDIA_CACHE);
       SystemFile::createFolder( PATH_MEDIA_CACHE );
 
       $f = \Core\SystemFile::setContent('config.php', $config);
@@ -419,9 +426,9 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
     <td>&raquo; <a href="lib/codemirror/LICENSE">MIT-style license</a></td>
 </tr>
 <tr>
-    <td>Doqumentator TODO</td>
-    <td><a href="http://codemirror.net/">codemirror.net</a></td>
-    <td>&raquo; <a href="lib/codemirror/LICENSE">MIT-style license</a></td>
+    <td>normalize.css</td>
+    <td><a href="http://necolas.github.com/normalize.css/">necolas.github.com/normalize.css</a></td>
+    <td>&raquo; <a href="lib/codemirror/LICENSE">MIT License</a></td>
 </tr>
 
 <tr>
@@ -557,19 +564,8 @@ function step5Done($pMsg){
         step5Done($res);
     }
 
-
-    //Write main ./propel-config.php
-    function step5_5(){
-        try {
-            $res = \Core\PropelHelper::generatePropelPhpConfig();
-        } catch (Exception $e){
-            step5Failed($e->getMessage());
-        }
-        step5Done($res);
-    }
-
     //Update database schema
-    function step5_6(){
+    function step5_5(){
 
         try {
             $res = \Core\PropelHelper::updateSchema();
@@ -580,7 +576,7 @@ function step5Done($pMsg){
     }
 
     //Fire package-database scripts
-    function step5_7(){
+    function step5_6(){
         global $modules;
 
         $manager = new \Admin\Module\Manager;
@@ -600,7 +596,7 @@ function step5Done($pMsg){
     }
 
     //Fire package-post scripts
-    function step5_8(){
+    function step5_7(){
         global $modules;
 
         $manager = new \Admin\Module\Manager;
@@ -620,7 +616,7 @@ function step5Done($pMsg){
     }
 
     //cleanup
-    function step5_9(){
+    function step5_8(){
 
         \Core\PropelHelper::cleanup();
 
@@ -667,13 +663,9 @@ function step5Done($pMsg){
             Core\Kryn::$propelClassMap = $propelConfig['classmap'];
         }
 
-        if ($subStep > 6){
+        if ($subStep >= 6){
 
-            $file = 'propel-config.php';
-            \Propel::init($file);
-
-            $propelConfig = include($file);
-            Core\Kryn::$propelClassMap = $propelConfig['classmap'];
+            \Propel::init(\Core\PropelHelper::getConfig());
         }
 
         if ($subStep > 0){
@@ -726,7 +718,6 @@ function step5(){
                 'Execute module extract-scripts ...',
                 'Write propel build environment ...',
                 'Write propel model classes ...',
-                'Write main ./propel-config.php ...',
                 'Update database schema ...',
                 'Execute module database-scripts ...',
                 'Execute module post-scripts ...',
@@ -797,7 +788,7 @@ function step4(){
 ?>
 
 <br />
-Your installation file contains following extensions:<br />
+Your installation file contains following modules:<br />
 <br />
 <br />
 <form action="?step=5" method="post" id="form.modules">
@@ -915,8 +906,9 @@ function step2(){
 
     <li><b>Temp directory</b><br/>
       <div style="color: gray; padding-bottom: 6px;">
-        This directory is used for file caches, propel build and other temporarily files.<br/>
-        To set a different folder, you can overwrite the environment var in this priority:<br/>
+        This directory is used for file caches, smarty compiled templates, propel build<br/>
+        and other temporarily files. To set a different folder, you can overwrite the<br/>
+        environment var in this priority:<br/>
         TMP, TEMP, TMPDIR or TEMPDIR
       </div>
 <?php
@@ -924,11 +916,11 @@ function step2(){
     $tempFolder = Kryn::getTempFolder(false);
 
     if (is_writable($tempFolder)){
-      print "<div style='color: green'>$tempFolder exists and is writeable.</div>";
+      print "<div style='color: green'>$tempFolder is writeable.</div>";
       ?>
       <div style="color: gray; padding-bottom: 6px;">
-        In the next step, you can set a Kryn installation id.<br/>
-        This is be used as sub folder in temp to make these files unique. 
+        In the next step, you can set a installation id.<br/>
+        This is then be used as sub folder in temp to make these files unique. 
       </div>
       <?php
     } else {
@@ -978,18 +970,18 @@ function step2(){
 function step3(){
     ?>
 
-<form id="db_form">
-
 <script type="text/javascript">
     window.checkConfigEntries = function(){
         var ok = true;
         
         if( document.id('db_server').value == '' ){ document.id('db_server').highlight(); ok = false; }
         if( document.id('db_prefix').value == '' ){ document.id('db_prefix').highlight(); ok = false; }
+        if( document.id('db_username').value == '' ){ document.id('db_username').highlight(); ok = false; }
+        if( document.id('db_name').value == '' ){ document.id('db_name').highlight(); ok = false; }
 
         if( ok ){
             document.id( 'status' ).set('html', '<span style="color:green;">Check data ...</span>');
-            var req = document.id('db_form').toQueryString().parseQueryString();
+            var req = document.id('form').toQueryString().parseQueryString();
 
             if (window.lcer) window.lcer.cancel();
 
@@ -1006,16 +998,44 @@ function step3(){
             }}).post(req);
         }
     }
+
+    window.addSlave = function(){
+
+      var tr = new Element('tr');
+
+      var names = ['host', 'port', 'username', 'password', 'database', 'prefix'];
+      for (var i=0; i<6;i++)
+        new Element('input', {name: 'slaves['+names[i]+'][]', required: i==1?null:true, 'class': 'ka-Input', style: 'width: 100%'}).inject(new Element('td').inject(tr));
+
+      var remove = new Element('a', {text: 'X', href: 'javascript:;'}).inject(new Element('td').inject(tr));
+
+      remove.addEvent('click', function(){
+        tr.destroy();
+      })
+
+      tr.inject($('slaves'));
+
+    }
 </script>
 
-<h3>System</h3>
+<form id="form" autocomplete="off" onsubmit="checkConfigEntries(); return false;">
 
+  These settings are only the minimum settings to run Kryn.cms.<br/>
+  To set more detailed settings later, just login to the administration and open the settings window.
+
+<h3>System</h3>
 
 <table style="width: 100%" cellpadding="3">
     <tr>
         <td width="250">Title</td>
         <td>
-            <input type="text" name="systemTitle" value="Fresh installation">
+            <input type="text" required name="systemTitle" value="Fresh installation">
+        </td>
+    </tr>
+    <tr>
+        <td width="250">Installation id</td>
+        <td>
+            <input type="text" required name="id" value="<?php echo dechex((time() / 1000) / mt_rand(10, 100)); ?>">
         </td>
     </tr>
     <tr>
@@ -1060,10 +1080,13 @@ function step3(){
 </table>
 
 <h3>Database</h3>
+
+
+
 <table style="width: 100%" cellpadding="3">
  	<tr>
         <td width="250">Database PDO driver</td>
-        <td><select name="type" id="db_type">
+        <td><select required name="type" id="db_type">
 <?php
 
             $drivers = array('mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite', 'sqlsrv' => 'MSSQL');
@@ -1075,46 +1098,54 @@ function step3(){
 ?>
         </select></td>
     </tr>
-    <tr>
-        <td>
-          Host
-        </td>
-        <td><input type="text" name="server" id="db_server" value="localhost" /></td>
-    </tr>
+
     <tr>
         <td>
           Persistent connections
         </td>
-        <td><input type="checkbox" checked="checked" name="persistent" value="1" /></td>
+        <td><input required type="checkbox" checked="checked" name="persistent" value="1" /></td>
+    </tr>
+    <tr>
+        <td>
+          Host
+        </td>
+        <td><input required type="text" name="server" id="db_server" value="localhost" /></td>
+    </tr>
+    <tr>
+        <td>
+          Port
+          <div style="color: silver">Empty for default</div>
+        </td>
+        <td><input type="text" style="width:50px" name="port" value="" /></td>
     </tr>
     <tr id="ui_username">
         <td>Username</td>
-        <td><input type="text" name="username" id="db_username" /></td>
+        <td><input required type="text" name="username" id="db_username" /></td>
     </tr>
-    <tr id="ui_passwd">
+    <tr id="ui_password">
         <td>Password</td>
-        <td><input type="password" name="passwd" id="db_passwd" /></td>
+        <td><input type="password" name="password" id="db_password" /></td>
     </tr>
     <tr id="ui_db">
         <td>
         	Database name
         </td>
-        <td><input type="text" name="db" id="db_db" /></td>
+        <td><input required type="text" name="db" id="db_name" /></td>
     </tr>
     <tr>
         <td>Table Prefix
 	        <div style="color: silver">
 	        	Please use only a lowercase string.
 	        </div></td>
-        <td><input type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
+        <td><input required style="width: 80px" type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
 </table>
-</form>
 <div id="status" style="padding: 4px;"></div>
 <br />
 <br />
 <a href="?step=2" class="ka-Button" >Back</a>
-<a href="javascript: checkConfigEntries();" class="ka-Button" >Write config.php and continue</a>
+<input type="submit" class="ka-Button" value="Write config.php and continue" />
+</form>
 
 <?php
 }

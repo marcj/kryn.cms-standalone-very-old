@@ -38,7 +38,7 @@
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="username" type="VARCHAR" size="255" required="true"/>
     <column name="auth_class" type="VARCHAR" size="255" required="false"/>
-    <column name="passwd" type="CHAR" size="256" required="false"/>
+    <column name="passwd" type="LONGVARCHAR" required="false"/>
     <column name="passwd_salt" type="VARCHAR" size="64" required="false"/>
     <column name="activationkey" type="VARCHAR" size="255" required="false"/>
     <column name="email" type="VARCHAR" size="255" required="false"/>

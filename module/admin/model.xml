@@ -212,7 +212,8 @@
     </table>
 
     <table name="system_app_lock" phpName="AppLock" idMethod="native">
-        <column name="id" type="INTEGER" primaryKey="true" required="true"/>
+        <column name="id" type="VARCHAR" size="255" primaryKey="true" required="true"/>
+        <column name="timeout" type="BIGINT" required="true"/>
         <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
 
@@ -228,7 +229,6 @@
         </index>
         <vendor type="mysql"><parameter name="Charset" value="utf8"/></vendor>
     </table>
-
 
     <table name="system_page" phpName="Page" idMethod="native">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>

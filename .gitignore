@@ -1,26 +1,8 @@
 
 /config.php
 
-/cache/
-
 .DS_Store
 
-install.log
-
-data/packages/modules/
-
-data/fileversions/
-
 .idea
-
-/propel-config.php
-
-/module/admin/model/map/
-
-/module/admin/model/om/
-
-/module/users/model/map/
-
-/module/users/model/om/
 
 /media/cache

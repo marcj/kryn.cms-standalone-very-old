@@ -1788,12 +1788,12 @@ class Kryn {
 
         $domain = Kryn::$domain->getId();
 
-
         Kryn::$urls =& Kryn::readCache('systemUrls');
 
         if (!Kryn::$urls || !Kryn::$urls['url']) {
             Kryn::$urls = \Admin\Pages::updateUrlCache($domain);
         }
+
 
         //extract extra url attributes
         $found = $end = false;
@@ -2047,7 +2047,6 @@ class Kryn {
         }
 
 
-
         if (Kryn::$page->getType() == 0) { //is page
             if (Kryn::$page->getForceHttps() == 1 && Kryn::$ssl == false) {
                 header('Location: ' . str_replace('http://', 'https://', Kryn::$baseUrl) . Kryn::$page->getFullUrl());
@@ -2101,7 +2100,6 @@ class Kryn {
         foreach (Kryn::$modules as $key => $mod) {
             Kryn::$modules[$key] = NULL;
         }
-
 
         if (Kryn::$disableSearchEngine == false) {
             $resCode = Search::createPageIndex(Kryn::$pageHtml);
@@ -2371,10 +2369,10 @@ class Kryn {
 
         if (!self::$cachedTempFolder){
 
-            if ($_ENV['TMP']) $folder = $_ENV['TMP'];
-            if ($_ENV['TEMP']) $folder = $_ENV['TEMP'];
-            if ($_ENV['TMPDIR']) $folder = $_ENV['TMPDIR'];
-            if ($_ENV['TEMPDIR']) $folder = $_ENV['TEMPDIR'];
+            if (getenv('TMP')) $folder = getenv('TMP');
+            if (getenv('TEMP')) $folder = getenv('TEMP');
+            if (getenv('TMPDIR')) $folder = getenv('TMPDIR');
+            if (getenv('TEMPDIR')) $folder = getenv('TEMPDIR');
 
             if (!$folder) $folder = sys_get_temp_dir();
 
@@ -2386,11 +2384,16 @@ class Kryn {
 
 
         if ($pWithKrynContext){
+            if (self::$config['id'] === null)
+                self::$config['id'] = 'no-id';
+
+            $id = 'kryn-'.self::$config['id'];
+
             if (!is_writable(self::$cachedTempFolder))
                 throw new FileIOException('Temp directory is not writeable. '.$folder);
 
             //add our id to folder, so this installation works inside of a own directory.
-            $folder = self::$cachedTempFolder . self::$config['id'].DIRECTORY_SEPARATOR;
+            $folder = self::$cachedTempFolder . $id.DIRECTORY_SEPARATOR;
 
             if (!is_dir($folder))
                 TempFile::createFolder($folder);

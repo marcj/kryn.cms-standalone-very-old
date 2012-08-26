@@ -60,18 +60,11 @@ include('core/bootstrap.autoloading.php');
  * Propel orm initialisation.
  */
 
-if (!file_exists($file = 'propel-config.php')){
+if (!is_dir(Kryn::getTempFolder().'propel-classes')){
     Core\PropelHelper::init();
 }
 
-if (!is_readable($file)){
-    die("./propel-config.php exists, but is not readable. Please fix the permissions.\n");
-}
-\Propel::init($file);
-
-$propelConfig = include($file);
-
-Kryn::$propelClassMap = $propelConfig['classmap'];
+\Propel::init(PropelHelper::getConfig());
 
 if ($cfg['timezone'])
     date_default_timezone_set($cfg['timezone']);

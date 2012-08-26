@@ -1,14 +1,13 @@
-a.ka-Button, a.ka-Button:link {
+.ka-Button, .ka-Button:link {
 
     white-space: nowrap;
     padding: 0px 8px;
     margin: 2px auto;
 
-    cursor: default;
+    cursor: pointer;
     position: relative;
     color: #444;
     line-height: 20px;
-    height: 20px;
     font-weight: normal;
     
     -moz-border-radius: 3px;
@@ -43,12 +42,12 @@ a.ka-Button, a.ka-Button:link {
     padding-left: 0px;
 }
 
-a.ka-Button:hover {
+.ka-Button:hover {
     border: 1px solid #9a9a9a;
     color: black;
 }
 
-a.ka-Button:active {
+.ka-Button:active {
 
     border: 1px solid #888;
     color: black;
@@ -66,14 +65,14 @@ a.ka-Button:active {
 
 }
 
-a.ka-Button span, a.ka-Button:link span {
+.ka-Button span {
     display: none;
 }
 
-a.ka-Button-deactivate,
-a.ka-Button-deactivate:link,
-a.ka-Button-deactivate:active,
-a.ka-Button-deactivate:hover {
+.ka-Button-deactivate,
+.ka-Button-deactivate:link,
+.ka-Button-deactivate:active,
+.ka-Button-deactivate:hover {
     cursor: default;
     color: gray;
 

@@ -105,7 +105,9 @@ function tInit(){
         Core\Kryn::$smarty->template_dir = './';
         Core\Kryn::$smarty->registerClass('Kryn', 'Core\Kryn');
         Core\Kryn::$smarty->assign('random', mt_rand());
-        Core\Kryn::$smarty->compile_dir = 'cache/smarty_compile/';
+        if (!is_dir($compileDir = \Core\Kryn::getTempFolder().'smarty-compile/'))
+            mkdir($compileDir);
+        Core\Kryn::$smarty->compile_dir = $compileDir;
     }
 }
 

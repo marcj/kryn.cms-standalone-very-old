@@ -150,29 +150,23 @@ class Utils {
      * If it's a standalone installation, we use flock
      * 
      * @param  string $pId
+     * @param  integer $pTimeout Milliseconds
      * @return boolean
      */
-    public static function appLock($pId){
+    public static function appLock($pId, $pTimeout = 15){
 
-        if (Kryn::$config['cluster']){
-            try {
-                dbInsert('system_app_lock', array('id' => $pId));
-                self::$lockedKeys[$pId] = true;
-                return true;
-            } catch(\Exception $e){
-                //failed, we try it again each 1/4 ms
-                usleep(250);
-                return self::appLock($pId);
-            }
-        } else {
+        $now     = ceil(microtime(true)*1000);
+        var_dump($now); exit;
+        $timeout = $now+$pTimeout;
 
-            $file = 'cache/lock/'.urlencode($pId).'.lock';
-            $fh = fopen($file, 'c');
-            if (!$fh) throw new \Exception('Can not create file for lock: '.$file);
-
-            $state = flock($fh, LOCK_EX);
-            if ($state) self::$lockedKeys[$pId] = true;
-            return $state;
+        try {
+            dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));
+            self::$lockedKeys[$pId] = true;
+            return true;
+        } catch(\PDOException $e){
+            //failed, we try it again each 1/4 ms
+            usleep(15*1000); //15ms
+            return self::appLock($pId);
         }
         
     }
@@ -187,24 +181,13 @@ class Utils {
      * @return bool
      */
     public static function appTryLock($pId){
-
-        if (Kryn::$config['cluster']){
-            try {
-                dbInsert('system_app_lock', array('id' => $pId));
-                self::$lockedKeys[$pId] = true;
-                return true;
-            } catch(\Exception $e){
-                //failed, we try it again each 1/4 ms
-                return false;
-            }
-        } else {
-            $file = 'cache/lock/'.urlencode($pId).'.lock';
-            $fh = fopen($file, 'c');
-            if (!$fh) throw new \Exception('Can not create file for lock: '.$file);
-
-            $state = flock($fh, LOCK_EX|LOCK_NB);
-            if ($state) self::$lockedKeys[$pId] = true;
-            return $state;
+        try {
+            dbInsert('system_app_lock', array('id' => $pId));
+            self::$lockedKeys[$pId] = true;
+            return true;
+        } catch(\Exception $e){
+            //failed, we try it again each 1/4 ms
+            return false;
         }
     }
 
@@ -218,16 +201,9 @@ class Utils {
 
         unset(self::$lockedKeys[$pId]);
 
-        if (Kryn::$config['cluster']){
-            try {
-                dbDelete('system_app_lock', array('id' => $pId));
-            } catch(\Exception $e){
-            }
-        } else {
-            $file = 'cache/lock/'.urlencode($pId).'.lock';
-            if (file_exists($file)){
-                unlink($file);
-            }
+        try {
+            dbDelete('system_app_lock', array('id' => $pId));
+        } catch(\Exception $e){
         }
     }
 

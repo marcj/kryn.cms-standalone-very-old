@@ -54,6 +54,7 @@ if (Core\Kryn::$admin) {
     /*
      * Start frontend controller
      */
+    
     Core\Kryn::display();
 }
 

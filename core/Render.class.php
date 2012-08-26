@@ -294,8 +294,8 @@ class Render {
             $res = dbExec("
             SELECT c.*
             FROM
-                %pfx%system_page_content c,
-                %pfx%system_page_version v
+                ".pfx."system_page_content c,
+                ".pfx."system_page_version v
             WHERE 
                 v.id = $versionId
                 AND v.page_id = $pId
@@ -316,7 +316,7 @@ class Render {
             //compatibility o old kryns <=0.7
             $result = array();
 
-            $res = dbExec("SELECT * FROM %pfx%system_page_content
+            $res = dbExec("SELECT * FROM ".pfx."system_page_content
                 WHERE page_id = $pId
                 $box
                 AND (hide != 1 OR hide IS NULL)

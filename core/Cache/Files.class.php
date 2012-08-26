@@ -19,7 +19,7 @@ class Files implements CacheInterface {
 
     public function __construct($pConfig){
 
-        if (!$pConfig['path']) $pConfig['path'] = 'cache/object/';
+        if (!$pConfig['path']) $pConfig['path'] = \Core\Kryn::getTempFolder().'cache-object/';
 
         if (!is_dir($pConfig['path'])) {
             if (!SystemFile::createFolder($pConfig['path'])) {

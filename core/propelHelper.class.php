@@ -4,10 +4,6 @@ namespace Core;
 
 class PropelHelper {
 
-    public static $defaultOpts = array(
-        '-Dproject.dir=../../../propel/'
-    );
-
     public static $objectsToExtension = array();
     public static $classDefinition = array();
 
@@ -60,7 +56,8 @@ class PropelHelper {
 
     public static function cleanup(){
 
-        delDir('propel');
+        $tmp = self::getTempFolder();
+        delDir($tmp . 'propel');
 
     }
 
@@ -113,35 +110,6 @@ class PropelHelper {
         return $content;
     }
 
-
-
-    public static function generatePropelPhpConfig(){
-
-        self::collectClassDefinition();
-        $tmp = $this->getTempFolder();
-
-        $file =  $tmp . 'propel/build/conf/kryn-conf.php';
-
-        if (!file_exists($file)){
-            self::writeXmlConfig();
-            $content = self::execute('convert-conf');
-            if (is_array($content))
-                throw new Exception("Propel generatePropelPhpConfig failed: \n". $content[0]);;
-        }
-
-        $config   = file_get_contents($file);
-
-        $classDefinition = '$conf[\'classmap\'] = '.var_export(self::$classDefinition, true).";\n";
-
-        $line = '$conf[\'classmap\'] = include(dirname(__FILE__) . DIRECTORY_SEPARATOR . \'classmap-kryn-conf.php\');';
-        $config = str_replace($line, $classDefinition, $config);
-
-
-        file_put_contents($tmp.'propel-config.php', $config);
-
-        return $content;
-    }
-
     public static function collectClassDefinition(){
 
         self::collectObjectToExtension();
@@ -172,7 +140,7 @@ class PropelHelper {
 
     public static function moveClasses(){
 
-        $tmp = $this->getTempFolder();
+        $tmp = self::getTempFolder();
 
         self::collectObjectToExtension();
         
@@ -192,6 +160,7 @@ class PropelHelper {
                 'om/Base'.$name.'.php',
                 'map/'.$name.'TableMap.php',
                 'om/Base'.$name.'Query.php',
+
                 'x' => $name.'.php',
                 'y' => $name.'Peer.php',
                 'z' => $name.'Query.php'
@@ -200,16 +169,19 @@ class PropelHelper {
             foreach ($files as $key => $file){
 
                 $target    = PATH_MODULE.$extension.'/model/'.$file;
-                $targetDir = dirname(PATH_MODULE.$extension.'/model/'.$file);
 
                 self::$classDefinition[basename($file)] = $target;
 
                 if (!is_numeric($key) ){
+                    $target = PATH_MODULE.$extension.'/model/'.$file;
                     //do not remove the class files which we can edit
                     if (file_exists($target)) continue;
+                } else {
+                    $target = $tmp.'propel-classes/'.basename($file);
                 }
 
 
+                $targetDir = dirname($target);
                 if (!is_dir($targetDir)) if(!mkdirr($targetDir)) die('Can not create folder '.$targetDir);
 
                 $source = $tmp . 'propel/build/classes/kryn/'.$file;
@@ -239,8 +211,97 @@ class PropelHelper {
      */
     public static function getConfig(){
         
+        $adapter = Kryn::$config['database']['type'];
+        if ($adapter == 'postgresql') $adapter = 'pgsql';
 
+
+        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
+
+        $persistent = Kryn::$config['database']['persistent'] ? true:false;
+
+        $emulatePrepares = Kryn::$config['database']['type'] == 'mysql';
+
+        $config = array();
+        $config['datasources']['kryn'] = array(
+            'adapter' => $adapter,
+            'connection' => array(
+                'dsn' => $dsn,
+                'user' => Kryn::$config['database']['user'],
+                'password' => Kryn::$config['database']['password'],
+                'options' => array(
+                    'ATTR_PERSISTENT' => array('value' => $persistent)
+                ),
+                'settings' => array(
+                    'charset' => array('value' => 'utf8')
+                ),
+                'attributes' => array(
+                    'ATTR_EMULATE_PREPARES' => array('value' => $emulatePrepares)
+                )
+            )
+        );
+        $config['datasources']['default'] = 'kryn';
+
+
+        return $config;
     }
+
+
+    public static function writeXmlConfig(){
+
+        $tmp = self::getTempFolder();
+
+        if (!mkdirr($folder = $tmp.'propel/build/conf/'))
+            throw new Exception('Can not create propel folder in '.$folder);
+
+        $adapter = Kryn::$config['database']['type'];
+        if ($adapter == 'postgresql') $adapter = 'pgsql';
+
+        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
+
+        $persistent = Kryn::$config['database']['persistent'] ? true:false;
+
+        $xml = '<?xml version="1.0"?>
+<config>
+    <propel>
+        <datasources default="kryn">
+            <datasource id="kryn">
+                <adapter>'.$adapter.'</adapter>
+                <connection>
+                    <classname>PropelPDO</classname>
+                    <dsn>'.$dsn.'</dsn>
+                    <user>'.Kryn::$config['database']['user'].'</user>
+                    <password>'.Kryn::$config['database']['password'].'</password>
+                    <options>
+                        <option id="ATTR_PERSISTENT">'.$persistent.'</option>
+                    </options>';
+
+        if (Kryn::$config['database']['type'] == 'mysql'){
+            $xml .= '
+                    <attributes>
+                        <option id="ATTR_EMULATE_PREPARES">true</option>
+                    </attributes>
+                    ';
+        }
+
+        $xml .= '
+                    <settings>
+                        <setting id="charset">utf8</setting>
+                    </settings>
+                </connection>
+            </datasource>
+        </datasources>
+    </propel>
+</config>';
+    
+        file_put_contents($tmp . 'propel/runtime-conf.xml', $xml);
+        file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
+        return true;
+    }
+
+
+
+
+
 
     public static function updateSchema(){
 
@@ -252,13 +313,14 @@ class PropelHelper {
             self::collectSchemas();
         }
 
+
         if (!\Propel::isInit()){
             \Propel::init(self::getConfig());
         }
 
         $sql = self::getSqlDiff();
         if (is_array($sql)){
-            throw new Exception("Propel updateSchema failed: \n". $sql[0]);
+            throw new \Exception("Propel updateSchema failed: \n". $sql[0]);
         }
 
         if (!$sql){
@@ -283,14 +345,16 @@ class PropelHelper {
 
     public static function getSqlDiff(){
 
+        $tmp = self::getTempFolder();
         //remove all migration files
-        $files = find('propel/build/migrations/PropelMigration_*.php');
+        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
         if ($files[0]) unlink($files[0]);
+
 
         $content = self::execute('diff');
         if (is_array($content)) return $content;
 
-        $files = find('propel/build/migrations/PropelMigration_*.php');
+        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
         $lastMigrationFile = $files[0];
 
         if (!$lastMigrationFile) return '';
@@ -337,7 +401,7 @@ class PropelHelper {
 
     public static function collectSchemas(){
 
-        $tmp = $this->getTempFolder();
+        $tmp = self::getTempFolder();
 
         $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">";
 
@@ -378,8 +442,10 @@ class PropelHelper {
         foreach (func_get_args() as $cmd)
             $argv[] = $cmd;
 
-        foreach (self::$defaultOpts as $cmd)
-            $argv[] = $cmd;
+        $tmp = self::getTempFolder();
+        $tmp .= 'propel/';
+
+        $argv[] = '-Dproject.dir='.$tmp;
 
         require_once 'phing/Phing.php';
 
@@ -437,7 +503,7 @@ class PropelHelper {
 
     public static function writeBuildPorperties(){
 
-        $tmp = $this->getTempFolder();
+        $tmp = self::getTempFolder();
 
         if (!mkdirr($folder = $tmp . 'propel/'))
             throw new Exception('Can not create propel folder in '.$folder);
@@ -458,61 +524,6 @@ propel.project = kryn';
 
         return file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
     }
-
-    public static function writeXmlConfig(){
-
-        $tmp = $this->getTempFolder();
-
-        if (!mkdirr($folder = $tmp.'propel/build/conf/'))
-            throw new Exception('Can not create propel folder in '.$folder);
-
-        $adapter = Kryn::$config['database']['type'];
-        if ($adapter == 'postgresql') $adapter = 'pgsql';
-
-        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
-
-        $persistent = Kryn::$config['database']['persistent'] ? true:false;
-
-        $xml = '<?xml version="1.0"?>
-<config>
-    <propel>
-        <datasources default="kryn">
-            <datasource id="kryn">
-                <adapter>'.$adapter.'</adapter>
-                <connection>
-                    <classname>PropelPDO</classname>
-                    <dsn>'.$dsn.'</dsn>
-                    <user>'.Kryn::$config['database']['user'].'</user>
-                    <password>'.Kryn::$config['database']['passwd'].'</password>
-                    <options>
-                        <option id="ATTR_PERSISTENT">'.$persistent.'</option>
-                    </options>';
-
-        if (Kryn::$config['database']['type'] == 'mysql'){
-            $xml .= '
-                    <attributes>
-                        <option id="ATTR_EMULATE_PREPARES">true</option>
-                    </attributes>
-                    ';
-        }
-
-        $xml .= '
-                    <settings>
-                        <setting id="charset">utf8</setting>
-                    </settings>
-                </connection>
-            </datasource>
-        </datasources>
-    </propel>
-</config>';
-    
-        file_put_contents($tmp . 'propel/runtime-conf.xml', $xml);
-        file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
-        return true;
-    }
-
-
-
 
 
 
