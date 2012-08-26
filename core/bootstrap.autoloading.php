@@ -48,7 +48,6 @@ spl_autoload_register(function($pClass){
     $fullClazzWC = str_replace('\\', '/', $pClass).'.php';
 
     $clazz = substr($fullClazz, strlen($extension)+1);
-    var_dump($clazz);
 
     if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
         include($file);
