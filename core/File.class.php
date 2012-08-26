@@ -132,9 +132,6 @@ class File {
         }
 
         if (self::$fsObjects[$class]) return self::$fsObjects[$class];
-
-        var_dump($class);
-
         if (class_exists($class))
             self::$fsObjects[$class] = new $class($entryPoint, $params);
         else

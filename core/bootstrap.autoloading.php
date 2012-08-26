@@ -43,16 +43,11 @@ spl_autoload_register(function($pClass){
     if (substr($pClass, 0, 1) == '\\')
         $pClass = substr($pClass, 1);
 
-var_dump('---');
-var_dump($pClass);
     $extension = strtolower(substr($pClass, 0, strpos($pClass, '\\')));
-    var_dump($extension);
     $fullClazz = str_replace('\\', '/', $pClass).'.class.php';
     $fullClazzWC = str_replace('\\', '/', $pClass).'.php';
-    var_dump($fullClazz);
 
     $clazz = substr($fullClazz, strlen($extension)+1);
-    var_dump($clazz);
 
     if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
         include($file);
