@@ -10,7 +10,7 @@ Kryn::loadActiveModules();
 
 $propelClasses = Kryn::getTempFolder().'propel-classes/';
 //init auto-loader for propel libs.
-spl_autoload_register(function ($pClass) use ($propelClasses) {
+spl_autoload_register(function($pClass) use ($propelClasses) {
 
     if (file_exists($propelClasses.$pClass.'.php')){
         include $propelClasses.$pClass.'.php';
@@ -73,3 +73,4 @@ spl_autoload_register(function($pClass){
 
 
 });
+
