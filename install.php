@@ -9,10 +9,12 @@
 * LICENSE file, that was distributed with this source code.
 */
 mb_internal_encoding("UTF-8");
+error_reporting(E_ALL ^ E_NOTICE);
 
 use Core\Kryn;
 use Core\File;
 use Core\SystemFile;
+
 $GLOBALS['krynInstaller'] = true;
 define('PATH', dirname(__FILE__).'/');
 define('PATH_CORE', 'core/');
@@ -37,7 +39,6 @@ $lang = 'en';
 $cfg = array();
 
 @ini_set('display_errors', 1);
-error_reporting(E_ALL ^ E_NOTICE);
 
 if( $_REQUEST['step'] == 'checkConfig' )
     checkConfig();
@@ -57,6 +58,7 @@ if( $_REQUEST['step'] == '5' ){
     $modules = array('admin', 'users');
     step5Init();
 }
+
 
 header("Content-Type: text/html; charset=utf-8");
 
@@ -358,7 +360,7 @@ function checkConfig(){
 
       SystemFile::loadConfig();
 
-      SystemFile::delete(Kryn::getTempFolder().'propel');
+      delDir(Kryn::getTempFolder().'propel');
 
       SystemFile::createFolder( PATH_MEDIA.'trash' );
       SystemFile::createFolder( PATH_MEDIA.'css' );
