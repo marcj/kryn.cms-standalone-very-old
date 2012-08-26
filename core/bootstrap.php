@@ -90,6 +90,8 @@ Kryn::$admin = (getArgv(1) == 'admin');
  */
 Kryn::initConfig();
 
+Kryn::initCache();
+
 /*
  * Load current language
  */

@@ -437,6 +437,11 @@ class Kryn {
      */
     public static $htmlBodyEnd;
 
+    /**
+     * Cached path of temp folder.
+     * @var string
+     */
+    private static $cachedTempFolder = '';
 
     /**
      * Adds a new crumb to the breadcrumb array.
@@ -993,36 +998,44 @@ class Kryn {
     }
 
     /**
-     * Initialize config. Establish connections.
+     * Initialize config.
      * @internal
      */
     public static function initConfig() {
 
-        if (!self::$config['client'])
-            self::internalError('Client configuration', 'There is no client handling class configured. Please run the installer.');
-
         if (!self::$config['cache'])
             self::$config['cache']['class'] = '\Core\Cache\Files';
+
+        if (self::$config['id'] === null)
+            self::$config['id'] = 'kryn-no-id';
 
         Kryn::$config['activeModules'][] = 'core';
         Kryn::$config['activeModules'][] = 'admin';
         Kryn::$config['activeModules'][] = 'users';
+
+    }
+
+    /**
+     * Init cache and cacheFast instances.
+     * 
+     */
+    public static function initCache() {
 
         //global normal cache 
         Kryn::$cache = new Cache\Controller(self::$config['cache']['class'], self::$config['cache_params']);
 
         $fastestCacheClass = Cache\Controller::getFastestCacheClass();
         Kryn::$cacheFast   = new Cache\Controller($fastestCacheClass);
-
     }
 
     /**
      * Init admin and frontend client.
      * 
-     * @return [type] [description]
      */
     public static function initClient() {
 
+        if (!self::$config['client'])
+            self::internalError('Client configuration', 'There is no client handling class configured. Please run the installer.');
 
         $defaultClientClass = Kryn::$config['client']['class'];
         $defaultClientConfig = Kryn::$config['client']['config'];
@@ -2344,37 +2357,71 @@ class Kryn {
     /**
      * Returns the webservers temp folder.
      *
+     * You can access this folder (with kryn context) through
+     * the TempFile class as you would with the File class.
+     *
      * @static
-     * @return string
+     * @internal
+     * @param  bool $pWithKrynContext Adds the 'id' value of the config as sub folder. This makes sure, multiple kryn installations
+     *                                does not overwrite each other files.
+     * 
+     * @return string Path with trailing slash
      */
-    public static function getTempFolder(){
+    public static function getTempFolder($pWithKrynContext = true){
 
-        if ($_ENV['TMP']) return $_ENV['TMP'];
-        if ($_ENV['TEMP']) return $_ENV['TEMP'];
-        if ($_ENV['TMPDIR']) return $_ENV['TMPDIR'];
-        if ($_ENV['TEMPDIR']) return $_ENV['TEMPDIR'];
+        if (!self::$cachedTempFolder){
 
-        return sys_get_temp_dir();
+            if ($_ENV['TMP']) $folder = $_ENV['TMP'];
+            if ($_ENV['TEMP']) $folder = $_ENV['TEMP'];
+            if ($_ENV['TMPDIR']) $folder = $_ENV['TMPDIR'];
+            if ($_ENV['TEMPDIR']) $folder = $_ENV['TEMPDIR'];
+
+            if (!$folder) $folder = sys_get_temp_dir();
+
+            self::$cachedTempFolder = realpath($folder);
+
+            if (substr(self::$cachedTempFolder, -1) != DIRECTORY_SEPARATOR)
+                self::$cachedTempFolder .= DIRECTORY_SEPARATOR;
+        }
+
+
+        if ($pWithKrynContext){
+            if (!is_writable(self::$cachedTempFolder))
+                throw new FileIOException('Temp directory is not writeable. '.$folder);
+
+            //add our id to folder, so this installation works inside of a own directory.
+            $folder = self::$cachedTempFolder . self::$config['id'].DIRECTORY_SEPARATOR;
+
+            if (!is_dir($folder))
+                TempFile::createFolder($folder);
+            return $folder;
+        }
+
+        return self::$cachedTempFolder;
     }
 
     /**
      * Creates a temp folder and returns its path.
+     * Please use TempFile::createFolder() class instead.
      *
      * @static
-     * @param string $pPrefix
-     * @return string
+     * @internal
+     * @param  string $pPrefix
+     * @return string Path with trailing slash
      */
     public static function createTempFolder($pPrefix = ''){
 
-        $string = self::getTempFolder();
-        if (substr($string, -1) != '/')
-            $string .= '/';
+        $tmp = self::getTempFolder();
 
         do {
-            $path = $string . $pPrefix . dechex(time() / mt_rand(100, 500));
+            $path = $tmp . $pPrefix . dechex(time() / mt_rand(100, 500));
         } while (is_dir($path));
 
         mkdir($path);
+
+        if (substr($path, -1) != '/')
+            $path .= '/';
+
         return $path;
     }
 }

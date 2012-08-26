@@ -11,6 +11,8 @@ class PropelHelper {
     public static $objectsToExtension = array();
     public static $classDefinition = array();
 
+    private static $tempFolder = '';
+
     public static function init(){
 
         try {
@@ -24,6 +26,15 @@ class PropelHelper {
         Kryn::internalMessage('Propel initialization', $result);
     }
 
+    public static function getTempFolder(){
+
+        if (self::$tempFolder) return self::$tempFolder;
+
+        self::$tempFolder = Kryn::getTempFolder();
+
+        return self::$tempFolder;
+    }
+
     public static function callGen($pCmd){
 
         $errors = self::checkModelXml();
@@ -33,7 +44,6 @@ class PropelHelper {
         self::writeXmlConfig();
         self::writeBuildPorperties();
         self::collectSchemas();
-        self::generatePropelPhpConfig();
 
         switch($pCmd){
             case 'models':
@@ -47,8 +57,6 @@ class PropelHelper {
 
         return $result;
     }
-
-    
 
     public static function cleanup(){
 
@@ -72,12 +80,12 @@ class PropelHelper {
 
         return $errors;
     }
+
     public static function fullGenerator(){
 
         self::writeXmlConfig();
         self::writeBuildPorperties();
         self::collectSchemas();
-        self::generatePropelPhpConfig();
 
         $content = '';
 
@@ -105,12 +113,14 @@ class PropelHelper {
         return $content;
     }
 
+
+
     public static function generatePropelPhpConfig(){
 
         self::collectClassDefinition();
+        $tmp = $this->getTempFolder();
 
-        $file = 'propel/build/conf/kryn-conf.php';
-
+        $file =  $tmp . 'propel/build/conf/kryn-conf.php';
 
         if (!file_exists($file)){
             self::writeXmlConfig();
@@ -126,8 +136,8 @@ class PropelHelper {
         $line = '$conf[\'classmap\'] = include(dirname(__FILE__) . DIRECTORY_SEPARATOR . \'classmap-kryn-conf.php\');';
         $config = str_replace($line, $classDefinition, $config);
 
-        file_put_contents('propel-config.php', $config);
-        File::setPermission('propel-config.php');
+
+        file_put_contents($tmp.'propel-config.php', $config);
 
         return $content;
     }
@@ -161,6 +171,8 @@ class PropelHelper {
     }
 
     public static function moveClasses(){
+
+        $tmp = $this->getTempFolder();
 
         self::collectObjectToExtension();
         
@@ -200,7 +212,7 @@ class PropelHelper {
 
                 if (!is_dir($targetDir)) if(!mkdirr($targetDir)) die('Can not create folder '.$targetDir);
 
-                $source = 'propel/build/classes/kryn/'.$file;
+                $source = $tmp . 'propel/build/classes/kryn/'.$file;
 
                 if (!file_exists($source)){
                     $content .= "[move][$extension] ERROR can not find $source.\n";
@@ -219,6 +231,16 @@ class PropelHelper {
 
     }
 
+    /**
+     * Returns a array of propel config's value. We do not save it as .php file, instead
+     * we create it dynamicaly out of our own config.php.
+     * 
+     * @return array The config array for Propel::init() (only in kryn's version of propel, no official)
+     */
+    public static function getConfig(){
+        
+
+    }
 
     public static function updateSchema(){
 
@@ -228,11 +250,10 @@ class PropelHelper {
             self::writeXmlConfig();
             self::writeBuildPorperties();
             self::collectSchemas();
-            self::generatePropelPhpConfig();
         }
 
         if (!\Propel::isInit()){
-            \Propel::init($file);
+            \Propel::init(self::getConfig());
         }
 
         $sql = self::getSqlDiff();
@@ -316,6 +337,8 @@ class PropelHelper {
 
     public static function collectSchemas(){
 
+        $tmp = $this->getTempFolder();
+
         $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">";
 
         foreach (Kryn::$extensions as $extension){
@@ -334,7 +357,7 @@ class PropelHelper {
                 $newSchema .= "</database>";
 
                 $file = $extension.'.schema.xml';
-                SystemFile::setContent('propel/'.$file, $newSchema);
+                file_put_contents($tmp . 'propel/'.$file, $newSchema);
             }
 
         }
@@ -414,7 +437,9 @@ class PropelHelper {
 
     public static function writeBuildPorperties(){
 
-        if (!mkdirr($folder = 'propel/'))
+        $tmp = $this->getTempFolder();
+
+        if (!mkdirr($folder = $tmp . 'propel/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
         $adapter = Kryn::$config['database']['type'];
@@ -431,12 +456,14 @@ propel.tablePrefix = '.Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
 propel.project = kryn';
 
-        return file_put_contents('propel/build.properties', $properties)?true:false;
+        return file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
     }
 
     public static function writeXmlConfig(){
 
-        if (!mkdirr($folder = 'propel/build/conf/'))
+        $tmp = $this->getTempFolder();
+
+        if (!mkdirr($folder = $tmp.'propel/build/conf/'))
             throw new Exception('Can not create propel folder in '.$folder);
 
         $adapter = Kryn::$config['database']['type'];
@@ -478,9 +505,9 @@ propel.project = kryn';
         </datasources>
     </propel>
 </config>';
-
-        SystemFile::setContent('propel/runtime-conf.xml', $xml);
-        SystemFile::setContent('propel/buildtime-conf.xml', $xml);
+    
+        file_put_contents($tmp . 'propel/runtime-conf.xml', $xml);
+        file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
         return true;
     }
 

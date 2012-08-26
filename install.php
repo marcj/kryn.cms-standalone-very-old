@@ -805,7 +805,7 @@ Your installation file contains following extensions:<br />
 <table style="width: 98%" class="modulelist" cellpadding="4">
 <?php
 
-    $systemModules = array('kryn','admin','users');
+    $systemModules = array('core','admin','users');
     buildModInfo( $systemModules );
 
     $dir = opendir( PATH_MODULE."" );
@@ -854,6 +854,7 @@ function buildModInfo( $modules ) {
 
 function step2(){
     $anyThingOk = true;
+    Kryn::initConfig(); 
 ?>
 
 <h2>Checking requirements</h2>
@@ -912,81 +913,55 @@ function step2(){
     </li>
 
 
-    <li><b>File permissions</b><br/>
+    <li><b>Temp directory</b><br/>
+      <div style="color: gray; padding-bottom: 6px;">
+        This directory is used for file caches, propel build and other temporarily files.<br/>
+        To set a different folder, you can overwrite the environment var in this priority:<br/>
+        TMP, TEMP, TMPDIR or TEMPDIR
+      </div>
 <?php
+    
+    $tempFolder = Kryn::getTempFolder(false);
 
-    global $count;
-    $count = 0;
-
-    function checkFile( $pDir, $pFile ){
-        global $count;
-
-        $res = '';
-        $file = $pDir . ($pFile?'/'.$pFile:'');
-        if (!is_dir($file)) {
-            $fh = @fopen( $file, 'a+' );
-            if( !$fh ){
-                $res .=  "<br />$file";
-                $count++;
-            }
-        } else {
-            //folder
-            if (!is_writeable($file) || opendir($file) === false){
-                $res .= "<br />$file";
-                $count++;
-            }
-            $res .= checkDir( $file );
-        }
-        return $res;
-    }
-
-    function checkDir( $pDir ){
-        $pDir .= "";
-        $res = '';
-        $dir = opendir( $pDir );
-        if (!$dir) return;
-        while (($file = readdir($dir)) !== false){
-            if( $file != '..' && $file != '.' && $file != '.git' ){
-                $res .= checkFile($pDir, $file);
-            }
-        }
-        return $res;
-    }
-
-    $id = posix_getuid();
-    $gid = posix_getegid();
-    $info = posix_getpwuid($id);
-    $ginfo = posix_getgrgid($gid);
-    $user = $info['name'];
-    $group = $ginfo['name'];
-
-    $filesLocked = '';
-    $files = array('core', 'data', 'lib', 'media', 'module', 'scripts', '.htaccess', 'index.php', 'install.php');
-    if (!is_writeable('.') || opendir('.') === false){
-        $filesLocked .= "<br />./";
-        $count++;
-    }
-    foreach ($files as $file){
-        $filesLocked  .= checkFile('.', $file);
-    }
-
-    if( $filesLocked != "" ){
-        $anyThingOk = false;
-        print '<div style="color: red;">'.tpf('%s file', '%s files', $count).' are not writeable.</div>Please set write permissions to owner of the web-server or to everyone.<br/>
-               <br />
-               Use your FTP client to adjust these permissions or directly through ssh:
-               <div style="border: 1px solid silver;  font-family: monospace; background-color: white; padding: 5px; margin: 5px;">
-               chown -R <i>'.$user.'</i> '.getcwd().'; <br /><b>or</b><br />
-               chown -R <i>:'.$group.'</i> '.getcwd().'; <br /<br />
-               chmod -R g+w '.getcwd().'; <br /><b>or</b><br />
-               chmod -R 777 '.getcwd().' (strongly not recommended)</div>';
-        print '<div style="border: 1px solid silver; overflow: auto; font-family: monospace; height: 150px; overflow: auto;  background-color: white; margin: 5px;">'.$filesLocked.'</div>';
+    if (is_writable($tempFolder)){
+      print "<div style='color: green'>$tempFolder exists and is writeable.</div>";
+      ?>
+      <div style="color: gray; padding-bottom: 6px;">
+        In the next step, you can set a Kryn installation id.<br/>
+        This is be used as sub folder in temp to make these files unique. 
+      </div>
+      <?php
     } else {
-        print '<div style="color: green;">OK</div>';
+      $anyThingOk = false;
+      print "<div style='color: red'>$tempFolder is not writeable.</div>";
+    }
+
+    ?>
+
+    </li>
+
+    <li><b>config.php permission</b><br/>
+<?php
+    
+    $configFile = 'config.php';
+
+    if (!file_exists($configFile))
+      if (!touch($configFile)){
+        print "<div style='color: red'>Can not create $configFile.</div>";
+      }
+
+    if (is_writable($configFile)){
+      print "<div style='color: green'>$configFile exists and is writeable.</div>";
+    } else {
+      $anyThingOk = false;
+      print "<div style='color: red'>$configFile is not writeable.</div>";
     }
 
     ?>
     </li>
+
+
+
 </ol>
     <br />
     <a href="?step=1" class="ka-Button" >Back</a>
@@ -1127,7 +1102,7 @@ function step3(){
         <td><input type="text" name="db" id="db_db" /></td>
     </tr>
     <tr>
-        <td>Prefix
+        <td>Table Prefix
 	        <div style="color: silver">
 	        	Please use only a lowercase string.
 	        </div></td>

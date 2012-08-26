@@ -282,16 +282,20 @@ class Propel
     /**
      * Configure Propel a PHP (array) config file.
      *
-     * @param      string Path (absolute or relative to include_path) to config file.
+     * @param      string|array Path (absolute or relative to include_path) to config file or config as array.
      *
      * @throws PropelException If configuration file cannot be opened.
      *                             (E_WARNING probably will also be raised by PHP)
      */
     public static function configure($configFile)
     {
-        $configuration = include($configFile);
-        if ($configuration === false) {
-            throw new PropelException("Unable to open configuration file: " . var_export($configFile, true));
+        $configuration = $configFile;
+
+        if (is_string($configFile)){
+            $configuration = include($configFile);
+            if ($configuration === false) {
+                throw new PropelException("Unable to open configuration file: " . var_export($configFile, true));
+            }
         }
         self::setConfiguration($configuration);
     }
