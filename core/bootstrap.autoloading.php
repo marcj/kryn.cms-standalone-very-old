@@ -41,10 +41,13 @@ foreach (Kryn::$extensions as $extension){
 spl_autoload_register(function($pClass){
 
     $extension = strtolower(substr($pClass, 0, strpos($pClass, '\\')));
+    var_dump($extension);
     $fullClazz = str_replace('\\', '/', $pClass).'.class.php';
     $fullClazzWC = str_replace('\\', '/', $pClass).'.php';
+    var_dump($fullClazz);
 
     $clazz = substr($fullClazz, strlen($extension)+1);
+    var_dump($clazz);
 
     if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
         include($file);
