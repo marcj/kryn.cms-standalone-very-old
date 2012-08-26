@@ -40,6 +40,9 @@ foreach (Kryn::$extensions as $extension){
 //init auto-loader for module folder.
 spl_autoload_register(function($pClass){
 
+    if (substr($pClass, 0, 1) == '\\')
+        $pClass = substr($pClass, 1);
+
 var_dump('---');
 var_dump($pClass);
     $extension = strtolower(substr($pClass, 0, strpos($pClass, '\\')));
