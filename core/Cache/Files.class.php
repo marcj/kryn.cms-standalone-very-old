@@ -22,7 +22,7 @@ class Files implements CacheInterface {
         if (!$pConfig['path']) $pConfig['path'] = \Core\Kryn::getTempFolder().'cache-object/';
 
         if (!is_dir($pConfig['path'])) {
-            if (!SystemFile::createFolder($pConfig['path'])) {
+            if (!mkdir($pConfig['path'])) {
                 throw new \Exception('Can not create cache folder: ' . $pConfig['path']);
             }
         }
@@ -68,15 +68,15 @@ class Files implements CacheInterface {
         $path = $this->getPath($pKey);
 
         if ($this->useJson){
-            return SystemFile::setContent($path, json_encode($pValue));
+            return file_put_contents($path, json_encode($pValue));
         }
 
-        return SystemFile::setContent($path, '<' . "?php \nreturn " . var_export($pValue, true) . ";\n ?" . '>');
+        return file_put_contents($path, '<' . "?php \nreturn " . var_export($pValue, true) . ";\n ?" . '>');
 
     }
 
     public function delete($pKey){
         $path = $this->getPath($pKey);
-        return SystemFile::delete($path);
+        return @unlink($path);
     }
 }
