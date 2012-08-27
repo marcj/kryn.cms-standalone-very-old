@@ -21,7 +21,7 @@ return array (
     'name' => $creds['MYSQLS']['MYSQLS_DATABASE'],
     'prefix' => 'dev_',
     'type' => 'mysql',
-    'persistent' => '1',
+    'persistent' => '0',
   ),
   'fileGroupPermission' => 'rw',
   'fileEveryonePermission' => '-',
