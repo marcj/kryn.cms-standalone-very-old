@@ -69,6 +69,7 @@ class Propel extends ORMAbstract {
      * @return array
      */
     public function getFields($pFields){
+
         $this->init();
 
         if ($pFields != '*' && is_string($pFields))
@@ -109,7 +110,11 @@ class Propel extends ORMAbstract {
 
                     $cols = $relation->getRightTable()->getColumns();
                     foreach ($cols as $col){
-                       $relationFields[ucfirst($relationName)][] = $col->getPhpName();
+                        if ($relation->getType == \RelationMap::ONE_TO_ONE || $relation->getType == \RelationMap::MANY_TO_ONE){
+                            $fields[$relationName.'.'.$col->getPhpName()] = $col;
+                        } else {
+                            $relationFields[ucfirst($relationName)][] = $col->getPhpName();
+                        }
                     }
                 }
             }
@@ -132,6 +137,10 @@ class Propel extends ORMAbstract {
 
                 if ($relationName){
                     $relation = $tableMap->getRelation(ucfirst($relationName));
+
+                    //check if $field exists in the foreign table
+                    if (!$relation->getRightTable()->hasColumnByPhpName($field)) continue;
+
                     $relations[ucfirst($relationName)] = $relation;
 
                     //add foreignKeys in main table.
@@ -142,7 +151,7 @@ class Propel extends ORMAbstract {
                         }
                     }
 
-                    //select at least pks of the foreign table
+                    //select at least all pks of the foreign table
                     $pks = $relation->getRightTable()->getPrimaryKeys();
                     foreach ($pks as $pk){
                        $relationFields[ucfirst($relationName)][] = $pk->getPhpName();
@@ -163,14 +172,14 @@ class Propel extends ORMAbstract {
         //filer relation fields
         foreach ($relationFields as $relation => &$objectFields){
             $objectName = $relations[$relation]->getRightTable()->getPhpName();
-            $limit = Kryn::$objects[lcfirst($objectName)]['limitSelection'];
+            $limit = Kryn::$objects[lcfirst($objectName)]['blacklistSelection'];
             if (!$limit) continue;
             $allowedFields = strtolower(','.str_replace(' ', '', trim($limit)).',');
 
             $filteredFields = array();
-            foreach ($objectFields as $name){
-                if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
-                    $filteredFields[] = $name;
+            foreach ($objectFields as $name => $def){
+                if (strpos($allowedFields, strtolower(','.$name.',')) === false){
+                    $filteredFields[$name] = $def;
                 }
             }
             $objectFields = $filteredFields;
@@ -178,23 +187,23 @@ class Propel extends ORMAbstract {
         }
 
         //filter
-        if ($this->definition['limitSelection']){
+        if ($this->definition['blacklistSelection']){
 
-            $allowedFields = strtolower(','.str_replace(' ', '', trim($this->definition['limitSelection'])).',');
+            $allowedFields = strtolower(','.str_replace(' ', '', trim($this->definition['blacklistSelection'])).',');
 
             $filteredFields = array();
-            foreach ($fields as $name){
-                if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
-                    $filteredFields[] = $name;
+            foreach ($fields as $name => $def){
+                if (strpos($allowedFields, strtolower(','.$name.',')) === false){
+                    $filteredFields[$name] = $def;
                 }
             }
             $filteredRelations = array();
-            foreach ($fields as $name){
-                if (strpos($allowedFields, strtolower(','.$name.',')) !== false){
-                    $filteredRelations[] = $name;
+            foreach ($relations as $name => $def){
+                if (strpos($allowedFields, strtolower(','.$name.',')) === false){
+                    $filteredRelations[$name] = $def;
                 }
             }
-            return array($filteredFields, $filteredRelations);
+            return array($filteredFields, $filteredRelations, $relationFields);
         }
 
         return array($fields, $relations, $relationFields);
@@ -464,6 +473,7 @@ class Propel extends ORMAbstract {
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
         $selects = array_keys($fields);
+
         $query->select($selects);
 
         $this->mapOptions($query, $pOptions);

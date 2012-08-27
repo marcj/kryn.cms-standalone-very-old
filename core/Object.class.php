@@ -173,7 +173,7 @@ class Object {
      */
     public static function parsePk($pObjectKey, $pPrimaryKey){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         $object_id = $obj->primaryStringToArray($pPrimaryKey);
 
@@ -251,7 +251,7 @@ class Object {
      */
     public static function get($pObjectKey, $pPk = false, $pOptions = array()){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         //convert primarykey to condition
         $condition = dbPrimaryKeyToCondition($pPk);
@@ -308,7 +308,7 @@ class Object {
      */
     public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
@@ -377,7 +377,7 @@ class Object {
     public static function getForeignItems($pObjectKey, $pPk, $pField, $pForeignCondition = null, 
                                           $pOptions = array()){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         if (!$pOptions['fields']) $pOptions['fields'] = '*';
 
@@ -434,7 +434,7 @@ class Object {
     public static function getRelatedCount($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
                                           $pOptions = array()){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
             $pCondition = array($pCondition);
@@ -469,7 +469,7 @@ class Object {
      * @return bool
      * @throws Exception
      */
-    public static function &getClassObject($pObjectKey){
+    public static function &getClass($pObjectKey){
 
         $definition =& \Core\Kryn::$objects[$pObjectKey];
         if (!$definition) throw new \ObjectNotFoundException(tf('Can not get class for object %s', $pObjectKey));
@@ -520,7 +520,7 @@ class Object {
      */
     public static function getCount($pObjectUri, $pAdditionalCondition = ''){
 
-        $obj = self::getClassObject($pObjectUri);
+        $obj = self::getClass($pObjectUri);
 
         if (!$obj) return array('error'=>'object_not_found');
 
@@ -535,7 +535,7 @@ class Object {
     public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false,
                                $pOptions = array()){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
     
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
@@ -566,7 +566,7 @@ class Object {
             }
         }
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
         return $obj->update($pPk, $pValues);
     }
 
@@ -599,7 +599,7 @@ class Object {
     public static function getTreeFromUri($pParentObjectUri, $pDepth = 1, $pExtraFields = ''){
 
         list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
-        $obj = self::getClassObject($object_key);
+        $obj = self::getClass($object_key);
 
         return $obj->getTree($object_id[0], false, $pDepth, $params['scopeId'], $pExtraFields);
 
@@ -618,7 +618,7 @@ class Object {
     public static function getTree($pObjectKey, $pBranch = false, $pCondition = false, $pDepth = 1, $pScope = false,
                                    $pOptions = false){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         if (!is_array($pOptions)) $pOptions = array();
 
@@ -647,7 +647,7 @@ class Object {
         if (!$definition['nestedRootAsObject']) return false;
         if (!$definition['nestedRootObject']) return false;
 
-        $obj = self::getClassObject($definition['nestedRootObject']);
+        $obj = self::getClass($definition['nestedRootObject']);
 
         $fields = $obj->primaryKeys;
         $fields[] = $definition['nestedRootObjectLabel'];
@@ -711,7 +711,7 @@ class Object {
 
     public static function getParentId($pObjectKey, $pObjectId){
 
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
 
         return $obj->getParentId($pObjectId);
     }
@@ -725,7 +725,7 @@ class Object {
 
 
     public static function getParent($pObjectKey, $pObjectId){
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
         return $obj->getParent($pObjectId);
     }
 
@@ -737,7 +737,7 @@ class Object {
 
 
     public static function getParents($pObjectKey, $pObjectId){
-        $obj = self::getClassObject($pObjectKey);
+        $obj = self::getClass($pObjectKey);
         return $obj->getParents($pObjectId);
     }
 
@@ -751,7 +751,7 @@ class Object {
         list($object_key, $object_id, $params) = self::parseUri($pSourceObjectUri);
         $target = self::parseUri($pTargetObjectUri);
 
-        $obj = self::getClassObject($object_key);
+        $obj = self::getClass($object_key);
 
         $targetId = $target[1][0];
         $pTargetObjectKey = false;

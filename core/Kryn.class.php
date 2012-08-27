@@ -2071,6 +2071,7 @@ class Kryn {
                 }
                 if ($propertyPath) break;
             }
+
             if ($propertyPath) {
                 if ($themeProperties = kryn::$domain->getThemeProperties())
                     Kryn::$themeProperties = $themeProperties->getByPath($propertyPath);

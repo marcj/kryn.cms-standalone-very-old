@@ -57,13 +57,14 @@ class Controller {
     public function getItems(){
 
         $obj = $this->getClass();
-        return $obj->getItems(1);
+        return $obj->getItems();
 
         $condition = null;
         $options   = array();
 
         return $obj->getItems($condition, $options);
     }
+
 
     public function getBranch(){
 
@@ -92,25 +93,33 @@ class Controller {
     }
 
 
+    public function getInfo(){
 
-    public function call($pCmd) {
+        $obj = $this->getObj();
+        return $obj;
+    }
 
-        $info = \Admin\Controller::getPathItem(\Core\Kryn::getRequestedPath());
+
+    public function getObj() {
+
+        $info = \Admin\Utils::getPathItem(\Core\Kryn::getRequestedPath());
+
         $class = $info['class'];
 
         $module2LoadClass = $info['_module'];
-
-        if (strpos($class, '/')) {
-            $t = explode('/', $class);
-            $module2LoadClass = $t[0];
-            $class = $t[1];
-        }
 
         if (class_exists($class)){
             $obj = new $class($info, getArgv('cmd'));
         } else {
             throw new \Exception(tf('Class %s not found', $class));
         }
+        return $obj;
+
+    }
+
+
+    public function call($pCmd) {
+        $obj = $this->getObj();
 
         switch ($pCmd) {
             case 'getItems':

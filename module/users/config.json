@@ -212,7 +212,7 @@
       "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,
-      "limitSelection": "id, username",
+      "blacklistSelection": "passwd",
       "chooserFieldDataModelCondition": [
         
       ],
@@ -396,7 +396,7 @@
     },
     "users": {
       "title": "[[Users]]",
-      "class": "usersAdminList",
+      "class": "\\Users\\Admin\\UserList",
       "type": "combine",
       "icon": "#icon-users-2",
       "isLink": true,

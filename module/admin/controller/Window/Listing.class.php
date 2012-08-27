@@ -308,7 +308,7 @@ class Listing extends WindowAbstract {
         $start = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
         $end = $this->itemsPerPage;
 
-        $obj = $this->getClass();
+        $obj = \Core\Object::getClass($this->object);
 
         $condition = '';
         $options   = array();

@@ -179,9 +179,10 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
-            if ($settings = Kryn::$adminClient->getUser()->getSettings())
+            if ($settings = Kryn::$adminClient->getUser()->getSettings()){
                 if ($settings instanceof \Core\Properties)
                     $res['user'] = $settings->toArray();
+            }
 
             if (!$res['user'])
                 $res['user'] = array();
@@ -208,7 +209,7 @@ class Backend {
 
         if ($loadKeys == false || in_array('domains', $loadKeys)){
             $res['domains'] = array();
-            $qr = dbExec('SELECT * FROM %pfx%system_domain ORDER BY domain');
+            $qr = dbExec('SELECT * FROM '.pfx.'system_domain ORDER BY domain');
             while ($row = dbFetch($qr)) {
                 //todo
                 //if (Core\Kryn::checkPageAcl($row['id'], 'showDomain', 'd')) {

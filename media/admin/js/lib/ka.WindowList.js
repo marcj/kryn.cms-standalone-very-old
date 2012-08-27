@@ -51,14 +51,14 @@ ka.WindowList = new Class({
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getClassDefinition', noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
 
             if (res.error) return false;
 
             this.render(res.data);
             this.classLoaded = true;
             this.fireEvent('render');
-        }.bind(this)}).get();
+        }.bind(this)}).get({method: 'options'});
     },
 
     deleteItem: function (pItem) {
@@ -149,7 +149,6 @@ ka.WindowList = new Class({
     },
 
     render: function (pValues) {
-        var _this = this;
         this.values = pValues;
 
         var sort = this.getSortField();
@@ -244,7 +243,7 @@ ka.WindowList = new Class({
 
         /*** title-Th ***/
         this.columns = {};
-        Object.each(this.values.columns, function (column, columnId) {
+        Object.each(this.values.fields, function (column, columnId) {
             _this.columns[columnId] = new Element('th', {
                 valign: 'top',
                 html: _(column.label)
@@ -310,7 +309,7 @@ ka.WindowList = new Class({
                 var field = this.values.filterFields[ mkey ];
 
 
-                var title = this.values.columns[mkey].label;
+                var title = this.values.fields[mkey].label;
                 field.label = _(title);
                 field.small = true;
 
@@ -611,7 +610,7 @@ ka.WindowList = new Class({
 
     addDummy: function () {
         var tr = new Element('tr').inject(this.tbody);
-        var count = this.dummyCount + Object.getLength(this.values.columns);
+        var count = this.dummyCount + Object.getLength(this.values.fields);
         new Element('td', {
             colspan: count,
             styles: {
@@ -764,7 +763,7 @@ ka.WindowList = new Class({
             }
         }
 
-        Object.each(this.values.columns, function (column, columnId) {
+        Object.each(this.values.fields, function (column, columnId) {
 
 
             var value = ka.getListLabel(pItem['values'], column, columnId);

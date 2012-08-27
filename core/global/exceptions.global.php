@@ -15,6 +15,7 @@ class AccessDeniedException extends Exception {}
 class MissingClassException extends Exception {}
 
 class NoFieldWritePermission extends Exception {}
+class EntryPathNotFoundException extends Exception {}
 
 class FileNotExistException extends Exception {}
 class FileIOException extends Exception {}

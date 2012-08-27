@@ -13,7 +13,7 @@ class UIAssets {
         $where = "code = 'en' ";
         foreach ($files as $file)
             $where .= " OR code = '$file'";
-        $langs = dbExFetchAll("SELECT * FROM %pfx%system_langs WHERE $where");
+        $langs = dbExFetchAll("SELECT * FROM ".pfx."system_langs WHERE $where");
 
         $json = json_encode($langs);
         header('Content-Type: text/javascript');

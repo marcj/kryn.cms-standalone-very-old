@@ -8,7 +8,18 @@ namespace Admin;
  */
 class RestEntryPoint extends \RestService\Server {
 
+    public function exceptionHandler($pException){
+        if (get_class($pException) != 'AccessDeniedException')
+            \Core\Utils::exceptionHandler($pException);
+    }
+
     public function run($pEntryPoint){
+
+
+        if (\Core\Kryn::$config['displayRestErrors']){
+            $exceptionHandler = array($this, 'exceptionHandler');
+        }
+        $this->setExceptionHandler($exceptionHandler);
 
         if ($pEntryPoint['type'] == 'store') {
 
@@ -31,30 +42,22 @@ class RestEntryPoint extends \RestService\Server {
 
             $windowController->setEntryPoint($pEntryPoint);
 
-            if ($_GET['cmd'] == 'getInfo') {
+            if ($this->getClient()->getMethod() == 'head') {
 
                 $this->send($pEntryPoint);
 
             } else if (in_array($pEntryPoint['type'], $adminWindows)) {
 
-                try {
+                //add routes
+                $this->addSubController($pEntryPoint['_module'].'/'.$pEntryPoint['_code'], $windowController)
+                    ->addGetRoute('', 'getItems')
+                    ->addPostRoute('', 'saveItem')
+                    ->addPutRoute('', 'addItem')
+                    ->addDeleteRoute('', 'removeItem')
+                    ->addOptionsRoute('', 'getInfo');
 
-                    //add routes
-                    $this->addSubController($pEntryPoint['_module'].'/'.$pEntryPoint['_code'], $windowController)
-                        ->addGetRoute('', 'getItems')
-                        ->addPostRoute('', 'saveItem')
-                        ->addPutRoute('', 'addItem')
-                        ->addDeleteRoute('', 'removeItem');
-
-                    //run parent
-                    parent::run();
-
-                    //$this->send($windowController->handle($pEntryPoint));
-                    $this->sendError('invalid_action');
-
-                } catch (Exception $e){
-                    $this->sendError('admin_store', array('exception' => $e, 'entrypoint' => $pEntryPoint));
-                }
+                //run parent
+                parent::run();
             }
         }
 

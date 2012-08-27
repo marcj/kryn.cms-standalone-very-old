@@ -638,16 +638,14 @@ function step5Done($pMsg){
             $dir = opendir( PATH_MODULE );
             if(! $dir ) return;
             while (($file = readdir($dir)) !== false){
-                if( $file != '..' && $file != '.' && $file != '.svn' && $file != 'admin' && $file != 'users' ){
+                if( $file != '..' && $file != '.' && $file != 'admin' && $file != 'users' ){
                     if ($_POST['modules'][$file])
                         $modules[] = $file;
                 }
             }
 
             Kryn::$config['activeModules'] = $modules;
-            
-            array_shift(Kryn::$config['activeModules']);//admin
-            array_shift(Kryn::$config['activeModules']);//users
+
             \Core\SystemFile::setContent('config.php', "<?php\nreturn ".var_export(Kryn::$config, true).";\n?>");
         }
 

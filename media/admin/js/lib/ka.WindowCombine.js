@@ -201,7 +201,7 @@ ka.WindowCombine = new Class({
         this.sortSelect.inject(this.sortSpan);
         this.sortSelect.setStyle('width', 150);
 
-        Object.each(this.values.columns, function (column, id) {
+        Object.each(this.values.fields, function (column, id) {
 
             this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-16']);
             this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-15']);
@@ -215,8 +215,8 @@ ka.WindowCombine = new Class({
 
             this.sortField = sortId.split('______')[0];
 
-            /*if( this.values.columns[this.sortField] && (this.values.columns[this.sortField]['type'] == 'datetime' || 
-             this.values.columns[this.sortField]['type'] == 'date') ){
+            /*if( this.values.fields[this.sortField] && (this.values.fields[this.sortField]['type'] == 'datetime' || 
+             this.values.fields[this.sortField]['type'] == 'date') ){
              this.sortDirection = 'DESC';
              }*/
 
@@ -258,7 +258,7 @@ ka.WindowCombine = new Class({
                 var field = Object.clone(this.values.filterFields[ mkey ]);
 
 
-                var title = this.values.columns[mkey].label;
+                var title = this.values.fields[mkey].label;
                 field.label = t(title);
                 field.small = true;
                 field.tableitem = true;
@@ -415,7 +415,7 @@ ka.WindowCombine = new Class({
             this.loader.show();
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (response) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode, noCache: true, onComplete: function (response) {
 
             var res = response.data;
 
@@ -481,7 +481,7 @@ ka.WindowCombine = new Class({
                 this.loadMore(true);
             }
 
-        }.bind(this)}).post({
+        }.bind(this)}).get({
             from: pFrom,
             max: pMax,
             orderBy: this.sortField,
@@ -735,13 +735,13 @@ ka.WindowCombine = new Class({
         var value = this.getItemTitle(pItem, this.sortField);
         if (value == '') return _('-- No value --');
 
-        if (!this.values.columns[this.sortField]['type'] || this.values.columns[this.sortField].type == "text") {
+        if (!this.values.fields[this.sortField]['type'] || this.values.fields[this.sortField].type == "text") {
 
             return '<b>' + value.substr(0, 1).toUpperCase() + '</b>';
 
         } else {
 
-            if (["datetime", "date"].contains(this.values.columns[this.sortField]['type'])) {
+            if (["datetime", "date"].contains(this.values.fields[this.sortField]['type'])) {
 
                 if (pItem['values'][this.sortField] > 0) {
 
@@ -761,9 +761,9 @@ ka.WindowCombine = new Class({
     getItemTitle: function (pItem, pColumnId) {
 
         var value = pItem['values'][pColumnId]
-        if (!this.values.columns[pColumnId]) return value;
+        if (!this.values.fields[pColumnId]) return value;
 
-        var column = this.values.columns[pColumnId];
+        var column = this.values.fields[pColumnId];
 
         if (column.format == 'timestamp') {
             value = new Date(value * 1000).toLocaleString();
@@ -1208,10 +1208,10 @@ ka.WindowCombine = new Class({
             layout = this.values.itemLayout;
         } else {
 
-            if (this.values.columns.title) {
+            if (this.values.fields.title) {
                 layout += '<h2 id="title"></h2>';
                 titleAdded = true;
-            } else if (this.values.columns.name) {
+            } else if (this.values.fields.name) {
                 layout += '<h2 id="name"></h2>';
                 nameAdded = true;
             }
@@ -1219,7 +1219,7 @@ ka.WindowCombine = new Class({
             layout += '<div class="subline">';
 
             var c = 1;
-            Object.each(this.values.columns, function (bla, id) {
+            Object.each(this.values.fields, function (bla, id) {
 
                 if (id == "title" && titleAdded) return;
                 if (id == "name" && nameAdded) return;
@@ -1349,7 +1349,7 @@ ka.WindowCombine = new Class({
             }
         }
 
-        Object.each(this.values.columns, function (column, columnId) {
+        Object.each(this.values.fields, function (column, columnId) {
             var value = pItem['values'][columnId];
 
             if (column.format == 'timestamp') {

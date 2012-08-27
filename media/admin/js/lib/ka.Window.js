@@ -903,7 +903,7 @@ ka.Window = new Class({
                 text: t('Loading entry point ...')
             }).inject(this.content);
 
-            this._ = new Request.JSON({url: _path + 'admin/' + module + this.code + '?cmd=getInfo', onComplete: function (res) {
+            this._ = new Request.JSON({url: _path + 'admin/' + module + this.code, onComplete: function (res) {
 
                 if (res.error == 'access_denied') {
                     alert(t('Access denied'));
@@ -917,7 +917,7 @@ ka.Window = new Class({
                 }
                 this._loadContent(res.data, res.data._path);
 
-            }.bind(this)}).post();
+            }.bind(this)}).get({method: 'head'});
         }
     },
 
