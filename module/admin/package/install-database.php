@@ -7,6 +7,7 @@ if (!defined('KRYN_MANAGER')) return false;
 dbDelete('system_domain');
 dbDelete('system_page');
 dbDelete('system_page_content');
+dbDelete('system_app_lock');
 
 //setup pages
 

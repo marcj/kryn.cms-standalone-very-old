@@ -12,6 +12,9 @@ $propelClasses = Kryn::getTempFolder().'propel-classes/';
 //init auto-loader for propel libs.
 spl_autoload_register(function($pClass) use ($propelClasses) {
 
+    if (substr($pClass, 0, 1) == '\\')
+        $pClass = substr($pClass, 1);
+
     if (file_exists($propelClasses.$pClass.'.php')){
         include $propelClasses.$pClass.'.php';
         return true;
@@ -25,6 +28,10 @@ spl_autoload_register(function($pClass) use ($propelClasses) {
 
 //init auto-loader for propel module models.
 foreach (Kryn::$extensions as $extension){
+
+    if (substr($pClass, 0, 1) == '\\')
+        $pClass = substr($pClass, 1);
+    
     spl_autoload_register(function ($pClass) use ($extension) {
         if (file_exists($clazz = 'module/'.$extension.'/model/'.$pClass.'.php')){
             include $clazz;

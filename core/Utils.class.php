@@ -155,19 +155,16 @@ class Utils {
      */
     public static function appLock($pId, $pTimeout = 15){
 
-        $now     = ceil(microtime(true)*1000);
-        var_dump($now); exit;
-        $timeout = $now+$pTimeout;
-
-        try {
-            dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));
-            self::$lockedKeys[$pId] = true;
+        if (self::appTryLock($pId, $pTimeout))
             return true;
-        } catch(\PDOException $e){
-            //failed, we try it again each 1/4 ms
-            usleep(15*1000); //15ms
-            return self::appLock($pId);
+        else {
+            for($i=0; $i<1000; $i++){
+                usleep(15*1000); //15ms
+                if (self::appTryLock($pId, $pTimeout))
+                    return true;
+            }
         }
+
         
     }
 
@@ -181,8 +178,16 @@ class Utils {
      * @return bool
      */
     public static function appTryLock($pId){
+
+        $now     = ceil(microtime(true)*1000);
+        var_dump($now); exit;
+        $timeout = $now+$pTimeout;
+
+
+        //todo, delete timeouted locks.
+
         try {
-            dbInsert('system_app_lock', array('id' => $pId));
+            dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));
             self::$lockedKeys[$pId] = true;
             return true;
         } catch(\Exception $e){

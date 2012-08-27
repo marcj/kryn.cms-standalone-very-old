@@ -45,9 +45,9 @@ if( $_REQUEST['step'] == 'checkConfig' )
 
 if( $_REQUEST['step'] == '5' ){
 
-    
-
     spl_autoload_register(function ($pClass) {
+      if (substr($pClass, 0, 1) == '\\')
+        $pClass = substr($pClass, 1);
       foreach (Kryn::$extensions as $extension){
         if (file_exists($clazz = 'module/'.$extension.'/model/'.$pClass.'.php')){
             include $clazz;
