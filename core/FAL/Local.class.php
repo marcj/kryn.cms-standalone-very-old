@@ -64,7 +64,7 @@ class Local extends FALAbstract {
     private function _createFolder($pPath){
         is_dir(dirname($pPath)) || $this->_createFolder(dirname($pPath));
         if (!@mkdir($pPath, File::$dirMode))
-            throw new FileIOException(tf('Can not create folder %s', $pPath));
+            throw new \FileIOException(tf('Can not create folder %s', $pPath));
         return is_dir($pPath);
     }
 

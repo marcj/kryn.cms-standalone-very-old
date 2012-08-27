@@ -38,6 +38,8 @@ include(PATH_CORE.'global/database.global.php');
 include(PATH_CORE.'global/template.global.php');
 include(PATH_CORE.'global/internal.global.php');
 include(PATH_CORE.'global/framework.global.php');
+include(PATH_CORE.'global/exceptions.global.php');
+
 $lang = 'en';
 $cfg = array();
 
@@ -364,17 +366,6 @@ function checkConfig(){
       SystemFile::loadConfig();
 
       delDir(Kryn::getTempFolder().'propel');
-
-      SystemFile::createFolder( PATH_MEDIA.'trash' );
-      SystemFile::createFolder( PATH_MEDIA.'css' );
-      SystemFile::createFolder( PATH_MEDIA.'js' );
-      
-      SystemFile::createFolder( 'data' );
-      SystemFile::createFolder( 'data/upload' );
-      SystemFile::createFolder( 'data/packages' );
-      SystemFile::createFolder( 'data/upload/modules' );
-
-      SystemFile::createFolder( PATH_MEDIA_CACHE );
 
       $f = \Core\SystemFile::setContent('config.php', $config);
 

@@ -61,7 +61,7 @@ include('core/bootstrap.autoloading.php');
  */
 
 if (!is_dir(Kryn::getTempFolder().'propel-classes')){
-    Core\PropelHelper::init();
+    \Core\PropelHelper::init();
 }
 
 \Propel::init(PropelHelper::getConfig());
