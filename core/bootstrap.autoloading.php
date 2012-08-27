@@ -16,7 +16,7 @@ spl_autoload_register(function($pClass) use ($propelClasses) {
         $pClass = substr($pClass, 1);
 
     var_dump('---');
-    var_dump($pClass, file_exists($propelClasses.$pClass.'.php'));
+    var_dump($propelClasses.$pClass.'.php', file_exists($propelClasses.$pClass.'.php'));
 
     if (file_exists($propelClasses.$pClass.'.php')){
         include $propelClasses.$pClass.'.php';
