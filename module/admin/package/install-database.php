@@ -3,9 +3,6 @@
 
 if (!defined('KRYN_MANAGER')) return false;
 
-var_dump(find('/tmp/*'));
-
-
 dbDelete('system_domain');
 dbDelete('system_page');
 dbDelete('system_page_content');

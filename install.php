@@ -28,6 +28,9 @@ define('PATH_MEDIA_CACHE', 'media/cache/');
 include(PATH_CORE . 'Kryn.class.php');
 include('lib/propel/runtime/lib/Propel.php');
 
+if (file_exists('config.php'))
+  Kryn::$config = require('config.php');
+
 require('core/bootstrap.autoloading.php');
 
 include(PATH_CORE.'global/misc.global.php');
@@ -632,7 +635,7 @@ function step5Done($pMsg){
     function step5Init(){
 
         $subStep = $_GET['substep']+0;
-        Kryn::$config = require( 'config.php' );
+        Kryn::$config = require('config.php');
 
         define('pfx', Kryn::$config['database']['prefix']);
         File::loadConfig();
