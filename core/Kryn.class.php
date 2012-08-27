@@ -2395,8 +2395,8 @@ class Kryn {
             //add our id to folder, so this installation works inside of a own directory.
             $folder = self::$cachedTempFolder . $id.DIRECTORY_SEPARATOR;
 
-            if (is_dir($folder))
-                \mkdirr($folder);
+            if (!is_dir($folder))
+                mkdir($folder);
 
             return $folder;
         }
