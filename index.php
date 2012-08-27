@@ -17,6 +17,7 @@
  */
 
 mb_internal_encoding("UTF-8");
+error_reporting(E_ALL ^ E_NOTICE);
 
 require('core/bootstrap.checkFile.php');
 require('core/bootstrap.php');

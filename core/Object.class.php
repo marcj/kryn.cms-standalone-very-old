@@ -333,7 +333,6 @@ class Object {
 
         $cacheId = 'ObjectGetList_'.md5($pObjectKey.'-'.json_encode($pCondition).json_encode($pOptions));
         if ($items = Kryn::getCache($cacheId)){
-            var_dump($items);
             return $items;
         }
         

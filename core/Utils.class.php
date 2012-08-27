@@ -143,11 +143,6 @@ class Utils {
     /**
      * Locks the process until the lock of $pId has been acquired for this process.
      * If no lock has been acquired for this id, it returns without waiting true.
-     *
-     * If this installation is in a cluster array, we store the lock
-     * into the current database backend, so that other cloud buddies know
-     * that this id has been locked.
-     * If it's a standalone installation, we use flock
      * 
      * @param  string $pId
      * @param  integer $pTimeout Milliseconds
@@ -170,7 +165,7 @@ class Utils {
 
     /**
      * Tries to lock given id. If the id is already locked,
-     * the function returns without waiting for the mutex to be unlocked.
+     * the function returns without waiting.
      *
      * @see appLock()
      * 
@@ -178,6 +173,9 @@ class Utils {
      * @return bool
      */
     public static function appTryLock($pId){
+
+        //already aquired by this process?
+        if (self::$lockedKeys[$pId] === true) return true;
 
         $now     = ceil(microtime(true)*1000);
         $timeout = $now+$pTimeout;
@@ -189,7 +187,6 @@ class Utils {
             self::$lockedKeys[$pId] = true;
             return true;
         } catch(\Exception $e){
-            //failed, we try it again each 1/4 ms
             return false;
         }
     }

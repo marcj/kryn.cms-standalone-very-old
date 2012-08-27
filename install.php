@@ -629,6 +629,7 @@ function step5Done($pMsg){
         \Core\Kryn::loadConfigs();
 
         \Admin\Utils::clearCache();
+        
         step5Done(true);
     }
 

@@ -3,3 +3,5 @@
 .idea
 
 /media/cache
+
+/config.php

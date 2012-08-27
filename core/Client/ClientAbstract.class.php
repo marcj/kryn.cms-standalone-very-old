@@ -420,9 +420,7 @@ abstract class ClientAbstract {
         //can write the cache key.
         //So we LOCK all kryn php instances, like in multithreaded apps, but with all
         //cluster buddies too.
-        var_dump('ClientCreateSession');
         Utils::appLock('ClientCreateSession');
-        var_dump('222');
 
         //session id already used?
         $session = $this->fetchSession($cacheKey);

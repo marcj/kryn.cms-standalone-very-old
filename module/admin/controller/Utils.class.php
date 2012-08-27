@@ -8,7 +8,8 @@ class Utils {
 
 	public static function clearCache(){
 
-        clearfolder('cache/object/');
+        clearfolder(Kryn::getTempFolder().'cache-object/');
+        clearfolder(Kryn::getTempFolder().'smarty-compile/');
         clearfolder(PATH_MEDIA_CACHE);
 
         foreach (Kryn::$configs as $extKey => $config){
