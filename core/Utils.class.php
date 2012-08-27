@@ -180,11 +180,9 @@ class Utils {
     public static function appTryLock($pId){
 
         $now     = ceil(microtime(true)*1000);
-        var_dump($now); exit;
         $timeout = $now+$pTimeout;
 
-
-        //todo, delete timeouted locks.
+        dbDelete('system_app_lock', 'timeout <= '.$now);
 
         try {
             dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));

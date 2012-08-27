@@ -158,7 +158,6 @@ function dbExFetchAll($pQuery, $pParams = null) {
 function dbExec($pQuery, $pParams = null) {
 
     if ($pParams !== null){
-        var_dump($pQuery);
         $sth = dbConnection()->prepare($pQuery);
         if (!is_array($pParams)) $pParams = array($pParams);
         $sth->execute($pParams);
