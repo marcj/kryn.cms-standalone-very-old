@@ -899,6 +899,23 @@ function step2(){
 
 ?>
     </li>
+        ?>
+    </li>
+
+    <li><b>Public cache directory</b>
+        <?php
+
+        $dir = 'media/cache';
+        if (is_writable($dir)){
+          print "<div style='color: green'>$dir is writeable.</div>";
+
+        } else {
+          $anyThingOk = false;
+          print "<div style='color: red'>$dir is not writeable.</div>";
+        }
+
+?>
+    </li>
 
 
     <li><b>Temp directory</b><br/>
