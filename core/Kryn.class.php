@@ -2396,7 +2396,7 @@ class Kryn {
             $folder = self::$cachedTempFolder . $id.DIRECTORY_SEPARATOR;
 
             if (is_dir($folder))
-                mkdirr($folder);
+                \mkdirr($folder);
 
             return $folder;
         }
