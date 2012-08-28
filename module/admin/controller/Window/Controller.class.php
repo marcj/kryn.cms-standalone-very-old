@@ -54,15 +54,16 @@ class Controller {
         $this->entryPoint = $pEntryPoint;
     }
 
-    public function getItems(){
+    public function getItems($pObject = null){
 
         $obj = $this->getClass();
-        return $obj->getItems();
 
-        $condition = null;
-        $options   = array();
+        if ($pObject !== null){
+            return $obj->getItem($pObject);
+        } else {
+            return $obj->getItems();
+        }
 
-        return $obj->getItems($condition, $options);
     }
 
 
@@ -96,20 +97,20 @@ class Controller {
     public function getInfo(){
 
         $obj = $this->getObj();
-        return $obj;
+        return $obj->getInfo();
     }
 
 
     public function getObj() {
 
-        $info = \Admin\Utils::getPathItem(\Core\Kryn::getRequestedPath());
+        $entryPoint = \Admin\Utils::getPathItem(\Core\Kryn::getRequestedPath());
 
-        $class = $info['class'];
+        $class = $entryPoint['class'];
 
-        $module2LoadClass = $info['_module'];
+        $module2LoadClass = $entryPoint['_module'];
 
         if (class_exists($class)){
-            $obj = new $class($info, getArgv('cmd'));
+            $obj = new $class($entryPoint);
         } else {
             throw new \Exception(tf('Class %s not found', $class));
         }

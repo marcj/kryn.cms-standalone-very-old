@@ -1859,7 +1859,7 @@ ka.Field = new Class({
 
         } else {
 
-            if (this.field.object_relation == 'nToM' || this.field.multi == 1){
+            if (this.field.objectRelation == 'nToM' || this.field.multi == 1){
                 this.renderChooserMulti(pObjects);
             } else {
                 this.renderChooserSingle(pObjects);
@@ -1937,7 +1937,9 @@ ka.Field = new Class({
         this._setValue = function(pVal){
 
             this._value = pVal;
+
             if (!this._value) this._value = [];
+
             if (typeOf(this._value) != 'array') this._value = [this._value];
 
             this.renderObjectTable();
@@ -1988,6 +1990,9 @@ ka.Field = new Class({
 
                 });
 
+                if (typeOf(id) == 'object')
+                    id = ka.getObjectUrlId(this.field.object, id);
+
                 this.renderObjectTableLoadItem(id, placeHolders);
 
                 var actionBar = new Element('div');
@@ -2008,7 +2013,7 @@ ka.Field = new Class({
         if (this.objectLastTableLoaderTimer){
             clearTimeout(this.objectLastTableLoaderTimer);
         }
-        this.objectTableLoaderQueue[ka.urlEncode(pId)] = pPlaceHolders;
+        this.objectTableLoaderQueue[pId] = pPlaceHolders;
 
         this.objectLastTableLoaderTimer = this.doObjectTableLoad.delay(50, this);
     },
@@ -2019,7 +2024,7 @@ ka.Field = new Class({
         var ids = [];
 
         Object.each(this.objectTableLoaderQueue, function(placeholders, id){
-            ids.include(id);
+            ids.push(id);
         });
         url += ids.join('/');
 
@@ -2056,8 +2061,12 @@ ka.Field = new Class({
 
                     Object.each(placeholders, function(td, colId){
 
-                        var value = ka.getListLabel(res[id], fields[colId], colId);
-                        td.set('text', value);
+                        if (res.data[id]){
+                            var value = ka.getListLabel(res.data[id], fields[colId], colId);
+                            td.set('text', value);
+                        } else {
+                            td.set('text', t('--not found--'));
+                        }
                     });
 
                 });

@@ -12,180 +12,8 @@
 
 namespace Admin\Window;
 
-class Edit {
+class Edit extends WindowAbstract {
 
-    /**
-     * Defines the table which should be accessed.
-     * Use this only if you know, what you're doing,
-     * normally this is not filled and the table comes
-     * from the object settings.
-     *
-     * @var string
-     */
-    public $table = '';
-
-    /**
-     * Defines the object key which should be accessed
-     *
-     * @var string
-     */
-    public $object = '';
-
-    /**
-     * Copy of the current entry path definition
-     *
-     * @var array
-     */
-    private $entryPathItem = array();
-
-    /**
-     * Defines your primary fiels as a array.
-     * Example: $primary = array('id');
-     * Example: $primary = array('id', 'name');
-     *
-     * Use this only if you know, what you're doing,
-     * normally this comes from the object settings.
-     *
-     * @abstract
-     * @var array
-     */
-    public $primary = array();
-
-    /**
-     * Defines whether the list windows should display the language select box.
-     * Note: Your table need a field 'lang' varchar(2). The windowList class filter by this.
-     *
-     * @var bool
-     */
-    public $multiLanguage = false;
-
-    /**
-     * Defines whether the list windows should display the domain select box.
-     * Note: Your table need a field 'domain_id' int. The windowList class filter by this.
-     *
-     * @var bool
-     */
-    public $domainDepended = false;
-
-    /**
-     * Defines the fields. (ka.fields)
-     * Example: array(
-     *      'kaField1' => array( ka.Field params goes here ),
-     *      'kaField2' => array( ka.Field params goes here )
-     * )
-     *
-     * @var array
-     */
-    public $fields = array();
-
-    /**
-     * Defines each tab and inside it the fields. (ka.fields)
-     * Example content: array(
-     *  'TabTitle1' => array(
-     *      'kaField1' => array( ka.Field params goes here )
-     *  ),
-     *  'TabTitle2' => array(
-     *      'kaField2' => array( ka.Field params goes here ),
-     *      'kaField3' => array( ka.Field params goes here )
-     *  )
-     * (
-     *
-     * @deprecated use $fields instead
-     * @var array
-     */
-    public $tabFields = array();
-
-
-    /**
-     * Defines whether the versioning for this form is enabled or not
-     *
-     * @var boolean
-     */
-    public $versioning = false;
-
-
-    /**
-     * Defines which field the window should use for his title.
-     *
-     * @var string
-     */
-    public $titleField = '';
-
-
-    /**
-     *  object definition cache
-     */
-    private $objectDefinition = array();
-
-    function __construct($pEntryPathItem){
-
-        $this->entryPathItem = $pEntryPathItem;
-
-        if ($this->object){
-            $this->objectDefinition = Core\Kryn::$objects[$this->object];
-            $this->table = $this->objectDefinition['table'];
-            foreach ($this->objectDefinition['fields'] as $key => &$field){
-                if($field['primaryKey']){
-                    $this->primary[] = $key;
-                }
-            }
-
-            if ($this->fields){
-                $this->prepareFieldDefinition($this->fields);
-            }
-
-            if ($this->tabFields){
-                foreach ($this->tabFields as &$fields){
-                    $this->prepareFieldDefinition($fields);
-                }
-            }
-        }
-
-        if (is_string($this->primary)){
-            $this->primary = explode(',', str_replace(' ', '', $this->primary));
-        }
-
-        $this->_fields = array();
-        if ($this->fields) {
-            adminWindow::translateFields($this->fields);
-            $this->prepareFieldItem($this->fields);
-        }
-        if ($this->tabFields) {
-            adminWindow::translateFields($this->tabFields);
-            foreach ($this->tabFields as &$fields)
-                $this->prepareFieldItem($fields);
-        }
-    }
-
-    public function prepareFieldDefinition(&$pFields){
-
-        $i = 0;
-        foreach ($pFields as $key => $field){
-            if (is_numeric($key)){
-
-                $newItem = $this->objectDefinition['fields'][$field];
-                if (!$newItem['label']) $newItem['label'] = $field;
-
-                $pFields = array_merge(
-                    array_slice($pFields, 0, $i),
-                    array($field => $newItem),
-                    array_slice($pFields, $i+1)
-                );
-                reset($pFields);
-                $i = -1;
-            }
-            $i++;
-        }
-
-        if (is_array($pFields)){
-            foreach ($pFields as $key => &$field){
-                if (is_array($field) && $field['depends']){
-                    $this->prepareFieldDefinition($field['depends']);
-                }
-            }
-        }
-
-    }
 
     public function unlock($pType, $pId) {
         dbDelete('system_lock', "type = '$pType' AND key = '$pId'");
@@ -259,7 +87,6 @@ class Edit {
 
     /**
      * Loads all plugins from system_contents to a indexed cached array
-
      */
     public static function cachePluginsRelations() {
 
@@ -339,92 +166,27 @@ class Edit {
     }
 
     /**
-     * Prepare fields. Loading tableItems by select and file fields.
-     * Note for selects: please use 'stores' instead of 'sql' etc
-     *
-     * @param array $pFields
-     * @param bool  $pKey
-     * @return bool
-     */
-    public function prepareFieldItem(&$pFields, $pKey = false) {
-
-        if (is_array($pFields) && $pFields['type'] == '') {
-            foreach ($pFields as $key => &$field) {
-
-                if ($field['type'] != '' && is_array($field)) {
-                    if ($this->prepareFieldItem($field, $key) == false) {
-                        unset($pFields[$key]);
-                    }
-                }
-            }
-        } else {
-            if ($pFields['needAccess'] && !Core\Kryn::checkUrlAccess($pFields['needAccess'])) {
-                return false;
-            }
-
-
-            if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
-
-                if (!$pFields['store']){
-                    switch ($pFields['type']) {
-                        case 'select':
-
-                            if (!empty($field['eval']))
-                                $pFields['tableItems'] = eval($field['eval']);
-                            elseif ($pFields['relation'] == 'n-n')
-                                $pFields['tableItems'] = dbTableFetch($pFields['n-n']['right'], DB_FETCH_ALL);
-                            else if ($pFields['table'])
-                                $pFields['tableItems'] = dbTableFetch($pFields['table'], DB_FETCH_ALL);
-                            else if ($pFields['sql'])
-                                $pFields['tableItems'] = dbExFetch($pFields['sql'], DB_FETCH_ALL);
-                            else if ($pFields['method']) {
-                                $nam = $pFields['method'];
-                                if (method_exists($this, $nam))
-                                    $pFields['tableItems'] = $this->$nam($pFields);
-                            }
-
-                            if ($pFields['modifier'] && !empty($pFields['modifier']) &&
-                                             method_exists($this, $pFields['modifier']))
-                                $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
-
-
-                            break;
-                        case 'files':
-
-                            $files = Core\Kryn::readFolder($pFields['directory'], $pFields['withExtension']);
-                            if (count($files) > 0) {
-                                foreach ($files as $file) {
-                                    $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
-                                }
-                            } else {
-                                $pFields['tableItems'] = array();
-                            }
-                            $pFields['table_key'] = 'id';
-                            $pFields['table_label'] = 'label';
-                            $pFields['type'] = 'select';
-
-                            break;
-                    }
-                }
-
-
-                $this->_fields[$pKey] = $pFields;
-            }
-
-            if (is_array($pFields['depends'])) {
-                $this->prepareFieldItem($pFields['depends']);
-            }
-        }
-        return true;
-    }
-
-
-    /**
      * Return the selected item from database.
      *
      * @return array
      */
-    public function getItem() {
+    public function getItem($pPk) {
+
+        $pk = \Core\Object::parsePk($this->object, $pPk);
+        $fields = array();
+
+        foreach ($this->_fields as $key => $field){
+            if (!$field['customValue'] && !($field['select'] && $field['relation'] == 'n-n')
+                && !in_array($key, $fields)){
+                $fields[] = $key;
+            }
+        }
+
+        $res['values'] = \Core\Object::get($this->object, $pk, array(
+            'fields' => implode(',', $fields)
+        ));
+
+        return $res;
 
         $tableInfo = database::getOptions($this->table);
         $where = '';
@@ -714,15 +476,6 @@ class Edit {
         $res['preview_urls'] = $this->getPreviewUrls($row);
         return $res;
     }
-
-}
-
-
-/*
-* Compatibility for older extension
-* @deprecated
-*/
-class windowEdit extends adminWindowEdit {
 
 }
 

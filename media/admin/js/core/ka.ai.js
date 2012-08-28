@@ -285,6 +285,35 @@ ka.mediaPath = function(pPath){
 
 }
 
+ka.getObjectPrimaryList = function(pObjectKey){
+    var def = ka.getObjectDefinition(pObjectKey);
+
+    var res = [];
+    Object.each(def.fields, function(field, key){
+        if (field.primaryKey)
+            res.push(key);
+    });
+
+    return res;
+}
+
+ka.getObjectUrlId = function(pObjectKey, pItem){
+    var pks = ka.getObjectPrimaryList(pObjectKey);
+
+    var urlId = '';
+    Array.each(pks, function(pk){
+        urlId += ka.urlEncode(pItem[pk])+',';
+    });
+
+    return urlId.substr(0, urlId.length-1);
+}
+
+/**
+ * Returns the primarykey/s of an object by the internal object uri.
+ *
+ * @param  string pUrl   object://user/1
+ * @return array|string  If we have only one pk, it returns a string, otherwise an array.
+ */
 ka.getObjectId = function(pUrl){
     if (typeOf(pUrl) != 'string') return pUrl;
     var res = [];
@@ -297,9 +326,9 @@ ka.getObjectId = function(pUrl){
         var id = pUrl;
     }
 
-    if (id.indexOf('/') != -1){
-        Array.each(id.split('/'), function(tId){
-            res.push(ka.getObjectId(tId));
+    if (id.indexOf(',') != -1){
+        Array.each(id.split(','), function(tId){
+            res.push(ka.urlDecode(tId));
         });
         return res;
     } else {

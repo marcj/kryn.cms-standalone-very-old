@@ -303,15 +303,15 @@ class Listing extends WindowAbstract {
      */
     function getItems($pPage) {
 
-        $results['page'] = $pPage?$pPage:1;
+        $pPage = $pPage?$pPage:1;
 
-        $start = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
-        $end = $this->itemsPerPage;
+        $options   = array();
+        $options['offset'] = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
+        $options['limit'] = $this->itemsPerPage;
 
         $obj = \Core\Object::getClass($this->object);
 
         $condition = '';
-        $options   = array();
 
         foreach ($this->fields as $k => $v){
             if (is_numeric($k))
@@ -320,7 +320,24 @@ class Listing extends WindowAbstract {
                 $options['fields'][] = $k;
         }
 
-        return $obj->getItems($condition, $options);
+        $maxItems = $obj->getCount($condition, $options);
+
+        if ($maxItems > 0)
+            $maxPages = ceil($results['maxItems'] / $this->itemsPerPage);
+        else
+            $maxPages = 0;
+
+        $items = $obj->getItems($condition, $options);
+        foreach ($items as &$item){
+            $item = $this->prepareRow($item);
+        }
+
+        return array(
+            'items' => $items,
+            'page'  => $pPage,
+            'maxPages' => $maxPages,
+            'maxItems' => $maxItems
+        );
 
         if ($this->object){
 
@@ -559,15 +576,26 @@ class Listing extends WindowAbstract {
     }
 
     /**
-     * Each item go through this function in getItems(). Defines whether a item is editable or deleteable.
+     * Each item goes through this function in getItems(). Defines whether a item is editable or deleteable.
+     * You can attach here extra action icons, too.
+     *
+     * Result should be:
+     *
+     * array(
+     *     'values' => $pItem,
+     *     'edit' => bool (can be edited),
+     *     'remove' => bool (can be removed),
+     *     'actions' => array(
+     *         array('/* action * /') //todo
+     *     )
+     * )
      *
      * @param array $pItem
      *
      * @return array
      */
-    function acl($pItem) {
+    function prepareRow($pItem) {
 
-        //store this in the acl-table in the future
         $visible = true;
         $editable = $this->edit;
         $deleteable = $this->remove;

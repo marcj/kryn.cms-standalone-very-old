@@ -100,13 +100,18 @@ class Controller {
         return \Core\Object::getCount($pObject);
     }
 
-    public function getItemsByUri($pUrl){
+    public function getItemsByUri($pUri){
 
-        if (is_numeric($pUrl)){
+        if (is_numeric($pUri)){
             //compatibility
             $object_key = '';
         } else {
-            list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUrl);
+            list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
+        }
+
+        //check if we got an id
+        if (!current($object_ids[0])){
+            throw new \Exception(tf('No id given in uri %s.', $pUri));
         }
 
         $definition = \Core\Kryn::$objects[$object_key];

@@ -147,6 +147,9 @@ ka.Parse = new Class({
                 target = pContainer;
             }
 
+            if (field.children)
+                field.depends = field.children;
+            
             if( field.type == 'tab'){
                 var tab;
 

@@ -56,7 +56,7 @@ class AdminController {
         }
 
         if ($pEntryPoint) {
-            $epc = new RestEntryPoint('admin');
+            $epc = new RestFrameworkEntryPoint('admin');
             $epc->run($pEntryPoint);
         }
 
@@ -67,13 +67,17 @@ class AdminController {
         } else {
 
             if (Kryn::$config['displayRestErrors']){
-                $exceptionHandler = array($this, 'exceptionHandler');
+                if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest'){
+                    $exceptionHandler = array($this, 'exceptionHandler');
+                }
+                $debugMode = true;
             }
 
             \RestService\Server::create('admin', $this)
 
                 ->setCheckAccess(array($this, 'checkAccess'))
                 ->setExceptionHandler($exceptionHandler)
+                ->setDebugMode($debugMode)
 
                 ->addGetRoute('', 'showLogin')
 
@@ -131,7 +135,7 @@ class AdminController {
                 ->done()
 
                 ->addSubController('backend', '\Admin\Object\Controller')
-                    ->addGetRoute('objects', 'getItemsByUri', array('uri'))
+                    ->addGetRoute('objects', 'getItemsByUri')
                 ->done()
 
                 //admin/system

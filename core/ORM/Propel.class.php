@@ -123,9 +123,12 @@ class Propel extends ORMAbstract {
         } else {
             foreach ($pFields as $field){
 
+                $relationFieldSelection = '';
+
                 if ( ($pos = strpos($field, '.')) !== false){
                     $relationName = ucfirst(substr($field, 0, $pos));
                     $field = ucfirst(substr($field, $pos+1));
+                    $relationFieldSelection = $field;
                     $addRelationField = $field;
                     if (!$tableMap->hasRelation(ucfirst($relationName))){
                         continue;
@@ -139,7 +142,8 @@ class Propel extends ORMAbstract {
                     $relation = $tableMap->getRelation(ucfirst($relationName));
 
                     //check if $field exists in the foreign table
-                    if (!$relation->getRightTable()->hasColumnByPhpName($field)) continue;
+                    if ($relationFieldSelection)
+                        if (!$relation->getRightTable()->hasColumnByPhpName($relationFieldSelection)) continue;
 
                     $relations[ucfirst($relationName)] = $relation;
 
@@ -285,7 +289,7 @@ class Propel extends ORMAbstract {
 
         $this->mapOptions($query, $pOptions);
 
-        $this->mapToManyRelationFields($query, $relations, $relationFields);
+        $this->mapToOneRelationFields($query, $relations, $relationFields);
 
         $stmt = $this->getStm($query, $pCondition);
 
@@ -593,14 +597,16 @@ class Propel extends ORMAbstract {
      */
     public function getCount($pCondition = false){
 
-        $pQuery = $this->getQueryClass();
+        $query = $this->getQueryClass();
 
-        if ($pCondition){
-            $where = dbConditionToSql($pCondition);
-            $pQuery->where($where);
-        }
+        $query->clearSelectColumns()->addSelectColumn('COUNT(*)');
 
-        return $pQuery->count();
+        $stmt = $this->getStm($query, $pCondition);
+
+        $row = dbFetch($stmt);
+
+        return $row['count'];
+
     }
 
 

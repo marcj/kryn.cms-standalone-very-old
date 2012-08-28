@@ -735,6 +735,9 @@ ka.WindowCombine = new Class({
         var value = this.getItemTitle(pItem, this.sortField);
         if (value == '') return _('-- No value --');
 
+        if (!this.values.fields[this.sortField])
+            return value;
+
         if (!this.values.fields[this.sortField]['type'] || this.values.fields[this.sortField].type == "text") {
 
             return '<b>' + value.substr(0, 1).toUpperCase() + '</b>';

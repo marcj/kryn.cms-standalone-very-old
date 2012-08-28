@@ -30,7 +30,7 @@ abstract class WindowAbstract {
      *
      * @var array
      */
-    private $objectDefinition = array();
+    public $objectDefinition = array();
 
     /**
      * Defines your primary fiels as a array.
@@ -63,7 +63,6 @@ abstract class WindowAbstract {
     /**
      * Order field
      *
-     * @deprecated Use $order instead
      * @var string
      */
     public $orderBy = '';
@@ -74,35 +73,41 @@ abstract class WindowAbstract {
      * @private
      * @var string
      */
-    private $customOrderBy = '';
+    public $customOrderBy = '';
 
     /**
      * Order direction
      *
-     * @deprecated Use $order instead
      * @var string
      */
     public $orderByDirection = 'ASC';
 
-    /**
-     * Order direction
-     *
-     * @private
-     * @var string
-     */
-    private $customOrderByDirection = 'ASC';
 
     /**
      * Default order
      *
-     * $order = array(
+     * array(
      *      array('field' => 'group_id', 'direction' => 'asc'),
      *      array('field' => 'title', 'direction' => 'asc')
      * );
      *
+     * or
+     *
+     * array(
+     *     'group_id' => 'asc',
+     *     'title' => 'desc'
+     * )
+     *
      * @var array
      */
     public $order = array();
+
+    /**
+     * Contains the fields for the search.
+     *
+     * @var array
+     */
+    public $filter = array();
 
 
     /**
@@ -194,29 +199,52 @@ abstract class WindowAbstract {
      */
     public $workspace = false;
 
+    /**
+     * @var string
+     */
+    public $itemLayout = '';
+
+    /**
+     * @var array|null
+     */
+    public $entryPoint = array();
+
+    /**
+     * @var array
+     */
+    public $filterFields = array();
+
+    /**
+     * Flatten list of fields.
+     * 
+     * @var array
+     */
+    public $_fields = array();
 
     /**
      * Constructor
      */
-    function __construct() {
+    public function __construct($pEntryPoint = null) {
 
+        $this->entryPoint = $pEntryPoint;
 
-        if ($this->object){
-            $this->objectDefinition = Kryn::$objects[$this->object];
-            if (!$this->objectDefinition){
-                throw new Exception("Can not find object '".$this->object."'");
-            }
-            $this->table = $this->objectDefinition['table'];
-            foreach ($this->objectDefinition['fields'] as $key => &$field){
-                if($field['primaryKey']){
-                    $this->primary[] = $key;
-                }
-            }
-
-            if ($this->fields){
-                $this->prepareFieldDefinition($this->fields);
+        $this->objectDefinition = Kryn::$objects[$this->object];
+        if (!$this->objectDefinition){
+            throw new Exception("Can not find object '".$this->object."'");
+        }
+        $this->table = $this->objectDefinition['table'];
+        $this->primary = array();
+        foreach ($this->objectDefinition['fields'] as $key => &$field){
+            if($field['primaryKey']){
+                $this->primary[] = $key;
             }
         }
+
+        if ($this->fields){
+            $this->prepareFieldDefinition($this->fields);
+        }
+
+        $this->prepareFieldItem($this->fields);
 
         if (is_string($this->primary)){
             $this->primary = explode(',', str_replace(' ', '', $this->primary));
@@ -229,13 +257,13 @@ abstract class WindowAbstract {
             }
         }
 
-        $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'ASC' : 'DESC';
+        $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'asc' : 'desc';
 
         if (getArgv('orderBy') != '')
             $this->customOrderBy = getArgv('orderBy', 2);
 
         if (getArgv('orderByDirection') != '')
-            $this->customOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'ASC' : 'DESC';
+            $this->customOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'asc' : 'desc';
 
         if (!$this->order && $this->orderBy){
             $this->order = array($this->orderBy => $this->orderByDirection);
@@ -249,7 +277,6 @@ abstract class WindowAbstract {
             $this->order = getArgv('order');
         }
 
-        $this->_fields = array();
         $this->filterFields = array();
 
         Controller::translateFields($this->fields);
@@ -267,12 +294,27 @@ abstract class WindowAbstract {
                 }
 
 
-                $this->prepareFieldItem($field);
+                //$this->prepareFieldItem($field);
                 $this->filterFields[$fieldKey] = $field;
             }
-
-            $this->prepareFieldItem($this->fields);
         }
+
+    }
+
+    public function getInfo(){
+
+        $vars = get_object_vars($this);
+        $blacklist = array('objectDefinition', 'entryPoint');
+        $result = array();
+
+        foreach ($vars as $var => $val){
+            if (in_array($var, $blacklist)) continue;
+            $method = 'get'.ucfirst($var);
+            if (method_exists($this, $method))
+                $result[$var] = $this->$method();
+        }
+
+        return $result;
 
     }
 
@@ -282,7 +324,7 @@ abstract class WindowAbstract {
      *
      * @param $pFields
      */
-    private function prepareFieldDefinition(&$pFields){
+    public function prepareFieldDefinition(&$pFields){
 
         $i = 0;
         foreach ($pFields as $key => $field){
@@ -302,9 +344,12 @@ abstract class WindowAbstract {
             $i++;
         }
 
-        foreach ($pFields as $key => &$field){
+        foreach ($pFields as $key => &$field)
             if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
-        }
+
+        foreach ($pFields as $key => &$field)
+            if ($field['children']) $this->prepareFieldDefinition($field['children']);
+        
 
     }
 
@@ -314,12 +359,11 @@ abstract class WindowAbstract {
      * @param array $pFields
      * @param bool  $pKey
      */
-    private function prepareFieldItem(&$pFields, $pKey = false) {
-        if (is_array($pFields) && $pFields['type'] == '') {
+    public function prepareFieldItem(&$pFields, $pKey = false) {
+
+        if (is_array($pFields) && !is_string($pFields['type'])) {
             foreach ($pFields as $key => &$field) {
-                if ($field['type'] != '' && is_array($field)) {
-                    $this->prepareFieldItem($field, $key);
-                }
+                $this->prepareFieldItem($field, $key);
             }
         } else {
             if ($pFields['needAccess'] && !Kryn::checkUrlAccess($pFields['needAccess'])) {
@@ -327,11 +371,23 @@ abstract class WindowAbstract {
                 return;
             }
 
+
             if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
 
                 $this->_fields[$pKey] = $pFields;
 
                 switch ($pFields['type']) {
+                    case 'predefined':
+
+                        $def = \Core\Kryn::$objects[$pFields['object']]['fields'][$pFields['field']];
+                        if ($def){
+                            foreach ($def as $k => $v){
+                                $pFields[$k] = $v;
+                            }
+
+                        }
+
+                        break;
                     case 'select':
 
                         if (!empty($field['eval']))
@@ -354,29 +410,357 @@ abstract class WindowAbstract {
                             $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
 
                         break;
-                    case 'files':
-
-                        $files = Kryn::readFolder($pFields['directory'], $pFields['withExtension']);
-                        if (count($files) > 0) {
-                            foreach ($files as $file) {
-                                $pFields['tableItems'][] = array('id' => $file, 'label' => $file);
-                            }
-                        } else {
-                            $pFields['tableItems'] = array();
-                        }
-                        $pFields['table_key'] = 'id';
-                        $pFields['table_label'] = 'label';
-                        $pFields['type'] = 'select';
-
-                        break;
                 }
             }
 
-            if (is_array($pFields['depends'])) {
+            if (is_array($pFields['depends']))
                 $this->prepareFieldItem($pFields['depends']);
-            }
+
+            if (is_array($pFields['children']))
+                $this->prepareFieldItem($pFields['children']);
+            
         }
     }
-    
+
+    /**
+     * @param boolean $add
+     */
+    public function setAdd($add){
+        $this->add = $add;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getAdd(){
+        return $this->add;
+    }
+
+    /**
+     * @param string $addEntrypoint
+     */
+    public function setAddEntrypoint($addEntrypoint){
+        $this->addEntrypoint = $addEntrypoint;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddEntrypoint(){
+        return $this->addEntrypoint;
+    }
+
+    /**
+     * @param string $addIcon
+     */
+    public function setAddIcon($addIcon){
+        $this->addIcon = $addIcon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddIcon(){
+        return $this->addIcon;
+    }
+
+    /**
+     * @param string $customOrderBy
+     */
+    public function setCustomOrderBy($customOrderBy){
+        $this->customOrderBy = $customOrderBy;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomOrderBy(){
+        return $this->customOrderBy;
+    }
+
+    /**
+     * @param string $customOrderByDirection
+     */
+    public function setCustomOrderByDirection($customOrderByDirection){
+        $this->customOrderByDirection = $customOrderByDirection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomOrderByDirection(){
+        return $this->customOrderByDirection;
+    }
+
+    /**
+     * @param boolean $domainDepended
+     */
+    public function setDomainDepended($domainDepended){
+        $this->domainDepended = $domainDepended;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getDomainDepended(){
+        return $this->domainDepended;
+    }
+
+    /**
+     * @param boolean $edit
+     */
+    public function setEdit($edit){
+        $this->edit = $edit;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getEdit(){
+        return $this->edit;
+    }
+
+    /**
+     * @param string $editEntrypoint
+     */
+    public function setEditEntrypoint($editEntrypoint){
+        $this->editEntrypoint = $editEntrypoint;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEditEntrypoint(){
+        return $this->editEntrypoint;
+    }
+
+    /**
+     * @param string $editIcon
+     */
+    public function setEditIcon($editIcon){
+        $this->editIcon = $editIcon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEditIcon(){
+        return $this->editIcon;
+    }
+
+    /**
+     * @param array $fields
+     */
+    public function setFields($fields){
+        $this->fields = $fields;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFields(){
+        return $this->fields;
+    }
+
+    /**
+     * @param array $filter
+     */
+    public function setFilter($filter){
+        $this->filter = $filter;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFilter(){
+        return $this->filter;
+    }
+
+    /**
+     * @param int $itemsPerPage
+     */
+    public function setItemsPerPage($itemsPerPage){
+        $this->itemsPerPage = $itemsPerPage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getItemsPerPage(){
+        return $this->itemsPerPage;
+    }
+
+    /**
+     * @param boolean $multiLanguage
+     */
+    public function setMultiLanguage($multiLanguage){
+        $this->multiLanguage = $multiLanguage;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getMultiLanguage(){
+        return $this->multiLanguage;
+    }
+
+    /**
+     * @param string $object
+     */
+    public function setObject($object){
+        $this->object = $object;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObject(){
+        return $this->object;
+    }
+
+    /**
+     * @param array $objectDefinition
+     */
+    public function setObjectDefinition($objectDefinition){
+        $this->objectDefinition = $objectDefinition;
+    }
+
+    /**
+     * @return array
+     */
+    public function getObjectDefinition(){
+        return $this->objectDefinition;
+    }
+
+    /**
+     * @param array $order
+     */
+    public function setOrder($order){
+        $this->order = $order;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOrder(){
+        return $this->order;
+    }
+
+    /**
+     * @param boolean $remove
+     */
+    public function setRemove($remove){
+        $this->remove = $remove;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getRemove(){
+        return $this->remove;
+    }
+
+    /**
+     * @param string $removeIcon
+     */
+    public function setRemoveIcon($removeIcon){
+        $this->removeIcon = $removeIcon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemoveIcon(){
+        return $this->removeIcon;
+    }
+
+    /**
+     * @param string $removeIconItem
+     */
+    public function setRemoveIconItem($removeIconItem){
+        $this->removeIconItem = $removeIconItem;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemoveIconItem(){
+        return $this->removeIconItem;
+    }
+
+    /**
+     * @param string $table
+     */
+    public function setTable($table){
+        $this->table = $table;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTable(){
+        return $this->table;
+    }
+
+    /**
+     * @param boolean $workspace
+     */
+    public function setWorkspace($workspace){
+        $this->workspace = $workspace;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getWorkspace(){
+        return $this->workspace;
+    }
+
+    public function setFilterFields($filterFields){
+        $this->filterFields = $filterFields;
+    }
+
+    public function getFilterFields(){
+        return $this->filterFields;
+    }
+
+    public function setItemLayout($itemLayout){
+        $this->itemLayout = $itemLayout;
+    }
+
+    public function getItemLayout(){
+        return $this->itemLayout;
+    }
+
+    /**
+     * @param array $primary
+     */
+    public function setPrimary($primary){
+        $this->primary = $primary;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrimary(){
+        return $this->primary;
+    }
+
+    /**
+     * @param array|null $entryPoint
+     */
+    public function setEntryPoint($entryPoint)
+    {
+        $this->entryPoint = $entryPoint;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getEntryPoint()
+    {
+        return $this->entryPoint;
+    }
+
 
 }

@@ -372,7 +372,7 @@ abstract class ClientAbstract {
 
     /**
      * Create new session in the backend and stores the newly created session id
-     * into $this->token. 
+     * into $this->token. Also set cookie.
      * 
      * @return bool|\Session The session object
      */
@@ -392,7 +392,7 @@ abstract class ClientAbstract {
                 $this->token = $session->getId();
 
                 setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
-                    $this->config['path'], $this->config['domain']);
+                    $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
                 return $session;
             }
         }

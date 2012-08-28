@@ -82,9 +82,9 @@ ka.WindowEdit = new Class({
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+'?cmd=getClassDefinition', noCache: true, onComplete: function (res) {
-            this.render(res);
-        }.bind(this)}).post();
+        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
+            this.render(res.data);
+        }.bind(this)}).get({method: 'options'});
     },
 
     generateItemParams: function (pVersion) {
@@ -105,18 +105,21 @@ ka.WindowEdit = new Class({
 
     loadItem: function (pVersion) {
         var _this = this;
-        var req = this.generateItemParams(pVersion);
 
-        if (this.lastRq) {
+        var req = {
+            version: pVersion,
+            object: ka.getObjectUrlId(this.values['object'], this.winParams.item)
+        };
+
+        if (this.lastRq)
             this.lastRq.cancel();
-        }
 
         this.win.setLoading(true, null, {left: this.container.getStyle('left')});
 
-        this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItem',
+        this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
         noCache: true, onComplete: function (res) {
-            this._loadItem(res);
-        }.bind(this)}).post(req);
+            this._loadItem(res.data);
+        }.bind(this)}).get(req);
     },
 
     _loadItem: function (pItem) {
@@ -298,14 +301,14 @@ ka.WindowEdit = new Class({
     loadVersions: function () {
 
         var req = this.generateItemParams();
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItem', noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
 
-            if (res && res.versions) {
-                this.item.versions = res.versions;
+            if (res && res.data.versions) {
+                this.item.versions = res.data.versions;
                 this.renderVersionItems();
             }
 
-        }.bind(this)}).post(req);
+        }.bind(this)}).get(req);
 
     },
 
@@ -379,39 +382,6 @@ ka.WindowEdit = new Class({
             if (parser.firstLevelTabBar)
                 this.topTabGroup = parser.firstLevelTabBar.buttonGroup;
 
-        } else if (this.values.tabFields) {
-            //backward compatible
-
-            this.topTabGroup = this.win.addSmallTabGroup();
-
-            this._panes = {};
-            this._buttons = {};
-            this.firstTab = '';
-            this.fields = {};
-
-            Object.each(this.values.tabFields, function (fields, title) {
-
-                if (this.firstTab == '') this.firstTab = title;
-
-                this._panes[ title ] = new Element('div', {
-                    'class': 'ka-windowEdit-form',
-                    style: 'display: none;'
-                }).inject(this.container);
-
-                //backward compatibility
-                if (this.values.tabLayouts && this.values.tabLayouts[title]) {
-                    this._panes[title].set('html', this.values.tabLayouts[title]);
-                }
-
-                //this._renderFields( fields, this._panes[ title ] );
-
-                var parser = new ka.Parse(this._panes[ title ], fields, {}, {win: this.win});
-                var pfields = parser.getFields();
-                Object.append(this.fields, pfields);
-
-                this._buttons[ title ] = this.topTabGroup.addButton(t(title), this.changeTab.bind(this, title));
-            }.bind(this));
-            this.changeTab(this.firstTab);
         }
 
 
@@ -809,11 +779,11 @@ ka.WindowEdit = new Class({
 
             }
 
-            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=saveItem',
+            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
                 noErrorReporting: true,
                 noCache: true, onComplete: function (res) {
 
-                if (!res){
+                if (!res.data){
                     if (pPublish) {
                         this.saveAndPublishBtn.stopTip(_('Failed'));
                     } else {

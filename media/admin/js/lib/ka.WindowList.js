@@ -79,7 +79,6 @@ ka.WindowList = new Class({
 
     click: function (pColumn) {
 
-        logger('click: '+pColumn);
         if (!this.columns || !this.columns[pColumn]) return;
 
         pItem = this.columns[pColumn];
@@ -120,26 +119,24 @@ ka.WindowList = new Class({
 
     getSortField: function(){
 
-        var field, direction;
-
-        if (this.values.orderBy){
-            //compatibility
-            field = this.values.orderBy;
-            if (this.values.orderDirection) {
-                direction = this.values.orderDirection;
-            }
-            if (this.values.orderByDirection) {
-                direction = this.values.orderByDirection;
-            }
-        }
+        var field = null, direction;
 
         if (this.values.order){
-            Array.each(this.values.order, function(order){
-                if (!field){
-                    field = order.field;
-                    direction = order.direction;
-                }
-            }.bind(this));
+            if (typeOf(this.values.order) == 'array'){
+                Array.each(this.values.order, function(order, f){
+                    if (!field){
+                        field = order.field;
+                        direction = order.direction;
+                    }
+                });
+            } else if (typeOf(this.values.order) == 'object'){
+                Object.each(this.values.order, function(order, f){
+                    if (!field){
+                        field = f;
+                        direction = order;
+                    }
+                });
+            }
         }
 
         return {
@@ -173,7 +170,6 @@ ka.WindowList = new Class({
 
         if (this.options.noInitLoad == true) return;
 
-        logger('renderFinished');
         if (!this.loadAlreadyTriggeredBySearch) {
             if (this.columns) {
                 var sort = this.getSortField();
@@ -665,17 +661,25 @@ ka.WindowList = new Class({
 
         this.relation_params_filtered = params;
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=getItems', noCache: true, onComplete: function (res) {
+        var req = {};
+
+        req.page = pPage;
+        req.lang = (this.languageSelect) ? this.languageSelect.value : false;
+
+        req.orderBy = {};
+        req.orderBy[this.sortField] = this.sortDirection;
+
+        if (this.searchEnable){
+            var vals = this.getSearchVals();
+            Object.each(vals, function(val,id){
+                req['_'+id] = val;
+            });
+        }
+
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
             //todo, handle errors
             this.renderItems(res.data);
-        }.bind(this)}).post({
-            page: pPage,
-            orderBy: _this.sortField,
-            filter: this.searchEnable,
-            language: (this.languageSelect) ? this.languageSelect.value : false,
-            filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-            orderByDirection: _this.sortDirection
-        });
+        }.bind(this)}).get(req);
     },
 
     renderItems: function (pItems) {
@@ -766,7 +770,7 @@ ka.WindowList = new Class({
         Object.each(this.values.fields, function (column, columnId) {
 
 
-            var value = ka.getListLabel(pItem['values'], column, columnId);
+            var value = ka.getListLabel(pItem, column, columnId);
 
             var td = new Element('td', {
                 html: value

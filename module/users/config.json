@@ -212,7 +212,7 @@
       "dataModel": "propel",
       "multiLanguage": 0,
       "domainDepended": 0,
-      "blacklistSelection": "passwd",
+      "blacklistSelection": "passwd, passwdSalt",
       "chooserFieldDataModelCondition": [
         
       ],
@@ -305,7 +305,7 @@
           "primaryKey": 0,
           "empty": 1
         },
-        "membership": {
+        "groupMembership": {
           "label": "[[Group membership]]",
           "object": "group",
           "objectLabel": "name",
@@ -418,7 +418,7 @@
         },
         "edit": {
           "title": "[[Users edit]]",
-          "class": "usersAdminEdit",
+          "class": "\\Users\\Admin\\UserEdit",
           "type": "edit",
           "isLink": false,
           "multi": false,
