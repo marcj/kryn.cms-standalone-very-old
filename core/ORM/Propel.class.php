@@ -144,11 +144,9 @@ class Propel extends ORMAbstract {
                     $relations[ucfirst($relationName)] = $relation;
 
                     //add foreignKeys in main table.
-                    if ($relation->getType == \RelationMap::ONE_TO_ONE || $relation->getType == \RelationMap::MANY_TO_ONE){
-                        if ($localColumns = $relation->getLocalColumns()){
-                            foreach ($localColumns as $col)
-                                $fields[$col->getPhpName()] = $col;
-                        }
+                    if ($localColumns = $relation->getLocalColumns()){
+                        foreach ($localColumns as $col)
+                            $fields[$col->getPhpName()] = $col;
                     }
 
                     //select at least all pks of the foreign table
@@ -352,7 +350,7 @@ class Propel extends ORMAbstract {
         return $stmt;
     }
 
-    public function mapToManyRelationFields($pQuery, $pRelations, $pRelationFields){
+    public function mapToOneRelationFields($pQuery, $pRelations, $pRelationFields){
 
         if ($pRelations){
             foreach ($pRelations as $name => $relation){
@@ -478,7 +476,7 @@ class Propel extends ORMAbstract {
 
         $this->mapOptions($query, $pOptions);
 
-        $this->mapToManyRelationFields($query, $relations, $relationFields);
+        $this->mapToOneRelationFields($query, $relations, $relationFields);
 
         $stmt = $this->getStm($query, $pCondition);
 
