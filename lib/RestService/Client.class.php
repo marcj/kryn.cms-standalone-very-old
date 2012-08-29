@@ -64,7 +64,7 @@ class Client {
      */
     public function sendResponse($pHttpCode = '200', $pMessage){
 
-        if (!$_GET['suppress_status_code'] && php_sapi_name() !== 'cli'){
+        if (!$_GET['_suppress_status_code'] && php_sapi_name() !== 'cli'){
             $httpMap = array(
                 '200' => '200 OK',
                 '500' => '500 Internal Server Error',
@@ -95,8 +95,8 @@ class Client {
         if ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])
             $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
 
-        if ($_GET['method'])
-            $method = $_GET['method'];
+        if ($_GET['_method'])
+            $method = $_GET['_method'];
 
         $method = strtolower($method);
 

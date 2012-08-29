@@ -82,8 +82,12 @@ ka.WindowEdit = new Class({
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
-            this.render(res.data);
+        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function(res){
+            if (!res.error)
+                this.render(res.data);
+            else 
+                this.container.set('html', '<div style="text-align: center; padding: 50px; color: red">'+t('Failed')+'</div>');
+
         }.bind(this)}).get({method: 'options'});
     },
 

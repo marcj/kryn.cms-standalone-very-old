@@ -1,3 +1,5 @@
+body a.ka-Button,  body a.ka-Button:link,
+a.ka-Button, a.ka-Button:link,
 .ka-Button, .ka-Button:link {
 
     white-space: nowrap;

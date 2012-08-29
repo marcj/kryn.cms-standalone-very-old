@@ -46,7 +46,7 @@ class Server {
      *
      * @var array
      */
-    private $blacklistedGetParameters = array('method', 'suppress_status_code');
+    private $blacklistedGetParameters = array('_method', '_suppress_status_code');
 
 
     /**
@@ -838,9 +838,9 @@ class Server {
 
         if (!$pOnlyRoutes){
             $definition['parameters'] = array(
-                'method' => array('description' => 'Can be used as HTTP METHOD if the client does not support HTTP methods.', 'type' => 'string',
+                '_method' => array('description' => 'Can be used as HTTP METHOD if the client does not support HTTP methods.', 'type' => 'string',
                             'values' => 'GET, POST, PUT, DELETE, HEAD, OPTIONS'),
-                'suppress_status_code' => array('description' => 'Suppress the HTTP status code.', 'type' => 'boolean', 'values' => '1, 0')
+                '_suppress_status_code' => array('description' => 'Suppress the HTTP status code.', 'type' => 'boolean', 'values' => '1, 0')
             );
         }
 

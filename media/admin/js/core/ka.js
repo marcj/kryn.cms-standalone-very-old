@@ -230,6 +230,9 @@ ka.loadSettings = function (pOnlyThisKeys) {
         if (!ka.settings['user']['windows'])
             ka.settings['user']['windows'] = {};
 
+        if (!ka.settings.user.userBg)
+            ka.settings.user.userBg = 'admin/images/userBgs/defaultImages/color-blue.jpg';
+
         if (ka.settings.user && ka.settings.user.userBg) {
             document.id(document.body).setStyle('background-image', 'url(' + _path + PATH_MEDIA + ka.settings.user.userBg + ')');
         }

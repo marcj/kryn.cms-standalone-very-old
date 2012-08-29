@@ -56,7 +56,6 @@ class RestFrameworkEntryPoint extends \RestService\Server {
                 //add routes
                 $this->addSubController($pEntryPoint['_module'].'/'.$pEntryPoint['_code'], $windowController)
                     ->addGetRoute('', 'getItems')
-                    ->addGetRoute('(.+)', 'getItem')
                     ->addPostRoute('', 'saveItem')
                     ->addPutRoute('', 'addItem')
                     ->addDeleteRoute('', 'removeItem')

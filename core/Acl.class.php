@@ -54,7 +54,7 @@ class Acl {
         $pMode += 0;
 
         $query = "
-                SELECT constraint_type, constraint_code, mode, access, sub, fields FROM %pfx%system_acl
+                SELECT constraint_type, constraint_code, mode, access, sub, fields FROM ".pfx."system_acl
                 WHERE
                 object = '$pObjectKey' AND
                 (mode = $pMode OR mode = 0) AND

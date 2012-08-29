@@ -1570,7 +1570,7 @@ var admin_system_module_edit = new Class({
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (res) {
             this.loader.hide();
-            ka.loadSettings();
+            ka.loadSettings(['configs']);
         }.bind(this)}).post(req);
 
     },
@@ -1607,7 +1607,7 @@ var admin_system_module_edit = new Class({
                                 needValue: 'propel',
                                 label: t('Table name')
                             },
-                            phpClass: {
+                            phpName: {
                                 needValue: 'propel',
                                 label: t('PHP class')
                             },
@@ -1681,10 +1681,10 @@ var admin_system_module_edit = new Class({
                 tabFullPage: true,
                 label: t('Data'),
                 depends: {
-                    limitSelection: {
+                    blacklistSelection: {
                         needValue: 1,
-                        label: t('Limit selection'),
-                        desc: t('Limitation of fields through the REST API. Fields comma separated.')
+                        label: t('Blacklist selection'),
+                        desc: t('Enter fileds which are not selectable through the REST API. Comma separated.')
                     },
                     chooserIcon: {
                         needValue: 1,

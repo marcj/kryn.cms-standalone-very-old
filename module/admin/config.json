@@ -1,1953 +1,1964 @@
 {
-  "version": "1.0.0",
-  "owner": "1",
-  "title": "Kryn.cms",
-  "desc": "Administration scripts",
-  "system": true,
-  "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
-  "widgets": {
-    "unpublishedContents": {
-      "title": "[[Unpublished changes]]",
-      "type": "autotable",
-      "position": "full",
-      "columns": [
-        [
-          "Version",
-          50
-        ],
-        [
-          "User",
-          80
-        ],
-        [
-          "Page",
-          null,
-          "html"
-        ],
-        [
-          "Date",
-          120,
-          "timestamp",
-          "d M H:i:s"
-        ]
-      ],
-      "category": "overview",
-      "withoutCountInTitle": true,
-      "manipulate_row": "manipulateUnpublishedContentsRow",
-      "sql": "SELECT MAX(v.id) as versionid, u.username, p.id, MAX(v.modified) as modified, p.domain_id FROM %pfx%system_user u, %pfx%system_page p, %pfx%system_page_version v WHERE draft_exist = 1 AND v.page_id = p.id AND u.id = v.owner_id AND ( p.type = 0 OR p.type = 3) GROUP BY p.id, u.username, p.domain_id ORDER BY MAX(v.modified) DESC"
-    },
-    "lastPageChanges": {
-      "title": "[[Last page changes]]",
-      "type": "autotable",
-      "position": "full",
-      "columns": [
-        [
-          "Version",
-          50
-        ],
-        [
-          "User",
-          80
-        ],
-        [
-          "Published",
-          80,
-          "javascript: '<'+'img align=\"center\" src=\"'+_path+'media\/admin\/images\/icons\/'+(value==1?'accept':'bullet_black')+'.png\" \/>'"
-        ],
-        [
-          "Page",
-          null,
-          "html"
-        ],
-        [
-          "Date",
-          120,
-          "timestamp",
-          "d M H:i:s"
-        ]
-      ],
-      "category": "overview",
-      "height": 205,
-      "itemsPerPage": 7,
-      "withoutCountInTitle": true,
-      "manipulate_row": "manipulateLastChangesRow",
-      "sql": "SELECT v.id, u.username, v.active, v.page_id, v.modified FROM  %pfx%system_page_version v, %pfx%system_user u, %pfx%system_page p WHERE v.page_id = p.id AND u.id = v.owner_id ORDER BY v.created DESC"
-    },
-    "searchStats": {
-      "title": "[[Top search words with results]]",
-      "type": "autotable",
-      "position": "left",
-      "columns": [
-        [
-          "Word",
-          80
-        ],
-        [
-          "Searched x times",
-          30
-        ]
-      ],
-      "category": "statistic",
-      "withoutCountInTitle": true,
-      "sql": "SELECT word, searchcount FROM %pfx%system_search_stats WHERE found = 1 ORDER BY searchcount DESC, word"
-    },
-    "searchStatsNoResult": {
-      "title": "[[Top search words without results]]",
-      "type": "autotable",
-      "position": "right",
-      "columns": [
-        [
-          "Word",
-          80
-        ],
-        [
-          "Searched x times",
-          30
-        ]
-      ],
-      "category": "statistic",
-      "withoutCountInTitle": true,
-      "sql": "SELECT word, searchcount FROM  %pfx%system_search_stats WHERE found = 0 ORDER BY searchcount DESC, word"
-    }
-  },
-  "admin": {
-    "system": {
-      "title": "[[System]]",
-      "type": "custom",
-      "isLink": 1,
-      "multi": 1,
-      "childs": {
-        "desktopSettings": {
-          "title": "[[Desktop settings]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
+    "version": "1.0.0",
+    "owner": "1",
+    "title": "Kryn.cms",
+    "desc": "Administration scripts",
+    "system": true,
+    "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
+    "widgets": {
+        "unpublishedContents": {
+            "title": "[[Unpublished changes]]",
+            "type": "autotable",
+            "position": "full",
+            "columns": [
+                [
+                    "Version",
+                    50
+                ],
+                [
+                    "User",
+                    80
+                ],
+                [
+                    "Page",
+                    null,
+                    "html"
+                ],
+                [
+                    "Date",
+                    120,
+                    "timestamp",
+                    "d M H:i:s"
+                ]
+            ],
+            "category": "overview",
+            "withoutCountInTitle": true,
+            "manipulate_row": "manipulateUnpublishedContentsRow",
+            "sql": "SELECT MAX(v.id) as versionid, u.username, p.id, MAX(v.modified) as modified, p.domain_id FROM %pfx%system_user u, %pfx%system_page p, %pfx%system_page_version v WHERE draft_exist = 1 AND v.page_id = p.id AND u.id = v.owner_id AND ( p.type = 0 OR p.type = 3) GROUP BY p.id, u.username, p.domain_id ORDER BY MAX(v.modified) DESC"
         },
-        "searchIndexerList": {
-          "title": "[[Search index]]",
-          "class": "adminSearchIndexList",
-          "type": "list",
-          "isLink": 0,
-          "multi": 1,
-          "childs": {
-            "doAction": {
-              "title": "add",
-              "type": "custom",
-              "isLink": 1,
-              "multi": 1,
-              "childs": [
-                
-              ]
+        "lastPageChanges": {
+            "title": "[[Last page changes]]",
+            "type": "autotable",
+            "position": "full",
+            "columns": [
+                [
+                    "Version",
+                    50
+                ],
+                [
+                    "User",
+                    80
+                ],
+                [
+                    "Published",
+                    80,
+                    "javascript: '<'+'img align=\"center\" src=\"'+_path+'media\/admin\/images\/icons\/'+(value==1?'accept':'bullet_black')+'.png\" \/>'"
+                ],
+                [
+                    "Page",
+                    null,
+                    "html"
+                ],
+                [
+                    "Date",
+                    120,
+                    "timestamp",
+                    "d M H:i:s"
+                ]
+            ],
+            "category": "overview",
+            "height": 205,
+            "itemsPerPage": 7,
+            "withoutCountInTitle": true,
+            "manipulate_row": "manipulateLastChangesRow",
+            "sql": "SELECT v.id, u.username, v.active, v.page_id, v.modified FROM  %pfx%system_page_version v, %pfx%system_user u, %pfx%system_page p WHERE v.page_id = p.id AND u.id = v.owner_id ORDER BY v.created DESC"
+        },
+        "searchStats": {
+            "title": "[[Top search words with results]]",
+            "type": "autotable",
+            "position": "left",
+            "columns": [
+                [
+                    "Word",
+                    80
+                ],
+                [
+                    "Searched x times",
+                    30
+                ]
+            ],
+            "category": "statistic",
+            "withoutCountInTitle": true,
+            "sql": "SELECT word, searchcount FROM %pfx%system_search_stats WHERE found = 1 ORDER BY searchcount DESC, word"
+        },
+        "searchStatsNoResult": {
+            "title": "[[Top search words without results]]",
+            "type": "autotable",
+            "position": "right",
+            "columns": [
+                [
+                    "Word",
+                    80
+                ],
+                [
+                    "Searched x times",
+                    30
+                ]
+            ],
+            "category": "statistic",
+            "withoutCountInTitle": true,
+            "sql": "SELECT word, searchcount FROM  %pfx%system_search_stats WHERE found = 0 ORDER BY searchcount DESC, word"
+        }
+    },
+    "admin": {
+        "system": {
+            "title": "[[System]]",
+            "type": "custom",
+            "isLink": 1,
+            "multi": 1,
+            "childs": {
+                "desktopSettings": {
+                    "title": "[[Desktop settings]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "searchIndexerList": {
+                    "title": "[[Search index]]",
+                    "class": "adminSearchIndexList",
+                    "type": "list",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": {
+                        "doAction": {
+                            "title": "add",
+                            "type": "custom",
+                            "isLink": 1,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                },
+                "layout": {
+                    "title": "[[Templates]]",
+                    "type": "custom",
+                    "isLink": 1,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "languages": {
+                    "title": "[[Languages]]",
+                    "type": "custom",
+                    "isLink": 1,
+                    "multi": 1,
+                    "childs": {
+                        "edit": {
+                            "title": "[[Edit]]",
+                            "type": "custom",
+                            "isLink": 0,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                },
+                "backup": {
+                    "title": "[[Backup]]",
+                    "type": "custom",
+                    "isLink": 1,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "module": {
+                    "title": "[[Extensions]]",
+                    "type": "custom",
+                    "isLink": 1,
+                    "multi": 1,
+                    "childs": {
+                        "publish": {
+                            "title": "[[Publish]]",
+                            "type": "custom",
+                            "isLink": 0,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "edit": {
+                            "title": "[[Edit extension]]",
+                            "type": "custom",
+                            "isLink": 0,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "add": {
+                            "title": "[[Create extension]]",
+                            "type": "custom",
+                            "isLink": 0,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "view": {
+                            "title": "[[Extension]]",
+                            "type": "custom",
+                            "isLink": 0,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "editWindow": {
+                            "title": "[[Edit window]]",
+                            "type": "custom",
+                            "isLink": 0,
+                            "multi": 1,
+                            "minWidth": 700,
+                            "minHeight": 500,
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                },
+                "settings": {
+                    "title": "[[Settings]]",
+                    "type": "custom",
+                    "isLink": 1,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "development": {
+                    "title": "[[Development]]",
+                    "isLink": 1,
+                    "childs": {
+                        "database": {
+                            "title": "[[Database]]",
+                            "type": "custom",
+                            "isLink": 1,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "logs": {
+                            "title": "[[Logs]]",
+                            "type": "custom",
+                            "isLink": 1,
+                            "multi": 1,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "orm": {
+                            "title": "[[ORM]]",
+                            "type": "custom",
+                            "isLink": 1,
+                            "multi": 0,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "restLogger": {
+                            "title": "[[Rest logger]]",
+                            "type": "custom",
+                            "isLink": 1,
+                            "multi": 0,
+                            "minWidth": 450,
+                            "minHeight": 350,
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                }
             }
-          }
         },
-        "layout": {
-          "title": "[[Templates]]",
-          "type": "custom",
-          "isLink": 1,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        },
-        "languages": {
-          "title": "[[Languages]]",
-          "type": "custom",
-          "isLink": 1,
-          "multi": 1,
-          "childs": {
-            "edit": {
-              "title": "[[Edit]]",
-              "type": "custom",
-              "isLink": 0,
-              "multi": 1,
-              "childs": [
-                
-              ]
+        "backend": {
+            "title": "[[Backend access]]",
+            "isLink": 0,
+            "childs": {
+                "chooser": {
+                    "title": "[[Chooser]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "minWidth": 600,
+                    "minHeight": 300,
+                    "childs": [
+                        
+                    ]
+                },
+                "stores": {
+                    "title": "[[Stores]]",
+                    "isLink": 0,
+                    "childs": {
+                        "groups": {
+                            "table_key": "id",
+                            "table_label": "name",
+                            "table": "system_groups",
+                            "type": "store",
+                            "isLink": 0,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "languages": {
+                            "table_key": "code",
+                            "table_label": "title",
+                            "table": "system_langs",
+                            "type": "store",
+                            "isLink": 0,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "extensions": {
+                            "class": "adminStoreExtensions",
+                            "type": "store",
+                            "isLink": 0,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "domains": {
+                            "type": "store",
+                            "isLink": 0,
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                }
             }
-          }
         },
-        "backup": {
-          "title": "[[Backup]]",
-          "type": "custom",
-          "isLink": 1,
-          "multi": 1,
-          "childs": [
-            
-          ]
+        "overview": {
+            "title": "[[Dashboard]]",
+            "type": "custom",
+            "icon": "#icon-home-5",
+            "isLink": 1,
+            "multi": 1,
+            "childs": [
+                
+            ]
         },
-        "module": {
-          "title": "[[Extensions]]",
-          "type": "custom",
-          "isLink": 1,
-          "multi": 1,
-          "childs": {
-            "publish": {
-              "title": "[[Publish]]",
-              "type": "custom",
-              "isLink": 0,
-              "multi": 1,
-              "childs": [
-                
-              ]
-            },
-            "edit": {
-              "title": "[[Edit extension]]",
-              "type": "custom",
-              "isLink": 0,
-              "multi": 1,
-              "childs": [
-                
-              ]
-            },
-            "add": {
-              "title": "[[Create extension]]",
-              "type": "custom",
-              "isLink": 0,
-              "multi": 1,
-              "childs": [
-                
-              ]
-            },
-            "view": {
-              "title": "[[Extension]]",
-              "type": "custom",
-              "isLink": 0,
-              "multi": 1,
-              "childs": [
-                
-              ]
-            },
-            "editWindow": {
-              "title": "[[Edit window]]",
-              "type": "custom",
-              "isLink": 0,
-              "multi": 1,
-              "minWidth": 700,
-              "minHeight": 500,
-              "childs": [
-                
-              ]
+        "pages": {
+            "title": "[[Pages]]",
+            "type": "custom",
+            "icon": "#icon-screen-2",
+            "isLink": 1,
+            "multi": 1,
+            "childs": {
+                "addDialog": {
+                    "title": "[[Add pages]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "addDomains": {
+                    "title": "[[Add domains]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "bigEditor": {
+                    "title": "WYSIWYG-Editor",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                }
             }
-          }
         },
-        "settings": {
-          "title": "[[Settings]]",
-          "type": "custom",
-          "isLink": 1,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        },
-        "development": {
-          "title": "[[Development]]",
-          "isLink": 1,
-          "childs": {
-            "database": {
-              "title": "[[Database]]",
-              "type": "custom",
-              "isLink": 1,
-              "multi": 1,
-              "childs": [
-                
-              ]
-            },
-            "logs": {
-              "title": "[[Logs]]",
-              "type": "custom",
-              "isLink": 1,
-              "multi": 1,
-              "childs": [
-                
-              ]
-            },
-            "orm": {
-              "title": "[[ORM]]",
-              "type": "custom",
-              "isLink": 1,
-              "multi": 0,
-              "childs": [
-                
-              ]
+        "files": {
+            "title": "[[Files]]",
+            "type": "custom",
+            "icon": "#icon-folder",
+            "isLink": 1,
+            "multi": 1,
+            "childs": {
+                "edit": {
+                    "title": "[[File edit]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "diff": {
+                    "title": "[[File diff]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                },
+                "systemfiles": {
+                    "title": "[[System files]]",
+                    "isLink": 0,
+                    "childs": [
+                        
+                    ]
+                },
+                "properties": {
+                    "title": "[[Properties]]",
+                    "type": "custom",
+                    "isLink": 0,
+                    "multi": 1,
+                    "childs": [
+                        
+                    ]
+                }
             }
-          }
-        }
-      }
-    },
-    "backend": {
-      "title": "[[Backend access]]",
-      "isLink": 0,
-      "childs": {
-        "chooser": {
-          "title": "[[Chooser]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "minWidth": 600,
-          "minHeight": 300,
-          "childs": [
-            
-          ]
         },
-        "stores": {
-          "title": "[[Stores]]",
-          "isLink": 0,
-          "childs": {
-            "groups": {
-              "table_key": "id",
-              "table_label": "name",
-              "table": "system_groups",
-              "type": "store",
-              "isLink": 0,
-              "childs": [
+        "help": {
+            "title": "[[Help]]",
+            "type": "custom",
+            "isLink": 0,
+            "multi": 1,
+            "childs": [
                 
-              ]
+            ]
+        }
+    },
+    "objectProperties": {
+        "file": {
+            "alt": {
+                "label": "[[Alternative title]]",
+                "type": "text"
             },
-            "languages": {
-              "table_key": "code",
-              "table_label": "title",
-              "table": "system_langs",
-              "type": "store",
-              "isLink": 0,
-              "childs": [
-                
-              ]
+            "description": {
+                "label": "[[Description]]",
+                "type": "text"
             },
-            "extensions": {
-              "class": "adminStoreExtensions",
-              "type": "store",
-              "isLink": 0,
-              "childs": [
-                
-              ]
-            },
-            "domains": {
-              "type": "store",
-              "isLink": 0,
-              "childs": [
-                
-              ]
+            "copyright": {
+                "label": "[[Copyright available]]",
+                "type": "checkbox",
+                "default": 1
             }
-          }
         }
-      }
     },
-    "overview": {
-      "title": "[[Dashboard]]",
-      "type": "custom",
-      "icon": "#icon-home-5",
-      "isLink": 1,
-      "multi": 1,
-      "childs": [
-        
-      ]
-    },
-    "pages": {
-      "title": "[[Pages]]",
-      "type": "custom",
-      "icon": "#icon-screen-2",
-      "isLink": 1,
-      "multi": 1,
-      "childs": {
-        "addDialog": {
-          "title": "[[Add pages]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
+    "objects": {
+        "file": {
+            "objectLabel": "path",
+            "nestedLabel": "name",
+            "nestedRootAsObject": 0,
+            "nested": 1,
+            "class": "objectFile",
+            "dataModel": "custom",
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": {
+                "path": {
+                    "label": "[[Path]]",
+                    "type": "text"
+                },
+                "name": {
+                    "type": "text",
+                    "width": "30%"
+                }
+            },
+            "chooserFieldDataModelField": "name",
+            "chooserFieldType": "default",
+            "chooserBrowserTreeJavascript": "default",
+            "chooserBrowserTreeIconMapping": [
+                
+            ],
+            "chooserBrowserTreeFixedIcon": 0,
+            "chooserBrowserJavascriptClass": "ka.Files",
+            "chooserBrowserOptions": {
+                "onlyUserDefined": {
+                    "label": "[[Only user defined files]]",
+                    "type": "checkbox",
+                    "empty": 1
+                },
+                "search": {
+                    "label": "[[Enable search]]",
+                    "type": "checkbox",
+                    "empty": 1
+                },
+                "path": {
+                    "label": "[[Start path]]",
+                    "multi": 0,
+                    "type": "folder",
+                    "empty": 1
+                },
+                "selectionOnlyFolders": {
+                    "label": "[[Only folders]]",
+                    "type": "checkbox",
+                    "empty": 1
+                },
+                "selectionOnlyFiles": {
+                    "label": "[[Only files]]",
+                    "type": "checkbox",
+                    "empty": 1
+                },
+                "onlyLocal": {
+                    "label": "[[Only local files]]",
+                    "type": "checkbox",
+                    "desc": "[[Exclude all external files in magic folders]]",
+                    "empty": 1
+                },
+                "returnPath": {
+                    "label": "[[Return path]]",
+                    "type": "checkbox",
+                    "desc": "[[Instead of returning the object id]]",
+                    "empty": 1
+                }
+            },
+            "chooserBrowserDataModel": "default",
+            "chooserBrowserType": "custom",
+            "fields": {
+                "id": {
+                    "label": "[[ID]]",
+                    "type": "number",
+                    "primaryKey": 1,
+                    "autoIncrement": 1
+                },
+                "path": {
+                    "label": "[[Path]]",
+                    "type": "text",
+                    "primaryKey": 0
+                },
+                "name": {
+                    "label": "[[Name]]",
+                    "type": "text",
+                    "primaryKey": 0
+                },
+                "ext": {
+                    "label": "[[File extension]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "type": {
+                    "label": "[[Type]]",
+                    "items": {
+                        "dir": "[[Directory]]",
+                        "file": "[[File]]"
+                    },
+                    "multi": 0,
+                    "type": "select",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "size": {
+                    "label": "[[Size]]",
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "desc": "[[In bytes]]",
+                    "empty": 1
+                },
+                "ctime": {
+                    "label": "[[Created]]",
+                    "type": "datetime",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "mtime": {
+                    "label": "[[Modified]]",
+                    "type": "datetime",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[File]]"
         },
-        "addDomains": {
-          "title": "[[Add domains]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        },
-        "bigEditor": {
-          "title": "WYSIWYG-Editor",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        }
-      }
-    },
-    "files": {
-      "title": "[[Files]]",
-      "type": "custom",
-      "icon": "#icon-folder",
-      "isLink": 1,
-      "multi": 1,
-      "childs": {
-        "edit": {
-          "title": "[[File edit]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        },
-        "diff": {
-          "title": "[[File diff]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        },
-        "systemfiles": {
-          "title": "[[System files]]",
-          "isLink": 0,
-          "childs": [
-            
-          ]
-        },
-        "properties": {
-          "title": "[[Properties]]",
-          "type": "custom",
-          "isLink": 0,
-          "multi": 1,
-          "childs": [
-            
-          ]
-        }
-      }
-    },
-    "help": {
-      "title": "[[Help]]",
-      "type": "custom",
-      "isLink": 0,
-      "multi": 1,
-      "childs": [
-        
-      ]
-    }
-  },
-  "objectProperties": {
-    "file": {
-      "alt": {
-        "label": "[[Alternative title]]",
-        "type": "text"
-      },
-      "description": {
-        "label": "[[Description]]",
-        "type": "text"
-      },
-      "copyright": {
-        "label": "[[Copyright available]]",
-        "type": "checkbox",
-        "default": 1
-      }
-    }
-  },
-  "objects": {
-    "file": {
-      "objectLabel": "path",
-      "nestedLabel": "name",
-      "nestedRootAsObject": 0,
-      "nested": 1,
-      "class": "objectFile",
-      "dataModel": "custom",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooserFieldDataModelCondition": [
-        
-      ],
-      "chooserFieldDataModel": "default",
-      "chooserFieldDataModelFields": {
-        "path": {
-          "label": "[[Path]]",
-          "type": "text"
-        },
-        "name": {
-          "type": "text",
-          "width": "30%"
-        }
-      },
-      "chooserFieldDataModelField": "name",
-      "chooserFieldType": "default",
-      "chooserBrowserTreeJavascript": "default",
-      "chooserBrowserTreeIconMapping": [
-        
-      ],
-      "chooserBrowserTreeFixedIcon": 0,
-      "chooserBrowserJavascriptClass": "ka.Files",
-      "chooserBrowserOptions": {
-        "onlyUserDefined": {
-          "label": "[[Only user defined files]]",
-          "type": "checkbox",
-          "empty": 1
-        },
-        "search": {
-          "label": "[[Enable search]]",
-          "type": "checkbox",
-          "empty": 1
-        },
-        "path": {
-          "label": "[[Start path]]",
-          "multi": 0,
-          "type": "folder",
-          "empty": 1
-        },
-        "selectionOnlyFolders": {
-          "label": "[[Only folders]]",
-          "type": "checkbox",
-          "empty": 1
-        },
-        "selectionOnlyFiles": {
-          "label": "[[Only files]]",
-          "type": "checkbox",
-          "empty": 1
-        },
-        "onlyLocal": {
-          "label": "[[Only local files]]",
-          "type": "checkbox",
-          "desc": "[[Exclude all external files in magic folders]]",
-          "empty": 1
-        },
-        "returnPath": {
-          "label": "[[Return path]]",
-          "type": "checkbox",
-          "desc": "[[Instead of returning the object id]]",
-          "empty": 1
-        }
-      },
-      "chooserBrowserDataModel": "default",
-      "chooserBrowserType": "custom",
-      "fields": {
-        "id": {
-          "label": "[[ID]]",
-          "type": "number",
-          "primaryKey": 1,
-          "autoIncrement": 1
-        },
-        "path": {
-          "label": "[[Path]]",
-          "type": "text",
-          "primaryKey": 0
-        },
-        "name": {
-          "label": "[[Name]]",
-          "type": "text",
-          "primaryKey": 0
-        },
-        "ext": {
-          "label": "[[File extension]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "type": {
-          "label": "[[Type]]",
-          "items": {
-            "dir": "[[Directory]]",
-            "file": "[[File]]"
-          },
-          "multi": 0,
-          "type": "select",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "size": {
-          "label": "[[Size]]",
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "desc": "[[In bytes]]",
-          "empty": 1
-        },
-        "ctime": {
-          "label": "[[Created]]",
-          "type": "datetime",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "mtime": {
-          "label": "[[Modified]]",
-          "type": "datetime",
-          "primaryKey": 0,
-          "empty": 1
-        }
-      },
-      "label": "[[File]]"
-    },
-    "node": {
-      "desc": "[[Pages, Links, Deposits and Navigation folder]]",
-      "table": "system_page",
-      "tableSync": 1,
-      "tableCondition": [
-        
-      ],
-      "nestedLabel": "title",
-      "nestedRootObject": "domain",
-      "nestedRootObjectField": "domain_id",
-      "nestedRootObjectLabel": "domain",
-      "nestedRootAsObject": 1,
-      "nested": 1,
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooserFieldDataModelCondition": [
-        
-      ],
-      "chooserFieldDataModel": "default",
-      "chooserFieldDataModelFields": {
-        "title": {
-          "type": "text"
-        }
-      },
-      "chooserFieldDataModelField": "title",
-      "chooserFieldType": "default",
-      "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
-      "chooserBrowserTreeJavascript": "custom",
-      "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
-      "chooserBrowserTreeRootObjectFixedIcon": 1,
-      "chooserBrowserTreeIconMapping": [
-        
-      ],
-      "chooserBrowserTreeFixedIcon": 0,
-      "chooserBrowserJavascriptClass": "ka.nodeChooser",
-      "chooserBrowserOptions": [
-        
-      ],
-      "chooserBrowserDataModel": "none",
-      "chooserBrowserType": "custom",
-      "fields": {
-        "id": {
-          "label": "[[ID]]",
-          "type": "number",
-          "primaryKey": 1,
-          "autoIncrement": 1,
-          "empty": 1
-        },
-        "pid": {
-          "label": "[[Parent ID]]",
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "domain_id": {
-          "label": "[[Domain ID]]",
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "type": {
-          "label": "[[Type]]",
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "title": {
-          "label": "[[Title]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "page_title": {
-          "label": "[[Page title]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "url": {
-          "label": "[[URL]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "link": {
-          "label": "[[Link]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "lft": {
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "rgt": {
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "target": {
-          "label": "[[Link target]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "visible": {
-          "label": "[[Visible in navigation]]",
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "access_denied": {
-          "label": "[[Access denied]]",
-          "type": "text",
-          "primaryKey": 0,
-          "desc": "For everyone. This remove the page from the navigation.",
-          "empty": 1
-        },
-        "meta": {
-          "label": "[[Meta tags]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "force_https": {
-          "label": "[[Force HTTPS]]",
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "access_from": {
-          "type": "datetime",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "access_to": {
-          "type": "datetime",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "access_redirectto": {
-          "type": "page",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "access_nohidenavi": {
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "access_need_via": {
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "access_from_groups": {
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "search_words": {
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "unsearchable": {
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        }
-      },
-      "label": "[[Node]]"
-    },
-    "domain": {
-      "table": "system_domains",
-      "tableSync": 0,
-      "tableCondition": [
-        
-      ],
-      "nested": 0,
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooserFieldDataModelCondition": [
-        
-      ],
-      "chooserFieldDataModel": "default",
-      "chooserFieldDataModelFields": {
-        "lang": {
-          "label": "[[Language]]",
-          "type": "lang",
-          "width": "30%"
+        "node": {
+            "desc": "[[Pages, Links, Deposits and Navigation folder]]",
+            "table": "system_page",
+            "tableSync": 1,
+            "tableCondition": [
+                
+            ],
+            "nestedLabel": "title",
+            "nestedRootObject": "domain",
+            "nestedRootObjectField": "domain_id",
+            "nestedRootObjectLabel": "domain",
+            "nestedRootAsObject": 1,
+            "nested": 1,
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": {
+                "title": {
+                    "type": "text"
+                }
+            },
+            "chooserFieldDataModelField": "title",
+            "chooserFieldType": "default",
+            "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
+            "chooserBrowserTreeJavascript": "custom",
+            "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
+            "chooserBrowserTreeRootObjectFixedIcon": 1,
+            "chooserBrowserTreeIconMapping": [
+                
+            ],
+            "chooserBrowserTreeFixedIcon": 0,
+            "chooserBrowserJavascriptClass": "ka.nodeChooser",
+            "chooserBrowserOptions": [
+                
+            ],
+            "chooserBrowserDataModel": "none",
+            "chooserBrowserType": "custom",
+            "fields": {
+                "id": {
+                    "label": "[[ID]]",
+                    "type": "number",
+                    "primaryKey": 1,
+                    "autoIncrement": 1,
+                    "empty": 1
+                },
+                "pid": {
+                    "label": "[[Parent ID]]",
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "domain_id": {
+                    "label": "[[Domain ID]]",
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "type": {
+                    "label": "[[Type]]",
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "page_title": {
+                    "label": "[[Page title]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "url": {
+                    "label": "[[URL]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "link": {
+                    "label": "[[Link]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "lft": {
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "rgt": {
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "target": {
+                    "label": "[[Link target]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "visible": {
+                    "label": "[[Visible in navigation]]",
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "access_denied": {
+                    "label": "[[Access denied]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "desc": "For everyone. This remove the page from the navigation.",
+                    "empty": 1
+                },
+                "meta": {
+                    "label": "[[Meta tags]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "force_https": {
+                    "label": "[[Force HTTPS]]",
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "access_from": {
+                    "type": "datetime",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "access_to": {
+                    "type": "datetime",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "access_redirectto": {
+                    "type": "page",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "access_nohidenavi": {
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "access_need_via": {
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "access_from_groups": {
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "search_words": {
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "unsearchable": {
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[Node]]"
         },
         "domain": {
-          "label": "[[Domain]]",
-          "type": "text"
+            "table": "system_domains",
+            "tableSync": 0,
+            "tableCondition": [
+                
+            ],
+            "nested": 0,
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": {
+                "lang": {
+                    "label": "[[Language]]",
+                    "type": "lang",
+                    "width": "30%"
+                },
+                "domain": {
+                    "label": "[[Domain]]",
+                    "type": "text"
+                }
+            },
+            "chooserFieldType": "default",
+            "chooserBrowserAutoColumns": {
+                "lang": {
+                    "label": "[[Language]]",
+                    "type": "lang",
+                    "width": "30%"
+                },
+                "domain": {
+                    "label": "[[Domain]]",
+                    "type": "text"
+                }
+            },
+            "chooserBrowserDataModel": "default",
+            "chooserBrowserType": "default",
+            "fields": {
+                "id": {
+                    "label": "ID",
+                    "type": "number",
+                    "primaryKey": 1,
+                    "autoIncrement": 1,
+                    "empty": 1
+                },
+                "domain": {
+                    "label": "[[Domain name]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "lang": {
+                    "label": "[[Language]]",
+                    "type": "lang",
+                    "empty": 1
+                },
+                "master": {
+                    "label": "[[Language master]]",
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[Domain]]"
+        },
+        "system_entrypoint": {
+            "class": "objectEntrypoint",
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "selectable": 1,
+            "chooserFieldDataModel": "store",
+            "chooserFieldDataModelField": "path",
+            "chooserFieldType": "default",
+            "chooserBrowserAutoColumns": {
+                "title": {
+                    "type": "text",
+                    "width": "40%"
+                },
+                "path": {
+                    "type": "text"
+                }
+            },
+            "chooserBrowserDataModel": "default",
+            "chooserType": "default",
+            "fields": {
+                "path": {
+                    "label": "[[Path]]",
+                    "type": "text",
+                    "primaryKey": 1,
+                    "empty": 1
+                },
+                "title": {
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "type": {
+                    "label": "[[Type]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[Entry point]]",
+            "chooserFieldDataModelFields": {
+                "path": {
+                    "type": "text"
+                },
+                "title": {
+                    "type": "text",
+                    "width": "40%"
+                }
+            }
+        },
+        "language": {
+            "table": "system_langs",
+            "tableSync": 1,
+            "tableCondition": [
+                
+            ],
+            "objectLabel": "title",
+            "nested": 0,
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": {
+                "code": {
+                    "label": "[[Code]]",
+                    "type": "text",
+                    "width": "50px"
+                },
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text"
+                }
+            },
+            "chooserFieldDataModelField": "title, lang",
+            "chooserFieldType": "default",
+            "chooserBrowserAutoColumns": {
+                "code": {
+                    "label": "[[Code]]",
+                    "type": "text",
+                    "width": "50px"
+                },
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text"
+                }
+            },
+            "chooserBrowserDataModel": "default",
+            "chooserBrowserType": "default",
+            "fields": {
+                "code": {
+                    "label": "[[Code]]",
+                    "type": "text",
+                    "primaryKey": 1,
+                    "empty": 1
+                },
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "langtitle": {
+                    "label": "[[Nativ title]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "userdefined": {
+                    "label": "[[User defined language]]",
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "visible": {
+                    "label": "[[Visible as system language]]",
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[Language]]"
         }
-      },
-      "chooserFieldType": "default",
-      "chooserBrowserAutoColumns": {
-        "lang": {
-          "label": "[[Language]]",
-          "type": "lang",
-          "width": "30%"
+    },
+    "db": {
+        "system_workspaces": {
+            "id": [
+                "integer unsigned",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "name": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ]
         },
-        "domain": {
-          "label": "[[Domain]]",
-          "type": "text"
+        "system_page": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "pid": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "domain_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "type": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "title": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "page_title": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "url": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "link": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "layout": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "sort": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "sort_mode": [
+                "varchar",
+                "8",
+                "-",
+                false
+            ],
+            "target": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "visible": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "access_denied": [
+                "enum",
+                "'0','1'",
+                "DB_INDEX",
+                false
+            ],
+            "meta": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "properties": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "cdate": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "mdate": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "draft_exist": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "force_https": [
+                "int",
+                "1",
+                "-",
+                false
+            ],
+            "access_from": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "access_to": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "access_redirectto": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "access_nohidenavi": [
+                "int",
+                "1",
+                "-",
+                false
+            ],
+            "access_need_via": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "access_from_groups": [
+                "varchar",
+                "32",
+                "-",
+                false
+            ],
+            "cache": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "search_words": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "unsearchable": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_page_version": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "page_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "owner_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "modified": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "active": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ]
+        },
+        "system_page_notices": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "page_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "user_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "content": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_modules": {
+            "name": [
+                "varchar",
+                "255",
+                "DB_PRIMARY",
+                false
+            ],
+            "activated": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ]
+        },
+        "system_domains": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "domain": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "title_format": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "lang": [
+                "varchar",
+                "128",
+                "DB_INDEX",
+                false
+            ],
+            "startpage_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "alias": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "redirect": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "page404_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "page404interface": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "master": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "resourcecompression": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "layouts": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "phplocale": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "path": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "themeproperties": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "extproperties": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "email": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "search_index_key": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "robots": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "session": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "favicon": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ]
+        },
+        "system_contents": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "page_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "version_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "title": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "content": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "template": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "type": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "mdate": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "cdate": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "hide": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "sort": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "box_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "owner_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "access_from": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "access_to": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "access_from_groups": [
+                "varchar",
+                "32",
+                "-",
+                false
+            ],
+            "unsearchable": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_messages": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "user_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "type": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "to_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "time": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "viewed": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "content": [
+                "text",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_langs": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "code": [
+                "varchar",
+                "3",
+                "DB_INDEX",
+                false
+            ],
+            "title": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "langtitle": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "userdefined": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ],
+            "visible": [
+                "int",
+                "1",
+                "DB_INDEX",
+                false
+            ]
+        },
+        "system_log": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "date": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "username": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "ip": [
+                "varchar",
+                "32",
+                "-",
+                false
+            ],
+            "code": [
+                "varchar",
+                "32",
+                "DB_INDEX",
+                false
+            ],
+            "message": [
+                "text",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_files_log": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "path": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "modified": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "type": [
+                "int",
+                "2",
+                "-",
+                false
+            ],
+            "content": [
+                "text",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_search": {
+            "url": [
+                "varchar",
+                "255",
+                "DB_PRIMARY",
+                false
+            ],
+            "title": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "md5": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "mdate": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "blacklist": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "page_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "domain_id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                false
+            ],
+            "page_content": [
+                "text",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_search_stats": {
+            "word": [
+                "varchar",
+                "255",
+                "DB_PRIMARY",
+                false
+            ],
+            "searchcount": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "found": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                false
+            ]
+        },
+        "system_urlalias": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "url": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "to_page_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "domain_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ]
+        },
+        "system_files_versions": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "path": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "mtime": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "user_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "versionpath": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ]
+        },
+        "system_frameworkversion": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "code": [
+                "varchar",
+                "128",
+                "DB_INDEX",
+                false
+            ],
+            "content": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "version": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "cdate": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "user_id": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_files": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "path": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "contenthash": [
+                "varchar",
+                "32",
+                "DB_INDEX",
+                false
+            ]
+        },
+        "system_fs": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "name": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "fs_class": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "fs_params": [
+                "text",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_object_usage": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "user_system_object_name": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "user_system_object_field": [
+                "varchar",
+                "32",
+                "-",
+                false
+            ],
+            "user_system_object_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "system_object_name": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "system_object_id": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "modified": [
+                "int",
+                "",
+                "-",
+                false
+            ]
         }
-      },
-      "chooserBrowserDataModel": "default",
-      "chooserBrowserType": "default",
-      "fields": {
-        "id": {
-          "label": "ID",
-          "type": "number",
-          "primaryKey": 1,
-          "autoIncrement": 1,
-          "empty": 1
+    },
+    "adminJavascript": [
+        "admin\/js\/ui\/ka.ObjectTree.js",
+        "admin\/js\/ui\/ka.TabGroup.js",
+        "admin\/js\/lib\/ka.WindowEdit.js",
+        "admin\/js\/lib\/ka.WindowList.js",
+        "admin\/js\/lib\/ka.CustomField.js",
+        "admin\/js\/lib\/*.js",
+        "admin\/js\/ui\/*.js",
+        "admin\/js\/mootools-extras\/*.js"
+    ],
+    "adminCss": [
+        "admin\/icons\/style.css",
+        "admin\/css\/*.css"
+    ],
+    "community": "1",
+    "writableFiles": "",
+    "category": "8",
+    "tags": {
+        "de": "",
+        "en": ""
+    },
+    "depends": "",
+    "caches": [
+        {
+            "key": "systemTablesv2",
+            "method": ""
         },
-        "domain": {
-          "label": "[[Domain name]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
+        {
+            "key": "systemThemes",
+            "method": ""
         },
-        "lang": {
-          "label": "[[Language]]",
-          "type": "lang",
-          "empty": 1
+        {
+            "key": "systemObjects",
+            "method": ""
         },
-        "master": {
-          "label": "[[Language master]]",
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
+        {
+            "key": "systemUrls",
+            "method": "cacheDeleteSystemUrls"
+        },
+        {
+            "key": "systemLanguages",
+            "method": ""
+        },
+        {
+            "key": "systemDomains",
+            "method": ""
+        },
+        {
+            "key": "systemPages2Domain",
+            "method": ""
         }
-      },
-      "label": "[[Domain]]"
-    },
-    "system_entrypoint": {
-      "class": "objectEntrypoint",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "selectable": 1,
-      "chooserFieldDataModel": "store",
-      "chooserFieldDataModelField": "path",
-      "chooserFieldType": "default",
-      "chooserBrowserAutoColumns": {
-        "title": {
-          "type": "text",
-          "width": "40%"
+    ],
+    "cacheInvalidation": [
+        {
+            "key": "krynDatabaseTable"
         },
-        "path": {
-          "type": "text"
+        {
+            "key": "systemObjectTrees"
         }
-      },
-      "chooserBrowserDataModel": "default",
-      "chooserType": "default",
-      "fields": {
-        "path": {
-          "label": "[[Path]]",
-          "type": "text",
-          "primaryKey": 1,
-          "empty": 1
-        },
-        "title": {
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "type": {
-          "label": "[[Type]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        }
-      },
-      "label": "[[Entry point]]",
-      "chooserFieldDataModelFields": {
-        "path": {
-          "type": "text"
-        },
-        "title": {
-          "type": "text",
-          "width": "40%"
-        }
-      }
-    },
-    "language": {
-      "table": "system_langs",
-      "tableSync": 1,
-      "tableCondition": [
-        
-      ],
-      "objectLabel": "title",
-      "nested": 0,
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooserFieldDataModelCondition": [
-        
-      ],
-      "chooserFieldDataModel": "default",
-      "chooserFieldDataModelFields": {
-        "code": {
-          "label": "[[Code]]",
-          "type": "text",
-          "width": "50px"
-        },
-        "title": {
-          "label": "[[Title]]",
-          "type": "text"
-        }
-      },
-      "chooserFieldDataModelField": "title, lang",
-      "chooserFieldType": "default",
-      "chooserBrowserAutoColumns": {
-        "code": {
-          "label": "[[Code]]",
-          "type": "text",
-          "width": "50px"
-        },
-        "title": {
-          "label": "[[Title]]",
-          "type": "text"
-        }
-      },
-      "chooserBrowserDataModel": "default",
-      "chooserBrowserType": "default",
-      "fields": {
-        "code": {
-          "label": "[[Code]]",
-          "type": "text",
-          "primaryKey": 1,
-          "empty": 1
-        },
-        "title": {
-          "label": "[[Title]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "langtitle": {
-          "label": "[[Nativ title]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "userdefined": {
-          "label": "[[User defined language]]",
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "visible": {
-          "label": "[[Visible as system language]]",
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        }
-      },
-      "label": "[[Language]]"
-    }
-  },
-  "db": {
-    "system_workspaces": {
-      "id": [
-        "integer unsigned",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "name": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ]
-    },
-    "system_page": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "pid": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "domain_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "type": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "title": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "page_title": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "url": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "link": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "layout": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "sort": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "sort_mode": [
-        "varchar",
-        "8",
-        "-",
-        false
-      ],
-      "target": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "visible": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "access_denied": [
-        "enum",
-        "'0','1'",
-        "DB_INDEX",
-        false
-      ],
-      "meta": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "properties": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "cdate": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "mdate": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "draft_exist": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "force_https": [
-        "int",
-        "1",
-        "-",
-        false
-      ],
-      "access_from": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "access_to": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "access_redirectto": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "access_nohidenavi": [
-        "int",
-        "1",
-        "-",
-        false
-      ],
-      "access_need_via": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "access_from_groups": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
-      "cache": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "search_words": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "unsearchable": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_page_version": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "page_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "owner_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "modified": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "active": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ]
-    },
-    "system_page_notices": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "page_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "user_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "content": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_modules": {
-      "name": [
-        "varchar",
-        "255",
-        "DB_PRIMARY",
-        false
-      ],
-      "activated": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ]
-    },
-    "system_domains": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "domain": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "title_format": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "lang": [
-        "varchar",
-        "128",
-        "DB_INDEX",
-        false
-      ],
-      "startpage_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "alias": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "redirect": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "page404_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "page404interface": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "master": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "resourcecompression": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "layouts": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "phplocale": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "path": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "themeproperties": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "extproperties": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "email": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "search_index_key": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "robots": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "session": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "favicon": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ]
-    },
-    "system_contents": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "page_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "version_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "title": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "content": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "template": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "type": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "mdate": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "cdate": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "hide": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "sort": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "box_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "owner_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "access_from": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "access_to": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "access_from_groups": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
-      "unsearchable": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_messages": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "user_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "type": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "to_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "time": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "viewed": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "content": [
-        "text",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_langs": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "code": [
-        "varchar",
-        "3",
-        "DB_INDEX",
-        false
-      ],
-      "title": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "langtitle": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "userdefined": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ],
-      "visible": [
-        "int",
-        "1",
-        "DB_INDEX",
-        false
-      ]
-    },
-    "system_log": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "date": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "username": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "ip": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
-      "code": [
-        "varchar",
-        "32",
-        "DB_INDEX",
-        false
-      ],
-      "message": [
-        "text",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_files_log": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "path": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "modified": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "type": [
-        "int",
-        "2",
-        "-",
-        false
-      ],
-      "content": [
-        "text",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_search": {
-      "url": [
-        "varchar",
-        "255",
-        "DB_PRIMARY",
-        false
-      ],
-      "title": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "md5": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "mdate": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "blacklist": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "page_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "domain_id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        false
-      ],
-      "page_content": [
-        "text",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_search_stats": {
-      "word": [
-        "varchar",
-        "255",
-        "DB_PRIMARY",
-        false
-      ],
-      "searchcount": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "found": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        false
-      ]
-    },
-    "system_urlalias": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "url": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "to_page_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "domain_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ]
-    },
-    "system_files_versions": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "path": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "mtime": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "user_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "versionpath": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ]
-    },
-    "system_frameworkversion": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "code": [
-        "varchar",
-        "128",
-        "DB_INDEX",
-        false
-      ],
-      "content": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "version": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "cdate": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "user_id": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_files": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "path": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "contenthash": [
-        "varchar",
-        "32",
-        "DB_INDEX",
-        false
-      ]
-    },
-    "system_fs": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "name": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "fs_class": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "fs_params": [
-        "text",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_object_usage": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "user_system_object_name": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "user_system_object_field": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
-      "user_system_object_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "system_object_name": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "system_object_id": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "modified": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    }
-  },
-  "adminJavascript": [
-    "admin\/js\/ui\/ka.ObjectTree.js",
-    "admin\/js\/ui\/ka.TabGroup.js",
-    "admin\/js\/lib\/ka.WindowEdit.js",
-    "admin\/js\/lib\/ka.WindowList.js",
-    "admin\/js\/lib\/ka.CustomField.js",
-    "admin\/js\/lib\/*.js",
-    "admin\/js\/ui\/*.js",
-    "admin\/js\/mootools-extras\/*.js"
-  ],
-  "adminCss": [
-    "admin\/icons\/style.css",
-    "admin\/css\/*.css"
-  ],
-  "community": "1",
-  "writableFiles": "",
-  "category": "8",
-  "tags": {
-    "de": "",
-    "en": ""
-  },
-  "depends": "",
-  "caches": [
-    {
-      "key": "systemTablesv2",
-      "method": ""
-    },
-    {
-      "key": "systemThemes",
-      "method": ""
-    },
-    {
-      "key": "systemObjects",
-      "method": ""
-    },
-    {
-      "key": "systemUrls",
-      "method": "cacheDeleteSystemUrls"
-    },
-    {
-      "key": "systemLanguages",
-      "method": ""
-    },
-    {
-      "key": "systemDomains",
-      "method": ""
-    },
-    {
-      "key": "systemPages2Domain",
-      "method": ""
-    }
-  ],
-  "cacheInvalidation": [
-    {
-      "key": "krynDatabaseTable"
-    },
-    {
-      "key": "systemObjectTrees"
-    }
-  ],
-  "__path": "module\/admin",
-  "installed": true,
-  "extensionCode": "admin"
+    ],
+    "__path": "module\/admin",
+    "installed": true,
+    "extensionCode": "admin"
 }

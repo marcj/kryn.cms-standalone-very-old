@@ -1,4 +1,4 @@
-ka.AutoChooser = new Class({
+ka.ObjectTable = new Class({
 
     Implements: [Options, Events],
 
@@ -7,7 +7,8 @@ ka.AutoChooser = new Class({
     win: false,
 
     options: {
-        multi: false
+        multi: false,
+        itemsPerPage: 20
     },
 
 
@@ -194,15 +195,49 @@ ka.AutoChooser = new Class({
 
     loadPage: function(pPage){
 
-        if (this.lr)
-            this.lr.cancel();
+        //first get count, fire there then real _loadPage() which loads the items then
+        this.getCount(pPage);
+    },
 
-        this.lr = new Request.JSON({url: _path+'admin/backend/autoChooser', noCache: 1, onComplete: function(pRes){
+    getCount: function(pPage){
 
-            this.renderResult(pRes.items);
-            this.renderActions(pPage, pRes.pages, pRes.count);
+        this.lr = new Request.JSON({url: _path+'admin/backend/object-count/'+this.objectKey, noCache: 1, onComplete: function(pRes){
 
-        }.bind(this)}).post({object: this.objectKey, page: pPage});
+            this.itemsCount = pRes.data;
+            this._loadPage(pPage);
+
+        }.bind(this)}).get();
+
+    },
+
+    _loadPage: function(pPage){
+
+        if (this.lr) this.lr.cancel();
+
+        var offset = 0;
+        if (pPage){
+
+        }
+
+        var fields = [];
+
+        var objectDefinition = ka.getObjectDefinition(this.objectKey);
+        Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
+            fields.push(key);
+        });
+
+        var req = {
+            limit: this.options.itemsPerPage,
+            offset: offset,
+            fields: fields.join(',')
+        }
+
+        this.lr = new Request.JSON({url: _path+'admin/backend/object/'+this.objectKey, noCache: 1, onComplete: function(pRes){
+
+            this.renderResult(pRes.data);
+            this.renderActions(pPage, Math.ceil(this.itemsCount/this.options.itemsPerPage), this.itemsCount);
+
+        }.bind(this)}).get(req);
 
     },
 
@@ -210,7 +245,7 @@ ka.AutoChooser = new Class({
 
         this.currentPage = pPage;
         this.maxPages = pMaxPages;
-        this.sMaxPages.set('text', pMaxPages+'('+pMaxItems+')');
+        this.sMaxPages.set('text', pMaxPages+' ('+pMaxItems+')');
         this.iCurrentPage.value = pPage;
 
         this.imgToLeft.setStyle('opacity', (pPage == 1)?0.5:1);

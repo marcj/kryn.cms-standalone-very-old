@@ -9,12 +9,19 @@ ka.Table = new Class({
     options: {
         absolute: true, //full size
         selectable: false,
-        multi: false
+        multi: false,
+        safe: true //htmlentities
     },
 
-    initialize: function (pColumns, pOpts) {
+    /**
+     * Constructor
+     * 
+     * @param  array pColumns [ ["label", optionalWidth], ["label", optionalWidth], ... ] 
+     * @param  array pOptions
+     */
+    initialize: function (pColumns, pOptions) {
 
-        this.setOptions(pOpts);
+        this.setOptions(pOptions);
 
         if (this.options.absolute == false) {
             this.main = new Element('div', {
@@ -124,6 +131,11 @@ ka.Table = new Class({
 
     },
 
+    /**
+     * Set the columns of the table.
+     * 
+     * @param array pColumns  [ ["label", optionalWidth], ["label", optionalWidth], ... ] 
+     */
     setColumns: function (pColumns) {
         this.columns = pColumns;
 
@@ -214,7 +226,7 @@ ka.Table = new Class({
             }).inject(tr);
 
             //TODO, make default 'text'
-            if (this.safe) {
+            if (this.safe || this.options.safe) {
                 if (column[2] == 'html') {
                     td.set('html', html);
                 } else if(typeOf(column[2]) == 'string' && column[2].substr(0,11) == 'javascript:'){

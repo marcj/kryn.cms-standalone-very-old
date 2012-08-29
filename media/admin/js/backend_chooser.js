@@ -52,6 +52,7 @@ var admin_backend_chooser = new Class({
         this.tapPane = new ka.TabPane(this.win.content, true, this.win);
 
         this.tapPane.addEvent('change', this.changeTab.bind(this));
+
         /*
         if (this.options.pages) {
             this.createPages();
@@ -81,13 +82,11 @@ var admin_backend_chooser = new Class({
 
                     if (this.options.objects && !this.options.objects.contains(objectKey)) return;
 
-                    if (object.selectable){
-                        this.createObjectChooser(objectKey);
-                        if (object.multiLanguage)
-                            needLanguageSelection = true;
-                        if (object.domainDepended)
-                            needDomainSelection = true;
-                    }
+                    this.createObjectChooser(objectKey);
+                    if (object.multiLanguage)
+                        needLanguageSelection = true;
+                    if (object.domainDepended)
+                        needDomainSelection = true;
                 }.bind(this));
             }
 
@@ -170,6 +169,9 @@ var admin_backend_chooser = new Class({
 
     createObjectChooser: function(pObjectKey){
 
+        logger('hi');
+        logger(pObjectKey);
+
         var objectDefinition = ka.getObjectDefinition(pObjectKey);
 
         var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.chooser_icon);
@@ -212,7 +214,7 @@ var admin_backend_chooser = new Class({
                 );
             }
         } else {
-            this.objectChooserInstance[pObjectKey] = new ka.AutoChooser(
+            this.objectChooserInstance[pObjectKey] = new ka.ObjectTable(
                 bundle.pane,
                 objectOptions,
                 this.win,

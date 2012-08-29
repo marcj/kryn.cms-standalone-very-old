@@ -270,50 +270,42 @@ ka.Window = new Class({
 
         if (pOpts['alert'] != 1) {
 
-            new ka.Button(_('Cancel')).addEvent('click', function () {
-                main.close();
-                if (pCallback) {
+            if (pCallback){
+                var closeEvent = function(){
                     pCallback(false);
                 }
+                main.addEvent('close', closeEvent);
+            }
+
+            new ka.Button(t('Cancel')).addEvent('click', function(){
+                main.close();
             }.bind(this)).inject(main.bottom);
 
-            main.addEvent('close', function(){
-                if (pCallback)
-                pCallback(false);
-            });
-
-            ok = new ka.Button('OK').addEvent('keyup',
-                function (e) {
+            ok = new ka.Button(t('OK')).addEvent('keyup', function(e){
                     e.stopPropagation();
                     e.stop();
-                }).addEvent('click', function (e) {
+            }).addEvent('click', function(e){
                 if (e) {
                     e.stop();
                 }
                 if (input && input.value != '') {
                     res = input.value;
                 }
+                if (pCallback) main.removeEvent('close', closeEvent);
                 main.close();
-                if (pCallback) {
-                    pCallback.delay(50, null, res);
-                }
+                if (pCallback) pCallback(true);
             }.bind(this)).inject(main.bottom);
         }
 
         if (pOpts && pOpts['alert'] == 1) {
 
-            ok = new ka.Button('OK').addEvent('keyup',
-                function (e) {
-                    e.stopPropagation();
-                    e.stop();
-                }).addEvent('click', function (e) {
-                if (e) {
-                    e.stop();
-                }
-                main.close();
-                if (pCallback) {
-                    pCallback.delay(50);
-                }
+            if (pCallback)
+                main.addEvent('close', pCallback);
+
+            ok = new ka.Button('OK')
+            .addEvent('click', function(e){
+                if (e) e.stop();
+                main.close(true);
             }.bind(this)).inject(main.bottom);
         }
 
@@ -347,7 +339,7 @@ ka.Window = new Class({
 
         main.content = new Element('div', {
             html: pText,
-            'class': 'ka-kwindow-prompt-text'
+            'class': 'ka-kwindow-prompt-text selectable'
         }).inject(main);
 
         if (pAbsoluteContent) {
@@ -372,12 +364,15 @@ ka.Window = new Class({
 
         main.close = function(pInternal){
 
+            main.overlay.destroy();
+            main.dispose();
+            this.removeEvent('resize', main.center);
+
             if (pInternal === true)
                 main.fireEvent('close');
 
-            main.overlay.destroy();
             main.destroy();
-            this.removeEvent('resize', main.center);
+
         }.bind(this);
 
         main.bottom = new Element('div', {
@@ -917,7 +912,7 @@ ka.Window = new Class({
                 }
                 this._loadContent(res.data, res.data._path);
 
-            }.bind(this)}).get({method: 'head'});
+            }.bind(this)}).get({_method: 'head'});
         }
     },
 
@@ -1083,9 +1078,9 @@ ka.Window = new Class({
 
         window['contentCantLoaded_' + this.customId] = function (pFile) {
             this.content.empty();
-            this._alert('custom javascript file not found: ' + pFile, function () {
+            this._alert(t('Custom javascript file not found')+"\n" + pFile, function(){
                 this.close(true);
-            });
+            }.bind(this));
         }.bind(this);
 
         window['contentLoaded_' + this.customId] = function () {

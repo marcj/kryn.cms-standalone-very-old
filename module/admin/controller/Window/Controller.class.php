@@ -16,23 +16,23 @@ class Controller {
 
     private $entryPoint;
 
-    public function handle() {
+    // public function handle() {
 
-        switch (getArgv('cmd')) {
-            case 'custom':
-                return self::custom();
-            case 'sessionbasedFileUpload':
-                return self::sessionbasedFileUpload();
-            case 'getItems':
-            case 'exportItems':
-            case 'getItem':
-            case 'saveItem':
-            case 'deleteItem':
-            case 'removeSelected':
-            default:
-                return self::loadClass();
-        }
-    }
+    //     switch (getArgv('cmd')) {
+    //         case 'custom':
+    //             return self::custom();
+    //         case 'sessionbasedFileUpload':
+    //             return self::sessionbasedFileUpload();
+    //         case 'getItems':
+    //         case 'exportItems':
+    //         case 'getItem':
+    //         case 'saveItem':
+    //         case 'deleteItem':
+    //         case 'removeSelected':
+    //         default:
+    //             return self::loadClass();
+    //     }
+    // }
 
     public function translateFields(&$pFields){
 
@@ -52,6 +52,13 @@ class Controller {
 
     public function setEntryPoint($pEntryPoint){
         $this->entryPoint = $pEntryPoint;
+    }
+
+    public function saveItem($pObject = null){
+
+        $obj = $this->getClass();
+
+        return $obj->getItems();
     }
 
     public function getItems($pObject = null){
@@ -119,59 +126,59 @@ class Controller {
     }
 
 
-    public function call($pCmd) {
-        $obj = $this->getObj();
+    // public function call($pCmd) {
+    //     $obj = $this->getObj();
 
-        switch ($pCmd) {
-            case 'getItems':
-                $obj->params = json_decode(getArgv('params'));
-                $res = $obj->getItems(getArgv('page') ? getArgv('page') : false);
-                break;
-            case 'exportItems':
-                $obj->params = json_decode(getArgv('params'));
-                $res = $obj->exportItems(getArgv('page') ? getArgv('page') : false);
-                break;
-            case 'getItem':
-                $res = $obj->getItem();
-                break;
-            case 'saveItem':
-                $res = $obj->saveItem();
-                break;
-            case 'deleteItem':
-                $res = $obj->deleteItem();
-                break;
-            case 'removeSelected':
-                $res = $obj->removeSelected();
-                break;
-            case 'getClassDefinition':
-                $res = $obj;
-        }
+    //     switch ($pCmd) {
+    //         case 'getItems':
+    //             $obj->params = json_decode(getArgv('params'));
+    //             $res = $obj->getItems(getArgv('page') ? getArgv('page') : false);
+    //             break;
+    //         case 'exportItems':
+    //             $obj->params = json_decode(getArgv('params'));
+    //             $res = $obj->exportItems(getArgv('page') ? getArgv('page') : false);
+    //             break;
+    //         case 'getItem':
+    //             $res = $obj->getItem();
+    //             break;
+    //         case 'saveItem':
+    //             $res = $obj->saveItem();
+    //             break;
+    //         case 'deleteItem':
+    //             $res = $obj->deleteItem();
+    //             break;
+    //         case 'removeSelected':
+    //             $res = $obj->removeSelected();
+    //             break;
+    //         case 'getClassDefinition':
+    //             $res = $obj;
+    //     }
 
-        $obj = NULL;
-        return $res;
-    }
+    //     $obj = NULL;
+    //     return $res;
+    // }
 
-    public static function sessionbasedFileUpload() {
-        global $client;
+    // public static function sessionbasedFileUpload() {
+    //     global $client;
 
-        //get session id
-        $sessionId = $client->token;
+    //     //get session id
+    //     $sessionId = $client->token;
 
-        //path for session folder
-        $path = PATH_MEDIA . getArgv('path') . $sessionId;
-        $path = str_replace("..", "", $path);
+    //     //path for session folder
+    //     $path = PATH_MEDIA . getArgv('path') . $sessionId;
+    //     $path = str_replace("..", "", $path);
 
-        //make folder if not exists
-        if (!is_dir($path))
-            mkdir($path);
+    //     //make folder if not exists
+    //     if (!is_dir($path))
+    //         mkdir($path);
 
-        //override path
-        $_REQUEST['path'] = $_POST['path'] = $_GET['path'] = getArgv('path') . $sessionId;
+    //     //override path
+    //     $_REQUEST['path'] = $_POST['path'] = $_GET['path'] = getArgv('path') . $sessionId;
 
-        //now upload the file
-        return adminFilemanager::uploadFile($_REQUEST['path']);
+    //     //now upload the file
+    //     return adminFilemanager::uploadFile($_REQUEST['path']);
 
-    }
+    // }
 
 }
 

@@ -179,9 +179,9 @@ class Propel extends ORMAbstract {
             $allowedFields = strtolower(','.str_replace(' ', '', trim($limit)).',');
 
             $filteredFields = array();
-            foreach ($objectFields as $name => $def){
+            foreach ($objectFields as $name){
                 if (strpos($allowedFields, strtolower(','.$name.',')) === false){
-                    $filteredFields[$name] = $def;
+                    $filteredFields[] = $name;
                 }
             }
             $objectFields = $filteredFields;
@@ -254,7 +254,10 @@ class Propel extends ORMAbstract {
      * @return string
      */
     public function getPhpName($pName = null){
-        return $pName ? Kryn::$objects[$pName]['phpName'] : $this->definition['phpName'];
+        $name = $pName ? Kryn::$objects[$pName]['phpName'] : $this->definition['phpName'];
+        if (!$name)
+            throw new \ORMException(tf('Object %s does not have a phpName set.', $pName?:$this->objectKey));
+        return $name;
     }
 
 

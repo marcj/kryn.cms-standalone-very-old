@@ -1,1244 +1,1251 @@
 {
-  "title": "Kryn.cms User",
-  "desc": "Users, Groups, Permission Management, Internal Messaging System, Chat.",
-  "system": true,
-  "version": "0.10.0",
-  "owner": "1",
-  "category": "8",
-  "community": "1",
-  "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
-  "widgets": {
-    "widgetSessions": {
-      "title": "[[Current sessions]]",
-      "type": "autotable",
-      "position": "full",
-      "columns": [
-        [
-          "Date",
-          120,
-          "timestamp",
-          "d M H:i:s"
-        ],
-        [
-          "User",
-          90
-        ],
-        [
-          "IP",
-          80
-        ],
-        [
-          "Last page"
-        ]
-      ],
-      "height": 205,
-      "itemsPerPage": 7,
-      "category": "overview",
-      "sql": "SELECT time, u.username, s.ip, page FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id"
-    },
-    "lastFailedLogins": {
-      "title": "[[Last failed logins]]",
-      "type": "autotable",
-      "position": "left",
-      "columns": [
-        [
-          "Date",
-          90,
-          "timestamp",
-          "d M H:i:s"
-        ],
-        [
-          "IP",
-          90
-        ],
-        [
-          "To user"
-        ]
-      ],
-      "category": "overview",
-      "refresh": 60000,
-      "sql": "SELECT date, ip, message FROM %pfx%system_log WHERE code = 'authentication' AND message LIKE 'SECURITY Login failed %' ORDER BY date DESC",
-      "manipulate_row": "manipulateLastFailedLoginsRow"
-    },
-    "currentAdminLogins": {
-      "title": "[[Current users]]",
-      "type": "autotable",
-      "position": "right",
-      "columns": [
-        [
-          "Date",
-          90,
-          "timestamp",
-          "d M H:i:s"
-        ],
-        [
-          "IP",
-          90
-        ],
-        [
-          "User"
-        ]
-      ],
-      "category": "overview",
-      "refresh": 60000,
-      "sql": "SELECT s.time, s.ip, u.username FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id AND u.id > 0"
-    }
-  },
-  "auth": {
-    "auth_imap": {
-      "server": {
-        "label": "[[Server]]",
-        "type": "text"
-      },
-      "port": {
-        "label": "[[Port]]",
-        "type": "number",
-        "width": 50
-      },
-      "ssl": {
-        "label": "SSL",
-        "type": "checkbox"
-      },
-      "novalidate-cert": {
-        "label": "[[No cert validation]]",
-        "type": "checkbox"
-      },
-      "tls": {
-        "label": "TLS",
-        "type": "checkbox"
-      },
-      "default_group": {
-        "label": "[[Login mapping]]",
-        "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
-        "type": "array",
-        "startWith": 1,
-        "columns": [
-          {
-            "label": "[[Login]]"
-          },
-          {
-            "label": "[[Group]]",
-            "width": "65%"
-          }
-        ],
-        "fields": {
-          "login": {
-            "type": "text"
-          },
-          "group": {
-            "type": "textlist",
-            "multi": true,
-            "store": "admin\/backend\/stores\/groups"
-          }
+    "title": "Kryn.cms User",
+    "desc": "Users, Groups, Permission Management, Internal Messaging System, Chat.",
+    "system": true,
+    "version": "0.10.0",
+    "owner": "1",
+    "category": "8",
+    "community": "1",
+    "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
+    "widgets": {
+        "widgetSessions": {
+            "title": "[[Current sessions]]",
+            "type": "autotable",
+            "position": "full",
+            "columns": [
+                [
+                    "Date",
+                    120,
+                    "timestamp",
+                    "d M H:i:s"
+                ],
+                [
+                    "User",
+                    90
+                ],
+                [
+                    "IP",
+                    80
+                ],
+                [
+                    "Last page"
+                ]
+            ],
+            "height": 205,
+            "itemsPerPage": 7,
+            "category": "overview",
+            "sql": "SELECT time, u.username, s.ip, page FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id"
+        },
+        "lastFailedLogins": {
+            "title": "[[Last failed logins]]",
+            "type": "autotable",
+            "position": "left",
+            "columns": [
+                [
+                    "Date",
+                    90,
+                    "timestamp",
+                    "d M H:i:s"
+                ],
+                [
+                    "IP",
+                    90
+                ],
+                [
+                    "To user"
+                ]
+            ],
+            "category": "overview",
+            "refresh": 60000,
+            "sql": "SELECT date, ip, message FROM %pfx%system_log WHERE code = 'authentication' AND message LIKE 'SECURITY Login failed %' ORDER BY date DESC",
+            "manipulate_row": "manipulateLastFailedLoginsRow"
+        },
+        "currentAdminLogins": {
+            "title": "[[Current users]]",
+            "type": "autotable",
+            "position": "right",
+            "columns": [
+                [
+                    "Date",
+                    90,
+                    "timestamp",
+                    "d M H:i:s"
+                ],
+                [
+                    "IP",
+                    90
+                ],
+                [
+                    "User"
+                ]
+            ],
+            "category": "overview",
+            "refresh": 60000,
+            "sql": "SELECT s.time, s.ip, u.username FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id AND u.id > 0"
         }
-      }
     },
-    "auth_ldap": {
-      "server": {
-        "label": "Server",
-        "type": "text"
-      }
-    },
-    "auth_ftp": {
-      "server": {
-        "label": "Server",
-        "type": "text"
-      },
-      "port": {
-        "label": "Port",
-        "type": "number",
-        "width": 50
-      },
-      "ssl": {
-        "label": "SSL",
-        "type": "checkbox"
-      },
-      "default_group": {
-        "label": "[[Group mapping]]",
-        "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
-        "type": "array",
-        "columns": [
-          {
-            "label": "Login"
-          },
-          {
-            "label": "Group",
-            "width": "65%"
-          }
-        ],
-        "fields": {
-          "login": {
-            "type": "text"
-          },
-          "group": {
-            "type": "textlist",
-            "multi": true,
-            "store": "admin\/backend\/stores\/groups"
-          }
-        }
-      }
-    },
-    "auth_sql": {
-      "server": {
-        "label": "Server",
-        "type": "text"
-      }
-    },
-    "auth_pam": {
-      "server": {
-        "label": "Server",
-        "type": "text"
-      }
-    },
-    "auth_passwd": {
-      "server": {
-        "label": "Server",
-        "type": "text"
-      }
-    },
-    "auth_samba": {
-      "server": {
-        "label": "Server",
-        "type": "text"
-      }
-    }
-  },
-  "objects": {
-    "user": {
-      "table": "system_user",
-      "phpName": "User",
-      "objectLabel": "username",
-      "nested": 0,
-      "dataModel": "propel",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "blacklistSelection": "passwd, passwdSalt",
-      "chooserFieldDataModelCondition": [
-        
-      ],
-      "chooserFieldDataModel": "default",
-      "chooserFieldDataModelFields": [
-        
-      ],
-      "chooserFieldType": "default",
-      "chooserBrowserAutoColumns": [
-        
-      ],
-      "chooserBrowserDataModel": "default",
-      "chooserBrowserType": "default",
-      "fields": {
-        "id": {
-          "label": "ID",
-          "type": "number",
-          "primaryKey": 1,
-          "autoIncrement": 1,
-          "empty": 1
-        },
-        "username": {
-          "label": "[[Username]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "auth_class": {
-          "label": "[[Auth class]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "passwd": {
-          "label": "[[Password]]",
-          "type": "password",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "passwd_salt": {
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "activationkey": {
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "email": {
-          "label": "[[Email]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1,
-          "required_regexp": "\/^[^@]+@[^@]{3,}.[^.@0-9]{2,}$\/"
-        },
-        "desktop": {
-          "type": "properties",
-          "empty": 1
-        },
-        "settings": {
-          "type": "properties",
-          "empty": 1
-        },
-        "activate": {
-          "label": "[[Active account]]",
-          "type": "checkbox",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "logins": {
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "lastlogin": {
-          "type": "number",
-          "primaryKey": 0,
-          "autoIncrement": 0,
-          "empty": 1
-        },
-        "created": {
-          "type": "datetime",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "modified": {
-          "type": "datetime",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "groupMembership": {
-          "label": "[[Group membership]]",
-          "object": "group",
-          "objectLabel": "name",
-          "objectRelation": "nToM",
-          "objectRelationTable": "system_user_group",
-          "objectRelationPhpName": "UserGroup",
-          "type": "object",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "first_name": {
-          "label": "[[First name]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "last_name": {
-          "label": "[[Last name]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        }
-      },
-      "label": "[[Users]]"
-    },
-    "group": {
-      "table": "system_group",
-      "nested": 0,
-      "phpName": "Group",
-      "dataModel": "propel",
-      "multiLanguage": 0,
-      "domainDepended": 0,
-      "chooserFieldDataModelCondition": [
-        
-      ],
-      "chooserFieldDataModel": "default",
-      "chooserFieldDataModelFields": {
-        "name": {
-          "label": "[[Name]]",
-          "type": "text"
-        }
-      },
-      "chooserFieldDataModelField": "name",
-      "chooserFieldType": "default",
-      "chooserBrowserAutoColumns": {
-        "name": {
-          "label": "[[Name]]",
-          "type": "text"
-        }
-      },
-      "chooserBrowserDataModel": "default",
-      "chooserBrowserType": "default",
-      "fields": {
-        "id": {
-          "label": "ID",
-          "type": "number",
-          "primaryKey": 1,
-          "autoIncrement": 1,
-          "empty": 1
-        },
-        "name": {
-          "label": "[[Name]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        },
-        "description": {
-          "label": "[[Description]]",
-          "type": "text",
-          "primaryKey": 0,
-          "empty": 1
-        }
-      },
-      "label": "[[Groups]]"
-    }
-  },
-  "admin": {
-    "browser": {
-      "title": "[[User and group browse dialog]]",
-      "type": "custom",
-      "isLink": false,
-      "multi": false,
-      "defaultWidth": 650,
-      "defaultHeight": 400,
-      "childs": [
-        
-      ]
-    },
-    "users": {
-      "title": "[[Users]]",
-      "class": "\\Users\\Admin\\UserList",
-      "type": "combine",
-      "icon": "#icon-users-2",
-      "isLink": true,
-      "multi": false,
-      "minWidth": 850,
-      "defaultWidth": 850,
-      "childs": {
-        "add": {
-          "title": "[[Users add]]",
-          "class": "usersAdminAdd",
-          "type": "add",
-          "isLink": false,
-          "multi": false,
-          "defaultWidth": 500,
-          "defaultHeight": 410,
-          "childs": [
-            
-          ]
-        },
-        "edit": {
-          "title": "[[Users edit]]",
-          "class": "\\Users\\Admin\\UserEdit",
-          "type": "edit",
-          "isLink": false,
-          "multi": false,
-          "defaultWidth": 500,
-          "defaultHeight": 410,
-          "childs": [
-            
-          ]
-        },
-        "editMe": {
-          "title": "[[User self edit]]",
-          "class": "usersAdminSelfEdit",
-          "type": "edit",
-          "isLink": false,
-          "multi": false,
-          "defaultWidth": 370,
-          "defaultHeight": 520,
-          "childs": {
-            "groups": {
-              "title": "[[Can edit groups]]",
-              "childs": [
-                
-              ]
+    "auth": {
+        "auth_imap": {
+            "server": {
+                "label": "[[Server]]",
+                "type": "text"
             },
-            "username": {
-              "title": "[[Can change username]]",
-              "childs": [
-                
-              ]
-            }
-          }
-        },
-        "groups": {
-          "title": "[[Groups]]",
-          "class": "usersAdminGroupList",
-          "type": "combine",
-          "isLink": true,
-          "multi": false,
-          "childs": {
-            "edit": {
-              "title": "[[Group edit]]",
-              "class": "usersAdminGroupEdit",
-              "type": "edit",
-              "isLink": false,
-              "multi": false,
-              "fixedWidth": 475,
-              "fixedHeight": 200,
-              "childs": [
-                
-              ]
+            "port": {
+                "label": "[[Port]]",
+                "type": "number",
+                "width": 50
             },
-            "add": {
-              "title": "[[Group add]]",
-              "class": "usersAdminGroupAdd",
-              "type": "add",
-              "isLink": false,
-              "multi": false,
-              "fixedWidth": 375,
-              "fixedHeight": 200,
-              "childs": [
-                
-              ]
-            }
-          }
-        },
-        "acl": {
-          "title": "[[Access management]]",
-          "type": "custom",
-          "isLink": true,
-          "multi": false,
-          "minWidth": 870,
-          "minHeight": 500,
-          "defaultWidth": 870,
-          "defaultHeight": 500,
-          "childs": [
-            
-          ]
-        }
-      }
-    }
-  },
-  "plugins": {
-    "pluginLogin": [
-      "[[Login]]",
-      {
-        "template": {
-          "label": "[[Template]]",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/login\/",
-          "type": "files"
-        },
-        "templateLoggedIn": {
-          "label": "[[Template logged in]]",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/loggedIn\/",
-          "type": "files"
-        },
-        "target": {
-          "label": "[[Target page [after login]]]",
-          "type": "page"
-        },
-        "logoutTarget": {
-          "label": "[[Target page [after logout]]]",
-          "type": "page"
-        },
-        "category_id": {
-          "label": "[[Groups]]",
-          "store": "admin\/backend\/stores\/groups",
-          "type": "textlist",
-          "desc": "[[Which groups can login?]]"
-        }
-      }
-    ],
-    "pluginRegistration": [
-      "[[Registration]]",
-      {
-        "template": {
-          "label": "[[Template]]",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/registration\/",
-          "type": "files"
-        },
-        "category_id": {
-          "label": "[[Group]]",
-          "sql": "SELECT * FROM $pfx$system_groups",
-          "table_key": "id",
-          "table_label": "name",
-          "type": "select",
-          "desc": "[[Which group should the new users be added to?]]"
-        },
-        "targetpage": {
-          "label": "[[Thanks page]]",
-          "type": "page"
-        },
-        "activation": {
-          "label": "[[Activation]]",
-          "items": {
-            "now": "[[Immediately]]",
-            "admin": "[[By administrator]]",
-            "email": "[[Activation email]]",
-            "emailadmin": "[[Activation email and administrator]]"
-          },
-          "type": "select",
-          "desc": "[[How should the account be activated?]]",
-          "depends": {
-            "email_actpage": {
-              "label": "[[Activation page]]",
-              "type": "page",
-              "needValue": "email"
+            "ssl": {
+                "label": "SSL",
+                "type": "checkbox"
             },
-            "email_subject": {
-              "label": "[[Email subject]]",
-              "type": "text",
-              "needValue": "email"
+            "novalidate-cert": {
+                "label": "[[No cert validation]]",
+                "type": "checkbox"
             },
-            "email_from": {
-              "label": "[[Email from]]",
-              "type": "text",
-              "needValue": "email"
+            "tls": {
+                "label": "TLS",
+                "type": "checkbox"
             },
-            "email_template": {
-              "label": "[[Email template]]",
-              "withoutExtension": true,
-              "directory": "inc\/template\/users\/activateemail\/",
-              "type": "files",
-              "needValue": "email"
-            },
-            "emailadmin_actpage": {
-              "label": "[[Activation page]]",
-              "type": "page",
-              "needValue": "emailadmin"
-            },
-            "emailadmin_subject": {
-              "label": "[[Email subject]]",
-              "type": "text",
-              "needValue": "emailadmin"
-            },
-            "emailadmin_from": {
-              "label": "[[Email from]]",
-              "type": "text",
-              "needValue": "emailadmin"
-            },
-            "emailadmin_template": {
-              "label": "[[Email template]]",
-              "withoutExtension": true,
-              "directory": "inc\/template\/users\/activateemail\/",
-              "type": "files",
-              "needValue": "emailadmin"
-            }
-          }
-        },
-        "required": {
-          "label": "[[Required fields]]",
-          "items": {
-            "username": "Username",
-            "firstname": "First name",
-            "lastname": "Last name",
-            "street": "Street",
-            "city": "City",
-            "zipcode": "Zipcode",
-            "country": "Country",
-            "phone": "Phone",
-            "fax": "Fax",
-            "company": "Company"
-          },
-          "type": "select",
-          "desc": "[[Select the fields you want to set as required for registration. Email address and password are required by default.]]"
-        },
-        "hidden": {
-          "label": "[[Hidden fields]]",
-          "items": {
-            "username": "Username",
-            "firstname": "First name",
-            "lastname": "Last name",
-            "street": "Street",
-            "city": "City",
-            "zipcode": "Zipcode",
-            "country": "Country",
-            "phone": "Phone",
-            "fax": "Fax",
-            "company": "Company"
-          },
-          "type": "select",
-          "desc": "[[Select the fields you want to hide from registration. Email address and password can not be hidden.]]"
-        },
-        "notificationemail": {
-          "label": "[[Email notification]]",
-          "type": "checkbox",
-          "desc": "[[Send an email to target address if an account was created]]",
-          "depends": {
-            "notifyemail_target": {
-              "label": "[[Notify email target address]]",
-              "type": "text",
-              "needValue": "1"
-            },
-            "notifyemail_subject": {
-              "label": "[[Notify email subject]]",
-              "type": "text",
-              "needValue": "1"
-            },
-            "notifyemail_from": {
-              "label": "[[Notify email from address]]",
-              "type": "text",
-              "needValue": "1"
-            },
-            "notifyemail_template": {
-              "label": "[[Notify email template]]",
-              "withoutExtension": true,
-              "directory": "inc\/template\/users\/notifyemail\/",
-              "type": "files",
-              "needValue": "1"
-            }
-          }
-        }
-      }
-    ],
-    "pluginActivation": [
-      "[[Account activation]]",
-      {
-        "template": {
-          "label": "[[Template]]",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/activation\/",
-          "type": "files"
-        }
-      }
-    ],
-    "pluginMessageSystemInbox": [
-      "[[Message System inbox]]",
-      {
-        "template": {
-          "label": "[[Template]]",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/messageSystem\/inbox",
-          "type": "files"
-        },
-        "newMessagePage": {
-          "label": "[[Page with New-Message-Plugin]]",
-          "type": "page"
-        },
-        "displayMessagesPerPage": {
-          "label": "[[Display messages per page]]",
-          "type": "text",
-          "default": "5"
-        },
-        "inplaceRespond": {
-          "label": "[[Enable inplace respond]]",
-          "type": "checkbox",
-          "depends": {
-            "attachReMessage": {
-              "label": "[[Attach response message]]",
-              "type": "checkbox",
-              "needValue": "1"
-            },
-            "sendReminder": {
-              "label": "[[Send a reminder email to recipient]]",
-              "type": "checkbox",
-              "needValue": "1",
-              "depends": {
-                "sendReminderTemplate": {
-                  "label": "[[Email template]]",
-                  "withoutExtension": true,
-                  "directory": "inc\/template\/users\/messageSystem\/newMessageEmails",
-                  "type": "files",
-                  "needValue": "1"
-                },
-                "sendReminderSubject": {
-                  "label": "[[Reminder email subject]]",
-                  "type": "text",
-                  "needValue": "1"
+            "default_group": {
+                "label": "[[Login mapping]]",
+                "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
+                "type": "array",
+                "startWith": 1,
+                "columns": [
+                    {
+                        "label": "[[Login]]"
+                    },
+                    {
+                        "label": "[[Group]]",
+                        "width": "65%"
+                    }
+                ],
+                "fields": {
+                    "login": {
+                        "type": "text"
+                    },
+                    "group": {
+                        "type": "textlist",
+                        "multi": true,
+                        "store": "admin\/backend\/stores\/groups"
+                    }
                 }
-              }
             }
-          }
-        }
-      }
-    ],
-    "pluginMessageSystemCountNew": [
-      "Message System new message counter",
-      {
-        "template": {
-          "label": "Template",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/messageSystem\/countNew",
-          "type": "files"
         },
-        "InboxMessagePage": {
-          "label": "Page with Inbox-Message-Plugin",
-          "type": "page"
-        }
-      }
-    ],
-    "pluginMessageSystemOutbox": [
-      "Message System outbox",
-      {
-        "template": {
-          "label": "Template",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/messageSystem\/outbox",
-          "type": "files"
+        "auth_ldap": {
+            "server": {
+                "label": "Server",
+                "type": "text"
+            }
         },
-        "showReciInfo": {
-          "label": "Show read message",
-          "type": "checkbox"
-        },
-        "displayMessagesPerPage": {
-          "label": "Display messages per page",
-          "type": "text",
-          "default": "5"
-        }
-      }
-    ],
-    "pluginMessageSystemNew": [
-      "Message System new message",
-      {
-        "template": {
-          "label": "Template",
-          "withoutExtension": true,
-          "directory": "inc\/template\/users\/messageSystem\/newMessage",
-          "type": "files"
-        },
-        "attachReMessage": {
-          "label": "Attach response message",
-          "type": "checkbox"
-        },
-        "sendReminder": {
-          "label": "Send a reminder email to recipient",
-          "type": "checkbox",
-          "depends": {
-            "sendReminderTemplate": {
-              "label": "Email template",
-              "withoutExtension": true,
-              "directory": "inc\/template\/users\/messageSystem\/newMessageEmails",
-              "type": "files",
-              "needValue": "1"
+        "auth_ftp": {
+            "server": {
+                "label": "Server",
+                "type": "text"
             },
-            "sendReminderSubject": {
-              "label": "Reminder email subject",
-              "type": "text",
-              "needValue": "1"
+            "port": {
+                "label": "Port",
+                "type": "number",
+                "width": 50
+            },
+            "ssl": {
+                "label": "SSL",
+                "type": "checkbox"
+            },
+            "default_group": {
+                "label": "[[Group mapping]]",
+                "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
+                "type": "array",
+                "columns": [
+                    {
+                        "label": "Login"
+                    },
+                    {
+                        "label": "Group",
+                        "width": "65%"
+                    }
+                ],
+                "fields": {
+                    "login": {
+                        "type": "text"
+                    },
+                    "group": {
+                        "type": "textlist",
+                        "multi": true,
+                        "store": "admin\/backend\/stores\/groups"
+                    }
+                }
             }
-          }
+        },
+        "auth_sql": {
+            "server": {
+                "label": "Server",
+                "type": "text"
+            }
+        },
+        "auth_pam": {
+            "server": {
+                "label": "Server",
+                "type": "text"
+            }
+        },
+        "auth_passwd": {
+            "server": {
+                "label": "Server",
+                "type": "text"
+            }
+        },
+        "auth_samba": {
+            "server": {
+                "label": "Server",
+                "type": "text"
+            }
         }
-      }
-    ]
-  },
-  "db": {
-    "users_log": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "title": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ]
     },
-    "system_groups": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "close": [
-        "int",
-        "1",
-        "-",
-        false
-      ],
-      "name": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "description": [
-        "text",
-        "",
-        "-",
-        false
-      ]
+    "objects": {
+        "user": {
+            "table": "system_user",
+            "phpName": "User",
+            "objectLabel": "username",
+            "nested": 0,
+            "dataModel": "propel",
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "blacklistSelection": "passwd, passwdSalt",
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": [
+                
+            ],
+            "chooserFieldType": "default",
+            "chooserBrowserAutoColumns": [
+                
+            ],
+            "chooserBrowserDataModel": "default",
+            "chooserBrowserType": "default",
+            "fields": {
+                "id": {
+                    "label": "ID",
+                    "type": "number",
+                    "primaryKey": 1,
+                    "autoIncrement": 1,
+                    "empty": 1
+                },
+                "username": {
+                    "label": "[[Username]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "auth_class": {
+                    "label": "[[Auth class]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "passwd": {
+                    "label": "[[Password]]",
+                    "type": "password",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "passwd_salt": {
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "activationkey": {
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "email": {
+                    "label": "[[Email]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1,
+                    "required_regexp": "\/^[^@]+@[^@]{3,}.[^.@0-9]{2,}$\/"
+                },
+                "desktop": {
+                    "type": "properties",
+                    "empty": 1
+                },
+                "settings": {
+                    "type": "properties",
+                    "empty": 1
+                },
+                "activate": {
+                    "label": "[[Active account]]",
+                    "type": "checkbox",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "logins": {
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "lastlogin": {
+                    "type": "number",
+                    "primaryKey": 0,
+                    "autoIncrement": 0,
+                    "empty": 1
+                },
+                "created": {
+                    "type": "datetime",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "modified": {
+                    "type": "datetime",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "groupMembership": {
+                    "label": "[[Group membership]]",
+                    "object": "group",
+                    "objectLabel": "name",
+                    "objectRelation": "nToM",
+                    "objectRelationTable": "system_user_group",
+                    "objectRelationPhpName": "UserGroup",
+                    "type": "object",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "first_name": {
+                    "label": "[[First name]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "last_name": {
+                    "label": "[[Last name]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[Users]]",
+            "__dataModel__": "table"
+        },
+        "group": {
+            "table": "system_group",
+            "phpName": "Group",
+            "objectLabel": "name",
+            "nested": 0,
+            "dataModel": "propel",
+            "multiLanguage": 0,
+            "domainDepended": 0,
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": {
+                "name": {
+                    "label": "[[Name]]",
+                    "type": "text"
+                }
+            },
+            "chooserFieldDataModelField": "name",
+            "chooserFieldType": "default",
+            "chooserBrowserAutoColumns": {
+                "name": {
+                    "label": "[[Name]]",
+                    "type": "text",
+                    "width": "40%"
+                },
+                "description": {
+                    "label": "[[Description]]",
+                    "type": "text"
+                }
+            },
+            "chooserBrowserDataModel": "default",
+            "chooserBrowserType": "default",
+            "fields": {
+                "id": {
+                    "label": "ID",
+                    "type": "number",
+                    "primaryKey": 1,
+                    "autoIncrement": 1,
+                    "empty": 1
+                },
+                "name": {
+                    "label": "[[Name]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                },
+                "description": {
+                    "label": "[[Description]]",
+                    "type": "text",
+                    "primaryKey": 0,
+                    "empty": 1
+                }
+            },
+            "label": "[[Groups]]"
+        }
     },
-    "system_groupaccess": {
-      "group_id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        false
-      ],
-      "user_id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        false
-      ]
+    "admin": {
+        "browser": {
+            "title": "[[User and group browse dialog]]",
+            "type": "custom",
+            "isLink": false,
+            "multi": false,
+            "defaultWidth": 650,
+            "defaultHeight": 400,
+            "childs": [
+                
+            ]
+        },
+        "users": {
+            "title": "[[Users]]",
+            "class": "\\Users\\Admin\\UserList",
+            "type": "combine",
+            "icon": "#icon-users-2",
+            "isLink": true,
+            "multi": false,
+            "minWidth": 850,
+            "defaultWidth": 850,
+            "childs": {
+                "add": {
+                    "title": "[[Users add]]",
+                    "class": "usersAdminAdd",
+                    "type": "add",
+                    "isLink": false,
+                    "multi": false,
+                    "defaultWidth": 500,
+                    "defaultHeight": 410,
+                    "childs": [
+                        
+                    ]
+                },
+                "edit": {
+                    "title": "[[Users edit]]",
+                    "class": "\\Users\\Admin\\UserEdit",
+                    "type": "edit",
+                    "isLink": false,
+                    "multi": false,
+                    "defaultWidth": 500,
+                    "defaultHeight": 410,
+                    "childs": [
+                        
+                    ]
+                },
+                "editMe": {
+                    "title": "[[User self edit]]",
+                    "class": "usersAdminSelfEdit",
+                    "type": "edit",
+                    "isLink": false,
+                    "multi": false,
+                    "defaultWidth": 370,
+                    "defaultHeight": 520,
+                    "childs": {
+                        "groups": {
+                            "title": "[[Can edit groups]]",
+                            "childs": [
+                                
+                            ]
+                        },
+                        "username": {
+                            "title": "[[Can change username]]",
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                },
+                "groups": {
+                    "title": "[[Groups]]",
+                    "class": "usersAdminGroupList",
+                    "type": "combine",
+                    "isLink": true,
+                    "multi": false,
+                    "childs": {
+                        "edit": {
+                            "title": "[[Group edit]]",
+                            "class": "usersAdminGroupEdit",
+                            "type": "edit",
+                            "isLink": false,
+                            "multi": false,
+                            "fixedWidth": 475,
+                            "fixedHeight": 200,
+                            "childs": [
+                                
+                            ]
+                        },
+                        "add": {
+                            "title": "[[Group add]]",
+                            "class": "usersAdminGroupAdd",
+                            "type": "add",
+                            "isLink": false,
+                            "multi": false,
+                            "fixedWidth": 375,
+                            "fixedHeight": 200,
+                            "childs": [
+                                
+                            ]
+                        }
+                    }
+                },
+                "acl": {
+                    "title": "[[Access management]]",
+                    "type": "custom",
+                    "isLink": true,
+                    "multi": false,
+                    "minWidth": 870,
+                    "minHeight": 500,
+                    "defaultWidth": 870,
+                    "defaultHeight": 500,
+                    "childs": [
+                        
+                    ]
+                }
+            }
+        }
     },
-    "system_user": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "username": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "auth_class": [
-        "varchar",
-        "16",
-        "-",
-        false
-      ],
-      "passwd": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
-      "passwd_salt": [
-        "varchar",
-        "16",
-        "-",
-        false
-      ],
-      "activationkey": [
-        "varchar",
-        "32",
-        "-",
-        false
-      ],
-      "email": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "desktop": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "settings": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "modified": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "activate": [
-        "int",
-        "1",
-        "-",
-        false
-      ],
-      "first_name": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "last_name": [
-        "varchar",
-        "64",
-        "-",
-        false
-      ],
-      "sex": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "logins": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "lastlogin": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "widgets": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "picture": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "company": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "street": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "city": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "zip": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "country": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "phone": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ],
-      "fax": [
-        "varchar",
-        "128",
-        "-",
-        false
-      ]
+    "plugins": {
+        "pluginLogin": [
+            "[[Login]]",
+            {
+                "template": {
+                    "label": "[[Template]]",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/login\/",
+                    "type": "files"
+                },
+                "templateLoggedIn": {
+                    "label": "[[Template logged in]]",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/loggedIn\/",
+                    "type": "files"
+                },
+                "target": {
+                    "label": "[[Target page [after login]]]",
+                    "type": "page"
+                },
+                "logoutTarget": {
+                    "label": "[[Target page [after logout]]]",
+                    "type": "page"
+                },
+                "category_id": {
+                    "label": "[[Groups]]",
+                    "store": "admin\/backend\/stores\/groups",
+                    "type": "textlist",
+                    "desc": "[[Which groups can login?]]"
+                }
+            }
+        ],
+        "pluginRegistration": [
+            "[[Registration]]",
+            {
+                "template": {
+                    "label": "[[Template]]",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/registration\/",
+                    "type": "files"
+                },
+                "category_id": {
+                    "label": "[[Group]]",
+                    "sql": "SELECT * FROM $pfx$system_groups",
+                    "table_key": "id",
+                    "table_label": "name",
+                    "type": "select",
+                    "desc": "[[Which group should the new users be added to?]]"
+                },
+                "targetpage": {
+                    "label": "[[Thanks page]]",
+                    "type": "page"
+                },
+                "activation": {
+                    "label": "[[Activation]]",
+                    "items": {
+                        "now": "[[Immediately]]",
+                        "admin": "[[By administrator]]",
+                        "email": "[[Activation email]]",
+                        "emailadmin": "[[Activation email and administrator]]"
+                    },
+                    "type": "select",
+                    "desc": "[[How should the account be activated?]]",
+                    "depends": {
+                        "email_actpage": {
+                            "label": "[[Activation page]]",
+                            "type": "page",
+                            "needValue": "email"
+                        },
+                        "email_subject": {
+                            "label": "[[Email subject]]",
+                            "type": "text",
+                            "needValue": "email"
+                        },
+                        "email_from": {
+                            "label": "[[Email from]]",
+                            "type": "text",
+                            "needValue": "email"
+                        },
+                        "email_template": {
+                            "label": "[[Email template]]",
+                            "withoutExtension": true,
+                            "directory": "inc\/template\/users\/activateemail\/",
+                            "type": "files",
+                            "needValue": "email"
+                        },
+                        "emailadmin_actpage": {
+                            "label": "[[Activation page]]",
+                            "type": "page",
+                            "needValue": "emailadmin"
+                        },
+                        "emailadmin_subject": {
+                            "label": "[[Email subject]]",
+                            "type": "text",
+                            "needValue": "emailadmin"
+                        },
+                        "emailadmin_from": {
+                            "label": "[[Email from]]",
+                            "type": "text",
+                            "needValue": "emailadmin"
+                        },
+                        "emailadmin_template": {
+                            "label": "[[Email template]]",
+                            "withoutExtension": true,
+                            "directory": "inc\/template\/users\/activateemail\/",
+                            "type": "files",
+                            "needValue": "emailadmin"
+                        }
+                    }
+                },
+                "required": {
+                    "label": "[[Required fields]]",
+                    "items": {
+                        "username": "Username",
+                        "firstname": "First name",
+                        "lastname": "Last name",
+                        "street": "Street",
+                        "city": "City",
+                        "zipcode": "Zipcode",
+                        "country": "Country",
+                        "phone": "Phone",
+                        "fax": "Fax",
+                        "company": "Company"
+                    },
+                    "type": "select",
+                    "desc": "[[Select the fields you want to set as required for registration. Email address and password are required by default.]]"
+                },
+                "hidden": {
+                    "label": "[[Hidden fields]]",
+                    "items": {
+                        "username": "Username",
+                        "firstname": "First name",
+                        "lastname": "Last name",
+                        "street": "Street",
+                        "city": "City",
+                        "zipcode": "Zipcode",
+                        "country": "Country",
+                        "phone": "Phone",
+                        "fax": "Fax",
+                        "company": "Company"
+                    },
+                    "type": "select",
+                    "desc": "[[Select the fields you want to hide from registration. Email address and password can not be hidden.]]"
+                },
+                "notificationemail": {
+                    "label": "[[Email notification]]",
+                    "type": "checkbox",
+                    "desc": "[[Send an email to target address if an account was created]]",
+                    "depends": {
+                        "notifyemail_target": {
+                            "label": "[[Notify email target address]]",
+                            "type": "text",
+                            "needValue": "1"
+                        },
+                        "notifyemail_subject": {
+                            "label": "[[Notify email subject]]",
+                            "type": "text",
+                            "needValue": "1"
+                        },
+                        "notifyemail_from": {
+                            "label": "[[Notify email from address]]",
+                            "type": "text",
+                            "needValue": "1"
+                        },
+                        "notifyemail_template": {
+                            "label": "[[Notify email template]]",
+                            "withoutExtension": true,
+                            "directory": "inc\/template\/users\/notifyemail\/",
+                            "type": "files",
+                            "needValue": "1"
+                        }
+                    }
+                }
+            }
+        ],
+        "pluginActivation": [
+            "[[Account activation]]",
+            {
+                "template": {
+                    "label": "[[Template]]",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/activation\/",
+                    "type": "files"
+                }
+            }
+        ],
+        "pluginMessageSystemInbox": [
+            "[[Message System inbox]]",
+            {
+                "template": {
+                    "label": "[[Template]]",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/messageSystem\/inbox",
+                    "type": "files"
+                },
+                "newMessagePage": {
+                    "label": "[[Page with New-Message-Plugin]]",
+                    "type": "page"
+                },
+                "displayMessagesPerPage": {
+                    "label": "[[Display messages per page]]",
+                    "type": "text",
+                    "default": "5"
+                },
+                "inplaceRespond": {
+                    "label": "[[Enable inplace respond]]",
+                    "type": "checkbox",
+                    "depends": {
+                        "attachReMessage": {
+                            "label": "[[Attach response message]]",
+                            "type": "checkbox",
+                            "needValue": "1"
+                        },
+                        "sendReminder": {
+                            "label": "[[Send a reminder email to recipient]]",
+                            "type": "checkbox",
+                            "needValue": "1",
+                            "depends": {
+                                "sendReminderTemplate": {
+                                    "label": "[[Email template]]",
+                                    "withoutExtension": true,
+                                    "directory": "inc\/template\/users\/messageSystem\/newMessageEmails",
+                                    "type": "files",
+                                    "needValue": "1"
+                                },
+                                "sendReminderSubject": {
+                                    "label": "[[Reminder email subject]]",
+                                    "type": "text",
+                                    "needValue": "1"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "pluginMessageSystemCountNew": [
+            "Message System new message counter",
+            {
+                "template": {
+                    "label": "Template",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/messageSystem\/countNew",
+                    "type": "files"
+                },
+                "InboxMessagePage": {
+                    "label": "Page with Inbox-Message-Plugin",
+                    "type": "page"
+                }
+            }
+        ],
+        "pluginMessageSystemOutbox": [
+            "Message System outbox",
+            {
+                "template": {
+                    "label": "Template",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/messageSystem\/outbox",
+                    "type": "files"
+                },
+                "showReciInfo": {
+                    "label": "Show read message",
+                    "type": "checkbox"
+                },
+                "displayMessagesPerPage": {
+                    "label": "Display messages per page",
+                    "type": "text",
+                    "default": "5"
+                }
+            }
+        ],
+        "pluginMessageSystemNew": [
+            "Message System new message",
+            {
+                "template": {
+                    "label": "Template",
+                    "withoutExtension": true,
+                    "directory": "inc\/template\/users\/messageSystem\/newMessage",
+                    "type": "files"
+                },
+                "attachReMessage": {
+                    "label": "Attach response message",
+                    "type": "checkbox"
+                },
+                "sendReminder": {
+                    "label": "Send a reminder email to recipient",
+                    "type": "checkbox",
+                    "depends": {
+                        "sendReminderTemplate": {
+                            "label": "Email template",
+                            "withoutExtension": true,
+                            "directory": "inc\/template\/users\/messageSystem\/newMessageEmails",
+                            "type": "files",
+                            "needValue": "1"
+                        },
+                        "sendReminderSubject": {
+                            "label": "Reminder email subject",
+                            "type": "text",
+                            "needValue": "1"
+                        }
+                    }
+                }
+            }
+        ]
     },
-    "system_sessions": {
-      "id": [
-        "varchar",
-        "32",
-        "DB_INDEX",
-        false
-      ],
-      "user_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "time": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "ip": [
-        "varchar",
-        "25",
-        "-",
-        false
-      ],
-      "page": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "useragent": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "language": [
-        "varchar",
-        "3",
-        "DB_INDEX",
-        false
-      ],
-      "refreshed": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "extra": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "created": [
-        "int",
-        "",
-        "-",
-        false
-      ]
+    "db": {
+        "users_log": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "title": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_groups": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "close": [
+                "int",
+                "1",
+                "-",
+                false
+            ],
+            "name": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "description": [
+                "text",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_groupaccess": {
+            "group_id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                false
+            ],
+            "user_id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                false
+            ]
+        },
+        "system_user": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "username": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "auth_class": [
+                "varchar",
+                "16",
+                "-",
+                false
+            ],
+            "passwd": [
+                "varchar",
+                "32",
+                "-",
+                false
+            ],
+            "passwd_salt": [
+                "varchar",
+                "16",
+                "-",
+                false
+            ],
+            "activationkey": [
+                "varchar",
+                "32",
+                "-",
+                false
+            ],
+            "email": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "desktop": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "settings": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "modified": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "activate": [
+                "int",
+                "1",
+                "-",
+                false
+            ],
+            "first_name": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "last_name": [
+                "varchar",
+                "64",
+                "-",
+                false
+            ],
+            "sex": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "logins": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "lastlogin": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "widgets": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "picture": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "company": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "street": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "city": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "zip": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "country": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "phone": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ],
+            "fax": [
+                "varchar",
+                "128",
+                "-",
+                false
+            ]
+        },
+        "system_sessions": {
+            "id": [
+                "varchar",
+                "32",
+                "DB_INDEX",
+                false
+            ],
+            "user_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "time": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "ip": [
+                "varchar",
+                "25",
+                "-",
+                false
+            ],
+            "page": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "useragent": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "language": [
+                "varchar",
+                "3",
+                "DB_INDEX",
+                false
+            ],
+            "refreshed": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "extra": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "created": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_acl": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "object": [
+                "varchar",
+                "64",
+                "DB_INDEX",
+                false
+            ],
+            "target_type": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "target_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "mode": [
+                "smallint",
+                "",
+                "-",
+                false
+            ],
+            "constraint_type": [
+                "smallint",
+                "",
+                "-",
+                false
+            ],
+            "constraint_code": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "sub": [
+                "boolean",
+                "",
+                "-",
+                false
+            ],
+            "fields": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "access": [
+                "boolean",
+                "",
+                "-",
+                false
+            ],
+            "prio": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "system_lock": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "type": [
+                "varchar",
+                "64",
+                "DB_INDEX",
+                false
+            ],
+            "ckey": [
+                "varchar",
+                "255",
+                "DB_INDEX",
+                false
+            ],
+            "session_id": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "time": [
+                "int",
+                "",
+                "-",
+                false
+            ]
+        },
+        "user_messages": {
+            "id": [
+                "int",
+                "",
+                "DB_PRIMARY",
+                true
+            ],
+            "user_id_from": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "user_id_to": [
+                "int",
+                "",
+                "DB_INDEX",
+                false
+            ],
+            "send_tstamp": [
+                "int",
+                "",
+                "-",
+                false
+            ],
+            "message_subject": [
+                "varchar",
+                "255",
+                "-",
+                false
+            ],
+            "message_text": [
+                "text",
+                "",
+                "-",
+                false
+            ],
+            "message_state": [
+                "enum",
+                "'0', '1', '2'",
+                "DB_INDEX",
+                false
+            ]
+        }
     },
-    "system_acl": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "object": [
-        "varchar",
-        "64",
-        "DB_INDEX",
-        false
-      ],
-      "target_type": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "target_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "mode": [
-        "smallint",
-        "",
-        "-",
-        false
-      ],
-      "constraint_type": [
-        "smallint",
-        "",
-        "-",
-        false
-      ],
-      "constraint_code": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "sub": [
-        "boolean",
-        "",
-        "-",
-        false
-      ],
-      "fields": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "access": [
-        "boolean",
-        "",
-        "-",
-        false
-      ],
-      "prio": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    },
-    "system_lock": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "type": [
-        "varchar",
-        "64",
-        "DB_INDEX",
-        false
-      ],
-      "ckey": [
-        "varchar",
-        "255",
-        "DB_INDEX",
-        false
-      ],
-      "session_id": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "time": [
-        "int",
-        "",
-        "-",
-        false
-      ]
-    },
-    "user_messages": {
-      "id": [
-        "int",
-        "",
-        "DB_PRIMARY",
-        true
-      ],
-      "user_id_from": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "user_id_to": [
-        "int",
-        "",
-        "DB_INDEX",
-        false
-      ],
-      "send_tstamp": [
-        "int",
-        "",
-        "-",
-        false
-      ],
-      "message_subject": [
-        "varchar",
-        "255",
-        "-",
-        false
-      ],
-      "message_text": [
-        "text",
-        "",
-        "-",
-        false
-      ],
-      "message_state": [
-        "enum",
-        "'0', '1', '2'",
-        "DB_INDEX",
-        false
-      ]
-    }
-  },
-  "tags": "users, chat, acl, groups",
-  "writableFiles": "",
-  "depends": "",
-  "adminJavascript": [
-    "users\/admin\/js\/users_field_picture.js",
-    "users\/admin\/js\/users_acl_rule_fields.js"
-  ],
-  "__path": "module\/users",
-  "installed": true,
-  "extensionCode": "users"
+    "tags": "users, chat, acl, groups",
+    "writableFiles": "",
+    "depends": "",
+    "adminJavascript": [
+        "users\/admin\/js\/users_field_picture.js",
+        "users\/admin\/js\/users_acl_rule_fields.js"
+    ],
+    "__path": "module\/users",
+    "installed": true,
+    "extensionCode": "users"
 }
