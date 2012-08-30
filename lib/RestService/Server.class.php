@@ -770,11 +770,11 @@ class Server {
                 $arguments[] = $thisArgs;
             } else {
 
-                if (!$param->isOptional() && $_GET[$name] === null){
+                if (!$param->isOptional() && $_GET[$name] === null && $_POST[$name] === null){
                     $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $name));
                 }
 
-                $arguments[] = $_GET[$name];
+                $arguments[] = $_GET[$name]?$_GET[$name]:$_POST[$name];
             }
         }
 

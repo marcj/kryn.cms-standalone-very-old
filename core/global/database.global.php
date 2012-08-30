@@ -486,16 +486,13 @@ function dbOrderToSql($pValues, $pTable = ''){
  *
  * @return int
  */
-function dbCount($pTable, $pWhere = false) {
+function dbCount($pTable, $pWhere = false){
 
     $table = dbQuote(dbTableName($pTable));
 
     if (Core\Kryn::$config['database']['type'] == 'pgsql'){
 
-        $columns = array_keys(database::getColumns(dbTableName($pTable)));
-        $firstColumn = $columns[0];
-
-        $sql = "SELECT $firstColumn FROM $table";
+        $sql = "SELECT 1 FROM $table";
         if ($pWhere != false)
             $sql .= " WHERE $pWhere ";
 

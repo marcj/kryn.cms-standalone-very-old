@@ -17,7 +17,7 @@ class UserList extends \Admin\ObjectWindow {
     public $edit = true;
     public $remove = true;
     
-    public $itemLayout = '<b id="username"></b> (<span id="firstName"></span> <span id="lastName"></span>)<br/><span style="color: silver;" id="groupsName"></span>';
+    public $itemLayout = '<b id="username"></b> (<span id="firstName"></span> <span id="lastName"></span>)<div style="color: silver;" id="email"></div><div style="color: silver;" id="groupMembership.name"></div>';
 
     public $fields = array(
         'lastName' => array(
@@ -42,15 +42,13 @@ class UserList extends \Admin\ObjectWindow {
                 '0' => 'admin/images/icons/cancel.png',
                 '1' => 'admin/images/icons/accept.png'
             )
-        )
+        ),
+        'groupMembership.name'
     );
 
-    function filterSql(){
-        $filter = parent::filterSql();
-        
-        $filter .= " AND %pfx%".$this->table.".id > 0";
-        
-        return $filter;     
+    function getCustomCondition(){
+        $condition[] = array('id', '>', 0);
+        return $condition;  
     }
     
     function deleteItem(){

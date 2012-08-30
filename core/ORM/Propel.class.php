@@ -550,8 +550,6 @@ class Propel extends ORMAbstract {
 
         $this->mapValues($item, $pValues);
 
-        var_dump($pValues); exit;
-
         return $item->save()?true:false;
     }
 
@@ -563,6 +561,7 @@ class Propel extends ORMAbstract {
         foreach ($pValues as $fieldName => $fieldValue){
 
             $field = $this->getField($fieldName);
+            $fieldName = ucfirst($fieldName);
 
             if ($field['type'] == 'object'){
 
@@ -586,13 +585,13 @@ class Propel extends ORMAbstract {
                 }
             }
 
-            if ($column = $this->tableMap->getColumn($fieldName)){
-                if (!$column[0])
-                    throw new \FieldNotFoundException(tf('Field %s in object %s not found', $fieldName, $this->objectKey));
+            if ($this->tableMap->hasColumnByPhpName($fieldName) && $column = $this->tableMap->getColumnByPhpName($fieldName)){
 
-                $set = 'set'.$column[0]->getPhpName();
+                $set = 'set'.$column->getPhpName();
 
                 $pItem->$set($fieldValue);
+            } else {
+                throw new \FieldNotFoundException(tf('Field %s in object %s not found', $fieldName, $this->objectKey));
             }
 
 

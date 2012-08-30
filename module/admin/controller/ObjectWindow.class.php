@@ -656,6 +656,10 @@ abstract class ObjectWindow {
 
             if (($field['onlyIfFilled'] || $field['onlyFilled']) && ($data[$field] === '' || $data[$field] === null))
                 unset($data[$key]);
+
+            if ($field['empty'] !== null && $field['empty'] == false && ($data[$key] === '' || $data[$key] === null) )
+                throw new \FieldCanNotBeEmptyException(tf('The field %s can not be empty.', $key));
+            
         }
 
         return $data;

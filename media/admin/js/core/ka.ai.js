@@ -388,8 +388,15 @@ ka.getObjectId = function(pUrl){
 }
 
 
+ka.template = function(pContainer, pTpl, pData){
+    var tpl = new jSmart(pTpl);
+    pContainer.set('html', tpl.fetch(pData || window));
 
-ka.getListLabel = function(pValue, pField, pFieldId){
+    return tpl;
+}
+
+
+ka.getListLabel = function(pValue, pField, pFieldId, pObjectId){
 
     var value = pValue[pFieldId] || '';
 
@@ -411,18 +418,44 @@ ka.getListLabel = function(pValue, pField, pFieldId){
         }
     }
 
+
+    //relations
+    var label, relation;
+    if (field.type == 'object' || !field.type){
+        if (pFieldId.indexOf('.') > 0){
+            relation = pFieldId.split('.')[0];
+            label = pFieldId.split('.')[1];
+        } else {
+            //find label
+            var def = ka.getObjectDefinition(pObjectId);
+            label = def.objectLabel;
+        }
+    }
+    if (typeOf(pValue[relation]) == 'object'){
+        //to-one relation
+        value = pValue[relation][label];
+    }
+
+    if (typeOf(pValue[relation]) == 'array'){
+        //to-many relation
+        //we join by pField['join'] char, default is ','
+        value = [];
+        Array.each(pValue[relation], function(relValue){
+            value.push(relValue[label]);
+        });
+        value = value.join(pField['join'] || ', ');
+    }
+
+
     if (field.type == 'object'){
-
-        value = pValue[pFieldId+'_'+field['object_label']];
-
+        value = pValue[pFieldId+'_'+field['object_label']] || pValue[pFieldId+'_'+field['objectLabel']];
     }
 
     if (field.type == 'select') {
-        value = pValue[pFieldId + '__label'];
+        value = pValue[pFieldId +'_'+ pField.table_label] || pValue[pFieldId +'_'+ pField.tableLabel] || pValue[pFieldId + '__label'];
     }
 
     if (field.type == 'imagemap'){
-
     }
 
     if (field.imageMap) {

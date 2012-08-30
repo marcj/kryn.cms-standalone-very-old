@@ -630,7 +630,6 @@ ka.WindowCombine = new Class({
     },
 
     renderItems: function (pItems, pFrom) {
-        var _this = this;
 
         this._lastItems = pItems;
 
@@ -639,7 +638,7 @@ ka.WindowCombine = new Class({
 
         //this.ctrlMax.set('text', '/ '+pItems.maxPages);
 
-        _this.tempcount = 0;
+        this.tempcount = 0;
 
         var lastSplitTitleForThisRound = false;
 
@@ -719,7 +718,7 @@ ka.WindowCombine = new Class({
                     this.lastItemPosition = position + 0;
                 }
 
-                _this.tempcount++;
+                this.tempcount++;
             }.bind(this));
         }
 
@@ -759,6 +758,8 @@ ka.WindowCombine = new Class({
     },
 
     getItemTitle: function (pItem, pColumnId) {
+        
+        return ka.getListLabel(pItem['values'], this.classProperties.fields[pColumnId], pColumnId, this.classProperties['object']);
 
         var value = pItem['values'][pColumnId]
         if (!this.classProperties.fields[pColumnId]) return value;
@@ -1309,7 +1310,7 @@ ka.WindowCombine = new Class({
         }
 
         //parse
-        Object.each(pItem['values'], function (column, columnId) {
+        Object.each(this.classProperties.fields, function (column, columnId) {
 
             if (item.getElement('*[id=' + columnId + ']')) {
 

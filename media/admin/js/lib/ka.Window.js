@@ -759,6 +759,8 @@ ka.Window = new Class({
                 newY = 5;
                 newHeight = desktopSize.y - 10;
             }
+            if (newY)
+                newY = 0;
         }
 
         if (borderSize.x + borderPosition.x > desktopSize.x) {
@@ -1070,12 +1072,12 @@ ka.Window = new Class({
 
         var javascript = this.code.replace(/\//g, '_');
 
-        var mdate = this.entryPoint.cssmdate;
+        var noCache = (new Date()).getTime();
 
-        if (this.module == 'admin' && mdate) {
-            this.customCssAsset = new Asset.css(_path + PATH_MEDIA + '/admin/css/' + javascript + '.css?mdate=' + mdate);
-        } else if (mdate) {
-            this.customJsAsset = new Asset.css(_path + PATH_MEDIA + this.module + '/admin/css/' + javascript + '.css?mdate=' + mdate);
+        if (this.module == 'admin') {
+            this.customCssAsset = new Asset.css(_path + PATH_MEDIA + '/admin/css/' + javascript + '.css?noCache=' + noCache);
+        } else {
+            this.customJsAsset = new Asset.css(_path + PATH_MEDIA + this.module + '/admin/css/' + javascript + '.css?noCache=' + noCache);
         }
 
         this.customId = parseInt(Math.random() * 100) + parseInt(Math.random() * 100);

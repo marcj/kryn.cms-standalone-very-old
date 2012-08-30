@@ -2,23 +2,35 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
 <head>
-    <title>{if Kryn::$config.systemTitle}{Kryn::$config.systemTitle} | {/if}kryn.cms administration</title>
+    <title>{if Kryn::$config.systemTitle}{Kryn::$config.systemTitle} | {/if}Kryn.cms administration</title>
+
     <base href="{Kryn::getBaseUrl()}" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-
+    <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
     <script type="text/javascript" src="media/core/mootools-core-1.4.5-full-nocompat.js" ></script>
     <script type="text/javascript" src="media/core/mootools-more-1.4.0.1-nocompat-yc.js" ></script>
+    <script type="text/javascript" src="media/core/jsmart-2.9.js" ></script>
+
     <script type="text/javascript">
         window._path = window._baseUrl = '{Kryn::getBaseUrl()}';
     </script>
 
+    <!--
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.js"></script>
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.UI.MenuList.js"></script>
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Extras.js"></script>
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.css">
+    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
+    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">
+    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Image.css">
+    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Table.css">
+    -->
 
     <script type="text/javascript" src="admin/ui/possibleLangs?noCache={$random}" ></script>
     <script type="text/javascript" src="admin/ui/language?lang={if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}&javascript=1" ></script>
@@ -27,31 +39,12 @@
     <script type="text/javascript" src="lib/codemirror/lib/codemirror.js"></script>
     <script type="text/javascript" src="lib/codemirror/lib/util/loadmode.js"></script>
 
-
     <script type="text/javascript" src="media/admin/js/core/ka.ai.js?nc=1.0" ></script>
     <script type="text/javascript" src="media/admin/js/core/ka.js?nc=1.0" ></script>
     <script type="text/javascript" src="media/admin/js/ui/ka.Button.js" ></script>
     <script type="text/javascript" src="media/admin/js/ui/ka.Select.js" ></script>
     <script type="text/javascript" src="media/admin/js/ui/ka.Checkbox.js" ></script>
 
-    <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
-
-
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Image.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Table.css">
-
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.ai.css" />
-
-    <!--[if gte IE 9]>
-    <style type="text/css">
-        .gradient {
-            filter: none;
-        }
-    </style>
-    <![endif]-->
 
     <script type="text/javascript" >
         window._session = {};
@@ -68,13 +61,19 @@
         CodeMirror.modeURL = "lib/codemirror/mode/%N/%N.js";
     </script>
 
+
+
+    <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.ai.css" />
+
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka.login.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Select.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Checkbox.css" />
+
     <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
 
-{$adminHeader}
+    {$adminHeader}
 
 </head>
 <body>

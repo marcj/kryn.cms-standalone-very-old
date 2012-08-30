@@ -37,6 +37,7 @@ class KrynUsers extends ClientAbstract {
 
         if ($row['id'] > 0) {
 
+
             $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
 
             if (!$hash || $hash != $row['passwd']) return false;

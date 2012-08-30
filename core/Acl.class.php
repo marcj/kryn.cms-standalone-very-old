@@ -227,7 +227,7 @@ class Acl {
      */
     public static function check($pObjectKey, $pObjectId, $pField = false, $pMode = 1, $pRootHasAccess = false, $pAsParent = false) {
 
-        if (Kryn::$client->id == 1) return true;
+        if (Kryn::getClient()->getUserId() == 1) return true;
 
         $rules =& self::getRules($pObjectKey, $pMode);
 

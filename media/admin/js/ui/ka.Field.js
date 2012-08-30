@@ -2617,11 +2617,14 @@ ka.Field = new Class({
 
         this.renderText();
 
+        this.input.type = 'number';
+
         this.input.addEvent('keyup', function () {
             this.value = this.value.replace(/[^0-9\.]/g, '');
         });
 
         this.getValue = function(){
+            if (!this.input.value) return 0;
             return parseFloat(this.input.value);
         }.bind(this);
 

@@ -52,6 +52,15 @@
     <column name="lastlogin" type="INTEGER" required="false"/>
     <column name="activate" type="BOOLEAN" required="false"/>
 
+    <column name="picture" type="VARCHAR" size="255" required="false"/>
+    <column name="company" type="VARCHAR" size="255" required="false"/>
+    <column name="street" type="VARCHAR" size="255" required="false"/>
+    <column name="city" type="VARCHAR" size="255" required="false"/>
+    <column name="zip" type="VARCHAR" size="255" required="false"/>
+    <column name="country" type="VARCHAR" size="255" required="false"/>
+    <column name="phone" type="VARCHAR" size="255" required="false"/>
+    <column name="fax" type="VARCHAR" size="255" required="false"/>
+
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>

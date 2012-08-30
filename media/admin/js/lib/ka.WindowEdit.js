@@ -783,7 +783,9 @@ ka.WindowEdit = new Class({
 
             }
 
-            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
+            var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item)
+
+            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+'?object='+object,
                 noErrorReporting: true,
                 noCache: true, onComplete: function (res) {
 
