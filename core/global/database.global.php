@@ -189,24 +189,15 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false) {
 
 
 /**
- * Select items based on pWhere on, table pTable and returns pCount items.
+ * Returns first item based on pWhere, pTable.
  *
  * @param string  $pTable The table name based on your extension table definition.
- * @param integer $pCount How many items it will returns, with 1 you'll get direct the array without a list.
- * @param string  $pWhere condition object
+ * @param mixed   $pWhere condition object or string
  * @param string  $pFields Comma separated list of the columns
  *
  * @return array
  */
-function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
-
-    //to change pCount <-> pWhere
-    if (is_numeric($pWhere)){
-        $pNewWhere = $pCount;
-        $pNewCount = $pWhere;
-        $pWhere = $pNewWhere;
-        $pCount = $pNewCount;
-    }
+function dbTableFetch($pTable, $pWhere = '', $pFields = '*') {
 
     $table = dbTableName($pTable);
 
@@ -214,12 +205,38 @@ function dbTableFetch($pTable, $pCount = -1, $pWhere = '', $pFields = '*') {
         $pFields = dbQuote($pFields);
 
     $sql = "SELECT $pFields FROM $table";
-    if ($pWhere != false){
+    $data = array();
+    if ($pWhere !== ''){
+        if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere, $data);
+        $sql .= " WHERE $pWhere";
+    }
+
+    return dbExFetch($sql, $data);
+}
+
+/**
+ * Returns a list of items from pTable limited with pWhere.
+ *
+ * @param string  $pTable The table name based on your extension table definition.
+ * @param mixed   $pWhere condition object or string
+ * @param string  $pFields Comma separated list of the columns
+ *
+ * @return array
+ */
+function dbTableFetchAll($pTable, $pWhere = '', $pFields = '*') {
+
+    $table = dbTableName($pTable);
+
+    if ($pFields != '*')
+        $pFields = dbQuote($pFields);
+
+    $sql = "SELECT $pFields FROM $table";
+    if ($pWhere !== ''){
         if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere);
         $sql .= " WHERE $pWhere";
     }
 
-    return dbExfetch($sql, $pCount);
+    return dbExFetchAll($sql, $pCount);
 }
 
 /**
@@ -788,7 +805,7 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = ''){
         $result .= $pCondition[1];
 
     if (!is_numeric($pCondition[0])){
-        $pData[] = $pCondition[2];
+        $pData[':p'.(count($pData)+1)] = $pCondition[2];
         $p = ':p'.count($pData);
         if (strtolower($pCondition[1]) == 'in'){
             $result .= " ($p)";

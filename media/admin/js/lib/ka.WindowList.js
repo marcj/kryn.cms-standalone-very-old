@@ -58,7 +58,7 @@ ka.WindowList = new Class({
             this.render(res.data);
             this.classLoaded = true;
             this.fireEvent('render');
-        }.bind(this)}).get({method: 'options'});
+        }.bind(this)}).get({_method: 'options'});
     },
 
     deleteItem: function (pItem) {
@@ -121,16 +121,16 @@ ka.WindowList = new Class({
 
         var field = null, direction;
 
-        if (this.values.order){
-            if (typeOf(this.values.order) == 'array'){
-                Array.each(this.values.order, function(order, f){
+        if (this.classProperties.order){
+            if (typeOf(this.classProperties.order) == 'array'){
+                Array.each(this.classProperties.order, function(order, f){
                     if (!field){
                         field = order.field;
                         direction = order.direction;
                     }
                 });
-            } else if (typeOf(this.values.order) == 'object'){
-                Object.each(this.values.order, function(order, f){
+            } else if (typeOf(this.classProperties.order) == 'object'){
+                Object.each(this.classProperties.order, function(order, f){
                     if (!field){
                         field = f;
                         direction = order;
@@ -146,7 +146,8 @@ ka.WindowList = new Class({
     },
 
     render: function (pValues) {
-        this.values = pValues;
+        this.classProperties = pValues;
+        logger(this.classProperties);
 
         var sort = this.getSortField();
         this.sortField = sort.field;
@@ -186,7 +187,7 @@ ka.WindowList = new Class({
     },
 
     renderMultilanguage: function () {
-        if (this.values.multiLanguage) {
+        if (this.classProperties.multiLanguage) {
 
             this.languageSelect = new Element('select', {
                 style: 'position: absolute; right: 5px; top: 27px; width: 160px;'
@@ -221,7 +222,7 @@ ka.WindowList = new Class({
         var tr = new Element('tr').inject(this.headTableTHead);
 
         /*** checkbox-Th ***/
-        if (this.values.remove == true) {
+        if (this.classProperties.remove == true) {
             var th = new Element('th', {
                 style: 'width: 21px;'
             }).inject(tr);
@@ -239,7 +240,7 @@ ka.WindowList = new Class({
 
         /*** title-Th ***/
         this.columns = {};
-        Object.each(this.values.fields, function (column, columnId) {
+        Object.each(this.classProperties.fields, function (column, columnId) {
             _this.columns[columnId] = new Element('th', {
                 valign: 'top',
                 html: _(column.label)
@@ -254,7 +255,7 @@ ka.WindowList = new Class({
 
         /*** edit-Th ***/
         //fixed mirco
-        if (this.values.remove == true || this.values.edit == true || this.values.itemActions) {
+        if (this.classProperties.remove == true || this.classProperties.edit == true || this.classProperties.itemActions) {
             this.titleIconTd = new Element('th', {
                 style: 'width: 40px;'
             }).inject(tr);
@@ -292,8 +293,8 @@ ka.WindowList = new Class({
         this.searchFields = new Hash();
         var doSearchNow = false;
 
-        if (this.values.filter && this.values.filter.each) {
-            this.values.filter.each(function (filter, key) {
+        if (this.classProperties.filter && this.classProperties.filter.each) {
+            this.classProperties.filter.each(function (filter, key) {
 
 
                 var mkey = key;
@@ -302,10 +303,10 @@ ka.WindowList = new Class({
                     mkey = filter;
                 }
 
-                var field = this.values.filterFields[ mkey ];
+                var field = this.classProperties.filterFields[ mkey ];
 
 
-                var title = this.values.fields[mkey].label;
+                var title = this.classProperties.fields[mkey].label;
                 field.label = _(title);
                 field.small = true;
 
@@ -435,26 +436,26 @@ ka.WindowList = new Class({
                 _this.loadPage(_this._lastItems.maxPages);
             }).inject(this.navi);
 
-        if (this.values.multiLanguage) {
+        if (this.classProperties.multiLanguage) {
             this.win.extendHead();
         }
 
-        if (this.values.add || this.values.remove || this.values.custom) {
+        if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.actionsNavi = this.win.addButtonGroup();
         }
 
         if (this.actionsNavi) {
-            if (this.values.remove) {
-                this.actionsNavi.addButton(t('Remove selected'), ka.mediaPath(this.values.removeIcon), function () {
+            if (this.classProperties.remove) {
+                this.actionsNavi.addButton(t('Remove selected'), ka.mediaPath(this.classProperties.removeIcon), function () {
                     this.removeSelected();
                 }.bind(this));
             }
 
-            if (this.values.add) {
+            if (this.classProperties.add) {
 
-                this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.values.addIcon), function () {
+                this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.classProperties.addIcon), function () {
 
-                    ka.entrypoint.open(_this.values.addEntrypoint || _this.win.module+'/'+_this.win.code + '/add', {
+                    ka.entrypoint.open(_this.classProperties.addEntrypoint || _this.win.module+'/'+_this.win.code + '/add', {
                         lang: (_this.languageSelect) ? _this.languageSelect.value : false
                     }, this);
 
@@ -465,24 +466,24 @@ ka.WindowList = new Class({
 
         //custom window / function field
         try {
-            if (this.values.custom) {
+            if (this.classProperties.custom) {
                 iconCustom = PATH_MEDIA+'admin/images/icons/brick_go.png';
-                if (this.values.iconCustom) {
-                    iconCustom = this.values.iconCustom;
+                if (this.classProperties.iconCustom) {
+                    iconCustom = this.classProperties.iconCustom;
                 }
 
                 winModule = _this.win.module;
-                if (this.values.custom.module) {
-                    winModule = this.values.custom.module;
+                if (this.classProperties.custom.module) {
+                    winModule = this.classProperties.custom.module;
                 }
 
 
                 customWinCode = _this.win.code + '/custom';
-                if (this.values.custom.code) {
-                    customWinCode = this.values.custom.code;
+                if (this.classProperties.custom.code) {
+                    customWinCode = this.classProperties.custom.code;
                 }
 
-                this.actionsNavi.addButton(this.values.custom.name, ka.mediaPath(iconCustom), function () {
+                this.actionsNavi.addButton(this.classProperties.custom.name, ka.mediaPath(iconCustom), function () {
                     ka.wm.openWindow(winModule, customWinCode, null, null, {
                         language: (_this.languageSelect) ? _this.languageSelect.value : false
                     });
@@ -492,16 +493,16 @@ ka.WindowList = new Class({
         } catch (e) {
         }
 
-        if (this.values['export'] || this.values['import']) {
+        if (this.classProperties['export'] || this.classProperties['import']) {
             this.exportNavi = this.win.addButtonGroup();
         }
 
         if (this.exportNavi) {
-            if (this.values['export']) {
+            if (this.classProperties['export']) {
                 this.exportType = new Element('select', {
                     style: 'position: relative; top: -2px;'
                 })
-                $H(this.values['export']).each(function (fields, type) {
+                $H(this.classProperties['export']).each(function (fields, type) {
                     new Element('option', {
                         value: type,
                         html: _(type)
@@ -512,7 +513,7 @@ ka.WindowList = new Class({
                 this.exportNavi.addButton(_('Export'), _path + PATH_MEDIA + '/admin/images/icons/table_go.png', this.exportTable.bind(this));
             }
 
-            if (this.values['import']) {
+            if (this.classProperties['import']) {
                 this.exportNavi.addButton(_('Import'), _path + PATH_MEDIA + '/admin/images/icons/table_row_insert.png');
             }
         }
@@ -586,7 +587,7 @@ ka.WindowList = new Class({
     },
 
     renderActions: function () {
-        if (this.values.add || this.values.navi) { //wenn aktionen vorhanden, dann bar anzeigen
+        if (this.classProperties.add || this.classProperties.navi) { //wenn aktionen vorhanden, dann bar anzeigen
             this.actions = true;
         }
         if (this.actions) {
@@ -595,7 +596,7 @@ ka.WindowList = new Class({
                 'class': 'ka-list-actionBar'
             }).inject(this.container);
         }
-        if (this.values.add) {
+        if (this.classProperties.add) {
             this.actionAdd = new Element('a', {
                 'class': 'ka-button',
                 html: _('Add')
@@ -606,7 +607,7 @@ ka.WindowList = new Class({
 
     addDummy: function () {
         var tr = new Element('tr').inject(this.tbody);
-        var count = this.dummyCount + Object.getLength(this.values.fields);
+        var count = this.dummyCount + Object.getLength(this.classProperties.fields);
         new Element('td', {
             colspan: count,
             styles: {
@@ -647,8 +648,8 @@ ka.WindowList = new Class({
 
         var params = {};
 
-        if (this.options.relation_table && this.values.relation) {
-            var relationFields = this.values.relation.fields;
+        if (this.options.relation_table && this.classProperties.relation) {
+            var relationFields = this.classProperties.relation.fields;
 
             Object.each(relationFields, function (field_right, field_left) {
 
@@ -749,16 +750,16 @@ ka.WindowList = new Class({
             pItem.relation_params = this.options.relation_params_filtered;
         }
 
-        if (this.values.remove == true) {
+        if (this.classProperties.remove == true) {
             var td = new Element('td', {
                 style: 'width: 21px;'
             }).inject(tr);
             if (pItem['remove']) {
                 var mykey = {};
-                this.values.primary.each(function (primary) {
+                this.classProperties.primary.each(function (primary) {
                     mykey[primary] = pItem.values[primary];
                 });
-                //if( this.values.edit ){
+                //if( this.classProperties.edit ){
                 this.checkboxes.include(new Element('input', {
                     value: JSON.encode(mykey),
                     type: 'checkbox'
@@ -767,7 +768,7 @@ ka.WindowList = new Class({
             }
         }
 
-        Object.each(this.values.fields, function (column, columnId) {
+        Object.each(this.classProperties.fields, function (column, columnId) {
 
 
             var value = ka.getListLabel(pItem, column, columnId);
@@ -780,14 +781,14 @@ ka.WindowList = new Class({
                 e.stop();
             }).addEvent('dblclick', function (e) {
 
-                if (_this.values.edit){
-                    if (_this.values.editCode) {
+                if (_this.classProperties.edit){
+                    if (_this.classProperties.editCode) {
                         //compatibility
-                        ka.entrypoint.open(_this.values.editCode, {
+                        ka.entrypoint.open(_this.classProperties.editCode, {
                             item: pItem.values
                         }, this);
                     } else {
-                        ka.entrypoint.open(_this.values.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
+                        ka.entrypoint.open(_this.classProperties.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
                             item: pItem.values
                         }, this);
                     }
@@ -800,14 +801,14 @@ ka.WindowList = new Class({
             }
         });
 
-        if (this.values.remove == true || this.values.edit == true || this.values.itemActions) {
+        if (this.classProperties.remove == true || this.classProperties.edit == true || this.classProperties.itemActions) {
             var icon = new Element('td', {
                 width: 40,
                 'class': 'edit'
             }).inject(tr);
 
-            if (this.values.itemActions && this.values.itemActions.each) {
-                this.values.itemActions.each(function (action) {
+            if (this.classProperties.itemActions && this.classProperties.itemActions.each) {
+                this.classProperties.itemActions.each(function (action) {
 
                     var action = null;
                     if (typeOf(action) == 'array') {
@@ -859,37 +860,37 @@ ka.WindowList = new Class({
 
 
                 });
-                icon.setStyle('width', 40 + (20 * this.values.itemActions.length));
-                this.titleIconTd.setStyle('width', 40 + (20 * this.values.itemActions.length));
+                icon.setStyle('width', 40 + (20 * this.classProperties.itemActions.length));
+                this.titleIconTd.setStyle('width', 40 + (20 * this.classProperties.itemActions.length));
             }
 
             if (pItem.edit) {
                 var editIcon = null;
 
-                if (_this.values.editIcon.substr(0,1) == '#'){
+                if (_this.classProperties.editIcon.substr(0,1) == '#'){
 
                     editIcon = new Element('div', {
                         style: 'cursor: pointer; display: inline-block; padding: 0px 1px;',
-                        'class': _this.values.editIcon.substr(1)
+                        'class': _this.classProperties.editIcon.substr(1)
                     }).inject(icon);
 
                 } else {
                     editIcon = new Element('img', {
-                        src: ka.mediaPath(_this.values.editIcon)
+                        src: ka.mediaPath(_this.classProperties.editIcon)
                     }).inject(icon);
                 }
 
                 editIcon.addEvent('click', function () {
 
-                    if (_this.values.editEntrypoint){
-                        ka.wm.open(_this.values.editEntrypoint, pItem);
+                    if (_this.classProperties.editEntrypoint){
+                        ka.wm.open(_this.classProperties.editEntrypoint, pItem);
                     } else {
 
-                        if (_this.values.editCode) {
+                        if (_this.classProperties.editCode) {
                             //compatibility
-                            ka.wm.open(_this.values.editCode, {item: pItem.values}, this);
+                            ka.wm.open(_this.classProperties.editCode, {item: pItem.values}, this);
                         } else {
-                            ka.entrypoint.open(_this.values.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
+                            ka.entrypoint.open(_this.classProperties.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
                                 item: pItem.values
                             }, this);
                         }
@@ -900,7 +901,7 @@ ka.WindowList = new Class({
             }
             if (pItem['remove']) {
 
-                var removeIcon = _this.values.removeIconItem?_this.values.removeIconItem:_this.values.removeIcon;
+                var removeIcon = _this.classProperties.removeIconItem?_this.classProperties.removeIconItem:_this.classProperties.removeIcon;
 
                 if (typeOf(removeIcon) == 'string'){
                     var deleteBtn = null;

@@ -103,7 +103,7 @@ class PropelHelper {
         $content  = self::execute('om');
 
         if (is_array($content)){
-            throw new Exception("Propel generateClasses failed: \n". $content[0]);
+            throw new \Exception("Propel generateClasses failed: \n". $content[0]);
         }
         $content .= self::moveClasses();
 

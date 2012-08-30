@@ -301,7 +301,7 @@ class Listing extends WindowAbstract {
      * @param string $pPage
      * @return array
      */
-    function getItems($pPage) {
+    function getItems222($pPage) {
 
         $pPage = $pPage?$pPage:1;
 
@@ -573,41 +573,6 @@ class Listing extends WindowAbstract {
         print $res;
 
         exit;
-    }
-
-    /**
-     * Each item goes through this function in getItems(). Defines whether a item is editable or deleteable.
-     * You can attach here extra action icons, too.
-     *
-     * Result should be:
-     *
-     * array(
-     *     'values' => $pItem,
-     *     'edit' => bool (can be edited),
-     *     'remove' => bool (can be removed),
-     *     'actions' => array(
-     *         array('/* action * /') //todo
-     *     )
-     * )
-     *
-     * @param array $pItem
-     *
-     * @return array
-     */
-    function prepareRow($pItem) {
-
-        $visible = true;
-        $editable = $this->edit;
-        $deleteable = $this->remove;
-
-        $res = null;
-        if ($visible) {
-            $res = array();
-            $res['values'] = $pItem;
-            $res['edit'] = $editable;
-            $res['remove'] = $deleteable;
-        }
-        return $res;
     }
 
 }

@@ -237,25 +237,42 @@ window.ka.entrypoint = {
         if (typeOf(pEntrypoint) != 'string') return false;
 
         var splitted = pEntrypoint.split('/');
-        if (splitted.length < 2) return false;
         var extension = splitted[0];
+
+        splitted.shift();
+
+        var code = splitted.join('/');
+
         var tempEntry = false;
 
-        Object.each(ka.settings.configs, function(config, key){
-            if (key == extension && config.admin){
+        var path = [], config, notFound = false;
 
-                tempEntry = config.admin[splitted[1]];
-                Array.each(splitted, function(item, idx){
-                    if (idx <= 1) return;
-                    if (tempEntry.childs && tempEntry.childs[item]){
-                        tempEntry = tempEntry.childs[item];
-                    }
-                });
+        if (ka.settings.configs.admin.admin[extension]){
+            config = ka.settings.configs.admin;
+            splitted.unshift(extension)
+        } else
+            config = ka.settings.configs[extension];
 
+        tempEntry = config.admin[splitted.shift()];
+        path.push(tempEntry['title']);
+
+        while(item = splitted.shift()){
+            if (tempEntry.childs && tempEntry.childs[item]){
+                tempEntry = tempEntry.childs[item];
+                path.push(tempEntry['title']);
+            } else {
+                notFound = true;
+                break;
             }
-        });
+        };
 
-        return tempEntry || false;
+        if (notFound) return false;
+
+        tempEntry._path = path;
+        tempEntry._module = extension;
+        tempEntry._code = code;
+
+        return tempEntry;
     }
 
 };
@@ -329,7 +346,7 @@ ka.getObjectUrlId = function(pObjectKey, pItem){
 
     var urlId = '';
     Array.each(pks, function(pk){
-        urlId += ka.urlEncode(pItem[pk])+',';
+        urlId += ka.urlEncode(pItem[pk])+'-';
     });
 
     return urlId.substr(0, urlId.length-1);

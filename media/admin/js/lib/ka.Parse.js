@@ -134,18 +134,10 @@ ka.Parse = new Class({
             if (this.options.tableitem_title_width)
                 field.tableitem_title_width = this.options.tableitem_title_width;
 
+            var target = pContainer.getElement('*[id=' + id + ']') || pContainer.getElement('*[id=default]');
 
-            var targetId = '*[id=default]';
-
-            if (field.target) {
-                targetId = '*[id=' + field.target + ']';
-            }
-
-            var target = pContainer.getElement(targetId);
-
-            if (!target) {
+            if (!target)
                 target = pContainer;
-            }
 
             if (field.children)
                 field.depends = field.children;

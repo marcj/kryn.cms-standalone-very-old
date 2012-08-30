@@ -348,7 +348,7 @@ class Propel extends ORMAbstract {
         if ($data){
             foreach ($data as $idx => $v){
                 if (!is_array($v)){ //propel uses arrays as bind values, we with dbConditionToSql not.
-                    $stmt->bindValue(':p'.($idx+1), $v);
+                    $stmt->bindValue($idx, $v);
                 }
             }
         }
@@ -544,9 +544,13 @@ class Propel extends ORMAbstract {
      * {@inheritdoc}
      */
     public function update($pPk, $pValues){
-        $item  = $query->findPk($this->getPropelPk($pPk));
+        
+        $query = $this->getQueryClass();
+        $item = $query->findPk($this->getPropelPk($pPk));
 
         $this->mapValues($item, $pValues);
+
+        var_dump($pValues); exit;
 
         return $item->save()?true:false;
     }
@@ -608,7 +612,7 @@ class Propel extends ORMAbstract {
 
         $row = dbFetch($stmt);
 
-        return $row['count'];
+        return current($row);
 
     }
 

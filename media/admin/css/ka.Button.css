@@ -6,7 +6,7 @@ a.ka-Button, a.ka-Button:link,
     padding: 0px 8px;
     margin: 2px auto;
 
-    cursor: pointer;
+    cursor: default;
     position: relative;
     color: #444;
     line-height: 20px;

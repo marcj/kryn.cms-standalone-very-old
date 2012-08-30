@@ -378,18 +378,18 @@ h3.kryn-headline {
     width: 200px;
     margin: auto;
     height: 30px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
 
-    border-radius: 25px;
-    -moz-border-radius: 25px;
-    -webkit-border-radius: 25px;
+    border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
 
     font-size: 18px;
     font-weight: bold;
     padding: 25px;
     text-shadow: 0px 1px 0px black;
     color: white;
+
+    box-shadow: 0px 0px 4px #AAA;
 
     position: relative;
 

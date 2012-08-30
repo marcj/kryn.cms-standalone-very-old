@@ -10,6 +10,8 @@ ka.Table = new Class({
         absolute: true, //full size
         selectable: false,
         multi: false,
+        alignTop: true,
+        hover: true, //hover effect
         safe: true //htmlentities
     },
 
@@ -33,26 +35,32 @@ ka.Table = new Class({
             });
         }
 
-        if (this.options.hover || typeOf(this.options.hover) == 'null'){
+        if (this.options.hover){
             this.main.addClass('ka-Table-hover');
         }
 
-        if (this.options.alignTop || typeOf(this.options.alignTop) == 'null'){
+        if (this.options.alignTop){
             this.main.addClass('ka-Table-alignTop');
         }
 
         if (this.options.selectable == true){
             this.main.addEvent('click', function(e){
-
+                
+                logger(e.target);
                 if (!e.target) return;
 
                 if (e.target.get('tag') == 'td'){
+                    
+                    this.fireEvent('preSelect');
+
                     if (!this.multi || (this.multi && (e.ctrl != true && e.meta != true)))
-                        e.target.getParent().getParent().getChildren('tr').removeClass('ka-table-body-item-active');
-                    e.target.getParent().addClass('ka-table-body-item-active');
+                        e.target.getParent().getParent().getChildren('tr').removeClass('active');
+
+                    e.target.getParent().addClass('active');
                     this.fireEvent('select');
                 } else {
-                    e.target.getElements('tr').removeClass('ka-table-body-item-active');
+                    this.fireEvent('preDeselect');
+                    e.target.getElements('tr').removeClass('active');
                     this.fireEvent('deselect');
                 }
 

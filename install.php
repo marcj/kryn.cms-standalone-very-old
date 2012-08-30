@@ -31,6 +31,8 @@ include('lib/propel/runtime/lib/Propel.php');
 if (file_exists('config.php'))
   Kryn::$config = require('config.php');
 
+if (!is_array(Kryn::$config)) Kryn::$config = array();
+
 require('core/bootstrap.autoloading.php');
 
 include(PATH_CORE.'global/misc.global.php');

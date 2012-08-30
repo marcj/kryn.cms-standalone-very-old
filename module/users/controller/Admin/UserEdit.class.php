@@ -2,11 +2,9 @@
 
 namespace Users\Admin;
 
-class UserEdit extends \Admin\Window\Edit {
+class UserEdit extends \Admin\ObjectWindow {
 
     public $object = 'user';
-    public $primary = array('id');
-    public $versioning = false;
 
     public $loadSettingsAfterSave = true;
     
@@ -14,44 +12,41 @@ class UserEdit extends \Admin\Window\Edit {
     
     public $titleField = 'username';
 
-    public $tabLayouts = array(
-        'General' => '<table width="100%"><tr>
-        	<td width="110">
-        		 <div style="height: 100px; margin:5px" id="picture"></div>
-        	</td>
-        	<td>
-        		<div id="name"></div>
-        		<div style="clear: both"></div>
-        		<div id="lastname"></div>
-        		<div style="clear: both"></div>
-        	</td>
-        </tr><tr>
-        	<td colspan="2" style="padding: 10px;">
-        		<table width="100%">
-        			<tbody id="default"></tbody>
-        		</table>
-        	</td>
-        </tr></table>'
-    );
-
     public $fields = array(
         '__general__' => array(
             'type' => 'tab',
             'label' => '[[General]]',
+            'layout' => '   <table width="100%"><tr>
+                                <td width="110">
+                                     <div style="height: 100px; margin:5px" id="picture"></div>
+                                </td>
+                                <td>
+                                    <div id="firstName"></div>
+                                    <div style="clear: both"></div>
+                                    <div id="lastName"></div>
+                                    <div style="clear: both"></div>
+                                </td>
+                            </tr><tr>
+                                <td colspan="2" style="padding: 10px;">
+                                    <table width="100%">
+                                        <tbody id="default"></tbody>
+                                    </table>
+                                </td>
+                            </tr></table>',
             'children' => array(
                 'picture' => array(
-                    'onlycontent' => 1,
+                    'noWrapper' => 1,
                     'target' => 'picture',
                     'type' => 'custom',
                     'class' => 'users_field_picture'
                 ),
-                'first_name' => array(
+                'firstName' => array(
                     'label' => 'First name',
                     'target' => 'name',
                     'small' => 1,
                     'type' => 'text'
                 ),
-            	'last_name' => array(
+            	'lastName' => array(
                     'label' => 'Last name',
                     'target' => 'lastname',
                     'small' => 1,
@@ -110,8 +105,7 @@ class UserEdit extends \Admin\Window\Edit {
                     'type' => 'password',
                     'desc' => 'Leave empty to change nothing',
                     'startempty' => true,
-                    'onlyIfFilled' => true,
-                    'customSave' => 'savePasswd'
+                    'onlyIfFilled' => true
                 ),
                 'email' => array(
                     'label' => 'Email',
@@ -125,10 +119,10 @@ class UserEdit extends \Admin\Window\Edit {
                 'userBg' => array(
                    'label' => 'Desktop background image',
                     'type' => 'fileChooser',
-                    'customSave' => 'saveUserBg',
+                    'noSave' => true,
                     'customValue' => 'userBgValue',
                 ),
-                'groupMembership'
+                //'groupMembership'
             )
             /*'groups' => array(
                 'label' => 'Groups',
@@ -152,31 +146,28 @@ class UserEdit extends \Admin\Window\Edit {
             'children' => array(
                 'adminLanguage' => array(
                     'label' => 'Admin Language',
-                    'type' => 'select',
-                    'sql' => 'SELECT * FROM %pfx%system_langs',
-                    'table_key' => 'code',
-                    'table_label' => 'title',
-                    'customSave' => 'saveLanguage',
+                    'type' => 'lang',
+                    'noSave' => true,
                     'customValue' => 'getLanguage',
                 ),
                 'userBg' => array(
                    'label' => 'Desktop background image',
                     'type' => 'fileChooser',
-                    'customSave' => 'saveUserBg',
+                    'noSave' => true,
                     'customValue' => 'userBgValue',
                 ),
                 'css3Shadow' => array(
                     'label' => 'Use CSS3 box-shadows',
                     'desc' => 'Can affect performance in some browsers, but activates better window feeling',
                     'type' => 'checkbox',
-                    'customSave' => 'saveCssShadow',
+                    'noSave' => true,
                     'customValue' => 'getCssShadow',
                 ),
                 'autocrawler' => array(
                     'label' => 'Activate autocrawler',
                     'desc' => 'This activates the internal searchengine autocrawler, when you are working in the administration. Can affect performance, especially when you have low bandwith internet',
                     'type' => 'checkbox',
-                    'depends' => array(
+                    'children' => array(
                         'autocrawler_minddelay' => array(
                             'needValue' => 1,
                             'label' => 'Min. delay (Milliseconds)',
@@ -184,35 +175,40 @@ class UserEdit extends \Admin\Window\Edit {
                             'type' => 'number',
                             'default' => 200,
                             'length' => 10,
-                            'customSave' => 'saveAutocrawlerDelay',
-                            'customValue' => 'getAutocrawlerDelay',
+                            'noSave' => true,
+                            'customValue' => 'getAutocrawlerDelay'
                         )
                     ),
-                    'customSave' => 'saveAutocrawler',
-                    'customValue' => 'getAutocrawler',
+                    'noSave' => true,
+                    'customValue' => 'getAutocrawler'
                 )
             )
         )
     );
     
+    public function saveItem($pPk){
+        $result = parent::saveItem($pPk);
 
-    private static function saveSetting( $pKey, $pVal ){
+        //todo, save settings
+
+        return $result;
+    }
+
+    private function saveSetting( $pKey, $pVal ){
         
-        $temp = dbTableFetch('system_user', 1, "id = ".(getArgv('id')+0));
+        $temp = dbTableFetch('system_user', $this->getPrimaryKey());
         $settings = unserialize( $temp['settings'] );
         
         $settings[$pKey] = $pVal;
         $ssettings = serialize( $settings );
-        
-        dbUpdate( 'system_user', array('id' => getArgv('id')+0), array('settings' => $ssettings) );
+
+        dbUpdate('system_user', $this->getPrimaryKey(), array('settings' => $ssettings));
     }
 
-    private static function getSetting( $pKey ){
-        
-        $id = getArgv('id')+0;
+    private function getSetting( $pKey ){
         
         if( !self::$cacheUser )
-            self::$cacheUser = dbTableFetch('system_user', 1, "id = $id");
+            self::$cacheUser = dbTableFetch('system_user', $this->getPrimaryKey());
             
         $settings = unserialize(self::$cacheUser['settings']);
         return $settings[$pKey];
@@ -224,23 +220,23 @@ class UserEdit extends \Admin\Window\Edit {
      * 
      */
     public function saveUserBg(){
-        self::saveSetting('userBg', getArgv('userBg',1));
+        $this->saveSetting('userBg', getArgv('userBg',1));
     }
 
     public function saveLanguage(){
-        self::saveSetting('adminLanguage', getArgv('adminLanguage'));
+        $this->saveSetting('adminLanguage', getArgv('adminLanguage'));
     }
 
     public function saveAutocrawler(){
-        self::saveSetting('css3Shadow', getArgv('css3Shadow'));
+        $this->saveSetting('css3Shadow', getArgv('css3Shadow'));
     }
     
     public function saveCssShadow(){
-        self::saveSetting('autocrawler', getArgv('autocrawler'));
+        $this->saveSetting('autocrawler', getArgv('autocrawler'));
     }
 
     public function saveAutocrawlerDelay(){
-        self::saveSetting('autocrawler_minddelay', getArgv('autocrawler_minddelay'));
+        $this->saveSetting('autocrawler_minddelay', getArgv('autocrawler_minddelay'));
     }
     
     
@@ -249,23 +245,23 @@ class UserEdit extends \Admin\Window\Edit {
      * 
      */
     public function getLanguage(){
-        return self::getSetting('adminLanguage');
+        return $this->getSetting('adminLanguage');
     }
 
     public function userBgValue($pPrimary, $pItem){
-        return self::getSetting('userBg');
+        return $this->getSetting('userBg');
     }
     
     public function getCssShadow(){
-        return self::getSetting('css3Shadow');
+        return $this->getSetting('css3Shadow');
     }
  
     public function getAutocrawler(){
-        return self::getSetting('autocrawler');
+        return $this->getSetting('autocrawler');
     }
     
     public function getAutocrawlerDelay(){
-        $val = self::getSetting('autocrawler_minddelay');
+        $val = $this->getSetting('autocrawler_minddelay');
         if( !$val ) return 200;
         return $val;
     }    

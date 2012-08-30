@@ -164,28 +164,28 @@ ka.WindowCombine = new Class({
 
         this.renderSearchPane();
 
-        if (this.values.multiLanguage) {
+        if (this.classProperties.multiLanguage) {
             this.win.extendHead();
         }
 
-        if (this.values.add || this.values.remove || this.values.custom) {
+        if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.actionsNavi = this.win.addButtonGroup();
             this.actionsNavi.setStyle('margin-right', 159 + 17);
         }
 
         if (this.actionsNavi) {
-            if (this.values.remove) {
+            if (this.classProperties.remove) {
 
-                var icon = this.values.removeIcon?this.values.removeIcon:'admin/images/icons/'+this.values.iconDelete;
+                var icon = this.classProperties.removeIcon?this.classProperties.removeIcon:'admin/images/icons/'+this.classProperties.iconDelete;
 
                 this.toggleRemoveBtn = this.actionsNavi.addButton(t('Remove'), ka.mediaPath(icon), function () {
                     this.toggleRemove();
                 }.bind(this));
             }
 
-            if (this.values.add) {
+            if (this.classProperties.add) {
 
-                var icon = this.values.addIcon?this.values.addIcon:'admin/images/icons/'+this.values.iconAdd;
+                var icon = this.classProperties.addIcon?this.classProperties.addIcon:'admin/images/icons/'+this.classProperties.iconAdd;
 
                 this.addBtn = this.actionsNavi.addButton(t('Add'), ka.mediaPath(icon), this.add.bind(this));
             }
@@ -201,7 +201,7 @@ ka.WindowCombine = new Class({
         this.sortSelect.inject(this.sortSpan);
         this.sortSelect.setStyle('width', 150);
 
-        Object.each(this.values.fields, function (column, id) {
+        Object.each(this.classProperties.fields, function (column, id) {
 
             this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-16']);
             this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-15']);
@@ -215,8 +215,8 @@ ka.WindowCombine = new Class({
 
             this.sortField = sortId.split('______')[0];
 
-            /*if( this.values.fields[this.sortField] && (this.values.fields[this.sortField]['type'] == 'datetime' || 
-             this.values.fields[this.sortField]['type'] == 'date') ){
+            /*if( this.classProperties.fields[this.sortField] && (this.classProperties.fields[this.sortField]['type'] == 'datetime' || 
+             this.classProperties.fields[this.sortField]['type'] == 'date') ){
              this.sortDirection = 'DESC';
              }*/
 
@@ -246,8 +246,8 @@ ka.WindowCombine = new Class({
         this.searchFields = new Hash();
         var doSearchNow = false;
 
-        if (this.values.filter && this.values.filter.each) {
-            this.values.filter.each(function (filter, key) {
+        if (this.classProperties.filter && this.classProperties.filter.each) {
+            this.classProperties.filter.each(function (filter, key) {
 
                 var mkey = key;
 
@@ -255,10 +255,10 @@ ka.WindowCombine = new Class({
                     mkey = filter;
                 }
 
-                var field = Object.clone(this.values.filterFields[ mkey ]);
+                var field = Object.clone(this.classProperties.filterFields[ mkey ]);
 
 
-                var title = this.values.fields[mkey].label;
+                var title = this.classProperties.fields[mkey].label;
                 field.label = t(title);
                 field.small = true;
                 field.tableitem = true;
@@ -291,8 +291,6 @@ ka.WindowCombine = new Class({
                 }
 
             }.bind(this));
-        } else {
-            this.filterButton.destroy();
         }
 
         if (doSearchNow) {
@@ -353,14 +351,14 @@ ka.WindowCombine = new Class({
 
     loadMore: function (pAndScrollToSelect) {
         if (this.max < this.maxItems) {
-            this.loadItems(this.max, (this.values.itemsPerPage) ? this.values.itemsPerPage : 5, pAndScrollToSelect);
+            this.loadItems(this.max, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
         }
     },
 
     loadPrevious: function (pAndScrollToSelect) {
         if (this.from > 0) {
 
-            var items = (this.values.itemsPerPage) ? this.values.itemsPerPage : 5;
+            var items = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
             var newFrom = this.from - items;
             var maxItems = items;
 
@@ -381,7 +379,7 @@ ka.WindowCombine = new Class({
         this._lastItems = null;
         this.clearItemList();
         this.from = 0;
-        this.max = 0; //(this.values.itemsPerPage)?this.values.itemsPerPage:5;
+        this.max = 0; //(this.classProperties.itemsPerPage)?this.classProperties.itemsPerPage:5;
 
     },
 
@@ -565,7 +563,7 @@ ka.WindowCombine = new Class({
 
     renderMultilanguage: function () {
 
-        if (this.values.multiLanguage) {
+        if (this.classProperties.multiLanguage) {
 
             this.languageSelect = new ka.Select();
             this.languageSelect.inject(this.win.titleGroups);
@@ -636,7 +634,6 @@ ka.WindowCombine = new Class({
 
         this._lastItems = pItems;
 
-        this.currentPage = pItems.page;
         this.maxPages = pItems.maxPages;
         this.maxItems = pItems.maxItems;
 
@@ -735,16 +732,16 @@ ka.WindowCombine = new Class({
         var value = this.getItemTitle(pItem, this.sortField);
         if (value == '') return _('-- No value --');
 
-        if (!this.values.fields[this.sortField])
+        if (!this.classProperties.fields[this.sortField])
             return value;
 
-        if (!this.values.fields[this.sortField]['type'] || this.values.fields[this.sortField].type == "text") {
+        if (!this.classProperties.fields[this.sortField]['type'] || this.classProperties.fields[this.sortField].type == "text") {
 
             return '<b>' + value.substr(0, 1).toUpperCase() + '</b>';
 
         } else {
 
-            if (["datetime", "date"].contains(this.values.fields[this.sortField]['type'])) {
+            if (["datetime", "date"].contains(this.classProperties.fields[this.sortField]['type'])) {
 
                 if (pItem['values'][this.sortField] > 0) {
 
@@ -764,9 +761,9 @@ ka.WindowCombine = new Class({
     getItemTitle: function (pItem, pColumnId) {
 
         var value = pItem['values'][pColumnId]
-        if (!this.values.fields[pColumnId]) return value;
+        if (!this.classProperties.fields[pColumnId]) return value;
 
-        var column = this.values.fields[pColumnId];
+        var column = this.classProperties.fields[pColumnId];
 
         if (column.format == 'timestamp') {
             value = new Date(value * 1000).toLocaleString();
@@ -838,7 +835,7 @@ ka.WindowCombine = new Class({
 
     addSaved: function (pValues, pAnswer) {
 
-        if (this.currentAdd.values.primary.length > 1) return;
+        if (this.currentAdd.classProperties.primary.length > 1) return;
 
         this.lastLoadedItem = null;
         this._lastItems = null;
@@ -849,7 +846,7 @@ ka.WindowCombine = new Class({
         this.needSelection = true;
         var primaries = {};
 
-        this.currentAdd.values.primary.each(function (primary) {
+        this.currentAdd.classProperties.primary.each(function (primary) {
             primaries[primary] = pAnswer.last_id;
         }.bind(this));
 
@@ -985,7 +982,7 @@ ka.WindowCombine = new Class({
             this.needSelection = true;
             this.loadAround(this.win.params.selected);
         } else {
-            this.loadItems(0, (this.values.itemsPerPage) ? this.values.itemsPerPage : 5);
+            this.loadItems(0, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5);
         }
 
     },
@@ -994,12 +991,12 @@ ka.WindowCombine = new Class({
 
         var type = null;
         var selected = null;
-        if (this.currentEdit && this.currentEdit.values) {
+        if (this.currentEdit && this.currentEdit.classProperties) {
             type = 'edit';
 
             var primaries = {};
 
-            this.currentEdit.values.primary.each(function (primary) {
+            this.currentEdit.classProperties.primary.each(function (primary) {
                 primaries[primary] = this.currentItem.values[primary];
             }.bind(this));
 
@@ -1040,10 +1037,10 @@ ka.WindowCombine = new Class({
                 title = item.values.name;
             }
 
-            if (this.currentEdit.values.editTitleField) {
-                title = item.values[ this.currentEdit.values.editTitleField ];
-            } else if (this.currentEdit.values.titleField) {
-                title = item.values[ this.currentEdit.values.titleField ];
+            if (this.currentEdit.classProperties.editTitleField) {
+                title = item.values[ this.currentEdit.classProperties.editTitleField ];
+            } else if (this.currentEdit.classProperties.titleField) {
+                title = item.values[ this.currentEdit.classProperties.titleField ];
             } else if (!title) {
                 Object.each(item.values, function (item) {
                     if (!title && item != '' && typeOf(item) == 'string') {
@@ -1071,7 +1068,7 @@ ka.WindowCombine = new Class({
             var res = response.data;
 
             if (res > 0) {
-                var range = (this.values.itemsPerPage) ? this.values.itemsPerPage : 5;
+                var range = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
 
                 var from = res;
                 if (res < range) {
@@ -1114,7 +1111,7 @@ ka.WindowCombine = new Class({
         /*
          var primaries = {};
 
-         this.currentEdit.values.primary.each(function(primary){
+         this.currentEdit.classProperties.primary.each(function(primary){
          primaries[primary] = this.currentItem.values[primary];
          }.bind(this));
 
@@ -1151,11 +1148,11 @@ ka.WindowCombine = new Class({
                     primary: {}
                 };
 
-                this.currentEdit.values.primary.each(function (primary) {
+                this.currentEdit.classProperties.primary.each(function (primary) {
                     req['primary'][primary] = this.currentItem.values[primary];
                 }.bind(this));
 
-                if (this.currentEdit.values.multiLanguage) {
+                if (this.currentEdit.classProperties.multiLanguage) {
                     req['language'] = this.currentItem.values['lang'];
                 }
 
@@ -1207,14 +1204,14 @@ ka.WindowCombine = new Class({
         var layout = '';
         var titleAdded, nameAdded;
 
-        if (this.values.itemLayout) {
-            layout = this.values.itemLayout;
+        if (this.classProperties.itemLayout) {
+            layout = this.classProperties.itemLayout;
         } else {
 
-            if (this.values.fields.title) {
+            if (this.classProperties.fields.title) {
                 layout += '<h2 id="title"></h2>';
                 titleAdded = true;
-            } else if (this.values.fields.name) {
+            } else if (this.classProperties.fields.name) {
                 layout += '<h2 id="name"></h2>';
                 nameAdded = true;
             }
@@ -1222,7 +1219,7 @@ ka.WindowCombine = new Class({
             layout += '<div class="subline">';
 
             var c = 1;
-            Object.each(this.values.fields, function (bla, id) {
+            Object.each(this.classProperties.fields, function (bla, id) {
 
                 if (id == "title" && titleAdded) return;
                 if (id == "name" && nameAdded) return;
@@ -1247,7 +1244,7 @@ ka.WindowCombine = new Class({
         }).store('item', pItem).addEvent('click', this.loadItem.bind(this, pItem));
 
 
-        if (this.values.remove == true) {
+        if (this.classProperties.remove == true) {
 
             if (pItem['remove']) {
 
@@ -1262,10 +1259,10 @@ ka.WindowCombine = new Class({
                 }).inject(item);
 
                 var mykey = {};
-                this.values.primary.each(function (primary) {
+                this.classProperties.primary.each(function (primary) {
                     mykey[primary] = pItem.values[primary];
                 });
-                //if( this.values.edit ){
+                //if( this.classProperties.edit ){
                 this.checkboxes.include(new Element('input', {
                     value: JSON.encode(mykey),
                     type: 'checkbox'
@@ -1278,11 +1275,11 @@ ka.WindowCombine = new Class({
         }
 
 
-        if (this.currentEdit && this.currentEdit.values) {
+        if (this.currentEdit && this.currentEdit.classProperties) {
 
             var oneIsFalse = false;
 
-            this.currentEdit.values.primary.each(function (prim) {
+            this.currentEdit.classProperties.primary.each(function (prim) {
                 if (this.currentItem['values'][prim] != pItem.values[prim]) {
                     oneIsFalse = true;
                 }
@@ -1334,16 +1331,16 @@ ka.WindowCombine = new Class({
             'class': (_this.tempcount % 2) ? 'one' : 'two'
         }).inject(this.tbody);
 
-        if (this.values.remove == true) {
+        if (this.classProperties.remove == true) {
             var td = new Element('td', {
                 style: 'width: 21px;'
             }).inject(tr);
             if (pItem['remove']) {
                 var mykey = {};
-                this.values.primary.each(function (primary) {
+                this.classProperties.primary.each(function (primary) {
                     mykey[primary] = pItem.values[primary];
                 });
-                //if( this.values.edit ){
+                //if( this.classProperties.edit ){
                 this.checkboxes.include(new Element('input', {
                     value: JSON.encode(mykey),
                     type: 'checkbox'
@@ -1352,7 +1349,7 @@ ka.WindowCombine = new Class({
             }
         }
 
-        Object.each(this.values.fields, function (column, columnId) {
+        Object.each(this.classProperties.fields, function (column, columnId) {
             var value = pItem['values'][columnId];
 
             if (column.format == 'timestamp') {
@@ -1388,8 +1385,8 @@ ka.WindowCombine = new Class({
                     e.stop();
                 }).addEvent('dblclick',
                 function (e) {
-                    if (_this.values.editCode) {
-                        ka.wm.open(_this.values.editCode, pItem);
+                    if (_this.classProperties.editCode) {
+                        ka.wm.open(_this.classProperties.editCode, pItem);
                     } else if (pItem.edit) {
                         ka.wm.openWindow(_this.win.module, _this.oriWinCode + '/edit', null, null, pItem);
                     }
@@ -1414,14 +1411,14 @@ ka.WindowCombine = new Class({
             }
         });
 
-        if (this.values.remove == true || this.values.edit == true || this.values.itemActions) {
+        if (this.classProperties.remove == true || this.classProperties.edit == true || this.classProperties.itemActions) {
             var icon = new Element('td', {
                 width: 40,
                 'class': 'edit'
             }).inject(tr);
 
-            if (this.values.itemActions && this.values.itemActions.each) {
-                this.values.itemActions.each(function (action) {
+            if (this.classProperties.itemActions && this.classProperties.itemActions.each) {
+                this.classProperties.itemActions.each(function (action) {
                     new Element('img', {
                         src: _path + PATH_MEDIA + action[1],
                         title: action[0]
@@ -1430,17 +1427,17 @@ ka.WindowCombine = new Class({
                             ka.wm.open(action[2], {item: pItem, filter: action[3]});
                         }).inject(icon);
                 });
-                icon.setStyle('width', 40 + (20 * this.values.itemActions.length));
-                this.titleIconTd.setStyle('width', 40 + (20 * this.values.itemActions.length));
+                icon.setStyle('width', 40 + (20 * this.classProperties.itemActions.length));
+                this.titleIconTd.setStyle('width', 40 + (20 * this.classProperties.itemActions.length));
             }
 
             if (pItem.edit) {
                 new Element('img', {
-                    src: _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconEdit
+                    src: _path + PATH_MEDIA + '/admin/images/icons/' + this.classProperties.iconEdit
                 }).addEvent('click',
                     function () {
-                        if (_this.values.editCode) {
-                            ka.wm.open(_this.values.editCode, pItem);
+                        if (_this.classProperties.editCode) {
+                            ka.wm.open(_this.classProperties.editCode, pItem);
                         } else if (pItem.edit) {
                             ka.wm.openWindow(_this.win.module, _this.oriWinCode + '/edit', null, null, pItem);
                         }
@@ -1448,7 +1445,7 @@ ka.WindowCombine = new Class({
             }
             if (pItem['remove']) {
                 new Element('img', {
-                    src: _path + PATH_MEDIA + '/admin/images/icons/' + this.values.iconDelete
+                    src: _path + PATH_MEDIA + '/admin/images/icons/' + this.classProperties.iconDelete
                 }).addEvent('click',
                     function () {
                         _this.win._confirm(_('Really delete?'), function (res) {

@@ -467,29 +467,11 @@ class Server {
     }
 
     /**
-     * Adds a new route.
-     *
-     * $pUri can be prefixed with the http methods to limit it:
-     *
-     *  'get:<uri>', 'post:<uri>', 'put:<uri>', 'delete:<uri>'
-     *
-     * Examples:
-     *
-     *   addRoute('get:object', 'getObject');       //calls ->getObject($method);
-     *   addRoute('post:object', 'addObject');      //calls ->addObject($method);
-     *   addRoute('put:object', 'setObject');       //calls ->setObject($method);
-     *   addRoute('delete:object', 'removeObject'); //calls ->removeObject($method);
-     *
-     *   addRoute('object', 'object', array('id'))  //calls ->object($method, $_GET['id']);
-     *   addRoute('object/([0-9]*)', 'object')      //calls ->object($method, $1);
-     *
-     *   addRoute('get:dogs', 'getDogs', null, array('limit', 'offset')
-     *                                              //calls ->getDogs($method, $_GET['limit'], $_GET['limit']);
-     *
-     *   addRoute('get:dog', 'getDog', array('id')  //calls ->getDogs($method, $_GET['id']);
-     *
+     * Adds a new route for all http methods (get, post, put, delete, options, head).
+     * 
      * @param string $pUri
      * @param string $pMethod
+     * @param string $pHttpMethod
      * @return Server
      */
     public function addRoute($pUri, $pMethod, $pHttpMethod = '_all_'){
@@ -781,18 +763,18 @@ class Server {
 
             if ($name == '_'){
                 $thisArgs = array();
-                foreach ($_REQUEST as $k => $v){
+                foreach ($_GET as $k => $v){
                     if (substr($k, 0, 1) == '_' && $k != $this->getRewrittenRuleKey())
                         $thisArgs[$k] = $v;
                 }
                 $arguments[] = $thisArgs;
             } else {
 
-                if (!$param->isOptional() && $_REQUEST[$name] === null){
+                if (!$param->isOptional() && $_GET[$name] === null){
                     $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $name));
                 }
 
-                $arguments[] = $_REQUEST[$name];
+                $arguments[] = $_GET[$name];
             }
         }
 

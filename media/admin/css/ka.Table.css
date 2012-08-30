@@ -70,16 +70,14 @@
     background-color: #ccc;
 }
 
-.ka-Table-body > div > tr.ka-filepane-file-detail-active > td,
 .ka-Table-body > div > tr.active > td,
 .ka-Table-body > div > tr.active:hover > td,
-.ka-Table-body > div > tr.ka-filepane-file-detail-active:hover > td {
-    background-color: #aaa;	
-}
-
-
-.ka-Table-body > div > tr.ka-table-body-item-active > td,
-.ka-Table-body > div > tr.ka-table-body-item-active:hover > td {
+.ka-Table-body > div > tr.ka-filepane-file-detail-active > td,
+.ka-Table-body > div > tr.ka-filepane-file-detail-active:hover > td,
+.ka-Table-body > tr.active > td,
+.ka-Table-body > tr.active:hover > td
+.ka-Table-hover > div > .ka-Table-body > tr.active > td,
+.ka-Table-hover > div > .ka-Table-body > tr.active:hover > td {
     background-color: #398eba;
     color: white;
 }

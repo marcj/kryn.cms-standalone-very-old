@@ -1,18 +1,16 @@
-
-input[type=password],
-input[type=text],
-.ka-Input {
+.ka-Input,
+input.text {
 
     border: 1px solid #bbb;
     color: #444;
-    font-size: 11px;
+    font-size: 12px;
+    line-height: 18px;
     -moz-border-radius: 3px;
     background-color: white;
     margin: 2px auto;
 
-    padding: 4px 0px;
     text-indent: 4px;
-    height: 12px;
+    height: 18px;
     width: 150px;
 
     box-shadow: 0px 1px 0px #f9f9f9;
@@ -32,5 +30,15 @@ input[type=text],
     background: linear-gradient(top,  #f2f2f2 0%,#f9f9f9 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f2f2', endColorstr='#f9f9f9',GradientType=0 ); /* IE6-8 */
 
+}
 
+.ka-Input:focus,
+input.text:focus {
+    border: 1px solid #3E9BCB;
+}
+
+.ka-Input-inactive:focus,
+input.text-inactive:focus {
+    color: #333;
+    background: #f1f1f1;
 }

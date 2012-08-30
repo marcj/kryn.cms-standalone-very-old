@@ -555,7 +555,15 @@ class Object {
         return self::update($object_key, $object_id[0], $pValues);
     }
 
-
+    /**
+     * Updates an item.
+     * 
+     * @param  string $pObjectKey
+     * @param  array $pPk
+     * @param  array $pValues
+     * @param  array $pOptions
+     * @return boolean
+     */
     public static function update($pObjectKey, $pPk, $pValues, $pOptions){
 
         if ($pOptions['permissionCheck']){

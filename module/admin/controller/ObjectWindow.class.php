@@ -1,6 +1,6 @@
 <?php
 
-namespace Admin\Window;
+namespace Admin;
 
 use \Core\Kryn;
 
@@ -44,6 +44,26 @@ abstract class ObjectWindow {
      * @var array
      */
     public $primary = array();
+
+    /**
+     * The primary key of the current object.
+     * If the class created a item through addItem(),
+     * it contains the primary key of the newly created
+     * item.
+     *
+     * array(
+     *    'id' => 1234
+     * )
+     *
+     * array(
+     *     'id' => 1234,
+     *     'subId' => 5678
+     * )
+     * 
+     * @var array
+     * @see getPrimaryKey()
+     */
+    public $primaryKey = array();
 
     /**
      * Defines the fields of your table which should be displayed.
@@ -227,6 +247,12 @@ abstract class ObjectWindow {
     public $_fields = array();
 
     /**
+     * Defines whether the class checks, if the user has account to requested object item.
+     * @var boolean
+     */
+    public $permissionCheck = true;
+
+    /**
      * Constructor
      */
     public function __construct($pEntryPoint = null) {
@@ -284,7 +310,7 @@ abstract class ObjectWindow {
 
         $this->filterFields = array();
 
-        Controller::translateFields($this->fields);
+        ObjectWindowController::translateFields($this->fields);
 
         if ($this->filter) {
             foreach ($this->filter as $key => $val) {
@@ -465,6 +491,9 @@ abstract class ObjectWindow {
 
         $condition = $this->getCondition();
 
+        if ($condition = $this->getCustomListingCondition())
+            $result = $result + $condition;
+
         $options['fields'] = $this->getFieldList();
 
         $maxItems = $obj->getCount($condition, $options);
@@ -496,7 +525,7 @@ abstract class ObjectWindow {
 
         $result = array();
 
-        if ($condition = \Core\Acl::getListingCondition($this->ormClass->object))
+        if ($this->permissionCheck && $condition = \Core\Acl::getListingCondition($this->ormClass->object))
             $result = $condition;
 
         if ($condition = $this->getCustomCondition())
@@ -506,13 +535,36 @@ abstract class ObjectWindow {
     }
 
     /**
-     * Here you can define additional conditions.
+     * Here you can define additional conditions for all operations (edit/listing).
      *
      * See phpDoc of global function dbConditionToSql for more details.
      * 
      * @return array condition definition
      */
     public function getCustomCondition(){
+
+    }
+
+
+    /**
+     * Here you can define additional conditions for edit operations.
+     *
+     * See phpDoc of global function dbConditionToSql for more details.
+     * 
+     * @return array condition definition
+     */
+    public function getCustomEditCondition(){
+
+    }
+
+    /**
+     * Here you can define additional conditions for listing operations.
+     *
+     * See phpDoc of global function dbConditionToSql for more details.
+     * 
+     * @return array condition definition
+     */
+    public function getCustomListingCondition(){
 
     }
 
@@ -529,7 +581,7 @@ abstract class ObjectWindow {
      * If multiple primary keys:
      *   array(
      *    'id' => 1234
-     *    'second_id' => 5678
+     *    'secondId' => 5678
      *   )
      *
      * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
@@ -539,8 +591,14 @@ abstract class ObjectWindow {
      */
     public function getItem($pPk) {
 
-        $condition = $this->getCondition();
+        $this->primaryKey = $pPk;
+
+        $condition = dbPrimaryKeyToCondition($pPk);
+        $condition += $this->getCondition();
         $condition += dbPrimaryKeyToCondition($pPk);
+
+        if ($condition = $this->getCustomListingCondition())
+            $result = $result + $condition;
         
         $obj = \Core\Object::getClass($this->object);
 
@@ -551,20 +609,36 @@ abstract class ObjectWindow {
         );
     }
 
-
     public function saveItem($pPk){
 
-        //access?
+        $this->primaryKey = $pPk;
+        $obj = \Core\Object::getClass($this->object);
 
+        //collect values
+        $data = $this->collectData();
 
-        $this->collectData();
+        //this is for the conditions/limitations from getCustomCondition/getCustomEditCondition
+        $condition  = dbPrimaryKeyToCondition($pPk);
+        $condition += $this->getCondition();
+        
+        if ($condition = $this->getCustomEditCondition())
+            $result = $result + $condition;
+
+        $item = $obj->getItem($condition);
+        if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));
+
+        //do normal update through Core\Object
+        $result = \Core\Object::update($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
 
         //handle customSaves
         foreach ($this->_fields as $key => $field){
             if ($field['customSave']){
-
+                if (method_exists($this, $field['customSave']))
+                    call_user_method($field['customSave'], $this);
             }
         }
+
+        return $result;
     }
 
     public function collectData(){
@@ -572,11 +646,16 @@ abstract class ObjectWindow {
         $data = array();
 
         foreach ($this->_fields as $key => $field){
-            if ($field['customSave']){
-                
-            } else if (!$field['customSave'] && $field['type'] != 'object'){
-                $data[$field] = $_POST($key);
+            if ($field['noSave']) continue;
+
+            if ($field['customValue'] && method_exists($this, $field['customValue'])){
+                $data[$key] = call_user_method($field['customValue'], $this);
+            } else if (!$field['customSave']){
+                $data[$key] = $_POST[$key]?:$_GET[$key];
             }
+
+            if (($field['onlyIfFilled'] || $field['onlyFilled']) && ($data[$field] === '' || $data[$field] === null))
+                unset($data[$key]);
         }
 
         return $data;
@@ -618,7 +697,20 @@ abstract class ObjectWindow {
         return $res;
     }
 
+    /**
+     * @return array
+     */
+    public function getPrimaryKey(){
+        return $this->primaryKey;
+    }
 
+
+    /**
+     * @return bool
+     */
+    public function getPermissionCheck(){
+        return $this->permissionCheck;
+    }
 
     /**
      * @param boolean $add

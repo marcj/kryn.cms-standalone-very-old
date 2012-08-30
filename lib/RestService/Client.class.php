@@ -48,8 +48,8 @@ class Client {
      * @param Server $pServerController
      */
     public function __construct($pServerController){
-        $this->controller = $pServerController;
 
+        $this->controller = $pServerController;
         $this->setUrl($_GET[$this->controller->getRewrittenRuleKey()]);
 
         $this->setupFormats();

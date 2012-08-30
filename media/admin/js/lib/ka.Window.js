@@ -697,21 +697,21 @@ ka.Window = new Class({
             }
 
         } else if (this.values) {
-            if (this.values.defaultWidth > 0) {
-                this.border.setStyle('width', this.values.defaultWidth);
+            if (this.entryPoint.defaultWidth > 0) {
+                this.border.setStyle('width', this.entryPoint.defaultWidth);
             }
-            if (this.values.defaultHeight > 0) {
-                this.border.setStyle('height', this.values.defaultHeight);
+            if (this.entryPoint.defaultHeight > 0) {
+                this.border.setStyle('height', this.entryPoint.defaultHeight);
             }
         }
 
         if (this.values){
-            if (this.values.fixedWidth > 0 || this.values.fixedHeight > 0) {
-                if (this.values.fixedWidth > 0) {
-                    this.border.setStyle('width', this.values.fixedWidth);
+            if (this.entryPoint.fixedWidth > 0 || this.entryPoint.fixedHeight > 0) {
+                if (this.entryPoint.fixedWidth > 0) {
+                    this.border.setStyle('width', this.entryPoint.fixedWidth);
                 }
-                if (this.values.fixedHeight > 0) {
-                    this.border.setStyle('height', this.values.fixedHeight);
+                if (this.entryPoint.fixedHeight > 0) {
+                    this.border.setStyle('height', this.entryPoint.fixedHeight);
                 }
                 this.resizeBottomRight.setStyle('display', 'none');
                 this.bottom.setStyle('background-image', 'none');
@@ -740,11 +740,11 @@ ka.Window = new Class({
         var newY = false;
         var newHeight = false;
 
-        if (this.values.minWidth && borderSize.x < this.values.minWidth) {
-            this.border.setStyle('width', this.values.minWidth);
+        if (this.entryPoint.minWidth && borderSize.x < this.entryPoint.minWidth) {
+            this.border.setStyle('width', this.entryPoint.minWidth);
         }
-        if (this.values.minWidth && borderSize.y < this.values.minHeight) {
-            this.border.setStyle('height', this.values.minHeight);
+        if (this.entryPoint.minWidth && borderSize.y < this.entryPoint.minHeight) {
+            this.border.setStyle('height', this.entryPoint.minHeight);
         }
 
 
@@ -898,30 +898,34 @@ ka.Window = new Class({
                 text: t('Loading entry point ...')
             }).inject(this.content);
 
-            this._ = new Request.JSON({url: _path + 'admin/' + module + this.code, onComplete: function (res) {
 
-                if (res.error == 'access_denied') {
-                    alert(t('Access denied'));
-                    this.close(true);
-                    return;
-                }
-                if (res.error == 'param_failed') {
-                    alert(t('Admin entry point not found') + ': ' + this.data.module + ' => ' + this.data.code);
-                    this.close(true);
-                    return;
-                }
-                this._loadContent(res.data, res.data._path);
+            var entrypoint = ka.entrypoint.get( module + this.code);
+            this._loadContent(entrypoint);
 
-            }.bind(this)}).get({_method: 'head'});
+            // this._ = new Request.JSON({url: _path + 'admin/' + module + this.code, onComplete: function (res) {
+
+            //     if (res.error == 'access_denied') {
+            //         alert(t('Access denied'));
+            //         this.close(true);
+            //         return;
+            //     }
+
+            //     if (res.error == 'param_failed') {
+            //         alert(t('Admin entry point not found') + ': ' + this.data.module + ' => ' + this.data.code);
+            //         this.close(true);
+            //         return;
+            //     }
+            //     this._loadContent(res.data, res.data._path);
+
+            // }.bind(this)}).get({_method: 'head'});
         }
     },
 
-    _loadContent: function (pVals, pPath) {
+    _loadContent: function (pEntryPoint) {
 
+        this.entryPoint = pEntryPoint;
 
-        this.values = pVals;
-
-        if (this.values.multi === false || this.values.multi === 0) {
+        if (this.entryPoint.multi === false || this.entryPoint.multi === 0) {
             var win = ka.wm.checkOpen(this.module, this.code, this.id);
             if (win) {
                 this.close(true);
@@ -947,7 +951,7 @@ ka.Window = new Class({
             }).inject(this.titleText, 'before');
         }
 
-        Array.each(pPath, function (label) {
+        Array.each(this.entryPoint._path, function (label) {
 
             new Element('span', {
                 text: _(label)
@@ -964,7 +968,7 @@ ka.Window = new Class({
             this.createResizer();
         }
 
-        this.titleText.set('text', t(pVals.title));
+        this.titleText.set('text', t(this.entryPoint.title));
 
 
         this.content.empty();
@@ -974,7 +978,7 @@ ka.Window = new Class({
         }).inject(this.content);
 
 
-        if (pVals.type == 'iframe') {
+        if (this.entryPoint.type == 'iframe') {
             this.content.empty();
             this.iframe = new IFrame('iframe_kwindow_' + this.id, {
                 'class': 'kwindow-iframe',
@@ -985,26 +989,26 @@ ka.Window = new Class({
                 this.iframe.contentWindow.wm = ka.wm;
                 this.iframe.contentWindow.fireEvent('kload');
             }.bind(this)).inject(this.content);
-            this.iframe.set('src', _path + pVals.src);
-        } else if (pVals.type == 'custom') {
+            this.iframe.set('src', _path + this.entryPoint.src);
+        } else if (this.entryPoint.type == 'custom') {
             this.renderCustom();
-        } else if (pVals.type == 'combine') {
+        } else if (this.entryPoint.type == 'combine') {
             this.renderCombine();
-        } else if (pVals.type == 'list') {
+        } else if (this.entryPoint.type == 'list') {
             this.renderList();
-        } else if (pVals.type == 'add') {
+        } else if (this.entryPoint.type == 'add') {
             this.renderAdd();
-        } else if (pVals.type == 'edit') {
+        } else if (this.entryPoint.type == 'edit') {
             this.renderEdit();
         }
 
         ka.wm.updateWindowBar();
 
-        if (this.values.noMaximize === true) {
+        if (this.entryPoint.noMaximize === true) {
             this.maximizer.destroy();
         }
 
-        if (this.values.print === true) {
+        if (this.entryPoint.print === true) {
             this.printer = new Element('img', {
                 'class': 'kwindow-win-printer',
                 src: _path + PATH_MEDIA + '/admin/images/icons/printer.png'
@@ -1066,7 +1070,7 @@ ka.Window = new Class({
 
         var javascript = this.code.replace(/\//g, '_');
 
-        var mdate = this.values.cssmdate;
+        var mdate = this.entryPoint.cssmdate;
 
         if (this.module == 'admin' && mdate) {
             this.customCssAsset = new Asset.css(_path + PATH_MEDIA + '/admin/css/' + javascript + '.css?mdate=' + mdate);
@@ -1154,7 +1158,7 @@ ka.Window = new Class({
         }).addEvent('dblclick', function () {
             if (document.body.hasClass('ka-no-desktop')) return;
 
-            if (this.values && this.values.noMaximize !== true) {
+            if (this.values && this.entryPoint.noMaximize !== true) {
                 this.maximize();
             }
         }.bind(this)).inject(this.win);
@@ -1383,8 +1387,8 @@ ka.Window = new Class({
             }
         }).inject(this.border);
 
-        var minWidth = ( this.values.minWidth > 0 ) ? this.values.minWidth : 400;
-        var minHeight = ( this.values.minHeight > 0 ) ? this.values.minHeight : 300;
+        var minWidth = ( this.entryPoint.minWidth > 0 ) ? this.entryPoint.minWidth : 400;
+        var minHeight = ( this.entryPoint.minHeight > 0 ) ? this.entryPoint.minHeight : 300;
 
         this.border.makeResizable({
             grid: 1,

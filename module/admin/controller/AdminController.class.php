@@ -22,7 +22,7 @@ class AdminController {
      * @internal
      * @static
      */
-    public static function checkAccess($pUrl, $pRoute) {
+    public static function checkAccess($pUrl) {
 
         return true;
 
@@ -48,21 +48,53 @@ class AdminController {
 
         @header('Expires:');
 
-        $code = Kryn::getRequestedPath();
-        $pEntryPoint = Utils::getPathItem($code); //admin entry point
-
-        if (!$pEntryPoint) {
-            $pEntryPoint = Utils::getPathItem(substr($code, 6)); //extensions
+        if (Kryn::$config['displayRestErrors']){
+            if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest'){
+                $exceptionHandler = array($this, 'exceptionHandler');
+            }
+            $debugMode = true;
         }
 
-        if ($pEntryPoint) {
-            $epc = new RestFrameworkEntryPoint('admin');
-            $epc->run($pEntryPoint);
+        $url = Kryn::getRequestedPath();
+
+        //checkAccess
+        $this->checkAccess($url);
+
+        
+        $entryPoint = Utils::getEntryPoint($url); //admin entry point
+
+        if (!$entryPoint)
+            $entryPoint = Utils::getEntryPoint(substr($url, strlen('admin/'))); //extensions
+        
+
+        if ($entryPoint) {
+
+            //is window entry point?
+            $objectWindowTypes = array('list', 'edit', 'add', 'combine');
+            if (in_array($entryPoint['type'], $objectWindowTypes)){
+                $epc = new ObjectWindowController('admin');
+                $epc->run($entryPoint);
+            }
+
+            //is store?
+            //todo
         }
+
 
         if (Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin'){
 
-            die(Kryn::$modules[getArgv(2)]->admin());
+            $clazz = '\\'.getArgv(2).'\\AdminController';
+            $controller = new $clazz($pEnt);
+
+            if (get_parent_class($clazz) == 'RestService\Server'){
+                $obj = new $clazz('admin/'.getArgv(2));
+                $obj->setExceptionHandler($exceptionHandler);
+                $obj->setDebugMode($debugMode);
+            } else {
+                $obj = new $clazz();
+            }
+
+            die($obj->run());
 
         } else {
 

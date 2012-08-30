@@ -220,17 +220,6 @@ ka.Field = new Class({
         }
 
         if (this.input) {
-            if (this.input.get('tag') == 'input' && this.input.get('class') == 'text') {
-                this.input.store('oldBg', this.input.getStyle('background-color'));
-                this.input.addEvent('focus', function () {
-                    this.setStyle('border', '1px solid black');
-                    this.setStyle('background-color', '#fff770');
-                });
-                this.input.addEvent('blur', function () {
-                    this.setStyle('border', '1px solid silver');
-                    this.setStyle('background-color', this.retrieve('oldBg'));
-                });
-            }
 
             if (this.field.disabled) {
                 this.input.set('disabled', true);
@@ -367,6 +356,7 @@ ka.Field = new Class({
 
                 break;
             case 'lang':
+            case 'language':
 
                 this.field.items = {}
                 Object.each(ka.settings.langs, function (lang, id) {
@@ -2026,7 +2016,7 @@ ka.Field = new Class({
         Object.each(this.objectTableLoaderQueue, function(placeholders, id){
             ids.push(id);
         });
-        url += ids.join('/');
+        url += ids.join(',');
 
         if (this.lastRq)
             this.lastRq.cancel();

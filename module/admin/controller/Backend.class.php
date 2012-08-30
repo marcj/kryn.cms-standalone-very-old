@@ -175,7 +175,7 @@ class Backend {
         }
 
         if ($loadKeys == false || in_array('groups', $loadKeys))
-            $res['groups'] = dbTableFetch('system_group', DB_FETCH_ALL);
+            $res['groups'] = dbTableFetchAll('system_group');
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
@@ -220,8 +220,9 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('langs', $loadKeys)){
-            $tlangs = \LangsQuery::create()->filterByVisible(1)->find();
-            $langs = dbToKeyIndex($tlangs->toArray(), 'code');
+            $tlangs = \LangsQuery::create()->filterByVisible(1)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+
+            $langs = dbToKeyIndex($tlangs, 'code');
             $res['langs'] = $langs;
         }
 

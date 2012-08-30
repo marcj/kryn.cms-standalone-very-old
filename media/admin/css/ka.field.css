@@ -41,15 +41,6 @@ h2.ka-field-headline {
     width: 187px;
 }
 
-.ka-field-main-small .ka-field-field input.text,
-.ka-field-main-small .ka-field-field textarea {
-    width: 175px;
-}
-
-.ka-field-main-small .ka-field-field select.ka-field {
-    width: 179px;
-}
-
 .ka-field-title {
     position: relative;
 }
@@ -78,23 +69,17 @@ tr.ka-field-main > td div.desc {
     position: relative;
 }
 
-.ka-field-field select.ka-field,
-.ka-field-field textarea.ka-field,
-.ka-field-field input.text {
-    width: 296px;
-}
-
 
 .ka-field-field input.chooser {
     width: 220px;
 }
 
 select,
-textarea,
-input.text {
+textarea {
     border: 1px solid #bbb;
     color: #444;
-    font-size: 11px;
+    font-size: 12px;
+    line-height: 12px;
     -moz-border-radius: 3px;
     background-color: white;
     margin: 2px auto;
@@ -104,14 +89,7 @@ textarea {
     padding: 4px;
 }
 
-input.text {
-    padding: 4px 0px;
-    text-indent: 4px;
-    height: 12px;
-    width: 150px;
-}
 
-input.text,
 textarea {
     -moz-border-radius: 3px;
     box-shadow: 0px 1px 0px #f9f9f9;
@@ -130,15 +108,6 @@ textarea {
 
 }
 
-input.text-inactive {
-
-    color: #333;
-    background: #f1f1f1;
-
-}
-
-
-input.text:focus,
 textarea:focus {
     border: 1px solid #888;
 }
@@ -195,12 +164,6 @@ input.ka-field-dateTime {
     top: 0px;
     height: 60px;
     left: 260px;
-}
-
-.ka-field-array .ka-field textarea,
-.ka-field-array .ka-field select,
-.ka-field-array .ka-field input.text {
-    width: 85%;
 }
 
 .ka-field-textlist {

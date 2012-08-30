@@ -66,7 +66,8 @@ class Controller {
         $obj = $this->getClass();
 
         if ($pObject !== null){
-            return $obj->getItem($pObject);
+            $pk = \Core\Object::parsePk($obj->object, $pObject);
+            return $obj->getItem($pk);
         } else {
             return $obj->getItems();
         }

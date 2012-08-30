@@ -4,7 +4,7 @@
 namespace Users\Admin;
 
 
-class UserList extends \Admin\Window\Combine {
+class UserList extends \Admin\ObjectWindow {
 
     public $object = 'user';
 

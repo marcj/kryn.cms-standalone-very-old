@@ -85,10 +85,11 @@ class Edit extends WindowAbstract {
         return $previewUrls;
     }
 
+
     /**
      * Loads all plugins from system_contents to a indexed cached array
      */
-    public static function cachePluginsRelations() {
+    /*public static function cachePluginsRelations() {
 
         $res = dbExec('
         SELECT p.domain_id, p.id, c.content, p.title
@@ -119,14 +120,14 @@ class Edit extends WindowAbstract {
 
         }
         Core\Kryn::setCache('kryn_pluginrelations', $pluginRelations);
-    }
+    }*/
 
 
 
     /**
      * Loads all pages which have included the plugin in $previewPlugins
      */
-    public function loadPreviewPages() {
+    /*public function loadPreviewPages() {
 
         if (!$this->previewPlugins)
             return;
@@ -163,14 +164,14 @@ class Edit extends WindowAbstract {
                 }
             }
         }
-    }
+    }*/
 
     /**
      * Return the selected item from database.
      *
      * @return array
      */
-    public function getItem($pPk) {
+    public function getIte2222m($pPk) {
 
         $pk = \Core\Object::parsePk($this->object, $pPk);
         $fields = array();

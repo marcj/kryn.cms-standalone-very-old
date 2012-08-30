@@ -145,7 +145,7 @@ class Utils {
      * @param $pCode <extKey>/news/foo/bar/edit
      * @return array|bool
      */
-    public static function getPathItem($pCode) {
+    public static function getEntryPoint($pCode) {
 
         $codes = explode('/', $pCode);
 
@@ -193,7 +193,6 @@ class Utils {
                 $_info['cssmdate'] = $mtime;
             }
         }
-
 
         return $_info;
     }
