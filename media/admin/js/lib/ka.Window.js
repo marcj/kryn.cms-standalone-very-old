@@ -385,25 +385,6 @@ ka.Window = new Class({
 
     },
 
-
-    /*
-     checkAccess: function(){
-     var _this = this;
-     var req = {
-     code: this.code,
-     module: this.module
-     };
-     new Request.JSON({url: _path+'admin/backend/window/checkAccess', noCache: 1, onComplete: function(res){
-     if( res == true ){
-     } else {
-     _this._alert( 'Zugriff verweigert', function(){
-     _this.close( true );
-     });
-     }
-     }}).post( req );
-     },
-     */
-
     parseTitle: function (pHtml) {
 
         pHtml = pHtml.replace('<img', ' » <img');
@@ -696,7 +677,7 @@ ka.Window = new Class({
                 this.maximize(true);
             }
 
-        } else if (this.values) {
+        } else if (this.entryPoint) {
             if (this.entryPoint.defaultWidth > 0) {
                 this.border.setStyle('width', this.entryPoint.defaultWidth);
             }
@@ -705,7 +686,7 @@ ka.Window = new Class({
             }
         }
 
-        if (this.values){
+        if (this.entryPoint){
             if (this.entryPoint.fixedWidth > 0 || this.entryPoint.fixedHeight > 0) {
                 if (this.entryPoint.fixedWidth > 0) {
                     this.border.setStyle('width', this.entryPoint.fixedWidth);
@@ -718,7 +699,7 @@ ka.Window = new Class({
             }
         }
 
-        if (this.values) {
+        if (this.entryPoint) {
             //check dimensions if to big/small
             this.checkDimensions();
         }
@@ -883,49 +864,16 @@ ka.Window = new Class({
 
     },
 
-    loadContent: function (pVals) {
+    loadContent: function () {
 
-        if (pVals) {
-            this._loadContent(pVals);
-        } else {
-
-            var module = this.module + '/';
-            if (this.module == 'admin') {
-                module = '';
-            }
-
-            this.content.empty();
-            new Element('div', {
-                style: 'text-align: center; padding: 15px; color: gray',
-                text: t('Loading entry point ...')
-            }).inject(this.content);
-
-
-            var entrypoint = ka.entrypoint.get( module + this.code);
-            this._loadContent(entrypoint);
-
-            // this._ = new Request.JSON({url: _path + 'admin/' + module + this.code, onComplete: function (res) {
-
-            //     if (res.error == 'access_denied') {
-            //         alert(t('Access denied'));
-            //         this.close(true);
-            //         return;
-            //     }
-
-            //     if (res.error == 'param_failed') {
-            //         alert(t('Admin entry point not found') + ': ' + this.data.module + ' => ' + this.data.code);
-            //         this.close(true);
-            //         return;
-            //     }
-            //     this._loadContent(res.data, res.data._path);
-
-            // }.bind(this)}).get({_method: 'head'});
+        var module = this.module + '/';
+        if (this.module == 'admin') {
+            module = '';
         }
-    },
 
-    _loadContent: function (pEntryPoint) {
+        this.content.empty();
 
-        this.entryPoint = pEntryPoint;
+        this.entryPoint = ka.entrypoint.get( module + this.code);
 
         if (this.entryPoint.multi === false || this.entryPoint.multi === 0) {
             var win = ka.wm.checkOpen(this.module, this.code, this.id);
@@ -937,11 +885,7 @@ ka.Window = new Class({
             }
         }
 
-        var title = ka.settings.configs[ this.module ]['title']['en'];
-
-        if (ka.settings.configs[ this.module ]['title'][window._session.lang]) {
-            title = ka.settings.configs[ this.module ]['title'][window._session.lang];
-        }
+        var title = ka.settings.configs[ this.module ]['title'];
 
         if (title != 'Kryn.cms') {
             new Element('span', {
@@ -1160,7 +1104,7 @@ ka.Window = new Class({
         }).addEvent('dblclick', function () {
             if (document.body.hasClass('ka-no-desktop')) return;
 
-            if (this.values && this.entryPoint.noMaximize !== true) {
+            if (this.entryPoint && this.entryPoint.noMaximize !== true) {
                 this.maximize();
             }
         }.bind(this)).inject(this.win);

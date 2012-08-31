@@ -30,8 +30,8 @@ var admin_system_module = new Class({
         /* installed */
         this.tableInstalled = new ka.Table().inject(this.panes['installed']);
         this.tableInstalled.setColumns([
-            [_('Title')],
-            [_('Activated'), 70],
+            [_('Title'), null, 'html'],
+            [_('Activated'), 70, 'html'],
             [_('Version'), 70],
             [_('Server v.'), 70],
             [_('Status'), 100],
@@ -222,8 +222,8 @@ var admin_system_module = new Class({
             //if connected
             tableMyDiv = new Element('div', {style: 'position: relative'}).inject(p);
             tables['my'] = new ka.Table([
-                [_('Title')],
-                [_('Activated'), 50],
+                [_('Title'), null, 'html'],
+                [_('Activated'), 50, 'html'],
                 [_('Version'), 50],
                 [_('Server v.'), 50],
                 [_('Status'), 130],
@@ -237,8 +237,8 @@ var admin_system_module = new Class({
 
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
         tables['local'] = new ka.Table([
-            [_('Title')],
-            [_('Activated'), 50],
+            [_('Title'), null, 'html'],
+            [_('Activated'), 50, 'html'],
             [_('Version'), 50],
             [_('Server v.'), 50],
             [_('Status'), 130],

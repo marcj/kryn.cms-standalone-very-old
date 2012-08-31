@@ -1210,10 +1210,10 @@ ka.WindowCombine = new Class({
         } else {
 
             if (this.classProperties.fields.title) {
-                layout += '<h2 id="title"></h2>';
+                layout += '<h2>{item.title}</h2>';
                 titleAdded = true;
             } else if (this.classProperties.fields.name) {
-                layout += '<h2 id="name"></h2>';
+                layout += '<h2>{item.name</h2>';
                 nameAdded = true;
             }
 
@@ -1231,7 +1231,7 @@ ka.WindowCombine = new Class({
                     layout += ', ';
                 }
 
-                layout += "<span id=" + id + "></span>";
+                layout += "<span>{item."+id+"}></span>";
                 c++;
 
             }.bind(this));
@@ -1240,7 +1240,6 @@ ka.WindowCombine = new Class({
         }
 
         var item = new Element('div', {
-            html: layout,
             'class': 'ka-list-combine-item'
         }).store('item', pItem).addEvent('click', this.loadItem.bind(this, pItem));
 
@@ -1310,17 +1309,18 @@ ka.WindowCombine = new Class({
         }
 
         //parse
+        var data = {};
         Object.each(this.classProperties.fields, function (column, columnId) {
-
-            if (item.getElement('*[id=' + columnId + ']')) {
-
-                var value = this.getItemTitle(pItem, columnId);
-
-                item.getElement('*[id=' + columnId + ']').set('html', value);
-
-            }
-
+            data[columnId] = this.getItemTitle(pItem, columnId);
         }.bind(this));
+
+        var context = {
+            'window': window,
+            item: data,
+            origin: pItem.values
+        };
+
+        ka.injectTemplate(item, layout, context);
 
         return item;
 

@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
     <script type="text/javascript" src="media/core/mootools-core-1.4.5-full-nocompat.js" ></script>
     <script type="text/javascript" src="media/core/mootools-more-1.4.0.1-nocompat-yc.js" ></script>
-    <script type="text/javascript" src="media/core/jsmart-2.9.js" ></script>
+    <!-- todo <script type="text/javascript" src="media/core/mowla.js" ></script> -->
 
     <script type="text/javascript">
         window._path = window._baseUrl = '{Kryn::getBaseUrl()}';
@@ -57,6 +57,21 @@
         {if $noAdminAccess}
         window._session.noAdminAccess = true;
         {/if}
+        {literal}
+        doT.templateSettings = {
+          evaluate:    /\{([\s\S]+?)\}/g,
+          interpolate: /\{=([\s\S]+?)\}/g,
+          encode:      /\{!([\s\S]+?)\}/g,
+          use:         /\{#([\s\S]+?)\}/g,
+          define:      /\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}/g,
+          conditional: /\{\?(\?)?\s*([\s\S]*?)\s*\}/g,
+          iterate:     /\{~\s*(?:\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\})/g,
+          varname: 'it',
+          strip: true,
+          append: true,
+          selfcontained: false
+        };
+        {/literal}
 
         CodeMirror.modeURL = "lib/codemirror/mode/%N/%N.js";
     </script>

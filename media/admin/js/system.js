@@ -8,7 +8,6 @@ var admin_system = new Class({
 
         var tpl = 
         '<h3>Kryn.cms</h3><br/>'+
-        'Version: {$ka.settings.configs.core.version}<br/>'+
         'Version: {ka.settings.configs.core.version}<br/>'+
         '<br/>'+
         '<a href="{_path}LICENSE">LICENSE</a><br/>'+
@@ -22,8 +21,8 @@ var admin_system = new Class({
         '<br/>'+
         '';
 
-        ka.template(this.win.content, tpl);
-        this.win.content.setStyle('text-align', 'center');
+        ka.injectTemplate(this.win.content, tpl);
+        this.win.content.setStyle('text-align', 'center');  
     }
 });
 

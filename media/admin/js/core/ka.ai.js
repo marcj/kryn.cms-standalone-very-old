@@ -169,6 +169,22 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
 }
 
 /**
+ * Injects result of pSource into pTarget
+ * 
+ * @param  {Element} pTarget
+ * @param  {String}  pSource
+ * @param  {Object}  pData Default is window.
+ */
+ka.injectTemplate = function(pTarget, pSource, pData){
+    if (!pData) pData = window;
+
+    var fn = mowla(pSource, pData, pTarget);
+    logger(fn);
+    logger(pData);
+    pTarget.set('html', fn(pData));
+}
+
+/**
  * Return a translated message $pMsg within a context $pContext
  *
  * @param string pContext the message id of the context
@@ -385,14 +401,6 @@ ka.getObjectId = function(pUrl){
             return ka.urlDecode(id);
         }
     }
-}
-
-
-ka.template = function(pContainer, pTpl, pData){
-    var tpl = new jSmart(pTpl);
-    pContainer.set('html', tpl.fetch(pData || window));
-
-    return tpl;
 }
 
 
