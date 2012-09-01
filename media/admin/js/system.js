@@ -6,9 +6,8 @@ var admin_system = new Class({
 
     _createLayout: function () {
 
-        var tpl = 
+        this.win.content.set('html',
         '<h3>Kryn.cms</h3><br/>'+
-        'Version: {$ka.settings.configs.core.version}<br/>'+
         'Version: {ka.settings.configs.core.version}<br/>'+
         '<br/>'+
         '<a href="{_path}LICENSE">LICENSE</a><br/>'+
@@ -19,10 +18,9 @@ var admin_system = new Class({
         '<br/>'+
         '<div>&copy; <a target="_blank" href="http://www.kryn.org">www.kryn.org</a>. All Rights Reserved.'+
         '<br/>'+
-        '<br/>'+
-        '';
+        '<br/>');
 
-        ka.template(this.win.content, tpl);
+        mowla.render(this.win.content);
         this.win.content.setStyle('text-align', 'center');
     }
 });

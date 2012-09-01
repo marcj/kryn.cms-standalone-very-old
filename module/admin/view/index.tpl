@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
     <script type="text/javascript" src="media/core/mootools-core-1.4.5-full-nocompat.js" ></script>
     <script type="text/javascript" src="media/core/mootools-more-1.4.0.1-nocompat-yc.js" ></script>
-    <script type="text/javascript" src="media/core/jsmart-2.9.js" ></script>
+    <script type="text/javascript" src="media/core/mowla.min.js" ></script>
 
     <script type="text/javascript">
         window._path = window._baseUrl = '{Kryn::getBaseUrl()}';
