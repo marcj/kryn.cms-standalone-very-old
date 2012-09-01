@@ -1,3 +1,4 @@
+
 var admin_system = new Class({
     initialize: function (pWindow) {
         this.win = pWindow;
@@ -24,4 +25,3 @@ var admin_system = new Class({
         this.win.content.setStyle('text-align', 'center');
     }
 });
-

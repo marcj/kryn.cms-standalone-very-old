@@ -116,6 +116,8 @@
             "type": "custom",
             "isLink": 1,
             "multi": 1,
+            "fixedWidth": 300,
+            "fixedHeight": 200,
             "childs": {
                 "desktopSettings": {
                     "title": "[[Desktop settings]]",

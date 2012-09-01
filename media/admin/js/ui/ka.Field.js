@@ -2624,7 +2624,7 @@ ka.Field = new Class({
         });
 
         this.getValue = function(){
-            if (!this.input.value) return 0;
+            if (this.input.value === '') return '';
             return parseFloat(this.input.value);
         }.bind(this);
 

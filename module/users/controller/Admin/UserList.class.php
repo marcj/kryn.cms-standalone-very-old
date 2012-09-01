@@ -17,7 +17,10 @@ class UserList extends \Admin\ObjectWindow {
     public $edit = true;
     public $remove = true;
     
-    public $itemLayout = '<b id="username"></b> (<span id="firstName"></span> <span id="lastName"></span>)<div style="color: silver;" id="email"></div><div style="color: silver;" id="groupMembership.name"></div>';
+    //todo
+    //public $itemLayout = '<b>{=item.username}</b>';
+    // {?item.firstName}(<span>{=item.firstName}</span> <span>{=item.lastName}</span>){??}
+    //{?item.email}<div style="color: silver;">{=item.email}</div>{/item.email}<div style="color: silver;">{=item.groupMembership.name}</div>
 
     public $fields = array(
         'lastName' => array(
