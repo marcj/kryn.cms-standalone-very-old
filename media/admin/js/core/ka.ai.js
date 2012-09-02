@@ -391,14 +391,14 @@ ka.getObjectId = function(pUrl){
 
 ka.getObjectLabels = function(pFields, pItem, pObjectId, pRelationsAsArray){
 
-    var data = {}, dataKey;
+    var data = pItem, dataKey;
     Object.each(pFields, function(field, fieldId){
         dataKey = fieldId;
         if (pRelationsAsArray && dataKey.indexOf('.') > 0) dataKey = dataKey.split('.')[0];
 
         data[dataKey] = ka.getObjectLabel(pItem, field, fieldId, pObjectId, pRelationsAsArray);
     }.bind(this));
-
+    
     return data;
 }
 
