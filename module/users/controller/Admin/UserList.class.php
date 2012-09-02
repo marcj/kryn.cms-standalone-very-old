@@ -18,9 +18,9 @@ class UserList extends \Admin\ObjectWindow {
     public $remove = true;
     
     //todo
-    //public $itemLayout = '<b>{=item.username}</b>';
-    // {?item.firstName}(<span>{=item.firstName}</span> <span>{=item.lastName}</span>){??}
-    //{?item.email}<div style="color: silver;">{=item.email}</div>{/item.email}<div style="color: silver;">{=item.groupMembership.name}</div>
+    public $itemLayout = '<b>{item.username}</b>
+    {if item.firstName || item.lastName}(<span>{item.firstName}</span>{if item.lastName} <span>{item.lastName}</span>){/if}{/if}
+    {if item.email}<div style="color: silver;">{item.email}</div>{/if}<div style="color: silver;">{item.groupMembership.name}</div>';
 
     public $fields = array(
         'lastName' => array(
@@ -46,7 +46,9 @@ class UserList extends \Admin\ObjectWindow {
                 '1' => 'admin/images/icons/accept.png'
             )
         ),
-        'groupMembership.name'
+        'groupMembership.name' => array(
+            'label' => 'Group membership'
+        )
     );
 
     function getCustomCondition(){
@@ -63,16 +65,11 @@ class UserList extends \Admin\ObjectWindow {
         return true;
     }
 
-    function acl( $pItem ){
-        $res = parent::acl( $pItem );
+    function prepareRow( $pItem ){
+        $res = parent::prepareRow( $pItem );
 
-        if( $pItem['id'] == '1' )
+        if ($pItem['id'] == '1')
             $res['remove'] = false;
-
-        if( $pItem['id'] == '0' ){
-            $res['remove'] = false;
-            $res['edit'] = false;
-        }
 
         return $res;
     }

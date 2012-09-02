@@ -728,7 +728,12 @@ ka.WindowCombine = new Class({
 
     getSplitTitle: function (pItem) {
 
-        var value = this.getItemTitle(pItem, this.sortField);
+        var value = ka.getObjectLabel(
+            pItem['values'],
+            this.classProperties.fields[this.sortField],
+            this.sortField,
+            this.classProperties['object']
+        );
         if (value == '') return _('-- No value --');
 
         if (!this.classProperties.fields[this.sortField])
@@ -755,41 +760,6 @@ ka.WindowCombine = new Class({
             return value;
         }
 
-    },
-
-    getItemTitle: function (pItem, pColumnId) {
-        
-        return ka.getListLabel(pItem['values'], this.classProperties.fields[pColumnId], pColumnId, this.classProperties['object']);
-
-        var value = pItem['values'][pColumnId]
-        if (!this.classProperties.fields[pColumnId]) return value;
-
-        var column = this.classProperties.fields[pColumnId];
-
-        if (column.format == 'timestamp') {
-            value = new Date(value * 1000).toLocaleString();
-        }
-
-        if (column.type == 'datetime' || column.type == 'date') {
-            if (value != 0 && value) {
-                var format = ( !column.format ) ? '%d.%m.%Y %H:%M' : column.format;
-                value = new Date(value * 1000).format(format);
-            } else {
-                value = '';
-            }
-        }
-
-        if (column.type == 'select') {
-            value = pItem['values'][pColumnId +'_'+ column.table_label] || pItem['values'][pColumnId + '__label'];
-        }
-
-
-        if (column.imageMap) {
-            value = '<img src="' + _path + column.imageMap[value] + '"/>';
-        }
-
-
-        return value ? value : '';
     },
 
     prepareLoadPage: function () {
@@ -1231,7 +1201,7 @@ ka.WindowCombine = new Class({
                     layout += ', ';
                 }
 
-                layout += "<span>{item."+id+"}></span>";
+                layout += "<span>{item."+id+"}</span>";
                 c++;
 
             }.bind(this));
@@ -1240,9 +1210,27 @@ ka.WindowCombine = new Class({
         }
 
         var item = new Element('div', {
+            html: layout,
             'class': 'ka-list-combine-item'
         }).store('item', pItem).addEvent('click', this.loadItem.bind(this, pItem));
 
+
+
+        //parse template
+        var data = ka.getObjectLabels(
+            this.classProperties.fields,
+            pItem['values'],
+            this.classProperties['object'],
+            true
+        );
+
+        var data = {
+            'window': window,
+            item: data,
+            origin: pItem.values
+        };
+
+        mowla.render(item, data);
 
         if (this.classProperties.remove == true) {
 
@@ -1307,20 +1295,6 @@ ka.WindowCombine = new Class({
                 this.needSelection = false;
             }
         }
-
-        //parse
-        var data = {};
-        Object.each(this.classProperties.fields, function (column, columnId) {
-            data[columnId] = this.getItemTitle(pItem, columnId);
-        }.bind(this));
-
-        var context = {
-            'window': window,
-            item: data,
-            origin: pItem.values
-        };
-
-        ka.injectTemplate(item, layout, context);
 
         return item;
 

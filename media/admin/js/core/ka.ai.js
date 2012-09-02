@@ -168,21 +168,6 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
     }
 }
 
-/**
- * Injects result of pSource into pTarget
- * 
- * @param  {Element} pTarget
- * @param  {String}  pSource
- * @param  {Object}  pData Default is window.
- */
-ka.injectTemplate = function(pTarget, pSource, pData){
-    if (!pData) pData = window;
-
-    var fn = mowla(pSource, pData, pTarget);
-    logger(fn);
-    logger(pData);
-    pTarget.set('html', fn(pData));
-}
 
 /**
  * Return a translated message $pMsg within a context $pContext
@@ -404,7 +389,20 @@ ka.getObjectId = function(pUrl){
 }
 
 
-ka.getListLabel = function(pValue, pField, pFieldId, pObjectId){
+ka.getObjectLabels = function(pFields, pItem, pObjectId, pRelationsAsArray){
+
+    var data = {}, dataKey;
+    Object.each(pFields, function(field, fieldId){
+        dataKey = fieldId;
+        if (pRelationsAsArray && dataKey.indexOf('.') > 0) dataKey = dataKey.split('.')[0];
+
+        data[dataKey] = ka.getObjectLabel(pItem, field, fieldId, pObjectId, pRelationsAsArray);
+    }.bind(this));
+
+    return data;
+}
+
+ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectId, pRelationsAsArray){
 
     var value = pValue[pFieldId] || '';
 
@@ -426,7 +424,6 @@ ka.getListLabel = function(pValue, pField, pFieldId, pObjectId){
         }
     }
 
-
     //relations
     var label, relation;
     if (field.type == 'object' || !field.type){
@@ -441,7 +438,13 @@ ka.getListLabel = function(pValue, pField, pFieldId, pObjectId){
     }
     if (typeOf(pValue[relation]) == 'object'){
         //to-one relation
-        value = pValue[relation][label];
+        value = {};
+        if (pRelationsAsArray){
+            value[label] = pValue[relation][label];
+            return value;
+        } else {
+            return pValue[relation][label];
+        }
     }
 
     if (typeOf(pValue[relation]) == 'array'){
@@ -451,12 +454,14 @@ ka.getListLabel = function(pValue, pField, pFieldId, pObjectId){
         Array.each(pValue[relation], function(relValue){
             value.push(relValue[label]);
         });
-        value = value.join(pField['join'] || ', ');
-    }
-
-
-    if (field.type == 'object'){
-        value = pValue[pFieldId+'_'+field['object_label']] || pValue[pFieldId+'_'+field['objectLabel']];
+        var joined = value.join(pField['join'] || ', ');
+        if (pRelationsAsArray){
+            value = {};
+            value[label] = joined;
+            return value;
+        } else {
+            return joined;
+        }
     }
 
     if (field.type == 'select') {
@@ -473,7 +478,7 @@ ka.getListLabel = function(pValue, pField, pFieldId, pObjectId){
     } else if(typeOf(value) == 'string'){
         return value.replace('<', '&lt;').replace('>', '&gt;');
     } else if(typeOf(value) == 'number'){
-        return value
+        return value;
     }
     return '';
 }
