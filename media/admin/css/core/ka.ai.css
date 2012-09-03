@@ -105,7 +105,7 @@ div.header {
     color: white;
     z-index: 110000;
 
-    background-image: url(../images/admin-topbar-bg.png);
+    background-image: url(../../images/admin-topbar-bg.png);
 
 }
 
@@ -364,7 +364,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     top: 70px;
     bottom: 40px;
     min-width: 200px;
-    background-image: url(../images/module-bar-bg.png);
+    background-image: url(../../images/module-bar-bg.png);
     background-repeat: repeat-x;
     padding-top: 7px; 
     background-color: #656465;
@@ -468,7 +468,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     cursor: pointer;
     text-align: center;
     
-    background-image: url(../images/module-bar-button.png);
+    background-image: url(../../images/module-bar-button.png);
     background-position: right top;
     background-repeat: no-repeat;
     
@@ -482,7 +482,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
 
 .ka-module-toggler:hover {
     background-color: #287ca4;
-    background-image: url(../images/module-bar-button-active.png);
+    background-image: url(../../images/module-bar-button-active.png);
 }
 
 .ka-module-toggler img {
@@ -576,7 +576,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     height: 19px;
     padding-right: 3px;
     left: 0px;
-    /*background-image: url(../images/userInfo-bg.png);*/
+    /*background-image: url(../../images/userInfo-bg.png);*/
     background-color: #888;
     -moz-border-radius: 7px;
     -webkit-border-radius: 7px;
@@ -605,7 +605,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     position: absolute;
     top: 24px;
     right: 37px;
-    background-image: url(../images/userInfo-bg.png);
+    background-image: url(../../images/userInfo-bg.png);
     -moz-border-radius-bottomright: 7px;
     -moz-border-radius-bottomleft: 7px;
     -webkit-border-bottom-right-radius: 7px;
@@ -705,7 +705,7 @@ a.ka-subnavi-main:link {
     border-top-right-radius: 6px;
 
     background-color: #5a585d;
-    background-image: url(../images/windowlist-bg.png);
+    background-image: url(../../images/windowlist-bg.png);
     background-repeat: repeat-x;
     padding: 0px 11px 0 11px;
     padding-left: 3px;
@@ -761,31 +761,6 @@ a.ka-subnavi-main:link {
     color: #999;
 }
 
-/* file extensions */
-.ka-files-fileContainer .dir {
-    background-image: url(../images/ext/dir.png);
-}
-.ka-files-fileContainer .file {
-    background-image: url(../images/ext/tpl.png);
-}
-.ka-files-fileContainer .image {
-    background-image: url(../images/ext/image.png);
-}
-.ka-files-fileContainer .css {
-    background-image: url(../images/ext/css.png);
-}
-
-.ka-files-fileContainer .js {
-    background-image: url(../images/ext/js.png);
-}
-.ka-files-fileContainer .html,
-.ka-files-fileContainer .htm,
-.ka-files-fileContainer .tpl {
-    background-image: url(../images/ext/html.png);
-}
-
-
-
 .input-round-wrapper {
     -moz-border-radius: 7px;
     -webkit-border-radius: 7px;
@@ -795,19 +770,6 @@ a.ka-subnavi-main:link {
     border-top: 1px solid #666;
 }
 
-input.round {
-    background-color: #eae9eb;
-    width: 100%;
-    height: 13px;
-    padding: 3px;
-    padding-top: 2px;
-    font-size: 11px;
-    color: gray;
-    -moz-border-radius: 7px;
-    -webkit-border-radius: 7px;
-    border-radius: 7px;
-    border: 1px solid #ccc;
-}
 
 .ka-search {
     float: right;
@@ -829,16 +791,6 @@ input.round {
     position: absolute;
     right: 122px;
     top: 18px;
-}
-
-.header a.ka-cache-icon {
-    background-image:url(../images/bin-icon.png);
-    left: 25px;
-}
-
-.header a.ka-create-search-index-icon {
-	background-image:url(../images/index-icon.png);
-	left: 5px;
 }
 
 
@@ -1030,7 +982,7 @@ a.ka-create-search-index-icon.red {
     right: 0px;
     top: -6px;
     height: 6px;
-    background-image: url(../images/ka-admin-possibleContenItems-toggler.png);
+    background-image: url(../../images/ka-admin-possibleContenItems-toggler.png);
 }
 
 .ka-pages-tree-elementPropertyToolbar .ka-field-main-small {
@@ -1140,4 +1092,18 @@ a.ka-create-search-index-icon.red {
     bottom: 0px;
     position: absolute;
     display: none;
+}
+
+
+
+@-webkit-keyframes blink {  
+  from { opacity: 1.0; }
+  to { opacity: 0.0; }
+}
+
+.blink {
+  -webkit-animation-name: blink;  
+  -webkit-animation-iteration-count: infinite;  
+  -webkit-animation-timing-function: cubic-bezier(1.0,0,0,1.0);
+  -webkit-animation-duration: 1s; 
 }

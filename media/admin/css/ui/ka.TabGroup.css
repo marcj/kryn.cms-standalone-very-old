@@ -13,9 +13,6 @@
     min-width: 20px;
     height: 27px;
 
-    background-color: #bbb;
-    background-image: url(../images/win-actionbar-groupButton-bg.png);
-    background-repeat: no-repeat;
     white-space: nowrap;
     position: relative;
 }

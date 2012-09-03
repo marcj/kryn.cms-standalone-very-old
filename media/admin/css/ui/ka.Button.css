@@ -42,6 +42,8 @@ a.ka-Button, a.ka-Button:link,
 .ka-Button:before {
     padding-right: 5px;
     padding-left: 0px;
+    position: relative;
+    top: 1px;
 }
 
 .ka-Button:hover {

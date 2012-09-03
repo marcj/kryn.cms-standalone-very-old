@@ -512,20 +512,32 @@ ka.WindowEdit = new Class({
         var _this = this;
 
 
-        this.actionsNavi = this.win.addButtonGroup();
+        this.actionBar = new Element('div', {
+            'class': 'kwindow-win-buttonBar'
+        }).inject(this.container);
 
-        this.saveBtn = this.actionsNavi.addButton(t('Save'), '#icon-cd', function () {
-            this._save();
-        }.bind(this));
+        if (this.classProperties.versioning == true){
 
-        if (this.classProperties.previewPlugins) {
-            this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
+            new ka.Button([t('Save'), '#icon-cd'])
+            .addEvent('click', this._save.bind(this, [false,true]))
+            .inject(this.actionBar);
+            // this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
+            //     _this._save(false, true);
+            // }.bind(this));
         }
+        
 
-        if (this.classProperties.versioning == true) {
-            this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
-                _this._save(false, true);
-            }.bind(this));
+        new ka.Button([t('Save'), '#icon-cd'])
+        .addEvent('click', this._save.bind(this, [null,null]))
+        .inject(this.actionBar);
+
+        if (true) {
+
+            new ka.Button([t('Preview'), '#icon-eye'])
+            //.addEvent('click', this._save.bind(this))
+            .inject(this.actionBar);
+
+            //this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
         }
 
         this.checkTabFieldWidth();

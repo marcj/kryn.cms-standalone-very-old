@@ -48,7 +48,7 @@ ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
 
     checkChange: function(){
         if (this.oldValue !== this.input.value){
-            this.fireChange();
+            this.fieldInstance.fireChange();
             this.oldValue = this.input.value;
         }
     },

@@ -24,11 +24,11 @@
 }
 
 .ka-login-bg-pattern {
-    background-image: url(../images/login-background.gif);
+    background-image: url(../../images/login-background.gif);
 }
 
 .ka-login-bg-butterfly1 {
-    background-image: url(../images/login-butterflybig-1.png);
+    background-image: url(../../images/login-butterflybig-1.png);
     background-repeat: no-repeat;
     background-position: left bottom;
     bottom: -23%;
@@ -36,40 +36,40 @@
 }
 
 .ka-login-bg-butterflysmall1 {
-    background-image: url(../images/login-butterflysmall-1.png);
+    background-image: url(../../images/login-butterflysmall-1.png);
     background-position: center 130px;
     background-repeat: no-repeat;
 }
 
 .ka-login-bg-blue {
-    background-image: url(../images/login-bg-blue.png);
+    background-image: url(../../images/login-bg-blue.png);
     background-repeat: no-repeat;
     background-position: right top;
 }
 
 .ka-login-spot-blue {
-    background-image: url(../images/login-spot-blue.png);
+    background-image: url(../../images/login-spot-blue.png);
     background-repeat: no-repeat;
     top: -10%;
     background-position: center top;
 }
 
 .ka-login-spot-red {
-    background-image: url(../images/login-spot-red.png);
+    background-image: url(../../images/login-spot-red.png);
     background-repeat: no-repeat;
     top: -10%;
     background-position: center top;
 }
 
 .ka-login-spot-green {
-    background-image: url(../images/login-spot-green.png);
+    background-image: url(../../images/login-spot-green.png);
     background-repeat: no-repeat;
     top: -10%;
     background-position: center top;
 }
 
 .ka-login-barrierTape {
-    background-image: url(../images/login-barrier-tape.gif);
+    background-image: url(../../images/login-barrier-tape.gif);
     background-repeat: repeat-x;
     top: 395px;
     left: -100px;
@@ -210,7 +210,7 @@
     position: absolute;
     right: 2px;
     top: 10px;
-    background-image: url(../images/login-button.png);
+    background-image: url(../../images/login-button.png);
 }
 
 .ka-login-circlebtn:hover {
@@ -254,7 +254,7 @@ body .ka-login .ka-Select-box.ka-login-select-login .ka-Select-arrow {
     width: 294px;
     height: 28px;
     background-position: left -84px;
-    background-image: url(../images/login-input-images.png);
+    background-image: url(../../images/login-input-images.png);
 }
 
 .ka-login-desktopMode-text {
@@ -306,13 +306,13 @@ body .ka-login .ka-login-checkbox-login.ka-Checkbox-on {
 }
 
 .ka-login-input-passwd {
-    background-image: url(../images/login-input-images.png);
+    background-image: url(../../images/login-input-images.png);
     background-position: left -42px;
     top: 46px;
 }
 
 .ka-login-input-username {
-    background-image: url(../images/login-input-images.png);
+    background-image: url(../../images/login-input-images.png);
     background-position: left top;
     top: 0px;
 }
@@ -462,7 +462,7 @@ body .ka-login .ka-login-checkbox-login.ka-Checkbox-on {
     background-color: #f6f6f6;
     outline: none;
 /*    -moz-border-radius: 4px;
-    background-image: url(../images/input-login-bg.jpg);*/
+    background-image: url(../../images/input-login-bg.jpg);*/
 }
 
 

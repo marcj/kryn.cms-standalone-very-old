@@ -54,23 +54,14 @@
     color: white;
 }
 
-.ka-list-bottom {
+div.ka-windowCombine-list-actions {
+    text-align: left;
     position: absolute;
-    bottom: -1px;
-    height: 30px;
-    width: 100%;
-    background-color: #aaa;
-    border-top: 1px solid #999;
-    
-    
-    background-image: -webkit-gradient(linear, left top, left bottom, #bdbcbc, to(#9c9b9b)); 
-    background-image: -webkit-linear-gradient(top, #bdbcbc, #9c9b9b); 
-    background-image:    -moz-linear-gradient(top, #bdbcbc, #9c9b9b); 
-    background-image:     -ms-linear-gradient(top, #bdbcbc, #9c9b9b); 
-    background-image:      -o-linear-gradient(top, #bdbcbc, #9c9b9b); 
-    background-image:         linear-gradient(top, #bdbcbc, #9c9b9b);
-    
-    
+    left: 0;
+    height: 0;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
 }
 
 
@@ -94,7 +85,7 @@
     position: absolute;
     left: -20px;
     width: 25px;
-    top: 0px;
+    top: 0;
     height: 100%;
     border-bottom: 1px solid #ddd;
 }
@@ -111,10 +102,6 @@
     top: 0px;
     bottom: 0px;
     right: 0px;
-}
-
-.ka-list-combine-right .ka-windowEdit-form {
-    bottom: 0px;
 }
 
 .ka-list-combine-left-itemcount {
@@ -359,7 +346,7 @@ a.ka-list-search-button-active:link {
     height: 0px; 
     right: 0px;
     overflow: auto;
-    background-image: url(../images/ka-list-combine-searchpane-bg.png);
+    background-image: url(../../images/ka-list-combine-searchpane-bg.png);
     background-repeat: repeat-x;
     background-position: left bottom;
 }

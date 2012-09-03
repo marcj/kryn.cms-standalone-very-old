@@ -186,7 +186,7 @@ ka.Field = new Class({
 
         this.addEvent('change', function () {
             this.fireEvent('check-depends');
-            this.updateOkInfo();
+            this.isOk();
         }.bind(this));
 
         this.renderField();

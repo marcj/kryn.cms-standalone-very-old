@@ -129,8 +129,8 @@ ka.FieldAbstract = new Class({
         if (this.fieldInstance.options.required && this.getValue() === '')
             return false;
 
-        if (this.fieldInstance.options.requiredRegexp){
-            var rx = new RegExp(this.fieldInstance.options.requiredRegexp);
+        if (this.fieldInstance.options.requiredRegex){
+            var rx = new RegExp(this.fieldInstance.options.requiredRegex);
             if (!rx.test(this.getValue().toString())){
                 return false;
             }
@@ -152,9 +152,8 @@ ka.FieldAbstract = new Class({
 
         if (pValid) return;
 
-        this.emptyIcon = new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/icons/exclamation.png',
-            'class': 'ka-field-emptyIcon'
+        this.emptyIcon = new Element('div', {
+            'class': 'ka-Input-warning icon-warning blink'
         }).inject(this.input.getParent());
 
         this.input.set('class', this.input.get('class') + ' empty');

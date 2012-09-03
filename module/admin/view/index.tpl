@@ -64,12 +64,14 @@
 
 
     <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.ai.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/core/ka.ai.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/core/ka.wm.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/icons/style.css" />
 
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.login.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Select.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Checkbox.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/core/ka.login.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Button.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Select.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Checkbox.css" />
 
     <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
 

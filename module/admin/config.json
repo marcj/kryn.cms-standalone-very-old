@@ -980,8 +980,8 @@
         "admin\/js\/mootools-extras\/*.js"
     ],
     "adminCss": [
-        "admin\/icons\/style.css",
-        "admin\/css\/*.css"
+        "admin\/css\/lib/*.css",
+        "admin\/css\/ui/*.css"
     ],
     "community": "1",
     "writableFiles": "",

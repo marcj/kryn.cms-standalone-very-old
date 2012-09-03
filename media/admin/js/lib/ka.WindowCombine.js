@@ -55,8 +55,7 @@ ka.WindowCombine = new Class({
         }).addEvent('scroll', this.checkScrollPosition.bind(this, true)).inject(this.mainLeft);
 
         this.mainLeftDeleter = new Element('div', {
-            'class': 'ka-list-bottom',
-            style: 'position: absolute; left:0px; height: 0px; bottom: 0px; right: 0px; overflow: hidden'
+            'class': 'kwindow-win-buttonBar ka-windowCombine-list-actions'
         }).inject(this.mainLeft);
 
         new ka.Button(_('Select all')).addEvent('click', function () {

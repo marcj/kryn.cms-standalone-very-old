@@ -70,60 +70,6 @@ tr.ka-field-main > td div.desc {
 }
 
 
-.ka-field-field input.chooser {
-    width: 220px;
-}
-
-select,
-textarea {
-    border: 1px solid #bbb;
-    color: #444;
-    font-size: 12px;
-    line-height: 12px;
-    -moz-border-radius: 3px;
-    background-color: white;
-    margin: 2px auto;
-}
-
-textarea {
-    padding: 4px;
-}
-
-
-textarea {
-    -moz-border-radius: 3px;
-    box-shadow: 0px 1px 0px #f9f9f9;
-    border: 1px solid #bbb;
-
-    background: #f2f2f2; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2YyZjJmMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmOWY5ZjkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #f2f2f2 0%, #f9f9f9 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f9f9f9)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #f2f2f2 0%,#f9f9f9 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #f2f2f2 0%,#f9f9f9 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #f2f2f2 0%,#f9f9f9 100%); /* IE10+ */
-    background: linear-gradient(top,  #f2f2f2 0%,#f9f9f9 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f2f2', endColorstr='#f9f9f9',GradientType=0 ); /* IE6-8 */
-
-}
-
-textarea:focus {
-    border: 1px solid #888;
-}
-
-.ka-field-field select.ka-field {
-    width: 304px;
-}
-
-.ka-field-emptyIcon {
-    position: absolute;
-    top: 6px;
-    left: -20px;
-    margin-left: 2px;
-}
-
-
 input.ka-field-dateTime {
     padding-left: 18px;
     background-image: url(../images/icons/calendar.png);

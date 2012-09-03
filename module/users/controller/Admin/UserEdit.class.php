@@ -70,7 +70,8 @@ class UserEdit extends \Admin\ObjectWindow {
                     'label' => 'Zipcode',
                     'tableitem' => true,
                     'type' => 'number',
-                    'length' => 10
+                    'maxLength' => 10,
+                    'inputWidth' => 100
                 ),
                 'country' => array(
                     'label' => 'Country',
@@ -112,7 +113,7 @@ class UserEdit extends \Admin\ObjectWindow {
                     'label' => 'Email',
                     'type' => 'text',
                     'required' => true,
-                    'required'
+                    'requiredRegex' => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-_]+'
                 ),
                 'activate' => array(
                     'label' => 'Active account',
