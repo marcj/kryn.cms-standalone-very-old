@@ -26,7 +26,6 @@ var admin_backend_chooser = new Class({
 
         this.setOptions(this.win.params);
 
-        logger(this.options);
         this.value = this.win.params.value;
         this.p = _path + PATH_MEDIA + '/admin/images/';
 
@@ -169,9 +168,6 @@ var admin_backend_chooser = new Class({
 
     createObjectChooser: function(pObjectKey){
 
-        logger('hi');
-        logger(pObjectKey);
-
         var objectDefinition = ka.getObjectDefinition(pObjectKey);
 
         var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.chooser_icon);
@@ -198,14 +194,14 @@ var admin_backend_chooser = new Class({
                 chooserClass = window;
                 split.each(function(s){
                     chooserClass = chooserClass[s];
-                })
+                });
             }
 
             if (!chooserClass){
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
                     .replace('%class%', objectDefinition.chooserBrowserJavascriptClass)
                     .replace('%object%', pObjectKey)
-                )
+                );
             } else {
                 this.objectChooserInstance[pObjectKey] = new chooserClass(
                     bundle.pane,

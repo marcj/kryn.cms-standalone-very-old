@@ -14,21 +14,13 @@ ka.wm = {
     events: {},
     zIndex: 1000,
 
-    openWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource) {
-        /*
-         pDependOn:
-         0..x: ID of a legal window
-         -1: current/active window
-         */
-        if (pDependOn == -1) {
-            pDependOn = ka.wm.lastWindow;
-        }
+    openWindow: function (pModule, pWindowCode, pLink, pParentWindowId, pParams, pInline) {
 
         var id = pModule + '::' + pWindowCode;
-        if (pLink && pLink.onlyonce && this.checkOpen(id)) {
+        if (pLink && pLink.onlyOnce && this.checkOpen(id)) {
             return this.toFront(id);
         }
-        return ka.wm.loadWindow(pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource);
+        return ka.wm.loadWindow(pModule, pWindowCode, pLink, pParentWindowId, pParams, pInline);
     },
 
     checkDimensionsAndSendResize: function () {
@@ -68,50 +60,19 @@ ka.wm = {
         }
     },
 
-    open: function (pTarget, pParams, pDepend, pInline, pSource) {
+    open: function (pTarget, pParams, pParentWindowId, pInline) {
         var firstSlash = pTarget.indexOf('/');
         if (firstSlash == -1) return logger('Invalid entrypoint: '+pTarget);
         var module = pTarget.substr(0, firstSlash);
         var path = pTarget.substr(firstSlash + 1, pTarget.length);
-        return ka.wm.openWindow(module, path, null, pDepend, pParams, pInline, pSource);
-    },
-
-    dependExist: function (pWindowId) {
-        var dep = false;
-        Object.each(ka.wm.depend, function (win, key) {
-            if (win == pWindowId) {
-                dep = true;
-            } //a depend exist
-        });
-        return dep;
-    },
-
-    getDepend: function (pWindowId) {
-        //irgendwie unnötig ?
-        // bzw ist doch getWindow()?
-        return ka.wm.depend[ pWindowId ];
-    },
-
-    getOpener: function (pId) {
-
-        return ka.wm.windows[ ka.wm.getDepend(pId) ];
+        return ka.wm.openWindow(module, path, null, pParentWindowId, pParams, pInline);
     },
 
     getWindow: function (pId) {
-        if (pId == -1) {
+        if (pId == -1){
             pId == ka.wm.lastWindow;
         }
         return ka.wm.windows[ pId ];
-    },
-
-    getDependOn: function (pWindowId) {
-        var reswin = null;
-        Object.each(ka.wm.depend, function (win, key) {
-            if (win == pWindowId) {
-                reswin = ka.wm.windows[key];
-            } //a depend exist
-        });
-        return reswin;
     },
 
     sendSoftReload: function (pTarget) {
@@ -136,37 +97,30 @@ ka.wm = {
         });
     },
 
-    toFront: function (pWindowId) {
-        if (ka.wm.dependExist(pWindowId)) {
-            return false;
-        }
-        if (ka.wm.lastWindow > 0 && ka.wm.windows[ ka.wm.lastWindow ] && ka.wm.lastWindow != pWindowId) {
-            ka.wm.windows[ ka.wm.lastWindow ].toBack();
-        }
-        ka.wm.lastWindow = pWindowId;
-        return true;
-    },
-
-    setFrontWindow: function (pWinId) {
+    setFrontWindow: function (pWindow) {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win) win.inFront = false;
+            if (win && pWindow.id != winId) win.inFront = false;
         });
+        ka.wm.lastWindow = pWindow;
     },
 
-    loadWindow: function (pModule, pWindowCode, pLink, pDependOn, pParams, pInline, pSource) {
+    loadWindow: function (pModule, pWindowCode, pLink, pParentWindowId, pParams, pInline) {
         var instance = Object.getLength(ka.wm.windows) + 1;
 
-        if (pDependOn > 0) {
-            ka.wm.depend[instance] = pDependOn;
-            var w = ka.wm.windows[ pDependOn ];
-            if (w) {
-                w.toDependMode(pInline);
-            }
+        if (pParentWindowId == -1)
+            pParentWindowId = ka.wm.lastWindow?ka.wm.lastWindow.id:false;
+
+        if (pParentWindowId && !ka.wm.getWindow(pParentWindowId)) throw 'Parent window not found.';
+
+        if (pParentWindowId && pInline) {
+            ka.wm.getWindow(pParentWindowId).prepareInlineContainer();
         }
 
-        logger('New Window to ');
-        logger(instance);
-        ka.wm.windows[instance] = new ka.Window(pModule, pWindowCode, pLink, instance, pParams, pInline, pSource);
+        ka.wm.windows[instance] = new ka.Window(pModule, pWindowCode, pLink, instance, pParams, pInline, pParentWindowId);
+        ka.wm.windows[instance].toFront();
+        if (pParentWindowId){
+            ka.wm.getWindow(pParentWindowId).setChildren(ka.wm.windows[instance]);
+        }
         ka.wm.updateWindowBar();
     },
 
@@ -194,7 +148,7 @@ ka.wm = {
             shortTitle = shortTitle.substr(0, 19) + '...';
         }
 
-        if (shortTitle == '') {
+        if (shortTitle == ''){
             bar.setStyle('display', 'none');
         }
 
@@ -218,23 +172,21 @@ ka.wm = {
 
     close: function (pWindow) {
 
-        var dependOn = ka.wm.depend[ pWindow.id ];
-        if (dependOn) {
-            if (ka.wm.windows[dependOn]) {
-                ka.wm.windows[dependOn].removeDependMode();
-            }
+        var parent = pWindow.getParentId();
+        if (parent){
+            parent = ka.wm.getWindow(parent);
+            parent.removeChildren();
         }
-        delete ka.wm.depend[ pWindow.id ];
+
         delete ka.wm.windows[pWindow.id];
 
-        if (dependOn) {
-            if (ka.wm.windows[dependOn]) {
-                ka.wm.windows[dependOn].toFront();
-            }
+        if (parent){
+            parent.toFront();
+        } else {
+            ka.wm.bringLastWindow2Front();
         }
 
         ka.wm.updateWindowBar();
-        ka.wm.bringLastWindow2Front();
     },
 
     bringLastWindow2Front: function(){
@@ -270,24 +222,17 @@ ka.wm = {
         var c = 0;
         Object.each(ka.wm.windows, function (win, winId) {
 
-            if (win.inline) return;
+            if (win.getParentId()) return;
 
             var item = ka.wm.newListBar(win);
             item.inject($('windowList'));
 
             c++;
 
-            if (win.inFront && win.isOpen) {
+            if (win.isInFront()) {
                 item.addClass('wm-bar-item-active');
             } else {
                 item.removeClass('wm-bar-item-active');
-            }
-
-            if (ka.wm.dependExist(winId)) {
-                var dependWindow = ka.wm.getDependOn(winId);
-                if (dependWindow.inFront && dependWindow.isOpen) {
-                    item.addClass('wm-bar-item-active');
-                }
             }
 
         });

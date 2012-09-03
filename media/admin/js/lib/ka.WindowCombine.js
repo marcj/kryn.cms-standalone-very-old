@@ -193,7 +193,7 @@ ka.WindowCombine = new Class({
 
 
         this.searchIcon = new Element('div', {
-            'class': 'ka-list-combine-searchicon icon-search-2'
+            'class': 'ka-list-combine-searchicon icon-search-8'
         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.mainLeftTop);
 
 

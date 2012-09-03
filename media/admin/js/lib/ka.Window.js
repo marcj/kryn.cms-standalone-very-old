@@ -8,14 +8,16 @@ ka.Window = new Class({
     link   : {},
     params : {},
 
-    initialize: function (pModule, pWindowCode, pLink, pInstanceId, pParams, pInline, pSource) {
+    children: null,
+
+    initialize: function (pModule, pWindowCode, pLink, pInstanceId, pParams, pInline, pParentId) {
         this.params = pParams;
         this.id = pInstanceId;
         this.module = pModule;
         this.code = pWindowCode;
         this.inline = pInline;
         this.link = pLink;
-        this.source = pSource;
+        this.parentId = pParentId;
 
         if (!pLink) {
             this.link = {module: pModule, code: pWindowCode };
@@ -32,9 +34,39 @@ ka.Window = new Class({
 
             this.closeBind = this.close.bind(this, true);
             this.addHotkey('esc', false, false, this.closeBind);
-
-            this.toFront.delay(40, this);
         }
+    },
+
+    getParentId: function(){
+        return this.parentId;
+    },
+
+    getParent: function(){
+        return ka.wm.getWindow(this.parentId);
+    },
+
+    isInFront: function(){
+
+        if (!this.children)
+            return this.inFront;
+
+        return this.children.isInFront();
+    },
+
+    setChildren: function(pWindow){
+        this.children = pWindow;
+    },
+
+    getChildren: function(){
+        return this.children;
+    },
+
+    removeChildren: function(){
+
+        if (this.children.inline){
+            this.removeInlineContainer();
+        }
+        this.children = null;
     },
 
     //drops a icon-link to desktop which links to this window
@@ -51,7 +83,7 @@ ka.Window = new Class({
             params: this.params,
             module: this.module,
             code: this.code
-        }
+        };
         ka.desktop.addIcon(icon);
         ka.desktop.save();
     },
@@ -104,29 +136,20 @@ ka.Window = new Class({
         }
     },
 
-    toDependMode: function (pInline) {
-        this.inDependMode = true;
+    prepareInlineContainer: function () {
+        this.inlineContainer = new Element('div', {
+            'class': 'kwindow-win-inline',
+            html: '<center><img src="' + _path + PATH_MEDIA + '/admin/images/loading.gif" /></center>'
+        }).inject(inlineModeParent);
+    },
 
-        this.dependModeOverlay = this.createOverlay();
-
-        if (pInline) {
-
-            var inlineModeParent = this.win;
-            if (this.inline) {
-                inlineModeParent = this.content.getParent();
-            }
-
-            this.inlineContainer = new Element('div', {
-                'class': 'kwindow-win-inline',
-                html: '<center><img src="' + _path + PATH_MEDIA + '/admin/images/loading.gif" /></center>'
-            }).inject(inlineModeParent);
-
-        }
+    removeInlineContainer: function(){
+        if (this.inlineContainer)
+            this.inlineContainer.destroy();
     },
 
     removeDependMode: function () {
 
-        this.inDependMode = false;
 
         if (this.overlayForced) {
             this.overlayForced.destroy();
@@ -434,16 +457,7 @@ ka.Window = new Class({
 
     },
 
-    isInFront: function () {
-
-        if (ka.wm.zIndex == this.border.getStyle('z-index')) {
-            return true;
-        }
-
-        return false;
-    },
-
-    toFront: function () {
+    toFront: function(pOnlyZIndex) {
 
         if (this.active) {
             this.title.addClass('ka-kwindow-inFront');
@@ -456,20 +470,21 @@ ka.Window = new Class({
                 this.border.tween('opacity', 1);
             }
 
+            if (this.getParent()){
+                this.getParent().toFront(true);
+            }
+
             ka.wm.zIndex++;
             this.border.setStyle('z-index', ka.wm.zIndex);
+            if (pOnlyZIndex) return true;
 
-            ka.wm.setFrontWindow(this.id);
-            if (ka.wm.toFront(this.id) == false) {//abhängigkeit zu anderem fenster vorhanden
-                var win = ka.wm.getDependOn(this.id);
-                if (win) {
-                    win.toFront();
-                    win.highlight();
-                }
+            if (this.getChildren()){
+                this.getChildren().toFront();
+                this.getChildren().highlight();
                 return false;
             }
-            if (this.inDependMode) return;
 
+            ka.wm.setFrontWindow(this);
             this.isOpen = true;
             this.inFront = true;
             this.deleteOverlay();
@@ -538,18 +553,6 @@ ka.Window = new Class({
         }.bind(this)).delay(300);
     },
 
-    isActive: function () {
-
-        if (this.active) {
-            if (ka.wm.dependExist(this.id) == true) {//abhängigkeit zu anderem fenster vorhanden
-                this.highlight();
-                return false;
-            }
-            return true;
-        }
-        return false;
-    },
-
     setBarButton: function (pButton) {
         this.barButton = pButton;
     },
@@ -590,8 +593,6 @@ ka.Window = new Class({
     maximize: function (pDontRenew) {
 
         if (document.body.hasClass('ka-no-desktop')) return;
-
-        if (this.isActive() == false) return;
 
         if (this.maximized) {
             this.borderDragger.attach();
@@ -786,12 +787,15 @@ ka.Window = new Class({
                 lastDialog.close(true);
 
                 delete lastDialog;
-                return;
+                return false;
             }
         }
 
-        //close main window
-        if (this.isActive() == false) return;
+        //search for children windows
+        if (this.getChildren()){
+            this.getChildren().highlight();
+            return false;
+        }
 
         if (pInternal) {
             this.interruptClose = false;
@@ -1267,13 +1271,13 @@ ka.Window = new Class({
 //        }).addEvent('click', this.minimize.bind(this)).inject(this.titleBar)
 
         this.maximizer = new Element('div', {
-            'class': 'kwindow-win-titleBarIcon icon-expand-2'
+            'class': 'kwindow-win-titleBarIcon icon-expand-4'
         }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
         //icon-views
         //icon-shrink
 
         this.closer = new Element('div', {
-            'class': 'kwindow-win-titleBarIcon icon-cancel'
+            'class': 'kwindow-win-titleBarIcon icon-cancel-4'
         }).addEvent('click', this.close.bind(this)).inject(this.titleBar);
 
     },
@@ -1312,7 +1316,6 @@ ka.Window = new Class({
             this.content.setStyle('display', 'block');
             this.titleGroups.setStyle('display', 'block');
         }
-        if (this.inDependMode) return;
 
         this.inOverlayMode = false;
     },

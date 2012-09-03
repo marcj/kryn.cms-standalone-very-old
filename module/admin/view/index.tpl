@@ -82,7 +82,7 @@
         <div class="header-inner">
             <div class="headRight" id="iconbar">
                 <a class="icon-eye-3" style="width: 15px; font-size: 20px;padding-right: 20px;" href="javascript: ka.openFrontend();" title="[[Frontend]]"></a>
-                <a class="icon-user-3" href="javascript:;" style="padding:0px 8px;" id="user-username"></a>
+                <a class="icon-user-2" href="javascript:;" style="padding:0px 8px;" id="user-username"></a>
                 <div class="ka-search">
                     <img class="ka-search-query-icon" src="media/admin/images/icon-search-loupe.png" />
                     <input type="text" class="text" id="ka-search-query" />

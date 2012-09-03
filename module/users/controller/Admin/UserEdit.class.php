@@ -37,8 +37,7 @@ class UserEdit extends \Admin\ObjectWindow {
                 'picture' => array(
                     'noWrapper' => 1,
                     'target' => 'picture',
-                    'type' => 'custom',
-                    'class' => 'users_field_picture'
+                    'type' => 'usersPicture'
                 ),
                 'firstName' => array(
                     'label' => 'First name',
@@ -100,17 +99,20 @@ class UserEdit extends \Admin\ObjectWindow {
                     'type' => 'text',
                     //'empty' => false // TODO: FE users don't need a username, just an email address [Ferdi]
                 ),
-                'passwd' => array(
+
+                'password' => array( //it's a virtual field from the user model
                     'label' => 'Password',
                     'type' => 'password',
                     'desc' => 'Leave empty to change nothing',
-                    'startempty' => true,
-                    'onlyIfFilled' => true
+                    'startEmpty' => true,
+                    'saveOnlyFilled' => true
                 ),
+
                 'email' => array(
                     'label' => 'Email',
                     'type' => 'text',
-                    'empty' => false
+                    'required' => true,
+                    'required'
                 ),
                 'activate' => array(
                     'label' => 'Active account',
@@ -118,11 +120,11 @@ class UserEdit extends \Admin\ObjectWindow {
                 ),
                 'userBg' => array(
                    'label' => 'Desktop background image',
-                    'type' => 'fileChooser',
+                    'type' => 'file',
                     'noSave' => true,
                     'customValue' => 'userBgValue',
                 ),
-                //'groupMembership'
+                'groupMembership'
             )
             /*'groups' => array(
                 'label' => 'Groups',
@@ -144,15 +146,9 @@ class UserEdit extends \Admin\ObjectWindow {
             'type' => 'tab',
             'label' => '[[Administration]]',
             'children' => array(
-                'adminLanguage' => array(
-                    'label' => 'Admin Language',
-                    'type' => 'lang',
-                    'noSave' => true,
-                    'customValue' => 'getLanguage',
-                ),
                 'userBg' => array(
                    'label' => 'Desktop background image',
-                    'type' => 'fileChooser',
+                    'type' => 'file',
                     'noSave' => true,
                     'customValue' => 'userBgValue',
                 ),
@@ -244,9 +240,6 @@ class UserEdit extends \Admin\ObjectWindow {
      * Getter
      * 
      */
-    public function getLanguage(){
-        return $this->getSetting('adminLanguage');
-    }
 
     public function userBgValue($pPrimary, $pItem){
         return $this->getSetting('userBg');

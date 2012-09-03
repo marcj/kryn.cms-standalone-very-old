@@ -135,7 +135,7 @@ abstract class ObjectWindow {
      *
      * @var string name of image
      */
-    public $addIcon = '#icon-plus-4';
+    public $addIcon = '#icon-plus-5';
 
     /**
      * Defines the icon for the edit button. Relative to media/ or #className for vector images
@@ -149,7 +149,7 @@ abstract class ObjectWindow {
      *
      * @var string name of image
      */
-    public $removeIcon = '#icon-minus-4';
+    public $removeIcon = '#icon-minus-5';
 
     /**
      * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
@@ -459,7 +459,7 @@ abstract class ObjectWindow {
         $fields = array();
 
         foreach ($this->_fields as $key => $field){
-            if (!$field['customValue'] && !$field['startempty']){
+            if (!$field['customValue'] && !$field['startEmpty']){
                 $fields[] = $key;
             }
         }
@@ -654,12 +654,12 @@ abstract class ObjectWindow {
                 $data[$key] = $_POST[$key]?:$_GET[$key];
             }
 
-            if (($field['onlyIfFilled'] || $field['onlyFilled']) && ($data[$field] === '' || $data[$field] === null))
+            if (($field['saveOnlyFilled'] || $field['saveOnlyFilled']) && ($data[$field] === '' || $data[$field] === null))
                 unset($data[$key]);
 
-            if ($field['empty'] !== null && $field['empty'] == false && ($data[$key] === '' || $data[$key] === null) )
-                throw new \FieldCanNotBeEmptyException(tf('The field %s can not be empty.', $key));
-            
+            if ($field['required'] && ($data[$key] === '' || $data[$key] === null) )
+                throw new \FieldCanNotBeEmptyException(tf('The field %s is required.', $key));
+
         }
 
         return $data;

@@ -266,7 +266,7 @@ ka.ObjectTable = new Class({
 
             Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
 
-                value = ka.getListLabel(item, column, key);
+                value = ka.getObjectLabel(item, column, key, this.objectKey);
                 row.include(value);
             });
 
@@ -277,5 +277,4 @@ ka.ObjectTable = new Class({
 
     }
 
-
-})
+});

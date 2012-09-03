@@ -9,15 +9,9 @@ var users_users_acl = new Class({
     currentObject: false,
     currentConstraint: false,
 
-    initialize: function(pWindow){
-        this.win = pWindow;
+    currentAcls: [],
 
-        this.currentAcls = [];
-
-        this._createLayout();
-    },
-
-    _createLayout: function(){
+    createLayout: function(){
 
         this.win.extendHead();
 
@@ -47,7 +41,7 @@ var users_users_acl = new Class({
         this.qImage = new Element('img', {
             src: _path+ PATH_MEDIA + '/admin/images/icon-search-loupe.png',
             style: 'position: absolute; left: 11px; top: 8px;'
-        }).inject(this.win.titleGroups)
+        }).inject(this.win.titleGroups);
 
 
         this.tabs = new ka.TabPane(this.right, true, this.win);
@@ -198,7 +192,7 @@ var users_users_acl = new Class({
                     item.usersAclCounter = new Element('span', {
                         text: '(1)',
                         style: 'color: gray;'
-                    }).inject(item.span)
+                    }).inject(item.span);
                     item.usersAclCounter.ruleCount = 1;
                 } else {
                     item.usersAclCounter.set('text', '('+(item.usersAclCounter.ruleCount++)+')');
@@ -275,7 +269,7 @@ var users_users_acl = new Class({
                 }).inject(div);
 
                 this.loadObjectLabel(title);
-                var title = new Element('span', {
+                title = new Element('span', {
                     text: ' ('+rules.length+')'
                 }).inject(div);
 
@@ -292,7 +286,7 @@ var users_users_acl = new Class({
 
             var span = new Element('span').inject(div);
             this.humanReadableCondition(code, span);
-            var span = new Element('span', {text: ' ('+rules.length+')'}).inject(div);
+            span = new Element('span', {text: ' ('+rules.length+')'}).inject(div);
 
         }.bind(this));
 
@@ -320,7 +314,7 @@ var users_users_acl = new Class({
                 revert: true,
                 opacity: 1
             }
-        )
+        );
 
     },
 
@@ -1034,7 +1028,7 @@ var users_users_acl = new Class({
                 needValue: ['0','2','3','4'],
                 againstField: 'mode',
                 type: 'custom',
-                'class': 'users_acl_rule_fields',
+                'class': 'usersAclRuleFields',
                 object: pObject
             }
 

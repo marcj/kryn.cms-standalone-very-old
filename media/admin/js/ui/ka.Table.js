@@ -46,7 +46,6 @@ ka.Table = new Class({
         if (this.options.selectable == true){
             this.main.addEvent('click', function(e){
                 
-                logger(e.target);
                 if (!e.target) return;
 
                 if (e.target.get('tag') == 'td'){

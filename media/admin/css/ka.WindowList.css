@@ -54,14 +54,6 @@
     color: white;
 }
 
-.ka-list-main > table tr.one td {
-    background-color: #f5f5f5;
-}
-
-.ka-list-main table tr.two td {
-    background-color: #fafafa;
-}
-
 .ka-list-bottom {
     position: absolute;
     bottom: -1px;

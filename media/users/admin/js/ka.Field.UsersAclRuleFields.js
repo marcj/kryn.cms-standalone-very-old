@@ -1,35 +1,23 @@
-var users_acl_rule_fields = new Class({
+ka.FieldTypes.UsersAclRuleFields = new Class({
 
-    Implements: Events,
+    Extends: ka.FieldAbstract,
 
     rows: {},
 
     fields: {}, //backup for speed
 
-    initialize: function( pField, pParent, pRefs ){
-
-        this.field = pField;
-        this.parent = pParent;
-
-        this.parent.setStyle('margin', 0);
+    createLayout: function(){
 
         this.value = '';
 
         this.main = new Element('div', {
 
-        }).inject(this.parent);
+        }).inject(this.fieldInstance.fieldPanel);
 
         new Element('div', {
             style: 'color: silver; padding: 5px 0px;',
             text: t('Please note that these fields are only for view/edit/add forms, not for the listing.')
         }).inject(this.main);
-
-        var border = this.parent.getParent('.kwindow-border');
-        if( border )
-            this.win = border.retrieve('win');
-
-        if (pRefs.win)
-            this.win = pRefs.win;
 
         this.renderFields();
 
@@ -37,10 +25,10 @@ var users_acl_rule_fields = new Class({
 
     renderFields: function(){
 
-        var definition = ka.getObjectDefinition(this.field.object);
+        var definition = ka.getObjectDefinition(this.options.object);
 
         if (!definition){
-            new Element('div', {'class': 'error', text: 'Invalid object: '+this.field.object}).inject(this.main);
+            new Element('div', {'class': 'error', text: 'Invalid object: '+this.options.object}).inject(this.main);
             return;
         }
 
@@ -186,12 +174,12 @@ var users_acl_rule_fields = new Class({
                 noWrapper: true,
                 type: 'fieldCondition',
                 field: pFieldKey,
-                object: this.field.object,
+                object: this.options.object,
                 startWith: 1
             }, div, {win: this.win});
 
         } else {
-            var objectDefinition = ka.getObjectDefinition(this.field.object);
+            var objectDefinition = ka.getObjectDefinition(this.options.object);
             var fieldDefinition = objectDefinition.fields[pFieldKey];
 
             var conditionField = new ka.Field({
