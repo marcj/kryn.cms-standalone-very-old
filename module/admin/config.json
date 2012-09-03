@@ -1,8 +1,8 @@
 {
     "version": "1.0.0",
     "owner": "1",
-    "title": "Kryn.cms",
-    "desc": "Administration scripts",
+    "title": "Kryn.cms Administration",
+    "desc": "The administration of Kryn.cms",
     "system": true,
     "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
     "widgets": {
@@ -974,22 +974,19 @@
         "admin\/js\/lib\/ka.CustomField.js",
         "admin\/js\/lib\/*.js",
         "admin\/js\/ui\/*.js",
-        "admin\/js\/ui\/FieldTypes/Input.js",
-        "admin\/js\/ui\/FieldTypes/Object.js",
-        "admin\/js\/ui\/FieldTypes/*.js",
+        "admin\/js\/ui\/FieldTypes\/Input.js",
+        "admin\/js\/ui\/FieldTypes\/Object.js",
+        "admin\/js\/ui\/FieldTypes\/*.js",
         "admin\/js\/mootools-extras\/*.js"
     ],
     "adminCss": [
-        "admin\/css\/lib/*.css",
-        "admin\/css\/ui/*.css"
+        "admin\/css\/lib\/*.css",
+        "admin\/css\/ui\/*.css"
     ],
-    "community": "1",
+    "community": "",
     "writableFiles": "",
-    "category": "8",
-    "tags": {
-        "de": "",
-        "en": ""
-    },
+    "category": "",
+    "tags": "",
     "depends": "",
     "caches": [
         {
