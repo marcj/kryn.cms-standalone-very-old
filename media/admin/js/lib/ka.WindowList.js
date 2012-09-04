@@ -58,6 +58,7 @@ ka.WindowList = new Class({
             this.render(res.data);
             this.classLoaded = true;
             this.fireEvent('render');
+
         }.bind(this)}).get({_method: 'options'});
     },
 

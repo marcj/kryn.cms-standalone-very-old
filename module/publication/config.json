@@ -17,7 +17,7 @@
     "admin": {
         "news": {
             "title": "[[Articles]]",
-            "class": "publicationNewsList",
+            "class": "Publication\\Admin\\NewsList",
             "type": "combine",
             "icon": "#icon-newspaper",
             "isLink": true,
@@ -314,22 +314,50 @@
             }
         ]
     },
-    "db_relations": {
-        "publication_news": {
-            "table": "publication_comments",
-            "relation": "1-n",
-            "fields": {
-                "id": "parent_id"
-            }
-        }
-    },
     "objects": {
         "news": {
-            "label": "[[Article]]",
             "desc": "[[Articles]]",
             "table": "publication_news",
-            "table_primary": "id",
+            "objectLabel": "title",
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": true,
+            "domainDepended": false,
             "plugins": "newsDetail, newsList",
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelFields": {
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text",
+                    "empty": true
+                },
+                "category_id": {
+                    "object": "news",
+                    "field": "category_id",
+                    "type": "predefined",
+                    "empty": true
+                }
+            },
+            "chooserFieldDataModelField": "title",
+            "chooserFieldType": "default",
+            "chooserBrowserAutoColumns": {
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text",
+                    "empty": true
+                },
+                "categoryId": {
+                    "object": "news",
+                    "field": "categoryId",
+                    "type": "predefined",
+                    "empty": true
+                }
+            },
+            "chooserBrowserDataModel": "default",
+            "chooserBrowserType": "default",
             "fields": {
                 "id": {
                     "label": "[[Id]]",
@@ -431,44 +459,7 @@
                     "empty": 1
                 }
             },
-            "tableSync": 1,
-            "chooserUseOwnClass": false,
-            "selectable": 1,
-            "chooser_icon": "",
-            "chooserBrowserAutoColumns": {
-                "title": {
-                    "label": "[[Title]]",
-                    "type": "text"
-                },
-                "category_id": {
-                    "object": "news",
-                    "field": "category_id",
-                    "type": "predefined",
-                    "width": "30%"
-                }
-            },
-            "class": "",
-            "multiLanguage": 1,
-            "domainDepended": 0,
-            "chooserAutoFilter": "",
-            "chooserFieldDataModel": "store",
-            "chooserFieldDataModelFields": {
-                "title": {
-                    "label": "[[Title]]",
-                    "type": "text"
-                },
-                "category_id": {
-                    "object": "news",
-                    "field": "category_id",
-                    "type": "predefined",
-                    "width": "30%"
-                }
-            },
-            "chooserFieldType": "default",
-            "chooserBrowserDataModel": "default",
-            "chooserBrowserType": "default",
-            "chooserFieldDataModelField": "title",
-            "__dataModel__": "table"
+            "label": "[[Article]]"
         },
         "news_comment": {
             "label": "[[Comments]]",

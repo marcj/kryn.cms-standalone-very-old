@@ -154,6 +154,15 @@ class Server {
     private $fallbackMethod = '';
 
     /**
+     * If the lib should send HTTP status codes.
+     * Some Client libs does not support this, you can deactivate it via
+     * ->setHttpStatusCodes(false);
+     * 
+     * @var boolean
+     */
+    private $withStatusCode = true;
+
+    /**
      * Constructor
      *
      * @param string        $pTriggerUrl
@@ -183,6 +192,8 @@ class Server {
             if ($pParentController->getDescribeRoutes())
                 $this->setDescribeRoutes($pParentController->getDescribeRoutes());
 
+            $this->setHttpStatusCodes($pParentController->getHttpStatusCodes());
+
         } else {
             $this->setClient(new Client($this));
         }
@@ -206,6 +217,25 @@ class Server {
         return new $clazz($pTriggerUrl, $pControllerClass, $pRewrittenRuleKey);
     }
 
+    /** 
+     * If the lib should send HTTP status codes.
+     * Some Client libs does not support it.
+     * 
+     * @param boolean $pWithStatusCode
+     * @return Server $this
+     */
+    public function setHttpStatusCodes($pWithStatusCode){
+        $this->withStatusCode = $pWithStatusCode;
+        return $this;
+    }
+
+    /**
+     * 
+     * @return boolean
+     */
+    public function getHttpStatusCodes(){
+        return $this->withStatusCode;
+    }
 
     /**
      * Returns the rewritten rule key.

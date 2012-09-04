@@ -1,7 +1,8 @@
-
 ka.Parse = new Class({
 
     Implements: [Events, Options],
+
+    Binds: ['fireChange'],
 
     fields: {},
 
@@ -22,11 +23,7 @@ ka.Parse = new Class({
         this.main = pContainer;
         this.definition = pDefinition;
 
-        this.parseLevel(pDefinition, this.main);
-
-        this.fireChange = function(){
-            this.fireEvent('change');
-        }.bind(this);
+        this.parseLevel(pDefinition, this.main)
 
         //parse all fields which have 'againstField'
         Object.each(this.fields, function(obj, id){
@@ -91,6 +88,10 @@ ka.Parse = new Class({
 
     toElement: function () {
         return this.main;
+    },
+
+    fireChange: function(){
+        this.fireEvent('change');
     },
 
     parseLevel: function (pLevel, pContainer, pDependField) {
@@ -183,7 +184,7 @@ ka.Parse = new Class({
                 if (field.tableItem && target.get('tag') != 'table'){
 
                     if (!pContainer.kaFieldTable){
-                        pContainer.kaFieldTable = new Element('table', {width: '100%'}).inject(target);
+                        pContainer.kaFieldTable = new Element('table', {width: '100%', 'class': 'ka-parse-table'}).inject(target);
                     }
 
                     target = pContainer.kaFieldTable;
@@ -332,7 +333,7 @@ ka.Parse = new Class({
             if (id.indexOf('[') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
             } else {
-                //obj.setValue(pValues ? pValues[id] : null, pInternal);
+                obj.setValue(pValues ? pValues[id] : null, pInternal);
             }
         });
     },

@@ -206,7 +206,6 @@
     "objects": {
         "user": {
             "table": "system_user",
-            "phpName": "User",
             "objectLabel": "username",
             "nested": 0,
             "dataModel": "propel",
@@ -334,7 +333,6 @@
         },
         "group": {
             "table": "system_group",
-            "phpName": "Group",
             "objectLabel": "name",
             "nested": 0,
             "dataModel": "propel",

@@ -19,6 +19,7 @@ class ObjectWindowController extends Server {
 
     public function run($pEntryPoint){
 
+
         $this->entryPoint = $pEntryPoint;
         if (\Core\Kryn::$config['displayRestErrors']){
             if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest'){

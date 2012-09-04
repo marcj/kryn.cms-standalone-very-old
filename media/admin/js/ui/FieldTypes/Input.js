@@ -1,4 +1,4 @@
-ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
+ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
     
     Extends: ka.FieldAbstract,
 
@@ -15,7 +15,16 @@ ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
          *
          * @type {Array}
          */
-        replace: null
+        replace: null,
+
+        modifiers: {
+            'trim': function(v){ return v.replace(/^\s+|\s+$/g, ""); },
+            'lower': function(v){ return v.toLowerCase()},
+            'lower': function(v){ return v.toUpperCase()},
+            'underscore': function(v){ return v.replace(/([^a-z])/g, function($1){return "_"+$1.toLowerCase().replace(/[^a-z]/, '');}); },
+            'camelcase': function(v){ return v.replace(/([^a-zA-Z0-9][a-z])/g, function($1){return $1.toUpperCase().replace(/[^a-zA-Z0-9]/,'');})},
+            'dash': function(v){ return v.replace(/([^a-z])/g, function($1){return "-"+$1.toLowerCase().replace(/[^a-z]/, '');}); }
+        }
     },
 
     /**
@@ -35,18 +44,40 @@ ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
             maxLength: this.options.maxLength
         }).inject(this.fieldInstance.fieldPanel);
 
-
-        if (this.options.replace){
-            this.input.addEvent('change', this.replace);
-            this.input.addEvent('keyup', this.replace);
-        }
-
         this.input.addEvent('change', this.checkChange);
         this.input.addEvent('keyup', this.checkChange);
 
     },
 
     checkChange: function(){
+
+        if (this.lastCheckChangeTimeout) clearTimeout(this.lastCheckChangeTimeout);
+        this.lastCheckChangeTimeout = this._checkChange.delay(100, this);
+
+    },
+
+    _checkChange: function(){
+
+        var range = this.input.getSelectedRange();
+
+        if (typeOf(this.options.modifier) == 'string'){
+            var modifiers = this.options.modifier.split('|');
+
+            Array.each(modifiers, function(modifier){
+                this.input.value = this.options.modifiers[modifier](this.input.value);
+            }.bind(this));
+
+        } else if (typeOf(this.options.modifier) == 'function'){
+            this.input.value = this.options.modifier(this.input.value);
+        }
+
+        if (this.options.replace){
+            this.replace();
+        }
+
+        if (range.start != 0 && range.end != 0)        
+            this.input.selectRange(range.start, range.end);
+
         if (this.oldValue !== this.input.value){
             this.fieldInstance.fireChange();
             this.oldValue = this.input.value;
@@ -57,9 +88,8 @@ ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
 
         var regEx = new RegExp(this.options.replace[0], this.options.replace[1]);
         var oldValue = this.input.value;
-        this.input.value = oldValue.replace(regEx, this.options.replace[0]);
+        this.input.value = oldValue.replace(regEx, this.options.replace[2]);
 
-        this.checkChange();
     },
 
     setDisabled: function(pDisabled){
@@ -70,6 +100,7 @@ ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
         if (typeOf(pValue) == 'null') pValue = '';
         this.oldValue = pValue;
         this.input.value = pValue;
+        this._checkChange();
     },
 
     getValue: function(){

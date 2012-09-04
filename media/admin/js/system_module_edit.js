@@ -868,7 +868,7 @@ var admin_system_module_edit = new Class({
 
         var kaParser = new ka.Parse(tbody, kaFields, {allTableItems:1}, {win: this.win});
         pSub.getParent().store('kaparser', kaParser);
-        //kaParser.setValue(pLink);
+        kaParser.setValue(pLink);
     },
 
     _linksAddNewLevel: function (pKey, pLink, pParent) {
@@ -986,6 +986,76 @@ var admin_system_module_edit = new Class({
 
         this.generellFields = {};
 
+        var fields = {
+            title: {
+                label: t('Title'),
+                type: 'text'
+            },
+            desc: {
+                label: t('Description'),
+                type: 'textarea'
+            },
+            tags: {
+                label: t('Tags'),
+                type: 'text'
+            },
+            screenshots: {
+                label: t('Screenshots'),
+                type: 'text',
+                desc: t('Screenshots in %s').replace('%s', 'media/'+this.mod + '/_screenshots/'),
+                disabled: true
+            },
+            owner: {
+                label: t('Owner'),
+                type: 'text'
+            },
+            version: {
+                label: t('Version'),
+                type: 'text'
+            },
+            depends: {
+                label: t('Depends'),
+                desc: t('Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4.'),
+                help: 'extensions-dependency', 
+                type: 'text'
+            },
+            community: {
+                label: t('Community'),
+                type: 'checkbox',
+                desc: t('Is this extension available under kryn.org/extensions.')
+            },
+            category: {
+                label: t('Category'),
+                desc: t('What kind of extension is this?'), 
+                type: 'select',
+                items: {
+                    1: 'Information/Editorial office',
+                    2: 'Multimedia',
+                    3: 'SEO',
+                    4: 'Widget',
+                    5: 'Statistic',
+                    6: 'Community',
+                    7: 'Interface',
+                    8: 'System',
+                    9: 'Advertisement',
+                    10: 'Security',
+                    11: 'ECommerce',
+                    12: 'Download / Documents',
+                    13: 'Theme / Layouts',
+                    14: 'Language package',
+                    15: 'Data acquisition',
+                    16: 'Collaboration'
+                },
+            },
+            writableFiles: {
+                label: t('Writable files'),
+                desc: t('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'),
+                type: 'textarea'
+            }
+
+        }
+
+        /*
         var title = ( pConfig.title ) ? pConfig.title : '';
         this.generellFields['title'] = new ka.Field({
             label: t('Title'), value: title
@@ -1061,13 +1131,33 @@ var admin_system_module_edit = new Class({
                 {v: t('Data acquisition'), i: 19},
                 {v: t('Collaboration'), i: 18},
                 {v: t('Other'), i: 16}
-            ], table_key: 'i', table_label: 'v'
+            }
         }).inject(p);
 
         this.generellFields['writableFiles'] = new ka.Field({
             label: t('Writable files'), desc: t('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'), value: pConfig.writableFiles, type: 'textarea'
-        }).inject(p);
+        }).inject(p);*/
 
+        this.generalFieldsObj = new ka.Parse(p, fields, {allTableItems: 1});
+
+        var value = pConfig;
+
+
+        value.screenshots = 'No Screenshots found';
+        if (pConfig.screenshots) {
+            value.screenshots = pConfig.screenshots.length;
+        }
+
+        if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
+            var ownerField = this.generalFieldsObj.getField('owner');
+            new ka.Button(t('Set to my extension: ' + ka.settings.system.communityEmail))
+            .addEvent('click', function () {
+                this.setToMyExtension = ka.settings.system.communityId;
+                ownerField.setValue(ka.settings.system.communityEmail);
+            }.bind(this)).inject(document.id(ownerField).getElement('.ka-field-field'));
+        }
+
+        this.generalFieldsObj.setValue(value);
 
         var buttonBar = new ka.ButtonBar(this.panes['general']);
         buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
@@ -1075,17 +1165,13 @@ var admin_system_module_edit = new Class({
     },
 
     saveGeneral: function () {
-        var req = {};
+        var req = this.generalFieldsObj.getValue();
+
 
         if (this.setToMyExtension > 0) {
             req['owner'] = this.setToMyExtension;
         }
 
-        Object.each(this.generellFields, function (field, id) {
-            req[id] = field.getValue();
-        });
-
-//      req.lang = this.languageSelect.value;
         req.name = this.mod;
 
         this.loader.show();
@@ -1564,9 +1650,11 @@ var admin_system_module_edit = new Class({
         if (this.lr) this.lr.cancel();
         this.loader.show();
 
+        logger(objects); return false;
         var req = {};
         req.objects = JSON.encode(objects);
         req.name = this.mod;
+
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (res) {
             this.loader.hide();
@@ -1605,16 +1693,14 @@ var admin_system_module_edit = new Class({
                         depends: {
                             table: {
                                 needValue: 'propel',
-                                label: t('Table name')
-                            },
-                            phpName: {
-                                needValue: 'propel',
-                                label: t('PHP class')
+                                label: t('Table name'),
+                                modifier: 'underscore|trim'
                             },
                             objectLabel: {
                                 label: t('Label field'),
                                 desc: t('Default field for the label.'),
-                                type: 'text'
+                                type: 'text',
+                                modifier: 'camelcase|trim'
                             },
                             nested: {
                                 label: t('Nested Sets'),
@@ -1972,19 +2058,12 @@ var admin_system_module_edit = new Class({
         var tr2 = new Element('tr').inject(this.objectTBody);
         var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
 
-        var iKey = new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''})
-        .addEvent('keyup', function(e){
-
-            if (e.key.length > 1) return;
-            var range = this.getSelectedRange();
-
-            this.value = this.value.replace(' ', '_');
-            this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
-            this.value = this.value.replace(/--+/, '-');
-
-            this.selectRange(range.start, range.end);
-        })
-        .inject(leftTd);
+        var iKey = new ka.Field({
+            type: 'text',
+            noWrapper: true,
+            modifier: 'camelcase|trim',
+            value:pKey?pKey:''
+        }, leftTd);
 
         new Element('input', {'class': 'text', style: 'width: 250px;', value:pDefinition?pDefinition['label']:''}).inject(rightTd);
 

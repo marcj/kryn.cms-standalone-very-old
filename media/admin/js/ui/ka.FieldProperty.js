@@ -2,6 +2,8 @@ ka.FieldProperty = new Class({
 
     Implements: [Events, Options],
 
+    Binds: ['fireChange'],
+
     kaFields: {
         label: {
             label: t('Label'),
@@ -17,7 +19,7 @@ ka.FieldProperty = new Class({
                 number: t('Number'),
 
                 checkbox: t('Checkbox'),
-                imagegroup: t('Imagegroup'),
+                imageGroup: t('Imagegroup'),
                 checkboxgroup: t('Checkboxgroup'),
 
                 page: t('Page'),
@@ -35,30 +37,30 @@ ka.FieldProperty = new Class({
                 properties: t('Properties (multi array class)'),
                 fieldtable: t('Ka.Field table'),
                 
-                fieldcondition: t('Field Condition'),
-                objectcondition: t('Object Condition'),
+                fieldCondition: t('Field Condition'),
+                objectCondition: t('Object Condition'),
 
                 textarea: t('Textarea'),
                 wysiwyg: t('Wysiwyg'),
-                layoutelement: t('Layout element'),
+                layoutElement: t('Layout element'),
                 codemirror: t('CodeMirror (sourcecode editor)'),
 
                 date: t('Date'),
                 datetime: t('Datetime'),
 
                 files: t('File select from folder'),
-                filelist: t('File list (Attachments)'),
-
+                //filelist: t('File list (Attachments)'),
 
                 tab: t('Tab'),
                 headline: t('Headline'),
                 info: t('Info'),
                 label: t('Label'),
                 html: t('Html'),
-                childrenswitcher: t('Children switcher'),
+                childrenSwitcher: t('Children switcher'),
 
-                custom: t('Custom'),
-                windowlist: t('Framework windowList')
+                custom: t('Custom')
+                //,
+                //windowlist: t('Framework windowList')
             },
             'depends': {
 
@@ -230,7 +232,7 @@ ka.FieldProperty = new Class({
         },
         __optional__: {
             label: t('Optional'),
-            type: 'childrenswitcher',
+            type: 'childrenSwitcher',
             depends: {
                 desc: {
                     label: t('Description (Optional)'),
@@ -312,7 +314,6 @@ ka.FieldProperty = new Class({
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
-
     childDiv: false,
     main: false,
 
@@ -369,7 +370,7 @@ ka.FieldProperty = new Class({
                 delete this.kaFields.__optional__.depends.tableitem;
 
             delete this.kaFields.type.items.window_list;
-            delete this.kaFields.type.items.childrenswitcher;
+            delete this.kaFields.type.items.childrenSwitcher;
             delete this.kaFields.type.items.layoutelement;
             delete this.kaFields.type.items.wysiwyg;
             delete this.kaFields.type.items.array;
@@ -481,15 +482,16 @@ ka.FieldProperty = new Class({
 
         if (this.options.withActionsImages){
 
-            new Element('img', {
-                src: _path+ PATH_MEDIA + '/admin/images/icons/delete.png',
-                title: t('Delete property'),
-                style: 'cursor: pointer; position: relative; top: 3px;'
+            new Element('a', {
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+                title: _('Remove'),
+                html: '&#xe26b;'
             })
             .addEvent('click', function(){
                 this.win._confirm(t('Really delete?'), function(ok){
                     if(ok){
                         this.fireEvent('delete');
+                        this.removeEvents('change');
                         this.main.destroy();
                         delete this;
                     }
@@ -497,10 +499,10 @@ ka.FieldProperty = new Class({
             }.bind(this))
             .inject(header);
 
-            new Element('img', {
-                src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_up.png',
+            new Element('a', {
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
                 title: t('Move up'),
-                style: 'cursor: pointer; position: relative; top: 3px;'
+                html: '&#xe2ca;'
             })
             .addEvent('click', function(){
                 if (!this.main.getPrevious('.ka-fieldTable-item'))
@@ -510,10 +512,10 @@ ka.FieldProperty = new Class({
             .inject(header);
 
 
-            new Element('img', {
-                src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_down.png',
+            new Element('a', {
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
                 title: t('Move down'),
-                style: 'cursor: pointer; position: relative; top: 3px;'
+                html: '&#xe2cc;'
             })
             .addEvent('click', function(){
                 if (!this.main.getNext())
@@ -571,8 +573,9 @@ ka.FieldProperty = new Class({
             allSmall:this.options.allSmall
         }, {win:this.win});
 
-        this.main.store('kaParse', this.kaParse);
+        this.kaParse.addEvent('change', this.fireChange);
 
+        this.main.store('kaParse', this.kaParse);
 
         this.childDiv = new Element('div', {
             'class': 'ka-fieldTable-children'
@@ -597,6 +600,10 @@ ka.FieldProperty = new Class({
 
             this.setValue(pKey, pDefinition);
         }
+    },
+
+    fireChange: function(){
+        this.fireEvent('change');
     },
 
     getValue: function(){

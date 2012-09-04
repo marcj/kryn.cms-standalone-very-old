@@ -254,10 +254,7 @@ class Propel extends ORMAbstract {
      * @return string
      */
     public function getPhpName($pName = null){
-        $name = $pName ? Kryn::$objects[$pName]['phpName'] : $this->definition['phpName'];
-        if (!$name)
-            throw new \ORMException(tf('Object %s does not have a phpName set.', $pName?:$this->objectKey));
-        return $name;
+        return $pName ? ucfirst($pName) : ucfirst($this->objectKey);
     }
 
 

@@ -64,7 +64,7 @@ class Client {
      */
     public function sendResponse($pHttpCode = '200', $pMessage){
 
-        if (!$_GET['_suppress_status_code'] && php_sapi_name() !== 'cli'){
+        if ($this->controller->getHttpStatusCodes() && !$_GET['_suppress_status_code'] && php_sapi_name() !== 'cli'){
             $httpMap = array(
                 '200' => '200 OK',
                 '500' => '500 Internal Server Error',

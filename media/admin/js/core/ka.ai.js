@@ -41,7 +41,6 @@ Request.JSON = new Class({
 
     initialize: function(options){
         this.parent(options);
-
         this.addEvent('failure', this.booboo.bind(this));
         this.addEvent('error', this.invalidJson.bind(this));
 

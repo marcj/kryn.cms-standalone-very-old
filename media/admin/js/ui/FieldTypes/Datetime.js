@@ -1,4 +1,4 @@
-ka.FieldTypes.Date = new Class({
+ka.FieldTypes.Datetime = new Class({
     
     Extends: ka.FieldAbstract,
 
@@ -13,6 +13,7 @@ ka.FieldTypes.Date = new Class({
             style: 'width: 100%'
         }).inject(this.fieldInstance.fireChange);
 
+        this.options.time = true;
         this.datePicker = new ka.DatePicker(this.input, this.options);
 
         if (this.options.inputWidth)

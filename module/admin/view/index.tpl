@@ -24,7 +24,6 @@
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
     <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
 
-
     <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.css">
     <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
     <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">

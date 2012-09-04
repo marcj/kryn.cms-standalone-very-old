@@ -1,5 +1,8 @@
 ka.FieldTable = new Class({
-    Implements: Options,
+
+    Implements: [Options, Events],
+
+    Binds: ['fireChange'],
 
     options: {
         addLabel: t('Add property'),
@@ -70,6 +73,10 @@ ka.FieldTable = new Class({
         .inject(this.footer);
     },
 
+    fireChange: function(){
+        this.fireEvent('change');
+    },
+
     getValue: function(){
 
         var result = {};
@@ -98,7 +105,10 @@ ka.FieldTable = new Class({
 
     add: function(pKey, pDefinition, pContainer){
 
-        return new ka.FieldProperty(pKey, pDefinition, pContainer, this.options, this.win);
+        var fieldProperty = new ka.FieldProperty(pKey, pDefinition, pContainer, this.options, this.win);
+        fieldProperty.addEvent('change', this.fireChange);
+
+        return fieldProperty;
 
     }
 

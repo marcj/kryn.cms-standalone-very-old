@@ -2,15 +2,14 @@ ka.DatePicker = new Class({
 
     Implements: [Options, Events],
 
-    initialize: function (pInput, pOptions) {
-
-
-        this.options = new Hash({
+    options: {
             days: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
             months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
             shortDays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
             time: false
-        });
+    },
+
+    initialize: function (pInput, pOptions) {
 
         this.setOptions(pOptions);
 
@@ -20,7 +19,14 @@ ka.DatePicker = new Class({
             this.options.format = '%d.%m.%Y';
         }
 
-        this.input = pInput;
+        if (pInput.get('tag') != 'input'){
+            this.input = new Element('input', {
+                type: 'text',
+                'class': 'ka-Input'
+            }).inject(pInput);
+        } else {
+           this.input = pInput;
+        }
 
         var kwindow = this.input.getParent('.kwindow-border');
         if (kwindow) {

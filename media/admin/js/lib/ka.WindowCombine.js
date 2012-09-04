@@ -257,7 +257,7 @@ ka.WindowCombine = new Class({
                 var field = Object.clone(this.classProperties.filterFields[ mkey ]);
 
 
-                var title = this.classProperties.fields[mkey].label;
+                var title = field.label;
                 field.label = t(title);
                 field.small = true;
                 field.tableitem = true;
@@ -413,6 +413,11 @@ ka.WindowCombine = new Class({
         }
 
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode, noCache: true, onComplete: function (response) {
+
+            if (response.error){ 
+                this.itemLoader.set('html', _('Something went wrong :-('));
+                return;
+            }
 
             var res = response.data;
 

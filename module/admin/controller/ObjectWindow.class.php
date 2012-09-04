@@ -271,6 +271,9 @@ abstract class ObjectWindow {
             }
         }
 
+        if (!$this->titleField)
+            $this->titleField = $this->objectDefinition['label'];
+
         //resolv shortcuts
         $this->prepareFieldDefinition($this->fields);
 

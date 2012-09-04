@@ -339,7 +339,7 @@ ka.FieldTypes.Condition = new Class({
 
 
     setValue: function(pValue){
-        con.empty();
+        this.main.empty();
 
         if (typeOf(pValue) == 'string'){
             try {
@@ -353,7 +353,7 @@ ka.FieldTypes.Condition = new Class({
             pValue = [pValue];
 
         if (typeOf(pValue) == 'array'){
-            this.renderValues(pValue, con);
+            this.renderValues(pValue, this.main);
         }
 
     },
