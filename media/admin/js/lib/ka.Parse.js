@@ -200,7 +200,6 @@ ka.Parse = new Class({
             if (field.depends) {
 
                 if (!obj.childContainer){
-
                     obj.prepareChildContainer();
                 }
 
@@ -333,7 +332,7 @@ ka.Parse = new Class({
             if (id.indexOf('[') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
             } else {
-                obj.setValue(pValues ? pValues[id] : null, pInternal);
+                //obj.setValue(pValues ? pValues[id] : null, pInternal);
             }
         });
     },

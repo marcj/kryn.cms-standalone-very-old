@@ -60,9 +60,6 @@ ka.Field = new Class({
         this.setOptions(this.field);
         this.container = pContainer;
 
-        if (!this.field.value) this.field.value = '';
-
-
         if (this.options.noWrapper){
 
             if (this.field.tableItem) {
@@ -109,8 +106,8 @@ ka.Field = new Class({
                 });
                 this.main.store('ka.Field', this);
 
-                if (this.field.panel_width) {
-                    this.main.setStyle('width', this.field.panel_width);
+                if (this.field.panelWidth) {
+                    this.main.setStyle('width', this.field.panelWidth);
                 } else if (!this.field.small) {
                     this.main.setStyle('width', 330);
                 }
@@ -129,6 +126,7 @@ ka.Field = new Class({
                 if (this.field.small) {
                     this.main.set('class', 'ka-field-main ka-field-main-small');
                 }
+
                 this.title = new Element('div', {
                     'class': 'ka-field-title'
                 }).inject(this.main);
@@ -184,16 +182,11 @@ ka.Field = new Class({
 
         this.findWin();
 
-        this.addEvent('change', function () {
-            this.fireEvent('check-depends');
-            this.isOk();
-        }.bind(this));
-
         this.renderField();
 
-        if (!this.field.startEmpty && this.field.value !== null) {
+        if (!this.field.startEmpty && typeOf(this.field.value) != 'null') {
             this.fieldObject.setValue(this.field.value, true);
-        } else if (this.field['default'] !== null){
+        } else if (typeOf(this.field['default']) != 'null'){
             this.fieldObject.setValue(this.field['default'], true);
         }
 
@@ -458,74 +451,6 @@ ka.Field = new Class({
 
     },
 
-
-    renderChildrenSwitcher: function(){
-
-        this.title.empty();
-
-        var a = new Element('a', {
-            text: this.field.label,
-            style: 'display: block; padding: 2px; cursor: pointer; position: relative; left: -5px;'
-        }).inject(this.title);
-
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png',
-            style: 'margin-left: 2px; margin-right: 3px;'
-        }).inject(a, 'top');
-
-        this.value = 0;
-
-        this.getValue = function(){
-            return this.value;
-        }.bind(this);
-
-        this.handleChildsMySelf = true;
-
-        this._setValue = function(pValue){
-            this.value = pValue || 0;
-            if (!this.childContainer) return;
-
-            if (this.value == 0){
-                this.childContainer.setStyle('display', 'none');
-                a.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png');
-            } else {
-                this.childContainer.setStyle('display', 'block');
-                a.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_minus.png');
-            }
-        }.bind(this);
-
-        a.addEvent('click', function(){
-            this._setValue( this.value==0?1:0)
-        }.bind(this));
-
-        //with check-depends we have this.childContainer
-        this.addEvent('check-depends', function(){
-            this._setValue(this.value);
-        }.bind(this));
-
-    },
-
-    renderLabel: function (pStripHtml) {
-
-        var div = new Element('div').inject(this.fieldPanel);
-
-        this._setValue = function (pVal) {
-            if (!pVal){
-                div.set('text', '');
-                return;
-            }
-            this.value = pVal;
-            if (pStripHtml) {
-                div.set('text', pVal);
-            } else {
-                div.set('html', pVal);
-            }
-        }.bind(this);
-
-        this.getValue = function () {
-            return this.value;
-        }.bind(this);
-    },
 
     renderTextlist: function () {
 
@@ -935,289 +860,6 @@ ka.Field = new Class({
 
     },
 
-    renderCustom: function () {
-        var _this = this;
-
-        if (window[this.field['class']]) {
-
-            this.customObj = new window[this.field['class']](this.field, this.fieldPanel, this.refs);
-
-            this.customObj.addEvent('change', function () {
-                this.fireChange();
-            }.bind(this));
-
-            this._setValue = this.customObj.setValue.bind(this.customObj);
-            this.getValue = this.customObj.getValue.bind(this.customObj);
-            this.isOk = this.customObj.isEmpty.bind(this.customObj);
-            this.highlight = this.customObj.highlight.bind(this.customObj);
-
-        } else {
-            alert('Custom field: ' + this.field['class'] + '. Can not find this javascript class.');
-        }
-    },
-
-    renderArray: function () {
-
-        var table = new Element('table', {
-            cellpadding: 2,
-            cellspacing: 0,
-            width: '100%',
-            'class': 'ka-field-array'
-        }).inject(this.fieldPanel);
-
-        this.fieldPanel.setStyle('margin-left', 11);
-
-        if (this.field.width) {
-            this.fieldPanel.setStyle('width', this.field.width);
-        }
-
-        var thead = new Element('thead').inject(table);
-        var tbody = new Element('tbody').inject(table);
-
-        var actions = new Element('div', {
-
-        }).inject(this.fieldPanel);
-
-
-        var tr = new Element('tr').inject(thead);
-        Array.each(this.field.columns, function (col) {
-
-            var td = new Element('th', {
-                valign: 'top',
-                text: typeOf(col) == 'object'?col.label:col
-            }).inject(tr);
-
-            if (typeOf(col) == 'object'){
-                if (col.desc){
-                    new Element('div', {
-                        'class': 'ka-field-array-column-desc',
-                        text: col.desc
-                    }).inject(td);
-                }
-                if (col.width) {
-                    td.set('width', col.width);
-                }
-            }
-        });
-        var td = new Element('th', {
-            style: 'width: 30px'
-        }).inject(tr);
-
-
-        if (this.field.withOrder){
-            td.setStyle('width', 52);
-        }
-
-        var addRow = function (pValue) {
-
-            if (this.field.designMode) return;
-
-            var tr = new Element('tr').inject(tbody);
-            tr.fields = {};
-
-            Object.each(this.field.fields, function (field, field_key) {
-
-                if (!field.panel_width) field.panel_width = '100%';
-
-                var copy = Object.clone(field);
-                field.noWrapper = 1;
-
-                var td = new Element('td', {
-                    'class': 'ka-field'
-                }).inject(tr);
-
-                var nField = new ka.Field(field, td, {win: this.win});
-
-                if (pValue && pValue[field_key]) {
-                    nField.setValue(pValue[field_key]);
-                }
-
-                tr.fields[field_key] = nField;
-
-            }.bind(this));
-
-            if (this.field.withOrder || !this.field.withoutRemove){
-                var td = new Element('td').inject(tr);
-            }
-
-            if (this.field.withOrder){
-
-                new Element('img', {
-                    src: _path + PATH_MEDIA + '/admin/images/icons/arrow_up.png',
-                    style: 'cursor: pointer;',
-                    title: t('Move up')
-                }).addEvent('click', function () {
-                    if(tr.getPrevious())
-                        tr.inject(tr.getPrevious(), 'before');
-                }).inject(td);
-
-
-                new Element('img', {
-                    src: _path + PATH_MEDIA + '/admin/images/icons/arrow_down.png',
-                    style: 'cursor: pointer;',
-                    title: t('Move down')
-                }).addEvent('click', function () {
-                    if(tr.getNext())
-                        tr.inject(tr.getNext(), 'after');
-                }).inject(td);
-
-            }
-
-            if (!this.field.withoutRemove){
-                new Element('img', {
-                    src: _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-                    style: 'cursor: pointer;',
-                    title: _('Remove')
-                }).addEvent('click', function () {
-                    tr.destroy();
-                }).inject(td);
-            }
-
-
-        }.bind(this);
-
-        if (!this.field.withoutAdd){
-            new ka.Button(this.field.addText ? this.field.addText : [t('Add'), '#icon-plus-alt']).addEvent('click', addRow).inject(actions);
-        }
-
-        var first, second;
-        Object.each(this.field.fields, function(item, key){
-            if (!first){
-                first = key;
-            } else if (!second){
-                second = key;
-            }
-        });
-
-        var fieldLength = Object.getLength(this.field.fields);
-
-        this.getValue = function () {
-
-            var res = this.field.asHash?{}:[];
-
-            var ok = true;
-
-            tbody.getChildren('tr').each(function (tr) {
-                if (ok == false) return;
-
-                var row = this.field.asArray?[]:{};
-
-                Object.each(tr.fields, function (field, field_key) {
-
-                    if (ok == false) return;
-
-                    if (!field.isOk()) {
-                        ok = false;
-                    } else {
-
-                        if (this.field.asArray){
-                            if (fieldLength == 1)
-                                row = field.getValue();
-                            else
-                                row.push(field.getValue());
-                        } else
-                            row[field_key] = field.getValue();
-                    }
-
-                }.bind(this));
-
-                if (this.field.asHash){
-
-                    if (fieldLength > 2){
-
-                        var hash = {};
-                        var i = -1;
-
-                        Object.each(row, function(rvalue, rkey){
-                            i++;
-                            if (i == 0) return;
-                            hash[rkey] = rvalue;
-
-                        });
-
-                        res[row[first]] = hash;
-                    } else {
-                        res[row[first]] = row[second];
-                    }
-                } else {
-
-                    res.push(row);
-                }
-
-            }.bind(this));
-
-            if (ok == false) return;
-
-            return res;
-        }.bind(this);
-
-
-        this._setValue = function (pValue) {
-            tbody.empty();
-
-            if (typeOf(pValue) == 'string') {
-                pValue = JSON.decode(pValue);
-            }
-
-            if (this.field.asHash){
-
-                if (fieldLength > 2){
-
-                    Object.each(pValue, function (item, idx) {
-
-                        var val = {};
-                        val[first] = idx;
-                        Object.each(item, function(iV, iK){
-                            val[iK] = iV;
-                        });
-                        addRow(val);
-
-                    });
-
-                } else {
-
-                    Object.each(pValue, function (item, idx) {
-
-                        var val = {};
-                        val[first] = idx;
-                        val[second] = item;
-
-                        addRow(val);
-                    });
-                }
-            } else {
-                Array.each(pValue, function (item) {
-                    if (this.field.asArray){
-                        if (fieldLength == 1){
-                            var nItem = {};
-                            nItem[first] = item;
-                            addRow(nItem);
-                        } else {
-
-                            var nItem = {};
-                            var index = 0;
-                            Object.each(this.field.fields, function(def, key){
-                                nItem[key] = item[indexx];
-                                index++;
-                            });
-                            addRow(nItem);
-                        }
-                    } else {
-                        addRow(item);
-                    }
-                }.bind(this));
-            }
-
-        }.bind(this);
-
-        if (this.field.startWith && this.field.startWith > 0) {
-            for (var i = 0; i < this.field.startWith; i++) {
-                addRow();
-            }
-        }
-
-    },
-
     renderWindowList: function () {
 
         var div = new Element('div', {
@@ -1286,185 +928,6 @@ ka.Field = new Class({
 
             }
         }.bind(this);
-    },
-
-    renderImageGroup: function () {
-
-        this.input = new Element('div', {
-            style: 'padding: 5px;',
-            'class': 'ka-field-imageGroup'
-        }).inject(this.fieldPanel);
-
-        this.imageGroup = new ka.ImageGroup(this.input);
-
-        this.imageGroupImages = {};
-
-        Object.each(this.field.items, function (image, value) {
-
-            this.imageGroupImages[ value ] = this.imageGroup.addButton(image.label, image.src);
-
-        }.bind(this));
-
-        this.imageGroup.addEvent('change', function () {
-
-            this.fireChange();
-
-        }.bind(this));
-
-        this.getValue = function () {
-
-            var value = false;
-            Object.each(this.imageGroupImages, function (button, tvalue) {
-                if (button.hasClass('buttonHover')) {
-                    value = tvalue;
-                }
-            });
-
-            return value;
-        }
-
-        this._setValue = function (pValue) {
-
-            Object.each(this.imageGroupImages, function (button, tvalue) {
-                button.removeClass('buttonHover');
-                if (pValue == tvalue) {
-                    button.addClass('buttonHover');
-                }
-            });
-        }
-
-    },
-
-    renderHeadline: function () {
-
-        this.input = new Element('h2', {
-            html: this.field.label
-        }).inject(this.fieldPanel);
-
-    },
-
-    renderFileList: function (pOpts) {
-        var relHeight = (this.field.height) ? this.field.height : 150;
-        var main = new Element('div', {
-            styles: {
-                position: 'relative',
-                'height': relHeight,
-                'width': (this.field.width) ? this.field.width : null
-            }
-        }).inject(this.fieldPanel);
-
-        var wrapper = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; right: 18px;'
-        }).inject(main);
-
-        this.input = new Element('select', {
-            size: (this.field.size) ? this.field.size : 5,
-            style: 'width: 100%',
-            'class': 'ka-field',
-            styles: {
-                'height': (this.field.height) ? this.field.height : null
-            }
-        }).inject(wrapper);
-        var input = this.input;
-
-
-        var addFile = function (pPath) {
-            new Element('option', {
-                value: pPath,
-                text: pPath
-            }).inject(input);
-            this.fireChange();
-        }
-
-        this.addImgBtn = new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            style: 'position: absolute; top: 0px; right: 0px; cursor: pointer;'
-        }).addEvent('click', function () {
-
-            ka.wm.openWindow('admin', 'backend/chooser', null, -1, {onChoose: function (pValue) {
-                addFile(pValue);
-                this.win.close();//close paes/chooser windows -> onChoose.bind(this) in chooser-event handler
-            },
-                opts: {files: 1, upload: 1}
-            });
-
-        }.bind(this)).inject(main);
-
-
-        this.addImgBtn = new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            style: 'position: absolute; top: 19px; right: 0px; cursor: pointer;'
-        }).addEvent('click', function () {
-            input.getElements('option').each(function (option) {
-                if (option.selected) option.destroy();
-            });
-        }.bind(this)).inject(main);
-
-
-        var _this = this;
-        this.getValue = function () {
-            var res = [];
-            _this.input.getElements('option').each(function (option) {
-                res.include(option.value);
-            });
-            return res;
-        }
-
-        this._setValue = function (pValues) {
-            input.empty();
-            if (typeOf(pValues) == 'string') pValues = JSON.decode(pValues);
-            if (typeOf(pValues) != 'array') return;
-            pValues.each(function (item) {
-                new Element('option', {
-                    text: item,
-                    value: item
-                }).inject(input);
-            });
-        }
-
-    },
-
-    setInputActive: function (pSet) {
-        if (!pSet)
-            this.input.addClass('text-inactive');
-        else
-            this.input.removeClass('text-inactive');
-    },
-
-
-    renderChooser: function (pObjects) {
-
-        if (!pObjects) return;
-
-        var definition = ka.getObjectDefinition(pObjects[0]);
-
-        if (definition.chooserFieldJavascriptClass){
-
-            if (!window[definition.chooserFieldJavascriptClass]){
-                logger('Can no load custom object field class "'+definition.chooserFieldJavascriptClass+'" for object '+pObjects[0]);
-                return;
-            }
-
-            this.customObj = new window[definition.chooserFieldJavascriptClass](this.field, this.fieldPanel, this);
-
-            this.customObj.addEvent('change', function () {
-                this.fireChange();
-            }.bind(this));
-
-            this._setValue = this.customObj.setValue.bind(this.customObj);
-            this.getValue = this.customObj.getValue.bind(this.customObj);
-            this.isOk = this.customObj.isEmpty.bind(this.customObj);
-            this.highlight = this.customObj.highlight.bind(this.customObj);
-
-        } else {
-
-            if (this.field.objectRelation == 'nToM' || this.field.multi == 1){
-                this.renderChooserMulti(pObjects);
-            } else {
-                this.renderChooserSingle(pObjects);
-            }
-        }
-
     },
 
     renderSelect: function () {
@@ -1804,141 +1267,6 @@ ka.Field = new Class({
 
     },
 
-    renderWysiwyg: function () {
-        this.lastId = 'WindowField' + this.fieldId + ((new Date()).getTime()) + '' + $random(123, 5643) + '' + $random(13284134, 1238845294);
-        //this.lastId = 'field'+(new Date()).getTime();
-
-        this.input = new Element('textarea', {
-            id: this.lastId,
-            name: this.lastId,
-            value: this.field.value,
-            'class': 'ka-field',
-            style: 'width: 100%',
-            styles: {
-                'height': (this.field.height) ? this.field.height : 80,
-                'width': (this.field.width) ? this.field.width : ''
-            }
-        }).inject(this.fieldPanel);
-
-        this.fieldPanel.addClass('selectable');
-
-        var mooeditable = initWysiwyg(this.input);
-
-        return;
-    },
-
-    renderDate: function (pOptions) {
-        this.input = new Element('input', {
-            'class': 'text ka-field-dateTime',
-            type: 'text',
-            style: 'width: 100%'
-        }).inject(this.fieldPanel);
-
-        var datePicker = new ka.DatePicker(this.input, pOptions);
-
-        if (this.field.input_width)
-            this.input.setStyle('width', this.field.input_width);
-
-        if (this.refs.win) {
-            this.refs.win.addEvent('resize', datePicker.updatePos.bind(datePicker));
-            this.refs.win.addEvent('move', datePicker.updatePos.bind(datePicker));
-        }
-
-        datePicker.addEvent('change', function () {
-            this.fireChange();
-        }.bind(this));
-
-        this.getValue = function () {
-            return datePicker.getTime();
-        };
-        this._setValue = function (pVal) {
-            datePicker.setTime((pVal != 0) ? pVal : false);
-        }.bind(this);
-
-        if (this.field['default'] && this.field['default'] != "") {
-            var time = new Date(this.field['default']).getTime();
-            if (this.field['default']) {
-                var time = new Date().getTime();
-            }
-            this.setValue(time, true);
-        }
-    },
-
-    renderCodemirror: function(){
-
-        this.editorPanel = new Element('div', {
-            style: 'border: 1px solid silver; min-height: 50px; background-color: white;'
-        }).inject(this.fieldPanel);
-
-
-        if (this.field.input_width)
-            this.editorPanel.setStyle('width', this.field.input_width);
-
-        if (this.field.input_height){
-
-            var cssClassName = 'codemirror_'+(new Date()).getTime()+'_'+Number.random(0, 10000)+'_'+Number.random(0, 10000);
-
-            if (typeOf(this.field.input_height) == 'number' || !this.field.input_height.match('[^0-9]')){
-                this.field.input_height += 'px';
-            }
-
-            new Stylesheet().addRule('.'+cssClassName+' .CodeMirror-scroll', {
-                height: this.field.input_height
-            });
-
-            this.editorPanel.addClass(cssClassName);
-
-        }
-
-        var options = {
-            lineNumbers: true,
-            mode: 'htmlmixed',
-            value: ''
-        };
-
-        if (this.field.codemirrorOptions){
-            Object.each(this.field.codemirrorOptions, function(value, key){
-                options[key] = value;
-            });
-        }
-        this.editor = CodeMirror(this.editorPanel, options);
-
-        this.editor.setOption("mode", options.mode);
-        CodeMirror.autoLoadMode(this.editor, options.mode);
-
-        this._setValue = function(pValue){
-
-            this.editor.setValue(pValue?pValue:"");
-
-        }.bind(this);
-
-        this.getValue = function(){
-
-            return this.editor.getValue();
-
-        }.bind(this);
-
-        var refresh = function(){
-            this.editor.refresh();
-        }.bind(this);
-
-        var window = this.fieldPanel.getParent('.kwindow-border');
-        if (this.win){
-            this.win.addEvent('resize', refresh);
-        } else if (window){
-            this.win.retrieve('win').addEvent('resize', refresh);
-        }
-
-        var tabPane = this.fieldPanel.getParent('.ka-tabPane-pane');
-        if (tabPane){
-            tabPane.button.addEvent('show', refresh);
-        }
-
-        this.addEvent('show', refresh);
-
-
-    },
-
     highlight: function () {
         this.fieldObject.highlight();
     },
@@ -1962,15 +1290,14 @@ ka.Field = new Class({
     },
 
     getValue: function () {
-        if (!this.input) return;
-        return this.input.value;
+        return this.fieldObject.getValue();
     },
 
     toString: function () {
         return this.getValue();
     },
 
-    setValue: function (pValue, pInternal) {
+    setValue: function (pValue, pInternal){
 
         if (typeOf(pValue) == 'null' && this.field['default']) {
             pValue = this.field['default'];
@@ -1982,22 +1309,16 @@ ka.Field = new Class({
 
         if (pInternal) {
             this.fireChange();
-        } //fires check-depends too
-        else {
+        } else {
             this.fireEvent('check-depends');
         }
     },
 
     fireChange: function(){
-
         this.fireEvent('change', [this.getValue(), this, this.id]);
+        this.fireEvent('check-depends');
+        this.isOk();
 
-    },
-
-    //should not be used anymore
-    //use instead: this.fireEvent('change', this.getValue()); or this.fireChange()
-    onChange: function () {
-        this.fireEvent('change', [this.getValue(), this, this.id]);
     },
 
     findWin: function () {

@@ -1,5 +1,3 @@
-body a.ka-Button,  body a.ka-Button:link,
-a.ka-Button, a.ka-Button:link,
 .ka-Button, .ka-Button:link {
 
     white-space: nowrap;
@@ -7,9 +5,8 @@ a.ka-Button, a.ka-Button:link,
     margin: 2px auto;
 
     cursor: default;
-    position: relative;
     color: #444;
-    line-height: 20px;
+    line-height: 19px;
     font-weight: normal;
     
     -moz-border-radius: 3px;
@@ -51,7 +48,12 @@ a.ka-Button, a.ka-Button:link,
     color: black;
 }
 
-.ka-Button:active {
+
+.ka-Button:active,
+.ka-Button-pressed,
+.ka-Button-pressed:link,
+.ka-Button-pressed:hover,
+.ka-Button-pressed:active {
 
     border: 1px solid #888;
     color: black;
@@ -111,4 +113,13 @@ div.button-list {
     position: relative;
     top: 3px;
     left: -3px;
+}
+
+
+.ka-Button-red,.ka-Button-red:link {
+    color: #C12020;
+}
+
+.ka-Button-red:hover {
+    color: red;
 }

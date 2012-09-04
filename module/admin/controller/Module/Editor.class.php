@@ -23,8 +23,13 @@ class Editor {
         if ($pName != 'kryn')
             $path = PATH_MODULE . "$pName/config.json";
 
+
+        if (!file_exists($path) && !touch($path)){
+            throw new \FileNotWritableException(tf('Can not create %s for module %s.', $path ,$pName));
+        }
+
         if (!is_writeable($path)){
-            throw new \FileNotWritableException(tf('The config file %s for %s is not writeable.', $path ,$pName));
+            throw new \FileNotWritableException(tf('The config file %s for module %s is not writeable.', $path ,$pName));
         }
 
         return Kryn::fileWrite($path, $json);

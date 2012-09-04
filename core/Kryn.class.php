@@ -573,6 +573,7 @@ class Kryn {
     }
 
     public static function loadActiveModules() {
+        Kryn::$extensions = array('core', 'admin', 'users');
         if (Kryn::$config['activeModules'])
             Kryn::$extensions = array_merge(Kryn::$extensions, Kryn::$config['activeModules']);
     }
@@ -793,7 +794,7 @@ class Kryn {
 
     public static function isActiveModule($pModuleKey){
         $pModuleKey = strtolower($pModuleKey);
-        return $pModuleKey=='admin' || $pModuleKey == 'users' ||
+        return $pModuleKey=='admin' || $pModuleKey == 'users' || $pModuleKey == 'core' ||
             array_search($pModuleKey, self::$config['activeModules']);
     }
 
@@ -1008,11 +1009,6 @@ class Kryn {
 
         if (self::$config['id'] === null)
             self::$config['id'] = 'kryn-no-id';
-
-        Kryn::$config['activeModules'][] = 'core';
-        Kryn::$config['activeModules'][] = 'admin';
-        Kryn::$config['activeModules'][] = 'users';
-
     }
 
     /**

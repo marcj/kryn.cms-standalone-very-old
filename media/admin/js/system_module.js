@@ -33,7 +33,7 @@ var admin_system_module = new Class({
             [_('Title'), null, 'html'],
             [_('Activated'), 70, 'html'],
             [_('Version'), 70],
-            [_('Server v.'), 70],
+            [_('Server'), 70],
             [_('Status'), 100],
             [_('Action'), 170]
         ]);
@@ -130,23 +130,23 @@ var admin_system_module = new Class({
                 }.bind(this)).inject(actions);
 
                 if (!['core', 'admin', 'users'].contains(key)) {
-                    if (item.installed) {
+                    if (item.activated) {
                         _title = _('Activated');
                         new ka.Button(_('Deactivate')).addEvent('click', function () {
-                            new Request.JSON({url: _path + 'admin/system/module/deactivate/', noCache: 1, onComplete: function () {
+                            new Request.JSON({url: _path + 'admin/system/module/manager/deactivate/', noCache: 1, onComplete: function () {
                                 this.loadInstalled();
                                 ka.loadSettings();
                                 ka.loadMenu();
-                            }.bind(this)}).post({name: key});
+                            }.bind(this)}).get({name: key});
                         }.bind(this)).inject(actionsStatus)
                     } else {
                         _title = _('Deactivated');
                         new ka.Button(_('Activate')).addEvent('click', function () {
-                            new Request.JSON({url: _path + 'admin/system/module/activate/', noCache: 1, onComplete: function () {
+                            new Request.JSON({url: _path + 'admin/system/module/manager/activate/', noCache: 1, onComplete: function () {
                                 this.loadInstalled();
                                 ka.loadSettings();
                                 ka.loadMenu();
-                            }.bind(this)}).post({name: key});
+                            }.bind(this)}).get({name: key});
                         }.bind(this)).inject(actionsStatus);
                     }
                     new ka.Button(_('Deinstall')).addEvent('click', function () {
@@ -225,7 +225,7 @@ var admin_system_module = new Class({
                 [_('Title'), null, 'html'],
                 [_('Activated'), 50, 'html'],
                 [_('Version'), 50],
-                [_('Server v.'), 50],
+                [_('Server'), 50],
                 [_('Status'), 130],
                 [_('Action'), 350]
             ], {absolute: false}).inject(tableMyDiv);
@@ -240,7 +240,7 @@ var admin_system_module = new Class({
             [_('Title'), null, 'html'],
             [_('Activated'), 50, 'html'],
             [_('Version'), 50],
-            [_('Server v.'), 50],
+            [_('Server'), 50],
             [_('Status'), 130],
             [_('Action'), 350]
         ], {absolute: false}).inject(tableLocalDiv);
@@ -267,21 +267,21 @@ var admin_system_module = new Class({
             var actions = new Element('div');
             var bActions = new Element('div');
             if (!['core', 'admin', 'users'].contains(key)) {
-                if (item.installed) {
+                if (item.activated) {
                     new ka.Button(_('Deactivate')).addEvent('click', function () {
-                        new Request.JSON({url: _path + 'admin/system/module/deactivate/', noCache: 1, onComplete: function () {
+                        new Request.JSON({url: _path + 'admin/system/module/manager/deactivate/', noCache: 1, onComplete: function () {
                             this.loadLocal();
                             ka.loadSettings();
                             ka.loadMenu();
-                        }.bind(this)}).post({name: key});
+                        }.bind(this)}).get({name: key});
                     }.bind(this)).inject(bActions)
                 } else {
                     new ka.Button(_('Activate')).addEvent('click', function () {
-                        new Request.JSON({url: _path + 'admin/system/module/activate/', noCache: 1, onComplete: function () {
+                        new Request.JSON({url: _path + 'admin/system/module/manager/activate/', noCache: 1, onComplete: function () {
                             this.loadLocal();
                             ka.loadSettings();
                             ka.loadMenu();
-                        }.bind(this)}).post({name: key});
+                        }.bind(this)}).get({name: key});
                     }.bind(this)).inject(bActions);
                 }
             }

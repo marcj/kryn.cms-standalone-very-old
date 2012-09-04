@@ -76,8 +76,8 @@ header("Content-Type: text/html; charset=utf-8");
   <head>
     <title>Kryn.cms installation</title>
       <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
-      <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Button.css"  />
-      <link rel="stylesheet" type="text/css" href="media/admin/css/ka.Input.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Button.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Input.css"  />
 
       <style type="text/css">
       body {
@@ -899,8 +899,6 @@ function step2(){
 
 ?>
     </li>
-        ?>
-    </li>
 
     <li><b>Public cache directory</b>
         <?php
@@ -1043,13 +1041,13 @@ function step3(){
     <tr>
         <td width="250">Title</td>
         <td>
-            <input type="text" required name="systemTitle" value="Fresh installation">
+            <input type="text" class="ka-Input" required name="systemTitle" value="Fresh installation">
         </td>
     </tr>
     <tr>
         <td width="250">Installation id</td>
         <td>
-            <input type="text" required name="id" value="<?php echo dechex((time() / 1000) / mt_rand(10, 100)); ?>">
+            <input type="text" class="ka-Input" required name="id" value="<?php echo dechex((time() / 1000) / mt_rand(10, 100)); ?>">
         </td>
     </tr>
     <tr>
@@ -1123,35 +1121,35 @@ function step3(){
         <td>
           Host
         </td>
-        <td><input required type="text" name="server" id="db_server" value="localhost" /></td>
+        <td><input required type="text" class="ka-Input" name="server" id="db_server" value="localhost" /></td>
     </tr>
     <tr>
         <td>
           Port
           <div style="color: silver">Empty for default</div>
         </td>
-        <td><input type="text" style="width:50px" name="port" value="" /></td>
+        <td><input type="text" class="ka-Input" style="width:50px" name="port" value="" /></td>
     </tr>
     <tr id="ui_username">
         <td>Username</td>
-        <td><input required type="text" name="username" id="db_username" /></td>
+        <td><input required type="text" class="ka-Input" name="username" id="db_username" /></td>
     </tr>
     <tr id="ui_password">
         <td>Password</td>
-        <td><input type="password" name="password" id="db_password" /></td>
+        <td><input type="password" name="password" id="db_password" class="ka-Input" /></td>
     </tr>
     <tr id="ui_db">
         <td>
         	Database name
         </td>
-        <td><input required type="text" name="db" id="db_name" /></td>
+        <td><input required type="text" class="ka-Input" name="db" id="db_name" /></td>
     </tr>
     <tr>
         <td>Table Prefix
 	        <div style="color: silver">
 	        	Please use only a lowercase string.
 	        </div></td>
-        <td><input required style="width: 80px" type="text" name="prefix" id="db_prefix" value="kryn_" /></td>
+        <td><input required style="width: 80px" type="text" class="ka-Input" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
 </table>
 <div id="status" style="padding: 4px;"></div>

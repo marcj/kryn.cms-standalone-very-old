@@ -598,7 +598,8 @@ ka.Window = new Class({
             this.borderDragger.attach();
 
             this.border.setStyles(this.oldDimension);
-            this.maximizer.removeClass('icon-shrink');
+            this.maximizer.removeClass('icon-shrink-3');
+            this.maximizer.addClass('icon-expand-4');
             this.maximized = false;
             this.border.removeClass('kwindow-border-maximized');
 
@@ -617,7 +618,8 @@ ka.Window = new Class({
                 left: 0,
                 top: 0
             });
-            this.maximizer.addClass('icon-shrink');
+            this.maximizer.removeClass('icon-expand-4');
+            this.maximizer.addClass('icon-shrink-3');
             this.maximized = true;
 
             if (this.resizeBottomRight)

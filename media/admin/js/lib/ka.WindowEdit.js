@@ -355,9 +355,10 @@ ka.WindowEdit = new Class({
 
         this.renderPreviews();
 
+        this.renderSaveActionBar();
+        
         this.renderFields();
 
-        this.renderSaveActionBar();
 
         this.fireEvent('render');
 
@@ -508,6 +509,12 @@ ka.WindowEdit = new Class({
         this._buttons[ pTab ].stopTip();
     },
 
+    reset: function(){
+
+
+
+    },
+
     renderSaveActionBar: function () {
         var _this = this;
 
@@ -516,26 +523,41 @@ ka.WindowEdit = new Class({
             'class': 'kwindow-win-buttonBar'
         }).inject(this.container);
 
+
+            this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
+            .addEvent('click', this.reset.bind(this))
+            .inject(this.actionBar);
+
+            document.id(this.removeBtn).addClass('ka-Button-red');
+            document.id(this.removeBtn).addClass('ka-windowEdit-removeButton');
+
+            this.saveAndPublishBtn = new ka.Button([t('Reset'), '#icon-escape'])
+            .addEvent('click', this.reset.bind(this))
+            .inject(this.actionBar);
+
+
         if (this.classProperties.versioning == true){
 
-            new ka.Button([t('Save'), '#icon-cd'])
+            this.saveAndPublishBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
             .addEvent('click', this._save.bind(this, [false,true]))
             .inject(this.actionBar);
             // this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
             //     _this._save(false, true);
             // }.bind(this));
         }
-        
 
-        new ka.Button([t('Save'), '#icon-cd'])
+
+        new ka.Button([t('Save'), '#icon-checkmark-6'])
         .addEvent('click', this._save.bind(this, [null,null]))
         .inject(this.actionBar);
 
         if (true) {
 
-            new ka.Button([t('Preview'), '#icon-eye'])
+            this.previewBtn = new ka.Button([t('Preview'), '#icon-eye'])
             //.addEvent('click', this._save.bind(this))
-            .inject(this.actionBar);
+            .inject(this.win.titleGroups);
+
+            document.id(this.previewBtn).addClass('ka-windowEdit-previewButton');
 
             //this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
         }

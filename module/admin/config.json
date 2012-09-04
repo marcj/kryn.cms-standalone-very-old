@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "owner": "1",
-    "title": "Kryn.cms Administration",
+    "title": "Kryn.cms",
     "desc": "The administration of Kryn.cms",
     "system": true,
     "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",
@@ -114,16 +114,16 @@
         "system": {
             "title": "[[System]]",
             "type": "custom",
-            "isLink": 1,
-            "multi": 1,
+            "isLink": true,
+            "multi": true,
             "fixedWidth": 300,
             "fixedHeight": 200,
             "childs": {
                 "desktopSettings": {
                     "title": "[[Desktop settings]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -132,14 +132,14 @@
                     "title": "[[Search index]]",
                     "class": "adminSearchIndexList",
                     "type": "list",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": {
                         "doAction": {
                             "title": "add",
                             "type": "custom",
-                            "isLink": 1,
-                            "multi": 1,
+                            "isLink": true,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -149,8 +149,8 @@
                 "layout": {
                     "title": "[[Templates]]",
                     "type": "custom",
-                    "isLink": 1,
-                    "multi": 1,
+                    "isLink": true,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -158,14 +158,14 @@
                 "languages": {
                     "title": "[[Languages]]",
                     "type": "custom",
-                    "isLink": 1,
-                    "multi": 1,
+                    "isLink": true,
+                    "multi": true,
                     "childs": {
                         "edit": {
                             "title": "[[Edit]]",
                             "type": "custom",
-                            "isLink": 0,
-                            "multi": 1,
+                            "isLink": false,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -175,8 +175,8 @@
                 "backup": {
                     "title": "[[Backup]]",
                     "type": "custom",
-                    "isLink": 1,
-                    "multi": 1,
+                    "isLink": true,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -184,14 +184,17 @@
                 "module": {
                     "title": "[[Extensions]]",
                     "type": "custom",
-                    "isLink": 1,
-                    "multi": 1,
+                    "isLink": true,
+                    "multi": true,
+                    "minWidth": 950,
+                    "defaultWidth": 1000,
+                    "defaultHeight": 550,
                     "childs": {
                         "publish": {
                             "title": "[[Publish]]",
                             "type": "custom",
-                            "isLink": 0,
-                            "multi": 1,
+                            "isLink": false,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -199,8 +202,8 @@
                         "edit": {
                             "title": "[[Edit extension]]",
                             "type": "custom",
-                            "isLink": 0,
-                            "multi": 1,
+                            "isLink": false,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -208,8 +211,8 @@
                         "add": {
                             "title": "[[Create extension]]",
                             "type": "custom",
-                            "isLink": 0,
-                            "multi": 1,
+                            "isLink": false,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -217,8 +220,8 @@
                         "view": {
                             "title": "[[Extension]]",
                             "type": "custom",
-                            "isLink": 0,
-                            "multi": 1,
+                            "isLink": false,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -226,8 +229,8 @@
                         "editWindow": {
                             "title": "[[Edit window]]",
                             "type": "custom",
-                            "isLink": 0,
-                            "multi": 1,
+                            "isLink": false,
+                            "multi": true,
                             "minWidth": 700,
                             "minHeight": 500,
                             "childs": [
@@ -239,21 +242,21 @@
                 "settings": {
                     "title": "[[Settings]]",
                     "type": "custom",
-                    "isLink": 1,
-                    "multi": 1,
+                    "isLink": true,
+                    "multi": true,
                     "childs": [
                         
                     ]
                 },
                 "development": {
                     "title": "[[Development]]",
-                    "isLink": 1,
+                    "isLink": true,
                     "childs": {
                         "database": {
                             "title": "[[Database]]",
                             "type": "custom",
-                            "isLink": 1,
-                            "multi": 1,
+                            "isLink": true,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -261,8 +264,8 @@
                         "logs": {
                             "title": "[[Logs]]",
                             "type": "custom",
-                            "isLink": 1,
-                            "multi": 1,
+                            "isLink": true,
+                            "multi": true,
                             "childs": [
                                 
                             ]
@@ -270,8 +273,8 @@
                         "orm": {
                             "title": "[[ORM]]",
                             "type": "custom",
-                            "isLink": 1,
-                            "multi": 0,
+                            "isLink": true,
+                            "multi": false,
                             "childs": [
                                 
                             ]
@@ -279,8 +282,8 @@
                         "restLogger": {
                             "title": "[[Rest logger]]",
                             "type": "custom",
-                            "isLink": 1,
-                            "multi": 0,
+                            "isLink": true,
+                            "multi": false,
                             "minWidth": 450,
                             "minHeight": 350,
                             "childs": [
@@ -293,13 +296,13 @@
         },
         "backend": {
             "title": "[[Backend access]]",
-            "isLink": 0,
+            "isLink": false,
             "childs": {
                 "chooser": {
                     "title": "[[Chooser]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "minWidth": 600,
                     "minHeight": 300,
                     "childs": [
@@ -308,14 +311,14 @@
                 },
                 "stores": {
                     "title": "[[Stores]]",
-                    "isLink": 0,
+                    "isLink": false,
                     "childs": {
                         "groups": {
                             "table_key": "id",
                             "table_label": "name",
                             "table": "system_groups",
                             "type": "store",
-                            "isLink": 0,
+                            "isLink": false,
                             "childs": [
                                 
                             ]
@@ -325,7 +328,7 @@
                             "table_label": "title",
                             "table": "system_langs",
                             "type": "store",
-                            "isLink": 0,
+                            "isLink": false,
                             "childs": [
                                 
                             ]
@@ -333,14 +336,14 @@
                         "extensions": {
                             "class": "adminStoreExtensions",
                             "type": "store",
-                            "isLink": 0,
+                            "isLink": false,
                             "childs": [
                                 
                             ]
                         },
                         "domains": {
                             "type": "store",
-                            "isLink": 0,
+                            "isLink": false,
                             "childs": [
                                 
                             ]
@@ -353,8 +356,8 @@
             "title": "[[Dashboard]]",
             "type": "custom",
             "icon": "#icon-home-5",
-            "isLink": 1,
-            "multi": 1,
+            "isLink": true,
+            "multi": true,
             "childs": [
                 
             ]
@@ -363,14 +366,14 @@
             "title": "[[Pages]]",
             "type": "custom",
             "icon": "#icon-screen-2",
-            "isLink": 1,
-            "multi": 1,
+            "isLink": true,
+            "multi": true,
             "childs": {
                 "addDialog": {
                     "title": "[[Add pages]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -378,8 +381,8 @@
                 "addDomains": {
                     "title": "[[Add domains]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -387,8 +390,8 @@
                 "bigEditor": {
                     "title": "WYSIWYG-Editor",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -399,14 +402,14 @@
             "title": "[[Files]]",
             "type": "custom",
             "icon": "#icon-folder",
-            "isLink": 1,
-            "multi": 1,
+            "isLink": true,
+            "multi": true,
             "childs": {
                 "edit": {
                     "title": "[[File edit]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -414,15 +417,15 @@
                 "diff": {
                     "title": "[[File diff]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
                 },
                 "systemfiles": {
                     "title": "[[System files]]",
-                    "isLink": 0,
+                    "isLink": false,
                     "childs": [
                         
                     ]
@@ -430,8 +433,8 @@
                 "properties": {
                     "title": "[[Properties]]",
                     "type": "custom",
-                    "isLink": 0,
-                    "multi": 1,
+                    "isLink": false,
+                    "multi": true,
                     "childs": [
                         
                     ]
@@ -441,8 +444,8 @@
         "help": {
             "title": "[[Help]]",
             "type": "custom",
-            "isLink": 0,
-            "multi": 1,
+            "isLink": false,
+            "multi": true,
             "childs": [
                 
             ]
@@ -983,7 +986,7 @@
         "admin\/css\/lib\/*.css",
         "admin\/css\/ui\/*.css"
     ],
-    "community": "",
+    "community": "false",
     "writableFiles": "",
     "category": "",
     "tags": "",

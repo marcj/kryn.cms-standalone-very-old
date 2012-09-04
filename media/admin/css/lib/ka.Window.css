@@ -198,9 +198,8 @@
     bottom: 0px;
     left: 0px;
     right: 0px;
-    padding-top: 1px;
-    height: 29px;
-
+    padding-top: 2px;
+    height: 28px;
 
     background: #dbdbdb; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */

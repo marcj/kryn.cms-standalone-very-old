@@ -26,14 +26,17 @@
 }
 
 .ka-tooltip-corner, .ka-tooltip-corner-top, .ka-tooltip-corner-left {
-    bottom: -15px;
-    width: 100%;
-    background-image: url(../images/ka-tooltip-corner.png);
-    background-position: 10px top;
-    background-repeat: no-repeat;
+    
+    width: 0px;
+    height: 0px;
+
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #444;
+
     position: absolute;
-    left: 0px;
-    height: 15px;
+    right: 15px;
+    bottom: -6px;
 }
 
 .ka-tooltip-corner-top {

@@ -3,8 +3,14 @@
     top: 0px;
     left: 0px;
     right: 0px;
-    bottom: 31px;
+    bottom: 30px;
     overflow: auto;
+}
+
+.ka-windowEdit-form > .kwindow-win-tabPane .ka-tabPane-pane {
+    background-image: url(../../images/ka-edit-form-bg.png);
+    background-repeat: repeat-x;
+    background-position: left bottom;
 }
 
 .ka-windowEdit-form .ka-field-layoutelement-layoutcontent {
@@ -86,4 +92,23 @@
 
 .ka-windowEdit-actions a {
     margin-left: 5px;
+}
+
+.kwindow-border .ka-windowEdit-removeButton {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+}
+
+.kwindow-border .ka-windowEdit-previewButton,
+.kwindow-border .ka-windowEdit-previewButton:link {
+    position: absolute;
+    right: 1px;
+    top: -2px;
+    border: 1px solid #999;
+}
+
+
+.kwindow-border .ka-windowEdit-previewButton:hover {
+    border: 1px solid #777;
 }

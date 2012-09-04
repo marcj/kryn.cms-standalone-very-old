@@ -14,6 +14,10 @@ ka.FieldTypes.Select = new Class({
     createLayout: function(){
 
         this.select = new ka.Select(this.fieldInstance.fieldPanel, this.options);
+
+        document.id(this.select).setStyle('width', this.options.inputWidth?
+            this.options.inputWidth:'100%');
+
         this.select.addEvent('change', this.fieldInstance.fireChange);
 
     },

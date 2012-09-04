@@ -289,7 +289,7 @@ ka.Select = new Class({
 
     },
 
-    setValue: function (pValue, pEvent) {
+    setValue: function (pValue, pInternal) {
 
         if (!this.items[ pValue ]) return false;
 
@@ -310,7 +310,7 @@ ka.Select = new Class({
             }
         });
 
-        if (pEvent) {
+        if (pInternal) {
             this.fireEvent('change', pValue);
         }
 

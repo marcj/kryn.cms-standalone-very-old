@@ -67,7 +67,7 @@ ka.FieldTypes.Text = ka.FieldTypes.Input = new Class({
     },
 
     setValue: function(pValue){
-        if (pValue === null || typeOf(pValue)=='undefined') return;
+        if (typeOf(pValue) == 'null') pValue = '';
         this.oldValue = pValue;
         this.input.value = pValue;
     },

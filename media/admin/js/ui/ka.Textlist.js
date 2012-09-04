@@ -13,11 +13,12 @@ ka.Textlist = new Class({
     chosen: [],
 
     options: {
-
         items: false, //array or object
         store: false, //string
-        customValue: false //boolean
+        customValue: false, //boolean
 
+        label: '',
+        key: ''
     },
 
     initialize: function (pContainer, pOptions) {
@@ -57,21 +58,31 @@ ka.Textlist = new Class({
         });
 
         if (pContainer)
-            this.box.inject(pContainer)
+            this.box.inject(pContainer);
 
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
                 Object.each(this.options.items, function(label, key){
                     this.add(key, label);
-                }.bind(this))
+                }.bind(this));
             }
 
             if (typeOf(this.options.items) == 'array'){
                 Array.each(this.options.items, function(label){
-                    this.add(label, label);
-                }.bind(this))
+                    if (typeOf(label) == 'string'){
+                       this.add(label, label);
+                    } else {
+                        this.add(label[this.key], label[this.label]);
+                    }
+                }.bind(this));
             }
         }
+
+    },
+
+    dataProxy: function(pPage, pQuery){
+
+        
 
     },
 

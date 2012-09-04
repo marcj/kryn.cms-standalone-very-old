@@ -815,7 +815,7 @@ var admin_system_module_edit = new Class({
             },
             __optional__: {
                 label: t('Optional'),
-                type: 'childrenswitcher',
+                type: 'childrenSwitcher',
                 needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                 againstField: 'type',
                 depends: {
@@ -868,7 +868,7 @@ var admin_system_module_edit = new Class({
 
         var kaParser = new ka.Parse(tbody, kaFields, {allTableItems:1}, {win: this.win});
         pSub.getParent().store('kaparser', kaParser);
-        kaParser.setValue(pLink);
+        //kaParser.setValue(pLink);
     },
 
     _linksAddNewLevel: function (pKey, pLink, pParent) {
@@ -2254,7 +2254,7 @@ var admin_system_module_edit = new Class({
         var extrasFields = {
 
             __resources__: {
-                type: 'childrenswitcher',
+                type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Additional JavaScript/CSS files'),
                 depends: {
 
@@ -2296,7 +2296,7 @@ var admin_system_module_edit = new Class({
 
 
             __caches__: {
-                type: 'childrenswitcher',
+                type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Cache'),
                 depends: {
 
@@ -2339,7 +2339,7 @@ var admin_system_module_edit = new Class({
             },
 
             __events__: {
-                type: 'childrenswitcher',
+                type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Events'),
                 depends: {
 
@@ -2386,7 +2386,7 @@ var admin_system_module_edit = new Class({
             },
 
             __cdn__: {
-                type: 'childrenswitcher',
+                type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'CDN driver'),
                 depends: {
 

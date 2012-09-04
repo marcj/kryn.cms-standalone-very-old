@@ -3,6 +3,7 @@
 namespace Admin\Module;
 
 use Core\Kryn;
+use Core\SystemFile;
 
 class Manager {
 
@@ -17,6 +18,12 @@ class Manager {
         define('KRYN_MANAGER', false);
     }
 
+    public static function saveMainConfig(){
+        $config = '<?php return '. var_export(Kryn::$config,true) .'; ?>';
+
+        return SystemFile::setContent('config.php', $config);
+    }
+
     /**
      * Filters any special char out of the name.
      *
@@ -25,6 +32,29 @@ class Manager {
      */
     public static function prepareName(&$pName){
         $pName = preg_replace('/[^a-zA-Z0-9-_]/', '', $pName);
+    }
+
+
+    public function deactivate($pName){
+        Manager::prepareName($pName);
+
+        $idx = array_search($pName, Kryn::$config['activeModules']);
+
+        if ($idx === false) return false;
+
+        unset(Kryn::$config['activeModules'][$idx]);
+        return self::saveMainConfig();
+
+    }
+
+    public function activate($pName){
+        Manager::prepareName($pName);
+
+        if (array_search($pName, Kryn::$config['activeModules']) === false){
+            Kryn::$config['activeModules'][] = $pName;
+            return self::saveMainConfig();
+        }
+        return false;
     }
 
     public static function getInstalled() {
@@ -65,15 +95,9 @@ class Manager {
 
         foreach ($modules as $module) {
             $config = self::loadInfo($module);
-            unset($config['db']);
-            unset($config['admin']);
-            unset($config['objects']);
-            unset($config['plugins']);
-            unset($config['widgetsLayout']);
-            unset($config['widgets']);
-            unset($config['adminJavascript']);
-            unset($config['adminCss']);
-            $res[$module] = $config;
+            $res[$module] = array(
+                'title' => $config['title']
+            );
             $res[$module]['activated'] = array_search($module, Kryn::$config['activeModules']) !== false?1:0;
         }
 
@@ -377,8 +401,8 @@ class Manager {
 
     private function getScriptFile($pExtension, $pName){
 
-        $name = esc($pExtension, 2);
-        return PATH_MODULE . $name . '/package/' . $pName . '.php';
+        self::prepareName($pExtension);
+        return PATH_MODULE . $pExtension . '/package/' . $pName . '.php';
 
     }
 }
