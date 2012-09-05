@@ -390,11 +390,14 @@ class Editor {
 
         $path = PATH_MODULE . "$pName/model.xml";
 
-        if (!is_writable($path)){
-            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
-        }
+        if (!file_exists($path) && !touch($path))
+            throw new \FileNotWritableException(tf('The module folder of module %s is not writable.', $pName));
 
-        if (file_exists($path)){
+        if (!is_writable($path))
+            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
+        
+
+        if (file_exists($path) && filesize($path)){
             $xml = @simplexml_load_file($path);
 
             if ($xml === false){

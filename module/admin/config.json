@@ -204,6 +204,8 @@
                             "type": "custom",
                             "isLink": false,
                             "multi": true,
+                            "minWidth": 950,
+                            "defaultWidth": 950,
                             "childs": [
                                 
                             ]

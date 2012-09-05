@@ -71,7 +71,7 @@ ka.FieldProperty = new Class({
                     help: 'admin/field-date-format',
                     needValue: ['date', 'datetime'],
                     againstField: 'type',
-                    input_width: 150
+                    inputWidth: 150
                 },
 
                 //array
@@ -153,26 +153,26 @@ ka.FieldProperty = new Class({
 
                 'objectRelation': {
                     label: t('Relation'),
-                    desc: t('For n-m the table synchronisation will not create a column in the database table for this field.'),
                     needValue: 'object',
                     type: 'select',
                     items: {
-                        'nTo1': 'n - 1',
-                        'nToM': 'n - m'
+                        '1ToN': 'One to Many',
+                        'nToM': 'Many to Many'
                     }
                 },
 
                 'objectRelationTable': {
                     needValue: 'nToM',
-                    againstField: 'object_relation',
+                    againstField: 'objectRelation',
                     label :t('Relation table name (Optional)'),
-                    desc: t('Will also be created through the ORM update. The columns of this table are based on the primary keys of left and right table. Default is relation_&lt;leftObjectKey&gt;_&lt;rightObjectKey&gt;')
+                    desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value.')
                 },
-
+                
                 'objectRelationPhpName': {
                     needValue: 'nToM',
-                    againstField: 'object_relation',
-                    label :t('Relation table php name (Optional)')
+                    againstField: 'objectRelation',
+                    label: t('Relation table php name (Optional)'),
+                    desc: t('Default is the camelCased table name.')
                 },
 
                 //tab

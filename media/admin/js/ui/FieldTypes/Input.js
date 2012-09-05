@@ -19,11 +19,12 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
 
         modifiers: {
             'trim': function(v){ return v.replace(/^\s+|\s+$/g, ""); },
-            'lower': function(v){ return v.toLowerCase()},
-            'lower': function(v){ return v.toUpperCase()},
+            'lower': function(v){ return v.toLowerCase(); },
+            'lower': function(v){ return v.toUpperCase(); },
+            'phpfunction': function(v){ return v.replace('[^a-zA-Z0-9_]', ''); },
             'underscore': function(v){ return v.replace(/([^a-z])/g, function($1){return "_"+$1.toLowerCase().replace(/[^a-z]/, '');}); },
-            'camelcase': function(v){ return v.replace(/([^a-zA-Z0-9][a-z])/g, function($1){return $1.toUpperCase().replace(/[^a-zA-Z0-9]/,'');})},
-            'dash': function(v){ return v.replace(/([^a-z])/g, function($1){return "-"+$1.toLowerCase().replace(/[^a-z]/, '');}); }
+            'camelcase': function(v){ return v.replace(/([^a-zA-Z0-9][a-z])/g, function($1){return $1.toUpperCase().replace(/[^a-zA-Z0-9]/,'');}); },
+            'dash': function(v){ return v.replace(/([^a-zA-Z0-9])/g, function($1){return "-"+$1.toLowerCase().replace(/[^a-z]/, '');}); }
         }
     },
 
@@ -35,14 +36,21 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
 
     createLayout: function(){
 
+        this.wrapper = new Element('div', {
+            styles: {
+                'width': this.options.inputWidth,
+                'margin': '2px'
+            }
+        }).inject(this.fieldInstance.fieldPanel);
+
         this.input = new Element('input', {
             'class': 'ka-Input',
             styles: {
-                'width': this.options.inputWidth,
+                'width': '100%',
                 'height': this.options.inputHeight
             },
             maxLength: this.options.maxLength
-        }).inject(this.fieldInstance.fieldPanel);
+        }).inject(this.wrapper);
 
         this.input.addEvent('change', this.checkChange);
         this.input.addEvent('keyup', this.checkChange);
@@ -75,7 +83,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
             this.replace();
         }
 
-        if (range.start != 0 && range.end != 0)        
+        if (document.activeElement == this.input)
             this.input.selectRange(range.start, range.end);
 
         if (this.oldValue !== this.input.value){

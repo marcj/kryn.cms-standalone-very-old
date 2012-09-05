@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Users\Admin;
 
 
@@ -22,7 +21,7 @@ class UserList extends \Admin\ObjectWindow {
     <div title="#{item.id}">
         <b>{item.username}</b>
         {if item.firstName || item.lastName}
-            (<span>{item.firstName}</span>{if item.lastName} <span>{item.lastName}</span>){/if}
+            (<span>{item.firstName}</span>{if item.lastName} <span>{item.lastName}</span>{/if})
         {/if}
         {if item.email}<div style="color: silver;">{item.email}</div>{/if}
         <div style="color: silver;">{item.groupMembership.name}</div>

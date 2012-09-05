@@ -1623,7 +1623,7 @@ var admin_system_module_edit = new Class({
 
         this.win.setLoading(true, t('Write model to model.xml'));
 
-        new Request.JSON({url: _path+'admin/system/module/editor/model/fromObject', onComplete: function(pResult){
+        new Request.JSON({url: _path+'admin/system/module/editor/model/from-object', onComplete: function(pResult){
 
             this.win.setLoading(false);
 
