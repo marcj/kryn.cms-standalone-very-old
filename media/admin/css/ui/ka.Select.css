@@ -68,7 +68,7 @@
     top: 0px;
     right: 16px;
     height: 20px;
-    line-height: 20px;
+    line-height: 21px;
     overflow: hidden;
     display: inline-block;
     white-space: nowrap;
@@ -84,8 +84,8 @@
 }
 
 .ka-Select-arrow:before {
-    color: #888;
-    font-size: 18px;
+    color: #666;
+    font-size: 12px;
 }
 
 .ka-Select-chooser {
@@ -99,7 +99,7 @@
     position: absolute;
     min-width: 50px;
     min-height: 15px;
-    max-height: 500px;
+    max-height: 200px;
     max-width: 400px;
     overflow: auto;
     background-color: #dddddd;
@@ -162,21 +162,22 @@
     padding: 5px 10px;
 }
 
-.ka-Select-chooser a,
-.ka-Select-chooser a:link {
+.ka-select-chooser-item {
     display: block;
-    padding: 3px 20px 3px 25px;
+    padding: 3px 20px 3px 18px;
     font-size: 10px;
     color: #222;
     text-decoration: none;
     line-height: 18px;
     cursor: default;
 
+    position: relative;
     white-space: nowrap;
 }
 
+
 .ka-Select-box-title img,
-.ka-Select-chooser a img {
+.ka-select-chooser-item img {
     margin-right: 3px;
     float: left;
 }
@@ -185,7 +186,7 @@
     margin-top: 2px;
 }
 
-.ka-Select-chooser a:hover {
+.ka-select-chooser-item:hover {
     background-color: #f9f9f9;
 }
 
@@ -194,6 +195,14 @@ a.ka-Select-separator:link {
     padding: 2px 5px;
     font-weight: bold;
     cursor: default;
+}
+
+.ka-select-chooser-item-selected {
+    padding-left: 4px;
+}
+
+.ka-select-chooser-item-selected:before {
+    padding-right: 4px;
 }
 
 .ka-Select-chooser a.ka-Select-separator:hover {

@@ -39,7 +39,7 @@ ka.Helpsystem = new Class({
     newBubble: function (pTitle, pText, pDelay) {
 
         var box = new Element('div', {
-            'class': 'ka-helpsystem-bubble',
+            'class': 'ka-helpsystem-bubble selectable',
             styles: {
                 opacity: 0
             }
@@ -65,14 +65,16 @@ ka.Helpsystem = new Class({
                 box.destroy();
             }});
             box.tween('opacity', 0);
-        })
+        });
 
         if (delay > 0) {
             die.delay(delay);
         }
 
         new Element('a', {
-            text: 'x',
+            style: "cursor: pointer; font-family: 'icomoon';",
+            title: t('Move down'),
+            html: '&#xe1b2;',
             'class': 'ka-helpsystem-bubble-closer'
         }).addEvent('click', die).inject(box);
 

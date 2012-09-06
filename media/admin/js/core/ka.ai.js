@@ -16,13 +16,15 @@ window.logger = function (pVal) {
     if (typeOf(console) != "undefined") {
         console.log(pVal);
     }
-}
+};
 
 ka.openFrontend = function () {
     if (top) {
         top.open(_path, '_blank');
     }
-}
+};
+
+ka.mobile = false;
 
 /**
  * @deprecated Use t() instead
@@ -31,7 +33,7 @@ ka.openFrontend = function () {
 window._ = function (p) {
     return t(p);
     //return _kml2html(p);
-}
+};
 
 /**
  * Request.JSON - extended to get some informations about calls
@@ -48,7 +50,7 @@ Request.JSON = new Class({
             window.fireEvent('restCall', [pData, this]);
         }.bind(this));
 
-        if (options.noErrorReporting) return;
+        if (options.noErrorReporting === true) return;
         this.addEvent('complete', this.checkError.bind(this));
     },
 
@@ -93,7 +95,11 @@ Request.JSON = new Class({
 
     checkError: function(pResult){
 
+
         if (pResult && pResult.error){
+
+            if (typeOf(this.options.noErrorReporting) == 'array' && this.options.noErrorReporting.contains(pResult.error))
+                return false;
 
             if (ka.lastRequestBubble){
                 ka.lastRequestBubble.die();
@@ -249,7 +255,7 @@ window.ka.entrypoint = {
 
         if (ka.settings.configs.admin.admin[extension]){
             config = ka.settings.configs.admin;
-            splitted.unshift(extension)
+            splitted.unshift(extension);
         } else
             config = ka.settings.configs[extension];
 
@@ -496,9 +502,8 @@ ka.getExtensionTitle = function(pExtensionKey){
 }
 
 
-window.addEvent('load', function () {
+window.addEvent('domready', function () {
 
-    window.ka.ai.renderLogin();
 
     document.hidden = new Element('div', {
         styles: {
@@ -508,6 +513,9 @@ window.addEvent('load', function () {
             width: 1, height: 1, overflow: 'hidden'
         }
     }).inject(document.body);
+
+    
+    window.ka.ai.renderLogin();
 
     $('ka-search-query').addEvent('keyup', function (e) {
         if (this.value != '') {

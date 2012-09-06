@@ -268,6 +268,7 @@ ka.ObjectTable = new Class({
 
                 value = ka.getObjectLabel(item, column, key, this.objectKey);
                 row.include(value);
+                
             });
 
             var tr = this.table.addRow(row);

@@ -1,6 +1,6 @@
 .ka-helpsystem-container {
     position: absolute;
-    right: 0px;
+    right: 5px;
     bottom: 7px;
     overflow: hidden;
     width: 270px;
@@ -9,29 +9,24 @@
 
 a.ka-helpsystem-bubble-closer {
     position: absolute;
-    right: 5px;
+    right: 4px;
     top: 3px;
     color: white;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 9px;
     height: 15px;
     width: 15px;
 }
 
 a.ka-helpsystem-bubble-closer:hover {
     color: #bbb;
-    cursor: pointer;
 }
-
 
 .ka-helpsystem-bubble {
     -moz-border-radius: 7px;
     -webkit-border-radius: 7px;
     border-radius: 7px;
-    background-color: #5A585D;
-    background-image: url("../images/windowlist-bg.png");
-    background-repeat: repeat-x;
-    background-position: left -5px;
+    background-color: #333;
     padding: 8px;
     padding-top: 4px;
     color: #eee;
@@ -45,8 +40,5 @@ a.ka-helpsystem-bubble-closer:hover {
     color: white;
     margin: 4px 0px;
     margin-top: 0px;
-}
-
-.ka-helpsystem-bubble a:link {
-    color: #ddd;
+    border-bottom: 1px solid #666;
 }

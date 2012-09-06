@@ -60,6 +60,7 @@ ka.Textlist = new Class({
         if (pContainer)
             this.box.inject(pContainer);
 
+        return;
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
                 Object.each(this.options.items, function(label, key){

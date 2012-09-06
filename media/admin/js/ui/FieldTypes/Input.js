@@ -20,8 +20,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
         modifiers: {
             'trim': function(v){ return v.replace(/^\s+|\s+$/g, ""); },
             'lower': function(v){ return v.toLowerCase(); },
-            'lower': function(v){ return v.toUpperCase(); },
-            'phpfunction': function(v){ return v.replace('[^a-zA-Z0-9_]', ''); },
+            'phpfunction': function(v){ return v.replace(/[^a-zA-Z0-9_]/g, ''); },
             'underscore': function(v){ return v.replace(/([^a-z])/g, function($1){return "_"+$1.toLowerCase().replace(/[^a-z]/, '');}); },
             'camelcase': function(v){ return v.replace(/([^a-zA-Z0-9][a-z])/g, function($1){return $1.toUpperCase().replace(/[^a-zA-Z0-9]/,'');}); },
             'dash': function(v){ return v.replace(/([^a-zA-Z0-9])/g, function($1){return "-"+$1.toLowerCase().replace(/[^a-z]/, '');}); }

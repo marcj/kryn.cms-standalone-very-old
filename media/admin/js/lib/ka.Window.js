@@ -501,6 +501,7 @@ ka.Window = new Class({
         if (!this.hotkeyBinds) this.hotkeyBinds = [];
 
         var bind = function (e) {
+            if (document.activeElement.get('tag') != 'body') return;
             if (this.inFront && (!this.inOverlayMode)) {
                 if (pControlOrMeta && (!e.control && !e.meta)) return;
                 if (pAlt && !e.alt) return;
