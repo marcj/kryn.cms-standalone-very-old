@@ -37,7 +37,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
 
         this.wrapper = new Element('div', {
             styles: {
-                'width': this.options.inputWidth,
+                'width': this.options.inputWidth=='100%'?null:this.options.inputWidth,
                 'margin': '2px'
             }
         }).inject(this.fieldInstance.fieldPanel);

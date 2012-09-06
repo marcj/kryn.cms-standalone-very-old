@@ -296,7 +296,7 @@ class Propel extends ORMAbstract {
         $clazz = $this->getPhpName();
 
         $row = dbFetch($stmt);
-        return $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+        return $row===false?false:$this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
     }
 
     public function mapOptions($pQuery, $pOptions = array()){

@@ -1,4 +1,5 @@
 .ka-Input,
+.ka-Input:-webkit-autofill,
 input.text {
 
     border: 1px solid #bbb;

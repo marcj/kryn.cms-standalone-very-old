@@ -1,7 +1,7 @@
 ka.Select = new Class({
     Implements: [Events, Options],
 
-    Binds: ['addItemToChooser', 'checkScroll', 'search'],
+    Binds: ['addItemToChooser', 'checkScroll', 'search', 'actions', 'focus', 'blur'],
 
     opened: false,
     value: null,
@@ -87,15 +87,25 @@ ka.Select = new Class({
             this.input = new Element('input', {
                 style: 'height: 1px; position: absolute; top: -10px;'
             }).inject(this.box);
+            this.input.addEvent('keydown', this.actions);
             this.input.addEvent('keyup', this.search);
+            this.input.addEvent('focus', this.focus);
+            this.input.addEvent('blur', function(){
+                this.blur.delay(50, this);
+            }.bind(this));
         }
+
+        this.chooser.addEvent('mousedown', function(){
+            this.blockNextBlur = true;
+        }.bind(this));
 
         this.chooser.addEvent('click', function (e) {
             if (!e || !(item = e.target)) return;
             if (!item.hasClass('ka-select-chooser-item') && !(item = item.getParent('.ka-select-chooser-item'))) return;
 
             this.setValue(item.kaSelectId, true);
-            this.close();
+            this.close(true);
+
         }.bind(this));
 
         this.chooser.addEvent('scroll', this.checkScroll);
@@ -139,12 +149,24 @@ ka.Select = new Class({
 
     },
 
+    focus: function(){
+        this.box.addClass('ka-Select-box-focus');
+    },
+
+    blur: function(){
+        if (this.blockNextBlur) return this.blockNextBlur = false;
+        this.close();
+    },
+
     loadObjectItems: function(pOffset, pCallback){
 
         if (this.lastRq) this.lastRq.cancel();
 
         this.lastRq = new Request.JSON({url: _path+'admin/backend/object/'+this.options.object,
             noErrorReporting: ['NoAccessException'],
+            onCancel: function(){
+                pCallback(false);
+            },
             onComplete: function(response){
 
                 if (response.error){
@@ -181,8 +203,12 @@ ka.Select = new Class({
     reset: function(){
         this.chooser.empty();
         this.maximumItemsReached = false;
+
         this.loaded = 0;
         this.currentItems = {};
+
+        if (this.lastRq) this.lastRq.cancel();
+
     },
 
     checkScroll: function(){
@@ -196,43 +222,124 @@ ka.Select = new Class({
 
         if (scrollPos.y+10 < maxY) return;
 
-        this.rerenderChooser();
+        this.loadItems();
 
+    },
+
+    actions: function(pEvent){
+
+        if (pEvent.key == 'esc'){
+            this.input.value = '';
+            this.close(true);
+            return;
+        }
+
+        if (pEvent.key == 'enter' || pEvent.key == 'space' || pEvent.key == 'down' || pEvent.key == 'up'){
+            var current = this.chooser.getElement('.ka-select-chooser-item-active');
+
+            if (['down', 'up'].contains(pEvent.key)) pEvent.stop();
+
+
+            if (pEvent.key == 'enter' || (this.input.value.trim() == '' && pEvent.key == 'space')){
+
+                if (this.isOpen()){
+                    this.close(true);
+                    if (current){
+                        this.setValue(current.kaSelectId);
+                    }
+                } else {
+                    this.blockNextSearch = true;
+                    this.open();
+                }
+                return;
+            }
+
+            if (pEvent.key == 'down'){
+                if (!current){
+                    var first = this.chooser.getElement('.ka-select-chooser-item');
+                    if (first)
+                        first.addClass('ka-select-chooser-item-active');
+                } else {
+                    current.removeClass('ka-select-chooser-item-active')
+                    var next = current.getNext();
+                    if (next){
+                        next.addClass('ka-select-chooser-item-active');
+                    } else {
+                        var first = this.chooser.getElement('.ka-select-chooser-item');
+                        if (first)
+                            first.addClass('ka-select-chooser-item-active');
+                    }
+                }
+            }
+
+            if (pEvent.key == 'up'){
+                if (!current){
+                    var last = this.chooser.getLast('.ka-select-chooser-item');
+                    if (last)
+                        last.addClass('ka-select-chooser-item-active');
+                } else {
+                    current.removeClass('ka-select-chooser-item-active')
+                    var previous = current.getPrevious();
+                    if (previous){
+                        previous.addClass('ka-select-chooser-item-active');
+                    } else {
+                        var last = this.chooser.getLast('.ka-select-chooser-item');
+                        if (last)
+                            last.addClass('ka-select-chooser-item-active');
+                    }
+                }
+            }
+
+
+            current = this.chooser.getElement('.ka-select-chooser-item-active');
+
+            if (current){
+                var position = current.getPosition(this.chooser);
+                var height = +current.getSize().y;
+
+                if (position.y+height > this.chooser.getSize().y){
+                    this.chooser.scrollTo(this.chooser.getScroll().x, this.chooser.getScroll().y+(position.y-this.chooser.getSize().y)+height);
+                }
+
+                if (position.y < 0){
+                    this.chooser.scrollTo(this.chooser.getScroll().x, this.chooser.getScroll().y+(position.y));
+                }
+            }
+
+            return;
+        }
     },
 
     search: function(pEvent){
 
-        if (pEvent.key == 'esc'){
-            this.input.value = '';
-            this.close();
-            return;
-        }
+        if (this.blockNextSearch) return this.blockNextSearch = false;
 
-        if (pEvent.key == 'enter' || pEvent.key == 'down' || pEvent.key == 'up'){
-            //todo, do action
-            this.input.value = '';
-            
-            return;
-        }
+        if (['down', 'up', 'enter'].contains(pEvent.key)) return;
+
+        if (this.input && this.input.value.trim() && !this.isOpen())
+            this.open(true);
+
 
         this.reset();
-        this.rerenderChooser();
-
-        if (this.lastDeleteQuery) clearTimeout(this.lastDeleteQuery);
-        this.lastDeleteQuery = this.deleteQuery.delay(1000, this);
+        this.loadItems();
 
     },
 
-    deleteQuery: function(){
-        this.input.value = '';
+    loadItems: function(){
+
+        if (this.lrct) clearTimeout(this.lrct);
+
+        this.lrct = this._loadItems.delay(50, this);
+
     },
 
-    rerenderChooser: function(){
+    _loadItems: function(){
 
+        //logger('renderChooser: '+(this.maximumItemsReached+0)+'/'+(this.whileFetching+0)+'/'+this.loaded);
         if (!this.box.hasClass('ka-Select-box-open')) return false;
 
         //this.chooser.empty();
-        if (this.maximumItemsReached) return false;
+        if (this.maximumItemsReached) return this.displayChooser();
 
         if (this.whileFetching) return false;
 
@@ -240,7 +347,7 @@ ka.Select = new Class({
 
         //show small loader
         //
-        if (this.input && this.input.value){
+        if (this.input && this.input.value.trim()){
             
             if (!this.title.inSearchMode)
                 this.backupedTitle = this.title.get('html');
@@ -261,6 +368,8 @@ ka.Select = new Class({
             style: 'display: none;'
         }).inject(this.chooser);
 
+        this.lastLoaderGif = new Element('img')
+
         this.lastLoader.loaderId = this.loaderId++;
 
         var loaderId = this.lastLoader.loaderId;
@@ -268,6 +377,7 @@ ka.Select = new Class({
         (function(){
             if (this.lastLoader && this.lastLoader.loaderId == loaderId){
                 this.lastLoader.setStyle('display', 'block');
+                this.displayChooser();
             }
         }).delay(1000, this);
 
@@ -277,13 +387,13 @@ ka.Select = new Class({
 
                 Array.each(pItems, this.addItemToChooser);
 
-                this.checkChooserSize();
+                this.loaded += pItems.length;
+
+                if (!pItems.length)//no items left
+                    this.maximumItemsReached = true;
             }
 
-            this.loaded += pItems.length;
-            if (!pItems.length)//no items left
-                this.maximumItemsReached = true;
-
+            this.displayChooser();
 
             this.lastLoader.destroy();
             delete this.lastLoader;
@@ -311,9 +421,9 @@ ka.Select = new Class({
                 html: this.renderLabel(pItem.label)
             });
 
-            if (this.input && this.input.value){
+            if (this.input && this.input.value.trim()){
 
-                var regex = new RegExp('('+ka.pregQuote(this.input.value)+')', 'gi');
+                var regex = new RegExp('('+ka.pregQuote(this.input.value.trim())+')', 'gi');
                 var match = a.get('text').match(regex);
                 if (match){
                     a.set('html', a.get('html').replace(regex, '<b>$1</b>'));
@@ -325,17 +435,10 @@ ka.Select = new Class({
 
             a.inject(this.chooser);
 
-            // new Element('div', {
-            //     html: pLabel,
-            //     'class': 'group'
-            // }).inject(this.chooser);
-
             if (pItem.key == this.value){
                 a.addClass('icon-checkmark-6');
                 a.addClass('ka-select-chooser-item-selected');
             }
-
-
 
             a.kaSelectId = pItem.key;
             a.kaSelectItem = pItem;
@@ -437,7 +540,7 @@ ka.Select = new Class({
 
         hideItems[pId] = true;
 
-        this.rerenderChooser();
+        this.loadItems();
 
         // if (typeOf(this.items[ pId ]) == 'null') return;
 
@@ -469,7 +572,7 @@ ka.Select = new Class({
     showOption: function(pId){
 
         delete hideItems[pId];
-        this.rerenderChooser();
+        this.loadItems();
 
         // if (typeOf(this.items[ pId ]) == 'null') return;
 
@@ -484,7 +587,7 @@ ka.Select = new Class({
             isSplit: true
         });
 
-        this.rerenderChooser();
+        this.loadItems();
 
         // new Element('div', {
         //     html: pLabel,
@@ -515,7 +618,7 @@ ka.Select = new Class({
             this.items.push({key: pId, label: pLabel});
         }
 
-        return this.rerenderChooser();
+        return this.loadItems();
 
     },
 
@@ -565,6 +668,8 @@ ka.Select = new Class({
 
                         if (!response.error){
 
+                            if (response.data === false) return pCallback(false);
+
                             var id = ka.getObjectUrlId(this.options.object, response.data);
                             pCallback({
                                 key: id,
@@ -582,9 +687,14 @@ ka.Select = new Class({
 
     setValue: function (pValue, pInternal) {
 
+
         this.value = pValue;
+
+        if (typeOf(this.value) == 'null')
+            return this.title.set('text', '');
+
         this.getLabel(pValue, function(item){
-            if (typeOf(item) != 'null')
+            if (typeOf(item) != 'null' && item !== false)
                 this.title.set('html', this.renderLabel(item.label));
             else
                 this.title.set('text', t('-- not found --'));
@@ -598,13 +708,14 @@ ka.Select = new Class({
 
     toggle: function () {
         if (this.chooser.getParent()) {
-            this.close();
+            this.close(true);
         } else {
             this.open();
         }
     },
 
-    close: function(){
+    close: function(pInternal){
+
         this.chooser.dispose();
         this.box.removeClass('ka-Select-box-open');
         this.reset();
@@ -613,11 +724,35 @@ ka.Select = new Class({
             this.title.set('html', this.backupedTitle);
             this.backupedTitle = false;
         }
+
+        if (this.lastOverlay){
+            this.lastOverlay.close();
+            delete this.lastOverlay;
+        }
+
         this.title.setStyle('color');
         this.title.inSearchMode = false;
+
+        this.box.removeClass('ka-Select-box-focus');
+
+        if (pInternal){
+
+            if (this.input){
+                this.input.focus();
+            }
+            
+            this.box.addClass('ka-Select-box-focus');
+        }
     },
 
-    open: function () {
+
+    isOpen: function(){
+
+        return this.box.hasClass('ka-Select-box-open');
+
+    },
+
+    open: function(pWithoutLoad){
 
         if (!this.enabled) return;
 
@@ -627,25 +762,34 @@ ka.Select = new Class({
             this.chooser.removeClass('ka-Select-darker');
 
         this.box.addClass('ka-Select-box-open');
-        
-        if (this.input)
+
+        if (this.input && document.activeElement != this.input){
+            this.input.value = '';
             this.input.focus();
+        }
 
-        this.rerenderChooser();
+        if (this.lastRq) this.lastRq.cancel();
 
+        this.box.addClass('ka-Select-box-focus');
 
-        return;
+        if (pWithoutLoad !== true)
+            this.loadItems();
 
     },
 
-    checkChooserSize: function(){
+    displayChooser: function(){
 
-        ka.openDialog({
-            element: this.chooser,
-            target: this.box,
-            onClose: this.close.bind(this),
-            offset: {y: -1}
-        });
+
+        if (!this.lastOverlay){
+            this.lastOverlay = ka.openDialog({
+                element: this.chooser,
+                target: this.box,
+                onClose:  function(){
+                    this.close(true);
+                }.bind(this),
+                offset: {y: -1}
+            });
+        }
 
         if (this.borderLine)
             this.borderLine.destroy();

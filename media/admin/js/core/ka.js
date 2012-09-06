@@ -1640,54 +1640,62 @@ ka._openLinkContext = function (pLink) {
 
 }
 
-ka.autoPositionLastOverlay = false;
-ka.autoPositionLastItem = false;
+ka.closeDialogsBodys = [];
 
 ka.closeDialog = function () {
-    if (ka.autoPositionLastOverlay) {
-        ka.autoPositionLastOverlay.destroy();
-    }
-    delete ka.autoPositionLastOverlay;
 
-    if (ka.autoPositionLastItem) {
-        ka.autoPositionLastItem.addEvent('close');
-        ka.autoPositionLastItem.dispose();
-    }
+    var killedOne = false;
+    Array.each(ka.closeDialogsBodys, function(body){
+        if (killedOne) return;
 
-    delete ka.autoPositionLastItem;
+        var last = document.body.getLast('.ka-dialog-overlay');
+        if (last){
+            killedOne = true;
+            last.close();
+        }
+    });
 }
 
 ka.openDialog = function (item) {
     if (!item.element || !item.element.getParent) {
-        return;
+        throw 'Got no element.';
     }
-    if (ka.autoPositionLastItem == item.element) {
-        return;
-    }
-
-    ka.closeDialog();
 
     var target = document.body;
-    if (item.target && item.target.getWindow()) {
-        target = item.target.getWindow().document.body;
-    }
 
-    ka.autoPositionLastOverlay = new Element('div', {
+    if (item.target && item.target.getWindow())
+        target = item.target.getWindow().document.body;
+
+
+    if (!ka.closeDialogsBodys.contains(target))
+        ka.closeDialogsBodys.push(target);
+
+
+    var autoPositionLastOverlay = new Element('div', {
+        'class': 'ka-dialog-overlay',
         style: 'position: absolute; left:0px; top: 0px; right:0px; bottom:0px;background-color: white; z-index: 201000;',
         styles: {
             opacity: 0.001
         }
     }).addEvent('click', function (e) {
+
         ka.closeDialog();
-        e.stop();
-        if (item.onClose)
-            item.onClose();
+        e.stopPropagation();
+        this.fireEvent('close');
+        if (item.onClose) item.onClose();
+
     }).inject(target);
+
+    autoPositionLastOverlay.close = function(){
+        autoPositionLastOverlay.destroy();
+        delete autoPositionLastOverlay;
+    };
+
     item.element.setStyle('z-index', 201001);
 
     var size = item.target.getWindow().getScrollSize();
 
-    ka.autoPositionLastOverlay.setStyles({
+    autoPositionLastOverlay.setStyles({
         width: size.x,
         height: size.y
     });
@@ -1695,8 +1703,6 @@ ka.openDialog = function (item) {
     ka.autoPositionLastItem = item.element;
 
     item.element.inject(target);
-    item.element.removeEvent('click', ka.closeDialog);
-    item.element.addEvent('click', ka.closeDialog);
 
     if (!item.offset) item.offset = {};
 
@@ -1742,6 +1748,8 @@ ka.openDialog = function (item) {
             item.element.setStyle('height', height);
         }
     }
+
+    return autoPositionLastOverlay;
 }
 
 ka.getPrimariesForObject = function(pObjectKey){

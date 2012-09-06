@@ -32,6 +32,9 @@ var test_test = new Class({
             items: items
         });
 
+
+        new Element('input').inject(this.win.content);
+        
         new ka.Textlist(this.win.content, {
             items: [
                 'Hosa', 'Mowla', 'Gazzo'
