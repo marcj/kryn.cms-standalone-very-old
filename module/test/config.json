@@ -1,0 +1,26 @@
+{
+    "noConfig": 1,
+    "title": "Test",
+    "desc": "",
+    "tags": "",
+    "version": "",
+    "community": "false",
+    "writableFiles": "",
+    "category": "",
+    "depends": "",
+    "__path": "module\/test",
+    "installed": true,
+    "extensionCode": "test",
+    "admin": {
+        "test": {
+            "title": "Test",
+            "type": "custom",
+            "icon": "#icon-warning",
+            "isLink": true,
+            "multi": false,
+            "childs": [
+                
+            ]
+        }
+    }
+}
