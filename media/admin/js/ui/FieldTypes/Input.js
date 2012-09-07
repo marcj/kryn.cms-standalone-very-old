@@ -36,6 +36,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
     createLayout: function(){
 
         this.wrapper = new Element('div', {
+            style: this.options.style,
             styles: {
                 'width': this.options.inputWidth=='100%'?null:this.options.inputWidth,
                 'margin': '2px'
@@ -54,6 +55,10 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
         this.input.addEvent('change', this.checkChange);
         this.input.addEvent('keyup', this.checkChange);
 
+    },
+
+    toElement: function(){
+        return this.input;
     },
 
     checkChange: function(){

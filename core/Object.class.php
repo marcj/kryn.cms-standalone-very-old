@@ -532,7 +532,7 @@ class Object {
 
     }
 
-    public static function add($pObjectKey, $pValues, $pParentId = false, $pPosition = 'into', $pParentObjectKey = false,
+    public static function add($pObjectKey, $pValues, $pBranchPk = false, $pPosition = 'into', $pScopeId = false,
                                $pOptions = array()){
 
         $obj = self::getClass($pObjectKey);
@@ -545,7 +545,7 @@ class Object {
             }
         }
 
-        return $obj->add($pValues, $pParentId, $pPosition, $pParentObjectKey);
+        return $obj->add($pValues, $pBranchPk, $pPosition, $pScopeId);
 
     }
 

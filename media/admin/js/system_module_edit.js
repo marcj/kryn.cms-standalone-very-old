@@ -1650,7 +1650,6 @@ var admin_system_module_edit = new Class({
         if (this.lr) this.lr.cancel();
         this.loader.show();
 
-        logger(objects); return false;
         var req = {};
         req.objects = JSON.encode(objects);
         req.name = this.mod;
@@ -2139,9 +2138,15 @@ var admin_system_module_edit = new Class({
 
             new ka.Button(t('Cancel')).addEvent('click', function(){dialog.close();}).inject(dialog.bottom);
 
+            new Element('div', {
+                style: 'padding: 5px; color: gray',
+                text: t("These keys represent the real column names in the SQL table. All keys has to be lowercased underscored. Later, you'll access these field through camelCased name, since it will be camelcased through the ORM.")
+            }).inject(dialog.content);
+
             var fieldTable = new ka.FieldTable(dialog.content, this.win, {
                 addLabel: t('Add field'),
                 mode: 'object',
+                keyModifier: 'underscore',
                 withTableDefinition: true,
                 withoutChildren: true
             });

@@ -374,8 +374,9 @@ ka.Parse = new Class({
                         key = item.replace(']', '');
 
                         if (pos == items.length - 1) {
-                            if (typeOf(obj.getValue()) !== 'null')
-                                last[key] = obj.getValue();
+                            val = obj.getValue();
+                            if (typeOf(val) !== 'null' && val !== '' && val !== obj.options['default'])
+                                last[key] = val;
                         } else {
                             last[key] = {};
                             last = last[key];
@@ -384,7 +385,7 @@ ka.Parse = new Class({
                     res = Object.merge(res, newRes);
                 } else {
                     val = obj.getValue();
-                    if (typeOf(val) !== 'null' && val !== '')
+                    if (typeOf(val) !== 'null' && val !== '' && val !== obj.options['default'])
                         res[id] = val;
                 }
             });

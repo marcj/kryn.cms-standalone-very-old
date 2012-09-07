@@ -83,10 +83,17 @@ ka.FieldProperty = new Class({
                 },
 
                 columns: {
-                    type: 'checkbox',
-                    label: t('With order possibility'),
+                    label: t('Columns'),
                     needValue: 'array',
-                    againstField: 'type'
+                    againstField: 'type',
+
+                    type: 'fieldTable',
+                    options: {
+                        asFrameworkColumn: true,
+                        withoutChildren: true,
+                        tableitem_title_width: 200,
+                        addLabel: t('Add column')
+                    }
                 },
 
                 //select
@@ -221,12 +228,14 @@ ka.FieldProperty = new Class({
             needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'object', 'datetime', 'file', 'folder', 'page'],
             againstField: 'type',
             label: t('Primary key'),
+            'default': false,
             type: 'checkbox'
         },
         autoIncrement: {
             label: 'Auto increment?',
             desc: t('If no value is assigned the value will be increased by each insertion.'),
             type: 'checkbox',
+            'default': false,
             needValue: 'number',
             againstField: 'type'
         },
@@ -238,18 +247,18 @@ ka.FieldProperty = new Class({
                     label: t('Description (Optional)'),
                     type: 'text'
                 },
-                empty: {
-                    label: t('Can be empty? (Optional)'),
+                required: {
+                    label: t('Required field? (Optional)'),
                     type: 'checkbox',
-                    'default': 1
+                    'default': false
                 },
-                input_width: {
+                inputWidth: {
                     label: t('Input element width (Optional)'),
                     needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime', 'date'],
                     againstField: 'type',
                     type: 'text'
                 },
-                input_height: {
+                inputHeight: {
                     label: t('Input element height (Optional)'),
                     needValue: ['textarea', 'codemirror'],
                     againstField: 'type',
@@ -279,17 +288,24 @@ ka.FieldProperty = new Class({
                     type: 'text',
                     label: t('Default value. Use JSON notation for arrays and objects. (Optional)')
                 },
-                'required_regexp': {
+                'requiredRegexp': {
                     needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
                     againstField: 'type',
                     type: 'text',
                     label: t('Required value as regular expression. (Optional)'),
                     desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
                 },
-                tableitem: {
-                    label: t('Acts as a table item'),
+                tableItem: {
+                    label: t('Acts as a table item (Optional)'),
                     desc: t('Injects instead of a DIV a TR element.'),
-                    type: 'checkbox'
+                    type: 'checkbox',
+                    'default': false
+                },
+                noWrapper: {
+                    label: t('No wrapper. Removes all around the field itself.'),
+                    desc: t('Injects only the pure UI of the defined type.'),
+                    type: 'checkbox',
+                    'default': false
                 }
             }
         }
@@ -308,6 +324,8 @@ ka.FieldProperty = new Class({
 
         fieldTypes: false, //if as array defined, we only have types which are in this list
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
+
+        keyModifier: '',
 
         noActAsTableField: false, //Remove the field 'Acts as a table item'
         asFrameworkFieldDefinition: false, //means for usage in ka.Parse (and therefore in adminWindowEdit/Add), delete some relation stuff
@@ -459,31 +477,21 @@ ka.FieldProperty = new Class({
 
         var count = pContainer.getElements('.ka-fieldTable-item').length-1;
 
-        this.iKey = new Element('input', {
-            value: pKey?pKey:'property_'+count,
-            style: 'width: 155px',
-            'class': 'text ka-fieldTable-item-key'
-        })
-        .addEvent('keyup', function(e){
+        this.iKey = new ka.Field({
+            type: 'text',
+            modifier: this.options.keyModifier,
+            noWrapper: true,
+            width: '180px',
+            style: 'display: inline-block;'
+        }, header);
 
-            if (e.key.length > 1) return;
-            var range = this.getSelectedRange();
+        this.iKey.setValue(pKey?pKey:'property_'+count);
 
-            this.value = this.value.replace(' ', '_');
-            if (self.options.arrayKey)
-                this.value = this.value.replace(/[^a-zA-Z0-9_\-\[\]]/, '-');
-            else
-                this.value = this.value.replace(/[^a-zA-Z0-9_\-]/, '-');
-            this.value = this.value.replace(/--+/, '-');
-
-            this.selectRange(range.start, range.end);
-        })
-        .inject(header);
 
         if (this.options.withActionsImages){
 
             new Element('a', {
-                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
                 title: _('Remove'),
                 html: '&#xe26b;'
             })
@@ -608,7 +616,7 @@ ka.FieldProperty = new Class({
 
     getValue: function(){
 
-        var key = this.iKey.value;
+        var key = this.iKey.getValue();
         if (!key) return;
 
         var kaParse = this.kaParse;
@@ -714,7 +722,7 @@ ka.FieldProperty = new Class({
 
 
 
-        this.iKey.value = pKey;
+        this.iKey.setValue(pKey);
 
         this.kaParse.setValue(pDefinition);
 

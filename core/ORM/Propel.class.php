@@ -506,6 +506,9 @@ class Propel extends ORMAbstract {
      * {@inheritdoc}
      */
     public function add($pValues, $pBranchPk = false, $pMode = 'first', $pScope = 0){
+
+        $this->init();
+
         $clazz = $this->getPhpName();
         $obj = new $clazz();
 
@@ -558,9 +561,10 @@ class Propel extends ORMAbstract {
         foreach ($pValues as $fieldName => $fieldValue){
 
             $field = $this->getField($fieldName);
+                var_dump($field); exit;
             $fieldName = ucfirst($fieldName);
 
-            if ($field['type'] == 'object'){
+            if ($field['type'] == 'object' || $this->tableMap->hasRelation($fieldName)){
 
                 $primaryKeys = \Core\Object::parsePk($field['object'], $fieldValue);
 
@@ -574,8 +578,7 @@ class Propel extends ORMAbstract {
                         $propelPks[] = $this->getPropelPk($primaryKey);
                     }
 
-                    $collItems = $foreignQuery
-                        ->findPks($propelPks);
+                    $collItems = $foreignQuery->findPks($propelPks);
 
                     $pItem->$setItems($collItems);
                     continue;

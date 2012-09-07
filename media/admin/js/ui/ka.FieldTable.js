@@ -18,6 +18,8 @@ ka.FieldTable = new Class({
         fieldTypes: false, //if as array defined, we only have types which are in this list
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
 
+        keyModifier: '',
+
         noActAsTableField: false, //Remove the field 'Acts as a table item'
         asFrameworkFieldDefinition: false, //means for usage in ka.Parse (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]

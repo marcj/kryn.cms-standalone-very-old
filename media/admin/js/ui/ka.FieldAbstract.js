@@ -109,10 +109,11 @@ ka.FieldAbstract = new Class({
 
         //example of using highlight
         //this calls toElement() and highlight the background of it.
-        document.id(this).highlight();
+        if (document.id(this))
+            document.id(this).highlight();
 
         //or
-        document.id(this.input).highlight();
+        //document.id(this.input).highlight();
 
     },
 

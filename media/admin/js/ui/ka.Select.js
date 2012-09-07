@@ -1,7 +1,7 @@
 ka.Select = new Class({
     Implements: [Events, Options],
 
-    Binds: ['addItemToChooser', 'checkScroll', 'search', 'actions', 'focus', 'blur'],
+    Binds: ['addItemToChooser', 'checkScroll', 'search', 'actions', 'focus', 'blur', 'fireChange'],
 
     opened: false,
     value: null,
@@ -245,7 +245,7 @@ ka.Select = new Class({
                 if (this.isOpen()){
                     this.close(true);
                     if (current){
-                        this.setValue(current.kaSelectId);
+                        this.setValue(current.kaSelectId, true);
                     }
                 } else {
                     this.blockNextSearch = true;
@@ -700,6 +700,13 @@ ka.Select = new Class({
                 this.title.set('text', t('-- not found --'));
         }.bind(this));
 
+        if (pInternal)
+            this.fireChange();
+
+    },
+
+    fireChange: function(){
+        this.fireEvent('change');
     },
 
     getValue: function () {

@@ -612,6 +612,37 @@ abstract class ObjectWindow {
         );
     }
 
+    public function addItem(){
+
+        $obj = \Core\Object::getClass($this->object);
+
+        //collect values
+        $data = $this->collectData();
+
+        //todo
+        $branchId = null;
+        $treePos  = null;
+        $scopeId  = null;
+
+        //do normal add through Core\Object
+        $result = \Core\Object::add($this->getObject(), $data,
+            $branchId,
+            $treePos,
+            $scopeId,
+            array('permissionCheck' => $this->getPermissionCheck())
+        );
+
+        //handle customSaves
+        foreach ($this->_fields as $key => $field){
+            if ($field['customSave']){
+                if (method_exists($this, $field['customSave']))
+                    call_user_method($field['customSave'], $this);
+            }
+        }
+
+        return $result;
+    }
+
     public function saveItem($pPk){
 
         $this->primaryKey = $pPk;
@@ -624,8 +655,8 @@ abstract class ObjectWindow {
         $condition  = dbPrimaryKeyToCondition($pPk);
         $condition += $this->getCondition();
         
-        if ($condition = $this->getCustomEditCondition())
-            $result = $result + $condition;
+        if ($customCondition = $this->getCustomEditCondition())
+            $condition = $condition + $customCondition;
 
         $item = $obj->getItem($condition);
         if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));

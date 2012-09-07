@@ -21,15 +21,6 @@ class ObjectWindowController extends Server {
 
 
         $this->entryPoint = $pEntryPoint;
-        if (\Core\Kryn::$config['displayRestErrors']){
-            if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest'){
-                $exceptionHandler = array($this, 'exceptionHandler');
-            }
-            $debugMode = true;
-        }
-
-        $this->setDebugMode($debugMode);
-        $this->setExceptionHandler($exceptionHandler);
 
         if ($pEntryPoint['type'] == 'store') {
 
@@ -92,6 +83,13 @@ class ObjectWindowController extends Server {
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
 
         return $obj->saveItem($pk[0]);
+    }
+
+    public function addItem(){
+
+        $obj = $this->getObj();
+
+        return $obj->addItem();
     }
 
     public function getItems($pObject = null){

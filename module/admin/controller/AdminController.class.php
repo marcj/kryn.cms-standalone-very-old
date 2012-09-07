@@ -49,9 +49,7 @@ class AdminController {
         @header('Expires:');
 
         if (Kryn::$config['displayRestErrors']){
-            if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest'){
-                $exceptionHandler = array($this, 'exceptionHandler');
-            }
+            $exceptionHandler = array($this, 'exceptionHandler');
             $debugMode = true;
         }
 
@@ -73,6 +71,8 @@ class AdminController {
             $objectWindowTypes = array('list', 'edit', 'add', 'combine');
             if (in_array($entryPoint['type'], $objectWindowTypes)){
                 $epc = new ObjectWindowController('admin');
+                $epc->setExceptionHandler($exceptionHandler);
+                $epc->setDebugMode($debugMode);
                 $epc->run($entryPoint);
             }
 
@@ -97,13 +97,6 @@ class AdminController {
             die($obj->run());
 
         } else {
-
-            if (Kryn::$config['displayRestErrors']){
-                if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest'){
-                    $exceptionHandler = array($this, 'exceptionHandler');
-                }
-                $debugMode = true;
-            }
 
             \RestService\Server::create('admin', $this)
 

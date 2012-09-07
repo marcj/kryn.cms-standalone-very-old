@@ -73,11 +73,8 @@ ka.Field = new Class({
                 this.tr.inject(pContainer || document.hidden);
             } else {
 
-                this.main = new Element('div', {
-                });
+                this.main = pContainer;
                 this.main.store('ka.Field', this);
-
-                this.main.inject(pContainer || document.hidden);
             }
 
             this.fieldPanel = this.main;
@@ -1357,11 +1354,14 @@ ka.Field = new Class({
 
     inject: function (pTo, pP) {
 
+        if (this.options.noWrapper){
+            throw 'There is no way to inject a ka.field with noWrapper=1.';
+        }
+
         if (this.field.onlycontent) {
             this.fieldPanel.inject(pTo, pP);
             return this;
         }
-
 
         if (this.main.getDocument() != pTo.getDocument()) {
             pTo.getDocument().adoptNode(this.tr || this.main);

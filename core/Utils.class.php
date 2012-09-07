@@ -29,6 +29,22 @@ class Utils {
     }
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
 
+
+        if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
+            $response = array(
+                'status' => 500,
+                'error' => $pErrorCode.' '.$pErrorStr
+            );
+
+            if (Kryn::$config['displayRestErrors']){
+                $response['file'] = $pFile;
+                $response['line'] = $pLine;
+                $response['backstrace'] = $pBacktrace ? $pBacktrace : debug_backtrace();
+            }
+
+            json($response);
+        }
+
         if ($inErrorHandler === true){
             print $pErrorCode.', '.$pErrorStr.' in '.$pFile.' at '.$pLine;
             if ($pBacktrace)

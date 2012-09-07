@@ -229,103 +229,69 @@
                 "id": {
                     "label": "ID",
                     "type": "number",
-                    "primaryKey": 1,
-                    "autoIncrement": 1,
-                    "empty": 1
+                    "primaryKey": true,
+                    "autoIncrement": true
                 },
                 "username": {
                     "label": "[[Username]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 },
                 "auth_class": {
                     "label": "[[Auth class]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 },
                 "passwd": {
                     "label": "[[Password]]",
-                    "type": "password",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "password"
                 },
                 "passwd_salt": {
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 },
-                "activationkey": {
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                "activation_key": {
+                    "type": "text"
                 },
                 "email": {
                     "label": "[[Email]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1,
-                    "required_regexp": "\/^[^@]+@[^@]{3,}.[^.@0-9]{2,}$\/"
+                    "type": "text"
                 },
                 "desktop": {
-                    "type": "properties",
-                    "empty": 1
+                    "type": "properties"
                 },
                 "settings": {
-                    "type": "properties",
-                    "empty": 1
+                    "type": "properties"
                 },
                 "activate": {
                     "label": "[[Active account]]",
-                    "type": "checkbox",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "checkbox"
                 },
                 "logins": {
-                    "type": "number",
-                    "primaryKey": 0,
-                    "autoIncrement": 0,
-                    "empty": 1
+                    "type": "number"
                 },
                 "lastlogin": {
-                    "type": "number",
-                    "primaryKey": 0,
-                    "autoIncrement": 0,
-                    "empty": 1
+                    "type": "number"
                 },
                 "created": {
-                    "type": "datetime",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "datetime"
                 },
                 "modified": {
-                    "type": "datetime",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "datetime"
                 },
-                "groupMembership": {
+                "group_membership": {
                     "label": "[[Group membership]]",
                     "object": "group",
                     "objectLabel": "name",
                     "objectRelation": "nToM",
                     "objectRelationTable": "system_user_group",
                     "objectRelationPhpName": "UserGroup",
-                    "type": "object",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "object"
                 },
                 "first_name": {
                     "label": "[[First name]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 },
                 "last_name": {
                     "label": "[[Last name]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 }
             },
             "label": "[[Users]]",
@@ -406,12 +372,12 @@
             "icon": "#icon-users-2",
             "isLink": true,
             "multi": false,
-            "minWidth": 850,
-            "defaultWidth": 850,
+            "minWidth": 650,
+            "defaultWidth": 650,
             "childs": {
                 "add": {
                     "title": "[[Users add]]",
-                    "class": "usersAdminAdd",
+                    "class": "\\Users\\Admin\\UserEdit",
                     "type": "add",
                     "isLink": false,
                     "multi": false,
@@ -444,12 +410,14 @@
                     "childs": {
                         "groups": {
                             "title": "[[Can edit groups]]",
+                            "isLink": false,
                             "childs": [
                                 
                             ]
                         },
                         "username": {
                             "title": "[[Can change username]]",
+                            "isLink": false,
                             "childs": [
                                 
                             ]

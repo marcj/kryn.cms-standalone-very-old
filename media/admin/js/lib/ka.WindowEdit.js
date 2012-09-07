@@ -524,16 +524,16 @@ ka.WindowEdit = new Class({
         }).inject(this.container);
 
 
-            this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
-            .addEvent('click', this.reset.bind(this))
-            .inject(this.actionBar);
+        this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
+        .addEvent('click', this.reset.bind(this))
+        .inject(this.actionBar);
 
-            document.id(this.removeBtn).addClass('ka-Button-red');
-            document.id(this.removeBtn).addClass('ka-windowEdit-removeButton');
+        document.id(this.removeBtn).addClass('ka-Button-red');
+        document.id(this.removeBtn).addClass('ka-windowEdit-removeButton');
 
-            this.saveAndPublishBtn = new ka.Button([t('Reset'), '#icon-escape'])
-            .addEvent('click', this.reset.bind(this))
-            .inject(this.actionBar);
+        this.saveAndPublishBtn = new ka.Button([t('Reset'), '#icon-escape'])
+        .addEvent('click', this.reset.bind(this))
+        .inject(this.actionBar);
 
 
         if (this.classProperties.versioning == true){
@@ -547,9 +547,12 @@ ka.WindowEdit = new Class({
         }
 
 
-        new ka.Button([t('Save'), '#icon-checkmark-6'])
+        this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
         .addEvent('click', this._save.bind(this, [null,null]))
         .inject(this.actionBar);
+
+        document.id(this.saveBtn).addClass('ka-Button-blue');
+
 
         if (true) {
 
@@ -817,10 +820,18 @@ ka.WindowEdit = new Class({
 
             }
 
-            var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item)
 
-            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+'?object='+object,
-                noErrorReporting: true,
+            var objectId = '';
+
+            if (this.winParams.item){
+                var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
+                objectId = '?object='+object;
+            } else {
+                objectId = '?_method=put';
+            }
+
+            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+objectId,
+                //noErrorReporting: true,
                 noCache: true, onComplete: function (res) {
 
                 if (!res.data){
@@ -847,6 +858,8 @@ ka.WindowEdit = new Class({
                     }
                     return;
                 }
+
+                this.winParams.item = res.data;
 
                 window.fireEvent('softReload', this.win.module + '/' + this.win.code.substr(0, this.win.code.lastIndexOf('/')));
 
