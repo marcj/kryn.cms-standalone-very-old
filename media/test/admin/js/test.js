@@ -41,7 +41,14 @@ var test_test = new Class({
             ]
         });
 
+        var div = new Element('div', {
+            style: 'padding-top: 15px;'
+        }).inject(this.win.content);
 
+        new ka.Field({
+            type: 'fieldTable',
+            fieldWidth: '100%'
+        }, div);
 
     }
 

@@ -13,8 +13,7 @@
     height: 300px;
     left: 50px;
     top: 0px;
-
-    border: 1px solid #aaa;
+    
     background-color: #aaa;
 }
 
@@ -336,6 +335,7 @@
     top: 0px;
     padding-top: 5px;
     overflow: auto;
+    overflow: auto;
     left: 0px;
     right: 0px;
     bottom: 38px;
@@ -427,4 +427,17 @@ h3.kryn-headline {
     background-image:      -o-linear-gradient(top, #3e9bcb, #2f799e);
     background-image:         linear-gradient(top, #3e9bcb, #2f799e);
 
+}
+
+.ka-kwindow-sizer {
+    position: absolute;
+    background-color: white;
+}
+
+.ka-kwindow-sizer-se {
+    cursor: se-resize;
+    right: -1px;
+    bottom: -1px;
+    width: 2px;
+    height: 2px;
 }

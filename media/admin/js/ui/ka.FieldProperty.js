@@ -2,7 +2,7 @@ ka.FieldProperty = new Class({
 
     Implements: [Events, Options],
 
-    Binds: ['fireChange'],
+    Binds: ['fireChange', 'openProperties'],
 
     kaFields: {
         label: {
@@ -62,7 +62,7 @@ ka.FieldProperty = new Class({
                 //,
                 //windowlist: t('Framework windowList')
             },
-            'depends': {
+            children: {
 
                 //datetime, date
                 format: {
@@ -242,7 +242,7 @@ ka.FieldProperty = new Class({
         __optional__: {
             label: t('Optional'),
             type: 'childrenSwitcher',
-            depends: {
+            children: {
                 desc: {
                     label: t('Description (Optional)'),
                     type: 'text'
@@ -319,8 +319,7 @@ ka.FieldProperty = new Class({
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
-        allSmall: false,
-        withActionsImages: true,
+        withActions: true,
 
         fieldTypes: false, //if as array defined, we only have types which are in this list
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
@@ -341,6 +340,17 @@ ka.FieldProperty = new Class({
 
         this.setOptions(pOptions);
         this.win = pWin;
+        this.key = pKey;
+        this.container = pContainer;
+        this.definition = pDefinition;
+
+        this.prepareFields();
+
+        this._createLayout();
+    },
+
+    prepareFields: function(){
+
         this.kaFields = Object.clone(this.kaFields);
 
         if (!this.options.withTableDefinition){
@@ -356,36 +366,36 @@ ka.FieldProperty = new Class({
         }
 
         if (this.options.noActAsTableField){
-            delete this.kaFields.__optional__.depends.tableitem;
+            delete this.kaFields.__optional__.children.tableitem;
         }
 
         if (this.options.asFrameworkFieldDefinition){
 
-            delete this.kaFields.type.depends.object_label;
-            delete this.kaFields.type.depends.object_label_map;
-            delete this.kaFields.type.depends.object_relation;
-            delete this.kaFields.type.depends.object_relation_table;
-            delete this.kaFields.type.depends.object_relation_table_left;
-            delete this.kaFields.type.depends.object_relation_table_right;
+            delete this.kaFields.type.children.object_label;
+            delete this.kaFields.type.children.object_label_map;
+            delete this.kaFields.type.children.object_relation;
+            delete this.kaFields.type.children.object_relation_table;
+            delete this.kaFields.type.children.object_relation_table_left;
+            delete this.kaFields.type.children.object_relation_table_right;
 
         } else {
             //if not frameworkField
-            delete this.kaFields.__optional__.depends.target;
-            if (this.kaFields.__optional__.depends.tableitem)
-                delete this.kaFields.__optional__.depends.tableitem;
+            delete this.kaFields.__optional__.children.target;
+            if (this.kaFields.__optional__.children.tableitem)
+                delete this.kaFields.__optional__.children.tableitem;
 
         }
 
 
         if (this.options.asFrameworkSearch){
-            delete this.kaFields.__optional__.depends.empty;
-            delete this.kaFields.__optional__.depends.target;
-            delete this.kaFields.__optional__.depends.needValue;
-            delete this.kaFields.__optional__.depends.againstField;
-            delete this.kaFields.__optional__.depends.required_regexp;
+            delete this.kaFields.__optional__.children.empty;
+            delete this.kaFields.__optional__.children.target;
+            delete this.kaFields.__optional__.children.needValue;
+            delete this.kaFields.__optional__.children.againstField;
+            delete this.kaFields.__optional__.children.required_regexp;
 
-            if(this.kaFields.__optional__.depends.tableitem)
-                delete this.kaFields.__optional__.depends.tableitem;
+            if(this.kaFields.__optional__.children.tableitem)
+                delete this.kaFields.__optional__.children.tableitem;
 
             delete this.kaFields.type.items.window_list;
             delete this.kaFields.type.items.childrenSwitcher;
@@ -411,7 +421,7 @@ ka.FieldProperty = new Class({
                 predefined: t('Predefined')
             };
 
-            this.kaFields.type.depends.imageMap = {
+            this.kaFields.type.children.imageMap = {
                 label: t('Map'),
                 desc: t('To use Regex surround the value with /.'),
                 type: 'array',
@@ -429,8 +439,8 @@ ka.FieldProperty = new Class({
                     }
                 }
 
-            }
-        };
+            };
+        }
 
 
         if (typeOf(this.options.fieldTypes) == 'array'){
@@ -447,48 +457,59 @@ ka.FieldProperty = new Class({
         }
 
         if (this.kaFields.type.items.object){
-            this.kaFields.type.depends.object.type = 'select';
-            this.kaFields.type.depends.object.items = {};
+            this.kaFields.type.children.object.type = 'select';
+            this.kaFields.type.children.object.items = {};
 
             Object.each(ka.settings.configs, function(config,extensionKey){
                 if (config.objects){
                     Object.each(config.objects, function(object,object_key){
                         if ((this.options.asFrameworkFieldDefinition && object.selectable) || !this.options.asFrameworkFieldDefinition)
-                            this.kaFields.type.depends.object.items[object_key] = object.title+" ("+object_key+")";
+                            this.kaFields.type.children.object.items[object_key] = object.title+" ("+object_key+")";
                     }.bind(this));
                 }
             }.bind(this));
         }
+    },
 
-        var self = this;
+    _createLayout: function(){
 
-        this.main = new Element('div', {
-            'class': 'ka-fieldTable-item',
-            style: 'border-bottom: 1px solid silver; position: relative;'
-        }).inject(pContainer);
+        var count = this.container.getElements('.ka-fieldProperty-item').length+1;
 
-        this.main.store('ka.FieldProperty', this);
+        this.tr = new Element('tr', {
+            'class': 'ka-fieldProperty-item'
+        }).inject(this.container);
 
-        this.header = new Element('div', {
-            'class': 'ka-fieldTable-item-header'
-        }).inject(this.main);
-
-        this.main.store('definition', pDefinition || {});
-
-        var count = pContainer.getElements('.ka-fieldTable-item').length-1;
+        this.tdLabel = new Element('td').inject(this.tr);
 
         this.iKey = new ka.Field({
             type: 'text',
             modifier: this.options.keyModifier,
-            noWrapper: true,
-            width: '180px',
-            style: 'display: inline-block;'
-        }, this.header);
+            noWrapper: true
+        }, this.tdLabel);
 
-        this.iKey.setValue(pKey?pKey:'property_'+count);
+        this.iKey.setValue(this.key?this.key:'property_'+count);
 
+        this.tdType = new Element('td', {width: 150}).inject(this.tr);
 
-        if (this.options.withActionsImages){
+        var field = Object.clone(this.kaFields.type);
+        delete field.children;
+
+        field.noWrapper = true;
+        this.typeField = new ka.Field(field, this.tdType);
+
+        this.typeField.setValue(this.definition && this.definition.type?this.definition.type:'text');
+
+        this.tdProperties = new Element('td', {width: 150}).inject(this.tr);
+
+        this.propertiesButton = new ka.Button(t('Properties'))
+        .addEvent('click', this.openProperties)
+        .inject(this.tdProperties);
+
+        this.tdActions = new Element('td', {
+            width: 50
+        }).inject(this.tr);
+
+        if (this.options.withActions){
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
@@ -501,11 +522,10 @@ ka.FieldProperty = new Class({
                         this.fireEvent('delete');
                         this.removeEvents('change');
                         this.main.destroy();
-                        delete this;
                     }
                 }.bind(this));
             }.bind(this))
-            .inject(this.header);
+            .inject(this.tdActions);
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
@@ -517,7 +537,7 @@ ka.FieldProperty = new Class({
                     return false;
                 this.main.inject(this.main.getPrevious('.ka-fieldTable-item'), 'before');
             }.bind(this))
-            .inject(this.header);
+            .inject(this.tdActions);
 
 
             new Element('a', {
@@ -530,56 +550,69 @@ ka.FieldProperty = new Class({
                     return false;
                 this.main.inject(this.main.getNext(), 'after');
             }.bind(this))
-            .inject(this.header);
+            .inject(this.tdActions);
 
         }
 
-        var showDefinition = new Element('div', {
-            'class': 'ka-fieldTable-showDefinition',
-            style: 'width: 220px;'
-        }).inject(this.header);
+    },
 
-        var ch = new ka.Checkbox(showDefinition);
-        ch.addEvent('change', function(){
-            if(ch.getValue()){
-                this.main.addClass('ka-fieldTable-showDefinition-show-sub');
-            } else {
-                this.main.removeClass('ka-fieldTable-showDefinition-show-sub');
-            }
-        }.bind(this));
+    openProperties: function(){
 
-        new Element('div',{
-            style: 'position: absolute; left: 70px; top: 6px; color: gray;',
-            text: t('Show definition')
-        }).inject(showDefinition);
+        this.dialog = this.win.newDialog('', true);
 
-        if (!this.options.withTableDefinition) {
+        this.dialog.setStyle('width', '90%');
+        this.dialog.setStyle('height', '90%');
+
+        /*if (!this.options.withTableDefinition) {
             var headerInfo = new Element('div', {
                 text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
                 style: 'color: gray',
                 'class': 'ka-fieldTable-key-info'
             }).inject(this.header);
-        }
+        }*/
 
-        var main = new Element('div',{'class': 'ka-fieldTable-definition',style: 'background-color: #e5e5e5'}).inject(this.main);
+        var main = new Element('div',{'class': 'ka-fieldTable-definition',style: 'background-color: #e5e5e5'}).inject(this.dialog.content);
 
         var fieldContainer;
 
         if (this.options.allTableItems){
             var table = new Element('table', {
                 width: '100%'
-            }).inject( main );
+            }).inject(main);
 
            fieldContainer = new Element('tbody').inject(table);
         } else {
             fieldContainer = main;
         }
 
-        this.kaParse = new ka.Parse(fieldContainer, this.kaFields, {
-            allTableItems:this.options.allTableItems,
-            tableitem_title_width: this.options.tableitem_title_width,
-            allSmall:this.options.allSmall
+        this.fieldObject = new ka.Parse(fieldContainer, this.kaFields, {
+            allTableItems: this.options.allTableItems,
+            tableitem_title_width: this.options.tableitem_title_width
         }, {win:this.win});
+
+        this.fieldObject.getField('type').setValue(this.typeField.getValue(), true);
+
+        new ka.Button(t('Cancel'))
+        .addEvent('click', this.dialog.close)
+        .inject(this.dialog.bottom);
+
+        new ka.Button(t('Apply'))
+        .addEvent('click', function(){
+
+            if (!this.fieldObject.isValid()){
+                return;
+            }
+
+            this.definition = this.fieldObject.getValue();
+            this.dialog.close();
+
+        }.bind(this))
+        .setButtonStyle('blue')
+        .inject(this.dialog.bottom);
+
+        this.dialog.center();
+
+        return;
 
         this.kaParse.addEvent('change', this.fireChange);
 
@@ -662,17 +695,17 @@ ka.FieldProperty = new Class({
         }.bind(this));
 
         if (!this.options.withoutChildren){
-            property.depends = {};
+            property.children = {};
 
             this.children.each(function(child){
                 var fieldProperty = child.retrieve('ka.FieldProperty');
                 var value = fieldProperty.getValue();
 
-                property.depends[value.key] = value.definition;
+                property.children[value.key] = value.definition;
             });
 
-            if (Object.getLength(property.depends) == 0)
-                delete property.depends;
+            if (Object.getLength(property.children) == 0)
+                delete property.children;
         }
 
         return {
@@ -732,8 +765,8 @@ ka.FieldProperty = new Class({
         this.childDiv.empty();
 
         if (!this.options.withoutChildren){
-            if (pDefinition.depends){
-                Object.each(pDefinition.depends, function(definition, key){
+            if (pDefinition.children){
+                Object.each(pDefinition.children, function(definition, key){
 
                     this.children.include(new ka.FieldProperty(key, {}, this.childDiv, this.options));
 

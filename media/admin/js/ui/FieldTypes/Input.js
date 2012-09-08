@@ -78,7 +78,8 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
             var modifiers = this.options.modifier.split('|');
 
             Array.each(modifiers, function(modifier){
-                this.input.value = this.options.modifiers[modifier](this.input.value);
+                if (this.options.modifiers[modifier])
+                    this.input.value = this.options.modifiers[modifier](this.input.value);
             }.bind(this));
 
         } else if (typeOf(this.options.modifier) == 'function'){

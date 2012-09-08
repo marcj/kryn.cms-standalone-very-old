@@ -40,6 +40,14 @@ ka.Button = new Class({
         }
     },
 
+    setButtonStyle: function(pStyle){
+        if (this.oldButtonStyle)
+            this.main.removeClass('ka-Button-'+oldButtonStyle);
+
+        this.main.addClass('ka-Button-'+pStyle);
+        this.oldButtonStyle = pStyle;
+        return this;
+    },
 
     setEnabled: function(pEnabled){
 

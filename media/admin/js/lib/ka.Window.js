@@ -1,6 +1,8 @@
 ka.Window = new Class({
     Implements: Events,
 
+    Binds: ['saveDimension'],
+
     id     : 0,
     module : '',
     code   : '',
@@ -251,6 +253,10 @@ ka.Window = new Class({
         }).inject(this.blockModeContainer);
     },
 
+    alert: function(pText, pCallback){
+        return this._alert(pText, pCallback);
+    },
+
     _alert: function (pText, pCallback) {
         return this._prompt(pText, null, pCallback, {
             'alert': 1
@@ -352,7 +358,15 @@ ka.Window = new Class({
     },
 
 
-    newDialog: function (pText, pAbsoluteContent) {
+    /**
+     * Creates a new dialog over the current window.
+     *
+     * @param  {mixed} pText A string (non html) or an element, that will be injected in the content area.
+     *
+     * @param  {Boolean} pAbsoluteContent If we position this absolute or normal.
+     * @return {Element}                  An element with .close(), .center() method, .content and .bottom element.
+     */
+    newDialog: function (   pText, pAbsoluteContent) {
 
         var main = new Element('div', {
             'class': 'ka-kwindow-prompt'
@@ -361,9 +375,16 @@ ka.Window = new Class({
         });
 
         main.content = new Element('div', {
-            html: pText,
             'class': 'ka-kwindow-prompt-text selectable'
         }).inject(main);
+
+        if (typeOf(pText) == 'string'){
+            main.content.set('text', pText);
+        } else if(typeOf(pText) == 'element'){
+            pText.inject(main.content);
+        } else if(typeOf(document.id(pText)) == 'element'){
+            document.id(pText).inject(main.content);
+        }
 
         if (pAbsoluteContent) {
             main.content.addClass('ka-kwindow-prompt-text-abs');
@@ -387,11 +408,16 @@ ka.Window = new Class({
 
         main.close = function(pInternal){
 
+            if (pInternal)
+                main.fireEvent('preClose');
+
+            if (!main.canClosed) return;
+
             main.overlay.destroy();
             main.dispose();
             this.removeEvent('resize', main.center);
 
-            if (pInternal === true)
+            if (pInternal)
                 main.fireEvent('close');
 
             main.destroy();
@@ -1325,22 +1351,22 @@ ka.Window = new Class({
 
     createResizer: function () {
 
-        this.resizeBottomRight = new Element('div', {
-            styles: {
-                position: 'absolute',
-                right: -1,
-                bottom: -1,
-                width: 9,
-                height: 9,
-                opacity: 0.7,
-                'background-position': '0px 11px',
-                'background-image': 'url(' + _path + PATH_MEDIA + '/admin/images/win-bottom-resize.png)',
-                cursor: 'se-resize'
-            }
-        }).inject(this.border);
+        this.sizer = {};
+
+        ['n', 'ne','e','se', 's', 'sw', 'w','nw'].each(function(item){
+            this.sizer[item] = new Element('div', {
+                'class': 'ka-kwindow-sizer ka-kwindow-sizer-'+item
+            }).inject(this.border);
+        });
+
+        Object.each(this.sizer, function(item){
+            item.setStyle('opacity', 0.01);
+        });
 
         var minWidth = ( this.entryPoint.minWidth > 0 ) ? this.entryPoint.minWidth : 400;
         var minHeight = ( this.entryPoint.minHeight > 0 ) ? this.entryPoint.minHeight : 300;
+
+        
 
         this.border.makeResizable({
             grid: 1,
@@ -1352,8 +1378,7 @@ ka.Window = new Class({
                     this.content.setStyle('display', 'none');
                     ka.wm.hideContents();
                 }
-                window.fireEvent('click');
-
+                document.fireEvent('click');
 
             }.bind(this),
             onComplete: function () {

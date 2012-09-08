@@ -244,7 +244,7 @@ class Editor {
                     if (count(primaries) > 1){
                         //define extra columns
                         foreach ($primaries as $key => $primary){
-                            $columnId = $pFieldKey.'_'.$key;
+                            $columnId = $pFieldKey.ucfirst($key);
                             $columns[$columnId] = $pField;
 
                             $this->getColumnFromField($pObject, $columnId, $primary, $pTable, $pDatabase, $columns[$columnId]);
@@ -328,9 +328,9 @@ class Editor {
                         $foreignKey['foreignTable'] = $table;
 
                         if ($table == $foreignObject['table']){
-                            $foreignKey['phpName'] = underscore2Camelcase($pFieldKey).'_'.$foreignObject['phpName'];
+                            $foreignKey['phpName'] = $pFieldKey.ucfirst($foreignObject['phpName']);
                         } else {
-                            $foreignKey['phpName'] = underscore2Camelcase($pFieldKey).'_'.$object['phpName'];
+                            $foreignKey['phpName'] = $pFieldKey.ucfirst($object['phpName']);
                         }
 
                         foreach ($keys as $k => $v){
@@ -375,9 +375,22 @@ class Editor {
         if ($pField['primaryKey']) $column['primaryKey'] = "true";
         if ($pField['autoIncrement']) $column['autoIncrement'] = "true";
 
-        $columns[$pFieldKey] = $column;
+        $columns[camelcase2Underscore($pFieldKey)] = $column;
 
         return $columns;
+    }
+
+    public function setModelFromObjects($pName){
+
+        Manager::prepareName($pName);
+        $config = $this->getConfig($pName);
+
+        $result = array();
+        foreach ($config['objects'] as $objectKey => $def){
+            $result[$objectKey] = $this->setModelFromObject($pName, $objectKey);
+        }
+
+        return $result;
     }
 
     public function setModelFromObject($pName, $pObject){
@@ -387,6 +400,8 @@ class Editor {
 
         if (!$object = $config['objects'][$pObject])
             throw new \Exception(tf('Object %s in %s does not exist.', $pObject, $pName));
+
+        if ($config['objects'][$pObject]['dataModel'] != 'propel') return false;
 
         $path = PATH_MODULE . "$pName/model.xml";
 
@@ -417,7 +432,7 @@ class Editor {
         if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
 
         $objectTable['name'] = $object['table'];
-        $objectTable['phpName'] = $object['phpName'];
+        $objectTable['phpName'] = ucfirst($pObject);
 
         $columnsDefined = array();
 

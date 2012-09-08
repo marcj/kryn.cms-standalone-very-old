@@ -333,21 +333,16 @@
                 "id": {
                     "label": "ID",
                     "type": "number",
-                    "primaryKey": 1,
-                    "autoIncrement": 1,
-                    "empty": 1
+                    "primaryKey": true,
+                    "autoIncrement": true
                 },
                 "name": {
                     "label": "[[Name]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 },
                 "description": {
                     "label": "[[Description]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "text"
                 }
             },
             "label": "[[Groups]]"

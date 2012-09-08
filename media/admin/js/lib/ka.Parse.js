@@ -23,7 +23,7 @@ ka.Parse = new Class({
         this.main = pContainer;
         this.definition = pDefinition;
 
-        this.parseLevel(pDefinition, this.main)
+        this.parseLevel(pDefinition, this.main);
 
         //parse all fields which have 'againstField'
         Object.each(this.fields, function(obj, id){
@@ -303,7 +303,7 @@ ka.Parse = new Class({
         return false;
     },
 
-    isOk: function () {
+    isValid: function () {
 
         var ok = true;
         Object.each(this.fields, function (field, id) {

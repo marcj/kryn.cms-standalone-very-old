@@ -107,13 +107,13 @@ class AdminController {
                 ->addGetRoute('', 'showLogin')
 
                 ->addGetRoute('css/style.css', 'loadCss')
-                ->addGetRoute('login', 'loginUser', array('username', 'password'))
+                ->addGetRoute('login', 'loginUser')
                 ->addGetRoute('logout', 'logoutUser')
 
                 ->addSubController('ui', '\Admin\UIAssets')
                     ->addGetRoute('possibleLangs', 'getPossibleLangs')
-                    ->addGetRoute('languagePluralForm', 'getLanguagePluralForm', array('lang'))
-                    ->addGetRoute('language', 'getLanguage', array('lang'))
+                    ->addGetRoute('languagePluralForm', 'getLanguagePluralForm')
+                    ->addGetRoute('language', 'getLanguage')
                 ->done()
 
                 //admin/backend
@@ -122,14 +122,14 @@ class AdminController {
                     ->addGetRoute('settings', 'getSettings')
 
                     ->addGetRoute('desktop', 'getDesktop')
-                    ->addPostRoute('desktop', 'saveDesktop', array('icons'))
+                    ->addPostRoute('desktop', 'saveDesktop')
 
                     ->addGetRoute('widgets', 'getWidgets')
-                    ->addPostRoute('widgets', 'saveWidgets', array('widgets'))
+                    ->addPostRoute('widgets', 'saveWidgets')
 
                     ->addGetRoute('menus', 'getMenus')
                     ->addGetRoute('custom-js', 'getCustomJs')
-                    ->addPostRoute('user-settings', 'saveUserSettings', array('settings'))
+                    ->addPostRoute('user-settings', 'saveUserSettings')
 
 
                     //admin/backend/object
@@ -153,7 +153,7 @@ class AdminController {
 
                     //admin/backend/object-count
                     ->addSubController('object-count', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getCount', null, array('query'))
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
                     ->done()
 
 
@@ -170,10 +170,10 @@ class AdminController {
 
                     //admin/system/module/manager
                     ->addSubController('module/manager', '\Admin\Module\Manager')
-                        ->addGetRoute('install/pre', 'installPre', array('name'))
-                        ->addGetRoute('install/extract', 'installExtract', array('name'))
-                        ->addGetRoute('install/database', 'installDatabase', array('name'))
-                        ->addGetRoute('install/post', 'installPost', array('name'))
+                        ->addGetRoute('install/pre', 'installPre')
+                        ->addGetRoute('install/extract', 'installExtract')
+                        ->addGetRoute('install/database', 'installDatabase')
+                        ->addGetRoute('install/post', 'installPost')
                         ->addGetRoute('check-updates', 'check4updates')
                         ->addGetRoute('local', 'getLocal')
                         ->addGetRoute('installed', 'getInstalled')
@@ -190,29 +190,29 @@ class AdminController {
                         ->addGetRoute('check', 'checkScheme')
                     ->done()
 
+
                     //admin/system/module/editor
                     ->addSubController('module/editor', '\Admin\Module\Editor')
-                        ->addGetRoute('config', 'getConfig', array('name'))
+                        ->addGetRoute('config', 'getConfig')
 
-                        ->addGetRoute('windows', 'getWindows', array('name'))
+                        ->addGetRoute('windows', 'getWindows')
 
-                        ->addGetRoute('objects', 'getObjects', array('name'))
-                        ->addPostRoute('objects', 'saveObjects', array('name'))
+                        ->addGetRoute('objects', 'getObjects')
+                        ->addPostRoute('objects', 'saveObjects')
 
-                        ->addGetRoute('plugins', 'getPlugins', array('name'))
-                        ->addPostRoute('plugins', 'savePlugins', array('name'))
+                        ->addGetRoute('plugins', 'getPlugins')
+                        ->addPostRoute('plugins', 'savePlugins')
 
-                        //
                         ->addPostRoute('new-window', 'newWindow')
 
+                        ->addPostRoute('model/from-object', 'setModelFromObject')
+                        ->addPostRoute('model/from-objects', 'setModelFromObjects')
 
-                        ->addPostRoute('model/from-object', 'setModelFromObject', array('name', 'object'))
+                        ->addPostRoute('model', 'saveModel')
+                        ->addGetRoute('model', 'getModel')
 
-                        ->addPostRoute('model', 'saveModel', array('name', 'model'))
-                        ->addGetRoute('model', 'getModel', array('name'))
-
-                        ->addPostRoute('general', 'saveGeneral', array('name'))
-                        ->addPostRoute('entryPoints', 'saveEntryPoints', array('name', 'entryPoints'))
+                        ->addPostRoute('general', 'saveGeneral')
+                        ->addPostRoute('entryPoints', 'saveEntryPoints')
 
 
                     ->done()

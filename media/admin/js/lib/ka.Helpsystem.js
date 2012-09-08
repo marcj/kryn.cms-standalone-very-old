@@ -21,17 +21,12 @@ ka.Helpsystem = new Class({
         for (var i = this.boxes.length - 1; i > 0; i--) {
             var box = this.boxes[i];
             var index = i;
-
-
-            //this.boxes.each(function(box, index){
-
+            
             curHeight += box.getSize().y;
 
             if (curHeight > maxHeight) {
-                box.destroy();
+                box.setStyle('height', maxHeight-50);
             }
-
-            //});
         }
 
     },
@@ -44,6 +39,7 @@ ka.Helpsystem = new Class({
                 opacity: 0
             }
         }).inject(this.container, 'top');
+
         this.boxes.include(box);
 
         new Element('h3', {

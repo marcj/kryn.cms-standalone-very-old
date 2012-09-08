@@ -103,12 +103,6 @@ ka.Field = new Class({
                 });
                 this.main.store('ka.Field', this);
 
-                if (this.field.panelWidth) {
-                    this.main.setStyle('width', this.field.panelWidth);
-                } else if (!this.field.small) {
-                    this.main.setStyle('width', 330);
-                }
-
                 if (this.field.type == 'headline') {
                     new Element('div', {
                         style: 'clear: both;'

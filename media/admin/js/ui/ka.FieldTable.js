@@ -5,15 +5,14 @@ ka.FieldTable = new Class({
     Binds: ['fireChange'],
 
     options: {
-        addLabel: t('Add property'),
+        addLabel: t('Add'),
         withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
         asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
         withoutChildren: false, //deactivate children?
         tableitem_title_width: 330,
         allTableItems: true,
-        allSmall: false,
-        withActionsImages: true,
+        withActions: true,
 
         fieldTypes: false, //if as array defined, we only have types which are in this list
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
@@ -33,6 +32,46 @@ ka.FieldTable = new Class({
 
         this.container = pContainer;
         this.win = pWin;
+
+        this._createLayout();
+
+    },
+
+    _createLayout: function(){
+
+        this.main = new Element('div').inject(this.container);
+
+        
+
+        this.header = new Element('table', {
+            width: '100%',
+            'class': 'ka-Table-head'
+        }).inject(this.main);
+
+        var tr = new Element('tr').inject(this.header);
+        new Element('th', {text: 'Key'}).inject(tr);
+        new Element('th', {width: 150, text: 'Type'}).inject(tr);
+        new Element('th', {width: 150, text: 'Properties'}).inject(tr);
+        new Element('th', {width:  50, text: 'Actions'}).inject(tr);
+
+        this.table = new Element('table', {
+            width: '100%',
+            'class': 'ka-Table-body'
+        }).inject(this.main);
+
+        new ka.Button(this.options.addLabel)
+        .addEvent('click', function(){
+            this.add(null,null, this.itemContainer);
+        }.bind(this))
+        .inject(this.main);
+
+    },
+
+    toElement: function(){
+        return this.main;
+    },
+
+    foo: function(){
 
         this.header = new Element('div', {
             style: 'background-color: #d1d1d1; padding: 2px; height: 27px; position: relative; border-bottom: 1px solid silver;'
@@ -99,15 +138,15 @@ ka.FieldTable = new Class({
 
         if (typeOf(pValue) == 'object'){
             Object.each(pValue, function(property,key){
-                this.add(key, property, this.itemContainer, this.options)
+                this.add(key, property);
             }.bind(this));
 
         }
     },
 
-    add: function(pKey, pDefinition, pContainer){
+    add: function(pKey, pDefinition){
 
-        var fieldProperty = new ka.FieldProperty(pKey, pDefinition, pContainer, this.options, this.win);
+        var fieldProperty = new ka.FieldProperty(pKey, pDefinition, this.table, this.options, this.win);
         fieldProperty.addEvent('change', this.fireChange);
 
         this.fireEvent('add', fieldProperty);
@@ -115,4 +154,4 @@ ka.FieldTable = new Class({
 
     }
 
-})
+});

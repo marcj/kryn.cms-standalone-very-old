@@ -759,7 +759,7 @@ class Server {
                     $m = $this->fallbackMethod;
                     $this->send($this->controller->$m());
                 } else {
-                    $this->sendBadRequest('route_not_found', "There is no route for '$uri'.");
+                    $this->sendBadRequest('RouteNotFoundException', "There is no route for '$uri'.");
                 }
             } else {
                 return false;
@@ -775,6 +775,9 @@ class Server {
 
         //open class and scan method
         $ref = new \ReflectionClass($this->controller);
+        if (!method_exists($this->controller, $methodName)){
+            $this->sendBadRequest('MethodNotFoundException', "There is no method '$methodName' in ".get_class($this->controller).".");
+        }
         $method = $ref->getMethod($methodName);
         $params = $method->getParameters();
 
@@ -801,7 +804,7 @@ class Server {
             } else {
 
                 if (!$param->isOptional() && $_GET[$name] === null && $_POST[$name] === null){
-                    $this->sendBadRequest('rest_required_argument_not_found', tf("Argument '%s' is missing.", $name));
+                    $this->sendBadRequest('MissingRequiredArgumentException', tf("Argument '%s' is missing.", $name));
                 }
 
                 $arguments[] = $_GET[$name]?$_GET[$name]:$_POST[$name];

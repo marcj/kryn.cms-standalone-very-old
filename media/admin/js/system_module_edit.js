@@ -147,10 +147,10 @@ var admin_system_module_edit = new Class({
         new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin?pPlugin[0]:''}).inject(rightTd);
 
 
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete property'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Delete property'),
+            html: '&#xe26b;'
         })
         .addEvent('click', function(){
             this.win._confirm(t('Really delete'), function(ok){
@@ -161,10 +161,10 @@ var admin_system_module_edit = new Class({
         }.bind(this))
         .inject(actionTd);
 
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_up.png',
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Move up'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
+            html: '&#xe2ca;'
         })
         .addEvent('click', function(){
             var previous = tr.getPrevious();
@@ -176,10 +176,10 @@ var admin_system_module_edit = new Class({
         .inject(actionTd);
 
 
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_down.png',
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Move down'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
+            html: '&#xe2cc;'
         })
         .addEvent('click', function(){
             if (!tr2.getNext())
@@ -188,8 +188,6 @@ var admin_system_module_edit = new Class({
             tr.inject(tr2, 'before');
         })
         .inject(actionTd);
-
-
 
 
         var a = new Element('a', {
@@ -429,10 +427,10 @@ var admin_system_module_edit = new Class({
         }.bind(this))
         .inject(td);
 
-        new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete form'),
-            style: 'cursor: pointer; position: relative; top: 3px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
         }).addEvent('click', function () {
             //delete
         }.bind(this)).inject(td);
@@ -603,9 +601,10 @@ var admin_system_module_edit = new Class({
             checked: (pItem.faq == 1) ? true : false
         }).inject(main);
 
-        new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            style: 'position: relative; left: 3px; top: 3px; cursor: pointer'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
         }).addEvent('click', function () {
             main.destroy();
         }.bind(this)).inject(main);
@@ -888,10 +887,10 @@ var admin_system_module_edit = new Class({
             style: 'margin-left: 4px;'
         }).inject(header);
 
-        var subDelBtn = new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete Link'),
-            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
+        var subDelBtn = new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove entry point'),
+            html: '&#xe26b;'
         }).addEvent('click', function () {
             this.win._confirm(t('Delete?'), function (res) {
                 if (!res)return;
@@ -899,20 +898,20 @@ var admin_system_module_edit = new Class({
             });
         }.bind(this)).inject(header);
 
-        new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/arrow_up.png',
-            title: t('Link up'),
-            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: t('Move up'),
+            html: '&#xe2ca;'
         }).addEvent('click', function () {
             if (lvl1.getPrevious()) {
                 lvl1.inject(lvl1.getPrevious(), 'before');
             }
         }.bind(this)).inject(header);
 
-        new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/arrow_down.png',
-            title: t('Link down'),
-            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: t('Move down'),
+            html: '&#xe2cc;'
         }).addEvent('click', function () {
             if (lvl1.getNext()) {
                 lvl1.inject(lvl1.getNext(), 'after');
@@ -1302,10 +1301,10 @@ var admin_system_module_edit = new Class({
         select.value = pType;
 
 
-        new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete theme property'),
-            style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
         }).addEvent('click', function () {
             this.win._confirm(t('Really delete'), function(ok){
                 if (!ok) return;
@@ -1332,10 +1331,10 @@ var admin_system_module_edit = new Class({
             value: (pValue) ? pValue : t('Propertie value')
         }).inject(li);
 
-        new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete theme property'),
-            style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
         }).addEvent('click', function () {
 
             this.win._confirm(t('Really delete'), function(ok){
@@ -1354,10 +1353,10 @@ var admin_system_module_edit = new Class({
             style: 'margin: 4px; width: 250px;'
         }).inject(myp);
 
-        new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-            style: 'position: relative; top: 3px; cursor: pointer;',
-            title: t('Delete Theme')
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
         }).addEvent('click', function () {
             this.win._confirm(t('Really delete this theme ?'), function (res) {
                 if (!res) return;
@@ -1379,23 +1378,23 @@ var admin_system_module_edit = new Class({
             var file = new Element('input', {
                 'class': 'text', value: pLayoutFile, style: 'width: 200px;'
             }).inject(li);
-            new Element('img', {
-                'src': _path + PATH_MEDIA + '/admin/images/icons/layout_edit.png',
-                style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
-                title: t('Open template')
+            new Element('a', {
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+                title: _('Edit template'),
+                html: '&#xe00f;'
             }).addEvent('click',
                 function () {
                     ka.wm.open('admin/files/edit', {file: {path: '/' + file.value}});
                 }).inject(li);
-            new Element('img', {
-                'src': _path + PATH_MEDIA + '/admin/images/icons/delete.png',
-                style: 'position: relative; top: 3px; margin-left: 2px; cursor: pointer;',
-                title: t('Delete template')
+            new Element('a', {
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+                title: _('Remove'),
+                html: '&#xe26b;'
             }).addEvent('click', function () {
                 this.win._confirm(t('Really delete this template ?'), function (res) {
                     if (!res) return;
                     li.destroy();
-                }.bind(this))
+                }.bind(this));
             }.bind(this)).inject(li);
         }.bind(this);
 
@@ -1595,28 +1594,97 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         var buttonBar = new ka.ButtonBar(this.panes['objects']);
-        buttonBar.addButton(t('Add object'), function(){
-            this.addObject()
-        }.bind(this));
-
-        buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
-        
         buttonBar.addButton(t('ORM update'), function () {
             ka.wm.open('admin/system/development/orm', {doUpdate: 1});
         }.bind(this));
+
+        buttonBar.addButton([t('Add object'), '#icon-plus-alt'], function(){
+            this.addObject();
+        }.bind(this));
+
+        this.objectSaveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
+
+        document.id(this.objectSaveButton).addClass('ka-Button-blue');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1,
         onComplete: function (pResult) {
 
             if (pResult.data) {
                 Object.each(pResult.data, function (item, key) {
-                    this.addObject(item, key)
+                    this.addObject(item, key);
                 }.bind(this));
             }
 
             this.loader.hide();
 
         }.bind(this)}).get({name: this.mod});
+    },
+
+    updateOrm: function(pCmd, pCallback){
+
+        if (this.lr) this.lr.cancel();
+
+        this.lr = new Request.JSON({url: _path + 'admin/system/orm/'+pCmd, noCache: 1,
+            onComplete: pCallback}).get();
+    },
+
+    updateOrmWriteModel: function(pCallback){
+
+        if (this.lr) this.lr.cancel();
+
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/model/from-objects', noCache: 1,
+            onComplete: function (response) {
+                if (!response.error)
+                    pCallback(response);
+        }.bind(this)}).post({name: this.mod});
+    },
+
+    printOrmError: function(pResponse){
+        this.objectSaveButton.stopTip(t('Failed.'));
+
+        var div = new Element('div');
+
+        new Element('h2', {
+            text: 'ORM Error: '+pResponse.error
+        }).inject(div);
+
+        new Element('div', {
+            style: 'position: absolute; top: 50px; left: 5px; right: 5px; bottom: 5px; overflow: auto; white-space: pre; background-color: white; padding: 5px;',
+            text: 'ORM Error: '+pResponse.message
+        }).inject(div);
+
+        var dialog = this.win.newDialog(div, true);
+        dialog.setStyle('width', '80%');
+        dialog.setStyle('height', '90%');
+        dialog.center();
+
+        var ok = new ka.Button(t('Ok'))
+        .addEvent('click', dialog.close)
+        .setButtonStyle('blue')
+        .inject(dialog.bottom);
+    },
+
+    updateORM: function(){
+
+        this.objectSaveButton.startTip(t('Object saved. Write model.xml ...'));
+
+        this.updateOrmWriteModel(function(){
+            this.objectSaveButton.startTip(t('Saved. Update PHP models ...'));
+            this.updateOrm('models', function(response){
+                if (response.error){
+                    this.printOrmError(response);
+                } else {
+                    this.objectSaveButton.startTip(t('Saved. Update database tables ...'));
+                    this.updateOrm('update', function(response){
+                        if (response.error){
+                            this.printOrmError(response);
+                        } else {
+                            this.objectSaveButton.startTip(t('Done.'));
+                        }
+                    }.bind(this));
+                }
+            }.bind(this));
+        }.bind(this));
     },
 
     writeObjectModel: function(pObjectKey){
@@ -1628,7 +1696,6 @@ var admin_system_module_edit = new Class({
             this.win.setLoading(false);
 
         }.bind(this)}).post({name: this.mod, object: pObjectKey});
-
 
     },
 
@@ -1648,7 +1715,7 @@ var admin_system_module_edit = new Class({
         });
 
         if (this.lr) this.lr.cancel();
-        this.loader.show();
+        this.objectSaveButton.startTip(t('Saving ...'));
 
         var req = {};
         req.objects = JSON.encode(objects);
@@ -1656,8 +1723,8 @@ var admin_system_module_edit = new Class({
 
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
             ka.loadSettings(['configs']);
+            this.updateORM();
         }.bind(this)}).post(req);
 
     },
@@ -2087,17 +2154,17 @@ var admin_system_module_edit = new Class({
             .inject(actionTd);
         }
 
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete object'),
-            style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
         })
         .addEvent('click', function(){
             this.win._confirm(t('Really delete'), function(ok){
                 if (!ok) return;
                 tr.destroy();
                 tr2.destroy();
-            })
+            });
         }.bind(this))
         .inject(actionTd);
 
