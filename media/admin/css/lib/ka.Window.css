@@ -434,10 +434,67 @@ h3.kryn-headline {
     background-color: white;
 }
 
+.ka-kwindow-sizer-ne,
+.ka-kwindow-sizer-se,
+.ka-kwindow-sizer-nw,
+.ka-kwindow-sizer-sw {
+    width: 8px;
+    height: 8px;
+}
+
+.ka-kwindow-sizer-n {
+    cursor: n-resize;
+    right: 2px;
+    left: 2px;
+    top: -4px;
+    height: 6px;
+}
+
+
+.ka-kwindow-sizer-ne {
+    cursor: ne-resize;
+    top: -4px;
+    right: -4px;
+}
+
+.ka-kwindow-sizer-e {
+    cursor: e-resize;
+    right: -4px;
+    bottom: 2px;
+    top: 2px;
+    width: 6px;
+}
+
 .ka-kwindow-sizer-se {
     cursor: se-resize;
-    right: -1px;
-    bottom: -1px;
-    width: 2px;
-    height: 2px;
+    right: -4px;
+    bottom: -4px;
+}
+
+.ka-kwindow-sizer-s {
+    cursor: s-resize;
+    right: 2px;
+    left: 2px;
+    bottom: -4px;
+    height: 6px;
+}
+
+.ka-kwindow-sizer-sw {
+    cursor: sw-resize;
+    left: -4px;
+    bottom: -4px;
+}
+
+.ka-kwindow-sizer-w {
+    cursor: w-resize;
+    left: -4px;
+    bottom: 2px;
+    top: 2px;
+    width: 6px;
+}
+
+.ka-kwindow-sizer-nw {
+    cursor: nw-resize;
+    left: -4px;
+    top: -4px;
 }

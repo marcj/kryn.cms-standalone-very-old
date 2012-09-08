@@ -1357,48 +1357,87 @@ ka.Window = new Class({
             this.sizer[item] = new Element('div', {
                 'class': 'ka-kwindow-sizer ka-kwindow-sizer-'+item
             }).inject(this.border);
-        });
+        }.bind(this));
 
-        Object.each(this.sizer, function(item){
-            item.setStyle('opacity', 0.01);
-        });
+        this.border.dragX = 0;
+        this.border.dragY = 0;
 
         var minWidth = ( this.entryPoint.minWidth > 0 ) ? this.entryPoint.minWidth : 400;
         var minHeight = ( this.entryPoint.minHeight > 0 ) ? this.entryPoint.minHeight : 300;
 
-        
+        Object.each(this.sizer, function(item, key){
+            item.setStyle('opacity', 0.01);
 
-        this.border.makeResizable({
-            grid: 1,
-            limit: {x: [minWidth, 2000], y: [minHeight, 2000]},
-            handle: this.resizeBottomRight,
-            onStart: function () {
+            var onDragger, height, width, x, y, newHeight, newWidth, newY, newX, max;
 
-                if (ka.performance) {
-                    this.content.setStyle('display', 'none');
-                    ka.wm.hideContents();
+            onDragger = function(pElement, pEvent){
+
+            };
+
+            var options = {
+                handle: item,
+                style: false,
+                modifiers: {
+                    x: !['s', 'n'].contains(key)?'dragX':null,
+                    y: !['e', 'w'].contains(key)?'dragY':null
+                },
+                snap: 0,
+                onBeforeStart: function(pElement){
+                    pElement.dragX = 0;
+                    pElement.dragY = 0;
+                    height = pElement.getStyle('height').toInt();
+                    width  = pElement.getStyle('width').toInt();
+                    y  = pElement.getStyle('top').toInt();
+                    x  = pElement.getStyle('left').toInt();
+
+                    newWidth = newHeight = newY = newX = null;
+
+                    max = $('desktop').getSize();
+                },
+                onDrag: function(pElement, pEvent){
+
+                    if (key === 'n' || key == 'ne' || key == 'nw'){
+                        newHeight = height-pElement.dragY;
+                        newY = y+pElement.dragY;
+                    }
+                    
+                    if (key === 's' || key == 'se' || key == 'sw')
+                        newHeight = height+pElement.dragY;
+
+                    if (key === 'e' || key == 'se' || key == 'ne')
+                        newWidth = width+pElement.dragX;
+
+                    if (key === 'w' || key == 'sw' || key == 'nw'){
+                        newWidth = width-pElement.dragX;
+                        newX = x+pElement.dragX;
+                    }
+
+                    if (newWidth !== null && (newWidth > max.x || newWidth < minWidth) )
+                        newWidth = newX = null;
+
+                    if (newHeight !== null && (newHeight > max.y || newHeight < minHeight))
+                        newHeight = newY = null;
+
+                    if (newX !== null && newX > 0)
+                        pElement.setStyle('left', newX);
+
+                    if (newY !== null && newY > 0)
+                        pElement.setStyle('top', newY);
+
+                    if (newWidth !== null)
+                        pElement.setStyle('width', newWidth);
+
+                    if (newHeight !== null)
+                        pElement.setStyle('height', newHeight);
+
+                    logger(pElement.dragX+'/'+pElement.dragY);
                 }
-                document.fireEvent('click');
 
-            }.bind(this),
-            onComplete: function () {
-                if (ka.performance){
-                    ka.wm.showContents();
-                }
+            };
 
-                this.content.setStyle('display', 'block');
+            new Drag(this.border, options);
+        }.bind(this));
 
-                this.saveDimension();
-                this.onResizeComplete();
-                this.fireEvent('resize');
-
-            }.bind(this),
-            onCancel: function () {
-                if (ka.performance){
-                    ka.wm.showContents();
-                }
-            }
-        });
     }
 
 });
