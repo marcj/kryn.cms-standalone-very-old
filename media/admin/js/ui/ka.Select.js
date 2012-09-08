@@ -485,8 +485,8 @@ ka.Select = new Class({
 
         if (this.items.length > 0){
             //we have static items
-            var i = pOffset;
-            while (i++ >= 0){
+            var i = pOffset-1;
+            while (++i >= 0){
 
                 if (i >= this.items.length) break;
                 if (items.length == 20) break;
