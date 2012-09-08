@@ -475,7 +475,7 @@ ka.FieldProperty = new Class({
 
         var count = this.container.getElements('.ka-fieldProperty-item').length+1;
 
-        this.tr = new Element('tr', {
+        this.main = this.tr = new Element('tr', {
             'class': 'ka-fieldProperty-item'
         }).inject(this.container);
 
@@ -533,9 +533,9 @@ ka.FieldProperty = new Class({
                 html: '&#xe2ca;'
             })
             .addEvent('click', function(){
-                if (!this.main.getPrevious('.ka-fieldTable-item'))
+                if (!this.main.getPrevious())
                     return false;
-                this.main.inject(this.main.getPrevious('.ka-fieldTable-item'), 'before');
+                this.main.inject(this.main.getPrevious(), 'before');
             }.bind(this))
             .inject(this.tdActions);
 
@@ -589,6 +589,8 @@ ka.FieldProperty = new Class({
             allTableItems: this.options.allTableItems,
             tableitem_title_width: this.options.tableitem_title_width
         }, {win:this.win});
+
+        this.fieldObject.setValue(this.definition);
 
         this.fieldObject.getField('type').setValue(this.typeField.getValue(), true);
 

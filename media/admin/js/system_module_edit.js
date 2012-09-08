@@ -2063,7 +2063,7 @@ var admin_system_module_edit = new Class({
                     }
                 }
             }
-        }
+        };
 
 
 
@@ -2087,7 +2087,10 @@ var admin_system_module_edit = new Class({
 
             this.cancelObjectSettings();
 
-        }.bind(this)).inject(this.dialog.bottom);
+        }.bind(this))
+
+        .setButtonStyle('blue')
+        .inject(this.dialog.bottom);
 
 
         //switcher
@@ -2198,8 +2201,8 @@ var admin_system_module_edit = new Class({
 
             var dialog = this.win.newDialog('', true);
             dialog.setStyles({
-                width: '80%',
-                height: '80%'
+                width: '90%',
+                height: '95%'
             });
             dialog.center();
 
@@ -2218,13 +2221,19 @@ var admin_system_module_edit = new Class({
                 withoutChildren: true
             });
 
+            new Element('th', {
+                text: t('Column name'),
+                width: 150
+            }).inject(fieldTable.headerTr.getFirst(), 'after');
 
             fieldTable.addEvent('add', function(item){
                 //todo, add span to item and listen on item.getelement(input) bla
-                item.underscoreDisplay = new Element('div', {
-                    'text': 'bla',
-                    style: 'padding: 0px 5px; color: gray;'
-                }).inject(item.header);
+                item.underscoreDisplay = new Element('td', {
+                    'text': '',
+                    style: 'color: gray',
+                    width: 150
+                }).inject(item.tdType, 'before');
+
 
                 var updateUnderscore = function(){
                     var ucv = item.iKey.getValue().replace(/([^a-z])/g, function($1){return "_"+$1.toLowerCase().replace(/[^a-z]/, '');});
@@ -2245,7 +2254,9 @@ var admin_system_module_edit = new Class({
                 tr.definition.fields = fieldTable.getValue();
                 dialog.close();
 
-            }).inject(dialog.bottom);
+            })
+            .setButtonStyle('blue')
+            .inject(dialog.bottom);
 
 
         }.bind(this));
@@ -2387,7 +2398,7 @@ var admin_system_module_edit = new Class({
                 'default': 1
             }
 
-        }
+        };
 
         var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true}, {win: this.win});
 
@@ -2414,7 +2425,9 @@ var admin_system_module_edit = new Class({
             }.bind(this)}).post({object: pKey, name: this.mod, values: values});
 
 
-        }.bind(this)).inject(this.dialog.bottom);
+        }.bind(this))
+        .setButtonStyle('blue')
+        .inject(this.dialog.bottom);
 
 
     },

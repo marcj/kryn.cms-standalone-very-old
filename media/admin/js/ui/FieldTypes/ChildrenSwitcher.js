@@ -12,13 +12,17 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
             style: 'display: block; padding: 2px; cursor: pointer; position: relative; left: -5px;'
         }).inject(this.fieldInstance.title);
 
-        this.value = 0;
-
         this.fieldInstance.handleChildsMySelf = true;
 
         this.toggler.addEvent('click', this.fieldInstance.fireChange);
         this.toggler.addEvent('click', function(){
             this.setValue(!this.getValue());
+        }.bind(this));
+
+        this.value = this.options.value || this.options['default'];
+
+        this.fieldInstance.addEvent('check-depends', function(){
+            this.setValue(this.value);
         }.bind(this));
 
         /*function(){
@@ -36,9 +40,10 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
 
     setValue: function(pValue){
         this.value = pValue || 0;
+
         if (!this.fieldInstance.childContainer) return;
 
-        if (this.value == 0){
+        if (!this.value){
             this.fieldInstance.childContainer.setStyle('display', 'none');
             this.toggler.set('class', 'icon-arrow-19');
         } else {

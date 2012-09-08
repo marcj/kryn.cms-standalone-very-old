@@ -48,6 +48,11 @@
     color: black;
 }
 
+.ka-Button:focus {
+    border: 1px solid #3E9BCB;
+    color: black;
+}
+
 
 .ka-Button:active,
 .ka-Button-pressed,
@@ -169,7 +174,8 @@ div.button-list {
 
 }
 
-.ka-Button-blue {
+.ka-Button-blue,
+.ka-Button-blue:link {
 
     color: white;
     border: 1px solid #116D9B;

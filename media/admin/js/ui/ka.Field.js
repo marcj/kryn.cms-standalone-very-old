@@ -187,14 +187,6 @@ ka.Field = new Class({
 
     },
 
-    toElement: function () {
-        if (this.field.tableItem) {
-            return this.tr;
-        } else {
-            return this.main;
-        }
-    },
-
     renderField: function () {
 
         this.options.type = this.options.type?this.options.type:'text';
@@ -1244,7 +1236,7 @@ ka.Field = new Class({
 
         };
 
-        this.getValue = function () {
+        this.getValue = function(){
             var res = [];
             if (multiple) {
                 _this.inputVals.getElements('option').each(function (option) {
@@ -1254,7 +1246,7 @@ ka.Field = new Class({
                 res = _this.select.getValue();
             }
             return res;
-        }
+        };
 
     },
 
@@ -1264,6 +1256,7 @@ ka.Field = new Class({
 
     isValid: function () {
         var ok = true;
+        if (this.field.designMode) return ok;
 
         if (this.isHidden()) return ok;
 
@@ -1273,7 +1266,6 @@ ka.Field = new Class({
     },
 
     isOk: function(){
-        if (this.field.designMode) return;
 
         var status = this.isValid();
         this.fieldObject.showNotValid(status);
@@ -1342,7 +1334,7 @@ ka.Field = new Class({
 
     },
 
-    toElement: function () {
+    toElement: function(){
         return ( this.field.tableItem ) ? this.tr : this.main;
     },
 
@@ -1436,7 +1428,7 @@ ka.Field = new Class({
 
     setArrayValue: function (pValues, pKey) {
 
-        if (pValues == null) {
+        if (typeOf(pValues) === 'null') {
             this.setValue(null, true);
             return;
         }
@@ -1463,7 +1455,7 @@ ka.Field = new Class({
     initMultiUpload: function () {
         //todo: whats that?
         
-        //need to pass the win instance seperatly otherwise the setOptions method will thrown an error 
+        //need to pass the win instance seperatly otherwise the setOptions method will thrown an error
         _win = this.refs.win;
         this.refs.win = false;
 

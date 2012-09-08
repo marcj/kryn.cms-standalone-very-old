@@ -48,11 +48,11 @@ ka.FieldTable = new Class({
             'class': 'ka-Table-head'
         }).inject(this.main);
 
-        var tr = new Element('tr').inject(this.header);
-        new Element('th', {text: 'Key'}).inject(tr);
-        new Element('th', {width: 150, text: 'Type'}).inject(tr);
-        new Element('th', {width: 150, text: 'Properties'}).inject(tr);
-        new Element('th', {width:  50, text: 'Actions'}).inject(tr);
+        this.headerTr = new Element('tr').inject(this.header);
+        new Element('th', {text: 'Key'}).inject(this.headerTr);
+        new Element('th', {width: 150, text: 'Type'}).inject(this.headerTr);
+        new Element('th', {width: 150, text: 'Properties'}).inject(this.headerTr);
+        new Element('th', {width:  50, text: 'Actions'}).inject(this.headerTr);
 
         this.table = new Element('table', {
             width: '100%',

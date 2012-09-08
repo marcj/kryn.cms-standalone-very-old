@@ -1430,8 +1430,10 @@ ka.Window = new Class({
                     if (newHeight !== null)
                         pElement.setStyle('height', newHeight);
 
-                    logger(pElement.dragX+'/'+pElement.dragY);
-                }
+                },
+                onComplete: function(){
+                    this.saveDimension();
+                }.bind(this)
 
             };
 

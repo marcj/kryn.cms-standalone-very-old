@@ -5,6 +5,8 @@ ka.Button = new Class({
     initialize: function (pTitle, pOnClick, pTooltip) {
         this.main = new Element('a', {
             'class': 'ka-Button',
+            href: '#',
+            onclick: "return false;",
             text: (typeOf(pTitle) == 'string') ? pTitle : '',
             title: (pTooltip) ? pTooltip : null
         });
