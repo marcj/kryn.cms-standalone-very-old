@@ -70,6 +70,8 @@ class ObjectWindowController extends Server {
                     $field['title'] = t(substr($field['title'], 2, -2));
                 else if(is_array($field['depends'])){
                     self::translateFields($field['depends']);
+                } else if(is_array($field['children'])){
+                    self::translateFields($field['children']);
                 }
             }
         }

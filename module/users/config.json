@@ -236,7 +236,7 @@
                     "label": "[[Username]]",
                     "type": "text"
                 },
-                "auth_class": {
+                "authClass": {
                     "label": "[[Auth class]]",
                     "type": "text"
                 },
@@ -244,10 +244,10 @@
                     "label": "[[Password]]",
                     "type": "password"
                 },
-                "passwd_salt": {
+                "passwdSalt": {
                     "type": "text"
                 },
-                "activation_key": {
+                "activationKey": {
                     "type": "text"
                 },
                 "email": {
@@ -276,7 +276,7 @@
                 "modified": {
                     "type": "datetime"
                 },
-                "group_membership": {
+                "groupMembership": {
                     "label": "[[Group membership]]",
                     "object": "group",
                     "objectLabel": "name",
@@ -285,11 +285,11 @@
                     "objectRelationPhpName": "UserGroup",
                     "type": "object"
                 },
-                "first_name": {
+                "firstName": {
                     "label": "[[First name]]",
                     "type": "text"
                 },
-                "last_name": {
+                "lastName": {
                     "label": "[[Last name]]",
                     "type": "text"
                 }

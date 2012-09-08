@@ -110,6 +110,7 @@ ka.FieldTable = new Class({
         var fieldProperty = new ka.FieldProperty(pKey, pDefinition, pContainer, this.options, this.win);
         fieldProperty.addEvent('change', this.fireChange);
 
+        this.fireEvent('add', fieldProperty);
         return fieldProperty;
 
     }

@@ -469,7 +469,7 @@ ka.FieldProperty = new Class({
 
         this.main.store('ka.FieldProperty', this);
 
-        var header = new Element('div', {
+        this.header = new Element('div', {
             'class': 'ka-fieldTable-item-header'
         }).inject(this.main);
 
@@ -483,7 +483,7 @@ ka.FieldProperty = new Class({
             noWrapper: true,
             width: '180px',
             style: 'display: inline-block;'
-        }, header);
+        }, this.header);
 
         this.iKey.setValue(pKey?pKey:'property_'+count);
 
@@ -505,7 +505,7 @@ ka.FieldProperty = new Class({
                     }
                 }.bind(this));
             }.bind(this))
-            .inject(header);
+            .inject(this.header);
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
@@ -517,7 +517,7 @@ ka.FieldProperty = new Class({
                     return false;
                 this.main.inject(this.main.getPrevious('.ka-fieldTable-item'), 'before');
             }.bind(this))
-            .inject(header);
+            .inject(this.header);
 
 
             new Element('a', {
@@ -530,14 +530,14 @@ ka.FieldProperty = new Class({
                     return false;
                 this.main.inject(this.main.getNext(), 'after');
             }.bind(this))
-            .inject(header);
+            .inject(this.header);
 
         }
 
         var showDefinition = new Element('div', {
             'class': 'ka-fieldTable-showDefinition',
             style: 'width: 220px;'
-        }).inject(header);
+        }).inject(this.header);
 
         var ch = new ka.Checkbox(showDefinition);
         ch.addEvent('change', function(){
@@ -558,7 +558,7 @@ ka.FieldProperty = new Class({
                 text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
                 style: 'color: gray',
                 'class': 'ka-fieldTable-key-info'
-            }).inject(header);
+            }).inject(this.header);
         }
 
         var main = new Element('div',{'class': 'ka-fieldTable-definition',style: 'background-color: #e5e5e5'}).inject(this.main);
@@ -741,6 +741,8 @@ ka.FieldProperty = new Class({
 
             }
         }
+
+        this.fireEvent('set');
     }
 
 });

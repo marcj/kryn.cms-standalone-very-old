@@ -1699,7 +1699,7 @@ var admin_system_module_edit = new Class({
                                 label: t('Label field'),
                                 desc: t('Default field for the label.'),
                                 type: 'text',
-                                modifier: 'camelcase|trim'
+                                modifier: 'camelcase|trim|lcfirst'
                             },
                             nested: {
                                 label: t('Nested Sets'),
@@ -2060,7 +2060,7 @@ var admin_system_module_edit = new Class({
         var iKey = new ka.Field({
             type: 'text',
             noWrapper: true,
-            modifier: 'camelcase|trim',
+            modifier: 'camelcase|trim|lcfirst',
             value:pKey?pKey:''
         }, leftTd);
 
@@ -2140,15 +2140,34 @@ var admin_system_module_edit = new Class({
 
             new Element('div', {
                 style: 'padding: 5px; color: gray',
-                text: t("These keys represent the real column names in the SQL table. All keys has to be lowercased underscored. Later, you'll access these field through camelCased name, since it will be camelcased through the ORM.")
+                text: t("You have to enter the keys as camelCased one. In the real table, we convert it to underscore, but you will work always with the camelCased version through the ORM.")
             }).inject(dialog.content);
 
             var fieldTable = new ka.FieldTable(dialog.content, this.win, {
                 addLabel: t('Add field'),
                 mode: 'object',
-                keyModifier: 'underscore',
+                keyModifier: 'camelcase|trim|lcfirst',
                 withTableDefinition: true,
                 withoutChildren: true
+            });
+
+
+            fieldTable.addEvent('add', function(item){
+                //todo, add span to item and listen on item.getelement(input) bla
+                item.underscoreDisplay = new Element('div', {
+                    'text': 'bla',
+                    style: 'padding: 0px 5px; color: gray;'
+                }).inject(item.header);
+
+                var updateUnderscore = function(){
+                    var ucv = item.iKey.getValue().replace(/([^a-z])/g, function($1){return "_"+$1.toLowerCase().replace(/[^a-z]/, '');});
+                    item.underscoreDisplay.set('text', ucv);
+                };
+
+                item.iKey.addEvent('change', updateUnderscore);
+                item.addEvent('set', updateUnderscore);
+
+                updateUnderscore();
             });
 
             if (tr.definition.fields)

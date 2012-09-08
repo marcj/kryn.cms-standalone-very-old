@@ -561,7 +561,7 @@ class Propel extends ORMAbstract {
         foreach ($pValues as $fieldName => $fieldValue){
 
             $field = $this->getField($fieldName);
-                var_dump($field); exit;
+            if (!$field) continue;
             $fieldName = ucfirst($fieldName);
 
             if ($field['type'] == 'object' || $this->tableMap->hasRelation($fieldName)){

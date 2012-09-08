@@ -36,7 +36,7 @@ abstract class ORMAbstract {
      * @return array
      */
     public function &getField($pFieldKey){
-        return $this->definition['fields'][strtolower($pFieldKey)];
+        return $this->definition['fields'][$pFieldKey];
     }
 
     /**

@@ -185,10 +185,11 @@ class Utils {
      *
      * @see appLock()
      * 
-     * @param  string $pMutexId
+     * @param  string $pId
+     * @param  int    $pTimeout Default is 30sec
      * @return bool
      */
-    public static function appTryLock($pId){
+    public static function appTryLock($pId, $pTimeout = 30){
 
         //already aquired by this process?
         if (self::$lockedKeys[$pId] === true) return true;
@@ -226,5 +227,5 @@ class Utils {
 }
 
 
-//when we'll be loaded, then we register our 
+//when we'll be loaded, then we register our releaseLocks 
 register_shutdown_function('\Core\Utils::releaseLocks');

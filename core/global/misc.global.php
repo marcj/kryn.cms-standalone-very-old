@@ -51,6 +51,10 @@ function underscore2Camelcase($pValue){
   return $return;
 }
 
+function camelcase2Underscore($pValue){
+    return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $pValue));
+}
+
 /**
  * Replaces escaped ' back
  *
