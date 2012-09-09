@@ -47,7 +47,8 @@ var test_test = new Class({
 
         new ka.Field({
             type: 'fieldTable',
-            fieldWidth: '100%'
+            fieldWidth: '100%',
+            asFrameworkColumn: true
         }, div);
 
     }

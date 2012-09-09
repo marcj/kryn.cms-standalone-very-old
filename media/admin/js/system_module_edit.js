@@ -1734,8 +1734,8 @@ var admin_system_module_edit = new Class({
         this.dialog = this.win.newDialog('', true);
 
         this.dialog.setStyles({
-            height: '80%',
-            width: '90%'
+            height: '95%',
+            width: '95%'
         });
         this.dialog.center();
 
@@ -1883,12 +1883,10 @@ var admin_system_module_edit = new Class({
                                 type: 'fieldTable',
                                 needValue: 'default',
                                 desc: t('For tables or select boxes.'),
-                                options: {
-                                    asFrameworkColumn: true,
-                                    withoutChildren: true,
-                                    tableitem_title_width: 200,
-                                    addLabel: t('Add column')
-                                }
+                                asFrameworkColumn: true,
+                                withoutChildren: true,
+                                tableitem_title_width: 200,
+                                addLabel: t('Add column')
                             },
                             chooserFieldDataModelField: {
                                 label: t('Label key'),
@@ -2030,12 +2028,10 @@ var admin_system_module_edit = new Class({
                                 label: t('Columns in the chooser table'),
                                 needValue: 'default',
                                 type: 'fieldTable',
-                                options: {
-                                    asFrameworkColumn: true,
-                                    withoutChildren: true,
-                                    tableitem_title_width: 200,
-                                    addLabel: t('Add column')
-                                }
+                                asFrameworkColumn: true,
+                                withoutChildren: true,
+                                tableitem_title_width: 200,
+                                addLabel: t('Add column')
                             },
                             'chooserBrowserDataModel': {
                                 type: 'select',

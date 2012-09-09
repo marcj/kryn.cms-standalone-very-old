@@ -221,7 +221,6 @@ ka.FieldProperty = new Class({
         },
         width: {
             label: t('Width'),
-            input_width: 100,
             desc: t('Use a px value or a % value. Example: 25%, 50, 35px')
         },
         primaryKey: {
@@ -479,6 +478,8 @@ ka.FieldProperty = new Class({
             'class': 'ka-fieldProperty-item'
         }).inject(this.container);
 
+        this.main.store('ka.FieldProperty', this);
+
         this.tdLabel = new Element('td').inject(this.tr);
 
         this.iKey = new ka.Field({
@@ -488,6 +489,19 @@ ka.FieldProperty = new Class({
         }, this.tdLabel);
 
         this.iKey.setValue(this.key?this.key:'property_'+count);
+
+
+        if (this.options.asFrameworkColumn){
+            this.tdWidth = new Element('td', {width: 80}).inject(this.tr);
+
+            var width = Object.clone(this.kaFields.width);
+            width.noWrapper = true;
+            this.widthField = new ka.Field(width, this.tdWidth);
+
+            this.widthField.setValue(this.definition && this.definition.width?this.definition.width:'');
+
+        }
+
 
         this.tdType = new Element('td', {width: 150}).inject(this.tr);
 
@@ -506,8 +520,20 @@ ka.FieldProperty = new Class({
         .inject(this.tdProperties);
 
         this.tdActions = new Element('td', {
-            width: 50
+            width: 80
         }).inject(this.tr);
+
+
+        if (!this.options.withoutChildren){
+
+            new Element('a', {
+                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
+                title: _('Add children'),
+                html: '&#xe109;'
+            })
+            .addEvent('click', this.addChild.bind(this, '', {}))
+            .inject(this.tdActions);
+        }
 
         if (this.options.withActions){
 
@@ -594,6 +620,10 @@ ka.FieldProperty = new Class({
 
         this.fieldObject.getField('type').setValue(this.typeField.getValue(), true);
 
+        if (this.options.asFrameworkColumn){
+            this.fieldObject.getField('width').setValue(this.widthField.getValue(), true);
+        }
+
         new ka.Button(t('Cancel'))
         .addEvent('click', this.dialog.close)
         .inject(this.dialog.bottom);
@@ -606,6 +636,10 @@ ka.FieldProperty = new Class({
             }
 
             this.definition = this.fieldObject.getValue();
+            this.typeField.setValue(this.definition.type);
+            if (this.options.asFrameworkColumn)
+                this.widthField.setValue(this.definition.width);
+
             this.dialog.close();
 
         }.bind(this))
@@ -615,98 +649,81 @@ ka.FieldProperty = new Class({
         this.dialog.center();
 
         return;
-
-        this.kaParse.addEvent('change', this.fireChange);
-
-        this.main.store('kaParse', this.kaParse);
-
-        this.childDiv = new Element('div', {
-            'class': 'ka-fieldTable-children'
-        }).inject(this.main);
-
-        this.main.store('dependDiv', this.childDiv);
-
-        if (!this.options.withoutChildren){
-            var btnDiv = Element('div', {
-                style: 'padding-top: 3px; padding-left: 10px;'
-            }).inject(this.main)
-
-            new ka.Button(t('Add child'))
-            .addEvent('click', function(){
-                this.children.include(new ka.FieldProperty('child_key_'+(this.childDiv.getChildren().length+1), {}, this.childDiv, this.options));
-            }.bind(this))
-            .inject(btnDiv);
-        }
-
-        if (pDefinition && typeOf(pDefinition) == 'object'){
-            //do some migration stuff and setValue
-
-            this.setValue(pKey, pDefinition);
-        }
     },
 
     fireChange: function(){
         this.fireEvent('change');
     },
 
+    addChild: function(pKey, pDefinition){
+
+        if (!this.childContainer){
+
+            this.childTr = new Element('tr').inject(this.tr, 'after');
+
+            this.childTd = new Element('td', {
+                colspan: this.tr.getChildren().length
+            }).inject(this.childTr);
+
+            this.childDiv = new Element('div', {
+                style: 'margin-left: 25px'
+            }).inject(this.childTd);
+
+            this.childContainer = new Element('table', {
+                width: '100%'
+            }).inject(this.childDiv);
+
+        }
+
+        new ka.FieldProperty(pKey, pDefinition, this.childContainer, this.options, this.win);
+
+    },
+
     getValue: function(){
 
         var key = this.iKey.getValue();
+        var type = this.typeField.getValue();
+
         if (!key) return;
 
-        var kaParse = this.kaParse;
-        var property = kaParse.getValue();
+        this.definition.type = type;
+
+        var property = this.definition;
 
         Object.each(property, function(pval, pkey){
-            if(pval === ''){
-                delete property[pkey];
-                return;
-            }
 
-            /*
-             * Convert JSON notation to javascript objects
-             */
+            if(typeOf(pval) != 'string') return;
 
-            if (!kaParse.fields[pkey]) return;
+            var newItem = false;
 
-            var type = kaParse.fields[pkey].field.type;
-            if(type == 'text' || !type) {
+            try {
 
-                if(typeOf(pval) != 'string') return;
+                //check if json array
+                if (pval.substr(0,1) == '[' && pval.substr(pval.length-1) == ']'&&
+                    pval.substr(0,2) != '[[' && pval.substr(pval.length-2) != ']]')
+                    newItem = JSON.decode(pval);
 
-                var newItem = false;
+                //check if json object
+                if (pval.substr(0,1) == '{' && pval.substr(pval.length-1,1) == '}')
+                    newItem = JSON.decode(pval);
 
-                try {
+            } catch(e){}
 
-                    //check if json array
-                    if (pval.substr(0,1) == '[' && pval.substr(pval.length-1) == ']'&&
-                        pval.substr(0,2) != '[[' && pval.substr(pval.length-2) != ']]')
-                        newItem = JSON.decode(pval);
-
-                    //check if json object
-                    if (pval.substr(0,1) == '{' && pval.substr(pval.length-1,1) == '}')
-                        newItem = JSON.decode(pval);
-
-                } catch(e){}
-
-                if (newItem)
-                    property[pkey] = newItem;
-
-            }
+            if (newItem)
+                property[pkey] = newItem;
 
         }.bind(this));
 
-        if (!this.options.withoutChildren){
+        if (!this.options.withoutChildren && this.childContainer){
             property.children = {};
 
-            this.children.each(function(child){
+            this.childContainer.getChildren('tr').each(function(child){
                 var fieldProperty = child.retrieve('ka.FieldProperty');
                 var value = fieldProperty.getValue();
-
                 property.children[value.key] = value.definition;
             });
 
-            if (Object.getLength(property.children) == 0)
+            if (Object.getLength(property.children) === 0)
                 delete property.children;
         }
 
@@ -718,11 +735,6 @@ ka.FieldProperty = new Class({
 
 
     setValue: function(pKey, pDefinition){
-
-        if(pDefinition.type == 'select' && pDefinition.table_id){
-            pDefinition.table_key = pDefinition.table_id+'';
-            delete pDefinition.table_id;
-        }
 
         if(pDefinition.type == 'select' && pDefinition.tableItems){
             if (typeOf(pDefinition.tableItems) == 'object')
@@ -745,21 +757,10 @@ ka.FieldProperty = new Class({
             }
         }
 
-        Object.each(pDefinition, function(value, valueKey){
-
-            if (!this.kaParse.fields[valueKey]) return;
-
-            var type = this.kaParse.fields[valueKey].field.type;
-            if((type == 'text' || !type) && typeOf(value) != 'string')
-                pDefinition[valueKey] = JSON.encode(value);
-
-        }.bind(this));
-
-
 
         this.iKey.setValue(pKey);
-
-        this.kaParse.setValue(pDefinition);
+        this.definition = pDefinition;
+        this.typeField.setValue(pDefinition.type);
 
         delete this.children;
 
@@ -770,7 +771,7 @@ ka.FieldProperty = new Class({
             if (pDefinition.children){
                 Object.each(pDefinition.children, function(definition, key){
 
-                    this.children.include(new ka.FieldProperty(key, {}, this.childDiv, this.options));
+                    this.addChild(key, definition);
 
                 }.bind(this));
 
