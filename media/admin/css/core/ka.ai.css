@@ -43,8 +43,10 @@ a, a:link {
 
 
 div.selectable,
+td.selectable,
 span.selectable,
 div.selectable span, div.selectable div,
+td.selectable span, td.selectable div,
 span.selectable span, div.selectable div {
     -webkit-user-select: text;
     -khtml-user-select: text;

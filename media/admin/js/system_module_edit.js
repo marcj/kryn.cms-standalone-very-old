@@ -33,8 +33,7 @@ var admin_system_module_edit = new Class({
             }).inject(this.win.content);
         }.bind(this));
 
-        this.loader = new ka.Loader().inject(this.win.content);
-        this.loader.hide();
+        this.win.setLoading(false);
 
         this.viewType('general');
     },
@@ -93,7 +92,7 @@ var admin_system_module_edit = new Class({
                     this.addPlugin(item, key)
                 }.bind(this));
             }
-            this.loader.hide();
+            this.win.setLoading(false);
 
         }.bind(this)}).get({name: this.mod});
     },
@@ -116,12 +115,12 @@ var admin_system_module_edit = new Class({
         });
 
         if (this.lr) this.lr.cancel();
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
 
         req.plugins = JSON.encode(req.plugins);
         req.name = this.mod;
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/plugins', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
+            this.win.setLoading(false);
             ka.loadSettings();
         }.bind(this)}).post(req);
 
@@ -237,9 +236,9 @@ var admin_system_module_edit = new Class({
 
     saveDocu: function () {
         if (this.lr) this.lr.cancel();
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
+            this.win.setLoading(false);
         }.bind(this)}).post({text: this.text.getValue(), /*lang: this.languageSelect.value, */name: this.mod});
     },
 
@@ -266,7 +265,7 @@ var admin_system_module_edit = new Class({
             this.text.setValue(res);
         }.bind(this)}).get({/*lang: this.languageSelect.value, */name: this.mod});
 
-        this.loader.hide();
+        this.win.setLoading(false);
     },
 
     saveWindows: function () {
@@ -277,7 +276,7 @@ var admin_system_module_edit = new Class({
         if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/windows', noCache: 1,
         onComplete: function (pResult) {
-            this.loader.hide();
+            this.win.setLoading(false);
             this._renderWindows(pResult.data);
         }.bind(this)}).get({name: this.mod});
     },
@@ -447,7 +446,7 @@ var admin_system_module_edit = new Class({
     loadDb: function () {
         if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/model', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
+            this.win.setLoading(false);
             this._renderDb(res.data);
         }.bind(this)}).get({name: this.mod});
     },
@@ -518,7 +517,7 @@ var admin_system_module_edit = new Class({
         if (this.lr) this.lr.cancel();
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/getHelp', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
+            this.win.setLoading(false);
             this._renderHelp(res);
 
         }.bind(this)}).post({name: this.mod/*, lang: this.languageSelect.value*/});
@@ -560,10 +559,10 @@ var admin_system_module_edit = new Class({
 //        req.lang = this.languageSelect.value;
         req.name = this.mod;
         req.help = JSON.encode(items);
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveHelp', noCache: 1, onComplete: function () {
-            this.loader.hide();
+            this.win.setLoading(false);
         }.bind(this)}).post(req);
     },
 
@@ -620,7 +619,7 @@ var admin_system_module_edit = new Class({
         if (this.lr) this.lr.cancel();
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
+            this.win.setLoading(false);
             this._renderLinks(res.data);
         }.bind(this)}).get({name: this.mod});
     },
@@ -633,51 +632,429 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px; padding: 5px;',
             text: t('Show definitions')
         }).inject(this.panes['links']);
-        this.layoutPaneItems = p;
 
-        var ch = new ka.Checkbox(p);
-        ch.addEvent('change', function(){
-            if (!ch.getValue())
-                p.addClass('admin-system-modules-hide-layoutSettings');
-            else
-                p.removeClass('admin-system-modules-hide-layoutSettings');
+        this.entryPointsTable = new Element('table', {
+            'class': 'ka-Table-body'
         });
-        ch.setValue(0);
-        p.addClass('admin-system-modules-hide-layoutSettings');
+
+        this.entryPointsHeader = new Element('table', {
+            'class': 'ka-Table-head'
+        });
+
+        var tr = new Element('tr').inject(this.entryPointsHeader);
+        new Element('th', {text: 'Key'}).inject(tr);
+        new Element('th', {width: 250, text: 'Title'}).inject(tr);
+        new Element('th', {width: 250, text: 'Type'}).inject(tr);
+        new Element('th', {width: 250, text: 'Actions'}).inject(tr);
+
+        this.entryPointsHeader.inject(p);
+        this.entryPointsTable.inject(p);
+
+
+        this.entryPointSettingsFields = {
+            title: {
+                label: t('Title'),
+                desc: t('Surround the value with [[ and ]] to make it multilingual.')
+            },
+            type: {
+                label: t('Type'),
+                type: 'select',
+                items: {
+                    'acl': t('Default'),
+                    store: t('Store'),
+                    'function': t('Background function'),
+                    custom: t('[Window] Custom'),
+                    iframe: t('[Window] iFrame'),
+                    list: t('[Window] Framework list'),
+                    edit: t('[Window] Framework edit'),
+                    add: t('[Window] Framework add'),
+                    combine: t('[Window] Framework Combine')
+                },
+                children: {
+                    __info_store__: {
+                        needValue: 'store',
+                        label: t('Use a own class or a table name'),
+                        type: 'label'
+                    },
+                    __info_form__: {
+                        needValue: ['list', 'edit', 'add', 'combine'],
+                        label: t('Use a own class or select a form'),
+                        type: 'label'
+                    },
+                    'class': {
+                        label: t('PHP Class'),
+                        desc: t('Scheme: module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
+                        needValue: ['list', 'edit', 'add', 'combine', 'store']
+                    },
+                    functionType: {
+                        needValue: 'function',
+                        type: 'select',
+                        label: t('Function type'),
+                        items: {
+                            global: t('Call global defined function'),
+                            code: t('Execture code')
+                        },
+                        depends: {
+                            functionName: {
+                                type: 'text',
+                                label: t('Function name'),
+                                needValue: 'global'
+                            },
+                            functionCode: {
+                                type: 'codemirror',
+                                needValue: 'code',
+                                codemirrorOptions: {
+                                    mode: 'javascript'
+                                },
+                                label: t('Javascript code')
+                            }
+                        }
+                    },
+                    __or__: {
+                        label: t('or'),
+                        type: 'label',
+                        needValue: 'store'
+                    },
+                    table: {
+                        label: t('Table'),
+                        needValue: 'store',
+                        children: {
+                            table_key: {
+                                label: t('Table primary column'),
+                                needValue: function(n){if(n!='')return true;else return false;}
+                            },
+                            table_label: {
+                                label: t('Table label column'),
+                                needValue: function(n){if(n!='')return true;else return false;}
+
+                            }
+                        }
+                    },
+                    '__info_js_name__': {
+                        type: 'label',
+                        needValue: 'custom',
+                        label: t('File name and class information'),
+                        help: 'admin/extension-custom-javascript',
+                        desc: t('Javascript file: media/&lt;extKey&gt;/admin/js/&lt;pathWithUnderscore&gt;.js and class name: &lt;extKey&gt;_&lt;pathWithUnderscore&gt;.')
+                    }
+                }
+            },
+            isLink: {
+                label: t('Is link in administration menu bar?'),
+                desc: t('Only in the first and second level.'),
+                type: 'checkbox',
+                needValue: ['list', 'add', 'edit', 'combine', 'custom'],
+                againstField: 'type',
+                children: {
+                    icon: {
+                        needValue: 1,
+                        label: t('Icon (Optional)'),
+                        desc: t('Relative to media/'),
+                        type: 'text'
+                    }
+                }
+            },
+            __optional__: {
+                label: t('Optional'),
+                type: 'childrenSwitcher',
+                needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                againstField: 'type',
+                children: {
+                    multi: {
+                        label: t('Allow multiple instances?'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'checkbox'
+                    },
+                    minWidth: {
+                        label: t('Min width'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    minHeight: {
+                        label: t('Min height'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    defaultWidth: {
+                        label: t('Default width'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    defaultHeight: {
+                        label: t('Default height'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+
+                    fixedWidth: {
+                        label: t('Fixed width'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    },
+                    fixedHeight: {
+                        label: t('Fixed height'),
+                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
+                        againstField: 'type',
+                        type: 'number'
+                    }
+                }
+            }
+        };
+
 
         if (pConfig.admin) {
             Object.each(pConfig.admin, function (link, key) {
-                this._linksAddNewLevel(key, link, p);
+                this.entryPointsAdd(key, link, this.entryPointsTable);
             }.bind(this));
         }
 
         var buttonBar = new ka.ButtonBar(this.panes['links']);
 
         buttonBar.addButton(t('Add link'), function () {
-            var count = p.getChildren().length;
-            this._linksAddNewLevel('first_lvl_id_'+(count+1), {}, p);
+            var count = this.entryPointsTable.getElements('tr').length;
+            this.entryPointsAdd('first_lvl_id_'+(count+1), {}, this.entryPointsTable);
         }.bind(this));
 
-        buttonBar.addButton(t('Save'), this.saveLinks.bind(this));
+        this.entryPointsSaveButton = buttonBar.addButton(t('Save'), this.saveLinks.bind(this));
+        this.entryPointsSaveButton.setButtonStyle('blue');
+
+    },
+
+    entryPointsAdd: function(pKey, pDefinition, pContainer){
+
+        if (pContainer.get('tag') == 'tr'){
+            if (!pContainer.childContainer){
+                var childTr  = new Element('tr', {'class': 'ka-entryPoint-childrenContainer'}).inject(pContainer, 'after');
+                var childTd  = new Element('td', {colspan: 4}).inject(childTr);
+                var childDiv = new Element('div', {style: 'margin-left: 25px;'}).inject(childTd);
+                pContainer.childTr = childTr;
+                pContainer.childContainer = new Element('table', {width: '100%'}).inject(childDiv);
+            }
+            pContainer = pContainer.childContainer;
+        }
+
+        var tr = new Element('tr', {'class': 'ka-entryPoint-item'}).inject(pContainer);
+
+        //KEY
+        var td = new Element('td').inject(tr);
+        var div = new Element('div', {style: 'position: relative;'}).inject(td);
+        new Element('div', {'class': 'icon-arrow-right-5', style: 'position: absolute; left: -15px; top: 3px;'}).inject(div);
+
+
+        tr.definition = pDefinition;
+
+        tr.key = new ka.Field({
+            type: 'text',
+            noWrapper: true,
+            modifier: 'dash|trim'
+        }, td);
+
+        tr.getValue = function(){
+
+            tr.definition.type = tr.typeField.getValue();
+            tr.definition.title = tr.titleField.getValue();
+            var data = tr.definition;
+
+            if (tr.childContainer){
+                data.children = {};
+                tr.childContainer.getChildren('.ka-entryPoint-item').each(function(item){
+                    var itemValue = item.getValue();
+                    data.children[itemValue.key] = itemValue.definition;
+                });
+            }
+
+            return {key: tr.key.getValue(), definition: data};
+
+        };
+
+
+        if (pKey) tr.key.setValue(pKey);
+
+
+        //TITLE
+        td = new Element('td', {width: 250}).inject(tr);
+
+        tr.titleField = new ka.Field({
+            type: 'text',
+            noWrapper: true,
+            modifier: 'phpfunction|trim'
+        }, td);
+
+        if (pDefinition && pDefinition.title) tr.titleField.setValue(pDefinition.title);
+
+
+        //TYPE
+        td = new Element('td', {width: 250}).inject(tr);
+
+        var typeField = Object.clone(this.entryPointSettingsFields.type);
+        delete typeField.children;
+        typeField.noWrapper = true;
+        tr.typeField = new ka.Field(typeField, td);
+
+        if (pDefinition && pDefinition.type) tr.typeField.setValue(pDefinition.type);
+
+
+        //ACTIONS
+        var tdActions = new Element('td', {width: 250}).inject(tr);
+
+        new ka.Button(t('Settings'))
+        .addEvent('click', function(){
+
+            var dialog = this.win.newDialog('', true);
+
+            dialog.setStyle('width', '90%');
+            dialog.setStyle('height', '90%');
+
+            var fieldObject = new ka.Parse(dialog.content, this.entryPointSettingsFields, {
+                allTableItems: true,
+                tableitem_title_width: 300
+            });
+
+            fieldObject.setValue(tr.definition);
+
+            fieldObject.getField('type').setValue(tr.typeField.getValue(), true);
+            fieldObject.getField('title').setValue(tr.titleField.getValue(), true);
+
+            new ka.Button(t('Cancel'))
+            .addEvent('click', dialog.close)
+            .inject(dialog.bottom);
+
+            new ka.Button(t('Apply'))
+            .addEvent('click', function(){
+
+                if (!fieldObject.isValid()){
+                    return;
+                }
+                
+                tr.definition = fieldObject.getValue();
+                tr.typeField.setValue(tr.definition.type);
+                tr.titleField.setValue(tr.definition.title);
+
+                dialog.close();
+
+            }.bind(this))
+            .setButtonStyle('blue')
+            .inject(dialog.bottom);
+
+            dialog.center();
+
+
+
+        }.bind(this))
+        .inject(tdActions);
+
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
+            title: _('Add children'),
+            html: '&#xe109;'
+        })
+        .addEvent('click', this.entryPointsAdd.bind(this, 'phpControllerClass', {}, tr))
+        .inject(tdActions);
+
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
+            title: _('Remove'),
+            html: '&#xe26b;'
+        })
+        .addEvent('click', function(){
+            this.win._confirm(t('Really delete?'), function(ok){
+                if(ok){
+                    this.fireEvent('delete');
+                    this.removeEvents('change');
+                    tr.destroy();
+                    if (tr.childTr) tr.childTr.destroy();
+                }
+            }.bind(this));
+        }.bind(this))
+        .inject(tdActions);
+
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: t('Move up'),
+            html: '&#xe2ca;'
+        })
+        .addEvent('click', function(){
+
+            var previous = tr.getPrevious('.ka-entryPoint-item');
+            if (!previous) return;
+            tr.inject(previous, 'before');
+
+            if (tr.childTr) tr.childTr.inject(tr, 'after');
+
+        }.bind(this))
+        .inject(tdActions);
+
+
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: t('Move down'),
+            html: '&#xe2cc;'
+        })
+        .addEvent('click', function(){
+
+            var next = tr.getNext('.ka-entryPoint-item');
+            if (!next) return;
+            tr.inject(next.childTr || next, 'after');
+
+            if (tr.childTr) tr.childTr.inject(tr, 'after');
+
+        }.bind(this))
+        .inject(tdActions);
+
+
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: t('Open'),
+            html: '&#xe28d;'
+        })
+        .addEvent('click', function(){
+
+            if (['list', 'add', 'edit', 'combine', 'custom'].contains(tr.definition.type)){
+                var extension = this.mod;
+                var parent = tr, code = tr.key.getValue();
+                while ((parent = parent.getParent('.ka-entryPoint-childrenContainer')) && (parent = parent.getPrevious('.ka-entryPoint-item'))){
+
+                    code = parent.key.getValue() + '/' + code;
+                }
+                code = extension+'/'+code;
+                ka.wm.open(code);
+                logger(code);
+            }
+
+        }.bind(this))
+        .inject(tdActions);
+
+
+        if (pDefinition.children) {
+            Object.each(pDefinition.children, function (link, key) {
+                this.entryPointsAdd(key, link, tr);
+            }.bind(this));
+        }
 
     },
 
     saveLinks: function () {
 
-        var admin = {};
-
-        this.layoutPaneItems.getChildren('.ka-extension-manager-links-item').each(function(item){
-            var input = item.getElement('input');
-            admin[input.value ] = this._getLayoutSetting(item);
-        }.bind(this));
+        var entryPoints = {};
+        
+        this.entryPointsTable.getChildren('.ka-entryPoint-item').each(function(item){
+            var itemData = item.getValue();
+            entryPoints[itemData.key] = itemData.definition;
+        });
 
         var req = {};
         req.name = this.mod;
-        req.entryPoints = JSON.encode(admin);
-        this.loader.show();
+        req.entryPoints = JSON.encode(entryPoints);
+        this.win.setLoading(true, t('Saving ...'));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/entryPoints', noCache: 1, onComplete: function () {
-            this.loader.hide();
+            this.win.setLoading(false);
             ka.loadSettings();
             ka.loadMenu();
         }.bind(this)}).post(req);
@@ -1172,27 +1549,27 @@ var admin_system_module_edit = new Class({
 
         req.name = this.mod;
 
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/general', noCache: 1, onComplete: function () {
-            this.loader.hide();
+            this.win.setLoading(false);
         }.bind(this)}).post(req);
     },
 
     loadGeneral: function () {
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
         if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
             this._loadGeneral(pResult.data);
-            this.loader.hide();
+            this.win.setLoading(false);
         }.bind(this)}).get({name: this.mod});
     },
 
     loadLayouts: function () {
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
         if (this.lr) this.lr.cancel();
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
             this._loadLayouts(pResult.data);
-            this.loader.hide();
+            this.win.setLoading(false);
         }.bind(this)}).get({name: this.mod});
     },
 
@@ -1220,7 +1597,7 @@ var admin_system_module_edit = new Class({
     },
 
     saveLayouts: function () {
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
 
         var themes = {};
         this.panes['layouts'].getElements('div[class=themeContainer]').each(function (container) {
@@ -1251,7 +1628,7 @@ var admin_system_module_edit = new Class({
         });
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function () {
-            this.loader.hide();
+            this.win.setLoading(false);
             ka.loadSettings();
         }.bind(this)}).post({name: this.mod, themes: JSON.encode(themes) });
     },
@@ -1523,7 +1900,9 @@ var admin_system_module_edit = new Class({
     loadLanguage: function () {
 
 
-        this.loader.hide();
+        
+        this.win.setLoading(false);
+        
         if (this.lr) this.lr.cancel();
         var div = this.panes['language'];
         div.empty();
@@ -1610,7 +1989,7 @@ var admin_system_module_edit = new Class({
                 }.bind(this));
             }
 
-            this.loader.hide();
+            this.win.setLoading(false);
 
         }.bind(this)}).get({name: this.mod});
     },
@@ -2582,7 +2961,7 @@ var admin_system_module_edit = new Class({
             if (pResult.data) {
                 this.extraFieldsObj.setValue(pResult.data);
             }
-            this.loader.hide();
+            this.win.setLoading(false);
 
         }.bind(this)}).get({name: this.mod});
 
@@ -2594,10 +2973,10 @@ var admin_system_module_edit = new Class({
         var req =this.extraFieldsObj.getValue();
         req.name = this.mod;
 
-        this.loader.show();
+        this.win.setLoading(true, t('Saving ...'));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/saveExtras', noCache: 1, onComplete: function () {
-            this.loader.hide();
+            this.win.setLoading(false);
             ka.loadSettings();
         }.bind(this)}).post(req);
     },
@@ -2610,7 +2989,7 @@ var admin_system_module_edit = new Class({
         this.buttons[pType].setPressed(true);
         this.panes[pType].setStyle('display', 'block');
 
-        this.loader.show();
+        this.win.setLoading(true, t('Loading ...'));
         if (this.lr) this.lr.cancel();
 
         this.lastType = pType;

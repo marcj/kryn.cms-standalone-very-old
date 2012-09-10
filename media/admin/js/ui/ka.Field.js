@@ -88,7 +88,7 @@ ka.Field = new Class({
                 this.tr.store('ka.Field', this);
 
                 this.title = new Element('td', {
-                    'class': 'ka-field-tdtitle',
+                    'class': 'ka-field-tdtitle selectable',
                     width: (this.field.tableitem_title_width) ? this.field.tableitem_title_width : '40%'
                 }).inject(this.tr);
 
@@ -103,23 +103,12 @@ ka.Field = new Class({
                 });
                 this.main.store('ka.Field', this);
 
-                if (this.field.type == 'headline') {
-                    new Element('div', {
-                        style: 'clear: both;'
-                    }).inject(this.main);
-                    new Element('h2', {
-                        'class': 'ka-field-headline',
-                        html: t(this.field.label)
-                    }).inject(this.main);
-                    return;
-                }
-
                 if (this.field.small) {
                     this.main.set('class', 'ka-field-main ka-field-main-small');
                 }
 
                 this.title = new Element('div', {
-                    'class': 'ka-field-title'
+                    'class': 'ka-field-title selectable'
                 }).inject(this.main);
 
                 this.main.inject(pContainer || document.hidden);

@@ -1192,7 +1192,7 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
 
     var hasActiveChilds = false;
 
-    Object.each(pLink.childs, function (item, code) {
+    Object.each(pLink.children, function (item, code) {
 
         if (!item.isLink) return;
 
@@ -1209,7 +1209,7 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
             })
         }
 
-        Object.each(item.childs, function (subitem, subcode) {
+        Object.each(item.children, function (subitem, subcode) {
 
             if (!subitem.isLink) return;
 
@@ -1348,133 +1348,6 @@ ka.addAdminLink = function (pLink, pCode, pExtCode) {
 
 }
 
-/*
- * @deprecated
- * @param pLinks
- * @param pModule
- */
-ka.addModuleLink = function (pLinks, pModule) {
-    var moduleContainer = new Element('div', {
-        'class': 'ka-module-container'
-    }).inject(ka.moduleItems);
-
-    $H(pLinks).each(function (pLink, code) {
-        if (pLink == null) return;
-
-        var mlink = new Element('a', {
-            html: pLink.title,
-            'class': 'ka-subnavi-main',
-            styles: {
-                'background-image': (pLink.icon) ? 'url(' + _path + PATH_MEDIA + pLink.icon + ')' : 'none;'
-            }
-        }).inject(moduleContainer);
-        pLink.module = pModule;
-        pLink.code = code;
-        mlink.store('link', pLink);
-
-        ka._links[ pModule + '/' + code ] = {
-            level: 'sub',
-            object: mlink,
-            link: pLink,
-            module: pModule,
-            code: code,
-            path: pModule + '/' + code,
-            title: pLink.title
-        };
-
-        ka.linkClick(mlink);
-
-
-        var childs = $H(pLink.childs);
-        if (childs.getLength() > 0) {
-            var subnavi = new Element('div', {
-                'class': 'ka-subnavi-npa'
-                /*'class': 'ka-subnavi',
-                 styles: {
-                 opacity: 0,
-                 display: 'block'
-                 }*/
-            }).inject(ka.moduleItems);
-
-            //ecken
-            new Element('img', {
-                'class': 'ka-subnavi-top-left',
-                'src': _path + PATH_MEDIA + '/admin/images/ka-submenu-top-left.png'
-            }).inject(subnavi);
-            new Element('img', {
-                'class': 'ka-subnavi-bottom-left',
-                'src': _path + PATH_MEDIA + '/admin/images/ka-submenu-bottom-left.png'
-            }).inject(subnavi);
-
-            var linkCount = 0;
-            childs.each(function (item, key) {
-
-                if (item.isLink === false) return;
-                linkCount++;
-
-                var title = (!item.titleNavi ) ? item.title : item.titleNavi;
-
-
-                var smlink = new Element('a', {
-                    'class': 'ka-subnavi',
-                    html: title
-                }).addEvent('mouseover',
-                    function () {
-                        mlink.store('allowToDisappear', false);
-                    }).addEvent('mouseout',
-                    function () {
-                        //pLink.store( 'allowToDisappear', false );
-                        mlink.fireEvent('mouseout');
-                    }).inject(subnavi);
-
-
-                item.module = pModule;
-                item.code = code + '/' + key;
-                smlink.store('link', item);
-
-                ka._links[ pModule + '/' + code + '/' + key ] = {
-                    level: 'sub',
-                    object: smlink,
-                    link: item,
-                    module: pModule,
-                    code: code + '/' + key,
-                    path: pModule + '/' + code + '/' + key,
-                    title: title
-                };
-
-                ka.linkClick(smlink);
-            });
-
-            if (linkCount == 0) {
-                return;
-            }
-
-            /*var pos = mlink.getPosition(ka.moduleItems);
-             var size = subnavi.getSize();
-
-             subnavi.setStyles({
-             top: pos.y-5,
-             right: (size.x)*-1
-             });
-             //subnavi.setStyle('display', 'none');
-
-             mlink.addEvent('mouseover', function(){
-             this.store( 'allowToDisappear', false );
-             //subnavi.setStyle('display', 'block');
-             subnavi.setStyle('opacity', 1);
-             });
-             mlink.addEvent('mouseout', function(){
-             mlink.store( 'allowToDisappear', true );
-             (function(){
-             if( mlink.retrieve('allowToDisappear') ){
-             //subnavi.setStyle('display', 'none');
-             subnavi.setStyle('opacity', 0);
-             }
-             }).delay(100);
-             });*/
-        }
-    });
-}
 
 ka.destroyLinkContext = function () {
 

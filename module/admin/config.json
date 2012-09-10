@@ -118,13 +118,13 @@
             "multi": true,
             "fixedWidth": 300,
             "fixedHeight": 200,
-            "childs": {
+            "children": {
                 "desktopSettings": {
                     "title": "[[Desktop settings]]",
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -134,13 +134,13 @@
                     "type": "list",
                     "isLink": false,
                     "multi": true,
-                    "childs": {
+                    "children": {
                         "doAction": {
                             "title": "add",
                             "type": "custom",
                             "isLink": true,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -151,7 +151,7 @@
                     "type": "custom",
                     "isLink": true,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -160,13 +160,13 @@
                     "type": "custom",
                     "isLink": true,
                     "multi": true,
-                    "childs": {
+                    "children": {
                         "edit": {
                             "title": "[[Edit]]",
                             "type": "custom",
                             "isLink": false,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -177,7 +177,7 @@
                     "type": "custom",
                     "isLink": true,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -189,13 +189,13 @@
                     "minWidth": 950,
                     "defaultWidth": 1000,
                     "defaultHeight": 550,
-                    "childs": {
+                    "children": {
                         "publish": {
                             "title": "[[Publish]]",
                             "type": "custom",
                             "isLink": false,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -206,7 +206,7 @@
                             "multi": true,
                             "minWidth": 950,
                             "defaultWidth": 950,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -215,7 +215,7 @@
                             "type": "custom",
                             "isLink": false,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -224,7 +224,7 @@
                             "type": "custom",
                             "isLink": false,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -235,7 +235,7 @@
                             "multi": true,
                             "minWidth": 700,
                             "minHeight": 500,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -246,20 +246,20 @@
                     "type": "custom",
                     "isLink": true,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
                 "development": {
                     "title": "[[Development]]",
                     "isLink": true,
-                    "childs": {
+                    "children": {
                         "database": {
                             "title": "[[Database]]",
                             "type": "custom",
                             "isLink": true,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -268,7 +268,7 @@
                             "type": "custom",
                             "isLink": true,
                             "multi": true,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -277,7 +277,7 @@
                             "type": "custom",
                             "isLink": true,
                             "multi": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -288,7 +288,7 @@
                             "multi": false,
                             "minWidth": 450,
                             "minHeight": 350,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -299,7 +299,7 @@
         "backend": {
             "title": "[[Backend access]]",
             "isLink": false,
-            "childs": {
+            "children": {
                 "chooser": {
                     "title": "[[Chooser]]",
                     "type": "custom",
@@ -307,21 +307,21 @@
                     "multi": true,
                     "minWidth": 600,
                     "minHeight": 300,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
                 "stores": {
                     "title": "[[Stores]]",
                     "isLink": false,
-                    "childs": {
+                    "children": {
                         "groups": {
                             "table_key": "id",
                             "table_label": "name",
                             "table": "system_groups",
                             "type": "store",
                             "isLink": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -331,7 +331,7 @@
                             "table": "system_langs",
                             "type": "store",
                             "isLink": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -339,14 +339,14 @@
                             "class": "adminStoreExtensions",
                             "type": "store",
                             "isLink": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
                         "domains": {
                             "type": "store",
                             "isLink": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -360,7 +360,7 @@
             "icon": "#icon-home-5",
             "isLink": true,
             "multi": true,
-            "childs": [
+            "children": [
                 
             ]
         },
@@ -370,13 +370,13 @@
             "icon": "#icon-screen-2",
             "isLink": true,
             "multi": true,
-            "childs": {
+            "children": {
                 "addDialog": {
                     "title": "[[Add pages]]",
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -385,7 +385,7 @@
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -394,7 +394,7 @@
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 }
@@ -406,13 +406,13 @@
             "icon": "#icon-folder",
             "isLink": true,
             "multi": true,
-            "childs": {
+            "children": {
                 "edit": {
                     "title": "[[File edit]]",
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -421,14 +421,14 @@
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
                 "systemfiles": {
                     "title": "[[System files]]",
                     "isLink": false,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -437,7 +437,7 @@
                     "type": "custom",
                     "isLink": false,
                     "multi": true,
-                    "childs": [
+                    "children": [
                         
                     ]
                 }
@@ -448,7 +448,7 @@
             "type": "custom",
             "isLink": false,
             "multi": true,
-            "childs": [
+            "children": [
                 
             ]
         }

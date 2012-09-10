@@ -164,8 +164,8 @@ window.ka.entrypoint = {
         path.push(tempEntry['title']);
 
         while(item = splitted.shift()){
-            if (tempEntry.childs && tempEntry.childs[item]){
-                tempEntry = tempEntry.childs[item];
+            if (tempEntry.children && tempEntry.children[item]){
+                tempEntry = tempEntry.children[item];
                 path.push(tempEntry['title']);
             } else {
                 notFound = true;

@@ -548,6 +548,7 @@ ka.FieldProperty = new Class({
                         this.fireEvent('delete');
                         this.removeEvents('change');
                         this.main.destroy();
+                        if (!this.childTr) this.childTr.destroy();
                     }
                 }.bind(this));
             }.bind(this))
@@ -559,9 +560,13 @@ ka.FieldProperty = new Class({
                 html: '&#xe2ca;'
             })
             .addEvent('click', function(){
-                if (!this.main.getPrevious())
-                    return false;
-                this.main.inject(this.main.getPrevious(), 'before');
+
+                var previous = this.main.getPrevious('.ka-fieldProperty-item');
+                if (!previous) return;
+                this.main.inject(previous, 'before');
+
+                if (this.childTr) this.childTr.inject(this.main, 'after');
+
             }.bind(this))
             .inject(this.tdActions);
 
@@ -572,9 +577,14 @@ ka.FieldProperty = new Class({
                 html: '&#xe2cc;'
             })
             .addEvent('click', function(){
-                if (!this.main.getNext())
-                    return false;
-                this.main.inject(this.main.getNext(), 'after');
+
+                var next = this.main.getNext('.ka-fieldProperty-item');
+                if (!next) return;
+                this.main.inject(next.childTr || next, 'after');
+
+                if (this.childTr) this.childTr.inject(this.main, 'after');
+
+
             }.bind(this))
             .inject(this.tdActions);
 
@@ -597,7 +607,7 @@ ka.FieldProperty = new Class({
             }).inject(this.header);
         }*/
 
-        var main = new Element('div',{'class': 'ka-fieldTable-definition',style: 'background-color: #e5e5e5'}).inject(this.dialog.content);
+        var main = new Element('div', {'class': 'ka-fieldTable-definition', style: 'background-color: #e5e5e5'}).inject(this.dialog.content);
 
         var fieldContainer;
 
@@ -660,6 +670,7 @@ ka.FieldProperty = new Class({
         if (!this.childContainer){
 
             this.childTr = new Element('tr').inject(this.tr, 'after');
+            this.main.childTr = this.childTr;
 
             this.childTd = new Element('td', {
                 colspan: this.tr.getChildren().length
