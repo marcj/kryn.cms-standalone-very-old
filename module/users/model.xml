@@ -14,33 +14,25 @@
     <foreign-key foreignTable="system_user">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
-
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
   </table>
-
-
   <table name="system_group" phpName="Group" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="close" type="INTEGER" required="false"/>
     <column name="name" type="VARCHAR" size="255" required="false"/>
-    <column name="description" type="LONGVARCHAR" required="false"/>
-
+    <column name="description" type="VARCHAR" required="false"/>
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
-
   </table>
-
-
   <table name="system_user" phpName="User" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="username" type="VARCHAR" size="255" required="true"/>
     <column name="auth_class" type="VARCHAR" size="255" required="false"/>
     <column name="passwd" type="LONGVARCHAR" required="false"/>
     <column name="passwd_salt" type="VARCHAR" size="64" required="false"/>
-    <column name="activationkey" type="VARCHAR" size="255" required="false"/>
     <column name="email" type="VARCHAR" size="255" required="false"/>
     <column name="desktop" type="OBJECT" required="false"/>
     <column name="settings" type="OBJECT" required="false"/>
@@ -50,8 +42,7 @@
     <column name="sex" type="INTEGER" required="false"/>
     <column name="logins" type="INTEGER" required="false"/>
     <column name="lastlogin" type="INTEGER" required="false"/>
-    <column name="activate" type="BOOLEAN" required="false"/>
-
+    <column name="activate" type="" required="false"/>
     <column name="picture" type="VARCHAR" size="255" required="false"/>
     <column name="company" type="VARCHAR" size="255" required="false"/>
     <column name="street" type="VARCHAR" size="255" required="false"/>
@@ -60,26 +51,22 @@
     <column name="country" type="VARCHAR" size="255" required="false"/>
     <column name="phone" type="VARCHAR" size="255" required="false"/>
     <column name="fax" type="VARCHAR" size="255" required="false"/>
-
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
     <column name="created" type="BIGINT"/>
     <column name="modified" type="BIGINT"/>
+    <column name="activation_key" type="VARCHAR"/>
   </table>
-
   <table name="system_user_group" isCrossRef="true" phpName="UserGroup">
     <column name="user_id" type="INTEGER" primaryKey="true" required="true"/>
     <column name="group_id" type="INTEGER" primaryKey="true" required="true"/>
-
-    <foreign-key foreignTable="system_user">
+    <foreign-key foreignTable="system_user" phpName="groupMembership">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
-
-    <foreign-key foreignTable="system_group" phpName="GroupMembership">
+    <foreign-key foreignTable="system_group" phpName="groupMembership">
       <reference local="group_id" foreign="id"/>
     </foreign-key>
-
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>

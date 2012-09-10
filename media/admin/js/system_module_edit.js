@@ -458,10 +458,11 @@ var admin_system_module_edit = new Class({
         req.name = this.mod;
         req.model = this.dbEditor.getValue();
 
-        this.loader.show();
+        this.saveButton.startTip(t('Saving ...'));
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/model', noCache: 1, onComplete: function () {
-            this.loader.hide();
+
+            this.updateORM();
             ka.loadSettings();
         }.bind(this)}).post(req);
     },
@@ -503,10 +504,8 @@ var admin_system_module_edit = new Class({
             href: 'http://www.propelorm.org/documentation/02-buildtime.html'
         }).inject(info);
 
-        buttonBar.addButton(t('Save'), this.saveDb.bind(this));
-        buttonBar.addButton(t('ORM update'), function () {
-            ka.wm.open('admin/system/development/orm', {doUpdate: 1});
-        }.bind(this));
+        this.saveButton = buttonBar.addButton(t('Save'), this.saveDb.bind(this));
+        this.saveButton.setButtonStyle('blue');
 
     },
 
@@ -694,7 +693,7 @@ var admin_system_module_edit = new Class({
         Object.each(res, function(v,k){
             if (v === '')
                 delete res[k];
-        })
+        });
 
         res['childs'] = {};
 
@@ -708,7 +707,7 @@ var admin_system_module_edit = new Class({
 
     _createLayoutLinkSettings: function (pSub, pLink) {
 
-        var table = new Element('table', {width: '100%'}).inject(pSub)
+        var table = new Element('table', {width: '100%'}).inject(pSub);
         var tbody = table;
 
         var kaFields = {
@@ -1594,17 +1593,13 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         var buttonBar = new ka.ButtonBar(this.panes['objects']);
-        buttonBar.addButton(t('ORM update'), function () {
-            ka.wm.open('admin/system/development/orm', {doUpdate: 1});
-        }.bind(this));
-
         buttonBar.addButton([t('Add object'), '#icon-plus-alt'], function(){
             this.addObject();
         }.bind(this));
 
-        this.objectSaveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
+        this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
 
-        document.id(this.objectSaveButton).addClass('ka-Button-blue');
+        document.id(this.saveButton).addClass('ka-Button-blue');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1,
         onComplete: function (pResult) {
@@ -1640,7 +1635,7 @@ var admin_system_module_edit = new Class({
     },
 
     printOrmError: function(pResponse){
-        this.objectSaveButton.stopTip(t('Failed.'));
+        this.saveButton.stopTip(t('Failed.'));
 
         var div = new Element('div');
 
@@ -1666,20 +1661,20 @@ var admin_system_module_edit = new Class({
 
     updateORM: function(){
 
-        this.objectSaveButton.startTip(t('Object saved. Write model.xml ...'));
+        this.saveButton.startTip(t('Object saved. Write model.xml ...'));
 
         this.updateOrmWriteModel(function(){
-            this.objectSaveButton.startTip(t('Saved. Update PHP models ...'));
+            this.saveButton.startTip(t('Saved. Update PHP models ...'));
             this.updateOrm('models', function(response){
                 if (response.error){
                     this.printOrmError(response);
                 } else {
-                    this.objectSaveButton.startTip(t('Saved. Update database tables ...'));
+                    this.saveButton.startTip(t('Saved. Update database tables ...'));
                     this.updateOrm('update', function(response){
                         if (response.error){
                             this.printOrmError(response);
                         } else {
-                            this.objectSaveButton.startTip(t('Done.'));
+                            this.saveButton.stopTip(t('Done.'));
                         }
                     }.bind(this));
                 }
@@ -1715,7 +1710,7 @@ var admin_system_module_edit = new Class({
         });
 
         if (this.lr) this.lr.cancel();
-        this.objectSaveButton.startTip(t('Saving ...'));
+        this.saveButton.startTip(t('Saving ...'));
 
         var req = {};
         req.objects = JSON.encode(objects);
@@ -2141,12 +2136,6 @@ var admin_system_module_edit = new Class({
         .inject(actionTd);
 
 
-        if (pDefinition && pDefinition.dataModel != 'custom'){
-            new ka.Button(t('Write model'), this.writeObjectModel.bind(this, pKey))
-            .inject(actionTd);
-        }
-
-
         if (pDefinition){
             new ka.Button(t('Window wizard'))
             .addEvent('click', this.openObjectWizard.bind(this,pKey, pDefinition))
@@ -2166,32 +2155,6 @@ var admin_system_module_edit = new Class({
             });
         }.bind(this))
         .inject(actionTd);
-
-//        var a = new Element('a', {
-//            text: t('Fields'),
-//            style: 'display: block; padding: 2px; cursor: pointer'
-//        }).inject(right2Td);
-//
-//        new Element('img', {
-//            src: _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png',
-//            style: 'margin-left: 3px; margin-right: 3px;'
-//        }).inject(a, 'top');
-//
-//        var propertyPanel = new Element('div', {
-//            style: 'display: none; margin: 15px; margin-top: 5px; border: 1px solid silver; background-color: #e7e7e7;',
-//            'class': 'ka-extmanager-plugins-properties-panel'
-//        }).inject(bottomTd);
-//
-//        a.addEvent('click', function(){
-//            if (propertyPanel.getStyle('display') == 'block'){
-//                propertyPanel.setStyle('display', 'none');
-//                this.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_plus.png');
-//            } else {
-//                propertyPanel.setStyle('display', 'block');
-//                this.getElement('img').set('src', _path+ PATH_MEDIA + '/admin/images/icons/tree_minus.png');
-//            }
-//
-//        });
 
         fieldsBtn.addEvent('click', function(){
 

@@ -242,7 +242,7 @@
                 },
                 "passwd": {
                     "label": "[[Password]]",
-                    "type": "password"
+                    "type": "textarea"
                 },
                 "passwdSalt": {
                     "type": "text"
