@@ -355,10 +355,7 @@
             "isLink": false,
             "multi": false,
             "defaultWidth": 650,
-            "defaultHeight": 400,
-            "childs": [
-                
-            ]
+            "defaultHeight": 400
         },
         "users": {
             "title": "[[Users]]",
@@ -369,7 +366,7 @@
             "multi": false,
             "minWidth": 650,
             "defaultWidth": 650,
-            "childs": {
+            "children": {
                 "add": {
                     "title": "[[Users add]]",
                     "class": "\\Users\\Admin\\UserEdit",
@@ -378,7 +375,7 @@
                     "multi": false,
                     "defaultWidth": 500,
                     "defaultHeight": 410,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -390,7 +387,7 @@
                     "multi": false,
                     "defaultWidth": 500,
                     "defaultHeight": 410,
-                    "childs": [
+                    "children": [
                         
                     ]
                 },
@@ -402,18 +399,18 @@
                     "multi": false,
                     "defaultWidth": 370,
                     "defaultHeight": 520,
-                    "childs": {
+                    "children": {
                         "groups": {
                             "title": "[[Can edit groups]]",
                             "isLink": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
                         "username": {
                             "title": "[[Can change username]]",
                             "isLink": false,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -425,7 +422,7 @@
                     "type": "combine",
                     "isLink": true,
                     "multi": false,
-                    "childs": {
+                    "children": {
                         "edit": {
                             "title": "[[Group edit]]",
                             "class": "usersAdminGroupEdit",
@@ -434,7 +431,7 @@
                             "multi": false,
                             "fixedWidth": 475,
                             "fixedHeight": 200,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         },
@@ -446,7 +443,7 @@
                             "multi": false,
                             "fixedWidth": 375,
                             "fixedHeight": 200,
-                            "childs": [
+                            "children": [
                                 
                             ]
                         }
@@ -461,7 +458,7 @@
                     "minHeight": 500,
                     "defaultWidth": 870,
                     "defaultHeight": 500,
-                    "childs": [
+                    "children": [
                         
                     ]
                 }

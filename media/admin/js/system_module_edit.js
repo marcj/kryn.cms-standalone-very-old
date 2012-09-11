@@ -882,8 +882,7 @@ var admin_system_module_edit = new Class({
 
         tr.titleField = new ka.Field({
             type: 'text',
-            noWrapper: true,
-            modifier: 'phpfunction|trim'
+            noWrapper: true
         }, td);
 
         if (pDefinition && pDefinition.title) tr.titleField.setValue(pDefinition.title);
