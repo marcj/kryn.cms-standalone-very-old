@@ -328,9 +328,9 @@ class Editor {
                         $foreignKey['foreignTable'] = $table;
 
                         if ($table == $foreignObject['table']){
-                            $foreignKey['phpName'] = $pFieldKey.ucfirst($pField['object']);
+                            $foreignKey['phpName'] = ucfirst($pFieldKey).ucfirst($pField['object']);
                         } else {
-                            $foreignKey['phpName'] = $pFieldKey.ucfirst($pObject);
+                            $foreignKey['phpName'] = ucfirst($pFieldKey).ucfirst($pObject);
                         }
 
                         foreach ($keys as $k => $v){
