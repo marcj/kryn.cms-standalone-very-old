@@ -1270,7 +1270,7 @@ ka.Window = new Class({
         this.bottomBar = new Element('div', {
             'class': 'ka-windowEdit-actions',
             style: 'bottom: 0px'
-        }).inject(this.resizeBottomRight, 'before');
+        }).inject(this.content, 'after');
 
         this.bottomBar.addButton = function (pTitle, pOnClick) {
             var button = new ka.Button(pTitle).inject(this.bottomBar);

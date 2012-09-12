@@ -277,9 +277,7 @@
                             "type": "custom",
                             "isLink": true,
                             "multi": false,
-                            "children": [
-                                
-                            ]
+                            "minWidth": 650
                         },
                         "restLogger": {
                             "title": "[[Rest logger]]",
@@ -292,7 +290,8 @@
                                 
                             ]
                         }
-                    }
+                    },
+                    "type": "acl"
                 }
             }
         },
@@ -315,16 +314,6 @@
                     "title": "[[Stores]]",
                     "isLink": false,
                     "children": {
-                        "groups": {
-                            "table_key": "id",
-                            "table_label": "name",
-                            "table": "system_groups",
-                            "type": "store",
-                            "isLink": false,
-                            "children": [
-                                
-                            ]
-                        },
                         "languages": {
                             "table_key": "code",
                             "table_label": "title",
@@ -333,7 +322,8 @@
                             "isLink": false,
                             "children": [
                                 
-                            ]
+                            ],
+                            "title": ""
                         },
                         "extensions": {
                             "class": "adminStoreExtensions",
@@ -341,18 +331,14 @@
                             "isLink": false,
                             "children": [
                                 
-                            ]
-                        },
-                        "domains": {
-                            "type": "store",
-                            "isLink": false,
-                            "children": [
-                                
-                            ]
+                            ],
+                            "title": ""
                         }
-                    }
+                    },
+                    "type": "acl"
                 }
-            }
+            },
+            "type": "acl"
         },
         "overview": {
             "title": "[[Dashboard]]",
@@ -430,7 +416,8 @@
                     "isLink": false,
                     "children": [
                         
-                    ]
+                    ],
+                    "type": "acl"
                 },
                 "properties": {
                     "title": "[[Properties]]",

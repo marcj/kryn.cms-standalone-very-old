@@ -964,8 +964,8 @@ var admin_system_module_edit = new Class({
         .addEvent('click', function(){
             this.win._confirm(t('Really delete?'), function(ok){
                 if(ok){
-                    this.fireEvent('delete');
-                    this.removeEvents('change');
+                    tr.fireEvent('delete');
+                    tr.removeEvents('change');
                     tr.destroy();
                     if (tr.childTr) tr.childTr.destroy();
                 }
