@@ -64,7 +64,6 @@ class AdminController {
         if (!$entryPoint)
             $entryPoint = Utils::getEntryPoint(substr($url, strlen('admin/'))); //extensions
         
-
         if ($entryPoint) {
 
             //is window entry point?
