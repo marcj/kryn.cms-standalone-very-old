@@ -349,14 +349,6 @@
         }
     },
     "admin": {
-        "browser": {
-            "title": "[[User and group browse dialog]]",
-            "type": "custom",
-            "isLink": false,
-            "multi": false,
-            "defaultWidth": 650,
-            "defaultHeight": 400
-        },
         "users": {
             "title": "[[Users]]",
             "class": "\\Users\\Admin\\UserList",
@@ -405,14 +397,16 @@
                             "isLink": false,
                             "children": [
                                 
-                            ]
+                            ],
+                            "type": "acl"
                         },
                         "username": {
                             "title": "[[Can change username]]",
                             "isLink": false,
                             "children": [
                                 
-                            ]
+                            ],
+                            "type": "acl"
                         }
                     }
                 },
