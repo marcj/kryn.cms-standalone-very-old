@@ -38,79 +38,33 @@ var admin_system_module_editWindow = new Class({
         this.tabPane = new ka.TabPane(this.win.content, true, this.win);
 
         this.generalTab = this.tabPane.addPane(t('General'));
-        this.windowTabEdit  = this.tabPane.addPane(t('Window'));
-        this.windowTabList  = this.tabPane.addPane(t('Window'));
+        
+        this.windowTabEdit  = this.tabPane.addPane(t('Edit/Add'));
+        this.windowTabList  = this.tabPane.addPane(t('List/Combine'));
+
         this.methodTab  = this.tabPane.addPane(t('Class methods'));
         this.customMethodTab  = this.tabPane.addPane(t('Custom methods'));
 
-        this.windowTabList.hide();
+        //this.windowTabList.hide();
 
-        this.btnGroup = this.win.addButtonGroup();
-        this.saveBtn = this.btnGroup.addButton(t('Save'), _path + PATH_MEDIA + '/admin/images/button-save.png', this.save.bind(this));
+        this.btnGroup = this.win.addBottomBar();
+        this.saveBtn = this.btnGroup.addButton(t('Save'), null, this.save.bind(this));
+
+        this.saveBtn.setButtonStyle('blue');
 
         var generalFields = {
             '__file__': {
                 label: t('File'),
                 disabled: true
+            },  
+            object: {
+                needValue: 'object',
+                label: t('Object key')
             },
-            'class': {
-                label: t('Class'),
-                type: 'select',
-                items: {
-                    adminWindowEdit: t('Window edit'),
-                    adminWindowAdd: t('Window add'),
-                    adminWindowList: t('Window list'),
-                    adminWindowCombine: t('Window combine')
-                },
-                onChange: function(value){
-
-                    this.win._confirm(t('This change requires a reload of the whole editor. Unchanged content will be lost. Continue?'),
-                    function(a){
-
-                        if (a){
-                            this.generalObj.getField('class').setValue(value);
-                            this.lastClass = value;
-
-                            //reload
-                            this.useThisClassAfterReload = value;
-                            this.loadInfo();
-                        }
-
-                    }.bind(this));
-
-                    this.generalObj.getField('class').setValue(this.lastClass);
-
-                    this.lastClass = value;
-
-                }.bind(this)
-            },
-            dataModel: {
-                label: t('Data source'),
-                type: 'select',
-                items: {
-                    object: t('Object'),
-                    table: t('Table')
-                },
-                depends: {
-                    table: {
-                        needValue: 'table',
-                        label: t('Table name')
-                    },
-                    primary: {
-                        needValue: 'table',
-                        label: t('Primary field')
-                    },
-                    object: {
-                        needValue: 'object',
-                        label: t('Object key')
-                    },
-                    preview: {
-                        needValue: 'object',
-                        label: t('Preview possibility'),
-                        desc: t('Requires defined plugins at the object'),
-                        type: 'checkbox'
-                    }
-                }
+            preview: {
+                label: t('Preview possibility'),
+                desc: t('Requires defined views/plugins at the object'),
+                type: 'checkbox'
             },
 
             titleField: {
@@ -143,8 +97,8 @@ var admin_system_module_editWindow = new Class({
 
             __optional__: {
                 label: t('Optional'),
-                type: 'childrenswitcher',
-                depends: {
+                type: 'childrenSwitcher',
+                children: {
                     versioning: {
                         label: t('Versioning'),
                         type: 'checkbox',
@@ -490,10 +444,10 @@ var admin_system_module_editWindow = new Class({
 
         this.win.setLoading(true);
 
-        this.lr = new Request.JSON({url: _path+'admin/system/module/getWindowDefinition', noCache:1,
+        this.lr = new Request.JSON({url: _path+'admin/system/module/editor/windowDefinition', noCache:1,
         onComplete: this.renderWindowDefinition.bind(this)}).get({
             name: this.win.params.module,
-            'class': this.win.params.className,
+            'className': this.win.params.className,
             parentClass: this.useThisClassAfterReload
         });
 
@@ -501,7 +455,7 @@ var admin_system_module_editWindow = new Class({
 
     renderWindowDefinition: function(pDefinition){
 
-        this.definition = pDefinition;
+        this.definition = pDefinition.data;
 
         if (this.useThisClassAfterReload){
             this.definition['class'] = this.useThisClassAfterReload;
@@ -511,12 +465,11 @@ var admin_system_module_editWindow = new Class({
         this.lastClass = this.definition['class'];
 
         //compatibility
-        pDefinition.properties.dataModel = pDefinition.properties.object?'object':'table';
+        this.definition.properties.dataModel = this.definition.properties.object?'object':'table';
 
-        this.generalObj.setValue(pDefinition.properties);
-        this.generalObj.getField('class').setValue(this.definition['class']);
+        this.generalObj.setValue(this.definition.properties);
 
-        this.loadWindowClass(pDefinition['class']);
+        this.loadWindowClass(this.definition['class']);
 
         if (!this.definition.methods)
             this.definition.methods = {};
@@ -1086,7 +1039,7 @@ var admin_system_module_editWindow = new Class({
         });
 
         win.closer.removeEvents('click');
-        win.minimizer.removeEvents('click');
+        //win.minimizer.removeEvents('click');
         win.linker.destroy();
 
         return win;
@@ -1101,28 +1054,26 @@ var admin_system_module_editWindow = new Class({
 
     loadWindowClass: function(pClass){
 
-        this.windowEditAddTabBtn.hide();
-        this.windowEditAddFieldBtn.hide();
-        this.windowEditAddPredefinedFieldBtn.hide();
+        //this.windowEditAddTabBtn.hide();
+        //this.windowEditAddFieldBtn.hide();
+        //this.windowEditAddPredefinedFieldBtn.hide();
 
-        this.windowTabEdit.hide();
-        this.windowTabList.hide();
+        //this.windowTabEdit.hide();
+        //this.windowTabList.hide();
 
-        if (pClass == 'adminWindowList' || pClass == 'adminWindowCombine'){
-            this.windowTabList.show();
+        //if (pClass == 'adminWindowList' || pClass == 'adminWindowCombine'){
+        //    this.windowTabList.show();
 
             var listFields = {
 
 
-                columns: {
+                fields: {
 
                     label: t('Columns'),
                     type: 'fieldTable',
-                    options: {
-                        asFrameworkColumn: true,
-                        withoutChildren: true,
-                        addLabel: t('Add column')
-                    }
+                    asFrameworkColumn: true,
+                    withoutChildren: true,
+                    addLabel: t('Add column')
 
                 },
 
@@ -1133,14 +1084,14 @@ var admin_system_module_editWindow = new Class({
                     '&lt;div id="title"&gt;&lt;/div&gt;<br/>'+
                     '&lt;div style="font-size: 10px;" id="subtitle"&gt;&lt;/div&gt;',
                     type: 'codemirror',
-                    input_height: 150,
-                    input_width: '98%'
+                    inputHeight: 150
                 },
 
                 itemsPerPage: {
 
                     label: t('Items per page'),
-                    type: 'number'
+                    type: 'number',
+                    inputWidth: 120
 
                 },
 
@@ -1169,9 +1120,9 @@ var admin_system_module_editWindow = new Class({
                 },
 
                 __search__: {
-                    type: 'childrenswitcher',
+                    type: 'childrenSwitcher',
                     label: 'Search',
-                    depends: {
+                    children: {
                         __search__kind__: {
                             type: 'select',
                             input_width: 150,
@@ -1180,7 +1131,7 @@ var admin_system_module_editWindow = new Class({
                                 quick: t('Quickdefinition from defined columns'),
                                 custom: t('Complete custom fields')
                             },
-                            depends: {
+                            children: {
                                 filter: {
                                     type: 'text',
                                     needValue: 'quick',
@@ -1190,7 +1141,7 @@ var admin_system_module_editWindow = new Class({
                                 filterCustom: {
                                     label: t('Search fields'),
                                     needValue: 'custom',
-                                    type: 'feeeeieldTable',
+                                    type: 'fieldTable',
                                     options: {
                                         asFrameworkSearch: true,
                                         withoutChildren: true,
@@ -1207,14 +1158,14 @@ var admin_system_module_editWindow = new Class({
                 __actions__: {
 
                     label: t('Actions'),
-                    type: 'childrenswitcher',
-                    depends: {
+                    type: 'childrenSwitcher',
+                    children: {
 
                         add: {
 
                             label: t('Add functionality'),
                             type: 'checkbox',
-                            depends: {
+                            children: {
                                 addIcon: {
                                     label: t('Icon file'),
                                     type: 'file',
@@ -1236,7 +1187,7 @@ var admin_system_module_editWindow = new Class({
 
                             label: t('Edit functionality'),
                             type: 'checkbox',
-                            depends: {
+                            children: {
                                 editIcon: {
                                     label: t('Icon file'),
                                     type: 'file',
@@ -1261,7 +1212,7 @@ var admin_system_module_editWindow = new Class({
 
                             label: t('Remove functionality'),
                             type: 'checkbox',
-                            depends: {
+                            children: {
 
                                 removeIcon: {
                                     label: t('Icon file'),
@@ -1315,8 +1266,8 @@ var admin_system_module_editWindow = new Class({
 
                 __export__: {
                     label: t('Export'),
-                    type: 'childrenswitcher',
-                    depends: {
+                    type: 'childrenSwitcher',
+                    children: {
                         export: {
                             label: t('Export'),
                             type: 'checkbox',
@@ -1324,7 +1275,7 @@ var admin_system_module_editWindow = new Class({
                         },
 
 
-                        export_types: {
+                        /*export_types: {
                             label: t('Types'),
                             needValue: 1,
                             againstField: 'export',
@@ -1334,7 +1285,7 @@ var admin_system_module_editWindow = new Class({
                                 json: t('JSON'),
                                 xml: t('XML')
                             }
-                        },
+                        },*/
 
                         export_custom: {
                             needValue: 1,
@@ -1408,11 +1359,11 @@ var admin_system_module_editWindow = new Class({
             }
 
             this.windowListObj.setValue(this.definition.properties);
-        }
+        //}
 
-        if (pClass == 'adminWindowEdit' || pClass == 'adminWindowAdd'){
+        //if (pClass == 'adminWindowEdit' || pClass == 'adminWindowAdd'){
 
-            this.windowTabEdit.show();
+        //    this.windowTabEdit.show();
             this.windowEditAddTabBtn.show();
             this.windowEditAddFieldBtn.show();
             this.windowEditAddPredefinedFieldBtn.show();
@@ -1485,7 +1436,7 @@ var admin_system_module_editWindow = new Class({
                 Object.getLength(this.definition.properties.tabFields) == 0){
                 this.addWindowEditTab('general', {label: '[[General]]', type: 'tab'});
             }
-        }
+        //}
 
 
     },
@@ -1605,8 +1556,8 @@ var admin_system_module_editWindow = new Class({
                 },
                 __optional__: {
                     label: t('More'),
-                    type: 'childrenswitcher',
-                    depends: {
+                    type: 'childrenSwitcher',
+                    children: {
                         'needValue': {
                             label: tc('kaFieldTable', 'Visibility condition (Optional)'),
                             desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")

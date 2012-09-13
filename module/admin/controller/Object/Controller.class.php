@@ -4,11 +4,6 @@ namespace Admin\Object;
 
 class Controller {
 
-
-    public function getItemLabel($pObject, $pPk){
-        
-    }
-
     public function postItem($pObject, $pPk, $pSetFields){
 
         if (!count($pSetFields))
@@ -100,14 +95,46 @@ class Controller {
         return \Core\Object::getCount($pObject);
     }
 
+    public function getItemPerUri($pUri){
+
+        list($object_key, $object_id, $params) = \Core\Object::parseUri($pUri);
+
+        $definition = \Core\Kryn::$objects[$object_key];
+        if (!$definition) throw new ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
+
+        if ($definition['chooserFieldDataModel'] == 'custom'){
+
+            $class = $definition['chooserFieldDataModelClass'];
+
+            $dataModel = new $class($object_key);
+
+            $item = $dataModel->getItem($object_id[0]);
+            return array(
+                'object' => $object_key,
+                'values' => $item
+            );
+
+        } else {
+
+            $fields[] = $definition['chooserFieldDataModelField'];
+
+            if ($definition['chooserFieldDataModelCondition']){
+                $condition = $definition['chooserFieldDataModelCondition'];
+            }
+
+            $item = \Core\Object::get($object_key, $object_id[0], array(
+                'fields' => $fields,
+                'condition' => $condition
+            ));
+
+            return $item;
+
+        }
+    }
+
     public function getItemsByUri($pUri){
 
-        if (is_numeric($pUri)){
-            //compatibility
-            $object_key = '';
-        } else {
-            list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
-        }
+        list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
 
         //check if we got an id
         if (!current($object_ids[0])){

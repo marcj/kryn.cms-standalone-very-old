@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Admin\Module;
 
 use Core\Kryn;
@@ -38,17 +37,31 @@ class Editor {
     public static function getWindows($pName) {
         Manager::prepareName($pName);
 
-        $classes   = find(PATH_MODULE . $pName . '/*.class.php');
+
+        $classes   = find(PATH_MODULE . $pName . '/*', true);
         $windows   = array();
-        $whiteList = array('windowlist', 'windowadd', 'windowedit', 'windowcombine');
+        $whiteList = array('\Admin\ObjectWindow');
+
+        $c = strlen(PATH_MODULE.$pName.'/');
 
         foreach ($classes as $class){
 
-            $content = Kryn::fileRead($class);
+            $content = SystemFile::getContent($class);
 
-            if (preg_match('/class ([a-zA-Z0-9_]*) extends (admin|)([a-zA-Z0-9_]*)\s*{/', $content, $matches)){
-                if (in_array(strtolower($matches[3]), $whiteList))
-                    $windows[] = $matches[1];
+            if (preg_match('/class[\s\t]+([a-zA-Z0-9_]+)[\s\t]+extends[\s\t]+([a-zA-Z0-9_\\\\]*)[\s\t\n]*{/', $content, $matches)){
+                if (in_array($matches[2], $whiteList)){
+
+                    $clazz = $matches[1];
+
+                    preg_match('/namespace ([a-zA-Z0-9_\\\\]*)/', $content, $namespace);
+                    $namespace = $namespace[1];
+                    if ($namespace)
+                        $clazz = $namespace.'\\'.$clazz;
+
+                    $clazz = '\\'.$clazz;
+
+                    $windows[substr($class, $c)] = $clazz;
+                }
             }
 
         }
@@ -504,4 +517,94 @@ class Editor {
 
         return $this->setConfig($pName, $config);
     }
+
+
+    public static function getWindowDefinition($pName, $pClassName){
+
+        if (!class_exists($pClassName)) throw new \ClassNotFoundException();
+
+        $reflection = new \ReflectionClass($pClassName);
+        $path = substr($reflection->getFileName(), strlen(PATH));
+
+        $content = explode("\n", SystemFile::getContent($path));
+
+        $res = array(
+            'properties' => array(
+                '__file__' => $path
+            )
+        );
+
+        $obj = new $pClassName();
+        foreach ($obj as $k => $v)
+            $res['properties'][$k] = $v;
+
+        $parent = $reflection->getParentClass();
+        $parentClass = $parent->name;
+
+        $res['class'] = $parentClass;
+
+        $methods = $reflection->getMethods();
+
+        foreach ($methods as $method){
+            if ($method->class == $pClass){
+
+                $code = '';
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+                    $code .= $content[$i]."\n";
+                }
+
+                $res['methods'][$method->name] = $code;
+            }
+        }
+
+        if (getArgv('parentClass')){
+            $parentClass = getArgv('parentClass', 2);
+        }
+
+        self::extractParentClassInformation($parentClass, $res['parentMethods']);
+
+        return $res;
+    }
+
+    public static function extractParentClassInformation($pParentClass, &$pMethods){
+
+        if (!class_exists($pParentClass)) throw new \ClassNotFoundException();
+
+        $reflection = new \ReflectionClass($pParentClass);
+        $parentPath = substr($reflection->getFileName(), strlen(PATH));
+
+        $parentContent = explode("\n", SystemFile::getContent($parentPath));
+        $parentReflection = new \ReflectionClass($pParentClass);
+
+        $methods = $parentReflection->getMethods();
+        foreach ($methods as $method){
+            if ($pMethods[$method->name]) continue;
+
+            if ($method->class == $pParentClass){
+
+                $code = '';
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+
+                    $code .= $parentContent[$i]."\n";
+                    if (strpos($parentContent[$i], '{'))
+                        break;
+
+                }
+
+                $pMethods[$method->name] = trim($code);
+            }
+        }
+
+        $parent = $parentReflection->getParentClass();
+
+        if ($parent){
+            self::extractParentClassInformation($parent->name, $pMethods);
+        }
+
+    }
+
+
+
+
+
 }

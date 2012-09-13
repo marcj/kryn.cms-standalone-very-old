@@ -2,9 +2,12 @@ ka.FieldTypes.Object = new Class({
     
     Extends: ka.FieldAbstract,
 
+    fieldTemplate: '{label}',
+
     options: {
         objects: null,
-        withoutObjectWrapper: false
+        withoutObjectWrapper: false,
+        fieldTemplate: null
     },
 
     createLayout: function(){
@@ -350,12 +353,22 @@ ka.FieldTypes.Object = new Class({
             this.lastPageChooserGetUrlRequest.cancel();
         }
 
-        this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/object-label', noCache: 1, onComplete: function (res) {
-            if (!res.error){
+        this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/object', noCache: 1, onComplete: function(response){
+            if (!response.error){
 
-                if (res.values){
-                    var definition = ka.getObjectDefinition(res.object);
-                    var value = res.values[definition.chooserFieldDataModelField];
+                if (response.data){
+                    //var definition = ka.getObjectDefinition(res.object);
+                    //var value = res.values[definition.chooserFieldDataModelField];
+                    var data = response.data;
+
+                    if (!this.options.fieldTemplate && !data.label){
+                        Object.each(data, function(item){
+                            if (!data.label) data.label = item;
+                        });
+                        if (!data.label) data.label = '';
+                    }
+
+                    var value = mowla.fetch(this.options.fieldTemplate?this.options.fieldTemplate:this.fieldTemplate, data);
 
                     this._automaticUrl = value;
                     this.input.value = value;
@@ -364,10 +377,10 @@ ka.FieldTypes.Object = new Class({
                     this._automaticUrl = '';
                 }
             } else {
-                this.input.value = res.error;
+                this.input.value = response.error;
             }
             this.input.fireEvent('blur');
-        }.bind(this)}).post({object: pUrl});
+        }.bind(this)}).get({uri: pUrl});
 
     }
 

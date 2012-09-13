@@ -18,8 +18,8 @@ var admin_system_module_edit = new Class({
         this.buttons['objects'] = this.topNavi.addButton(t('Objects'), '', this.viewType.bind(this, 'objects'));
         this.buttons['db'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'db'));
 
-        this.buttons['windows'] = this.topNavi.addButton(t('Backend Views'), '', this.viewType.bind(this, 'windows'));
-        this.buttons['plugins'] = this.topNavi.addButton(t('Frontend Views'), '', this.viewType.bind(this, 'plugins'));
+        this.buttons['windows'] = this.topNavi.addButton(t('Windows'), '', this.viewType.bind(this, 'windows'));
+        this.buttons['plugins'] = this.topNavi.addButton(t('Plugins'), '', this.viewType.bind(this, 'plugins'));
 
         this.buttons['docu'] = this.topNavi.addButton(t('Docu'), '', this.viewType.bind(this, 'docu'));
         this.buttons['help'] = this.topNavi.addButton(t('Help'), '', this.viewType.bind(this, 'help'));
@@ -282,7 +282,7 @@ var admin_system_module_edit = new Class({
     },
 
 
-    _renderWindows: function (pForms) {
+    _renderWindows: function (pWindows) {
 
         this.panes['windows'].empty();
 
@@ -305,12 +305,17 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         new Element('th', {
+            text: t('Class file'),
+            style: 'width: 360px;'
+        }).inject(tr);
+
+        new Element('th', {
             text: t('Actions'),
             style: 'width: 80px;'
         }).inject(tr);
 
-        pForms.each(function (form) {
-            this.addWindow(form);
+        Object.each(pWindows, function(form, key){
+            this.addWindow(key, form);
         }.bind(this));
 
 
@@ -321,11 +326,8 @@ var admin_system_module_edit = new Class({
     },
 
     createWindow: function(pName){
-        //prompt
-        //request, check exists
-        //create file
 
-        var dialog = this.win.newDialog('<b>'+t('New tab')+'</b>');
+        var dialog = this.win.newDialog(t('New Window'));
         dialog.setStyle('width', 400);
 
         var d = new Element('div', {
@@ -339,31 +341,38 @@ var admin_system_module_edit = new Class({
 
         new Element('td', {text: t('Window class name:')}).inject(tr);
         var td = new Element('td').inject(tr);
-        var name = new Element('input', {'class': 'text'})
+
+        var name = new ka.Field({
+            type: 'text',
+            modifier: 'phpclass'
+        }, td);
+
+        /*Element('input', {'class': 'text'})
         .addEvent('change', function(e){
             this.value = this.value.replace(/\W/, '_');
         }).addEvent('keyup', function(e){
             this.fireEvent('change');
         })
-        .inject(td);
+        .inject(td);*/
 
         var tr = new Element('tr').inject(tbody);
         new Element('td', {text: t('Class:')}).inject(tr);
+
         var td = new Element('td').inject(tr);
         var typeClass = new ka.Field({
             type: 'select', items: {
-                adminWindowAdd: 'adminWindowAdd',
-                adminWindowEdit: 'adminWindowEdit',
-                adminWindowList: 'adminWindowList',
-                adminWindowCombine: 'adminWindowCombine'
+                add: 'Add',
+                edit: 'Edit',
+                list: 'List',
+                combine: 'Combine'
             },
             noWrapper: 1,
-            input_width: 150
+            inputWidth: 150
         }, td)
 
 
         this.newWindowDialogCancelBtn = new ka.Button(t('Cancel'))
-            .addEvent('click', function(){
+        .addEvent('click', function(){
             dialog.close();
         })
         .inject(dialog.bottom);
@@ -404,7 +413,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    addWindow: function (pClassName) {
+    addWindow: function (pClassPath, pClassName) {
 
         var className = this.windowsTBody.getLast().hasClass('two')?'one':'two';
 
@@ -416,12 +425,14 @@ var admin_system_module_edit = new Class({
             text: pClassName
         }).inject(tr);
 
-        var td = new Element('td').inject(tr);
+        var td = new Element('td', {
+            text: pClassPath
+        }).inject(tr);
 
+        var td = new Element('td').inject(tr);
 
         new ka.Button(t('Edit window'))
         .addEvent('click', function(){
-
             ka.wm.open('admin/system/module/editWindow', {module: this.mod, className: pClassName});
         }.bind(this))
         .inject(td);
@@ -431,10 +442,11 @@ var admin_system_module_edit = new Class({
             title: _('Remove'),
             html: '&#xe26b;'
         }).addEvent('click', function () {
-            //delete
+            tr.destroy();
         }.bind(this)).inject(td);
 
     },
+
 
     /**
      *

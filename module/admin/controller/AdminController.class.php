@@ -160,6 +160,7 @@ class AdminController {
 
                 ->addSubController('backend', '\Admin\Object\Controller')
                     ->addGetRoute('objects', 'getItemsByUri')
+                    ->addGetRoute('object', 'getItemPerUri')
                 ->done()
 
                 //admin/system
@@ -195,6 +196,7 @@ class AdminController {
                         ->addGetRoute('config', 'getConfig')
 
                         ->addGetRoute('windows', 'getWindows')
+                        ->addGetRoute('windowDefinition', 'getWindowDefinition')
 
                         ->addGetRoute('objects', 'getObjects')
                         ->addPostRoute('objects', 'saveObjects')

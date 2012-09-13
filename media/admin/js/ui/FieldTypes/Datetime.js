@@ -3,15 +3,12 @@ ka.FieldTypes.Datetime = new Class({
     Extends: ka.FieldAbstract,
 
     createLayout: function(){
-        this.checkbox = new ka.Checkbox(this.fieldInstance.fieldPanel);
-
-        this.checkbox.addEvent('change', this.fieldInstance.fireChange);
 
         this.input = new Element('input', {
             'class': 'text ka-field-dateTime',
             type: 'text',
             style: 'width: 100%'
-        }).inject(this.fieldInstance.fireChange);
+        }).inject(this.fieldInstance.fieldPanel);
 
         this.options.time = true;
         this.datePicker = new ka.DatePicker(this.input, this.options);
