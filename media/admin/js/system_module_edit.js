@@ -2193,7 +2193,7 @@ var admin_system_module_edit = new Class({
                             'class': {
                                 needValue: 'custom',
                                 label: t('Class name'),
-                                desc: t('Class file should be under module/&lt;extKey&gt;/model/&lt;className&gt;.class.php')
+                                desc: t('Class that extends from \\Core\\ORM\\ORMAbstract.')
                             }
                         }
                     },
@@ -2217,33 +2217,29 @@ var admin_system_module_edit = new Class({
                 type: 'tab',
                 tabFullPage: true,
                 label: t('Data'),
-                depends: {
+                children: {
                     blacklistSelection: {
-                        needValue: 1,
                         label: t('Blacklist selection'),
                         desc: t('Enter fileds which are not selectable through the REST API. Comma separated.')
                     },
                     chooserIcon: {
-                        needValue: 1,
                         label: t('Chooser icon'),
                         desc: t('Relative to media/.')
                     },
                     chooserFieldType: {
-                        needValue: 1,
                         label: t('Field UI'),
                         type: 'select',
                         items: {
                             'default': 'Framework',
                             'custom': 'Custom javascript class'
                         },
-                        depends: {
+                        children: {
                             'chooserFieldJavascriptClass': {
                                 needValue: 'custom',
                                 label: t('Javascript class name'),
                                 desc: t('You can inject javascript files through extension settings to make a javascript class available.')
                             },
                             'chooserFieldDataModel': {
-                                needValue: 'default',
                                 label: t('Data source'),
                                 type: 'select',
                                 items: {
@@ -2254,7 +2250,7 @@ var admin_system_module_edit = new Class({
                                     chooserFieldDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('Have to be at module/&lt;extKey&gt;/model/&lt;className&gt;.class.php')
+                                        desc: t('A class that extends from \\Admin\\Model\\Field. Entrypoint admin/backend/object?uri=...')
                                     },
                                     chooserFieldDataModelCondition: {
                                         needValue: 'default',
@@ -2267,7 +2263,7 @@ var admin_system_module_edit = new Class({
                                 label: t('Columns'),
                                 type: 'fieldTable',
                                 needValue: 'default',
-                                desc: t('For tables or select boxes.'),
+                                desc: t('For the multiple view in a table.'),
                                 asFrameworkColumn: true,
                                 withoutChildren: true,
                                 tableitem_title_width: 200,
@@ -2299,8 +2295,7 @@ var admin_system_module_edit = new Class({
                                 depends: {
                                     chooserBrowserTreeDataModelClass: {
                                         label: t('PHP Class'),
-                                        needValue: 'custom',
-                                        desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                        desc: t('A class that extends from \\Admin\\Model\\Tree. Entrypoint admin/backend/object-tree?uri=...')
                                     }
                                 }
                             },
@@ -2390,7 +2385,6 @@ var admin_system_module_edit = new Class({
                         }
                     },
                     chooserBrowserType: {
-                        needValue: 1,
                         label: t('Browser UI (chooser)'),
                         items: {
                             'default': 'Framework',
@@ -2430,7 +2424,7 @@ var admin_system_module_edit = new Class({
                                     chooserBrowserDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('Have to be at module/&lt;extKey&gt;/model/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                        desc: t('A class that extends from \\Admin\\Model\\Browse. Entrypoint admin/backend/objects?uri=...')
                                     },
                                     chooserBrowserDataModelFields: {
                                         needValue: 'custom',

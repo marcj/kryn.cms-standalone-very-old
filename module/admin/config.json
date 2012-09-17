@@ -463,7 +463,7 @@
             "nestedLabel": "name",
             "nestedRootAsObject": 0,
             "nested": 1,
-            "class": "objectFile",
+            "class": "\\Admin\\ObjectFile",
             "dataModel": "custom",
             "multiLanguage": 0,
             "domainDepended": 0,

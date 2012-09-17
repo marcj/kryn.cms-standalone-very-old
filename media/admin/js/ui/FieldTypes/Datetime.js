@@ -21,10 +21,7 @@ ka.FieldTypes.Datetime = new Class({
             this.win.addEvent('move', this.datePicker.updatePos.bind(this.datePicker));
         }
 
-        this.datePicker.addEvent('change', function () {
-            this.fireChange();
-        }.bind(this));
-
+        this.datePicker.addEvent('change', this.fieldInstance.fireChange);
 
         if (this.options['default']) {
             var time = new Date(this.field['default']=='now'?null:this.field['default']).getTime();
