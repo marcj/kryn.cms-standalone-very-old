@@ -79,6 +79,17 @@ abstract class FALAbstract {
 
 
     /**
+     * Returns the content hash as md5.
+     *
+     * @param $pPath
+     * @return string
+     */
+    public function getMd5($pPath){
+        return md5($this->getContent($pPath));
+    }
+
+
+    /**
      * Creates a file with default permissions.
      * Creates also the full folder path if the they doesnt exist.
      * 

@@ -304,8 +304,22 @@ class File {
     public static function getFile($pPath){
 
         $fs = self::getLayer($pPath);
-        return $fs->getFile(self::normalizePath($pPath));
+        $path = self::normalizePath($pPath);
+        $file = $fs->getFile($path);
+        if (!$file) return null;
 
+        $item = dbTableFetch('system_files', array('path' => $path), 'id');
+        if (!$item){
+            //insert
+            dbInsert('system_files', array('path' => $path, 'contenthash' => $fs->getMd5($path)));
+            $id = dbLastId('id');
+        } else {
+            $id = $item['id'];
+        }
+
+        $file['id'] = $id+0;
+
+        return $file;
     }
 
 
@@ -330,7 +344,7 @@ class File {
      * @param string $pPath
      * 
      * @return int|bool|array Return false if the file doenst exist,
-     *                        return 2 if the webserver does not have access
+     *                        return -1 if the webserver does not have access
      *                        or return array with the information.
      */
     public static function getFiles($pPath){
@@ -379,7 +393,7 @@ class File {
             $vals[]  = $file['path'];
             $where[] = 'path = ?';
         }
-        $sql = 'SELECT id, path FROM %pfx%system_files WHERE 1=0 OR '.implode(' OR ', $where);
+        $sql = 'SELECT id, path FROM '.pfx.'system_files WHERE 1=0 OR '.implode(' OR ', $where);
 
         $res = dbExec($sql, $vals);
         $path2id = array();
@@ -487,7 +501,7 @@ class File {
             return PATH_MEDIA.$pId;
 
         //page bases caching here
-        $sql = 'SELECT id, path FROM %pfx%system_files WHERE id = '.($pId+0);
+        $sql = 'SELECT id, path FROM '.pfx.'system_files WHERE id = '.($pId+0);
         $item = dbExfetch($sql);
 
         return $item['path'];

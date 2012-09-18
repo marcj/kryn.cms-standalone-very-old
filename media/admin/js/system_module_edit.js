@@ -2142,6 +2142,11 @@ var admin_system_module_edit = new Class({
                         },
                         desc: t('Define a table or a own object class'),
                         depends: {
+                            'class': {
+                                needValue: 'custom',
+                                label: t('Class name'),
+                                desc: t('Class that extends from \\Core\\ORM\\ORMAbstract.')
+                            },
                             table: {
                                 needValue: 'propel',
                                 label: t('Table name'),
@@ -2160,7 +2165,8 @@ var admin_system_module_edit = new Class({
                                 depends: {
                                     nestedLabel: {
                                         needValue: 1,
-                                        label: t('Label field')
+                                        label: t('Label field'),
+                                        modifier: 'camelcase|trim|lcfirst'
                                     },
                                     nestedRootAsObject: {
                                         needValue: 1,
@@ -2169,31 +2175,28 @@ var admin_system_module_edit = new Class({
                                         depends: {
                                             nestedRootObject: {
                                                 needValue: 1,
-                                                label: t('Object key')
+                                                label: t('Object key'),
+                                                modifier: 'camelcase|trim|lcfirst'
                                             },
                                             nestedRootObjectField: {
                                                 needValue: 1,
                                                 label: t('Foreign key'),
+                                                modifier: 'camelcase|trim|lcfirst',
                                                 desc: t('Which field in the current object contains the primary value of the parent object?')
                                             },
                                             nestedRootObjectLabel: {
                                                 needValue: 1,
-                                                label: t('Label field')
+                                                label: t('Label field'),
+                                                modifier: 'camelcase|trim|lcfirst'
                                             },
                                             nestedRootObjectExtraFields: {
                                                 needValue: 1,
                                                 label: t('Extra fields (Optional)'),
-                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.'),
-                                                empty: true
+                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.')
                                             }
                                         }
                                     }
                                 }
-                            },
-                            'class': {
-                                needValue: 'custom',
-                                label: t('Class name'),
-                                desc: t('Class that extends from \\Core\\ORM\\ORMAbstract.')
                             }
                         }
                     },

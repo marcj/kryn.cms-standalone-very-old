@@ -22,7 +22,7 @@ class Local extends FALAbstract {
     public function __construct($pEntryPoint, $pParams = null){
 
         parent::__construct($pEntryPoint, $pParams);
-        if ($pParams && $pParams['root']) $this->setRoot($pRoot);
+        if ($pParams && $pParams['root']) $this->setRoot($pParams['root']);
 
     }
 
@@ -145,7 +145,7 @@ class Local extends FALAbstract {
         if(!file_exists($pPath))
             return false;
 
-        if (!is_readable($pPath)) return 2;
+        if (!is_readable($pPath)) return -1;
 
         $type = (is_dir($pPath))?'dir':'file';
 
@@ -224,6 +224,13 @@ class Local extends FALAbstract {
     public function move($pPathSource, $pPathTarget){
 
         return rename($this->getRoot().$pPathSource, $this->getRoot().$pPathTarget);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getMd5($pPath){
+        return md5_file($this->getRoot().$pPath);
     }
 
     /**

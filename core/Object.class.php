@@ -245,36 +245,30 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pPk
+     * @param mixed  $pPrimaryKey
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pPk = false, $pOptions = array()){
+    public static function get($pObjectKey, $pPrimaryKey, $pOptions = array()){
 
         $obj = self::getClass($pObjectKey);
 
-        //convert primarykey to condition
-        $condition = dbPrimaryKeyToCondition($pPk);
+        //convert primaryKey to condition
+        $primaryKey = $obj->normalizePrimaryKey($pPrimaryKey);
 
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
-        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
-
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
+        $item = $obj->getItem($primaryKey, $pOptions);
+
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($condition){
-                $condition = array($aclCondition, 'AND', $condition);
-            } else {
-                $condition = $aclCondition;
-            }
+            if (!self::satisfy($item, $aclCondition)) return false;
         }
 
-        return $obj->getItem($condition, $pOptions);
+        return $item;
 
     }
 
@@ -345,123 +339,6 @@ class Object {
     }
 
     /**
-     * Returns the list of objects.
-     *
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *  'offset'          Offset of the result set (in SQL OFFSET)
-     *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('field' => 'category', 'direction' => 'asc'),
-     *                      array('field' => 'title',    'direction' => 'asc')
-     *                    )
-     *
-     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     * @static
-     * @param string $pObjectKey
-     * @param mixed  $pPk
-     * @param mixed  $pField
-     * @param mixed  $pForeignCondition
-     * @param array  $pOptions
-     * @see \dbConditionToSql
-     * @return array|bool
-     */
-    public static function getForeignItems($pObjectKey, $pPk, $pField, $pForeignCondition = null, 
-                                          $pOptions = array()){
-
-        $obj = self::getClass($pObjectKey);
-
-        if (!$pOptions['fields']) $pOptions['fields'] = '*';
-
-        if (!$pOptions['foreignKeys'])
-            $pOptions['foreignKeys'] = '*';
-
-        $condition = dbPrimaryKeyToCondition($pPk);
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($condition){
-                $condition = array($aclCondition, 'AND', $$condition);
-            } else {
-                $$condition = $aclCondition;
-            }
-        }
-
-        $relatedField = $obj->getField($pField);
-
-        if (!$relatedField)
-            throw new \FieldNotFoundException(tf('The field %s can not be found in object %', $pField, $pObjectKey));
-
-        if ($relatedField['type'] != 'object')
-            throw new \FieldNotFoundException(tf('The field %s is not from type object (%s)', $pField, $relatedField['type']));
-
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($relatedField['object'])){
-            if ($pForeignCondition){
-                $pForeignCondition = array($aclCondition, 'AND', $pForeignCondition);
-            } else {
-                $pForeignCondition = $aclCondition;
-            }
-        }
-
-        return $obj->getForeignItems($condition, $pField, $pForeignCondition, $pOptions);
-
-    }
-
-
-    /**
-     * Returns the count of related items.
-     *
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     * @static
-     * @param string $pObjectKey
-     * @param mixed  $pCondition Condition object from the structure of dbPrimaryKeyToConditionToSql() or dbConditionToSql()
-     * @param array  $pOptions
-     * @see \dbConditionToSql
-     * @return array|bool
-     */
-    public static function getRelatedCount($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
-                                          $pOptions = array()){
-
-        $obj = self::getClass($pObjectKey);
-
-        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($pCondition){
-                $pCondition = array($aclCondition, 'AND', $pCondition);
-            } else {
-                $pCondition = $aclCondition;
-            }
-        }
-
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pRelatedObject)){
-            if ($pReleatedCondition){
-                $pReleatedCondition = array($aclCondition, 'AND', $pReleatedCondition);
-            } else {
-                $pReleatedCondition = $aclCondition;
-            }
-        }
-
-        return $obj->getRelatedCount($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
-
-    }
-
-    /**
      * Returns the class object for $pObjectKey
      *
      * @static
@@ -483,7 +360,7 @@ class Object {
             } else {
 
                 //custom
-                if (class_exists($className = $definition['class']))
+                if (!class_exists($className = $definition['class']))
                     throw new \Exception(tf('Class for %s (%s) not found.', $pObjectKey. $definition['class']));
 
                 self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
@@ -539,8 +416,8 @@ class Object {
     
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
-                if (!Acl::checkAdd($pObjectKey, $pPk, $fieldName)){
-                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
+                if (!Acl::checkAdd($pObjectKey, $pBranchPk, $fieldName)){
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pBranchPk, $pObjectKey));
                 }
             }
         }
@@ -552,7 +429,7 @@ class Object {
 
     public static function updateFromUri($pObjectUri, $pValues){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        return self::update($object_key, $object_id[0], $pValues);
+        return self::update($object_key, $object_id[0], $pValues, $params);
     }
 
     /**

@@ -35,11 +35,10 @@ class Controller {
     }
 
     /**
-     * asd 
-     * @param  [type] $pObject [description]
-     * @param  [type] $pPk     [description]
-     * @param  [type] $pFields [description]
-     * @return [type]          [description]
+     * @param $pObject
+     * @param $pPk
+     * @param null $pFields
+     * @return array|bool
      */
     public function getItem($pObject, $pPk, $pFields = null){
 
@@ -58,6 +57,15 @@ class Controller {
         }
     }
 
+    /**
+     * @param $pObject
+     * @param null $pFields
+     * @param null $pLimit
+     * @param null $pOffset
+     * @param null $pOrder
+     * @param null $_
+     * @return array|bool
+     */
     public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null,
                              $pOrder = null, $_ = null){
 
@@ -75,6 +83,10 @@ class Controller {
         
     }
 
+    /**
+     * @param $pFilter
+     * @return array|null
+     */
     public function buildFilter($pFilter){
         $condition = null;
 
@@ -90,11 +102,20 @@ class Controller {
         return $condition;
     }
 
+    /**
+     * @param $pObject
+     * @return array
+     */
     public function getCount($pObject){
 
         return \Core\Object::getCount($pObject);
     }
 
+    /**
+     * @param $pUri
+     * @return array|bool
+     * @throws ObjectNotFoundException
+     */
     public function getItemPerUri($pUri){
 
         list($object_key, $object_id, $params) = \Core\Object::parseUri($pUri);
@@ -132,6 +153,11 @@ class Controller {
         }
     }
 
+    /**
+     * @param $pUri
+     * @return array
+     * @throws \Exception
+     */
     public function getItemsByUri($pUri){
 
         list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
@@ -171,6 +197,7 @@ class Controller {
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
+
         }
 
         $res = array();
