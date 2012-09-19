@@ -221,16 +221,16 @@ abstract class ORMAbstract {
     /**
      * Returns a branch if the object is a nested set.
      *
-     * @param  mixed $pPrimaryKey
-     * @param  mixed $pCondition
-     * @param  int   $pDepth
-     * @param  int   $pScope
+     * @param bool  $pParentPrimaryKey
+     * @param bool  $pCondition
+     * @param int   $pDepth
+     * @param int   $pScope
+     * @param mixed $pOptions
      * @abstract
-     *
-     * @return  array|bool
+     * @return mixed
      */
-    abstract public function getBranch($pPrimaryKey = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-        $pOptions = false);
+    #abstract public function getBranch($pParentPrimaryKey = false, $pCondition = false, $pDepth = 1, $pScope = 0,
+    #    $pOptions = false);
 
 
     /**

@@ -253,7 +253,6 @@ class Object {
 
         $obj = self::getClass($pObjectKey);
 
-        //convert primaryKey to condition
         $primaryKey = $obj->normalizePrimaryKey($pPrimaryKey);
 
         if (!$pOptions['fields'])
@@ -314,11 +313,10 @@ class Object {
         }
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($pCondition){
+            if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
-            } else {
+            else
                 $pCondition = $aclCondition;
-            }
         }
  
         return $obj->getItems($pCondition, $pOptions);
@@ -493,15 +491,15 @@ class Object {
     /**
      * @static
      * @param string     $pObjectKey
-     * @param mixed      $pParent
+     * @param mixed      $pParentPrimaryKey
      * @param bool|array $pCondition
      * @param int        $pDepth
      * @param bool|int   $pScope
      * @param bool|array $pOptions
      * @return mixed
      */
-    public static function getTree($pObjectKey, $pBranch = false, $pCondition = false, $pDepth = 1, $pScope = false,
-                                   $pOptions = false){
+    public static function getTreeBranch($pObjectKey, $pParentPrimaryKey = false, $pCondition = false, $pDepth = 1,
+                                     $pScope = false, $pOptions = false){
 
         $obj = self::getClass($pObjectKey);
 
@@ -519,22 +517,27 @@ class Object {
             $pCondition = array($pCondition);
         }
 
-        return $obj->getTree($pBranch, $pCondition, $pDepth, $pScope, $pOptions);
+        return $obj->getBranch($pParentPrimaryKey, $pCondition, $pDepth, $pScope, $pOptions);
 
     }
 
-    public static function getTreeRoot($pParentObjectUri, $pRootId){
+    public static function getTreeRoot($pObjectKey, $pScope, $pOptions = false){
 
-        list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
+        $definition = kryn::$objects[$pObjectKey];
+        if (!$definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
-        $definition = kryn::$objects[$object_key];
+        $pOptions['fields'] = $definition['nestedRootObjectLabel'];
 
-        if (!$definition['nestedRootAsObject']) return false;
-        if (!$definition['nestedRootObject']) return false;
+        return self::get($definition['nestedRootObject'], $pScope, $pOptions);
+    }
 
-        $obj = self::getClass($definition['nestedRootObject']);
+    public static function getTree($pObjectKey, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
 
-        $fields = $obj->primaryKeys;
+        $obj = self::getClass($pObjectKey);
+        $definition = kryn::$objects[$pObjectKey];
+
+        if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
+
         $fields[] = $definition['nestedRootObjectLabel'];
 
         if ($definition['nestedRootObjectExtraFields']){
@@ -542,10 +545,20 @@ class Object {
             foreach ($extraFields as $field)
                 $fields[] = $field;
         }
+        $pOptions['fields'] = implode(',',$fields);
 
-        list($rootKey, $rootId, $params) = self::parseUri($definition['nestedRootObject'].'/'.$pRootId);
+        if ($pCondition)
+            $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
 
-        return $obj->getItem($rootId[0], $fields);
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition)
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            else
+                $pCondition = $aclCondition;
+        }
+
+        return $obj->getTree($pCondition, $pDepth, $pScope, $pOptions);
 
     }
 

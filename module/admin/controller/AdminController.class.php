@@ -83,7 +83,6 @@ class AdminController {
         if (Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin'){
 
             $clazz = '\\'.getArgv(2).'\\AdminController';
-            $controller = new $clazz($pEnt);
 
             if (get_parent_class($clazz) == 'RestService\Server'){
                 $obj = new $clazz('admin/'.getArgv(2));
@@ -141,19 +140,20 @@ class AdminController {
                     ->done()
 
                     //admin/backend/object-branch
-                    /*->addSubController('object-branch', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch', null, array(
-                            'fields', 'order', 'depth'
-                        ))
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getRootBranches', null, array(
-                            'fields', 'order', 'depth'
-                        ))
-                    ->done()*/
-
-                    //admin/backend/object-count
-                    ->addSubController('object-count', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
+                    ->addSubController('object-tree', '\Admin\Object\Controller')
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getTree')
+                        ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch')
                     ->done()
+
+                //admin/backend/object-count
+                ->addSubController('object-count', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
+                ->done()
+
+                //admin/backend/object-count
+                ->addSubController('object-tree-root', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_]+)', 'getTreeRoot')
+                ->done()
 
 
                 ->done()

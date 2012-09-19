@@ -213,9 +213,9 @@ ka.ObjectTree = new Class({
 
         this.rootLoaded = false;
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTreeRoot', noCache: 1, onComplete: this.renderRoot.bind(this)}).get({
-            scopeId: this.options.scopeId,
-            object: this.objectKey
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree-root/'+this.objectKey, noCache: 1,
+            onComplete: this.renderRoot.bind(this)}).get({
+            scopeId: this.options.scopeId
         });
 
     },

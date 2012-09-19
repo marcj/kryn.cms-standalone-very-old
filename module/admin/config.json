@@ -548,12 +548,6 @@
                     "type": "text",
                     "primaryKey": 0
                 },
-                "ext": {
-                    "label": "[[File extension]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
-                },
                 "type": {
                     "label": "[[Type]]",
                     "items": {
@@ -834,7 +828,7 @@
             },
             "label": "[[Domain]]"
         },
-        "system_entrypoint": {
+        "systemEntrypoint": {
             "class": "objectEntrypoint",
             "multiLanguage": 0,
             "domainDepended": 0,

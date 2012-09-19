@@ -2,6 +2,11 @@
 
 namespace Admin\Object;
 
+/**
+ * Controller
+ *
+ * Proxy class for \Core\Object
+ */
 class Controller {
 
     public function postItem($pObject, $pPk, $pSetFields){
@@ -24,8 +29,8 @@ class Controller {
 
     public function putItem($pObject, $pSetFields){
 
-        if (!count($pSetFields))
-            throw new \ArgumentMissingException(tf('At least one argument with starting _ is missing.'));
+        if (!count($_POST))
+            throw new \ArgumentMissingException(tf('At least one argument in POST is missing.'));
 
         $options = array(
             'permissionCheck' => true
@@ -55,6 +60,25 @@ class Controller {
             }
             return $items;
         }
+    }
+
+    public function getTreeBranch($pObject, $pParentPrimaryKey, $pDepth = 1, $pScope = null, $pFields = null){
+
+    }
+
+    public function getTreeRoot($pObject, $pScope){
+
+        $options = array('permissionCheck' => true);
+
+        return \Core\Object::getTreeRoot($pObject, $pScope, $options);
+    }
+
+    public function getTree($pObject, $pDepth = 1, $pScope = null, $pFields = null){
+
+        $options['fields'] = $pFields;
+        $options['permissionCheck'] = true;
+
+        return \Core\Object::getTree($pObject, $condition = false, $pDepth, $pScope, $options);
     }
 
     /**

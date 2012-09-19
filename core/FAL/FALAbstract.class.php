@@ -129,7 +129,6 @@ abstract class FALAbstract {
      */
     abstract public function getContent($pPath);
 
-
     /**
      * List directory contents.
      * 

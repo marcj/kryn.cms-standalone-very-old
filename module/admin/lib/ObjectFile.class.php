@@ -22,11 +22,7 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
      */
     public function getItem($pPrimaryKey, $pOptions = false){
 
-        $path = $pPrimaryKey['id'];
-
-        if (is_numeric($path)){
-            $path = \Core\File::getPath($path);
-        }
+        $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
 
         $file = \Core\File::getFile($path);
 
@@ -34,31 +30,10 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
     }
 
     /**
-     * asd
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *  'offset'          Offset of the result set (in SQL OFFSET)
-     *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('category' => 'asc'),
-     *                      array(title' => 'asc')
-     *                    )
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     * @param mixed  $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
-     * @param mixed  $pOptions
-     *
-     * @return array d
+     * {@inheritDoc}
      */
     public function getItems($pCondition = null, $pOptions = null){
-        //todo
-        return array(array('id' => 'huri'));
+        throw new \Exception('Only branch listing available.');
     }
 
     /**
@@ -101,19 +76,21 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
         // TODO: Implement getCount() method.
     }
 
-    /**
-     * Returns a branch if the object is a nested set.
-     *
-     * @param  mixed $pPrimaryKey
-     * @param  mixed $pCondition
-     * @param  int   $pDepth
-     * @param  int   $pScope
-     *
-     * @return  array|bool
-     */
-    public function getBranch($pPrimaryKey = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-                              $pOptions = false){
-        //todo
+
+    public function getTree($pCondition = false, $pDepth = 1, $pScope = 0, $pOptions = false){
+
+        $rootDir = opendir(PATH_MEDIA);
+
+        if (!$rootDir) throw new \FileIOException(tf('Can not open folder %s.', PATH_MEDIA));
+
+        $files = array();
+        while ($file = readdir($rootDir)){
+
+
+
+        }
+
+        $file = \Core\File::getFile($path);
         return 'hihi';
     }
 
