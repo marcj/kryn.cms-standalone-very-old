@@ -353,7 +353,8 @@ class File {
         //$access = krynAcl::check(3, $pPath, 'read', true);
         //if (!$access) return false;
 
-        $fs = krynFile::getLayer($pPath);
+        $fs = self::getLayer($pPath);
+        $path = self::normalizePath($pPath);
 
         if ($pPath == '/trash'){
             return self::getTrashFiles();
@@ -364,9 +365,9 @@ class File {
 
         if (count($items) == 0) return array();
 
-        if ($fs->getEntryPoint())
+        if ($fs->getMountPoint())
             foreach ($items as &$file)
-                $file['path'] = $fs->getEntryPoint().$file['path'];
+                $file['path'] = $fs->getMountPoint().$file['path'];
 
         if($pPath == '/'){
             if (is_array(Kryn::$config['magic_folder'])) {
@@ -414,7 +415,7 @@ class File {
             } else {
                 $file['id'] = $path2id[$file['path']];
             }
-            $file['writeaccess'] = krynAcl::checkUpdate('file', $file['path']);
+            //$file['writeaccess'] = krynAcl::checkUpdate('file', $file['path']);
         }
 
         return $items;

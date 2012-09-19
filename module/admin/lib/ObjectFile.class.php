@@ -33,7 +33,7 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
      * {@inheritDoc}
      */
     public function getItems($pCondition = null, $pOptions = null){
-        throw new \Exception('Only branch listing available.');
+        throw new \Exception('Only tree listing available.');
     }
 
     /**
@@ -42,7 +42,8 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
      *
      */
     public function remove($pPrimaryKey){
-        // TODO: Implement remove() method.
+        $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        return \Core\File::delete($path);
     }
 
     /**
@@ -54,7 +55,8 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
      * @return mixed inserted primary key/s. If the object has multiple PKs, it returns a array.
      */
     public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0){
-        // TODO: Implement add() method.
+        $path = $pValues['path'];
+        return \Core\File::setContent($path, $pValues['content']);
     }
 
     /**
@@ -64,7 +66,8 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
      * @param $pValues
      */
     public function update($pPrimaryKey, $pValues){
-        // TODO: Implement update() method.
+        $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        return \Core\File::setContent($path, $pValues['content']);
     }
 
     /**
@@ -83,15 +86,9 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
 
         if (!$rootDir) throw new \FileIOException(tf('Can not open folder %s.', PATH_MEDIA));
 
-        $files = array();
-        while ($file = readdir($rootDir)){
+        $files = \Core\File::getFiles('/');
 
-
-
-        }
-
-        $file = \Core\File::getFile($path);
-        return 'hihi';
+        return $files;
     }
 
 
