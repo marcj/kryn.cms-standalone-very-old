@@ -206,6 +206,7 @@ class Editor {
                     $column['size'] = 255;
                 }
 
+                break;
 
             case 'lang':
 
@@ -475,6 +476,20 @@ class Editor {
             }
 
         }
+
+
+        $vendors = $objectTable->xpath('vendor[@type=\'mysql\']');
+        if ($vendors) $vendor = current($vendors);
+        else $vendor = $objectTable->addChild('vendor');
+        $vendor['type'] = 'mysql';
+
+        $params = $vendor->xpath('parameter[@name=\'Charset\']');
+        if ($params) $param = current($params);
+        else $param = $vendor->addChild('parameter');
+
+        $param['name'] = 'Charset';
+        $param['value'] = 'utf8';
+
 
         $dom = new \DOMDocument;
         $dom->preserveWhiteSpace = false;

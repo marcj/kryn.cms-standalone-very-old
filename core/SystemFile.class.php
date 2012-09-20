@@ -23,6 +23,8 @@ namespace Core;
  */
 class SystemFile extends File {
 
+    public static $fsObjects = array();
+
 	/**
      *
      * Returns the instance of the local file layer.
@@ -35,13 +37,13 @@ class SystemFile extends File {
 
         $class = '\Core\FAL\Local';
 
-        $params['root'] = './'; 
+        $params['root'] = './';
 
-        if (self::$fsObjects[$class]) return self::$fsObjects[$class];
+        if (SystemFile::$fsObjects[$class]) return static::$fsObjects[$class];
 
-        self::$fsObjects[$class] = new $class($entryPoint, $params);
+        static::$fsObjects[$class] = new $class('', $params);
 
-        return self::$fsObjects[$class];
+        return static::$fsObjects[$class];
 
     }
 

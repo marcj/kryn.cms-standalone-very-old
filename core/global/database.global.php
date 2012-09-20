@@ -324,12 +324,13 @@ function dbErrorInfo() {
 /**
  * Returns PDO::lastInsertId
  *
- * @param string $pField
  * @return mixed
  */
-function dbLastId($pField = 'id'){
-    global $dbLastInsertedTable;
-    return dbConnection()->lastInsertId($dbLastInsertedTable . ($pField?'_'.$pField:'') . '_seq');
+function dbLastId(){
+    if (\Core\Kryn::$config['database']['type'] == 'pgsql'){
+        $row = dbExfetch('SELECT LASTVAL() as last_val');
+        return $row['last_val'];
+    } else return dbConnection()->lastInsertId();
 }
 
 

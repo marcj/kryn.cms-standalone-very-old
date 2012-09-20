@@ -459,14 +459,17 @@
     },
     "objects": {
         "file": {
+            "propelClass": "\\Admin\\ObjectFile",
+            "table": "system_file",
             "objectLabel": "path",
+            "nestedPathField": "path",
+            "nestedType": "path",
             "nestedLabel": "name",
-            "nestedRootAsObject": 0,
-            "nested": 1,
-            "class": "\\Admin\\ObjectFile",
-            "dataModel": "custom",
-            "multiLanguage": 0,
-            "domainDepended": 0,
+            "nestedRootAsObject": false,
+            "nested": true,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
             "chooserFieldDataModelCondition": [
                 
             ],
@@ -487,7 +490,7 @@
             "chooserBrowserTreeIconMapping": [
                 
             ],
-            "chooserBrowserTreeFixedIcon": 0,
+            "chooserBrowserTreeFixedIcon": false,
             "chooserBrowserJavascriptClass": "ka.Files",
             "chooserBrowserOptions": {
                 "onlyUserDefined": {
@@ -580,7 +583,8 @@
                     "empty": 1
                 }
             },
-            "label": "[[File]]"
+            "label": "[[File]]",
+            "__dataModel__": "table"
         },
         "node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",

@@ -64,6 +64,12 @@ class Controller {
 
     public function getTreeBranch($pObject, $pParentPrimaryKey, $pDepth = 1, $pScope = null, $pFields = null){
 
+        $options['fields'] = $pFields;
+        $options['permissionCheck'] = true;
+
+        $primaryKeys = \Core\Object::parsePk($pObject, $pParentPrimaryKey);
+
+        return \Core\Object::getTree($pObject, $primaryKeys[0], $condition = false, $pDepth, $pScope, $options);
     }
 
     public function getTreeRoot($pObject, $pScope){
@@ -78,7 +84,7 @@ class Controller {
         $options['fields'] = $pFields;
         $options['permissionCheck'] = true;
 
-        return \Core\Object::getTree($pObject, $condition = false, $pDepth, $pScope, $options);
+        return \Core\Object::getTree($pObject, null, $condition = false, $pDepth, $pScope, $options);
     }
 
     /**
@@ -224,15 +230,22 @@ class Controller {
 
         }
 
+        $c = count($primaryKeys);
+        $firstPK = key($primaryKeys);
+
         $res = array();
         if (is_array($items)){
             foreach ($items as &$item){
 
-                $keys = array();
-                foreach($primaryKeys as $key => &$field){
-                    $keys[] = rawurlencode($item[$key]);
+                if ($c > 1){
+                    $keys = array();
+                    foreach($primaryKeys as $key => &$field){
+                        $keys[] = rawurlencode($item[$key]);
+                    }
+                    $res[ implode(',', $keys) ] = $item;
+                } else {
+                    $res[$item[$firstPK]] = $item;
                 }
-                $res[ implode(',', $keys) ] = $item;
             }
         }
 

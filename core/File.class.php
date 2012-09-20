@@ -55,16 +55,16 @@ class File {
 
         if (is_dir($pPath)){
             
-            @chmod($pPath, self::$dirMode);
+            @chmod($pPath, static::$dirMode);
 
             $sub = find($pPath.'/*', false);
             if (is_array($sub)){
                 foreach ($sub as $path){
-                    self::fixFiles($path);
+                    static::fixFiles($path);
                 }
             }
         } else if (is_file($pPath)){
-            @chmod($pPath, self::$fileMode);
+            @chmod($pPath, static::$fileMode);
         }
 
     }
@@ -77,27 +77,27 @@ class File {
      */
     public static function loadConfig(){
 
-        self::$fileMode = 600;
-        self::$dirMode  = 700;
+        static::$fileMode = 600;
+        static::$dirMode  = 700;
 
         if (kryn::$config['fileGroupPermission'] == 'rw'){
-            self::$fileMode += 60;
-            self::$dirMode  += 70;
+            static::$fileMode += 60;
+            static::$dirMode  += 70;
         } else if (kryn::$config['fileGroupPermission'] == 'r'){
-            self::$fileMode += 40;
-            self::$dirMode  += 50;
+            static::$fileMode += 40;
+            static::$dirMode  += 50;
         }
 
         if (kryn::$config['fileEveryonePermission'] == 'rw'){
-            self::$fileMode += 6;
-            self::$dirMode  += 7;
+            static::$fileMode += 6;
+            static::$dirMode  += 7;
         } else if (kryn::$config['fileEveryonePermission'] == 'r'){
-            self::$fileMode += 4;
-            self::$dirMode  += 5;
+            static::$fileMode += 4;
+            static::$dirMode  += 5;
         }
 
-        self::$fileMode = octdec(self::$fileMode);
-        self::$dirMode  = octdec(self::$dirMode);
+        static::$fileMode = octdec(static::$fileMode);
+        static::$dirMode  = octdec(static::$dirMode);
     }
 
 
@@ -113,7 +113,7 @@ class File {
 
         $class = '\Core\FAL\Local';
         $params['root'] = PATH_MEDIA;
-        $entryPoint = '';
+        $mountName = '';
 
         if ($pPath != '/') {
 
@@ -127,17 +127,17 @@ class File {
             if ($fs = Kryn::$config['mounts'][$firstFolder]) {
                 $class = $fs['class'];
                 $params = $fs['params'];
-                $entryPoint = $firstFolder;
+                $mountName = $firstFolder;
             }
         }
 
-        if (self::$fsObjects[$class]) return self::$fsObjects[$class];
+        if (static::$fsObjects[$class]) return static::$fsObjects[$class];
         if (class_exists($class))
-            self::$fsObjects[$class] = new $class($entryPoint, $params);
+            static::$fsObjects[$class] = new $class($mountName, $params);
         else
             return false;
 
-        return self::$fsObjects[$class];
+        return static::$fsObjects[$class];
 
     }
 
@@ -153,7 +153,7 @@ class File {
      */
     public static function normalizePath($pPath){
 
-        $fs = self::getLayer($pPath);
+        $fs = static::getLayer($pPath);
         $pPath = substr($pPath, strlen($fs->getMountPoint()));
 
         $pPath = str_replace('..', '', $pPath);
@@ -192,8 +192,8 @@ class File {
      */
     public static function getContent($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->getContent(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->getContent(static::normalizePath($pPath));
 
     }
 
@@ -211,8 +211,8 @@ class File {
      */
     public static function setContent($pPath, $pContent){
 
-        $fs = self::getLayer($pPath);
-        return $fs->setContent(self::normalizePath($pPath), $pContent);
+        $fs = static::getLayer($pPath);
+        return $fs->setContent(static::normalizePath($pPath), $pContent);
 
     }
 
@@ -226,8 +226,8 @@ class File {
      */
     public static function exists($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->fileExists(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->fileExists(static::normalizePath($pPath));
 
     }
 
@@ -242,8 +242,8 @@ class File {
      */
     public static function createFile($pPath, $pContent){
 
-        $fs = self::getLayer($pPath);
-        return $fs->createFile(self::normalizePath($pPath), $pContent);
+        $fs = static::getLayer($pPath);
+        return $fs->createFile(static::normalizePath($pPath), $pContent);
 
     }
 
@@ -258,8 +258,8 @@ class File {
      */
     public static function createFolder($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->createFolder(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->createFolder(static::normalizePath($pPath));
 
     }
 
@@ -273,8 +273,8 @@ class File {
      */
     public static function delete($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->delete(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->delete(static::normalizePath($pPath));
 
     }
 
@@ -303,8 +303,8 @@ class File {
      */
     public static function getFile($pPath){
 
-        $fs = self::getLayer($pPath);
-        $path = self::normalizePath($pPath);
+        $fs = static::getLayer($pPath);
+        $path = static::normalizePath($pPath);
         $file = $fs->getFile($path);
         if (!$file) return null;
 
@@ -353,14 +353,14 @@ class File {
         //$access = krynAcl::check(3, $pPath, 'read', true);
         //if (!$access) return false;
 
-        $fs = self::getLayer($pPath);
-        $path = self::normalizePath($pPath);
+        $fs = static::getLayer($pPath);
+        $path = static::normalizePath($pPath);
 
         if ($pPath == '/trash'){
-            return self::getTrashFiles();
+            return static::getTrashFiles();
         }
 
-        $items = $fs->getFiles(self::normalizePath($pPath));
+        $items = $fs->getFiles(static::normalizePath($pPath));
         if (!is_array($items)) return $items;
 
         if (count($items) == 0) return array();
@@ -370,8 +370,8 @@ class File {
                 $file['path'] = $fs->getMountPoint().$file['path'];
 
         if($pPath == '/'){
-            if (is_array(Kryn::$config['magic_folder'])) {
-                foreach (Kryn::$config['magic_folder'] as $folder => &$config ){
+            if (is_array(Kryn::$config['mounts'])) {
+                foreach (Kryn::$config['mounts'] as $folder => &$config ){
                     $magic = array(
                         'path'  => '/'.$folder,
                         'mount' => true,
@@ -477,8 +477,8 @@ class File {
      * @return string
      */
     public static function getUrl($pPath){
-        $fs = self::getLayer($pPath);
-        $url = $fs->getPublicUrl(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        $url = $fs->getPublicUrl(static::normalizePath($pPath));
 
         //TODO, check if $url contains http(s)://, and then decide if we need to add it
         if (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0)

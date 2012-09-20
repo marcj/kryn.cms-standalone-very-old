@@ -142,7 +142,7 @@ class AdminController {
                     //admin/backend/object-branch
                     ->addSubController('object-tree', '\Admin\Object\Controller')
                         ->addGetRoute('([a-zA-Z-_]+)', 'getTree')
-                        ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch')
+                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getTreeBranch')
                     ->done()
 
                 //admin/backend/object-count

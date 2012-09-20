@@ -28,6 +28,7 @@ class Local extends FALAbstract {
 
     /**
      * Gets current root folder for this local layer.
+     * @param string $pRoot
      */
     public function setRoot($pRoot){
         $this->root = $pRoot;
@@ -35,6 +36,7 @@ class Local extends FALAbstract {
 
     /**
      * Sets current root folder for this local layer.
+     * @return string
      */
     public function getRoot(){
         return $this->root;

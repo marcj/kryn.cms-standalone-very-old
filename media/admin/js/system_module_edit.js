@@ -2034,8 +2034,8 @@ var admin_system_module_edit = new Class({
         }).inject(div);
 
         new Element('div', {
-            style: 'position: absolute; top: 50px; left: 5px; right: 5px; bottom: 5px; overflow: auto; white-space: pre; background-color: white; padding: 5px;',
-            text: 'ORM Error: '+pResponse.message
+            style: 'position: absolute; top: 70px; left: 5px; right: 5px; bottom: 5px; overflow: auto; white-space: pre; background-color: white; padding: 5px;',
+            text: 'ORM Error: '+(pResponse.message||pResponse.error)
         }).inject(div);
 
         var dialog = this.win.newDialog(div, true);
@@ -2107,9 +2107,13 @@ var admin_system_module_edit = new Class({
         req.name = this.mod;
 
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (res) {
-            ka.loadSettings(['configs']);
-            this.updateORM();
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (response) {
+            if (response.status == 200){
+                ka.loadSettings(['configs']);
+                this.updateORM();
+            } else {
+                this.saveButton.stopTip(t('Failed.'));
+            }
         }.bind(this)}).post(req);
 
     },
@@ -2147,6 +2151,11 @@ var admin_system_module_edit = new Class({
                                 label: t('Class name'),
                                 desc: t('Class that extends from \\Core\\ORM\\ORMAbstract.')
                             },
+                            'propelClass': {
+                                needValue: 'propel',
+                                label: t('Custom propel class'),
+                                desc: t('Class that extends from \\Core\\ORM\\Propel or \\Core\\ORM\\ORMAbstract.')
+                            },
                             table: {
                                 needValue: 'propel',
                                 label: t('Table name'),
@@ -2159,10 +2168,33 @@ var admin_system_module_edit = new Class({
                                 modifier: 'camelcase|trim|lcfirst'
                             },
                             nested: {
-                                label: t('Nested Sets'),
-                                desc: t('Adds fields: lvl(int), lft(int) and rgt(int)'),
+                                label: t('Nested Set'),
                                 type: 'checkbox',
                                 depends: {
+                                    nestedType: {
+                                        needValue: 1,
+                                        label: t('Type'),
+                                        type: 'select',
+                                        items: {
+                                            classic: 'Classic Nested Set Model (left and right field)',
+                                            adjacency: 'Adjacency List Model',
+                                            path: 'Path model'
+                                        },
+                                        'default': 'classic',
+                                        children: {
+                                            nestedPathField: {
+                                                needValue: 'path',
+                                                label: t('Path field'),
+                                                type: 'text'
+                                            },
+                                            nestedAdjacencyField: {
+                                                needValue: 'adjacency',
+                                                label: t('Parent id field'),
+                                                type: 'text'
+                                            }
+
+                                        }
+                                    },
                                     nestedLabel: {
                                         needValue: 1,
                                         label: t('Label field'),

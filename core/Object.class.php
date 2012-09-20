@@ -488,38 +488,6 @@ class Object {
 
     }
 
-    /**
-     * @static
-     * @param string     $pObjectKey
-     * @param mixed      $pParentPrimaryKey
-     * @param bool|array $pCondition
-     * @param int        $pDepth
-     * @param bool|int   $pScope
-     * @param bool|array $pOptions
-     * @return mixed
-     */
-    public static function getTreeBranch($pObjectKey, $pParentPrimaryKey = false, $pCondition = false, $pDepth = 1,
-                                     $pScope = false, $pOptions = false){
-
-        $obj = self::getClass($pObjectKey);
-
-        if (!is_array($pOptions)) $pOptions = array();
-
-        if (!$pOptions['fields'])
-            $pOptions['fields'] = '';
-
-        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
-
-        if (!$pOptions['foreignKeys'])
-            $pOptions['foreignKeys'] = '*';
-
-        if ($pCondition !== false && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
-
-        return $obj->getBranch($pParentPrimaryKey, $pCondition, $pDepth, $pScope, $pOptions);
-
-    }
 
     public static function getTreeRoot($pObjectKey, $pScope, $pOptions = false){
 
@@ -531,10 +499,24 @@ class Object {
         return self::get($definition['nestedRootObject'], $pScope, $pOptions);
     }
 
-    public static function getTree($pObjectKey, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
+    /**
+     * @static
+     * @param $pObjectKey
+     * @param null $pParentPrimaryKey
+     * @param null $pCondition
+     * @param int $pDepth
+     * @param bool $pScope
+     * @param bool $pOptions
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function getTree($pObjectKey, $pParentPrimaryKey = null, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
 
         $obj = self::getClass($pObjectKey);
         $definition = kryn::$objects[$pObjectKey];
+
+        if ($pParentPrimaryKey)
+            $parentPrimaryKey = $obj->normalizePrimaryKey($pParentPrimaryKey);
 
         if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
 
@@ -558,7 +540,7 @@ class Object {
                 $pCondition = $aclCondition;
         }
 
-        return $obj->getTree($pCondition, $pDepth, $pScope, $pOptions);
+        return $obj->getTree($parentPrimaryKey, $pCondition, $pDepth, $pScope, $pOptions);
 
     }
 

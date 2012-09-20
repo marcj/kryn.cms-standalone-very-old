@@ -29,11 +29,62 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
         return is_array($file) ? $file : null;
     }
 
+
+    /**
+     * Converts given primary values from type string into proper array definition.
+     * Generates a array for the usage of Core\Object:get()
+     *
+     * @param string $pPrimaryKey
+     *
+     * @return array
+     */
+    public function primaryStringToArray($pPrimaryKey){
+
+        if ($pPrimaryKey === '') return false;
+        $groups = explode(',', $pPrimaryKey);
+
+        $result = array();
+
+        foreach ($groups as $group){
+
+            $item = array();
+            $primaryGroups = explode('-', $group);
+
+            foreach ($primaryGroups as $pos => $value){
+
+                if ($ePos = strpos($value, '=')){
+                    $key = substr($value, 0, $ePos);
+                    if (!in_array($key, $this->primaryKeys)) continue;
+                } else if (!$this->primaryKeys[$pos]) continue;
+
+                if (is_numeric($value))
+                    $item['id'] = $value;
+                else
+                    $item['path'] = urldecode($value);
+            }
+
+            if (count($item) > 0)
+                $result[] = $item;
+        }
+
+        return $result;
+
+    }
+
     /**
      * {@inheritDoc}
      */
     public function getItems($pCondition = null, $pOptions = null){
-        throw new \Exception('Only tree listing available.');
+        $query = 'SELECT * FROM '.pfx.'system_files';
+
+        $data = array();
+        if ($pCondition){
+            $condition = dbConditionToSql($pCondition, $data);
+            $query .= ' WHERE ' . $condition;
+        }
+
+        $items = dbExfetchAll($query, $data);
+        return $items;
     }
 
     /**
@@ -49,13 +100,16 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
     /**
      * @param array  $pValues
      * @param mixed  $pBranchPk If nested set
-     * @param string $pMode  If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
-     * @param int  $pScope If nested set with scope
+     * @param string $pMode     If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
+     * @param int    $pScope    If nested set with scope
      *
      * @return mixed inserted primary key/s. If the object has multiple PKs, it returns a array.
      */
     public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0){
-        $path = $pValues['path'];
+        if ($pBranchPk)
+            $parentPath = is_numeric($pBranchPk['id'])? \Core\File::getPath($pBranchPk['id']) : $pBranchPk['id'];
+
+        $path = $parentPath ? $parentPath . $pValues['name'] : $pValues['name'];
         return \Core\File::setContent($path, $pValues['content']);
     }
 
@@ -80,16 +134,19 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
     }
 
 
-    public function getTree($pCondition = false, $pDepth = 1, $pScope = 0, $pOptions = false){
+    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = 0, $pOptions = null){
 
-        $rootDir = opendir(PATH_MEDIA);
+        if ($pParentPrimaryKey)
+            $path = is_numeric($pParentPrimaryKey['id'])?
+                \Core\File::getPath($pParentPrimaryKey['id']) : $pParentPrimaryKey['id'];
+        else
+            $path = '/';
 
-        if (!$rootDir) throw new \FileIOException(tf('Can not open folder %s.', PATH_MEDIA));
-
-        $files = \Core\File::getFiles('/');
+        $files = \Core\File::getFiles($path);
 
         return $files;
     }
+
 
 
 }
