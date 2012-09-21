@@ -230,7 +230,13 @@ class AdminController {
     }
 
     public function loginUser($pUsername, $pPassword){
-        return Kryn::getAdminClient()->login($pUsername, $pPassword);
+        $status = Kryn::getAdminClient()->login($pUsername, $pPassword);
+        return !$status ? false :
+            array(
+                'token' => Kryn::getAdminClient()->getToken(),
+                'userId' => Kryn::getAdminClient()->getUserId(),
+                'lastLogin' => Kryn::getAdminClient()->getUser()->getLastLogin()
+            );
     }
 
     public function logoutUser(){

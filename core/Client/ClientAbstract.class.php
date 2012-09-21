@@ -208,7 +208,7 @@ abstract class ClientAbstract {
     /**
      * Returns the user from current session.
      *
-     * @return \User
+     * @return int
      */
     public function getUserId(){
         return $this->getSession()->getUser()->getId();

@@ -753,6 +753,7 @@ ka.ai.reloadLogin = function () {
 
     if (ka.ai.loginName.value == '' || ka.ai.loginName.retrieve('value') == ka.ai.loginName.value)
         ka.ai.loginName.value = t('Username');
+
     ka.ai.loginName.store('value', t('Username'));
 }
 
@@ -786,7 +787,7 @@ ka.ai.logout = function (pScreenlocker) {
 
     if (!pScreenlocker) {
         ka.wm.closeAll();
-        new Request({url: _path + 'admin/?admin-users-logout=1'}).post();
+        new Request({url: _path + 'admin/logout', noCache: 1}).get();
     }
 
     if (ka.desktop)
@@ -811,7 +812,7 @@ ka.ai.logout = function (pScreenlocker) {
     window._session.user_id = 0;
 }
 
-ka.ai.loginSuccess = function (pId, pAlready) {
+ka.ai.loginSuccess = function (pResponse, pAlready) {
 
     $('border').setStyle('display', 'block');
 
@@ -830,23 +831,25 @@ ka.ai.loginSuccess = function (pId, pAlready) {
         return;
     }
 
-    ka.ai.loginName.value = pId.username;
-    window._sid = pId.sessionid;
-    window._session.sessionid = pId.sessionid;
-    window._user_id = pId.user_id
+    if (pResponse.username) ka.ai.loginName.value = pResponse.username;
 
-    $('user-username').set('text', ka.ai.loginName.value);
+    window._session.username = ka.ai.loginName.value;
+
+    window._sid = pResponse.token;
+    window._session.sessionid = pResponse.token;
+    window._user_id = pResponse.userId;
+
+    $('user-username').set('text', window._session.username);
     $('user-username').onclick = function () {
-        ka.wm.open('users/profile', {values: {id: pId.user_id}});
+        ka.wm.open('users/profile', {values: {id: pResponse.userId}});
     }
 
-    window._session.user_id = pId.user_id;
-    window._session.username = pId.username;
-    window._session.lastlogin = pId.lastlogin;
+    window._session.user_id = pResponse.userId;
+    window._session.lastlogin = pResponse.lastlogin;
 
     $(document.body).setStyle('background-position', 'center top');
 
-    ka.ai.loginMessage.set('html', _('Please wait'));
+    ka.ai.loginMessage.set('html', t('Please wait'));
 
     ka.ai.loadBackend();
 }

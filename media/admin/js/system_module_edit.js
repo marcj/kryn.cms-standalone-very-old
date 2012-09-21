@@ -1431,11 +1431,11 @@ var admin_system_module_edit = new Class({
                     14: 'Language package',
                     15: 'Data acquisition',
                     16: 'Collaboration'
-                },
+                }
             },
             writableFiles: {
                 label: t('Writable files'),
-                desc: t('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'),
+                desc: t('Specify these files which are not automatically overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'),
                 type: 'textarea'
             }
 
