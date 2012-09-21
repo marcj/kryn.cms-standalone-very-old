@@ -1435,7 +1435,7 @@ var admin_system_module_edit = new Class({
             },
             writableFiles: {
                 label: t('Writable files'),
-                desc: t('Specify these files which are not automatically overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'),
+                desc: t('Specify these files which are not automatically overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information.'),
                 type: 'textarea'
             }
 
@@ -2168,33 +2168,10 @@ var admin_system_module_edit = new Class({
                                 modifier: 'camelcase|trim|lcfirst'
                             },
                             nested: {
-                                label: t('Nested Set'),
+                                label: t('Nested Set Model'),
+                                desc: t('Implement with lft, rgt and lvl fields.'),
                                 type: 'checkbox',
-                                depends: {
-                                    nestedType: {
-                                        needValue: 1,
-                                        label: t('Type'),
-                                        type: 'select',
-                                        items: {
-                                            classic: 'Classic Nested Set Model (left and right field)',
-                                            adjacency: 'Adjacency List Model',
-                                            path: 'Path model'
-                                        },
-                                        'default': 'classic',
-                                        children: {
-                                            nestedPathField: {
-                                                needValue: 'path',
-                                                label: t('Path field'),
-                                                type: 'text'
-                                            },
-                                            nestedAdjacencyField: {
-                                                needValue: 'adjacency',
-                                                label: t('Parent id field'),
-                                                type: 'text'
-                                            }
-
-                                        }
-                                    },
+                                children: {
                                     nestedLabel: {
                                         needValue: 1,
                                         label: t('Label field'),

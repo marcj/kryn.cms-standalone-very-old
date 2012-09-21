@@ -2,41 +2,13 @@
 
 namespace Admin;
 
-class ObjectFile extends \Core\ORM\ORMAbstract {
-
-
-    /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     * @param array       $pPrimaryKey
-     * @param bool|array  $pOptions
-     *
-     * @return array
-     */
-    public function getItem($pPrimaryKey, $pOptions = false){
-
-        $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
-
-        $file = \Core\File::getFile($path);
-
-        return is_array($file) ? $file : null;
-    }
-
+class ObjectFile extends \Core\ORM\Propel {
 
     /**
-     * Converts given primary values from type string into proper array definition.
-     * Generates a array for the usage of Core\Object:get()
+     * {@inheritDoc}
      *
-     * @param string $pPrimaryKey
-     *
-     * @return array
+     * Same as parent method, except:
+     * If we get the PK as path we convert it to internal ID.
      */
     public function primaryStringToArray($pPrimaryKey){
 
@@ -57,10 +29,12 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
                     if (!in_array($key, $this->primaryKeys)) continue;
                 } else if (!$this->primaryKeys[$pos]) continue;
 
-                if (is_numeric($value))
-                    $item['id'] = $value;
-                else
-                    $item['path'] = urldecode($value);
+                if (!is_numeric($value)){
+                    $file = \Core\File::getFile(urldecode($value));
+                    $value = $file['id'];
+                }
+                $item['id'] = $value;
+
             }
 
             if (count($item) > 0)
@@ -72,69 +46,59 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
     }
 
     /**
-     * {@inheritDoc}
+     * We accept as primary key the path as well, so we have to convert it to internal ID.
+     *
+     * @param $pPrimaryKey
      */
-    public function getItems($pCondition = null, $pOptions = null){
-        $query = 'SELECT * FROM '.pfx.'system_files';
-
-        $data = array();
-        if ($pCondition){
-            $condition = dbConditionToSql($pCondition, $data);
-            $query .= ' WHERE ' . $condition;
+    public function mapPrimaryKey(&$pPrimaryKey){
+        if (!is_numeric($pPrimaryKey['id'])){
+            $file = \Core\File::getfile(urldecode($pPrimaryKey['id']));
+            $pPrimaryKey['id'] = $file['id'];
         }
-
-        $items = dbExfetchAll($query, $data);
-        return $items;
     }
 
     /**
-     *
-     * @param array $pPrimaryKey
-     *
+     * {@inheritDoc}
      */
     public function remove($pPrimaryKey){
-        $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+
+        $this->mapPrimaryKey($pPrimaryKey);
+
+        parent::remove($pPrimaryKey);
+
+        $path = \Core\File::getPath($pPrimaryKey['id']);
         return \Core\File::delete($path);
     }
 
     /**
-     * @param array  $pValues
-     * @param mixed  $pBranchPk If nested set
-     * @param string $pMode     If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
-     * @param int    $pScope    If nested set with scope
-     *
-     * @return mixed inserted primary key/s. If the object has multiple PKs, it returns a array.
+     * {@inheritDoc}
      */
     public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0){
+
         if ($pBranchPk)
             $parentPath = is_numeric($pBranchPk['id'])? \Core\File::getPath($pBranchPk['id']) : $pBranchPk['id'];
 
         $path = $parentPath ? $parentPath . $pValues['name'] : $pValues['name'];
-        return \Core\File::setContent($path, $pValues['content']);
+
+        \Core\File::setContent($path, $pValues['content']);
+        return parent::add($pValues, $pBranchPk, $pMode, $pScope);
     }
 
     /**
-     * Updates an object
-     *
-     * @param $pPrimaryKey
-     * @param $pValues
+     * {@inheritDoc}
      */
     public function update($pPrimaryKey, $pValues){
+
+        $this->mapPrimaryKey($pPrimaryKey);
+
         $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
-        return \Core\File::setContent($path, $pValues['content']);
-    }
+        \Core\File::setContent($path, $pValues['content']);
 
-    /**
-     * @param bool|string $pCondition
-     *
-     * @return int
-     */
-    public function getCount($pCondition = false){
-        // TODO: Implement getCount() method.
+        return parent::update($pPrimaryKey, $pValues);
     }
 
 
-    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = 0, $pOptions = null){
+    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 
         if ($pParentPrimaryKey)
             $path = is_numeric($pParentPrimaryKey['id'])?
@@ -143,6 +107,20 @@ class ObjectFile extends \Core\ORM\ORMAbstract {
             $path = '/';
 
         $files = \Core\File::getFiles($path);
+
+        foreach($files as &$file){
+            if ($pDepth > 1 && $file['type'] == 'dir'){
+
+                $file['_children'] = self::getTree(array('id' => $file['path']), null, $pDepth-1);
+                $file['_childrenCount'] = count($file['_children']);
+
+            } else if ($file['type'] == 'dir'){
+                $file['_childrenCount'] = \Core\File::getCount($file['path']);
+
+            } else {
+                $file['_childrenCount'] = 0;
+            }
+        }
 
         return $files;
     }

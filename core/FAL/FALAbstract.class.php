@@ -177,6 +177,15 @@ abstract class FALAbstract {
     abstract public function getFile($pPath);
 
     /**
+     * Returns the file count inside $pFolderPath
+     *
+     * @static
+     * @param string $pFolderPath
+     * @return mixed
+     */
+    abstract public function getCount($pFolderPath);
+
+    /**
      * Disk usage
      *
      * @param string $pPath

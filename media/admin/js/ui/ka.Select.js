@@ -536,50 +536,6 @@ ka.Select = new Class({
 
     },
 
-    hideOption: function(pId){
-
-        hideItems[pId] = true;
-
-        this.loadItems();
-
-        // if (typeOf(this.items[ pId ]) == 'null') return;
-
-        // this.a[pId].setStyle('display', 'none');
-
-        // if (this.value == pId){
-
-        //     var found = false, before, first;
-        //     Object.each(this.items,function(label, id){
-        //         if (found) return;
-        //         if (!first) first = id;
-        //         if (before && id == pId){
-        //             found = true;
-        //             return;
-        //         }
-
-        //         before = id;
-        //     }.bind(this));
-
-        //     if (found){
-        //         this.setValue(before);
-        //     } else {
-        //         this.setValue(first);
-        //     }
-        // }
-
-    },
-
-    showOption: function(pId){
-
-        delete hideItems[pId];
-        this.loadItems();
-
-        // if (typeOf(this.items[ pId ]) == 'null') return;
-
-        // this.a[pId].setStyle('display');
-
-    },
-
     addSplit: function (pLabel) {
 
         this.items.push({
@@ -588,20 +544,19 @@ ka.Select = new Class({
         });
 
         this.loadItems();
+    },
 
-        // new Element('div', {
-        //     html: pLabel,
-        //     'class': 'group'
-        // }).inject(this.chooser);
+
+    addImage: function (pId, pLabel, pImage, pPos) {
+        return this.add(pId, [pLabel, pImage], pPos);
     },
 
     /**
      * Adds a item to the static list.
      *
      * @param {String} pId
-     * @param {Mixed} pLabel String or array ['label', 'imageSrcOr#Class']
-     * @param {[type]} pPos   Starts with 0
-     * @param {[type]} pIcon
+     * @param {Mixed}  pLabel String or array ['label', 'imageSrcOr#Class']
+     * @param {int}    pPos   Starts with 0
      */
     add: function (pId, pLabel, pPos) {
 
@@ -618,8 +573,11 @@ ka.Select = new Class({
             this.items.push({key: pId, label: pLabel});
         }
 
-        return this.loadItems();
+        if (typeOf(this.value) == 'null'){
+            this.setValue(pId);
+        }
 
+        return this.loadItems();
     },
 
     setStyle: function (p, p2) {
@@ -702,6 +660,23 @@ ka.Select = new Class({
 
         if (pInternal)
             this.fireChange();
+
+    },
+
+    setLabel: function(pId, pLabel){
+
+        var i = 0, max = this.items.length;
+        do {
+            if (this.items[i].key == pId){
+                this.items[i].label = pLabel;
+                break;
+            }
+        } while (i++ && i < max);
+
+        if (this.value == pId){
+            this.title.set('html', pLabel);
+            this.setValue(pId);
+        }
 
     },
 

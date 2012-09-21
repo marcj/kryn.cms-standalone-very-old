@@ -162,6 +162,9 @@ class File {
         if (substr($pPath, 0, 1) == '/')
             $pPath = substr($pPath, 1);
 
+        if (substr($pPath, -1) == '/')
+            $pPath = substr($pPath, 0, -1);
+
         return $pPath;
     }
 
@@ -419,6 +422,18 @@ class File {
         }
 
         return $items;
+    }
+
+    /**
+     * Returns the file count inside $pFolderPath
+     *
+     * @static
+     * @param string $pFolderPath
+     * @return mixed
+     */
+    public static function getCount($pFolderPath){
+        $fs = static::getLayer($pFolderPath);
+        return $fs->getCount(static::normalizePath($pFolderPath));
     }
 
 

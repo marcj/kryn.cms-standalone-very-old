@@ -11,6 +11,11 @@ var users_users_acl = new Class({
 
     currentAcls: [],
 
+    initialize: function(pWin){
+        this.win = pWin;
+        this.createLayout();
+    },
+
     createLayout: function(){
 
         this.win.extendHead();
@@ -42,7 +47,6 @@ var users_users_acl = new Class({
             src: _path+ PATH_MEDIA + '/admin/images/icon-search-loupe.png',
             style: 'position: absolute; left: 11px; top: 8px;'
         }).inject(this.win.titleGroups);
-
 
         this.tabs = new ka.TabPane(this.right, true, this.win);
 
@@ -234,7 +238,6 @@ var users_users_acl = new Class({
             } else
                 ruleCounter.all++;
 
-
             if (rule.constraint_type >= 1){
 
                 if (!ruleGrouped[rule.constraint_type][rule.constraint_code])
@@ -245,13 +248,13 @@ var users_users_acl = new Class({
 
         }.bind(this));
 
-        this.selectModes.setText(-1,  tc('usersAclModes', 'All rules')+' ('+this.currentAcls.length+')');
-        this.selectModes.setText(0,  tc('usersAclModes', 'Combined')+' ('+modeCounter[0]+')');
-        this.selectModes.setText(1,  tc('usersAclModes', 'List')+' ('+modeCounter[1]+')');
-        this.selectModes.setText(2,  tc('usersAclModes', 'View')+' ('+modeCounter[2]+')');
-        this.selectModes.setText(3,  tc('usersAclModes', 'Add')+' ('+modeCounter[3]+')');
-        this.selectModes.setText(4,  tc('usersAclModes', 'Edit')+' ('+modeCounter[4]+')');
-        this.selectModes.setText(5,  tc('usersAclModes', 'Delete')+' ('+modeCounter[5]+')');
+        this.selectModes.setLabel(-1,  tc('usersAclModes', 'All rules')+' ('+this.currentAcls.length+')');
+        this.selectModes.setLabel(0,  tc('usersAclModes', 'Combined')+' ('+modeCounter[0]+')');
+        this.selectModes.setLabel(1,  tc('usersAclModes', 'List')+' ('+modeCounter[1]+')');
+        this.selectModes.setLabel(2,  tc('usersAclModes', 'View')+' ('+modeCounter[2]+')');
+        this.selectModes.setLabel(3,  tc('usersAclModes', 'Add')+' ('+modeCounter[3]+')');
+        this.selectModes.setLabel(4,  tc('usersAclModes', 'Edit')+' ('+modeCounter[4]+')');
+        this.selectModes.setLabel(5,  tc('usersAclModes', 'Delete')+' ('+modeCounter[5]+')');
 
         if (!this.currentDefinition.nested){
             this.objectsExactContainer.empty();
@@ -524,6 +527,7 @@ var users_users_acl = new Class({
                                     } else {
                                         new Element('img', {src: _path+'media/admin/images/icons/exclamation.png'}).inject(span);
                                     }
+
                                     new Element('img', {src: imgSrc}).inject(span);
                                     subcomma = new Element('span', {text: ', '}).inject(fieldSubline);
 
@@ -989,6 +993,7 @@ var users_users_acl = new Class({
                 label: t('Access'),
                 type: 'select',
                 input_width: 140,
+                'default': '2',
                 items: {
                     '2': [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png'],
                     '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
@@ -1220,7 +1225,7 @@ var users_users_acl = new Class({
             this.currentEntrypointDoms[code] = element;
             var childContainer = new Element('div', {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject( pChildContainer );
 
-            this.loadEntryPointChildren(item.childs, code, childContainer);
+            this.loadEntryPointChildren(item.children, code, childContainer);
 
         }.bind(this));
     },
@@ -1492,7 +1497,8 @@ var users_users_acl = new Class({
             access: {
                 label: t('Access'),
                 type: 'select',
-                input_width: 140,
+                inputWidth: 140,
+                'default': '1',
                 items: {
                     '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
                     '1': [t('Allow'), 'admin/images/icons/accept.png']
@@ -1597,12 +1603,14 @@ var users_users_acl = new Class({
 
     },
 
-    setAcls: function(pAcls){
+    setAcls: function(pResponse){
 
-        if (!pAcls) pAcls = [];
+        if (pResponse.error) throw pResponse.error;
 
-        this.currentAcls = pAcls;
-        this.loadedAcls = Array.clone(this.currentAcls);
+        if (!pResponse.data) pResponse.data = [];
+
+        this.currentAcls = pResponse.data;
+        this.loadedAcls = pResponse.data.clone(this.currentAcls);
 
         this.updateObjectRulesCounter();
         this.updateEntryPointRules();

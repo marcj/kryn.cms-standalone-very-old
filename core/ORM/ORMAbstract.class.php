@@ -77,6 +77,7 @@ abstract class ORMAbstract {
      * Normalize the primary key.
      * Possible input:
      *  array('bla'), 'peter', 123,
+     *
      * Output
      *  array('id' => 'bla'), array('id' => 'peter'), array('id' => 123)
      *  if the only primary key is named `id`.
@@ -103,7 +104,7 @@ abstract class ORMAbstract {
 
     /**
      * Converts given primary values from type string into proper array definition.
-     * Generates a array for the usage of Core\Object:get()
+     * This builds the array for the $pPrimaryKey for all of these methods inside this class.
      *
      * @param string $pPrimaryKey
      *
@@ -152,12 +153,12 @@ abstract class ORMAbstract {
      *
      *
      * @abstract
-     * @param array       $pPrimaryKey
-     * @param bool|array  $pOptions
+     * @param array  $pPrimaryKey
+     * @param array  $pOptions
      *
      * @return array
      */
-    abstract public function getItem($pPrimaryKey, $pOptions = false);
+    abstract public function getItem($pPrimaryKey, $pOptions = null);
 
     /**
      *
@@ -193,62 +194,74 @@ abstract class ORMAbstract {
     /**
      * @abstract
      * @param array  $pValues
-     * @param mixed  $pBranchPk If nested set
+     * @param array  $pBranchPk If nested set
      * @param string $pMode  If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
-     * @param int  $pScope If nested set with scope
+     * @param int    $pScope If nested set with scope
      *
      * @return mixed inserted primary key/s. If the object has multiple PKs, it returns a array.
      */
-    abstract public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0);
+    abstract public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null);
 
     /**
      * Updates an object
      *
      * @abstract
-     * @param $pPrimaryKey
-     * @param $pValues
+     * @param array $pPrimaryKey
+     * @param array $pValues
      */
     abstract public function update($pPrimaryKey, $pValues);
 
     /**
      * @abstract
-     * @param bool|string $pCondition
+     * @param array $pCondition
      *
      * @return int
      */
-    abstract public function getCount($pCondition = false);
+    abstract public function getCount($pCondition = null);
 
     /**
      * Returns a branch if the object is a nested set.
      *
-     * @param bool  $pParentPrimaryKey
-     * @param bool  $pCondition
-     * @param int   $pDepth
-     * @param int   $pScope
-     * @param mixed $pOptions
-     * @abstract
-     * @return mixed
+     * Result should be:
+     *
+     *  array(
+     *
+     *    array(<valuesFromFirstItem>, '_children' => array(<children>), '_childrenCount' => <int> ),
+     *    array(<valuesFromSecondItem>, '_children' => array(<children>), '_childrenCount' => <int> ),
+     *    ...
+     *
+     *  )
+     *
+     * @param array $pParentPrimaryKey
+     * @param array $pCondition
+     * @param int   $pDepth Started with one. One means, only the first level, no children at all.
+     * @param mixed $pScope
+     * @param array $pOptions
+     *
+     * @return array
      */
-    #abstract public function getBranch($pParentPrimaryKey = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-    #    $pOptions = false);
+    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+        if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
+        throw new \Exception(t('getTree is not implemented.'));
+    }
+
 
 
     /**
      * Returns the parent if exists otherwise false.
      *
-     * @param  $pPrimaryKey
+     * @param array $pPrimaryKey
      * @return mixed
      */
     public function getParent($pPrimaryKey){
-
-        return false;
+        throw new \Exception(t('getParent is not implemented.'));
     }
 
 
     /**
      * Returns parent's id, if exists
      *
-     * @param $pPrimaryKey
+     * @param array $pPrimaryKey
      * @return array
      */
     public function getParentId($pPrimaryKey){

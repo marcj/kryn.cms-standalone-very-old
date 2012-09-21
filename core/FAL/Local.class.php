@@ -205,11 +205,17 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public function fileExists($pPath){
-
         return file_exists($this->getRoot().$pPath);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCount($pFolderPath){
+        return count(glob($this->getRoot().$pFolderPath.'/*'));
     }
 
     /**

@@ -352,8 +352,12 @@ class Object {
         if (!self::$instances[$pObjectKey]){
 
             if ($definition['dataModel'] != 'custom'){
+
                 //propel
-                self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
+                if ($propelClass = $definition['propelClass'])
+                    self::$instances[$pObjectKey] = new $propelClass($pObjectKey, $definition);
+                else
+                    self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
 
             } else {
 

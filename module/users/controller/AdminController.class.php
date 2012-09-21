@@ -9,11 +9,11 @@ class AdminController extends Server {
     public function run($pEntryPoint){
 
         $this->addGetRoute('acl/search', 'getSearch');
+        $this->addGetRoute('acl', 'load');
+
         return parent::run();
 
     }
-
-
     
     public static function load($pType, $pId, $pAsCount = false){
 
@@ -23,9 +23,9 @@ class AdminController extends Server {
         $where .= " ORDER BY prio DESC";
 
         if (!$pAsCount)
-            return dbTableFetch( 'system_acl', DB_FETCH_ALL, $where );
+            return dbTableFetchAll('system_acl', $where);
         else
-            return dbCount( 'system_acl', $where );
+            return dbCount('system_acl', $where);
 
     }
 
