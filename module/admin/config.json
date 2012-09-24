@@ -589,6 +589,7 @@
         "node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
             "table": "system_page",
+            "propelClassName": "Page",
             "tableSync": 1,
             "tableCondition": [
                 
@@ -767,14 +768,10 @@
             "label": "[[Node]]"
         },
         "domain": {
-            "table": "system_domains",
-            "tableSync": 0,
-            "tableCondition": [
-                
-            ],
-            "nested": 0,
-            "multiLanguage": 0,
-            "domainDepended": 0,
+            "objectLabel": "domain",
+            "nested": false,
+            "multiLanguage": false,
+            "domainDepended": false,
             "chooserFieldDataModelCondition": [
                 
             ],

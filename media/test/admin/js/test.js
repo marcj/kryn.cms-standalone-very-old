@@ -41,6 +41,31 @@ var test_test = new Class({
             ]
         });
 
+        var field = new ka.Select(this.win.content, {
+            object: 'domain'
+        });
+
+        var ch = new Element('div', {
+            style: 'padding-top: 15px;'
+        }).inject(this.win.content);
+
+        field.addEvent('change', function(){
+            ch.empty();
+            logger( field.getValue());
+            this.lastObjectTree = new ka.ObjectTree(ch, 'node', {
+                openFirstLevel: true,
+                scope: field.getValue(),
+                onReady: function(){
+                    //this.renderTreeRules();
+                    logger('onready');
+                }.bind(this),
+                onChildrenLoaded: function(){
+                    //this.renderTreeRules();
+                }.bind(this)
+            });
+            logger(field.getValue());
+        });
+
         var div = new Element('div', {
             style: 'padding-top: 15px;'
         }).inject(this.win.content);

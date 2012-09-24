@@ -140,9 +140,10 @@ ka.Select = new Class({
                 fields.push(definition.objectLabel);
             }
             if (typeOf(fields) == 'string'){
-                fields = fields.split(',').replace(/[^a-zA-Z0-9_]/g, '');
+                fields = fields.replace(/[^a-zA-Z0-9_]/g, '').split(',');
             }
             this.objectFields = fields;
+
         }
         
         this.fireEvent('ready');

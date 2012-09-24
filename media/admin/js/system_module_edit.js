@@ -2156,6 +2156,11 @@ var admin_system_module_edit = new Class({
                                 label: t('Custom propel class'),
                                 desc: t('Class that extends from \\Core\\ORM\\Propel or \\Core\\ORM\\ORMAbstract.')
                             },
+                            'propelClassName': {
+                                needValue: 'propel',
+                                label: t("Propel's model class name"),
+                                desc: t('Generates the classes &lt;name&gt;, &lt;name&gt;Query, &lt;name&gt;Peer. Default is the object key.')
+                            },
                             table: {
                                 needValue: 'propel',
                                 label: t('Table name'),

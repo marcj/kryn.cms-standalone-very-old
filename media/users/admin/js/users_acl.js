@@ -93,12 +93,12 @@ var users_users_acl = new Class({
                     object: this.currentDefinition.nestedRootObject
                 });
 
-                field.addEvent('change', function(pValue){
+                field.addEvent('change', function(){
                     objectTreeContainer.getChildren().destroy();
 
                     this.lastObjectTree = new ka.ObjectTree(objectTreeContainer, pObjectKey, {
                         openFirstLevel: true,
-                        scopeId: pValue,
+                        scope: field.getValue(),
                         move: false,
                         withContext: false,
                         onReady: function(){
@@ -962,7 +962,7 @@ var users_users_acl = new Class({
             constraint_type: {
                 label: t('Constraint type'),
                 type: 'select',
-                input_width: 140,
+                inputWidth: 140,
                 items: {
                     '0': t('All objects'),
                     '1': t('Exact object'),
@@ -992,7 +992,7 @@ var users_users_acl = new Class({
             access: {
                 label: t('Access'),
                 type: 'select',
-                input_width: 140,
+                inputWidth: 140,
                 'default': '2',
                 items: {
                     '2': [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png'],
@@ -1010,7 +1010,7 @@ var users_users_acl = new Class({
             mode: {
                 label: t('Mode'),
                 type: 'select',
-                input_width: 140,
+                inputWidth: 140,
                 items: {
                     '0': [tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png'],
                     '1': [tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png'],
@@ -1431,6 +1431,7 @@ var users_users_acl = new Class({
             if (dom.ruleIcon) dom.ruleIcon.destroy();
             if (dom.ruleLine) dom.ruleLine.destroy();
             if (dom.ruleLineChildern) dom.ruleLineChildern.destroy();
+            delete dom.rule;
         });
 
         Array.each(this.currentAcls, function(rule){
@@ -1456,8 +1457,9 @@ var users_users_acl = new Class({
             var rule = {
                 object: 'system_entrypoint',
                 constraint_type: 2,
+                sub: 1,
                 constraint_code: pDom.entryPath,
-                access: 0,
+                access: 1,
                 target_type: this.currentTargetType,
                 target_id: this.currentTargetRsn
             };
@@ -1496,25 +1498,20 @@ var users_users_acl = new Class({
 
             access: {
                 label: t('Access'),
-                type: 'select',
-                inputWidth: 140,
-                'default': '1',
-                items: {
-                    '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
-                    '1': [t('Allow'), 'admin/images/icons/accept.png']
-                }
-
+                'default': 1,
+                type: 'checkbox'
             },
 
             sub: {
                 type: 'checkbox',
+                'default': 1,
                 label: t('With sub-items')
             }
         };
 
         var kaFields = new ka.Parse(fieldContainer, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
 
-        var deleteRule = new ka.Button([t('Delete rule'), 'admin/images/icons/delete.png']).inject(fieldContainer);
+        var deleteRule = new ka.Button([t('Delete rule'), '#icon-minus-5']).inject(fieldContainer);
 
         deleteRule.addEvent('click', this.deleteEntrypointRule.bind(this, pDom));
 
@@ -1542,6 +1539,8 @@ var users_users_acl = new Class({
 
         var index = this.currentAcls.indexOf(pDom.rule);
         this.currentAcls.splice(index, 1);
+
+        delete pDom.rule;
 
         this.updateEntryPointRules();
 

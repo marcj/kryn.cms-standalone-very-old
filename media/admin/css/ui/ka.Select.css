@@ -93,6 +93,10 @@
     font-size: 12px;
 }
 
+.ka-Select-box-title > span:before {
+    padding-right: 3px;
+}
+
 .ka-Select-chooser {
 
     margin: 0px auto;

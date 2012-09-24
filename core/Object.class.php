@@ -524,14 +524,16 @@ class Object {
 
         if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
 
-        $fields[] = $definition['nestedRootObjectLabel'];
+        if (!$pOptions['fields']){
+            $fields[] = $definition['nestedRootObjectLabel'];
 
-        if ($definition['nestedRootObjectExtraFields']){
-            $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
-            foreach ($extraFields as $field)
-                $fields[] = $field;
+            if ($definition['nestedRootObjectExtraFields']){
+                $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
+                foreach ($extraFields as $field)
+                    $fields[] = $field;
+            }
+            $pOptions['fields'] = implode(',',$fields);
         }
-        $pOptions['fields'] = implode(',',$fields);
 
         if ($pCondition)
             $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);

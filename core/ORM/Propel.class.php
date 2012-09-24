@@ -32,19 +32,9 @@ class Propel extends ORMAbstract {
 
     public $propelPrimaryKeys;
 
-    /**
-     * Constructor
-     *
-     * @param string $pObjectKey
-     * @param array  $pDefinition
-     */
-    function __construct($pObjectKey, $pDefinition){
-        $this->objectKey = $pObjectKey;
-        $this->definition = $pDefinition;
-    }
-
     public function init(){
-        if ($this->primaryKeys) return;
+
+        if ($this->propelPrimaryKeys) return;
 
         $this->query = $this->getQueryClass();
         $this->tableMap = $this->query->getTableMap();
@@ -118,7 +108,6 @@ class Propel extends ORMAbstract {
                     }
                 }
             }
-
 
         } else {
             foreach ($pFields as $field){
@@ -254,7 +243,7 @@ class Propel extends ORMAbstract {
      * @return string
      */
     public function getPhpName($pName = null){
-        return $pName ? ucfirst($pName) : ucfirst($this->objectKey);
+        return $pName ? ucfirst($pName) : ucfirst($this->definition['propelClassName'] ?: $this->objectKey);
     }
 
 
@@ -283,6 +272,7 @@ class Propel extends ORMAbstract {
         $query->limit(1);
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
+
         $selects = array_keys($fields);
 
         $query->select($selects);
@@ -377,6 +367,18 @@ class Propel extends ORMAbstract {
 
     }
 
+    /**
+     * Generates a row from the propel object using the get*() methods. Resolves *-to-many relations.
+     *
+     * @param      $pClazz
+     * @param      $pRow
+     * @param      $pSelects
+     * @param      $pRelations
+     * @param      $pRelationFields
+     * @param bool $pPermissionCheck
+     *
+     * @return array
+     */
     public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields, $pPermissionCheck = false){
 
         $item = new $pClazz();
@@ -615,18 +617,82 @@ class Propel extends ORMAbstract {
 
     }
 
+    public function pkFromRow($pRow){
+        $pks = array();
+        foreach ($this->primaryKeys as $pk){
+            $pks[$pk] = $pRow[$pk];
+        }
+        return $pks;
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function getBranch($pPk = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-        $pOptions = false){
+    public function getTree($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 
+        $query = $this->getQueryClass();
+        if (!$pPk){
+            if ($pScope === null && $this->definition['nestedRootAsObject'])
+                throw new \InvalidArgumentException('Argument scope is missing.');
+            $parent = $query->findRoot($pScope);
+        } else {
+            $parent = $query->findPK($this->getPropelPk($pPk));
+        }
+
+        $query = $this->getQueryClass();
+
+        $query->childrenOf($parent);
+
+        list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
+        $selects = array_keys($fields);
+
+        $selects[] = 'Lft';
+        $selects[] = 'Rgt';
+        $selects[] = 'Title';
+        $query->select($selects);
+
+        $this->mapOptions($query, $pOptions);
+
+        $this->mapToOneRelationFields($query, $relations, $relationFields);
+
+        $stmt = $this->getStm($query, $pCondition);
+
+        $clazz = $this->getPhpName();
+
+        while ($row = dbFetch($stmt)){
+            $item = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+            $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1)/2;
+            if ($pDepth > 1 && $item['_childrenCount'] > 0){
+                $item['_children'] = self::getTree($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+            }
+            $result[] = $item;
+        }
+
+
+        return $result;
+
+
+
+        foreach($files as &$file){
+            if ($pDepth > 1 && $file['type'] == 'dir'){
+
+                $file['_children'] = self::getTree(array('id' => $file['path']), null, $pDepth-1);
+                $file['_childrenCount'] = count($file['_children']);
+
+            } else if ($file['type'] == 'dir'){
+                $file['_childrenCount'] = \Core\File::getCount($file['path']);
+
+            } else {
+                $file['_childrenCount'] = 0;
+            }
+        }
+
+        json($query->findTree(4));
 
         $pQuery = $this->getQueryClass();
 
         if ($pCondition){
-            $where = dbConditionToSql($pCondition);
+            //$where = dbConditionToSql($pCondition);
             $pQuery->where($where);
         }
 

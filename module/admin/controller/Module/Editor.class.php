@@ -446,7 +446,7 @@ class Editor {
         if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
 
         $objectTable['name'] = $object['table'];
-        $objectTable['phpName'] = ucfirst($pObject);
+        $objectTable['phpName'] = $object['propelClassName'] ?: ucfirst($pObject);
 
         $columnsDefined = array();
 

@@ -6,16 +6,30 @@ ka.ObjectTree = new Class({
     options: {
         openFirstLevel: false,
         rootObject: false,
-        scopeId: false,
+        scope: false,
         selectObject: false,
         withContext: true,
         iconMap: false,
         withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
         iconAdd: 'admin/images/icons/add.png',
 
+        labelTemplate: false,
+
+        objectFields: '',
+
         move: true, //can we move the objects around
         icon: 'admin/images/icons/folder.png' //If iconMap is not defined, we use this
     },
+
+
+    labelTemplate:
+        '{if kaSelectImage}'+
+            '{var isVectorIcon = kaSelectImage.substr(0,1) == "#"} '+
+            '{if kaSelectImage && isVectorIcon}<span class="{kaSelectImage.substr(1)}">{/if}'+
+            '{if kaSelectImage && !isVectorIcon}<img src="{kaSelectImage}" />{/if}'+
+            '{/if}'+
+            '{label}'+
+            '{if kaSelectImage && isVectorIcon}</span>{/if}',
 
     items: {},
     loadChildrenRequests: {},
@@ -44,7 +58,25 @@ ka.ObjectTree = new Class({
         this.objectDefinition = ka.getObjectDefinition(this.objectKey);
         if (!this.objectDefinition){
             throw 'Object not found: '+pObjectKey;
-            return;
+        }
+
+        var fields = [];
+        if (this.options.objectFields)
+            fields = this.options.objectFields;
+        else if (this.options.objectLabel)
+            fields.push(this.options.objectLabel);
+        else {
+            var definition = ka.getObjectDefinition(pObjectKey);
+            fields.push(definition.objectLabel);
+        }
+
+        if (typeOf(fields) == 'string'){
+            fields = fields.replace(/[^a-zA-Z0-9_]/g, '').split(',');
+        }
+        this.objectFields = fields;
+
+        if (!this.objectDefinition.nested){
+            throw 'Object is not a nested set '+pObjectKey;
         }
 
         this.primaryKeys = ka.getPrimariesForObject(pObjectKey);
@@ -193,11 +225,11 @@ ka.ObjectTree = new Class({
         var objectUrl = this.objectKey;
 
         if (this.options.rootObject)
-            objectUrl += '?'+Object.toQueryString({scopeId: this.options.scopeId});
+            objectUrl += '?'+Object.toQueryString({scope: this.options.scope});
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: this.renderFirstLevel.bind(this)}).get({
-            object: objectUrl
-        });
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree/'+objectUrl,
+            noCache: 1, onComplete: this.renderFirstLevel.bind(this)
+        }).get();
 
     },
 
@@ -207,27 +239,69 @@ ka.ObjectTree = new Class({
             this.lastFirstLevelRq.cancel();
         }
 
-        if (typeOf(this.options.scopeId) == 'null' || this.options.scopeId === false){
-            throw t('Missing option scopeId in ka.ObjectTree. Unable to load root ob the object:'+' '+this.objectKey);
+        if (typeOf(this.options.scope) == 'null' || this.options.scope === false){
+            throw t('Missing option scope in ka.ObjectTree. Unable to load root ob the object:'+' '+this.objectKey);
         }
 
         this.rootLoaded = false;
 
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree-root/'+this.objectKey, noCache: 1,
             onComplete: this.renderRoot.bind(this)}).get({
-            scopeId: this.options.scopeId
+            scope: this.options.scope
         });
 
     },
 
-    renderRoot: function(pRes){
+    renderLabel: function(pContainer, pData, pObjectKey){
+
+        var data = pData;
+
+        if (typeOf(data) == 'string')
+            data = {label: data};
+        else if (typeOf(data) == 'array'){
+            //image
+            data = {label: data[0], kaSelectImage: data[1]};
+        }
+
+        if (typeOf(data.kaSelectImage) !== 'string') data.kaSelectImage = '';
+
+        var template = this.labelTemplate;
+
+        if (typeOf(this.options.labelTemplate) == 'string' && this.options.labelTemplate){
+            template = this.options.labelTemplate;
+        }
+
+        if (template == this.labelTemplate && this.objectFields.length > 0){
+            //we have no custom layout, but objectFields
+            var label = [];
+            Array.each(this.objectFields, function(field){
+                label.push(pData[field]);
+            });
+            data.label = label.join(', ');
+        }
+
+        if (template == this.labelTemplate && !data.label){
+            var definition = ka.getObjectDefinition(pObjectKey);
+            var label = '';
+            Object.each(definition.fields, function(field, key){
+                if (!label && !field.primaryKey && data[key]) label = key;
+            });
+            data.label = data[label];
+        }
+
+        pContainer.set('html', mowla.fetch(template, data));
+    },
+
+    renderRoot: function(pResponse){
+
+        var item = pResponse.data;
 
         var rootDefinition = ka.getObjectDefinition(this.objectDefinition.nestedRootObject);
-        var primaryKeys = ka.getPrimaryListForObject(this.objectDefinition.nestedRootObject);
+        //var primaryKeys = ka.getPrimaryListForObject(this.objectDefinition.nestedRootObject);
 
-        this.rootObject = pRes;
-        var id = pRes[primaryKeys[0]];
-        var label = pRes[this.objectDefinition.nestedRootObjectLabel];
+        var id = ka.getObjectUrlId(this.objectDefinition.nestedRootObject, item);
+
+        this.rootObject = item;
 
         if (this.paneRoot)
             this.paneRoot.empty();
@@ -239,7 +313,6 @@ ka.ObjectTree = new Class({
 
         a.id = id;
         a.objectKey = this.objectDefinition.nestedRootObject;
-        a.label = label;
 
         if (id == this.options.selectObject && this.options.noActive != true){
             a.addClass('ka-objectTree-item-selected');
@@ -250,13 +323,14 @@ ka.ObjectTree = new Class({
         a.objectTreeObj = this;
 
         a.span = new Element('span', {
-            'class': 'ka-objectTree-item-title',
-            text: label
+            'class': 'ka-objectTree-item-title'
         }).inject(a);
+
+        this.renderLabel(a.span, item, this.objectDefinition.nestedRootObject);
 
         this.items[ this.objectDefinition.nestedRootObject+'_'+id ] = a;
 
-        a.store('item', pRes);
+        a.store('item', item);
 
         a.childrenLoaded = true;
 
@@ -267,7 +341,7 @@ ka.ObjectTree = new Class({
 
         if (!this.objectDefinition.chooserBrowserTreeRootObjectFixedIcon){
             //todo
-            icon = this.options.iconMap[pRes[this.objectDefinition.chooserBrowserTreeRootObjectIcon]];
+            icon = this.options.iconMap[item[this.objectDefinition.chooserBrowserTreeRootObjectIcon]];
         }
 
         if (icon){
@@ -306,19 +380,23 @@ ka.ObjectTree = new Class({
 
     },
 
-    renderFirstLevel: function (pItems) {
+    renderFirstLevel: function (pResponse) {
 
         this.loadingDone = false;
 
-        if (!pItems && this.lastRootItems) {
-            pItems = this.lastRootItems;
+        if (pResponse.error) return false;
+
+        var items = pResponse.data;
+
+        if (!items && this.lastRootItems) {
+            items = this.lastRootItems;
         }
 
-        this.lastRootItems = pItems;
+        this.lastRootItems = items;
 
         this.paneObjects.empty();
 
-        this.addRootItems(pItems, this.paneObjects);
+        this.addRootItems(items, this.paneObjects);
 
         if (this.options.withObjectAdd) {
 
@@ -522,7 +600,7 @@ ka.ObjectTree = new Class({
             src: _path + PATH_MEDIA + '/admin/images/icons/tree_plus.png'
         }).inject(a, 'top');
 
-        if (pItem._children_count == 0) {
+        if (pItem._childrenCount == 0) {
             a.toggler.setStyle('visibility', 'hidden');
         } else {
             a.toggler.addEvent('click', function (e) {
@@ -752,10 +830,10 @@ ka.ObjectTree = new Class({
         }).inject(pA.span);
 
         this.loadChildrenRequests[ pA.id ] = true;
-        new Request.JSON({url: _path + 'admin/backend/objectTree', noCache: 1, onComplete: function (pItem) {
+        new Request.JSON({url: _path + 'admin/backend/object-tree/'+this.objectKey+'/'+encodeURIComponent(pA.id),
+            noCache: 1, onComplete: function(pResponse){
 
             this.removeChildren(pA);
-
             loader.destroy();
 
             if (pAndOpen) {
@@ -767,13 +845,13 @@ ka.ObjectTree = new Class({
 
             pA.childrenLoaded = true;
 
-            if (pItem._children_count == 0) {
+            if (typeOf(pResponse.data) == 'array' && pResponse.data.length == 0) {
                 pA.toggler.setStyle('visibility', 'hidden');
                 return;
             }
 
             this.inItemsGeneration = true;
-            Array.each(pItem._children, function (childitem) {
+            Array.each(pResponse.data, function (childitem) {
                 this.addItem(childitem, pA);
             }.bind(this));
             this.inItemsGeneration = false;
@@ -784,7 +862,7 @@ ka.ObjectTree = new Class({
             this.fireEvent('childrenLoaded', [item, pA]);
             this.setRootPosition();
 
-        }.bind(this)}).get({ object: this.objectKey+'/'+pA.id });
+        }.bind(this)}).get();
 
     },
 
