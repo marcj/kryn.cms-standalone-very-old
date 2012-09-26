@@ -213,6 +213,8 @@ class Editor {
                 $column['type'] = 'VARCHAR';
                 $column['size'] = 3;
 
+                break;
+
             case 'number':
 
                 $column['type'] = 'INTEGER';
@@ -226,7 +228,7 @@ class Editor {
 
             case 'checkbox':
 
-                $column['type'] = '';
+                $column['type'] = 'BOOLEAN';
                 break;
 
             case 'custom':
@@ -246,6 +248,8 @@ class Editor {
                     $column['type'] = $pField['type'] == 'date'? 'DATE':'TIMESTAMP';
 
                 $column['type'] = 'BIGINT';
+
+                break;
 
             case 'object':
 
@@ -561,7 +565,7 @@ class Editor {
         $methods = $reflection->getMethods();
 
         foreach ($methods as $method){
-            if ($method->class == $pClass){
+            if ($method->class == $pClassName){
 
                 $code = '';
                 for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
