@@ -5,6 +5,7 @@ ka.FieldTypes.Object = new Class({
     fieldTemplate: '{label}',
 
     options: {
+        object: null,
         objects: null,
         withoutObjectWrapper: false,
         fieldTemplate: null

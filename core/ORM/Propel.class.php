@@ -537,14 +537,11 @@ class Propel extends ORMAbstract {
             }
         }
 
-        error_log($pTargetPk);
+        if ($item == $target){
+            return false;
+        }
 
         if ($target){
-
-            error_log($item->getTitle());
-            error_log($target->getTitle());
-            error_log($method);
-
             return $item->$method($target) ? true : false;
         } else {
             throw new \Exception('Can not find the appropriate target.');

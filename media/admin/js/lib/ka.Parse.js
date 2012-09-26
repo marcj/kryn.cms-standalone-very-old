@@ -59,7 +59,6 @@ ka.Parse = new Class({
                 } else {
                     if (this.fields[obj.field.againstField]){
                         this.fields[obj.field.againstField].addEvent('check-depends', function(){
-                            logger('onCheck-depends from '+obj.field.againstField+' on '+id);
                             this.setVisibility(this.fields[obj.field.againstField], obj);
                             if (obj.hasParent())
                                 self.showChildContainer(obj.getParent());

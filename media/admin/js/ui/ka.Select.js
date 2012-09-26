@@ -53,6 +53,7 @@ ka.Select = new Class({
         objectLabel: false, //string
         objectFields: false, //or a array
         labelTemplate: false,
+        maxItemsPerLoad: 20, //number
         customValue: false //boolean
 
     },
@@ -171,8 +172,7 @@ ka.Select = new Class({
             onComplete: function(response){
 
                 if (response.error){
-                    //handle error
-                    //todo
+                    //todo, handle error
                     return false;
                 } else {
                     
@@ -181,10 +181,15 @@ ka.Select = new Class({
                     Array.each(response.data, function(item){
 
                         var id = ka.getObjectUrlId(this.options.object, item);
+
+                        if (this.hideOptions && this.hideOptions.contains(id)) return;
+
                         items.push({
                             key: id,
                             label: item
                         });
+
+
                         this.cachedObjectItems[id] = item;
 
                     }.bind(this));
@@ -195,7 +200,7 @@ ka.Select = new Class({
         }).get({
             object: this.options.object,
             offset: pOffset,
-            limit: 20,
+            limit: this.options.maxItemsPerLoad,
             fields: this.objectFields.join(',')
         });
 
@@ -479,18 +484,26 @@ ka.Select = new Class({
         return mowla.fetch(template, data);
     },
 
-    //returns always max 20
+    /**
+     * Returns always max this.options.maxItemsPerLoad (20 default) items.
+     *
+     * @param {Integer}  pOffset
+     * @param {Function} pCallback
+     */
     dataProxy: function(pOffset, pCallback){
 
-        var items = [];
 
         if (this.items.length > 0){
             //we have static items
+            var items = [];
             var i = pOffset-1;
+
             while (++i >= 0){
 
                 if (i >= this.items.length) break;
-                if (items.length == 20) break;
+                if (items.length == this.options.maxItemsPerLoad) break;
+
+                if (this.hideOptions && this.hideOptions.contains(this.items[i].key)) continue;
 
                 items.push(this.items[i]);
             }
@@ -545,6 +558,18 @@ ka.Select = new Class({
         });
 
         this.loadItems();
+    },
+
+    showOption: function(pId){
+        if (!this.hideOptions) this.hideOptions = [];
+        this.hideOptions.push(pId);
+    },
+
+    hideOption: function(pId){
+        if (!this.hideOptions) return;
+        var idx = this.hideOptions.indexOf(pId);
+        if (idx === -1) return;
+        this.hideOptions.splice(idx, 1);
     },
 
 

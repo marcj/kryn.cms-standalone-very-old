@@ -155,7 +155,7 @@ ka.Field = new Class({
         if (this.options.fieldWidth)
             this.fieldPanel.setStyle('width', this.options.fieldWidth);
 
-        if (this.options.fieldWidth && this.options.fieldWidth.indexOf('%') > 0){
+        if (this.options.fieldWidth && typeOf(this.options.fieldWidth) == 'string' && this.options.fieldWidth.indexOf('%') > 0){
             this.fieldPanel.addClass('ka-field-field-without-margin');
         }
 

@@ -24,7 +24,11 @@ var admin_backend_chooser = new Class({
     initialize: function (pWin) {
         this.win = pWin;
 
+        logger(this.win.params);
+
         this.setOptions(this.win.params);
+
+        logger(this.options);
 
         this.value = this.win.params.value;
         this.p = _path + PATH_MEDIA + '/admin/images/';
@@ -184,18 +188,19 @@ var admin_backend_chooser = new Class({
 
         objectOptions.multi = this.options.multi;
 
-        if (objectDefinition.chooserBrowserType == 'custom' && objectDefinition.chooserBrowserJavascriptClass){
+        if (objectDefinition.nested){
+
+            objectOptions.type = 'tree';
+            objectOptions.object = pObjectKey;
+            objectOptions.scopeChooser = true;
+
+            this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, bundle.pane);
+
+        } else if (objectDefinition.chooserBrowserType == 'custom' && objectDefinition.chooserBrowserJavascriptClass){
 
             var chooserClass = window[objectDefinition.chooserBrowserJavascriptClass];
 
-            if (objectDefinition.chooserBrowserJavascriptClass.indexOf('.') !== false){
-
-                var split = objectDefinition.chooserBrowserJavascriptClass.split('.');
-                chooserClass = window;
-                split.each(function(s){
-                    chooserClass = chooserClass[s];
-                });
-            }
+            var chooserClass = ka.getClass(objectDefinition.chooserBrowserJavascriptClass);
 
             if (!chooserClass){
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
@@ -210,12 +215,14 @@ var admin_backend_chooser = new Class({
                 );
             }
         } else {
+
             this.objectChooserInstance[pObjectKey] = new ka.ObjectTable(
                 bundle.pane,
                 objectOptions,
                 this.win,
                 pObjectKey
             );
+
         }
 
         if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent){

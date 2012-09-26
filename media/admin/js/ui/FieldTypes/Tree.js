@@ -5,6 +5,9 @@ ka.FieldTypes.Tree = new Class({
     options: {
         object: '',
         scope: null,
+
+        scopeChooser: false,
+
         move: true,
         withObjectAdd: false,
         iconAdd: 'admin/images/icons/add.png',
@@ -21,24 +24,51 @@ ka.FieldTypes.Tree = new Class({
         objectFields: ''
     },
 
+    definition: {},
+
     createLayout: function(){
 
-        var clazz = ka.ObjectTree;
-        var definition = ka.getObjectDefinition(this.options.object);
-        if (!definition) throw 'Object not found '+this.options.object;
-        if (!definition.nested) throw 'Object is not a nested set '+this.options.object;
+        this.definition = ka.getObjectDefinition(this.options.object);
+        if (!this.definition) throw 'Object not found '+this.options.object;
+        if (!this.definition.nested) throw 'Object is not a nested set '+this.options.object;
 
-        if (definition.chooserBrowserJavascriptClass){
-            if (!(clazz = ka.getClass(definition.chooserBrowserJavascriptClass))){
-                throw 'Class does not exist '+definition.chooserBrowserJavascriptClass;
+
+        if (!this.options.labelTemplate){
+            this.options.labelTemplate = this.definition.chooserFieldDataModelFieldTemplate;
+        }
+
+
+        if (this.definition.nestedRootAsObject && !this.options.scope){
+            var options = {
+                object: this.definition.nestedRootObject
+            };
+
+            this.scopeField = new ka.Select(this.fieldInstance.fieldPanel, options);
+
+            this.scopeField.addEvent('change', function(){
+                this.loadTree(this.scopeField.getValue());
+            }.bind(this));
+
+            this.treeContainer = new Element('div').inject(this.fieldInstance.fieldPanel);
+        } else {
+            this.treeContainer = this.fieldInstance.fieldPanel;
+            this.loadTree(this.options.scope);
+        }
+    },
+
+    loadTree: function(pScope){
+
+        this.treeContainer.empty();
+
+        var clazz = ka.ObjectTree;
+        if (this.definition.chooserBrowserJavascriptClass){
+            if (!(clazz = ka.getClass(this.definition.chooserBrowserJavascriptClass))){
+                throw 'Class does not exist '+this.definition.chooserBrowserJavascriptClass;
             }
         }
 
-        if (!this.options.labelTemplate){
-            this.options.labelTemplate = definition.chooserFieldDataModelFieldTemplate;
-        }
-
-        this.tree = new clazz(this.fieldInstance.fieldPanel, this.options.object, this.options);
+        this.options.scope = pScope;
+        this.tree = new clazz(this.treeContainer, this.options.object, this.options);
         this.tree.addEvent('change', this.fieldInstance.fireChange);
     },
 

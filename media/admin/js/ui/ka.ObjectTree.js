@@ -657,14 +657,14 @@ ka.ObjectTree = new Class({
         }
 
         if (icon){
-            a.masks = new Element('span', {
+            pA.masks = new Element('span', {
                 'class': 'ka-objectTree-item-masks'
             }).inject(a, 'top');
 
             new Element('img', {
                 'class': 'ka-objectTree-item-type',
                 src: _path + PATH_MEDIA + icon
-            }).inject(a.masks);
+            }).inject(pA.masks);
         }
 
 
@@ -1050,15 +1050,17 @@ ka.ObjectTree = new Class({
             var target = this.dragNDropElement;
             var source = this.currentObjectToDrag;
 
-            var code = pos[this.dragNDropPos];
-            var targetId = target.objectKey+'/'+target.id;
-            var sourceId = source.objectKey+'/'+source.id;
+            if (target && source){
+                var code = pos[this.dragNDropPos];
+                var targetId = target.objectKey+'/'+target.id;
+                var sourceId = source.objectKey+'/'+source.id;
 
-            if (this.rootA == this.dragNDropElement){
-                code = 'into';
+                if (this.rootA == this.dragNDropElement){
+                    code = 'into';
+                }
+
+                this.moveObject(sourceId, targetId, code);
             }
-
-            this.moveObject(sourceId, targetId, code);
         }
         document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
     },

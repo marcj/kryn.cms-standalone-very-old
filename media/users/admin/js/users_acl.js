@@ -84,6 +84,23 @@ var users_users_acl = new Class({
 
         if (this.currentDefinition.nested){
 
+
+
+            var options = {
+                type: 'tree',
+                object: pObjectKey,
+                openFirstLevel: true,
+                move: false,
+                withContext: false,
+                noWrapper: true,
+                onReady: function(){
+                    this.renderTreeRules();
+                }.bind(this),
+                onChildrenLoaded: function(){
+                    this.renderTreeRules();
+                }.bind(this)
+            };
+
             if (this.currentDefinition.nestedRootObject){
 
                 var objectChooser = new Element('div').inject(this.objectsExactContainer);
@@ -96,18 +113,8 @@ var users_users_acl = new Class({
                 field.addEvent('change', function(){
                     objectTreeContainer.getChildren().destroy();
 
-                    this.lastObjectTree = new ka.ObjectTree(objectTreeContainer, pObjectKey, {
-                        openFirstLevel: true,
-                        scope: field.getValue(),
-                        move: false,
-                        withContext: false,
-                        onReady: function(){
-                            this.renderTreeRules();
-                        }.bind(this),
-                        onChildrenLoaded: function(){
-                            this.renderTreeRules();
-                        }.bind(this)
-                    });
+                    options.scope = field.getValue();
+                    this.lastObjectTree = new ka.Field(options, objectTreeContainer);
 
                     this.mapObjectTreeEvent();
 
@@ -117,17 +124,8 @@ var users_users_acl = new Class({
                     field.fireEvent('change', field.getValue());
                 });
             } else {
-                this.lastObjectTree = new ka.ObjectTree(this.objectsExactContainer, pObjectKey, {
-                    openFirstLevel: true,
-                    move: false,
-                    withContext: false,
-                    onReady: function(){
-                        this.renderTreeRules();
-                    }.bind(this),
-                    onChildrenLoaded: function(){
-                        this.renderTreeRules();
-                    }.bind(this)
-                });
+
+                this.lastObjectTree = new ka.Field(options, this.objectsExactContainer);
 
                 this.mapObjectTreeEvent();
 
@@ -694,9 +692,13 @@ var users_users_acl = new Class({
         .inject(this.objectTab.pane);
 
         this.objectRulesFilter = new Element('div', {
-            'class': 'kwindow-win-title users-acl-object-constraints-title',
-            text: t('Constraints')
+            'class': 'users-acl-object-constraints-title'
         }).inject(this.objectConstraints);
+
+        new Element('div', {
+            'class': 'ka-list-combine-splititem',
+            text: t('Constraints')
+        }).inject(this.objectRulesFilter);
 
         var div = new Element('div', {
             style: 'padding-top: 12px;'
@@ -785,9 +787,13 @@ var users_users_acl = new Class({
         .inject(this.objectTab.pane);
 
         this.objectRulesFilter = new Element('div', {
-            'class': 'kwindow-win-title users-acl-object-rules-filter',
-            text: t('Rules')
+            'class': 'users-acl-object-rules-filter'
         }).inject(this.objectRules);
+
+        new Element('div', {
+            'class': 'ka-list-combine-splititem',
+            text: t('Rules')
+        }).inject(this.objectRulesFilter);
 
         this.objectRulesInfo = new Element('div', {
             'class': 'users-acl-object-rules-info'
@@ -918,10 +924,9 @@ var users_users_acl = new Class({
 
     openEditRuleDialog: function(pObject, pRuleDiv){
 
+        logger(pObject);
 
         this.currentRuleDiv = typeOf(pRuleDiv)=='element'?pRuleDiv:null;
-
-        pObject = 'news';
 
         this.editRuleDialog = this.win.newDialog('', true);
 
@@ -948,6 +953,7 @@ var users_users_acl = new Class({
         }
 
         new ka.Button(applyTitle)
+        .setButtonStyle('blue')
         .addEvent('click', this.applyEditRuleDialog.bind(this))
         .inject(this.editRuleDialog.bottom);
 
@@ -974,7 +980,7 @@ var users_users_acl = new Class({
                 label: t('Constraint'),
                 needValue: '2',
                 againstField: 'constraint_type',
-                type: 'objectCondition',
+                type: 'condition',
                 object: pObject,
                 startWith: 1
             },
@@ -1004,13 +1010,15 @@ var users_users_acl = new Class({
 
             sub: {
                 type: 'checkbox',
-                label: t('With sub-items')
+                label: t('With sub-items'),
+                'default': 1
             },
 
             mode: {
                 label: t('Mode'),
                 type: 'select',
                 inputWidth: 140,
+                'default': '0',
                 items: {
                     '0': [tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png'],
                     '1': [tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png'],
@@ -1032,8 +1040,7 @@ var users_users_acl = new Class({
                 noWrapper: true,
                 needValue: ['0','2','3','4'],
                 againstField: 'mode',
-                type: 'custom',
-                'class': 'usersAclRuleFields',
+                type: 'usersAclRuleFields',
                 object: pObject
             }
 

@@ -25,8 +25,8 @@ ka.FieldTypes.Condition = new Class({
         .inject(this.fieldInstance.fieldPanel);
 
         if (this.options.startWith){
-            for(var i=0; i<this.field.startWith;i++)
-                this.addCondition(con);
+            for(var i=0; i<this.options.startWith;i++)
+                this.addCondition(this.main);
         }
 
     },
@@ -72,18 +72,18 @@ ka.FieldTypes.Condition = new Class({
 
         var td = new Element('td', {style: 'width: 25%'}).inject(tr);
 
-        if (pOptions){
+        if (this.options.fields || this.options.field){
             div.iLeft = new ka.Select(td, {
                 customValue: true
             });
 
             document.id(div.iLeft).setStyle('width', '100%');
 
-            objectDefinition = ka.getObjectDefinition(pOptions.object);
+            objectDefinition = ka.getObjectDefinition(this.options.object);
 
-            if (pOptions.field){
+            if (this.options.field){
 
-                div.iLeft.add(pOptions.field, objectDefinition.fields[pOptions.field].label||pOptions.field);
+                div.iLeft.add(this.options.field, objectDefinition.fields[this.options.field].label||this.options.field);
                 div.iLeft.setEnabled(false);
 
             } else {
@@ -120,15 +120,15 @@ ka.FieldTypes.Condition = new Class({
         if (pValues)
             select.setValue(pValues[1]);
 
-        var rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
+        div.rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
         div.iRight = new Element('input', {
             'class': 'text',
             style: 'width: 100%',
             value: pValues?pValues[2]:''
-        }).inject(rightTd);
+        }).inject(div.rightTd);
         div.iRight.getValue = function(){return this.value;};
 
-        if (pOptions){
+        if (this.options.fields || this.options.field){
             div.iLeft.addEvent('change', this.updateRightTdField.bind(this, div));
             div.iMiddle.addEvent('change', this.updateRightTdField.bind(this, div));
 
@@ -184,13 +184,13 @@ ka.FieldTypes.Condition = new Class({
 
         delete div.iRight;
 
-        rightTd.empty();
+        div.rightTd.empty();
 
         if (fieldDefinition.primaryKey){
             if (['=', '!=', 'IN', 'NOT IN'].contains(div.iMiddle.getValue())){
                     fieldDefinition = {
                         type: 'object',
-                        object: pOptions.object,
+                        object: this.options.object,
                         withoutObjectWrapper: true
                     };
 
@@ -224,18 +224,18 @@ ka.FieldTypes.Condition = new Class({
         }
 
         if (fieldDefinition.type == 'date'|| fieldDefinition.type == 'datetime'){
-            dateConditions.each(function(item){div.iMiddle.add(item);});
+            this.dateConditions.each(function(item){div.iMiddle.add(item);});
         } else {
-            dateConditions.each(function(item){div.iMiddle.remove(item);});
+            this.dateConditions.each(function(item){div.iMiddle.remove(item);});
         }
 
         fieldDefinition.noWrapper = true;
         fieldDefinition.fieldWidth = '100%';
 
-        if (!dateConditions.contains(div.iMiddle.getValue())){
+        if (!this.dateConditions.contains(div.iMiddle.getValue())){
 
             div.iRight = new ka.Field(
-                fieldDefinition, rightTd
+                fieldDefinition, div.rightTd
             );
 
             div.iRight.code = div.iMiddle.getValue()+'_'+chosenField;
