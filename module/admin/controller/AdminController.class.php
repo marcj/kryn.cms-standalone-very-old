@@ -150,9 +150,14 @@ class AdminController {
                     ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
                 ->done()
 
-                //admin/backend/object-count
+                //admin/backend/object-tree-root
                 ->addSubController('object-tree-root', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_]+)', 'getTreeRoot')
+                ->addGetRoute('([a-zA-Z-_]+)', 'getTreeRoot')
+                ->done()
+
+                //admin/backend/object-move
+                ->addSubController('object-move', '\Admin\Object\Controller')
+                ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'moveItem')
                 ->done()
 
 

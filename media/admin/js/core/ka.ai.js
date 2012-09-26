@@ -184,6 +184,22 @@ window.ka.entrypoint = {
 
 };
 
+ka.getClass = function(pClassPath){
+    pClassPath = pClassPath.replace('[\'', '');
+    pClassPath = pClassPath.replace('\']', '');
+
+    if (pClassPath.indexOf('.') > 0 ){
+        var path = pClassPath.split('.');
+        var clazz = null;
+        Array.each(path, function(item){
+            clazz = clazz ? clazz[item] : window[item];
+        });
+        return clazz;
+    }
+
+    return window[pClassPath];
+}
+
 ka.urlEncode = function(pValue){
 
     if (typeOf(pValue) == 'string'){

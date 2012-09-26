@@ -69,7 +69,31 @@ class Controller {
 
         $primaryKeys = \Core\Object::parsePk($pObject, $pParentPrimaryKey);
 
+        if (!$options['fields']){
+            //use default fields from object definition
+            $definition = \Core\Kryn::$objects[$pObject];
+            $options['fields'][] = $definition['label'];
+
+            if ($definition['chooserBrowserTreeIcon'])
+                $options['fields'][] = $definition['chooserBrowserTreeIcon'];
+
+            if ($definition['chooserFieldDataModelFieldExtraFields']){
+                $extraFields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['chooserFieldDataModelFieldExtraFields'])));
+                foreach($extraFields as $field)
+                    $options['fields'][] = $field;
+            }
+
+        }
         return \Core\Object::getTree($pObject, $primaryKeys[0], $condition = false, $pDepth, $pScope, $options);
+    }
+
+    public function moveItem($pObjectKey, $pId, $pTo, $pWhere = 'into'){
+
+        $options = array('permissionCheck' => true);
+
+        list($targetObjectKey, $targetObjectId, $targetParams) = \Core\Object::parseUri($pTo);
+
+        return \Core\Object::move($pObjectKey, $pId, $targetObjectId[0], $pWhere, $targetObjectKey, $options);
     }
 
     public function getTreeRoot($pObject, $pScope){
@@ -83,6 +107,23 @@ class Controller {
 
         $options['fields'] = $pFields;
         $options['permissionCheck'] = true;
+
+        if (!$options['fields']){
+            $options['fields'] = array();
+
+            //use default fields from object definition
+            $definition = \Core\Kryn::$objects[$pObject];
+            $options['fields'][] = $definition['nestedLabel'];
+
+            if ($definition['chooserBrowserTreeIcon'])
+                $options['fields'][] = $definition['chooserBrowserTreeIcon'];
+
+            if ($definition['chooserFieldDataModelFieldExtraFields']){
+                $extraFields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['chooserFieldDataModelFieldExtraFields'])));
+                foreach($extraFields as $field)
+                    $options['fields'][] = $field;
+            }
+        }
 
         return \Core\Object::getTree($pObject, null, $condition = false, $pDepth, $pScope, $options);
     }

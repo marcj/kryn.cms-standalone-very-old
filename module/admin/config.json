@@ -588,40 +588,40 @@
         },
         "node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
-            "table": "system_page",
             "propelClassName": "Page",
-            "tableSync": 1,
-            "tableCondition": [
-                
-            ],
+            "table": "system_page",
+            "objectLabel": "title",
             "nestedLabel": "title",
             "nestedRootObject": "domain",
-            "nestedRootObjectField": "domain_id",
+            "nestedRootObjectField": "domainId",
             "nestedRootObjectLabel": "domain",
-            "nestedRootAsObject": 1,
-            "nested": 1,
-            "multiLanguage": 0,
-            "domainDepended": 0,
+            "nestedRootAsObject": true,
+            "nested": true,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
             "chooserFieldDataModelCondition": [
                 
             ],
             "chooserFieldDataModel": "default",
+            "chooserFieldDataModelField": "title",
+            "chooserFieldDataModelFieldExtraFields": "lvl, accessDenied, accessFromGroups",
             "chooserFieldDataModelFields": {
                 "title": {
                     "type": "text"
                 }
             },
-            "chooserFieldDataModelField": "title",
             "chooserFieldType": "default",
             "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
             "chooserBrowserTreeJavascript": "custom",
             "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
-            "chooserBrowserTreeRootObjectFixedIcon": 1,
+            "chooserBrowserTreeRootObjectFixedIcon": true,
+            "chooserBrowserTreeIcon": "type",
             "chooserBrowserTreeIconMapping": [
                 
             ],
-            "chooserBrowserTreeFixedIcon": 0,
-            "chooserBrowserJavascriptClass": "ka.nodeChooser",
+            "chooserBrowserTreeFixedIcon": false,
+            "chooserBrowserJavascriptClass": "ka.NodeTree",
             "chooserBrowserOptions": [
                 
             ],

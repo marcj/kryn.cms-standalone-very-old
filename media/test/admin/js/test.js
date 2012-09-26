@@ -32,7 +32,6 @@ var test_test = new Class({
             items: items
         });
 
-
         new Element('input').inject(this.win.content);
         
         new ka.Textlist(this.win.content, {
@@ -52,9 +51,17 @@ var test_test = new Class({
         field.addEvent('change', function(){
             ch.empty();
             logger( field.getValue());
+            this.lastObjectTree = new ka.Field({
+                type: 'tree',
+                object: 'node',
+                scope: field.getValue()
+            }, ch);
+
+            /*
             this.lastObjectTree = new ka.ObjectTree(ch, 'node', {
                 openFirstLevel: true,
                 scope: field.getValue(),
+                selectable: false,
                 onReady: function(){
                     //this.renderTreeRules();
                     logger('onready');
@@ -64,7 +71,11 @@ var test_test = new Class({
                 }.bind(this)
             });
             logger(field.getValue());
+            */
         });
+
+        field.setValue(4);
+        field.fireEvent('change');
 
         var div = new Element('div', {
             style: 'padding-top: 15px;'

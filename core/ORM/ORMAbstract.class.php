@@ -5,6 +5,9 @@ namespace Core\ORM;
 /**
  * ORM Abstract class for objects.
  *
+ * Please do not handle 'permissionCheck' in $pOptions. This is handled in \Core\Object.
+ * You will get in getList()  a complex $pCondition object instead (if there are any ACL items)
+ *
  * 
  * $pPrimaryKey is an array with following format
  *
@@ -219,6 +222,20 @@ abstract class ORMAbstract {
      */
     abstract public function getCount($pCondition = null);
 
+
+    /**
+     *
+     *
+     * @param        $pPk
+     * @param        $pTargetPk
+     * @param string $pMode into, below|down, before|up
+     * @param        $pTargetObjectKey
+     * @throws \Exception
+     */
+    public function move($pPk, $pTargetPk = null, $pMode = 'into', $pTargetObjectKey = null){
+        throw new \NotImplementedException('Move method is not implemented for this object layer.');
+    }
+
     /**
      * Returns a branch if the object is a nested set.
      *
@@ -242,7 +259,7 @@ abstract class ORMAbstract {
      */
     public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
         if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
-        throw new \Exception(t('getTree is not implemented.'));
+        throw new \NotImplementedException(t('getTree is not implemented.'));
     }
 
 
@@ -254,7 +271,7 @@ abstract class ORMAbstract {
      * @return mixed
      */
     public function getParent($pPrimaryKey){
-        throw new \Exception(t('getParent is not implemented.'));
+        throw new \NotImplementedException(t('getParent is not implemented.'));
     }
 
 

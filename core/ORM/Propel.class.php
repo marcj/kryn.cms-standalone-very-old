@@ -503,6 +503,55 @@ class Propel extends ORMAbstract {
         return $peer::doDelete($pPk);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function move($pPk, $pTargetPk, $pMode = 'into', $pTargetObjectKey = null){
+
+        $query = $this->getQueryClass();
+        $item = $query->findPK($pPk);
+
+        $method = 'moveToLastChildOf';
+        if ($pMode == 'up' || $pMode == 'before')
+            $method = 'moveToPrevSiblingOf';
+        if ($pMode == 'down' || $pMode == 'below')
+            $method = 'moveToNextSiblingOf';
+
+        if (!$pTargetPk){
+            //search root
+            $target = $query->findRoot();
+            $method = 'moveToLastChildOf';
+        } else {
+
+            if ($this->objectKey != $pTargetObjectKey){
+                if (!$this->definition['nestedRootAsObject'])
+                    throw new \InvalidArgumentException('This object has no different object as root.');
+
+                $scopeField = 'get'.ucfirst($this->definition['nestedRootObjectField']);
+                $scopeId = $item->$scopeField();
+                $method = 'moveToLastChildOf';
+
+                $target = $query->findRoot($scopeId);
+            } else {
+                $target = $query->findPK($this->getPropelPk($pTargetPk));
+            }
+        }
+
+        error_log($pTargetPk);
+
+        if ($target){
+
+            error_log($item->getTitle());
+            error_log($target->getTitle());
+            error_log($method);
+
+            return $item->$method($target) ? true : false;
+        } else {
+            throw new \Exception('Can not find the appropriate target.');
+        }
+
+    }
+
 
     /**
      * {@inheritdoc}
@@ -651,6 +700,8 @@ class Propel extends ORMAbstract {
         $selects[] = 'Title';
         $query->select($selects);
 
+        $query->orderByBranch();
+
         $this->mapOptions($query, $pOptions);
 
         $this->mapToOneRelationFields($query, $relations, $relationFields);
@@ -670,37 +721,6 @@ class Propel extends ORMAbstract {
 
 
         return $result;
-
-
-
-        foreach($files as &$file){
-            if ($pDepth > 1 && $file['type'] == 'dir'){
-
-                $file['_children'] = self::getTree(array('id' => $file['path']), null, $pDepth-1);
-                $file['_childrenCount'] = count($file['_children']);
-
-            } else if ($file['type'] == 'dir'){
-                $file['_childrenCount'] = \Core\File::getCount($file['path']);
-
-            } else {
-                $file['_childrenCount'] = 0;
-            }
-        }
-
-        json($query->findTree(4));
-
-        $pQuery = $this->getQueryClass();
-
-        if ($pCondition){
-            //$where = dbConditionToSql($pCondition);
-            $pQuery->where($where);
-        }
-
-
-        return 'hi';
-
-        // TODO: Implement getTree() method.
-        // 
     }
 
 

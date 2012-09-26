@@ -9,12 +9,12 @@ ka.ObjectTree = new Class({
         scope: false,
         selectObject: false,
         withContext: true,
+        selectable: true,
         iconMap: false,
         withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
         iconAdd: 'admin/images/icons/add.png',
 
         labelTemplate: false,
-
         objectFields: '',
 
         move: true, //can we move the objects around
@@ -314,7 +314,7 @@ ka.ObjectTree = new Class({
         a.id = id;
         a.objectKey = this.objectDefinition.nestedRootObject;
 
-        if (id == this.options.selectObject && this.options.noActive != true){
+        if (id == this.options.selectObject && this.options.selectable == true){
             a.addClass('ka-objectTree-item-selected');
         }
 
@@ -337,28 +337,12 @@ ka.ObjectTree = new Class({
         this.rootA = a;
         a.childContainer = this.paneObjects;
 
-        var icon = this.objectDefinition.chooserBrowserTreeRootObjectIconPath;
+        this.addRootIcon(item, a);
 
-        if (!this.objectDefinition.chooserBrowserTreeRootObjectFixedIcon){
-            //todo
-            icon = this.options.iconMap[item[this.objectDefinition.chooserBrowserTreeRootObjectIcon]];
-        }
-
-        if (icon){
-            a.masks = new Element('span', {
-                'class': 'ka-objectTree-item-masks'
-            }).inject(a, 'top');
-
-            new Element('img', {
-                'class': 'ka-objectTree-item-type',
-                src: _path + PATH_MEDIA + icon
-            }).inject(a.masks);
-        }
-
-        a.toggler = new Element('img', {
+        a.toggler = new Element('span', {
             'class': 'ka-objectTree-item-toggler',
             title: _('Open/Close sub-items'),
-            src: _path + PATH_MEDIA + '/admin/images/icons/tree_minus.png'
+            html: '&#xe0c3;'
         }).inject(a, 'top');
 
         a.toggler.addEvent('click', function (e) {
@@ -473,7 +457,7 @@ ka.ObjectTree = new Class({
 
 
                 this.deselect();
-                if (this.options.noActive != true) {
+                if (this.options.selectable == true) {
                     a.addClass('ka-objectTree-item-selected');
                 }
 
@@ -488,7 +472,7 @@ ka.ObjectTree = new Class({
 
             this.deselect();
 
-            if (this.options.noActive != true) {
+            if (this.options.selectable == true) {
                 a.addClass('ka-objectTree-item-selected');
             }
 
@@ -530,7 +514,7 @@ ka.ObjectTree = new Class({
     addItem: function (pItem, pParent) {
 
 
-        var id = pItem[this.primaryKey];
+        var id = ka.getObjectUrlId(this.options.object, pItem);
         var label = pItem[this.objectDefinition.nestedLabel];
 
         var a = new Element('div', {
@@ -549,7 +533,7 @@ ka.ObjectTree = new Class({
             a.parent = pParent;
         }
 
-        if (id == this.options.selectObject && this.options.noActive != true){
+        if (id == this.options.selectObject && this.options.selectable == true){
             a.addClass('ka-objectTree-item-selected');
         }
 
@@ -594,10 +578,10 @@ ka.ObjectTree = new Class({
         /* masks */
 
         /* toggler */
-        a.toggler = new Element('img', {
+        a.toggler = new Element('span', {
             'class': 'ka-objectTree-item-toggler',
             title: _('Open/Close subitems'),
-            src: _path + PATH_MEDIA + '/admin/images/icons/tree_plus.png'
+            html: '&#xe0c3;'
         }).inject(a, 'top');
 
         if (pItem._childrenCount == 0) {
@@ -620,7 +604,7 @@ ka.ObjectTree = new Class({
 
         if ((!this.firstLoadDone || this.need2SelectAObject)) {
             if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && !pItem.domain && pItem.id == this.options.selectObject)) {
-                if (this.options.noActive != true) {
+                if (this.options.selectable == true) {
                     a.addClass('ka-objectTree-item-selected');
                 }
                 this.lastSelectedItem = a;
@@ -664,6 +648,28 @@ ka.ObjectTree = new Class({
         return a;
     },
 
+    addRootIcon: function(pItem, pA){
+
+        var icon = this.objectDefinition.chooserBrowserTreeRootObjectIconPath;
+
+        if (!this.objectDefinition.chooserBrowserTreeRootObjectFixedIcon){
+            icon = this.options.iconMap[pItem[this.objectDefinition.chooserBrowserTreeRootObjectIcon]];
+        }
+
+        if (icon){
+            a.masks = new Element('span', {
+                'class': 'ka-objectTree-item-masks'
+            }).inject(a, 'top');
+
+            new Element('img', {
+                'class': 'ka-objectTree-item-type',
+                src: _path + PATH_MEDIA + icon
+            }).inject(a.masks);
+        }
+
+
+    },
+
     addItemIcon: function(pItem, pA){
 
         var icon = this.options.icon;
@@ -673,49 +679,11 @@ ka.ObjectTree = new Class({
 
         if (!icon) return;
 
-        pA.masks = new Element('span', {
-            'class': 'ka-objectTree-item-masks'
-        }).inject(pA, 'top');
-
         new Element('img', {
             'class': 'ka-objectTree-item-type',
             src: _path + PATH_MEDIA + icon
-        }).inject(pA.masks);
+        }).inject(pA, 'top');
 
-
-        /**
-         *  Extract to pagesTree
-         *
-         */
-        if ((pItem.type == 0 || pItem.type == 1) && pItem.visible == 0) {
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/invisible.png'
-            }).inject(pA.masks);
-        }
-
-        if (pItem.type == 1) {
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/link.png'
-            }).inject(pA.masks);
-        }
-
-        if ((pItem.type == 0 || pItem.type == 3) && pItem.draft_exist == 1) {
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/draft_exist.png'
-            }).inject(pA.masks);
-        }
-
-        if (pItem.access_denied == 1) {
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/access_denied.png'
-            }).inject(pA.masks);
-        }
-
-        if (pItem.type == 0 && pItem.access_from_groups != "" && typeOf(pItem.access_from_groups) == 'string') {
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/access_group_limited.png'
-            }).inject(pA.masks);
-        }
 
     },
 
@@ -776,7 +744,7 @@ ka.ObjectTree = new Class({
         var item = pA.retrieve('item');
 
         pA.childContainer.setStyle('display', '');
-        pA.toggler.set('src', _path + PATH_MEDIA + '/admin/images/icons/tree_plus.png');
+        pA.toggler.set('html', '&#xe0c3;');
         this.opens[ pA.id ] = false;
         this.setRootPosition();
 
@@ -787,7 +755,7 @@ ka.ObjectTree = new Class({
 
         if (!pA.toggler) return;
 
-        pA.toggler.set('src', _path + PATH_MEDIA + '/admin/images/icons/tree_minus.png');
+        pA.toggler.set('html', '&#xe0c4;');
         if (pA.childrenLoaded == true) {
             pA.childContainer.setStyle('display', 'block');
             this.opens[ pA.id ] = true;
@@ -826,7 +794,8 @@ ka.ObjectTree = new Class({
         var item = pA.retrieve('item');
 
         var loader = new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/loading.gif'
+            src: _path + PATH_MEDIA + '/admin/images/loading.gif',
+            style: 'position: relative; top: 3px;'
         }).inject(pA.span);
 
         this.loadChildrenRequests[ pA.id ] = true;
@@ -837,7 +806,7 @@ ka.ObjectTree = new Class({
             loader.destroy();
 
             if (pAndOpen) {
-                pA.toggler.set('src', _path + PATH_MEDIA + '/admin/images/icons/tree_minus.png');
+                pA.toggler.set('html', '&#xe0c4;');
                 pA.childContainer.setStyle('display', 'block');
                 this.opens[ pA.id ] = true;
                 this.saveOpens();
@@ -1073,7 +1042,7 @@ ka.ObjectTree = new Class({
         if (pWithoutMoving != true) {
 
             var pos = {
-                'before': 'over',
+                'before': 'before',
                 'after': 'below',
                 'inside': 'into'
             };
@@ -1106,12 +1075,11 @@ ka.ObjectTree = new Class({
     moveObject: function (pSourceId, pTargetId, pCode, pToDomain) {
         var _this = this;
         var req = {
-            source: pSourceId,
-            target: pTargetId,
-            mode: pCode
+            to: pTargetId,
+            where: pCode
         };
 
-        new Request.JSON({url: _path + 'admin/backend/moveObject', onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/backend/object-move/'+pSourceId, onComplete: function (res) {
 
             //target item this.dragNDropElement
 
@@ -1157,6 +1125,14 @@ ka.ObjectTree = new Class({
 
     getItem: function(pId){
         return this.items[ pId ]?this.items[ pId ]:false;
+    },
+
+    getValue: function(){
+        return this.getSelected();
+    },
+
+    setValue: function(pValue){
+        this.select(pValue);
     },
 
     select: function (pId) {
@@ -1238,24 +1214,24 @@ ka.ObjectTree = new Class({
             object: pObject
         };
 
-        new Element('a', {
+        this.cmCopyBtn = new Element('a', {
             html: t('Copy')
         }).addEvent('click', function () {
             ka.setClipboard(t('Object %s copied').replace('%s', this.objectDefinition.label), 'objectCopy', objectCopy);
         }.bind(this)).inject(this.oldContext);
 
-        new Element('a', {
+        this.cmCopyWSBtn = new Element('a', {
             html: t('Copy with sub-elements')
         }).addEvent('click', function () {
             ka.setClipboard(t('Object %s with sub elements copied').replace('%s', this.objectDefinition.label),
                 'objectCopyWithSubElements', objectCopy);
         }.bind(this)).inject(this.oldContext);
 
-        new Element('a', {
+        this.cmDeleteDelimiter = new Element('a', {
             'class': 'delimiter'
         }).inject(this.oldContext);
 
-        new Element('a', {
+        this.cmDeleteBtn = new Element('a', {
             html: t('Delete')
         }).addEvent('click', function () {
 
@@ -1297,33 +1273,33 @@ ka.ObjectTree = new Class({
 
         if (canPasteAround || canPasteInto) {
 
-            new Element('a', {
+            this.cmPasteBtn = new Element('a', {
                 'class': 'noaction',
-                html: _('Paste')
+                html: t('Paste')
             }).inject(this.oldContext);
 
 
             if (canPasteAround && !pPage.domain) {
-                new Element('a', {
+                this.cmPasteBeforeBtn = new Element('a', {
                     'class': 'indented',
-                    html: _('Before')
+                    html: t('Before')
                 }).addEvent('click', function () {
                     this.paste('up', pPage);
                 }.bind(this)).inject(this.oldContext);
             }
 
             if (canPasteInto) {
-                new Element('a', {
+                this.cmPasteIntoBtn = new Element('a', {
                     'class': 'indented',
-                    html: _('Into')
+                    html: t('Into')
                 }).addEvent('click', function () {
                     this.paste('into', pPage);
                 }.bind(this)).inject(this.oldContext);
             }
             if (canPasteAround && !pPage.domain) {
-                new Element('a', {
+                this.cmPasteAfterBtn = new Element('a', {
                     'class': 'indented',
-                    html: _('After')
+                    html: t('After')
                 }).addEvent('click', function () {
                     this.paste('down', pPage);
                 }.bind(this)).inject(this.oldContext);

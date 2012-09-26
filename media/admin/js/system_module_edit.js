@@ -1987,9 +1987,11 @@ var admin_system_module_edit = new Class({
             this.addObject();
         }.bind(this));
 
-        this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
+        this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this, false));
+        this.saveButtonORM = buttonBar.addButton(t('Save and ORM Update'), this.saveObjects.bind(this, true));
 
         document.id(this.saveButton).addClass('ka-Button-blue');
+        document.id(this.saveButtonORM).addClass('ka-Button-blue');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1,
         onComplete: function (pResult) {
@@ -2025,7 +2027,7 @@ var admin_system_module_edit = new Class({
     },
 
     printOrmError: function(pResponse){
-        this.saveButton.stopTip(t('Failed.'));
+        this.currentButton.stopTip(t('Failed.'));
 
         var div = new Element('div');
 
@@ -2051,20 +2053,20 @@ var admin_system_module_edit = new Class({
 
     updateORM: function(){
 
-        this.saveButton.startTip(t('Object saved. Write model.xml ...'));
+        this.currentButton.startTip(t('Object saved. Write model.xml ...'));
 
         this.updateOrmWriteModel(function(){
-            this.saveButton.startTip(t('Saved. Update PHP models ...'));
+            this.currentButton.startTip(t('Saved. Update PHP models ...'));
             this.updateOrm('models', function(response){
                 if (response.error){
                     this.printOrmError(response);
                 } else {
-                    this.saveButton.startTip(t('Saved. Update database tables ...'));
+                    this.currentButton.startTip(t('Saved. Update database tables ...'));
                     this.updateOrm('update', function(response){
                         if (response.error){
                             this.printOrmError(response);
                         } else {
-                            this.saveButton.stopTip(t('Done.'));
+                            this.currentButton.stopTip(t('Done.'));
                         }
                     }.bind(this));
                 }
@@ -2084,7 +2086,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    saveObjects: function(){
+    saveObjects: function(pWithUpdate){
 
         var objects = {};
 
@@ -2100,7 +2102,9 @@ var admin_system_module_edit = new Class({
         });
 
         if (this.lr) this.lr.cancel();
-        this.saveButton.startTip(t('Saving ...'));
+        this.currentButton = pWithUpdate ? this.saveButtonORM : this.saveButton;
+
+        this.currentButton.startTip(t('Saving ...'));
 
         var req = {};
         req.objects = JSON.encode(objects);
@@ -2110,7 +2114,10 @@ var admin_system_module_edit = new Class({
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (response) {
             if (response.status == 200){
                 ka.loadSettings(['configs']);
-                this.updateORM();
+                if (pWithUpdate)
+                    this.updateORM();
+                else
+                    this.saveButton.stopTip(t('Saved.'));
             } else {
                 this.saveButton.stopTip(t('Failed.'));
             }
@@ -2276,21 +2283,33 @@ var admin_system_module_edit = new Class({
                                     }
                                 }
                             },
+                            __singleMode__: {
+                                type: 'label',
+                                label: t('Single mode'),
+                                children: {
+                                    chooserFieldDataModelField: {
+                                        label: t('Label key'),
+                                        type: 'text'
+                                    },
+                                    chooserFieldDataModelFieldTemplate: {
+                                        label: t('Label template (Optional)'),
+                                        type: 'text'
+                                    },
+                                    chooserFieldDataModelFieldExtraFields: {
+                                        label: t('Extra fields in select (Optional)'),
+                                        desc: t('Maybe you need some more fields, if you have a own label template. Comma separated'),
+                                        type: 'text'
+                                    }
+                                }
+                            },
                             chooserFieldDataModelFields: {
-                                label: t('Columns'),
+                                label: t('Columns for multiple object chooser.'),
                                 type: 'fieldTable',
-                                needValue: 'default',
                                 desc: t('For the multiple view in a table.'),
                                 asFrameworkColumn: true,
                                 withoutChildren: true,
                                 tableitem_title_width: 200,
                                 addLabel: t('Add column')
-                            },
-                            chooserFieldDataModelField: {
-                                label: t('Label key'),
-                                needValue: 'default',
-                                type: 'text',
-                                desc: t('In field mode')
                             }
                         }
                     },
@@ -2441,7 +2460,7 @@ var admin_system_module_edit = new Class({
                                     chooserBrowserDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('A class that extends from \\Admin\\Model\\Browse. Entrypoint admin/backend/objects?uri=...')
+                                        desc: t('A class that extends from \\Admin\\Model\\Browse. Entry point admin/backend/objects?uri=...')
                                     },
                                     chooserBrowserDataModelFields: {
                                         needValue: 'custom',
@@ -2465,7 +2484,7 @@ var admin_system_module_edit = new Class({
             width: '100%'
         }).inject(this.dialog.content);
 
-        var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 180}, {win: this.win});
+        var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 220}, {win: this.win});
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 

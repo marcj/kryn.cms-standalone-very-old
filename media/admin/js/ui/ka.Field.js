@@ -1327,6 +1327,14 @@ ka.Field = new Class({
 
     },
 
+    hasParent: function(){
+        return this.parent !== null;
+    },
+
+    getParent: function(){
+        return this.parent;
+    },
+
     toElement: function(){
         return ( this.field.tableItem ) ? this.tr : this.main;
     },

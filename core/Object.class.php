@@ -321,19 +321,6 @@ class Object {
  
         return $obj->getItems($pCondition, $pOptions);
 
-        if ($pCondition['noCache']) return $obj->getItems($pCondition, $pOptions);
-
-        $cacheId = 'ObjectGetList_'.md5($pObjectKey.'-'.json_encode($pCondition).json_encode($pOptions));
-        if ($items = Kryn::getCache($cacheId)){
-            return $items;
-        }
-        
-        
-        $items = $obj->getItems($pCondition, $pOptions);
-        Kryn::setCache($cacheId, $items);
-        return $items;
-        
-
     }
 
     /**
@@ -632,22 +619,32 @@ class Object {
         return self::getParents($object_key, $object_id[0]);
     }
 
-    public static function move($pSourceObjectUri, $pTargetObjectUri, $pMode){
+    public static function move($pObjectKey, $pObjectId, $pTargetId, $pWhere = 'into', $pTargetObjectKey = null, $pOptions = null){
 
-        list($object_key, $object_id, $params) = self::parseUri($pSourceObjectUri);
-        $target = self::parseUri($pTargetObjectUri);
+        $obj = self::getClass($pObjectKey);
 
-        $obj = self::getClass($object_key);
+        //todo, check access
 
-        $targetId = $target[1][0];
+        return $obj->move($pObjectId, $pTargetId, $pWhere, $pTargetObjectKey);
+    }
+
+    public static function moveFromUri($pSourceObjectUri, $pTargetObjectUri, $pWhere = 'into', $pOptions = null){
+
+        list($objectKey, $objectId, $params) = self::parseUri($pSourceObjectUri);
+        list($targetObjectKey, $targetObjectId, $targetParams) = self::parseUri($pTargetObjectUri);
+
+        $obj = self::getClass($objectKey);
+
+        $targetId = $targetObjectId[0];
         $pTargetObjectKey = false;
 
-        if ($target[0] != $object_key){
-            $pMode = 'into';
-            $pTargetObjectKey = $target[0];
+        if ($targetObjectKey != $objectKey){
+            $pWhere = 'into';
         }
 
-        return $obj->move($object_id[0], $targetId, $pMode, $pTargetObjectKey);
+        //todo, check access
+
+        return $obj->move($objectId, $targetId, $pWhere, $targetObjectKey);
     }
 
 

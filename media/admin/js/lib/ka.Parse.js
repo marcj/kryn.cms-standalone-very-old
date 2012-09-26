@@ -59,12 +59,14 @@ ka.Parse = new Class({
                 } else {
                     if (this.fields[obj.field.againstField]){
                         this.fields[obj.field.againstField].addEvent('check-depends', function(){
+                            logger('onCheck-depends from '+obj.field.againstField+' on '+id);
                             this.setVisibility(this.fields[obj.field.againstField], obj);
-                            self.showChildContainer(this.fields[obj.field.againstField]);
+                            if (obj.hasParent())
+                                self.showChildContainer(obj.getParent());
                         }.bind(this));
                         this.fields[obj.field.againstField].fireEvent('check-depends');
                     } else {
-                        //logger('ka.Field "againstField" does not exist: '+obj.field.againstField);
+                        logger('ka.Field "againstField" does not exist: '+obj.field.againstField);
                     }
                 }
             }
@@ -191,11 +193,12 @@ ka.Parse = new Class({
                 }
 
                 obj = new ka.Field(field, target, this.refs, id);
+            }
 
-                if (pDependField) {
-                    obj.parent = pDependField;
-                    pDependField.depends[id] = obj;
-                }
+
+            if (pDependField) {
+                obj.parent = pDependField;
+                pDependField.children[id] = obj;
             }
 
             if (field.depends) {
@@ -241,7 +244,7 @@ ka.Parse = new Class({
 
         var hasVisibleChilds = false;
 
-        Object.each(pObj.depends, function(sub) {
+        Object.each(pObj.children, function(sub) {
             if (!sub.isHidden()) {
                 hasVisibleChilds = true;
             }
