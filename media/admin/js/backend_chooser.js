@@ -259,11 +259,13 @@ var admin_backend_chooser = new Class({
 
         if (pObjectKey && this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].getValue){
 
-            var value = this.objectChooserInstance[pObjectKey].getValue();
-            if (!value)
+            var item = this.objectChooserInstance[pObjectKey].getValue();
+            if (!item)
                 return;
 
-            var url = 'object://'+pObjectKey+'/'+ka.urlEncode(value);
+            var id = ka.getObjectUrlId(pObjectKey, item);
+
+            var url = 'object://'+pObjectKey+'/'+id;
 
             this.saveCookie();
             this.saveCookie();

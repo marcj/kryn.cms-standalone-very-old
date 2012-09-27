@@ -38,6 +38,10 @@ input.text:focus {
     border: 1px solid #3E9BCB;
 }
 
+.ka-Input-disabled,
+.ka-Input-inactive,
+input.text-inactive,
+.ka-Input-disabled:focus,
 .ka-Input-inactive:focus,
 input.text-inactive:focus {
     color: #333;

@@ -156,7 +156,7 @@ ka.FieldTypes.Array = new Class({
                     });
                     this.addRow(val);
 
-                });
+                }.bind(this));
 
             } else {
 
@@ -167,7 +167,7 @@ ka.FieldTypes.Array = new Class({
                     val[this.second] = item;
 
                     this.addRow(val);
-                });
+                }.bind(this));
             }
         } else {
             Array.each(pValue, function (item) {

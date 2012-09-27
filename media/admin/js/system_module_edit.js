@@ -2250,26 +2250,35 @@ var admin_system_module_edit = new Class({
                         label: t('Chooser icon'),
                         desc: t('Relative to media/.')
                     },
-                    chooserFieldType: {
+                    __fieldUi__: {
                         label: t('Field UI'),
-                        type: 'select',
-                        items: {
-                            'default': 'Framework',
-                            'custom': 'Custom javascript class'
-                        },
+                        type: 'childrenSwitcher',
                         children: {
-                            'chooserFieldJavascriptClass': {
-                                needValue: 'custom',
-                                label: t('Javascript class name'),
-                                desc: t('You can inject javascript files through extension settings to make a javascript class available.')
+                            chooserFieldType: {
+                                type: 'select',
+                                label: t('Javascript UI Class'),
+                                inputWidth: 150,
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom javascript class'
+                                },
+                                children: {
+                                    'chooserFieldJavascriptClass': {
+                                        needValue: 'custom',
+                                        label: t('Javascript class name'),
+                                        desc: t('You can inject javascript files through extension settings to make a javascript class available.')
+                                    }
+                                }
                             },
                             'chooserFieldDataModel': {
                                 label: t('Data source'),
                                 type: 'select',
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
                                 },
+                                'default': 'default',
                                 depends: {
                                     chooserFieldDataModelClass: {
                                         label: t('PHP Class'),
@@ -2316,27 +2325,31 @@ var admin_system_module_edit = new Class({
                     __chooserBrowserTree__: {
                         againstField: 'nested',
                         needValue: 1,
-                        type: 'label',
+                        type: 'childrenSwitcher',
                         label: t('Browser UI (tree)'),
                         desc: t('Only for nested objects.'),
                         depends: {
                             chooserBrowserTreeDataModel: {
                                 needValue: 1,
                                 label: t('Data model'),
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
                                 },
+                                'default': 'default',
                                 type: 'select',
                                 depends: {
                                     chooserBrowserTreeDataModelClass: {
                                         label: t('PHP Class'),
-                                        desc: t('A class that extends from \\Admin\\Model\\Tree. Entrypoint admin/backend/object-tree?uri=...')
+                                        needValue: 'custom',
+                                        desc: t('A class that extends from \\Admin\\Model\\Tree. Entry point admin/backend/object-tree?uri=...')
                                     }
                                 }
                             },
                             chooserBrowserTreeJavascript: {
                                 label: t('Javascript UI class'),
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
@@ -2403,6 +2416,7 @@ var admin_system_module_edit = new Class({
                                         label: t('Icon path mapping'),
                                         needValue: 0,
                                         type: 'array',
+                                        asHash: true,
                                         columns: [
                                             {label: t('Value'), width: '30%'},
                                             {label: t('Icon path')}
@@ -2415,33 +2429,45 @@ var admin_system_module_edit = new Class({
                                                 type: 'file'
                                             }
                                         }
+                                    },
+                                    chooserBrowserTreeDefaultIcon: {
+                                        needValue: 0,
+                                        label: t('Default icon'),
+                                        type: 'file',
+                                        combobox: true
                                     }
                                 }
                             }
                         }
                     },
-                    chooserBrowserType: {
+                    __chooserBrowserType__: {
                         label: t('Browser UI (chooser)'),
-                        items: {
-                            'default': 'Framework',
-                            'custom': 'Custom javascript class'
-                        },
-                        type: 'select',
+                        type: 'childrenSwitcher',
                         depends: {
-                            chooserBrowserJavascriptClass: {
-                                needValue: 'custom',
-                                label: t('Javascript class'),
-                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
-                            },
-                            chooserBrowserOptions: {
-                                label: t('UI properties'),
-                                needValue: 'custom',
-                                desc: t('You can allow extensions to set some properties when providing your object chooser.'),
-                                type: 'fieldTable'
+                            chooserBrowserType: {
+                                label: t('Javascript UI Class'),
+                                type: 'select',
+                                inputWidth: 150,
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom javascript class'
+                                },
+                                children: {
+                                    chooserBrowserJavascriptClass: {
+                                        needValue: 'custom',
+                                        label: t('Javascript class'),
+                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                                    },
+                                    chooserBrowserOptions: {
+                                        label: t('UI properties'),
+                                        needValue: 'custom',
+                                        desc: t('You can allow extensions to set some properties when providing your object chooser.'),
+                                        type: 'fieldTable'
+                                    }
+                                }
                             },
                             chooserBrowserAutoColumns: {
                                 label: t('Columns in the chooser table'),
-                                needValue: 'default',
                                 type: 'fieldTable',
                                 asFrameworkColumn: true,
                                 withoutChildren: true,
@@ -2451,6 +2477,7 @@ var admin_system_module_edit = new Class({
                             'chooserBrowserDataModel': {
                                 type: 'select',
                                 label: t('Data source'),
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Default',
                                     'custom': 'Custom PHP class',

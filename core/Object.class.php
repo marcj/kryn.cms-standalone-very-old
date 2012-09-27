@@ -255,6 +255,7 @@ class Object {
 
         $primaryKey = $obj->normalizePrimaryKey($pPrimaryKey);
 
+
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 

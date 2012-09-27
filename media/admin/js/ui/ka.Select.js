@@ -54,6 +54,7 @@ ka.Select = new Class({
         objectFields: false, //or a array
         labelTemplate: false,
         maxItemsPerLoad: 20, //number
+        selectFirst: true,
         customValue: false //boolean
 
     },
@@ -61,6 +62,20 @@ ka.Select = new Class({
     initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
+        this.container = pContainer
+        ;
+
+        this.createLayout();
+        this.mapEvents();
+        this.prepareOptions();
+
+        if (this.options.selectFirst)
+            this.selectFirst();
+
+        this.fireEvent('ready');
+
+    },
+    createLayout: function(){
 
         this.box = new Element('div', {
             'class': 'ka-normalize ka-Select-box ka-Select-box-active'
@@ -84,6 +99,11 @@ ka.Select = new Class({
             'class': 'ka-Select-chooser ka-normalize'
         });
 
+        if (this.container)
+            this.box.inject(this.container);
+    },
+
+    mapEvents: function(){
         if (!ka.mobile){
             this.input = new Element('input', {
                 style: 'height: 1px; position: absolute; top: -10px;'
@@ -110,10 +130,10 @@ ka.Select = new Class({
         }.bind(this));
 
         this.chooser.addEvent('scroll', this.checkScroll);
+    },
 
-        if (pContainer)
-            this.box.inject(pContainer);
 
+    prepareOptions: function(){
 
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
@@ -146,8 +166,6 @@ ka.Select = new Class({
             this.objectFields = fields;
 
         }
-        
-        this.fireEvent('ready');
 
     },
 
@@ -160,7 +178,10 @@ ka.Select = new Class({
         this.close();
     },
 
-    loadObjectItems: function(pOffset, pCallback){
+    loadObjectItems: function(pOffset, pCallback, pCount){
+
+        if (!pCount)
+            pCount = this.options.maxItemsPerLoad;
 
         if (this.lastRq) this.lastRq.cancel();
 
@@ -200,7 +221,7 @@ ka.Select = new Class({
         }).get({
             object: this.options.object,
             offset: pOffset,
-            limit: this.options.maxItemsPerLoad,
+            limit: pCount,
             fields: this.objectFields.join(',')
         });
 
@@ -481,7 +502,21 @@ ka.Select = new Class({
             data.label = label.join(', ');
         }
 
+        if (!data.kaSelectImage) data.kaSelectImage = '';
+
         return mowla.fetch(template, data);
+    },
+
+    selectFirst: function(){
+
+        this.dataProxy(0, function(items){
+            if (items){
+                var item = items[0];
+                if (item)
+                    this.setValue(item.key, true);
+            }
+        }.bind(this), 1);
+
     },
 
     /**
@@ -490,8 +525,9 @@ ka.Select = new Class({
      * @param {Integer}  pOffset
      * @param {Function} pCallback
      */
-    dataProxy: function(pOffset, pCallback){
+    dataProxy: function(pOffset, pCallback, pCount){
 
+        if (!pCount) pCount = this.options.maxItemsPerLoad;
 
         if (this.items.length > 0){
             //we have static items
@@ -501,7 +537,7 @@ ka.Select = new Class({
             while (++i >= 0){
 
                 if (i >= this.items.length) break;
-                if (items.length == this.options.maxItemsPerLoad) break;
+                if (items.length == pCount) break;
 
                 if (this.hideOptions && this.hideOptions.contains(this.items[i].key)) continue;
 
@@ -511,7 +547,7 @@ ka.Select = new Class({
             pCallback(items);
         } else if (this.options.object){
             //we have object items
-            this.loadObjectItems(pOffset, pCallback);
+            this.loadObjectItems(pOffset, pCallback, pCount);
         }
 
     },
@@ -599,7 +635,7 @@ ka.Select = new Class({
             this.items.push({key: pId, label: pLabel});
         }
 
-        if (typeOf(this.value) == 'null'){
+        if (typeOf(this.value) == 'null' && this.options.selectFirst){
             this.setValue(pId);
         }
 

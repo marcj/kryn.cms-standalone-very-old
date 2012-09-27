@@ -8,6 +8,7 @@ ka.FieldTypes.Object = new Class({
         object: null,
         objects: null,
         withoutObjectWrapper: false,
+        combobox: false,
         fieldTemplate: null
     },
 
@@ -64,10 +65,10 @@ ka.FieldTypes.Object = new Class({
 
         this.objectTableLoaderQueue = {};
 
-        if (!this._value || this._value.length == 0){
+        if (!this.objectId || this.objectId.length == 0){
             this.renderObjectTableNoItems();
         } else {
-            Array.each(this._value, function(id){
+            Array.each(this.objectId, function(id){
 
                 var row = [];
 
@@ -130,8 +131,6 @@ ka.FieldTypes.Object = new Class({
         noErrorReporting: true,
         onComplete: function(res){
 
-            if(!res) return;
-
             if (res.error == 'no_object_access'){
 
                 this.chooserTable.empty();
@@ -188,17 +187,43 @@ ka.FieldTypes.Object = new Class({
         var rightTd = new Element('td', {width: '50px'}).inject(tr);
 
         this.input = new Element('input', {
-            'class': 'text chooser text-inactive',
+            'class': 'ka-Input chooser ka-Input-disabled',
             type: 'text',
             disabled: true,
             style: 'width: 100%'
-        })
-        .addEvent('keyup',function () {
-            this.fireEvent('blur');
         }).inject(leftTd);
 
-        if (this.options.input_width){
-            this.input.setStyle('width', this.options.input_width);
+        if (this.options.combobox){
+            this.input.disabled = false;
+            this.input.addEvent('focus', function(){
+                this.input.removeClass('ka-Input-disabled');
+                this._lastValue = this.input.value;
+
+                if (this.objectId){
+                    this.lastObjectLabel = this.input.value;
+                    this.lastObjectId = this.objectId;
+                }
+            }.bind(this));
+
+            this.input.addEvent('blur', function(){
+                if (this.input.value == this.lastObjectLabel){
+                    this.objectId = this.lastObjectId;
+                    this.input.addClass('ka-Input-disabled');
+                    return;
+                }
+
+                if (typeOf(this._lastValue) != 'null' && this.input.value != this._lastValue){
+                    //changed it, so we delete this.objectValue since its now a custom value
+                    delete this.objectId;
+                    this.input.removeClass('ka-Input-disabled');
+                } else if (this.objectId){
+                    this.input.addClass('ka-Input-disabled');
+                }
+            }.bind(this));
+        }
+
+        if (this.options.inputWidth){
+            this.input.setStyle('width', this.options.inputWidth);
         }
 
         var div = new Element('span').inject(this.fieldInstance.fieldPanel);
@@ -207,14 +232,14 @@ ka.FieldTypes.Object = new Class({
             onSelect: function (pUrl) {
                 this.setValue(pUrl, true);
             }.bind(this),
-            value: this._value,
+            value: this.objectId,
             cookie: this.options.cookie,
             objects: this.options.objects,
             options: this.options.chooserOptions
         };
 
-        if (this._value)
-            chooserParams.value = this._value;
+        if (this.objectId)
+            chooserParams.value = this.objectId;
 
         if (this.options.cookie)
             chooserParams.cookie = this.options.cookie;
@@ -234,7 +259,7 @@ ka.FieldTypes.Object = new Class({
         this.setValue = function (pVal, pIntern) {
 
             if (typeOf(pVal) == 'null' || pVal === false || pVal === '' || !ka.getObjectId(pVal)) {
-                this._value = '';
+                this.objectId = '';
                 this.input.value = '';
                 this.input.title = '';
                 return;
@@ -245,9 +270,9 @@ ka.FieldTypes.Object = new Class({
             if ((typeOf(pVal) == 'string' && pVal.substr(0, 'object://'.length) != 'object://')){
                 pVal = 'object://'+this.options.objects[0]+'/'+ka.urlEncode(pVal);
             }
-            this._value = pVal;
+            this.objectId = pVal;
 
-            this.objectGetLabel(this._value, function(pLabel){
+            this.objectGetLabel(this.objectId, function(pLabel){
                 this.input.value = pLabel;
             });
 
@@ -255,14 +280,17 @@ ka.FieldTypes.Object = new Class({
 
         };
 
-        this.getValue = function () {
-            var val = (this._value) ? this._value : this.input.value;
+        this.getValue = function(){
+            if (!this.objectId) return this.input.value;
+
+            var val = this.objectId;
 
             if (this.options.withoutObjectWrapper && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
                 return ka.getObjectId(val);
             }
             return val;
-        };
+        }
+
     },
 
     renderChooserMulti: function(){
@@ -294,24 +322,23 @@ ka.FieldTypes.Object = new Class({
             this.options.chooserOptions.node.domain = this.options.domain;
         }
 
-
-        this._value = [];
-
         var chooserParams = {
             onSelect: function (pId) {
 
-                this._value.include(ka.getObjectId(pId));
+                if (!this.objectId) this.objectId = [];
+
+                this.objectId.include(ka.getObjectId(pId));
                 this.renderObjectTable();
 
             }.bind(this),
-            value: this._value,
+            value: this.objectId,
             cookie: this.options.cookie,
             objects: this.options.objects,
             chooserOptions: this.options.chooserOptions
         };
 
-        if (this._value)
-            chooserParams.value = this._value;
+        if (this.objectId)
+            chooserParams.value = this.objectId;
 
         if (this.options.cookie)
             chooserParams.cookie = this.options.cookie;
@@ -331,27 +358,34 @@ ka.FieldTypes.Object = new Class({
 
         this.setValue = function(pVal){
 
-            this._value = pVal;
+            this.objectId = pVal;
 
-            if (!this._value) this._value = [];
+            if (!this.objectId) this.objectId = [];
 
-            if (typeOf(this._value) != 'array') this._value = [this._value];
+            if (typeOf(this.objectId) != 'array') this.objectId = [this.objectId];
 
             this.renderObjectTable();
 
         }.bind(this);
 
         this.getValue = function(){
-            return this._value;
+            return this.objectId;
         };
 
     },
 
-
-    objectGetLabel: function(pUrl, pCallback){
+    objectGetLabel: function(pObjectUri, pCallback){
 
         if (this.lastPageChooserGetUrlRequest) {
             this.lastPageChooserGetUrlRequest.cancel();
+        }
+
+        var objectKey = ka.getObjectKey(pObjectUri)
+        var definition = ka.getObjectDefinition(objectKey);
+
+        var fields = definition.chooserFieldDataModelField;
+        if (definition.chooserFieldDataModelFieldExtraFields){
+            fields += ','+definition.chooserFieldDataModelFieldExtraFields;
         }
 
         this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/object', noCache: 1, onComplete: function(response){
@@ -362,26 +396,31 @@ ka.FieldTypes.Object = new Class({
                     //var value = res.values[definition.chooserFieldDataModelField];
                     var data = response.data;
 
-                    if (!this.options.fieldTemplate && !data.label){
+                    var label = data[definition.chooserFieldDataModelField];
+
+                    if (!this.options.fieldTemplate && !data.label && !label){
                         Object.each(data, function(item){
                             if (!data.label) data.label = item;
                         });
                         if (!data.label) data.label = '';
+                    } else {
+                        data.label = label;
                     }
 
                     var value = mowla.fetch(this.options.fieldTemplate?this.options.fieldTemplate:this.fieldTemplate, data);
 
-                    this._automaticUrl = value;
                     this.input.value = value;
+                    this.input.addClass('ka-Input-disabled');
                 } else {
-                    this.input.value = '';
-                    this._automaticUrl = '';
+                    this.input.value = pObjectId;
+                    this.input.removeClass('ka-Input-disabled');
+                    delete this.objectId;
                 }
             } else {
                 this.input.value = response.error;
             }
             this.input.fireEvent('blur');
-        }.bind(this)}).get({uri: pUrl});
+        }.bind(this)}).get({uri: pObjectUri, fields: fields});
 
     }
 

@@ -97,6 +97,16 @@ class ObjectFile extends \Core\ORM\Propel {
         return parent::update($pPrimaryKey, $pValues);
     }
 
+    public function getItem($pPrimaryKey, $pOptions = null){
+
+        if ($pPrimaryKey)
+            $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        else
+            $path = '/';
+
+        return \Core\File::getFile($path);
+    }
+
 
     public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 

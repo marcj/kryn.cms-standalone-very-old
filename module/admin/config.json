@@ -462,18 +462,17 @@
             "propelClass": "\\Admin\\ObjectFile",
             "table": "system_file",
             "objectLabel": "path",
-            "nestedPathField": "path",
-            "nestedType": "path",
             "nestedLabel": "name",
             "nestedRootAsObject": false,
             "nested": true,
             "dataModel": "propel",
             "multiLanguage": false,
             "domainDepended": false,
+            "chooserFieldType": "default",
             "chooserFieldDataModelCondition": [
                 
             ],
-            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelField": "path",
             "chooserFieldDataModelFields": {
                 "path": {
                     "label": "[[Path]]",
@@ -484,12 +483,12 @@
                     "width": "30%"
                 }
             },
-            "chooserFieldDataModelField": "name",
-            "chooserFieldType": "default",
             "chooserBrowserTreeJavascript": "default",
-            "chooserBrowserTreeIconMapping": [
-                
-            ],
+            "chooserBrowserTreeIcon": "extension",
+            "chooserBrowserTreeIconMapping": {
+                "directory": "#icon-folder-4"
+            },
+            "chooserBrowserTreeDefaultIcon": "#icon-paper",
             "chooserBrowserTreeFixedIcon": false,
             "chooserBrowserJavascriptClass": "ka.Files",
             "chooserBrowserOptions": {
@@ -532,8 +531,11 @@
                     "empty": 1
                 }
             },
-            "chooserBrowserDataModel": "default",
             "chooserBrowserType": "custom",
+            "chooserBrowserAutoColumns": [
+                
+            ],
+            "chooserBrowserDataModel": "default",
             "fields": {
                 "id": {
                     "label": "[[ID]]",
@@ -583,8 +585,7 @@
                     "empty": 1
                 }
             },
-            "label": "[[File]]",
-            "__dataModel__": "table"
+            "label": "[[File]]"
         },
         "node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
@@ -612,7 +613,7 @@
                 }
             },
             "chooserFieldType": "default",
-            "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
+            "chooserBrowserTreeJavascriptClass": "ka.NodeTree",
             "chooserBrowserTreeJavascript": "custom",
             "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
             "chooserBrowserTreeRootObjectFixedIcon": true,
@@ -765,7 +766,8 @@
                     "empty": 1
                 }
             },
-            "label": "[[Node]]"
+            "label": "[[Node]]",
+            "__dataModel__": "table"
         },
         "domain": {
             "objectLabel": "domain",

@@ -10,7 +10,7 @@ ka.ObjectTree = new Class({
         selectObject: false,
         withContext: true,
         selectable: true,
-        iconMap: false,
+        iconMap: false, //if false we'll get it from the object definition 'chooserBrowserTreeIconMapping'
         withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
         iconAdd: 'admin/images/icons/add.png',
 
@@ -90,6 +90,9 @@ ka.ObjectTree = new Class({
 
         this.setOptions(pOptions);
 
+        if (!this.options.iconMap){
+            this.options.iconMap = this.objectDefinition.chooserBrowserTreeIconMapping;
+        }
 
         if (this.objectDefinition.nestedRootAsObject){
             if (!this.options.rootObject)
@@ -288,6 +291,10 @@ ka.ObjectTree = new Class({
             });
             data.label = data[label];
         }
+
+        if (typeOf(data) != 'object') data = {label: data};
+
+        if (!data.kaSelectImage) data.kaSelectImage = '';
 
         pContainer.set('html', mowla.fetch(template, data));
     },
@@ -657,14 +664,20 @@ ka.ObjectTree = new Class({
         }
 
         if (icon){
-            pA.masks = new Element('span', {
+            var icon = ka.mediaPath(icon);
+
+            pA.icon = new Element('span', {
                 'class': 'ka-objectTree-item-masks'
             }).inject(a, 'top');
 
-            new Element('img', {
-                'class': 'ka-objectTree-item-type',
-                src: _path + PATH_MEDIA + icon
-            }).inject(pA.masks);
+            if (icon.substr(0,1) != '#'){
+                new Element('img', {
+                    'class': 'ka-objectTree-item-type',
+                    src: icon
+                }).inject(pA.masks);
+            } else {
+                pA.icon.addClass(icon.substr(1));
+            }
         }
 
 
@@ -674,16 +687,28 @@ ka.ObjectTree = new Class({
 
         var icon = this.options.icon;
 
-        if (this.options.iconMap && this.objectDefinition.nestedIcon)
-            icon = this.options.iconMap[pItem[this.objectDefinition.nestedIcon]];
+        if (this.options.iconMap && this.objectDefinition.chooserBrowserTreeIcon)
+            icon = this.options.iconMap[pItem[this.objectDefinition.chooserBrowserTreeIcon]];
+
+        if (!icon && this.objectDefinition.chooserBrowserTreeDefaultIcon)
+            icon = this.objectDefinition.chooserBrowserTreeDefaultIcon;
 
         if (!icon) return;
 
-        new Element('img', {
-            'class': 'ka-objectTree-item-type',
-            src: _path + PATH_MEDIA + icon
+        var icon = ka.mediaPath(icon);
+
+        pA.icon = new Element('span', {
+            'class': 'ka-objectTree-item-masks'
         }).inject(pA, 'top');
 
+        if (icon.substr(0,1) != '#'){
+            new Element('img', {
+                'class': 'ka-objectTree-item-type',
+                src: icon
+            }).inject(pA.icon);
+        } else {
+            pA.icon.addClass(icon.substr(1));
+        }
 
     },
 
@@ -874,8 +899,8 @@ ka.ObjectTree = new Class({
             text: pA.get('text')
         }).inject(this.lastClone);
 
-        if (pA.masks)
-            pA.masks.clone().inject(this.lastClone, 'top');
+        if (pA.icon)
+            pA.icon.clone().inject(this.lastClone, 'top');
 
         var drag = this.lastClone.makeDraggable({
             snap: 0,

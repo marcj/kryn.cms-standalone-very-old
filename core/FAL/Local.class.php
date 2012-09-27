@@ -128,7 +128,15 @@ class Local extends FALAbstract {
 
             $item['path'] = str_replace($this->getRoot(), '', $pPath) . $file;
             $item['name'] = $file;
+
             $item['type'] = (is_dir($path)) ? 'dir' : 'file';
+            if ($item['type'] == 'file'){
+                $info = pathinfo($file);
+                $item['extension'] = $info['extension'];
+            } else {
+                $item['extension'] = 'directory';
+            }
+
             $item['size'] = filesize($path);
             $item['ctime'] = filectime($path);
             $item['mtime'] = filemtime($path);
@@ -158,11 +166,20 @@ class Local extends FALAbstract {
         $ctime = filectime($pPath);
         $mtime = filemtime($pPath);
 
+        $item['type'] = (is_dir($pPath)) ? 'dir' : 'file';
+        if ($item['type'] == 'file'){
+            $info = pathinfo($pPath);
+            $extension = $info['extension'];
+        } else {
+            $extension = 'directory';
+        }
+
         return array(
-            'path'  => str_replace($this->getRoot(), '', $pPath),
+            'path'  => '/'.str_replace($this->getRoot(), '', $pPath),
             'name'  => $name,
             'type'  => $type,
             'ctime' => $ctime,
+            'extension' => $extension,
             'mtime' => $mtime,
             'size'  => filesize($pPath)
         );

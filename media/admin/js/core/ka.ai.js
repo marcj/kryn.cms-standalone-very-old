@@ -276,6 +276,21 @@ ka.getObjectUrlId = function(pObjectKey, pItem){
 }
 
 /**
+ * Returns the object key (not id) from an object uri.
+ * @param pUrl
+ */
+ka.getObjectKey = function(pUrl){
+
+    if (pUrl.indexOf('object://') == 0)
+        pUrl = pUrl.substr(9);
+
+    var idx = pUrl.indexOf('/');
+    if (idx == -1) return pUrl;
+
+    return pUrl.substr(0, idx);
+}
+
+/**
  * Returns the primarykey/s of an object by the internal object uri.
  *
  * @param  string pUrl   object://user/1

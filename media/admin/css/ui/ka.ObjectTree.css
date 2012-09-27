@@ -88,6 +88,10 @@
     left: 0px;
 }
 
+.ka-objectTree-item-masks:before {
+    font-size: 16px;
+}
+
 .ka-objectTree-item-selected,
 .ka-objectTree-item-selected:hover {
     background-color: #bbb;

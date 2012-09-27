@@ -265,7 +265,7 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public function getItem($pCondition, $pOptions = array()){
+    public function getItem($pPrimaryKey, $pOptions = array()){
 
         $this->init();
         $query = $this->getQueryClass();
@@ -281,7 +281,11 @@ class Propel extends ORMAbstract {
 
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
-        $stmt = $this->getStm($query, $pCondition);
+        $query->findPk($this->getPropelPk($pPrimaryKey));
+
+        $condition = dbPrimaryKeyToCondition($pPrimaryKey, $this->objectKey);
+
+        $stmt = $this->getStm($query, $condition);
 
         $clazz = $this->getPhpName();
 
