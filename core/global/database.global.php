@@ -612,7 +612,6 @@ function dbExtractOrderFields($pValues, $pTable = ''){
  */
 function dbPrimaryKeyToCondition($pCondition, $pObjectKey = false, $pTable = ''){
 
-    $sql = '';
     $result = array();
 
     // 
