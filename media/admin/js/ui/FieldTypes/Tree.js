@@ -70,6 +70,12 @@ ka.FieldTypes.Tree = new Class({
         this.options.scope = pScope;
         this.tree = new clazz(this.treeContainer, this.options.object, this.options);
         this.tree.addEvent('change', this.fieldInstance.fireChange);
+
+
+        var proxyMethods = ['deselect'];
+        proxyMethods.each(function(method){
+            this.fieldInstance[method] = this.tree[method];
+        }.bind(this));
     },
 
     setValue: function(pValue){

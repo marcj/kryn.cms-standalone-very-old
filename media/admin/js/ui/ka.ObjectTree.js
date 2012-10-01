@@ -358,8 +358,6 @@ ka.ObjectTree = new Class({
             this.toggleChildren(a);
         }.bind(this));
 
-
-
         this.rootLoaded = true;
 
 
@@ -458,37 +456,17 @@ ka.ObjectTree = new Class({
             return;
         }
 
-        if (item.domain) {
+        this.deselect();
 
-            if (this.options.no_domain_select != true) {
-
-
-                this.deselect();
-                if (this.options.selectable == true) {
-                    a.addClass('ka-objectTree-item-selected');
-                }
-
-                this.fireEvent('selection', [item, a])
-                this.fireEvent('domainClick', [item, a])
-
-                this.lastSelectedItem = a;
-                this.lastSelectedObject = item;
-            }
-
-        } else {
-
-            this.deselect();
-
-            if (this.options.selectable == true) {
-                a.addClass('ka-objectTree-item-selected');
-            }
-
-            this.fireEvent('selection', [item, a])
-            this.fireEvent('click', [item, a]);
-
-            this.lastSelectedItem = a;
-            this.lastSelectedObject = item;
+        if (this.options.selectable == true) {
+            a.addClass('ka-objectTree-item-selected');
         }
+
+        this.fireEvent('selection', [item, a])
+        this.fireEvent('click', [item, a]);
+
+        this.lastSelectedItem = a;
+        this.lastSelectedObject = item;
 
     },
 
