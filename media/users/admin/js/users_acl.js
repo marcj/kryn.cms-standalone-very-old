@@ -582,21 +582,29 @@ var users_users_acl = new Class({
     loadObjectLabel: function(pDomObject){
 
         var uri = pDomObject.get('text');
-        new Request.JSON({url: _path+'admin/backend/objectGetLabel', onComplete: function(pResult){
+        var objectKey = ka.getObjectKey(uri);
+        var objectId  = ka.getObjectId(uri);
 
-            if (!pResult || pResult.error || !pResult.values){
+        //todo,
+        var definition = ka.getObjectDefinition(objectKey);
+        var fields = definition.objectLabel;
+
+        new Request.JSON({url: _path+'admin/backend/object/'+objectKey+'/'+objectId, onComplete: function(pResult){
+
+            if (!pResult || pResult.error || !pResult.data){
                 pDomObject.set('text', 'Object not found. '+uri);
                 return;
             };
 
+            var sFields = fields.split(',');
             var title = [];
-            Object.each(pResult.values, function(value, key){
-                title.push(value);
+            Array.each(sFields, function(field){
+                title.push(pResult.data[field]);
             });
 
             pDomObject.set('text', title.join(', '));
 
-        }}).get({object: uri});
+        }}).get({fields: fields});
 
         //http://ilee/admin/backend/objectGetLabel?url=object://news/3
     },
