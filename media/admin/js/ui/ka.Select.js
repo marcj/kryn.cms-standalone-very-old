@@ -257,7 +257,9 @@ ka.Select = new Class({
 
         if (pEvent.key == 'esc'){
             this.input.value = '';
+            if (this.isOpen()) this.input.blur();
             this.close(true);
+            pEvent.stopPropagation();
             return;
         }
 

@@ -697,7 +697,7 @@ class Object {
 
         }
 
-        return $complied;
+        return $complied === null ? true : $complied;
     }
 
     public static function checkRule(&$pObjectItem, $pCondition){

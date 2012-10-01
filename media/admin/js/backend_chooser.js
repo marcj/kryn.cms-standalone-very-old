@@ -188,15 +188,7 @@ var admin_backend_chooser = new Class({
 
         objectOptions.multi = this.options.multi;
 
-        if (objectDefinition.nested){
-
-            objectOptions.type = 'tree';
-            objectOptions.object = pObjectKey;
-            objectOptions.scopeChooser = true;
-
-            this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, bundle.pane);
-
-        } else if (objectDefinition.chooserBrowserType == 'custom' && objectDefinition.chooserBrowserJavascriptClass){
+        if (objectDefinition.chooserBrowserType == 'custom' && objectDefinition.chooserBrowserJavascriptClass){
 
             var chooserClass = window[objectDefinition.chooserBrowserJavascriptClass];
 
@@ -214,6 +206,14 @@ var admin_backend_chooser = new Class({
                     this.win
                 );
             }
+        } else if (objectDefinition.nested){
+
+            objectOptions.type = 'tree';
+            objectOptions.object = pObjectKey;
+            objectOptions.scopeChooser = true;
+
+            this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, bundle.pane);
+
         } else {
 
             this.objectChooserInstance[pObjectKey] = new ka.ObjectTable(

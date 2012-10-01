@@ -281,15 +281,13 @@ class Propel extends ORMAbstract {
 
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
-        $query->findPk($this->getPropelPk($pPrimaryKey));
+        $item = $query->findPk($this->getPropelPk($pPrimaryKey));
+        if (!$item) return false;
 
-        $condition = dbPrimaryKeyToCondition($pPrimaryKey, $this->objectKey);
-
-        $stmt = $this->getStm($query, $condition);
+        $row = is_array($item)?$item:$item->toArray();
 
         $clazz = $this->getPhpName();
 
-        $row = dbFetch($stmt);
         return $row===false?false:$this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
     }
 
