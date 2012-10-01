@@ -171,26 +171,8 @@ ka.ObjectTable = new Class({
 
         var item = tr.retrieve('item');
 
-        var primaries = ka.getPrimariesForObject(this.objectKey);
+        return ka.getObjectUrlId(this.objectKey, item);
 
-        var result;
-
-        if (Object.getLength(primaries) > 1){
-            result = [];
-
-            Object.each(primaries, function(field, fieldKey){
-                result.include(item[fieldKey]);
-            });
-
-        } else if (Object.getLength(primaries) == 1){
-            Object.each(primaries, function(field, fieldKey){
-                result = item[fieldKey];
-            });
-        } else {
-            logger('There are no primaries for object '+this.objectKey);
-        }
-
-        return result;
     },
 
     loadPage: function(pPage){

@@ -364,7 +364,7 @@ abstract class ObjectWindow {
         foreach ($pFields as $key => $field){
             if (is_numeric($key)){
 
-                $newItem = $this->objectDefinition['fields'][camelcase2Underscore($field)];
+                $newItem = $this->objectDefinition['fields'][lcfirst($field)];
                 if (!$newItem['label']) $newItem['label'] = $field;
 
                 $pFields = array_merge(
@@ -383,7 +383,6 @@ abstract class ObjectWindow {
 
         foreach ($pFields as $key => &$field)
             if ($field['children']) $this->prepareFieldDefinition($field['children']);
-        
 
     }
 

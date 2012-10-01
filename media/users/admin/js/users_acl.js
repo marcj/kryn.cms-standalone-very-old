@@ -632,7 +632,7 @@ var users_users_acl = new Class({
         var objectKey = ka.getObjectKey(uri);
         var objectId  = ka.getObjectId(uri);
 
-        //todo,
+        //todo, maybe we have a template and extra fields for the label
         var definition = ka.getObjectDefinition(objectKey);
         var fields = definition.objectLabel;
 

@@ -184,6 +184,11 @@ window.ka.entrypoint = {
 
 };
 
+/**
+ * Resolve path notations and returns the appropriate class.
+ * @param {String} pClassPath
+ * @return {Class|Function}
+ */
 ka.getClass = function(pClassPath){
     pClassPath = pClassPath.replace('[\'', '');
     pClassPath = pClassPath.replace('\']', '');
@@ -200,6 +205,14 @@ ka.getClass = function(pClassPath){
     return window[pClassPath];
 }
 
+/**
+ * Encodes a value from url usage.
+ * If Array, it encodes the whole array an implodes it with comma.
+ * If Object, it encodes the while object an implodes the <key>=<value> pairs with a comma.
+ *
+ * @param {String} pValue
+ * @return {STring}
+ */
 ka.urlEncode = function(pValue){
 
     if (typeOf(pValue) == 'string'){
@@ -224,6 +237,11 @@ ka.urlEncode = function(pValue){
 
 }
 
+/**
+ * Decodes a value for url usage.
+ * @param {String} pValue
+ * @return {String}
+ */
 ka.urlDecode = function(pValue){
 
     if (typeOf(pValue) != 'string') return pValue;
@@ -236,6 +254,15 @@ ka.urlDecode = function(pValue){
 
 }
 
+/**
+ * Returns a absolute path.
+ * If pPath begins with # it returns pPath
+ * if pPath is not a string it returns pPath
+ * if pPath contains http:// on the beginning it returns pPath
+ *
+ * @param {String} pPath
+ * @return {String}
+ */
 ka.mediaPath = function(pPath){
 
     if (typeOf(pPath) != 'string') return pPath;
@@ -252,6 +279,12 @@ ka.mediaPath = function(pPath){
 
 }
 
+/**
+ * Returns a list of the primary keys if pObjectKey.
+ *
+ * @param {String} pObjectKey
+ * @return {Array}
+ */
 ka.getObjectPrimaryList = function(pObjectKey){
     var def = ka.getObjectDefinition(pObjectKey);
 
@@ -264,6 +297,13 @@ ka.getObjectPrimaryList = function(pObjectKey){
     return res;
 }
 
+/**
+ * Returns the id of an object item for the usage in urls (internal uri's).
+ *
+ * @param {String} pObjectKey
+ * @param {Array}  pItem
+ * @return {String}
+ */
 ka.getObjectUrlId = function(pObjectKey, pItem){
     var pks = ka.getObjectPrimaryList(pObjectKey);
 

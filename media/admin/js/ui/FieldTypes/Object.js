@@ -325,6 +325,7 @@ ka.FieldTypes.Object = new Class({
         var chooserParams = {
             onSelect: function (pId) {
 
+                logger(pId);
                 if (!this.objectId) this.objectId = [];
 
                 this.objectId.include(ka.getObjectId(pId));
