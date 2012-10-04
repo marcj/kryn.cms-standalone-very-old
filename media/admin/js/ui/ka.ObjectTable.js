@@ -198,7 +198,7 @@ ka.ObjectTable = new Class({
 
         var offset = 0;
         if (pPage){
-
+            offset = (pPage * this.options.itemsPerPage) - this.options.itemsPerPage;
         }
 
         var fields = [];
