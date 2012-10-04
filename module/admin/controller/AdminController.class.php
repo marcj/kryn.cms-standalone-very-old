@@ -225,7 +225,11 @@ class AdminController {
 
                 ->done()
 
-                //->addSubController('file', '\Admin\File')
+                ->addSubController('file', '\Admin\File')
+                    ->addGetRoute('', 'getFiles')
+                ->addGetRoute('single', 'getFile')
+                ->addGetRoute('thumbnail', 'getThumbnail')
+                ->done()
 
             ->run();
 

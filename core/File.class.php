@@ -586,4 +586,65 @@ class File {
     }
 
 
+    /**
+     * @param      $pPath
+     * @param      $pResolution
+     * @param bool $pQuadratic
+     */
+    public static function getThumbnail($pPath, $pResolution, $pQuadratic = false){
+
+        $fs = static::getLayer($pPath);
+
+        $content = $fs->getContent(static::normalizePath($pPath));
+        $image = imagecreatefromstring($content);
+
+        list($newWidth, $newHeight) = explode('x', $pResolution);
+        $thumbWidth = $newWidth;
+        $thumbHeight = $newHeight;
+
+        $oriWidth = imagesx($image);
+        $oriHeight = imagesy($image);
+        $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+        imagealphablending($thumbImage, false);
+
+        if ($thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) return $image;
+
+        if ($oriWidth > $oriHeight) {
+
+            $ratio = $thumbHeight / ($oriHeight / 100);
+            $_width = ceil($oriWidth * $ratio / 100);
+
+            $top = 0;
+            if ($_width < $thumbWidth) {
+                $ratio = $_width / ($thumbWidth / 100);
+                $nHeight = $thumbHeight * $ratio / 100;
+                $top = ($thumbHeight - $nHeight) / 2;
+                $_width = $thumbWidth;
+            }
+
+            $tempImg = imagecreatetruecolor($_width, $thumbHeight);
+            imagealphablending($tempImg, false);
+            imagecopyresampled($tempImg, $image, 0, 0, 0, 0, $_width, $thumbHeight, $oriWidth, $oriHeight);
+            $_left = ($_width / 2) - ($thumbWidth / 2);
+
+            imagecopyresampled($thumbImage, $tempImg, 0, 0, $_left, 0, $thumbWidth, $thumbHeight, $thumbWidth, $thumbHeight);
+
+        } else {
+            $ratio = $thumbWidth / ($oriWidth / 100);
+            $_height = ceil($oriHeight * $ratio / 100);
+            $tempImg = imagecreatetruecolor($thumbWidth, $_height);
+            imagealphablending($tempImg, false);
+            imagecopyresampled($tempImg, $image, 0, 0, 0, 0, $thumbWidth, $_height, $oriWidth, $oriHeight);
+            $_top = ($_height / 2) - ($thumbHeight / 2);
+            imagecopyresampled($thumbImage, $tempImg, 0, 0, 0, $_top, $thumbWidth, $thumbHeight, $thumbWidth, $thumbHeight);
+        }
+
+        imagealphablending($thumbImage, false);
+        imagesavealpha($thumbImage, true);
+
+        return $thumbImage;
+
+    }
+
+
 }

@@ -24,11 +24,7 @@ var admin_backend_chooser = new Class({
     initialize: function (pWin) {
         this.win = pWin;
 
-        logger(this.win.params);
-
         this.setOptions(this.win.params);
-
-        logger(this.options);
 
         this.value = this.win.params.value;
         this.p = _path + PATH_MEDIA + '/admin/images/';

@@ -92,16 +92,37 @@ ka.FieldTypes.Object = new Class({
                 this.renderObjectTableLoadItem(id, placeHolders);
 
                 var actionBar = new Element('div');
-                new Element('img', {
-                    src: _path+ PATH_MEDIA + '/admin/images/icons/delete.png'
+
+                var remoteIcon = new Element('a', {
+                    style: 'font-size: 13px; font-family: Icomoon; text-decoration: none;',
+                    href: 'javascript:;',
+                    title: t('Remove'),
+                    html: '&#xe04a;'
                 }).inject(actionBar);
 
                 row.include(actionBar);
 
-                this.chooserTable.addRow(row);
+                var tr = this.chooserTable.addRow(row);
+                remoteIcon.addEvent('click', function(){
+                    tr.destroy();
+                    this.updateThisValue();
+                }.bind(this));
+
+                tr.kaFieldObjectId = id;
 
             }.bind(this));
         }
+    },
+
+    updateThisValue: function(){
+
+        var rows = this.chooserTable.getRows();
+
+        this.objectId = [];
+        Array.each(rows, function(row){
+            this.objectId.push(row.kaFieldObjectId);
+        }.bind(this));
+
     },
 
     renderObjectTableLoadItem: function(pId, pPlaceHolders){
@@ -325,8 +346,9 @@ ka.FieldTypes.Object = new Class({
         var chooserParams = {
             onSelect: function (pId) {
 
-                logger(pId);
                 if (!this.objectId) this.objectId = [];
+
+                var id = ka.getObjectId(pId);
 
                 this.objectId.include(ka.getObjectId(pId));
                 this.renderObjectTable();

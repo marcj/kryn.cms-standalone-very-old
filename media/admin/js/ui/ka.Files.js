@@ -89,15 +89,15 @@ ka.Files = new Class({
 
     loadRoot: function(){
 
-        new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/file/single', noCache: 1, onComplete: function (pResponse) {
 
-            if (!res){
-                this.win._alert(_('Access denied to /.'), function(res){
+            if (!pResponse || !pResponse.data || pResponse.error){
+                this.win._alert(t('Access denied.'), function(){
                     this.win.close();
                 }.bind(this))
             } else {
-                this.rootFile = res;
-                this.path2File['/'] = res;
+                this.rootFile = pResponse.data;
+                this.path2File['/'] = pResponse.data;
                 if (this.options.selectionValue) {
                     this.loadPath(this.options.selectionValue);
                 } else {
@@ -688,7 +688,7 @@ ka.Files = new Class({
 
     newUploadBtn: function () {
 
-        this.uploadBtn = this.boxAction.addButton(_('Upload file'), '#icon-upload');
+        this.uploadBtn = this.boxAction.addButton(_('Upload file'), '#icon-upload-7');
 
         if (!window.FormData) {
             this.uploadBtn.addEvent('mousedown', function (e) {
@@ -742,23 +742,23 @@ ka.Files = new Class({
         var toLeft = new Element('img', {
             src: _path + PATH_MEDIA + '/admin/images/admin-files-toLeft.png'
         });
-        boxNavi.addButton(t('Back'),'#icon-arrow-left-6', function () {
+        boxNavi.addButton(t('Back'),'#icon-arrow-left-15', function () {
             this.goHistory('left');
         }.bind(this));
 
-        boxNavi.addButton(t('Forward'), '#icon-arrow-right-6', function () {
+        boxNavi.addButton(t('Forward'), '#icon-arrow-right-15', function () {
             this.goHistory('right');
         }.bind(this));
 
-        this.upBtn = boxNavi.addButton(_('Up'), '#icon-arrow-up-6', this.up.bind(this));
+        this.upBtn = boxNavi.addButton(_('Up'), '#icon-arrow-up-14', this.up.bind(this));
         this.upBtn.fileObj = this;
 
         boxNavi.addButton(t('Refresh'), '#icon-reload-CW', this.reload.bind(this));
 
         var boxAction = this.addButtonGroup();
         this.boxAction = boxAction;
-        boxAction.addButton(t('New file'), '#icon-new', this.newFile.bind(this));
-        boxAction.addButton(t('New directory'), '#icon-folder', this.newFolder.bind(this));
+        boxAction.addButton(t('New file'), '#icon-file-add', this.newFile.bind(this));
+        boxAction.addButton(t('New directory'), '#icon-folder-4', this.newFolder.bind(this));
 
         this.newUploadBtn();
 
@@ -777,7 +777,7 @@ ka.Files = new Class({
 
         this.typeButtons['detail'] = boxTypes.addButton(t('Detail view'), '#icon-list-4', this.setListType.bind(this, 'detail', null, null));
 
-        this.typeButtons.each(function (btn) {
+        this.typeButtons.each(function   (btn) {
             btn.store('oriClass', btn.get('class'));
         });
 
@@ -1186,21 +1186,24 @@ ka.Files = new Class({
 
             //we entered a own path
             //check first what it is, and the continue;
-            this.curRequest = new Request.JSON({url: _path + 'admin/files/getFile', noCache: 1, onComplete: function (res){
+            this.curRequest = new Request.JSON({url: _path + 'admin/file/single', noCache: 1, onComplete: function (pResponse){
 
                 this.loader.hide();
-                if ( res == 2 || (res && !res.error == 'access_denied')) {
+
+                if (pResponse.error == 'AccessDeniedException'){
+                    //todo, show access denied in a more beauty way.
                     this.win._alert(_('%s: Access denied').replace('%s', pPath));
                     return;
                 }
 
-                if (!res) {
+                if (pResponse.error == 'FileNotFoundException'){
+                    //todo, show access denied in a more beauty way.
                     this.win._alert(_('%s: file not found').replace('%s', pPath));
                     return;
                 }
 
-                this.currentFile = res;
-                this.path2File[res.path] = this.currentFile;
+                this.currentFile = pResponse.data;
+                this.path2File[pResponse.data.path] = this.currentFile;
 
                 if (this.options.selection && (this.options.selectionValue == pPath || this.options.selectionValue == pPath.substr(1))) {
                     if (this.currentFile.path != '/'){
@@ -1218,35 +1221,26 @@ ka.Files = new Class({
             return;
         }
 
-        this.curRequest = new Request.JSON({url: _path + 'admin/files/getFiles', noCache: 1, onComplete: function (res) {
+        this.curRequest = new Request.JSON({url: _path + 'admin/file', noCache: 1, onComplete: function (pResponse) {
 
             this.loader.hide();
-            if (res == 3 || !res.error == 'access_denied') {
+
+            if (pResponse.error == 'AccessDeniedException'){
+                //todo, show access denied in a more beauty way.
                 this.win._alert(_('%s: Access denied').replace('%s', pPath));
                 return;
             }
 
-            if (!res) {
-                this.loader.hide();
+            if (pResponse.error == 'FileNotFoundException'){
+                //todo, show access denied in a more beauty way.
                 this.win._alert(_('%s: file not found').replace('%s', pPath));
-                return;
-            }
-            if (res == 2 && this.isFirstLoad == false) {
-                this.history[ this.historyIndex ] = null;
-                this.historyIndex--;
-                ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
-                return;
-            }
-
-            if (res == 2) {
-                this.load( res.path.substr(0,res.path.lastIndexOf('/')));
                 return;
             }
 
             if (pPath == '/trash' || pPath.substr(0,7) == '/trash/') {
                 this.boxAction.hide();
             } else {
-                if (this.currentFile.writeaccess == true) {
+                if (this.currentFile.writeAccess == true) {
                     this.boxAction.show();
                 } else {
                     this.boxAction.hide();
@@ -1266,10 +1260,10 @@ ka.Files = new Class({
 
             this.address.value = this.current;
 
-            this.render(res);
+            this.render(pResponse.data);
 
             if (this.current == '/' && this.options.withSidebar) {
-                this.renderInfos(res);
+                this.renderInfos(pResponse.data);
             }
 
             this.loader.hide();
@@ -1370,7 +1364,7 @@ ka.Files = new Class({
 
             if (position.y > 0 && position.y < containerHeight){
 
-                var image = _path+'admin/backend/imageThumb/?' + Object.toQueryString({
+                var image = _path+'admin/file/thumbnail/?' + Object.toQueryString({
                     path: file.readyToLoadImage.path,
                     mtime: file.readyToLoadImage.mtime,
                     width: file.imageContainer.getSize().x,
@@ -2514,17 +2508,17 @@ ka.Files = new Class({
     },
 
     getIcon: function(pFile){
-        var fileIcon = 'icon-folder';
+        var fileIcon = 'icon-folder-4';
 
         if (pFile.type == 'dir') {
             if (pFile.path == '/trash') {
-                fileIcon = 'icon-trashcan';
+                fileIcon = 'icon-trashcan-6';
             } else {
                 if (pFile.magic)
                     fileIcon = 'icon-network';
             }
         } else {
-            fileIcon = 'icon-paper';
+            fileIcon = 'icon-paper-2';
         }
         return fileIcon;
     },

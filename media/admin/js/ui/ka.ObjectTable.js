@@ -171,7 +171,7 @@ ka.ObjectTable = new Class({
 
         var item = tr.retrieve('item');
 
-        return ka.getObjectUrlId(this.objectKey, item);
+        return item;
 
     },
 

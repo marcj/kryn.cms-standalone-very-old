@@ -196,6 +196,15 @@ ka.Table = new Class({
 
     },
 
+    getRows: function(){
+
+        var children = this.tableBody.getChildren();
+        if (typeOf(children) == 'array' && children[0].get('tag') == 'tbody'){
+            return children[0].getChildren();
+        } else return children;
+
+    },
+
     addRow: function (pValues, pIndex) {
 
         if (!pIndex) {
