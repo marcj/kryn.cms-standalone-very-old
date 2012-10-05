@@ -307,12 +307,18 @@ ka.getObjectPrimaryList = function(pObjectKey){
 ka.getObjectUrlId = function(pObjectKey, pItem){
     var pks = ka.getObjectPrimaryList(pObjectKey);
 
-    var urlId = '';
-    Array.each(pks, function(pk){
-        urlId += ka.urlEncode(pItem[pk])+'-';
-    });
+    if (pks.length == 0 ) throw pObjectKey+' does not have primary keys.';
 
-    return urlId.substr(0, urlId.length-1);
+    var urlId = '';
+    if (pks.length == 1 && typeOf(pItem) != 'object'){
+        return ka.urlEncode(pItem)+'';
+    } else {
+        Array.each(pks, function(pk){
+            urlId += ka.urlEncode(pItem[pk])+'-';
+        });
+        return urlId.substr(0, urlId.length-1);
+    }
+
 }
 
 /**
