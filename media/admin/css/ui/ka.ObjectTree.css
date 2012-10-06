@@ -25,8 +25,11 @@
 
 .ka-objectTree-item-toggler {
     position: relative;
-    top: 3px;
-    margin: 0px 2px;
+    top: -1px;
+    margin: 0px 3px;
+    font-family: Icomoon;
+    font-size: 10px;
+    color: gray;
 }
 
 .ka-objectTree-item,
@@ -83,6 +86,10 @@
     position: absolute;
     top: 1px;
     left: 0px;
+}
+
+.ka-objectTree-item-masks:before {
+    font-size: 16px;
 }
 
 .ka-objectTree-item-selected,

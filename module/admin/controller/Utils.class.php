@@ -170,13 +170,13 @@ class Utils {
         $count = count($codes);
         for ($i = $start + 1; $i <= $count; $i++) {
             if ($codes[$i] != "") {
-                $_info = $_info['childs'][$codes[$i]];
+                $_info = $_info['children'][$codes[$i]];
                 $path[] = $_info['title'];
             }
         }
 
         unset($path[count($path) - 1]);
-        unset($_info['childs']);
+        unset($_info['children']);
 
         if (!$_info) {
             return false;

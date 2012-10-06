@@ -364,7 +364,7 @@ abstract class ObjectWindow {
         foreach ($pFields as $key => $field){
             if (is_numeric($key)){
 
-                $newItem = $this->objectDefinition['fields'][camelcase2Underscore($field)];
+                $newItem = $this->objectDefinition['fields'][lcfirst($field)];
                 if (!$newItem['label']) $newItem['label'] = $field;
 
                 $pFields = array_merge(
@@ -383,7 +383,6 @@ abstract class ObjectWindow {
 
         foreach ($pFields as $key => &$field)
             if ($field['children']) $this->prepareFieldDefinition($field['children']);
-        
 
     }
 
@@ -594,21 +593,21 @@ abstract class ObjectWindow {
      */
     public function getItem($pPk) {
 
-        $this->primaryKey = $pPk;
-
-        $condition = dbPrimaryKeyToCondition($pPk);
-        $condition += $this->getCondition();
-        $condition += dbPrimaryKeyToCondition($pPk);
-
-        if ($condition = $this->getCustomListingCondition())
-            $result = $result + $condition;
-        
         $obj = \Core\Object::getClass($this->object);
+        $this->primaryKey = $obj->normalizePrimaryKey($pPk);
+
+        $condition = $this->getCondition();
+
+        if ($customCondition = $this->getCustomListingCondition())
+            $condition = $condition ? array_merge($condition, $customCondition) : $customCondition;
 
         $options['fields'] = $this->getFieldList();
+        $item = $obj->getItem($this->primaryKey, $options);
+
+        if (!\Core\Object::satisfy($item, $condition)) return 'penis';
 
         return array(
-            'values' => $obj->getItem($condition, $options)
+            'values' => $item
         );
     }
 

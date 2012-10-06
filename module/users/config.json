@@ -391,14 +391,16 @@
                             "isLink": false,
                             "children": [
                                 
-                            ]
+                            ],
+                            "type": "acl"
                         },
                         "username": {
                             "title": "[[Can change username]]",
                             "isLink": false,
                             "children": [
                                 
-                            ]
+                            ],
+                            "type": "acl"
                         }
                     }
                 },

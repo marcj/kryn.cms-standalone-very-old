@@ -651,9 +651,6 @@ function step5Done($pMsg){
             \Core\SystemFile::setContent('config.php', "<?php\nreturn ".var_export(Kryn::$config, true).";\n?>");
         }
 
-        if ($cfg['activeModules'])
-          $modules = array_merge($modules, $cfg['activeModules']);
-
 
         if (file_exists($file = 'propel-config.php')){
             $propelConfig = include($file);

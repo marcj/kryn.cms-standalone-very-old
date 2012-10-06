@@ -630,8 +630,9 @@ ka.Window = new Class({
             this.maximized = false;
             this.border.removeClass('kwindow-border-maximized');
 
-            if (this.resizeBottomRight)
-                this.resizeBottomRight.setStyle('display', 'block');
+            Object.each(this.sizer, function(sizer){
+                sizer.setStyle('display', 'block');
+            });
 
             this.bottom.set('class', 'kwindow-win-bottom');
         } else {
@@ -649,8 +650,9 @@ ka.Window = new Class({
             this.maximizer.addClass('icon-shrink-3');
             this.maximized = true;
 
-            if (this.resizeBottomRight)
-                this.resizeBottomRight.setStyle('display', 'none');
+            Object.each(this.sizer, function(sizer){
+                sizer.setStyle('display', 'none');
+            });
 
             this.bottom.set('class', 'kwindow-win-bottom-maximized');
         }
@@ -724,7 +726,10 @@ ka.Window = new Class({
                 if (this.entryPoint.fixedHeight > 0) {
                     this.border.setStyle('height', this.entryPoint.fixedHeight);
                 }
-                this.resizeBottomRight.setStyle('display', 'none');
+
+                Object.each(this.sizer, function(sizer){
+                    sizer.setStyle('display', 'none');
+                });
                 this.bottom.setStyle('background-image', 'none');
             }
         }
@@ -1270,7 +1275,7 @@ ka.Window = new Class({
         this.bottomBar = new Element('div', {
             'class': 'ka-windowEdit-actions',
             style: 'bottom: 0px'
-        }).inject(this.resizeBottomRight, 'before');
+        }).inject(this.content, 'after');
 
         this.bottomBar.addButton = function (pTitle, pOnClick) {
             var button = new ka.Button(pTitle).inject(this.bottomBar);

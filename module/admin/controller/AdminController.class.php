@@ -64,7 +64,6 @@ class AdminController {
         if (!$entryPoint)
             $entryPoint = Utils::getEntryPoint(substr($url, strlen('admin/'))); //extensions
         
-
         if ($entryPoint) {
 
             //is window entry point?
@@ -84,7 +83,6 @@ class AdminController {
         if (Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin'){
 
             $clazz = '\\'.getArgv(2).'\\AdminController';
-            $controller = new $clazz($pEnt);
 
             if (get_parent_class($clazz) == 'RestService\Server'){
                 $obj = new $clazz('admin/'.getArgv(2));
@@ -142,25 +140,32 @@ class AdminController {
                     ->done()
 
                     //admin/backend/object-branch
-                    /*->addSubController('object-branch', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)/(.+)', 'getBranch', null, array(
-                            'fields', 'order', 'depth'
-                        ))
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getRootBranches', null, array(
-                            'fields', 'order', 'depth'
-                        ))
-                    ->done()*/
-
-                    //admin/backend/object-count
-                    ->addSubController('object-count', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
+                    ->addSubController('object-tree', '\Admin\Object\Controller')
+                        ->addGetRoute('([a-zA-Z-_]+)', 'getTree')
+                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getTreeBranch')
                     ->done()
+
+                //admin/backend/object-count
+                ->addSubController('object-count', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
+                ->done()
+
+                //admin/backend/object-tree-root
+                ->addSubController('object-tree-root', '\Admin\Object\Controller')
+                ->addGetRoute('([a-zA-Z-_]+)', 'getTreeRoot')
+                ->done()
+
+                //admin/backend/object-move
+                ->addSubController('object-move', '\Admin\Object\Controller')
+                ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'moveItem')
+                ->done()
 
 
                 ->done()
 
                 ->addSubController('backend', '\Admin\Object\Controller')
                     ->addGetRoute('objects', 'getItemsByUri')
+                    ->addGetRoute('object', 'getItemPerUri')
                 ->done()
 
                 //admin/system
@@ -196,6 +201,7 @@ class AdminController {
                         ->addGetRoute('config', 'getConfig')
 
                         ->addGetRoute('windows', 'getWindows')
+                        ->addGetRoute('windowDefinition', 'getWindowDefinition')
 
                         ->addGetRoute('objects', 'getObjects')
                         ->addPostRoute('objects', 'saveObjects')
@@ -219,7 +225,11 @@ class AdminController {
 
                 ->done()
 
-                //->addSubController('file', '\Admin\File')
+                ->addSubController('file', '\Admin\File')
+                    ->addGetRoute('', 'getFiles')
+                ->addGetRoute('single', 'getFile')
+                ->addGetRoute('thumbnail', 'getThumbnail')
+                ->done()
 
             ->run();
 
@@ -229,7 +239,13 @@ class AdminController {
     }
 
     public function loginUser($pUsername, $pPassword){
-        return Kryn::getAdminClient()->login($pUsername, $pPassword);
+        $status = Kryn::getAdminClient()->login($pUsername, $pPassword);
+        return !$status ? false :
+            array(
+                'token' => Kryn::getAdminClient()->getToken(),
+                'userId' => Kryn::getAdminClient()->getUserId(),
+                'lastLogin' => Kryn::getAdminClient()->getUser()->getLastLogin()
+            );
     }
 
     public function logoutUser(){

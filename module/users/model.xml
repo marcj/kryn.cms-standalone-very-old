@@ -61,10 +61,10 @@
   <table name="system_user_group" isCrossRef="true" phpName="UserGroup">
     <column name="user_id" type="INTEGER" primaryKey="true" required="true"/>
     <column name="group_id" type="INTEGER" primaryKey="true" required="true"/>
-    <foreign-key foreignTable="system_user" phpName="groupMembership">
+    <foreign-key foreignTable="system_user" phpName="GroupMembershipUser">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
-    <foreign-key foreignTable="system_group" phpName="groupMembership">
+    <foreign-key foreignTable="system_group" phpName="GroupMembership">
       <reference local="group_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">

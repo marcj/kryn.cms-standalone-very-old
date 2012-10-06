@@ -22,12 +22,13 @@ class Local extends FALAbstract {
     public function __construct($pEntryPoint, $pParams = null){
 
         parent::__construct($pEntryPoint, $pParams);
-        if ($pParams && $pParams['root']) $this->setRoot($pRoot);
+        if ($pParams && $pParams['root']) $this->setRoot($pParams['root']);
 
     }
 
     /**
      * Gets current root folder for this local layer.
+     * @param string $pRoot
      */
     public function setRoot($pRoot){
         $this->root = $pRoot;
@@ -35,6 +36,7 @@ class Local extends FALAbstract {
 
     /**
      * Sets current root folder for this local layer.
+     * @return string
      */
     public function getRoot(){
         return $this->root;
@@ -126,7 +128,15 @@ class Local extends FALAbstract {
 
             $item['path'] = str_replace($this->getRoot(), '', $pPath) . $file;
             $item['name'] = $file;
+
             $item['type'] = (is_dir($path)) ? 'dir' : 'file';
+            if ($item['type'] == 'file'){
+                $info = pathinfo($file);
+                $item['extension'] = $info['extension'];
+            } else {
+                $item['extension'] = 'directory';
+            }
+
             $item['size'] = filesize($path);
             $item['ctime'] = filectime($path);
             $item['mtime'] = filemtime($path);
@@ -145,7 +155,7 @@ class Local extends FALAbstract {
         if(!file_exists($pPath))
             return false;
 
-        if (!is_readable($pPath)) return 2;
+        if (!is_readable($pPath)) return -1;
 
         $type = (is_dir($pPath))?'dir':'file';
 
@@ -156,11 +166,20 @@ class Local extends FALAbstract {
         $ctime = filectime($pPath);
         $mtime = filemtime($pPath);
 
+        $item['type'] = (is_dir($pPath)) ? 'dir' : 'file';
+        if ($item['type'] == 'file'){
+            $info = pathinfo($pPath);
+            $extension = $info['extension'];
+        } else {
+            $extension = 'directory';
+        }
+
         return array(
-            'path'  => str_replace($this->getRoot(), '', $pPath),
+            'path'  => '/'.str_replace($this->getRoot(), '', $pPath),
             'name'  => $name,
             'type'  => $type,
             'ctime' => $ctime,
+            'extension' => $extension,
             'mtime' => $mtime,
             'size'  => filesize($pPath)
         );
@@ -203,11 +222,17 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public function fileExists($pPath){
-
         return file_exists($this->getRoot().$pPath);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCount($pFolderPath){
+        return count(glob($this->getRoot().$pFolderPath.'/*'));
     }
 
     /**
@@ -224,6 +249,13 @@ class Local extends FALAbstract {
     public function move($pPathSource, $pPathTarget){
 
         return rename($this->getRoot().$pPathSource, $this->getRoot().$pPathTarget);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getMd5($pPath){
+        return md5_file($this->getRoot().$pPath);
     }
 
     /**

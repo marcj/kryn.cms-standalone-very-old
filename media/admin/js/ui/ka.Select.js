@@ -53,6 +53,8 @@ ka.Select = new Class({
         objectLabel: false, //string
         objectFields: false, //or a array
         labelTemplate: false,
+        maxItemsPerLoad: 20, //number
+        selectFirst: true,
         customValue: false //boolean
 
     },
@@ -60,6 +62,20 @@ ka.Select = new Class({
     initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
+        this.container = pContainer
+        ;
+
+        this.createLayout();
+        this.mapEvents();
+        this.prepareOptions();
+
+        if (this.options.selectFirst)
+            this.selectFirst();
+
+        this.fireEvent('ready');
+
+    },
+    createLayout: function(){
 
         this.box = new Element('div', {
             'class': 'ka-normalize ka-Select-box ka-Select-box-active'
@@ -83,6 +99,11 @@ ka.Select = new Class({
             'class': 'ka-Select-chooser ka-normalize'
         });
 
+        if (this.container)
+            this.box.inject(this.container);
+    },
+
+    mapEvents: function(){
         if (!ka.mobile){
             this.input = new Element('input', {
                 style: 'height: 1px; position: absolute; top: -10px;'
@@ -109,10 +130,10 @@ ka.Select = new Class({
         }.bind(this));
 
         this.chooser.addEvent('scroll', this.checkScroll);
+    },
 
-        if (pContainer)
-            this.box.inject(pContainer);
 
+    prepareOptions: function(){
 
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
@@ -140,12 +161,11 @@ ka.Select = new Class({
                 fields.push(definition.objectLabel);
             }
             if (typeOf(fields) == 'string'){
-                fields = fields.split(',').replace(/[^a-zA-Z0-9_]/g, '');
+                fields = fields.replace(/[^a-zA-Z0-9_]/g, '').split(',');
             }
             this.objectFields = fields;
+
         }
-        
-        this.fireEvent('ready');
 
     },
 
@@ -158,7 +178,10 @@ ka.Select = new Class({
         this.close();
     },
 
-    loadObjectItems: function(pOffset, pCallback){
+    loadObjectItems: function(pOffset, pCallback, pCount){
+
+        if (!pCount)
+            pCount = this.options.maxItemsPerLoad;
 
         if (this.lastRq) this.lastRq.cancel();
 
@@ -170,8 +193,7 @@ ka.Select = new Class({
             onComplete: function(response){
 
                 if (response.error){
-                    //handle error
-                    //todo
+                    //todo, handle error
                     return false;
                 } else {
                     
@@ -180,10 +202,15 @@ ka.Select = new Class({
                     Array.each(response.data, function(item){
 
                         var id = ka.getObjectUrlId(this.options.object, item);
+
+                        if (this.hideOptions && this.hideOptions.contains(id)) return;
+
                         items.push({
                             key: id,
                             label: item
                         });
+
+
                         this.cachedObjectItems[id] = item;
 
                     }.bind(this));
@@ -194,7 +221,7 @@ ka.Select = new Class({
         }).get({
             object: this.options.object,
             offset: pOffset,
-            limit: 20,
+            limit: pCount,
             fields: this.objectFields.join(',')
         });
 
@@ -230,7 +257,9 @@ ka.Select = new Class({
 
         if (pEvent.key == 'esc'){
             this.input.value = '';
+            if (this.isOpen()) this.input.blur();
             this.close(true);
+            pEvent.stopPropagation();
             return;
         }
 
@@ -475,21 +504,44 @@ ka.Select = new Class({
             data.label = label.join(', ');
         }
 
+        if (!data.kaSelectImage) data.kaSelectImage = '';
+
         return mowla.fetch(template, data);
     },
 
-    //returns always max 20
-    dataProxy: function(pOffset, pCallback){
+    selectFirst: function(){
 
-        var items = [];
+        this.dataProxy(0, function(items){
+            if (items){
+                var item = items[0];
+                if (item)
+                    this.setValue(item.key, true);
+            }
+        }.bind(this), 1);
+
+    },
+
+    /**
+     * Returns always max this.options.maxItemsPerLoad (20 default) items.
+     *
+     * @param {Integer}  pOffset
+     * @param {Function} pCallback
+     */
+    dataProxy: function(pOffset, pCallback, pCount){
+
+        if (!pCount) pCount = this.options.maxItemsPerLoad;
 
         if (this.items.length > 0){
             //we have static items
+            var items = [];
             var i = pOffset-1;
+
             while (++i >= 0){
 
                 if (i >= this.items.length) break;
-                if (items.length == 20) break;
+                if (items.length == pCount) break;
+
+                if (this.hideOptions && this.hideOptions.contains(this.items[i].key)) continue;
 
                 items.push(this.items[i]);
             }
@@ -497,7 +549,7 @@ ka.Select = new Class({
             pCallback(items);
         } else if (this.options.object){
             //we have object items
-            this.loadObjectItems(pOffset, pCallback);
+            this.loadObjectItems(pOffset, pCallback, pCount);
         }
 
     },
@@ -536,50 +588,6 @@ ka.Select = new Class({
 
     },
 
-    hideOption: function(pId){
-
-        hideItems[pId] = true;
-
-        this.loadItems();
-
-        // if (typeOf(this.items[ pId ]) == 'null') return;
-
-        // this.a[pId].setStyle('display', 'none');
-
-        // if (this.value == pId){
-
-        //     var found = false, before, first;
-        //     Object.each(this.items,function(label, id){
-        //         if (found) return;
-        //         if (!first) first = id;
-        //         if (before && id == pId){
-        //             found = true;
-        //             return;
-        //         }
-
-        //         before = id;
-        //     }.bind(this));
-
-        //     if (found){
-        //         this.setValue(before);
-        //     } else {
-        //         this.setValue(first);
-        //     }
-        // }
-
-    },
-
-    showOption: function(pId){
-
-        delete hideItems[pId];
-        this.loadItems();
-
-        // if (typeOf(this.items[ pId ]) == 'null') return;
-
-        // this.a[pId].setStyle('display');
-
-    },
-
     addSplit: function (pLabel) {
 
         this.items.push({
@@ -588,20 +596,31 @@ ka.Select = new Class({
         });
 
         this.loadItems();
+    },
 
-        // new Element('div', {
-        //     html: pLabel,
-        //     'class': 'group'
-        // }).inject(this.chooser);
+    showOption: function(pId){
+        if (!this.hideOptions) this.hideOptions = [];
+        this.hideOptions.push(pId);
+    },
+
+    hideOption: function(pId){
+        if (!this.hideOptions) return;
+        var idx = this.hideOptions.indexOf(pId);
+        if (idx === -1) return;
+        this.hideOptions.splice(idx, 1);
+    },
+
+
+    addImage: function (pId, pLabel, pImage, pPos) {
+        return this.add(pId, [pLabel, pImage], pPos);
     },
 
     /**
      * Adds a item to the static list.
      *
      * @param {String} pId
-     * @param {Mixed} pLabel String or array ['label', 'imageSrcOr#Class']
-     * @param {[type]} pPos   Starts with 0
-     * @param {[type]} pIcon
+     * @param {Mixed}  pLabel String or array ['label', 'imageSrcOr#Class']
+     * @param {int}    pPos   Starts with 0
      */
     add: function (pId, pLabel, pPos) {
 
@@ -618,8 +637,11 @@ ka.Select = new Class({
             this.items.push({key: pId, label: pLabel});
         }
 
-        return this.loadItems();
+        if (typeOf(this.value) == 'null' && this.options.selectFirst){
+            this.setValue(pId);
+        }
 
+        return this.loadItems();
     },
 
     setStyle: function (p, p2) {
@@ -702,6 +724,23 @@ ka.Select = new Class({
 
         if (pInternal)
             this.fireChange();
+
+    },
+
+    setLabel: function(pId, pLabel){
+
+        var i = 0, max = this.items.length;
+        do {
+            if (this.items[i].key == pId){
+                this.items[i].label = pLabel;
+                break;
+            }
+        } while (i++ && i < max);
+
+        if (this.value == pId){
+            this.title.set('html', pLabel);
+            this.setValue(pId);
+        }
 
     },
 

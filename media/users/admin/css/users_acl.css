@@ -176,17 +176,15 @@ input.users-acl-query {
 }
 
 .users-acl-object-rules-info {
-    position: absolute;
-    left: 11px;
-    top: 15px;
+    padding: 2px;
     font-weight: normal;
+    color: gray;
 }
 
 .users-acl-object-rules-filter {
     height: 60px;
     background-color: #ddd;
     position: relative;
-    line-height: 17px;
 }
 
 

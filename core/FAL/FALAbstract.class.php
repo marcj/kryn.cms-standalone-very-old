@@ -79,6 +79,17 @@ abstract class FALAbstract {
 
 
     /**
+     * Returns the content hash as md5.
+     *
+     * @param $pPath
+     * @return string
+     */
+    public function getMd5($pPath){
+        return md5($this->getContent($pPath));
+    }
+
+
+    /**
      * Creates a file with default permissions.
      * Creates also the full folder path if the they doesnt exist.
      * 
@@ -117,7 +128,6 @@ abstract class FALAbstract {
      * @return bool|string
      */
     abstract public function getContent($pPath);
-
 
     /**
      * List directory contents.
@@ -165,6 +175,15 @@ abstract class FALAbstract {
      *                        or return array with the information.
      */
     abstract public function getFile($pPath);
+
+    /**
+     * Returns the file count inside $pFolderPath
+     *
+     * @static
+     * @param string $pFolderPath
+     * @return mixed
+     */
+    abstract public function getCount($pFolderPath);
 
     /**
      * Disk usage

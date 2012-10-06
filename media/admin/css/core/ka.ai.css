@@ -706,13 +706,9 @@ a.ka-subnavi-main:link {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
 
-    background-color: #5a585d;
-    background-image: url(../../images/windowlist-bg.png);
-    background-repeat: repeat-x;
     padding: 0px 11px 0 11px;
     padding-left: 3px;
     padding-right: 150px;
-    
     
     z-index: 111000;
 }

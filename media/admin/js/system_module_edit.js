@@ -18,8 +18,8 @@ var admin_system_module_edit = new Class({
         this.buttons['objects'] = this.topNavi.addButton(t('Objects'), '', this.viewType.bind(this, 'objects'));
         this.buttons['db'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'db'));
 
-        this.buttons['windows'] = this.topNavi.addButton(t('Backend Views'), '', this.viewType.bind(this, 'windows'));
-        this.buttons['plugins'] = this.topNavi.addButton(t('Frontend Views'), '', this.viewType.bind(this, 'plugins'));
+        this.buttons['windows'] = this.topNavi.addButton(t('Windows'), '', this.viewType.bind(this, 'windows'));
+        this.buttons['plugins'] = this.topNavi.addButton(t('Plugins'), '', this.viewType.bind(this, 'plugins'));
 
         this.buttons['docu'] = this.topNavi.addButton(t('Docu'), '', this.viewType.bind(this, 'docu'));
         this.buttons['help'] = this.topNavi.addButton(t('Help'), '', this.viewType.bind(this, 'help'));
@@ -282,7 +282,7 @@ var admin_system_module_edit = new Class({
     },
 
 
-    _renderWindows: function (pForms) {
+    _renderWindows: function (pWindows) {
 
         this.panes['windows'].empty();
 
@@ -305,12 +305,17 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         new Element('th', {
+            text: t('Class file'),
+            style: 'width: 360px;'
+        }).inject(tr);
+
+        new Element('th', {
             text: t('Actions'),
             style: 'width: 80px;'
         }).inject(tr);
 
-        pForms.each(function (form) {
-            this.addWindow(form);
+        Object.each(pWindows, function(form, key){
+            this.addWindow(key, form);
         }.bind(this));
 
 
@@ -321,11 +326,8 @@ var admin_system_module_edit = new Class({
     },
 
     createWindow: function(pName){
-        //prompt
-        //request, check exists
-        //create file
 
-        var dialog = this.win.newDialog('<b>'+t('New tab')+'</b>');
+        var dialog = this.win.newDialog(t('New Window'));
         dialog.setStyle('width', 400);
 
         var d = new Element('div', {
@@ -339,31 +341,38 @@ var admin_system_module_edit = new Class({
 
         new Element('td', {text: t('Window class name:')}).inject(tr);
         var td = new Element('td').inject(tr);
-        var name = new Element('input', {'class': 'text'})
+
+        var name = new ka.Field({
+            type: 'text',
+            modifier: 'phpclass'
+        }, td);
+
+        /*Element('input', {'class': 'text'})
         .addEvent('change', function(e){
             this.value = this.value.replace(/\W/, '_');
         }).addEvent('keyup', function(e){
             this.fireEvent('change');
         })
-        .inject(td);
+        .inject(td);*/
 
         var tr = new Element('tr').inject(tbody);
         new Element('td', {text: t('Class:')}).inject(tr);
+
         var td = new Element('td').inject(tr);
         var typeClass = new ka.Field({
             type: 'select', items: {
-                adminWindowAdd: 'adminWindowAdd',
-                adminWindowEdit: 'adminWindowEdit',
-                adminWindowList: 'adminWindowList',
-                adminWindowCombine: 'adminWindowCombine'
+                add: 'Add',
+                edit: 'Edit',
+                list: 'List',
+                combine: 'Combine'
             },
             noWrapper: 1,
-            input_width: 150
+            inputWidth: 150
         }, td)
 
 
         this.newWindowDialogCancelBtn = new ka.Button(t('Cancel'))
-            .addEvent('click', function(){
+        .addEvent('click', function(){
             dialog.close();
         })
         .inject(dialog.bottom);
@@ -404,7 +413,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    addWindow: function (pClassName) {
+    addWindow: function (pClassPath, pClassName) {
 
         var className = this.windowsTBody.getLast().hasClass('two')?'one':'two';
 
@@ -416,12 +425,14 @@ var admin_system_module_edit = new Class({
             text: pClassName
         }).inject(tr);
 
-        var td = new Element('td').inject(tr);
+        var td = new Element('td', {
+            text: pClassPath
+        }).inject(tr);
 
+        var td = new Element('td').inject(tr);
 
         new ka.Button(t('Edit window'))
         .addEvent('click', function(){
-
             ka.wm.open('admin/system/module/editWindow', {module: this.mod, className: pClassName});
         }.bind(this))
         .inject(td);
@@ -431,10 +442,11 @@ var admin_system_module_edit = new Class({
             title: _('Remove'),
             html: '&#xe26b;'
         }).addEvent('click', function () {
-            //delete
+            tr.destroy();
         }.bind(this)).inject(td);
 
     },
+
 
     /**
      *
@@ -882,8 +894,7 @@ var admin_system_module_edit = new Class({
 
         tr.titleField = new ka.Field({
             type: 'text',
-            noWrapper: true,
-            modifier: 'phpfunction|trim'
+            noWrapper: true
         }, td);
 
         if (pDefinition && pDefinition.title) tr.titleField.setValue(pDefinition.title);
@@ -965,8 +976,8 @@ var admin_system_module_edit = new Class({
         .addEvent('click', function(){
             this.win._confirm(t('Really delete?'), function(ok){
                 if(ok){
-                    this.fireEvent('delete');
-                    this.removeEvents('change');
+                    tr.fireEvent('delete');
+                    tr.removeEvents('change');
                     tr.destroy();
                     if (tr.childTr) tr.childTr.destroy();
                 }
@@ -1420,11 +1431,11 @@ var admin_system_module_edit = new Class({
                     14: 'Language package',
                     15: 'Data acquisition',
                     16: 'Collaboration'
-                },
+                }
             },
             writableFiles: {
                 label: t('Writable files'),
-                desc: t('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'),
+                desc: t('Specify these files which are not automatically overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information.'),
                 type: 'textarea'
             }
 
@@ -1976,9 +1987,11 @@ var admin_system_module_edit = new Class({
             this.addObject();
         }.bind(this));
 
-        this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this));
+        this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this, false));
+        this.saveButtonORM = buttonBar.addButton(t('Save and ORM Update'), this.saveObjects.bind(this, true));
 
         document.id(this.saveButton).addClass('ka-Button-blue');
+        document.id(this.saveButtonORM).addClass('ka-Button-blue');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1,
         onComplete: function (pResult) {
@@ -2014,7 +2027,7 @@ var admin_system_module_edit = new Class({
     },
 
     printOrmError: function(pResponse){
-        this.saveButton.stopTip(t('Failed.'));
+        this.currentButton.stopTip(t('Failed.'));
 
         var div = new Element('div');
 
@@ -2023,8 +2036,8 @@ var admin_system_module_edit = new Class({
         }).inject(div);
 
         new Element('div', {
-            style: 'position: absolute; top: 50px; left: 5px; right: 5px; bottom: 5px; overflow: auto; white-space: pre; background-color: white; padding: 5px;',
-            text: 'ORM Error: '+pResponse.message
+            style: 'position: absolute; top: 70px; left: 5px; right: 5px; bottom: 5px; overflow: auto; white-space: pre; background-color: white; padding: 5px;',
+            text: 'ORM Error: '+(pResponse.message||pResponse.error)
         }).inject(div);
 
         var dialog = this.win.newDialog(div, true);
@@ -2040,20 +2053,20 @@ var admin_system_module_edit = new Class({
 
     updateORM: function(){
 
-        this.saveButton.startTip(t('Object saved. Write model.xml ...'));
+        this.currentButton.startTip(t('Object saved. Write model.xml ...'));
 
         this.updateOrmWriteModel(function(){
-            this.saveButton.startTip(t('Saved. Update PHP models ...'));
+            this.currentButton.startTip(t('Saved. Update PHP models ...'));
             this.updateOrm('models', function(response){
                 if (response.error){
                     this.printOrmError(response);
                 } else {
-                    this.saveButton.startTip(t('Saved. Update database tables ...'));
+                    this.currentButton.startTip(t('Saved. Update database tables ...'));
                     this.updateOrm('update', function(response){
                         if (response.error){
                             this.printOrmError(response);
                         } else {
-                            this.saveButton.stopTip(t('Done.'));
+                            this.currentButton.stopTip(t('Done.'));
                         }
                     }.bind(this));
                 }
@@ -2073,7 +2086,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    saveObjects: function(){
+    saveObjects: function(pWithUpdate){
 
         var objects = {};
 
@@ -2089,16 +2102,25 @@ var admin_system_module_edit = new Class({
         });
 
         if (this.lr) this.lr.cancel();
-        this.saveButton.startTip(t('Saving ...'));
+        this.currentButton = pWithUpdate ? this.saveButtonORM : this.saveButton;
+
+        this.currentButton.startTip(t('Saving ...'));
 
         var req = {};
         req.objects = JSON.encode(objects);
         req.name = this.mod;
 
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (res) {
-            ka.loadSettings(['configs']);
-            this.updateORM();
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/objects', noCache: 1, onComplete: function (response) {
+            if (response.status == 200){
+                ka.loadSettings(['configs']);
+                if (pWithUpdate)
+                    this.updateORM();
+                else
+                    this.saveButton.stopTip(t('Saved.'));
+            } else {
+                this.saveButton.stopTip(t('Failed.'));
+            }
         }.bind(this)}).post(req);
 
     },
@@ -2131,6 +2153,21 @@ var admin_system_module_edit = new Class({
                         },
                         desc: t('Define a table or a own object class'),
                         depends: {
+                            'class': {
+                                needValue: 'custom',
+                                label: t('Class name'),
+                                desc: t('Class that extends from \\Core\\ORM\\ORMAbstract.')
+                            },
+                            'propelClass': {
+                                needValue: 'propel',
+                                label: t('Custom propel class'),
+                                desc: t('Class that extends from \\Core\\ORM\\Propel or \\Core\\ORM\\ORMAbstract.')
+                            },
+                            'propelClassName': {
+                                needValue: 'propel',
+                                label: t("Propel's model class name"),
+                                desc: t('Generates the classes &lt;name&gt;, &lt;name&gt;Query, &lt;name&gt;Peer. Default is the object key.')
+                            },
                             table: {
                                 needValue: 'propel',
                                 label: t('Table name'),
@@ -2143,13 +2180,14 @@ var admin_system_module_edit = new Class({
                                 modifier: 'camelcase|trim|lcfirst'
                             },
                             nested: {
-                                label: t('Nested Sets'),
-                                desc: t('Adds fields: lvl(int), lft(int) and rgt(int)'),
+                                label: t('Nested Set Model'),
+                                desc: t('Implement with lft, rgt and lvl fields.'),
                                 type: 'checkbox',
-                                depends: {
+                                children: {
                                     nestedLabel: {
                                         needValue: 1,
-                                        label: t('Label field')
+                                        label: t('Label field'),
+                                        modifier: 'camelcase|trim|lcfirst'
                                     },
                                     nestedRootAsObject: {
                                         needValue: 1,
@@ -2158,31 +2196,28 @@ var admin_system_module_edit = new Class({
                                         depends: {
                                             nestedRootObject: {
                                                 needValue: 1,
-                                                label: t('Object key')
+                                                label: t('Object key'),
+                                                modifier: 'camelcase|trim|lcfirst'
                                             },
                                             nestedRootObjectField: {
                                                 needValue: 1,
                                                 label: t('Foreign key'),
+                                                modifier: 'camelcase|trim|lcfirst',
                                                 desc: t('Which field in the current object contains the primary value of the parent object?')
                                             },
                                             nestedRootObjectLabel: {
                                                 needValue: 1,
-                                                label: t('Label field')
+                                                label: t('Label field'),
+                                                modifier: 'camelcase|trim|lcfirst'
                                             },
                                             nestedRootObjectExtraFields: {
                                                 needValue: 1,
                                                 label: t('Extra fields (Optional)'),
-                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.'),
-                                                empty: true
+                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.')
                                             }
                                         }
                                     }
                                 }
-                            },
-                            'class': {
-                                needValue: 'custom',
-                                label: t('Class name'),
-                                desc: t('Class file should be under module/&lt;extKey&gt;/model/&lt;className&gt;.class.php')
                             }
                         }
                     },
@@ -2206,44 +2241,49 @@ var admin_system_module_edit = new Class({
                 type: 'tab',
                 tabFullPage: true,
                 label: t('Data'),
-                depends: {
+                children: {
                     blacklistSelection: {
-                        needValue: 1,
                         label: t('Blacklist selection'),
                         desc: t('Enter fileds which are not selectable through the REST API. Comma separated.')
                     },
                     chooserIcon: {
-                        needValue: 1,
                         label: t('Chooser icon'),
                         desc: t('Relative to media/.')
                     },
-                    chooserFieldType: {
-                        needValue: 1,
+                    __fieldUi__: {
                         label: t('Field UI'),
-                        type: 'select',
-                        items: {
-                            'default': 'Framework',
-                            'custom': 'Custom javascript class'
-                        },
-                        depends: {
-                            'chooserFieldJavascriptClass': {
-                                needValue: 'custom',
-                                label: t('Javascript class name'),
-                                desc: t('You can inject javascript files through extension settings to make a javascript class available.')
+                        type: 'childrenSwitcher',
+                        children: {
+                            chooserFieldType: {
+                                type: 'select',
+                                label: t('Javascript UI Class'),
+                                inputWidth: 150,
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom javascript class'
+                                },
+                                children: {
+                                    'chooserFieldJavascriptClass': {
+                                        needValue: 'custom',
+                                        label: t('Javascript class name'),
+                                        desc: t('You can inject javascript files through extension settings to make a javascript class available.')
+                                    }
+                                }
                             },
                             'chooserFieldDataModel': {
-                                needValue: 'default',
                                 label: t('Data source'),
                                 type: 'select',
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
                                 },
+                                'default': 'default',
                                 depends: {
                                     chooserFieldDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('Have to be at module/&lt;extKey&gt;/model/&lt;className&gt;.class.php')
+                                        desc: t('A class that extends from \\Admin\\Model\\Field. Entrypoint admin/backend/object?uri=...')
                                     },
                                     chooserFieldDataModelCondition: {
                                         needValue: 'default',
@@ -2252,49 +2292,64 @@ var admin_system_module_edit = new Class({
                                     }
                                 }
                             },
+                            __singleMode__: {
+                                type: 'label',
+                                label: t('Single mode'),
+                                children: {
+                                    chooserFieldDataModelField: {
+                                        label: t('Label key'),
+                                        type: 'text'
+                                    },
+                                    chooserFieldDataModelFieldTemplate: {
+                                        label: t('Label template (Optional)'),
+                                        type: 'text'
+                                    },
+                                    chooserFieldDataModelFieldExtraFields: {
+                                        label: t('Extra fields in select (Optional)'),
+                                        desc: t('Maybe you need some more fields, if you have a own label template. Comma separated'),
+                                        type: 'text'
+                                    }
+                                }
+                            },
                             chooserFieldDataModelFields: {
-                                label: t('Columns'),
+                                label: t('Columns for multiple object chooser.'),
                                 type: 'fieldTable',
-                                needValue: 'default',
-                                desc: t('For tables or select boxes.'),
+                                desc: t('For the multiple view in a table.'),
                                 asFrameworkColumn: true,
                                 withoutChildren: true,
                                 tableitem_title_width: 200,
                                 addLabel: t('Add column')
-                            },
-                            chooserFieldDataModelField: {
-                                label: t('Label key'),
-                                needValue: 'default',
-                                type: 'text',
-                                desc: t('In field mode')
                             }
                         }
                     },
                     __chooserBrowserTree__: {
                         againstField: 'nested',
                         needValue: 1,
-                        type: 'label',
+                        type: 'childrenSwitcher',
                         label: t('Browser UI (tree)'),
                         desc: t('Only for nested objects.'),
                         depends: {
                             chooserBrowserTreeDataModel: {
                                 needValue: 1,
                                 label: t('Data model'),
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
                                 },
+                                'default': 'default',
                                 type: 'select',
                                 depends: {
                                     chooserBrowserTreeDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('Have to be at module/&lt;extKey&gt;/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                        desc: t('A class that extends from \\Admin\\Model\\Tree. Entry point admin/backend/object-tree?uri=...')
                                     }
                                 }
                             },
                             chooserBrowserTreeJavascript: {
                                 label: t('Javascript UI class'),
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
@@ -2361,6 +2416,7 @@ var admin_system_module_edit = new Class({
                                         label: t('Icon path mapping'),
                                         needValue: 0,
                                         type: 'array',
+                                        asHash: true,
                                         columns: [
                                             {label: t('Value'), width: '30%'},
                                             {label: t('Icon path')}
@@ -2373,34 +2429,45 @@ var admin_system_module_edit = new Class({
                                                 type: 'file'
                                             }
                                         }
+                                    },
+                                    chooserBrowserTreeDefaultIcon: {
+                                        needValue: 0,
+                                        label: t('Default icon'),
+                                        type: 'file',
+                                        combobox: true
                                     }
                                 }
                             }
                         }
                     },
-                    chooserBrowserType: {
-                        needValue: 1,
+                    __chooserBrowserType__: {
                         label: t('Browser UI (chooser)'),
-                        items: {
-                            'default': 'Framework',
-                            'custom': 'Custom javascript class'
-                        },
-                        type: 'select',
+                        type: 'childrenSwitcher',
                         depends: {
-                            chooserBrowserJavascriptClass: {
-                                needValue: 'custom',
-                                label: t('Javascript class'),
-                                desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
-                            },
-                            chooserBrowserOptions: {
-                                label: t('UI properties'),
-                                needValue: 'custom',
-                                desc: t('You can allow extensions to set some properties when providing your object chooser.'),
-                                type: 'fieldTable'
+                            chooserBrowserType: {
+                                label: t('Javascript UI Class'),
+                                type: 'select',
+                                inputWidth: 150,
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom javascript class'
+                                },
+                                children: {
+                                    chooserBrowserJavascriptClass: {
+                                        needValue: 'custom',
+                                        label: t('Javascript class'),
+                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                                    },
+                                    chooserBrowserOptions: {
+                                        label: t('UI properties'),
+                                        needValue: 'custom',
+                                        desc: t('You can allow extensions to set some properties when providing your object chooser.'),
+                                        type: 'fieldTable'
+                                    }
+                                }
                             },
                             chooserBrowserAutoColumns: {
                                 label: t('Columns in the chooser table'),
-                                needValue: 'default',
                                 type: 'fieldTable',
                                 asFrameworkColumn: true,
                                 withoutChildren: true,
@@ -2410,6 +2477,7 @@ var admin_system_module_edit = new Class({
                             'chooserBrowserDataModel': {
                                 type: 'select',
                                 label: t('Data source'),
+                                inputWidth: 150,
                                 items: {
                                     'default': 'Default',
                                     'custom': 'Custom PHP class',
@@ -2419,7 +2487,7 @@ var admin_system_module_edit = new Class({
                                     chooserBrowserDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('Have to be at module/&lt;extKey&gt;/model/&lt;className&gt;.class.php. Reade the manual for more information.')
+                                        desc: t('A class that extends from \\Admin\\Model\\Browse. Entry point admin/backend/objects?uri=...')
                                     },
                                     chooserBrowserDataModelFields: {
                                         needValue: 'custom',
@@ -2443,7 +2511,7 @@ var admin_system_module_edit = new Class({
             width: '100%'
         }).inject(this.dialog.content);
 
-        var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 180}, {win: this.win});
+        var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 220}, {win: this.win});
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 

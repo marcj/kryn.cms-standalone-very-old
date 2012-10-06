@@ -548,7 +548,7 @@ ka.FieldProperty = new Class({
                         this.fireEvent('delete');
                         this.removeEvents('change');
                         this.main.destroy();
-                        if (!this.childTr) this.childTr.destroy();
+                        if (this.childTr) this.childTr.destroy();
                     }
                 }.bind(this));
             }.bind(this))
@@ -583,7 +583,6 @@ ka.FieldProperty = new Class({
                 this.main.inject(next.childTr || next, 'after');
 
                 if (this.childTr) this.childTr.inject(this.main, 'after');
-
 
             }.bind(this))
             .inject(this.tdActions);

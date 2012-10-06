@@ -127,21 +127,6 @@ class UserEdit extends \Admin\ObjectWindow {
                 ),
                 'groupMembership'
             )
-            /*'groups' => array(
-                'label' => 'Groups',
-                'type' => 'textlist',
-                'store' => 'admin/backend/stores/groups',
-                'relation' => 'n-n',
-                'n-n' => array(
-                    'right' => 'system_groups',
-                    'right_key' => 'id',
-                    'right_label' => 'name',
-                    'middle' => 'system_groupaccess',
-                    'middle_keyright' => 'system_group_id',
-                    'middle_keyleft' => 'system_user_id',
-                    'left_key' => 'id'
-                )
-            )*/
         ),
         '__administration__' => array(
             'type' => 'tab',

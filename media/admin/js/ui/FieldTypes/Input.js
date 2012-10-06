@@ -113,6 +113,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
 
     setValue: function(pValue){
         if (typeOf(pValue) == 'null') pValue = '';
+        if (typeOf(pValue) == 'object' || typeOf(pValue) == 'array') pValue = JSON.encode(pValue);
         this.oldValue = pValue;
         this.input.value = pValue;
         this._checkChange();

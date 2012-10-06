@@ -2,12 +2,12 @@
 
 namespace Admin\Object;
 
+/**
+ * Controller
+ *
+ * Proxy class for \Core\Object
+ */
 class Controller {
-
-
-    public function getItemLabel($pObject, $pPk){
-        
-    }
 
     public function postItem($pObject, $pPk, $pSetFields){
 
@@ -29,8 +29,8 @@ class Controller {
 
     public function putItem($pObject, $pSetFields){
 
-        if (!count($pSetFields))
-            throw new \ArgumentMissingException(tf('At least one argument with starting _ is missing.'));
+        if (!count($_POST))
+            throw new \ArgumentMissingException(tf('At least one argument in POST is missing.'));
 
         $options = array(
             'permissionCheck' => true
@@ -40,11 +40,10 @@ class Controller {
     }
 
     /**
-     * asd 
-     * @param  [type] $pObject [description]
-     * @param  [type] $pPk     [description]
-     * @param  [type] $pFields [description]
-     * @return [type]          [description]
+     * @param $pObject
+     * @param $pPk
+     * @param null $pFields
+     * @return array|bool
      */
     public function getItem($pObject, $pPk, $pFields = null){
 
@@ -63,6 +62,81 @@ class Controller {
         }
     }
 
+    public function getTreeBranch($pObject, $pParentPrimaryKey, $pDepth = 1, $pScope = null, $pFields = null){
+
+        $options['fields'] = $pFields;
+        $options['permissionCheck'] = true;
+
+        $primaryKeys = \Core\Object::parsePk($pObject, $pParentPrimaryKey);
+
+        if (!$options['fields']){
+            //use default fields from object definition
+            $definition = \Core\Kryn::$objects[$pObject];
+            $options['fields'][] = $definition['label'];
+
+            if ($definition['chooserBrowserTreeIcon'])
+                $options['fields'][] = $definition['chooserBrowserTreeIcon'];
+
+            if ($definition['chooserFieldDataModelFieldExtraFields']){
+                $extraFields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['chooserFieldDataModelFieldExtraFields'])));
+                foreach($extraFields as $field)
+                    $options['fields'][] = $field;
+            }
+
+        }
+        return \Core\Object::getTree($pObject, $primaryKeys[0], $condition = false, $pDepth, $pScope, $options);
+    }
+
+    public function moveItem($pObjectKey, $pId, $pTo, $pWhere = 'into'){
+
+        $options = array('permissionCheck' => true);
+
+        list($targetObjectKey, $targetObjectId, $targetParams) = \Core\Object::parseUri($pTo);
+
+        return \Core\Object::move($pObjectKey, $pId, $targetObjectId[0], $pWhere, $targetObjectKey, $options);
+    }
+
+    public function getTreeRoot($pObject, $pScope){
+
+        $options = array('permissionCheck' => true);
+
+        return \Core\Object::getTreeRoot($pObject, $pScope, $options);
+    }
+
+    public function getTree($pObject, $pDepth = 1, $pScope = null, $pFields = null){
+
+        $options['fields'] = $pFields;
+        $options['permissionCheck'] = true;
+
+        if (!$options['fields']){
+            $options['fields'] = array();
+
+            //use default fields from object definition
+            $definition = \Core\Kryn::$objects[$pObject];
+            $options['fields'][] = $definition['nestedLabel'];
+
+            if ($definition['chooserBrowserTreeIcon'])
+                $options['fields'][] = $definition['chooserBrowserTreeIcon'];
+
+            if ($definition['chooserFieldDataModelFieldExtraFields']){
+                $extraFields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['chooserFieldDataModelFieldExtraFields'])));
+                foreach($extraFields as $field)
+                    $options['fields'][] = $field;
+            }
+        }
+
+        return \Core\Object::getTree($pObject, null, $condition = false, $pDepth, $pScope, $options);
+    }
+
+    /**
+     * @param $pObject
+     * @param null $pFields
+     * @param null $pLimit
+     * @param null $pOffset
+     * @param null $pOrder
+     * @param null $_
+     * @return array|bool
+     */
     public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null,
                              $pOrder = null, $_ = null){
 
@@ -80,6 +154,10 @@ class Controller {
         
     }
 
+    /**
+     * @param $pFilter
+     * @return array|null
+     */
     public function buildFilter($pFilter){
         $condition = null;
 
@@ -95,19 +173,65 @@ class Controller {
         return $condition;
     }
 
+    /**
+     * @param $pObject
+     * @return array
+     */
     public function getCount($pObject){
 
         return \Core\Object::getCount($pObject);
     }
 
+    /**
+     * @param $pUri
+     * @return array|bool
+     * @throws ObjectNotFoundException
+     */
+    public function getItemPerUri($pUri){
+
+        list($object_key, $object_id, $params) = \Core\Object::parseUri($pUri);
+
+        $definition = \Core\Kryn::$objects[$object_key];
+        if (!$definition) throw new ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
+
+        if ($definition['chooserFieldDataModel'] == 'custom'){
+
+            $class = $definition['chooserFieldDataModelClass'];
+
+            $dataModel = new $class($object_key);
+
+            $item = $dataModel->getItem($object_id[0]);
+            return array(
+                'object' => $object_key,
+                'values' => $item
+            );
+
+        } else {
+
+            $fields[] = $definition['chooserFieldDataModelField'];
+
+            if ($definition['chooserFieldDataModelCondition']){
+                $condition = $definition['chooserFieldDataModelCondition'];
+            }
+
+            $item = \Core\Object::get($object_key, $object_id[0], array(
+                'fields' => $fields,
+                'condition' => $condition
+            ));
+
+            return $item;
+
+        }
+    }
+
+    /**
+     * @param $pUri
+     * @return array
+     * @throws \Exception
+     */
     public function getItemsByUri($pUri){
 
-        if (is_numeric($pUri)){
-            //compatibility
-            $object_key = '';
-        } else {
-            list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
-        }
+        list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
 
         //check if we got an id
         if (!current($object_ids[0])){
@@ -144,17 +268,25 @@ class Controller {
                 'fields' => $fields,
                 'condition' => $definition['chooserFieldDataModelCondition']
             ));
+
         }
+
+        $c = count($primaryKeys);
+        $firstPK = key($primaryKeys);
 
         $res = array();
         if (is_array($items)){
             foreach ($items as &$item){
 
-                $keys = array();
-                foreach($primaryKeys as $key => &$field){
-                    $keys[] = rawurlencode($item[$key]);
+                if ($c > 1){
+                    $keys = array();
+                    foreach($primaryKeys as $key => &$field){
+                        $keys[] = rawurlencode($item[$key]);
+                    }
+                    $res[ implode(',', $keys) ] = $item;
+                } else {
+                    $res[$item[$firstPK]] = $item;
                 }
-                $res[ implode(',', $keys) ] = $item;
             }
         }
 

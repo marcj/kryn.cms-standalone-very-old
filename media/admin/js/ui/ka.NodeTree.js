@@ -1,6 +1,67 @@
 ka.NodeTree = new Class({
     Extends: ka.ObjectTree,
 
+    addRootIcon: function(pItem, pA){
+
+        pA.icon = new Element('span', {
+            style: 'font-family: Icomoon; font-size: 16px; position: relative; top: -1px; left: -1px',
+            html: '&#xe182;'
+        }).inject(pA, 'top');
+
+    },
+
+    addItemIcon: function(pItem, pA){
+
+
+        var icon = '&#xe21f;'; //&#xe33b;
+        var icon = '&#xe20e;'; //&#xe33b;
+
+        if (pItem.type == 1) icon = '&#xe413;'; //link
+        if (pItem.type == 2) icon = '&#xe223;'; //folder
+        if (pItem.type == 3) icon = '&#xe27d;'; //deposit
+
+
+        pA.icon = new Element('span', {
+            'class': 'ka-objectTree-item-masks',
+            style: 'font-family: Icomoon; font-size: 16px;position: relative; top: -1px;',
+            html: icon
+        }).inject(pA, 'top');
+
+
+        /**
+         *  Extract to pagesTree
+         *
+         */
+        if ((pItem.type == 0 || pItem.type == 1) && pItem.visible == 0) {
+            pA.icon.setStyle('opacity', 0.5);
+        }
+
+        if ((pItem.type == 0 || pItem.type == 3) && pItem.draft_exist == 1) {
+            new Element('img', {
+                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/draft_exist.png'
+            }).inject(pA.icon);
+        }
+
+        if (pItem.access_denied == 1) {
+            new Element('img', {
+                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/access_denied.png'
+            }).inject(pA.icon);
+        }
+
+        if (pItem.type == 0 && pItem.access_from_groups != "" && typeOf(pItem.access_from_groups) == 'string') {
+            new Element('img', {
+                src: _path + PATH_MEDIA + '/admin/images/icons/pageMasks/access_group_limited.png'
+            }).inject(pA.icon);
+        }
+
+
+    }
+
+});
+
+ka.oldNodeTree = new Class({
+    Extends: ka.ObjectTree,
+
     types: {
         '0': 'page_green.png',
         '1': 'page_green.png',

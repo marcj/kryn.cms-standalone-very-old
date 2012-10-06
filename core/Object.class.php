@@ -245,36 +245,30 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pPk
+     * @param mixed  $pPrimaryKey
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pPk = false, $pOptions = array()){
+    public static function get($pObjectKey, $pPrimaryKey, $pOptions = array()){
 
         $obj = self::getClass($pObjectKey);
 
-        //convert primarykey to condition
-        $condition = dbPrimaryKeyToCondition($pPk);
+        $primaryKey = $obj->normalizePrimaryKey($pPrimaryKey);
+
 
         if (!$pOptions['fields'])
             $pOptions['fields'] = '*';
 
-        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
-
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
 
+        $item = $obj->getItem($primaryKey, $pOptions);
+
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($condition){
-                $condition = array($aclCondition, 'AND', $condition);
-            } else {
-                $condition = $aclCondition;
-            }
+            if (!self::satisfy($item, $aclCondition)) return false;
         }
 
-        return $obj->getItem($condition, $pOptions);
+        return $item;
 
     }
 
@@ -320,144 +314,13 @@ class Object {
         }
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($pCondition){
+            if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
-            } else {
+            else
                 $pCondition = $aclCondition;
-            }
         }
  
         return $obj->getItems($pCondition, $pOptions);
-
-        if ($pCondition['noCache']) return $obj->getItems($pCondition, $pOptions);
-
-        $cacheId = 'ObjectGetList_'.md5($pObjectKey.'-'.json_encode($pCondition).json_encode($pOptions));
-        if ($items = Kryn::getCache($cacheId)){
-            return $items;
-        }
-        
-        
-        $items = $obj->getItems($pCondition, $pOptions);
-        Kryn::setCache($cacheId, $items);
-        return $items;
-        
-
-    }
-
-    /**
-     * Returns the list of objects.
-     *
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *  'offset'          Offset of the result set (in SQL OFFSET)
-     *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('field' => 'category', 'direction' => 'asc'),
-     *                      array('field' => 'title',    'direction' => 'asc')
-     *                    )
-     *
-     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     * @static
-     * @param string $pObjectKey
-     * @param mixed  $pPk
-     * @param mixed  $pField
-     * @param mixed  $pForeignCondition
-     * @param array  $pOptions
-     * @see \dbConditionToSql
-     * @return array|bool
-     */
-    public static function getForeignItems($pObjectKey, $pPk, $pField, $pForeignCondition = null, 
-                                          $pOptions = array()){
-
-        $obj = self::getClass($pObjectKey);
-
-        if (!$pOptions['fields']) $pOptions['fields'] = '*';
-
-        if (!$pOptions['foreignKeys'])
-            $pOptions['foreignKeys'] = '*';
-
-        $condition = dbPrimaryKeyToCondition($pPk);
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($condition){
-                $condition = array($aclCondition, 'AND', $$condition);
-            } else {
-                $$condition = $aclCondition;
-            }
-        }
-
-        $relatedField = $obj->getField($pField);
-
-        if (!$relatedField)
-            throw new \FieldNotFoundException(tf('The field %s can not be found in object %', $pField, $pObjectKey));
-
-        if ($relatedField['type'] != 'object')
-            throw new \FieldNotFoundException(tf('The field %s is not from type object (%s)', $pField, $relatedField['type']));
-
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($relatedField['object'])){
-            if ($pForeignCondition){
-                $pForeignCondition = array($aclCondition, 'AND', $pForeignCondition);
-            } else {
-                $pForeignCondition = $aclCondition;
-            }
-        }
-
-        return $obj->getForeignItems($condition, $pField, $pForeignCondition, $pOptions);
-
-    }
-
-
-    /**
-     * Returns the count of related items.
-     *
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     * @static
-     * @param string $pObjectKey
-     * @param mixed  $pCondition Condition object from the structure of dbPrimaryKeyToConditionToSql() or dbConditionToSql()
-     * @param array  $pOptions
-     * @see \dbConditionToSql
-     * @return array|bool
-     */
-    public static function getRelatedCount($pObjectKey, $pCondition = null, $pRelatedObject, $pRelatedPk, 
-                                          $pOptions = array()){
-
-        $obj = self::getClass($pObjectKey);
-
-        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
-            if ($pCondition){
-                $pCondition = array($aclCondition, 'AND', $pCondition);
-            } else {
-                $pCondition = $aclCondition;
-            }
-        }
-
-
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pRelatedObject)){
-            if ($pReleatedCondition){
-                $pReleatedCondition = array($aclCondition, 'AND', $pReleatedCondition);
-            } else {
-                $pReleatedCondition = $aclCondition;
-            }
-        }
-
-        return $obj->getRelatedCount($pCondition, $pRelatedObject, $pRelatedPk, $pOptions);
 
     }
 
@@ -477,13 +340,17 @@ class Object {
         if (!self::$instances[$pObjectKey]){
 
             if ($definition['dataModel'] != 'custom'){
+
                 //propel
-                self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
+                if ($propelClass = $definition['propelClass'])
+                    self::$instances[$pObjectKey] = new $propelClass($pObjectKey, $definition);
+                else
+                    self::$instances[$pObjectKey] = new \Core\ORM\Propel($pObjectKey, $definition);
 
             } else {
 
                 //custom
-                if (class_exists($className = $definition['class']))
+                if (!class_exists($className = $definition['class']))
                     throw new \Exception(tf('Class for %s (%s) not found.', $pObjectKey. $definition['class']));
 
                 self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
@@ -539,8 +406,8 @@ class Object {
     
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
-                if (!Acl::checkAdd($pObjectKey, $pPk, $fieldName)){
-                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
+                if (!Acl::checkAdd($pObjectKey, $pBranchPk, $fieldName)){
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pBranchPk, $pObjectKey));
                 }
             }
         }
@@ -552,7 +419,7 @@ class Object {
 
     public static function updateFromUri($pObjectUri, $pValues){
         list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        return self::update($object_key, $object_id[0], $pValues);
+        return self::update($object_key, $object_id[0], $pValues, $params);
     }
 
     /**
@@ -613,62 +480,61 @@ class Object {
 
     }
 
-    /**
-     * @static
-     * @param string     $pObjectKey
-     * @param mixed      $pParent
-     * @param bool|array $pCondition
-     * @param int        $pDepth
-     * @param bool|int   $pScope
-     * @param bool|array $pOptions
-     * @return mixed
-     */
-    public static function getTree($pObjectKey, $pBranch = false, $pCondition = false, $pDepth = 1, $pScope = false,
-                                   $pOptions = false){
 
-        $obj = self::getClass($pObjectKey);
+    public static function getTreeRoot($pObjectKey, $pScope, $pOptions = false){
 
-        if (!is_array($pOptions)) $pOptions = array();
+        $definition = kryn::$objects[$pObjectKey];
+        if (!$definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
-        if (!$pOptions['fields'])
-            $pOptions['fields'] = '';
+        $pOptions['fields'] = $definition['nestedRootObjectLabel'];
 
-        $pOptions['fields'] = str_replace(' ', '', $pOptions['fields']);
-
-        if (!$pOptions['foreignKeys'])
-            $pOptions['foreignKeys'] = '*';
-
-        if ($pCondition !== false && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
-
-        return $obj->getTree($pBranch, $pCondition, $pDepth, $pScope, $pOptions);
-
+        return self::get($definition['nestedRootObject'], $pScope, $pOptions);
     }
 
-    public static function getTreeRoot($pParentObjectUri, $pRootId){
+    /**
+     * @static
+     * @param $pObjectKey
+     * @param null $pParentPrimaryKey
+     * @param null $pCondition
+     * @param int $pDepth
+     * @param bool $pScope
+     * @param bool $pOptions
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function getTree($pObjectKey, $pParentPrimaryKey = null, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
 
-        list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
+        $obj = self::getClass($pObjectKey);
+        $definition = kryn::$objects[$pObjectKey];
 
-        $definition = kryn::$objects[$object_key];
+        if ($pParentPrimaryKey)
+            $parentPrimaryKey = $obj->normalizePrimaryKey($pParentPrimaryKey);
 
-        if (!$definition['nestedRootAsObject']) return false;
-        if (!$definition['nestedRootObject']) return false;
+        if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
 
-        $obj = self::getClass($definition['nestedRootObject']);
+        if (!$pOptions['fields']){
+            $fields[] = $definition['nestedRootObjectLabel'];
 
-        $fields = $obj->primaryKeys;
-        $fields[] = $definition['nestedRootObjectLabel'];
-
-        if ($definition['nestedRootObjectExtraFields']){
-            $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
-            foreach ($extraFields as $field)
-                $fields[] = $field;
+            if ($definition['nestedRootObjectExtraFields']){
+                $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
+                foreach ($extraFields as $field)
+                    $fields[] = $field;
+            }
+            $pOptions['fields'] = implode(',',$fields);
         }
 
-        list($rootKey, $rootId, $params) = self::parseUri($definition['nestedRootObject'].'/'.$pRootId);
+        if ($pCondition)
+            $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
 
-        return $obj->getItem($rootId[0], $fields);
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition)
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            else
+                $pCondition = $aclCondition;
+        }
+
+        return $obj->getTree($parentPrimaryKey, $pCondition, $pDepth, $pScope, $pOptions);
 
     }
 
@@ -754,22 +620,32 @@ class Object {
         return self::getParents($object_key, $object_id[0]);
     }
 
-    public static function move($pSourceObjectUri, $pTargetObjectUri, $pMode){
+    public static function move($pObjectKey, $pObjectId, $pTargetId, $pWhere = 'into', $pTargetObjectKey = null, $pOptions = null){
 
-        list($object_key, $object_id, $params) = self::parseUri($pSourceObjectUri);
-        $target = self::parseUri($pTargetObjectUri);
+        $obj = self::getClass($pObjectKey);
 
-        $obj = self::getClass($object_key);
+        //todo, check access
 
-        $targetId = $target[1][0];
+        return $obj->move($pObjectId, $pTargetId, $pWhere, $pTargetObjectKey);
+    }
+
+    public static function moveFromUri($pSourceObjectUri, $pTargetObjectUri, $pWhere = 'into', $pOptions = null){
+
+        list($objectKey, $objectId, $params) = self::parseUri($pSourceObjectUri);
+        list($targetObjectKey, $targetObjectId, $targetParams) = self::parseUri($pTargetObjectUri);
+
+        $obj = self::getClass($objectKey);
+
+        $targetId = $targetObjectId[0];
         $pTargetObjectKey = false;
 
-        if ($target[0] != $object_key){
-            $pMode = 'into';
-            $pTargetObjectKey = $target[0];
+        if ($targetObjectKey != $objectKey){
+            $pWhere = 'into';
         }
 
-        return $obj->move($object_id[0], $targetId, $pMode, $pTargetObjectKey);
+        //todo, check access
+
+        return $obj->move($objectId, $targetId, $pWhere, $targetObjectKey);
     }
 
 
@@ -821,7 +697,7 @@ class Object {
 
         }
 
-        return $complied;
+        return $complied === null ? true : $complied;
     }
 
     public static function checkRule(&$pObjectItem, $pCondition){

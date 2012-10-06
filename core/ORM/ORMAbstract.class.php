@@ -5,8 +5,11 @@ namespace Core\ORM;
 /**
  * ORM Abstract class for objects.
  *
+ * Please do not handle 'permissionCheck' in $pOptions. This is handled in \Core\Object.
+ * You will get in getList()  a complex $pCondition object instead (if there are any ACL items)
+ *
  * 
- * $pPk is an array with following format
+ * $pPrimaryKey is an array with following format
  *
  *  array(
  *      '<keyName>'  => <value>
@@ -24,6 +27,21 @@ abstract class ORMAbstract {
      * @var array
      */
     public $primaryKeys = array();
+
+    /**
+     * Constructor
+     *
+     * @param string $pObjectKey
+     * @param array  $pDefinition
+     */
+    function __construct($pObjectKey, $pDefinition){
+        $this->objectKey = $pObjectKey;
+        $this->definition = $pDefinition;
+        foreach($this->definition['fields'] as $key => $field){
+            if ($field['primaryKey'])
+                $this->primaryKeys[] = $key;
+        }
+    }
 
     public function setPrimaryKeys($pPrimaryKeys){
         $this->primaryKeys = $pPrimaryKeys;
@@ -58,19 +76,47 @@ abstract class ORMAbstract {
         return $this->object_key;
     }
 
+    /**
+     * Normalize the primary key.
+     * Possible input:
+     *  array('bla'), 'peter', 123,
+     *
+     * Output
+     *  array('id' => 'bla'), array('id' => 'peter'), array('id' => 123)
+     *  if the only primary key is named `id`.
+     *
+     * @param mixed $pPrimaryKey
+     * @return array
+     */
+    public function normalizePrimaryKey($pPrimaryKey){
+        if (!is_array($pPrimaryKey)){
+            $result = array();
+            $result[current($this->primaryKeys)] = $pPrimaryKey;
+            return $result;
+        } else if (is_numeric(key($pPrimaryKey))){
+            $result = array();
+            $length = count($this->primaryKeys);
+            for($i=0; $i<$length; $i++){
+                $result[$this->primaryKeys[$i]] = $pPrimaryKey[$i];
+            }
+            return $result;
+        } else{
+            return $pPrimaryKey;
+        }
+    }
 
     /**
      * Converts given primary values from type string into proper array definition.
-     * Generates a array for the usage of Core\Object:get()
+     * This builds the array for the $pPrimaryKey for all of these methods inside this class.
      *
-     * @param string $pPk
+     * @param string $pPrimaryKey
      *
      * @return array
      */
-    public function primaryStringToArray($pPk){
+    public function primaryStringToArray($pPrimaryKey){
 
-        if ($pPk === '') return false;
-        $groups = explode(',', $pPk);
+        if ($pPrimaryKey === '') return false;
+        $groups = explode(',', $pPrimaryKey);
 
         $result = array();
 
@@ -105,26 +151,17 @@ abstract class ORMAbstract {
      *
      *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
      *                    If empty all columns will be selected.
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('field' => 'category', 'direction' => 'asc'),
-     *                      array('field' => 'title',    'direction' => 'asc')
-     *                    )
-     * 
-     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
      *
      *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
      *
      * @abstract
-     * @param bool|array  $pCondition
-     * @param bool|array  $pOptions
+     * @param array  $pPrimaryKey
+     * @param array  $pOptions
      *
      * @return array
      */
-    abstract public function getItem($pCondition, $pOptions = false);
-
+    abstract public function getItem($pPrimaryKey, $pOptions = null);
 
     /**
      *
@@ -136,123 +173,116 @@ abstract class ORMAbstract {
      *  'limit'           Limits the result set (in SQL LIMIT)
      *  'order'           The column to order. Example:
      *                    array(
-     *                      array('field' => 'category', 'direction' => 'asc'),
-     *                      array('field' => 'title',    'direction' => 'asc')
+     *                      array('category' => 'asc'),
+     *                      array(title' => 'asc')
      *                    )
-     *
-     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
      *
      *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
      *
-     *
      * @abstract
-     * @param array  $pCondition
+     * @param array  $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
      * @param array  $pOptions
      */
     abstract public function getItems($pCondition = null, $pOptions = null);
 
     /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *  'offset'          Offset of the result set (in SQL OFFSET)
-     *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('field' => 'category', 'direction' => 'asc'),
-     *                      array('field' => 'title',    'direction' => 'asc')
-     *                    )
-     *
-     *  'foreignKeys'     Defines which column should be resolved. If empty all columns will be resolved.
-     *                    Use a array or a comma separated list (like in SQL SELECT). 'field1, field2, field3'
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     *
-     * @abstract
-     * @param array  $pPk
-     * @param array  $pRelatedObject
-     * @param array  $pRelatedCondition
-     * @param array  $pOptions
-     */
-    //abstract public function getRelatedItems($pConditon = null, $pRelatedObject, $pRelatedPk, $pOptions = array());
-
-    /**
      * 
      * @abstract
-     * @param array $pPk
+     * @param array $pPrimaryKey
      *
      */
-    abstract public function remove($pPk);
+    abstract public function remove($pPrimaryKey);
 
     /**
      * @abstract
      * @param array  $pValues
-     * @param mixed  $pBranchPk If nested set
+     * @param array  $pBranchPk If nested set
      * @param string $pMode  If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
-     * @param int  $pScope If nested set with scope
+     * @param int    $pScope If nested set with scope
      *
      * @return mixed inserted primary key/s. If the object has multiple PKs, it returns a array.
      */
-    abstract public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0);
+    abstract public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null);
 
     /**
      * Updates an object
      *
      * @abstract
-     * @param $pPk
-     * @param $pValues
+     * @param array $pPrimaryKey
+     * @param array $pValues
      */
-    abstract public function update($pPk, $pValues);
+    abstract public function update($pPrimaryKey, $pValues);
 
     /**
      * @abstract
-     * @param bool|string $pCondition
+     * @param array $pCondition
      *
      * @return int
      */
-    abstract public function getCount($pCondition = false);
+    abstract public function getCount($pCondition = null);
+
+
+    /**
+     *
+     *
+     * @param        $pPk
+     * @param        $pTargetPk
+     * @param string $pMode into, below|down, before|up
+     * @param        $pTargetObjectKey
+     * @throws \Exception
+     */
+    public function move($pPk, $pTargetPk = null, $pMode = 'into', $pTargetObjectKey = null){
+        throw new \NotImplementedException('Move method is not implemented for this object layer.');
+    }
 
     /**
      * Returns a branch if the object is a nested set.
      *
-     * @param  mixed $pPk
-     * @param  mixed $pCondition
-     * @param  int   $pDepth
-     * @param  int   $pScope
-     * @abstract
+     * Result should be:
      *
-     * @return  array|bool
+     *  array(
+     *
+     *    array(<valuesFromFirstItem>, '_children' => array(<children>), '_childrenCount' => <int> ),
+     *    array(<valuesFromSecondItem>, '_children' => array(<children>), '_childrenCount' => <int> ),
+     *    ...
+     *
+     *  )
+     *
+     * @param array $pParentPrimaryKey
+     * @param array $pCondition
+     * @param int   $pDepth Started with one. One means, only the first level, no children at all.
+     * @param mixed $pScope
+     * @param array $pOptions
+     *
+     * @return array
      */
-    abstract public function getBranch($pPk = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-        $pOptions = false);
+    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+        if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
+        throw new \NotImplementedException(t('getTree is not implemented.'));
+    }
+
 
 
     /**
      * Returns the parent if exists otherwise false.
      *
-     * @param  $pPk
+     * @param array $pPrimaryKey
      * @return mixed
      */
-    public function getParent($pPk){
-
-        return false;
+    public function getParent($pPrimaryKey){
+        throw new \NotImplementedException(t('getParent is not implemented.'));
     }
 
 
     /**
      * Returns parent's id, if exists
      *
-     * @param $pPk
+     * @param array $pPrimaryKey
      * @return array
      */
-    public function getParentId($pPk){
-        $object = $this->getParent($pPk);
+    public function getParentId($pPrimaryKey){
+        $object = $this->getParent($pPrimaryKey);
 
         if (!$object) return false;
 

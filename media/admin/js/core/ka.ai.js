@@ -184,6 +184,35 @@ window.ka.entrypoint = {
 
 };
 
+/**
+ * Resolve path notations and returns the appropriate class.
+ * @param {String} pClassPath
+ * @return {Class|Function}
+ */
+ka.getClass = function(pClassPath){
+    pClassPath = pClassPath.replace('[\'', '');
+    pClassPath = pClassPath.replace('\']', '');
+
+    if (pClassPath.indexOf('.') > 0 ){
+        var path = pClassPath.split('.');
+        var clazz = null;
+        Array.each(path, function(item){
+            clazz = clazz ? clazz[item] : window[item];
+        });
+        return clazz;
+    }
+
+    return window[pClassPath];
+}
+
+/**
+ * Encodes a value from url usage.
+ * If Array, it encodes the whole array an implodes it with comma.
+ * If Object, it encodes the while object an implodes the <key>=<value> pairs with a comma.
+ *
+ * @param {String} pValue
+ * @return {STring}
+ */
 ka.urlEncode = function(pValue){
 
     if (typeOf(pValue) == 'string'){
@@ -208,6 +237,11 @@ ka.urlEncode = function(pValue){
 
 }
 
+/**
+ * Decodes a value for url usage.
+ * @param {String} pValue
+ * @return {String}
+ */
 ka.urlDecode = function(pValue){
 
     if (typeOf(pValue) != 'string') return pValue;
@@ -220,6 +254,15 @@ ka.urlDecode = function(pValue){
 
 }
 
+/**
+ * Returns a absolute path.
+ * If pPath begins with # it returns pPath
+ * if pPath is not a string it returns pPath
+ * if pPath contains http:// on the beginning it returns pPath
+ *
+ * @param {String} pPath
+ * @return {String}
+ */
 ka.mediaPath = function(pPath){
 
     if (typeOf(pPath) != 'string') return pPath;
@@ -236,6 +279,12 @@ ka.mediaPath = function(pPath){
 
 }
 
+/**
+ * Returns a list of the primary keys if pObjectKey.
+ *
+ * @param {String} pObjectKey
+ * @return {Array}
+ */
 ka.getObjectPrimaryList = function(pObjectKey){
     var def = ka.getObjectDefinition(pObjectKey);
 
@@ -248,15 +297,43 @@ ka.getObjectPrimaryList = function(pObjectKey){
     return res;
 }
 
+/**
+ * Returns the id of an object item for the usage in urls (internal uri's).
+ *
+ * @param {String} pObjectKey
+ * @param {Array}  pItem
+ * @return {String}
+ */
 ka.getObjectUrlId = function(pObjectKey, pItem){
     var pks = ka.getObjectPrimaryList(pObjectKey);
 
-    var urlId = '';
-    Array.each(pks, function(pk){
-        urlId += ka.urlEncode(pItem[pk])+'-';
-    });
+    if (pks.length == 0 ) throw pObjectKey+' does not have primary keys.';
 
-    return urlId.substr(0, urlId.length-1);
+    var urlId = '';
+    if (pks.length == 1 && typeOf(pItem) != 'object'){
+        return ka.urlEncode(pItem)+'';
+    } else {
+        Array.each(pks, function(pk){
+            urlId += ka.urlEncode(pItem[pk])+'-';
+        });
+        return urlId.substr(0, urlId.length-1);
+    }
+
+}
+
+/**
+ * Returns the object key (not id) from an object uri.
+ * @param pUrl
+ */
+ka.getObjectKey = function(pUrl){
+
+    if (pUrl.indexOf('object://') == 0)
+        pUrl = pUrl.substr(9);
+
+    var idx = pUrl.indexOf('/');
+    if (idx == -1) return pUrl;
+
+    return pUrl.substr(0, idx);
 }
 
 /**
@@ -753,6 +830,7 @@ ka.ai.reloadLogin = function () {
 
     if (ka.ai.loginName.value == '' || ka.ai.loginName.retrieve('value') == ka.ai.loginName.value)
         ka.ai.loginName.value = t('Username');
+
     ka.ai.loginName.store('value', t('Username'));
 }
 
@@ -786,7 +864,7 @@ ka.ai.logout = function (pScreenlocker) {
 
     if (!pScreenlocker) {
         ka.wm.closeAll();
-        new Request({url: _path + 'admin/?admin-users-logout=1'}).post();
+        new Request({url: _path + 'admin/logout', noCache: 1}).get();
     }
 
     if (ka.desktop)
@@ -811,7 +889,7 @@ ka.ai.logout = function (pScreenlocker) {
     window._session.user_id = 0;
 }
 
-ka.ai.loginSuccess = function (pId, pAlready) {
+ka.ai.loginSuccess = function (pResponse, pAlready) {
 
     $('border').setStyle('display', 'block');
 
@@ -830,23 +908,25 @@ ka.ai.loginSuccess = function (pId, pAlready) {
         return;
     }
 
-    ka.ai.loginName.value = pId.username;
-    window._sid = pId.sessionid;
-    window._session.sessionid = pId.sessionid;
-    window._user_id = pId.user_id
+    if (pResponse.username) ka.ai.loginName.value = pResponse.username;
 
-    $('user-username').set('text', ka.ai.loginName.value);
+    window._session.username = ka.ai.loginName.value;
+
+    window._sid = pResponse.token;
+    window._session.sessionid = pResponse.token;
+    window._user_id = pResponse.userId;
+
+    $('user-username').set('text', window._session.username);
     $('user-username').onclick = function () {
-        ka.wm.open('users/profile', {values: {id: pId.user_id}});
+        ka.wm.open('users/profile', {values: {id: pResponse.userId}});
     }
 
-    window._session.user_id = pId.user_id;
-    window._session.username = pId.username;
-    window._session.lastlogin = pId.lastlogin;
+    window._session.user_id = pResponse.userId;
+    window._session.lastlogin = pResponse.lastlogin;
 
     $(document.body).setStyle('background-position', 'center top');
 
-    ka.ai.loginMessage.set('html', _('Please wait'));
+    ka.ai.loginMessage.set('html', t('Please wait'));
 
     ka.ai.loadBackend();
 }

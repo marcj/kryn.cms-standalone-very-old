@@ -155,6 +155,10 @@ ka.Field = new Class({
         if (this.options.fieldWidth)
             this.fieldPanel.setStyle('width', this.options.fieldWidth);
 
+        if (this.options.fieldWidth && typeOf(this.options.fieldWidth) == 'string' && this.options.fieldWidth.indexOf('%') > 0){
+            this.fieldPanel.addClass('ka-field-field-without-margin');
+        }
+
 
         if (this.field.invisible == 1) {
             this.main.setStyle('display', 'none');
@@ -1321,6 +1325,14 @@ ka.Field = new Class({
             }).inject(document.id(this), 'after');
         }
 
+    },
+
+    hasParent: function(){
+        return this.parent !== null;
+    },
+
+    getParent: function(){
+        return this.parent;
     },
 
     toElement: function(){

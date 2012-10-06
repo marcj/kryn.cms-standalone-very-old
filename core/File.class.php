@@ -55,16 +55,16 @@ class File {
 
         if (is_dir($pPath)){
             
-            @chmod($pPath, self::$dirMode);
+            @chmod($pPath, static::$dirMode);
 
             $sub = find($pPath.'/*', false);
             if (is_array($sub)){
                 foreach ($sub as $path){
-                    self::fixFiles($path);
+                    static::fixFiles($path);
                 }
             }
         } else if (is_file($pPath)){
-            @chmod($pPath, self::$fileMode);
+            @chmod($pPath, static::$fileMode);
         }
 
     }
@@ -77,27 +77,27 @@ class File {
      */
     public static function loadConfig(){
 
-        self::$fileMode = 600;
-        self::$dirMode  = 700;
+        static::$fileMode = 600;
+        static::$dirMode  = 700;
 
         if (kryn::$config['fileGroupPermission'] == 'rw'){
-            self::$fileMode += 60;
-            self::$dirMode  += 70;
+            static::$fileMode += 60;
+            static::$dirMode  += 70;
         } else if (kryn::$config['fileGroupPermission'] == 'r'){
-            self::$fileMode += 40;
-            self::$dirMode  += 50;
+            static::$fileMode += 40;
+            static::$dirMode  += 50;
         }
 
         if (kryn::$config['fileEveryonePermission'] == 'rw'){
-            self::$fileMode += 6;
-            self::$dirMode  += 7;
+            static::$fileMode += 6;
+            static::$dirMode  += 7;
         } else if (kryn::$config['fileEveryonePermission'] == 'r'){
-            self::$fileMode += 4;
-            self::$dirMode  += 5;
+            static::$fileMode += 4;
+            static::$dirMode  += 5;
         }
 
-        self::$fileMode = octdec(self::$fileMode);
-        self::$dirMode  = octdec(self::$dirMode);
+        static::$fileMode = octdec(static::$fileMode);
+        static::$dirMode  = octdec(static::$dirMode);
     }
 
 
@@ -113,7 +113,7 @@ class File {
 
         $class = '\Core\FAL\Local';
         $params['root'] = PATH_MEDIA;
-        $entryPoint = '';
+        $mountName = '';
 
         if ($pPath != '/') {
 
@@ -127,17 +127,17 @@ class File {
             if ($fs = Kryn::$config['mounts'][$firstFolder]) {
                 $class = $fs['class'];
                 $params = $fs['params'];
-                $entryPoint = $firstFolder;
+                $mountName = $firstFolder;
             }
         }
 
-        if (self::$fsObjects[$class]) return self::$fsObjects[$class];
+        if (static::$fsObjects[$class]) return static::$fsObjects[$class];
         if (class_exists($class))
-            self::$fsObjects[$class] = new $class($entryPoint, $params);
+            static::$fsObjects[$class] = new $class($mountName, $params);
         else
             return false;
 
-        return self::$fsObjects[$class];
+        return static::$fsObjects[$class];
 
     }
 
@@ -153,7 +153,7 @@ class File {
      */
     public static function normalizePath($pPath){
 
-        $fs = self::getLayer($pPath);
+        $fs = static::getLayer($pPath);
         $pPath = substr($pPath, strlen($fs->getMountPoint()));
 
         $pPath = str_replace('..', '', $pPath);
@@ -161,6 +161,9 @@ class File {
 
         if (substr($pPath, 0, 1) == '/')
             $pPath = substr($pPath, 1);
+
+        if (substr($pPath, -1) == '/')
+            $pPath = substr($pPath, 0, -1);
 
         return $pPath;
     }
@@ -192,8 +195,8 @@ class File {
      */
     public static function getContent($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->getContent(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->getContent(static::normalizePath($pPath));
 
     }
 
@@ -211,8 +214,8 @@ class File {
      */
     public static function setContent($pPath, $pContent){
 
-        $fs = self::getLayer($pPath);
-        return $fs->setContent(self::normalizePath($pPath), $pContent);
+        $fs = static::getLayer($pPath);
+        return $fs->setContent(static::normalizePath($pPath), $pContent);
 
     }
 
@@ -226,8 +229,8 @@ class File {
      */
     public static function exists($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->fileExists(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->fileExists(static::normalizePath($pPath));
 
     }
 
@@ -242,8 +245,8 @@ class File {
      */
     public static function createFile($pPath, $pContent){
 
-        $fs = self::getLayer($pPath);
-        return $fs->createFile(self::normalizePath($pPath), $pContent);
+        $fs = static::getLayer($pPath);
+        return $fs->createFile(static::normalizePath($pPath), $pContent);
 
     }
 
@@ -258,8 +261,8 @@ class File {
      */
     public static function createFolder($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->createFolder(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->createFolder(static::normalizePath($pPath));
 
     }
 
@@ -273,8 +276,8 @@ class File {
      */
     public static function delete($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->delete(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        return $fs->delete(static::normalizePath($pPath));
 
     }
 
@@ -303,9 +306,23 @@ class File {
      */
     public static function getFile($pPath){
 
-        $fs = self::getLayer($pPath);
-        return $fs->getFile(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        $path = static::normalizePath($pPath);
+        $file = $fs->getFile($path);
+        if (!$file) return null;
 
+        $item = dbTableFetch('system_files', array('path' => $path), 'id');
+        if (!$item){
+            //insert
+            dbInsert('system_files', array('path' => $path, 'contenthash' => $fs->getMd5($path)));
+            $id = dbLastId('id');
+        } else {
+            $id = $item['id'];
+        }
+
+        $file['id'] = $id+0;
+
+        return $file;
     }
 
 
@@ -330,7 +347,7 @@ class File {
      * @param string $pPath
      * 
      * @return int|bool|array Return false if the file doenst exist,
-     *                        return 2 if the webserver does not have access
+     *                        return -1 if the webserver does not have access
      *                        or return array with the information.
      */
     public static function getFiles($pPath){
@@ -339,24 +356,25 @@ class File {
         //$access = krynAcl::check(3, $pPath, 'read', true);
         //if (!$access) return false;
 
-        $fs = krynFile::getLayer($pPath);
+        $fs = static::getLayer($pPath);
+        $path = static::normalizePath($pPath);
 
         if ($pPath == '/trash'){
-            return self::getTrashFiles();
+            return static::getTrashFiles();
         }
 
-        $items = $fs->getFiles(self::normalizePath($pPath));
+        $items = $fs->getFiles(static::normalizePath($pPath));
         if (!is_array($items)) return $items;
 
         if (count($items) == 0) return array();
 
-        if ($fs->getEntryPoint())
+        if ($fs->getMountPoint())
             foreach ($items as &$file)
-                $file['path'] = $fs->getEntryPoint().$file['path'];
+                $file['path'] = $fs->getMountPoint().$file['path'];
 
         if($pPath == '/'){
-            if (is_array(Kryn::$config['magic_folder'])) {
-                foreach (Kryn::$config['magic_folder'] as $folder => &$config ){
+            if (is_array(Kryn::$config['mounts'])) {
+                foreach (Kryn::$config['mounts'] as $folder => &$config ){
                     $magic = array(
                         'path'  => '/'.$folder,
                         'mount' => true,
@@ -379,7 +397,7 @@ class File {
             $vals[]  = $file['path'];
             $where[] = 'path = ?';
         }
-        $sql = 'SELECT id, path FROM %pfx%system_files WHERE 1=0 OR '.implode(' OR ', $where);
+        $sql = 'SELECT id, path FROM '.pfx.'system_files WHERE 1=0 OR '.implode(' OR ', $where);
 
         $res = dbExec($sql, $vals);
         $path2id = array();
@@ -400,10 +418,22 @@ class File {
             } else {
                 $file['id'] = $path2id[$file['path']];
             }
-            $file['writeaccess'] = krynAcl::checkUpdate('file', $file['path']);
+            //$file['writeaccess'] = krynAcl::checkUpdate('file', $file['path']);
         }
 
         return $items;
+    }
+
+    /**
+     * Returns the file count inside $pFolderPath
+     *
+     * @static
+     * @param string $pFolderPath
+     * @return mixed
+     */
+    public static function getCount($pFolderPath){
+        $fs = static::getLayer($pFolderPath);
+        return $fs->getCount(static::normalizePath($pFolderPath));
     }
 
 
@@ -462,14 +492,14 @@ class File {
      * @return string
      */
     public static function getUrl($pPath){
-        $fs = self::getLayer($pPath);
-        $url = $fs->getPublicUrl(self::normalizePath($pPath));
+        $fs = static::getLayer($pPath);
+        $url = $fs->getPublicUrl(static::normalizePath($pPath));
 
         //TODO, check if $url contains http(s)://, and then decide if we need to add it
         if (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0)
             return $url;
 
-        return 'http' . (Core\Kryn::$ssl?'s':'') . '://'.$url;
+        return 'http' . (\Core\Kryn::$ssl?'s':'') . '://'.$url;
     }
 
 
@@ -487,7 +517,7 @@ class File {
             return PATH_MEDIA.$pId;
 
         //page bases caching here
-        $sql = 'SELECT id, path FROM %pfx%system_files WHERE id = '.($pId+0);
+        $sql = 'SELECT id, path FROM '.pfx.'system_files WHERE id = '.($pId+0);
         $item = dbExfetch($sql);
 
         return $item['path'];
@@ -553,6 +583,67 @@ class File {
         }
 
         return $res;
+    }
+
+
+    /**
+     * @param      $pPath
+     * @param      $pResolution
+     * @param bool $pQuadratic
+     */
+    public static function getThumbnail($pPath, $pResolution, $pQuadratic = false){
+
+        $fs = static::getLayer($pPath);
+
+        $content = $fs->getContent(static::normalizePath($pPath));
+        $image = imagecreatefromstring($content);
+
+        list($newWidth, $newHeight) = explode('x', $pResolution);
+        $thumbWidth = $newWidth;
+        $thumbHeight = $newHeight;
+
+        $oriWidth = imagesx($image);
+        $oriHeight = imagesy($image);
+        $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+        imagealphablending($thumbImage, false);
+
+        if ($thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) return $image;
+
+        if ($oriWidth > $oriHeight) {
+
+            $ratio = $thumbHeight / ($oriHeight / 100);
+            $_width = ceil($oriWidth * $ratio / 100);
+
+            $top = 0;
+            if ($_width < $thumbWidth) {
+                $ratio = $_width / ($thumbWidth / 100);
+                $nHeight = $thumbHeight * $ratio / 100;
+                $top = ($thumbHeight - $nHeight) / 2;
+                $_width = $thumbWidth;
+            }
+
+            $tempImg = imagecreatetruecolor($_width, $thumbHeight);
+            imagealphablending($tempImg, false);
+            imagecopyresampled($tempImg, $image, 0, 0, 0, 0, $_width, $thumbHeight, $oriWidth, $oriHeight);
+            $_left = ($_width / 2) - ($thumbWidth / 2);
+
+            imagecopyresampled($thumbImage, $tempImg, 0, 0, $_left, 0, $thumbWidth, $thumbHeight, $thumbWidth, $thumbHeight);
+
+        } else {
+            $ratio = $thumbWidth / ($oriWidth / 100);
+            $_height = ceil($oriHeight * $ratio / 100);
+            $tempImg = imagecreatetruecolor($thumbWidth, $_height);
+            imagealphablending($tempImg, false);
+            imagecopyresampled($tempImg, $image, 0, 0, 0, 0, $thumbWidth, $_height, $oriWidth, $oriHeight);
+            $_top = ($_height / 2) - ($thumbHeight / 2);
+            imagecopyresampled($thumbImage, $tempImg, 0, 0, 0, $_top, $thumbWidth, $thumbHeight, $thumbWidth, $thumbHeight);
+        }
+
+        imagealphablending($thumbImage, false);
+        imagesavealpha($thumbImage, true);
+
+        return $thumbImage;
+
     }
 
 

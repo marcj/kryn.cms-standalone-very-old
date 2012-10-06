@@ -64,8 +64,12 @@ tr.ka-field-main > td div.desc {
     font-size: 11px;
 }
 
-.ka-field-main .ka-field-field {
+.ka-field-main > .ka-field-field {
     position: relative;
+    margin: 5px 2px 2px 20px;
+}
+.ka-field-main > .ka-field-field-without-margin {
+    margin: 5px 0px 2px 0px;
 }
 
 

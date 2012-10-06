@@ -188,14 +188,7 @@ var admin_backend_chooser = new Class({
 
             var chooserClass = window[objectDefinition.chooserBrowserJavascriptClass];
 
-            if (objectDefinition.chooserBrowserJavascriptClass.indexOf('.') !== false){
-
-                var split = objectDefinition.chooserBrowserJavascriptClass.split('.');
-                chooserClass = window;
-                split.each(function(s){
-                    chooserClass = chooserClass[s];
-                });
-            }
+            var chooserClass = ka.getClass(objectDefinition.chooserBrowserJavascriptClass);
 
             if (!chooserClass){
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
@@ -209,13 +202,23 @@ var admin_backend_chooser = new Class({
                     this.win
                 );
             }
+        } else if (objectDefinition.nested){
+
+            objectOptions.type = 'tree';
+            objectOptions.object = pObjectKey;
+            objectOptions.scopeChooser = true;
+
+            this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, bundle.pane);
+
         } else {
+
             this.objectChooserInstance[pObjectKey] = new ka.ObjectTable(
                 bundle.pane,
                 objectOptions,
                 this.win,
                 pObjectKey
             );
+
         }
 
         if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent){
@@ -252,11 +255,13 @@ var admin_backend_chooser = new Class({
 
         if (pObjectKey && this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].getValue){
 
-            var value = this.objectChooserInstance[pObjectKey].getValue();
-            if (!value)
+            var item = this.objectChooserInstance[pObjectKey].getValue();
+            if (!item)
                 return;
 
-            var url = 'object://'+pObjectKey+'/'+ka.urlEncode(value);
+            var id = ka.getObjectUrlId(pObjectKey, item);
+
+            var url = 'object://'+pObjectKey+'/'+id;
 
             this.saveCookie();
             this.saveCookie();

@@ -7,9 +7,6 @@
     min-height: 75px;
     
     background-color: #777777;
-    background-image: url("../images/windowlist-bg.png");
-    background-repeat: repeat-x;
-    background-position: left -5px;
     
     color: white;
     -moz-box-shadow: 0 0 8px #999999;

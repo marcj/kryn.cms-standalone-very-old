@@ -172,7 +172,7 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
             var conditionField = new ka.Field({
                 noWrapper: true,
-                type: 'fieldCondition',
+                type: 'condition',
                 field: pFieldKey,
                 object: this.options.object,
                 startWith: 1

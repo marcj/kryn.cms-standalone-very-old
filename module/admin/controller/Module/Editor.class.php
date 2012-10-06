@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Admin\Module;
 
 use Core\Kryn;
@@ -38,17 +37,31 @@ class Editor {
     public static function getWindows($pName) {
         Manager::prepareName($pName);
 
-        $classes   = find(PATH_MODULE . $pName . '/*.class.php');
+
+        $classes   = find(PATH_MODULE . $pName . '/*', true);
         $windows   = array();
-        $whiteList = array('windowlist', 'windowadd', 'windowedit', 'windowcombine');
+        $whiteList = array('\Admin\ObjectWindow');
+
+        $c = strlen(PATH_MODULE.$pName.'/');
 
         foreach ($classes as $class){
 
-            $content = Kryn::fileRead($class);
+            $content = SystemFile::getContent($class);
 
-            if (preg_match('/class ([a-zA-Z0-9_]*) extends (admin|)([a-zA-Z0-9_]*)\s*{/', $content, $matches)){
-                if (in_array(strtolower($matches[3]), $whiteList))
-                    $windows[] = $matches[1];
+            if (preg_match('/class[\s\t]+([a-zA-Z0-9_]+)[\s\t]+extends[\s\t]+([a-zA-Z0-9_\\\\]*)[\s\t\n]*{/', $content, $matches)){
+                if (in_array($matches[2], $whiteList)){
+
+                    $clazz = $matches[1];
+
+                    preg_match('/namespace ([a-zA-Z0-9_\\\\]*)/', $content, $namespace);
+                    $namespace = $namespace[1];
+                    if ($namespace)
+                        $clazz = $namespace.'\\'.$clazz;
+
+                    $clazz = '\\'.$clazz;
+
+                    $windows[substr($class, $c)] = $clazz;
+                }
             }
 
         }
@@ -193,11 +206,14 @@ class Editor {
                     $column['size'] = 255;
                 }
 
+                break;
 
             case 'lang':
 
                 $column['type'] = 'VARCHAR';
                 $column['size'] = 3;
+
+                break;
 
             case 'number':
 
@@ -212,7 +228,7 @@ class Editor {
 
             case 'checkbox':
 
-                $column['type'] = '';
+                $column['type'] = 'BOOLEAN';
                 break;
 
             case 'custom':
@@ -232,6 +248,8 @@ class Editor {
                     $column['type'] = $pField['type'] == 'date'? 'DATE':'TIMESTAMP';
 
                 $column['type'] = 'BIGINT';
+
+                break;
 
             case 'object':
 
@@ -328,9 +346,9 @@ class Editor {
                         $foreignKey['foreignTable'] = $table;
 
                         if ($table == $foreignObject['table']){
-                            $foreignKey['phpName'] = $pFieldKey.ucfirst($foreignObject['phpName']);
+                            $foreignKey['phpName'] = ucfirst($pFieldKey);
                         } else {
-                            $foreignKey['phpName'] = $pFieldKey.ucfirst($object['phpName']);
+                            $foreignKey['phpName'] = ucfirst($pFieldKey).ucfirst($pObject);
                         }
 
                         foreach ($keys as $k => $v){
@@ -432,7 +450,7 @@ class Editor {
         if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
 
         $objectTable['name'] = $object['table'];
-        $objectTable['phpName'] = ucfirst($pObject);
+        $objectTable['phpName'] = $object['propelClassName'] ?: ucfirst($pObject);
 
         $columnsDefined = array();
 
@@ -462,6 +480,20 @@ class Editor {
             }
 
         }
+
+
+        $vendors = $objectTable->xpath('vendor[@type=\'mysql\']');
+        if ($vendors) $vendor = current($vendors);
+        else $vendor = $objectTable->addChild('vendor');
+        $vendor['type'] = 'mysql';
+
+        $params = $vendor->xpath('parameter[@name=\'Charset\']');
+        if ($params) $param = current($params);
+        else $param = $vendor->addChild('parameter');
+
+        $param['name'] = 'Charset';
+        $param['value'] = 'utf8';
+
 
         $dom = new \DOMDocument;
         $dom->preserveWhiteSpace = false;
@@ -504,4 +536,94 @@ class Editor {
 
         return $this->setConfig($pName, $config);
     }
+
+
+    public static function getWindowDefinition($pName, $pClassName){
+
+        if (!class_exists($pClassName)) throw new \ClassNotFoundException();
+
+        $reflection = new \ReflectionClass($pClassName);
+        $path = substr($reflection->getFileName(), strlen(PATH));
+
+        $content = explode("\n", SystemFile::getContent($path));
+
+        $res = array(
+            'properties' => array(
+                '__file__' => $path
+            )
+        );
+
+        $obj = new $pClassName();
+        foreach ($obj as $k => $v)
+            $res['properties'][$k] = $v;
+
+        $parent = $reflection->getParentClass();
+        $parentClass = $parent->name;
+
+        $res['class'] = $parentClass;
+
+        $methods = $reflection->getMethods();
+
+        foreach ($methods as $method){
+            if ($method->class == $pClassName){
+
+                $code = '';
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+                    $code .= $content[$i]."\n";
+                }
+
+                $res['methods'][$method->name] = $code;
+            }
+        }
+
+        if (getArgv('parentClass')){
+            $parentClass = getArgv('parentClass', 2);
+        }
+
+        self::extractParentClassInformation($parentClass, $res['parentMethods']);
+
+        return $res;
+    }
+
+    public static function extractParentClassInformation($pParentClass, &$pMethods){
+
+        if (!class_exists($pParentClass)) throw new \ClassNotFoundException();
+
+        $reflection = new \ReflectionClass($pParentClass);
+        $parentPath = substr($reflection->getFileName(), strlen(PATH));
+
+        $parentContent = explode("\n", SystemFile::getContent($parentPath));
+        $parentReflection = new \ReflectionClass($pParentClass);
+
+        $methods = $parentReflection->getMethods();
+        foreach ($methods as $method){
+            if ($pMethods[$method->name]) continue;
+
+            if ($method->class == $pParentClass){
+
+                $code = '';
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+
+                    $code .= $parentContent[$i]."\n";
+                    if (strpos($parentContent[$i], '{'))
+                        break;
+
+                }
+
+                $pMethods[$method->name] = trim($code);
+            }
+        }
+
+        $parent = $parentReflection->getParentClass();
+
+        if ($parent){
+            self::extractParentClassInformation($parent->name, $pMethods);
+        }
+
+    }
+
+
+
+
+
 }

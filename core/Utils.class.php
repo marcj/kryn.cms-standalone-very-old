@@ -4,7 +4,7 @@ namespace Core;
 
 class Utils {
 
-    private $inErrorHandler = false;
+    private static $inErrorHandler = false;
 
     public static function exceptionHandler($pException){
         $exceptionArray = array(
@@ -45,7 +45,7 @@ class Utils {
             json($response);
         }
 
-        if ($inErrorHandler === true){
+        if (self::$inErrorHandler === true){
             print $pErrorCode.', '.$pErrorStr.' in '.$pFile.' at '.$pLine;
             if ($pBacktrace)
                 print_r($pBacktrace);
@@ -54,7 +54,7 @@ class Utils {
             exit;
         }
 
-        $inErrorHandler = true;
+        self::$inErrorHandler = true;
 
         if (is_numeric($pErrorCode)){
             $errorCodes = array(
@@ -109,7 +109,7 @@ class Utils {
 
         kryn::internalError($pErrorCode, $msg, false);
 
-        $inErrorHandler = true;
+        self::$inErrorHandler = true;
 
         exit;
 

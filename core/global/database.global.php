@@ -156,6 +156,10 @@ function dbExFetchAll($pQuery, $pParams = null) {
  * @return PDOStatement
  */
 function dbExec($pQuery, $pParams = null) {
+    global $dbLastInsertedTable;
+
+    if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $pQuery, $matches))
+        $dbLastInsertedTable = $matches[1];
 
     if ($pParams !== null){
         $sth = dbConnection()->prepare($pQuery);
@@ -230,13 +234,14 @@ function dbTableFetchAll($pTable, $pWhere = '', $pFields = '*') {
     if ($pFields != '*')
         $pFields = dbQuote($pFields);
 
+    $data = array();
     $sql = "SELECT $pFields FROM $table";
     if ($pWhere !== ''){
-        if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere);
+        if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere, $data);
         $sql .= " WHERE $pWhere";
     }
 
-    return dbExFetchAll($sql, $pCount);
+    return dbExFetchAll($sql, $data);
 }
 
 /**
@@ -267,7 +272,6 @@ function dbInsert($pTable, $pData) {
     foreach ($pData as $value) {
         $values[] = '?';
     }
-
 
     $query = 'INSERT INTO ' . $table
         . ' (' . implode(', ', $cols) . ')'
@@ -322,8 +326,11 @@ function dbErrorInfo() {
  *
  * @return mixed
  */
-function dbLastId() {
-    return dbConnection()->lastInsertId ();
+function dbLastId(){
+    if (\Core\Kryn::$config['database']['type'] == 'pgsql'){
+        $row = dbExfetch('SELECT LASTVAL() as last_val');
+        return $row['last_val'];
+    } else return dbConnection()->lastInsertId();
 }
 
 
@@ -365,13 +372,14 @@ function dbDelete($pTable, $pWhere = '') {
 
     $table = dbTableName($pTable);
 
+    $data = array();
     $sql = "DELETE FROM " . $table . "";
     if (is_string($pWhere) && $pWhere)
         $sql .= " WHERE $pWhere ";
     if (is_array($pWhere))
-        $sql .= " WHERE ".dbConditionToSql($pWhere);
+        $sql .= " WHERE ".dbConditionToSql($pWhere, $data);
 
-    return dbExec($sql);
+    return dbExec($sql, $data);
 }
 
 /**
@@ -604,7 +612,6 @@ function dbExtractOrderFields($pValues, $pTable = ''){
  */
 function dbPrimaryKeyToCondition($pCondition, $pObjectKey = false, $pTable = ''){
 
-    $sql = '';
     $result = array();
 
     // 

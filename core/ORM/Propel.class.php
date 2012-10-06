@@ -32,19 +32,9 @@ class Propel extends ORMAbstract {
 
     public $propelPrimaryKeys;
 
-    /**
-     * Constructor
-     *
-     * @param string $pObjectKey
-     * @param array  $pDefinition
-     */
-    function __construct($pObjectKey, $pDefinition){
-        $this->objectKey = $pObjectKey;
-        $this->definition = $pDefinition;
-    }
-
     public function init(){
-        if ($this->primaryKeys) return;
+
+        if ($this->propelPrimaryKeys) return;
 
         $this->query = $this->getQueryClass();
         $this->tableMap = $this->query->getTableMap();
@@ -118,7 +108,6 @@ class Propel extends ORMAbstract {
                     }
                 }
             }
-
 
         } else {
             foreach ($pFields as $field){
@@ -254,7 +243,7 @@ class Propel extends ORMAbstract {
      * @return string
      */
     public function getPhpName($pName = null){
-        return $pName ? ucfirst($pName) : ucfirst($this->objectKey);
+        return $pName ? ucfirst($pName) : ucfirst($this->definition['propelClassName'] ?: $this->objectKey);
     }
 
 
@@ -276,13 +265,14 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public function getItem($pCondition, $pOptions = array()){
+    public function getItem($pPrimaryKey, $pOptions = array()){
 
         $this->init();
         $query = $this->getQueryClass();
         $query->limit(1);
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
+
         $selects = array_keys($fields);
 
         $query->select($selects);
@@ -291,11 +281,13 @@ class Propel extends ORMAbstract {
 
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
-        $stmt = $this->getStm($query, $pCondition);
+        $item = $query->findPk($this->getPropelPk($pPrimaryKey));
+        if (!$item) return false;
+
+        $row = is_array($item)?$item:$item->toArray();
 
         $clazz = $this->getPhpName();
 
-        $row = dbFetch($stmt);
         return $row===false?false:$this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
     }
 
@@ -377,6 +369,18 @@ class Propel extends ORMAbstract {
 
     }
 
+    /**
+     * Generates a row from the propel object using the get*() methods. Resolves *-to-many relations.
+     *
+     * @param      $pClazz
+     * @param      $pRow
+     * @param      $pSelects
+     * @param      $pRelations
+     * @param      $pRelationFields
+     * @param bool $pPermissionCheck
+     *
+     * @return array
+     */
     public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields, $pPermissionCheck = false){
 
         $item = new $pClazz();
@@ -501,6 +505,52 @@ class Propel extends ORMAbstract {
         return $peer::doDelete($pPk);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function move($pPk, $pTargetPk, $pMode = 'into', $pTargetObjectKey = null){
+
+        $query = $this->getQueryClass();
+        $item = $query->findPK($pPk);
+
+        $method = 'moveToLastChildOf';
+        if ($pMode == 'up' || $pMode == 'before')
+            $method = 'moveToPrevSiblingOf';
+        if ($pMode == 'down' || $pMode == 'below')
+            $method = 'moveToNextSiblingOf';
+
+        if (!$pTargetPk){
+            //search root
+            $target = $query->findRoot();
+            $method = 'moveToLastChildOf';
+        } else {
+
+            if ($this->objectKey != $pTargetObjectKey){
+                if (!$this->definition['nestedRootAsObject'])
+                    throw new \InvalidArgumentException('This object has no different object as root.');
+
+                $scopeField = 'get'.ucfirst($this->definition['nestedRootObjectField']);
+                $scopeId = $item->$scopeField();
+                $method = 'moveToLastChildOf';
+
+                $target = $query->findRoot($scopeId);
+            } else {
+                $target = $query->findPK($this->getPropelPk($pTargetPk));
+            }
+        }
+
+        if ($item == $target){
+            return false;
+        }
+
+        if ($target){
+            return $item->$method($target) ? true : false;
+        } else {
+            throw new \Exception('Can not find the appropriate target.');
+        }
+
+    }
+
 
     /**
      * {@inheritdoc}
@@ -615,26 +665,61 @@ class Propel extends ORMAbstract {
 
     }
 
+    public function pkFromRow($pRow){
+        $pks = array();
+        foreach ($this->primaryKeys as $pk){
+            $pks[$pk] = $pRow[$pk];
+        }
+        return $pks;
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function getBranch($pPk = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-        $pOptions = false){
+    public function getTree($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 
+        $query = $this->getQueryClass();
+        if (!$pPk){
+            if ($pScope === null && $this->definition['nestedRootAsObject'])
+                throw new \InvalidArgumentException('Argument scope is missing.');
+            $parent = $query->findRoot($pScope);
+        } else {
+            $parent = $query->findPK($this->getPropelPk($pPk));
+        }
 
-        $pQuery = $this->getQueryClass();
+        $query = $this->getQueryClass();
 
-        if ($pCondition){
-            $where = dbConditionToSql($pCondition);
-            $pQuery->where($where);
+        $query->childrenOf($parent);
+
+        list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
+        $selects = array_keys($fields);
+
+        $selects[] = 'Lft';
+        $selects[] = 'Rgt';
+        $selects[] = 'Title';
+        $query->select($selects);
+
+        $query->orderByBranch();
+
+        $this->mapOptions($query, $pOptions);
+
+        $this->mapToOneRelationFields($query, $relations, $relationFields);
+
+        $stmt = $this->getStm($query, $pCondition);
+
+        $clazz = $this->getPhpName();
+
+        while ($row = dbFetch($stmt)){
+            $item = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+            $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1)/2;
+            if ($pDepth > 1 && $item['_childrenCount'] > 0){
+                $item['_children'] = self::getTree($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+            }
+            $result[] = $item;
         }
 
 
-        return 'hi';
-
-        // TODO: Implement getTree() method.
-        // 
+        return $result;
     }
 
 

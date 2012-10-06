@@ -277,9 +277,7 @@
                             "type": "custom",
                             "isLink": true,
                             "multi": false,
-                            "children": [
-                                
-                            ]
+                            "minWidth": 650
                         },
                         "restLogger": {
                             "title": "[[Rest logger]]",
@@ -292,7 +290,8 @@
                                 
                             ]
                         }
-                    }
+                    },
+                    "type": "acl"
                 }
             }
         },
@@ -315,16 +314,6 @@
                     "title": "[[Stores]]",
                     "isLink": false,
                     "children": {
-                        "groups": {
-                            "table_key": "id",
-                            "table_label": "name",
-                            "table": "system_groups",
-                            "type": "store",
-                            "isLink": false,
-                            "children": [
-                                
-                            ]
-                        },
                         "languages": {
                             "table_key": "code",
                             "table_label": "title",
@@ -333,7 +322,8 @@
                             "isLink": false,
                             "children": [
                                 
-                            ]
+                            ],
+                            "title": ""
                         },
                         "extensions": {
                             "class": "adminStoreExtensions",
@@ -341,18 +331,14 @@
                             "isLink": false,
                             "children": [
                                 
-                            ]
-                        },
-                        "domains": {
-                            "type": "store",
-                            "isLink": false,
-                            "children": [
-                                
-                            ]
+                            ],
+                            "title": ""
                         }
-                    }
+                    },
+                    "type": "acl"
                 }
-            }
+            },
+            "type": "acl"
         },
         "overview": {
             "title": "[[Dashboard]]",
@@ -430,7 +416,8 @@
                     "isLink": false,
                     "children": [
                         
-                    ]
+                    ],
+                    "type": "acl"
                 },
                 "properties": {
                     "title": "[[Properties]]",
@@ -472,18 +459,20 @@
     },
     "objects": {
         "file": {
+            "propelClass": "\\Admin\\ObjectFile",
+            "table": "system_file",
             "objectLabel": "path",
             "nestedLabel": "name",
-            "nestedRootAsObject": 0,
-            "nested": 1,
-            "class": "objectFile",
-            "dataModel": "custom",
-            "multiLanguage": 0,
-            "domainDepended": 0,
+            "nestedRootAsObject": false,
+            "nested": true,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
+            "chooserFieldType": "default",
             "chooserFieldDataModelCondition": [
                 
             ],
-            "chooserFieldDataModel": "default",
+            "chooserFieldDataModelField": "path",
             "chooserFieldDataModelFields": {
                 "path": {
                     "label": "[[Path]]",
@@ -494,13 +483,13 @@
                     "width": "30%"
                 }
             },
-            "chooserFieldDataModelField": "name",
-            "chooserFieldType": "default",
             "chooserBrowserTreeJavascript": "default",
-            "chooserBrowserTreeIconMapping": [
-                
-            ],
-            "chooserBrowserTreeFixedIcon": 0,
+            "chooserBrowserTreeIcon": "extension",
+            "chooserBrowserTreeIconMapping": {
+                "directory": "#icon-folder-4"
+            },
+            "chooserBrowserTreeDefaultIcon": "#icon-paper",
+            "chooserBrowserTreeFixedIcon": false,
             "chooserBrowserJavascriptClass": "ka.Files",
             "chooserBrowserOptions": {
                 "onlyUserDefined": {
@@ -542,8 +531,11 @@
                     "empty": 1
                 }
             },
-            "chooserBrowserDataModel": "default",
             "chooserBrowserType": "custom",
+            "chooserBrowserAutoColumns": [
+                
+            ],
+            "chooserBrowserDataModel": "default",
             "fields": {
                 "id": {
                     "label": "[[ID]]",
@@ -560,12 +552,6 @@
                     "label": "[[Name]]",
                     "type": "text",
                     "primaryKey": 0
-                },
-                "ext": {
-                    "label": "[[File extension]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
                 },
                 "type": {
                     "label": "[[Type]]",
@@ -603,39 +589,40 @@
         },
         "node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
+            "propelClassName": "Page",
             "table": "system_page",
-            "tableSync": 1,
-            "tableCondition": [
-                
-            ],
+            "objectLabel": "title",
             "nestedLabel": "title",
             "nestedRootObject": "domain",
-            "nestedRootObjectField": "domain_id",
+            "nestedRootObjectField": "domainId",
             "nestedRootObjectLabel": "domain",
-            "nestedRootAsObject": 1,
-            "nested": 1,
-            "multiLanguage": 0,
-            "domainDepended": 0,
+            "nestedRootAsObject": true,
+            "nested": true,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
             "chooserFieldDataModelCondition": [
                 
             ],
             "chooserFieldDataModel": "default",
+            "chooserFieldDataModelField": "title",
+            "chooserFieldDataModelFieldExtraFields": "lvl, accessDenied, accessFromGroups",
             "chooserFieldDataModelFields": {
                 "title": {
                     "type": "text"
                 }
             },
-            "chooserFieldDataModelField": "title",
             "chooserFieldType": "default",
-            "chooserBrowserTreeJavascriptClass": "ka.nodeTree",
+            "chooserBrowserTreeJavascriptClass": "ka.NodeTree",
             "chooserBrowserTreeJavascript": "custom",
             "chooserBrowserTreeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
-            "chooserBrowserTreeRootObjectFixedIcon": 1,
+            "chooserBrowserTreeRootObjectFixedIcon": true,
+            "chooserBrowserTreeIcon": "type",
             "chooserBrowserTreeIconMapping": [
                 
             ],
-            "chooserBrowserTreeFixedIcon": 0,
-            "chooserBrowserJavascriptClass": "ka.nodeChooser",
+            "chooserBrowserTreeFixedIcon": false,
+            "chooserBrowserJavascriptClass": "ka.NodeTree",
             "chooserBrowserOptions": [
                 
             ],
@@ -779,17 +766,14 @@
                     "empty": 1
                 }
             },
-            "label": "[[Node]]"
+            "label": "[[Node]]",
+            "__dataModel__": "table"
         },
         "domain": {
-            "table": "system_domains",
-            "tableSync": 0,
-            "tableCondition": [
-                
-            ],
-            "nested": 0,
-            "multiLanguage": 0,
-            "domainDepended": 0,
+            "objectLabel": "domain",
+            "nested": false,
+            "multiLanguage": false,
+            "domainDepended": false,
             "chooserFieldDataModelCondition": [
                 
             ],
@@ -847,7 +831,7 @@
             },
             "label": "[[Domain]]"
         },
-        "system_entrypoint": {
+        "systemEntrypoint": {
             "class": "objectEntrypoint",
             "multiLanguage": 0,
             "domainDepended": 0,

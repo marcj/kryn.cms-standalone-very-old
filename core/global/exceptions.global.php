@@ -11,10 +11,12 @@ class FieldNotFoundException extends Exception {}
 class FieldCanNotBeEmptyException extends Exception {}
 class InvalidFieldException extends Exception {}
 class ArgumentMissingException extends Exception {}
+class NotImplementedException extends Exception {}
 
 class AccessDeniedException extends Exception {}
 
 class MissingClassException extends Exception {}
+class ClassNotFoundException extends Exception {}
 
 class NoFieldWritePermission extends Exception {}
 class EntryPathNotFoundException extends Exception {}
