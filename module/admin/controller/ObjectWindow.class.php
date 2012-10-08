@@ -261,7 +261,7 @@ abstract class ObjectWindow {
 
         $this->objectDefinition = Kryn::$objects[$this->object];
         if (!$this->objectDefinition){
-            throw new Exception("Can not find object '".$this->object."'");
+            throw new \ObjectNotFoundException("Can not find object '".$this->object."'");
         }
         $this->table = $this->objectDefinition['table'];
         $this->primary = array();

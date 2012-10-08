@@ -2,9 +2,17 @@ ka.FieldProperty = new Class({
 
     Implements: [Events, Options],
 
-    Binds: ['fireChange', 'openProperties'],
+    Binds: ['fireChange', 'openProperties', 'applyFieldProperties'],
 
     kaFields: {
+        key: {
+
+            label: t('Key'),
+            desc: t('Surround the value with __ and __ to let it only act as UI.'),
+            modifier: 'trim'
+
+        },
+
         label: {
             label: t('Label'),
             desc: t('Surround the value with [[ and ]] to make it multilingual.'),
@@ -325,6 +333,8 @@ ka.FieldProperty = new Class({
 
         keyModifier: '',
 
+        asTableItem: true,
+
         noActAsTableField: false, //Remove the field 'Acts as a table item'
         asFrameworkFieldDefinition: false, //means for usage in ka.Parse (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
@@ -474,55 +484,75 @@ ka.FieldProperty = new Class({
 
         var count = this.container.getElements('.ka-fieldProperty-item').length+1;
 
-        this.main = this.tr = new Element('tr', {
-            'class': 'ka-fieldProperty-item'
-        }).inject(this.container);
+        if (this.options.asTableItem){
 
-        this.main.store('ka.FieldProperty', this);
+            this.main = new Element('tr', {
+                'class': 'ka-fieldProperty-item'
+            }).inject(this.container);
 
-        this.tdLabel = new Element('td').inject(this.tr);
+            this.main.store('ka.FieldProperty', this);
 
-        this.iKey = new ka.Field({
-            type: 'text',
-            modifier: this.options.keyModifier,
-            noWrapper: true
-        }, this.tdLabel);
+            this.tdLabel = new Element('td').inject(this.main);
 
-        this.iKey.setValue(this.key?this.key:'property_'+count);
+            this.iKey = new ka.Field({
+                type: 'text',
+                modifier: this.options.keyModifier,
+                noWrapper: true
+            }, this.tdLabel);
 
+            delete this.kaFields.key;
 
-        if (this.options.asFrameworkColumn){
-            this.tdWidth = new Element('td', {width: 80}).inject(this.tr);
+            this.iKey.setValue(this.key?this.key:'property_'+count);
 
-            var width = Object.clone(this.kaFields.width);
-            width.noWrapper = true;
-            this.widthField = new ka.Field(width, this.tdWidth);
+            if (this.options.asFrameworkColumn){
+                this.tdWidth = new Element('td', {width: 80}).inject(this.main);
 
-            this.widthField.setValue(this.definition && this.definition.width?this.definition.width:'');
+                var width = Object.clone(this.kaFields.width);
+                width.noWrapper = true;
+                this.widthField = new ka.Field(width, this.tdWidth);
+
+                this.widthField.setValue(this.definition && this.definition.width?this.definition.width:'');
+
+            }
+
+            this.tdType = new Element('td', {width: 150}).inject(this.main);
+
+            var field = Object.clone(this.kaFields.type);
+            delete field.children;
+
+            field.noWrapper = true;
+            this.typeField = new ka.Field(field, this.tdType);
+
+            this.typeField.setValue(this.definition && this.definition.type?this.definition.type:'text');
+
+            this.tdProperties = new Element('td', {width: 150}).inject(this.main);
+
+            this.propertiesButton = new ka.Button(t('Properties'))
+            .addEvent('click', this.openProperties)
+            .inject(this.tdProperties);
+
+            this.actionContainer = new Element('td', {
+                width: 80
+            }).inject(this.main);
+
+        } else {
+            //non tr/td
+
+            this.main = new Element('div', {
+                'class': 'ka-fieldProperty-item'
+            }).inject(this.container);
+
+            this.main.store('ka.FieldProperty', this);
+
+            this.fieldObject = new ka.Parse(this.main, this.kaFields, {
+                allTableItems: this.options.allTableItems,
+                tableitem_title_width: this.options.tableitem_title_width
+            }, {win:this.win});
+
+            this.fieldObject.addEvent('change', this.fireChange);
+
 
         }
-
-
-        this.tdType = new Element('td', {width: 150}).inject(this.tr);
-
-        var field = Object.clone(this.kaFields.type);
-        delete field.children;
-
-        field.noWrapper = true;
-        this.typeField = new ka.Field(field, this.tdType);
-
-        this.typeField.setValue(this.definition && this.definition.type?this.definition.type:'text');
-
-        this.tdProperties = new Element('td', {width: 150}).inject(this.tr);
-
-        this.propertiesButton = new ka.Button(t('Properties'))
-        .addEvent('click', this.openProperties)
-        .inject(this.tdProperties);
-
-        this.tdActions = new Element('td', {
-            width: 80
-        }).inject(this.tr);
-
 
         if (!this.options.withoutChildren){
 
@@ -532,7 +562,7 @@ ka.FieldProperty = new Class({
                 html: '&#xe109;'
             })
             .addEvent('click', this.addChild.bind(this, '', {}))
-            .inject(this.tdActions);
+            .inject(this.actionContainer);
         }
 
         if (this.options.withActions){
@@ -548,11 +578,11 @@ ka.FieldProperty = new Class({
                         this.fireEvent('delete');
                         this.removeEvents('change');
                         this.main.destroy();
-                        if (this.childTr) this.childTr.destroy();
+                        if (this.childContainer) this.childContainer.destroy();
                     }
                 }.bind(this));
             }.bind(this))
-            .inject(this.tdActions);
+            .inject(this.actionContainer);
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
@@ -565,10 +595,10 @@ ka.FieldProperty = new Class({
                 if (!previous) return;
                 this.main.inject(previous, 'before');
 
-                if (this.childTr) this.childTr.inject(this.main, 'after');
+                if (this.childContainer) this.childContainer.inject(this.main, 'after');
 
             }.bind(this))
-            .inject(this.tdActions);
+            .inject(this.actionContainer);
 
 
             new Element('a', {
@@ -580,12 +610,12 @@ ka.FieldProperty = new Class({
 
                 var next = this.main.getNext('.ka-fieldProperty-item');
                 if (!next) return;
-                this.main.inject(next.childTr || next, 'after');
+                this.main.inject(next.childContainer || next, 'after');
 
-                if (this.childTr) this.childTr.inject(this.main, 'after');
+                if (this.childContainer) this.childContainer.inject(this.main, 'after');
 
             }.bind(this))
-            .inject(this.tdActions);
+            .inject(this.actionContainer);
 
         }
 
@@ -668,12 +698,12 @@ ka.FieldProperty = new Class({
 
         if (!this.childContainer){
 
-            this.childTr = new Element('tr').inject(this.tr, 'after');
-            this.main.childTr = this.childTr;
+            this.childContainer = new Element('tr').inject(this.main, 'after');
+            this.main.childContainer = this.childContainer;
 
             this.childTd = new Element('td', {
-                colspan: this.tr.getChildren().length
-            }).inject(this.childTr);
+                colspan: this.main.getChildren().length
+            }).inject(this.childContainer);
 
             this.childDiv = new Element('div', {
                 style: 'margin-left: 25px'
@@ -691,12 +721,18 @@ ka.FieldProperty = new Class({
 
     getValue: function(){
 
-        var key = this.iKey.getValue();
-        var type = this.typeField.getValue();
+        if (this.options.asTableItem){
+            var key = this.iKey.getValue();
+            var type = this.typeField.getValue();
 
-        if (!key) return;
+            if (!key) return;
 
-        this.definition.type = type;
+
+            this.definition.type = type;
+        } else {
+            this.definition = this.fieldObject.getValue();
+            var key = this.definition.key;
+        }
 
         var property = this.definition;
 

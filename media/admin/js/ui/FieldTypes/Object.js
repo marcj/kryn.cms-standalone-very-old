@@ -20,6 +20,11 @@ ka.FieldTypes.Object = new Class({
 
         var definition = ka.getObjectDefinition(this.options.objects[0]);
 
+        if (!definition){
+            this.fieldInstance.fieldPanel.set('text', t('Object not found %s').replace('%s', this.options.objects[0]));
+            throw 'Object not found '+this.options.objects[0];
+        }
+
         if (definition.chooserFieldJavascriptClass){
 
             if (!window[definition.chooserFieldJavascriptClass]){

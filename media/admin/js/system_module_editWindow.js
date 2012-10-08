@@ -1,5 +1,7 @@
 var admin_system_module_editWindow = new Class({
 
+    Binds: ['applyFieldProperties'],
+
     windowEditFields: {}, //ka.Field object
     windowEditTabs: {}, //addtabPane object
 
@@ -152,7 +154,7 @@ var admin_system_module_editWindow = new Class({
                 .addEvent('click', function(){
                 dialog.close();
             })
-                .inject(dialog.bottom);
+            .inject(dialog.bottom);
 
             new ka.Button(t('Apply'))
             .addEvent('click', function(){
@@ -165,9 +167,10 @@ var admin_system_module_editWindow = new Class({
 
                 this.addWindowEditTab(iId.value, iLabel.value);
                 dialog.close();
-            }.bind(this))
-            .inject(dialog.bottom);
 
+            }.bind(this))
+            .setButtonStyle('blue')
+            .inject(dialog.bottom);
 
             dialog.center();
 
@@ -349,7 +352,7 @@ var admin_system_module_editWindow = new Class({
 
                 fields[key] = definition;
 
-                var depends = {};
+                //var children = {};
                 var iIdx = 0, kaFieldObj;
 
                 var extractFields = function(pDom, pDependsRef){
@@ -362,13 +365,13 @@ var admin_system_module_editWindow = new Class({
 
                         kaFieldObj = field.retrieve('ka.Field');
                         if (kaFieldObj.childContainer){
-                            fField.depends = {};
-                            extractFields(kaFieldObj.childContainer, fField.depends);
+                            fField.children = {};
+                            extractFields(kaFieldObj.childContainer, fField.children);
                         }
 
                         if (false && fField.type == 'predefined' && fField.object == this.generalObj.getValue('object')){
                             //if the type is predefeind and the object is the same as in the class
-                            //then we dont need to save the whole definition.
+                            //then we don't need to save the whole definition.
                             //todo, what is with children? deactivated
                             pDependsRef[iIdx] = fKey;
                             iIdx++;
@@ -381,7 +384,7 @@ var admin_system_module_editWindow = new Class({
 
                 extractFields(button.pane, depends);
 
-                fields[key]['depends'] = depends;
+                //fields[key]['children'] = children;
 
 
             });
@@ -1066,8 +1069,7 @@ var admin_system_module_editWindow = new Class({
 
             var listFields = {
 
-
-                fields: {
+                columns: {
 
                     label: t('Columns'),
                     type: 'fieldTable',
@@ -1125,7 +1127,7 @@ var admin_system_module_editWindow = new Class({
                     children: {
                         __search__kind__: {
                             type: 'select',
-                            input_width: 150,
+                            inputWidth: 150,
                             label: t('Definition'),
                             items: {
                                 quick: t('Quickdefinition from defined columns'),
@@ -1172,10 +1174,9 @@ var admin_system_module_editWindow = new Class({
                                     needValue: 1
                                 },
                                 addEntrypoint: {
-                                    label: t('Entrypoint'),
-                                    type: 'object',
+                                    label: t('Entry point'),
+                                    type: 'text',
                                     needValue: 1,
-                                    object: 'system_entrypoint',
                                     withoutObjectWrapper: 1,
                                     desc: t('Default is &lt;current&gt;/add')
                                 }
@@ -1198,10 +1199,9 @@ var admin_system_module_editWindow = new Class({
                                     }
                                 },
                                 editEntrypoint: {
-                                    label: t('Entrypoint'),
-                                    type: 'object',
+                                    label: t('Entry point'),
+                                    type: 'text',
                                     needValue: 1,
-                                    object: 'system_entrypoint',
                                     desc: t('Default is &lt;current&gt;/edit')
                                 }
                             }
@@ -1236,7 +1236,7 @@ var admin_system_module_editWindow = new Class({
                             columns: [
                                 {'label': t('Entry point'), desc: t('The path to the entry point')},
                                 {'label': t('Title')},
-                                {'label': t('Icon path'), desc: t('Relative to media/')}
+                                {'label': t('Icon path')}
                             ],
                             fields: {
                                 entrypoint: {
@@ -1279,7 +1279,7 @@ var admin_system_module_editWindow = new Class({
                             label: t('Types'),
                             needValue: 1,
                             againstField: 'export',
-                            type: 'checkboxgroup',
+                            type: 'checkboxGroup',
                             items: {
                                 csv: t('CSV'),
                                 json: t('JSON'),
@@ -1287,7 +1287,7 @@ var admin_system_module_editWindow = new Class({
                             }
                         },*/
 
-                        export_custom: {
+                        exportCustom: {
                             needValue: 1,
                             width: 400,
                             againstField: 'export',
@@ -1322,23 +1322,18 @@ var admin_system_module_editWindow = new Class({
 
             this.windowListObj = new ka.Parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
 
-
             //compatibility
             if (this.definition.properties){
                 if (this.definition.properties.orderBy){
-                    this.definition.properties.order = [];
-                    this.definition.properties.order.include({
-                        field: this.definition.properties.orderBy,
-                        direction: this.definition.properties.orderByDirection ? this.definition.properties.orderByDirection.toLowerCase() : 'asc'
-                    });
+                    this.definition.properties.order = {};
+                    this.definition.properties.order[this.definition.properties.orderBy] =
+                        this.definition.properties.orderByDirection ? this.definition.properties.orderByDirection.toLowerCase() : 'asc';
                 }
 
                 if (this.definition.properties.secondOrderBy){
-                    if (!this.definition.properties.order) this.definition.properties.order = [];
-                    this.definition.properties.order.include({
-                        field: this.definition.properties.secondOrderBy,
-                        direction: this.definition.properties.secondOrderByDirection ? this.definition.properties.secondOrderByDirection.toLowerCase() : 'asc'
-                    });
+                    if (!this.definition.properties.order) this.definition.properties.order = {};
+                    this.definition.properties.order[this.definition.properties.secondOrderBy] =
+                        this.definition.properties.secondOrderByDirection ? this.definition.properties.secondOrderByDirection.toLowerCase() : 'asc';
                 }
 
                 if (this.definition.properties.iconEdit)
@@ -1465,6 +1460,7 @@ var admin_system_module_editWindow = new Class({
 
         if (instanceOf(this.windowEditFields[this.lastLoadedField], ka.Field)){
 
+            logger(this.lastFieldProperty);
             var val = this.lastFieldProperty.getValue();
 
             var oField = document.id(this.windowEditFields[this.lastLoadedField]);
@@ -1586,12 +1582,14 @@ var admin_system_module_editWindow = new Class({
 
         this.lastFieldProperty = new ka.FieldProperty(pKey, definition, this.windowInspectorContainer, {
             arrayKey: true,
-            tableitem_title_width: 200,
             allTableItems: false,
-            withActionsImages: false,
+            withActions: false,
             withoutChildren: true,
+            asTableItem: false,
             asFrameworkFieldDefinition: true
         });
+
+        this.lastFieldProperty.addEvent('change', this.applyFieldProperties);
 
         if (field){
             document.id(field).setStyle('outline', '1px dashed green');
