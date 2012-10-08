@@ -366,10 +366,7 @@
                     "isLink": false,
                     "multi": false,
                     "defaultWidth": 500,
-                    "defaultHeight": 410,
-                    "children": [
-                        
-                    ]
+                    "defaultHeight": 410
                 },
                 "edit": {
                     "title": "[[Users edit]]",
@@ -378,10 +375,7 @@
                     "isLink": false,
                     "multi": false,
                     "defaultWidth": 500,
-                    "defaultHeight": 410,
-                    "children": [
-                        
-                    ]
+                    "defaultHeight": 410
                 },
                 "editMe": {
                     "title": "[[User self edit]]",

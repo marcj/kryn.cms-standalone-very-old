@@ -72,9 +72,17 @@ ka.FieldTypes.Tree = new Class({
         this.tree.addEvent('change', this.fieldInstance.fireChange);
 
 
-        var proxyMethods = ['deselect'];
+        var proxyMethods = ['deselect', 'getItem', 'select'];
         proxyMethods.each(function(method){
             this.fieldInstance[method] = this.tree[method];
+        }.bind(this));
+
+        var proxyEvents = ['ready', 'childrenLoaded'];
+        proxyEvents.each(function(event){
+            this.tree.addEvent(event, function(p){
+                this.fieldInstance.fireEvent(event, p);
+            }.bind(this));
+
         }.bind(this));
     },
 

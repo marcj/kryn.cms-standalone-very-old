@@ -92,6 +92,7 @@ var users_users_acl = new Class({
                 withContext: false,
                 noWrapper: true,
                 onReady: function(){
+                    logger('hi');
                     this.renderTreeRules();
                 }.bind(this),
                 onChildrenLoaded: function(){
@@ -205,13 +206,17 @@ var users_users_acl = new Class({
 
     renderTreeRules: function(){
 
+        logger(this.currentAcls);
+
         Array.each(this.currentAcls, function(rule){
             if (rule.object != this.currentObject) return;
 
+            logger(rule);
             if (rule.constraint_type == 1){
 
-                var item = this.lastObjectTree.getItem(rule.constraint_code);
+                var item = this.lastObjectTree.fieldObject.tree.getItem(rule.constraint_code);
 
+                logger(item);
                 if (!item) return false;
 
                 if (!item.rules) item.rules = [];

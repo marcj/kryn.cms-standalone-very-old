@@ -87,34 +87,18 @@ var test_test = new Class({
                 object: 'node',
                 scope: field.getValue()
             }, ch);
-
-            /*
-            this.lastObjectTree = new ka.ObjectTree(ch, 'node', {
-                openFirstLevel: true,
-                scope: field.getValue(),
-                selectable: false,
-                onReady: function(){
-                    //this.renderTreeRules();
-                    logger('onready');
-                }.bind(this),
-                onChildrenLoaded: function(){
-                    //this.renderTreeRules();
-                }.bind(this)
-            });
-            logger(field.getValue());
-            */
         });
 
-        field.fireEvent('change');
+        //field.fireEvent('change');
 
         var div = new Element('div', {
             style: 'padding-top: 15px;'
         }).inject(this.win.content);
 
-        this.lastObjectTree = new ka.Field({
-            type: 'tree',
-            object: 'file'
-        }, div);
+//        this.lastObjectTree = new ka.Field({
+//            type: 'tree',
+//            object: 'file'
+//        }, div);
 
         var div = new Element('div', {
             style: 'padding-top: 15px;'

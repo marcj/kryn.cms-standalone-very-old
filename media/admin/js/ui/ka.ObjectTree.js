@@ -1,6 +1,7 @@
 ka.ObjectTree = new Class({
 
     Implements: [Options, Events],
+    Binds: ['getItem', 'select', 'deselect'],
     ready: false,
 
     options: {
@@ -31,10 +32,10 @@ ka.ObjectTree = new Class({
             '{label}'+
             '{if kaSelectImage && isVectorIcon}</span>{/if}',
 
-    items: {},
     loadChildrenRequests: {},
 
     loadingDone: false,
+    firstLevelLoaded: false,
     firstLoadDone: false,
 
     load_object_children: false,
@@ -52,6 +53,8 @@ ka.ObjectTree = new Class({
     objectDefinition: {},
 
     initialize: function (pContainer, pObjectKey, pOptions, pRefs) {
+
+        this.items = {};
 
         this.objectKey = pObjectKey;
         this.container = pContainer;
@@ -403,6 +406,9 @@ ka.ObjectTree = new Class({
 
         }
 
+        this.firstLevelLoaded = true;
+        this.checkDoneState();
+
     },
 
     onMousedown: function (e) {
@@ -531,7 +537,7 @@ ka.ObjectTree = new Class({
             text: label
         }).inject(a);
 
-        this.items[ id ] = a;
+        this.items[ '_'+id ] = a;
 
         a.store('item', pItem);
 
@@ -693,7 +699,7 @@ ka.ObjectTree = new Class({
     checkDoneState: function () {
 
         var loadingDone = true;
-        if (this.inItemsGeneration == false) {
+        if (this.inItemsGeneration == false && this.firstLevelLoaded) {
             Object.each(this.loadChildrenRequests, function (request) {
                 if (request == true) {
                     loadingDone = false;
@@ -702,6 +708,8 @@ ka.ObjectTree = new Class({
         } else {
             loadingDone = false;
         }
+
+        //logger('checkDoneState: '+loadingDone+' => '+Object.getLength(this.loadChildrenRequests));
 
         if (loadingDone == true) {
 
@@ -784,7 +792,7 @@ ka.ObjectTree = new Class({
         if (!pA.childContainer) return;
 
         pA.childContainer.getElements('ka-objectTree-item').each(function(a){
-            delete this.items[a.id];
+            delete this.items['_'+a.id];
         }.bind(this));
 
 
@@ -1129,7 +1137,8 @@ ka.ObjectTree = new Class({
     },
 
     getItem: function(pId){
-        return this.items[ pId ]?this.items[ pId ]:false;
+        var id = ka.getObjectUrlId(this.options.object, pId);
+        return this.items[ '_'+id ];
     },
 
     getValue: function(){
@@ -1143,16 +1152,17 @@ ka.ObjectTree = new Class({
     select: function (pId) {
 
         this.deselect();
+        pId = ka.getObjectUrlId(this.options.object, pId);
 
-        if (this.items[ pId ]) {
+        if (this.items[ '_'+pId ]) {
             //has been loaded already
-            this.items[ pId ].addClass('ka-objectTree-item-selected');
+            this.items[ '_'+pId ].addClass('ka-objectTree-item-selected');
 
-            this.lastSelectedItem = this.items[ pId ];
-            this.lastSelectedObject = this.items[ pId ].retrieve('item');
+            this.lastSelectedItem = this.items[ '_'+pId ];
+            this.lastSelectedObject = this.items[ '_'+pId ].retrieve('item');
 
             //open parents too
-            var parent = this.items[ pId ];
+            var parent = this.items[ '_'+pId ];
             while(true){
                 if (parent.parent){
                     parent = parent.parent;
@@ -1172,8 +1182,8 @@ ka.ObjectTree = new Class({
             this.options.selectObject = pId;
 
             Array.each(this.load_object_children, function (id) {
-                if (this.items[id]) {
-                    this.openChildren(this.items[id]);
+                if (this.items['_'+id]) {
+                    this.openChildren(this.items['_'+id]);
                 }
             }.bind(this));
 
