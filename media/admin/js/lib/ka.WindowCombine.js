@@ -412,7 +412,9 @@ ka.WindowCombine = new Class({
             this.loader.show();
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode, noCache: true, onComplete: function (response) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode,
+
+            noCache: true, onComplete: function (response) {
 
             if (response.error){ 
                 this.itemLoader.set('html', _('Something went wrong :-('));
@@ -424,6 +426,9 @@ ka.WindowCombine = new Class({
             if (!res.items && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
             }
+
+                logger('load Items');
+            logger(res);
 
             if (!res.items) return;
 
@@ -484,9 +489,9 @@ ka.WindowCombine = new Class({
             }
 
         }.bind(this)}).get({
-            from: pFrom,
-            max: pMax,
-            orderBy: this.sortField,
+            offset: pFrom,
+            limit: pMax,
+            order: this.sortField,
             filter: this.searchEnable,
             language: (this.languageSelect) ? this.languageSelect.value : false,
             filterVals: (this.searchEnable) ? this.getSearchVals() : '',
@@ -808,7 +813,7 @@ ka.WindowCombine = new Class({
 
     },
 
-    addSaved: function (pValues, pAnswer) {
+    addSaved: function (pValues, pResponse) {
 
         if (this.currentAdd.classProperties.primary.length > 1) return;
 
@@ -819,17 +824,11 @@ ka.WindowCombine = new Class({
         delete pValues.code;
 
         this.needSelection = true;
-        var primaries = {};
 
-        this.currentAdd.classProperties.primary.each(function (primary) {
-            primaries[primary] = pAnswer.last_id;
-        }.bind(this));
-
-        if (!this.win.params) {
+        if (!this.win.params)
             this.win.params = {};
-        }
 
-        this.win.params.selected = primaries;
+        this.win.params.selected = pResponse.data;
 
         this.loadAround(this.win.params.selected);
 
@@ -982,8 +981,8 @@ ka.WindowCombine = new Class({
         }
 
         this.win.params = {
-            module: this.win.module,
             code: this.oriWinCode,
+            module: this.win.module,
             type: type,
             selected: selected,
             list: {
@@ -1038,25 +1037,27 @@ ka.WindowCombine = new Class({
             this.lastRequest.cancel();
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems', noCache: true, onComplete: function (response) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode, noCache: true, onComplete: function (response) {
 
-            var res = response.data;
+            var position = response.data;
 
-            if (res > 0) {
+            if (position > 0) {
                 var range = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
 
-                var from = res;
-                if (res < range) {
+                var from = position;
+                if (position < range) {
                     from = 0;
                 } else {
-                    from = res - Math.floor(range / 2);
+                    from = position - Math.floor(range / 2);
                 }
 
                 this.clearItemList();
                 this.loadItems(from, range);
+            } else {
+                this.win.alert(t('Ooops. There was an error in the response of %s').replace('%s', 'GET '+_path + 'admin/' + this.win.module + '/' + this.oriWinCode));
             }
 
-        }.bind(this)}).post({
+        }.bind(this)}).get({
             module: this.win.module,
             code: this.oriWinCode,
             getPosition: pPrimaries,
@@ -1070,6 +1071,8 @@ ka.WindowCombine = new Class({
     },
 
     saved: function (pItem, pRes, pPublished) {
+
+        logger('saved');
 
         if (pPublished) {
             /*this.lastLoadedItem && (pItem[this.sortField] && this.lastLoadedItem[this.sortField] &&
@@ -1131,7 +1134,7 @@ ka.WindowCombine = new Class({
                     req['language'] = this.currentItem.values['lang'];
                 }
 
-                this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode + '?cmd=getItems',
+                this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode,
                     noCache: true, onComplete: function (response) {
 
                         var res = response.data;
@@ -1152,7 +1155,7 @@ ka.WindowCombine = new Class({
 
                         this.currentItem = res.items[0];
 
-                    }.bind(this)}).post(req);
+                    }.bind(this)}).get(req);
 
             } else {
                 this.reload();

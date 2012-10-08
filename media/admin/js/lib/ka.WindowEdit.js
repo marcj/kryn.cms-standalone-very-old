@@ -536,7 +536,7 @@ ka.WindowEdit = new Class({
         .inject(this.actionBar);
 
 
-        if (this.classProperties.versioning == true){
+        /*if (this.classProperties.versioning == true){
 
             this.saveAndPublishBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
             .addEvent('click', this._save.bind(this, [false,true]))
@@ -544,11 +544,11 @@ ka.WindowEdit = new Class({
             // this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
             //     _this._save(false, true);
             // }.bind(this));
-        }
+        }*/
 
 
         this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-        .addEvent('click', this._save.bind(this, [null,null]))
+        .addEvent('click', function(){ this._save();}.bind(this))
         .inject(this.actionBar);
 
         document.id(this.saveBtn).addClass('ka-Button-blue');
@@ -779,6 +779,8 @@ ka.WindowEdit = new Class({
         var _this = this;
         var req = {};
 
+        logger('save: '+typeOf(pClose));
+
         if (this.lastSaveRq) this.lastSaveRq.cancel();
 
         var data = this.retrieveData();
@@ -831,19 +833,19 @@ ka.WindowEdit = new Class({
             }
 
             this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+objectId,
-                //noErrorReporting: true,
+                noErrorReporting: ['DuplicateKeysException'],
                 noCache: true, onComplete: function (res) {
 
                 if (!res.data){
                     if (pPublish) {
-                        this.saveAndPublishBtn.stopTip(_('Failed'));
+                        this.saveAndPublishBtn.stopTip(t('Failed'));
                     } else {
-                        this.saveBtn.stopTip(_('Failed'));
+                        this.saveBtn.stopTip(t('Failed'));
                     }
                     return;
                 }
 
-                if(res && res.error){
+                if(res.error == 'DuplicateKeysException'){
                     this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
 
                     Array.each(res.fields, function(field){
@@ -854,7 +856,7 @@ ka.WindowEdit = new Class({
                     if (pPublish) {
                         this.saveAndPublishBtn.stopTip(_('Failed'));
                     } else {
-                        this.saveBtn.stopTip(_('Failed'));
+                        this.saveBtn.stopTip(t('Failed'));
                     }
                     return;
                 }
@@ -866,7 +868,7 @@ ka.WindowEdit = new Class({
                 if (pPublish) {
                     this.saveAndPublishBtn.stopTip(_('Saved'));
                 } else {
-                    this.saveBtn.stopTip(_('Saved'));
+                    this.saveBtn.stopTip(t('Saved'));
                 }
 
 
@@ -879,14 +881,8 @@ ka.WindowEdit = new Class({
                 }
 
                 if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
-                if (this.classProperties.load_settings == true) ka.loadSettings();
-
-                this.previewUrls = res.preview_urls;
 
                 this.fireEvent('save', [req, res, pPublish]);
-
-                // Before close, perform saveSuccess
-                this._saveSuccess();
 
                 if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
 
@@ -896,9 +892,5 @@ ka.WindowEdit = new Class({
 
             }.bind(this)}).post(req);
         }
-    },
-
-    _saveSuccess: function () {
     }
-
 });

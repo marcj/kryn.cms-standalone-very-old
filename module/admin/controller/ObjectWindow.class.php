@@ -469,6 +469,45 @@ abstract class ObjectWindow {
     }
 
 
+    public function getPosition($pPk){
+
+        $obj = \Core\Object::getClass($this->object);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
+
+        $condition = $this->getCondition();
+
+        if ($customCondition = $this->getCustomListingCondition())
+            $condition = $condition ? array_merge($condition, $customCondition) : $customCondition;
+
+        $options['permissionCheck'] = $this->permissionCheck;
+        $items = $obj->getItems(null, $options);
+
+        $position = 0;
+
+        if (count($primaryKey) == 1){
+            $singlePrimaryKey = key($primaryKey);
+            $singlePrimaryValue = current($primaryKey);
+        }
+
+        foreach ($items as $item){
+
+            if ($singlePrimaryKey){
+                if ($item[$singlePrimaryKey] == $singlePrimaryValue) break;
+            } else {
+                $isItem = true;
+                foreach ($primaryKey as $prim => $val){
+                    if ($item[$prim] != $val) $isItem = false;
+                }
+                if ($isItem) break;
+            }
+
+            $position++;
+        }
+
+        return $position;
+
+    }
+
     /**
      * Returns items with some informations.
      * 
@@ -493,15 +532,15 @@ abstract class ObjectWindow {
 
         $condition = $this->getCondition();
 
-        if ($condition = $this->getCustomListingCondition())
-            $result = $result + $condition;
+        if ($customCondition = $this->getCustomListingCondition())
+            $condition = $condition + $condition;
 
         $options['fields'] = $this->getFieldList();
 
         $maxItems = $obj->getCount($condition, $options);
 
         if ($maxItems > 0)
-            $maxPages = ceil($results['maxItems'] / $this->itemsPerPage);
+            $maxPages = ceil($maxItems / $this->itemsPerPage);
         else
             $maxPages = 0;
 
@@ -604,7 +643,7 @@ abstract class ObjectWindow {
         $options['fields'] = $this->getFieldList();
         $item = $obj->getItem($this->primaryKey, $options);
 
-        if (!\Core\Object::satisfy($item, $condition)) return 'penis';
+        if (!\Core\Object::satisfy($item, $condition)) return false;
 
         return array(
             'values' => $item

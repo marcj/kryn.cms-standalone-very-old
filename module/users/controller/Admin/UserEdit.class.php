@@ -98,6 +98,7 @@ class UserEdit extends \Admin\ObjectWindow {
                     'label' => 'Username',
                     'desc' => '(and the administration login)',
                     'type' => 'text',
+                    'required' => true
                     //'empty' => false // TODO: FE users don't need a username, just an email address [Ferdi]
                 ),
 
