@@ -53,7 +53,7 @@ var test_test = new Class({
 
         fieldObj.setValue({
             chooserBrowserTreeIconMapping: {peter: "10"}
-        })
+        });
 
         var items = [];
         for (var i =0; i<100;i++)
@@ -65,7 +65,7 @@ var test_test = new Class({
 
         new Element('input').inject(this.win.content);
         
-        new ka.Textlist(this.win.content, {
+        new ka.TextboxList(this.win.content, {
             items: [
                 'Hosa', 'Mowla', 'Gazzo'
             ]

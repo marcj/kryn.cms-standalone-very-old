@@ -1,0 +1,85 @@
+ka.TextboxList = new Class({
+    Extends: ka.Select,
+
+
+    value: [],
+
+    clear: function(){
+
+        this.value = [];
+        this.title.empty();
+
+    },
+
+    addValue: function(pItem){
+
+        var span = new Element('span', {
+            'class': 'ka-textboxList-item'
+        }).inject(this.title);
+
+        this.getLabel(pItem, function(item){
+
+            if (typeOf(item) != 'null' && item !== false)
+                span.set('html', this.renderLabel(item.label));
+            else
+                span.set('text', t('-- not found --'));
+
+            new Element('a', {
+                href: 'javascript:;',
+                html: '&#xe084;',
+                title: t('Remove'),
+                'class': 'ka-textboxList-item-closer'
+            })
+            .addEvent('click', function(e){
+                e.stopPropagation();
+                this.value.erase(pItem);
+                span.destroy();
+            }.bind(this))
+            .inject(span);
+
+        }.bind(this));
+
+        this.value.push(pItem);
+
+    },
+
+    checkIfCurrentValue: function(pItem, pA){
+
+        if (this.value.contains(pItem.key)){
+            pA.addClass('icon-checkmark-6');
+            pA.addClass('ka-select-chooser-item-selected');
+        }
+    },
+
+    chooseItem: function(pItem, pInternal){
+
+        if (this.value.contains(pItem.key)) return false;
+
+        this.addValue(pItem);
+
+        if (pInternal)
+            this.fireChange();
+    },
+
+    getValue: function(){
+        return this.value;
+    },
+
+    setValue: function(pValue){
+
+        if (typeOf(pValue) != 'array')
+            pValue = [pValue];
+
+        this.clear();
+
+        Array.each(pValue, function(item){
+            this.addValue(item);
+        }.bind(this));
+
+        this.value = pValue;
+
+        if (pInternal)
+            this.fireChange();
+    }
+
+});

@@ -31,13 +31,15 @@ var admin_system_settings = new Class({
                 'class': 'admin-system-settings-pane',
                 lang: key
             }).inject(this.win.content);
-        }.bind(this))
+        }.bind(this));
 
         this.loader = new ka.Loader().inject(this.win.content);
 
         this.loader.show();
 
-        new Request.JSON({url: _path + 'admin/system/settings/preload', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/system/config/labels', noCache: 1, onComplete: function (pResponse) {
+            var res = pResponse.data;
+
             this.langs = res.langs;
             this.timezones = [];
             res.timezones.each(function (timezone) {
@@ -45,7 +47,7 @@ var admin_system_settings = new Class({
             }.bind(this));
             this._createLayout();
             this.load();
-        }.bind(this)}).post();
+        }.bind(this)}).get();
     },
 
     _createLayout: function () {
@@ -74,12 +76,12 @@ var admin_system_settings = new Class({
 
         this.fields['languages'] = new ka.Field({
             label: _('Languages'), desc: _('Limit the language selection. (systemwide)'), empty: false,
-            type: 'textlist', store: 'admin/backend/stores/languages'
+            type: 'textboxList', store: 'admin/backend/stores/languages'
         }).inject(p);
 
         this.changeType('general');
 
-        var p = this.panes['system'];
+        p = this.panes['system'];
 
         var fields = {
             'displayErrors': {
@@ -375,7 +377,9 @@ var admin_system_settings = new Class({
 
         this.loader.show();
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/settings/loadSettings', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _path + 'admin/system/config', noCache: 1, onComplete: function (pResponse) {
+
+            var res  = pResponse.data;
 
             this.systemValues = res.system;
             Object.each(this.fields, function (field, key) {
@@ -406,11 +410,11 @@ var admin_system_settings = new Class({
             this.fields['languages'].setValue(langs);
 
             this.loader.hide();
-        }.bind(this)}).post();
+        }.bind(this)}).get();
     },
 
     save: function () {
-        var req = {}
+        var req = {};
         var dontGo = false;
 
         Object.each(this.fields, function (field, key) {

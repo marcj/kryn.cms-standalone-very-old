@@ -14,8 +14,15 @@
     line-height: 20px;
 
     vertical-align: top;
-    width: 100px;
+    min-width: 100px;
 
+    text-align: left;
+    box-shadow: 0px 1px 0px #f8f8f8;
+
+}
+
+.ka-Select-box,
+.ka-Select-arrow {
     background-color: #fafafa;
     background-image: -webkit-gradient(linear, left top, left bottom, #fafafa, to(#e8e8e8));
     background-image: -webkit-linear-gradient(top, #fafafa, #e8e8e8);
@@ -23,12 +30,10 @@
     background-image:     -ms-linear-gradient(top, #fafafa, #e8e8e8);
     background-image:      -o-linear-gradient(top, #fafafa, #e8e8e8);
     background-image:         linear-gradient(top, #fafafa, #e8e8e8);
-
-    text-align: left;
-    box-shadow: 0px 1px 0px #f8f8f8;
 }
 
-.ka-Select-box-active:hover {
+.ka-Select-box-active:hover,
+.ka-Select-box-active:hover > .ka-Select-arrow {
     background-color: #e4e4e4;
     background-image: -webkit-gradient(linear, left top, left bottom, #f2f2f2, to(#d5d5d5));
     background-image: -webkit-linear-gradient(top, #f2f2f2, #d5d5d5);
@@ -45,8 +50,9 @@
 }
 
 .ka-Select-box:active,
-.ka-Select-box-focus {
-    border: 1px solid #999;
+.ka-Select-box-focus,
+.ka-Select-box:active > .ka-Select-arrow,
+.ka-Select-box-focus > .ka-Select-arrow {
     background: #e0e0e0; /* Old browsers */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UwZTBlMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNjZWNlY2UiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
     background: -moz-linear-gradient(top,  #e0e0e0 0%, #cecece 100%); /* FF3.6+ */
@@ -56,7 +62,12 @@
     background: -ms-linear-gradient(top,  #e0e0e0 0%,#cecece 100%); /* IE10+ */
     background: linear-gradient(to bottom,  #e0e0e0 0%,#cecece 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0e0e0', endColorstr='#cecece',GradientType=0 ); /* IE6-8 */
+}
 
+
+.ka-Select-box:active,
+.ka-Select-box-focus {
+    border: 1px solid #999;
 }
 
 .ka-Select-box-focus {
@@ -69,12 +80,8 @@
 }
 
 .ka-Select-box-title {
-    position: absolute;
-    left: 6px;
-    top: 0;
-    right: 16px;
-    height: 20px;
-    overflow: hidden;
+    padding-left: 2px;
+    padding-right: 16px;
     display: inline-block;
     white-space: nowrap;
 }
@@ -85,11 +92,14 @@
     padding-right: 5px;
     top: 0;
     right: 0;
-    width: 12px;
+
+    border-left: 1px solid #DDD;
+    width: 14px;
 }
 
 .ka-Select-arrow:before {
     color: #666;
+    padding-left: 3px;
     font-size: 12px;
 }
 

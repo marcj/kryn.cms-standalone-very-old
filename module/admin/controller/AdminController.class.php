@@ -117,6 +117,7 @@ class AdminController {
                 //admin/backend
                 ->addSubController('backend', '\Admin\Backend')
                     ->addGetRoute('js/script.js', 'loadJs')
+
                     ->addGetRoute('settings', 'getSettings')
 
                     ->addGetRoute('desktop', 'getDesktop')
@@ -172,6 +173,12 @@ class AdminController {
                 ->addSubController('system', '\Admin\System')
 
                     ->addGetRoute('', 'getSystemInformation')
+
+                    ->addSubController('config', '\Admin\Config')
+                        ->addGetRoute('', 'getConfig')
+                        ->addGetRoute('labels', 'getLabels')
+                        ->addPostRoute('', 'saveConfig')
+                    ->done()
 
                     //admin/system/module/manager
                     ->addSubController('module/manager', '\Admin\Module\Manager')

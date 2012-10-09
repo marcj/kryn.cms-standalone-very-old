@@ -62,8 +62,7 @@ ka.Select = new Class({
     initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
-        this.container = pContainer
-        ;
+        this.container = pContainer;
 
         this.createLayout();
         this.mapEvents();
@@ -124,7 +123,7 @@ ka.Select = new Class({
             if (!e || !(item = e.target)) return;
             if (!item.hasClass('ka-select-chooser-item') && !(item = item.getParent('.ka-select-chooser-item'))) return;
 
-            this.setValue(item.kaSelectId, true);
+            this.chooseItem(item.kaSelectId, true);
             this.close(true);
 
         }.bind(this));
@@ -274,7 +273,7 @@ ka.Select = new Class({
                 if (this.isOpen()){
                     this.close(true);
                     if (current){
-                        this.setValue(current.kaSelectId, true);
+                        this.chooseItem(current.kaSelectId, true);
                     }
                 } else {
                     this.blockNextSearch = true;
@@ -289,7 +288,7 @@ ka.Select = new Class({
                     if (first)
                         first.addClass('ka-select-chooser-item-active');
                 } else {
-                    current.removeClass('ka-select-chooser-item-active')
+                    current.removeClass('ka-select-chooser-item-active');
                     var next = current.getNext();
                     if (next){
                         next.addClass('ka-select-chooser-item-active');
@@ -307,7 +306,7 @@ ka.Select = new Class({
                     if (last)
                         last.addClass('ka-select-chooser-item-active');
                 } else {
-                    current.removeClass('ka-select-chooser-item-active')
+                    current.removeClass('ka-select-chooser-item-active');
                     var previous = current.getPrevious();
                     if (previous){
                         previous.addClass('ka-select-chooser-item-active');
@@ -464,16 +463,21 @@ ka.Select = new Class({
 
             a.inject(this.chooser);
 
-            if (pItem.key == this.value){
-                a.addClass('icon-checkmark-6');
-                a.addClass('ka-select-chooser-item-selected');
-            }
+            this.checkIfCurrentValue(pItem, a);
 
             a.kaSelectId = pItem.key;
             a.kaSelectItem = pItem;
             this.currentItems[pItem.key] = a;
         }
 
+    },
+
+    checkIfCurrentValue: function(pItem, pA){
+
+        if (pItem.key == this.value){
+            pA.addClass('icon-checkmark-6');
+            pA.addClass('ka-select-chooser-item-selected');
+        }
     },
 
     renderLabel: function(pData){
@@ -515,7 +519,7 @@ ka.Select = new Class({
             if (items){
                 var item = items[0];
                 if (item)
-                    this.setValue(item.key, true);
+                    this.chooseItem(item.key, true);
             }
         }.bind(this), 1);
 
@@ -638,7 +642,7 @@ ka.Select = new Class({
         }
 
         if (typeOf(this.value) == 'null' && this.options.selectFirst){
-            this.setValue(pId);
+            this.chooseItem(pId);
         }
 
         return this.loadItems();
@@ -707,6 +711,12 @@ ka.Select = new Class({
 
     },
 
+    chooseItem: function(pValue, pInternal){
+
+        this.setValue(pValue, pInternal);
+
+    },
+
     setValue: function (pValue, pInternal) {
 
 
@@ -739,7 +749,7 @@ ka.Select = new Class({
 
         if (this.value == pId){
             this.title.set('html', pLabel);
-            this.setValue(pId);
+            this.chooseItem(pId);
         }
 
     },
