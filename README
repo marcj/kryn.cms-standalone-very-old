@@ -1,11 +1,25 @@
+Kryn.cms
+
+A AJAX PHP enterprise open-source Content-Management-System and Content-Management-Framework with full RESTful API.
+
+More information and screenshots:
+https://www.facebook.com/kryncms
+
+
 Installation
 
-1. Download the zip or tarball
-2. Extract to docroot of local or remote webserver
-3. Open http://<domain>/install.php
-4. Go through the installation process
+1. Extract the tar/zip-ball
+2. Open the install.php through your browser
 
 
-If you wanna using PDO database connector, you should make sure that you've
-activated the PDO libraries in the php.ini
+Features
 
+ - Propel ORM (MySQL, PostgreSQL)
+ - getText i18n (plural support etc)
+ - Advanced AJAX Backend Interface/RIA with mootools
+ - File abstraction layer (for mounts with external cloud storage), CDN
+ - RESTful API - all actions are available through a RESTful JSON API
+ - Smarty template engine
+ - High-Performance through several cache layer
+ - Session storage through several layers (LoadBalanced support)
+ - Easy to extend through a fancy extension editor
