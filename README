@@ -15,11 +15,16 @@ Installation
 Features
 
  - Propel ORM (MySQL, PostgreSQL)
- - getText i18n (plural support etc)
- - Advanced AJAX Backend Interface/RIA with mootools
+ - getText i18n (plural support etc) with translator - compatible .po files
+ - Advanced, fast and fresh AJAX Backend Interface/RIA with mootools
  - File abstraction layer (for mounts with external cloud storage), CDN
  - RESTful API - all actions are available through a RESTful JSON API
  - Smarty template engine
  - High-Performance through several cache layer
  - Session storage through several layers (LoadBalanced support)
  - Easy to extend through a fancy extension editor
+ - Framework CRUD window generator without coding
+ - Easy and integrated backup system - perfect for live/dev-scenarios
+ - Workspaces (in the works)
+ - Several authenication layers (seperated in backend and several frontend)
+ - MVC architecture
