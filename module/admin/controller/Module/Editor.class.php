@@ -623,6 +623,11 @@ class Editor {
     }
 
 
+    public function newWindow(){
+
+    }
+
+
 
 
 

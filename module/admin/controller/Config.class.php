@@ -13,16 +13,14 @@ class Config {
     public static function getConfig() {
         global $cfg;
 
-        $settings = admin::getSettings();
+        $cfg = include('config.php');
 
-        include('inc/config.php');
+        $settings['system'] = $cfg;
 
-        $settings['system'] = array_merge($settings['system'], $cfg);
-
-        json($settings);
+        return $settings;
     }
 
-    public static function saveSettings() {
+    public static function saveConfig() {
         global $cfg;
 
         $settings = admin::getSettings();

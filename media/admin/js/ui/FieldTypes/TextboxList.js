@@ -1,4 +1,4 @@
-ka.FieldTypes.Select = new Class({
+ka.FieldTypes.TextboxList = new Class({
     
     Extends: ka.FieldAbstract,
 

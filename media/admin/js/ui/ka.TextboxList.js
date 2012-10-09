@@ -1,8 +1,11 @@
 ka.TextboxList = new Class({
     Extends: ka.Select,
 
-
     value: [],
+
+    options: {
+        selectFirst: false
+    },
 
     clear: function(){
 
@@ -65,7 +68,7 @@ ka.TextboxList = new Class({
         return this.value;
     },
 
-    setValue: function(pValue){
+    setValue: function(pValue, pInternal){
 
         if (typeOf(pValue) != 'array')
             pValue = [pValue];

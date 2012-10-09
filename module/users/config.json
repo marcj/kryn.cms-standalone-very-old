@@ -126,7 +126,7 @@
                         "type": "text"
                     },
                     "group": {
-                        "type": "textlist",
+                        "type": "textboxList",
                         "multi": true,
                         "store": "admin\/backend\/stores\/groups"
                     }

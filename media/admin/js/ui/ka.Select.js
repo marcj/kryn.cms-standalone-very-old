@@ -142,9 +142,23 @@ ka.Select = new Class({
             }
 
             if (typeOf(this.options.items) == 'array'){
-                Array.each(this.options.items, function(label){
-                    this.items.push({key: label, label: label});
-                }.bind(this));
+                if (this.options.itemsKey){
+
+                    if (this.options.itemsLabel){
+                        Array.each(this.options.items, function(item){
+                            this.items.push({key: item[this.options.itemsKey], label: item[this.options.itemsLabel]});
+                        }.bind(this));
+                    } else {
+                        Array.each(this.options.items, function(item){
+                            this.items.push({key: item[this.options.itemsKey], label: item});
+                        }.bind(this));
+                    }
+
+                } else {
+                    Array.each(this.options.items, function(label){
+                        this.items.push({key: label, label: label});
+                    }.bind(this));
+                }
             }
 
         } else if (this.options.object){

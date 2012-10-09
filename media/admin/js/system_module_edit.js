@@ -2976,10 +2976,10 @@ var admin_system_module_edit = new Class({
 
             __cdn__: {
                 type: 'childrenSwitcher',
-                label: tc('extensionEditor', 'CDN driver'),
+                label: tc('extensionEditor', 'FAL driver'),
                 depends: {
 
-                    cdn_driver: {
+                    falDriver: {
                         type: 'array',
                         label: t('CDN Driver'),
                         desc: t('Here you can define driver for the file abstraction layer. The class has to be in module/&lt;extKey&gt;/&lt;class&gt;.class.php'),

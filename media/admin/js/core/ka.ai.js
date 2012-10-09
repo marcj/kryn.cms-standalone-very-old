@@ -185,6 +185,37 @@ window.ka.entrypoint = {
 };
 
 /**
+ * Adds a prefix to the keys of pFields.
+ * Good to group some values of fields of ka.Parse.
+ *
+ * Example:
+ *
+ *   pFields = {
+ *      field1: {type: 'text', label: 'Field 1'},
+ *      field2: {type: 'checkbox', label: 'Field 2'}
+ *   }
+ *
+ *   pPrefix = 'options'
+ *
+ *   pFields will be changed to:
+ *   {
+ *      'options[field1]': {type: 'text', label: 'Field 1'},
+ *      'options[field2]': {type: 'checkbox', label: 'Field 2'}
+ *   }
+ *
+ * @param {Array} pFields Reference to object.
+ * @param {String} pPrefix
+ */
+ka.addFieldKeyPrefix = function(pFields, pPrefix){
+    Object.each(pFields, function(field, key){
+        pFields[pPrefix+'['+key+']'] = field;
+        delete pFields[key];
+        if (pFields.children)
+            ka.addFieldKeyPrefix(field.children, pPrefix);
+    });
+}
+
+/**
  * Resolve path notations and returns the appropriate class.
  * @param {String} pClassPath
  * @return {Class|Function}

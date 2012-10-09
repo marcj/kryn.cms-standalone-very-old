@@ -335,7 +335,7 @@ class PropelHelper {
             if (!trim($query)) continue;
             try {
                 dbExec($query);
-            } catch (Exception $e){
+            } catch (\PDOException $e){
                 $result .= "[error] $query -> $e\n";
             }
         }

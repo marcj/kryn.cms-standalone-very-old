@@ -203,21 +203,25 @@ ka.FieldTypes.Array = new Class({
 
         Object.each(this.options.fields, function (field, field_key) {
 
-            if (!field.panel_width) field.panel_width = '100%';
-
             var copy = Object.clone(field);
-            field.noWrapper = 1;
+            copy.noWrapper = 1;
 
             var td = new Element('td', {
-                'class': 'ka-field'
+                'class': 'ka-field',
+                valign: 'top'
             }).inject(tr);
 
-            var nField = new ka.Field(field, td, {win: this.win});
+            if (copy.children){
+                var parseFields = {};
+                parseFields[field_key] = copy;
+                var nField = new ka.Parse(td, parseFields, {allTableItems: true}, {win: this.win});
+            } else {
+                var nField = new ka.Field(copy, td, {win: this.win});
+            }
 
             nField.addEvent('change', this.fieldInstance.fireChange);
 
-
-            if (pValue && pValue[field_key]) {
+            if (pValue && pValue[field_key]){
                 nField.setValue(pValue[field_key]);
             }
 
@@ -226,7 +230,7 @@ ka.FieldTypes.Array = new Class({
         }.bind(this));
 
         if (this.options.withOrder || !this.options.withoutRemove){
-            var td = new Element('td').inject(tr);
+            var td = new Element('td', {valign: 'top'}).inject(tr);
         }
 
         if (this.options.withOrder){
