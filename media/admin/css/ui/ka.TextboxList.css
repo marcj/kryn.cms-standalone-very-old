@@ -28,3 +28,13 @@
 .ka-textboxList-item-closer:hover {
     color: gray;
 }
+
+.ka-TextboxList {
+    min-height: 20px;
+    height: auto;
+}
+
+.ka-TextboxList > .ka-Select-box-title {
+    white-space: normal;
+    padding-bottom: 1px;
+}

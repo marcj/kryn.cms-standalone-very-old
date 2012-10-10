@@ -7,6 +7,11 @@ ka.TextboxList = new Class({
         selectFirst: false
     },
 
+    createLayout: function(){
+        this.parent();
+        this.box.addClass('ka-TextboxList');
+    },
+
     clear: function(){
 
         this.value = [];
