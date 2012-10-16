@@ -23,28 +23,26 @@ class Config {
     public static function saveConfig() {
         global $cfg;
 
-        $settings = admin::getSettings();
+        $cfg = include('config.php');
         $res = array();
-
-        if ($settings['system']['communityEmail'] != getArgv('communityEmail')
-            && getArgv('communityEmail') != ''
-        )
-            $res['needPw'] = true;
-
-        if (getArgv('communityEmail') == '') {
-            $_REQUEST['communityId'] = '';
-            $_POST['communityId'] = '';
-            $blacklist = array('languages');
-        } else {
-            $blacklist = array('communityEmail', 'communityId', 'languages');
-        }
+//
+//        if ($settings['system']['communityEmail'] != getArgv('communityEmail')
+//            && getArgv('communityEmail') != ''
+//        )
+//            $res['needPw'] = true;
+//
+//        if (getArgv('communityEmail') == '') {
+//            $_REQUEST['communityId'] = '';
+//            $_POST['communityId'] = '';
+//            $blacklist = array('languages');
+//        } else {
+//            $blacklist = array('communityEmail', 'communityId', 'languages');
+//        }
 
         $blacklist[] = 'passwd_hash_key';
 
         if (!getArgv('sessiontime'))
             $_REQUEST['sessiontime'] = 3600;
-
-        include('inc/config.php');
 
         foreach ($_POST as $key => $value) {
             if (!in_array($key, $blacklist)) {
@@ -52,7 +50,9 @@ class Config {
             }
         }
 
-        kryn::fileWrite('inc/config.php', "<?php \n\$cfg = " . var_export($cfg, true) . "\n?>");
+        die("<?php \n\return " . var_export($cfg, true) . "\n?>");
+
+        file_put_contents('inc/config.php', "<?php \n\return " . var_export($cfg, true) . "\n?>");
 
         dbUpdate('system_langs', array('visible' => 1), array('visible' => 0));
         $langs = getArgv('languages');

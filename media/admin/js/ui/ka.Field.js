@@ -141,7 +141,7 @@ ka.Field = new Class({
             }
 
             if (this.field.desc) {
-                new Element('div', {
+                this.descText = new Element('div', {
                     'class': 'desc',
                     html: this.field.desc
                 }).inject(this.title);

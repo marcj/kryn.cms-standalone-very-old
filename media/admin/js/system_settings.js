@@ -1,6 +1,6 @@
 var admin_system_settings = new Class({
 
-    Binds: ['renderData'],
+    Binds: ['renderData', 'save'],
 
     systemValues: {},
 
@@ -77,38 +77,8 @@ var admin_system_settings = new Class({
                         label: t('Caching driver'),
                         type: 'select',
                         items: {
-                            files: t('Files'),
-                            memcached: t('Memcached'),
-                            redis: t('Redis')
                         },
                         children: {
-                            'cache[class][files][path]': {
-                                label: t('Directory'),
-                                'default': 'cache/objects/'
-                            },
-                            'cache[class][memcached][server]': {
-                                needValue: ['memcached', 'redis'],
-                                'label': 'Servers',
-                                'type': 'array',
-                                startWith: 1,
-                                'width': 310,
-                                'columns': [
-                                    {'label': _('IP')},
-                                    {'label': _('Port'), width: 50}
-                                ],
-                                'fields': {
-                                    ip: {
-                                        type: 'text',
-                                        width: '95%',
-                                        empty: false
-                                    },
-                                    port: {
-                                        type: 'number',
-                                        width: 50,
-                                        empty: false
-                                    }
-                                }
-                            }
                         }
                     },
                     '__errorLog__': {
@@ -206,27 +176,28 @@ var admin_system_settings = new Class({
                 children: {
                     'client[class]': {
                         type: 'select',
-                        label: t('Client authentication'),
+                        label: t('Backend client driver'),
+                        desc: t('Login, session processing etc. The user "admin" always authenticate against the Kryn.cms users database.'),
                         items: {
-                            'coreUsers': t('Kryn.cms users database')
+                            '\\Core\\Client\\KrynUsers': t('Kryn.cms users database')
                         },
                         children: {
-                            'client[config][coreUsers][email_login]': {
+                            'client[config][\\Core\\Client\\KrynUsers][email_login]': {
                                 'label': t('Allow email login'),
                                 'type': 'checkbox',
-                                'needValue': 'coreUsers'
+                                'needValue': '\\Core\\Client\\KrynUsers'
                             },
-                            'client[config][coreUsers][timeout]': {
+                            'client[config][\\Core\\Client\\KrynUsers][timeout]': {
                                 label: t('Session timeout'),
                                 type: 'text',
                                 'default': '3600',
-                                'needValue': 'coreUsers'
+                                'needValue': '\\Core\\Client\\KrynUsers'
                             },
-                            'client[config][coreUsers][passwordHashCompat]': {
+                            'client[config][\\Core\\Client\\KrynUsers][passwordHashCompat]': {
                                 'type': 'checkbox',
                                 'label': t('Activate the compatibility in the authentication with older Kryn.cms'),
                                 'default': 1,
-                                'needValue': 'coreUsers',
+                                'needValue': '\\Core\\Client\\KrynUsers',
                                 'desc': t('If you did upgrade from a older version than 1.0 than you should probably let this checkbox active.')
                             }
                         }
@@ -235,15 +206,9 @@ var admin_system_settings = new Class({
                         type: 'select',
                         label: t('Session storage'),
                         items: {
-                            'files': t('Local files')
+                            '\\Core\\Cache\\PHPSessions': t('PHP-Sessions')
                         },
                         children: {
-                            'session[config][files][path]': {
-                                type: 'text',
-                                label: t('Directory'),
-                                desc: t('Relative to installation root.'),
-                                'default': 'cache/objects/'
-                            }
                         }
                     },
                     '__info__': {
@@ -256,8 +221,9 @@ var admin_system_settings = new Class({
 
         };
 
-        //map FAL driver
         Object.each(ka.settings.configs, function(config){
+
+            //map FAL driver
             if (config.falDriver){
                 if (!fields.__media__.children.mounts.fields.driver.items)
                     fields.__media__.children.mounts.fields.driver.items = {};
@@ -266,29 +232,69 @@ var admin_system_settings = new Class({
                     fields.__media__.children.mounts.fields.driver.children = {};
 
                 Object.each(config.falDriver, function(driver, key){
-                    fields.__media__.children.mounts.fields.driver.items[key] = driver.title;
+                    fields.__media__.children.mounts.fields.driver.items[driver.class] = driver.title;
 
                     if (driver.properties){
                         Object.each(driver.properties, function(property){
-                           property.needValue = key;
+                           property.needValue = driver.class;
                         });
-                        ka.addFieldKeyPrefix(driver.properties, 'driverOptions['+key+']')
+                        ka.addFieldKeyPrefix(driver.properties, 'driverOptions['+driver.class+']')
                         Object.append(fields.__media__.children.mounts.fields.driver.children, driver.properties);
                     }
                 });
-
-
            }
+
+            //map Auth driver
+            if (config.clientDriver){
+
+                Object.each(config.clientDriver, function(driver, key){
+                    fields.__client__.children['client[class]'].items[driver.class] = driver.title;
+
+                    if (driver.properties){
+                        Object.each(driver.properties, function(property){
+                            property.needValue = driver.class;
+                        });
+                        var properties = Object.clone(driver.properties);
+                        ka.addFieldKeyPrefix(properties, 'client[config]['+driver.class+']')
+                        Object.append(fields.__client__.children['client[class]'].children, properties);
+                    }
+                });
+            }
+
+            //map cache driver
+            if (config.cacheDriver){
+
+                Object.each(config.cacheDriver, function(driver, key){
+                    fields.__system__.children['cache[class]'].items[driver.class] = driver.title;
+
+                    if (driver.properties){
+                        Object.each(driver.properties, function(property){
+                            property.needValue = driver.class;
+                        });
+                        var properties = Object.clone(driver.properties);
+                        ka.addFieldKeyPrefix(properties, 'cache[config]['+driver.class+']')
+                        Object.append(fields.__system__.children['cache[class]'].children, properties);
+                    }
+
+
+                    fields.__client__.children['session[class]'].items[driver.class] = driver.title;
+
+                    if (driver.properties){
+                        Object.each(driver.properties, function(property){
+                            property.needValue = driver.class;
+                        });
+                        var properties = Object.clone(driver.properties);
+                        ka.addFieldKeyPrefix(properties, 'session[config]['+driver.class+']')
+                        Object.append(fields.__client__.children['session[class]'].children, properties);
+                    }
+                });
+            }
+
         });
 
-        //authentication driver
+        this.bottomBar = this.win.addBottomBar();
 
-        //session storage driver and caching driver
-
-
-        logger(fields.__media__.children.mounts);
-
-
+        this.saveBtn = this.bottomBar.addButton(t('Save')).setButtonStyle('blue').addEvent('click', this.save);
 
         this.fieldObject = new ka.Parse(this.win.content, fields, {
             tabsInWindowHeader: true
@@ -298,7 +304,40 @@ var admin_system_settings = new Class({
 
         this.load();
 
-        return;
+    },
+
+
+
+    save: function(){
+
+        var data = this.fieldObject.getValue();
+
+        //map config
+
+        data.session.config = data.session.config ? data.session.config[data.session.class]:{};
+        data.client.config = data.client.config ? data.client.config[data.client.class]:{};
+        data.cache.config = data.cache.config ? data.cache.config[data.cache.class]:{};
+
+        logger(data);
+
+        this.saveBtn.startTip(t('Saving ...'));
+
+        if (this.lastSave)
+            this.lastSave.cancel();
+
+        this.lastSave = new Request.JSON({url: _path+'admin/system/config', onComplete: function(pResponse){
+
+            if (pResponse.error){
+                this.win.alert(pResponse.error+': '+pResponse.message);
+                this.saveBtn.stopTip(t('Failed'));
+            } else {
+                this.saveBtn.stopTip(t('Done'));
+            }
+
+        }.bind(this)}).post(data);
+    },
+
+    penes: function(){
 
         //        this.panes['install'] = new Element('div', {
         //            'class': 'admin-system-module-pane'
@@ -661,7 +700,7 @@ var admin_system_settings = new Class({
 //        }.bind(this)}).get();
     },
 
-    save: function () {
+    save23: function () {
         var req = {};
         var dontGo = false;
 

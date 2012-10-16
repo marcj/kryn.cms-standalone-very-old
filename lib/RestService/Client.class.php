@@ -72,6 +72,8 @@ class Client {
 
             );
             header('HTTP/1.0 '.$httpMap[$pHttpCode]?$httpMap[$pHttpCode]:$pHttpCode);
+        } else {
+            header('HTTP/1.0 200 OK');
         }
 
         $pMessage = array_reverse($pMessage, true); 

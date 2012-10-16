@@ -19,6 +19,7 @@ Request.JSON = new Class({
 
     send: function(options){
         this.data = options.data;
+        this.options.url += (this.options.url.indexOf('?') == -1 ? '?':'&') + '_suppress_status_code=1';
         return this.parent(options);
     },
 

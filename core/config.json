@@ -29,6 +29,52 @@
         "default": "0"
     }
   },
+  "cacheDriver": {
+    "files": {
+        "title": "Files",
+        "class": "\\Core\\Cache\\Files",
+        "properties": {
+            "path": {
+                "label": "[[Path]]",
+                "type": "text",
+                "default": "cache/object/",
+                "desc": "[[Relative to install root]]"
+            }
+        }
+    },
+    "apc": {
+        "title": "APC",
+        "class": "\\Core\\Cache\\APC"
+    },
+    "redis": {
+        "title": "Redis",
+        "class": "\\Core\\Cache\\Redis",
+        "properties": {
+            "servers": {
+                "label": "Servers",
+                "type": "array",
+                "startWith": 1,
+                "asHash": 1,
+                "columns": [
+                    {"label": "[[IP]]"},
+                    {"label": "[[Port]]", "width": 50}
+                ],
+                "fields": {
+                    "ip": {
+                        "type": "text",
+                        "width": "95%",
+                        "empty": false
+                    },
+                    "port": {
+                        "type": "number",
+                        "width": 50,
+                        "empty": false
+                    }
+                }
+            }
+        }
+    }
+  },
   "themes": {
     "Kryn.cms": {
       "layouts": [

@@ -84,122 +84,139 @@
             "sql": "SELECT s.time, s.ip, u.username FROM %pfx%system_sessions s, %pfx%system_user u WHERE u.id = s.user_id AND u.id > 0"
         }
     },
-    "auth": {
-        "auth_imap": {
-            "server": {
-                "label": "[[Server]]",
-                "type": "text"
-            },
-            "port": {
-                "label": "[[Port]]",
-                "type": "number",
-                "width": 50
-            },
-            "ssl": {
-                "label": "SSL",
-                "type": "checkbox"
-            },
-            "novalidate-cert": {
-                "label": "[[No cert validation]]",
-                "type": "checkbox"
-            },
-            "tls": {
-                "label": "TLS",
-                "type": "checkbox"
-            },
-            "default_group": {
-                "label": "[[Login mapping]]",
-                "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
-                "type": "array",
-                "startWith": 1,
-                "columns": [
-                    {
-                        "label": "[[Login]]"
-                    },
-                    {
-                        "label": "[[Group]]",
-                        "width": "65%"
-                    }
-                ],
-                "fields": {
-                    "login": {
-                        "type": "text"
-                    },
-                    "group": {
-                        "type": "textboxList",
-                        "multi": true,
-                        "store": "admin\/backend\/stores\/groups"
+    "clientDriver": {
+        "imap": {
+            "title": "Imap",
+            "class": "\\Core\\Client\\Imap",
+            "properties": {
+                "server": {
+                    "label": "[[Server]]",
+                    "type": "text"
+                },
+                "port": {
+                    "label": "[[Port]]",
+                    "type": "number",
+                    "inputWidth": 50
+                },
+                "ssl": {
+                    "label": "SSL",
+                    "type": "checkbox"
+                },
+                "novalidate-cert": {
+                    "label": "[[No cert validation]]",
+                    "type": "checkbox"
+                },
+                "tls": {
+                    "label": "TLS",
+                    "type": "checkbox"
+                },
+                "default_group": {
+                    "label": "[[Login mapping]]",
+                    "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
+                    "type": "array",
+                    "startWith": 1,
+                    "columns": [
+                        {
+                            "label": "[[Login]]"
+                        },
+                        {
+                            "label": "[[Group]]",
+                            "width": "65%"
+                        }
+                    ],
+                    "fields": {
+                        "login": {
+                            "type": "text"
+                        },
+                        "group": {
+                            "type": "textboxList",
+                            "object": "group"
+                        }
                     }
                 }
             }
         },
-        "auth_ldap": {
-            "server": {
-                "label": "Server",
-                "type": "text"
-            }
-        },
-        "auth_ftp": {
-            "server": {
-                "label": "Server",
-                "type": "text"
-            },
-            "port": {
-                "label": "Port",
-                "type": "number",
-                "width": 50
-            },
-            "ssl": {
-                "label": "SSL",
-                "type": "checkbox"
-            },
-            "default_group": {
-                "label": "[[Group mapping]]",
-                "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
-                "type": "array",
-                "columns": [
-                    {
-                        "label": "Login"
-                    },
-                    {
-                        "label": "Group",
-                        "width": "65%"
-                    }
-                ],
-                "fields": {
-                    "login": {
-                        "type": "text"
-                    },
-                    "group": {
-                        "type": "textlist",
-                        "multi": true,
-                        "store": "admin\/backend\/stores\/groups"
+        "ftp": {
+            "title": "FTP",
+            "class": "\\Core\\Client\\FTP",
+            "properties": {
+                "server": {
+                    "label": "Server",
+                    "type": "text"
+                },
+                "port": {
+                    "label": "Port",
+                    "type": "number",
+                    "width": 50
+                },
+                "ssl": {
+                    "label": "SSL",
+                    "type": "checkbox"
+                },
+                "default_group": {
+                    "label": "[[Group mapping]]",
+                    "desc": "[[Regular expression are possible in the login field. The group will be attached after the first login.]]",
+                    "type": "array",
+                    "columns": [
+                        {
+                            "label": "Login"
+                        },
+                        {
+                            "label": "Group",
+                            "width": "65%"
+                        }
+                    ],
+                    "fields": {
+                        "login": {
+                            "type": "text"
+                        },
+                        "group": {
+                            "type": "textlist",
+                            "multi": true,
+                            "store": "admin\/backend\/stores\/groups"
+                        }
                     }
                 }
             }
         },
         "auth_sql": {
-            "server": {
-                "label": "Server",
-                "type": "text"
+            "title": "SQL",
+            "class": "\\Core\\Client\\SQL",
+            "properties": {
+                "server": {
+                    "label": "Server",
+                    "type": "text"
+                }
             }
         },
         "auth_pam": {
-            "server": {
-                "label": "Server",
-                "type": "text"
+            "title": "PAM",
+            "class": "\\Core\\Client\\PAM",
+            "properties": {
+                "server": {
+                    "label": "Server",
+                    "type": "text"
+                }
             }
         },
         "auth_passwd": {
-            "server": {
-                "label": "Server",
-                "type": "text"
+            "title": "Passwd",
+            "class": "\\Core\\Client\\Passwd",
+            "properties": {
+                "server": {
+                    "label": "Server",
+                    "type": "text"
+                }
             }
         },
         "auth_samba": {
-            "server": {
-                "label": "Server",
-                "type": "text"
+            "title": "Samba",
+            "class": "\\Core\\Client\\Samba",
+            "properties": {
+                "server": {
+                    "label": "Server",
+                    "type": "text"
+                }
             }
         }
     },
