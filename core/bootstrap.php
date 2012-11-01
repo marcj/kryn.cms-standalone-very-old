@@ -27,8 +27,8 @@ error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_
 
 @ini_set('display_errors', 0);
 
-if (!$_GET['__url'] && $_SERVER['PATH_INFO'])
-    $_GET['__url'] = substr($_SERVER['PATH_INFO'], 1);
+if (substr($_SERVER['PATH_INFO'], 0, 1) == '/')
+    $_SERVER['PATH_INFO'] = substr($_SERVER['PATH_INFO'], 1);
 
 /**
  * Define global functions.

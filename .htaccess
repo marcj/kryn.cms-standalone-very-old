@@ -1,8 +1,6 @@
 RewriteEngine On
 #RewriteBase /
 
-options -Indexes
-
 <IfModule mod_php5.c>
     php_flag magic_quotes_gpc Off
 </IfModule>
@@ -17,4 +15,4 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^.* - [L]
 
-RewriteRule ^(.+)$ index.php?__url=$1&%{query_string} [E=PORT:%{SERVER_PORT},L]
+RewriteRule ^(.+)$ index.php/$1?%{query_string} [E=PORT:%{SERVER_PORT},L]

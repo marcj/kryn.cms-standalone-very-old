@@ -90,13 +90,6 @@ class Server {
 
 
     /**
-     * From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
-     * @var string
-     */
-    private $rewrittenRuleKey = '__url';
-
-
-    /**
      * List of excluded methods.
      *
      * @var array|string array('methodOne', 'methodTwo') or * for all methods
@@ -167,14 +160,11 @@ class Server {
      *
      * @param string        $pTriggerUrl
      * @param string|object $pControllerClass
-     * @param string        $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      * @param RestService\Server $pParentController
      */
-    public function __construct($pTriggerUrl, $pControllerClass = null, $pRewrittenRuleKey = '__url',
-                                $pParentController = null){
+    public function __construct($pTriggerUrl, $pControllerClass = null, $pParentController = null){
 
         $this->normalizeUrl($pTriggerUrl);
-        $this->setRewrittenRuleKey($pRewrittenRuleKey);
 
         if ($pParentController){
             $this->parentController = $pParentController;
@@ -208,13 +198,12 @@ class Server {
      *
      * @param string $pTriggerUrl
      * @param string $pControllerClass
-     * @param string $pRewrittenRuleKey From the rewrite rule: RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}
      *
      * @return Server $this
      */
-    public static function create($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
+    public static function create($pTriggerUrl, $pControllerClass = ''){
         $clazz = get_called_class();
-        return new $clazz($pTriggerUrl, $pControllerClass, $pRewrittenRuleKey);
+        return new $clazz($pTriggerUrl, $pControllerClass);
     }
 
     /** 
@@ -235,27 +224,6 @@ class Server {
      */
     public function getHttpStatusCodes(){
         return $this->withStatusCode;
-    }
-
-    /**
-     * Returns the rewritten rule key.
-     *
-     * @return string
-     */
-    public function getRewrittenRuleKey(){
-        return $this->rewrittenRuleKey;
-    }
-
-
-    /**
-     * Sets the rewritten rule key.
-     * @param string $pRewrittenRuleKey
-     *
-     * @return Server $this
-     */
-    public function setRewrittenRuleKey($pRewrittenRuleKey){
-        $this->rewrittenRuleKey = $pRewrittenRuleKey;
-        return $this;
     }
 
     /**
@@ -645,16 +613,14 @@ class Server {
      *
      * @param string $pTriggerUrl
      * @param mixed $pControllerClass A class name (autoloader required) or a instance of a class.
-     * @param string $pRewrittenRuleKey From the rewrite rule: for __url it's 'RewriteRule ^(.+)$ index.php?__url=$1&%{query_string}'
      *
      * @return Server new created Server. Use done() to switch the context back to the parent.
      */
-    public function addSubController($pTriggerUrl, $pControllerClass = '', $pRewrittenRuleKey = '__url'){
+    public function addSubController($pTriggerUrl, $pControllerClass = ''){
 
         $this->normalizeUrl($pTriggerUrl);
 
-        $controller = new Server($this->triggerUrl.'/'.$pTriggerUrl, $pControllerClass,
-            $pRewrittenRuleKey?$pRewrittenRuleKey:$this->rewrittenRuleKey, $this);
+        $controller = new Server($this->triggerUrl.'/'.$pTriggerUrl, $pControllerClass, $this);
 
         $this->controllers[] = $controller;
 
@@ -791,13 +757,14 @@ class Server {
             array_shift($params);
         }
 
+        //collect arguments
         foreach ($params as $param){
             $name = $this->argumentName($param->getName());
 
             if ($name == '_'){
                 $thisArgs = array();
                 foreach ($_GET as $k => $v){
-                    if (substr($k, 0, 1) == '_' && $k != $this->getRewrittenRuleKey())
+                    if (substr($k, 0, 1) == '_' && $k != '_suppress_status_code')
                         $thisArgs[$k] = $v;
                 }
                 $arguments[] = $thisArgs;

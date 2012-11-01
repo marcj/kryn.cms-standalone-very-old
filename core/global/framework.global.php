@@ -58,7 +58,7 @@ function debugPrint($pText = null, $pStop = null){
 function getArgv($pVal, $pEscape = false) {
 
     if (is_numeric($pVal)){
-        $exploded = explode('/', $_GET['__url']);
+        $exploded = explode('/', $_SERVER['PATH_INFO']);
         return $exploded[$pVal-1];
     }
 

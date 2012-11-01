@@ -50,7 +50,7 @@ class Client {
     public function __construct($pServerController){
 
         $this->controller = $pServerController;
-        $this->setUrl($_GET[$this->controller->getRewrittenRuleKey()]);
+        $this->setUrl($_SERVER['PATH_INFO']);
 
         $this->setupFormats();
     }

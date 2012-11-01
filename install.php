@@ -8,7 +8,9 @@
 * To get the full copyright and license information, please view the
 * LICENSE file, that was distributed with this source code.
 */
-mb_internal_encoding("UTF-8");
+if (function_exists('mb_internal_encoding'))
+  mb_internal_encoding("UTF-8");
+
 error_reporting(E_ALL ^ E_NOTICE);
 
 use Core\Kryn;
@@ -890,7 +892,7 @@ function step2(){
             print '<div style="color: '.$color.'">'.$label.'</div>';
         }
         if (!$oneFound){
-            print '<br /><div>There is not available pdo driver.</div>';
+            print '<br /><div>There is no available pdo driver.</div>';
             $anyThingOk = false;
         }
 
@@ -1153,7 +1155,7 @@ function step3(){
 <br />
 <br />
 <a href="?step=2" class="ka-Button" >Back</a>
-<input type="submit" class="ka-Button" value="Write config.php and continue" />
+<input type="submit" class="ka-Button" value="Test connection and write config.php" />
 </form>
 
 <?php

@@ -1215,13 +1215,12 @@ class Kryn {
      */
     public static function prepareUrl() {
 
-        $url = $_GET['__url'];
+        $url = $_SERVER['PATH_INFO'];
 
         if (($pos = strpos($url, '?')) !== false){
             $query = substr($url, $pos+1);
             $url = substr($url, 0, $pos);
             parse_str($query, $_GET);
-            $_GET['__url'] = $url;
         }
 
         if (substr($url, 0, 1) == '/')
@@ -1254,7 +1253,6 @@ class Kryn {
         $f = false;
 
         foreach ($_GET as $k => &$v) {
-            if ($k == '__url') continue;
             if (is_array($v)) continue;
             Kryn::$urlWithGet .= (!$f ? '?' : '&') . urlencode($k) . (($v)?'=' . urlencode($v):'');
             if ($f == false) $f = true;
@@ -1508,13 +1506,12 @@ class Kryn {
      */
     public static function getPossibleLanguage() {
 
-        if (strpos($_GET['__url'], '/') > 0)
-            $first = substr($_GET['__url'], 0, strpos($_GET['__url'], '/'));
+        if (strpos($_SERVER['PATH_INFO'], '/') > 0)
+            $first = substr($_SERVER['PATH_INFO'], 0, strpos($_SERVER['PATH_INFO'], '/'));
         else
-            $first = $_GET['__url'];
+            $first = $_SERVER['PATH_INFO'];
 
         if (self::validLanguage($first)) {
-            $_GET['__url'] = substr($_GET['__url'], strlen($first) + 1); //cut langcode
             return $first;
         }
 
@@ -1630,14 +1627,12 @@ class Kryn {
             }
 
 
-            $tUrl = explode("?", $_GET['__url']);
-            if (substr($tUrl[0], -1) == '/') {
+            if (substr($_SERVER['PATH_INFO'], -1) == '/') {
                 $get = array();
                 foreach ($_GET as $k => $v)
-                    if ($k != '__url')
-                        $get[] = $k . "=" . $v;
+                    $get[] = $k . "=" . $v;
 
-                $toUrl = substr($tUrl[0], 0, -1);
+                $toUrl = substr($_SERVER['PATH_INFO'], 0, -1);
                 if (count($get) > 0)
                     $toUrl .= '?' . implode("&", $get);
 
