@@ -1,3 +1,9 @@
+
+.ka-Field,
+.ka-Field-inputTd {
+    position: relative;
+}
+
 .ka-field-main {
     padding: 3px 5px 3px 5px;
 }
@@ -38,7 +44,7 @@ h2.ka-field-headline {
 }
 
 .ka-field-main-small .ka-field-title div.title {
-    width: 187px;
+    max-width: 187px;
 }
 
 .ka-field-title {
@@ -60,7 +66,7 @@ tr.ka-field-main > td div.desc {
 .ka-field-title div.title {
     border-bottom: 1px solid #ddd;
     padding: 1px 1px 1px 10px;
-    width: 312px;
+    max-width: 312px;
     font-size: 11px;
 }
 
@@ -285,4 +291,29 @@ input.ka-field-dateTime {
 
 .ka-field-condition-withoutRel .ka-field-condition-relContainer .ka-Select-box {
     display: none;
+}
+
+
+
+
+.ka-Field-invalid-icon {
+    position: absolute;
+    top: 3px;
+    left: -22px;
+    margin-left: 2px;
+    font-size: 14px;
+    text-decoration:blink;
+}
+
+.ka-Field-invalid-text {
+    color: red;
+    font-size: 10px;
+    padding-top: 3px;
+}
+
+
+.ka-Field-designMode-actions {
+    position: absolute;
+    right: 2px;
+    top: 2px;
 }

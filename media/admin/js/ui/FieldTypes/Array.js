@@ -229,8 +229,9 @@ ka.FieldTypes.Array = new Class({
 
         }.bind(this));
 
+        var td;
         if (this.options.withOrder || !this.options.withoutRemove){
-            var td = new Element('td', {valign: 'top'}).inject(tr);
+            td = new Element('td', {valign: 'top'}).inject(tr);
         }
 
         if (this.options.withOrder){
@@ -249,7 +250,7 @@ ka.FieldTypes.Array = new Class({
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
                 title: t('Move down'),
                 html: '&#xe2cc;'
-            }).addEvent('click', function () {
+            }).addEvent('click', function(){
                 if(tr.getNext())
                     tr.inject(tr.getNext(), 'after');
             }).inject(td);

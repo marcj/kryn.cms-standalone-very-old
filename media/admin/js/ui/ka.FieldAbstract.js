@@ -141,23 +141,47 @@ ka.FieldAbstract = new Class({
     },
 
     /**
-     * Inserts a not-valid warning to the UI.
-     * Please remove it, if pValid is false.
+     * If the entered data is no valid, this will be fired. (possible with each 'change' event)
      *
-     * @param  {Boolean} pValid
+     * @param  {String} pText text to display
      */
-    showNotValid: function(pValid){
+    showNotValid: function(pText){
 
-        if (this.emptyIcon) this.emptyIcon.destroy();
-        if (!this.input) return;
+        if (this.invalidIcon) return; //we're already displaying invalid stuff
 
-        if (pValid) return;
+        this.invalidIcon = new Element('div', {
+            'class': 'ka-Field-invalid-icon icon-warning blink'
+        }).inject(this.wrapper || this.input, 'after');
 
-        this.emptyIcon = new Element('div', {
-            'class': 'ka-Input-warning icon-warning blink'
-        }).inject(this.input.getParent());
+        var text = pText || this.options.notValidText || t('The current value is invalid.');
 
-        this.input.set('class', this.input.get('class') + ' empty');
+        this.invalidText = new Element('div', {
+            'class': 'ka-Field-invalid-text',
+            text: text
+        }).inject(this.wrapper || this.input, 'after');
+
+        if (this.input && this.input.get('tag') == 'input')
+            this.input.addClass('ka-Input-invalid');
+
+    },
+
+    /**
+     * If the entered data is valid, this will be fired. (possible with each 'change' event)
+     *
+     */
+    showValid: function(){
+
+        if (this.invalidIcon){
+            //we was invalid before, highlight a smooth green
+            this.input.highlight('green');
+
+            if (this.input && this.input.get('tag') == 'input')
+                this.input.removeClass('ka-Input-invalid');
+
+            //remove the invalid icon and text
+            this.invalidIcon.destroy();
+            this.invalidText.destroy();
+        }
 
     }
 

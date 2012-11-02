@@ -75,7 +75,7 @@ ka.FieldProperty = new Class({
                 //datetime, date
                 format: {
                     type: 'text',
-                    label: t('Date format (Optional)'),
+                    label: t('Date format'),
                     help: 'admin/field-date-format',
                     needValue: ['date', 'datetime'],
                     againstField: 'type',
@@ -162,7 +162,7 @@ ka.FieldProperty = new Class({
                 },
                 'objectLabel': {
                     needValue: 'object',
-                    label: t('Object label field (Optional)'),
+                    label: t('Object label field'),
                     desc: t('The key of the field which should be used as label')
                 },
 
@@ -179,14 +179,14 @@ ka.FieldProperty = new Class({
                 'objectRelationTable': {
                     needValue: 'nToM',
                     againstField: 'objectRelation',
-                    label :t('Relation table name (Optional)'),
+                    label :t('Relation table name'),
                     desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value.')
                 },
                 
                 'objectRelationPhpName': {
                     needValue: 'nToM',
                     againstField: 'objectRelation',
-                    label: t('Relation table php name (Optional)'),
+                    label: t('Relation table php name'),
                     desc: t('Default is the camelCased table name.')
                 },
 
@@ -251,59 +251,59 @@ ka.FieldProperty = new Class({
             type: 'childrenSwitcher',
             children: {
                 desc: {
-                    label: t('Description (Optional)'),
+                    label: t('Description'),
                     type: 'text'
                 },
                 required: {
-                    label: t('Required field? (Optional)'),
+                    label: t('Required field?'),
                     type: 'checkbox',
                     'default': false
                 },
                 inputWidth: {
-                    label: t('Input element width (Optional)'),
+                    label: t('Input element width'),
                     needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime', 'date'],
                     againstField: 'type',
                     type: 'text'
                 },
                 inputHeight: {
-                    label: t('Input element height (Optional)'),
+                    label: t('Input element height'),
                     needValue: ['textarea', 'codemirror'],
                     againstField: 'type',
                     type: 'text'
                 },
                 maxlength: {
-                    label: t('Max length (Optional)'),
+                    label: t('Max length'),
                     needValue: ['text', 'number', 'password'],
                     againstField: 'type',
                     type: 'text'
                 },
                 target: {
-                    label: t('Inject to target (Optional)'),
+                    label: t('Inject to target'),
                     desc: t('If your tab has a own layout.'),
                     type: 'text'
                 },
                 'needValue': {
-                    label: tc('kaFieldTable', 'Visibility condition (Optional)'),
+                    label: tc('kaFieldTable', 'Visibility condition'),
                     desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
                 },
                 againstField: {
-                    label: tc('kaFieldTable', 'Visibility condition target field (Optional)'),
+                    label: tc('kaFieldTable', 'Visibility condition target field'),
                     desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
                 },
                 'default': {
                     againstField: 'type',
                     type: 'text',
-                    label: t('Default value. Use JSON notation for arrays and objects. (Optional)')
+                    label: t('Default value. Use JSON notation for arrays and objects.')
                 },
-                'requiredRegexp': {
+                'requiredRegex': {
                     needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
                     againstField: 'type',
                     type: 'text',
-                    label: t('Required value as regular expression. (Optional)'),
-                    desc: t('Example of an email-check: /^[^@]+@[^@]{3,}\.[^\.@0-9]{2,}$/')
+                    label: t('Required value as regular expression.'),
+                    desc: t('Example of an email-check: /^[^@]+@[^@]+/')
                 },
                 tableItem: {
-                    label: t('Acts as a table item (Optional)'),
+                    label: t('Acts as a table item'),
                     desc: t('Injects instead of a DIV a TR element.'),
                     type: 'checkbox',
                     'default': false
@@ -548,6 +548,8 @@ ka.FieldProperty = new Class({
                 allTableItems: this.options.allTableItems,
                 tableitem_title_width: this.options.tableitem_title_width
             }, {win:this.win});
+
+            this.fieldObject.setValue(this.definition);
 
             this.fieldObject.addEvent('change', this.fireChange);
 

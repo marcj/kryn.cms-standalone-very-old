@@ -136,7 +136,9 @@ ka.Parse = new Class({
             if (this.options.tableitem_title_width)
                 field.tableitem_title_width = this.options.tableitem_title_width;
 
-            var target = pContainer.getElement('*[id=' + id + ']') || pContainer.getElement('*[id=default]');
+            var target = pContainer.getElement('*[id=' + field.target + ']') ||
+                         pContainer.getElement('*[id=' + id + ']') ||
+                         pContainer.getElement('*[id=__default__]');
 
             if (!target)
                 target = pContainer;
@@ -173,7 +175,7 @@ ka.Parse = new Class({
                 obj.childContainer = tab.pane;
                 obj.parent = pDependField;
                 obj.depends = {};
-                obj.toElement = function(){return tab.button};
+                obj.toElement = function(){return tab.button; };
 
                 obj.setValue = function(){return true;};
                 obj.getValue = function(){return true;};

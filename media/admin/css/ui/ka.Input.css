@@ -58,11 +58,8 @@ input.text-inactive:focus {
     background: #f1f1f1;
 }
 
-.ka-Input-warning {
-    position: absolute;
-    top: 6px;
-    left: -22px;
-    margin-left: 2px;
-    font-size: 14px;
-    text-decoration:blink;
+
+.ka-Input-invalid,
+.ka-Input-invalid:focus {
+    border: 1px solid red;
 }

@@ -36,7 +36,8 @@
     left: 0px;
     padding-left: 5px;
     right: 400px;
-    height: 30px;
+    height: 27px;
+    padding-top: 3px;
     bottom: 0px;
 }
 
@@ -69,7 +70,7 @@
 
 .ka-system-module-editWindow-windowInspector-content {
     position: absolute;
-    bottom: 31px;
+    bottom: 0px;
     left: 0px;
     overflow: auto;
     right: 0px;

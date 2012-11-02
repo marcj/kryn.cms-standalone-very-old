@@ -16,20 +16,16 @@ class UserEdit extends \Admin\ObjectWindow {
         '__general__' => array(
             'type' => 'tab',
             'label' => '[[General]]',
-            'layout' => '   <table width="100%"><tr>
+            'layout' => '   <table width="600"><tr>
                                 <td width="110">
-                                     <div style="height: 100px; margin:5px" id="picture"></div>
+                                     <div style="height: 100px; padding-left: 28px; margin:5px" id="picture"></div>
                                 </td>
-                                <td>
-                                    <div id="firstName"></div>
-                                    <div style="clear: both"></div>
-                                    <div id="lastName"></div>
-                                    <div style="clear: both"></div>
+                                <td id="names">
                                 </td>
                             </tr><tr>
                                 <td colspan="2" style="padding: 10px;">
                                     <table width="100%">
-                                        <tbody id="default"></tbody>
+                                        <tbody id="__default__"></tbody>
                                     </table>
                                 </td>
                             </tr></table>',
@@ -42,14 +38,14 @@ class UserEdit extends \Admin\ObjectWindow {
                 'firstName' => array(
                     'label' => 'First name',
                     'target' => 'name',
-                    'small' => 1,
-                    'type' => 'text'
+                    'type' => 'text',
+                    'target' => 'names'
                 ),
             	'lastName' => array(
                     'label' => 'Last name',
                     'target' => 'lastname',
-                    'small' => 1,
-                    'type' => 'text'
+                    'type' => 'text',
+                    'target' => 'names'
                 ),
                 'company' => array(
                     'label' => 'Company',

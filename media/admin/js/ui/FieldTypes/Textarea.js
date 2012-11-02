@@ -24,8 +24,7 @@ ka.FieldTypes.Textarea = new Class({
             styles: {
                 'width': '100%',
                 'height': this.options.inputHeight
-            },
-            maxLength: this.options.maxLength
+            }
         }).inject(this.wrapper);
 
         this.input.addEvent('change', this.checkChange);

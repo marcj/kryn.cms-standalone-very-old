@@ -28,7 +28,7 @@ ka.Field = new Class({
 
         invisible: false,
 
-        noWrapper: false //doesnt include the ka-field wrapper, and inject the field controls directly to pContainer
+        noWrapper: false //doesnt include the ka-field wrapper (title, description, etc), and inject the field controls directly to pContainer with just a single div around it.
     },
 
     handleChildsMySelf: false, //defines whether this object handles his child visibility itself
@@ -63,17 +63,24 @@ ka.Field = new Class({
         if (this.options.noWrapper){
 
             if (this.field.tableItem) {
+
                 this.tr = new Element('tr', {
+                    'class': 'ka-Field'
                 });
+                
+                this.tr.instance = this;
+
                 this.tr.store('ka.Field', this);
 
                 this.main = new Element('td', {
                     colspan: 2
                 }).inject(this.tr);
+
                 this.tr.inject(pContainer || document.hidden);
             } else {
 
-                this.main = pContainer;
+                this.main = new Element('div', {'class': 'ka-Field'}).inject(pContainer);
+                this.main.instance = this;
                 this.main.store('ka.Field', this);
             }
 
@@ -83,8 +90,9 @@ ka.Field = new Class({
 
             if (this.field.tableItem) {
                 this.tr = new Element('tr', {
-                    'class': 'ka-field-main'
+                    'class': 'ka-Field ka-field-main'
                 });
+                this.tr.instance = this;
                 this.tr.store('ka.Field', this);
 
                 this.title = new Element('td', {
@@ -93,14 +101,28 @@ ka.Field = new Class({
                 }).inject(this.tr);
 
                 this.main = new Element('td', {
+                    'class': 'ka-Field-inputTd'
                 }).inject(this.tr);
+
+                if (pContainer){
+                    if (pContainer.get('tag') != 'table' && pContainer.get('tag') != 'tbody'){
+                        var autotable = pContainer.getLast('.ka-Field-autotable');
+                        if (autotable){
+                            pContainer = autotable;
+                        } else {
+                            pContainer = new Element('table', {'class': 'ka-Field-autotable', width: '100%'})
+                            .inject(pContainer);
+                        }
+                    }
+                }
 
                 this.tr.inject(pContainer || document.hidden);
 
             } else {
                 this.main = new Element('div', {
-                    'class': 'ka-field-main'
+                    'class': 'ka-Field ka-field-main'
                 });
+                this.main.instance = this;
                 this.main.store('ka.Field', this);
 
                 if (this.field.small) {
@@ -343,913 +365,25 @@ ka.Field = new Class({
         }
     },
 
-    renderCondition: function(pOptions){
-
-    },
-
-
-    renderCheckboxGroup: function(){
-
-        var addCheckbox = function(pKey, pLabel){
-
-            var div = new Element('div').inject(this.fieldPanel);
-
-            var id = (new Date()).getTime()+'_kaField_checkboxgroup_'+pKey;
-            var cb = new Element('input', {
-                type: 'checkbox',
-                id: id
-            }).inject(div).store('key', pKey);
-
-            new Element('label', {
-                'for': id,
-                text: pLabel,
-                style: 'position: relative; top: -2px;'
-            }).inject(div);
-
-        }.bind(this);
-
-        if (this.field.items){
-
-            if (typeOf(this.field.items) == 'object'){
-                Object.each(this.field.items, function(label, key){
-                    addCheckbox(key, label);
-                }.bind(this));
-            }
-
-        }
-
-        var items = this.fieldPanel.getElements('input');
-
-        this._setValue = function(pValue){
-            if (typeOf(pValue) == 'array'){
-
-                items.set('checked', false);
-
-                Array.each(items, function(item){
-
-                    if (pValue.indexOf(item.retrieve('key')) == -1){
-                        item.set('checked', false);
-                    } else {
-                        item.set('checked', true);
-                    }
-
-                });
-
-            }
-
-        }.bind(this);
-
-        this.getValue = function(){
-
-            var res = [];
-            Array.each(items, function(item){
-
-                if (item.get('checked')) res.include(item.retrieve('key'));
-
-            });
-
-            return res;
-        };
-
-    },
-
-    renderFieldTable: function(){
-
-        this.fieldTable = new ka.FieldTable(this.fieldPanel, this.win, this.field.options);
-
-        this.getValue = function(){
-            return this.fieldTable.getValue();
-        }.bind(this);
-
-        this._setValue = function(p){
-            this.fieldTable.setValue(p);
-        }.bind(this);
-
-    },
-
-
-    renderTextlist: function () {
-
-        var _this = this;
-        var _searchValue;
-
-        var box, timer, boxHead, boxBody, lastRq, curSelection;
-
-        var div = new Element('div', {
-            'class': 'ka-field-textlist'
-        }).inject(this.fieldPanel);
-
-        if (this.field.width) {
-            div.setStyle('width', this.field.width);
-        }
-
-        var input = new Element('input', {
-            autocomplete: false,
-            tabindex: 0,
-            style: 'width: 7px;'
-        }).inject(div);
-
-        var clear = new Element('div', {
-            'class': 'ka-field-textlist-clear'
-        }).addEvent('click',
-            function (e) {
-                if (_this.field.store) {
-                    input.setStyle('left', '');
-                    input.setStyle('position', '');
-                    input.focus();
-                    active = input;
-                    input.value = '';
-                    div.getElements('.ka-field-textlist-item-active').removeClass('ka-field-textlist-item-active');
-                    searchValue();
-                    e.stop();
-                }
-            }).inject(div);
-
-        new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/icons/tree_minus.png'
-        }).inject(clear);
-
-        var active = input;
-
-        var addTextlistItem = function (pLabel, pValue) {
-
-            if (!pValue) {
-                pValue = pLabel;
-            }
-
-            if (!_this.field.doubles || _this.field.doubles != true || _this.field.doubles != 1) {
-                //check for doubles
-
-                var found = false;
-                div.getElements('.ka-field-textlist-item').each(function (item) {
-                    if (found == true) return;
-                    if (item.retrieve('value') == pValue) {
-                        found = true;
-                    }
-
-                });
-                if (found) return;
-            }
-
-            var item = new Element('div', {
-                'class': 'ka-field-textlist-item'
-            }).inject(input, 'before');
-
-            var title = new Element('span', {
-                text: pLabel ? pLabel : '...'
-            }).inject(item);
-
-            if (!pLabel) {
-
-                new Request.JSON({url: _path + 'admin/' + _this.field.store, onComplete: function (res) {
-                    if (res) {
-                        title.set('text', res.label);
-                    } else {
-                        title.set('text', _('##Failed##'));
-                    }
-
-                }}).get({cmd: 'item', id: pValue});
-            }
-
-            item.addEvent('mousedown', function (e) {
-
-                e.stop();
-                input.setStyle('left', -5000);
-                input.setStyle('position', 'absolute');
-                active.removeClass('ka-field-textlist-item-active');
-                active = this;
-                active.addClass('ka-field-textlist-item-active');
-                input.focus();
-                input.value = '';
-
-            });
-
-            item.store('value', pValue);
-
-            new Element('a', {
-                text: 'x'
-            }).addEvent('mousedown',
-                function (e) {
-                    e.stop();
-                    if (active == this.getParent()) {
-                        var next = this.getParent().getNext();
-                        if (!next.hasClass('ka-field-textlist-item') && next.get('tag') != 'input') {
-                            next = this.getParent().getPrevious();
-                        }
-                        if (!next.hasClass('ka-field-textlist-item') && next.get('tag') != 'input') {
-                            next = input;
-                        }
-                        if (next.get('tag') == 'input') {
-                            active = input;
-                            input.setStyle('left', '');
-                            input.setStyle('position', '');
-                            input.focus();
-                        } else {
-                            active = next;
-                            active.addClass('ka-field-textlist-item-active');
-                        }
-                    }
-                    this.getParent().destroy();
-                }).inject(item);
-
-        };
-
-        var checkAndCreateItem = function () {
-
-            if (boxBody.getElement('.active')) {
-                var item = boxBody.getElement('.active');
-                addTextlistItem(item.get('text'), item.retrieve('value'));
-            }
-
-        }
-
-        var updatePosition = function () {
-            if (box && box.getParent) {
-
-                box.position({
-                    relativeTo: div,
-                    position: 'bottomLeft',
-                    edge: 'upperLeft'
-                });
-
-                var pos = box.getPosition();
-                var size = box.getSize();
-
-                var bsize = window.getSize();
-
-                var height;
-
-                if (size.y + pos.y > bsize.y) {
-                    height = bsize.y - pos.y - 10;
-                }
-
-                if (height) {
-
-                    if (height < 100) {
-
-                        box.position({
-                            relativeTo: div,
-                            position: 'upperLeft',
-                            edge: 'bottomLeft'
-                        });
-
-                    } else {
-                        box.setStyle('height', height);
-                    }
-
-                }
-
-                timer = updatePosition.delay(500);
-            }
-        }
-
-        _searchValue = function (pValue) {
-            if (lastRq) {
-                lastRq.cancel();
-            }
-
-            var lastRq = new Request.JSON({url: _path + 'admin/' + _this.field.store, noCache: 1, onComplete: function (res) {
-
-                boxBody.empty();
-                if (typeOf(res) != 'object') {
-                    boxBody.set('html', _('No results.'));
-                } else {
-                    Object.each(res, function (label, value) {
-                        var a = new Element('a', {
-                            text: label
-                        }).inject(boxBody);
-
-                        a.addEvent('mousedown', function (e) {
-                            boxBody.getElements('a').removeClass('active');
-                            this.addClass('active');
-                            active = input;
-                            checkAndCreateItem();
-                            this.removeClass('active');
-                            input.focus();
-                            input.value = '';
-                            e.stop();
-                        });
-                        a.store('value', value);
-                    });
-                    if (boxBody.getElement('a') && pValue) {
-                        boxBody.getElement('a').addClass('active');
-                    }
-                }
-
-            }}).post({search: pValue});
-        }
-
-        var searchValue = function (pValue) {
-
-            if (!box) {
-                var target = document.body;
-                if (_this.fieldPanel.getParent('.kwindow-border')) {
-                    target = _this.fieldPanel.getParent('.kwindow-border');
-                }
-                box = new Element('div', {
-                    'class': 'ka-field-textlist-searchbox'
-                }).inject(target);
-
-                if (timer) {
-                    clearTimeout(timer);
-                }
-
-                updatePosition();
-
-                /*boxHead = new Element('div', {
-                 'class': 'ka-field-textlist-searchbox-head'
-                 }).inject( box );
-                 boxHeadC = new Element('div', {
-                 'class': 'ka-field-textlist-searchbox-head-c'
-                 }).inject( boxHead );
-
-                 new Element('input', {
-                 'class': 'ka-field-textlist-searchbox-head'
-                 }).inject( boxHeadC );
-                 */
-
-                boxBody = new Element('div', {
-                    'class': 'ka-field-textlist-searchbox-body'
-                }).inject(box);
-            }
-            _searchValue(pValue);
-        }
-
-        var hideSearchBox = function () {
-            if (box) {
-                boxBody.empty();
-                box.destroy();
-                box = null;
-            }
-        }
-
-        if (this.field.store) {
-            input.addEvent('blur', hideSearchBox);
-            window.addEvent('click', hideSearchBox);
-            input.addEvent('focus', function () {
-                if (this.value.length > 0) {
-                    searchValue(this.value);
-                }
-            });
-        }
-
-
-        input.addEvent('keydown', function (e) {
-            if (e.key == 'enter' && this.value.length > 0) {
-                if (_this.field.store) {
-                    checkAndCreateItem();
-                } else {
-                    addTextlistItem(this.value);
-                }
-                this.value = '';
-            }
-
-            if (e.key == 'top' || e.key == 'bottom') {
-                e.stop();
-            }
-
-            if (e.key == 'backspace') {
-                if (active.get('tag') == 'div') {
-                    this.inject(active, 'after');
-                    active.destroy();
-                    active = this;
-                    this.setStyle('left', '');
-                    this.setStyle('position', '');
-                    this.focus();
-                }
-            }
-
-            var oldActive = active;
-            if ((e.key == 'left' || e.key == 'backspace' ) && this.value.length == 0) {
-                if (active.getPrevious() && active.get('tag') == 'input') {
-                    if (active.get('tag') == 'input') {
-                        this.setStyle('left', -5000);
-                        this.setStyle('position', 'absolute');
-                        active.removeClass('ka-field-textlist-item-active');
-                        active = this.getPrevious();
-                        active.addClass('ka-field-textlist-item-active');
-                    }
-                }
-                if (oldActive.get('tag') != 'input') {
-                    this.inject(active, 'before');
-                    active.removeClass('ka-field-textlist-item-active');
-                    active = this;
-                    this.setStyle('left', '');
-                    this.setStyle('position', '');
-                    this.focus();
-                }
-            }
-
-            if (e.key == 'right' && this.value.length == 0) {
-                if (active.getNext() && active.getNext().hasClass('ka-field-textlist-item') && active.get('tag') == 'input') {
-                    if (active.get('tag') == 'input') {
-                        this.setStyle('left', -5000);
-                        this.setStyle('position', 'absolute');
-                        active.removeClass('ka-field-textlist-item-active');
-                        active = this.getNext();
-                        active.addClass('ka-field-textlist-item-active');
-                    }
-                }
-                if (oldActive.get('tag') != 'input') {
-                    this.inject(active, 'after');
-                    active.removeClass('ka-field-textlist-item-active');
-                    active = this;
-                    this.setStyle('left', '');
-                    this.setStyle('position', '');
-                    this.focus();
-                }
-            }
-
-            if (_this.field.store) {
-                if (e.key == 'down') {
-                    var oldActive = boxBody.getElement('.active');
-                    if (oldActive && oldActive.getNext()) {
-                        oldActive.getNext().addClass('active');
-                        oldActive.removeClass('active');
-                    }
-                }
-
-                if (e.key == 'up') {
-                    var oldActive = boxBody.getElement('.active');
-                    if (oldActive && oldActive.getPrevious()) {
-                        oldActive.getPrevious().addClass('active');
-                        oldActive.removeClass('active');
-                    }
-                }
-            }
-        });
-
-        var lastSearch = false;
-        input.addEvent('keyup', function (e) {
-            if (_this.field.store) {
-                if (this.value.length > 0) {
-                    if (lastSearch == this.value) {
-                        return;
-                    }
-                    lastSearch = this.value;
-                    searchValue(this.value);
-                } else {
-                    hideSearchBox();
-                    lastSearch = '';
-                }
-            }
-            this.setStyle('width', 6.5 * (this.value.length + 1));
-        });
-
-        div.addEvent('click', function (e) {
-            if (e.target && !e.target.hasClass('ka-field-textlist')) return;
-            input.inject(clear, 'before');
-            input.setStyle('position', '');
-            input.setStyle('left', '');
-            if (active) {
-                active.removeClass('ka-field-textlist-item-active');
-            }
-            input.focus();
-            active = input;
-        });
-
-        this._setValue = function (pValue) {
-
-            div.getElements('.ka-field-textlist-item').destroy();
-            if (pValue == '' || !pValue) return;
-
-            if (typeOf(pValue) == 'string') pValue = JSON.decode(pValue);
-
-            if (_this.field.store) {
-                Array.each(pValue, function (item) {
-                    addTextlistItem(false, item);
-                });
-            } else {
-                Array.each(pValue, function (item) {
-                    addTextlistItem(item);
-                });
-            }
-        }
-
-        this.getValue = function () {
-            var res = [];
-            div.getElements('.ka-field-textlist-item').each(function (item) {
-                res.include(item.retrieve('value'));
-            });
-            return res;
-        }
-
-    },
-
-    renderWindowList: function () {
-
-        var div = new Element('div', {
-            styles: {
-                height: this.field.height
-            }
-        }).inject(this.fieldPanel);
-
-        if (!this.field.panel_width) {
-            this.main.setStyle('width', '');
-        }
-
-        var titleGroups = new Element('div', {
-            'class': 'kwindow-win-title kwindow-win-titleGroups',
-            style: 'display: none; top: 0px;padding: 3px; height: 25px; min-height: 25px;'
-        }).inject(div);
-
-        var content = new Element('div', {
-            'class': 'kwindow-win-content',
-            style: 'top: 36px;'
-        }).inject(div);
-
-        var pos = this.field['window'].indexOf('/');
-        var module = this.field['window'].substr(0, pos);
-        var code = this.field['window'].substr(pos + 1);
-
-        var win = {};
-        Object.append(win, this.win);
-
-        Object.append(win, {
-            content: content,
-            extendHead: function () {
-                titleGroups.setStyle('display', 'block');
-            },
-            addButtonGroup: function () {
-                titleGroups.setStyle('display', 'block');
-                return new ka.ButtonGroup(titleGroups);
-            },
-            module: module,
-            code: code,
-            _confirm: this.win._confirm,
-            params: {},
-            id: this.win.id
-        });
-
-        this.getValue = function () {
-        };
-
-        this._setValue = function (pValue) {
-
-            if (!this.list) {
-                this.list = new ka.WindowList(win, {
-                    relation_table: pValue.table,
-                    relation_params: pValue.params
-                });
-            } else {
-                this.list.options.relation_params = pValue.params;
-
-                if (this.list.classLoaded == true) {
-                    this.list.loadPage(1, true);
-                } else {
-                    this.list.addEvent('render', function () {
-                        this.list.loadPage(1, true);
-                    }.bind(this));
-                }
-
-            }
-        }.bind(this);
-    },
-
-    renderSelect: function () {
-        var _this = this;
-        var multiple = ( this.field.multi || this.field.multiple );
-        var sortable = this.field.sortable;
-
-        var selWidth = 133;
-        if (this.field.tinyselect) {
-            selWidth = 75;
-        }
-        if (sortable) {
-            selWidth -= 8;
-        }
-
-        if (!this.field.tableItems && this.field.table_items) {
-            this.field.tableItems = this.field.table_items;
-        }
-
-        if (multiple && (!this.field.size || this.field.size + 0 < 4 )) {
-            this.field.size = 4;
-        }
-
-        if (multiple) {
-            this.input = new Element('select', {
-                size: this.field.size,
-                style: 'width: 100%'
-            }).addEvent('change', function () {
-                this.fireChange();
-            }.bind(this)).inject(this.fieldPanel);
-        }
-
-        if (!this.field.tableItems && this.field.items) {
-            this.field.tableItems = this.field.items;
-        }
-
-
-        var label = _this.field.table_label;
-        var key = _this.field.table_key ? _this.field.table_key : _this.field.table_id;
-
-        if (_this.field.relation == 'n-n') {
-            var label = _this.field['n-n'].right_label;
-            var key = _this.field['n-n'].right_key;
-        }
-
-        if (multiple) {
-
-            this.renderItems = function () {
-
-                _this.input.empty();
-
-                if (typeOf(this.field.tableItems) == 'array') {
-
-                    this.field.tableItems.each(function (item) {
-                        if (!item) return;
-
-                        if (_this.field.lang && item.lang != _this.field.lang && item.lang) return;
-
-                        var text = '';
-                        if (_this.field.table_view) {
-                            $H(_this.field.table_view).each(function (val, mykey) {
-                                var _val = '';
-                                switch (val) {
-                                    case 'time':
-                                        _val = new Date(item[mykey] * 1000).format('db');
-                                        break;
-                                    default:
-                                        _val = item[mykey];
-                                }
-                                text = text + ', ' + _val;
-                            });
-                            text = text.substr(2, text.length);
-                        } else if (item && item[label]) {
-                            text = item[label];
-                        }
-
-                        var t = new Element('option', {
-                            text: text,
-                            value: item[key]
-                        })
-                        if (t && _this.input) {
-                            t.inject(_this.input);
-                        }
-
-                    });
-                } else if (typeOf(this.field.tableItems) == 'object') {
-
-                    Object.each(this.field.tableItems, function (item, key) {
-                        var t = new Element('option', {
-                            text: item,
-                            value: key
-                        })
-                        if (t && _this.input) {
-                            t.inject(_this.input);
-                        }
-                    });
-                }
-
-            }.bind(this);
-
-            this.main.setStyle('width', 355);
-            //if( this.field.small )
-            //    this.main.setStyle('height', 80);
-            //else
-            //    this.main.setStyle('height', 115);
-
-            var table = new Element('table').inject(this.input.getParent());
-            var tbody = new Element('tbody').inject(table);
-
-            var tr = new Element('tr').inject(tbody);
-            var td = new Element('td').inject(tr);
-            var td2 = new Element('td', {width: 32, style: 'vertical-align: middle;'}).inject(tr);
-            var td3 = new Element('td').inject(tr);
-
-            this.input.setStyle('width', selWidth);
-
-
-            this.input.inject(td);
-
-            var toRight = new ka.Button('»').addEvent('click', function () {
-                if (this.input.getSelected()) {
-                    this.input.getSelected().each(function (obj) {
-                        var clone = obj.clone();
-                        clone.inject(this.inputVals);
-                        obj.set('disabled', true);
-                        obj.set('selected', false);
-                    }.bind(this));
-                }
-            }.bind(this)).setStyle('left', -2).inject(td2);
-
-            new Element('span', {html: "<br /><br />"}).inject(td2);
-
-            var toLeft = new ka.Button('«').addEvent('click', function () {
-                if (this.inputVals.getSelected()) {
-                    if (this.input.getElement('option[value=' + this.inputVals.value + ']')) {
-                        this.input.getElement('option[value=' + this.inputVals.value + ']').set('disabled', false);
-                    }
-                    this.inputVals.getSelected().destroy();
-                }
-            }.bind(this)).setStyle('left', -2).inject(td2);
-
-
-            this.input.addEvent('dblclick', function () {
-                toRight.fireEvent('click');
-            }.bind(this))
-
-
-            this.inputVals = new Element('select', {
-                size: this.field.size,
-                'class': 'ka-field',
-                style: 'width: ' + selWidth + 'px'
-            }).addEvent('dblclick', function () {
-                toLeft.fireEvent('click');
-            }.bind(this)).inject(td3);
-
-
-            if (this.field.tinyselect) {
-                this.inputVals.setStyle('width', 75);
-            }
-
-            this.renderItems();
-
-        } else {
-            ///not mutiple
-            this.select = new ka.Select();
-
-            this.select.addEvent('change', function () {
-                this.fireChange();
-            }.bind(this));
-
-            if (this.field.input_width)
-                document.id(this.select).setStyle('width', this.field.input_width);
-
-            this.select.inject(this.fieldPanel);
-
-            this.renderItems = function () {
-
-                var value = this.select.getValue();
-                this.select.empty();
-
-
-                if (typeOf(this.field.tableItems) == 'array') {
-                    if (key) {
-                        Array.each(this.field.tableItems, function (item) {
-
-                            if (this.field.multiLanguage && this.field.lang && item.lang != this.field.lang && item.lang) return;
-
-                            this.select.add(item[key], item[label]);
-                        }.bind(this));
-                    }
-
-                } else if (typeOf(this.field.tableItems) == 'object') {
-
-                    Object.each(this.field.tableItems, function (item, key) {
-
-                        if (this.field.multiLanguage && this.field.lang && item.lang != this.field.lang && item.lang) return;
-
-                        this.select.add(key, item);
-                    }.bind(this));
-
-                }
-
-                if (value) {
-                    this.select.setValue(value);
-                }
-
-            }.bind(this);
-
-            this.renderItems();
-
-        }
-
-        if (sortable) {
-            var td4 = new Element('td').inject(tr);
-            var elUp = new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/arrow_up.png',
-                style: 'display: block; cursor: pointer;'
-            }).addEvent('click', function () {
-                if (!this.inputVals.getElements('option') || this.inputVals.getElements('option').length < 2 || !this.inputVals.getSelected()) {
-                    return;
-                }
-
-                var selOption = this.inputVals.getSelected();
-                //check if el is top
-                if (!selOption.getPrevious('option') || !$defined(selOption.getPrevious('option')[0])) {
-                    return;
-                }
-                var selOptionClone = selOption.clone(true).inject(selOption.getPrevious('option')[0], 'before');
-                selOption.destroy();
-
-            }.bind(this)).inject(td4);
-
-            new Element('div', {html: "<br /><br />"}).inject(td4);
-            // var elDown = new ka.Button('Dw').addEvent('click',
-            var elDown = new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/icons/arrow_down.png',
-                style: 'display: block; cursor: pointer;'
-            }).addEvent('click', function () {
-
-                if (!this.inputVals.getElements('option') || this.inputVals.getElements('option').length < 2 || !this.inputVals.getSelected()) {
-                    return;
-                }
-
-                var selOption = this.inputVals.getSelected();
-
-                //check if el is top                
-                if (!selOption.getNext('option') || !$defined(selOption.getNext('option')[0])) {
-                    return;
-                }
-
-                var selOptionClone = selOption.clone(true).inject(selOption.getNext('option')[0], 'after');
-                selOption.destroy();
-
-            }.bind(this)).inject(td4);
-        }
-
-        if (this.field.directory) {
-            document.id(this.select).set('title', t('This list is based on files on this directory:') + ' ' + this.field.directory);
-            new Element('div', {
-                text: t('Based on:') + ' ' + this.field.directory,
-                style: 'font-size: 11px; color: silver'
-            }).inject(this.select || this.input, 'after');
-        }
-
-        this._setValue = function (pValue) {
-
-            if (multiple) {
-                this.inputVals.empty();
-                this.input.getElements('option').set('disabled', false);
-
-
-                this.input.getElements('option').each(function (option) {
-                    option.selected = false;
-                });
-            }
-
-            if (_this.field['relation'] == 'n-n' || multiple) {
-                if (typeOf(pValue) == 'string') pValue = JSON.decode(pValue);
-                if (typeOf(pValue) != 'array') pValue = [];
-            }
-
-            if (_this.field['relation'] == 'n-n') {
-
-                pValue.each(function (_item) {
-                    _this.input.getElements('option').each(function (option) {
-                        if (option.value == _item[_this.field['n-n'].middle_keyright]) {
-                            if (multiple) {
-                                option.clone().inject(this.inputVals);
-                                option.set('disabled', true);
-                                option.set('selected', false);
-                            } else {
-                                option.selected = true;
-                            }
-                        }
-                    }.bind(this));
-                }.bind(this));
-
-            } else if (multiple && !sortable) {
-
-                this.input.getElements('option').each(function (option) {
-                    if (pValue.contains(option.value)) {
-                        option.clone().inject(this.inputVals);
-                        option.set('disabled', true);
-                        option.set('selected', false);
-                    }
-                }.bind(this));
-
-            } else if (multiple) {
-                pValue.each(function (pItem) {
-                    iSelOption = this.input.getElement('option[value="' + pItem + '"]');
-                    if ($defined(iSelOption) && typeOf(iSelOption) != 'null') {
-
-                        iSelOption.clone().inject(this.inputVals);
-                        iSelOption.set('disabled', true);
-                        iSelOption.set('selected', false);
-                    }
-                }.bind(this));
-
-
-            } else {
-                this.select.setValue(pValue);
-            }
-
-        };
-
-        this.getValue = function(){
-            var res = [];
-            if (multiple) {
-                _this.inputVals.getElements('option').each(function (option) {
-                    res.include(option.value);
-                });
-            } else {
-                res = _this.select.getValue();
-            }
-            return res;
-        };
-
-    },
-
+    /**
+     * Highlights the field.
+     *
+     */
     highlight: function () {
         this.fieldObject.highlight();
     },
 
+    /**
+     * Detects if the entered data is valid.
+     *
+     * This means:
+     *  - if options.required==true and the user entered a value
+     *  - if options.requiredRegex and the value passes the regex
+     *
+     * @return {Boolean}
+     */
     isValid: function () {
         var ok = true;
-        if (this.field.designMode) return ok;
 
         if (this.isHidden()) return ok;
 
@@ -1258,21 +392,56 @@ ka.Field = new Class({
         return ok;
     },
 
-    isOk: function(){
+    showNotValid: function(pText){
+        this.fieldObject.showNowValid(pText);
+    },
+
+    showValid: function(){
+        this.fieldObject.showValid();
+    },
+
+    /**
+     * Detects if the entered data is valid and shows a visual
+     * symbol if not.
+     *
+     * This means:
+     *  - if options.required==true and the user entered a value
+     *  - if options.requiredRegex and the value passes the regex
+     *
+     * @return {Boolean} true if everything is ok
+     */
+    checkValid: function(){
 
         var status = this.isValid();
-        this.fieldObject.showNotValid(status);
+        if (status) this.fieldObject.showValid();
+        else this.fieldObject.showNotValid();
         return status;
     },
 
+    /**
+     * Returns the value of the field.
+     *
+     * @return {Mixed}
+     */
     getValue: function () {
         return this.fieldObject.getValue();
     },
 
+    /**
+     * toString() method.
+     *
+     * @return {Mixed}
+     */
     toString: function () {
         return this.getValue();
     },
 
+    /**
+     * Sets the value.
+     *
+     * @param {Mixed} pValue
+     * @param {Boolean} pInternal Fires fireChange() whichs fires the 'change' event. Default is false.
+     */
     setValue: function (pValue, pInternal){
 
         if (typeOf(pValue) == 'null' && this.field['default']) {
@@ -1290,13 +459,21 @@ ka.Field = new Class({
         }
     },
 
+    /**
+     * A binded function, that fires 'change', 'check-depends' events and isOk() method.
+     *
+     */
     fireChange: function(){
         this.fireEvent('change', [this.getValue(), this, this.id]);
         this.fireEvent('check-depends');
-        this.isOk();
-
+        this.checkValid();
     },
 
+    /**
+     * Finds the ka-window instance through a DOM lookup.
+     *
+     * @return {ka.Window} The window instance or null
+     */
     findWin: function () {
 
         if (this.win) return;
@@ -1307,6 +484,11 @@ ka.Field = new Class({
         this.win = win.retrieve('win');
     },
 
+    /**
+     * Creates and injects a children container.
+     *
+     * @return {Element} The newly created child container, or null if already exist.
+     */
     prepareChildContainer: function(){
 
         if (this.childContainer) return;
@@ -1325,43 +507,208 @@ ka.Field = new Class({
             }).inject(document.id(this), 'after');
         }
 
+        return this.childContainer;
     },
 
+    /**
+     * Returns true if this item has a visibility-condition parent or
+     * a parent of a structured ka.Parse object, not a DOM parent.
+     * @return {Boolean} [description]
+     */
     hasParent: function(){
         return this.parent !== null;
     },
 
+    /**
+     * Returns the visibility-condition parent or the parent of a
+     * structured ka.Parse object, not the DOM parent.
+     *
+     * @return {ka.Field}
+     */
     getParent: function(){
         return this.parent;
     },
 
+    /**
+     * Returns the root element.
+     *
+     * @return {Element}
+     */
     toElement: function(){
-        return ( this.field.tableItem ) ? this.tr : this.main;
+        return this.tr || this.main;
     },
 
+    /**
+     * Removes the item and the children container from the DOM.
+     *
+     */
+    dispose: function(){
+
+        var field = this.tr || this.main;
+
+        this.oldMainParent = field.getParent();
+
+        field.dispose();
+
+        if (this.childContainer){
+            this.oldChildParent = this.childContainer.getParent();
+            this.childContainer.dispose();
+        }
+
+    },
+
+    getChildrenContainer: function(){
+        this.childContainer;
+    },
+
+    /**
+     * Oposit of dispose(). Injects/Inserts the
+     * main element and childContainer back to the origin position.
+     *
+     * Only works after a call of dispose() (since we need this.oldMainParent
+     * and this.oldChildParent)
+     *
+     */
+    insert: function(){
+
+        var field = this.tr || this.main;
+
+        field.inject(this.oldMainParent);
+
+        if (this.childContainer)
+            this.childContainer.inject(this.oldChildParent);
+
+    },
+
+    /**
+     * Returns the previous ka.Field element in the DOM.
+     * @return {ka.Field}
+     */
+    getPrevious: function(){
+
+        var previous = this.toElement().getPrevious('.ka-Field');
+
+        return previous ? previous.instance : null;
+    },
+
+    /**
+     * Returns the next ka.Field element in the DOM.
+     *
+     * @return {ka.Field}
+     */
+    getNext: function(){
+
+        var next = this.toElement().getNext('.ka-Field');
+
+        return next ? next.instance : null;
+    },
+
+    /**
+     * Injects the field before pField.
+     *
+     * @param  {ka.Field} pField
+     */
+    injectBefore: function(pField){
+        this.inject(pField.toElement(), 'before');
+    },
+
+
+    /**
+     * Injects the field after pField.
+     *
+     * @param  {ka.Field} pField
+     */
+    injectAfter: function(pField){
+        this.inject(pField.toElement(), 'after');
+    },
+
+    /**
+     * Search for a previous ka.Field object and inject before it.
+     *
+     * @return {ka.Field} The previous ka.Field if found.
+     */
+    moveUp: function(){
+
+        var previous = this.toElement().getPrevious('.ka-Field');
+
+        if (previous) this.inject(previous.instance, 'before');
+
+        return previous;
+    },
+
+    /**
+     * Search for a following ka.Field object and inject after it.
+     *
+     * @return {ka.Field} The following ka.Field if found.
+     */
+    moveDown: function(){
+
+        var next = this.toElement().getNext('.ka-Field');
+
+        if (next) this.inject(next.instance, 'after');
+
+        return next;
+    },
+
+    /**
+     * Injects the item incl. children container to pTo
+     * @param  {Element} pTo Target element
+     * @param  {String}  pP  Can be 'top', 'bottom', 'after', or 'before'. Default is 'bottom'
+     * @return {ka.Field}    this
+     */
     inject: function (pTo, pP) {
 
-        if (this.options.noWrapper){
-            throw 'There is no way to inject a ka.field with noWrapper=1.';
+        var field = this.toElement();
+
+        if (instanceOf(pTo, ka.Field) && pP == 'after' && pTo.toElement().get('tag') == 'tr' && pTo.getChildrenContainer()){
+            //since in table mode the children container is actually under the ka-Field dom element, we
+            //have to assign the pTo to the children container.
+            pTo = pTo.getChildrenContainer();
+        } else if(instanceOf(pTo, ka.Field)){
+            pTo = pTo.toElement();
         }
 
-        if (this.field.onlycontent) {
-            this.fieldPanel.inject(pTo, pP);
-            return this;
-        }
+        if (this.options.tableItem){
+            
+            var autotable = field.getParent();
 
-        if (this.main.getDocument() != pTo.getDocument()) {
-            pTo.getDocument().adoptNode(this.tr || this.main);
-        }
+            if (autotable.get('tag') == 'tbody')
+                autotable = autotable.getParent();
 
-        if (this.tr) {
-            this.tr.inject(pTo, pP);
+            var tbody = autotable.getChildren('tbody')?autotable.getChildren('tbody'):autotable;
+
+            //maybe we need to move the autotable or create one?
+            if (tbody.getChildren().length > 1){
+                //yepp, we're not alone in this table, create a new one
+                
+                autotable = new Element('table', {'class': 'ka-Field-autotable', width: '100%'})
+                .inject(pTo, pP);
+
+                if (field.getDocument() != pTo.getDocument())
+                    pTo.getDocument().adoptNode(field);
+
+                field.inject(autotable);
+
+            } else {
+                //we're alone, move table
+                
+                if (autotable.getDocument() != pTo.getDocument())
+                    pTo.getDocument().adoptNode(autotable);
+                
+                autotable.inject(pTo, pP);
+            }
+
+            if (this.childContainer)
+                this.childContainer.inject(field, 'after');
+
+
         } else {
-            this.main.inject(pTo, pP);
-        }
 
-        if (this.customObj) {
-            this.customObj.inject(this.fieldPanel);
+            if (field.getDocument() != pTo.getDocument())
+                pTo.getDocument().adoptNode(field);
+
+            field.inject(pTo, pP);
+
         }
 
         this.findWin();
@@ -1369,19 +716,43 @@ ka.Field = new Class({
         return this;
     },
 
+    /**
+     * Destroys the whole item incl. children container (and all of his containing children).
+     *
+     */
     destroy: function () {
-        this.main.destroy();
+        var field = this.tr || this.main;
+        field.destroy();
+
+        if (this.options.tableItem){
+
+            var autotable = field.getParent();
+
+            if (autotable.get('tag') == 'tbody')
+                autotable = autotable.getParent();
+
+            var tbody = autotable.getChildren('tbody')?autotable.getChildren('tbody'):autotable;
+
+            if (tbody.getChildren().length == 1){
+                autotable.destroy();
+            }
+        }
+
+        if (this.childContainer)
+            this.childContainer.destroy();
     },
 
+    /**
+     * Hides the item incl the children container.
+     *
+     */
     hide: function () {
 
         if (this.childContainer && this.childContainer.hide) this.childContainer.hide();
 
-        if (this.tr) {
-            this.tr.setStyle('display', 'none');
-        } else {
-            this.main.setStyle('display', 'none');
-        }
+        var field = this.tr || this.main;
+
+        field.setStyle('display', 'none');
 
         this.fireEvent('check-depends');
         this.fireEvent('hide');
@@ -1389,31 +760,34 @@ ka.Field = new Class({
 
 
     /**
-     * Is hidden because a depends issue.
+     * Returns true if the element is hidden through a visibility-condition or custom hide() call.
+     *
+     * @return {Boolean}
      */
     isHidden: function () {
-        if (this.tr) {
-            if (this.tr.getStyle('display') == 'none') {
-                return true;
-            }
-        } else if (this.main.getStyle('display') == 'none') {
-            return true;
-        }
-        return false;
+        var field = this.tr || this.main;
+
+        return field.getStyle('display') == 'none';
     },
 
+    /**
+     * Let the item appears.
+     */
     show: function () {
-        if (this.tr) {
-            this.tr.setStyle('display', 'table-row');
-        } else {
-            this.main.setStyle('display', 'block');
-        }
+
+        var field = this.tr || this.main;
+
+        field.setStyle('display', field.get('tag') == 'tr' ? 'table-row' : 'block');
 
         this.fireEvent('check-depends');
         this.fireEvent('show');
     },
 
-
+    /**
+     * DO WE USE IT?
+     *
+     * @return {[type]} [description]
+     */
     initLayoutElement: function () {
 
         _win = this.refs.win;
@@ -1437,7 +811,7 @@ ka.Field = new Class({
         var values = pValues;
         var keys = pKey.split('[');
         var notFound = false;
-        Array.each(keys, function (key) {
+        Array.each(keys, function(key){
 
             if (notFound) return;
             if (values[ key.replace(']', '')]) {
@@ -1453,6 +827,11 @@ ka.Field = new Class({
         }
     },
 
+    /**
+     * DO WE USE IT?
+     *
+     * @return {[type]} [description]
+     */
     initMultiUpload: function () {
         //todo: whats that?
         

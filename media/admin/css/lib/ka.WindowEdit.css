@@ -73,7 +73,8 @@
     position: absolute;
     left: 0px;
     right: 0px;
-    height: 30px;
+    height: 27px;
+    padding-top: 3px;
     bottom: 0px;
     border-top: 1px solid gray;
     line-height: 28px;

@@ -65,12 +65,16 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
 
     checkChange: function(){
 
+        if (this.duringCheck) return;
+
         if (this.lastCheckChangeTimeout) clearTimeout(this.lastCheckChangeTimeout);
         this.lastCheckChangeTimeout = this._checkChange.delay(100, this);
 
     },
 
     _checkChange: function(){
+
+        this.duringCheck = true;
 
         var range = this.input.getSelectedRange();
 
@@ -97,6 +101,8 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
             this.fieldInstance.fireChange();
             this.oldValue = this.input.value;
         }
+
+        this.duringCheck = false;
     },
 
     replace: function(){
