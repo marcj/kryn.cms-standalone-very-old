@@ -49,39 +49,39 @@ class UserEdit extends \Admin\ObjectWindow {
                 ),
                 'company' => array(
                     'label' => 'Company',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'text'
                 ),
                 'street' => array(
                     'label' => 'Street',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'text'
                 ),
                 'city' => array(
                     'label' => 'City',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'text'
                 ),
                 'zip' => array(
                     'label' => 'Zipcode',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'number',
                     'maxLength' => 10,
                     'inputWidth' => 100
                 ),
                 'country' => array(
                     'label' => 'Country',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'text'
                 ),
                 'phone' => array(
                     'label' => 'Phone',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'text'
                 ),
                 'fax' => array(
                     'label' => 'Fax',
-                    'tableitem' => true,
+                    'tableItem' => true,
                     'type' => 'text'
                 ),
             )

@@ -14,14 +14,18 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
 
         this.fieldInstance.handleChildsMySelf = true;
 
-        this.toggler.addEvent('click', this.fieldInstance.fireChange);
         this.toggler.addEvent('click', function(){
-            this.setValue(!this.getValue());
+            this.setValue( !this.getValue() );
+            this.fieldInstance.fireChange();
         }.bind(this));
 
         this.value = this.options.value || this.options['default'];
 
         this.fieldInstance.addEvent('check-depends', function(){
+            this.setValue(this.value);
+        }.bind(this));
+
+        this.fieldInstance.addEvent('childrenPrepared', function(){
             this.setValue(this.value);
         }.bind(this));
 
@@ -39,15 +43,17 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
     },
 
     setValue: function(pValue){
-        this.value = pValue || 0;
+        if (typeOf(pValue) == 'null') return;
 
-        if (!this.fieldInstance.childContainer) return;
+        this.value = pValue ? true : false;
+
+        if (!this.fieldInstance.getChildrenContainer()) return;
 
         if (!this.value){
-            this.fieldInstance.childContainer.setStyle('display', 'none');
+            this.fieldInstance.getChildrenContainer().setStyle('display', 'none');
             this.toggler.set('class', 'icon-arrow-19');
         } else {
-            this.fieldInstance.childContainer.setStyle('display', 'block');
+            this.fieldInstance.getChildrenContainer().setStyle('display', 'block');
             this.toggler.set('class', 'icon-arrow-17');
         }
     },

@@ -10,19 +10,19 @@ ka.FieldTypes.Codemirror = new Class({
         }).inject(this.fieldInstance.fieldPanel);
 
 
-        if (this.options.input_width)
-            this.editorPanel.setStyle('width', this.options.input_width);
+        if (this.options.inputWidth)
+            this.editorPanel.setStyle('width', this.options.inputWidth);
 
-        if (this.options.input_height){
+        if (this.options.inputHeight){
 
             var cssClassName = 'codemirror_'+(new Date()).getTime()+'_'+Number.random(0, 10000)+'_'+Number.random(0, 10000);
 
-            if (typeOf(this.options.input_height) == 'number' || !this.options.input_height.match('[^0-9]')){
-                this.options.input_height += 'px';
+            if (typeOf(this.options.inputHeight) == 'number' || !this.options.inputHeight.match('[^0-9]')){
+                this.options.inputHeight += 'px';
             }
 
             new Stylesheet().addRule('.'+cssClassName+' .CodeMirror-scroll', {
-                height: this.options.input_height
+                height: this.options.inputHeight
             });
 
             this.editorPanel.addClass(cssClassName);

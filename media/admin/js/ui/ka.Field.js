@@ -28,6 +28,8 @@ ka.Field = new Class({
 
         invisible: false,
 
+        cookieStorage: false, //stores the value in a cookie, and set it after a second load
+
         noWrapper: false //doesnt include the ka-field wrapper (title, description, etc), and inject the field controls directly to pContainer with just a single div around it.
     },
 
@@ -35,34 +37,44 @@ ka.Field = new Class({
 
     field: {},
     refs: {},
-    id: '',
+    key: '',
     depends: {},
     childContainer: false,
     container: false,
 
+    parent: null, //parent ka.Field instance
+
     children: {},
 
-    initialize: function (pField, pContainer, pFieldId) {
+    /**
+     *
+     * @param  {Object} pDefinition
+     * @param  {Element} pContainer
+     * @param  {String} pKey Optional
+     */
+    initialize: function (pDefinition, pContainer, pKey) {
 
-        this.id = pFieldId;
+        this.key = pKey;
 
-        if (pField.type == 'predefined'){
-            var definition = ka.getObjectDefinition(pField.object);
-            this.field = Object.clone(definition.fields[pField.field]);
+        if (pDefinition.type == 'predefined'){
+            var definition = ka.getObjectDefinition(pDefinition.object);
+            this.field = Object.clone(definition.fields[pDefinition.field]);
 
-            if (pField.label)
-                this.field.label = pField.label;
+            if (pDefinition.label)
+                this.field.label = pDefinition.label;
 
         } else {
-            this.field = Object.clone(pField);
+            this.field = Object.clone(pDefinition);
         }
+
+        this.calledDefinition = pDefinition;
 
         this.setOptions(this.field);
         this.container = pContainer;
 
         if (this.options.noWrapper){
 
-            if (this.field.tableItem) {
+            if (this.options.tableItem) {
 
                 this.tr = new Element('tr', {
                     'class': 'ka-Field'
@@ -79,7 +91,7 @@ ka.Field = new Class({
                 this.tr.inject(pContainer || document.hidden);
             } else {
 
-                this.main = new Element('div', {'class': 'ka-Field'}).inject(pContainer);
+                this.main = new Element('div', {'class': 'ka-Field'});
                 this.main.instance = this;
                 this.main.store('ka.Field', this);
             }
@@ -88,7 +100,7 @@ ka.Field = new Class({
 
         } else {
 
-            if (this.field.tableItem) {
+            if (this.options.tableItem) {
                 this.tr = new Element('tr', {
                     'class': 'ka-Field ka-field-main'
                 });
@@ -97,26 +109,12 @@ ka.Field = new Class({
 
                 this.title = new Element('td', {
                     'class': 'ka-field-tdtitle selectable',
-                    width: (this.field.tableitem_title_width) ? this.field.tableitem_title_width : '40%'
+                    width: (this.options.tableitem_title_width) ? this.options.tableitem_title_width : '40%'
                 }).inject(this.tr);
 
                 this.main = new Element('td', {
                     'class': 'ka-Field-inputTd'
                 }).inject(this.tr);
-
-                if (pContainer){
-                    if (pContainer.get('tag') != 'table' && pContainer.get('tag') != 'tbody'){
-                        var autotable = pContainer.getLast('.ka-Field-autotable');
-                        if (autotable){
-                            pContainer = autotable;
-                        } else {
-                            pContainer = new Element('table', {'class': 'ka-Field-autotable', width: '100%'})
-                            .inject(pContainer);
-                        }
-                    }
-                }
-
-                this.tr.inject(pContainer || document.hidden);
 
             } else {
                 this.main = new Element('div', {
@@ -125,26 +123,24 @@ ka.Field = new Class({
                 this.main.instance = this;
                 this.main.store('ka.Field', this);
 
-                if (this.field.small) {
+                if (this.options.small) {
                     this.main.set('class', 'ka-field-main ka-field-main-small');
                 }
 
                 this.title = new Element('div', {
                     'class': 'ka-field-title selectable'
                 }).inject(this.main);
-
-                this.main.inject(pContainer || document.hidden);
             }
 
 
-            if (this.field.label) {
+            if (this.options.label) {
                 this.titleText = new Element('div', {
                     'class': 'title',
-                    html: this.field.label
+                    html: this.options.label
                 }).inject(this.title);
             }
 
-            if (this.field.help && this.titleText) {
+            if (this.options.help && this.titleText) {
                 new Element('img', {
                     src: _path + PATH_MEDIA + '/admin/images/icons/help_gray.png',
                     width: 14,
@@ -158,14 +154,14 @@ ka.Field = new Class({
                 }).addEvent('mouseout',function () {
                     this.setStyle('opacity', 0.7);
                 }).addEvent('click',function () {
-                    ka.wm.open('admin/help', {id: this.field.help});
+                    ka.wm.open('admin/help', {id: this.options.help});
                 }.bind(this)).inject(this.titleText);
             }
 
-            if (this.field.desc) {
+            if (this.options.desc) {
                 this.descText = new Element('div', {
                     'class': 'desc',
-                    html: this.field.desc
+                    html: this.options.desc
                 }).inject(this.title);
             }
 
@@ -174,6 +170,9 @@ ka.Field = new Class({
             }).inject(this.main);
         }
 
+        if (pContainer)
+            this.inject(pContainer);
+
         if (this.options.fieldWidth)
             this.fieldPanel.setStyle('width', this.options.fieldWidth);
 
@@ -181,8 +180,7 @@ ka.Field = new Class({
             this.fieldPanel.addClass('ka-field-field-without-margin');
         }
 
-
-        if (this.field.invisible == 1) {
+        if (this.options.invisible == 1) {
             this.main.setStyle('display', 'none');
         }
 
@@ -190,10 +188,17 @@ ka.Field = new Class({
 
         this.renderField();
 
-        if (!this.field.startEmpty && typeOf(this.field.value) != 'null') {
-            this.fieldObject.setValue(this.field.value, true);
+        if (!this.options.startEmpty && typeOf(this.options.value) != 'null') {
+            this.setValue(this.options.value, true);
+
         } else if (typeOf(this.field['default']) != 'null'){
-            this.fieldObject.setValue(this.field['default'], true);
+            this.setValue(this.field['default'], true);
+
+        } else if (this.options.cookieStorage){
+            var cookieValue = Cookie.read(this.options.cookieStorage);
+            if (typeOf(cookieValue) != 'null'){
+                this.setValue(JSON.decode(cookieValue), true);
+            }
         }
 
         if (this.options.disabled){
@@ -464,9 +469,20 @@ ka.Field = new Class({
      *
      */
     fireChange: function(){
-        this.fireEvent('change', [this.getValue(), this, this.id]);
+        var value = this.getValue();
+        this.fireEvent('change', [value, this, this.key]);
         this.fireEvent('check-depends');
         this.checkValid();
+
+        this.updateCookieStorage(value);
+    },
+
+    updateCookieStorage: function(pValue){
+
+        if (this.options.cookieStorage){
+            Cookie.write(this.options.cookieStorage, JSON.encode(pValue));
+        }
+
     },
 
     /**
@@ -476,12 +492,14 @@ ka.Field = new Class({
      */
     findWin: function () {
 
-        if (this.win) return;
+        if (this.win) return this.win;
 
         var win = this.toElement().getParent('.kwindow-border');
         if (!win) return;
 
         this.win = win.retrieve('win');
+
+        return this.win;
     },
 
     /**
@@ -493,19 +511,24 @@ ka.Field = new Class({
 
         if (this.childContainer) return;
 
-        if (this.field.tableItem) {
-            var tr = new Element('tr').inject(document.id(this), 'after');
-            var td = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(tr);
+        if (this.options.tableItem) {
+
+            this.childrenContainerTr = new Element('tr').inject(document.id(this), 'after');
+            this.childrenContainerTd = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(this.childrenContainerTr);
 
             this.childContainer = new Element('div', {
-                'class': 'ka-fields-sub'
-            }).inject(td);
+                'class': 'ka-Field-childrenContainer ka-fields-sub'
+            }).inject(this.childrenContainerTd);
 
         } else {
             this.childContainer = new Element('div', {
-                'class': 'ka-fields-sub'
+                'class': 'ka-Field-childrenContainer ka-fields-sub'
             }).inject(document.id(this), 'after');
         }
+
+        this.childContainer.instance = this;
+
+        this.fireEvent('childrenPrepared');
 
         return this.childContainer;
     },
@@ -526,6 +549,11 @@ ka.Field = new Class({
      * @return {ka.Field}
      */
     getParent: function(){
+        if (!this.parent){
+            var parentChildrenContainer = this.toElement().getParent('.ka-Field-childrenContainer');
+            if (parentChildrenContainer)
+                return parentChildrenContainer.instance;
+        }
         return this.parent;
     },
 
@@ -557,8 +585,13 @@ ka.Field = new Class({
 
     },
 
+    /**
+     * Returns the container from our children.
+     *
+     * @return {Element} null if not exist
+     */
     getChildrenContainer: function(){
-        this.childContainer;
+        return this.childContainer;
     },
 
     /**
@@ -609,7 +642,7 @@ ka.Field = new Class({
      * @param  {ka.Field} pField
      */
     injectBefore: function(pField){
-        this.inject(pField.toElement(), 'before');
+        this.inject(pField, 'before');
     },
 
 
@@ -619,7 +652,7 @@ ka.Field = new Class({
      * @param  {ka.Field} pField
      */
     injectAfter: function(pField){
-        this.inject(pField.toElement(), 'after');
+        this.inject(pField, 'after');
     },
 
     /**
@@ -659,56 +692,83 @@ ka.Field = new Class({
     inject: function (pTo, pP) {
 
         var field = this.toElement();
+        pP = pP?pP:'bottom';
 
         if (instanceOf(pTo, ka.Field) && pP == 'after' && pTo.toElement().get('tag') == 'tr' && pTo.getChildrenContainer()){
             //since in table mode the children container is actually under the ka-Field dom element, we
             //have to assign the pTo to the children container.
             pTo = pTo.getChildrenContainer();
         } else if(instanceOf(pTo, ka.Field)){
+
+            if (pP == 'bottom' || pP == 'top'){
+                pTo.prepareChildContainer();
+            }
             pTo = pTo.toElement();
         }
 
+        field.dispose();
+
+        if (this.containerAutoTable && this.containerAutoTable.hasClass('ka-Field-autotable')){
+            if (this.containerAutoTable.getChildren('.ka-Field').length === 0){
+                //it's our own autotable, so delete it.
+                this.containerAutoTable.destroy();
+                delete this.containerAutoTable;
+            }
+        }
+
         if (this.options.tableItem){
-            
-            var autotable = field.getParent();
 
-            if (autotable.get('tag') == 'tbody')
-                autotable = autotable.getParent();
-
-            var tbody = autotable.getChildren('tbody')?autotable.getChildren('tbody'):autotable;
-
-            //maybe we need to move the autotable or create one?
-            if (tbody.getChildren().length > 1){
-                //yepp, we're not alone in this table, create a new one
+            if (pTo.get('tag') != 'tbody' && pTo.get('tag') != 'table'){
+                //target is not a table/tbody, we need to create one or find one
                 
-                autotable = new Element('table', {'class': 'ka-Field-autotable', width: '100%'})
-                .inject(pTo, pP);
+                if (pTo.get('tag') == 'tr'){
+                    this.containerAutoTable = pTo.getParent('table');
+                } else {
+                    //guess, we need one
+                    if (pP == 'bottom' || pP == 'top')
+                        this.containerAutoTable = pTo.getLast('.ka-Field-autotable');
+                    else if (pP == 'before')
+                        this.containerAutoTable = pTo.getPrevious('.ka-Field-autotable');
+                    else if (pP == 'after'){
+                        this.containerAutoTable = pTo.getNext('.ka-Field-autotable');
+                    }
 
-                if (field.getDocument() != pTo.getDocument())
-                    pTo.getDocument().adoptNode(field);
-
-                field.inject(autotable);
-
-            } else {
-                //we're alone, move table
-                
-                if (autotable.getDocument() != pTo.getDocument())
-                    pTo.getDocument().adoptNode(autotable);
-                
-                autotable.inject(pTo, pP);
+                    if (!this.containerAutoTable){
+                        this.containerAutoTable = new Element('table', {'class': 'ka-Field-autotable', width: '100%'})
+                        .inject(pTo, pP);
+                    }
+                }
             }
 
-            if (this.childContainer)
-                this.childContainer.inject(field, 'after');
+            var targetTable = this.containerAutoTable || pTo;
 
+            var tbody = targetTable.getChildren('tbody').length>0?targetTable.getChildren('tbody')[0]:targetTable;
+
+            if (field.getDocument() != pTo.getDocument())
+                pTo.getDocument().adoptNode(field);
+
+            field.inject(tbody);
 
         } else {
+
+
+            //find a valid container
+            
+            while (((pP == 'top' || pP == 'bottom') && pTo.get('tag') == 'table') ||
+                   ((pP == 'after' || pP == 'before') && pTo.get('tag') == 'tbody' || pTo.get('tag') == 'tr')
+                ){
+                pTo = pTo.getParent();
+            }
 
             if (field.getDocument() != pTo.getDocument())
                 pTo.getDocument().adoptNode(field);
 
             field.inject(pTo, pP);
 
+        }
+
+        if (this.getChildrenContainer()){
+            this.getChildrenContainer().inject(field, 'after');
         }
 
         this.findWin();
@@ -721,25 +781,41 @@ ka.Field = new Class({
      *
      */
     destroy: function () {
-        var field = this.tr || this.main;
+
+        var field = this.toElement();
+
+        //are we between 2 ka-field-autotables ? maybe we can merge it
+        if (field.getPrevious() && field.getNext() && field.getNext().hasClass('ka-Field-autotable') && field.getPrevious().hasClass('ka-Field-autotable')){
+            var next = field.getNext();
+            var tbodyNext = next.getChildren('tbody').length>0?next.getChildren('tbody')[0]:next;
+            var previous = field.getPrevious();
+            var tbodyPrevious = previous.getChildren('tbody').length>0?previous.getChildren('tbody')[0]:previous;
+            tbodyNext.getChildren().inject(previous);
+            next.destroy();
+        }
+
         field.destroy();
 
         if (this.options.tableItem){
 
-            var autotable = field.getParent();
+            if (this.containerAutoTable && this.containerAutoTable.hasClass('ka-Field-autotable')){
 
-            if (autotable.get('tag') == 'tbody')
-                autotable = autotable.getParent();
+                var tbody = this.containerAutoTable.getChildren('tbody').length>0?
+                             this.containerAutoTable.getChildren('tbody')[0]:this.containerAutoTable;
 
-            var tbody = autotable.getChildren('tbody')?autotable.getChildren('tbody'):autotable;
-
-            if (tbody.getChildren().length == 1){
-                autotable.destroy();
+                if (tbody.getChildren('.ka-Field').length === 0){
+                    //we're alone, delete the auto table
+                    this.containerAutoTable.destroy();
+                }
             }
+        } else {
+            
+            
+
         }
 
-        if (this.childContainer)
-            this.childContainer.destroy();
+        if (this.getChildrenContainer())
+            this.getChildrenContainer().destroy();
     },
 
     /**
@@ -781,6 +857,56 @@ ka.Field = new Class({
 
         this.fireEvent('check-depends');
         this.fireEvent('show');
+    },
+
+
+    /**
+     * Returns all children ka.Fields.
+     *
+     * Not by the field definition, but by the DOM structure.
+     * So, when there're ka.Field objects in our children container,
+     * then we have children, otherwise not.
+     *
+     * @return {Array} Array with ka.Field instances
+     */
+    getChildren: function(){
+        var children = [];
+
+        if (this.getChildrenContainer()){
+            this.getChildrenContainer().getChildren('.ka-Field').each(function(child){
+                children.push(child.instance);
+            });
+        }
+
+        return children;
+    },
+
+    /**
+     * Returns the key of this field, if set.
+     *
+     * @return {String}
+     */
+    getKey: function(){
+        return this.key;
+    },
+
+    getDefinition: function(){
+
+        var definition = this.calledDefinition;
+
+        var children = this.getChildren();
+
+        if (children.length > 0){
+
+            definition.children = {};
+
+            Array.each(children, function(child){
+                definition.children[child.getKey()] = child.getDefinition();
+            });
+        }
+
+        return definition;
+
     },
 
     /**
@@ -842,7 +968,7 @@ ka.Field = new Class({
 
         _this = this;
         //init ext js class
-        if (this.field.extClass) {
+        if (this.options.extClass) {
             try {
                 this.obj = new window[ this.field.extClass ](this.field, _win, _this);
             } catch (e) {

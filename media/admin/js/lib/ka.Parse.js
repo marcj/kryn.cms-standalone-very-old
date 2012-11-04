@@ -193,7 +193,7 @@ ka.Parse = new Class({
                     target = pContainer.kaFieldTable;
                 }
 
-                obj = new ka.Field(field, target, this.refs, id);
+                obj = new ka.Field(field, target, id);
             }
 
 

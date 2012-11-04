@@ -55,7 +55,7 @@ var admin_system_module_editWindow = new Class({
             '__file__': {
                 label: t('File'),
                 disabled: true
-            },  
+            },
             object: {
                 needValue: 'object',
                 label: t('Object key')
@@ -141,9 +141,9 @@ var admin_system_module_editWindow = new Class({
             var td = new Element('td').inject(tr);
             var iId = new Element('input', {'class': 'text'}).inject(td);
 
-            var tr = new Element('tr').inject(tbody);
+            tr = new Element('tr').inject(tbody);
             new Element('td', {text: t('Tab label:')}).inject(tr);
-            var td = new Element('td').inject(tr);
+            td = new Element('td').inject(tr);
             var iLabel =new Element('input', {'class': 'text'}).inject(td);
 
 
@@ -278,6 +278,260 @@ var admin_system_module_editWindow = new Class({
         }).inject(this.windowInspector);
 
         //this.cancelFieldProperties();
+        
+        //list/combine
+        
+        var listFields = {
+
+            columns: {
+
+                label: t('Columns'),
+                type: 'fieldTable',
+                asFrameworkColumn: true,
+                withoutChildren: true,
+                addLabel: t('Add column')
+
+            },
+
+            itemLayout: {
+                label: t('Item layout (Optional)'),
+                desc: t('Default behaviour is that the system extracts the first three columns and build it on it own. You can define here your own item HTML. Use as id attribute the column key.')+
+                '<br/>'+t('Example:')+'<br/>'+
+                '&lt;div&gt;{title}&lt;/div&gt;<br/>'+
+                '&lt;div style="font-size: 10px;"&gt;{anotherFieldName}&lt;/div&gt;',
+                type: 'codemirror',
+                inputHeight: 80
+            },
+
+            itemsPerPage: {
+
+                label: t('Items per page'),
+                type: 'number',
+                inputWidth: 120
+
+            },
+
+            order: {
+
+                label: t('Default order'),
+                type: 'array',
+                columns: [
+                    {label: t('Field'), width: '60%'},
+                    {label: t('Direction')}
+                ],
+                withOrder: true,
+                fields: {
+                    field: {
+                        type: 'text'
+                    },
+                    direction: {
+                        type: 'select',
+                        items: {
+                            asc: 'ASC',
+                            desc: 'DESC'
+                        }
+                    }
+                }
+
+            },
+
+            __search__: {
+                type: 'childrenSwitcher',
+                label: 'Search',
+                children: {
+                    __search__kind__: {
+                        type: 'select',
+                        inputWidth: 150,
+                        label: t('Definition'),
+                        items: {
+                            quick: t('Quickdefinition from defined columns'),
+                            custom: t('Complete custom fields')
+                        },
+                        children: {
+                            filter: {
+                                type: 'text',
+                                needValue: 'quick',
+                                label: t('Search fields'),
+                                desc: t('Comma seperated. Use only  defined columns from above.')
+                            },
+                            filterCustom: {
+                                label: t('Search fields'),
+                                needValue: 'custom',
+                                type: 'fieldTable',
+                                options: {
+                                    asFrameworkSearch: true,
+                                    withoutChildren: true,
+                                    addLabel: t('Add field'),
+                                    asFrameworkFieldDefinition: true
+                                }
+                            }
+                        }
+                    }
+
+                }
+            },
+
+            __actions__: {
+
+                label: t('Actions'),
+                type: 'childrenSwitcher',
+                children: {
+
+                    add: {
+
+                        label: t('Add functionality'),
+                        type: 'checkbox',
+                        children: {
+                            addIcon: {
+                                label: t('Icon file'),
+                                type: 'file',
+                                needValue: 1
+                            },
+                            addEntrypoint: {
+                                label: t('Entry point'),
+                                type: 'text',
+                                needValue: 1,
+                                withoutObjectWrapper: 1,
+                                desc: t('Default is &lt;current&gt;/add')
+                            }
+                        }
+
+                    },
+
+                    edit: {
+
+                        label: t('Edit functionality'),
+                        type: 'checkbox',
+                        children: {
+                            editIcon: {
+                                label: t('Icon file'),
+                                type: 'file',
+                                needValue: 1,
+                                objectOptions: {
+                                    returnPath: 1,
+                                    onlyLocal: 1
+                                }
+                            },
+                            editEntrypoint: {
+                                label: t('Entry point'),
+                                type: 'text',
+                                needValue: 1,
+                                desc: t('Default is &lt;current&gt;/edit')
+                            }
+                        }
+
+                    },
+
+                    remove: {
+
+                        label: t('Remove functionality'),
+                        type: 'checkbox',
+                        children: {
+
+                            removeIcon: {
+                                label: t('Icon file'),
+                                type: 'file',
+                                needValue: 1,
+                                objectOptions: {
+                                    returnPath: 1,
+                                    onlyLocal: 1
+                                }
+                            }
+
+                        }
+
+                    },
+
+                    itemActions: {
+                        label: t('Item actions'),
+                        desc: t('This generates on each record a extra icon which opens the defined entry point.'),
+                        type: 'array',
+                        withOrder: true,
+                        columns: [
+                            {'label': t('Entry point'), desc: t('The path to the entry point')},
+                            {'label': t('Title')},
+                            {'label': t('Icon path')}
+                        ],
+                        fields: {
+                            entrypoint: {
+                                type: 'object',
+                                inputWidth: 100,
+                                withoutObjectWrapper: 1,
+                                object: 'system_entrypoint'
+                            },
+                            label: {
+                                type: 'text'
+                            },
+                            icon: {
+                                type: 'object',
+                                input_width: 100,
+                                object: 'file',
+                                withoutObjectWrapper: 1,
+                                objectOptions: {
+                                    onlyLocal: 1,
+                                    returnPath: 1
+                                }
+                            }
+                        }
+                    }
+                }
+
+            },
+
+            __export__: {
+                label: t('Export'),
+                type: 'childrenSwitcher',
+                children: {
+                    'export': {
+                        label: t('Export'),
+                        type: 'checkbox',
+                        desc: t('Provide a export button in the window header.')
+                    },
+
+
+                    /*export_types: {
+                        label: t('Types'),
+                        needValue: 1,
+                        againstField: 'export',
+                        type: 'checkboxGroup',
+                        items: {
+                            csv: t('CSV'),
+                            json: t('JSON'),
+                            xml: t('XML')
+                        }
+                    },*/
+
+                    exportCustom: {
+                        needValue: 1,
+                        width: 400,
+                        againstField: 'export',
+                        label: t('Custom export'),
+                        type: 'array',
+                        columns: [
+                            {'label': t('Method')},
+                            {'label': t('Label')}
+                        ],
+                        fields: {
+                            method: {
+                                type: 'text'
+                            },
+                            label: {
+                                type: 'text'
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        };
+
+
+        var table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
+        this.windowListTbody = new Element('tbody').inject(table);
+
+        this.windowListObj = new ka.Parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
+        
 
         this.loadInfo();
     },
@@ -309,7 +563,8 @@ var admin_system_module_editWindow = new Class({
             name: this.win.params.module,
             'class': this.win.params.className,
             general: general,
-            methods: methods
+            methods: methods,
+
         };
 
         if (general['class'] == 'adminWindowEdit' || general['class'] == 'adminWindowAdd'){
@@ -563,14 +818,14 @@ var admin_system_module_editWindow = new Class({
                     required_regexp: /^[a-zA-Z0-9_]*$/,
                     empty: false
                 },
-                arguments: {
+                'arguments': {
                     type: 'text', label: t('Arguments'), desc: t('Comma sperated')
                 },
                 visibility: {
-                    type: 'select', label: t('Visibility'), type: 'select',
-                    items: {public: t('Public'), private: t('Private')}
+                    type: 'select', label: t('Visibility'),
+                    items: {'public': t('Public'), 'private': t('Private')}
                 },
-                static: {
+                'static': {
                     type: 'checkbox', label: t('Static')
                 }
             };
@@ -1048,261 +1303,6 @@ var admin_system_module_editWindow = new Class({
         //if (pClass == 'adminWindowList' || pClass == 'adminWindowCombine'){
         //    this.windowTabList.show();
 
-            var listFields = {
-
-                columns: {
-
-                    label: t('Columns'),
-                    type: 'fieldTable',
-                    asFrameworkColumn: true,
-                    withoutChildren: true,
-                    addLabel: t('Add column')
-
-                },
-
-                itemLayout: {
-                    label: t('Item layout (Optional)'),
-                    desc: t('Default behaviour is that the system extracts the first three columns and build it on it own. You can define here your own item HTML. Use as id attribute the column key.')+
-                    '<br/>'+t('Example:')+'<br/>'+
-                    '&lt;div id="title"&gt;&lt;/div&gt;<br/>'+
-                    '&lt;div style="font-size: 10px;" id="subtitle"&gt;&lt;/div&gt;',
-                    type: 'codemirror',
-                    inputHeight: 150
-                },
-
-                itemsPerPage: {
-
-                    label: t('Items per page'),
-                    type: 'number',
-                    inputWidth: 120
-
-                },
-
-                order: {
-
-                    label: t('Default order'),
-                    type: 'array',
-                    columns: [
-                        {label: t('Field'), width: '60%'},
-                        {label: t('Direction')}
-                    ],
-                    withOrder: true,
-                    fields: {
-                        field: {
-                            type: 'text'
-                        },
-                        direction: {
-                            type: 'select',
-                            items: {
-                                asc: 'ASC',
-                                desc: 'DESC'
-                            }
-                        }
-                    }
-
-                },
-
-                __search__: {
-                    type: 'childrenSwitcher',
-                    label: 'Search',
-                    children: {
-                        __search__kind__: {
-                            type: 'select',
-                            inputWidth: 150,
-                            label: t('Definition'),
-                            items: {
-                                quick: t('Quickdefinition from defined columns'),
-                                custom: t('Complete custom fields')
-                            },
-                            children: {
-                                filter: {
-                                    type: 'text',
-                                    needValue: 'quick',
-                                    label: t('Search fields'),
-                                    desc: t('Comma seperated. Use only  defined columns from above.')
-                                },
-                                filterCustom: {
-                                    label: t('Search fields'),
-                                    needValue: 'custom',
-                                    type: 'fieldTable',
-                                    options: {
-                                        asFrameworkSearch: true,
-                                        withoutChildren: true,
-                                        addLabel: t('Add field'),
-                                        asFrameworkFieldDefinition: true
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                },
-
-                __actions__: {
-
-                    label: t('Actions'),
-                    type: 'childrenSwitcher',
-                    children: {
-
-                        add: {
-
-                            label: t('Add functionality'),
-                            type: 'checkbox',
-                            children: {
-                                addIcon: {
-                                    label: t('Icon file'),
-                                    type: 'file',
-                                    needValue: 1
-                                },
-                                addEntrypoint: {
-                                    label: t('Entry point'),
-                                    type: 'text',
-                                    needValue: 1,
-                                    withoutObjectWrapper: 1,
-                                    desc: t('Default is &lt;current&gt;/add')
-                                }
-                            }
-
-                        },
-
-                        edit: {
-
-                            label: t('Edit functionality'),
-                            type: 'checkbox',
-                            children: {
-                                editIcon: {
-                                    label: t('Icon file'),
-                                    type: 'file',
-                                    needValue: 1,
-                                    objectOptions: {
-                                        returnPath: 1,
-                                        onlyLocal: 1
-                                    }
-                                },
-                                editEntrypoint: {
-                                    label: t('Entry point'),
-                                    type: 'text',
-                                    needValue: 1,
-                                    desc: t('Default is &lt;current&gt;/edit')
-                                }
-                            }
-
-                        },
-
-                        remove: {
-
-                            label: t('Remove functionality'),
-                            type: 'checkbox',
-                            children: {
-
-                                removeIcon: {
-                                    label: t('Icon file'),
-                                    type: 'file',
-                                    needValue: 1,
-                                    objectOptions: {
-                                        returnPath: 1,
-                                        onlyLocal: 1
-                                    }
-                                }
-
-                            }
-
-                        },
-
-                        itemActions: {
-                            label: t('Item actions'),
-                            desc: t('This generates on each record a extra icon which opens the defined entry point.'),
-                            type: 'array',
-                            withOrder: true,
-                            columns: [
-                                {'label': t('Entry point'), desc: t('The path to the entry point')},
-                                {'label': t('Title')},
-                                {'label': t('Icon path')}
-                            ],
-                            fields: {
-                                entrypoint: {
-                                    type: 'object',
-                                    input_width: 100,
-                                    withoutObjectWrapper: 1,
-                                    object: 'system_entrypoint'
-                                },
-                                label: {
-                                    type: 'text'
-                                },
-                                icon: {
-                                    type: 'object',
-                                    input_width: 100,
-                                    object: 'file',
-                                    withoutObjectWrapper: 1,
-                                    objectOptions: {
-                                        onlyLocal: 1,
-                                        returnPath: 1
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                },
-
-                __export__: {
-                    label: t('Export'),
-                    type: 'childrenSwitcher',
-                    children: {
-                        'export': {
-                            label: t('Export'),
-                            type: 'checkbox',
-                            desc: t('Provide a export button in the window header.')
-                        },
-
-
-                        /*export_types: {
-                            label: t('Types'),
-                            needValue: 1,
-                            againstField: 'export',
-                            type: 'checkboxGroup',
-                            items: {
-                                csv: t('CSV'),
-                                json: t('JSON'),
-                                xml: t('XML')
-                            }
-                        },*/
-
-                        exportCustom: {
-                            needValue: 1,
-                            width: 400,
-                            againstField: 'export',
-                            label: t('Custom export'),
-                            type: 'array',
-                            columns: [
-                                {'label': t('Method')},
-                                {'label': t('Label')}
-                            ],
-                            fields: {
-                                method: {
-                                    type: 'text'
-                                },
-                                label: {
-                                    type: 'text'
-                                }
-                            }
-                        }
-
-                    }
-                }
-
-            };
-
-
-            var table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
-            this.windowListTbody = new Element('tbody').inject(table);
-
-            if (pClass != 'adminWindowCombine'){
-                delete listFields.itemLayout;
-            }
-
-            this.windowListObj = new ka.Parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
-
             //compatibility
             if (this.definition.properties){
                 if (this.definition.properties.orderBy){
@@ -1445,7 +1445,7 @@ var admin_system_module_editWindow = new Class({
 
             //check if the key is not anywhere else used
             //TODO, check it
-            if (this.lastLoadedField != val.key && false){
+            if (this.lastLoadedField.key != val.key && false){
                 //yepp, in use
                 this.lastFieldProperty.getField('key').highlight();
                 return;
@@ -1455,11 +1455,16 @@ var admin_system_module_editWindow = new Class({
 
                 var oField = this.lastLoadedField;
 
-                var field = this.addWindowEditField(oField.parent, val.key, val.definition);
+                var children = oField.getDefinition().children;
+
+                var definition = val.definition;
+                definition.children = children;
+
+                var field = this.addWindowEditField(null, val.key, definition);
 
                 field.injectAfter(oField);
 
-                this.lastLoadedField = val.key;
+                this.lastLoadedField = field;
                 document.id(this.lastLoadedField).setStyle('outline', '1px dashed green');
 
                 oField.destroy();
@@ -1468,8 +1473,8 @@ var admin_system_module_editWindow = new Class({
                 return;
             }
         }
-        //we're a tab
 
+        //we're a tab
         tab = this.lastLoadedField;
 
         var btn = this.lastLoadedField.button;
@@ -1483,7 +1488,7 @@ var admin_system_module_editWindow = new Class({
 
         //check if the key is not anywhere else used
         //TODO check it
-        if (this.lastLoadedField != definition.key && false){
+        if (this.lastLoadedField.key != definition.key && false){
             //yepp, in use
             this.toolbarTabItemObj.getField('key').highlight();
             return;
@@ -1495,7 +1500,7 @@ var admin_system_module_editWindow = new Class({
 
             //update tab content
             var container = tab.pane.fieldContainer;
-            var currentScrollY = container.getScroll().y;
+            var currentScroll = container.getScroll();
 
             var children = [];
             container.getElements('.ka-Field').each(function(child){
@@ -1525,7 +1530,10 @@ var admin_system_module_editWindow = new Class({
                     child.inject(target);
 
                 });
+
             }
+
+            container.scrollTo(currentScroll.x, currentScroll.y);
         }
 
         tab.definition = definition;
@@ -1560,52 +1568,55 @@ var admin_system_module_editWindow = new Class({
 
         var field = pField;
 
-        this.windowInspectorContainer.empty();
-
-        if (this.lastFieldProperty){
-            delete this.lastFieldProperty;
-        }
-
         if (!instanceOf(field, ka.Field)){
 
-            this.toolbarTabItemDef = {
-                key: {
-                    type: 'text', label: t('ID'), desc: t('Will be surrounded with __ and __ (double underscore) if its not already.')
-                },
-                label: {
-                    type: 'text', label: t('Label')
-                },
-                layout: {
-                    type: 'textarea', label: t('Content layout (Optional)'),
-                    height: 200,
-                    help: 'admin/objectWindowLayout',
-                    desc: t('If you want to have a own layout in this content tab, then just type here the HTML.')
-                },
-                __optional__: {
-                    label: t('More'),
-                    type: 'childrenSwitcher',
-                    children: {
-                        'needValue': {
-                            label: tc('kaFieldTable', 'Visibility condition (Optional)'),
-                            desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
-                        },
-                        againstField: {
-                            label: tc('kaFieldTable', 'Visibility condition field (Optional)'),
-                            desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
+            delete this.lastFieldProperty;
+
+            if (!this.toolbarTabItemObj){
+
+                this.windowInspectorContainer.empty();
+
+                this.toolbarTabItemDef = {
+                    key: {
+                        type: 'text', label: t('ID'), desc: t('Will be surrounded with __ and __ (double underscore) if its not already.')
+                    },
+                    label: {
+                        type: 'text', label: t('Label')
+                    },
+                    layout: {
+                        type: 'textarea', label: t('Content layout (Optional)'),
+                        height: 200,
+                        help: 'admin/objectWindowLayout',
+                        desc: t('If you want to have a own layout in this content tab, then just type here the HTML.')
+                    },
+                    __optional__: {
+                        label: t('More'),
+                        type: 'childrenSwitcher',
+                        cookieStorage: 'ka.editWindow.toolbarTabItemOptional',
+                        children: {
+                            'needValue': {
+                                label: tc('kaFieldTable', 'Visibility condition (Optional)'),
+                                desc: t("Shows this field only, if the field defined below or the parent field has the defined value. String, JSON notation for arrays and objects, /regex/ or 'javascript:(value=='foo'||value.substr(0,4)=='lala')'")
+                            },
+                            againstField: {
+                                label: tc('kaFieldTable', 'Visibility condition field (Optional)'),
+                                desc: t("Define the key of another field if the condition should not against the parent. Use JSON notation for arrays and objects. String or Array")
+                            }
                         }
                     }
-                }
-            };
+                };
 
-            this.toolbarTabItemObj = new ka.Parse(this.windowInspectorContainer, this.toolbarTabItemDef);
+                this.toolbarTabItemObj = new ka.Parse(this.windowInspectorContainer, this.toolbarTabItemDef);
 
+                this.toolbarTabItemObj.addEvent('change', this.applyFieldProperties);
+            }
 
             var values = field.definition;
             values.key = field.key;
 
-            this.toolbarTabItemObj.setValue(values);
+            document.id(field.button).setStyle('border', '1px dashed green');
 
-            this.toolbarTabItemObj.addEvent('change', this.applyFieldProperties);
+            this.toolbarTabItemObj.setValue(values);
 
             this.lastLoadedField = pField;
             return;
@@ -1616,16 +1627,25 @@ var admin_system_module_editWindow = new Class({
 
         definition.key = field.key;
 
-        this.lastFieldProperty = new ka.FieldProperty(field.key, definition, this.windowInspectorContainer, {
-            arrayKey: true,
-            allTableItems: false,
-            withActions: false,
-            withoutChildren: true,
-            asTableItem: false,
-            asFrameworkFieldDefinition: true
-        });
+        delete this.toolbarTabItemObj;
 
-        this.lastFieldProperty.addEvent('change', this.applyFieldProperties);
+        if (!this.lastFieldProperty){
+
+            this.windowInspectorContainer.empty();
+
+            this.lastFieldProperty = new ka.FieldProperty(field.key, definition, this.windowInspectorContainer, {
+                arrayKey: true,
+                allTableItems: false,
+                withActions: false,
+                withoutChildren: true,
+                asTableItem: false,
+                asFrameworkFieldDefinition: true
+            });
+
+            this.lastFieldProperty.addEvent('change', this.applyFieldProperties);
+        } else {
+            this.lastFieldProperty.setValue(field.key, definition);
+        }
 
         if (field){
             document.id(field).setStyle('outline', '1px dashed green');
@@ -1635,31 +1655,33 @@ var admin_system_module_editWindow = new Class({
     },
 
     addWindowEditField: function(pParent, pKey, pField){
-        var field, errorMsg;
+        var field, errorMsg, target;
 
         field = Object.clone(pField);
         field.designMode = true;
 
         var parentContainer;
 
-        if (instanceOf(pParent, ka.Field)){
-            pParent.prepareChildContainer();
-            parentContainer = pParent.childContainer;
-        } else {
-            parentContainer = pParent.pane.fieldContainer;
+        if (pParent){
+            if (instanceOf(pParent, ka.Field)){
+                pParent.prepareChildContainer();
+                parentContainer = pParent.getChildrenContainer();
+            } else {
+                parentContainer = pParent.pane.fieldContainer;
+            }
+
+            if (!parentContainer){
+                logger('no parent found for id='+pParentKey);
+                return;
+            }
+
+            target = parentContainer.getElement('*[id=' + field.target + ']') ||
+                         parentContainer.getElement('*[id=' + pKey + ']') ||
+                         parentContainer.getElement('*[id=__default__]');
+
+            if (!target)
+                target = parentContainer;
         }
-
-        if (!parentContainer){
-            logger('no parent found for id='+pParentKey);
-            return;
-        }
-
-        var target = parentContainer.getElement('*[id=' + field.target + ']') ||
-                     parentContainer.getElement('*[id=' + pKey + ']') ||
-                     parentContainer.getElement('*[id=__default__]');
-
-        if (!target)
-            target = parentContainer;
 
         field = new ka.Field(
             field,
@@ -1676,7 +1698,7 @@ var admin_system_module_editWindow = new Class({
             'class': 'ka-Field-designMode-actions'
         }).inject( pField.tableItem ? field.main : field.toElement() );
 
-        field.windowEditActions.fade('out');
+        field.windowEditActions.setStyle('opacity', 0);
 
         field.toElement().addEvent('mouseenter', function(){
             field.windowEditActions.fade('in');
@@ -1779,26 +1801,31 @@ var admin_system_module_editWindow = new Class({
         tab.key = pTabKey;
         tab.definition = pDefinition;
 
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/pencil.png',
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Edit'),
-            style: 'margin-left: 4px;',
-            'class': 'ka-system-module-editWindow-tab-edit'
+            html: '&#xe06f;'
         })
-        .addEvent('click', this.loadToolbar.bind(this, pTabKey))
-        .inject(tab.button);
-
-        new Element('img', {
-            src: _path+ PATH_MEDIA + '/admin/images/icons/delete.png',
-            title: t('Delete'),
-            'class': 'ka-system-module-editWindow-tab-edit'
-        })
-        .addEvent('click', function(e){
-            e.stop();
-
-            this.winTabPane.remove(tab.id);
+        .addEvent('click', function(){
+            this.loadToolbar(tab);
         }.bind(this))
         .inject(tab.button);
+
+        new Element('a', {
+            style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+            title: t('Delete'),
+            html: '&#xe26b;'
+        })
+        .addEvent('click', function(){
+            this.win._confirm(t('Really delete?'), function(ok){
+
+                this.winTabPane.remove(tab.id);
+
+            }.bind(this));
+        }.bind(this))
+        .inject(tab.button);
+
+
 
         return tab;
     }

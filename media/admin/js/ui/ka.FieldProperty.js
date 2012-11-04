@@ -248,6 +248,7 @@ ka.FieldProperty = new Class({
         },
         __optional__: {
             label: t('Optional'),
+            cookieStorage: 'ka.FieldProperty.__optional__',
             type: 'childrenSwitcher',
             children: {
                 desc: {
@@ -354,6 +355,8 @@ ka.FieldProperty = new Class({
         this.definition = pDefinition;
 
         this.prepareFields();
+
+        logger('init ka.FieldProperty');
 
         this._createLayout();
     },
@@ -723,17 +726,18 @@ ka.FieldProperty = new Class({
 
     getValue: function(){
 
+        var key;
+
         if (this.options.asTableItem){
-            var key = this.iKey.getValue();
+            key = this.iKey.getValue();
             var type = this.typeField.getValue();
 
             if (!key) return;
 
-
             this.definition.type = type;
         } else {
             this.definition = this.fieldObject.getValue();
-            var key = this.definition.key;
+            key = this.definition.key;
         }
 
         var property = this.definition;
@@ -805,15 +809,23 @@ ka.FieldProperty = new Class({
             }
         }
 
+        if (this.options.asTableItem){
+            this.iKey.setValue(pKey);
+            this.typeField.setValue(pDefinition.type);
+            this.definition = pDefinition;
 
-        this.iKey.setValue(pKey);
-        this.definition = pDefinition;
-        this.typeField.setValue(pDefinition.type);
+            if (this.options.asFrameworkColumn)
+                this.widthField.setValue(pDefinition.width);
+
+        } else {
+            this.fieldObject.setValue(pDefinition);
+        }
 
         delete this.children;
 
         this.children = [];
-        this.childDiv.empty();
+        if (this.childDiv)
+            this.childDiv.empty();
 
         if (!this.options.withoutChildren){
             if (pDefinition.children){
@@ -822,7 +834,6 @@ ka.FieldProperty = new Class({
                     this.addChild(key, definition);
 
                 }.bind(this));
-
             }
         }
 
