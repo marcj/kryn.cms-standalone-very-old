@@ -293,8 +293,9 @@
   </table>
   <table name="system_file" phpName="File">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
-    <column name="path" type="VARCHAR"/>
-    <column name="name" type="VARCHAR"/>
+    <column name="path" type="VARCHAR" size="255"/>
+    <column name="name" type="VARCHAR" size="255"/>
+    <column name="hash" type="VARCHAR" size="64"/>
     <column name="type" type="VARCHAR" size="255"/>
     <column name="size" type="INTEGER"/>
     <column name="ctime" type="BIGINT"/>

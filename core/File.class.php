@@ -311,10 +311,10 @@ class File {
         $file = $fs->getFile($path);
         if (!$file) return null;
 
-        $item = dbTableFetch('system_files', array('path' => $path), 'id');
+        $item = dbTableFetch('system_file', array('path' => $path), 'id');
         if (!$item){
             //insert
-            dbInsert('system_files', array('path' => $path, 'contenthash' => $fs->getMd5($path)));
+            dbInsert('system_file', array('path' => $path, 'hash' => $fs->getMd5($path)));
             $id = dbLastId('id');
         } else {
             $id = $item['id'];
@@ -397,7 +397,7 @@ class File {
             $vals[]  = $file['path'];
             $where[] = 'path = ?';
         }
-        $sql = 'SELECT id, path FROM '.pfx.'system_files WHERE 1=0 OR '.implode(' OR ', $where);
+        $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE 1=0 OR '.implode(' OR ', $where);
 
         $res = dbExec($sql, $vals);
         $path2id = array();
@@ -413,7 +413,7 @@ class File {
 
             //$file['object_id'] = Object
             if (!$path2id[$file['path']]){
-                $id = dbInsert('system_files', array('path' => $file['path']));
+                $id = dbInsert('system_file', array('path' => $file['path'], 'hash' => $fs->getMd5($path)));
                 $file['id'] = $id;
             } else {
                 $file['id'] = $path2id[$file['path']];
@@ -517,7 +517,7 @@ class File {
             return PATH_MEDIA.$pId;
 
         //page bases caching here
-        $sql = 'SELECT id, path FROM '.pfx.'system_files WHERE id = '.($pId+0);
+        $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE id = '.($pId+0);
         $item = dbExfetch($sql);
 
         return $item['path'];
@@ -543,8 +543,7 @@ class File {
      *  )
      * 
      * @static
-     * @param string $pPath
-     * 
+     *
      * @return int|bool|array Return false if the file doenst exist,
      *                        return 2 if the webserver does not have access
      *                        or return array with the information.
@@ -568,7 +567,7 @@ class File {
 
             $path = '/trash/' . $file;
 
-            $dbItem = dbTableFetch('system_files_log', 1, 'id = ' . ($file+0));
+            $dbItem = dbTableFetch('system_file_log', 1, 'id = ' . ($file+0));
 
             $item['name'] = basename($dbItem['path']).'-v'.$file;
             $item['path'] = str_replace(PATH_MEDIA, '', $path);

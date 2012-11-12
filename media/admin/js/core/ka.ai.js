@@ -74,6 +74,123 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
     }
 }
 
+String.prototype.sprintf = function(){
+
+    var args   = arguments
+      , text   = this         //buffer of origin text
+      , arg                   //current argument item
+      , found                 //position of current % char
+      , cursorPosition = 0    //position of current position of origin text
+      , result = ''           //buffer of parsed text
+      , code   = ''           //buffer for char(s) behind %
+      , opt    = ''           //buffer for optional code parameter
+      , number = 0            //buffer for the number value
+      , autoPosition = 0;     //position of current item position in args
+
+    while ((found = text.indexOf('%', cursorPosition)) !== -1){
+
+        result += text.substring(cursorPosition, found);
+
+        code = text.substr(found+1).match(/(?:([0-9]+)\$|)(.{0,3}[0-9\.]*|)([%bcdeEufgGosxX])/);
+        // ->
+        //  1 = argument numbering
+        //  2 = optional parameter
+        //  3 = code
+
+        if (!code){
+            cursorPosition++;
+            continue;
+        }
+
+        //logger(code);
+        cursorPosition = found+1+code[0].length;
+
+        //if argument numbering/swapping
+        if (code[1]){
+            arg = args[parseInt(code[1])-1];
+        } else if (code[3] !== '%'){
+            //default code, so we move position + 1
+            arg = args[autoPosition++];
+        }
+
+        //d, f, u
+        if (code[3] == 'd' || code[3] == 'f' || code[3] == 'u'){
+            number = Number.from(arg) || 0;
+            if (code[2] && (opt = parseInt(code[2])-String.from(number.toFixed(0)).length) > 0)
+                result += '0'.repeat(opt);
+        }
+
+        if (code[3] == 's'){
+            if (code[2]){
+
+                if (code[2].substr(0,1) == '\''){
+                    var char = code[2].substr(1,1);
+                    opt = 2;
+                } else {
+                    opt = code[2].search(/[\-1-9]/);
+                    var char = code[2].substr(0, opt) || ' ';
+                }
+
+                opt = parseFloat(code[2].substr(opt, code[2].length));
+
+                //truncate
+                if (opt%1)
+                    arg = String.from(arg).substr(0, parseInt(code[2].substr(code[2].indexOf('.')+1)));
+
+                if (opt < 0 && (opt*-1) - arg.length > 0)
+                    result += char.repeat( parseInt((opt*-1) - arg.length) );
+            }
+
+            result += String.from(arg);
+
+            if (opt > 0 && opt - arg.length > 0)
+                result += char.repeat( parseInt(opt - arg.length) );
+
+            continue;
+        }
+
+        switch(code[3]){
+            case '%':
+                result += '%'; break;
+            case 'b':
+                result += (Number.from(arg) || 0).toString(2); break;
+            case 'c':
+                result += String.fromCharCode(Number.from(arg) || 0); break;
+            case 'd':
+                result += number.toFixed(0); break;
+            case 'e':
+                result += (Number.from(arg) || 0).toExponential(); break;
+            case 'E':
+                result += (Number.from(arg) || 0).toExponential().toUpperCase(); break;
+            case 'u':
+                result += number >>> 0; break;
+            case 'f':
+                result += number.toFixed((code[2]?code[2].substr(code[2].indexOf('.')+1):6)); break;
+            case 'o':
+                result += (Number.from(arg) || 0).toString(8); break;
+            case 'x':
+                result += (Number.from(arg) || 0).toString(16); break;
+            case 'X':
+                result += (Number.from(arg) || 0).toString(16).toUpperCase(); break;
+        }
+
+    }
+
+    result += text.substr(cursorPosition);
+
+    return result;
+}
+
+//var start = new Date().getTime();
+//logger("HOSOSa [%'28.2s] %%   %2$4.1f asdasd %5d => %2$d %1$s".sprintf("gazzo", 23.45));
+//var elapsed = new Date().getTime() - start;
+//logger(elapsed);
+
+window.tf = function(){
+    var args = arguments;
+    var text = args.shift();
+    return text.sprintf.apply(text, args);
+}
 
 /**
  * Return a translated message $pMsg within a context $pContext
@@ -217,6 +334,7 @@ ka.addFieldKeyPrefix = function(pFields, pPrefix){
 
 /**
  * Resolve path notations and returns the appropriate class.
+ *
  * @param {String} pClassPath
  * @return {Class|Function}
  */
@@ -329,13 +447,30 @@ ka.getObjectPrimaryList = function(pObjectKey){
 }
 
 /**
+ * This just cut off object://<objectName>/ and returns the primary key part urldecoded.
+ *
+ * @param {String} pUri Internal uri
+ * @return {String}
+ */
+ka.getCroppedObjectId = function(pUri){
+
+    if (pUri.indexOf('object://') == 0)
+        pUri = pUri.substr(9);
+
+    var idx = pUri.indexOf('/');
+
+    return ka.urlDecode(pUri.substr(idx+1));
+}
+
+/**
  * Returns the id of an object item for the usage in urls (internal uri's).
  *
  * @param {String} pObjectKey
  * @param {Array}  pItem
- * @return {String}
+ * @return {String} urlencoded internal uri
  */
 ka.getObjectUrlId = function(pObjectKey, pItem){
+    if (!pItem) throw 'ka.getObjectUrlId(): pItem missing.';
     var pks = ka.getObjectPrimaryList(pObjectKey);
 
     if (pks.length == 0 ) throw pObjectKey+' does not have primary keys.';
@@ -368,7 +503,19 @@ ka.getObjectKey = function(pUrl){
 }
 
 /**
- * Returns the primarykey/s of an object by the internal object uri.
+ * Returns the PK of an object from a internal object uri as object or string
+ * urldecoded (So you need to apply pUrl urlencoded if not already).
+ *
+ * Examples:
+ *
+ *  pUrl = object://user/1
+ *  => 1
+ *
+ *  pUrl = object://user/1/3
+ *  => [1,3]
+ *
+ *  pUrl = object://file/%2Fadmin%2Fimages%2Fhi.jpg
+ *  => /admin/images/hi.jpg
  *
  * @param  string pUrl   object://user/1
  * @return array|string  If we have only one pk, it returns a string, otherwise an array.
@@ -402,21 +549,41 @@ ka.getObjectId = function(pUrl){
     }
 }
 
-
-ka.getObjectLabels = function(pFields, pItem, pObjectId, pRelationsAsArray){
+/**
+ * Returns all labels for a object item.
+ *
+ * @param {Array}  pFields
+ * @param {Object} pItem
+ * @param {String} pObjectKey
+ * @param {Boolean} pRelationsAsArray
+ *
+ * @return {Object}
+ */
+ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
 
     var data = pItem, dataKey;
     Object.each(pFields, function(field, fieldId){
         dataKey = fieldId;
         if (pRelationsAsArray && dataKey.indexOf('.') > 0) dataKey = dataKey.split('.')[0];
 
-        data[dataKey] = ka.getObjectLabel(pItem, field, fieldId, pObjectId, pRelationsAsArray);
+        data[dataKey] = ka.getObjectLabel(pItem, field, fieldId, pObjectKey, pRelationsAsArray);
     }.bind(this));
     
     return data;
 }
 
-ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectId, pRelationsAsArray){
+/**
+ * Returns a single label for a field of a object item.
+ *
+ * @param {Object} pValue
+ * @param {String }pField
+ * @param {String} pFieldId
+ * @param {String} pObjectKey
+ * @param {Boolean} pRelationsAsArray
+ *
+ * @return {String}
+ */
+ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
 
     var value = pValue[pFieldId] || '';
 
@@ -446,7 +613,7 @@ ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectId, pRelationsAsAr
             label = pFieldId.split('.')[1];
         } else {
             //find label
-            var def = ka.getObjectDefinition(pObjectId);
+            var def = ka.getObjectDefinition(pObjectKey);
             label = def.objectLabel;
         }
     }

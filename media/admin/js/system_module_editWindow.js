@@ -384,14 +384,16 @@ var admin_system_module_editWindow = new Class({
                         children: {
                             addIcon: {
                                 label: t('Icon file'),
+                                desc: t('Vector images with #&lt;id&gt; are possible.'),
                                 type: 'file',
-                                needValue: 1
+                                needValue: 1,
+                                combobox: true,
+                                withoutObjectWrapper: 1
                             },
                             addEntrypoint: {
                                 label: t('Entry point'),
                                 type: 'text',
                                 needValue: 1,
-                                withoutObjectWrapper: 1,
                                 desc: t('Default is &lt;current&gt;/add')
                             }
                         }
@@ -405,12 +407,11 @@ var admin_system_module_editWindow = new Class({
                         children: {
                             editIcon: {
                                 label: t('Icon file'),
+                                desc: t('Vector images with #&lt;id&gt; are possible.'),
                                 type: 'file',
                                 needValue: 1,
-                                objectOptions: {
-                                    returnPath: 1,
-                                    onlyLocal: 1
-                                }
+                                combobox: true,
+                                withoutObjectWrapper: 1
                             },
                             editEntrypoint: {
                                 label: t('Entry point'),
@@ -431,11 +432,10 @@ var admin_system_module_editWindow = new Class({
                             removeIcon: {
                                 label: t('Icon file'),
                                 type: 'file',
+                                desc: t('Vector images with #&lt;id&gt; are possible.'),
                                 needValue: 1,
-                                objectOptions: {
-                                    returnPath: 1,
-                                    onlyLocal: 1
-                                }
+                                combobox: true,
+                                withoutObjectWrapper: 1
                             }
 
                         }
@@ -1683,11 +1683,22 @@ var admin_system_module_editWindow = new Class({
                 target = parentContainer;
         }
 
-        field = new ka.Field(
-            field,
-            target,
-            {win: this.win}
-        );
+        try {
+            field = new ka.Field(
+                field,
+                target,
+                {win: this.win}
+            );
+        } catch(e){
+            var oldType = field.type;
+            field.type = 'text';
+            field.value = tf('ka.Field type %s not found', oldType);
+            field = new ka.Field(
+                field,
+                target,
+                {win: this.win}
+            );
+        }
 
         field.key = pKey;
         field.editWindowDefinition = pField;

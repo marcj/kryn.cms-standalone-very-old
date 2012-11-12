@@ -439,12 +439,14 @@ ka.FieldTypes.Object = new Class({
 
                     this.input.value = value;
                     this.input.addClass('ka-Input-disabled');
-                } else {
-                    this.input.value = pObjectId;
+                } else if (!this.options.combobox) {
+                    this.input.value = 'not found: '+pObjectUri;
                     this.input.removeClass('ka-Input-disabled');
                     delete this.objectId;
+                } else {
+                    this.input.value = ka.getCroppedObjectId(pObjectUri);
                 }
-            } else {
+            } else if (!this.options.combobox) {
                 this.input.value = response.error;
             }
             this.input.fireEvent('blur');

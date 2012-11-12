@@ -31,8 +31,11 @@ class ObjectFile extends \Core\ORM\Propel {
 
                 if (!is_numeric($value)){
                     $file = \Core\File::getFile(urldecode($value));
-                    $value = $file['id'];
+                    if ($file)
+                        $value = $file['id'];
+                    else continue;
                 }
+
                 $item['id'] = $value;
 
             }
@@ -103,6 +106,8 @@ class ObjectFile extends \Core\ORM\Propel {
             $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
         else
             $path = '/';
+
+        if (!$path) return;
 
         return \Core\File::getFile($path);
     }
