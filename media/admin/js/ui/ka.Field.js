@@ -495,7 +495,7 @@ ka.Field = new Class({
         if (this.win) return this.win;
 
         var win = this.toElement().getParent('.kwindow-border');
-        if (!win) return;
+        if (!win) return null;
 
         this.win = win.retrieve('win');
 
@@ -509,7 +509,7 @@ ka.Field = new Class({
      */
     prepareChildContainer: function(){
 
-        if (this.childContainer) return;
+        if (this.childContainer) return null;
 
         if (this.options.tableItem) {
 

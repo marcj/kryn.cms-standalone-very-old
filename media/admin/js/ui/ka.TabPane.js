@@ -28,6 +28,22 @@ ka.TabPane = new Class({
         this.buttons = [];
     },
 
+    getTabs: function(){
+
+        var tabs = this.paneBox.getChildren('.ka-tabPane-pane');
+        var result = [];
+
+        Array.each(tabs, function(tab){
+            result.push({
+                pane: tab,
+                button: tab.button,
+                id: tab.id
+            });
+        });
+
+        return result;
+    },
+
     toElement: function(){
         return this.box;
     },
@@ -74,6 +90,7 @@ ka.TabPane = new Class({
         res.hide = res.button.hide;
         res.show = res.button.show;
         res.id = id;
+        res.pane.id = id;
 
         if (this.index == -1){
             this.to(0);
@@ -96,7 +113,7 @@ ka.TabPane = new Class({
         this.buttons.each(function (button) {
             button.setPressed(false);
             button.setStyle('border-bottom', '1px solid #EEEEEE');
-        })
+        });
 
         this.buttons[ id ].setStyle('border-bottom', '0px');
         this.panes[ id ].setStyle('display', 'block');

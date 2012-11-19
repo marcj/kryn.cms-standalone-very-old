@@ -47,7 +47,7 @@ var admin_system_module_editWindow = new Class({
         //this.windowTabList.hide();
 
         this.btnGroup = this.win.addBottomBar();
-        this.saveBtn = this.btnGroup.addButton(t('Save'), null, this.save.bind(this));
+        this.saveBtn = this.btnGroup.addButton(t('Save'), this.save.bind(this));
 
         this.saveBtn.setButtonStyle('blue');
 
@@ -180,7 +180,6 @@ var admin_system_module_editWindow = new Class({
 
             var currentTab = this.winTabPane.getSelected();
 
-            logger(currentTab);
             var items = currentTab.pane.fieldContainer.getChildren();
 
             this.addWindowEditField(currentTab,
@@ -295,7 +294,7 @@ var admin_system_module_editWindow = new Class({
 
             itemLayout: {
                 label: t('Item layout (Optional)'),
-                desc: t('Default behaviour is that the system extracts the first three columns and build it on it own. You can define here your own item HTML. Use as id attribute the column key.')+
+                desc: t('Default behaviour is that the system extracts the first three columns and build it on its own. You can define here your own item HTML.')+
                 '<br/>'+t('Example:')+'<br/>'+
                 '&lt;div&gt;{title}&lt;/div&gt;<br/>'+
                 '&lt;div style="font-size: 10px;"&gt;{anotherFieldName}&lt;/div&gt;',
@@ -527,19 +526,23 @@ var admin_system_module_editWindow = new Class({
         };
 
 
-        var table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
+        table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
         this.windowListTbody = new Element('tbody').inject(table);
 
         this.windowListObj = new ka.Parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
-        
 
         this.loadInfo();
     },
 
     save: function(){
 
+        var req = {
+            name: this.win.params.module,
+            'class': this.win.params.className
+        };
 
-        var general = this.generalObj.getValue();
+        req.general = this.generalObj.getValue();
+        req.list = this.windowListObj.getValue();
 
         var methods = {};
 
@@ -559,13 +562,57 @@ var admin_system_module_editWindow = new Class({
             }
         }.bind(this));
 
-        var res = {
-            name: this.win.params.module,
-            'class': this.win.params.className,
-            general: general,
-            methods: methods,
+        req.methods = methods;
+
+
+        var extractFields = function(pField){
+
+            var children = {};
+            if (typeOf(pField) == 'element' && pField.instance)
+                pField = pField.instance;
+
+            var isTab = !instanceOf(pField, ka.Field);
+
+            if (!isTab){
+                parentContainer = pField.getChildrenContainer();
+            } else {
+                parentContainer = pField.pane.fieldContainer;
+            }
+
+            if (parentContainer){
+                parentContainer.getElements('.ka-Field').each(function(field){
+
+                    if (isTab && instanceOf(field.instance.getParent(), ka.Field))
+                        return;
+
+                    children[field.instance.getKey()] = field.instance.getDefinition();
+                    delete children[field.instance.getKey()].designMode;
+
+                });
+            }
+
+
+            return children;
 
         };
+
+        var tabs = this.winTabPane.getTabs();
+        var fields = {}, field;
+
+        Array.each(tabs, function(tab){
+
+            field = Object.clone(tab.button.definition);
+            field.type = 'tab';
+
+            field.children = extractFields(tab);
+
+            fields[tab.button.key] = field;
+        });
+
+        req.fields = fields;
+
+        logger(req);
+        return;
 
         if (general['class'] == 'adminWindowEdit' || general['class'] == 'adminWindowAdd'){
 
@@ -741,6 +788,13 @@ var admin_system_module_editWindow = new Class({
             'class': 'ka-system-module-windoeEdit-method-actionbar'
         }).inject(this.methodTab.pane);
 
+        new ka.Button(t('Got to source'))
+        .addEvent('click', function(){
+            // TODO
+            alert('TODO');
+        }.bind(this))
+        .inject(this.methodActionBar);
+
         new ka.Button(t('Undo'))
         .addEvent('click', function(){
             if (this.methodEditor)
@@ -841,7 +895,7 @@ var admin_system_module_editWindow = new Class({
             new ka.Button(t('Apply'))
             .addEvent('click', function(){
 
-                if (fnDefinitionObj.isOk()){
+                if (fnDefinitionObj.isValid()){
 
                     var name = fnDefinitionObj.getValue('name');
                     if (this.definition.parentMethods[name]){
@@ -974,7 +1028,7 @@ var admin_system_module_editWindow = new Class({
 
             return {
                 visibility: res[1],
-                static: res[2]!=""?true:false,
+                'static': res[2]!=""?true:false,
                 name: res[3],
                 arguments: res[4]
             };
@@ -1008,17 +1062,17 @@ var admin_system_module_editWindow = new Class({
                 required_regexp: /^[a-zA-Z0-9_]*$/,
                 empty: false
             },
-            arguments: {
+            'arguments': {
                 type: 'text', label: t('Arguments'), desc: t('Comma sperated')
             },
             visibility: {
-                type: 'select', label: t('Visibility'), type: 'select',
-                items: {public: t('Public'), private: t('Private')}
+                type: 'select', label: t('Visibility'),
+                items: {'public': t('Public'), 'private': t('Private')}
             },
-            static: {
+            'static': {
                 type: 'checkbox', label: t('Static')
             }
-        }
+        };
 
         var fnDefinitionObj = new ka.Parse(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
 
@@ -1031,7 +1085,7 @@ var admin_system_module_editWindow = new Class({
         new ka.Button(t('Apply'))
             .addEvent('click', function(){
 
-            if (fnDefinitionObj.isOk()){
+            if (fnDefinitionObj.isValid()){
 
                 var name = fnDefinitionObj.getValue('name');
                 if (this.definition.parentMethods[name]){
@@ -1080,7 +1134,7 @@ var admin_system_module_editWindow = new Class({
 
             var code = this.lastMethodItem.get('text');
 
-            var newCode = this.methodEditor.getValue();
+            var newCode = this.methodEditor.getValue().replace(/\r/g, '');
 
             if (this.customCode[code] != newCode){
                 this.newCode[code] = newCode;
@@ -1139,6 +1193,8 @@ var admin_system_module_editWindow = new Class({
 
     selectMethod: function(pA){
 
+
+        logger('selectMethod');
         this.methodContainer.getChildren().removeClass('selected');
         pA.addClass('selected');
 
@@ -1475,12 +1531,10 @@ var admin_system_module_editWindow = new Class({
         }
 
         //we're a tab
-        tab = this.lastLoadedField;
-
-        var btn = this.lastLoadedField.button;
+        var button = this.lastLoadedField;
 
         //copy the action images
-        var actions = btn.getChildren();
+        var actions = button.getChildren();
         actions.adopt();
 
         //get new defintion
@@ -1496,15 +1550,15 @@ var admin_system_module_editWindow = new Class({
         
 
         //did the layout change?
-        if (tab.definition.layout != definition.layout){
+        if (button.definition.layout != definition.layout){
 
             //update tab content
-            var container = tab.pane.fieldContainer;
+            var container = button.tab.pane.fieldContainer;
             var currentScroll = container.getScroll();
 
             var children = [];
             container.getElements('.ka-Field').each(function(child){
-                if (child.instance.parent == tab)
+                if (child.instance.getParent() == button.tab)
                     children.push(child.instance);
             });
 
@@ -1536,21 +1590,20 @@ var admin_system_module_editWindow = new Class({
             container.scrollTo(currentScroll.x, currentScroll.y);
         }
 
-        tab.definition = definition;
+        button.definition = definition;
         definition.type = 'tab';
 
-        tab.key = definition.key;
+        button.key = definition.key;
         delete definition.key;
 
-        if (tab.key.substr(0,2) != '__')
-            tab.key = '__' + tab.key;
-        if (tab.key.substr(tab.key.length-2) != '__')
-            tab.key += '__';
+        if (button.key.substr(0,2) != '__')
+            button.key = '__' + button.key;
+        if (button.key.substr(button.key.length-2) != '__')
+            button.key += '__';
 
-        //tab text
-        btn.set('text', definition.label);
+        button.set('text', definition.label);
 
-        actions.inject(btn);
+        actions.inject(button);
 
         this.inApplyingProperties = false;
 
@@ -1563,7 +1616,7 @@ var admin_system_module_editWindow = new Class({
             if (instanceOf(this.lastLoadedField, ka.Field))
                 document.id(this.lastLoadedField).setStyle('outline');
             else
-                document.id(this.lastLoadedField.button).setStyle('border');
+                document.id(this.lastLoadedField).setStyle('border');
         }
 
         var field = pField;
@@ -1584,7 +1637,9 @@ var admin_system_module_editWindow = new Class({
                         type: 'text', label: t('Label')
                     },
                     layout: {
-                        type: 'textarea', label: t('Content layout (Optional)'),
+                        type: 'codemirror',
+                        inputHeight: 'auto',
+                        label: t('Content layout (Optional)'),
                         height: 200,
                         help: 'admin/objectWindowLayout',
                         desc: t('If you want to have a own layout in this content tab, then just type here the HTML.')
@@ -1614,7 +1669,7 @@ var admin_system_module_editWindow = new Class({
             var values = field.definition;
             values.key = field.key;
 
-            document.id(field.button).setStyle('border', '1px dashed green');
+            document.id(field).setStyle('border', '1px dashed green');
 
             this.toolbarTabItemObj.setValue(values);
 
@@ -1800,7 +1855,6 @@ var admin_system_module_editWindow = new Class({
 
         var tab = this.winTabPane.addPane(pDefinition.label, pIcon);
 
-
         tab.pane.fieldContainer = new Element('div', {
             html: pDefinition.layout
         }).inject(tab.pane);
@@ -1809,8 +1863,8 @@ var admin_system_module_editWindow = new Class({
 
         tab.button.tab = tab;
 
-        tab.key = pTabKey;
-        tab.definition = pDefinition;
+        tab.button.key = pTabKey;
+        tab.button.definition = pDefinition;
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
@@ -1818,7 +1872,7 @@ var admin_system_module_editWindow = new Class({
             html: '&#xe06f;'
         })
         .addEvent('click', function(){
-            this.loadToolbar(tab);
+            this.loadToolbar(tab.button);
         }.bind(this))
         .inject(tab.button);
 

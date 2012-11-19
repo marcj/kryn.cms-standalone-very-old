@@ -318,7 +318,7 @@ ka.Parse = new Class({
             if (field.isHidden())
                 return;
 
-            if (!field.isOk()) {
+            if (!field.isValid()) {
                 ok = false;
             }
 

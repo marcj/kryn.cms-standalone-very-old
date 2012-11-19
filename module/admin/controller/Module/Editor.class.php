@@ -568,11 +568,15 @@ class Editor {
             if ($method->class == $pClassName){
 
                 $code = '';
+                if ($code) $code = "    $code\n";
                 for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
                     $code .= $content[$i]."\n";
                 }
 
-                $res['methods'][$method->name] = $code;
+                if ($doc = $method->getDocComment())
+                    $code = "    $doc\n$code";
+
+                $res['methods'][$method->name] = str_replace("\r", '', $code);
             }
         }
 
@@ -581,6 +585,8 @@ class Editor {
         }
 
         self::extractParentClassInformation($parentClass, $res['parentMethods']);
+
+        unset($res['properties']['_fields']);
 
         return $res;
     }
@@ -610,7 +616,10 @@ class Editor {
 
                 }
 
-                $pMethods[$method->name] = trim($code);
+                if ($doc = $method->getDocComment())
+                    $code = "    $doc\n$code";
+
+                $pMethods[$method->name] = str_replace("\r", '', $code);
             }
         }
 

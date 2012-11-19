@@ -39,7 +39,7 @@ ka.ButtonGroup = new Class({
         var extraWidth = 0;
         this.boxWrapper.getChildren().each(function (button) {
 
-            if (button.retrieve('visible') == false) return;
+            if (!button.retrieve('visible')) return;
 
             if (button.getElement('select')) {
                 extraWidth += button.getElement('select').getSize().x - 28;

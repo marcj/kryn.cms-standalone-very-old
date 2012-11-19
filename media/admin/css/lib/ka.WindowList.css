@@ -1,5 +1,5 @@
-.ka-list-main table,
-.ka-list-head table {
+.ka-list-main > table,
+.ka-list-head > table {
     table-layout: fixed;
     width: 100%;
 }

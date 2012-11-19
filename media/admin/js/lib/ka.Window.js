@@ -464,7 +464,6 @@ ka.Window = new Class({
         this.inFront = false;
     },
 
-
     clearTitle: function () {
         this.titleAdditional.empty();
         ka.wm.updateWindowBar();

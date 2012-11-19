@@ -50,10 +50,10 @@ ka.FieldTypes.Codemirror = new Class({
             this.editor.refresh();
         }.bind(this);
 
-        var window = this.fieldInstance.fieldPanel.getParent('.kwindow-border');
+        var windowInstance = this.fieldInstance.fieldPanel.getParent('.kwindow-border');
         if (this.win){
             this.win.addEvent('resize', refresh);
-        } else if (window){
+        } else if (windowInstance){
             this.win.retrieve('win').addEvent('resize', refresh);
         }
 
@@ -66,6 +66,7 @@ ka.FieldTypes.Codemirror = new Class({
     },
 
     setValue: function(pValue){
+
         this.editor.setValue(pValue?pValue:"");
     },
 
