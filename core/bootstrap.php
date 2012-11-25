@@ -16,12 +16,10 @@ define('PATH_MEDIA_CACHE', 'media/cache/');
 /**
  * Check and loading config.php or redirect to install.php
  */
-if (!file_exists('config.php')) {
+if (!(file_exists('config.php') && is_array($cfg = include('config.php')))){
     header("Location: install.php");
     exit;
 }
-
-$cfg = include('config.php');
 
 error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR);
 
@@ -41,8 +39,8 @@ include(PATH_CORE.'global/framework.global.php');
 include(PATH_CORE.'global/exceptions.global.php');
 
 # Load very important classes.
-include(PATH_CORE . 'Kryn.class.php');
-include(PATH_CORE . 'Utils.class.php');
+include(PATH_CORE.'Kryn.class.php');
+include(PATH_CORE.'Utils.class.php');
 include('lib/propel/runtime/lib/Propel.php');
 
 if ($cfg['displayErrors']){

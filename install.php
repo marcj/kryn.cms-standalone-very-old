@@ -8,6 +8,7 @@
 * To get the full copyright and license information, please view the
 * LICENSE file, that was distributed with this source code.
 */
+
 if (function_exists('mb_internal_encoding'))
   mb_internal_encoding("UTF-8");
 
@@ -346,8 +347,8 @@ function checkConfig(){
           "passwordHashCompat" => 0,
           "passwordHashKey"    => Core\Client\ClientAbstract::getSalt(32),
 
-          "displayErrors"        => 0,
-          "displayRestErrors"    => 0,
+          "displayErrors"        => $_REQUEST['displayErrors'],
+          "displayRestErrors"    => $_REQUEST['displayRestErrors'],
           "logErrors"            => 0,
           "systemTitle"          => $systemTitle,
           "client"                 => array(
@@ -903,9 +904,14 @@ function step2(){
         <?php
 
         $dir = 'media/cache';
+
+        if (!file_exists($dir))
+            if (!@touch($dir)){
+                print "<div style='color: red'>Can not create media/cache folder.</div>";
+            }
+
         if (is_writable($dir)){
           print "<div style='color: green'>$dir is writeable.</div>";
-
         } else {
           $anyThingOk = false;
           print "<div style='color: red'>$dir is not writeable.</div>";
@@ -949,7 +955,7 @@ function step2(){
     $configFile = 'config.php';
 
     if (!file_exists($configFile))
-      if (!touch($configFile)){
+      if (!@touch($configFile)){
         print "<div style='color: red'>Can not create $configFile.</div>";
       }
 
@@ -1062,6 +1068,19 @@ function step3(){
             </select>
         </td>
     </tr>
+
+    <tr>
+        <td>
+            Display errors
+        </td>
+        <td><input type="checkbox" checked="checked" name="displayErrors" value="1" /></td>
+    </tr>
+    <tr>
+        <td>
+            Display RESTful API Error information.
+        </td>
+        <td><input type="checkbox" checked="checked" name="displayRestErrors" value="1" /></td>
+    </tr>
 </table>
 
 
@@ -1114,7 +1133,7 @@ function step3(){
         <td>
           Persistent connections
         </td>
-        <td><input required type="checkbox" checked="checked" name="persistent" value="1" /></td>
+        <td><input type="checkbox" checked="checked" name="persistent" value="1" /></td>
     </tr>
     <tr>
         <td>

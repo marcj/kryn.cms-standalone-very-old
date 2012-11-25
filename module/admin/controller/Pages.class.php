@@ -107,14 +107,14 @@ class Pages {
     public static function getAliases($pRsn) {
         $pRsn = $pRsn + 0;
 
-        $items = dbTableFetch('system_urlalias', 'to_page_id = ' . $pRsn, -1);
+        $items = dbTableFetch('system_page_alias', 'to_page_id = ' . $pRsn, -1);
         json($items);
     }
 
     public static function deleteAlias($pRsn) {
         $pRsn = $pRsn + 0;
 
-        dbDelete('system_urlalias', 'id = ' . $pRsn);
+        dbDelete('system_page_alias', 'id = ' . $pRsn);
     }
 
     public static function setLive($pVersion) {
@@ -1241,11 +1241,11 @@ class Pages {
             }
 
             $existRow = dbExfetch(
-                "SELECT id FROM ".pfx."system_urlalias WHERE to_page_id=" . $page . " AND url = '" . $oldRealUrl .
+                "SELECT id FROM ".pfx."system_page_alias WHERE to_page_id=" . $page . " AND url = '" . $oldRealUrl .
                 "'", 1);
 
             if ($existRow['id'] + 0 == 0)
-                dbInsert('system_urlalias', array('domain_id' => $oldPage['domain_id'], 'url' => $oldRealUrl,
+                dbInsert('system_page_alias', array('domain_id' => $oldPage['domain_id'], 'url' => $oldRealUrl,
                     'to_page_id' => $id));
 
         }
@@ -1428,7 +1428,7 @@ class Pages {
             $res['id'] = array_merge($res['id'], $newRes['id']);
         }
 
-        $aliasRes = dbExec('SELECT to_page_id, url FROM '.pfx.'system_urlalias WHERE domain_id = ' . $pDomainRsn);
+        $aliasRes = dbExec('SELECT to_page_id, url FROM '.pfx.'system_page_alias WHERE domain_id = ' . $pDomainRsn);
         while ($row = dbFetch($aliasRes)) {
             $res['alias'][$row['url']] = $row['to_page_id'];
         }
@@ -1507,38 +1507,6 @@ class Pages {
             $page['realurl'] = $pPage['realurl'];
         }
         return $page;
-    }
-
-    public static function getPage($pRsn, $pLock = false) {
-
-        $pRsn = $pRsn + 0;
-
-        $res = self::getPageByRsn($pRsn);
-        //$res['resourcesCss'] = Kryn::readFile(PATH_MEDIA."css/_pages/$pRsn.css");
-        //$res['resourcesJs'] = Kryn::readFile(PATH_MEDIA."js/_pages/$pRsn.js");
-
-        $curVersion = dbTableFetch('system_page_version', 1, "page_id = $pRsn AND active = 1");
-        if (!$curVersion['id'] > 0) {
-            $curVersion = dbTableFetch('system_page_version', 1, "page_id = $pRsn ORDER BY id DESC");
-        }
-
-        $contents = self::getVersion($pRsn, $curVersion['id']);
-        $res['_activeVersion'] = $curVersion['id'];
-
-        $res['alias'] = dbExfetch('SELECT * FROM '.pfx.'system_urlalias WHERE to_page_id=' . $pRsn, -1);
-
-        $domain =
-            dbExfetch("SELECT d.id FROM ".pfx."system_domain d, ".pfx."system_page p WHERE p.domain_id = d.id AND p.id = $pRsn");
-        Kryn::$domain = $domain;
-
-        $cachedUrls =& Kryn::readCache('systemUrls');
-        $res['realUrl'] = $cachedUrls['id']['id=' . $pRsn];
-        $res['contents'] = json_encode($contents);
-
-        $res['versions'] =
-            dbExfetch("SELECT version_id, MAX(mdate) FROM ".pfx."system_contents WHERE page_id = $pRsn GROUP BY version_id", DB_FETCH_ALL);
-
-        json($res);
     }
 }
 
