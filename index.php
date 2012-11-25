@@ -16,9 +16,6 @@
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-
-var_export($_SERVER); exit;
-
 mb_internal_encoding("UTF-8");
 error_reporting(E_ALL ^ E_NOTICE);
 
