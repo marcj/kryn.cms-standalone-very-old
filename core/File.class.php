@@ -60,7 +60,7 @@ class File {
             $sub = find($pPath.'/*', false);
             if (is_array($sub)){
                 foreach ($sub as $path){
-                    static::fixFiles($path);
+                    static::setPermission($path);
                 }
             }
         } else if (is_file($pPath)){

@@ -52,9 +52,13 @@ var admin_system_module_editWindow = new Class({
         this.saveBtn.setButtonStyle('blue');
 
         var generalFields = {
-            '__file__': {
-                label: t('File'),
-                disabled: true
+            'class': {
+                label: t('Class name'),
+                children: {
+                    file: {
+                        label: t('File')
+                    }
+                }
             },
             object: {
                 needValue: 'object',
@@ -537,8 +541,7 @@ var admin_system_module_editWindow = new Class({
     save: function(){
 
         var req = {
-            name: this.win.params.module,
-            'class': this.win.params.className
+            'oldClass': this.win.params.className
         };
 
         req.general = this.generalObj.getValue();
@@ -563,7 +566,6 @@ var admin_system_module_editWindow = new Class({
         }.bind(this));
 
         req.methods = methods;
-
 
         var extractFields = function(pField){
 
@@ -612,6 +614,23 @@ var admin_system_module_editWindow = new Class({
         req.fields = fields;
 
         logger(req);
+
+        this.saveBtn.startTip(t('Saving ...'));
+
+        if (this.lastSaveReq)
+            this.lastSaveReq.cancel();
+
+        this.lastSaveReq = new Request.JSON({url: _path+'admin/system/module/editor/window-definition?class='+req.general['class'], noCache: 1,
+            onComplete: function(pResponse){
+
+                if (pResponse.data){
+                    this.saveBtn.stopTip(t('Done'));
+                } else {
+                    this.saveBtn.stopTip(t('Failed'));
+                }
+
+        }.bind(this)}).post(req);
+
         return;
 
         if (general['class'] == 'adminWindowEdit' || general['class'] == 'adminWindowAdd'){
@@ -730,11 +749,9 @@ var admin_system_module_editWindow = new Class({
 
         this.win.setLoading(true);
 
-        this.lr = new Request.JSON({url: _path+'admin/system/module/editor/windowDefinition', noCache:1,
+        this.lr = new Request.JSON({url: _path+'admin/system/module/editor/window-definition', noCache:1,
         onComplete: this.renderWindowDefinition.bind(this)}).get({
-            name: this.win.params.module,
-            'className': this.win.params.className,
-            parentClass: this.useThisClassAfterReload
+            'class': this.win.params.className
         });
 
     },
@@ -743,17 +760,14 @@ var admin_system_module_editWindow = new Class({
 
         this.definition = pDefinition.data;
 
-        if (this.useThisClassAfterReload){
-            this.definition['class'] = this.useThisClassAfterReload;
-            delete this.useThisClassAfterReload;
-        }
-
-        this.lastClass = this.definition['class'];
-
         //compatibility
         this.definition.properties.dataModel = this.definition.properties.object?'object':'table';
 
-        this.generalObj.setValue(this.definition.properties);
+        var generalValues = Object.clone(this.definition.properties);
+        generalValues['class'] = this.definition['class'];
+        generalValues['file'] = this.definition['file'];
+
+        this.generalObj.setValue(generalValues);
 
         this.loadWindowClass(this.definition['class']);
 
