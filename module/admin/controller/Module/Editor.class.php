@@ -537,35 +537,109 @@ class Editor {
         return $this->setConfig($pName, $config);
     }
 
+    public function saveWindowDefinition($pClass){
 
-    public static function getWindowDefinition($pName, $pClassName){
+        if (substr($pClass, 0, 1) != '\\')
+            $pClass = '\\'.$pClass;
 
-        if (!class_exists($pClassName)) throw new \ClassNotFoundException();
+        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
+        $fSlash = strpos($actualPath, '/');
+        $actualPath = 'module/'.substr($actualPath, 0, $fSlash).'/controller/'.substr($actualPath, $fSlash+1);
 
-        $reflection = new \ReflectionClass($pClassName);
+        $path = str_replace('..', '', getArgv('file'));
+
+        $sourcecode = "<?php\n\n";
+
+        $lSlash = strrpos($pClass, '\\');
+        $className = $lSlash !== -1 ? substr($pClass, $lSlash+1) : $pClass;
+
+        $parentClass = '\Admin\ObjectWindow';
+
+        $namespace = substr(substr($pClass, 1), 0, $lSlash);
+        if (substr($namespace, -1) == '\\')
+            $namespace = substr($namespace, 0, -1);
+
+        $sourcecode .= "namespace $namespace;\n \n";
+
+        $sourcecode .= 'class '.$className.' extends '.$parentClass." {\n\n";
+
+        if (count($fields = getArgv('fields')) > 0)
+            $this->addVar($sourcecode, 'fields', $fields);
+
+        $listing = getArgv('list');
+        foreach ($listing as $listVarName => $listVar){
+            $this->addVar($sourcecode, $listVarName, $listVar);
+        }
+
+        $general = getArgv('general');
+        foreach ($general as $varName => $var){
+            $this->addVar($sourcecode, $varName, $var);
+        }
+
+        $methods = getArgv('methods');
+        foreach ($methods as $source){
+            $this->addMethod($sourcecode, $source);
+        }
+
+        $sourcecode .= "\n}\n";
+
+        $sourcecode = str_replace("\r", '', $sourcecode);
+
+        SystemFile::setContent($path.'.temp', $sourcecode);
+
+        return true;
+
+    }
+
+    public function addMethod(&$pSourceCode, $pSource){
+
+        $pSourceCode .= substr($pSource, 6, 3);
+
+    }
+
+    public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false){
+
+        $pSourceCode .= $pVisibility.($pStatic?' static':'').' $'.$pName.' = '.var_export($pVar, true).';';
+
+    }
+
+
+    public function getWindowDefinition($pClass){
+
+        if (substr($pClass, 0, 1) != '\\')
+            $pClass = '\\'.$pClass;
+
+        if (!class_exists($pClass)) throw new \ClassNotFoundException(tf('Class %s not found.', $pClass));
+
+        $reflection = new \ReflectionClass($pClass);
         $path = substr($reflection->getFileName(), strlen(PATH));
 
         $content = explode("\n", SystemFile::getContent($path));
 
+        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
+        $fSlash = strpos($actualPath, '/');
+        $actualPath = 'module/'.substr($actualPath, 0, $fSlash).'/controller/'.substr($actualPath, $fSlash+1);
+
         $res = array(
+            'class' => $pClass,
+            'file' => $path,
+            'actualFile' => $actualPath,
             'properties' => array(
                 '__file__' => $path
             )
         );
 
-        $obj = new $pClassName();
+        $obj = new $pClass();
         foreach ($obj as $k => $v)
             $res['properties'][$k] = $v;
 
         $parent = $reflection->getParentClass();
         $parentClass = $parent->name;
 
-        $res['class'] = $parentClass;
-
         $methods = $reflection->getMethods();
 
         foreach ($methods as $method){
-            if ($method->class == $pClassName){
+            if ($method->class == $pClass){
 
                 $code = '';
                 if ($code) $code = "    $code\n";

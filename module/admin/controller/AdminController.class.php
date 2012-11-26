@@ -208,7 +208,8 @@ class AdminController {
                         ->addGetRoute('config', 'getConfig')
 
                         ->addGetRoute('windows', 'getWindows')
-                        ->addGetRoute('windowDefinition', 'getWindowDefinition')
+                        ->addGetRoute('window-definition', 'getWindowDefinition')
+                        ->addPostRoute('window-definition', 'saveWindowDefinition')
 
                         ->addGetRoute('objects', 'getObjects')
                         ->addPostRoute('objects', 'saveObjects')

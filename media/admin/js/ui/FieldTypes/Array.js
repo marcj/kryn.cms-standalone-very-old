@@ -90,7 +90,7 @@ ka.FieldTypes.Array = new Class({
 
                 if (ok == false) return;
 
-                if (!field.isOk()) {
+                if (!field.isValid()) {
                     ok = false;
                 } else {
 
@@ -237,9 +237,10 @@ ka.FieldTypes.Array = new Class({
         if (this.options.withOrder){
 
             new Element('a', {
-                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+                'class': 'text-button-icon',
                 title: t('Move up'),
-                html: '&#xe2ca;'
+                html: '&#xe2ca;',
+                href: 'javascript: ;'
             }).addEvent('click', function () {
                 if(tr.getPrevious())
                     tr.inject(tr.getPrevious(), 'before');
@@ -247,9 +248,10 @@ ka.FieldTypes.Array = new Class({
 
 
             new Element('a', {
-                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
+                'class': 'text-button-icon',
                 title: t('Move down'),
-                html: '&#xe2cc;'
+                html: '&#xe2cc;',
+                href: 'javascript: ;'
             }).addEvent('click', function(){
                 if(tr.getNext())
                     tr.inject(tr.getNext(), 'after');
@@ -259,9 +261,10 @@ ka.FieldTypes.Array = new Class({
 
         if (!this.options.withoutRemove){
             new Element('a', {
-                style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
-                title: _('Remove'),
-                html: '&#xe26b;'
+                'class': 'text-button-icon',
+                title: t('Remove'),
+                html: '&#xe26b;',
+                href: 'javascript: ;'
             }).addEvent('click', function () {
                 tr.destroy();
             }).inject(td);

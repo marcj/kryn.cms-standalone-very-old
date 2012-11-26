@@ -352,7 +352,7 @@ ka.FieldProperty = new Class({
         this.win = pWin;
         this.key = pKey;
         this.container = pContainer;
-        this.definition = pDefinition;
+        this.definition = pDefinition || {};
 
         this.prepareFields();
 
