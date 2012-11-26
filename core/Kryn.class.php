@@ -1359,16 +1359,16 @@ class Kryn {
             $code = "<?php \nfunction gettext_plural_fn_$pLang(\$n){\n";
             $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
             $code .= "}\n?>";
-            SystemFile::setContent(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.php', $code);
+            TempFile::setContent('gettext_plural_fn_' . $pLang . '.php', $code);
 
 
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
-            SystemFile::setContent(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.js', $code);
+            File::setContent('cache/system_gettext_plural_fn_' . $pLang . '.js', $code);
         }
 
-        include_once(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.php');
+        include_once(self::getTempFolder().'gettext_plural_fn_' . $pLang . '.php');
     }
 
     /**
@@ -2345,10 +2345,10 @@ class Kryn {
     }
 
     /**
-     * Returns the webservers temp folder.
+     * Returns the servers temp folder, where you should store dynamic generated stuff.
      *
-     * You can access this folder (with kryn context) through
-     * the TempFile class as you would with the File class.
+     * You can access these files also through
+     * the \Core\TempFile class as you would with the \Core\File class.
      *
      * @static
      * @internal
@@ -2356,6 +2356,7 @@ class Kryn {
      *                                does not overwrite each other files.
      * 
      * @return string Path with trailing slash
+     * @throws FileIOException
      */
     public static function getTempFolder($pWithKrynContext = true){
 
