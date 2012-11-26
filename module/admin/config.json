@@ -473,16 +473,6 @@
                 
             ],
             "chooserFieldDataModelField": "path",
-            "chooserFieldDataModelFields": {
-                "path": {
-                    "label": "[[Path]]",
-                    "type": "text"
-                },
-                "name": {
-                    "type": "text",
-                    "width": "30%"
-                }
-            },
             "chooserBrowserTreeJavascript": "default",
             "chooserBrowserTreeIcon": "extension",
             "chooserBrowserTreeIconMapping": {
@@ -607,11 +597,6 @@
             "chooserFieldDataModel": "default",
             "chooserFieldDataModelField": "title",
             "chooserFieldDataModelFieldExtraFields": "lvl, accessDenied, accessFromGroups",
-            "chooserFieldDataModelFields": {
-                "title": {
-                    "type": "text"
-                }
-            },
             "chooserFieldType": "default",
             "chooserBrowserTreeJavascriptClass": "ka.NodeTree",
             "chooserBrowserTreeJavascript": "custom",
@@ -778,17 +763,6 @@
                 
             ],
             "chooserFieldDataModel": "default",
-            "chooserFieldDataModelFields": {
-                "lang": {
-                    "label": "[[Language]]",
-                    "type": "lang",
-                    "width": "30%"
-                },
-                "domain": {
-                    "label": "[[Domain]]",
-                    "type": "text"
-                }
-            },
             "chooserFieldType": "default",
             "chooserBrowserAutoColumns": {
                 "lang": {
@@ -830,6 +804,45 @@
                 }
             },
             "label": "[[Domain]]"
+        },
+        "language": {
+            "table": "system_langs",
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
+            "chooserFieldDataModelCondition": [
+                
+            ],
+            "chooserFieldDataModelFieldTemplate": "{title} ({langtitle}, {code})",
+            "chooserFieldDataModelFieldExtraFields": "title, langtitle, code",
+            "chooserBrowserTreeIconMapping": [
+                
+            ],
+            "chooserBrowserTreeFixedIcon": false,
+            "chooserBrowserAutoColumns": [
+                
+            ],
+            "fields": {
+                "code": {
+                    "type": "text",
+                    "primaryKey": true,
+                    "required": true
+                },
+                "title": {
+                    "type": "text"
+                },
+                "langtitle": {
+                    "type": "text"
+                },
+                "userdefined": {
+                    "type": "checkbox"
+                },
+                "visible": {
+                    "type": "checkbox"
+                }
+            },
+            "label": "[[Language]]"
         }
     },
     "falDriver": {

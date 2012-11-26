@@ -258,11 +258,9 @@ class Controller {
 
             $primaryKeys = \Core\Object::getPrimaries($object_key);
 
-            $fields = array();
 
-            foreach ($definition['chooserFieldDataModelFields'] as $key => $val){
-                $fields[] = $key;
-            }
+            $extraFields = trim(preg_replace('/[^a-zA-Z0-9]/', '', $definition['chooserFieldDataModelFieldExtraFields']));
+            $fields = explode(',', $extraFields);
 
             $items = \Core\Object::getList($object_key, $object_ids, array(
                 'fields' => $fields,

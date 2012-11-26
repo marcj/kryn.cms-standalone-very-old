@@ -328,19 +328,6 @@
                 
             ],
             "chooserFieldDataModel": "default",
-            "chooserFieldDataModelFields": {
-                "title": {
-                    "label": "[[Title]]",
-                    "type": "text",
-                    "empty": true
-                },
-                "category_id": {
-                    "object": "news",
-                    "field": "category_id",
-                    "type": "predefined",
-                    "empty": true
-                }
-            },
             "chooserFieldDataModelField": "title",
             "chooserFieldType": "default",
             "chooserBrowserAutoColumns": {
@@ -501,12 +488,6 @@
                 
             ],
             "chooserFieldDataModel": "default",
-            "chooserFieldDataModelFields": {
-                "title": {
-                    "label": "[[Title]]",
-                    "type": "text"
-                }
-            },
             "chooserFieldDataModelField": "title",
             "chooserFieldType": "default",
             "chooserBrowserTreeRootObjectIconMapping": [

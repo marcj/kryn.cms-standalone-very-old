@@ -1268,13 +1268,13 @@ class Kryn {
      * @return bool
      * @internal
      */
-    public static function validLanguage($pLang) {
+    public static function isValidLanguage($pLang) {
         if (strlen($pLang) != 2) return false;
 
         $languages = Kryn::getCache('systemLanguages');
 
         if (!$languages) {
-            $languages = dbExfetch('SELECT code FROM %pfx%system_langs WHERE visible = 1', -1);
+            $languages = \LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
             Kryn::setCache('systemLanguages', $languages);
         }
 
@@ -1318,6 +1318,9 @@ class Kryn {
 
         if (!$pLang) $pLang = Kryn::getLanguage();
 
+        if (!Kryn::isValidLanguage($pLang))
+            $pLang = 'en';
+
         if( Kryn::$lang && Kryn::$lang['__lang'] && Kryn::$lang['__lang'] == $pLang && $pForce == false )
             return;
 
@@ -1325,6 +1328,7 @@ class Kryn {
 
         $code = 'cacheLang_' . $pLang;
         Kryn::$lang =& Kryn::getFastCache($code);
+
 
         $md5 = '';
         //<div
@@ -1511,7 +1515,7 @@ class Kryn {
         else
             $first = $_SERVER['PATH_INFO'];
 
-        if (self::validLanguage($first)) {
+        if (self::isValidLanguage($first)) {
             return $first;
         }
 

@@ -2240,7 +2240,7 @@ var admin_system_module_edit = new Class({
             '__selection__':{
                 type: 'tab',
                 tabFullPage: true,
-                label: t('Data'),
+                label: t('Appearence'),
                 children: {
                     blacklistSelection: {
                         label: t('Blacklist selection'),
@@ -2292,25 +2292,21 @@ var admin_system_module_edit = new Class({
                                     }
                                 }
                             },
-                            __singleMode__: {
-                                type: 'label',
-                                label: t('Single mode'),
-                                children: {
-                                    chooserFieldDataModelField: {
-                                        label: t('Label key'),
-                                        type: 'text'
-                                    },
-                                    chooserFieldDataModelFieldTemplate: {
-                                        label: t('Label template (Optional)'),
-                                        type: 'text'
-                                    },
-                                    chooserFieldDataModelFieldExtraFields: {
-                                        label: t('Extra fields in select (Optional)'),
-                                        desc: t('Maybe you need some more fields, if you have a own label template. Comma separated'),
-                                        type: 'text'
-                                    }
-                                }
+                            chooserFieldDataModelField: {
+                                label: t('Label field'),
+                                type: 'text'
                             },
+                            chooserFieldDataModelFieldTemplate: {
+                                label: t('Label template (Optional)'),
+                                desc: t('Overrides the field above.'),
+                                type: 'codemirror'
+                            },
+                            chooserFieldDataModelFieldExtraFields: {
+                                label: t('Extra fields in select (Optional)'),
+                                desc: t('You may enter here some field names, if you have a own label template which need it. Comma separated.'),
+                                type: 'text'
+                            }
+                            /*,
                             chooserFieldDataModelFields: {
                                 label: t('Columns for multiple object chooser.'),
                                 type: 'fieldTable',
@@ -2319,7 +2315,7 @@ var admin_system_module_edit = new Class({
                                 withoutChildren: true,
                                 tableitem_title_width: 200,
                                 addLabel: t('Add column')
-                            }
+                            }*/
                         }
                     },
                     __chooserBrowserTree__: {

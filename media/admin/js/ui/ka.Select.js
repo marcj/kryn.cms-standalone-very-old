@@ -74,6 +74,7 @@ ka.Select = new Class({
         this.fireEvent('ready');
 
     },
+
     createLayout: function(){
 
         this.box = new Element('div', {
@@ -731,8 +732,7 @@ ka.Select = new Class({
 
     },
 
-    setValue: function (pValue, pInternal) {
-
+    setValue: function(pValue, pInternal) {
 
         this.value = pValue;
 
@@ -743,7 +743,7 @@ ka.Select = new Class({
             if (typeOf(item) != 'null' && item !== false)
                 this.title.set('html', this.renderLabel(item.label));
             else
-                this.title.set('text', t('-- not found --'));
+                this.title.set('text', '');
         }.bind(this));
 
         if (pInternal)

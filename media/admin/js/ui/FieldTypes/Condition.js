@@ -93,13 +93,7 @@ ka.FieldTypes.Condition = new Class({
             }
 
         } else {
-            div.iLeft = new Element('input', {
-                'class': 'text',
-                style: 'width: 100%',
-                value: pValues?pValues[0]:''
-            }).inject(td);
-
-            div.iLeft.getValue = function(){return this.value;};
+            div.iLeft = new ka.Field({type: 'text'}, td);
         }
 
 

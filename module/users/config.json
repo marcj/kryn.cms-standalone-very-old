@@ -233,9 +233,6 @@
                 
             ],
             "chooserFieldDataModel": "default",
-            "chooserFieldDataModelFields": [
-                
-            ],
             "chooserFieldType": "default",
             "chooserBrowserAutoColumns": [
                 
@@ -325,12 +322,6 @@
                 
             ],
             "chooserFieldDataModel": "default",
-            "chooserFieldDataModelFields": {
-                "name": {
-                    "label": "[[Name]]",
-                    "type": "text"
-                }
-            },
             "chooserFieldDataModelField": "name",
             "chooserFieldType": "default",
             "chooserBrowserAutoColumns": {

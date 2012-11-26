@@ -220,7 +220,7 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('langs', $loadKeys)){
-            $tlangs = \LangsQuery::create()->filterByVisible(1)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+            $tlangs = \LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
 
             $langs = dbToKeyIndex($tlangs, 'code');
             $res['langs'] = $langs;

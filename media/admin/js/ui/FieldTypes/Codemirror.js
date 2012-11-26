@@ -2,6 +2,10 @@ ka.FieldTypes.Codemirror = new Class({
     
     Extends: ka.FieldAbstract,
 
+    options: {
+        inputHeight: 'auto'
+    },
+
     createLayout: function(){
 
 

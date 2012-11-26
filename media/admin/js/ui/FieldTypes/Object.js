@@ -66,6 +66,8 @@ ka.FieldTypes.Object = new Class({
 
     renderObjectTable: function(){
 
+        //TODO, do it w/o chooserFieldDataModelFields, use instead labelTemplate
+
         this.chooserTable.empty();
 
         this.objectTableLoaderQueue = {};

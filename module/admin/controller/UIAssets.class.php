@@ -36,24 +36,24 @@ class UIAssets {
 
         $lang = esc($pLang, 2);
 
+        if (!Kryn::isValidLanguage($lang))
+            $lang = 'en';
+
         Kryn::$adminClient->getSession()->setLanguage($lang);
         Kryn::$adminClient->syncStore();
 
         Kryn::loadLanguage($lang);
-        $json = json_encode(Kryn::$lang);
 
         if (getArgv('javascript') == 1) {
             header('Content-Type: text/javascript');
-            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . $json;
+            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . json_encode(Kryn::$lang);
             if (!$json) {
                 print "\nLocale.define('en-US', 'Date', " . tFetch('admin/mootools-locale.tpl') . ");";
             }
+            exit;
         } else {
-            $json = json_decode($json, true);
-            $json['mootools'] = json_decode(tFetch('admin/mootools-locale.tpl'), true);
-            json($json);
+            Kryn::$lang['mootools'] = json_decode(tFetch('admin/mootools-locale.tpl'), true);
+            return Kryn::$lang;
         }
-
-        exit;
     }
 }

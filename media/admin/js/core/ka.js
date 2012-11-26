@@ -252,9 +252,9 @@ ka.loadLanguage = function (pLang) {
 
     Asset.javascript(_path + 'admin/ui/languagePluralForm?lang=' + pLang);
 
-    new Request.JSON({url: _path + 'admin/ui/language?lang=' + pLang, async: false, noCache: 1, onComplete: function (res) {
-        ka.lang = res;
-        Locale.define('en-US', 'Date', res.mootools);
+    new Request.JSON({url: _path + 'admin/ui/language?lang=' + pLang, async: false, noCache: 1, onComplete: function(pResponse){
+        ka.lang = pResponse.data;
+        Locale.define('en-US', 'Date', ka.lang);
     }}).get();
 
 }
