@@ -255,9 +255,31 @@ class Object {
 
         $primaryKey = $obj->normalizePrimaryKey($pPrimaryKey);
 
+        if (!$pOptions['fields']){
+            if ($obj->definition['defaultSelection'])
+                $pOptions['fields'] = $obj->definition['defaultSelection'];
+            else
+                $pOptions['fields'] = '*';
+        }
 
-        if (!$pOptions['fields'])
-            $pOptions['fields'] = '*';
+
+        if ($pOptions['fields'] != '*' && $obj->definition['limitDataSets']){
+
+            if (is_string($pOptions['fields']))
+                $pOptions['fields'] = explode(',', trim(str_replace(' ', '', $pOptions['fields'])));
+
+            $extraFields = dbExtractConditionFields($obj->definition['limitDataSets']);
+            $deleteFieldValues = array();
+
+            foreach ($extraFields as $field){
+                if ($obj->definition['fields'][$field]){
+                    if (array_search($field, $pOptions['fields']) === false){
+                        $pOptions['fields'][] = $field;
+                        $deleteFieldValues[] = $field;
+                    }
+                }
+            }
+        }
 
         if (!$pOptions['foreignKeys'])
             $pOptions['foreignKeys'] = '*';
@@ -266,6 +288,15 @@ class Object {
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
             if (!self::satisfy($item, $aclCondition)) return false;
+        }
+
+        if ($obj->definition['limitDataSets']){
+            if (!self::satisfy($item, $obj->definition['limitDataSets'])) return false;
+        }
+
+        if ($deleteFieldValues){
+            foreach ($deleteFieldValues as $field)
+                unset($item[$field]);
         }
 
         return $item;
@@ -304,14 +335,19 @@ class Object {
 
         $obj = self::getClass($pObjectKey);
 
-        if (!$pOptions['fields']) $pOptions['fields'] = '*';
-
-        if (!$pOptions['foreignKeys'])
-            $pOptions['foreignKeys'] = '*';
+        if (!$pOptions['fields']){
+            if ($obj->definition['defaultSelection'])
+                $pOptions['fields'] = $obj->definition['defaultSelection'];
+            else
+                $pOptions['fields'] = '*';
+        }
 
         if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
             $pCondition = array($pCondition);
         }
+
+        if ($obj->definition['limitDataSets'])
+            $pCondition = array($obj->definition['limitDataSets'], 'AND', $pCondition);
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
             if ($pCondition)
@@ -319,7 +355,7 @@ class Object {
             else
                 $pCondition = $aclCondition;
         }
- 
+
         return $obj->getItems($pCondition, $pOptions);
 
     }
@@ -330,7 +366,8 @@ class Object {
      * @static
      * @param $pObjectKey
      * @return bool
-     * @throws Exception
+     * @throws \ObjectNotFoundException
+     * @throws \Exception
      */
     public static function &getClass($pObjectKey){
 
@@ -486,7 +523,7 @@ class Object {
         $definition = kryn::$objects[$pObjectKey];
         if (!$definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
-        $pOptions['fields'] = $definition['nestedRootObjectLabel'];
+        $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
 
         return self::get($definition['nestedRootObject'], $pScope, $pOptions);
     }
@@ -513,7 +550,7 @@ class Object {
         if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
 
         if (!$pOptions['fields']){
-            $fields[] = $definition['nestedRootObjectLabel'];
+            $fields[] = $definition['nestedRootObjectLabelField'];
 
             if ($definition['nestedRootObjectExtraFields']){
                 $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));

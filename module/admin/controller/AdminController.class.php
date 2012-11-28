@@ -165,8 +165,16 @@ class AdminController {
                 ->done()
 
                 ->addSubController('backend', '\Admin\Object\Controller')
+
                     ->addGetRoute('objects', 'getItemsByUri')
                     ->addGetRoute('object', 'getItemPerUri')
+
+
+                    ->addGetRoute('field-object/([a-zA-Z-_]+)/([^/]+)', 'getFieldItem')
+                    ->addGetRoute('field-object-count/([a-zA-Z-_]+)', 'getFieldItemsCount')
+                    ->addGetRoute('field-object/([a-zA-Z-_]+)', 'getFieldItems')
+
+                    ->addGetRoute('browser-object/([a-zA-Z-_]+)', 'getBrowserItems')
                 ->done()
 
                 //admin/system

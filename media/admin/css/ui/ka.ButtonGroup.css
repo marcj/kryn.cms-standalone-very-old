@@ -1,12 +1,3 @@
-.kwindow-win-titleGroups {
-    display: block;
-    position: absolute; 
-    top: 25px;
-    left: 0px;
-    right: 0px;
-    min-height: 28px;
-}
-
 .kwindow-win-buttonGroup {
     margin-left: 15px;
     float: left;

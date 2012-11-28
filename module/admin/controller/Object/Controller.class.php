@@ -25,6 +25,7 @@ class Controller {
 
 
     public function deleteItem($pObject, $pPk){
+        //TODO
     }
 
     public function putItem($pObject, $pSetFields){
@@ -40,6 +41,8 @@ class Controller {
     }
 
     /**
+     * General output of one object item. /admin/backend/object/<objectKey>/<primaryKey>
+     *
      * @param $pObject
      * @param $pPk
      * @param null $pFields
@@ -129,12 +132,14 @@ class Controller {
     }
 
     /**
-     * @param $pObject
-     * @param null $pFields
-     * @param null $pLimit
-     * @param null $pOffset
-     * @param null $pOrder
-     * @param null $_
+     * General output of object items. /admin/backend/objects/<objectKey>
+     *
+     * @param string $pObject
+     * @param string $pFields
+     * @param int    $pLimit
+     * @param int    $pOffset
+     * @param array  $pOrder
+     * @param mixed  $_
      * @return array|bool
      */
     public function getItems($pObject, $pFields = null, $pLimit = null, $pOffset = null,
@@ -167,7 +172,11 @@ class Controller {
             foreach ($pFilter as $k => $v){
                 if ($condition) $condition[] = 'and';
 
-                $condition[] = array($k, '=', $v);
+                if (strpos($v, '*') !== false){
+                    $condition[] = array(substr($k, 1), 'LIKE', str_replace('*', '%', $v));
+                } else {
+                    $condition[] = array(substr($k, 1), '=', $v);
+                }
             }
         }
         return $condition;
@@ -183,53 +192,68 @@ class Controller {
     }
 
     /**
-     * @param $pUri
+     * General object items output. /admin/backend/object?uri=...
+     *
+     * @param string $pUri
+     * @param string $pFields
      * @return array|bool
-     * @throws ObjectNotFoundException
+     * @throws \ObjectNotFoundException
      */
-    public function getItemPerUri($pUri){
+    public function getItemPerUri($pUri, $pFields = null){
 
-        list($object_key, $object_id, $params) = \Core\Object::parseUri($pUri);
+        list($object_key, $object_id) = \Core\Object::parseUri($pUri);
 
         $definition = \Core\Kryn::$objects[$object_key];
-        if (!$definition) throw new ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
 
-        if ($definition['chooserFieldDataModel'] == 'custom'){
+        return \Core\Object::get($object_key, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
+    }
 
-            $class = $definition['chooserFieldDataModelClass'];
 
-            $dataModel = new $class($object_key);
+    /**
+     * Object items output for user interface field.  /admin/backend/field-object?uri=...
+     *
+     * @param string $pUri
+     * @param string $pFields
+     * @return array|bool
+     * @throws \ObjectNotFoundException
+     * @throws \ClassNotFoundException
+     */
+    public function getFieldItem($pObjectKey, $pPk, $pFields = null){
 
-            $item = $dataModel->getItem($object_id[0]);
-            return array(
-                'object' => $object_key,
-                'values' => $item
-            );
+        $definition = \Core\Kryn::$objects[$pObjectKey];
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $pObjectKey));
 
+        if ($definition['chooserFieldDataModel'] != 'custom'){
+            return \Core\Object::get($pObjectKey, $pPk);
         } else {
 
-            $fields[] = $definition['chooserFieldDataModelField'];
+            $class = $definition['chooserFieldDataModelClass'];
+            if (!class_exists($class)) throw new \ClassNotFoundException(tf('Class %s can not be found.', $class));
+            $dataModel = new $class($pObjectKey);
 
-            if ($definition['chooserFieldDataModelCondition']){
-                $condition = $definition['chooserFieldDataModelCondition'];
-            }
-
-            $item = \Core\Object::get($object_key, $object_id[0], array(
-                'fields' => $fields,
-                'condition' => $condition
-            ));
-
-            return $item;
-
+            return $dataModel->getItem($pPk, array('fields' => $pFields, 'permissionCheck' => true));
         }
     }
 
+
+    public function getFieldItemsCount($pObject){
+        //TODO
+        return 'TODO';
+    }
+
     /**
-     * @param $pUri
+     * General object items output. /admin/backend/objects?uri=...
+     *
+     * @param string $pUri
+     * @param string $pFields
+     * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
      * @return array
      * @throws \Exception
+     * @throws \ClassNotFoundException
+     * @throws \ObjectNotFoundException
      */
-    public function getItemsByUri($pUri){
+    public function getItemsByUri($pUri, $pFields = null, $pReturnHash = true){
 
         list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
 
@@ -239,55 +263,200 @@ class Controller {
         }
 
         $definition = \Core\Kryn::$objects[$object_key];
-        if (!$definition) return array('error' => 'object_not_found');
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $object_key));
 
-        //todo check here access
+        $items = \Core\Object::getList($object_key, $object_ids, array(
+            'fields' => $pFields,
+            'permissionCheck' => true
+        ));
 
-        if ($definition['chooserFieldDataModel'] == 'custom'){
+        if ($pReturnHash) {
+            $primaryKeys = \Core\Object::getPrimaries($object_key);
 
-            $class = $definition['chooserFieldDataModel'];
-            $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
-            if (!file_exists($classFile)) return array('error' => 'classfile_not_found');
+            $c = count($primaryKeys);
+            $firstPK = key($primaryKeys);
 
-            require_once($classFile);
-            $dataModel = new $class($object_key);
+            $res = array();
+            if (is_array($items)){
+                foreach ($items as &$item){
 
-            $items = $dataModel->getItems($object_ids);
+                    if ($c > 1){
+                        $keys = array();
+                        foreach($primaryKeys as $key => &$field){
+                            $keys[] = rawurlencode($item[$key]);
+                        }
+                        $res[ implode(',', $keys) ] = $item;
+                    } else {
+                        $res[$item[$firstPK]] = $item;
+                    }
+                }
+            }
+
+            return $res;
+        } else {
+            return $items;
+        }
+    }
+
+
+
+    /**
+     * Object items output for user interface field. /admin/backend/field-objects?uri=...
+     *
+     *
+     * This method does check against object property 'chooserFieldDataModelClass'. If set, we use
+     * this class to get the items.
+     *
+     * @param string $pObjectKey
+     * @param string $pFields
+     * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
+     * @param int    $pLimit
+     * @param int    $pOffset
+     * @param array  $pOrder
+     * @param mixed  $_
+     *
+     * @return array
+     * @throws \Exception
+     * @throws \ClassNotFoundException
+     * @throws \ObjectNotFoundException
+     */
+    public function getFieldItems($pObjectKey, $pFields = null, $pReturnHash = true, $pLimit = null, $pOffset = null,
+                                  $pOrder = null, $_ = null){
+
+        $definition = \Core\Kryn::$objects[$pObjectKey];
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
+
+        $options = array(
+            'permissionCheck' => true,
+            'fields' => $pFields,
+            'limit'  => $pLimit,
+            'offset' => $pOffset,
+            'order'  => $pOrder
+        );
+
+        $condition = $this->buildFilter($_);
+
+        if ($definition['fieldDataModel'] == 'custom'){
+
+            $class = $definition['fieldDataModelClass'];
+            if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
+
+            $dataModel = new $class($pObjectKey);
+
+            $items = $dataModel->getItems($condition, $options);
 
         } else {
 
-            $primaryKeys = \Core\Object::getPrimaries($object_key);
-
-
-            $extraFields = trim(preg_replace('/[^a-zA-Z0-9]/', '', $definition['chooserFieldDataModelFieldExtraFields']));
-            $fields = explode(',', $extraFields);
-
-            $items = \Core\Object::getList($object_key, $object_ids, array(
-                'fields' => $fields,
-                'condition' => $definition['chooserFieldDataModelCondition']
-            ));
+            $items = \Core\Object::getList($pObjectKey, $condition, $options);
 
         }
 
-        $c = count($primaryKeys);
-        $firstPK = key($primaryKeys);
+        if ($pReturnHash) {
+            $primaryKeys = \Core\Object::getPrimaries($pObjectKey);
 
-        $res = array();
-        if (is_array($items)){
-            foreach ($items as &$item){
+            $c = count($primaryKeys);
+            $firstPK = key($primaryKeys);
 
-                if ($c > 1){
-                    $keys = array();
-                    foreach($primaryKeys as $key => &$field){
-                        $keys[] = rawurlencode($item[$key]);
+            $res = array();
+            if (is_array($items)){
+                foreach ($items as &$item){
+
+                    if ($c > 1){
+                        $keys = array();
+                        foreach($primaryKeys as $key => &$field){
+                            $keys[] = rawurlencode($item[$key]);
+                        }
+                        $res[ implode(',', $keys) ] = $item;
+                    } else {
+                        $res[$item[$firstPK]] = $item;
                     }
-                    $res[ implode(',', $keys) ] = $item;
-                } else {
-                    $res[$item[$firstPK]] = $item;
                 }
             }
+
+            return $res;
+        } else {
+            return $items;
+        }
+    }
+
+
+    /**
+     * Object items output for user interface chooser window/browser. /admin/backend/browser-objects?uri=...
+     *
+     * This method does check against object property 'chooserBrowserDataModelClass'. If set, we use
+     * this class to get the items.
+     *
+     * @param string $pObjectKey
+     * @param string $pFields
+     * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
+     *
+     * @param int    $pLimit
+     * @param int    $pOffset
+     * @param array  $pOrder
+     * @param mixed  $_
+     *
+     * @return array
+     * @throws \Exception
+     * @throws \ClassNotFoundException
+     * @throws \ObjectNotFoundException
+     */
+    public function getBrowserItems($pObjectKey, $pFields = null, $pReturnHash = true, $pLimit = null, $pOffset = null,
+                                    $pOrder = null, $_ = null){
+
+
+        $definition = \Core\Kryn::$objects[$pObjectKey];
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
+
+        $options = array(
+            'permissionCheck' => true,
+            'fields' => $pFields,
+            'limit'  => $pLimit,
+            'offset' => $pOffset,
+            'order'  => $pOrder
+        );
+
+        $condition = $this->buildFilter($_);
+
+        if ($definition['chooserBrowserDataModel'] == 'custom'){
+
+            $class = $definition['chooserBrowserDataModelClass'];
+            if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
+
+            $dataModel = new $class($pObjectKey);
+
+            $items = $dataModel->getItems($condition, $options);
+
+        } else {
+
+            $items = \Core\Object::getList($pObjectKey, $condition, $options);
+
         }
 
-        return $res;
+        if ($pReturnHash) {
+            $primaryKeys = \Core\Object::getPrimaries($pObjectKey);
+
+            $c = count($primaryKeys);
+            $firstPK = key($primaryKeys);
+
+            $res = array();
+            if (is_array($items)){
+                foreach ($items as &$item){
+
+                    if ($c > 1){
+                        $keys = array();
+                        foreach($primaryKeys as $key => &$field){
+                            $keys[] = rawurlencode($item[$key]);
+                        }
+                        $res[ implode(',', $keys) ] = $item;
+                    } else {
+                        $res[$item[$firstPK]] = $item;
+                    }
+                }
+            }
+
+            return $res;
+        } else {
+            return $items;
+        }
     }
 }

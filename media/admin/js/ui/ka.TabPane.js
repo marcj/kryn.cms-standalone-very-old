@@ -112,10 +112,8 @@ ka.TabPane = new Class({
         });
         this.buttons.each(function (button) {
             button.setPressed(false);
-            button.setStyle('border-bottom', '1px solid #EEEEEE');
         });
 
-        this.buttons[ id ].setStyle('border-bottom', '0px');
         this.panes[ id ].setStyle('display', 'block');
         this.buttons[ id ].setPressed(true);
 

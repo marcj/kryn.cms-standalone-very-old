@@ -728,10 +728,11 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = false, $pTable = '')
  * @param array   &$pData The data for prepared statement.
  * @param string  $pTablePrefix
  * @param string  $pObjectKey
+ * @param array   &$pFieldNames
  *
  * @return bool|string
  */
-function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = ''){
+function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = '', &$pFieldNames = null){
 
     $result = '';
     if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
@@ -739,35 +740,44 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
     if (is_array($pConditions) && !is_numeric(key($pConditions))){
         //array( 'bla' => 'hui' );
         //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
-        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey, $pFieldNames);
     }
 
     if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))){
         //array( array('bla' => 'bla', ... );
         //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
-        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey, $pFieldNames);
     }
 
     if (!is_array($pConditions[0])){
         //array( 1, 2, 3 );
-        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey);
+        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey, $pFieldNames);
     }
 
-    return dbFullConditionToSql($pConditions, $pData, $pTablePrefix);
+    return dbFullConditionToSql($pConditions, $pData, $pTablePrefix, $pFieldNames);
 
 }
 
-function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix){
+/**
+ * Returns the SQL for a full defined condition object.
+ *
+ * @param array  $pConditions
+ * @param array  $pData
+ * @param string $pTablePrefix
+ * @param array  &$pFieldNames
+ *
+ * @return string
+ */
+function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldNames = null){
 
     $result = '';
-
     if (is_array($pConditions)){
         foreach ($pConditions as $condition){
 
             if (is_array($condition) && is_array($condition[0])){
-                $result .= ' ('.dbFullConditionToSql($condition, $pData, $pTablePrefix).')';
+                $result .= ' ('.dbFullConditionToSql($condition, $pData, $pTablePrefix, $pFieldNames).')';
             } else if(is_array($condition)){
-                $result .= dbConditionSingleField($condition, $pData, $pTablePrefix);
+                $result .= dbConditionSingleField($condition, $pData, $pTablePrefix, $pFieldNames);
             } else if (is_string($condition)){
                 $result .= ' '.$condition.' ';
             }
@@ -775,7 +785,7 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix){
         }
     } else {
         //only one condition, ex: array('id', '>', 0)
-        $result = dbFullConditionToSql($pConditions, $pData, $pTablePrefix);
+        $result = dbFullConditionToSql($pConditions, $pData, $pTablePrefix, $pFieldNames);
 
     }
 
@@ -783,24 +793,23 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix){
 }
 
 /**
- * Helper function for dbConditionToSql()
+ * Helper function for dbFullConditionToSql()
  *
  * @internal
- * @param array $pCondition
- * @param array &$pData
+ * @param array  $pCondition
+ * @param array  &$pData
  * @param string $pTable
+ * @param array  &$pFieldNames
  * @return string
  */
-function dbConditionSingleField($pCondition, &$pData, $pTable = ''){
+function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldNames = null){
 
-    if (!is_numeric($pCondition[0])){
-        if (($pos = strpos($pCondition[0], '.')) === false){
-            $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
-        } else {
-            $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
-        }
+    if (($pos = strpos($pCondition[0], '.')) === false){
+        $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
+        if ($pFieldNames !== null) $pFieldNames[] = $pCondition[0];
     } else {
-        $result = ($pCondition[0]+0);
+        $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
+        if ($pFieldNames !== null) $pFieldNames[] = substr($pCondition[0], $pos);
     }
 
     if (strtolower($pCondition[1]) == 'regexp')
@@ -821,6 +830,23 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = ''){
     }
 
     return $result;
+}
+
+/**
+ * Returns a list of column/field names which are used in the condition object.
+ *
+ * Since a condition object can contains nested other conditions, this function is very helpful.
+ *
+ * @param $pCondition
+ * @return array
+ */
+function dbExtractConditionFields($pCondition){
+    $fields = array();
+    $data   = array();
+
+    dbConditionToSql($pCondition, $data, null, null, $fields);
+
+    return $fields;
 }
 
 

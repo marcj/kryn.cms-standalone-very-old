@@ -223,7 +223,7 @@
     "objects": {
         "user": {
             "table": "system_user",
-            "objectLabel": "username",
+            "labelField": "username",
             "nested": 0,
             "dataModel": "propel",
             "multiLanguage": 0,
@@ -313,7 +313,7 @@
         },
         "group": {
             "table": "system_group",
-            "objectLabel": "name",
+            "labelField": "name",
             "nested": 0,
             "dataModel": "propel",
             "multiLanguage": 0,

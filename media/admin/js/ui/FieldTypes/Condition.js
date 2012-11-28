@@ -47,7 +47,8 @@ ka.FieldTypes.Condition = new Class({
         }).inject(pTarget);
 
         var table = new Element('table', {
-            style: 'width: 100%; table-layout: fixed; background-color: transparent;'
+            style: 'width: 100%; table-layout: fixed; background-color: transparent;',
+            cellpadding: 1
         }).inject(div);
 
         var tbody = new Element('tbody').inject(table);
@@ -93,7 +94,7 @@ ka.FieldTypes.Condition = new Class({
             }
 
         } else {
-            div.iLeft = new ka.Field({type: 'text'}, td);
+            div.iLeft = new ka.Field({type: 'text', noWrapper: 1}, td);
         }
 
 
@@ -101,26 +102,23 @@ ka.FieldTypes.Condition = new Class({
             div.iLeft.setValue(pValues[0]);
 
         var td = new Element('td', {style: 'width: 41px; text-align: center'}).inject(tr);
-        var select = new ka.Select(td);
-        div.iMiddle = select;
 
-        document.id(select).setStyle('width', '100%');
-
-        ['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'NOT IN', 'REGEXP',
-            '= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
-            select.add(item, item);
-        });
+        div.iMiddle = new ka.Field({
+            type: 'select',
+            noWrapper: true,
+            items: ['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'NOT IN', 'REGEXP',
+            '= CURRENT_USER', '!= CURRENT_USER']
+        }, td);
 
         if (pValues)
-            select.setValue(pValues[1]);
+            div.iMiddle.setValue(pValues[1]);
 
         div.rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
-        div.iRight = new Element('input', {
-            'class': 'text',
-            style: 'width: 100%',
-            value: pValues?pValues[2]:''
-        }).inject(div.rightTd);
-        div.iRight.getValue = function(){return this.value;};
+
+        div.iRight = new ka.Field({type: 'text', noWrapper: 1}, div.rightTd);
+        if (pValues)
+            div.iRight.setValue(pValues[2]);
+
 
         if (this.options.fields || this.options.field){
             div.iLeft.addEvent('change', this.updateRightTdField.bind(this, div));
@@ -131,32 +129,44 @@ ka.FieldTypes.Condition = new Class({
 
         var actions = new Element('td', {style: 'width: '+parseInt((16*4)+3)+'px'}).inject(tr);
 
-        new Element('img', {src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_up.png'})
-        .addEvent('click', function(){
+
+        new Element('a', {
+            'class': 'text-button-icon',
+            title: t('Move up'),
+            html: '&#xe2ca;',
+            href: 'javascript: ;'
+        }).addEvent('click', function () {
             if (div.getPrevious()){
                 div.inject(div.getPrevious(), 'before');
                 this.reRender(pTarget);
             }
-        }.bind(this))
-        .inject(actions);
-        new Element('img', {src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_down.png'})
-        .addEvent('click', function(){
+        }).inject(actions);
+
+
+
+        new Element('a', {
+            'class': 'text-button-icon',
+            title: t('Move down'),
+            html: '&#xe2cc;',
+            href: 'javascript: ;'
+        }).addEvent('click', function(){
             if (div.getNext()){
                 div.inject(div.getNext(), 'after');
                 this.reRender(pTarget);
             }
-        }.bind(this))
-        .inject(actions);
+        }).inject(actions);
 
-        new Element('img', {src: _path+ PATH_MEDIA + '/admin/images/icons/delete.png'})
-        .addEvent('click', function(){
-            this.win._confirm(t('Really delete?'), function(a){
-                if (!a) return;
-                div.destroy();
-                this.reRender(pTarget);
-            });
-        }.bind(this))
-        .inject(actions);
+
+
+        new Element('a', {
+            'class': 'text-button-icon',
+            title: t('Remove'),
+            html: '&#xe26b;',
+            href: 'javascript: ;'
+        }).addEvent('click', function () {
+            div.destroy();
+            this.reRender(pTarget);
+        }).inject(actions);
 
         new Element('td', {
             'class': 'ka-field-condition-leftBracket',

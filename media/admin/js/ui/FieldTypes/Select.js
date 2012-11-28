@@ -4,6 +4,8 @@ ka.FieldTypes.Select = new Class({
 
     options: {
 
+        inputWidth: '100%',
+
         items: false, //array or object
         store: false, //string
         object: false, //for object chooser
@@ -13,10 +15,17 @@ ka.FieldTypes.Select = new Class({
 
     createLayout: function(){
 
-        this.select = new ka.Select(this.fieldInstance.fieldPanel, this.options);
+        this.wrapper = new Element('div', {
+            'class': 'ka-Select-wrapper',
+            style: this.options.style,
+            styles: {
+                'width': this.options.inputWidth=='100%'?null:this.options.inputWidth,
+                'height': this.options.inputHeight
+            }
+        }).inject(this.fieldInstance.fieldPanel);
 
-        document.id(this.select).setStyle('width', this.options.inputWidth?
-            this.options.inputWidth:'100%');
+
+        this.select = new ka.Select(this.wrapper, this.options);
 
         this.select.addEvent('change', this.fieldInstance.fireChange);
 

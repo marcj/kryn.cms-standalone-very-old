@@ -318,7 +318,7 @@
         "news": {
             "desc": "[[Articles]]",
             "table": "publication_news",
-            "objectLabel": "title",
+            "labelField": "title",
             "nested": false,
             "dataModel": "propel",
             "multiLanguage": true,
@@ -467,7 +467,7 @@
                 "parent_id": {
                     "label": "[[News]]",
                     "object": "news",
-                    "objectLabel": "title",
+                    "labelField": "title",
                     "objectRelation": "nTo1",
                     "type": "object",
                     "primaryKey": 0,

@@ -16,7 +16,7 @@ var admin_system_module_edit = new Class({
         this.buttons['links'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'links'));
 
         this.buttons['objects'] = this.topNavi.addButton(t('Objects'), '', this.viewType.bind(this, 'objects'));
-        this.buttons['db'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'db'));
+        this.buttons['db'] = this.topNavi.addButton(t('FieldModel'), '', this.viewType.bind(this, 'db'));
 
         this.buttons['windows'] = this.topNavi.addButton(t('Windows'), '', this.viewType.bind(this, 'windows'));
         this.buttons['plugins'] = this.topNavi.addButton(t('Plugins'), '', this.viewType.bind(this, 'plugins'));
@@ -641,8 +641,7 @@ var admin_system_module_edit = new Class({
 
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px; padding: 5px;',
-            text: t('Show definitions')
+            style: 'bottom: 31px; padding: 5px;'
         }).inject(this.panes['links']);
 
         this.entryPointsTable = new Element('table', {
@@ -856,7 +855,7 @@ var admin_system_module_edit = new Class({
         //KEY
         var td = new Element('td').inject(tr);
         var div = new Element('div', {style: 'position: relative;'}).inject(td);
-        new Element('div', {'class': 'icon-arrow-right-5', style: 'position: absolute; left: -15px; top: 3px;'}).inject(div);
+        new Element('div', {'class': 'icon-arrow-right-5', style: 'position: absolute; left: -15px;'}).inject(div);
 
 
         tr.definition = pDefinition;
@@ -2173,14 +2172,33 @@ var admin_system_module_edit = new Class({
                                 label: t('Table name'),
                                 modifier: 'underscore|trim'
                             },
-                            objectLabel: {
+                            labelField: {
                                 label: t('Label field'),
                                 desc: t('Default field for the label.'),
                                 type: 'text',
                                 modifier: 'camelcase|trim|lcfirst'
                             },
+                            labelTemplate: {
+                                label: t('Label template (Optional)'),
+                                desc: t('For the javascript user interface field.'),
+                                //todo, help id
+                                type: 'codemirror'
+                            },
+                            defaultSelection: {
+                                label: t('Default selection (Optional)'),
+                                desc: t('You may enter here some field names comma separated. (e.g. if you have a own label template which needs it). Empty for full selection.'),
+                                type: 'text'
+                            },
+                            blacklistSelection: {
+                                label: t('Blacklist selection'),
+                                desc: t('Enter fields which are not selectable through the ORM (and therefore also for the REST API). Comma separated.')
+                            },
+                            limitDataSets: {
+                                label: t('Limit data sets'),
+                                type: 'condition'
+                            },
                             nested: {
-                                label: t('Nested Set Model'),
+                                label: t('Nested Set FieldModel'),
                                 desc: t('Implement with lft, rgt and lvl fields.'),
                                 type: 'checkbox',
                                 children: {
@@ -2205,7 +2223,7 @@ var admin_system_module_edit = new Class({
                                                 modifier: 'camelcase|trim|lcfirst',
                                                 desc: t('Which field in the current object contains the primary value of the parent object?')
                                             },
-                                            nestedRootObjectLabel: {
+                                            nestedRootObjectLabelField: {
                                                 needValue: 1,
                                                 label: t('Label field'),
                                                 modifier: 'camelcase|trim|lcfirst'
@@ -2242,19 +2260,11 @@ var admin_system_module_edit = new Class({
                 tabFullPage: true,
                 label: t('Appearence'),
                 children: {
-                    blacklistSelection: {
-                        label: t('Blacklist selection'),
-                        desc: t('Enter fileds which are not selectable through the REST API. Comma separated.')
-                    },
-                    chooserIcon: {
-                        label: t('Chooser icon'),
-                        desc: t('Relative to media/.')
-                    },
                     __fieldUi__: {
                         label: t('Field UI'),
                         type: 'childrenSwitcher',
                         children: {
-                            chooserFieldType: {
+                            fieldInterface: {
                                 type: 'select',
                                 label: t('Javascript UI Class'),
                                 inputWidth: 150,
@@ -2263,14 +2273,14 @@ var admin_system_module_edit = new Class({
                                     'custom': 'Custom javascript class'
                                 },
                                 children: {
-                                    'chooserFieldJavascriptClass': {
+                                    'fieldInterfaceClass': {
                                         needValue: 'custom',
                                         label: t('Javascript class name'),
                                         desc: t('You can inject javascript files through extension settings to make a javascript class available.')
                                     }
                                 }
                             },
-                            'chooserFieldDataModel': {
+                            'fieldDataModel': {
                                 label: t('Data source'),
                                 type: 'select',
                                 inputWidth: 150,
@@ -2280,52 +2290,56 @@ var admin_system_module_edit = new Class({
                                 },
                                 'default': 'default',
                                 depends: {
-                                    chooserFieldDataModelClass: {
+                                    fieldDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('A class that extends from \\Admin\\Model\\Field. Entrypoint admin/backend/object?uri=...')
-                                    },
-                                    chooserFieldDataModelCondition: {
-                                        needValue: 'default',
-                                        label: t('Additional condition'),
-                                        type: 'condition'
+                                        desc: t('A class that extends from \\Admin\\FieldModel\\Field. Entry point is admin/backend/field-object?uri=...')
                                     }
                                 }
                             },
-                            chooserFieldDataModelField: {
-                                label: t('Label field'),
-                                type: 'text'
+                            'fieldLabel': {
+                                type: 'text',
+                                label: t('Label field (optional)'),
+                                desc: t('If you want to show a other label than the default label field.')
                             },
-                            chooserFieldDataModelFieldTemplate: {
-                                label: t('Label template (Optional)'),
-                                desc: t('Overrides the field above.'),
-                                type: 'codemirror'
+                            'fieldTemplate': {
+                                type: 'text',
+                                label: t('Label template (optional)'),
+                                desc: t('If you want to show a other template than the default label template.')
                             },
-                            chooserFieldDataModelFieldExtraFields: {
-                                label: t('Extra fields in select (Optional)'),
-                                desc: t('You may enter here some field names, if you have a own label template which need it. Comma separated.'),
-                                type: 'text'
+                            'fieldFields': {
+                                type: 'text',
+                                label: t('Select fields (optional)'),
+                                desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your chooser label template.)')
                             }
-                            /*,
-                            chooserFieldDataModelFields: {
-                                label: t('Columns for multiple object chooser.'),
-                                type: 'fieldTable',
-                                desc: t('For the multiple view in a table.'),
-                                asFrameworkColumn: true,
-                                withoutChildren: true,
-                                tableitem_title_width: 200,
-                                addLabel: t('Add column')
-                            }*/
                         }
                     },
-                    __chooserBrowserTree__: {
+                    __tree__: {
                         againstField: 'nested',
                         needValue: 1,
                         type: 'childrenSwitcher',
                         label: t('Browser UI (tree)'),
                         desc: t('Only for nested objects.'),
                         depends: {
-                            chooserBrowserTreeDataModel: {
+
+                            treeInterface: {
+                                label: t('Javascript UI class'),
+                                inputWidth: 150,
+                                items: {
+                                    'default': 'Framework',
+                                    'custom': 'Custom class'
+                                },
+                                type: 'select',
+                                depends: {
+                                    treeInterfaceClass: {
+                                        needValue: 'custom',
+                                        label: t('Javascript class'),
+                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                                    }
+                                }
+                            },
+
+                            treeDataModel: {
                                 needValue: 1,
                                 label: t('Data model'),
                                 inputWidth: 150,
@@ -2336,79 +2350,45 @@ var admin_system_module_edit = new Class({
                                 'default': 'default',
                                 type: 'select',
                                 depends: {
-                                    chooserBrowserTreeDataModelClass: {
+                                    treeDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('A class that extends from \\Admin\\Model\\Tree. Entry point admin/backend/object-tree?uri=...')
-                                    }
-                                }
-                            },
-                            chooserBrowserTreeJavascript: {
-                                label: t('Javascript UI class'),
-                                inputWidth: 150,
-                                items: {
-                                    'default': 'Framework',
-                                    'custom': 'Custom class'
-                                },
-                                type: 'select',
-                                depends: {
-                                    chooserBrowserTreeJavascriptClass: {
-                                        needValue: 'custom',
-                                        label: t('Javascript class'),
-                                        desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
+                                        desc: t('A class that extends from \\Admin\\FieldModel\\Tree. Entry point admin/backend/object-tree?uri=...')
                                     }
                                 }
                             },
 
-                            chooserBrowserTreeRootObjectFixedIcon: {
-                                type: 'checkbox',
-                                needValue: 1,
-                                againstField: 'nestedRootAsObject',
-                                label: t('Fixed root icon'),
-                                depends: {
-                                    chooserBrowserTreeRootObjectIconPath: {
-                                        needValue: 1,
-                                        type: 'file',
-                                        label: t('Icon field')
-                                    },
-                                    chooserBrowserTreeRootObjectIcon: {
-                                        needValue: 0,
-                                        label: t('Icon field')
-                                    },
-                                    chooserBrowserTreeRootObjectIconMapping: {
-                                        label: t('Icon path mapping'),
-                                        needValue: 0,
-                                        asHash: true,
-                                        type: 'array',
-                                        columns: [
-                                            {label: t('Value'), width: '30%'},
-                                            {label: t('Icon path')}
-                                        ],
-                                        fields: {
-                                            value: {
-                                                type: 'text'
-                                            },
-                                            path: {
-                                                type: 'file'
-                                            }
-                                        }
-                                    }
-                                }
+                            'treeLabel': {
+                                type: 'text',
+                                label: t('Label field (optional)'),
+                                desc: t('If you want to show a other label than the default label field.')
                             },
-                            chooserBrowserTreeFixedIcon: {
+                            'treeTemplate': {
+                                type: 'text',
+                                label: t('Label template (optional)'),
+                                desc: t('If you want to show a other template than the default label template.')
+                            },
+                            'treeFields': {
+                                type: 'text',
+                                label: t('Select fields (optional)'),
+                                desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your chooser label template.)')
+                            },
+
+
+                            treeFixedIcon: {
                                 type: 'checkbox',
                                 label: t('Fixed icon'),
                                 depends: {
-                                    chooserBrowserTreeIconPath: {
+                                    treeIconPath: {
                                         needValue: 1,
                                         type: 'file',
                                         label: t('Icon field')
                                     },
-                                    chooserBrowserTreeIcon: {
+                                    treeIcon: {
                                         needValue: 0,
                                         label: t('Icon field')
                                     },
-                                    chooserBrowserTreeIconMapping: {
+                                    treeIconMapping: {
                                         label: t('Icon path mapping'),
                                         needValue: 0,
                                         type: 'array',
@@ -2426,21 +2406,57 @@ var admin_system_module_edit = new Class({
                                             }
                                         }
                                     },
-                                    chooserBrowserTreeDefaultIcon: {
+                                    treeDefaultIcon: {
                                         needValue: 0,
                                         label: t('Default icon'),
                                         type: 'file',
                                         combobox: true
                                     }
                                 }
+                            },
+
+                            treeRootObjectFixedIcon: {
+                                type: 'checkbox',
+                                needValue: 1,
+                                againstField: 'nestedRootAsObject',
+                                label: t('Fixed root icon'),
+                                depends: {
+                                    treeRootObjectIconPath: {
+                                        needValue: 1,
+                                        type: 'file',
+                                        label: t('Icon field')
+                                    },
+                                    treeRootObjectIcon: {
+                                        needValue: 0,
+                                        label: t('Icon field')
+                                    },
+                                    treeRootObjectIconMapping: {
+                                        label: t('Icon path mapping'),
+                                        needValue: 0,
+                                        asHash: true,
+                                        type: 'array',
+                                        columns: [
+                                            {label: t('Value'), width: '30%'},
+                                            {label: t('Icon path')}
+                                        ],
+                                        fields: {
+                                            value: {
+                                                type: 'text'
+                                            },
+                                            path: {
+                                                type: 'file'
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
-                    __chooserBrowserType__: {
+                    __browserUi__: {
                         label: t('Browser UI (chooser)'),
                         type: 'childrenSwitcher',
                         depends: {
-                            chooserBrowserType: {
+                            browserInterface: {
                                 label: t('Javascript UI Class'),
                                 type: 'select',
                                 inputWidth: 150,
@@ -2449,12 +2465,12 @@ var admin_system_module_edit = new Class({
                                     'custom': 'Custom javascript class'
                                 },
                                 children: {
-                                    chooserBrowserJavascriptClass: {
+                                    browserInterfaceClass: {
                                         needValue: 'custom',
                                         label: t('Javascript class'),
                                         desc: t('Define the javascript class which is used to display the chooser. Include the javascript file through "Javascript files" under tab "Extras"')
                                     },
-                                    chooserBrowserOptions: {
+                                    browserInterfaceOptions: {
                                         label: t('UI properties'),
                                         needValue: 'custom',
                                         desc: t('You can allow extensions to set some properties when providing your object chooser.'),
@@ -2462,7 +2478,7 @@ var admin_system_module_edit = new Class({
                                     }
                                 }
                             },
-                            chooserBrowserAutoColumns: {
+                            browserColumns: {
                                 label: t('Columns in the chooser table'),
                                 type: 'fieldTable',
                                 asFrameworkColumn: true,
@@ -2470,7 +2486,7 @@ var admin_system_module_edit = new Class({
                                 tableitem_title_width: 200,
                                 addLabel: t('Add column')
                             },
-                            'chooserBrowserDataModel': {
+                            'browserDataModel': {
                                 type: 'select',
                                 label: t('Data source'),
                                 inputWidth: 150,
@@ -2480,16 +2496,10 @@ var admin_system_module_edit = new Class({
                                     'none': 'None'
                                 },
                                 depends: {
-                                    chooserBrowserDataModelClass: {
+                                    browserDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('A class that extends from \\Admin\\Model\\Browse. Entry point admin/backend/objects?uri=...')
-                                    },
-                                    chooserBrowserDataModelFields: {
-                                        needValue: 'custom',
-                                        againstField: 'chooserBrowserType',
-                                        label: t('Object fields'),
-                                        desc: t('Comma separated. Without primary keys. (Ignore this when you use a own php class)')
+                                        desc: t('A class that extends from \\Admin\\FieldModel\\Browse. Entry point admin/backend/objects?uri=...')
                                     }
                                 }
                             }
@@ -2993,7 +3003,7 @@ var admin_system_module_edit = new Class({
                                 type: 'text'
                             },
                             properties: {
-                                type: 'fieldtable',
+                                type: 'fieldTable',
                                 options: {
                                     withoutChildren: true,
                                     asFrameworkFieldDefinition: true,

@@ -639,7 +639,7 @@ var users_users_acl = new Class({
 
         //todo, maybe we have a template and extra fields for the label
         var definition = ka.getObjectDefinition(objectKey);
-        var fields = definition.objectLabel;
+        var fields = definition.labelField;
 
         new Request.JSON({url: _path+'admin/backend/object/'+objectKey+'/'+objectId, onComplete: function(pResult){
 

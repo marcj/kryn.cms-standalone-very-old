@@ -6,6 +6,12 @@ var test_test = new Class({
         this.win = pWin;
 
         new ka.Select(this.win.content, {
+            object: 'language'
+        });
+
+        return;
+
+        new ka.Select(this.win.content, {
             items: [
                 'Hosa', 'Mowla', 'Gazzo'
             ]

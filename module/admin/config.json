@@ -461,7 +461,7 @@
         "file": {
             "propelClass": "\\Admin\\ObjectFile",
             "table": "system_file",
-            "objectLabel": "path",
+            "labelField": "path",
             "nestedLabel": "name",
             "nestedRootAsObject": false,
             "nested": true,
@@ -581,11 +581,11 @@
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
             "propelClassName": "Page",
             "table": "system_page",
-            "objectLabel": "title",
+            "labelField": "title",
             "nestedLabel": "title",
             "nestedRootObject": "domain",
             "nestedRootObjectField": "domainId",
-            "nestedRootObjectLabel": "domain",
+            "nestedRootObjectLabelField": "domain",
             "nestedRootAsObject": true,
             "nested": true,
             "dataModel": "propel",
@@ -595,8 +595,8 @@
                 
             ],
             "chooserFieldDataModel": "default",
-            "chooserFieldDataModelField": "title",
-            "chooserFieldDataModelFieldExtraFields": "lvl, accessDenied, accessFromGroups",
+            "chooserFieldDataModelLabel": "title",
+            "chooserFieldDataModelFields": "title, lvl, accessDenied, accessFromGroups",
             "chooserFieldType": "default",
             "chooserBrowserTreeJavascriptClass": "ka.NodeTree",
             "chooserBrowserTreeJavascript": "custom",
@@ -755,7 +755,7 @@
             "__dataModel__": "table"
         },
         "domain": {
-            "objectLabel": "domain",
+            "labelField": "domain",
             "nested": false,
             "multiLanguage": false,
             "domainDepended": false,
@@ -807,15 +807,20 @@
         },
         "language": {
             "table": "system_langs",
+            "labelField": "title",
+            "labelTemplate": "{title} ({langtitle}, {code})",
+            "defaultSelection": "title, langtitle, code",
             "nested": false,
             "dataModel": "propel",
             "multiLanguage": false,
             "domainDepended": false,
-            "chooserFieldDataModelCondition": [
-                
+            "limitDataSets": [
+                [
+                    "visible",
+                    "=",
+                    "true"
+                ]
             ],
-            "chooserFieldDataModelFieldTemplate": "{title} ({langtitle}, {code})",
-            "chooserFieldDataModelFieldExtraFields": "title, langtitle, code",
             "chooserBrowserTreeIconMapping": [
                 
             ],

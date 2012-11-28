@@ -18,7 +18,7 @@ var admin_system_development_orm = new Class({
 
         this.btnEnv  = this.buttonBar.addButton('Propel Build Environment', this.callPropelGen.bind(this, 'environment'));
         this.btnCheck  = this.buttonBar.addButton('Check model.xml', this.callPropelGen.bind(this, 'check'));
-        this.btnModel  = this.buttonBar.addButton('Write Model', this.callPropelGen.bind(this, 'models'));
+        this.btnModel  = this.buttonBar.addButton('Write FieldModel', this.callPropelGen.bind(this, 'models'));
         this.btnUpdate = this.buttonBar.addButton('Update Database', this.callPropelGen.bind(this, 'update'));
         this.btnAll = this.buttonBar.addButton('Do all', this.doAll.bind(this));
 

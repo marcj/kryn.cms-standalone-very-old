@@ -502,7 +502,7 @@ ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsA
         } else {
             //find label
             var def = ka.getObjectDefinition(pObjectKey);
-            label = def.objectLabel;
+            label = def.labelField;
         }
     }
     if (typeOf(pValue[relation]) == 'object'){

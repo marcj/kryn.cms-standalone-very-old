@@ -1428,9 +1428,9 @@ class Pages {
             $res['id'] = array_merge($res['id'], $newRes['id']);
         }
 
-        $aliasRes = dbExec('SELECT to_page_id, url FROM '.pfx.'system_page_alias WHERE domain_id = ' . $pDomainRsn);
+        $aliasRes = dbExec('SELECT page_id, url FROM '.pfx.'system_page_alias WHERE domain_id = ' . $pDomainRsn);
         while ($row = dbFetch($aliasRes)) {
-            $res['alias'][$row['url']] = $row['to_page_id'];
+            $res['alias'][$row['url']] = $row['page_id'];
         }
 
         self::updatePage2DomainCache();

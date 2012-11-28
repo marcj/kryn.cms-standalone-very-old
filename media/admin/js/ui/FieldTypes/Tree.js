@@ -34,7 +34,7 @@ ka.FieldTypes.Tree = new Class({
 
 
         if (!this.options.labelTemplate){
-            this.options.labelTemplate = this.definition.chooserFieldDataModelFieldTemplate;
+            this.options.labelTemplate = this.definition.labelTemplate;
         }
 
 

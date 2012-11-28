@@ -163,16 +163,15 @@ ka.Select = new Class({
             }
 
         } else if (this.options.object){
-            //this.loadObjectItems();
-            
+            this.objectDefinition = ka.getObjectDefinition(this.options.object);
+
             var fields = [];
             if (this.options.objectFields)
                 fields = this.options.objectFields;
             else if (this.options.objectLabel)
                 fields.push(this.options.objectLabel);
             else {
-                var definition = ka.getObjectDefinition(this.options.object);
-                fields.push(definition.objectLabel);
+                //fields.push(this.objectDefinition.labelField);
             }
             if (typeOf(fields) == 'string'){
                 fields = fields.replace(/[^a-zA-Z0-9_]/g, '').split(',');
@@ -509,6 +508,10 @@ ka.Select = new Class({
         if (!data.kaSelectImage) data.kaSelectImage = '';
 
         var template = this.labelTemplate;
+
+        if (this.options.object && this.objectDefinition.labelTemplate){
+            template = this.objectDefinition.labelTemplate;
+        }
 
         if (typeOf(this.options.labelTemplate) == 'string'){
             template = this.options.labelTemplate;

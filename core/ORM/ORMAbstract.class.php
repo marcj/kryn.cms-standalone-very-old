@@ -29,6 +29,20 @@ abstract class ORMAbstract {
     public $primaryKeys = array();
 
     /**
+     * The current object key.
+     *
+     * @var string
+     */
+    public $objectKey;
+
+    /**
+     * Cached the object definition.
+     *
+     * @var array
+     */
+    public $definition;
+
+    /**
      * Constructor
      *
      * @param string $pObjectKey

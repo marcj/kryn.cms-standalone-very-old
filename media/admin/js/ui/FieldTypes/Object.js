@@ -79,29 +79,18 @@ ka.FieldTypes.Object = new Class({
 
                 var row = [];
 
-                var extraColumns = [];
-                Object.each(this.objectDefinition.chooserFieldDataModelFields, function(field,key){
-                    extraColumns.include(key);
-                });
-
-                var placeHolders = {};
-
-                Array.each(extraColumns, function(col){
-
-                    placeHolders[col] = new Element('span');
-                    row.include(placeHolders[col]);
-
-                });
+                var placeHolder = new Element('span');
+                row.include(placeHolder);
 
                 if (typeOf(id) == 'object')
                     id = ka.getObjectUrlId(this.options.object, id);
 
-                this.renderObjectTableLoadItem(id, placeHolders);
+                this.renderObjectTableLoadItem(id, placeHolder);
 
                 var actionBar = new Element('div');
 
                 var remoteIcon = new Element('a', {
-                    style: 'font-size: 13px; font-family: Icomoon; text-decoration: none;',
+                    'class': 'text-button-icon',
                     href: 'javascript:;',
                     title: t('Remove'),
                     html: '&#xe04a;'
@@ -178,6 +167,7 @@ ka.FieldTypes.Object = new Class({
             } else {
 
                 var fields = ka.getObjectDefinition(this.options.object).fields;
+                //chooserFieldDataModelFieldTemplate
 
                 Object.each(this.objectTableLoaderQueue, function(placeholders, id){
 
@@ -406,6 +396,8 @@ ka.FieldTypes.Object = new Class({
 
     objectGetLabel: function(pObjectUri, pCallback){
 
+        //TODO overhaul
+
         if (this.lastPageChooserGetUrlRequest) {
             this.lastPageChooserGetUrlRequest.cancel();
         }
@@ -413,10 +405,9 @@ ka.FieldTypes.Object = new Class({
         var objectKey = ka.getObjectKey(pObjectUri)
         var definition = ka.getObjectDefinition(objectKey);
 
-        var fields = definition.chooserFieldDataModelField;
-        if (definition.chooserFieldDataModelFieldExtraFields){
-            fields += ','+definition.chooserFieldDataModelFieldExtraFields;
-        }
+        var fields = definition.labelField;
+        if (definition.chooserFieldDataModelFields)
+            fields = definition.chooserFieldDataModelFields;
 
         this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/object', noCache: 1, onComplete: function(response){
             if (!response.error){
@@ -426,7 +417,7 @@ ka.FieldTypes.Object = new Class({
                     //var value = res.values[definition.chooserFieldDataModelField];
                     var data = response.data;
 
-                    var label = data[definition.chooserFieldDataModelField];
+                    var label = data[definition.labelField];
 
                     if (!this.options.fieldTemplate && !data.label && !label){
                         Object.each(data, function(item){
