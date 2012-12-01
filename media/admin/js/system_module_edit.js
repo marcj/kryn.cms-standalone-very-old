@@ -16,7 +16,7 @@ var admin_system_module_edit = new Class({
         this.buttons['links'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'links'));
 
         this.buttons['objects'] = this.topNavi.addButton(t('Objects'), '', this.viewType.bind(this, 'objects'));
-        this.buttons['db'] = this.topNavi.addButton(t('FieldModel'), '', this.viewType.bind(this, 'db'));
+        this.buttons['db'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'db'));
 
         this.buttons['windows'] = this.topNavi.addButton(t('Windows'), '', this.viewType.bind(this, 'windows'));
         this.buttons['plugins'] = this.topNavi.addButton(t('Plugins'), '', this.viewType.bind(this, 'plugins'));
@@ -327,49 +327,32 @@ var admin_system_module_edit = new Class({
 
     createWindow: function(pName){
 
-        var dialog = this.win.newDialog(t('New Window'));
+        var dialog = this.win.newDialog(new Element('h2', {text: t('New Window')}));
         dialog.setStyle('width', 400);
 
         var d = new Element('div', {
             style: 'padding: 5px 0px;'
         }).inject(dialog.content);
 
-        var table = new Element('table').inject(d);
+        var table = new Element('table', {width: '100%', cellpadding: 2}).inject(d);
         var tbody = table;
 
         var tr = new Element('tr').inject(tbody);
 
-        new Element('td', {text: t('Window class name:')}).inject(tr);
+        new Element('td', {width: '40%', text: t('PHP class:')}).inject(tr);
+        var td = new Element('td', {
+            width: '10%',
+            style: 'color: gray',
+            align: 'right',
+            text: '\\'+this.mod.charAt(0).toUpperCase() + this.mod.slice(1)+'\\'
+        }).inject(tr);
         var td = new Element('td').inject(tr);
 
         var name = new ka.Field({
             type: 'text',
+            noWrapper: true,
             modifier: 'phpclass'
         }, td);
-
-        /*Element('input', {'class': 'text'})
-        .addEvent('change', function(e){
-            this.value = this.value.replace(/\W/, '_');
-        }).addEvent('keyup', function(e){
-            this.fireEvent('change');
-        })
-        .inject(td);*/
-
-        var tr = new Element('tr').inject(tbody);
-        new Element('td', {text: t('Class:')}).inject(tr);
-
-        var td = new Element('td').inject(tr);
-        var typeClass = new ka.Field({
-            type: 'select', items: {
-                add: 'Add',
-                edit: 'Edit',
-                list: 'List',
-                combine: 'Combine'
-            },
-            noWrapper: 1,
-            inputWidth: 150
-        }, td)
-
 
         this.newWindowDialogCancelBtn = new ka.Button(t('Cancel'))
         .addEvent('click', function(){
@@ -390,21 +373,25 @@ var admin_system_module_edit = new Class({
             this.newWindowDialogApplyBtn.deactivate();
             this.newWindowDialogApplyBtn.startTip(t('Please wait ...'));
 
-            new Request.JSON({url: _path+'admin/system/module/editor/new-window', noCache: 1, onComplete: function(res){
+            new Request.JSON({url: _path+'admin/system/module/editor/window', noCache: 1,
+            noErrorReporting: ['FileAlreadyExistException'],
+            onComplete: function(pResponse){
 
                 this.newWindowDialogApplyBtn.stopTip();
-                dialog.close();
 
-                if (res.error == 'file_exists'){
-                    this.win._alert(t('Class already exist'), function(){
-                        this.createWindow(name.value);
-                    }.bind(this));
-                    return;
-                } else {
-                    this.addWindow(name.value);
+                if (pResponse.error){
+                    this.newWindowDialogApplyBtn.stopTip(t('Error: %s', pResponse.message));
                 }
 
-            }.bind(this)}).get({className: name.value, name: this.mod, 'class': typeClass.getValue()});
+                this.newWindowDialogCancelBtn.activate();
+                this.newWindowDialogApplyBtn.activate();
+
+                if (!pResponse.error){
+                    this.loadWindows();
+                    dialog.close();
+                }
+
+            }.bind(this)}).put({'class': name.getValue(), module: this.mod});
 
         }.bind(this))
         .inject(dialog.bottom);
@@ -439,7 +426,7 @@ var admin_system_module_edit = new Class({
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
-            title: _('Remove'),
+            title: t('Remove'),
             html: '&#xe26b;'
         }).addEvent('click', function () {
             tr.destroy();
@@ -2146,6 +2133,7 @@ var admin_system_module_edit = new Class({
                     dataModel: {
                         type: 'select',
                         label: t('Class'),
+                        inputWidth: 200,
                         items: {
                             'propel': t('Propel ORM'),
                             'custom': t('Custom class')
@@ -2198,7 +2186,7 @@ var admin_system_module_edit = new Class({
                                 type: 'condition'
                             },
                             nested: {
-                                label: t('Nested Set FieldModel'),
+                                label: t('Nested Set Model'),
                                 desc: t('Implement with lft, rgt and lvl fields.'),
                                 type: 'checkbox',
                                 children: {
@@ -2268,6 +2256,7 @@ var admin_system_module_edit = new Class({
                                 type: 'select',
                                 label: t('Javascript UI Class'),
                                 inputWidth: 150,
+                                'default': 'default',
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom javascript class'
@@ -2284,6 +2273,7 @@ var admin_system_module_edit = new Class({
                                 label: t('Data source'),
                                 type: 'select',
                                 inputWidth: 150,
+                                'default': 'default',
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
@@ -2325,6 +2315,7 @@ var admin_system_module_edit = new Class({
                             treeInterface: {
                                 label: t('Javascript UI class'),
                                 inputWidth: 150,
+                                'default': 'default',
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom class'
@@ -2460,6 +2451,7 @@ var admin_system_module_edit = new Class({
                                 label: t('Javascript UI Class'),
                                 type: 'select',
                                 inputWidth: 150,
+                                'default': 'default',
                                 items: {
                                     'default': 'Framework',
                                     'custom': 'Custom javascript class'
@@ -2490,6 +2482,7 @@ var admin_system_module_edit = new Class({
                                 type: 'select',
                                 label: t('Data source'),
                                 inputWidth: 150,
+                                'default': 'default',
                                 items: {
                                     'default': 'Default',
                                     'custom': 'Custom PHP class',

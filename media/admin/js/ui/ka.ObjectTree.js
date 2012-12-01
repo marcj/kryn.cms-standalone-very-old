@@ -11,7 +11,7 @@ ka.ObjectTree = new Class({
         selectObject: false,
         withContext: true,
         selectable: true,
-        iconMap: false, //if false we'll get it from the object definition 'chooserBrowserTreeIconMapping'
+        iconMap: false, //if false we'll get it from the object definition 'treeIconMapping'
         withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
         iconAdd: 'admin/images/icons/add.png',
 
@@ -94,7 +94,7 @@ ka.ObjectTree = new Class({
         this.setOptions(pOptions);
 
         if (!this.options.iconMap){
-            this.options.iconMap = this.objectDefinition.chooserBrowserTreeIconMapping;
+            this.options.iconMap = this.objectDefinition.treeIconMapping;
         }
 
         if (this.objectDefinition.nestedRootAsObject){
@@ -641,10 +641,10 @@ ka.ObjectTree = new Class({
 
     addRootIcon: function(pItem, pA){
 
-        var icon = this.objectDefinition.chooserBrowserTreeRootObjectIconPath;
+        var icon = this.objectDefinition.treeRootObjectIconPath;
 
-        if (!this.objectDefinition.chooserBrowserTreeRootObjectFixedIcon){
-            icon = this.options.iconMap[pItem[this.objectDefinition.chooserBrowserTreeRootObjectIcon]];
+        if (!this.objectDefinition.treeRootObjectFixedIcon){
+            icon = this.options.iconMap[pItem[this.objectDefinition.treeRootObjectIcon]];
         }
 
         if (icon){
@@ -671,11 +671,11 @@ ka.ObjectTree = new Class({
 
         var icon = this.options.icon;
 
-        if (this.options.iconMap && this.objectDefinition.chooserBrowserTreeIcon)
-            icon = this.options.iconMap[pItem[this.objectDefinition.chooserBrowserTreeIcon]];
+        if (this.options.iconMap && this.objectDefinition.treeIcon)
+            icon = this.options.iconMap[pItem[this.objectDefinition.treeIcon]];
 
-        if (!icon && this.objectDefinition.chooserBrowserTreeDefaultIcon)
-            icon = this.objectDefinition.chooserBrowserTreeDefaultIcon;
+        if (!icon && this.objectDefinition.treeDefaultIcon)
+            icon = this.objectDefinition.treeDefaultIcon;
 
         if (!icon) return;
 

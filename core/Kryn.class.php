@@ -1354,8 +1354,9 @@ class Kryn {
             Kryn::setFastCache($code, Kryn::$lang);
         }
 
-        if (!file_exists(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.php') ||
-            !file_exists(PATH_MEDIA_CACHE.'gettext_plural_fn_' . $pLang . '.js')) {
+        if (!TempFile::exists('core_gettext_plural_fn_' . $pLang . '.php') ||
+            !File::exists('cache/core_gettext_plural_fn_' . $pLang . '.js') || true) {
+
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(Kryn::$lang['__plural'], 'plural=');
             $pluralForm = substr(Kryn::$lang['__plural'], $pos + 7);
@@ -1363,16 +1364,16 @@ class Kryn {
             $code = "<?php \nfunction gettext_plural_fn_$pLang(\$n){\n";
             $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
             $code .= "}\n?>";
-            TempFile::setContent('gettext_plural_fn_' . $pLang . '.php', $code);
+            TempFile::setContent('core_gettext_plural_fn_' . $pLang . '.php', $code);
 
 
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
-            File::setContent('cache/system_gettext_plural_fn_' . $pLang . '.js', $code);
+            File::setContent('cache/core_gettext_plural_fn_' . $pLang . '.js', $code);
         }
 
-        include_once(self::getTempFolder().'gettext_plural_fn_' . $pLang . '.php');
+        include_once(self::getTempFolder().'core_gettext_plural_fn_' . $pLang . '.php');
     }
 
     /**

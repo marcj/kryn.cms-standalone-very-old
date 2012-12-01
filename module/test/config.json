@@ -22,5 +22,20 @@
                 
             ]
         }
+    },
+    "objects": {
+        "test": {
+            "fields": {
+                "id": {
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "name": {
+                    "type": "text"
+                }
+            },
+            "label": "Test"
+        }
     }
 }

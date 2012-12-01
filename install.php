@@ -338,6 +338,7 @@ function checkConfig(){
           ),
 
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
+          'fileGroupName'      => $_REQUEST['fileGroupName'],
           'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
 
           'cache' => array(
@@ -348,7 +349,7 @@ function checkConfig(){
           "passwordHashKey"    => Core\Client\ClientAbstract::getSalt(32),
 
           "displayErrors"        => $_REQUEST['displayErrors'],
-          "displayRestErrors"    => $_REQUEST['displayRestErrors'],
+          "displayDetailedRestErrors"    => $_REQUEST['displayDetailedRestErrors'],
           "logErrors"            => 0,
           "systemTitle"          => $systemTitle,
           "client"                 => array(
@@ -1077,9 +1078,10 @@ function step3(){
     </tr>
     <tr>
         <td>
-            Display RESTful API Error information.
+            Display detailed RESTful API Error information.
+            <div style="color: gray">Means file name, line number and backstrace.</div>
         </td>
-        <td><input type="checkbox" checked="checked" name="displayRestErrors" value="1" /></td>
+        <td><input type="checkbox" checked="checked" name="displayDetailedRestErrors" value="1" /></td>
     </tr>
 </table>
 
@@ -1087,6 +1089,14 @@ function step3(){
 <h3>Local Filesystem</h3>
 
 <table style="width: 100%" cellpadding="3">
+    <tr>
+        <td width="250">Default group name
+            <div style="color: silver">Let it empty, to change no group.</div>
+        </td>
+        <td>
+            <input type="text" class="ka-Input" name="fileGroupPermission" value="">
+        </td>
+    </tr>
     <tr>
         <td width="250">Default group permission</td>
         <td>
@@ -1169,13 +1179,19 @@ function step3(){
 	        </div></td>
         <td><input required style="width: 80px" type="text" class="ka-Input" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
+    <tr>
+        <td colspan="2">
+            <br />
+            More settings are available after the installation in the administration area.
+        </td>
+    </tr>
 </table>
 <div id="status" style="padding: 4px;"></div>
-<br />
 <br />
 <a href="?step=2" class="ka-Button" >Back</a>
 <input type="submit" class="ka-Button" value="Test connection and write config.php" />
 </form>
+
 
 <?php
 }

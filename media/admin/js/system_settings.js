@@ -91,10 +91,10 @@ var admin_system_settings = new Class({
                                 desc: t('Prints errors to the frontend clients. You should deactivate this in productive systems'),
                                 type: 'checkbox'
                             },
-                            'displayRestErrors': {
+                            'displayDetailedRestErrors': {
                                 label: t('Display REST error'),
                                 type: 'checkbox',
-                                desc: t('Display more information in REST errors, like line number, file path and debug trace.')
+                                desc: t('Display more information in REST errors, like line number, file path and backstrace.')
                             },
                             'logErrors': {
                                 label: t('Save errors into a log file'),

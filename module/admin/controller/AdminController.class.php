@@ -48,7 +48,7 @@ class AdminController {
 
         @header('Expires:');
 
-        if (Kryn::$config['displayRestErrors']){
+        if (Kryn::$config['displayDetailedRestErrors']){
             $exceptionHandler = array($this, 'exceptionHandler');
             $debugMode = true;
         }
@@ -216,16 +216,15 @@ class AdminController {
                         ->addGetRoute('config', 'getConfig')
 
                         ->addGetRoute('windows', 'getWindows')
-                        ->addGetRoute('window-definition', 'getWindowDefinition')
-                        ->addPostRoute('window-definition', 'saveWindowDefinition')
+                        ->addGetRoute('window', 'getWindowDefinition')
+                        ->addPostRoute('window', 'saveWindowDefinition')
+                        ->addPutRoute('window', 'newWindow')
 
                         ->addGetRoute('objects', 'getObjects')
                         ->addPostRoute('objects', 'saveObjects')
 
                         ->addGetRoute('plugins', 'getPlugins')
                         ->addPostRoute('plugins', 'savePlugins')
-
-                        ->addPostRoute('new-window', 'newWindow')
 
                         ->addPostRoute('model/from-object', 'setModelFromObject')
                         ->addPostRoute('model/from-objects', 'setModelFromObjects')

@@ -23,6 +23,12 @@
     background: linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(229,229,229,1) 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-8 */
 
+    text-indent: 3px;
+}
+
+
+.ka-Table-head > tr > th:first-child {
+    border-left: 0px;
 }
 
 .ka-Table-head > tr > th {

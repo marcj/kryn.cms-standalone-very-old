@@ -347,7 +347,7 @@ class Object {
         }
 
         if ($obj->definition['limitDataSets'])
-            $pCondition = array($obj->definition['limitDataSets'], 'AND', $pCondition);
+            $pCondition = $pCondition ? array($obj->definition['limitDataSets'], 'AND', $pCondition) : $obj->definition['limitDataSets'];
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
             if ($pCondition)

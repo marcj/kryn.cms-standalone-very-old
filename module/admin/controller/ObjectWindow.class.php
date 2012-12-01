@@ -230,6 +230,8 @@ abstract class ObjectWindow {
     public $itemLayout = '';
 
     /**
+     * The admin entry point out which this class has been called.
+     *
      * @var array|null
      */
     public $entryPoint = array();
@@ -255,14 +257,15 @@ abstract class ObjectWindow {
     /**
      * Constructor
      */
-    public function __construct($pEntryPoint = null) {
+    public function __construct($pEntryPoint = null, $pWithoutObjectCheck = false) {
 
         $this->entryPoint = $pEntryPoint;
 
         $this->objectDefinition = Kryn::$objects[$this->object];
-        if (!$this->objectDefinition){
+        if (!$this->objectDefinition && $this->object && !$pWithoutObjectCheck){
             throw new \ObjectNotFoundException("Can not find object '".$this->object."'");
         }
+
         $this->table = $this->objectDefinition['table'];
         $this->primary = array();
         foreach ($this->objectDefinition['fields'] as $key => &$field){

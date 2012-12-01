@@ -2,7 +2,8 @@
 
 namespace Core\FAL;
 
-use Core\File;
+use Core\Kryn;
+
 
 /**
  * Local file layer for the local file system.
@@ -16,14 +17,98 @@ class Local extends FALAbstract {
      */
     private $root = PATH_MEDIA;
 
+
+
+    /**
+     * Default permission modes for directories.
+     * @var integer
+     */
+    public $dirMode  = 0700;
+
+
+    /**
+     * Default permission modes for files.
+     * @var integer
+     */
+    public $fileMode = 0600;
+
+    /**
+     * Default group owner name.
+     *
+     * @var string
+     */
+    public $groupName = '';
+
+
+    /**
+     * Sets file permissions on file/folder recursively.
+     *
+     * @param  string $pPath the path
+     */
+    public function setPermission($pPath){
+
+        if (is_dir($pPath)){
+
+            chmod($pPath, $this->dirMode);
+            if ($this->groupName)
+                chgrp($pPath, $this->groupName);
+
+            $sub = find($pPath.'/*', false);
+            if (is_array($sub)){
+                foreach ($sub as $path){
+                    $this->setPermission($path);
+                }
+            }
+        } else if (is_file($pPath)){
+            chmod($pPath, $this->fileMode);
+            if ($this->groupName)
+                chgrp($pPath, $this->groupName);
+        }
+
+    }
+
+
+    /**
+     * Loads and converts the configuration in Core\Kryn::$config (./config.php)
+     * to appropriate modes.
+     *
+     */
+    public function loadConfig(){
+
+        $this->fileMode = 600;
+        $this->dirMode  = 700;
+
+        if (Kryn::$config['fileGroupPermission'] == 'rw'){
+            $this->fileMode += 60;
+            $this->dirMode  += 70;
+        } else if (Kryn::$config['fileGroupPermission'] == 'r'){
+            $this->fileMode += 40;
+            $this->dirMode  += 50;
+        }
+
+        if (Kryn::$config['fileEveryonePermission'] == 'rw'){
+            $this->fileMode += 6;
+            $this->dirMode  += 7;
+        } else if (Kryn::$config['fileEveryonePermission'] == 'r'){
+            $this->fileMode += 4;
+            $this->dirMode  += 5;
+        }
+
+        $this->fileMode = octdec($this->fileMode);
+        $this->dirMode  = octdec($this->dirMode);
+        $this->groupName = Kryn::$config['fileGroupName'];
+    }
+
+
     /**
      * {@inheritDoc} 
      */
-    public function __construct($pEntryPoint, $pParams = null){
+    public function __construct($pMountPoint, $pParams = null){
 
-        parent::__construct($pEntryPoint, $pParams);
+        parent::__construct($pMountPoint, $pParams);
         if ($pParams && $pParams['root']) $this->setRoot($pParams['root']);
 
+        $this->loadConfig();
     }
 
     /**
@@ -50,23 +135,22 @@ class Local extends FALAbstract {
         if (!file_exists(dirname($this->getRoot().$pPath)))
             $this->createFolder(dirname($pPath));
 
-
         if (!file_exists($this->getRoot().$pPath)){
-            if (!$pContent)
-                $res = touch($this->getRoot().$pPath);
-            else
-                $res = file_put_contents($this->getRoot().$pPath, $pContent);
+            if (($res = file_put_contents($this->getRoot().$pPath, $pContent) === false))
+                throw new \FileIOException(tf('Can not create file %s', $pPath));
         }
 
-        File::setPermission($this->getRoot().$pPath);
+        $this->setPermission($this->getRoot().$pPath);
 
-        return $res;
+        return $res === false ? false : true;
     }
 
     private function _createFolder($pPath){
         is_dir(dirname($pPath)) || $this->_createFolder(dirname($pPath));
-        if (!@mkdir($pPath, File::$dirMode))
+        if (!@mkdir($pPath, $this->dirMode))
             throw new \FileIOException(tf('Can not create folder %s', $pPath));
+        else if ($this->groupName)
+            chgrp($pPath, $this->groupName);
         return is_dir($pPath);
     }
 
@@ -93,7 +177,7 @@ class Local extends FALAbstract {
             throw new \FileNotWritableException(tf('File %s is not writable.', $this->getRoot().$pPath));
 
         $res = file_put_contents($this->getRoot().$pPath, $pContent);
-        File::setPermission($this->getRoot().$pPath);
+        $this->setPermission($this->getRoot().$pPath);
 
         return $res === false?false:true;
     }
@@ -352,6 +436,7 @@ class Local extends FALAbstract {
                     $match[1] = str_replace('"', '', $match[1]);
                     $match[1] = str_replace('\'', '', $match[1]);
 
+                    //TODO, what is $res?
                     if ($name == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
                         return strtolower($match[2])=='allow'?true:false;
                     }

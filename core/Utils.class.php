@@ -13,7 +13,7 @@ class Utils {
             'file' => $pException->getFile(),
             'line' => $pException->getLine(),
         );
-        self::errorHandler(get_class($pException).' ['.$pException->getCode().']',
+        self::errorHandler(get_class($pException),
             $pException->getMessage(), $pException->getFile(), $pException->getLine(),
             array_merge(array($exceptionArray), $pException->getTrace()));
     }
@@ -33,10 +33,11 @@ class Utils {
         if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
             $response = array(
                 'status' => 500,
-                'error' => $pErrorCode.' '.$pErrorStr
+                'error' => $pErrorCode,
+                'message' => $pErrorStr
             );
 
-            if (Kryn::$config['displayRestErrors']){
+            if (Kryn::$config['displayDetailedRestErrors']){
                 $response['file'] = $pFile;
                 $response['line'] = $pLine;
                 $response['backstrace'] = $pBacktrace ? $pBacktrace : debug_backtrace();

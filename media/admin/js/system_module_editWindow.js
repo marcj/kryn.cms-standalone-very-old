@@ -620,7 +620,7 @@ var admin_system_module_editWindow = new Class({
         if (this.lastSaveReq)
             this.lastSaveReq.cancel();
 
-        this.lastSaveReq = new Request.JSON({url: _path+'admin/system/module/editor/window-definition?class='+req.general['class'], noCache: 1,
+        this.lastSaveReq = new Request.JSON({url: _path+'admin/system/module/editor/window?class='+req.general['class'], noCache: 1,
             onComplete: function(pResponse){
 
                 if (pResponse.data){
@@ -749,7 +749,7 @@ var admin_system_module_editWindow = new Class({
 
         this.win.setLoading(true);
 
-        this.lr = new Request.JSON({url: _path+'admin/system/module/editor/window-definition', noCache:1,
+        this.lr = new Request.JSON({url: _path+'admin/system/module/editor/window', noCache:1,
         onComplete: this.renderWindowDefinition.bind(this)}).get({
             'class': this.win.params.className
         });
@@ -1476,8 +1476,9 @@ var admin_system_module_editWindow = new Class({
 
             }
 
-            if (Object.getLength(this.definition.properties.fields) === 0 &&
-                Object.getLength(this.definition.properties.tabFields) === 0){
+            if (
+                (typeOf(this.definition.properties.fields) == 'object' && Object.getLength(this.definition.properties.fields) === 0) &&
+                (typeOf(this.definition.properties.tabFields) == 'object' && Object.getLength(this.definition.properties.tabFields) === 0)){
                 this.addWindowEditTab('general', {label: '[[General]]', type: 'tab'});
             }
         //}

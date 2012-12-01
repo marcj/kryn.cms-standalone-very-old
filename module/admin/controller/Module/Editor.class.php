@@ -629,7 +629,7 @@ class Editor {
             )
         );
 
-        $obj = new $pClass();
+        $obj = new $pClass(null, true);
         foreach ($obj as $k => $v)
             $res['properties'][$k] = $v;
 
@@ -665,6 +665,14 @@ class Editor {
         return $res;
     }
 
+    /**
+     * Extracts parent's class information.
+     *
+     * @internal
+     * @param $pParentClass
+     * @param $pMethods
+     * @throws \ClassNotFoundException
+     */
     public static function extractParentClassInformation($pParentClass, &$pMethods){
 
         if (!class_exists($pParentClass)) throw new \ClassNotFoundException();
@@ -706,8 +714,51 @@ class Editor {
     }
 
 
-    public function newWindow(){
+    /**
+     * Creates a new CRUD object window.
+     *
+     * @param string $pClass
+     * @param string $pModule Name of the module
+     * @param bool   $pForce
+     *
+     * @return bool
+     * @throws \FileAlreadyExistException
+     */
+    public function newWindow($pClass, $pModule, $pForce = false){
 
+        if (class_exists($pClass) && !$pForce){
+            $reflection = new \ReflectionClass($pClass);
+            throw new \FileAlreadyExistException(tf('Class already exist in %s', $reflection->getFileName()));
+        }
+
+        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
+        $fSlash = strpos($actualPath, '/');
+        $actualPath = 'module/'.$pModule.'/controller/'.substr($actualPath, $fSlash+1);
+
+        if (file_exists($actualPath) && !$pForce){
+            throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));
+        }
+
+        $sourcecode = "<?php\n\n";
+
+        $lSlash = strrpos($pClass, '\\');
+        $className = $lSlash !== -1 ? substr($pClass, $lSlash+1) : $pClass;
+
+        $parentClass = '\Admin\ObjectWindow';
+
+        $namespace = substr(substr($pClass, 1), 0, $lSlash);
+        if (substr($namespace, -1) == '\\')
+            $namespace = substr($namespace, 0, -1);
+
+        $sourcecode .= "namespace $namespace;\n \n";
+
+        $sourcecode .= 'class '.$className.' extends '.$parentClass." {\n\n";
+
+        $sourcecode .= "}\n";
+
+        error_log($actualPath);
+
+        return SystemFile::setContent($actualPath, $sourcecode);
     }
 
 

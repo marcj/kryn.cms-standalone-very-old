@@ -61,9 +61,9 @@ ka.FieldTypes.Tree = new Class({
         this.treeContainer.empty();
 
         var clazz = ka.ObjectTree;
-        if (this.definition.chooserBrowserTreeJavascript != 'default'){
-            if (!(clazz = ka.getClass(this.definition.chooserBrowserTreeJavascriptClass))){
-                throw 'Class does not exist '+this.definition.chooserBrowserTreeJavascriptClass;
+        if (this.definition.treeInterface != 'default'){
+            if (!(clazz = ka.getClass(this.definition.treeInterfaceClass))){
+                throw 'Class does not exist '+this.definition.treeInterfaceClass;
             }
         }
 

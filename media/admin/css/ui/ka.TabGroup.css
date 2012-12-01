@@ -11,7 +11,7 @@
     text-decoration: none;
     color: #333;
 
-    border: 1px solid #9C9C9C;
+    border: 1px solid #919191;
     border-bottom: 0px;
     border-top-left-radius: 15px 45px;
     border-top-right-radius: 2015px 45px;
@@ -53,8 +53,8 @@
 }
 
 
-.ka-tabGroup-item-with-image {
-    padding-left: 4px;
+.ka-tabGroup-item-with-image:before {
+    margin-right: 5px;
 }
 
 /*.ka-tabGroup-item:hover {*/

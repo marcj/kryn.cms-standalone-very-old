@@ -23,6 +23,8 @@ namespace Core;
  */
 class TempFile extends File {
 
+    public static $fsObjects = array();
+
 	/**
      *
      * Returns the instance of the local file layer.
@@ -36,14 +38,11 @@ class TempFile extends File {
         $class = '\Core\FAL\Local';
         $params['root'] = Kryn::getTempFolder();
 
-        mkdirr($params['root']);
+        if (static::$fsObjects[$class]) return static::$fsObjects[$class];
 
-        if (self::$fsObjects[$class]) return self::$fsObjects[$class];
+        static::$fsObjects[$class] = new $class('', $params);
 
-        self::$fsObjects[$class] = new $class($entryPoint, $params);
-
-        return self::$fsObjects[$class];
-
+        return static::$fsObjects[$class];
     }
 
     public static function getPath($pPath){

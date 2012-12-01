@@ -39,7 +39,7 @@ class SystemFile extends File {
 
         $params['root'] = './';
 
-        if (SystemFile::$fsObjects[$class]) return static::$fsObjects[$class];
+        if (static::$fsObjects[$class]) return static::$fsObjects[$class];
 
         static::$fsObjects[$class] = new $class('', $params);
 

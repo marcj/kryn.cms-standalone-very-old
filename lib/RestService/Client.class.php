@@ -99,6 +99,8 @@ class Client {
 
         if ($_GET['_method'])
             $method = $_GET['_method'];
+        else if ($_POST['_method'])
+            $method = $_POST['_method'];
 
         $method = strtolower($method);
 
