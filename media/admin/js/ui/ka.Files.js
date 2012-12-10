@@ -2083,7 +2083,7 @@ ka.Files = new Class({
             if (this.options.returnPath)
                 return this.options.selectionValue.path;
             else
-                return this.options.selectionValue.object_id;
+                return this.options.selectionValue.id;
 
         } else if (selectedFiles.length > 1) {
             this.options.selectionValue = selectedFiles;
