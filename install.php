@@ -369,8 +369,6 @@ function checkConfig(){
 
       Kryn::$config = $cfg;
 
-      SystemFile::loadConfig();
-
       delDir(Kryn::getTempFolder().'propel');
 
       $f = \Core\SystemFile::setContent('config.php', $config);
@@ -636,8 +634,6 @@ function step5Done($pMsg){
         Kryn::$config = require('config.php');
 
         define('pfx', Kryn::$config['database']['prefix']);
-        File::loadConfig();
-        SystemFile::loadConfig();
 
         if ($subStep == 0 && $_POST['modules']){
 
