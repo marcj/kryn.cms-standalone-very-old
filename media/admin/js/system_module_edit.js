@@ -2138,7 +2138,6 @@ var admin_system_module_edit = new Class({
                             'propel': t('Propel ORM'),
                             'custom': t('Custom class')
                         },
-                        desc: t('Define a table or a own object class'),
                         depends: {
                             'class': {
                                 needValue: 'custom',
@@ -2158,7 +2157,8 @@ var admin_system_module_edit = new Class({
                             table: {
                                 needValue: 'propel',
                                 label: t('Table name'),
-                                modifier: 'underscore|trim'
+                                modifier: 'underscore|trim',
+                                desc: t('Propel ORM needs a table name which is then created in the database.')
                             },
                             labelField: {
                                 label: t('Label field'),
@@ -2192,12 +2192,14 @@ var admin_system_module_edit = new Class({
                                 children: {
                                     nestedLabel: {
                                         needValue: 1,
-                                        label: t('Label field'),
-                                        modifier: 'camelcase|trim|lcfirst'
+                                        label: t('Label field (Optional)'),
+                                        modifier: 'camelcase|trim|lcfirst',
+                                        desc: t('If you want to show a other label than the default label field.')
                                     },
                                     nestedRootAsObject: {
                                         needValue: 1,
                                         label: t('Root as object (Optional)'),
+                                        desc: t('Display an object item as the root item.'),
                                         type: 'checkbox',
                                         depends: {
                                             nestedRootObject: {
@@ -2293,7 +2295,7 @@ var admin_system_module_edit = new Class({
                                 desc: t('If you want to show a other label than the default label field.')
                             },
                             'fieldTemplate': {
-                                type: 'text',
+                                type: 'codemirror',
                                 label: t('Label template (optional)'),
                                 desc: t('If you want to show a other template than the default label template.')
                             },
@@ -2355,7 +2357,7 @@ var admin_system_module_edit = new Class({
                                 desc: t('If you want to show a other label than the default label field.')
                             },
                             'treeTemplate': {
-                                type: 'text',
+                                type: 'codemirror',
                                 label: t('Label template (optional)'),
                                 desc: t('If you want to show a other template than the default label template.')
                             },
