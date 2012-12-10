@@ -26,6 +26,7 @@ class ObjectFile extends \Core\ORM\Propel {
 
                 if ($ePos = strpos($value, '=')){
                     $key = substr($value, 0, $ePos);
+                    $value = substr($value, $ePos+1);
                     if (!in_array($key, $this->primaryKeys)) continue;
                 } else if (!$this->primaryKeys[$pos]) continue;
 

@@ -247,16 +247,16 @@ class Controller {
      *
      * @param string $pUri
      * @param string $pFields
-     * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
+     * @param bool   $pReturnKey Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
+     * @param bool   $pReturnKeyAsRequested. Returns the list as a hash with the requested id as key.
      * @return array
      * @throws \Exception
      * @throws \ClassNotFoundException
      * @throws \ObjectNotFoundException
      */
-    public function getItemsByUri($pUri, $pFields = null, $pReturnHash = true){
+    public function getItemsByUri($pUri, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false){
 
         list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
-
         //check if we got an id
         if (!current($object_ids[0])){
             throw new \Exception(tf('No id given in uri %s.', $pUri));
@@ -270,24 +270,44 @@ class Controller {
             'permissionCheck' => true
         ));
 
-        if ($pReturnHash) {
-            $primaryKeys = \Core\Object::getPrimaries($object_key);
+        if ($pReturnKey || $pReturnKeyAsRequested) {
 
-            $c = count($primaryKeys);
-            $firstPK = key($primaryKeys);
 
             $res = array();
-            if (is_array($items)){
-                foreach ($items as &$item){
+            if ($pReturnKeyAsRequested){
 
-                    if ($c > 1){
-                        $keys = array();
-                        foreach($primaryKeys as $key => &$field){
-                            $keys[] = rawurlencode($item[$key]);
+                //map requetsed id to real ids
+                $requestedIds = explode(',', \Core\Object::getCroppedObjectId($pUri));
+                $map = array();
+                foreach ($requestedIds as $id){
+                    $pk = \Core\Object::parsePk($object_key, $id);
+                    $map[\Core\Object::getObjectUrlId($object_key, $pk[0])] = $id;
+                }
+
+                if (is_array($items)){
+                    foreach ($items as &$item){
+                        $pk = \Core\Object::getObjectUrlId($object_key, $item);
+                        $res[$map[$pk]] = $item;
+                    }
+                }
+            } else {
+                $primaryKeys = \Core\Object::getPrimaries($object_key);
+
+                $c = count($primaryKeys);
+                $firstPK = key($primaryKeys);
+
+                if (is_array($items)){
+                    foreach ($items as &$item){
+
+                        if ($c > 1){
+                            $keys = array();
+                            foreach($primaryKeys as $key => &$field){
+                                $keys[] = rawurlencode($item[$key]);
+                            }
+                            $res[ implode(',', $keys) ] = $item;
+                        } else {
+                            $res[$item[$firstPK]] = $item;
                         }
-                        $res[ implode(',', $keys) ] = $item;
-                    } else {
-                        $res[$item[$firstPK]] = $item;
                     }
                 }
             }

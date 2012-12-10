@@ -157,13 +157,14 @@ class Object {
     }
 
     /**
-     * Converts the primary key statement of a uri to better structure.
+     * Converts the primary key statement of a uri to normalized structure.
      * Generates a array for the usage of Core\Object:get()
      *
-     * 1/2/3 => array(1,2,3)
-     * 1 => 1
-     * idFooBar => idFooBar
-     * idFoo/Bar => array(idFoo, Bar)
+     * 1,2,3 => array( array(id =>1),array(id =>2),array(id =>3) )
+     * 1 => array(array(id => 1))
+     * idFooBar => array( id => "idFooBar")
+     * idFoo-Bar => array(array(id => idFoo, id2 => "Bar"))
+     * 1-45, 2-45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
      *
      *
      * @static
@@ -180,6 +181,68 @@ class Object {
         return $object_id;
     }
 
+    /**
+     * Returns the object key (not id) from an object uri.
+     *
+     * @param string $pUri
+     * @return string
+     */
+    public static function getObjectKey($pUri){
+
+        if (strpos($pUri, '/') == 0)
+            $pUri = substr($pUri, 9);
+
+        $idx = strpos($pUri, '/');
+        if ($idx == -1) return $pUri;
+
+        return substr($pUri, 0, $idx);
+    }
+
+    /**
+     * This just cut off object://<objectName>/ and returns the primary key part.
+     *
+     * @static
+     * @param string $pUri
+     * @return string
+     */
+    public static function getCroppedObjectId($pUri){
+
+        if (strpos($pUri, 'object://') === 0)
+            $pUri = substr($pUri, 9);
+
+        $idx = strpos($pUri, '/');
+        return substr($pUri, $idx+1);
+    }
+
+    /**
+     * Returns the id of an object item for the usage in urls (internal uri's) - urlencoded.
+     *
+     * @param string $pObjectKey
+     * @param array $pItem
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public static function getObjectUrlId($pObjectKey, $pItem){
+        $pks = self::getPrimaryList($pObjectKey);
+
+        if (count($pks) == 0 ) throw new \InvalidArgumentException($pObjectKey.' does not have primary keys.');
+
+        $urlId = '';
+        $withoutFieldNames = is_numeric(key($pItem));
+
+        if (count($pks) == 1 && is_array($pItem)){
+            return rawurlencode($pItem[ $withoutFieldNames ? $pks[0]:key($pItem) ])+'';
+        } else {
+            $c = 0;
+            foreach ($pks as $pk){
+                $urlId .= rawurlencode($pItem[ $withoutFieldNames ? $c:$pk ]);
+                $c++;
+            }
+            return $urlId;
+        }
+
+    }
+
 
     public static function checkField($pObjectKey, $pField){
         if (!Kryn::$objects[$pObjectKey]['fields'][$pField])
@@ -188,7 +251,7 @@ class Object {
     }
 
     /**
-     * Converts given params to the internal uri.
+     * Converts given object key and the object item to the internal uri.
      *
      * @static
      * @param string $pObjectKey
@@ -261,7 +324,6 @@ class Object {
             else
                 $pOptions['fields'] = '*';
         }
-
 
         if ($pOptions['fields'] != '*' && $obj->definition['limitDataSets']){
 

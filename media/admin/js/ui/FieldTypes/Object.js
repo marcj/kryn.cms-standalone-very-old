@@ -1,15 +1,11 @@
 ka.FieldTypes.Object = new Class({
     
     Extends: ka.FieldAbstract,
-
-    fieldTemplate: '{label}',
-
     options: {
         object: null,
         objects: null,
         withoutObjectWrapper: false,
-        combobox: false,
-        fieldTemplate: null
+        combobox: false
     },
 
     createLayout: function(){
@@ -253,7 +249,7 @@ ka.FieldTypes.Object = new Class({
             value: this.objectId,
             cookie: this.options.cookie,
             objects: this.options.objects,
-            options: this.options.chooserOptions
+            chooserOptions: this.options.chooserOptions
         };
 
         if (this.objectId)
@@ -290,9 +286,7 @@ ka.FieldTypes.Object = new Class({
             }
             this.objectId = pVal;
 
-            this.objectGetLabel(this.objectId, function(pLabel){
-                this.input.value = pLabel;
-            });
+            this.showLabel(this.objectId);
 
             this.input.title = ka.getObjectId(pVal);
 
@@ -366,7 +360,6 @@ ka.FieldTypes.Object = new Class({
         if (this.options.domain)
             chooserParams.domain = this.options.domain;
 
-
         var button = new ka.Button(t('Add')).addEvent('click', function () {
 
             if (this.options.designMode) return;
@@ -394,8 +387,25 @@ ka.FieldTypes.Object = new Class({
 
     },
 
-    objectGetLabel: function(pObjectUri, pCallback){
+    showLabel: function(pObjectUri){
 
+        ka.getObjectLabel(pObjectUri, function(pLabel){
+            if (pLabel === false){
+                if (!this.options.combobox) {
+                    this.input.value = 'not found: '+pObjectUri;
+                    this.input.removeClass('ka-Input-disabled');
+                    delete this.objectId;
+                } else {
+                    this.input.value = ka.urlDecode(ka.getCroppedObjectId(pObjectUri));
+                }
+            } else {
+                this.input.value = pLabel;
+                this.input.addClass('ka-Input-disabled');
+            }
+
+        }.bind(this));
+
+        /*
         //TODO overhaul
 
         if (this.lastPageChooserGetUrlRequest) {
@@ -444,6 +454,7 @@ ka.FieldTypes.Object = new Class({
             }
             this.input.fireEvent('blur');
         }.bind(this)}).get({uri: pObjectUri, fields: fields});
+        */
 
     }
 

@@ -27,12 +27,14 @@ var admin_backend_chooser = new Class({
         this.setOptions(this.win.params);
 
         this.value = this.win.params.value;
-        this.p = _path + PATH_MEDIA + '/admin/images/';
 
         this.options.multi = (this.options.multi) ? true : false;
 
         this.cookie = (this.win.params.cookie) ? this.win.params.cookie : '';
         this.cookie = 'kFieldChooser_' + this.cookie + '_';
+
+        if (!this.options.chooserOptions)
+            this.options.chooserOptions = {};
 
         this.bottomBar = this.win.addBottomBar();
         this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
@@ -66,9 +68,6 @@ var admin_backend_chooser = new Class({
                 }
             }
         }*/
-
-        if (!this.options.objectOptions)
-            this.options.objectOptions = {};
 
         var needDomainSelection = false;
         var needLanguageSelection = false;
@@ -170,13 +169,13 @@ var admin_backend_chooser = new Class({
 
         var objectDefinition = ka.getObjectDefinition(pObjectKey);
 
-        var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.chooser_icon);
+        var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.icon);
         this.pane2ObjectId[bundle.id] = pObjectKey;
 
-        var objectOptions = this.options.objectOptions[pObjectKey];
+        var objectOptions = this.options.chooserOptions[pObjectKey];
 
         if (this.options.objects.length == 1 && !objectOptions){
-            objectOptions = this.options.objectOptions;
+            objectOptions = this.options.chooserOptions;
         }
 
         if (!objectOptions)
@@ -249,23 +248,24 @@ var admin_backend_chooser = new Class({
 
     choose: function(pObjectKey){
 
-        if (!pObjectKey){
+        if (!pObjectKey)
             pObjectKey = this.pane2ObjectId[this.tapPane.index];
-        }
 
         if (pObjectKey && this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].getValue){
 
-            var item = this.objectChooserInstance[pObjectKey].getValue();
-            if (!item)
-                return;
+            var selected = this.objectChooserInstance[pObjectKey].getValue();
 
-            var id = ka.getObjectUrlId(pObjectKey, item);
+            if (typeOf(selected) == 'undefined')
+                return false;
 
-            var url = 'object://'+pObjectKey+'/'+id;
+            if (typeOf(selected) == 'object'){
+                selected = ka.getObjectUrlId(pObjectKey, selected);
+                selected = 'object://'+pObjectKey+'/'+selected;
+            }
 
             this.saveCookie();
             this.saveCookie();
-            this.fireEvent('select', url);
+            this.fireEvent('select', selected);
             this.win.close();
         }
     }

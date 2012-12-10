@@ -5,8 +5,19 @@ var test_test = new Class({
 
         this.win = pWin;
 
+
+
         new ka.Select(this.win.content, {
             object: 'language'
+        });
+
+
+        new ka.Parse(this.win.content,{
+            'defaultIcon': {
+                label: t('Default icon'),
+                type: 'file',
+                combobox: true
+            }
         });
 
         return;

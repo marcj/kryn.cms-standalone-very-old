@@ -91,7 +91,10 @@ abstract class ORMAbstract {
     }
 
     /**
-     * Normalize the primary key.
+     * Normalizes a primary keys, that are normally used inside PHP classes,
+     * since developers are lazy and we need to convert the lazy primary key
+     * to the full definition.
+     *
      * Possible input:
      *  array('bla'), 'peter', 123,
      *
@@ -120,11 +123,29 @@ abstract class ORMAbstract {
     }
 
     /**
-     * Converts given primary values from type string into proper array definition.
+     * Converts given primary values from type string into proper normalized array definition.
      * This builds the array for the $pPrimaryKey for all of these methods inside this class.
      *
-     * @param string $pPrimaryKey
+     * The primaryKey comes primaraly from the REST API.
      *
+     *    admin/backend/object/news/1
+     *    admin/backend/objects?uri=news/1,2
+     * where
+     *    admin/backend/object/news/<id>
+     *    admin/backend/objects?uri=news/<id>
+     *
+     * is this ID.
+     *
+     * 1,2,3 => array( array(id =>1),array(id =>2),array(id =>3) )
+     * 1 => array(array(id => 1))
+     * idFooBar => array( id => "idFooBar")
+     * idFoo-Bar => array(array(id => idFoo, id2 => "Bar"))
+     * 1-45, 2-45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
+     *
+     *
+     *
+     *
+     * @param string $pPrimaryKey
      * @return array
      */
     public function primaryStringToArray($pPrimaryKey){
@@ -143,12 +164,13 @@ abstract class ORMAbstract {
 
                 if ($ePos = strpos($value, '=')){
                     $key = substr($value, 0, $ePos);
+                    $value = substr($value, $ePos+1);
                     if (!in_array($key, $this->primaryKeys)) continue;
                 } else if (!$this->primaryKeys[$pos]) continue;
 
                 $key = $this->primaryKeys[$pos];
 
-                $item[$key] = urldecode($value);
+                $item[$key] = rawurldecode($value);
             }
 
             if (count($item) > 0)
