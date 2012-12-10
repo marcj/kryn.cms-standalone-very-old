@@ -335,7 +335,7 @@ ka.getObjectPrimaryList = function(pObjectKey){
 }
 
 /**
- * This just cut off object://<objectName>/ and returns the primary key part urldecoded.
+ * This just cut off object://<objectName>/ and returns the primary key part.
  *
  * @param {String} pUri Internal uri
  * @return {String}
@@ -347,18 +347,18 @@ ka.getCroppedObjectId = function(pUri){
 
     var idx = pUri.indexOf('/');
 
-    return ka.urlDecode(pUri.substr(idx+1));
+    return pUri.substr(idx+1);
 }
 
 /**
- * Returns the id of an object item for the usage in urls (internal uri's).
+ * Returns the id of an object item for the usage in urls (internal uri's) - urlencoded.
  *
  * @param {String} pObjectKey
  * @param {Array}  pItem
  * @return {String} urlencoded internal uri
  */
 ka.getObjectUrlId = function(pObjectKey, pItem){
-    if (!pItem) throw 'ka.getObjectUrlId(): pItem missing.';
+    if (!pItem) throw 'pItem missing.';
     var pks = ka.getObjectPrimaryList(pObjectKey);
 
     if (pks.length == 0 ) throw pObjectKey+' does not have primary keys.';
@@ -377,6 +377,7 @@ ka.getObjectUrlId = function(pObjectKey, pItem){
 
 /**
  * Returns the object key (not id) from an object uri.
+ *
  * @param pUrl
  */
 ka.getObjectKey = function(pUrl){
@@ -438,6 +439,132 @@ ka.getObjectId = function(pUrl){
 }
 
 /**
+ * Returns the object label, based on a label field or label template (defined
+ * in the object definition).
+ * This function calls perhaps the REST API to get all information.
+ * If you already have an item object, you should probably use ka.getObjectLabelByItem();
+ *
+ * You can call this function really fast consecutively, since it queues all and fires
+ * only one REST API call that receives all items at once per object key.(at least after 50ms of the last call).
+ *
+ * @param {String} pUri
+ * @param {Function} pCb the callback function.
+ *
+ */
+ka.getObjectLabel = function(pUri, pCb){
+
+    var objectKey = ka.getObjectKey(pUri);
+
+    if (ka.getObjectLabelBusy[objectKey]){
+        ka.getObjectLabel.delay(10, ka.getObjectLabel, [pUri, pCb]);
+        return;
+    }
+
+    if (ka.getObjectLabelQTimer[objectKey])
+        clearTimeout(ka.getObjectLabelQTimer[objectKey]);
+
+    if (!ka.getObjectLabelQ[objectKey])
+        ka.getObjectLabelQ[objectKey] = {};
+
+    if (!ka.getObjectLabelQ[objectKey][pUri])
+        ka.getObjectLabelQ[objectKey][pUri] = [];
+
+    ka.getObjectLabelQ[objectKey][pUri].push(pCb);
+
+    ka.getObjectLabelQTimer[objectKey] = (function(){
+
+        ka.getObjectLabelBusy = true;
+
+        var uri = 'object://'+objectKey+'/';
+        Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
+            uri += ka.getCroppedObjectId(requestedUri)+',';
+        });
+        if (uri.substr(uri.length-1, 1)==',')
+            uri = uri.substr(0, uri.length-1);
+
+        new Request.JSON({url: _path + 'admin/backend/objects',
+        noCache: 1, noErrorReporting: true,
+        onComplete: function(pResponse){
+
+            var result, id, cb;
+
+            Object.each(pResponse.data, function(item, pk){
+
+                id = 'object://'+objectKey+'/'+pk;
+                result = ka.getObjectLabelByItem(objectKey, item);
+
+                //if the pUri and id differs, then the appropriate cb
+                //is not called. Like 'files' object that accepts
+                //two ids: the numeric id and the path.
+                //TODO, search solution for this
+
+                if (ka.getObjectLabelQ[objectKey][id]){
+                    while( (cb = ka.getObjectLabelQ[objectKey][id].pop()) ){
+                        cb(result);
+                    }
+                }
+
+            });
+
+            //call the callback of invalid requests with false argument.
+            Object.each(ka.getObjectLabelQ[objectKey], function(cbs){
+                cbs.each(function(cb){
+                    cb.attempt(false);
+                });
+            });
+
+            ka.getObjectLabelBusy[objectKey] = false;
+            ka.getObjectLabelQ[objectKey] = {};
+
+        }}).get({uri: uri, returnKeyAsRequested: 1});
+
+    }).delay(50);
+
+}
+ka.getObjectLabelQ = {};
+ka.getObjectLabelBusy = {};
+ka.getObjectLabelQTimer = {};
+/**
+ * Returns the object label, based on a label field or label template (defined
+ * in the object definition).
+ *
+ * @param {String} pObjectKey
+ * @param {Object} pItem
+ * @param {String} pMode 'default', 'field' or 'tree'. Default is 'default'
+ * @return {String}
+ */
+ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode){
+
+    var definition = ka.getObjectDefinition(pObjectKey);
+    if (!definition) throw 'Object not found '+pObjectKey;
+
+    var template = definition.labelTemplate;
+    var label = definition.labelField;
+
+
+    /* field ui */
+    if (pMode == 'field' && definition.fieldTemplate)
+        template = definition.fieldTemplate;
+
+    if (pMode == 'field' && definition.fieldLabel)
+        label = definition.fieldLabel;
+
+    /* tree */
+    if (pMode == 'tree' && definition.treeTemplate)
+        template = definition.treeTemplate;
+
+    if (pMode == 'tree' && definition.treeLabel)
+        label = definition.treeLabel;
+
+    if (!template){
+        //we only have an label field, so return it
+        return pItem[label];
+    }
+
+    return mowla.fetch(template, pItem);
+}
+
+/**
  * Returns all labels for a object item.
  *
  * @param {Array}  pFields
@@ -454,7 +581,7 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
         dataKey = fieldId;
         if (pRelationsAsArray && dataKey.indexOf('.') > 0) dataKey = dataKey.split('.')[0];
 
-        data[dataKey] = ka.getObjectLabel(pItem, field, fieldId, pObjectKey, pRelationsAsArray);
+        data[dataKey] = ka.getObjectFieldLabel(pItem, field, fieldId, pObjectKey, pRelationsAsArray);
     }.bind(this));
     
     return data;
@@ -471,7 +598,7 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
  *
  * @return {String}
  */
-ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
+ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
 
     var value = pValue[pFieldId] || '';
 
@@ -552,9 +679,15 @@ ka.getObjectLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsA
     return '';
 }
 
-ka.getExtensionTitle = function(pExtensionKey){
+/**
+ * Returns the module title of the given module key.
+ *
+ * @param {String} pKey
+ * @return {String} Or false, if the module does not exist/its not activated.
+ */
+ka.getExtensionTitle = function(pKey){
 
-    var config = ka.settings.configs[pExtensionKey];
+    var config = ka.settings.configs[pKey];
     if (!config) return false;
 
     if (typeOf(config.title) != 'string'){
@@ -562,10 +695,12 @@ ka.getExtensionTitle = function(pExtensionKey){
     }
 
     return config.title;
-
 }
 
-
+/**
+ * Initialize the webApp.
+ * Show the login etc.
+ */
 window.addEvent('domready', function () {
 
 
