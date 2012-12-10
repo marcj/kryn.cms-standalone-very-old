@@ -19,7 +19,7 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
             this.fieldInstance.fireChange();
         }.bind(this));
 
-        this.value = this.options.value || this.options['default'];
+        this.value = this.options.value || this.options['default'] || false;
 
         this.fieldInstance.addEvent('check-depends', function(){
             this.setValue(this.value);
@@ -29,17 +29,6 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
             this.setValue(this.value);
         }.bind(this));
 
-        /*function(){
-            this._setValue( this.value==0?1:0)
-        }.bind(this));
-
-        //with check-depends we have this.childContainer
-        this.addEvent('check-depends', function(){
-            this._setValue(this.value);
-        }.bind(this));
-
-        this.checkbox.addEvent('change', this.fieldInstance.fireChange);
-         */
     },
 
     setValue: function(pValue){
