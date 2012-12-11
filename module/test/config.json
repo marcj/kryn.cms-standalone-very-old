@@ -1,5 +1,4 @@
 {
-    "noConfig": 1,
     "title": "Test",
     "desc": "",
     "tags": "",
@@ -78,5 +77,16 @@
             },
             "label": "Test"
         }
+    },
+    "plugins": {
+        "detail": [
+            "Detail",
+            {
+                "template": {
+                    "withoutExtension": true,
+                    "type": "files"
+                }
+            }
+        ]
     }
 }

@@ -181,6 +181,7 @@ class Manager {
             }
             $json = Kryn::fileRead($configFile);
             $config = json_decode($json, true);
+            unset($config['noConfig']);
 
             if (!$pExtract) {
                 @rmDir("data/packages/modules/$pModuleName");
