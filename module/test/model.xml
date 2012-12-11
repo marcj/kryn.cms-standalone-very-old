@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<database>
+  <table name="test_test" phpName="Test">
+    <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+    <column name="name" type="VARCHAR"/>
+    <vendor type="mysql">
+      <parameter name="Charset" value="utf8"/>
+    </vendor>
+  </table>
+</database>
