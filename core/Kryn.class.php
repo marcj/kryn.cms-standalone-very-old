@@ -795,7 +795,7 @@ class Kryn {
     public static function isActiveModule($pModuleKey){
         $pModuleKey = strtolower($pModuleKey);
         return $pModuleKey=='admin' || $pModuleKey == 'users' || $pModuleKey == 'core' ||
-            array_search($pModuleKey, self::$config['activeModules']);
+            array_search($pModuleKey, self::$config['activeModules']) !== false;
     }
 
     /**
