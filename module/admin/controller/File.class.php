@@ -6,7 +6,7 @@ class File {
 
     public function getFiles($pPath){
 
-        //todo, check access
+        //todo, check read access
 
         $files = \Core\File::getFiles($pPath);
         foreach ($files as &$file){
@@ -18,7 +18,7 @@ class File {
 
     public function getFile($pPath){
 
-        //todo, check access
+        //todo, check read access
 
         $file = \Core\File::getFile($pPath);
         $file['writeAccess'] = \Core\Acl::checkUpdate('file', $file['id']);
@@ -28,7 +28,7 @@ class File {
 
     public function getThumbnail($pPath){
 
-        //todo, check access
+        //todo, check read access
 
         $image = \Core\File::getThumbnail($pPath, '50x50');
 
