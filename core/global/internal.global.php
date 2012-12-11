@@ -20,21 +20,6 @@
 
 $errorHandlerInside = false;
 
-
-function kryn_shutdown() {
-    global $client, $adminClient;
-
-    if ($client)
-        $client->syncStore();
-
-    if ($adminClient && $client){
-        if ($adminClient != $client && $adminClient) {
-            $adminClient->syncStore();
-        }
-    }
-
-}
-
 /** proxie */
 function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine){
     \Core\Utils::errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine);
@@ -45,6 +30,14 @@ function coreUtilsExceptionHandler($pException){
 }
 
 function coreUtilsShutdownHandler(){
+
+    if (\Core\Kryn::getClient())
+        \Core\Kryn::getClient()->syncStore();
+
+    if (\Core\Kryn::getAdminClient() && \Core\Kryn::getAdminClient() != \Core\Kryn::getClient()){
+        \Core\Kryn::getAdminClient()->syncStore();
+    }
+
     \Core\Utils::shutdownHandler();
 }
 
