@@ -127,7 +127,7 @@ ka.wm = {
     newListBar: function (pWindow) {
         pWindow.setBarButton(bar);
         var bar = new Element('a', {
-            'class': 'wm-bar-item',
+            'class': 'ka-tabGroup-item gradient wm-bar-item',
             title: pWindow.getFullTitle()
         });
 
@@ -156,9 +156,8 @@ ka.wm = {
 
 
         if (document.body.hasClass('ka-no-desktop')){
-            new Element('div', {
-                'class': 'wm-bar-item-closer',
-                text: 'x'
+            new Element('span', {
+                'class': 'wm-bar-item-closer'
             })
             .addEvent('click', function(e){
                 e.stopPropagation();
