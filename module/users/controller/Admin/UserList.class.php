@@ -27,7 +27,7 @@ class UserList extends \Admin\ObjectWindow {
         <div style="color: silver;">{item.groupMembership.name}</div>
     </div>';
 
-    public $fields = array(
+    public $columns = array(
         'lastName' => array(
             'label' => 'Last name'
         ),

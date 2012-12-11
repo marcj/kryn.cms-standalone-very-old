@@ -12,9 +12,11 @@ document.addEvent('touchmove', function (event) {
 
 if (typeOf(ka.langs) != 'object') ka.langs = {};
 
-window.logger = function (pVal) {
+window.logger = function(){
     if (typeOf(console) != "undefined") {
-        console.log(pVal);
+        var args = arguments;
+        if (args.length == 1) args = args[0];
+        console.log(args);
     }
 };
 
@@ -102,7 +104,7 @@ window._kml2html = function (pRes) {
 window.ka.findWindow = function(pElement){
 
     if (!typeOf(pElement)){
-        return logger('ka.findWindow(): pElement is not an element.')
+        throw 'ka.findWindow(): pElement is not an element.';
     }
 
     var window = pElement.getParent('.kwindow-border');
@@ -118,7 +120,7 @@ window.ka.entrypoint = {
         var entrypoint = ka.entrypoint.get(pEntrypoint);
 
         if (!entrypoint){
-            logger('Can not be found entrypoint: '+pEntrypoint);
+            throw 'Can not be found entrypoint: '+pEntrypoint;
             return false;
         }
 
@@ -131,7 +133,7 @@ window.ka.entrypoint = {
 
     },
 
-    //executes a entrypont from type function
+    //executes a entry point from type function
     exec: function(pEntrypoint, pOptions, pSource){
 
         if (pEntrypoint.functionType == 'global'){
@@ -164,6 +166,9 @@ window.ka.entrypoint = {
             splitted.unshift(extension);
         } else
             config = ka.settings.configs[extension];
+        if (!config){
+            throw 'Config not found for module '+extension;
+        }
 
         tempEntry = config.admin[splitted.shift()];
         path.push(tempEntry['title']);
@@ -335,6 +340,21 @@ ka.getObjectPrimaryList = function(pObjectKey){
 }
 
 /**
+ * Return only the primary keys of pItem as object.
+ *
+ * @param {String} pObjectKey
+ * @param {Object} pItem
+ */
+ka.getObjectPk = function(pObjectKey, pItem){
+    var pks = ka.getObjectPrimaryList(pObjectKey);
+    var result = {};
+    Array.each(pks, function(pk){
+        result[pk] = pItem[pk];
+    });
+    return result;
+}
+
+/**
  * This just cut off object://<objectName>/ and returns the primary key part.
  *
  * @param {String} pUri Internal uri
@@ -352,10 +372,11 @@ ka.getCroppedObjectId = function(pUri){
 
 /**
  * Returns the id of an object item for the usage in urls (internal uri's) - urlencoded.
+ * If you need the full uri, you ka.getObjectUrl
  *
  * @param {String} pObjectKey
  * @param {Array}  pItem
- * @return {String} urlencoded internal uri
+ * @return {String} urlencoded internal uri part of the id.
  */
 ka.getObjectUrlId = function(pObjectKey, pItem){
     if (!pItem) throw 'pItem missing.';
@@ -373,6 +394,19 @@ ka.getObjectUrlId = function(pObjectKey, pItem){
         return urlId.substr(0, urlId.length-1);
     }
 
+}
+
+/**
+ * Just convert the arguments into a new string :
+ *    object://<pObjectKey>/<pId>
+ *
+ *
+ * @param {String} pObjectKey
+ * @param {String} pId Has to be urlencoded (use ka.urlEncode())
+ * @return {String}
+ */
+ka.getObjectUrl = function(pObjectKey, pId){
+    return 'object://'+pObjectKey+'/'+pId;
 }
 
 /**
@@ -558,7 +592,7 @@ ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode){
 
     if (!template){
         //we only have an label field, so return it
-        return pItem[label];
+        return mowla.fetch('{label}', {label: pItem[label]});
     }
 
     return mowla.fetch(template, pItem);
@@ -1037,8 +1071,6 @@ ka.ai.renderLogin = function () {
         var possibleLanguage = navigator.browserLanguage || navigator.language;
         if (possibleLanguage.indexOf('-'))
             possibleLanguage = possibleLanguage.substr(0, possibleLanguage.indexOf('-'));
-
-        logger(possibleLanguage);
 
         if (ka.possibleLangs.contains(possibleLanguage)){
 

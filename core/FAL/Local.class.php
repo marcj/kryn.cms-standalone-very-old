@@ -18,7 +18,6 @@ class Local extends FALAbstract {
     private $root = PATH_MEDIA;
 
 
-
     /**
      * Default permission modes for directories.
      * @var integer
@@ -259,7 +258,7 @@ class Local extends FALAbstract {
         }
 
         return array(
-            'path'  => '/'.str_replace($this->getRoot(), '', $pPath),
+            'path'  => str_replace($this->getRoot(), '', $pPath),
             'name'  => $name,
             'type'  => $type,
             'ctime' => $ctime,

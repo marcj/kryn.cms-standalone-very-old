@@ -66,12 +66,24 @@ abstract class ObjectWindow {
     public $primaryKey = array();
 
     /**
-     * Defines the fields of your table which should be displayed.
+     * Defines the fields of your edit/add window which should be displayed.
+     * Can contains several fields nested, via 'children', also type 'tab' are allowed.
+     * Every ka.field is allowed.
      *
      * @abstract
      * @var array
      */
     public $fields = array();
+
+    /**
+     * Defines the fields of your table which should be displayed.
+     * Only one level, no children, no tabs. Use the window editor,
+     * to get the list of possible types.
+     *
+     * @abstract
+     * @var array
+     */
+    public $columns = array();
 
     /**
      * Defines how many rows should be displayed per page.
@@ -142,7 +154,7 @@ abstract class ObjectWindow {
      *
      * @var string name of image
      */
-    public $editIcon = '#icon-pencil';
+    public $editIcon = '#icon-pencil-8';
 
     /**
      * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
@@ -156,7 +168,7 @@ abstract class ObjectWindow {
      *
      * @var string name of image
      */
-    public $removeIconItem = '#icon-minus';
+    public $removeIconItem = '#icon-remove-3';
 
 
     /**
@@ -459,7 +471,7 @@ abstract class ObjectWindow {
     }
 
 
-    function getFieldList(){
+    public function getFieldList(){
 
         $fields = array();
 
@@ -538,7 +550,7 @@ abstract class ObjectWindow {
         if ($customCondition = $this->getCustomListingCondition())
             $condition = $condition + $condition;
 
-        $options['fields'] = $this->getFieldList();
+        $options['fields'] = array_keys($this->getColumns());
 
         $maxItems = $obj->getCount($condition, $options);
 
@@ -561,31 +573,13 @@ abstract class ObjectWindow {
     }
 
     /**
-     * Returns the condition object. Based on getAclCondition and getCustomCondition().
+     * Here you can define additional conditions for all operations (edit/listing).
+     *
+     * See phpDoc of global function dbConditionToSql for more details of the array structure of the result.
      * 
      * @return array condition definition
      */
     public function getCondition(){
-
-        $result = array();
-
-        if ($this->permissionCheck && $condition = \Core\Acl::getListingCondition($this->ormClass->object))
-            $result = $condition;
-
-        if ($condition = $this->getCustomCondition())
-            $result = $result + $condition;
-
-        return $result;
-    }
-
-    /**
-     * Here you can define additional conditions for all operations (edit/listing).
-     *
-     * See phpDoc of global function dbConditionToSql for more details.
-     * 
-     * @return array condition definition
-     */
-    public function getCustomCondition(){
 
     }
 
@@ -635,27 +629,28 @@ abstract class ObjectWindow {
      */
     public function getItem($pPk) {
 
-        $obj = \Core\Object::getClass($this->object);
-        $this->primaryKey = $obj->normalizePrimaryKey($pPk);
-
-        $condition = $this->getCondition();
-
-        if ($customCondition = $this->getCustomListingCondition())
-            $condition = $condition ? array_merge($condition, $customCondition) : $customCondition;
-
         $options['fields'] = $this->getFieldList();
-        $item = $obj->getItem($this->primaryKey, $options);
+        $options['permissionCheck'] = $this->getPermissionCheck();
 
-        if (!\Core\Object::satisfy($item, $condition)) return false;
+        $item = \Core\Object::get($this->object, $pPk, $options);
+
+        //check against additionaly our own custom condition
+        if ($item && $condition = $this->getCondition())
+            if (!\Core\Object::satisfy($item, $condition)) $item = null;
 
         return array(
             'values' => $item
         );
     }
 
+    /**
+     * Adds a new item.
+     *
+     *
+     *
+     * @return mixed False if some went wrong or a array with the new primary keys.
+     */
     public function addItem(){
-
-        $obj = \Core\Object::getClass($this->object);
 
         //collect values
         $data = $this->collectData();
@@ -686,21 +681,19 @@ abstract class ObjectWindow {
 
     public function saveItem($pPk){
 
-        $this->primaryKey = $pPk;
-        $obj = \Core\Object::getClass($this->object);
+        $options['fields'] = $this->getFieldList();
+        $options['permissionCheck'] = $this->getPermissionCheck();
+
+        $item = \Core\Object::get($this->object, $pPk, $options);
+
+        //check against additionaly our own custom condition
+        if ($item && $condition = $this->getCondition())
+            if (!\Core\Object::satisfy($item, $condition)) $item = false;
+
+        if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));
 
         //collect values
         $data = $this->collectData();
-
-        //this is for the conditions/limitations from getCustomCondition/getCustomEditCondition
-        $condition  = dbPrimaryKeyToCondition($pPk);
-        $condition += $this->getCondition();
-        
-        if ($customCondition = $this->getCustomEditCondition())
-            $condition = $condition + $customCondition;
-
-        $item = $obj->getItem($condition);
-        if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));
 
         //do normal update through Core\Object
         $result = \Core\Object::update($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
@@ -937,6 +930,21 @@ abstract class ObjectWindow {
     public function setFilter($filter){
         $this->filter = $filter;
     }
+
+    /**
+     * @param array $columns
+     */
+    public function setColumns($columns){
+        $this->columns = $columns;
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns(){
+        return $this->columns;
+    }
+
 
     /**
      * @return array

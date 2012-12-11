@@ -473,7 +473,7 @@
                 
             ],
             "chooserFieldDataModelField": "path",
-            "treeJavascript": "default",
+            "treeInterface": "default",
             "treeIcon": "extension",
             "treeIconMapping": {
                 "directory": "#icon-folder-4"

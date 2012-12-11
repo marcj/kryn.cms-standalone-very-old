@@ -31,7 +31,7 @@ class ObjectFile extends \Core\ORM\Propel {
                 } else if (!$this->primaryKeys[$pos]) continue;
 
                 if (!is_numeric($value)){
-                    $file = \Core\File::getFile(urldecode($value));
+                    $file = \Core\File::getFile(rawurldecode($value));
                     if ($file)
                         $value = $file['id'];
                     else continue;
@@ -111,6 +111,17 @@ class ObjectFile extends \Core\ORM\Propel {
         if (!$path) return;
 
         return \Core\File::getFile($path);
+    }
+
+    public function getItems($pCondition = null, $pOptions = null){
+        $items = parent::getItems($pCondition, $pOptions);
+        $result = array();
+        foreach ($items as $item){
+            $file = \Core\File::getFile($item['path']);
+            if ($file)
+                $result[] = $file;
+        }
+        return $result;
     }
 
 

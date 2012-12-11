@@ -442,6 +442,16 @@ ka.Field = new Class({
     },
 
     /**
+     * Returns the appropriate class instance of the given type
+     * in ka.ui.FieldTypes[<type>].
+     *
+     * @return {Object}
+     */
+    getFieldObject: function(){
+        return this.fieldObject;
+    },
+
+    /**
      * Sets the value.
      *
      * @param {Mixed} pValue

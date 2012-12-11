@@ -546,7 +546,8 @@ class Editor {
         $fSlash = strpos($actualPath, '/');
         $actualPath = 'module/'.substr($actualPath, 0, $fSlash).'/controller/'.substr($actualPath, $fSlash+1);
 
-        $path = str_replace('..', '', getArgv('file'));
+        $general = getArgv('general');
+        $path = $general['file'];
 
         $sourcecode = "<?php\n\n";
 
@@ -572,12 +573,14 @@ class Editor {
         }
 
         $general = getArgv('general');
+        $blacklist = array('class', 'file');
         foreach ($general as $varName => $var){
+            if (array_search($varName, $blacklist) !== false) continue;
             $this->addVar($sourcecode, $varName, $var);
         }
 
         $methods = getArgv('methods');
-        foreach ($methods as $source){
+        foreach ($methods as $name => $source){
             $this->addMethod($sourcecode, $source);
         }
 
@@ -585,7 +588,9 @@ class Editor {
 
         $sourcecode = str_replace("\r", '', $sourcecode);
 
-        SystemFile::setContent($path.'.temp', $sourcecode);
+        error_log($path);
+
+        SystemFile::setContent($path, $sourcecode);
 
         return true;
 
@@ -593,14 +598,24 @@ class Editor {
 
     public function addMethod(&$pSourceCode, $pSource){
 
-        $pSourceCode .= substr($pSource, 6, 3);
+        $pSourceCode .= substr($pSource, 6, -4)."\n";
 
     }
 
     public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false){
 
-        $pSourceCode .= $pVisibility.($pStatic?' static':'').' $'.$pName.' = '.var_export($pVar, true).';';
+        $pSourceCode .=
+            "    "
+            .$pVisibility.($pStatic?' static':'').' $'.$pName.' = '.var_export(self::toVar($pVar), true)
+            .";\n\n";
 
+    }
+
+    public function toVar($pValue){
+        if ($pValue == 'true')   return true;
+        if ($pValue == 'false')  return false;
+        if (is_numeric($pValue)) return $pValue+0;
+        return $pValue;
     }
 
 

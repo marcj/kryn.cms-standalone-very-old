@@ -16,13 +16,13 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
          * @type {Array}
          */
         replace: null,
-
         modifiers: {
             'trim': function(v){ return v.replace(/^\s+|\s+$/g, ""); },
             'lower': function(v){ return v.toLowerCase(); },
             'ucfirst': function(v){ return v.length > 0 ? v.substr(0, 1).toUpperCase()+v.substr(1) : ''; },
             'lcfirst': function(v){ return v.length > 0 ? v.substr(0, 1).toLowerCase()+v.substr(1) : ''; },
             'phpfunction': function(v){ return v.replace(/[^a-zA-Z0-9_]/g, ''); },
+            'phpclass': function(v){ return v.replace(/[^\\a-zA-Z0-9_]/g, ''); },
             'underscore': function(v){ return v.replace(/([^a-z])/g, function($1){return "_"+$1.toLowerCase().replace(/[^a-z]/, '');}); },
             'camelcase': function(v){ return v.replace(/([^a-zA-Z0-9][a-z])/g, function($1){return $1.toUpperCase().replace(/[^a-zA-Z0-9]/,'');}); },
             'dash': function(v){ return v.replace(/([^a-zA-Z0-9])/g, function($1){return "-"+$1.toLowerCase().replace(/[^a-z]/, '');}); }

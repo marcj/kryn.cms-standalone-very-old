@@ -586,7 +586,9 @@ class Propel extends ORMAbstract {
 
         $this->mapValues($obj, $pValues);
 
-        return ($obj->save())? $obj->getPrimaryKey() : false;
+        if (!$obj->save()) return false;
+
+        return $this->pkFromRow($obj->toArray(\BasePeer::TYPE_STUDLYPHPNAME));
     }
 
 

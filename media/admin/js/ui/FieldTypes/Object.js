@@ -81,7 +81,10 @@ ka.FieldTypes.Object = new Class({
                 if (typeOf(id) == 'object')
                     id = ka.getObjectUrlId(this.options.object, id);
 
-                this.renderObjectTableLoadItem(id, placeHolder);
+                ka.getObjectLabel(ka.getObjectUrl(this.options.object, id), function(label){
+                    placeHolder.set('html', label);
+                });
+                //this.renderObjectTableLoadItem(id, placeHolder);
 
                 var actionBar = new Element('div');
 
@@ -117,7 +120,7 @@ ka.FieldTypes.Object = new Class({
 
     },
 
-    renderObjectTableLoadItem: function(pId, pPlaceHolders){
+    /*renderObjectTableLoadItem: function(pId, pPlaceHolders){
 
         if (this.objectLastTableLoaderTimer){
             clearTimeout(this.objectLastTableLoaderTimer);
@@ -188,6 +191,8 @@ ka.FieldTypes.Object = new Class({
 
     },
 
+    */
+
     renderChooserSingle: function(){
 
         var table = new Element('table', {
@@ -200,12 +205,13 @@ ka.FieldTypes.Object = new Class({
         var leftTd = new Element('td').inject(tr);
         var rightTd = new Element('td', {width: '50px'}).inject(tr);
 
-        this.input = new Element('input', {
-            'class': 'ka-Input chooser ka-Input-disabled',
-            type: 'text',
-            disabled: true,
-            style: 'width: 100%'
-        }).inject(leftTd);
+        this.field = new ka.Field({
+            noWrapper: true
+        }, leftTd)
+
+        this.input = this.field.getFieldObject().input;
+        this.input.addClass('ka-Input-disabled');
+        this.input.disabled = true;
 
         if (this.options.combobox){
             this.input.disabled = false;
@@ -311,15 +317,7 @@ ka.FieldTypes.Object = new Class({
 
         this.objectDefinition = ka.getObjectDefinition(this.options.objects[0]);
 
-        if (this.objectDefinition.chooserUseOwnClass != 1){
-            Object.each(this.objectDefinition.chooserFieldDataModelFields, function(field,key){
-                this.renderChooserColumns.include([
-                    field.label?field.label:key,
-                    field.width?field.width:null
-                ]);
-            }.bind(this));
-        }
-
+        this.renderChooserColumns.include([""]);
         this.renderChooserColumns.include(["", 50]);
 
         this.chooserTable = new ka.Table(this.renderChooserColumns, {absolute: false, selectable: false});

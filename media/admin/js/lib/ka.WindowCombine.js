@@ -169,7 +169,7 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.actionsNavi = this.win.addButtonGroup();
-            this.actionsNavi.setStyle('margin-right', 159 + 17);
+            this.actionsNavi.setStyle('margin-right', 190);
         }
 
         if (this.actionsNavi) {
@@ -200,7 +200,7 @@ ka.WindowCombine = new Class({
         this.sortSelect.inject(this.sortSpan);
         this.sortSelect.setStyle('width', 150);
 
-        Object.each(this.classProperties.fields, function (column, id) {
+        Object.each(this.classProperties.columns, function (column, id) {
 
             this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-16']);
             this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-15']);
@@ -426,9 +426,6 @@ ka.WindowCombine = new Class({
             if (!res.items && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
             }
-
-                logger('load Items');
-            logger(res);
 
             if (!res.items) return;
 
@@ -737,24 +734,24 @@ ka.WindowCombine = new Class({
 
     getSplitTitle: function (pItem) {
 
-        var value = ka.getObjectLabel(
+        var value = ka.getObjectFieldLabel(
             pItem['values'],
-            this.classProperties.fields[this.sortField],
+            this.classProperties.columns[this.sortField],
             this.sortField,
             this.classProperties['object']
         );
         if (value == '') return _('-- No value --');
 
-        if (!this.classProperties.fields[this.sortField])
+        if (!this.classProperties.columns[this.sortField])
             return value;
 
-        if (!this.classProperties.fields[this.sortField]['type'] || this.classProperties.fields[this.sortField].type == "text") {
+        if (!this.classProperties.columns[this.sortField]['type'] || this.classProperties.columns[this.sortField].type == "text") {
 
             return '<b>' + value.substr(0, 1).toUpperCase() + '</b>';
 
         } else {
 
-            if (["datetime", "date"].contains(this.classProperties.fields[this.sortField]['type'])) {
+            if (["datetime", "date"].contains(this.classProperties.columns[this.sortField]['type'])) {
 
                 if (pItem['values'][this.sortField] > 0) {
 
@@ -1186,18 +1183,18 @@ ka.WindowCombine = new Class({
             layout = this.classProperties.itemLayout;
         } else {
 
-            if (this.classProperties.fields.title) {
+            if (this.classProperties.columns.title) {
                 layout += '<h2>{item.title}</h2>';
                 titleAdded = true;
-            } else if (this.classProperties.fields.name) {
-                layout += '<h2>{item.name</h2>';
+            } else if (this.classProperties.columns.name) {
+                layout += '<h2>{item.name}</h2>';
                 nameAdded = true;
             }
 
             layout += '<div class="subline">';
 
             var c = 1;
-            Object.each(this.classProperties.fields, function (bla, id) {
+            Object.each(this.classProperties.columns, function (bla, id) {
 
                 if (id == "title" && titleAdded) return;
                 if (id == "name" && nameAdded) return;
@@ -1222,10 +1219,9 @@ ka.WindowCombine = new Class({
         }).store('item', pItem).addEvent('click', this.loadItem.bind(this, pItem));
 
 
-
         //parse template
         var data = ka.getObjectLabels(
-            this.classProperties.fields,
+            this.classProperties.columns,
             pItem['values'],
             this.classProperties['object'],
             true
@@ -1331,7 +1327,7 @@ ka.WindowCombine = new Class({
             }
         }
 
-        Object.each(this.classProperties.fields, function (column, columnId) {
+        Object.each(this.classProperties.columns, function (column, columnId) {
             var value = pItem['values'][columnId];
 
             if (column.format == 'timestamp') {

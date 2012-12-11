@@ -16,6 +16,14 @@ ka.WindowEdit = new Class({
         if (!this.winParams.item && this.winParams.values)
             this.winParams.item = this.winParams.values; //compatibility
 
+        if (!this.windowAdd && !this.winParams.item){
+            this.win.alert('No item given. A edit object window can not be called directly.', function(){
+                this.win.close();
+            }.bind(this));
+            return;
+        }
+
+
         if (!pContainer) {
             this.container = this.win.content;
             this.container.setStyle('overflow', 'visible');
@@ -669,7 +677,7 @@ ka.WindowEdit = new Class({
 
             if (['window_list'].contains(item.type)) return;
 
-            if (!pWithoutEmptyCheck && !item.isHidden() && !item.isOk()) {
+            if (!pWithoutEmptyCheck && !item.isHidden() && !item.isValid()) {
 
                 var properTabKey = this.fieldToTabOIndex[fieldId];
                 if (!properTabKey) return;
@@ -779,8 +787,6 @@ ka.WindowEdit = new Class({
         var _this = this;
         var req = {};
 
-        logger('save: '+typeOf(pClose));
-
         if (this.lastSaveRq) this.lastSaveRq.cancel();
 
         var data = this.retrieveData();
@@ -789,13 +795,11 @@ ka.WindowEdit = new Class({
 
         this.ritem = data;
 
-        if (this.item) {
-            req = Object.merge(this.item, data);
+        if (this.winParams.item) {
+            req = Object.merge(this.winParams.item, data);
         } else {
             req = data;
         }
-
-        req.publish = (pPublish == true) ? 1 : 0;
 
         if (go) {
 
@@ -821,7 +825,6 @@ ka.WindowEdit = new Class({
                 }
 
             }
-
 
             var objectId = '';
 
@@ -850,7 +853,7 @@ ka.WindowEdit = new Class({
 
                     Array.each(res.fields, function(field){
                         if (this.fields[field])
-                            this.fields[field].setIsOk(false);
+                            this.fields[field].showNotValid();
                     }.bind(this));
 
                     if (pPublish) {
@@ -861,7 +864,11 @@ ka.WindowEdit = new Class({
                     return;
                 }
 
-                this.winParams.item = res.data;
+                if (typeOf(res.data) == 'object'){
+                    this.winParams.item = res.data; //our new primary keys
+                } else {
+                    this.winParams.item = ka.getObjectPk(this.classProperties['object'], req); //may we changed some pk
+                }
 
                 window.fireEvent('softReload', this.win.module + '/' + this.win.code.substr(0, this.win.code.lastIndexOf('/')));
 

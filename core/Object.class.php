@@ -231,7 +231,7 @@ class Object {
         $withoutFieldNames = is_numeric(key($pItem));
 
         if (count($pks) == 1 && is_array($pItem)){
-            return rawurlencode($pItem[ $withoutFieldNames ? $pks[0]:key($pItem) ])+'';
+            return rawurlencode($pItem[ $withoutFieldNames ? 0 : $pks[0] ])+'';
         } else {
             $c = 0;
             foreach ($pks as $pk){

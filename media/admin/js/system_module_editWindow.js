@@ -8,23 +8,6 @@ var admin_system_module_editWindow = new Class({
     customMethods: {}, //for custom methods
     customMethodItems: {}, //ref to <a> element of the custom method list
 
-    classMethods: {
-
-        windowList: [
-            'saveItem', '__construct', 'prepareFieldDefinition', 'prepareFieldItem', 'deleteItem', 'removeSelected',
-            '_removeN2N', 'filterSql', 'where', 'sql', 'countSql', 'getItems', 'exportItems', 'acl'
-        ],
-        windowAdd: [
-            '__construct', 'prepareFieldDefinition', 'prepareFieldItem', 'init', 'loadPreviewPages', 'unlock', 'lock',
-            'canLock', 'cachePluginsRelations', 'getItem', 'saveItem', 'getPreviewUrls'
-        ],
-        windowEdit: [
-            '__construct', 'prepareFieldDefinition', 'prepareFieldItem', 'init', 'loadPreviewPages', 'unlock', 'lock',
-            'canLock', 'cachePluginsRelations', 'getItem', 'saveItem', 'getPreviewUrls'
-        ]
-
-    },
-
     initialize: function(pWin){
 
         this.win = pWin;
@@ -129,27 +112,44 @@ var admin_system_module_editWindow = new Class({
         this.windowEditAddTabBtn = new ka.Button(t('Add tab'))
         .addEvent('click', function(){
 
-            var dialog = this.win.newDialog('<b>'+t('New tab')+'</b>');
+            var dialog = this.win.newDialog(new Element('b', {text: t('New Tab')}));
             dialog.setStyle('width', 400);
 
             var d = new Element('div', {
                 style: 'padding: 5px 0px;'
             }).inject(dialog.content);
 
-            var table = new Element('table').inject(d);
+
+            var table = new Element('table', {width: '100%'}).inject(d);
             var tbody = new Element('tbody').inject(table);
 
-            var tr = new Element('tr').inject(tbody);
+            tr = new Element('tr').inject(tbody);
+            new Element('td', {text: t('Label:')}).inject(tr);
+            td = new Element('td', {'style': 'width: 225px'}).inject(tr);
+            var iLabel =new Element('input', {'class': 'text'}).inject(td);
 
-            new Element('td', {text: t('Tab id:')}).inject(tr);
+            tr = new Element('tr').inject(tbody);
+            new Element('td', {text: t('Key:')}).inject(tr);
             var td = new Element('td').inject(tr);
             var iId = new Element('input', {'class': 'text'}).inject(td);
 
-            tr = new Element('tr').inject(tbody);
-            new Element('td', {text: t('Tab label:')}).inject(tr);
-            td = new Element('td').inject(tr);
-            var iLabel =new Element('input', {'class': 'text'}).inject(td);
+            var oldLabel = '';
+            var getId = function(pLabel){
+                return '__'+(pLabel || iLabel.value).replace(/\W/, '-').replace(/--+/, '-')+'__';
+            };
 
+            var onChange = function(){
+                if (oldLabel == '' || iId.value == getId(oldLabel)){
+                    iId.value = getId();
+                }
+                if (this.value == '') iId.value = '';
+                oldLabel = this.value;
+            };
+
+            iLabel.addEvent('change', onChange);
+            iLabel.addEvent('keyup', onChange);
+
+            iLabel.focus();
 
             new ka.Button(t('Cancel'))
                 .addEvent('click', function(){
@@ -166,7 +166,7 @@ var admin_system_module_editWindow = new Class({
                 if (iId.value.substr(iId.value.length-2) != '__')
                     iId.value += '__';
 
-                this.addWindowEditTab(iId.value, iLabel.value);
+                this.addWindowEditTab(iId.value, {label: iLabel.value, type: 'tab'});
                 dialog.close();
 
             }.bind(this))
@@ -300,8 +300,8 @@ var admin_system_module_editWindow = new Class({
                 label: t('Item layout (Optional)'),
                 desc: t('Default behaviour is that the system extracts the first three columns and build it on its own. You can define here your own item HTML.')+
                 '<br/>'+t('Example:')+'<br/>'+
-                '&lt;div&gt;{title}&lt;/div&gt;<br/>'+
-                '&lt;div style="font-size: 10px;"&gt;{anotherFieldName}&lt;/div&gt;',
+                '&lt;h2&gt;{item.title}&lt;/h2&gt;<br/>'+
+                '&lt;div style="font-size: 10px;"&gt;{item.anotherFieldName}&lt;/div&gt;',
                 type: 'codemirror',
                 inputHeight: 80
             },
@@ -382,7 +382,7 @@ var admin_system_module_editWindow = new Class({
 
                     add: {
 
-                        label: t('Add functionality'),
+                        label: t('Addable'),
                         type: 'checkbox',
                         children: {
                             addIcon: {
@@ -405,7 +405,7 @@ var admin_system_module_editWindow = new Class({
 
                     edit: {
 
-                        label: t('Edit functionality'),
+                        label: t('Editable'),
                         type: 'checkbox',
                         children: {
                             editIcon: {
@@ -428,7 +428,7 @@ var admin_system_module_editWindow = new Class({
 
                     remove: {
 
-                        label: t('Remove functionality'),
+                        label: t('Removeable'),
                         type: 'checkbox',
                         children: {
 

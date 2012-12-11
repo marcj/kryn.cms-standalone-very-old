@@ -281,15 +281,16 @@ class Controller {
                 $map = array();
                 foreach ($requestedIds as $id){
                     $pk = \Core\Object::parsePk($object_key, $id);
-                    $map[\Core\Object::getObjectUrlId($object_key, $pk[0])] = $id;
+                    $map[\Core\Object::getObjectUrlId($object_key, $pk[0])+''] = $id;
                 }
 
                 if (is_array($items)){
                     foreach ($items as &$item){
                         $pk = \Core\Object::getObjectUrlId($object_key, $item);
-                        $res[$map[$pk]] = $item;
+                        $res[$map[$pk+'']] = $item;
                     }
                 }
+
             } else {
                 $primaryKeys = \Core\Object::getPrimaries($object_key);
 

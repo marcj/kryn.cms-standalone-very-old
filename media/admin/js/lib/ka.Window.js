@@ -21,9 +21,8 @@ ka.Window = new Class({
         this.link = pLink;
         this.parentId = pParentId;
 
-        if (!pLink) {
+        if (!pLink)
             this.link = {module: pModule, code: pWindowCode };
-        }
 
         this.active = true;
         this.isOpen = true;
@@ -470,7 +469,6 @@ ka.Window = new Class({
     },
 
     addTitle: function (pText) {
-
         new Element('img', {
             src: _path + PATH_MEDIA + '/admin/images/ka-kwindow-title-path.png'
         }).inject(this.titleAdditional);
@@ -531,11 +529,7 @@ ka.Window = new Class({
                 if (pControlOrMeta && (!e.control && !e.meta)) return;
                 if (pAlt && !e.alt) return;
                 if (e.key == pKey) {
-                    try {
-                        pCallback(e);
-                    } catch (e) {
-                        logger(e)
-                    };
+                    pCallback(e);
                 }
 
             }
@@ -742,7 +736,6 @@ ka.Window = new Class({
 
     checkDimensions: function () {
 
-
         if (document.body.hasClass('ka-no-desktop')) return;
 
         if (this.inline) return;
@@ -757,9 +750,11 @@ ka.Window = new Class({
 
         if (this.entryPoint.minWidth && borderSize.x < this.entryPoint.minWidth) {
             this.border.setStyle('width', this.entryPoint.minWidth);
+            borderSize.x = this.entryPoint.minWidth;
         }
         if (this.entryPoint.minWidth && borderSize.y < this.entryPoint.minHeight) {
             this.border.setStyle('height', this.entryPoint.minHeight);
+            borderSize.y = this.entryPoint.minHeight;
         }
 
 
@@ -793,6 +788,8 @@ ka.Window = new Class({
 
         if (borderPosition.x < 0)
             newX = 0;
+
+        logger(newY);
 
         if (newY !== false) this.border.setStyle('top', newY);
         if (newX !== false) this.border.setStyle('left', newX);
@@ -934,10 +931,12 @@ ka.Window = new Class({
             }).inject(this.titleText, 'before');
         }
 
-        Array.each(this.entryPoint._path, function (label) {
+        var path = Array.clone(this.entryPoint._path);
+        path.pop();
+        Array.each(path, function (label) {
 
             new Element('span', {
-                text: _(label)
+                text: t(label)
             }).inject(this.titleText, 'before');
 
             new Element('img', {
@@ -952,7 +951,6 @@ ka.Window = new Class({
         }
 
         this.titleText.set('text', t(this.entryPoint.title));
-
 
         this.content.empty();
         new Element('div', {
@@ -1172,11 +1170,11 @@ ka.Window = new Class({
             container: $('desktop'),
             snap: 3,
             onDrag: function (el, ev) {
-                var cor = el.getCoordinates();
-                if (cor.top < 0) {
+                var cor = el.getPosition(el.getParent());
+                if (cor.y < 0) {
                     el.setStyle('top', 0);
                 }
-                if (cor.left < 0) {
+                if (cor.x < 0) {
                     el.setStyle('left', 0);
                 }
             },
@@ -1187,9 +1185,6 @@ ka.Window = new Class({
 
                     ka.wm.hideContents();
                 }
-                window.fireEvent('click');
-
-
             }.bind(this),
             onComplete: function () {
 

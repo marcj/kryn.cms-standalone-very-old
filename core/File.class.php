@@ -78,6 +78,7 @@ class File {
      * Also removes '..' and replaces '//' => '/'
      *
      * This is needed because the file layer gets the relative path under his own root.
+     * Forces a / at the beginning, removes the trailing / if exists.
      *
      * @param  string $pPath
      * @return string
@@ -90,8 +91,8 @@ class File {
         $pPath = str_replace('..', '', $pPath);
         $pPath = str_replace('//', '/', $pPath);
 
-        if (substr($pPath, 0, 1) == '/')
-            $pPath = substr($pPath, 1);
+        if (substr($pPath, 0, 1) != '/')
+            $pPath = '/'.$pPath;
 
         if (substr($pPath, -1) == '/')
             $pPath = substr($pPath, 0, -1);
@@ -239,16 +240,20 @@ class File {
 
         $fs = static::getLayer($pPath);
         $path = static::normalizePath($pPath);
+
         $file = $fs->getFile($path);
         if (!$file) return null;
 
-        $item = dbTableFetch('system_file', array('path' => $path), 'id');
+        $item = \FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
         if (!$item){
             //insert
-            dbInsert('system_file', array('path' => $path, 'hash' => $fs->getMd5($path)));
-            $id = dbLastId('id');
+            $item = new \File();
+            $item->setPath($pPath);
+            $item->setHash($fs->getMd5($path));
+            $item->save();
+            $id = $item->getId();
         } else {
-            $id = $item['id'];
+            $id = $item->getId();
         }
 
         $file['id'] = $id+0;
@@ -339,7 +344,7 @@ class File {
 
         foreach($items as &$file){
 
-            //todo, create new option 'show hidden files' in user settings and depend in that
+            //todo, create new option 'show hidden files' in user settings and depend on that
             //we'll show files with a dot at the beginning.
 
             //$file['object_id'] = Object
@@ -349,7 +354,7 @@ class File {
             } else {
                 $file['id'] = $path2id[$file['path']];
             }
-            //$file['writeaccess'] = krynAcl::checkUpdate('file', $file['path']);
+            $file['writeaccess'] = \Core\Acl::checkUpdate('file', $file['path']);
         }
 
         return $items;

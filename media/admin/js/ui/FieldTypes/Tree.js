@@ -62,8 +62,12 @@ ka.FieldTypes.Tree = new Class({
 
         var clazz = ka.ObjectTree;
         if (this.definition.treeInterface != 'default'){
-            if (!(clazz = ka.getClass(this.definition.treeInterfaceClass))){
-                throw 'Class does not exist '+this.definition.treeInterfaceClass;
+            if (!this.definition.treeInterfaceClass){
+                throw 'TreeInterface class in "treeInterfaceClass" is not defined.'
+            } else {
+                if (!(clazz = ka.getClass(this.definition.treeInterfaceClass))){
+                    throw 'Class does not exist '+this.definition.treeInterfaceClass;
+                }
             }
         }
 

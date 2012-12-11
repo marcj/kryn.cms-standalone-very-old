@@ -681,7 +681,8 @@ var admin_system_module_edit = new Class({
                     },
                     'class': {
                         label: t('PHP Class'),
-                        desc: t('Scheme: module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
+                        desc: t('Example: \Module\Admin\ObjectList'),
+                        modifier: 'phpclass',
                         needValue: ['list', 'edit', 'add', 'combine', 'store']
                     },
                     functionType: {
@@ -948,10 +949,10 @@ var admin_system_module_edit = new Class({
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
-            title: _('Add children'),
+            title: t('Add children'),
             html: '&#xe109;'
         })
-        .addEvent('click', this.entryPointsAdd.bind(this, 'phpControllerClass', {}, tr))
+        .addEvent('click', this.entryPointsAdd.bind(this, '', {}, tr))
         .inject(tdActions);
 
         new Element('a', {
@@ -2144,16 +2145,6 @@ var admin_system_module_edit = new Class({
                                 label: t('Class name'),
                                 desc: t('Class that extends from \\Core\\ORM\\ORMAbstract.')
                             },
-                            'propelClass': {
-                                needValue: 'propel',
-                                label: t('Custom propel class'),
-                                desc: t('Class that extends from \\Core\\ORM\\Propel or \\Core\\ORM\\ORMAbstract.')
-                            },
-                            'propelClassName': {
-                                needValue: 'propel',
-                                label: t("Propel's model class name"),
-                                desc: t('Generates the classes &lt;name&gt;, &lt;name&gt;Query, &lt;name&gt;Peer. Default is the object key.')
-                            },
                             table: {
                                 needValue: 'propel',
                                 label: t('Table name'),
@@ -2177,13 +2168,25 @@ var admin_system_module_edit = new Class({
                                 desc: t('You may enter here some field names comma separated. (e.g. if you have a own label template which needs it). Empty for full selection.'),
                                 type: 'text'
                             },
+
                             blacklistSelection: {
                                 label: t('Blacklist selection'),
                                 desc: t('Enter fields which are not selectable through the ORM (and therefore also for the REST API). Comma separated.')
                             },
+
                             limitDataSets: {
                                 label: t('Limit data sets'),
                                 type: 'condition'
+                            },
+                            'propelClass': {
+                                needValue: 'propel',
+                                label: t('Custom propel class (Optional)'),
+                                desc: t('Class that extends from \\Core\\ORM\\Propel or \\Core\\ORM\\ORMAbstract.')
+                            },
+                            'propelClassName': {
+                                needValue: 'propel',
+                                label: t("Propel's model class name (Optional)"),
+                                desc: t('Generates the classes &lt;name&gt;, &lt;name&gt;Query, &lt;name&gt;Peer. Default is the object key.')
                             },
                             nested: {
                                 label: t('Nested Set Model'),

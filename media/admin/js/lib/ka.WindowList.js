@@ -80,41 +80,37 @@ ka.WindowList = new Class({
 
     click: function (pColumn) {
 
-        if (!this.columns || !this.columns[pColumn]) return;
+        if (this.columns && this.columns[pColumn]){
 
-        pItem = this.columns[pColumn];
+            pItem = this.columns[pColumn];
 
-        var sort = this.getSortField();
-
-        if (!this.sortDirection) {
-            this.sortDirection = 'ASC';
-        }
-
-        if (this.sortField != pColumn) {
-            this.sortField = pColumn;
-            this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'ASC' : 'DESC';
-        } else {
-            if (this.sortDirection == 'ASC') {
-                this.sortDirection = 'DESC';
-            } else {
+            if (!this.sortDirection) {
                 this.sortDirection = 'ASC';
             }
+
+            if (this.sortField != pColumn) {
+                this.sortField = pColumn;
+                this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'asc' : 'desc';
+            } else {
+                this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'desc' : 'asc';
+            }
+
+            pItem.getParent().getElements('img').each(function (item) {
+                item.destroy();
+            });
+
+            if (this.sortDirection == 'ASC') {
+                pic = 'bullet_arrow_up.png';
+            } else {
+                pic = 'bullet_arrow_down.png';
+            }
+
+            new Element('img', {
+                src: _path + PATH_MEDIA + '/admin/images/icons/' + pic,
+                align: 'top'
+            }).inject(pItem);
         }
 
-        pItem.getParent().getElements('img').each(function (item) {
-            item.destroy();
-        });
-
-        if (this.sortDirection == 'ASC') {
-            pic = 'bullet_arrow_up.png';
-        } else {
-            pic = 'bullet_arrow_down.png';
-        }
-
-        new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/icons/' + pic,
-            align: 'top'
-        }).inject(pItem);
         this.loadPage(this.currentPage);
     },
 
@@ -148,7 +144,6 @@ ka.WindowList = new Class({
 
     render: function (pValues) {
         this.classProperties = pValues;
-        logger(this.classProperties);
 
         var sort = this.getSortField();
         this.sortField = sort.field;
@@ -170,11 +165,13 @@ ka.WindowList = new Class({
 
     renderFinished: function () {
 
+        //logger('renderFinished: '+this.options.noInitLoad+'/'+this.loadAlreadyTriggeredBySearch);
         if (this.options.noInitLoad == true) return;
 
         if (!this.loadAlreadyTriggeredBySearch) {
             if (this.columns) {
                 var sort = this.getSortField();
+                //logger('sort: '+sort.field);
                 this.click(sort.field);
             } else {
                 this.loadPage(1);
@@ -209,7 +206,6 @@ ka.WindowList = new Class({
 
     renderLayout: function () {
         /* head */
-        var _this = this;
 
         this.head = new Element('div', {
             'class': 'ka-list-head'
@@ -219,7 +215,9 @@ ka.WindowList = new Class({
             cellspacing: 0
         }).inject(this.head);
 
-        this.headTableTHead = new Element('thead').inject(this.headTable);
+        this.headTableTHead = new Element('thead', {
+            'class': 'ka-Table-head'
+        }).inject(this.headTable);
         var tr = new Element('tr').inject(this.headTableTHead);
 
         /*** checkbox-Th ***/
@@ -230,29 +228,33 @@ ka.WindowList = new Class({
             new Element('input', {
                 value: 1,
                 type: 'checkbox'
-            }).addEvent('click',
-                function () {
-                    var checked = this.checked;
-                    _this.checkboxes.each(function (checkbox) {
-                        checkbox.checked = checked;
-                    });
-                }).inject(th)
+            }).addEvent('click',function () {
+                var checked = this.checked;
+                this.checkboxes.each(function (checkbox) {
+                    checkbox.checked = checked;
+                });
+            }.bind(this)).inject(th)
         }
 
         /*** title-Th ***/
         this.columns = {};
-        Object.each(this.classProperties.fields, function (column, columnId) {
-            _this.columns[columnId] = new Element('th', {
-                valign: 'top',
-                html: _(column.label)
+        if (!this.classProperties.columns || this.classProperties.columns.length == 0){
+            this.win.alert(t('This class does not contain any columns.'), function(){
+                this.win.close();
+            }.bind(this));
+            throw 'Class does not contain column.';
+        }
+        Object.each(this.classProperties.columns, function (column, columnId) {
+            this.columns[columnId] = new Element('th', {
+                html: t(column.label)
             }).addEvent('click',
                 function () {
-                    _this.click(columnId);
+                    this.click(columnId);
                 }).inject(tr);
             if (column.width > 0) {
-                _this.columns[columnId].setStyle('width', column.width + 'px');
+                this.columns[columnId].setStyle('width', column.width + 'px');
             }
-        });
+        }.bind(this));
 
         /*** edit-Th ***/
         //fixed mirco
@@ -272,7 +274,9 @@ ka.WindowList = new Class({
         this.table = new Element('table', {
             cellspacing: 0
         }).inject(this.main);
-        this.tbody = new Element('tbody').inject(this.table);
+        this.tbody = new Element('tbody', {
+            'class': 'ka-Table-body'
+        }).inject(this.table);
 
         /* bottom */
 
@@ -307,7 +311,7 @@ ka.WindowList = new Class({
                 var field = this.classProperties.filterFields[ mkey ];
 
 
-                var title = this.classProperties.fields[mkey].label;
+                var title = this.classProperties.columns[mkey].label;
                 field.label = _(title);
                 field.small = true;
 
@@ -434,7 +438,7 @@ ka.WindowList = new Class({
             src: myPath + 'control_end.png'
         }).addEvent('click',
             function () {
-                _this.loadPage(_this._lastItems.maxPages);
+                _this.loadPage(_this.lastResult.maxPages);
             }).inject(this.navi);
 
         if (this.classProperties.multiLanguage) {
@@ -456,7 +460,11 @@ ka.WindowList = new Class({
 
                 this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.classProperties.addIcon), function () {
 
-                    ka.entrypoint.open(_this.classProperties.addEntrypoint || _this.win.module+'/'+_this.win.code + '/add', {
+                    var entryPoint = _this.win.module+'/'+_this.win.code + '/add';
+                    if (_this.classProperties.addEntrypoint && _this.classProperties.addEntrypoint != 'add')
+                        entryPoint = _this.classProperties.addEntrypoint;
+
+                    ka.entrypoint.open(entryPoint, {
                         lang: (_this.languageSelect) ? _this.languageSelect.value : false
                     }, this);
 
@@ -466,6 +474,7 @@ ka.WindowList = new Class({
 
 
         //custom window / function field
+        //TODO, replace this with a more elegant solution.
         try {
             if (this.classProperties.custom) {
                 iconCustom = PATH_MEDIA+'admin/images/icons/brick_go.png';
@@ -561,6 +570,7 @@ ka.WindowList = new Class({
     },
 
     exportTable: function () {
+        //TODO, order ..
         var params = new Hash({
             module: this.win.module,
             code: this.win.code,
@@ -608,7 +618,7 @@ ka.WindowList = new Class({
 
     addDummy: function () {
         var tr = new Element('tr').inject(this.tbody);
-        var count = this.dummyCount + Object.getLength(this.classProperties.fields);
+        var count = this.dummyCount + Object.getLength(this.classProperties.columns);
         new Element('td', {
             colspan: count,
             styles: {
@@ -625,10 +635,9 @@ ka.WindowList = new Class({
     },
 
     loadPage: function (pPage) {
-        var _this = this;
 
-        if (this._lastItems && pPage != 1) {
-            if (pPage > this._lastItems.maxPages) {
+        if (this.lastResult && pPage != 1) {
+            if (pPage > this.lastResult.maxPages) {
                 return;
             }
         }
@@ -649,6 +658,7 @@ ka.WindowList = new Class({
 
         var params = {};
 
+        /*
         if (this.options.relation_table && this.classProperties.relation) {
             var relationFields = this.classProperties.relation.fields;
 
@@ -662,8 +672,10 @@ ka.WindowList = new Class({
         }
 
         this.relation_params_filtered = params;
+        */
 
         var req = {};
+        this.ctrlPage.value = pPage;
 
         req.page = pPage;
         req.lang = (this.languageSelect) ? this.languageSelect.value : false;
@@ -678,13 +690,15 @@ ka.WindowList = new Class({
             });
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
-            //todo, handle errors
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
+        noCache: true,
+        onComplete: function (res) {
+            this.currentPage = pPage;
             this.renderItems(res.data);
         }.bind(this)}).get(req);
     },
 
-    renderItems: function (pItems) {
+    renderItems: function (pResult) {
         var _this = this;
 
         this.checkboxes = [];
@@ -693,33 +707,47 @@ ka.WindowList = new Class({
             this.loader.hide();
         }
 
-        if (!pItems){
-            pItems = {page: 0, maxPages:0};
+        if (!pResult){
+            pResult = {page: 0, maxPages:0};
         }
 
-        this._lastItems = pItems;
+        this.lastResult = pResult;
 
         [this.ctrlFirst, this.ctrlPrevious, this.ctrlNext, this.ctrlLast].each(function (item) {
             item.setStyle('opacity', 1);
         });
 
-        _this.ctrlPage.value = pItems.page;
-        this.currentPage = pItems.page;
-        if (pItems.page <= 1) {
+        if (this.lastNoItemsDiv)
+            this.lastNoItemsDiv.destroy();
+
+        if (pResult.maxItems == 0){
+            this.ctrlPage.value = 0;
+            this.lastNoItemsDiv = new Element('div', {
+                style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: #eee',
+                styles: {
+                    opacity: 0.6,
+                    textAlign: 'center',
+                    padding: 25
+                },
+                text: t('No entries, yet.')
+            }).inject(this.main);
+        }
+
+        if (pResult.page <= 1) {
             this.ctrlFirst.setStyle('opacity', 0.2);
             this.ctrlPrevious.setStyle('opacity', 0.2);
         }
 
-        if (pItems.page >= pItems.maxPages) {
+        if (pResult.page >= pResult.maxPages) {
             this.ctrlNext.setStyle('opacity', 0.2);
             this.ctrlLast.setStyle('opacity', 0.2);
         }
 
-        this.ctrlMax.set('text', '/ ' + pItems.maxPages);
+        this.ctrlMax.set('text', '/ ' + pResult.maxPages);
 
         _this.tempcount = 0;
-        if (pItems.items) {
-            Object.each(pItems.items, function (item) {
+        if (pResult.items) {
+            Object.each(pResult.items, function (item) {
                 _this.addItem(item);
                 _this.tempcount++;
             });
@@ -769,10 +797,9 @@ ka.WindowList = new Class({
             }
         }
 
-        Object.each(this.classProperties.fields, function (column, columnId) {
+        Object.each(this.classProperties.columns, function (column, columnId) {
 
-
-            var value = ka.getListLabel(pItem, column, columnId);
+            var value = ka.getObjectFieldLabel(pItem.values, column, columnId, this.options.object);
 
             var td = new Element('td', {
                 html: value
@@ -783,16 +810,16 @@ ka.WindowList = new Class({
             }).addEvent('dblclick', function (e) {
 
                 if (_this.classProperties.edit){
-                    if (_this.classProperties.editCode) {
-                        //compatibility
-                        ka.entrypoint.open(_this.classProperties.editCode, {
-                            item: pItem.values
-                        }, this);
-                    } else {
-                        ka.entrypoint.open(_this.classProperties.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
-                            item: pItem.values
-                        }, this);
-                    }
+
+                    var entryPoint = _this.win.module+'/'+_this.win.code + '/edit';
+
+                    if (_this.classProperties.editCode && _this.classProperties.editCode != 'edit')
+                        entryPoint = _this.classProperties.editCode;
+
+                    ka.entrypoint.open(entryPoint, {
+                        item: pItem.values
+                    }, this);
+
                 }
 
             }).inject(tr);
@@ -800,7 +827,7 @@ ka.WindowList = new Class({
             if (column.width > 0) {
                 td.setStyle('width', column.width + 'px');
             }
-        });
+        }.bind(this));
 
         if (this.classProperties.remove == true || this.classProperties.edit == true || this.classProperties.itemActions) {
             var icon = new Element('td', {
@@ -883,20 +910,12 @@ ka.WindowList = new Class({
 
                 editIcon.addEvent('click', function () {
 
-                    if (_this.classProperties.editEntrypoint){
-                        ka.wm.open(_this.classProperties.editEntrypoint, pItem);
-                    } else {
+                    var entryPoint = _this.win.module+'/'+_this.win.code + '/edit';
 
-                        if (_this.classProperties.editCode) {
-                            //compatibility
-                            ka.wm.open(_this.classProperties.editCode, {item: pItem.values}, this);
-                        } else {
-                            ka.entrypoint.open(_this.classProperties.editEntrypoint || _this.win.module+'/'+_this.win.code + '/edit', {
-                                item: pItem.values
-                            }, this);
-                        }
+                    if (_this.classProperties.editEntrypoint && _this.classProperties.editEntrypoint != 'edit')
+                        entryPoint = _this.classProperties.editEntrypoint;
 
-                    }
+                    ka.entrypoint.open(entryPoint, {item: pItem.values}, this);
 
                 }).inject(icon);
             }
