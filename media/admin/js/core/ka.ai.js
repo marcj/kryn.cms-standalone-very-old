@@ -634,6 +634,8 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
  */
 ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
 
+    if (!pField) return pValue[pFieldId] || '';
+
     var value = pValue[pFieldId] || '';
 
     var field = pField;

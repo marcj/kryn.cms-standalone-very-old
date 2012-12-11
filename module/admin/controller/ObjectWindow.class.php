@@ -299,31 +299,29 @@ abstract class ObjectWindow {
             $this->primary = explode(',', str_replace(' ', '', $this->primary));
         }
 
-        if (!$this->orderBy && count($this->order) == 0){
-            foreach ($this->fields as $colId => $col){
-                $this->orderBy = $colId;
-                break;
+        if (getArgv('order'))
+            $this->setOrder(getArgv('order'));
+
+        if (!$this->order || count($this->order) == 0){
+
+            /* compatibility */
+            $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'asc' : 'desc';
+            if ($this->orderBy)
+                $this->order = array($this->orderBy => $this->orderByDirection);
+
+        }
+
+        if (!$this->order || count($this->order) == 0){
+            $this->order[key($this->columns)] = 'asc';
+        }
+
+        //normalize order array
+        if (count($this->order) > 0 && is_numeric(key($this->order))){
+            $newOrder = array();
+            foreach ($this->order as $order){
+                $newOrder[$order['field']] = $order['direction'];
             }
-        }
-
-        $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'asc' : 'desc';
-
-        if (getArgv('orderBy') != '')
-            $this->customOrderBy = getArgv('orderBy', 2);
-
-        if (getArgv('orderByDirection') != '')
-            $this->customOrderByDirection = (strtolower(getArgv('orderByDirection')) == 'asc') ? 'asc' : 'desc';
-
-        if (!$this->order && $this->orderBy){
-            $this->order = array($this->orderBy => $this->orderByDirection);
-        }
-
-        if ($this->customOrderBy){
-            $this->order = array($this->customOrderBy => $this->customOrderByDirection);
-        }
-
-        if (getArgv('order')){
-            $this->order = getArgv('order');
+            $this->order = $newOrder;
         }
 
         $this->filterFields = array();
@@ -549,6 +547,8 @@ abstract class ObjectWindow {
 
         if ($customCondition = $this->getCustomListingCondition())
             $condition = $condition + $condition;
+
+        $options['order'] = $this->getOrder();
 
         $options['fields'] = array_keys($this->getColumns());
 

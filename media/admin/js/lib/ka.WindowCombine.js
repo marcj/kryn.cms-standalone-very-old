@@ -412,6 +412,9 @@ ka.WindowCombine = new Class({
             this.loader.show();
         }
 
+        this.order = {};
+        this.order[this.sortField] = this.sortDirection;
+
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode,
 
             noCache: true, onComplete: function (response) {
@@ -488,11 +491,10 @@ ka.WindowCombine = new Class({
         }.bind(this)}).get({
             offset: pFrom,
             limit: pMax,
-            order: this.sortField,
+            order: this.order,
             filter: this.searchEnable,
             language: (this.languageSelect) ? this.languageSelect.value : false,
             filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-            orderByDirection: this.sortDirection,
             params: JSON.encode(this.win.params)
         });
     },
@@ -747,7 +749,7 @@ ka.WindowCombine = new Class({
 
         if (!this.classProperties.columns[this.sortField]['type'] || this.classProperties.columns[this.sortField].type == "text") {
 
-            return '<b>' + value.substr(0, 1).toUpperCase() + '</b>';
+            return '<b>' + ((typeOf(value) == 'string') ? value.substr(0, 1).toUpperCase() : value) + '</b>';
 
         } else {
 
