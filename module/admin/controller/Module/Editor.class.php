@@ -74,7 +74,7 @@ class Editor {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
-        if ($config['noConfig'])
+        if (!$config)
             throw new \ModuleNotFoundException(tf('Module %s not found.', $pName));
 
         return $config['plugins'];
