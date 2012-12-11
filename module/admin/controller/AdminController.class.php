@@ -79,10 +79,9 @@ class AdminController {
             //todo
         }
 
+        if (Kryn::isActiveModule(getArgv(2)) && getArgv(2) != 'admin'){
 
-        if (Kryn::$modules[getArgv(2)] && getArgv(2) != 'admin'){
-
-            $clazz = '\\'.getArgv(2).'\\AdminController';
+            $clazz = '\\'.ucfirst(getArgv(2)).'\\AdminController';
 
             if (get_parent_class($clazz) == 'RestService\Server'){
                 $obj = new $clazz('admin/'.getArgv(2));
