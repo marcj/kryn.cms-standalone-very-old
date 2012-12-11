@@ -50,7 +50,6 @@ abstract class ClientAbstract {
      *   loginTrigger = auth-login
      *   logoutTrigger = auth-logout
      *   noDelay = false
-     *   refreshing = false
      *   ipCheck = false
      *   garbageCollector = false
      *   store = array(
@@ -117,7 +116,7 @@ abstract class ClientAbstract {
                 }
             }
 
-            if ($this->refreshing)
+            if ($this->getSession()->getTime()+5 < time()) //do only all 5 seconds an session update
                 $this->updateSession();
 
         }
@@ -442,7 +441,7 @@ abstract class ClientAbstract {
             }
         } else {
             $session->setIsStoredInDatabase(false);
-            if (!$this->cache->set(cacheKey, $session, $expired)){
+            if (!$this->cache->set(cacheKey, $session, $this->config['timeout'])){
                 Utils::appRelease('ClientCreateSession');
                 return false;
             }
@@ -652,7 +651,7 @@ abstract class ClientAbstract {
 
     /**
      * @param string $logoutTrigger
-     * @return Kryn\Auth $this
+     * @return \Core\Client\ClientAbstract $this
      */
     public function setLogoutTrigger($logoutTrigger){
         $this->config['logoutTrigger'] = $logoutTrigger;
