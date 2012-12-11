@@ -871,7 +871,14 @@ function step2(){
             $anyThingOk = false;
             print '<div style="color: red">mbstring required.</div>';
         } else {
-            print '<div style="color: green">OK</div>';
+            print '<div style="color: green">mbstring OK</div>';
+        }
+
+        if(!extension_loaded('gd')){
+            $anyThingOk = false;
+            print '<div style="color: red">libgd required.</div>';
+        } else {
+            print '<div style="color: green">libgd OK</div>';
         }
 
         ?>
