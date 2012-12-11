@@ -41,9 +41,6 @@ if (Core\Kryn::$admin) {
 
 }
 
-//register the shutdown function
-register_shutdown_function('kryn_shutdown');
-
 if (Core\Kryn::$admin) {
 
     /*
