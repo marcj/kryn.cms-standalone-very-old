@@ -301,11 +301,12 @@ class Propel extends ORMAbstract {
 
         if (is_array($pOptions['order'])){
             foreach ($pOptions['order'] as $field => $direction){
-                if ($column = $this->tableMap->getColumn($field)){
-                    if (!$column[0])
-                        throw new \FieldNotFoundException(tf('Field %s in object %s not found', $field, $this->objectKey));
+                if (!$this->tableMap->hasColumn($field))
+                    throw new \FieldNotFoundException(tf('Field %s in object %s not found', $field, $this->objectKey));
+                else {
+                    $column = $this->tableMap->getColumn($field);
                     
-                    $pQuery->orderBy($column[1], $direction);
+                    $pQuery->orderBy($column->getName(), $direction);
                 }
             }
         }
