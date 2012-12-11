@@ -46,8 +46,8 @@ include('lib/propel/runtime/lib/Propel.php');
 if ($cfg['displayErrors']){
     set_error_handler("coreUtilsErrorHandler", E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
     set_exception_handler("coreUtilsExceptionHandler");
-    register_shutdown_function('coreUtilsShutdownHandler');
 }
+register_shutdown_function('coreUtilsShutdownHandler');
 
 Kryn::$config = $cfg;
 Kryn::setBaseUrl(str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
