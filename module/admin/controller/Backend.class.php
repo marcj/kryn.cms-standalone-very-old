@@ -7,15 +7,19 @@ use \Core\Kryn;
 
 class Backend {
 
+    public function clearCache(){
+        \Admin\Utils::clearCache();
+        return true;
+    }
 
-    public static function getDesktop() {
+    public function getDesktop() {
 
         if ($desktop = Kryn::$adminClient->getUser()->getDesktop())
             return $desktop->toArray();
         else return false;
     }
 
-    public static function saveDesktop($pIcons) {
+    public function saveDesktop($pIcons) {
 
         $properties = new \Core\Properties($pIcons);
         Kryn::$adminClient->getUser()->setDesktop($properties);
@@ -24,7 +28,7 @@ class Backend {
         return true;
     }
 
-    public static function getWidgets() {
+    public function getWidgets() {
 
         if ($widgets = Kryn::$adminClient->getUser()->getWidgets())
             return $widgets->toArray();
@@ -32,7 +36,7 @@ class Backend {
 
     }
 
-    public static function saveWidgets($pWidgets) {
+    public function saveWidgets($pWidgets) {
 
         $properties = new \Core\Properties($pWidgets);
         Kryn::$adminClient->getUser()->setWidgets($properties);
@@ -42,7 +46,7 @@ class Backend {
     }
 
 
-    public static function saveUserSettings($pSettings) {
+    public function saveUserSettings($pSettings) {
 
         $properties = new \Core\Properties($pSettings);
 

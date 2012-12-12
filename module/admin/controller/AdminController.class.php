@@ -129,6 +129,8 @@ class AdminController {
                     ->addGetRoute('custom-js', 'getCustomJs')
                     ->addPostRoute('user-settings', 'saveUserSettings')
 
+                    ->addDeleteRoute('cache', 'clearCache')
+
 
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object\Controller')
